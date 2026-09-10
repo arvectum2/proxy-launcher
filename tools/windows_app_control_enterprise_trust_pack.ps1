@@ -15,6 +15,8 @@
     Script enforcement remains enabled. Exact release maintenance scripts are included
     by hash so PowerShell can run those trusted files in FullLanguage while unrelated
     scripts and interactive PowerShell remain constrained by the customer base policy.
+    Trusted child .ps1 files are invoked with the PowerShell call operator so Windows
+    PowerShell 5.1 does not dot-source them through its -File command-line semantics.
 
     The target organization's existing App Control base policy must permit supplemental
     policies. Deployment remains an explicit customer-IT action.
@@ -69,7 +71,8 @@ function Invoke-ReleaseVerifier([string]$Verifier, [string]$Directory) {
     $oldEap = $ErrorActionPreference
     try {
         $ErrorActionPreference = 'Continue'
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Verifier -ReleaseDirectory $Directory -ExpectedSignerThumbprint $ExpectedSignerThumbprint | Out-Host
+        $global:LASTEXITCODE = 0
+        & $Verifier -ReleaseDirectory $Directory -ExpectedSignerThumbprint $ExpectedSignerThumbprint | Out-Host
         $exitCode = $LASTEXITCODE
     }
     finally {
@@ -99,28 +102,29 @@ function Invoke-RuntimeMaterialValidator(
     [string]$RuntimeEvidencePath,
     [string]$ExpectedSetupSha256
 ) {
-    $output = @(
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator `
-            -RuntimePath $RuntimePath `
-            -RuntimeEvidencePath $RuntimeEvidencePath `
-            -ExpectedSetupSha256 $ExpectedSetupSha256 `
-            -AsJson
-    )
-    $exitCode = $LASTEXITCODE
-    if ($exitCode -ne 0) {
-        throw "Inno runtime validation process failed with exit code $exitCode."
+    try {
+        $output = @(
+            & $Validator `
+                -RuntimePath $RuntimePath `
+                -RuntimeEvidencePath $RuntimeEvidencePath `
+                -ExpectedSetupSha256 $ExpectedSetupSha256 `
+                -AsJson
+        )
+    }
+    catch {
+        throw "Inno runtime validation command failed: $($_.Exception.Message)"
     }
 
     $json = ($output | Out-String).Trim()
     if (-not $json) {
-        throw 'Inno runtime validation process returned no JSON evidence.'
+        throw 'Inno runtime validation command returned no JSON evidence.'
     }
 
     try {
         return ($json | ConvertFrom-Json)
     }
     catch {
-        throw "Inno runtime validation process returned invalid JSON: $($_.Exception.Message)"
+        throw "Inno runtime validation command returned invalid JSON: $($_.Exception.Message)"
     }
 }
 
@@ -316,7 +320,7 @@ try {
             evidence_workflow_run = $runtime.evidence_workflow_run
             behavioral_workflow_run = $runtime.behavioral_workflow_run
             historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256
-            behavioral_anchor_workflow_run = $runtime.behavioral_anchor_workflow_run
+            behavioral_anchor_workflow_run = $runtime.behavioral_workflow_run
             behavioral_anchor_setup_sha256 = $runtime.behavioral_anchor_setup_sha256
             static_to_behavioral_anchor = $runtime.static_to_behavioral_anchor
             hash_policy_integrated = $true
