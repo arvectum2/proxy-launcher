@@ -6,8 +6,12 @@ import unittest
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-OLD_REPOSITORY_SLUG = "arutyunoveth" + "/proxy-launcher"
-CANONICAL_REPOSITORY_SLUG = "arvectum/proxy-launcher"
+RETIRED_REPOSITORY_SLUGS = (
+    "arutyunoveth/proxy-launcher",
+    "arvectum/proxy-launcher",
+    "arvectum1/proxy-launcher",
+)
+CANONICAL_REPOSITORY_SLUG = "arvectum2/proxy-launcher"
 HISTORICAL_REFERENCE_PREFIXES = (
     "docs/evidence/",
     "release/baselines/",
@@ -40,7 +44,7 @@ class RepositoryHygieneTests(unittest.TestCase):
             self.fail(repr(violations))
 
     def test_current_tree_uses_canonical_repository_identity(self):
-        violations = []
+        violations = {}
         for relative in _tracked_files():
             if relative == ".mailmap" or relative.startswith(HISTORICAL_REFERENCE_PREFIXES):
                 continue
@@ -49,8 +53,9 @@ class RepositoryHygieneTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
-            if OLD_REPOSITORY_SLUG in text:
-                violations.append(relative)
+            matched = [slug for slug in RETIRED_REPOSITORY_SLUGS if slug in text]
+            if matched:
+                violations[relative] = matched
         if violations:
             self.fail(repr(violations))
 
