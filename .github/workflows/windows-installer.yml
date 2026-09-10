@@ -79,6 +79,29 @@ jobs:
             tests.test_windows_app_control_clm_harness_trust `
             -v
 
+      - name: Validate script-only App Control hash policy authoring
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:RUNNER_TEMP 'apl-win-014-script-policy-smoke'
+          $scan = Join-Path $root 'scan'
+          $xml = Join-Path $root 'policy.xml'
+          $cip = Join-Path $root 'policy.cip'
+          New-Item -ItemType Directory -Path $scan -Force | Out-Null
+          Set-Content -LiteralPath (Join-Path $scan 'harness-one.ps1') -Encoding ASCII -Value "Write-Output 'one'"
+          Set-Content -LiteralPath (Join-Path $scan 'harness-two.ps1') -Encoding ASCII -Value "Write-Output 'two'"
+          New-CIPolicy -MultiplePolicyFormat -ScanPath $scan -UserPEs -NoShadowCopy -FilePath $xml -Level Hash | Out-Null
+          Set-CIPolicyIdInfo -FilePath $xml -ResetPolicyID -PolicyName 'APL-WIN-014 CI Script Trust Smoke' -SupplementsBasePolicyID 'dc1c604c-46ea-40b7-9f47-cf582b225d5e' | Out-Null
+          Set-CIPolicyVersion -FilePath $xml -Version '0.0.14.1'
+          ConvertFrom-CIPolicy -XmlFilePath $xml -BinaryFilePath $cip
+          if (-not (Test-Path -LiteralPath $cip -PathType Leaf)) { throw 'Script-only ConfigCI smoke did not create a CIP.' }
+          $lines = @(Get-Content -LiteralPath $xml -Encoding UTF8)
+          foreach ($name in @('harness-one.ps1','harness-two.ps1')) {
+            if (@($lines | Where-Object { $_ -like "*$name*" }).Count -eq 0) { throw "No App Control script rule was generated for $name" }
+          }
+          if (@($lines | Where-Object { $_ -match '<SigningScenario\b[^>]*\bValue="12"' }).Count -eq 0) { throw 'Script-only policy has no UMCI SigningScenario 12.' }
+          Write-Host 'Script-only exact-hash App Control policy authoring: PASS'
+
       - name: Validate Inno Setup sovereignty contract
         shell: pwsh
         run: python -m unittest tests.test_windows_inno_setup_sovereignty
