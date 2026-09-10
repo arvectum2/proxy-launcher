@@ -44,7 +44,10 @@ The historical `v0.2.3` tag is immutable and must not be moved to the migrated/c
 - **DONE** — APL-IP-002 platform sovereignty audits.
 - **DONE** — APL-IP-003 canonical source refactor, Slices 1–23.
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
+- **[Web] DONE — post-APL-IP-004 review reconciliation** for immutable candidate `ef9846e151a2e4e7046169e0787603969018cc97`.
+- **CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING** — historical technical reconciliation remains valid evidence, but it is not legal approval and has been superseded for final candidate binding by the later post-#172 reconciliation.
 - **HUMAN/LEGAL PENDING** — R-1 author → ООО rights basis, R-2 actual Rospatent status, R-3 corporate/interested-transaction basis, factual confirmation and explicit final APL-IP-001 decision.
+- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only for the exact candidate authorized by the completed human/legal sign-off.
 - **RULE** — repository migration changes the canonical repository location, not the immutable candidate commit/tree or historical evidence. Any later material product/build/package change requires a new exact reconciliation before clean-IP approval.
 - **HOLD** — AppImage remains outside promoted commercial scope until its downstream/type-2-runtime obligations are separately cleared.
 
