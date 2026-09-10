@@ -6,6 +6,10 @@
       1. immutable historical 0.2.2 P0.4 -> exact sealed 0.2.3 upgrade;
       2. exact sealed 0.2.3 install/start/PAC/rollback/repair/uninstall lifecycle.
 
+    Before destructive acceptance begins, the wrapper also fails closed unless the
+    current ReferenceFullHash trust pack proves that the exact Inno Setup 6.7.1 child
+    runtime derived from the canonical production Setup is present as four hash rules.
+
     The wrapper is host-only acceptance tooling for a dedicated/isolated Windows 11
     physical acceptance host. It never deploys/removes App Control policy and never
     changes Smart App Control, Defender, or policy rule options.
@@ -35,7 +39,8 @@ if (-not $IsolatedAcceptanceEnvironment) {
 
 $canonical = Join-Path $PSScriptRoot 'windows_app_control_enforced_acceptance.ps1'
 $helper = Join-Path $PSScriptRoot 'windows_app_control_preverified_release.ps1'
-foreach ($required in @($canonical,$helper)) {
+$runtimeTrustVerifier = Join-Path $PSScriptRoot 'windows_app_control_verify_runtime_trust_pack.ps1'
+foreach ($required in @($canonical,$helper,$runtimeTrustVerifier)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "Required canonical acceptance script is missing: $required"
     }
@@ -43,21 +48,27 @@ foreach ($required in @($canonical,$helper)) {
 
 New-Item -ItemType Directory -Path $EvidenceDirectory -Force | Out-Null
 $final = [ordered]@{
-    schema = 'arvectum.proxy.apl-win-014-final-local-gate.v3'
+    schema = 'arvectum.proxy.apl-win-014-final-local-gate.v4'
     task = 'APL-WIN-014'
     host = $env:COMPUTERNAME
     base_policy_id = $BasePolicyId.ToString('B')
     baseline_kind = 'LegacyClientZip'
     baseline_version = '0.2.2'
     current_version = '0.2.3'
+    inno_runtime_sha256 = 'b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8'
     started_utc = [DateTime]::UtcNow.ToString('o')
     result = 'BLOCK'
+    runtime_trust_gate = 'NOT_RUN'
     upgrade_gate = 'NOT_RUN'
     current_release_gate = 'NOT_RUN'
 }
 
 $gateError = $null
 try {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory
+    if ($LASTEXITCODE -ne 0) { throw 'Inno runtime trust-pack verification failed.' }
+    $final.runtime_trust_gate = 'PASS'
+
     $args = @{
         BasePolicyId = $BasePolicyId
         BaselineSupplementalPolicyId = $BaselineSupplementalPolicyId
@@ -104,6 +115,7 @@ if ($final.result -ne 'PASS') {
 }
 
 Write-Host 'APL-WIN-014 real App Control for Business local gate: PASS'
+Write-Host 'Inno Setup 6.7.1 child runtime exact-hash trust: PASS'
 Write-Host 'Cross-version upgrade: PASS'
 Write-Host 'Historical 0.2.2 P0.4 -> exact 0.2.3 cross-version upgrade: PASS'
 Write-Host 'Exact current 0.2.3 lifecycle: PASS'
