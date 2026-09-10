@@ -31,6 +31,20 @@ def test_prepare_is_bound_to_canonical_lab_base_and_exact_release_identities():
     assert "result = 'PREPARED'" in body
 
 
+def test_prepare_requires_clean_canonical_git_checkout_for_source_provenance():
+    body = text(PREPARE)
+    for expected in (
+        "git -C $RepositoryRoot rev-parse HEAD",
+        "git -C $RepositoryRoot remote get-url origin",
+        "arvectum2/proxy-launcher",
+        "git -C $RepositoryRoot status --porcelain=v1 --untracked-files=all",
+        "Repository working tree is dirty; final stand evidence requires an exact clean checkout.",
+        "source_remote = $sourceRemote",
+        "source_worktree_clean = $true",
+    ):
+        assert expected in body
+
+
 def test_prepare_orders_historical_recovery_before_both_trust_packs():
     body = text(PREPARE)
     recovery = body.index("windows_app_control_recover_0_2_2_baseline.ps1")
