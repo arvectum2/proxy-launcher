@@ -22,6 +22,15 @@ def test_stand_wrappers_are_ascii_safe_for_windows_powershell_51():
         assert all(byte < 128 for byte in path.read_bytes()), path
 
 
+def test_stand_entrypoints_require_powershell_51_and_administrator():
+    for path in (PREPARE, RUN):
+        body = text(path)
+        assert "#Requires -Version 5.1" in body
+        assert "#Requires -RunAsAdministrator" in body
+        assert body.index("#Requires -Version 5.1") < body.index("[CmdletBinding()]")
+        assert body.index("#Requires -RunAsAdministrator") < body.index("[CmdletBinding()]")
+
+
 def test_prepare_is_bound_to_canonical_lab_base_and_exact_release_identities():
     body = text(PREPARE)
     for expected in (BASE_POLICY_ID, SETUP_SHA256, APP_SHA256, RUNTIME_SHA256):
