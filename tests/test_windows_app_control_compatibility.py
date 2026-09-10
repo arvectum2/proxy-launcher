@@ -69,9 +69,12 @@ def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring(
     assert "windows_app_control_inno_runtime_material.ps1" in body
     assert "inno-setup-6.7.1-runtime-stub.exe" in body
     assert "hash_policy_integrated = $true" in body
+    assert "evidence_workflow_run = $runtime.evidence_workflow_run" in body
+    assert "behavioral_workflow_run = $runtime.behavioral_workflow_run" in body
+    assert "historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256" in body
     assert RUNTIME_SHA256 in helper
     assert PRODUCTION_SETUP_SHA256 not in helper  # exact production hash is passed by the canonical pack
-    assert "33669452947" in helper  # independent evidence workflow
+    assert "33669452947" in helper  # independent static evidence workflow
     assert "33666343748" in helper  # behavioral extraction workflow
     assert "is-6_7_1" in helper
     assert "cfdf48923178df4b4f040e038b423aa555a61ffc" in helper
@@ -85,6 +88,11 @@ def test_runtime_trust_verifier_separates_flat_identity_from_configci_authentico
     assert PRODUCTION_SETUP_SHA256 in body
     assert "runtime flat SHA256" in body
     assert "Authenticode/PE" in body
+    assert "$ExpectedEvidenceRun = 33669452947" in body
+    assert "$ExpectedBehavioralRun = 33666343748" in body
+    assert "evidence_workflow_run" in body
+    assert "behavioral_workflow_run" in body
+    assert "historical_anchor_setup_sha256" in body
     for variant in ("Sha1", "Sha256", "Page Sha1", "Page Sha256"):
         assert variant in body
     assert "expected exactly 4 runtime Authenticode/PE hash rules" in body
