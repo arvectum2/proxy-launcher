@@ -12,6 +12,8 @@
     or any policy option. Deployment of the two emitted .cip files is a separate explicit
     lab-owner action.
 #>
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
     [Guid]$BasePolicyId = 'dc1c604c-46ea-40b7-9f47-cf582b225d5e',
