@@ -15,7 +15,8 @@ if (-not (Test-Path -LiteralPath $CipPath -PathType Leaf)) { throw "CIP not foun
 if (-not (Test-Path -LiteralPath $AuthoringEvidencePath -PathType Leaf)) { throw "Authoring evidence not found: $AuthoringEvidencePath" }
 $authoring = Get-Content -LiteralPath $AuthoringEvidencePath -Raw | ConvertFrom-Json
 $seal = Get-Content -LiteralPath (Join-Path $scriptDir 'expected_hashes.json') -Raw | ConvertFrom-Json
-if ($authoring.schema -ne 'arvectum.proxy.apl-win-014-v10.6.4-bootstrap-authoring.v3') { throw 'Authoring evidence schema mismatch.' }
+$runtimeEvidence = Get-Content -LiteralPath (Join-Path $scriptDir 'derived-runtime\runtime-static-evidence.json') -Raw | ConvertFrom-Json
+if ($authoring.schema -ne 'arvectum.proxy.apl-win-014-v10.6.4-bootstrap-authoring.v4') { throw 'Authoring evidence schema mismatch.' }
 if ($authoring.candidate_source_commit -ne $seal.candidate_source_commit) { throw ('Authoring candidate_source_commit mismatch: expected {0} got {1}.' -f $seal.candidate_source_commit, $authoring.candidate_source_commit) }
 if ($authoring.candidate_artifact_id -ne $seal.candidate_artifact_id) { throw ('Authoring candidate_artifact_id mismatch: expected {0} got {1}.' -f $seal.candidate_artifact_id, $authoring.candidate_artifact_id) }
 if ((Convert-ClmPolicyGuidIdentity $authoring.base_policy_id) -ine (Convert-ClmPolicyGuidIdentity $basePolicyIdText)) { throw 'Authoring base_policy_id mismatch.' }
@@ -23,6 +24,12 @@ if ((Convert-ClmPolicyGuidIdentity $authoring.supplemental_policy_id) -ine (Conv
 if ($authoring.supplemental_policy_friendly_name -ne $friendlyName) { throw 'Authoring supplemental_policy_friendly_name mismatch.' }
 if ($authoring.supplemental_policy_version -ne '10.0.0.17') { throw 'Authoring supplemental_policy_version mismatch.' }
 if ($authoring.deployment -ne 'NOT PERFORMED') { throw 'Authoring evidence deployment state is not NOT PERFORMED.' }
+if (-not ($authoring.PSObject.Properties.Name -contains 'inno_runtime')) { throw 'Authoring evidence is missing Inno runtime integration.' }
+if ($authoring.inno_runtime.hash_policy_integrated -ne $true -or $authoring.inno_runtime.static_equals_behavioral -ne $true) { throw 'Authoring evidence does not prove runtime hash integration.' }
+if ($authoring.inno_runtime.filename -ne 'inno-setup-6.7.1-runtime-stub.exe') { throw 'Authoring runtime policy filename mismatch.' }
+if ($authoring.inno_runtime.size -ne $runtimeEvidence.derived_runtime_size -or $authoring.inno_runtime.sha256 -ine $runtimeEvidence.derived_runtime_sha256) { throw 'Authoring runtime identity mismatch.' }
+if ($authoring.inno_runtime.official_inno_tag -ne $runtimeEvidence.official_inno_tag -or $authoring.inno_runtime.official_inno_commit -ne $runtimeEvidence.official_inno_resolved_commit) { throw 'Authoring runtime source provenance mismatch.' }
+if ($authoring.inno_runtime.evidence_workflow_run -ne $runtimeEvidence.evidence_workflow_run_id -or $authoring.inno_runtime.evidence_workflow_attempt -ne $runtimeEvidence.evidence_workflow_run_attempt) { throw 'Authoring runtime evidence-run provenance mismatch.' }
 $expectedXmlFilename = $authoring.supplemental_policy_xml
 $expectedXmlSha256 = $authoring.supplemental_policy_xml_sha256
 $expectedCipFilename = $authoring.supplemental_policy_cip
@@ -49,4 +56,4 @@ $after = (& CiTool.exe -lp -json 2>$null | ConvertFrom-Json)
 $afterEvidence = Resolve-ClmPolicyEvidence -CiToolResult $after -ExpectedBasePolicyId $basePolicyIdText -ExpectedBaseFriendlyName 'Arvectum APL-WIN-014 Lab Base' -ExpectedBootstrapPolicyId $PolicyId -ExpectedBootstrapFriendlyName $friendlyName
 $deployed = @($afterEvidence.bootstrap)
 if ($deployed.Count -ne 1) { throw 'V10.6.4 Bootstrap was not uniquely active after deployment.' }
-Write-Host "DEPLOYMENT COMPLETE: $PolicyId"
+Write-Host "DEPLOYMENT COMPLETE: $PolicyId (runtime hash integrated)"
