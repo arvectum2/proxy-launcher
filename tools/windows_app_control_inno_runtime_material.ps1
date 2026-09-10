@@ -5,8 +5,23 @@
     The supplied extraction evidence must be produced from the exact canonical
     production Setup and the runtime bytes must equal the independently proven
     static/behavioral Inno 6.7.1 anchor.
+
+    The validation function remains available for trusted callers that intentionally
+    dot-source this file outside an App Control language-mode boundary. The canonical
+    APL-WIN-014 physical-stand path invokes this file as a separate PowerShell process
+    with -AsJson so App Control can evaluate this script independently and no command
+    definitions cross FullLanguage/ConstrainedLanguage scopes.
 #>
+[CmdletBinding()]
+param(
+    [string]$RuntimePath = '',
+    [string]$RuntimeEvidencePath = '',
+    [string]$ExpectedSetupSha256 = '',
+    [switch]$AsJson
+)
+
 Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
 
 function Get-ArvectumInnoRuntimeMaterial {
     [CmdletBinding()]
@@ -70,4 +85,23 @@ function Get-ArvectumInnoRuntimeMaterial {
         behavioral_anchor_setup_sha256 = $historicalAnchorSetupSha256
         static_to_behavioral_anchor = 'PASS'
     }
+}
+
+if ($AsJson) {
+    foreach ($required in @(
+        @{ Name = 'RuntimePath'; Value = $RuntimePath },
+        @{ Name = 'RuntimeEvidencePath'; Value = $RuntimeEvidencePath },
+        @{ Name = 'ExpectedSetupSha256'; Value = $ExpectedSetupSha256 }
+    )) {
+        if ([string]::IsNullOrWhiteSpace([string]$required.Value)) {
+            throw "Standalone runtime validation requires -$($required.Name)."
+        }
+    }
+
+    $material = Get-ArvectumInnoRuntimeMaterial `
+        -RuntimePath $RuntimePath `
+        -RuntimeEvidencePath $RuntimeEvidencePath `
+        -ExpectedSetupSha256 $ExpectedSetupSha256
+
+    $material | ConvertTo-Json -Depth 8 -Compress
 }

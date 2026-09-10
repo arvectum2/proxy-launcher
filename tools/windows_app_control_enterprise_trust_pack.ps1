@@ -93,9 +93,39 @@ function Get-OnePortableFile([string]$Root, [string]$Name) {
     return $matches[0].FullName
 }
 
+function Invoke-RuntimeMaterialValidator(
+    [string]$Validator,
+    [string]$RuntimePath,
+    [string]$RuntimeEvidencePath,
+    [string]$ExpectedSetupSha256
+) {
+    $output = @(
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator `
+            -RuntimePath $RuntimePath `
+            -RuntimeEvidencePath $RuntimeEvidencePath `
+            -ExpectedSetupSha256 $ExpectedSetupSha256 `
+            -AsJson
+    )
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        throw "Inno runtime validation process failed with exit code $exitCode."
+    }
+
+    $json = ($output | Out-String).Trim()
+    if (-not $json) {
+        throw 'Inno runtime validation process returned no JSON evidence.'
+    }
+
+    try {
+        return ($json | ConvertFrom-Json)
+    }
+    catch {
+        throw "Inno runtime validation process returned invalid JSON: $($_.Exception.Message)"
+    }
+}
+
 $runtimeHelper = Join-Path $PSScriptRoot 'windows_app_control_inno_runtime_material.ps1'
 if (-not (Test-Path -LiteralPath $runtimeHelper -PathType Leaf)) { throw "Inno runtime validation helper is missing: $runtimeHelper" }
-. $runtimeHelper
 
 $ReleaseDirectory = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
 $setup = Join-Path $ReleaseDirectory 'Arvectum-Proxy-Launcher-0.2.3-windows-x64-setup.exe'
@@ -112,7 +142,11 @@ $setupHash = Get-Sha256 $setup
 $portableHash = Get-Sha256 $portable
 if ($setupHash -ne $ExpectedSetupSha256) { throw 'Production installer SHA256 mismatch.' }
 if ($portableHash -ne $ExpectedPortableSha256) { throw 'Production portable ZIP SHA256 mismatch.' }
-$runtime = Get-ArvectumInnoRuntimeMaterial -RuntimePath $InnoRuntimePath -RuntimeEvidencePath $InnoRuntimeEvidencePath -ExpectedSetupSha256 $ExpectedSetupSha256
+$runtime = Invoke-RuntimeMaterialValidator `
+    -Validator $runtimeHelper `
+    -RuntimePath $InnoRuntimePath `
+    -RuntimeEvidencePath $InnoRuntimeEvidencePath `
+    -ExpectedSetupSha256 $ExpectedSetupSha256
 
 Write-Host '=== APL-WIN-014 Russian release verification ==='
 Invoke-ReleaseVerifier -Verifier $verifier -Directory $ReleaseDirectory

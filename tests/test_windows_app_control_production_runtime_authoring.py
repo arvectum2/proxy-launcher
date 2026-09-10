@@ -27,9 +27,12 @@ def test_production_runtime_authoring_is_bound_to_exact_production_setup():
 def test_production_runtime_is_extracted_before_trust_pack_generation():
     body = text(PREP)
     extraction = body.index("$extractor $setup $runtimePath --evidence $runtimeEvidencePath")
-    validation = body.index("Get-ArvectumInnoRuntimeMaterial")
+    validation = body.index("-File $validator")
     pack = body.index("-Mode ReferenceFullHash")
     assert extraction < validation < pack
+    assert "-AsJson" in body
+    assert "ConvertFrom-Json" in body
+    assert ". $validator" not in body
     assert "pefile version mismatch" in body
     assert "2024.8.26" in body
 
