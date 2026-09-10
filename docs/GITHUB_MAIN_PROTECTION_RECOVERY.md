@@ -3,65 +3,38 @@
 Updated: 2026-09-10  
 Repository: `arvectum2/proxy-launcher`  
 Branch: `main`  
-Status: **ADMIN PENDING**
+Status: **DONE**
 
-## Observed state
+## Current live state
 
-On 2026-09-10 the GitHub branch API for the new canonical repository reports:
+The current canonical repository uses active repository ruleset `Protect main` (`id=22763244`) targeting the default branch.
 
-- `protected: false`;
-- `protection.enabled: false`;
-- required status-check enforcement: `off`;
-- required status contexts/checks: empty.
+Verified configuration on 2026-09-10:
 
-This means branch governance did not survive the latest repository/account recovery. Until protection is restored, direct writes to `main` are technically possible and the repository must not be treated as having the governed protected-main contract.
+- `main` reports `protected: true`;
+- ruleset enforcement is `active`;
+- changes must reach `main` through a pull request;
+- approvals required: 0;
+- required status check: `build`;
+- strict/up-to-date status-check enforcement is enabled;
+- review-thread resolution is required;
+- branch deletion is blocked;
+- non-fast-forward / force-push updates are blocked;
+- bypass actor list is empty;
+- `current_user_can_bypass = never`.
 
-## Required restored contract
+The legacy branch-protection subobject may show `protection.enabled=false` because enforcement is supplied by a repository ruleset rather than the older branch-protection-rule mechanism. The effective branch state and ruleset are the governing source of truth.
 
-Restore the following effective policy for `main`:
+## Negative acceptance
 
-1. changes reach `main` through a pull request;
-2. approvals required: 0 unless separately changed by an explicit governance decision;
-3. required status check: `build`;
-4. require the branch to be up to date before merging (`strict` status checks);
-5. require conversation resolution before merging;
-6. do not allow force pushes;
-7. do not allow branch deletion;
-8. apply the rule to administrators / do not allow a normal administrator bypass that silently defeats the gate.
+The migration governance boundary was first proven on PR #1 (`test: verify main branch protection`) in the current `arvectum2/proxy-launcher` repository. The test PR was closed without merge after verifying that the required `build` boundary blocked the normal merge path while the check was incomplete.
 
-Do not add unrelated requirements such as signed commits or linear history unless a separate project decision introduces them.
+A supplemental re-verification was performed later on PR #4 after APL-WIN-014 production-runtime trust integration. On initial PR head `370a76f1dd635419aeee1ae0a81180e4e5945b3e`, a normal merge attempt while `build` was in progress was rejected with HTTP `405 Repository rule violations found` and explicit reason `Required status check "build" is in progress.`
 
-## GitHub UI path
+Evidence: `docs/evidence/GITHUB_MAIN_PROTECTION_ACCEPTANCE_2026-09-10.md`.
 
-Repository **Settings -> Rules -> Rulesets** or **Settings -> Branches**, depending on the GitHub UI presented for the account.
+## Completion
 
-Create/restore a rule targeting `main` with the contract above.
+Repository migration governance is **CLOSED** for `arvectum2/proxy-launcher`.
 
-## Verification
-
-After saving the rule, verify all of the following:
-
-- branch API reports `protected: true`;
-- required status checks include `build`;
-- strict/up-to-date enforcement is enabled;
-- pull-request boundary is active;
-- conversation resolution is required;
-- force push and deletion are disabled;
-- administrator behavior matches the no-silent-bypass contract.
-
-Then perform a negative acceptance test:
-
-1. create a harmless documentation branch/PR;
-2. while required `build` is queued or running, attempt the normal merge path;
-3. GitHub must reject the merge because the required check is incomplete;
-4. after the check succeeds, the normal merge path may become available.
-
-Record the branch API state, PR number, required-check state and rejected merge result in a dated evidence file under `docs/evidence/`.
-
-## Automation boundary
-
-The connected ChatGPT GitHub integration can read branch state and work with repository contents/PRs, but the currently exposed connector actions do not provide branch-protection/ruleset administration mutation. Therefore saving the protection rule is an explicit repository-owner/admin action and must not be falsely recorded as automated PASS.
-
-## Completion definition
-
-This recovery is complete only after the live `arvectum2/proxy-launcher` branch reports protection enabled and the negative required-check merge acceptance test passes. Until then repository migration remains **ADMIN PENDING** for governance even if source/CI reconciliation is otherwise green.
+This does not close product/release gates that require the physical Windows acceptance host, owner-operated signing, or human/legal approval.
