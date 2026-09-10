@@ -2,7 +2,7 @@
 
 ## 1. Canonical Repository and Sources
 
-* **Canonical source of truth:** GitHub repository [`arvectum/proxy-launcher`](https://github.com/arvectum/proxy-launcher).
+* **Canonical source of truth:** GitHub repository [`arvectum2/proxy-launcher`](https://github.com/arvectum2/proxy-launcher).
 * **Canonical integration branch:** `main`.
 * **Mirrors:** External mirrors (e.g., GitVerse) are downstream mirrors and do not serve as an independent source of truth.
 * **Release binaries:** Pre-built binary archives (ZIP, EXE, DMG, tarball) committed directly into Git are historical artifacts only and are **not** canonical release distribution sources.
@@ -83,7 +83,7 @@ source change
 * **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation and reusable Windows builds in safe dry-run mode and **never** publish releases.
 * **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), and one external checksum manifest (`SHA256SUMS.txt`) covering both.
 * **Prerelease handling:** SemVer prerelease identifiers (e.g. `0.2.4-rc.1`) are automatically flagged as GitHub prereleases.
-* **Immutability:** Existing GitHub Releases cannot be overwritten or clobbered (`--clobber` is prohibited). Duplicate release attempts fail.
+* **Immutability:** Existing GitHub Releases cannot be overwritten or clobber (`--clobber` is prohibited). Duplicate release attempts fail.
 * **Developer workstation builds:** Binaries built on developer workstations are strictly for local testing and debugging. They are not canonical release artifacts.
 * **CI Artifacts vs. GitHub Releases:** GitHub Actions artifacts are temporary QA and pre-release test builds. GitHub Releases is the canonical public binary distribution channel.
 
