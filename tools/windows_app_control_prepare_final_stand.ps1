@@ -61,7 +61,6 @@ $baselineTrustDir = Join-Path $RunRoot 'baseline-trust-pack'
 $runtimeDir = Join-Path $RunRoot 'runtime'
 $currentTrustDir = Join-Path $RunRoot 'current-trust-pack'
 $finalEvidenceDir = Join-Path $RunRoot 'final-evidence'
-New-Item -ItemType Directory -Path $RunRoot -Force | Out-Null
 
 $sourceCommit = ''
 $git = Get-Command git -ErrorAction SilentlyContinue
@@ -75,6 +74,11 @@ $hasHistoricalQa = -not [string]::IsNullOrWhiteSpace($HistoricalQaEvidencePath)
 if ($hasHistoricalPackage -xor $hasHistoricalQa) {
     throw 'Historical stand-mode recovery requires BOTH package ZIP and QA evidence paths.'
 }
+if (-not $sourceCommit -and -not $hasHistoricalPackage) {
+    throw 'No usable Git working copy is available; supply both exact historical files for stand-mode baseline recovery.'
+}
+
+New-Item -ItemType Directory -Path $RunRoot -Force | Out-Null
 
 Write-Host '=== 1/3 Recover exact historical 0.2.2 P0.4 baseline ==='
 $recoverArgs = @{
@@ -87,7 +91,6 @@ if ($hasHistoricalPackage) {
     $recoverArgs.HistoricalQaEvidencePath = $HistoricalQaEvidencePath
 }
 & $recover @recoverArgs
-if ($LASTEXITCODE -ne 0) { throw "Historical baseline recovery failed with exit code $LASTEXITCODE" }
 $baselineManifestPath = Join-Path $baselineRecoveryDir 'apl-win-014-0.2.2-baseline-recovery.json'
 if (-not (Test-Path -LiteralPath $baselineManifestPath -PathType Leaf)) { throw 'Baseline recovery manifest is missing.' }
 $baselineManifest = Get-Content -LiteralPath $baselineManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -97,10 +100,10 @@ if ([string]$baselineManifest.result -ne 'PASS' -or [string]$baselineManifest.so
 
 Write-Host '=== 2/3 Author exact historical baseline supplemental policy ==='
 & $baselinePack -BaselineManifestPath $baselineManifestPath -BasePolicyId $BasePolicyId -OutputDirectory $baselineTrustDir
-if ($LASTEXITCODE -ne 0) { throw "Baseline trust-pack generation failed with exit code $LASTEXITCODE" }
 $baselineTrustManifestPath = Join-Path $baselineTrustDir 'trust-pack.json'
+if (-not (Test-Path -LiteralPath $baselineTrustManifestPath -PathType Leaf)) { throw 'Baseline trust-pack manifest is missing.' }
 $baselineTrust = Get-Content -LiteralPath $baselineTrustManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-if ([string]$baselineTrust.result -ne 'PASS' -or ([Guid]$baselineTrust.base_policy_id) -ne $BasePolicyId) {
+if ([string]$baselineTrust.result -ne 'PASS' -or ([Guid]([string]$baselineTrust.base_policy_id)) -ne $BasePolicyId) {
     throw 'Baseline trust pack is not a PASS record for the canonical base policy.'
 }
 $baselinePolicyId = [Guid]([string]$baselineTrust.supplemental_policy_id)
@@ -109,13 +112,12 @@ if (-not (Test-Path -LiteralPath $baselineCip -PathType Leaf)) { throw 'Baseline
 
 Write-Host '=== 3/3 Derive production Inno runtime and author current ReferenceFullHash policy ==='
 & $currentPack -BasePolicyId $BasePolicyId -ReleaseDirectory $ReleaseDirectory -InstalledRoot $InstalledRoot -RuntimeDirectory $runtimeDir -TrustPackDirectory $currentTrustDir -PythonCommand $PythonCommand
-if ($LASTEXITCODE -ne 0) { throw "Current production runtime/trust authoring failed with exit code $LASTEXITCODE" }
 & $runtimeVerifier -TrustPackDirectory $currentTrustDir
-if ($LASTEXITCODE -ne 0) { throw "Current runtime-integrated trust verification failed with exit code $LASTEXITCODE" }
 
 $currentTrustManifestPath = Join-Path $currentTrustDir 'trust-pack.json'
+if (-not (Test-Path -LiteralPath $currentTrustManifestPath -PathType Leaf)) { throw 'Current trust-pack manifest is missing.' }
 $currentTrust = Get-Content -LiteralPath $currentTrustManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-if ([string]$currentTrust.result -ne 'PASS' -or [string]$currentTrust.mode -ne 'ReferenceFullHash' -or ([Guid]$currentTrust.base_policy_id) -ne $BasePolicyId) {
+if ([string]$currentTrust.result -ne 'PASS' -or [string]$currentTrust.mode -ne 'ReferenceFullHash' -or ([Guid]([string]$currentTrust.base_policy_id)) -ne $BasePolicyId) {
     throw 'Current trust pack is not a ReferenceFullHash PASS record for the canonical base policy.'
 }
 if (([string]$currentTrust.release.installer_sha256).ToLowerInvariant() -ne $ExpectedSetupSha256 -or ([string]$currentTrust.release.application_exe_sha256).ToLowerInvariant() -ne $ExpectedAppSha256) {
