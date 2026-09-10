@@ -66,8 +66,25 @@ Write-Host '=== Static extraction from exact production Setup ==='
 & $python.Source $extractor $setup $runtimePath --evidence $runtimeEvidencePath
 if ($LASTEXITCODE -ne 0) { throw "Inno runtime extraction failed with exit code $LASTEXITCODE" }
 
-. $validator
-$runtime = Get-ArvectumInnoRuntimeMaterial -RuntimePath $runtimePath -RuntimeEvidencePath $runtimeEvidencePath -ExpectedSetupSha256 $ExpectedSetupSha256
+$runtimeOutput = @(
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $validator `
+        -RuntimePath $runtimePath `
+        -RuntimeEvidencePath $runtimeEvidencePath `
+        -ExpectedSetupSha256 $ExpectedSetupSha256 `
+        -AsJson
+)
+$runtimeValidationExitCode = $LASTEXITCODE
+if ($runtimeValidationExitCode -ne 0) {
+    throw "Inno runtime validation process failed with exit code $runtimeValidationExitCode."
+}
+$runtimeJson = ($runtimeOutput | Out-String).Trim()
+if (-not $runtimeJson) { throw 'Inno runtime validation process returned no JSON evidence.' }
+try {
+    $runtime = $runtimeJson | ConvertFrom-Json
+}
+catch {
+    throw "Inno runtime validation process returned invalid JSON: $($_.Exception.Message)"
+}
 if ([long]$runtime.size -ne $ExpectedRuntimeSize -or $runtime.sha256 -ne $ExpectedRuntimeSha256 -or $runtime.crc32 -ne $ExpectedRuntimeCrc32) {
     throw 'Production runtime did not match the independently accepted Inno 6.7.1 runtime anchor.'
 }
