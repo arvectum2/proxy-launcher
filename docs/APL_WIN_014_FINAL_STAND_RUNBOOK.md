@@ -4,6 +4,8 @@ Status: **READY FOR ARVECTUM-DEMO PHYSICAL EXECUTION**
 
 This runbook is only for the dedicated/isolated Windows 11 `ARVECTUM-DEMO` acceptance host. The canonical lab base App Control policy is `dc1c604c-46ea-40b7-9f47-cf582b225d5e` and must remain **Enforced**, on disk, and configured with **Enabled:Allow Supplemental Policies**. Do not switch it to Audit mode and do not disable Smart App Control, App Control for Business, Defender, or another Windows protection.
 
+Windows PowerShell 5.1 on an enforced App Control host may keep the interactive shell in `ConstrainedLanguage` while policy-authorized scripts run in `FullLanguage`. For that reason the canonical stand commands use the PowerShell call operator (`&`) and do not launch trusted `.ps1` entrypoints through `powershell.exe -File`, whose Windows PowerShell 5.1 semantics can trigger a mixed-language dot-source boundary.
+
 ## Phase A — prepare immutable stand state
 
 Prerequisites:
@@ -18,7 +20,7 @@ Prerequisites:
 Run from elevated Windows PowerShell 5.1 in the repository root:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\windows_app_control_prepare_final_stand.ps1
+& .\tools\windows_app_control_prepare_final_stand.ps1
 ```
 
 The script creates `C:\Arvectum\Evidence\APL-WIN-014\final-stand\stand-state.json` and `POLICIES_TO_DEPLOY.txt`. It does **not** deploy policy, install/uninstall the product, or change Windows protection state.
@@ -39,7 +41,7 @@ Do not proceed until `CiTool.exe -lp -json` shows the canonical base policy enfo
 Run from the same repository checkout in elevated Windows PowerShell 5.1:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\windows_app_control_run_final_stand.ps1 -IsolatedAcceptanceEnvironment
+& .\tools\windows_app_control_run_final_stand.ps1 -IsolatedAcceptanceEnvironment
 ```
 
 Before cleanup, the wrapper re-verifies the complete live reference-installation inventory against the generated `ReferenceFullHash` manifest, including the exact application EXE and cached repair Setup. It then rolls back governed proxy state, invokes the exact verified uninstaller, refuses to delete unknown or changed residual files, removes only the canonical Arvectum reference/state directories, and invokes `windows_app_control_local_gate_complete.ps1`.
