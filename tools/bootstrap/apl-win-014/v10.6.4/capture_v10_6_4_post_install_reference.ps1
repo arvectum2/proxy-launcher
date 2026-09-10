@@ -1,7 +1,7 @@
 <# Read-only capture of the sealed V10.6.4 candidate installation for V10.7 authoring. #>
 #Requires -Version 5.1
 [CmdletBinding()]
-param([string]$InstallRoot = '', [string]$BootstrapPolicyId = '')
+param([string]$InstallRoot = '', [string]$BootstrapPolicyId = '', [string]$BootstrapAuthoringEvidencePath = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -9,8 +9,16 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrWhiteSpace($InstallRoot)) { $InstallRoot = Join-Path $env:USERPROFILE 'Documents\ArvectumProxyLauncher' }
 if (-not (Test-Path -LiteralPath $InstallRoot -PathType Container)) { throw "Installation directory not found: $InstallRoot" }
 if ([string]::IsNullOrWhiteSpace($BootstrapPolicyId)) { throw 'BootstrapPolicyId is required; this script never prompts.' }
+if ([string]::IsNullOrWhiteSpace($BootstrapAuthoringEvidencePath) -or -not (Test-Path -LiteralPath $BootstrapAuthoringEvidencePath -PathType Leaf)) { throw 'BootstrapAuthoringEvidencePath is required and must exist.' }
 function Get-Sha256([string]$Path) { $out = & (Join-Path $env:SystemRoot 'System32\certutil.exe') -hashfile $Path SHA256; $hashes = @($out | Where-Object { $_ -match '^\s*[0-9A-Fa-f]{64}\s*$' } | ForEach-Object { $_ -replace '^\s+|\s+$','' }); if ($LASTEXITCODE -ne 0 -or $hashes.Count -ne 1) { throw "certutil SHA256 failed for $Path" }; $hashes[0] }
 $seal = Get-Content -LiteralPath (Join-Path $scriptDir 'expected_hashes.json') -Raw | ConvertFrom-Json
+$runtimeEvidence = Get-Content -LiteralPath (Join-Path $scriptDir 'derived-runtime\runtime-static-evidence.json') -Raw | ConvertFrom-Json
+$bootstrapAuthoring = Get-Content -LiteralPath $BootstrapAuthoringEvidencePath -Raw | ConvertFrom-Json
+if ($bootstrapAuthoring.schema -ne 'arvectum.proxy.apl-win-014-v10.6.4-bootstrap-authoring.v4') { throw 'Bootstrap authoring evidence schema mismatch.' }
+if ($bootstrapAuthoring.candidate_source_commit -ne $seal.candidate_source_commit -or $bootstrapAuthoring.candidate_artifact_id -ne $seal.candidate_artifact_id) { throw 'Bootstrap authoring evidence candidate identity mismatch.' }
+if ((Convert-ClmPolicyGuidIdentity $bootstrapAuthoring.supplemental_policy_id) -ine (Convert-ClmPolicyGuidIdentity $BootstrapPolicyId)) { throw 'Bootstrap authoring evidence PolicyID mismatch.' }
+if (-not ($bootstrapAuthoring.PSObject.Properties.Name -contains 'inno_runtime') -or $bootstrapAuthoring.inno_runtime.hash_policy_integrated -ne $true -or $bootstrapAuthoring.inno_runtime.static_equals_behavioral -ne $true) { throw 'Bootstrap authoring evidence does not prove runtime hash integration.' }
+if ($bootstrapAuthoring.inno_runtime.sha256 -ine $runtimeEvidence.derived_runtime_sha256 -or $bootstrapAuthoring.inno_runtime.size -ne $runtimeEvidence.derived_runtime_size) { throw 'Bootstrap authoring runtime identity mismatch.' }
 $basePolicyIdText = $seal.base_policy_id
 $friendlyName = $seal.bootstrap_policy_friendly_name
 $baseFriendlyName = 'Arvectum APL-WIN-014 Lab Base'
@@ -59,7 +67,7 @@ $codeIntegrity = Get-ClmCodeIntegrityEvidence -MaxEvents 10
 $sealedInstallFiles = @()
 foreach ($entry in @($seal.files.application, $seal.files.build_manifest, $seal.files.upgrade_helper, $seal.files.uninstall_helper)) { $sealedInstallFiles += [ordered]@{ filename=$entry.filename; sha256=$entry.sha256 } }
 $evidence = [ordered]@{
-    schema='arvectum.proxy.apl-win-014-v10.6.4-reference-capture.v4'
+    schema='arvectum.proxy.apl-win-014-v10.6.4-reference-capture.v5'
     task=$seal.task
     captured_utc=(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')
     capture_mode='READ-ONLY'
@@ -77,6 +85,13 @@ $evidence = [ordered]@{
     bootstrap_policy_enforced=$bootstrapPolicy.is_enforced
     bootstrap_policy_authorized=$bootstrapPolicy.is_authorized
     bootstrap_policy_options=$bootstrapPolicy.policy_options
+    bootstrap_authoring_evidence=[ordered]@{
+        filename=(Split-Path -Leaf $BootstrapAuthoringEvidencePath)
+        sha256=(Get-Sha256 $BootstrapAuthoringEvidencePath)
+        schema=$bootstrapAuthoring.schema
+        runtime_hash_integrated=$bootstrapAuthoring.inno_runtime.hash_policy_integrated
+        runtime_sha256=$bootstrapAuthoring.inno_runtime.sha256
+    }
     mandatory_repair_cache=[ordered]@{ filename=$seal.repair_cache_filename; sha256=$seal.files.setup.sha256; size=(Get-Item -LiteralPath $repair).Length }
     sealed_install_files=$sealedInstallFiles
     install_root=$InstallRoot
@@ -90,6 +105,6 @@ $evidence = [ordered]@{
     policies=$policyEvi
 }
 $capturePath = Join-Path $outDir 'reference-capture.json'
-$evidence | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $capturePath -Encoding UTF8
+$evidence | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $capturePath -Encoding UTF8
 "$(Get-Sha256 $capturePath)  reference-capture.json" | Set-Content -LiteralPath (Join-Path $outDir 'SHA256SUMS.txt') -Encoding ASCII
-Write-Host "REFERENCE CAPTURE COMPLETE: $outDir"
+Write-Host "REFERENCE CAPTURE COMPLETE: $outDir (runtime-integrated bootstrap proven)"
