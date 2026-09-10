@@ -33,6 +33,7 @@ $ExpectedAppSha256 = 'f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a5
 $ExpectedRuntimeSha256 = 'b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8'
 $ExpectedLegacyCommit = '0ea08d9c815da36d0175f62db153de78f89731fc'
 $ExpectedLegacyBlobSha1 = '574d3dc5f90a116555e3a72ff3288c31c19d3dc7'
+$ExpectedSourceRepository = 'arvectum2/proxy-launcher'
 
 if ($env:OS -ne 'Windows_NT') { throw 'Final stand preparation must run on Windows.' }
 if ($BasePolicyId -ne $ExpectedBasePolicyId) {
@@ -62,20 +63,27 @@ $runtimeDir = Join-Path $RunRoot 'runtime'
 $currentTrustDir = Join-Path $RunRoot 'current-trust-pack'
 $finalEvidenceDir = Join-Path $RunRoot 'final-evidence'
 
-$sourceCommit = ''
 $git = Get-Command git -ErrorAction SilentlyContinue
-if ($git -and (Test-Path -LiteralPath (Join-Path $RepositoryRoot '.git'))) {
-    $sourceCommit = ((& git -C $RepositoryRoot rev-parse HEAD 2>&1) | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0 -or $sourceCommit -notmatch '^[0-9a-fA-F]{40}$') { throw 'Unable to resolve repository HEAD for stand evidence.' }
+if (-not $git -or -not (Test-Path -LiteralPath (Join-Path $RepositoryRoot '.git'))) {
+    throw 'Canonical Git working copy is required for final stand source provenance.'
+}
+$sourceCommit = ((& git -C $RepositoryRoot rev-parse HEAD 2>&1) | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or $sourceCommit -notmatch '^[0-9a-fA-F]{40}$') { throw 'Unable to resolve repository HEAD for stand evidence.' }
+$sourceRemote = ((& git -C $RepositoryRoot remote get-url origin 2>&1) | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($sourceRemote)) { throw 'Unable to resolve canonical origin remote for stand evidence.' }
+if ($sourceRemote -notmatch '(?i)(?:github\.com[/:])arvectum2/proxy-launcher(?:\.git)?$') {
+    throw "Repository origin is not the canonical $ExpectedSourceRepository remote: $sourceRemote"
+}
+$worktreeState = @(& git -C $RepositoryRoot status --porcelain=v1 --untracked-files=all 2>&1)
+if ($LASTEXITCODE -ne 0) { throw 'Unable to verify Git working-tree cleanliness for stand evidence.' }
+if (@($worktreeState | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -gt 0) {
+    throw 'Repository working tree is dirty; final stand evidence requires an exact clean checkout.'
 }
 
 $hasHistoricalPackage = -not [string]::IsNullOrWhiteSpace($HistoricalPackageZipPath)
 $hasHistoricalQa = -not [string]::IsNullOrWhiteSpace($HistoricalQaEvidencePath)
 if ($hasHistoricalPackage -xor $hasHistoricalQa) {
     throw 'Historical stand-mode recovery requires BOTH package ZIP and QA evidence paths.'
-}
-if (-not $sourceCommit -and -not $hasHistoricalPackage) {
-    throw 'No usable Git working copy is available; supply both exact historical files for stand-mode baseline recovery.'
 }
 
 New-Item -ItemType Directory -Path $RunRoot -Force | Out-Null
@@ -135,8 +143,10 @@ $state = [ordered]@{
     task = 'APL-WIN-014'
     prepared_utc = [DateTime]::UtcNow.ToString('o')
     host = $env:COMPUTERNAME
-    source_repository = 'arvectum2/proxy-launcher'
-    source_commit = $sourceCommit
+    source_repository = $ExpectedSourceRepository
+    source_remote = $sourceRemote
+    source_commit = $sourceCommit.ToLowerInvariant()
+    source_worktree_clean = $true
     base_policy_id = $BasePolicyId.ToString('D')
     release_directory = $ReleaseDirectory
     installed_reference_root = $InstalledRoot
