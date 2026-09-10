@@ -223,8 +223,12 @@ try {
             crc32 = $runtime.crc32
             source_setup_sha256 = $runtime.source_setup_sha256
             extraction_evidence_sha256 = $runtime.extraction_evidence_sha256
+            observed_compressed_chunk_count = $runtime.observed_compressed_chunk_count
             official_inno_tag = $runtime.official_inno_tag
             official_inno_commit = $runtime.official_inno_commit
+            evidence_workflow_run = $runtime.evidence_workflow_run
+            behavioral_workflow_run = $runtime.behavioral_workflow_run
+            historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256
             behavioral_anchor_workflow_run = $runtime.behavioral_anchor_workflow_run
             behavioral_anchor_setup_sha256 = $runtime.behavioral_anchor_setup_sha256
             static_to_behavioral_anchor = $runtime.static_to_behavioral_anchor
@@ -316,11 +320,11 @@ DO NOT
     )
     Set-Content -LiteralPath (Join-Path $OutputDirectory 'SHA256SUMS.txt') -Value $checksums -Encoding ASCII
 
-    Write-Host ''
-    Write-Host 'APL-WIN-014 enterprise trust pack: PASS'
-    Write-Host "Output: $OutputDirectory"
-    Write-Host "Policy ID: $policyId"
-    Write-Host "Inno runtime: PASS ($($runtime.sha256))"
+    $manifest.result = 'PASS'
+    $manifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
+    Write-Host "Trust pack: $OutputDirectory"
+    Write-Host "Policy XML: $policyXml"
+    Write-Host "Policy CIP: $policyCip"
     Write-Host 'Deployment: NOT PERFORMED'
 }
 finally {
