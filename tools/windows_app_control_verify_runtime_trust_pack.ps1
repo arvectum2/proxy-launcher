@@ -25,7 +25,9 @@ $ExpectedRuntimeSha256 = 'b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949
 $ExpectedRuntimeCrc32 = '021edadf'
 $ExpectedInnoTag = 'is-6_7_1'
 $ExpectedInnoCommit = 'cfdf48923178df4b4f040e038b423aa555a61ffc'
+$ExpectedEvidenceRun = 33669452947
 $ExpectedBehavioralRun = 33666343748
+$ExpectedHistoricalAnchorSetupSha256 = '7e7640fe434067415840a154cfbeba0df443caf155fed38cff7ede1bc7d7d600'
 
 $TrustPackDirectory = (Resolve-Path -LiteralPath $TrustPackDirectory).Path
 $manifestPath = Join-Path $TrustPackDirectory 'trust-pack.json'
@@ -43,7 +45,10 @@ if (([string]$runtime.sha256).ToLowerInvariant() -ne $ExpectedRuntimeSha256) { t
 if (([string]$runtime.crc32).ToLowerInvariant() -ne $ExpectedRuntimeCrc32) { throw 'Runtime trust verification: runtime CRC32 mismatch.' }
 if (([string]$runtime.source_setup_sha256).ToLowerInvariant() -ne $ExpectedSetupSha256) { throw 'Runtime trust verification: runtime was not derived from the canonical production Setup.' }
 if ([string]$runtime.official_inno_tag -ne $ExpectedInnoTag -or [string]$runtime.official_inno_commit -ne $ExpectedInnoCommit) { throw 'Runtime trust verification: Inno source provenance mismatch.' }
-if ([long]$runtime.behavioral_anchor_workflow_run -ne $ExpectedBehavioralRun -or [string]$runtime.static_to_behavioral_anchor -ne 'PASS') { throw 'Runtime trust verification: static/behavioral anchor is not PASS.' }
+if ([long]$runtime.evidence_workflow_run -ne $ExpectedEvidenceRun) { throw 'Runtime trust verification: static evidence workflow provenance mismatch.' }
+if ([long]$runtime.behavioral_workflow_run -ne $ExpectedBehavioralRun) { throw 'Runtime trust verification: behavioral workflow provenance mismatch.' }
+if (([string]$runtime.historical_anchor_setup_sha256).ToLowerInvariant() -ne $ExpectedHistoricalAnchorSetupSha256) { throw 'Runtime trust verification: historical static/behavioral anchor Setup mismatch.' }
+if ([string]$runtime.static_to_behavioral_anchor -ne 'PASS') { throw 'Runtime trust verification: static/behavioral anchor is not PASS.' }
 
 $xmlName = [string]$manifest.supplemental_policy_xml
 $cipName = [string]$manifest.supplemental_policy_cip
@@ -92,5 +97,7 @@ foreach ($rule in $runtimeRules) {
 
 Write-Host 'APL-WIN-014 Inno runtime trust-pack verification: PASS'
 Write-Host "Runtime flat SHA256: $ExpectedRuntimeSha256"
+Write-Host "Static evidence workflow: $ExpectedEvidenceRun"
+Write-Host "Behavioral workflow: $ExpectedBehavioralRun"
 Write-Host 'ConfigCI Authenticode/PE hash variants: Sha1 / Sha256 / Page Sha1 / Page Sha256: PASS'
 Write-Host 'Runtime FileRuleRefs in UMCI SigningScenario 12: PASS'
