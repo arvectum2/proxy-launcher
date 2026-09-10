@@ -10,11 +10,12 @@ Status legend: **DONE**, **CURRENT**, **READY**, **PARTIAL**, **HUMAN/LEGAL PEND
 ## 0. Repository authority and migration recovery
 
 - **DONE** — source/history/tags were recovered into `arvectum2/proxy-launcher`; `main` is the canonical integration branch.
-- **DONE** — current governance, installer/support and repository-identity references are being normalized to the new canonical slug without rewriting historical provenance.
-- **DONE** — GitVerse mirror logic is owner-independent on the GitHub side because it uses `${{ github.repository }}`; a post-migration mirror run passed on the restored baseline.
-- **CURRENT** — rebuild exact-SHA GitHub Actions evidence in the new repository. Actions history from the previous GitHub repository is not inherited as current-repository release evidence.
-- **ADMIN PENDING** — `main` protection is currently disabled in the new repository and must be restored by the repository owner/admin. The target contract remains PR-only changes, required `build`, strict/up-to-date checks, conversation resolution, no force push/delete and no silent administrator bypass during normal operation.
-- **HOLD FOR PUBLICATION** — no production release may be approved from the migrated repository until branch protection is restored and the exact release SHA has the required green Windows/release-evidence chain in this repository.
+- **DONE** — current governance, installer/support and repository-identity references are normalized to the new canonical slug without rewriting historical provenance.
+- **DONE** — GitVerse mirror logic is owner-independent on the GitHub side because it uses `${{ github.repository }}`; post-migration mirror PASS is recorded for canonical migration SHA `357a1795c07b4a1e0c23ce6cbb553d3bc9feb9fa`.
+- **DONE** — exact-SHA GitHub Actions evidence was rebuilt in the new repository for `357a1795c07b4a1e0c23ce6cbb553d3bc9feb9fa`: Windows portable, Windows installer/Gate R6, SAST, SBOM, provenance and Release Evidence Package are green.
+- **DONE** — `main` protection restored through active repository ruleset `Protect main`: PR required, required check `build`, strict/up-to-date status policy, conversation resolution, deletion/force-push protection, zero approvals, empty bypass list and `current_user_can_bypass=never`.
+- **DONE** — negative merge acceptance test executed on PR #1: immediate merge attempt was rejected with repository rule violation because required status check `build` was queued; PR was closed without merge.
+- **MIGRATION CLOSED** — the `arvectum1 → arvectum2` repository migration gate is complete. Production publication remains governed by the remaining Windows physical-host, release-signing and human/legal gates below.
 
 Historical repository identifiers remain valid only inside explicit provenance, closed acceptance, immutable baseline or historical workflow material. They are not current operational authorities.
 
@@ -76,11 +77,11 @@ Per-application routing is a product-next-stage item after the current Windows r
 
 ## 7. Immediate execution order
 
-1. **[Web/GitHub] CURRENT** — finish `arvectum2` repository reconciliation; obtain a clean exact migration SHA and green CI/mirror evidence.
-2. **[Admin] CURRENT** — restore `main` protection on `arvectum2/proxy-launcher` and perform the negative merge acceptance test.
+1. **[Web/GitHub] DONE** — `arvectum2` repository reconciliation closed on migration baseline `357a1795c07b4a1e0c23ce6cbb553d3bc9feb9fa` with green exact-SHA CI/evidence and GitVerse mirror.
+2. **[Admin] DONE** — `main` protection restored and negative merge acceptance test PASS on PR #1.
 3. **[Win] CURRENT** — close APL-WIN-014 real App Control cross-version gate and remaining APL-REL-014 evidence on ARVECTUM-DEMO; export/hash-verify evidence.
 4. **[Human] PARALLEL** — close R-1/R-2/R-3 and final APL-IP-001 authorized decision.
-5. **[Release] AFTER 1–4 AS APPLICABLE** — select the next immutable SemVer candidate, rebuild exact-SHA release evidence in `arvectum2`, run REL-011/012/013 owner-operated ceremony, then publish only the exact verified set.
+5. **[Release] AFTER 3–4 AS APPLICABLE** — select the next immutable SemVer candidate, rebuild exact-SHA release evidence in `arvectum2`, run REL-011/012/013 owner-operated ceremony, then publish only the exact verified set.
 6. **[Linux] NEXT PLATFORM** — install Astra dual boot, execute APL-LNX-010 and close Gate R8.
 7. **[Product] THEN** — resolve APL-ROUTE-003 Windows enforcement STOP-GATE and begin the next per-application-routing increment.
 
