@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / "tools" / "windows_app_control_enforced_acceptance.ps1"
 FINAL = ROOT / "tools" / "windows_app_control_local_gate_complete.ps1"
 PREVERIFIED = ROOT / "tools" / "windows_app_control_preverified_release.ps1"
+RUNTIME_VERIFY = ROOT / "tools" / "windows_app_control_verify_runtime_trust_pack.ps1"
 
 
 class WindowsAppControlFinalLocalGateContractTests(unittest.TestCase):
@@ -115,6 +116,21 @@ class WindowsAppControlFinalLocalGateContractTests(unittest.TestCase):
             self.assertIn(expected, text)
         self.assertNotIn("CRYPTO_PRO_CSPTEST_PATH", text)
         self.assertNotIn("csptest", text.lower())
+
+    def test_final_wrapper_requires_runtime_trust_before_canonical_acceptance(self):
+        text = FINAL.read_text(encoding="utf-8")
+        self.assertTrue(RUNTIME_VERIFY.exists())
+        runtime_call = text.index("-File $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory")
+        canonical_call = text.index("& $canonical @args")
+        self.assertLess(runtime_call, canonical_call)
+        for expected in (
+            "runtime_trust_gate = 'NOT_RUN'",
+            "$final.runtime_trust_gate = 'PASS'",
+            "b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8",
+            "apl-win-014-final-local-gate.v4",
+            "Inno Setup 6.7.1 child runtime exact-hash trust: PASS",
+        ):
+            self.assertIn(expected, text)
 
     def test_final_wrapper_uses_only_canonical_v2_gate(self):
         text = FINAL.read_text(encoding="utf-8")
