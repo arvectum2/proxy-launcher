@@ -77,7 +77,7 @@ def test_prepare_never_deploys_removes_or_weakens_app_control():
     assert "security controls modified: no" in lowered
 
 
-def test_run_requires_isolation_and_active_enforced_policy_before_cleanup():
+def test_run_requires_isolation_and_documented_active_policy_state_before_cleanup():
     body = text(RUN)
     main_isolation = body.index("if (-not $IsolatedAcceptanceEnvironment)")
     active_check = body.index("Assert-PreparedPoliciesActive -Policies $policies")
@@ -85,11 +85,20 @@ def test_run_requires_isolation_and_active_enforced_policy_before_cleanup():
     cleanup = body.index("Clean-ExactCurrentReference -InstalledRoot")
     final_gate = body.index("& $finalGate @gateArgs")
     assert main_isolation < active_check < identity_check < cleanup < final_gate
-    assert "Enabled:Audit Mode" in body
-    assert "Enabled:Allow Supplemental Policies" in body
     assert "is_authorized" in body
     assert "is_on_disk" in body
     assert "is_enforced" in body
+    assert "supplemental policy is not active/enforced/on-disk" in body
+    assert "policy_options" not in body
+    assert "PolicyOptions" not in body
+
+
+def test_run_guid_normalization_tolerates_empty_citool_base_policy_ids():
+    body = text(RUN)
+    assert "if ($null -eq $Value) { return '' }" in body
+    assert "$text = ([string]$Value).Trim().Trim('{}')" in body
+    assert "[string]::IsNullOrWhiteSpace($text)" in body
+    assert "catch { return $text.ToLowerInvariant() }" in body
 
 
 def test_run_reverifies_complete_reference_inventory_and_exact_lifecycle_bytes():
