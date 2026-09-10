@@ -16,17 +16,20 @@ Microsoft's current Windows guidance makes the same distinction:
 - Smart App Control treats a valid RSA code-signing signature from a trusted provider as an execution-trust signal;
 - App Control for Business supports organization-defined file rules including exact hash rules;
 - App Control for Business supports managed-installer trust for software deployed by an organization-designated installation system;
-- supplemental policies extend an approved base policy by union, but the base policy must explicitly allow supplements.
+- supplemental policies extend an approved base policy by union, but the base policy must explicitly allow supplements;
+- with App Control script enforcement active, PowerShell runs policy-authorized scripts in `FullLanguage` and untrusted scripts in `ConstrainedLanguage`.
 
 ## Non-negotiable security rules
 
-1. Do **not** disable Smart App Control, App Control for Business, Defender application-control policy, or comparable Windows protections as a product workaround.
+1. Do **not** disable Smart App Control, App Control for Business, Defender application-control policy, script enforcement, or comparable Windows protections as a product workaround.
 2. Do **not** change `VerifiedAndReputablePolicyState` from Arvectum tooling.
 3. Do **not** claim that the current detached Russian release signature provides SmartScreen, Smart App Control or Authenticode execution trust.
 4. Do **not** deploy App Control policy automatically from an Arvectum release or installer.
 5. Customer App Control deployment is an administrator/governance action owned by the customer's IT/security team.
 6. Hash trust is exact-byte trust. New or rebuilt bytes require a new trust pack.
-7. A normal owner workstation is not an APL-REL-014 destructive acceptance environment.
+7. App Control rule option 11 (`Disabled:Script Enforcement`) is forbidden in the Arvectum product supplemental policy.
+8. Release maintenance scripts may run in `FullLanguage` only because their exact release bytes are explicitly hash-authorized by the product supplemental policy.
+9. A normal owner workstation is not an APL-REL-014 destructive acceptance environment.
 
 ## Russian-first target architecture
 
@@ -60,18 +63,40 @@ The generator:
 
 1. verifies the exact Russian release before policy creation;
 2. verifies the pinned installer, portable ZIP and application hashes;
-3. creates a multi-policy-format App Control policy using exact `Hash` rules;
-4. converts it to a supplemental policy for a customer-supplied base policy ID;
-5. emits XML + binary `.cip` + `trust-pack.json` + checksums + deployment guidance;
-6. never deploys the generated policy;
-7. never changes Smart App Control/App Control state.
+3. statically validates the exact Inno Setup 6.7.1 child runtime derived from the sealed Setup;
+4. verifies `upgrade_helper.ps1` and `uninstall_helper.ps1` against the sealed `build_manifest.json`;
+5. creates a multi-policy-format App Control policy using exact `Hash` rules for PE files and the exact release maintenance scripts;
+6. explicitly rejects generated XML containing rule option 11 (`Disabled:Script Enforcement`);
+7. converts the result to a supplemental policy for a customer-supplied base policy ID;
+8. emits XML + binary `.cip` + `trust-pack.json` + checksums + deployment guidance;
+9. never deploys the generated policy;
+10. never changes Smart App Control/App Control state.
 
 Modes:
 
-- `BootstrapHash` — exact production Setup + exact application EXE. Useful as a narrow bootstrap allow-list.
-- `ReferenceFullHash` — exact production Setup plus the complete exact installed reference tree. This is the required hash mode for lifecycle coverage because generated maintenance binaries such as the Inno uninstaller must also be authorized.
+- `BootstrapHash` — exact production Setup + exact application EXE + exact `upgrade_helper.ps1` / `uninstall_helper.ps1` + exact Inno Setup 6.7.1 child runtime. Useful as a narrow bootstrap allow-list that can actually execute the sealed install helper without weakening PowerShell script enforcement.
+- `ReferenceFullHash` — all `BootstrapHash` material plus the complete exact installed reference tree. This is the required hash mode for lifecycle coverage because generated maintenance binaries such as the Inno uninstaller must also be authorized.
 
-`ReferenceFullHash` must be generated only from an isolated reference installation whose application EXE and cached repair Setup match the sealed production hashes exactly.
+`ReferenceFullHash` must be generated only from an isolated reference installation whose application EXE, cached repair Setup and maintenance helper scripts match the sealed production identities exactly.
+
+### Why maintenance scripts must be in the policy
+
+The sealed Inno installer executes `upgrade_helper.ps1` during installation. That helper uses .NET APIs which are intentionally unavailable to an untrusted PowerShell script in `ConstrainedLanguage`. Uninstall similarly executes `uninstall_helper.ps1`.
+
+Therefore a correct App Control policy must not solve installation by disabling script enforcement. It must explicitly authorize the exact release helper script bytes. This preserves the desired boundary:
+
+- interactive/unrelated PowerShell remains constrained by the organization policy;
+- exact release helper scripts are policy-trusted and may execute in `FullLanguage`;
+- any changed helper bytes require a regenerated release-specific hash policy.
+
+The verifier `tools/windows_app_control_verify_runtime_trust_pack.ps1` fails closed if:
+
+- `script_enforcement_preserved` is absent/false;
+- either maintenance helper is missing from `trust-pack.json`;
+- reference helper hashes do not match the sealed helper hashes;
+- the policy XML contains `Disabled:Script Enforcement`;
+- either helper has no App Control hash rule;
+- helper hash rules are not bound into UMCI SigningScenario 12.
 
 A customer's base policy must enable rule option 17 (`Allow Supplemental Policies`). If the base policy is signed, the customer's policy governance must also authorize the supplemental-policy signer; Arvectum tooling does not alter that base-policy trust configuration.
 
@@ -145,6 +170,8 @@ APL-WIN-014 repository contracts include:
 - static proof that the assessment script is read-only;
 - static proof that trust-pack generation verifies the exact Russian release before policy creation;
 - static proof that generated policy uses `Hash`, `MultiplePolicyFormat`, a customer base policy ID and `ConvertFrom-CIPolicy`;
+- static proof that the product policy does not use `-NoScript`, rejects `Disabled:Script Enforcement`, and includes both exact maintenance helpers;
+- runtime verifier proof that helper rules are present in UMCI SigningScenario 12 and script enforcement remains enabled;
 - static proof that the generator does not invoke `CiTool --update-policy` or mutate Smart App Control registry state;
 - Windows ConfigCI smoke generation of a non-deployed supplemental hash policy;
 - owner source-mode contract proving it is non-production, main runtime autostart is disabled, and App Control state is unchanged.
@@ -162,16 +189,17 @@ Minimum acceptance matrix:
 3. exact release verification PASS;
 4. enterprise trust pack generated from exact production bytes;
 5. policy tested in the customer's normal audit/staging procedure;
-6. exact Setup allowed without disabling protection;
-7. installed application first launch allowed;
-8. proxy core start / GUI / PAC / rollback work;
-9. cached repair works;
-10. upgrade path works with the new release's corresponding trust policy or Managed Installer;
-11. uninstall works;
-12. no unrelated application is newly trusted by the Arvectum supplemental rules;
-13. Russian detached release signature remains independently verifiable.
+6. exact Setup allowed without disabling protection or script enforcement;
+7. exact `upgrade_helper.ps1` runs as a policy-authorized script while unrelated PowerShell remains constrained;
+8. installed application first launch allowed;
+9. proxy core start / GUI / PAC / rollback work;
+10. cached repair works;
+11. upgrade path works with the new release's corresponding trust policy or Managed Installer;
+12. exact `uninstall_helper.ps1` and generated uninstaller work;
+13. no unrelated application or script is newly trusted by the Arvectum supplemental rules;
+14. Russian detached release signature remains independently verifiable.
 
-For exact-hash fleet deployment, use `ReferenceFullHash`; `BootstrapHash` alone is not sufficient evidence for uninstall/maintenance coverage.
+For exact-hash fleet deployment, use `ReferenceFullHash`; `BootstrapHash` alone is not sufficient evidence for generated uninstaller/maintenance-binary coverage.
 
 ## Public/unmanaged Windows distribution
 
