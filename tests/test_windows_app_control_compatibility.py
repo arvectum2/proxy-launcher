@@ -71,21 +71,27 @@ def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring(
     assert "hash_policy_integrated = $true" in body
     assert RUNTIME_SHA256 in helper
     assert PRODUCTION_SETUP_SHA256 not in helper  # exact production hash is passed by the canonical pack
-    assert "33669452947" in helper
+    assert "33669452947" in helper  # independent evidence workflow
+    assert "33666343748" in helper  # behavioral extraction workflow
     assert "is-6_7_1" in helper
     assert "cfdf48923178df4b4f040e038b423aa555a61ffc" in helper
-    assert "compressed_block_chunk_count" in helper
+    assert "compressed_block_chunk_count -le 0" in helper
+    assert "compressed_block_chunk_count -ne 320" not in helper
 
 
-def test_runtime_trust_verifier_requires_all_four_configci_hash_variants():
+def test_runtime_trust_verifier_separates_flat_identity_from_configci_authenticode_hashes():
     body = text(RUNTIME_VERIFY)
     assert RUNTIME_SHA256 in body
     assert PRODUCTION_SETUP_SHA256 in body
+    assert "runtime flat SHA256" in body
+    assert "Authenticode/PE" in body
     for variant in ("Sha1", "Sha256", "Page Sha1", "Page Sha256"):
         assert variant in body
-    assert "expected exactly 4 runtime hash rules" in body
+    assert "expected exactly 4 runtime Authenticode/PE hash rules" in body
+    assert "SigningScenario 12" in body
     assert "hash_policy_integrated" in body
     assert "ReferenceFullHash" in body
+    assert "full-file runtime Sha256 rule does not equal" not in body
 
 
 def test_enterprise_pack_never_deploys_or_weakens_windows_protection():
