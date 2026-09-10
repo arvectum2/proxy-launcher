@@ -10,6 +10,10 @@
     current ReferenceFullHash trust pack proves that the exact Inno Setup 6.7.1 child
     runtime derived from the canonical production Setup is present as four hash rules.
 
+    Policy-authorized child PowerShell scripts are invoked with the call operator rather
+    than powershell.exe -File to preserve App Control language-mode isolation on Windows
+    PowerShell 5.1.
+
     The wrapper is host-only acceptance tooling for a dedicated/isolated Windows 11
     physical acceptance host. It never deploys/removes App Control policy and never
     changes Smart App Control, Defender, or policy rule options.
@@ -65,8 +69,7 @@ $final = [ordered]@{
 
 $gateError = $null
 try {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory
-    if ($LASTEXITCODE -ne 0) { throw 'Inno runtime trust-pack verification failed.' }
+    & $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory
     $final.runtime_trust_gate = 'PASS'
 
     $args = @{

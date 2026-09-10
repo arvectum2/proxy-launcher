@@ -81,7 +81,8 @@ def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring(
     policy = body.index("New-CIPolicy -MultiplePolicyFormat")
     assert validate < policy
     assert "windows_app_control_inno_runtime_material.ps1" in body
-    assert "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator" in body
+    assert "& $Validator" in body
+    assert "powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator" not in body
     assert "-AsJson" in body
     assert "ConvertFrom-Json" in body
     assert ". $runtimeHelper" not in body
@@ -91,9 +92,9 @@ def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring(
     assert "behavioral_workflow_run = $runtime.behavioral_workflow_run" in body
     assert "historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256" in body
     assert RUNTIME_SHA256 in helper
-    assert PRODUCTION_SETUP_SHA256 not in helper  # exact production hash is passed by the canonical pack
-    assert "33669452947" in helper  # independent static evidence workflow
-    assert "33666343748" in helper  # behavioral extraction workflow
+    assert PRODUCTION_SETUP_SHA256 not in helper
+    assert "33669452947" in helper
+    assert "33666343748" in helper
     assert "is-6_7_1" in helper
     assert "cfdf48923178df4b4f040e038b423aa555a61ffc" in helper
     assert "compressed_block_chunk_count -le 0" in helper

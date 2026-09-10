@@ -8,9 +8,10 @@
 
     The validation function remains available for trusted callers that intentionally
     dot-source this file outside an App Control language-mode boundary. The canonical
-    APL-WIN-014 physical-stand path invokes this file as a separate PowerShell process
-    with -AsJson so App Control can evaluate this script independently and no command
-    definitions cross FullLanguage/ConstrainedLanguage scopes.
+    APL-WIN-014 physical-stand path invokes this policy-authorized script with the
+    PowerShell call operator and -AsJson. It deliberately avoids powershell.exe -File,
+    whose Windows PowerShell 5.1 semantics can cross the FullLanguage/ConstrainedLanguage
+    boundary through dot-sourcing under App Control.
 #>
 [CmdletBinding()]
 param(

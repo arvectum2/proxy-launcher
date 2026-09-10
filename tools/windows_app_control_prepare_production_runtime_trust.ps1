@@ -7,6 +7,10 @@
     equal the independently accepted runtime anchor, and then invokes the canonical
     enterprise trust-pack generator in ReferenceFullHash mode.
 
+    Policy-authorized child PowerShell scripts are invoked with the call operator rather
+    than powershell.exe -File so Windows PowerShell 5.1 does not cross App Control
+    FullLanguage/ConstrainedLanguage scopes through -File dot-source semantics.
+
     This script never installs/uninstalls Arvectum Proxy Launcher, never deploys/removes
     an App Control policy, and never changes Smart App Control, Defender, or policy options.
 #>
@@ -66,24 +70,25 @@ Write-Host '=== Static extraction from exact production Setup ==='
 & $python.Source $extractor $setup $runtimePath --evidence $runtimeEvidencePath
 if ($LASTEXITCODE -ne 0) { throw "Inno runtime extraction failed with exit code $LASTEXITCODE" }
 
-$runtimeOutput = @(
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $validator `
-        -RuntimePath $runtimePath `
-        -RuntimeEvidencePath $runtimeEvidencePath `
-        -ExpectedSetupSha256 $ExpectedSetupSha256 `
-        -AsJson
-)
-$runtimeValidationExitCode = $LASTEXITCODE
-if ($runtimeValidationExitCode -ne 0) {
-    throw "Inno runtime validation process failed with exit code $runtimeValidationExitCode."
+try {
+    $runtimeOutput = @(
+        & $validator `
+            -RuntimePath $runtimePath `
+            -RuntimeEvidencePath $runtimeEvidencePath `
+            -ExpectedSetupSha256 $ExpectedSetupSha256 `
+            -AsJson
+    )
+}
+catch {
+    throw "Inno runtime validation command failed: $($_.Exception.Message)"
 }
 $runtimeJson = ($runtimeOutput | Out-String).Trim()
-if (-not $runtimeJson) { throw 'Inno runtime validation process returned no JSON evidence.' }
+if (-not $runtimeJson) { throw 'Inno runtime validation command returned no JSON evidence.' }
 try {
     $runtime = $runtimeJson | ConvertFrom-Json
 }
 catch {
-    throw "Inno runtime validation process returned invalid JSON: $($_.Exception.Message)"
+    throw "Inno runtime validation command returned invalid JSON: $($_.Exception.Message)"
 }
 if ([long]$runtime.size -ne $ExpectedRuntimeSize -or $runtime.sha256 -ne $ExpectedRuntimeSha256 -or $runtime.crc32 -ne $ExpectedRuntimeCrc32) {
     throw 'Production runtime did not match the independently accepted Inno 6.7.1 runtime anchor.'
@@ -112,11 +117,9 @@ $authoringEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $authori
 
 Write-Host '=== Generate canonical ReferenceFullHash trust pack ==='
 & $packGenerator -ReleaseDirectory $ReleaseDirectory -BasePolicyId $BasePolicyId -Mode ReferenceFullHash -InstalledRoot $InstalledRoot -InnoRuntimePath $runtimePath -InnoRuntimeEvidencePath $runtimeEvidencePath -OutputDirectory $TrustPackDirectory
-if ($LASTEXITCODE -ne 0) { throw "ReferenceFullHash trust-pack generation failed with exit code $LASTEXITCODE" }
 
 $verifier = Join-Path $PSScriptRoot 'windows_app_control_verify_runtime_trust_pack.ps1'
 & $verifier -TrustPackDirectory $TrustPackDirectory
-if ($LASTEXITCODE -ne 0) { throw "Runtime-integrated trust-pack verification failed with exit code $LASTEXITCODE" }
 
 $checksumsPath = Join-Path $RuntimeDirectory 'SHA256SUMS.txt'
 $checksums = @(
