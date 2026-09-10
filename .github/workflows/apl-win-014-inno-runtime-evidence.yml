@@ -33,7 +33,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          gh release download apl-win-014-v10.6.4-bootstrap-transfer-r3 --repo arvectum1/proxy-launcher --pattern apl-win-014-v10.6.4-bootstrap-r3.zip --output "$env:RUNNER_TEMP\r3.zip"
+          gh release download apl-win-014-v10.6.4-bootstrap-transfer-r3 --repo arvectum2/proxy-launcher --pattern apl-win-014-v10.6.4-bootstrap-r3.zip --output "$env:RUNNER_TEMP\r3.zip"
           if ((Get-FileHash -LiteralPath "$env:RUNNER_TEMP\r3.zip" -Algorithm SHA256).Hash -ine 'a1de9ea091b8d1fda768ea646b027be0a1976e9dc8fa32faedb12a86a263efed') { throw 'R3 transport SHA256 mismatch.' }
           Expand-Archive -LiteralPath "$env:RUNNER_TEMP\r3.zip" -DestinationPath "$env:RUNNER_TEMP\r3" -Force
           $candidate = "$env:RUNNER_TEMP\r3\candidate"
