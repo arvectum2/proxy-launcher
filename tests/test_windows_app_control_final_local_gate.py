@@ -120,9 +120,10 @@ class WindowsAppControlFinalLocalGateContractTests(unittest.TestCase):
     def test_final_wrapper_requires_runtime_trust_before_canonical_acceptance(self):
         text = FINAL.read_text(encoding="utf-8")
         self.assertTrue(RUNTIME_VERIFY.exists())
-        runtime_call = text.index("-File $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory")
+        runtime_call = text.index("& $runtimeTrustVerifier -TrustPackDirectory $TrustPackDirectory")
         canonical_call = text.index("& $canonical @args")
         self.assertLess(runtime_call, canonical_call)
+        self.assertNotIn("-File $runtimeTrustVerifier", text)
         for expected in (
             "runtime_trust_gate = 'NOT_RUN'",
             "$final.runtime_trust_gate = 'PASS'",
