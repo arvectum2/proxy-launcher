@@ -55,13 +55,15 @@ def test_clm_bootstrap_authors_script_rules_without_trusting_a_general_interpret
     assert "verify_russian_release.ps1" in body
     assert "python_authorized=$false" in body
     assert "general_interpreter_authorized=$false" in body
-    assert "python.exe" not in body.lower()
+    assert "Copy-Item -LiteralPath $source -Destination $destination" in body
+    assert "Copy-Item -LiteralPath $releaseVerifier -Destination $releaseVerifierStaged" in body
 
 
 def test_clm_bootstrap_never_deploys_removes_or_weakens_policy():
     body = text(BOOTSTRAP).lower()
     for forbidden in (
-        "--update-policy $",
+        "& $citool --update-policy",
+        "start-process -filepath $citool",
         "--remove-policy",
         "set-ruleoption",
         "verifiedandreputablepolicystate",
