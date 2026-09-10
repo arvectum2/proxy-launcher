@@ -5,30 +5,35 @@ Canonical GitHub repository: `arvectum2/proxy-launcher`
 
 This file contains work that cannot be truthfully completed by hosted repository automation alone, plus immediate repository/admin prerequisites for those gates.
 
-## P0 — repository migration recovery — CURRENT
+## P0 — repository migration recovery — DONE
 
 ### P0.1 — canonical repository content
 
 - **DONE** — repository/history/tags restored to `arvectum2/proxy-launcher`.
-- **DONE** — GitVerse mirror workflow is compatible with the new GitHub owner because it resolves `${{ github.repository }}` dynamically.
-- **CURRENT** — normalize current operational/governance references and enforce a bounded repository-identity hygiene guard.
-- **CURRENT** — rebuild Windows/SAST/provenance/release-evidence CI on one exact post-migration `main` SHA in the new GitHub repository.
-- **CURRENT** — require GitVerse mirror PASS for that same exact SHA.
+- **DONE** — current operational/governance references normalized to the canonical owner while bounded historical provenance remains unchanged.
+- **DONE** — GitVerse mirror workflow is owner-independent on the GitHub side because it resolves `${{ github.repository }}` dynamically.
+- **DONE** — exact-SHA Windows/SAST/provenance/release-evidence CI was rebuilt in the new GitHub repository.
+- **DONE** — GitVerse mirror PASS was re-established for the migrated/current line; after PR #3 the canonical merge SHA `1560f0650a0c819ad26dda6020f9583dd88abcf1` also has a successful mirror run and successful Release Evidence Package.
 
 Old GitHub Actions runs are not treated as current-repository release evidence. Historical commits/tags/evidence remain valid provenance and must not be rewritten.
 
-### P0.2 — GitHub `main` protection — ADMIN PENDING
+### P0.2 — GitHub `main` protection — DONE
 
-Observed on 2026-09-10 for the new canonical repository:
+Current effective governance is supplied by active repository ruleset `Protect main` (`id=22763244`):
 
-- `main.protected = false`;
-- protection disabled;
-- required status-check enforcement off;
-- no required checks configured.
+- PR required for `main`;
+- approvals required: 0;
+- required status check: `build`;
+- strict/up-to-date required checks enabled;
+- conversation/review-thread resolution required;
+- deletion blocked;
+- non-fast-forward / force-push blocked;
+- bypass actor list empty;
+- connected current identity cannot bypass.
 
-Owner/admin must restore the governed contract documented in `docs/GITHUB_MAIN_PROTECTION_RECOVERY.md`, then perform a negative acceptance test proving a normal merge is rejected while required `build` is still pending.
+Negative acceptance was proven in the current `arvectum2/proxy-launcher` repository on PR #1 and independently re-verified on PR #4: a normal merge while required `build` was incomplete was rejected by GitHub repository rules. See `docs/evidence/GITHUB_MAIN_PROTECTION_ACCEPTANCE_2026-09-10.md`.
 
-Do not treat migration recovery as complete until this passes.
+Repository migration recovery is therefore closed. Remaining blockers below are product/physical-host, release-signing, human/legal, Linux and product-next-stage gates — not repository migration blockers.
 
 ## P1 — ARVECTUM-DEMO Windows physical stand — CURRENT
 
@@ -84,21 +89,20 @@ Remaining human/legal work:
 
 Only explicit `APPROVED` unlocks a governed clean-IP tag. Material product/build/package implementation changes require a new exact candidate reconciliation.
 
-## P3 — next stable production release — READY AFTER REPOSITORY + REQUIRED GATES
+## P3 — next stable production release — READY AFTER REQUIRED GATES
 
 The current product line remains `0.2.3`, but the historical `v0.2.3` tag is immutable and does not point to the post-migration tree. Do not move or recycle it.
 
 For the first new stable release from `arvectum2`:
 
-1. restore branch protection;
-2. select a new SemVer version (natural patch candidate: `0.2.4` if scope remains release/migration hardening only);
-3. make the version bump as a governed candidate change;
-4. obtain required exact-SHA green Windows portable/installer, SAST and Release Evidence Package runs in `arvectum2`;
-5. build exact final assets;
-6. add REL-012 verifier UX before signing;
-7. run REL-011 with physical Rutoken/CryptoPro;
-8. run REL-013 and require `Publication decision: PUBLISH`;
-9. publish only that exact verified set and preserve external gate evidence.
+1. select a new SemVer version (natural patch candidate: `0.2.4` if scope remains release/migration hardening only);
+2. make the version bump as a governed candidate change;
+3. obtain required exact-SHA green Windows portable/installer, SAST and Release Evidence Package runs in `arvectum2`;
+4. build exact final assets;
+5. add/retain REL-012 verifier UX before signing;
+6. run REL-011 with physical Rutoken/CryptoPro;
+7. run REL-013 and require `Publication decision: PUBLISH`;
+8. publish only that exact verified set and preserve external gate evidence.
 
 Current company УКЭП remains `RELEASE-EVIDENCE-ONLY`; embedded Authenticode/SmartScreen/ОТУЦ trust must not be claimed.
 
@@ -125,8 +129,8 @@ This is the product-next-stage track after repository/release baseline closure, 
 
 ## Current parallel execution order
 
-- **[Web/GitHub] CURRENT:** finish migration reconciliation and exact-SHA CI/mirror re-baseline.
-- **[Admin] CURRENT:** restore `main` protection and prove required-check enforcement with a negative merge test.
+- **[Web/GitHub] DONE:** `arvectum2` migration reconciliation, exact-SHA CI/evidence and mirror baseline closed.
+- **[Admin] DONE:** active `Protect main` ruleset and negative required-`build` merge acceptance proven.
 - **[Win] CURRENT:** APL-WIN-014 real App Control gate, then remaining APL-REL-014 evidence.
 - **[Human] PARALLEL:** R-1/R-2/R-3 + factual confirmation + final APL-IP-001 decision.
 - **[Linux] AFTER WINDOWS:** Astra dual boot -> APL-LNX-010 -> Gate R8.
