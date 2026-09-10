@@ -190,8 +190,8 @@ Deploy BOTH supplemental policies through the approved lab App Control managemen
 DO NOT disable Smart App Control, Defender, App Control, or switch the base policy to Audit mode.
 This preparation script did NOT deploy policy and did NOT modify security controls.
 
-After both supplemental policies are active/on-disk and authorized, run:
-  powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\windows_app_control_run_final_stand.ps1 -StatePath "$statePath" -IsolatedAcceptanceEnvironment
+After both supplemental policies are active/on-disk and authorized, run from the repository root:
+  & .\tools\windows_app_control_run_final_stand.ps1 -StatePath "$statePath" -IsolatedAcceptanceEnvironment
 "@
 $deploymentPath = Join-Path $RunRoot 'POLICIES_TO_DEPLOY.txt'
 Set-Content -LiteralPath $deploymentPath -Value $deployment -Encoding UTF8
