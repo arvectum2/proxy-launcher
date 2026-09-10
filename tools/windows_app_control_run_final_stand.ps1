@@ -10,6 +10,8 @@
     It never deploys/removes App Control policy and never weakens Smart App Control,
     Defender, App Control for Business, or policy options.
 #>
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
     [string]$StatePath = 'C:\Arvectum\Evidence\APL-WIN-014\final-stand\stand-state.json',
