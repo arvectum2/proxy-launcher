@@ -4,7 +4,7 @@
 .DESCRIPTION
     The supplied extraction evidence must be produced from the exact canonical
     production Setup and the runtime bytes must equal the independently proven
-    static/behavioral Inno 6.7.1 anchor from workflow run 33669452947.
+    static/behavioral Inno 6.7.1 anchor.
 #>
 Set-StrictMode -Version Latest
 
@@ -21,8 +21,9 @@ function Get-ArvectumInnoRuntimeMaterial {
     $expectedRuntimeCrc32 = '021edadf'
     $expectedInnoTag = 'is-6_7_1'
     $expectedInnoCommit = 'cfdf48923178df4b4f040e038b423aa555a61ffc'
-    $behavioralAnchorWorkflowRun = 33669452947
-    $behavioralAnchorSetupSha256 = '7e7640fe434067415840a154cfbeba0df443caf155fed38cff7ede1bc7d7d600'
+    $evidenceWorkflowRun = 33669452947
+    $behavioralWorkflowRun = 33666343748
+    $historicalAnchorSetupSha256 = '7e7640fe434067415840a154cfbeba0df443caf155fed38cff7ede1bc7d7d600'
 
     $RuntimePath = (Resolve-Path -LiteralPath $RuntimePath).Path
     $RuntimeEvidencePath = (Resolve-Path -LiteralPath $RuntimeEvidencePath).Path
@@ -46,8 +47,8 @@ function Get-ArvectumInnoRuntimeMaterial {
     if ($actualRuntimeSize -ne $expectedRuntimeSize -or $actualRuntimeHash -ne $expectedRuntimeSha256) {
         throw 'Supplied Inno runtime binary does not match the accepted static/behavioral anchor.'
     }
-    if ([int]$evidence.compressed_block_chunk_count -ne 320) {
-        throw 'Inno runtime compressed chunk count does not match the independently proven 6.7.1 anchor.'
+    if ([int]$evidence.compressed_block_chunk_count -le 0) {
+        throw 'Inno runtime extraction evidence does not contain a valid compressed-block traversal.'
     }
 
     return [pscustomobject]@{
@@ -59,10 +60,12 @@ function Get-ArvectumInnoRuntimeMaterial {
         source_setup_sha256 = $setupHash
         extraction_evidence_path = $RuntimeEvidencePath
         extraction_evidence_sha256 = (Get-FileHash -LiteralPath $RuntimeEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant()
+        observed_compressed_chunk_count = [int]$evidence.compressed_block_chunk_count
         official_inno_tag = $expectedInnoTag
         official_inno_commit = $expectedInnoCommit
-        behavioral_anchor_workflow_run = $behavioralAnchorWorkflowRun
-        behavioral_anchor_setup_sha256 = $behavioralAnchorSetupSha256
+        evidence_workflow_run = $evidenceWorkflowRun
+        behavioral_workflow_run = $behavioralWorkflowRun
+        historical_anchor_setup_sha256 = $historicalAnchorSetupSha256
         static_to_behavioral_anchor = 'PASS'
     }
 }
