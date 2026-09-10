@@ -8,7 +8,7 @@ This record does not authorize a clean-IP tag until the authorized fields below 
 
 ## Candidate identity
 
-- Canonical repository: `arvectum1/proxy-launcher`
+- Canonical repository: `arvectum2/proxy-launcher`
 - Product version: `0.2.3`
 - Immutable APL-IP-003/source-review anchor commit: `8ad54018e6d6251c906a06d09fd464c8931c14b2`
 - Immutable APL-IP-003/source-review anchor tree: `eac5db739e7bd3fda595b09b2ec869ad06a87ba3`
@@ -23,6 +23,8 @@ This record does not authorize a clean-IP tag until the authorized fields below 
 - Post-refactor source-review evidence: `docs/evidence/APL_IP_001_POST_REFACTOR_REVIEW_2026-08-22.md`
 - Historical post-APL-IP-004 evidence: `docs/evidence/APL_IP_001_POST_IP_004_CANDIDATE_RECONCILIATION_2026-08-22.md`
 - Current post-#172 evidence: `docs/evidence/APL_IP_001_POST_172_CANDIDATE_RECONCILIATION_2026-08-25.md`
+
+Repository migration on 2026-09-10 changed the canonical GitHub location only. It does not change or reselect any immutable candidate commit, tree, provenance hash or SBOM hash recorded here.
 
 The validated PR head, PR test-merge and selected final merge have the identical tree `b36e7dc17830622c510fc7c8b643cfd36bb7fe3f`. Candidate-content evidence is therefore exact even though Git topology differs.
 

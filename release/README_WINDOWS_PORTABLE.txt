@@ -36,4 +36,4 @@ Windows production code signing is governed separately by the release policy; do
 interpret file metadata or the Arvectum icon as a digital-signature trust assertion.
 
 Support and release policy:
-  https://github.com/arvectum/proxy-launcher
+  https://github.com/arvectum2/proxy-launcher

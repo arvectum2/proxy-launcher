@@ -19,11 +19,13 @@
 
 1.2. Идентификаторы программного объекта:
 
-- repository: `arvectum/proxy-launcher`;
+- repository: `arvectum2/proxy-launcher`;
 - product version: `0.2.3`;
 - reviewed candidate commit: `7c3bdbd005e6ff27db8f5a00071dc81c8595dd9b`;
 - candidate tree: `9c372b440919b3b9e69d78ab0a85dca3f387d5af`;
 - source-provenance manifest SHA-256: `7b1f42a124c1b0cf068937bb3bb8554609ab7294eb68583ba577b7ead93f1927`.
+
+Repository-location migrations do not alter the immutable commit/tree identifiers above. For the later post-#172 candidate, use the dedicated current sign-off/addendum records rather than treating this generic template identity as final authorization.
 
 1.3. В объект входят оригинальные исходные тексты, скрипты, конфигурационные и иные авторские материалы, созданные Автором и входящие в указанное дерево исходного кода, за исключением сторонних компонентов, библиотек, инструментов и иных объектов, права на которые принадлежат третьим лицам и которые используются на условиях соответствующих лицензий.
 

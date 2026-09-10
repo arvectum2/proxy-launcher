@@ -87,4 +87,4 @@ verify release bytes against the published SHA256SUMS.txt and obtain packages on
 the canonical release channel.
 
 Project and support:
-  https://github.com/arvectum/proxy-launcher
+  https://github.com/arvectum2/proxy-launcher

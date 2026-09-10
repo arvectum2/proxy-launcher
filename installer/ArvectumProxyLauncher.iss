@@ -15,7 +15,7 @@
 #define AppName "Arvectum Proxy Launcher"
 #define AppPublisher "ООО «Арвектум»"
 #define AppPublisherURL "https://arvectum.com"
-#define AppSupportURL "https://github.com/arvectum/proxy-launcher/issues"
+#define AppSupportURL "https://github.com/arvectum2/proxy-launcher/issues"
 #define AppDir "{userdocs}\ArvectumProxyLauncher"
 #ifdef SyntheticLifecycleFixture
   #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup-synthetic-predecessor"

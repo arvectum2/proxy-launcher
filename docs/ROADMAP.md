@@ -1,148 +1,65 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-08-25
-Canonical GitHub repository: `arvectum1/proxy-launcher`
-Canonical branch: `main`
+Updated: 2026-09-10  
+Canonical GitHub repository: `arvectum2/proxy-launcher`  
+Canonical branch: `main`  
 Current product line: `0.2.3`
 
-Status legend:
+Status legend: **DONE**, **CURRENT**, **READY**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **ADMIN PENDING**, **STOP-GATE**, **DEFERRED**.
 
-- **DONE** — implementation and required acceptance are complete.
-- **CURRENT** — active next item for that track.
-- **READY** — executable now once an operator chooses the track.
-- **PARTIAL** — meaningful acceptance exists but the named final gate is not closed.
-- **HUMAN/LEGAL PENDING** — requires an authorized factual/legal action.
-- **ADMIN PENDING** — requires a repository/platform administrator setting that current automation cannot mutate.
-- **STOP-GATE** — do not continue production implementation until a deliberate decision is made.
-- **DEFERRED** — useful hardening/later work outside the current critical path.
+## 0. Repository authority and migration recovery
 
-## 0. Repository authority, GitHub protection and GitVerse mirror
+- **DONE** — source/history/tags were recovered into `arvectum2/proxy-launcher`; `main` is the canonical integration branch.
+- **DONE** — current governance, installer/support and repository-identity references are being normalized to the new canonical slug without rewriting historical provenance.
+- **DONE** — GitVerse mirror logic is owner-independent on the GitHub side because it uses `${{ github.repository }}`; a post-migration mirror run passed on the restored baseline.
+- **CURRENT** — rebuild exact-SHA GitHub Actions evidence in the new repository. Actions history from the previous GitHub repository is not inherited as current-repository release evidence.
+- **ADMIN PENDING** — `main` protection is currently disabled in the new repository and must be restored by the repository owner/admin. The target contract remains PR-only changes, required `build`, strict/up-to-date checks, conversation resolution, no force push/delete and no silent administrator bypass during normal operation.
+- **HOLD FOR PUBLICATION** — no production release may be approved from the migrated repository until branch protection is restored and the exact release SHA has the required green Windows/release-evidence chain in this repository.
 
-### GitHub authority
+Historical repository identifiers remain valid only inside explicit provenance, closed acceptance, immutable baseline or historical workflow material. They are not current operational authorities.
 
-- **DONE** — canonical repository is `arvectum1/proxy-launcher`; default/canonical branch is `main`.
-- **DONE** — pre-migration project history is preserved; no source-history rewrite was introduced by the owner migration.
-
-### GitHub -> GitVerse mirror
-
-- **DONE / VERIFIED 2026-08-24** — post-owner-migration mirror contract was repaired and verified.
-- The previous GitVerse presentation was stale: `master` was still the default branch at historical GitHub commit `0a4ff4e4087756c81b4ad4101a0c851aa663ea3f`.
-- `mirror-to-gitverse.yml` now:
-  1. seeds/updates GitVerse `main` first;
-  2. changes GitVerse `default_branch` to `main` through the official GitVerse API;
-  3. mirrors/prunes normal branches and tags while excluding GitHub-only `refs/pull/*`;
-  4. fail-closes if GitVerse `main` differs from canonical GitHub `main` or if GitVerse default branch is not `main`;
-  5. publishes commit status `gitverse-mirror=success` on the exact verified canonical GitHub `main` SHA.
-- Recovery verification PASS: GitHub Actions run `32767806496` reconciled GitVerse canonical branch/default branch successfully.
-- Post-governance-merge verification PASS: canonical GitHub `main` `c888690928d61e03532de2a023d7870af52354e8` received `gitverse-mirror=success` from run `32769207494`.
-
-### GitHub `main` protection after migration
-
-- **DONE / VERIFIED 2026-08-24** — the protection regression caused by owner/repository migration was detected, restored by the repository owner/admin, and accepted through a real negative merge test.
-- Pre-restoration evidence: GitHub reported `main.protected=false`; protection had not survived migration.
-- Post-restoration evidence: GitHub branch API reports `main.protected=true`.
-- The authenticated connected GitHub identity `arvectum1` has repository permission `admin`.
-- Acceptance PR: `#3 test(governance): verify restored main protection`.
-- Negative test PASS: an immediate normal merge attempt while required `build` was running was rejected by GitHub with HTTP `405 Repository rule violations found` and `Required status check "build" is in progress.`
-- Therefore the required `build` gate is actively enforced even for the connected admin identity through the normal merge path.
-- Recovery contract remains:
-  - PR-based changes to `main`;
-  - approvals required = 0;
-  - required status check `build`;
-  - strict/up-to-date required checks;
-  - conversation resolution required;
-  - force pushes disabled;
-  - branch deletion disabled;
-  - administrator/bypass policy must not silently defeat the gate during normal operation.
-- Exact recovery/verification runbook: `docs/GITHUB_MAIN_PROTECTION_RECOVERY.md`.
-- Acceptance evidence: `docs/evidence/GITHUB_MAIN_PROTECTION_ACCEPTANCE_2026-08-24.md`.
-- Tooling note: the connected identity is an admin, but the current ChatGPT GitHub connector exposes no repository-ruleset/branch-protection mutation action and rejects direct `/rules/...` fetches. This is a connector action-whitelist limitation, not a GitHub permission limitation.
-
-## 1. Proven Windows/core/release baseline
+## 1. Windows product baseline
 
 - **DONE** — customer-proven Windows `0.2.3` system-proxy baseline.
-- **DONE** — APL-CORE-001..007 cross-platform backend contract/capability foundation.
-- **DONE** — Gates R1-R7.
-- **DONE** — P0.1 governed Windows CPython `3.12.10` x64 + exact hash-locked wheelhouse archive and retained offline copy.
-- **DONE** — exact Inno Setup `6.7.1` controlled acquisition and canonical installer build.
-- **DONE** — Russian-first production provenance/signing contour with CryptoPro/Rutoken detached evidence and fail-closed publication controls.
-- **TRUST BOUNDARY** — detached Russian signature proves governed release provenance/integrity; embedded Microsoft Authenticode/SmartScreen/App Control trust is not claimed.
-- **DEFERRED** — P0.2 independent endpoint-denied clean-machine rebuild; resilience hardening only, not a release blocker.
+- **DONE** — Windows portable + installer productization, Gate R6 lifecycle, supportability, recovery and DPAPI credential protection.
+- **DONE** — sealed APL-WIN-014 Inno Setup 6.7.1 runtime derivation/evidence engineering is retained in history.
+- **CURRENT / LOCAL** — finish the real-host APL-WIN-014 App Control for Business gate on ARVECTUM-DEMO using the exact retained `0.2.2 P0.4` predecessor and current `0.2.3` artifacts. Same-version repair is not cross-version evidence.
+- **PARTIAL / READY** — APL-REL-014 exact signed-set lifecycle/recovery evidence remains to be closed if not already exported from the physical stand.
 
-## 2. Physical Windows stand — ARVECTUM-DEMO
+The sealed `0.2.3` product baseline is not silently mutated by repository migration work.
 
-Current host: dedicated x86-64 laptop, Windows 11 Enterprise 25H2, 512 GB SSD. Intended permanent state: Windows 11 + Astra Linux SE 1.8 x86-64 dual boot.
+## 2. Russian-first release trust
 
-### Portable and installer acceptance
+- **DONE** — APL-REL-010 real Rutoken/CryptoPro POC: detached signing and verification PASS.
+- **DONE** — current company УКЭП classified `RELEASE-EVIDENCE-ONLY`; Code Signing EKU is absent.
+- **DONE** — APL-REL-011 owner-operated signed-release manifest integration.
+- **DONE** — APL-REL-012 end-user verification UX.
+- **DONE** — APL-REL-013 fail-closed Russian production release gate.
+- **NOT ACTIVATED** — embedded Russian code signing / ОТУЦ production identity remains a separate future gate.
 
-- **DONE** — portable version works on the physical Windows 11 host.
-- **DONE** — physical host exposed installer defect #171 (portable-active -> installer split-brain/partial install).
-- **DONE** — PR #172 / commit `e2be3445e23eb6e8f0709f37fec0ecba50447dc7` added deterministic rollback wait, fail-closed pre-install maintenance preflight and regression coverage.
-- **DONE** — physical follow-up passed: fixed install over active portable, uninstall, fresh reinstall and persistent proxy configuration preservation.
+The historical `v0.2.3` tag is immutable and must not be moved to the migrated/current tree. Because the current tree has changed after that tag, any new stable public release must use a new SemVer version/tag. If scope remains migration/release hardening only, `0.2.4` is the natural patch candidate; do not bump until the exact release candidate is selected.
 
-### APL-WIN-014 — App Control for Business
+## 3. IP / legal / sovereignty
 
-- **CURRENT / LOCAL REAL-HOST GATE**.
-- Canonical runbook: `docs/APL_WIN_014_LOCAL_GATE.md`.
-- Windows 11 Enterprise is eligible.
-- Final PASS requires App Control for Business actually enforced plus both:
-  - exact current `0.2.3` enforced acceptance;
-  - a real cross-version upgrade from the distinct retained `0.2.2 P0.4` baseline.
-- Same-version repair is not upgrade evidence.
-- **[Web] DONE — exact previous baseline recovery/reconciliation**:
-  - selected historical commit `0ea08d9c815da36d0175f62db153de78f89731fc`;
-  - retained package `release/Arvectum-Proxy-Launcher-Windows-0.2.2-P0.4-client.zip`;
-  - immutable Git blob SHA-1 `574d3dc5f90a116555e3a72ff3288c31c19d3dc7`, size `15963815`;
-  - exact historical application SHA-256 `7EF02652E31BBBD68833BE599135CF59519C42B1F8A8FEBB580B3891FFC35EC0`;
-  - historical P0.4 QA: `RESULT: PASS`, `CUSTOMER UPDATE INSTALLER: APPROVED`, `77/77 PASS`;
-  - no retrospective rebuild or synthetic `0.2.2` Inno installer is used;
-  - recovery, exact-hash baseline trust and legacy-to-current upgrade harness are now governed in-repo.
-- Web evidence: `docs/evidence/APL_WIN_014_0_2_2_BASELINE_RECONCILIATION_2026-08-25.md`.
-- **[Win] CURRENT** — materialize the exact Git-retained P0.4 bytes locally, generate current and historical trust packs against the same base policy, deploy both supplemental policies through the lab/customer management path, keep the base policy Enforced, then execute `tools/windows_app_control_local_gate_complete.ps1`.
-- A denial of the genuine P0.4 installer/script bytes under Enforced App Control is a BLOCK/evidence condition; do not weaken App Control or use execution-policy bypass as a trust substitute.
+- **DONE** — APL-IP-002 platform sovereignty audits.
+- **DONE** — APL-IP-003 canonical source refactor, Slices 1–23.
+- **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
+- **HUMAN/LEGAL PENDING** — R-1 author → ООО rights basis, R-2 actual Rospatent status, R-3 corporate/interested-transaction basis, factual confirmation and explicit final APL-IP-001 decision.
+- **RULE** — repository migration changes the canonical repository location, not the immutable candidate commit/tree or historical evidence. Any later material product/build/package change requires a new exact reconciliation before clean-IP approval.
+- **HOLD** — AppImage remains outside promoted commercial scope until its downstream/type-2-runtime obligations are separately cleared.
 
-### APL-REL-014 — exact signed-set lifecycle
+## 4. Linux / Astra Linux
 
-- **PARTIAL / READY**.
-- Real installer transition/uninstall/fresh-install behavior is proven after #172.
-- Exact governed signed-set lifecycle/upgrade/recovery evidence remains pending until the canonical local record identifies the exact signed artifacts and required recovery states.
-- Complete/export/hash-verify this evidence before Linux repartitioning.
+- **DONE** — APL-LNX-001..009 engineering, diagnostics, Debian `.deb`, AppImage engineering and Ubuntu CI acceptance.
+- **READY AFTER WINDOWS-ONLY GATES** — convert ARVECTUM-DEMO to persistent Windows 11 + Astra Linux SE 1.8 dual boot while preserving Windows recovery/EFI state.
+- **READY** — APL-LNX-010 real Astra acceptance.
+- **PENDING** — Gate R8 closes only from real Astra-host evidence.
+- Preferred promoted Linux/Astra lane remains Debian `.deb`; AppImage remains on HOLD for promoted commercial use.
 
-## 3. Linux / Astra Linux
+## 5. macOS
 
-- **DONE** — APL-LNX-001..009 engineering, diagnostics, `.deb`, AppImage engineering and Ubuntu CI acceptance.
-- **DONE** — APL-IP-002-LNX conditional sovereignty audit.
-- **READY / HOST AVAILABLE AFTER WINDOWS-ONLY GATES** — same physical laptop becomes the permanent Astra stand without deleting Windows.
-- **[Win/Linux] NEXT TRANSITION** — shrink Windows `C:` from Windows, install Astra Linux SE 1.8 x86-64 into unallocated space using manual GPT/UEFI partitioning, preserve existing EFI/Windows/MSR/Recovery partitions and verify both OSes boot.
-- **[Linux] APL-LNX-010 READY** — real Astra GUI/runtime/NetworkManager/PolicyKit/package/autostart/recovery/update/remove/diagnostics acceptance.
-- **[Linux] Gate R8 PENDING** — closes only from real Astra-host PASS evidence.
-- Preferred promoted Linux/Astra lane remains `.deb`.
-- **HOLD** — AppImage is excluded from promoted commercial scope until L-2 downstream/type-2-runtime obligations are separately cleared.
-
-## 4. macOS
-
-- **DONE** — APL-MAC-001..008.
-- **DONE** — APL-IP-002-MAC.
-- **DONE** — Gate R9 real macOS acceptance.
-- **DEFERRED** — Apple production identity signing/notarization and controlled macOS endpoint-denied build-input hardening under the Russia-first priority model.
-
-## 5. IP / sovereignty / legal
-
-- **DONE** — APL-IP-002-WIN/LNX/MAC/FINAL.
-- **DONE** — APL-IP-003 canonical source refactor, Slices 1-23.
-- **DONE** — APL-IP-004 third-party full-license bundle engineering for newly built promoted Windows portable/installer, Debian `.deb` and macOS `.app`/DMG lanes.
-- **CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING** — historical post-APL-IP-004 state remains truthful evidence: engineering reconciliation was complete, but authorized legal approval was not.
-- **[Web] DONE — post-APL-IP-004 review reconciliation** — candidate `ef9846e151a2e4e7046169e0787603969018cc97` was correctly reconciled against the APL-IP-004 state; this remains historical evidence and did not grant legal approval.
-- **[Web] DONE — post-#172 exact candidate/evidence reconciliation** — the installer drift introduced by #171/#172 has been explicitly rebound. Selected candidate is merge `adc917e905acca1f8e97d560a3363b07adc279fb`, tree `b36e7dc17830622c510fc7c8b643cfd36bb7fe3f`; validated PR head `56cfecf27c384591caae32bab53d343d9e6b9085` and PR test-merge `73f85f86844f9c8c8a216691b8f9c42d92ca40f7` have the identical tree. Fresh candidate-equivalent APL-IP-001 provenance, SBOM, Windows portable and full Windows installer/#171/Gate R6 workflows all pass. Canonical evidence: `docs/evidence/APL_IP_001_POST_172_CANDIDATE_RECONCILIATION_2026-08-25.md`.
-- **CONDITIONAL / POST-#172 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING** — current canonical sign-off is `docs/APL_IP_001_POST_172_SIGNOFF.md`. The prior `ef9846e...` sign-off is historical only for the superseded installer state.
-- **CURRENT ENGINEERING BOUNDARY** — post-candidate changes through the reconciliation work are governance/documentation/test-only and do not silently move the selected candidate. Any later product-source, build-dependency, packaging/compliance implementation or selected promoted-artifact-content change requires another exact reconciliation.
-- **[Human] PARALLEL**:
-  - R-1 author -> ООО «Арвектум» rights basis covering candidate `adc917e...` / tree `b36e7dc...`;
-  - R-2 actual Rospatent registration/transfer status;
-  - R-3 applicable corporate/interested-transaction basis/approval/exception;
-  - factual provenance confirmation for the final selected candidate and explicit authorized decision.
-- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** for the exact approved candidate only.
-- **OPTIONAL / HOLD** — AppImage L-2 clearance only if AppImage later enters promoted commercial scope.
+- **DONE** — APL-MAC-001..008 engineering/acceptance track and Gate R9 evidence retained.
+- **DEFERRED** — Apple production identity signing/notarization and controlled endpoint-denied build-input hardening under the Russia-first priority model.
 
 ## 6. Per-application routing
 
@@ -150,68 +67,20 @@ Current host: dedicated x86-64 laptop, Windows 11 Enterprise 25H2, 512 GB SSD. I
 - **DONE** — APL-ROUTE-002 feasibility matrix.
 - **AUTONOMOUS COMPLETE / LOCAL-NATIVE PENDING** — APL-ROUTE-003 control-plane prototype.
 - **DONE** — APL-ROUTE-004 durable ownership/recovery/security journal.
+- **STOP-GATE** — before Windows native production enforcement, deliberately choose an accepted enforcement architecture; test-signing/developer modes are not a production workaround.
 
-### Windows production enforcement STOP-GATE
+Per-application routing is a product-next-stage item after the current Windows release/repository baseline is trustworthy; it should not be mixed into migration recovery.
 
-Choose deliberately before native production enforcement:
+## 7. Immediate execution order
 
-1. Microsoft Hardware Dev Center + accepted EV identity for optional WFP/kernel SKU;
-2. separately reviewed already-signed third-party component;
-3. supported user-mode architecture with equivalent semantics;
-4. defer Windows per-app routing and keep the system-proxy/domain/IP line production-ready.
-
-- **[Web/Decision] READY** — decision work can proceed now in parallel.
-- Test-signing/developer modes are not accepted as a production workaround.
-
-Future branches after the decision: Linux cgroup/socket+nftables/policy-routing prototype on Astra; macOS NetworkExtension entitlement/distribution proof; mobile Android/iOS capability architecture later.
-
-## 7. Deferred sovereignty/recovery hardening
-
-- **DEFERRED** — Windows P0.2 clean-machine endpoint-denied rebuild in a future naturally clean environment.
-- **DEFERRED / MEDIUM** — controlled Linux build-input mirror + endpoint-denied rebuild.
-- **DEFERRED / MEDIUM** — controlled macOS build-input mirror + endpoint-denied rebuild.
-- **DEFERRED** — international Microsoft/GlobalSign and Apple signing/notarization paths; not blockers for the Russian-first baseline.
-
-## 8. What can be done now
-
-### [Web] ChatGPT/GitHub
-
-1. **DONE — APL-IP-001 post-#172 exact candidate/evidence reconciliation.**
-2. **DONE — APL-WIN-014 exact retained 0.2.2 P0.4 baseline recovery/reconciliation and harness preparation.**
-3. **DONE — GitHub -> GitVerse mirror recovery/verification.**
-4. **DONE — GitHub `main` protection restoration/acceptance after owner migration.**
-5. **READY / optional — APL-ROUTE-003 product/architecture decision work.**
-
-### [Human/Admin]
-
-Repository `main` protection has no remaining migration-recovery action. R-1/R-2/R-3 and final IP/legal factual sign-off preparation remain available in parallel.
-
-### [Win] ARVECTUM-DEMO
-
-1. **CURRENT — APL-WIN-014:** exact P0.4 materialization + baseline/current trust preparation/deployment + enforced final gate.
-2. **READY — finish APL-REL-014 exact signed-set lifecycle/recovery evidence.**
-3. Export/hash-verify all Windows evidence before repartitioning.
-
-### [Linux] ARVECTUM-DEMO
-
-After Windows-only gates: create persistent dual boot, install Astra SE 1.8, execute APL-LNX-010 and close Gate R8.
-
-### [Mac]
-
-No release-critical local acceptance task remains.
-
-## 9. Recommended parallel execution
-
-Run three active streams without blocking one another:
-
-- **A — [Win]** execute the now fully prepared APL-WIN-014 P0.4 -> 0.2.3 enforced local gate;
-- **B — [Human]** close R-1/R-2/R-3, confirm candidate factual provenance and make the explicit APL-IP-001 decision;
-- **C — [Web/Decision, optional]** APL-ROUTE-003 product/architecture decision work.
-
-Post-#172 APL-IP-001 reconciliation, exact APL-WIN-014 predecessor recovery, and repository-owner migration governance are **DONE** and no longer occupy active Web streams.
-
-After Windows App Control / exact signed-set evidence are closed, convert ARVECTUM-DEMO to persistent Windows+Astra dual boot and execute **APL-LNX-010 -> Gate R8**.
+1. **[Web/GitHub] CURRENT** — finish `arvectum2` repository reconciliation; obtain a clean exact migration SHA and green CI/mirror evidence.
+2. **[Admin] CURRENT** — restore `main` protection on `arvectum2/proxy-launcher` and perform the negative merge acceptance test.
+3. **[Win] CURRENT** — close APL-WIN-014 real App Control cross-version gate and remaining APL-REL-014 evidence on ARVECTUM-DEMO; export/hash-verify evidence.
+4. **[Human] PARALLEL** — close R-1/R-2/R-3 and final APL-IP-001 authorized decision.
+5. **[Release] AFTER 1–4 AS APPLICABLE** — select the next immutable SemVer candidate, rebuild exact-SHA release evidence in `arvectum2`, run REL-011/012/013 owner-operated ceremony, then publish only the exact verified set.
+6. **[Linux] NEXT PLATFORM** — install Astra dual boot, execute APL-LNX-010 and close Gate R8.
+7. **[Product] THEN** — resolve APL-ROUTE-003 Windows enforcement STOP-GATE and begin the next per-application-routing increment.
 
 ## Completion discipline
 
-Real-host and human/legal gates remain pending until their named evidence exists. Do not substitute CI, mocks, screenshots or same-version repair for required physical/cross-version acceptance. Historical evidence remains immutable; later product/build/package implementation changes require explicit candidate/evidence rebinding. GitHub `main` is the source authority; GitVerse is a verified mirror, not an independent competing source of truth. Repository protection after owner migration is accepted only from the observed protected branch state plus a real rule-enforced negative merge test, both of which passed on 2026-08-24.
+Do not substitute migrated history for new-repository CI evidence, CI for physical App Control/Astra evidence, or automation for human/legal decisions. Do not rewrite historical repository identities where they are part of provenance. Do not retarget immutable tags. Current operational references must resolve to `arvectum2/proxy-launcher`.

@@ -16,7 +16,7 @@ This addendum preserves the earlier source-review/human-fact chain while rebindi
 
 For purposes of the underlying rights instrument, the reviewed/supplemented technical object is identified as follows:
 
-- canonical repository: `arvectum1/proxy-launcher`;
+- canonical repository: `arvectum2/proxy-launcher`;
 - product: **Arvectum Proxy Launcher**;
 - product version: `0.2.3`;
 - immutable APL-IP-003/source-review anchor commit: `8ad54018e6d6251c906a06d09fd464c8931c14b2`;
@@ -32,6 +32,8 @@ For purposes of the underlying rights instrument, the reviewed/supplemented tech
 - post-refactor source-review record: `docs/evidence/APL_IP_001_POST_REFACTOR_REVIEW_2026-08-22.md`;
 - post-#172 exact reconciliation record: `docs/evidence/APL_IP_001_POST_172_CANDIDATE_RECONCILIATION_2026-08-25.md`;
 - canonical post-#172 sign-off record: `docs/APL_IP_001_POST_172_SIGNOFF.md`.
+
+Repository migration on 2026-09-10 changed the canonical GitHub location only and does not alter any immutable commit/tree/hash identifier above.
 
 The validated PR head, test-merge and selected final merge have the identical tree `b36e7dc17830622c510fc7c8b643cfd36bb7fe3f`.
 

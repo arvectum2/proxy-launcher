@@ -16,6 +16,17 @@ HISTORICAL_REFERENCE_PREFIXES = (
     "docs/evidence/",
     "release/baselines/",
 )
+HISTORICAL_REFERENCE_FILES = {
+    ".github/workflows/apl-win-014-inno-runtime-evidence.yml",
+    "docs/APL_IP_001_POST_REFACTOR_SIGNOFF.md",
+    "docs/APL_MAC_008_REAL_MACOS_ACCEPTANCE.md",
+    "docs/legal/APL_IP_001_RIGHTS_ASSIGNMENT_POST_REFACTOR_2026-08-22.md",
+    "release/GATE_R1_WINDOWS_RELEASE_READINESS.md",
+    "release/GATE_R2_FINAL_WINDOWS_RELEASE.md",
+    "release/GATE_R3_DIAGNOSTICS_SUPPORTABILITY.md",
+    "tools/windows_app_control_legacy_baseline_trust_pack.ps1",
+    "tools/windows_app_control_recover_0_2_2_baseline.ps1",
+}
 
 
 def _tracked_files() -> list[str]:
@@ -46,7 +57,11 @@ class RepositoryHygieneTests(unittest.TestCase):
     def test_current_tree_uses_canonical_repository_identity(self):
         violations = {}
         for relative in _tracked_files():
-            if relative == ".mailmap" or relative.startswith(HISTORICAL_REFERENCE_PREFIXES):
+            if (
+                relative == ".mailmap"
+                or relative in HISTORICAL_REFERENCE_FILES
+                or relative.startswith(HISTORICAL_REFERENCE_PREFIXES)
+            ):
                 continue
             path = ROOT / relative
             try:
@@ -59,6 +74,10 @@ class RepositoryHygieneTests(unittest.TestCase):
         if violations:
             self.fail(repr(violations))
 
+    def test_historical_reference_allowlist_is_explicit_and_bounded(self):
+        for relative in HISTORICAL_REFERENCE_FILES:
+            self.assertTrue((ROOT / relative).is_file(), f"Missing historical allowlisted file: {relative}")
+
     def test_historical_identity_mapping_is_preserved_without_history_rewrite(self):
         mailmap = (ROOT / ".mailmap").read_text(encoding="utf-8")
         self.assertIn("arutyunoveth", mailmap)
@@ -68,7 +87,11 @@ class RepositoryHygieneTests(unittest.TestCase):
         task = (ROOT / "docs" / "APL_IP_003_CANONICAL_SOURCE_REFACTOR.md").read_text(
             encoding="utf-8"
         )
+        recovery = (ROOT / "docs" / "APL_REPO_RECOVERY_ARVECTUM2.md").read_text(
+            encoding="utf-8"
+        )
         self.assertIn(CANONICAL_REPOSITORY_SLUG, task)
+        self.assertIn(CANONICAL_REPOSITORY_SLUG, recovery)
 
 
 if __name__ == "__main__":
