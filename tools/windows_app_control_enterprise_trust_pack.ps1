@@ -50,7 +50,7 @@ $ExpectedSetupSha256 = '5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2ef
 $ExpectedPortableSha256 = '62d313547b4d8c2c8e6951d6cd866bb954fdf199ad7650063c8ed3bfbc455801'
 $ExpectedAppSha256 = 'f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a'
 $ExpectedSignerThumbprint = 'EE1CFA955BA22F03C39C76B183D94CD37494582E'
-$ExpectedTrustSchema = 'arvectum.proxy.windows-app-control-enterprise-trust-pack.v2'
+$ExpectedTrustSchema = 'arvectum.proxy.windows-app-control-enterprise-trust-pack.v1'
 
 function Get-Sha256([string]$Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
