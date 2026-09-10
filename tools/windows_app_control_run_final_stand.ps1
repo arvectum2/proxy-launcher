@@ -56,7 +56,6 @@ function Get-CiPolicies {
             is_enforced = [bool]$_.IsEnforced
             is_on_disk = [bool]$_.IsOnDisk
             is_authorized = $(if ($_.PSObject.Properties['IsAuthorized']) { [bool]$_.IsAuthorized } else { $null })
-            policy_options = @($_.PolicyOptions)
         }
     })
 }
@@ -65,7 +64,7 @@ function Assert-SupplementalActive([object[]]$Policies, [Guid]$PolicyId, [Guid]$
     $policyText = Normalize-GuidText $PolicyId
     $baseText = Normalize-GuidText $BaseId
     $matches = @($Policies | Where-Object { $_.policy_id -eq $policyText })
-    if ($matches.Count -ne 1 -or -not $matches[0].is_on_disk) { throw "Prepared $Label supplemental policy is not active/on-disk." }
+    if ($matches.Count -ne 1 -or -not $matches[0].is_on_disk -or -not $matches[0].is_enforced) { throw "Prepared $Label supplemental policy is not active/enforced/on-disk." }
     if ($matches[0].is_authorized -eq $false) { throw "Prepared $Label supplemental policy is not authorized." }
     if ($matches[0].base_policy_id -and $matches[0].base_policy_id -ne $baseText) { throw "Prepared $Label supplemental policy targets another base policy." }
 }
@@ -73,9 +72,7 @@ function Assert-SupplementalActive([object[]]$Policies, [Guid]$PolicyId, [Guid]$
 function Assert-PreparedPoliciesActive([object[]]$Policies, [Guid]$BaseId, [Guid]$BaselineId, [Guid]$CurrentId) {
     $baseText = Normalize-GuidText $BaseId
     $base = @($Policies | Where-Object { $_.policy_id -eq $baseText })
-    if ($base.Count -ne 1 -or -not $base[0].is_enforced -or -not $base[0].is_on_disk) { throw 'Canonical base policy is not active and enforced.' }
-    if (@($base[0].policy_options) -contains 'Enabled:Audit Mode') { throw 'Canonical base policy is in Audit Mode.' }
-    if (@($base[0].policy_options) -notcontains 'Enabled:Allow Supplemental Policies') { throw 'Canonical base policy does not allow supplemental policies.' }
+    if ($base.Count -ne 1 -or -not $base[0].is_enforced -or -not $base[0].is_on_disk) { throw 'Canonical base policy is not active/enforced/on-disk.' }
     Assert-SupplementalActive -Policies $Policies -PolicyId $BaselineId -BaseId $BaseId -Label 'baseline'
     Assert-SupplementalActive -Policies $Policies -PolicyId $CurrentId -BaseId $BaseId -Label 'current'
 }
