@@ -66,6 +66,8 @@ function Get-ArvectumInnoRuntimeMaterial {
         evidence_workflow_run = $evidenceWorkflowRun
         behavioral_workflow_run = $behavioralWorkflowRun
         historical_anchor_setup_sha256 = $historicalAnchorSetupSha256
+        behavioral_anchor_workflow_run = $behavioralWorkflowRun
+        behavioral_anchor_setup_sha256 = $historicalAnchorSetupSha256
         static_to_behavioral_anchor = 'PASS'
     }
 }
