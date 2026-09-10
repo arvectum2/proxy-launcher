@@ -49,7 +49,7 @@ The task is an engineering refactor, not an attempt to erase AI assistance, thir
 
 - Add a governed `.mailmap` that maps the owner's historical `arvectum` / `arutyunoveth` Git identities to one canonical Arvectum identity without rewriting Git history.
 - Keep `OpenAI <noreply@openai.com>` and automation identities historically truthful; do not remap them to the human author.
-- Normalize current repository references to `arvectum/proxy-launcher`.
+- Normalize current repository references to `arvectum2/proxy-launcher`.
 - Remove obsolete references to old usernames, forks, temporary worktrees, local absolute paths, and superseded repository names from current maintained source/docs where they are not required as historical evidence.
 - Preserve legitimate upstream dependency/source URLs where required for licensing, reproducibility, or provenance.
 
@@ -112,7 +112,7 @@ After the canonical refactor is complete:
 APL-IP-003 is DONE only when all of the following are true:
 
 - maintained source has one coherent Arvectum code/architecture style;
-- current source/docs use the canonical `arvectum/proxy-launcher` repository identity except where historical/upstream references are required;
+- current source/docs use the canonical `arvectum2/proxy-launcher` repository identity except where historical/upstream references are required;
 - historical human Git identities are normalized via `.mailmap`, not rewritten;
 - AI/bot identities have not been falsified or reassigned;
 - obsolete compatibility/duplication is removed or explicitly justified;
