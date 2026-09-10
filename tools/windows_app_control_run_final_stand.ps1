@@ -36,7 +36,10 @@ function Get-Sha256([string]$Path) {
 
 function Normalize-GuidText([object]$Value) {
     if ($null -eq $Value) { return '' }
-    return ([Guid](([string]$Value).Trim().Trim('{}'))).ToString('D').ToLowerInvariant()
+    $text = ([string]$Value).Trim().Trim('{}')
+    if ([string]::IsNullOrWhiteSpace($text)) { return '' }
+    try { return ([Guid]$text).ToString('D').ToLowerInvariant() }
+    catch { return $text.ToLowerInvariant() }
 }
 
 function Get-CiPolicies {
