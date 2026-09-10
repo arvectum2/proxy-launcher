@@ -55,6 +55,12 @@ jobs:
             'tools/windows_app_control_preverified_release.ps1',
             'tools/windows_app_control_enforced_acceptance.ps1',
             'tools/windows_app_control_local_gate_complete.ps1',
+            'tools/windows_app_control_prepare_harness_script_trust_clm.ps1',
+            'tools/windows_app_control_harness_language_probe.ps1',
+            'tools/windows_app_control_prepare_final_stand.ps1',
+            'tools/windows_app_control_run_final_stand.ps1',
+            'tools/windows_app_control_prepare_production_runtime_trust.ps1',
+            'tools/windows_app_control_verify_runtime_trust_pack.ps1',
             'qa/windows_installer_171_e2e.ps1',
             'qa/windows_rc_e2e.ps1',
             'installer/upgrade_helper.ps1',
@@ -70,6 +76,7 @@ jobs:
           python -m unittest `
             tests.test_windows_app_control_legacy_baseline `
             tests.test_windows_app_control_final_local_gate `
+            tests.test_windows_app_control_clm_harness_trust `
             -v
 
       - name: Validate Inno Setup sovereignty contract
