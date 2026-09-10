@@ -2,7 +2,7 @@
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 [CmdletBinding()]
-param([string]$ReferenceCaptureDir = '')
+param([string]$ReferenceCaptureDir = '', [string]$RuntimePath = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $basePolicyIdText = 'dc1c604c-46ea-40b7-9f47-cf582b225d5e'
@@ -10,11 +10,14 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $scriptDir 'configci_xml_validation.ps1')
 . (Join-Path $scriptDir 'checksum_validation.ps1')
 . (Join-Path $scriptDir 'reference_collection_helpers.ps1')
+. (Join-Path $scriptDir 'runtime_hash_validation.ps1')
 if ([string]::IsNullOrWhiteSpace($ReferenceCaptureDir)) { throw 'ReferenceCaptureDir is required; this script never prompts.' }
+if ([string]::IsNullOrWhiteSpace($RuntimePath)) { throw 'RuntimePath is required; supply the exact derived Inno Setup 6.7.1 runtime binary.' }
 $capturePath = Join-Path $ReferenceCaptureDir 'reference-capture.json'
 if (-not (Test-Path -LiteralPath $capturePath -PathType Leaf)) { throw "Reference capture manifest not found: $capturePath" }
 $capture = Get-Content -LiteralPath $capturePath -Raw | ConvertFrom-Json
 $seal = Get-Content -LiteralPath (Join-Path $scriptDir 'expected_hashes.json') -Raw | ConvertFrom-Json
+$runtime = Get-AplWin014RuntimeHashMaterial -RuntimePath $RuntimePath -ScriptDirectory $scriptDir
 function Get-Sha256([string]$Path) { $out = & (Join-Path $env:SystemRoot 'System32\certutil.exe') -hashfile $Path SHA256; $hashes = @($out | Where-Object { $_ -match '^\s*[0-9A-Fa-f]{64}\s*$' } | ForEach-Object { $_ -replace '^\s+|\s+$','' }); if ($LASTEXITCODE -ne 0 -or $hashes.Count -ne 1) { throw "certutil SHA256 failed for $Path" }; $hashes[0] }
 if ($capture.schema -ne 'arvectum.proxy.apl-win-014-v10.6.4-reference-capture.v4') { throw "Reference capture schema is unexpected: $($capture.schema)." }
 if ($capture.candidate_source_commit -ne $seal.candidate_source_commit -or $capture.candidate_artifact_id -ne $seal.candidate_artifact_id -or $capture.candidate_version -ne $seal.candidate_version) { throw 'Reference capture is not bound to the sealed V10.6.4 candidate.' }
@@ -56,27 +59,42 @@ $expectedInventory = @($capture.files | Sort-Object relative_path)
 $liveInventory = @()
 Get-ChildItem -LiteralPath $capture.install_root -File -Recurse -Force | Sort-Object FullName | ForEach-Object { $relativePath = Get-ClmRelativePath -BasePath $capture.install_root -FullPath $_.FullName; $liveInventory += [ordered]@{ relative_path=$relativePath; sha256=(Get-Sha256 $_.FullName); size=$_.Length; is_pe=($_.Extension -in @('.exe','.dll','.sys','.ocx')) } }
 Compare-ClmInventory -Expected $expectedInventory -Live $liveInventory
-$expectedPeNames = @($expectedInventory | Where-Object { $_.is_pe -eq $true } | ForEach-Object { Split-Path -Leaf $_.relative_path } | Sort-Object -Unique)
+$expectedPeEntries = @($expectedInventory | Where-Object { $_.is_pe -eq $true })
+$expectedPeNames = @($expectedPeEntries | ForEach-Object { Split-Path -Leaf $_.relative_path } | Sort-Object -Unique)
 if ($expectedPeNames.Count -eq 0) { throw 'Reference inventory has no PE files for V10.7 policy authoring.' }
-if ($expectedPeNames.Count -ne @($expectedInventory | Where-Object { $_.is_pe -eq $true }).Count) { throw 'Reference inventory has duplicate PE filenames that cannot be exactly bound in ConfigCI XML.' }
+if ($expectedPeNames.Count -ne $expectedPeEntries.Count) { throw 'Reference inventory has duplicate PE filenames that cannot be exactly bound in ConfigCI XML.' }
+if (@($expectedPeNames | Where-Object { $_ -eq $runtime.filename }).Count -ne 0) { throw 'Reference inventory collides with the canonical Inno runtime policy filename.' }
 $captureHash = Get-Sha256 $capturePath
 if ($captureHash -ine $checksumHash) { throw 'Reference capture manifest hash does not match its checksum evidence.' }
 foreach ($command in @('New-CIPolicy','Set-CIPolicyIdInfo','Set-CIPolicyVersion','ConvertFrom-CIPolicy')) { if (-not (Get-Command $command -ErrorAction SilentlyContinue)) { throw "Required command not found: $command" } }
 $outDir = Join-Path $scriptDir ("v10.7-authoring-" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
-New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+$scanDir = Join-Path $outDir 'scan'
+New-Item -ItemType Directory -Path $scanDir -Force | Out-Null
+foreach ($entry in $expectedPeEntries) {
+    $sourcePe = Join-Path $capture.install_root $entry.relative_path
+    $leaf = Split-Path -Leaf $entry.relative_path
+    $targetPe = Join-Path $scanDir $leaf
+    if (-not (Test-Path -LiteralPath $sourcePe -PathType Leaf)) { throw "Captured PE file is missing during final authoring: $($entry.relative_path)" }
+    Copy-Item -LiteralPath $sourcePe -Destination $targetPe -Force
+    if ((Get-Sha256 $targetPe) -ine $entry.sha256) { throw "Staged PE hash drifted during final authoring: $($entry.relative_path)" }
+}
+$runtimeRulePath = Join-Path $scanDir $runtime.filename
+Copy-Item -LiteralPath $RuntimePath -Destination $runtimeRulePath -Force
+if ((Get-Sha256 $runtimeRulePath) -ine $runtime.sha256) { throw 'Staged Inno runtime hash drifted before final ConfigCI authoring.' }
 $xml = Join-Path $outDir 'Arvectum-APL-WIN-014-V10.7-FinalCandidate.xml'
-New-CIPolicy -MultiplePolicyFormat -ScanPath $capture.install_root -UserPEs -NoScript -NoShadowCopy -FilePath $xml -Level Hash | Out-Null
+New-CIPolicy -MultiplePolicyFormat -ScanPath $scanDir -UserPEs -NoScript -NoShadowCopy -FilePath $xml -Level Hash | Out-Null
 Set-CIPolicyIdInfo -FilePath $xml -ResetPolicyID -PolicyName 'Arvectum APL-WIN-014 Harness V10.7 Final Candidate' -SupplementsBasePolicyID $basePolicyIdText | Out-Null
 Set-CIPolicyVersion -FilePath $xml -Version '10.0.0.18' | Out-Null
 $policyId = ''
 foreach ($line in Get-Content -LiteralPath $xml -Encoding UTF8) { if ($line -match '<PolicyID>\s*([^<]+)\s*</PolicyID>') { $policyId = $matches[1] } }
 if ($policyId -eq '') { throw 'Generated policy has no PolicyID.' }
-Test-ConfigCiSupplementalXml -XmlPath $xml -PolicyId $policyId -BasePolicyId $basePolicyIdText -PolicyFriendlyName 'Arvectum APL-WIN-014 Harness V10.7 Final Candidate' -ExpectedPolicyVersion '10.0.0.18' -ExpectedHashRuleFileNames $expectedPeNames | Out-Null
+$expectedPolicyNames = @($expectedPeNames + $runtime.filename)
+Test-ConfigCiSupplementalXml -XmlPath $xml -PolicyId $policyId -BasePolicyId $basePolicyIdText -PolicyFriendlyName 'Arvectum APL-WIN-014 Harness V10.7 Final Candidate' -ExpectedPolicyVersion '10.0.0.18' -ExpectedHashRuleFileNames $expectedPolicyNames | Out-Null
 $cip = Join-Path $outDir ("{" + ($policyId -replace '[{}]','') + "}.cip")
 ConvertFrom-CIPolicy -XmlFilePath $xml -BinaryFilePath $cip
 if (-not (Test-Path -LiteralPath $cip -PathType Leaf)) { throw 'ConfigCI did not create the binary policy.' }
 [ordered]@{
-    schema='arvectum.proxy.apl-win-014-v10.7-final-authoring.v2'
+    schema='arvectum.proxy.apl-win-014-v10.7-final-authoring.v3'
     candidate_source_commit=$seal.candidate_source_commit
     candidate_artifact_id=$seal.candidate_artifact_id
     reference_capture=(Split-Path -Leaf $capturePath)
@@ -87,6 +105,18 @@ if (-not (Test-Path -LiteralPath $cip -PathType Leaf)) { throw 'ConfigCI did not
     supplemental_policy_version='10.0.0.18'
     supplemental_policy_cip=(Split-Path -Leaf $cip)
     supplemental_policy_cip_sha256=(Get-Sha256 $cip)
+    policy_pe_filenames=$expectedPolicyNames
+    inno_runtime=[ordered]@{
+        filename=$runtime.filename
+        size=$runtime.size
+        sha256=$runtime.sha256
+        official_inno_tag=$runtime.official_inno_tag
+        official_inno_commit=$runtime.official_inno_commit
+        evidence_workflow_run=$runtime.evidence_workflow_run
+        evidence_workflow_attempt=$runtime.evidence_workflow_attempt
+        static_equals_behavioral=$runtime.static_equals_behavioral
+        hash_policy_integrated=$true
+    }
     deployment='NOT PERFORMED'
-} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $outDir 'authoring-evidence.json') -Encoding UTF8
-Write-Host "V10.7 AUTHORING COMPLETE: $outDir (deployment not performed)"
+} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $outDir 'authoring-evidence.json') -Encoding UTF8
+Write-Host "V10.7 AUTHORING COMPLETE: $outDir (runtime hash integrated; deployment not performed)"
