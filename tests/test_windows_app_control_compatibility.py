@@ -60,6 +60,20 @@ def test_enterprise_pack_generates_supplemental_exact_hash_policy_only():
     assert "BootstrapHash" in body
 
 
+def test_enterprise_pack_preserves_script_enforcement_and_hash_trusts_maintenance_scripts():
+    body = text(PACK)
+    policy_line = next(line for line in body.splitlines() if "New-CIPolicy -MultiplePolicyFormat" in line)
+    assert "-NoScript" not in policy_line
+    assert "upgrade_helper.ps1" in body
+    assert "uninstall_helper.ps1" in body
+    assert "upgrade_helper_sha256" in body
+    assert "uninstall_helper_sha256" in body
+    assert "script_enforcement_preserved = $true" in body
+    assert "Generated product supplemental policy disables script enforcement" in body
+    assert "policyXmlText -match 'Disabled:Script Enforcement'" in body
+    assert "Do not disable script enforcement to make release helper scripts run." in body
+
+
 def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring():
     body = text(PACK)
     helper = text(RUNTIME)
@@ -102,6 +116,17 @@ def test_runtime_trust_verifier_separates_flat_identity_from_configci_authentico
     assert "full-file runtime Sha256 rule does not equal" not in body
 
 
+def test_runtime_trust_verifier_requires_script_enforcement_and_maintenance_script_rules():
+    body = text(RUNTIME_VERIFY)
+    assert "Disabled:Script Enforcement" in body
+    assert "script_enforcement_preserved" in body
+    assert "maintenance_scripts" in body
+    assert "upgrade_helper.ps1" in body
+    assert "uninstall_helper.ps1" in body
+    assert "maintenance script has no App Control hash rule" in body
+    assert "maintenance script rule is not bound exactly once into UMCI SigningScenario 12" in body
+
+
 def test_enterprise_pack_never_deploys_or_weakens_windows_protection():
     body = text(PACK)
     assert "never deploys App Control policy" in body
@@ -118,6 +143,8 @@ def test_reference_full_hash_requires_exact_sealed_reference_installation():
     body = text(PACK)
     assert "Reference installation does not contain the exact sealed application EXE." in body
     assert "Reference cached repair Setup does not match the exact production installer." in body
+    assert "Reference installation upgrade_helper.ps1 does not match the sealed release helper." in body
+    assert "Reference installation uninstall_helper.ps1 does not match the sealed release helper." in body
     assert "installed-reference-tree" in body
 
 

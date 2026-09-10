@@ -6,10 +6,15 @@
     supplemental App Control policy using exact hash rules. The script never deploys
     a policy and never changes Smart App Control/App Control state on the machine.
 
-    BootstrapHash mode covers the exact production Setup, application EXE, and the
-    exact Inno Setup 6.7.1 child runtime derived from that production Setup.
+    BootstrapHash mode covers the exact production Setup, application EXE, the exact
+    upgrade/uninstall maintenance scripts, and the exact Inno Setup 6.7.1 child runtime
+    derived from that production Setup.
     ReferenceFullHash mode additionally scans an exact installed reference tree so
     generated maintenance binaries (for example the Inno uninstaller) can be covered.
+
+    Script enforcement remains enabled. Exact release maintenance scripts are included
+    by hash so PowerShell can run those trusted files in FullLanguage while unrelated
+    scripts and interactive PowerShell remain constrained by the customer base policy.
 
     The target organization's existing App Control base policy must permit supplemental
     policies. Deployment remains an explicit customer-IT action.
@@ -49,6 +54,7 @@ $ExpectedPortableSha256 = '62d313547b4d8c2c8e6951d6cd866bb954fdf199ad7650063c8ed
 $ExpectedAppSha256 = 'f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a'
 $ExpectedSignerThumbprint = 'EE1CFA955BA22F03C39C76B183D94CD37494582E'
 $ExpectedTrustSchema = 'arvectum.proxy.windows-app-control-enterprise-trust-pack.v1'
+$MaintenanceScriptNames = @('upgrade_helper.ps1','uninstall_helper.ps1')
 
 function Get-Sha256([string]$Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -77,6 +83,14 @@ function Get-PolicyIdFromXml([string]$Path) {
     $match = [regex]::Match($text, '<PolicyID>\s*([^<]+)\s*</PolicyID>', 'IgnoreCase')
     if (-not $match.Success) { throw 'Generated App Control policy has no PolicyID.' }
     return $match.Groups[1].Value.Trim()
+}
+
+function Get-OnePortableFile([string]$Root, [string]$Name) {
+    $matches = @(Get-ChildItem -LiteralPath $Root -Recurse -File -Filter $Name)
+    if ($matches.Count -ne 1) {
+        throw "Portable archive must contain exactly one $Name; found $($matches.Count)."
+    }
+    return $matches[0].FullName
 }
 
 $runtimeHelper = Join-Path $PSScriptRoot 'windows_app_control_inno_runtime_material.ps1'
@@ -125,18 +139,32 @@ New-Item -ItemType Directory -Path $scanRoot -Force | Out-Null
 
 try {
     Expand-Archive -LiteralPath $portable -DestinationPath $portableExtract -Force
-    $appCandidates = @(
-        Get-ChildItem -LiteralPath $portableExtract -Recurse -File -Filter 'Arvectum Proxy Launcher.exe'
-    )
-    if ($appCandidates.Count -ne 1) {
-        throw "Portable archive must contain exactly one launcher EXE; found $($appCandidates.Count)."
-    }
-    $appExe = $appCandidates[0].FullName
+
+    $appExe = Get-OnePortableFile -Root $portableExtract -Name 'Arvectum Proxy Launcher.exe'
+    $portableManifestPath = Get-OnePortableFile -Root $portableExtract -Name 'build_manifest.json'
+    $upgradeHelper = Get-OnePortableFile -Root $portableExtract -Name 'upgrade_helper.ps1'
+    $uninstallHelper = Get-OnePortableFile -Root $portableExtract -Name 'uninstall_helper.ps1'
+
     $appHash = Get-Sha256 $appExe
     if ($appHash -ne $ExpectedAppSha256) { throw 'Portable application EXE SHA256 mismatch.' }
 
+    $portableManifest = Get-Content -LiteralPath $portableManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $upgradeHelperHash = Get-Sha256 $upgradeHelper
+    $uninstallHelperHash = Get-Sha256 $uninstallHelper
+    if (-not $portableManifest.PSObject.Properties['upgrade_helper_sha256'] -or
+        ([string]$portableManifest.upgrade_helper_sha256).ToLowerInvariant() -ne $upgradeHelperHash) {
+        throw 'Portable upgrade_helper.ps1 SHA256 does not match build_manifest.json.'
+    }
+    if (-not $portableManifest.PSObject.Properties['uninstall_helper_sha256'] -or
+        ([string]$portableManifest.uninstall_helper_sha256).ToLowerInvariant() -ne $uninstallHelperHash) {
+        throw 'Portable uninstall_helper.ps1 SHA256 does not match build_manifest.json.'
+    }
+
     Copy-Item -LiteralPath $setup -Destination (Join-Path $scanRoot 'Arvectum-Proxy-Launcher-0.2.3-windows-x64-setup.exe') -Force
     Copy-Item -LiteralPath $appExe -Destination (Join-Path $scanRoot 'Arvectum Proxy Launcher.exe') -Force
+    Copy-Item -LiteralPath $upgradeHelper -Destination (Join-Path $scanRoot 'upgrade_helper.ps1') -Force
+    Copy-Item -LiteralPath $uninstallHelper -Destination (Join-Path $scanRoot 'uninstall_helper.ps1') -Force
+
     $runtimeStage = Join-Path $scanRoot $runtime.filename
     Copy-Item -LiteralPath $runtime.path -Destination $runtimeStage -Force
     if ((Get-Sha256 $runtimeStage) -ne $runtime.sha256) { throw 'Staged Inno runtime bytes drifted before ConfigCI policy authoring.' }
@@ -163,6 +191,15 @@ try {
             throw 'Reference cached repair Setup does not match the exact production installer.'
         }
 
+        $installedUpgrade = Join-Path $InstalledRoot 'upgrade_helper.ps1'
+        $installedUninstall = Join-Path $InstalledRoot 'uninstall_helper.ps1'
+        if (-not (Test-Path -LiteralPath $installedUpgrade -PathType Leaf) -or (Get-Sha256 $installedUpgrade) -ne $upgradeHelperHash) {
+            throw 'Reference installation upgrade_helper.ps1 does not match the sealed release helper.'
+        }
+        if (-not (Test-Path -LiteralPath $installedUninstall -PathType Leaf) -or (Get-Sha256 $installedUninstall) -ne $uninstallHelperHash) {
+            throw 'Reference installation uninstall_helper.ps1 does not match the sealed release helper.'
+        }
+
         $referenceStage = Join-Path $scanRoot 'installed-reference-tree'
         Copy-Item -LiteralPath $InstalledRoot -Destination $referenceStage -Recurse -Force
         $referenceFiles = @(
@@ -180,7 +217,18 @@ try {
     $policyName = "Arvectum Proxy Launcher $ExpectedVersion Exact Hash"
 
     Write-Host '=== Generating exact-hash App Control policy ==='
-    New-CIPolicy -MultiplePolicyFormat -ScanPath $scanRoot -UserPEs -NoScript -NoShadowCopy -FilePath $policyXml -Level Hash | Out-Null
+    New-CIPolicy -MultiplePolicyFormat -ScanPath $scanRoot -UserPEs -NoShadowCopy -FilePath $policyXml -Level Hash | Out-Null
+
+    $policyXmlText = Get-Content -LiteralPath $policyXml -Raw -Encoding UTF8
+    if ($policyXmlText -match 'Disabled:Script Enforcement') {
+        throw 'Generated product supplemental policy disables script enforcement; refusing unsafe trust pack.'
+    }
+    foreach ($scriptName in $MaintenanceScriptNames) {
+        if ($policyXmlText -notmatch [regex]::Escape($scriptName)) {
+            throw "Generated product supplemental policy is missing exact script rules for $scriptName."
+        }
+    }
+
     Set-CIPolicyIdInfo -FilePath $policyXml -ResetPolicyID -PolicyName $policyName -SupplementsBasePolicyID $BasePolicyId | Out-Null
     Set-CIPolicyVersion -FilePath $policyXml -Version '0.2.3.0'
 
@@ -216,6 +264,11 @@ try {
             installer_authenticode_status = [string]$authSetup.Status
             application_authenticode_status = [string]$authApp.Status
         }
+        maintenance_scripts = @(
+            [ordered]@{ filename='upgrade_helper.ps1'; sha256=$upgradeHelperHash },
+            [ordered]@{ filename='uninstall_helper.ps1'; sha256=$uninstallHelperHash }
+        )
+        script_enforcement_preserved = $true
         inno_runtime = [ordered]@{
             filename = $runtime.filename
             size = $runtime.size
@@ -235,15 +288,16 @@ try {
             hash_policy_integrated = $true
         }
         policy_scope = $(if ($Mode -eq 'BootstrapHash') {
-            'exact production Setup + exact production application EXE + exact Inno Setup 6.7.1 child runtime derived from that Setup'
+            'exact production Setup + exact production application EXE + exact upgrade/uninstall maintenance scripts + exact Inno Setup 6.7.1 child runtime derived from that Setup'
         } else {
-            'exact production Setup + complete exact reference installation tree including generated maintenance binaries + exact Inno Setup 6.7.1 child runtime derived from that Setup'
+            'exact production Setup + complete exact reference installation tree including generated maintenance binaries + exact upgrade/uninstall maintenance scripts + exact Inno Setup 6.7.1 child runtime derived from that Setup'
         })
         reference_files = $referenceFiles
         deployment_invariants = @(
             'pack generation never deploys App Control policy',
             'customer base policy must allow supplemental policies',
             'Smart App Control must not be disabled as a workaround',
+            'script enforcement remains enabled; only exact release maintenance scripts are allowed by hash',
             'hash policy is release-specific and must be regenerated for changed bytes',
             'Inno child runtime trust is bound to exact runtime bytes statically derived from the exact production Setup and independently behaviorally cross-validated',
             'Russian detached release provenance remains independently verified'
@@ -262,11 +316,13 @@ Mode: $Mode
 Base policy ID: $($BasePolicyId.ToString('B'))
 Supplemental policy ID: $policyId
 Inno child runtime SHA256: $($runtime.sha256)
+Upgrade helper SHA256: $upgradeHelperHash
+Uninstall helper SHA256: $uninstallHelperHash
 
 SECURITY BOUNDARY
 -----------------
 This pack does NOT disable Smart App Control, App Control for Business, Defender,
-or any other Windows protection. It does NOT deploy itself.
+script enforcement, or any other Windows protection. It does NOT deploy itself.
 
 The Russian CryptoPro/Rutoken detached signature proves release-set provenance and
 integrity. It is separate from Windows execution trust.
@@ -274,6 +330,10 @@ integrity. It is separate from Windows execution trust.
 The Inno child setup runtime is trusted only by its exact hash. Its bytes are statically
 derived from the exact production Setup and must match the independently behaviorally
 validated Inno Setup 6.7.1 runtime anchor.
+
+The release maintenance PowerShell scripts are also trusted only by exact hash. This is
+required because the sealed Inno installer invokes upgrade_helper.ps1 and uninstall
+invokes uninstall_helper.ps1. Script enforcement remains active for unrelated scripts.
 
 CUSTOMER IT PREREQUISITES
 -------------------------
@@ -286,11 +346,11 @@ CUSTOMER IT PREREQUISITES
 HASH POLICY CHARACTERISTICS
 ---------------------------
 Hash trust is exact-byte trust. Any new Arvectum release, rebuilt EXE, installer,
-uninstaller, child setup runtime, or maintenance binary with changed bytes requires a
-regenerated pack.
+uninstaller, child setup runtime, maintenance script, or maintenance binary with changed
+bytes requires a regenerated pack.
 
-BootstrapHash is suitable only as a bootstrap allow-list for the exact Setup, its Inno
-child runtime, and app EXE. For full lifecycle coverage use either:
+BootstrapHash is suitable only as a bootstrap allow-list for the exact Setup, app EXE,
+maintenance scripts, and Inno child runtime. For full lifecycle coverage use either:
   - ReferenceFullHash, generated from an exact isolated reference installation; or
   - the customer's approved Managed Installer deployment model.
 
@@ -308,6 +368,7 @@ DO NOT
 ------
 - Do not run CiTool --update-policy from this generator.
 - Do not turn Smart App Control off to make the unsigned EXE run.
+- Do not disable script enforcement to make release helper scripts run.
 - Do not treat the detached Russian signature as Microsoft Authenticode trust.
 - Do not deploy a supplemental policy against an unknown or unauthorized base policy.
 "@
