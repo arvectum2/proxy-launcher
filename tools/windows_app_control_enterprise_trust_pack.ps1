@@ -198,6 +198,7 @@ try {
     $manifest = [ordered]@{
         schema = $ExpectedTrustSchema
         task = 'APL-WIN-014'
+        result = 'PASS'
         created_utc = [DateTime]::UtcNow.ToString('o')
         version = $ExpectedVersion
         release_tag = $ExpectedReleaseTag
@@ -320,8 +321,6 @@ DO NOT
     )
     Set-Content -LiteralPath (Join-Path $OutputDirectory 'SHA256SUMS.txt') -Value $checksums -Encoding ASCII
 
-    $manifest.result = 'PASS'
-    $manifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
     Write-Host "Trust pack: $OutputDirectory"
     Write-Host "Policy XML: $policyXml"
     Write-Host "Policy CIP: $policyCip"
