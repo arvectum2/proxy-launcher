@@ -77,10 +77,14 @@ def test_enterprise_pack_preserves_script_enforcement_and_hash_trusts_maintenanc
 def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring():
     body = text(PACK)
     helper = text(RUNTIME)
-    validate = body.index("Get-ArvectumInnoRuntimeMaterial")
+    validate = body.index("$runtime = Invoke-RuntimeMaterialValidator")
     policy = body.index("New-CIPolicy -MultiplePolicyFormat")
     assert validate < policy
     assert "windows_app_control_inno_runtime_material.ps1" in body
+    assert "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator" in body
+    assert "-AsJson" in body
+    assert "ConvertFrom-Json" in body
+    assert ". $runtimeHelper" not in body
     assert "inno-setup-6.7.1-runtime-stub.exe" in body
     assert "hash_policy_integrated = $true" in body
     assert "evidence_workflow_run = $runtime.evidence_workflow_run" in body
