@@ -47,8 +47,10 @@ def test_prepare_seals_both_generated_policy_ids_and_cips_for_handoff():
     for expected in (
         "stand-state.json",
         "POLICIES_TO_DEPLOY.txt",
-        "baseline_policy_id",
-        "current_policy_id",
+        "baseline = [ordered]@{",
+        "current = [ordered]@{",
+        "supplemental_policy_id = $baselinePolicyId.ToString('D')",
+        "supplemental_policy_id = $currentPolicyId.ToString('D')",
         "supplemental_policy_cip_sha256",
         "policy_deployment = 'NOT PERFORMED'",
         "security_controls_modified = $false",
@@ -156,9 +158,10 @@ def test_powershell_parser_accepts_new_wrappers_on_windows():
     if os.name != "nt":
         return
     for path in (PREPARE, RUN):
+        escaped = str(path).replace("'", "''")
         command = (
             "$ErrorActionPreference='Stop'; "
-            f"$text=Get-Content -LiteralPath '{str(path).replace("'", "''")}' -Raw; "
+            "$text=Get-Content -LiteralPath '" + escaped + "' -Raw; "
             "[void][scriptblock]::Create($text)"
         )
         completed = subprocess.run(
