@@ -58,23 +58,23 @@ function Get-CiPolicies {
     })
 }
 
+function Assert-SupplementalActive([object[]]$Policies, [Guid]$PolicyId, [Guid]$BaseId, [string]$Label) {
+    $policyText = Normalize-GuidText $PolicyId
+    $baseText = Normalize-GuidText $BaseId
+    $matches = @($Policies | Where-Object { $_.policy_id -eq $policyText })
+    if ($matches.Count -ne 1 -or -not $matches[0].is_on_disk) { throw "Prepared $Label supplemental policy is not active/on-disk." }
+    if ($matches[0].is_authorized -eq $false) { throw "Prepared $Label supplemental policy is not authorized." }
+    if ($matches[0].base_policy_id -and $matches[0].base_policy_id -ne $baseText) { throw "Prepared $Label supplemental policy targets another base policy." }
+}
+
 function Assert-PreparedPoliciesActive([object[]]$Policies, [Guid]$BaseId, [Guid]$BaselineId, [Guid]$CurrentId) {
     $baseText = Normalize-GuidText $BaseId
-    $baselineText = Normalize-GuidText $BaselineId
-    $currentText = Normalize-GuidText $CurrentId
     $base = @($Policies | Where-Object { $_.policy_id -eq $baseText })
-    $baseline = @($Policies | Where-Object { $_.policy_id -eq $baselineText })
-    $current = @($Policies | Where-Object { $_.policy_id -eq $currentText })
     if ($base.Count -ne 1 -or -not $base[0].is_enforced -or -not $base[0].is_on_disk) { throw 'Canonical base policy is not active and enforced.' }
     if (@($base[0].policy_options) -contains 'Enabled:Audit Mode') { throw 'Canonical base policy is in Audit Mode.' }
     if (@($base[0].policy_options) -notcontains 'Enabled:Allow Supplemental Policies') { throw 'Canonical base policy does not allow supplemental policies.' }
-    foreach ($entry in @(@('baseline',$baseline),@('current',$current))) {
-        $label = [string]$entry[0]
-        $matches = @($entry[1])
-        if ($matches.Count -ne 1 -or -not $matches[0].is_on_disk) { throw "Prepared $label supplemental policy is not active/on-disk." }
-        if ($matches[0].is_authorized -eq $false) { throw "Prepared $label supplemental policy is not authorized." }
-        if ($matches[0].base_policy_id -and $matches[0].base_policy_id -ne $baseText) { throw "Prepared $label supplemental policy targets another base policy." }
-    }
+    Assert-SupplementalActive -Policies $Policies -PolicyId $BaselineId -BaseId $BaseId -Label 'baseline'
+    Assert-SupplementalActive -Policies $Policies -PolicyId $CurrentId -BaseId $BaseId -Label 'current'
 }
 
 function Get-ExactLauncherProcesses([string]$ExePath) {
@@ -136,7 +136,6 @@ function Assert-ResidualReferenceTreeStillKnown([string]$InstalledRoot, [object[
 
 function Clean-ExactCurrentReference([string]$InstalledRoot, [object]$Reference) {
     $stateRoot = Join-Path $env:LOCALAPPDATA 'Arvectum\ProxyLauncher'
-
     $needsRollback = (Test-Path -LiteralPath $stateRoot) -or (Test-Path -LiteralPath $UserUninstallKey) -or (@(Get-NetTCPConnection -LocalPort 8082 -State Listen -ErrorAction SilentlyContinue).Count -gt 0)
     try {
         $inet = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -ErrorAction SilentlyContinue
@@ -158,12 +157,12 @@ function Clean-ExactCurrentReference([string]$InstalledRoot, [object]$Reference)
     if ($uninstall.ExitCode -ne 0) { throw "Exact reference uninstaller failed with exit code $($uninstall.ExitCode)." }
 
     Assert-ResidualReferenceTreeStillKnown -InstalledRoot $InstalledRoot -VerifiedRecords $Reference.verified_records
-    if (Test-Path -LiteralPath $InstalledRoot -PathType Container) {
-        Remove-Item -LiteralPath $InstalledRoot -Recurse -Force
-    }
+    if (Test-Path -LiteralPath $InstalledRoot -PathType Container) { Remove-Item -LiteralPath $InstalledRoot -Recurse -Force }
     if (Test-Path -LiteralPath $stateRoot) { Remove-Item -LiteralPath $stateRoot -Recurse -Force }
 
-    if (Test-Path -LiteralPath $UserUninstallKey -or Test-Path -LiteralPath $LegacyUninstallKey) { throw 'Governed Arvectum uninstall registration remains after exact reference cleanup.' }
+    $currentKeyRemains = Test-Path -LiteralPath $UserUninstallKey
+    $legacyKeyRemains = Test-Path -LiteralPath $LegacyUninstallKey
+    if ($currentKeyRemains -or $legacyKeyRemains) { throw 'Governed Arvectum uninstall registration remains after exact reference cleanup.' }
     if (@(Get-ExactLauncherProcesses $Reference.app).Count -gt 0) { throw 'Exact launcher process remains after reference cleanup.' }
     if (@(Get-NetTCPConnection -LocalPort 8082 -State Listen -ErrorAction SilentlyContinue).Count -gt 0) { throw 'TCP 8082 remains occupied after reference cleanup.' }
 }
@@ -174,7 +173,7 @@ $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = New-Object Security.Principal.WindowsPrincipal($identity)
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Elevated Administrator PowerShell is required.' }
 $os = Get-CimInstance Win32_OperatingSystem
-if ([Version]([string]$os.Version).Build -lt 22000) { throw 'Windows 11 is required for the physical acceptance stand.' }
+if (([Version]([string]$os.Version)).Build -lt 22000) { throw 'Windows 11 is required for the physical acceptance stand.' }
 
 $StatePath = (Resolve-Path -LiteralPath $StatePath).Path
 $state = Get-Content -LiteralPath $StatePath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -194,8 +193,11 @@ if ([IO.Path]::GetFullPath($installedRoot) -ine $canonicalInstalledRoot) { throw
 
 $baselineTrust = Get-Content -LiteralPath (Join-Path $baselineTrustDir 'trust-pack.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $currentTrust = Get-Content -LiteralPath (Join-Path $currentTrustDir 'trust-pack.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-if ([string]$baselineTrust.result -ne 'PASS' -or Normalize-GuidText $baselineTrust.supplemental_policy_id -ne Normalize-GuidText $baselinePolicyId) { throw 'Baseline trust-pack identity drifted from stand state.' }
-if ([string]$currentTrust.result -ne 'PASS' -or [string]$currentTrust.mode -ne 'ReferenceFullHash' -or Normalize-GuidText $currentTrust.supplemental_policy_id -ne Normalize-GuidText $currentPolicyId) { throw 'Current trust-pack identity drifted from stand state.' }
+$baselineTrustId = Normalize-GuidText $baselineTrust.supplemental_policy_id
+$currentTrustId = Normalize-GuidText $currentTrust.supplemental_policy_id
+if ([string]$baselineTrust.result -ne 'PASS' -or $baselineTrustId -ne (Normalize-GuidText $baselinePolicyId)) { throw 'Baseline trust-pack identity drifted from stand state.' }
+if ([string]$currentTrust.result -ne 'PASS' -or [string]$currentTrust.mode -ne 'ReferenceFullHash' -or $currentTrustId -ne (Normalize-GuidText $currentPolicyId)) { throw 'Current trust-pack identity drifted from stand state.' }
+if ((Normalize-GuidText $baselineTrust.base_policy_id) -ne (Normalize-GuidText $basePolicyId) -or (Normalize-GuidText $currentTrust.base_policy_id) -ne (Normalize-GuidText $basePolicyId)) { throw 'Prepared trust packs do not target the canonical base policy.' }
 if (([string]$currentTrust.release.installer_sha256).ToLowerInvariant() -ne $ExpectedSetupSha256 -or ([string]$currentTrust.release.application_exe_sha256).ToLowerInvariant() -ne $ExpectedAppSha256 -or ([string]$currentTrust.inno_runtime.sha256).ToLowerInvariant() -ne $ExpectedRuntimeSha256) { throw 'Current trust pack no longer binds the exact production identities.' }
 
 $baselineCip = (Resolve-Path -LiteralPath ([string]$state.baseline.supplemental_policy_cip)).Path
@@ -222,7 +224,7 @@ if (-not (Test-Path -LiteralPath $finalGate -PathType Leaf)) { throw 'Canonical 
 $finalEvidenceDir = [string]$state.final_evidence_directory
 New-Item -ItemType Directory -Path $finalEvidenceDir -Force | Out-Null
 
-$args = @{
+$gateArgs = @{
     BasePolicyId = $basePolicyId
     BaselineSupplementalPolicyId = $baselinePolicyId
     BaselineManifestPath = $baselineManifestPath
@@ -232,11 +234,10 @@ $args = @{
     EvidenceDirectory = $finalEvidenceDir
     IsolatedAcceptanceEnvironment = $true
 }
-if ($SigningEvidencePath) { $args.SigningEvidencePath = $SigningEvidencePath }
+if ($SigningEvidencePath) { $gateArgs.SigningEvidencePath = $SigningEvidencePath }
 
 Write-Host '=== Canonical APL-WIN-014 final physical gate ==='
-& $finalGate @args
-if ($LASTEXITCODE -ne 0) { throw "Canonical final gate failed with exit code $LASTEXITCODE" }
+& $finalGate @gateArgs
 
 $finalResultPath = Join-Path $finalEvidenceDir 'apl-win-014-final-result.json'
 if (-not (Test-Path -LiteralPath $finalResultPath -PathType Leaf)) { throw 'Canonical final result evidence is missing.' }
