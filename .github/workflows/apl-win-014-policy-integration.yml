@@ -1,0 +1,41 @@
+name: APL-WIN-014 Runtime Hash Policy Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - 'fix/apl-win-014-runtime-hash-policy-integration'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-policy-contract:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CLM-safe production tooling contract
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap\apl-win-014\v10.6.4\test_clm_contract.ps1
+
+      - name: ConfigCI structural regression
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap\apl-win-014\v10.6.4\test_configci_xml_structure.ps1
+
+      - name: Base-only authoring regression
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap\apl-win-014\v10.6.4\test_pre_authoring_base_only.ps1
+
+      - name: Runtime hash integration contract
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\bootstrap\apl-win-014\v10.6.4\test_runtime_hash_policy_integration.ps1
