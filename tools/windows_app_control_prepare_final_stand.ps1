@@ -5,8 +5,9 @@
     One authoring entry point for the isolated ARVECTUM-DEMO Windows 11 stand.
     It recovers the exact historical 0.2.2 P0.4 baseline, authors its exact-hash
     supplemental policy, validates the current sealed release against canonical
-    upstream signing evidence, derives the exact Inno Setup 6.7.1 production child
-    runtime, authors the current ReferenceFullHash policy, and seals a stand-state
+    upstream signing evidence, binds the exact installer maintenance helpers from
+    governed release-source material, derives the exact Inno Setup 6.7.1 production
+    child runtime, authors the current ReferenceFullHash policy, and seals a stand-state
     manifest. CryptoPro/Rutoken is not required on the acceptance host.
 
     This script never installs/uninstalls the product, never calls CiTool policy update
@@ -20,6 +21,7 @@
 param(
     [Guid]$BasePolicyId = 'dc1c604c-46ea-40b7-9f47-cf582b225d5e',
     [Parameter(Mandatory = $true)] [string]$SigningEvidencePath,
+    [Parameter(Mandatory = $true)] [string]$MaintenanceSourceRoot,
     [string]$RepositoryRoot = (Split-Path $PSScriptRoot -Parent),
     [string]$ReleaseDirectory = 'C:\Arvectum\Releases\0.2.3-russian-production',
     [string]$InstalledRoot = '',
@@ -37,6 +39,8 @@ $ExpectedSetupSha256 = '5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2ef
 $ExpectedAppSha256 = 'f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a'
 $ExpectedRuntimeSha256 = 'b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8'
 $ExpectedSigningEvidenceSha256 = '67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e'
+$ExpectedUpgradeHelperSha256 = '77e8bcb4d27aad5b2d1b40753f3ec2dfa2419e48a07f2eb17a7b15f2a9232218'
+$ExpectedUninstallHelperSha256 = '7abc1fe332975440d2c84be608773a890c5bb4deb130eea54378a128e79b0a44'
 $ExpectedLegacyCommit = '0ea08d9c815da36d0175f62db153de78f89731fc'
 $ExpectedLegacyBlobSha1 = '574d3dc5f90a116555e3a72ff3288c31c19d3dc7'
 
@@ -47,7 +51,15 @@ if (Test-Path -LiteralPath $RunRoot) { throw "RunRoot already exists; refusing t
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 $ReleaseDirectory = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
 $SigningEvidencePath = (Resolve-Path -LiteralPath $SigningEvidencePath).Path
+$MaintenanceSourceRoot = (Resolve-Path -LiteralPath $MaintenanceSourceRoot).Path
 if ((Get-FileHash -LiteralPath $SigningEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedSigningEvidenceSha256) { throw 'Canonical Russian signing evidence SHA256 mismatch.' }
+$maintenanceUpgrade = Join-Path $MaintenanceSourceRoot 'upgrade_helper.ps1'
+$maintenanceUninstall = Join-Path $MaintenanceSourceRoot 'uninstall_helper.ps1'
+foreach ($required in @($maintenanceUpgrade,$maintenanceUninstall)) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required sealed maintenance helper is missing: $required" }
+}
+if ((Get-FileHash -LiteralPath $maintenanceUpgrade -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedUpgradeHelperSha256) { throw 'Sealed upgrade_helper.ps1 SHA256 mismatch.' }
+if ((Get-FileHash -LiteralPath $maintenanceUninstall -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedUninstallHelperSha256) { throw 'Sealed uninstall_helper.ps1 SHA256 mismatch.' }
 if (-not $InstalledRoot) { $InstalledRoot = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'ArvectumProxyLauncher' }
 $InstalledRoot = (Resolve-Path -LiteralPath $InstalledRoot).Path
 
@@ -100,7 +112,7 @@ $baselineCip = Join-Path $baselineTrustDir ([string]$baselineTrust.supplemental_
 if (-not (Test-Path -LiteralPath $baselineCip -PathType Leaf)) { throw 'Baseline supplemental .cip is missing.' }
 
 Write-Host '=== 3/3 Derive production Inno runtime and author current ReferenceFullHash policy ==='
-& $currentPack -BasePolicyId $BasePolicyId -SigningEvidencePath $SigningEvidencePath -ReleaseDirectory $ReleaseDirectory -InstalledRoot $InstalledRoot -RuntimeDirectory $runtimeDir -TrustPackDirectory $currentTrustDir -PythonCommand $PythonCommand
+& $currentPack -BasePolicyId $BasePolicyId -SigningEvidencePath $SigningEvidencePath -MaintenanceSourceRoot $MaintenanceSourceRoot -ReleaseDirectory $ReleaseDirectory -InstalledRoot $InstalledRoot -RuntimeDirectory $runtimeDir -TrustPackDirectory $currentTrustDir -PythonCommand $PythonCommand
 & $runtimeVerifier -TrustPackDirectory $currentTrustDir
 
 $currentTrustManifestPath = Join-Path $currentTrustDir 'trust-pack.json'
@@ -110,6 +122,7 @@ if ([string]$currentTrust.result -ne 'PASS' -or [string]$currentTrust.mode -ne '
 if (([string]$currentTrust.release.installer_sha256).ToLowerInvariant() -ne $ExpectedSetupSha256 -or ([string]$currentTrust.release.application_exe_sha256).ToLowerInvariant() -ne $ExpectedAppSha256) { throw 'Current trust pack does not bind the exact production release.' }
 if (([string]$currentTrust.inno_runtime.sha256).ToLowerInvariant() -ne $ExpectedRuntimeSha256) { throw 'Current trust pack does not bind the accepted Inno runtime.' }
 if ([string]$currentTrust.russian_release_provenance -ne 'PREVERIFIED_EXACT_HASH_BOUND' -or [string]$currentTrust.local_cryptopro_verification -ne 'NOT_REQUIRED' -or ([string]$currentTrust.signing_evidence_sha256).ToLowerInvariant() -ne $ExpectedSigningEvidenceSha256) { throw 'Current trust pack does not carry the required upstream Russian signing provenance.' }
+if ([string]$currentTrust.maintenance_source.contract -ne 'SEALED_RELEASE_SOURCE_EXACT_HASH' -or ([string]$currentTrust.maintenance_scripts[0].sha256).ToLowerInvariant() -ne $ExpectedUpgradeHelperSha256 -or ([string]$currentTrust.maintenance_scripts[1].sha256).ToLowerInvariant() -ne $ExpectedUninstallHelperSha256) { throw 'Current trust pack does not bind the governed maintenance helper source.' }
 $currentPolicyId = [Guid]([string]$currentTrust.supplemental_policy_id)
 $currentCip = Join-Path $currentTrustDir ([string]$currentTrust.supplemental_policy_cip)
 if (-not (Test-Path -LiteralPath $currentCip -PathType Leaf)) { throw 'Current supplemental .cip is missing.' }
@@ -119,6 +132,7 @@ $state = [ordered]@{
     host = $env:COMPUTERNAME; source_repository = 'arvectum2/proxy-launcher'; source_commit = $sourceCommit
     base_policy_id = $BasePolicyId.ToString('D'); release_directory = $ReleaseDirectory; installed_reference_root = $InstalledRoot
     signing_evidence_path = $SigningEvidencePath; signing_evidence_sha256 = $ExpectedSigningEvidenceSha256; local_cryptopro_verification = 'NOT_REQUIRED'
+    maintenance_source_root = $MaintenanceSourceRoot; maintenance_source_contract = 'SEALED_RELEASE_SOURCE_EXACT_HASH'; upgrade_helper_sha256 = $ExpectedUpgradeHelperSha256; uninstall_helper_sha256 = $ExpectedUninstallHelperSha256
     baseline = [ordered]@{ manifest_path = $baselineManifestPath; trust_pack_directory = $baselineTrustDir; supplemental_policy_id = $baselinePolicyId.ToString('D'); supplemental_policy_cip = $baselineCip; supplemental_policy_cip_sha256 = (Get-FileHash -LiteralPath $baselineCip -Algorithm SHA256).Hash.ToLowerInvariant() }
     current = [ordered]@{ trust_pack_directory = $currentTrustDir; runtime_directory = $runtimeDir; supplemental_policy_id = $currentPolicyId.ToString('D'); supplemental_policy_cip = $currentCip; supplemental_policy_cip_sha256 = (Get-FileHash -LiteralPath $currentCip -Algorithm SHA256).Hash.ToLowerInvariant(); production_setup_sha256 = $ExpectedSetupSha256; application_sha256 = $ExpectedAppSha256; inno_runtime_sha256 = $ExpectedRuntimeSha256 }
     final_evidence_directory = $finalEvidenceDir; policy_deployment = 'NOT PERFORMED'; security_controls_modified = $false; product_lifecycle_modified = $false; result = 'PREPARED'
@@ -132,6 +146,10 @@ APL-WIN-014 FINAL PHYSICAL STAND - POLICIES TO DEPLOY
 Base policy: $($BasePolicyId.ToString('D'))
 Signing evidence SHA256: $ExpectedSigningEvidenceSha256
 Local CryptoPro/Rutoken requirement: NONE
+Maintenance source contract: SEALED_RELEASE_SOURCE_EXACT_HASH
+Maintenance source root: $MaintenanceSourceRoot
+Upgrade helper SHA256: $ExpectedUpgradeHelperSha256
+Uninstall helper SHA256: $ExpectedUninstallHelperSha256
 
 1. Historical 0.2.2 P0.4 exact-hash supplemental
    Policy ID: $($baselinePolicyId.ToString('D'))
@@ -157,6 +175,7 @@ Write-Host ''
 Write-Host 'APL-WIN-014 final stand preparation: PREPARED'
 Write-Host "Stand state: $statePath"
 Write-Host "Signing evidence SHA256: $ExpectedSigningEvidenceSha256"
+Write-Host "Maintenance source root: $MaintenanceSourceRoot"
 Write-Host 'Local CryptoPro verification: NOT_REQUIRED'
 Write-Host "Deployment instructions: $deploymentPath"
 Write-Host "Baseline supplemental PolicyID: $($baselinePolicyId.ToString('D'))"
