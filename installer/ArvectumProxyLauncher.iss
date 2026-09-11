@@ -87,10 +87,10 @@ begin
   ExtractTemporaryFile('build_manifest.json');
   HelperPath := ExpandConstant('{tmp}\' + Helper);
   PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
-  ; Do not use -File here. Under enforced App Control / UMCI, Windows PowerShell 5.1
-  ; treats -File as local-scope (dot-sourced) execution and rejects the transition
-  ; from the CLM host session into an exact-hash trusted FullLanguage script.
-  ; Passing the script path directly invokes the trusted script without dot-sourcing.
+  // Do not use PowerShell file-mode execution here. Under enforced App Control / UMCI,
+  // Windows PowerShell 5.1 treats that mode as local-scope execution and rejects the
+  // transition from a CLM host session into an exact-hash trusted FullLanguage script.
+  // Passing the script path directly invokes the trusted script without dot-sourcing.
   Result := Exec(PowerShell, '-NoProfile -ExecutionPolicy Bypass "' + HelperPath + '" ' + Arguments,
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
   if (not Result) or (ExitCode <> 0) then begin
@@ -148,7 +148,7 @@ begin
     exit;
   end;
   PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
-  ; Same WDAC/CLM boundary rule as RunEmbeddedHelper: invoke, do not -File/dot-source.
+  // Same WDAC/CLM boundary rule as RunEmbeddedHelper: invoke the trusted script directly.
   Result := Exec(PowerShell, '-NoProfile -ExecutionPolicy Bypass "' + HelperPath + '" -InstallRoot "' + ExpandConstant('{app}') + '"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
   if (not Result) or (ExitCode <> 0) then begin
     ErrorText := 'InstallFailure: installed uninstall helper failed with exit code ' + IntToStr(ExitCode);
