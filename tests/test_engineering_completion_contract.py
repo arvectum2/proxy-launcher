@@ -1,3 +1,4 @@
+import json
 import pathlib
 import unittest
 
@@ -8,6 +9,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 CANONICAL_WORKFLOW = ROOT / ".github" / "workflows" / "apl-ip-003-canonical-source.yml"
 PROVENANCE_WORKFLOW = ROOT / ".github" / "workflows" / "ip-provenance.yml"
 SBOM_WORKFLOW = ROOT / ".github" / "workflows" / "sbom.yml"
+SEALED_023_EVIDENCE = ROOT / "docs" / "evidence" / "WINDOWS_RUSSIAN_PRODUCTION_SIGNING_ACCEPTANCE_2026-08-20.json"
 REQUIRED_HYGIENE_GUARDS = (
     "tests/test_source_hygiene.py",
     "tests/test_repository_hygiene.py",
@@ -16,10 +18,12 @@ REQUIRED_HYGIENE_GUARDS = (
 
 
 class EngineeringCompletionContractTests(unittest.TestCase):
-    def test_sealed_product_version_remains_unchanged(self):
+    def test_current_version_matches_runtime_while_sealed_0_2_3_history_remains_immutable(self):
         version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-        self.assertEqual(version, "0.2.3")
         self.assertEqual(proxy_core.APP_VERSION, version)
+        self.assertTrue(SEALED_023_EVIDENCE.is_file())
+        sealed = json.loads(SEALED_023_EVIDENCE.read_text(encoding="utf-8"))
+        self.assertEqual(sealed["version"], "0.2.3")
 
     def test_retired_compatibility_module_is_physically_absent(self):
         retired = ROOT / ("proxy_core_" + "legacy.py")
