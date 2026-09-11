@@ -82,7 +82,7 @@ jobs:
           $contract | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8
 
           $sumsPath = Join-Path $output 'SHA256SUMS.txt'
-          $sums = Get-ChildItem -LiteralPath $output -File -Recurse | Where-Object { $_.FullName -ne $sumsPath } | Sort-Object FullName | ForEach-Object {
+          $sums = Get-ChildItem -LiteralPath $output -File -Recurse | Where-Object { $_.Name -ne 'SHA256SUMS.txt' } | Sort-Object FullName | ForEach-Object {
             $relative = $_.FullName.Substring($output.Length).TrimStart('\')
             "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $relative"
           }
