@@ -1,0 +1,66 @@
+name: APL-WIN-014 final 0.2.4
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Exact 0.2.4 release-candidate commit (defaults to workflow ref HEAD)
+        required: false
+        type: string
+  push:
+    branches:
+      - release/apl-win-014-final-0.2.4
+
+permissions:
+  contents: read
+
+jobs:
+  final-candidate:
+    runs-on: windows-2022
+    env:
+      CANDIDATE_COMMIT: ${{ inputs.source_commit || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_commit || github.sha }}
+
+      - name: Verify exact clean 0.2.4 candidate source
+        shell: pwsh
+        run: |
+          $head = (git rev-parse HEAD).Trim()
+          if ($head -cne $env:CANDIDATE_COMMIT) { throw "Checked out $head, expected $env:CANDIDATE_COMMIT" }
+          if (git status --porcelain) { throw 'Candidate source checkout is not clean.' }
+          $version = (Get-Content -LiteralPath VERSION -Raw).Trim()
+          if ($version -ne '0.2.4') { throw "Final candidate must be 0.2.4, got $version" }
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+
+      - name: Install exact Inno Setup 6.7.1
+        shell: pwsh
+        run: choco install innosetup --version=6.7.1 --no-progress -y
+
+      - name: Build once, prove lifecycle, and assemble one physical test kit
+        id: candidate
+        shell: pwsh
+        run: |
+          $output = "out\apl-win-014-final-0.2.4-${{ github.run_id }}-${{ github.run_attempt }}"
+          ./tools/build_apl_win_014_final_0_2_4_candidate.ps1 `
+            -CandidateSourceCommit $env:CANDIDATE_COMMIT `
+            -CandidateOutputDirectory $output `
+            -PythonExecutable python
+          Compress-Archive -Path "$output\*" -DestinationPath "$output.zip" -CompressionLevel Optimal
+          $hash = (Get-FileHash -LiteralPath "$output.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "bundle_path=$output.zip" >> $env:GITHUB_OUTPUT
+          "bundle_sha256=$hash" >> $env:GITHUB_OUTPUT
+          Write-Host "FINAL_BUNDLE=$output.zip"
+          Write-Host "FINAL_BUNDLE_SHA256=$hash"
+
+      - name: Upload one final 0.2.4 test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: apl-win-014-final-0.2.4-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.candidate.outputs.bundle_path }}
+          if-no-files-found: error
+          retention-days: 90
