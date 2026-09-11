@@ -5,14 +5,16 @@
     Fail-closed authoring helper for the dedicated ARVECTUM-DEMO acceptance flow.
     It binds the supplemental policy to the exact sealed 0.2.4 candidate bytes,
     the canonical 0.2.3 predecessor Setup, and the accepted Inno Setup 6.7.1
-    child runtime. It never deploys/removes policy and never weakens Windows protection.
+    child runtime. It is intentionally compatible with PowerShell ConstrainedLanguage
+    because it must run before its own supplemental policy is deployed.
+    It never deploys/removes policy and never weakens Windows protection.
 #>
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string]$CandidateDirectory,
-    [Parameter(Mandatory = $true)] [Guid]$BasePolicyId,
+    [Parameter(Mandatory = $true)] [string]$BasePolicyId,
     [string]$PreviousReleaseDirectory = 'C:\Arvectum\Releases\0.2.3-russian-production',
     [string]$RuntimePath = 'C:\Arvectum\Evidence\APL-WIN-014\reference-bootstrap-final\runtime\inno-setup-6.7.1-runtime-stub.exe',
     [string]$OutputDirectory = 'C:\Arvectum\Evidence\APL-WIN-014\final-0.2.4-policy'
@@ -22,12 +24,17 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 function Get-Sha256([string]$Path) {
-    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    $fileHash = Get-FileHash -LiteralPath $Path -Algorithm SHA256
+    return [string]$fileHash.Hash
 }
 
 function Normalize-GuidText([object]$Value) {
     if ($null -eq $Value) { return '' }
-    return ([Guid](([string]$Value).Trim().Trim('{}'))).ToString('D').ToLowerInvariant()
+    $text = [string]$Value
+    $text = $text -replace '[{}]', ''
+    $text = $text -replace '^\s+', ''
+    $text = $text -replace '\s+$', ''
+    return $text
 }
 
 function Assert-Command([string]$Name) {
@@ -38,15 +45,16 @@ function Assert-Command([string]$Name) {
 
 function Get-PolicyIdFromXml([string]$Path) {
     $text = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
-    $match = [regex]::Match($text, '<PolicyID>\s*([^<]+)\s*</PolicyID>', 'IgnoreCase')
-    if (-not $match.Success) { throw 'Generated App Control policy has no PolicyID.' }
-    return ([Guid]$match.Groups[1].Value.Trim()).ToString('D')
+    if ($text -notmatch '(?i)<PolicyID>\s*([^<]+)\s*</PolicyID>') {
+        throw 'Generated App Control policy has no PolicyID.'
+    }
+    return Normalize-GuidText $Matches[1]
 }
 
 function Assert-ExactFile([string]$Path, [string]$ExpectedSha256, [string]$Label) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw "$Label is missing: $Path" }
     $actual = Get-Sha256 $Path
-    if ($actual -ne $ExpectedSha256.ToLowerInvariant()) {
+    if ($actual -ne $ExpectedSha256) {
         throw "$Label SHA256 mismatch: expected $ExpectedSha256, got $actual"
     }
 }
@@ -57,6 +65,12 @@ function Copy-ExactFile([string]$Source, [string]$Destination, [string]$Expected
     Assert-ExactFile -Path $Destination -ExpectedSha256 $ExpectedSha256 -Label "$Label staged copy"
 }
 
+function Get-UtcTimestamp {
+    $utc = Get-CimInstance Win32_UTCTime
+    if ($null -eq $utc) { throw 'Unable to obtain UTC time.' }
+    return ('{0:D4}-{1:D2}-{2:D2}T{3:D2}:{4:D2}:{5:D2}Z' -f [int]$utc.Year,[int]$utc.Month,[int]$utc.Day,[int]$utc.Hour,[int]$utc.Minute,[int]$utc.Second)
+}
+
 if ($env:OS -ne 'Windows_NT') { throw 'APL-WIN-014 0.2.4 App Control authoring must run on Windows.' }
 foreach ($cmd in @('New-CIPolicy','Set-CIPolicyIdInfo','Set-CIPolicyVersion','ConvertFrom-CIPolicy')) {
     Assert-Command $cmd
@@ -65,7 +79,9 @@ foreach ($cmd in @('New-CIPolicy','Set-CIPolicyIdInfo','Set-CIPolicyVersion','Co
 $CandidateDirectory = (Resolve-Path -LiteralPath $CandidateDirectory).Path
 $PreviousReleaseDirectory = (Resolve-Path -LiteralPath $PreviousReleaseDirectory).Path
 $RuntimePath = (Resolve-Path -LiteralPath $RuntimePath).Path
-$OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
+if ($OutputDirectory -notmatch '^(?:[A-Za-z]:\\|\\\\)') {
+    throw "Output directory must be absolute: $OutputDirectory"
+}
 if (Test-Path -LiteralPath $OutputDirectory) {
     throw "Output directory already exists; refusing to overwrite prior policy evidence: $OutputDirectory"
 }
@@ -95,19 +111,19 @@ $runnerPath = Join-Path $CandidateDirectory ([string]$candidate.physical_runner.
 $uninstallerPath = Join-Path (Join-Path $CandidateDirectory 'policy-material') ([string]$candidate.reference_uninstaller.filename)
 $previousSetupPath = Join-Path $PreviousReleaseDirectory 'Arvectum-Proxy-Launcher-0.2.3-windows-x64-setup.exe'
 
-$expectedCandidateSetup = ([string]$candidate.setup.sha256).ToLowerInvariant()
-$expectedCandidateApp = ([string]$candidate.application.sha256).ToLowerInvariant()
-$expectedUpgradeHelper = ([string]$candidate.upgrade_helper.sha256).ToLowerInvariant()
-$expectedUninstallHelper = ([string]$candidate.uninstall_helper.sha256).ToLowerInvariant()
-$expectedRunner = ([string]$candidate.physical_runner.sha256).ToLowerInvariant()
-$expectedUninstaller = ([string]$candidate.reference_uninstaller.sha256).ToLowerInvariant()
-$expectedPreviousSetup = ([string]$contract.predecessor.setup_sha256).ToLowerInvariant()
-$expectedRuntime = ([string]$contract.inno_runtime_sha256).ToLowerInvariant()
+$expectedCandidateSetup = [string]$candidate.setup.sha256
+$expectedCandidateApp = [string]$candidate.application.sha256
+$expectedUpgradeHelper = [string]$candidate.upgrade_helper.sha256
+$expectedUninstallHelper = [string]$candidate.uninstall_helper.sha256
+$expectedRunner = [string]$candidate.physical_runner.sha256
+$expectedUninstaller = [string]$candidate.reference_uninstaller.sha256
+$expectedPreviousSetup = [string]$contract.predecessor.setup_sha256
+$expectedRuntime = [string]$contract.inno_runtime_sha256
 
-if ($expectedCandidateSetup -ne ([string]$contract.candidate.setup_sha256).ToLowerInvariant()) { throw 'Candidate Setup identity disagrees with physical contract.' }
-if ($expectedCandidateApp -ne ([string]$contract.candidate.application_sha256).ToLowerInvariant()) { throw 'Candidate application identity disagrees with physical contract.' }
-if ($expectedUninstaller -ne ([string]$contract.candidate.uninstaller_sha256).ToLowerInvariant()) { throw 'Candidate uninstaller identity disagrees with physical contract.' }
-if ($expectedRunner -ne ([string]$contract.candidate.runner_sha256).ToLowerInvariant()) { throw 'Physical runner identity disagrees with physical contract.' }
+if ($expectedCandidateSetup -ne [string]$contract.candidate.setup_sha256) { throw 'Candidate Setup identity disagrees with physical contract.' }
+if ($expectedCandidateApp -ne [string]$contract.candidate.application_sha256) { throw 'Candidate application identity disagrees with physical contract.' }
+if ($expectedUninstaller -ne [string]$contract.candidate.uninstaller_sha256) { throw 'Candidate uninstaller identity disagrees with physical contract.' }
+if ($expectedRunner -ne [string]$contract.candidate.runner_sha256) { throw 'Physical runner identity disagrees with physical contract.' }
 
 Assert-ExactFile $setupPath $expectedCandidateSetup '0.2.4 Setup'
 Assert-ExactFile $appPath $expectedCandidateApp '0.2.4 application'
@@ -119,7 +135,15 @@ Assert-ExactFile $previousSetupPath $expectedPreviousSetup 'canonical 0.2.3 Setu
 Assert-ExactFile $RuntimePath $expectedRuntime 'accepted Inno Setup 6.7.1 runtime'
 
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
-$tempRoot = Join-Path $env:TEMP ('ArvectumAplWin014Final024-' + [Guid]::NewGuid().ToString('N'))
+$tempRoot = $null
+for ($attempt = 0; $attempt -lt 20; $attempt++) {
+    $candidateTemp = Join-Path $env:TEMP ("ArvectumAplWin014Final024-$(Get-Random -Minimum 100000 -Maximum 999999)")
+    if (-not (Test-Path -LiteralPath $candidateTemp)) {
+        $tempRoot = $candidateTemp
+        break
+    }
+}
+if (-not $tempRoot) { throw 'Unable to allocate a unique temporary directory.' }
 $scanRoot = Join-Path $tempRoot 'scan'
 New-Item -ItemType Directory -Path $scanRoot -Force | Out-Null
 
@@ -140,7 +164,7 @@ try {
     $xmlText = Get-Content -LiteralPath $policyXml -Raw -Encoding UTF8
     if ($xmlText -match 'Disabled:Script Enforcement') { throw 'Generated policy disables script enforcement; refusing unsafe policy.' }
     foreach ($scriptName in @('upgrade_helper.ps1','uninstall_helper.ps1','apl_win_014_final_0_2_4_physical.ps1')) {
-        if ($xmlText -notmatch [regex]::Escape($scriptName)) { throw "Generated policy is missing exact script rule material for $scriptName." }
+        if ($xmlText -notlike "*$scriptName*") { throw "Generated policy is missing exact script rule material for $scriptName." }
     }
 
     Set-CIPolicyIdInfo -FilePath $policyXml -ResetPolicyID -PolicyName 'Arvectum Proxy Launcher 0.2.4 Final Exact Hash' -SupplementsBasePolicyID $BasePolicyId | Out-Null
@@ -152,28 +176,28 @@ try {
     if (-not (Test-Path -LiteralPath $policyCip -PathType Leaf)) { throw 'ConfigCI did not create the binary supplemental policy.' }
 
     $files = @(
-        [ordered]@{ role='predecessor_setup'; filename=[IO.Path]::GetFileName($previousSetupPath); sha256=$expectedPreviousSetup },
-        [ordered]@{ role='candidate_setup'; filename=[IO.Path]::GetFileName($setupPath); sha256=$expectedCandidateSetup },
-        [ordered]@{ role='candidate_application'; filename=[IO.Path]::GetFileName($appPath); sha256=$expectedCandidateApp },
-        [ordered]@{ role='upgrade_helper'; filename=[IO.Path]::GetFileName($upgradeHelperPath); sha256=$expectedUpgradeHelper },
-        [ordered]@{ role='uninstall_helper'; filename=[IO.Path]::GetFileName($uninstallHelperPath); sha256=$expectedUninstallHelper },
-        [ordered]@{ role='physical_runner'; filename=[IO.Path]::GetFileName($runnerPath); sha256=$expectedRunner },
-        [ordered]@{ role='candidate_uninstaller'; filename=[IO.Path]::GetFileName($uninstallerPath); sha256=$expectedUninstaller },
-        [ordered]@{ role='inno_runtime'; filename=[IO.Path]::GetFileName($RuntimePath); sha256=$expectedRuntime }
+        [ordered]@{ role='predecessor_setup'; filename=(Split-Path -Leaf $previousSetupPath); sha256=$expectedPreviousSetup },
+        [ordered]@{ role='candidate_setup'; filename=(Split-Path -Leaf $setupPath); sha256=$expectedCandidateSetup },
+        [ordered]@{ role='candidate_application'; filename=(Split-Path -Leaf $appPath); sha256=$expectedCandidateApp },
+        [ordered]@{ role='upgrade_helper'; filename=(Split-Path -Leaf $upgradeHelperPath); sha256=$expectedUpgradeHelper },
+        [ordered]@{ role='uninstall_helper'; filename=(Split-Path -Leaf $uninstallHelperPath); sha256=$expectedUninstallHelper },
+        [ordered]@{ role='physical_runner'; filename=(Split-Path -Leaf $runnerPath); sha256=$expectedRunner },
+        [ordered]@{ role='candidate_uninstaller'; filename=(Split-Path -Leaf $uninstallerPath); sha256=$expectedUninstaller },
+        [ordered]@{ role='inno_runtime'; filename=(Split-Path -Leaf $RuntimePath); sha256=$expectedRuntime }
     )
 
     $manifest = [ordered]@{
         schema = 'arvectum.proxy.apl-win-014-final-0.2.4-app-control-trust.v1'
         task = 'APL-WIN-014'
-        created_utc = [DateTime]::UtcNow.ToString('o')
+        created_utc = Get-UtcTimestamp
         candidate_source_commit = [string]$candidate.candidate_source_commit
         candidate_version = '0.2.4'
         predecessor_version = '0.2.3'
         base_policy_id = (Normalize-GuidText $BasePolicyId)
         supplemental_policy_id = (Normalize-GuidText $policyId)
-        supplemental_policy_xml = [IO.Path]::GetFileName($policyXml)
+        supplemental_policy_xml = (Split-Path -Leaf $policyXml)
         supplemental_policy_xml_sha256 = Get-Sha256 $policyXml
-        supplemental_policy_cip = [IO.Path]::GetFileName($policyCip)
+        supplemental_policy_cip = (Split-Path -Leaf $policyCip)
         supplemental_policy_cip_sha256 = Get-Sha256 $policyCip
         rule_level = 'Hash'
         script_enforcement_disabled = $false
@@ -220,5 +244,5 @@ Do not continue unless the canonical base policy and this supplemental are on-di
     Write-Host 'Security controls modified: NO'
 }
 finally {
-    if (Test-Path -LiteralPath $tempRoot) { Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue }
+    if ($tempRoot -and (Test-Path -LiteralPath $tempRoot)) { Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
