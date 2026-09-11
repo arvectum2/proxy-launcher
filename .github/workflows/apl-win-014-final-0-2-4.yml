@@ -41,6 +41,34 @@ jobs:
             [void][scriptblock]::Create($text)
           }
 
+          # The policy-authoring helper executes before its own supplemental WDAC
+          # policy exists. On the physical host interactive PowerShell is therefore
+          # ConstrainedLanguage. Fail the release if this bootstrap script contains
+          # any instance/static .NET method invocation; cmdlets, operators and
+          # property reads remain allowed.
+          $bootstrapPath = 'tools/apl_win_014_prepare_0_2_4_supplemental_policy.ps1'
+          $tokens = $null
+          $parseErrors = $null
+          $bootstrapAst = [System.Management.Automation.Language.Parser]::ParseFile(
+            $bootstrapPath,
+            [ref]$tokens,
+            [ref]$parseErrors
+          )
+          if ($parseErrors.Count -ne 0) {
+            throw "Policy bootstrap parse errors: $($parseErrors -join '; ')"
+          }
+          $methodCalls = @($bootstrapAst.FindAll({
+            param($node)
+            $node -is [System.Management.Automation.Language.InvokeMemberExpressionAst]
+          }, $true))
+          if ($methodCalls.Count -ne 0) {
+            $details = $methodCalls | ForEach-Object {
+              "line $($_.Extent.StartLineNumber): $($_.Extent.Text)"
+            }
+            throw "Policy bootstrap is not CLM-safe; method invocation found:`n$($details -join "`n")"
+          }
+          Write-Host 'Policy bootstrap CLM static gate: PASS (zero method invocations)'
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.10'
