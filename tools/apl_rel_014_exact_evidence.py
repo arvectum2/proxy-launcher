@@ -3,12 +3,16 @@
 
 This tool closes the pre-signing half of APL-REL-014 for the immutable 0.2.4
 candidate. It binds the exact product bytes selected for the Russian release to
-the authoritative APL-WIN-014 physical lifecycle result. The output must remain
-outside the release directory.
+the authoritative APL-WIN-014 physical lifecycle result.
+
+The canonical output, ``apl-rel-014-lifecycle-evidence.json``, is deliberately
+written into the final release directory before APL-REL-011. REL-011 therefore
+hashes and signs the lifecycle evidence itself together with the exact Setup,
+portable ZIP, and consumer verification UX.
 
 The post-signing half is enforced by APL-REL-013: the Russian production gate
-must prove that the REL-011 signed manifest contains these same exact Setup and
-portable ZIP hashes before publication can be authorized.
+must prove that the signed manifest contains this exact REL-014 evidence and the
+same exact Setup/portable hashes before publication can be authorized.
 """
 
 from __future__ import annotations
@@ -23,6 +27,7 @@ from typing import Any
 
 
 SCHEMA = "arvectum.proxy.apl-rel-014-exact-evidence.v1"
+CANONICAL_EVIDENCE_NAME = "apl-rel-014-lifecycle-evidence.json"
 DEFAULT_CONTRACT = (
     Path(__file__).resolve().parents[1]
     / "release"
@@ -112,13 +117,19 @@ def resolve_release_asset(
 
 
 def assert_candidate(contract: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
-    require(candidate.get("schema") == "arvectum.proxy.apl-win-014-final-0.2.4-candidate.v1",
-            "Candidate evidence schema is not the canonical final 0.2.4 schema.")
+    require(
+        candidate.get("schema") == "arvectum.proxy.apl-win-014-final-0.2.4-candidate.v1",
+        "Candidate evidence schema is not the canonical final 0.2.4 schema.",
+    )
     require(candidate.get("task") == "APL-WIN-014", "Candidate evidence task is not APL-WIN-014.")
-    require(str(candidate.get("product_version")) == contract["version"],
-            "Candidate evidence version does not match the APL-REL-014 contract.")
-    require(str(candidate.get("supported_predecessor_version")) == contract["predecessor"]["version"],
-            "Candidate predecessor version does not match the APL-REL-014 contract.")
+    require(
+        str(candidate.get("product_version")) == contract["version"],
+        "Candidate evidence version does not match the APL-REL-014 contract.",
+    )
+    require(
+        str(candidate.get("supported_predecessor_version")) == contract["predecessor"]["version"],
+        "Candidate predecessor version does not match the APL-REL-014 contract.",
+    )
     require(
         norm_commit(candidate.get("candidate_source_commit"), "candidate_source_commit")
         == contract["candidate_source_commit"],
@@ -151,15 +162,16 @@ def assert_candidate(contract: dict[str, Any], candidate: dict[str, Any]) -> dic
     return candidate
 
 
-def assert_physical(
-    contract: dict[str, Any],
-    physical: dict[str, Any],
-) -> dict[str, Any]:
+def assert_physical(contract: dict[str, Any], physical: dict[str, Any]) -> dict[str, Any]:
     physical_contract = contract["physical_evidence"]
-    require(physical.get("schema") == physical_contract["schema"],
-            "Physical evidence schema does not match the canonical APL-WIN-014 final runner.")
-    require(physical.get("task") == physical_contract["task"],
-            "Physical evidence task is not APL-WIN-014.")
+    require(
+        physical.get("schema") == physical_contract["schema"],
+        "Physical evidence schema does not match the canonical APL-WIN-014 final runner.",
+    )
+    require(
+        physical.get("task") == physical_contract["task"],
+        "Physical evidence task is not APL-WIN-014.",
+    )
     require(physical.get("result") == "PASS", "Authoritative physical result is not PASS.")
     require(str(physical.get("host") or "").strip() != "", "Physical evidence host is missing.")
     require(str(physical.get("started_utc") or "").strip() != "", "Physical evidence start time is missing.")
@@ -211,7 +223,10 @@ def assert_physical(
     )
     require(int(runtime.get("listener_pid") or 0) > 0, "Physical listener PID is missing.")
     require(int(runtime.get("starter_pid") or 0) > 0, "Physical starter PID is missing.")
-    require(physical.get("block_reason") in (None, ""), "PASS physical evidence unexpectedly has block_reason.")
+    require(
+        physical.get("block_reason") in (None, ""),
+        "PASS physical evidence unexpectedly has block_reason.",
+    )
     return physical
 
 
@@ -222,15 +237,22 @@ def build_evidence(
     release_dir: Path,
 ) -> dict[str, Any]:
     contract = read_json(contract_path)
-    require(contract.get("schema") == "arvectum.proxy.apl-rel-014-exact-set-contract.v1",
-            "APL-REL-014 contract schema is unexpected.")
+    require(
+        contract.get("schema") == "arvectum.proxy.apl-rel-014-exact-set-contract.v1",
+        "APL-REL-014 contract schema is unexpected.",
+    )
     require(contract.get("task") == "APL-REL-014", "APL-REL-014 contract task is unexpected.")
-    require(contract.get("product") == "Arvectum Proxy Launcher", "APL-REL-014 contract product is unexpected.")
+    require(
+        contract.get("product") == "Arvectum Proxy Launcher",
+        "APL-REL-014 contract product is unexpected.",
+    )
     contract["candidate_source_commit"] = norm_commit(
         contract.get("candidate_source_commit"), "contract candidate_source_commit"
     )
     for key in ("portable_zip_sha256", "setup_sha256", "application_sha256"):
-        contract["candidate"][key] = norm_hash(contract["candidate"].get(key), f"contract candidate.{key}")
+        contract["candidate"][key] = norm_hash(
+            contract["candidate"].get(key), f"contract candidate.{key}"
+        )
     for key in ("setup_sha256", "application_sha256"):
         contract["predecessor"][key] = norm_hash(
             contract["predecessor"].get(key), f"contract predecessor.{key}"
@@ -252,10 +274,6 @@ def build_evidence(
         contract["candidate"]["portable_zip_sha256"],
         "portable_zip",
     )
-
-    physical_hash = sha256_file(physical_path)
-    candidate_hash = sha256_file(candidate_path)
-    contract_hash = sha256_file(contract_path)
 
     return {
         "schema": SCHEMA,
@@ -283,9 +301,12 @@ def build_evidence(
             "host": physical["host"],
             "started_utc": physical["started_utc"],
             "finished_utc": physical["finished_utc"],
-            "gates": {name: "PASS" for name in contract["physical_evidence"]["required_gates"]},
+            "gates": {
+                name: "PASS" for name in contract["physical_evidence"]["required_gates"]
+            },
             "app_control": {
-                name: "PASS" for name in contract["physical_evidence"]["required_app_control"]
+                name: "PASS"
+                for name in contract["physical_evidence"]["required_app_control"]
             },
             "code_integrity_3077_count": 0,
             "runtime": {
@@ -298,11 +319,11 @@ def build_evidence(
         },
         "source_evidence": {
             "contract_file": contract_path.name,
-            "contract_sha256": contract_hash,
+            "contract_sha256": sha256_file(contract_path),
             "candidate_evidence_file": candidate_path.name,
-            "candidate_evidence_sha256": candidate_hash,
+            "candidate_evidence_sha256": sha256_file(candidate_path),
             "physical_result_file": physical_path.name,
-            "physical_result_sha256": physical_hash,
+            "physical_result_sha256": sha256_file(physical_path),
         },
         "signed_set_binding": {
             "state": "READY_FOR_REL011_SIGNING",
@@ -321,7 +342,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--candidate-evidence", type=Path, required=True)
     parser.add_argument("--physical-result", type=Path, required=True)
     parser.add_argument("--release-directory", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help=f"Canonical output path; defaults to <release-directory>/{CANONICAL_EVIDENCE_NAME}.",
+    )
+    parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -329,15 +355,19 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
     try:
         release_dir = args.release_directory.resolve()
-        output = args.output.resolve()
-        try:
-            output.relative_to(release_dir)
-        except ValueError:
-            pass
-        else:
-            raise EvidenceError(
-                "APL-REL-014 output must be outside the release directory so REL-011 signs a stable set."
-            )
+        output = (
+            args.output.resolve()
+            if args.output
+            else (release_dir / CANONICAL_EVIDENCE_NAME).resolve()
+        )
+        require(
+            output.parent == release_dir and output.name == CANONICAL_EVIDENCE_NAME,
+            f"APL-REL-014 evidence must be exactly {CANONICAL_EVIDENCE_NAME} inside the release directory.",
+        )
+        require(
+            args.overwrite or not output.exists(),
+            f"APL-REL-014 evidence already exists: {output}. Use --overwrite only before REL-011 signing.",
+        )
 
         evidence = build_evidence(
             args.contract.resolve(),
@@ -345,7 +375,6 @@ def main(argv: list[str] | None = None) -> int:
             args.physical_result.resolve(),
             release_dir,
         )
-        output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(
             json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
@@ -354,12 +383,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"APL-REL-014 exact evidence: BLOCK: {exc}", file=sys.stderr)
         return 2
     except (OSError, ValueError, TypeError, KeyError) as exc:
-        print(f"APL-REL-014 exact evidence: BLOCK: malformed/unavailable input: {exc}", file=sys.stderr)
+        print(
+            f"APL-REL-014 exact evidence: BLOCK: malformed/unavailable input: {exc}",
+            file=sys.stderr,
+        )
         return 2
 
     print("APL-REL-014 exact lifecycle/recovery evidence: PASS")
     print(f"Evidence: {output}")
     print("Signed-set state: READY_FOR_REL011_SIGNING")
+    print("REL-011 must sign this evidence file as a normal release asset.")
     print("Final signed-set PASS is intentionally deferred to APL-REL-013 post-sign binding.")
     return 0
 
