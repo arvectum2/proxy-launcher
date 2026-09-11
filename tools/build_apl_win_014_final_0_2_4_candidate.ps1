@@ -24,6 +24,21 @@ function Get-FileIdentity([string]$Path) {
 function Require-Pass([object]$Value, [string]$Name) {
     if ([string]$Value -ne 'PASS') { throw "$Name did not report PASS: $Value" }
 }
+function Wait-For-CleanInstallRoot([string]$Path, [int]$TimeoutSeconds = 15) {
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    do {
+        if (-not (Test-Path -LiteralPath $Path)) { return }
+        $entries = @(Get-ChildItem -LiteralPath $Path -Force -ErrorAction Stop)
+        if ($entries.Count -eq 0) {
+            Remove-Item -LiteralPath $Path -Force -ErrorAction Stop
+            return
+        }
+        Start-Sleep -Milliseconds 500
+    } while ([DateTime]::UtcNow -lt $deadline)
+
+    $remaining = @(Get-ChildItem -LiteralPath $Path -Force -ErrorAction Stop | ForEach-Object { $_.Name })
+    throw "CI install root still contains residual content after bounded Inno cleanup: $Path :: $($remaining -join ', ')"
+}
 
 $version = (Get-Content -LiteralPath (Join-Path $root 'VERSION') -Raw).Trim()
 if ($version -ne '0.2.4') { throw "Final APL-WIN-014 candidate must be version 0.2.4; got $version." }
@@ -112,7 +127,9 @@ if ([string]$rc.phases.uninstall -ne 'PASS') { throw 'Uninstall gate did not PAS
 # 5. Capture the deterministic uninstaller from the same Setup so physical App Control can authorize it before lifecycle execution.
 $documentsRoot = [Environment]::GetFolderPath('MyDocuments')
 $referenceRoot = Join-Path $documentsRoot 'ArvectumProxyLauncher'
-if (Test-Path -LiteralPath $referenceRoot) { throw "CI reference install root is not clean: $referenceRoot" }
+# Inno may return from an uninstall before its self-delete has removed the now-empty app directory.
+# Wait for that bounded cleanup. Never recursively delete residual content here: unexpected files remain a hard failure.
+Wait-For-CleanInstallRoot $referenceRoot
 $refLog = Join-Path $root 'out\final-0.2.4-reference-install.log'
 $installProcess = Start-Process -FilePath $setup -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',("/LOG=$refLog")) -PassThru -Wait
 if ($installProcess.ExitCode -ne 0) { throw "Reference install failed with exit code $($installProcess.ExitCode)." }
@@ -136,8 +153,8 @@ Copy-Item -LiteralPath $referenceUninstaller -Destination (Join-Path $policyMate
 $uninstallLog = Join-Path $root 'out\final-0.2.4-reference-uninstall.log'
 $uninstallProcess = Start-Process -FilePath $referenceUninstaller -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',("/LOG=$uninstallLog")) -PassThru -Wait
 if ($uninstallProcess.ExitCode -ne 0) { throw "Reference uninstall failed with exit code $($uninstallProcess.ExitCode)." }
-Start-Sleep -Seconds 1
 if (Test-Path -LiteralPath $referenceApp -PathType Leaf) { throw 'Reference application remains after uninstall.' }
+Wait-For-CleanInstallRoot $referenceRoot
 
 # 6. Assemble exactly one physical-test artifact. Synthetic predecessor is evidence-only and is deliberately not shipped.
 $setupIdentity = Get-FileIdentity $setup
