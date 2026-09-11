@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ASSESS = ROOT / "tools" / "windows_app_control_assess.ps1"
 PACK = ROOT / "tools" / "windows_app_control_enterprise_trust_pack.ps1"
+PREVERIFIED = ROOT / "tools" / "windows_app_control_preverified_release.ps1"
 RUNTIME = ROOT / "tools" / "windows_app_control_inno_runtime_material.ps1"
 RUNTIME_VERIFY = ROOT / "tools" / "windows_app_control_verify_runtime_trust_pack.ps1"
 OWNER = ROOT / "tools" / "windows_owner_source_mode.ps1"
@@ -12,6 +13,7 @@ DOC = ROOT / "docs" / "WINDOWS_APP_CONTROL_COMPATIBILITY.md"
 
 RUNTIME_SHA256 = "b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8"
 PRODUCTION_SETUP_SHA256 = "5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414"
+SIGNING_EVIDENCE_SHA256 = "67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e"
 
 
 def text(path: Path) -> str:
@@ -19,7 +21,7 @@ def text(path: Path) -> str:
 
 
 def test_powershell_scripts_are_ascii_safe_for_windows_powershell_51():
-    for path in (ASSESS, PACK, RUNTIME, RUNTIME_VERIFY, OWNER):
+    for path in (ASSESS, PACK, PREVERIFIED, RUNTIME, RUNTIME_VERIFY, OWNER):
         assert all(byte < 128 for byte in path.read_bytes()), path
 
 
@@ -28,25 +30,38 @@ def test_assessment_is_read_only_and_does_not_change_app_control_state():
     assert "VerifiedAndReputablePolicyState" in body
     assert "CiTool.exe" in body
     assert "Get-AuthenticodeSignature" in body
-    for forbidden in (
-        "Set-ItemProperty",
-        "Remove-ItemProperty",
-        "--update-policy",
-        "--remove-policy",
-        "Set-CIPolicy",
-    ):
+    for forbidden in ("Set-ItemProperty", "Remove-ItemProperty", "--update-policy", "--remove-policy", "Set-CIPolicy"):
         assert forbidden not in body
 
 
-def test_enterprise_pack_verifies_exact_russian_release_before_policy_generation():
+def test_enterprise_pack_binds_upstream_russian_release_evidence_before_policy_generation():
     body = text(PACK)
-    verifier = body.index("Invoke-ReleaseVerifier -Verifier $verifier -Directory $ReleaseDirectory")
+    preverified = body.index("PREVERIFIED_EXACT_HASH_BOUND")
     policy = body.index("New-CIPolicy -MultiplePolicyFormat")
-    assert verifier < policy
+    assert preverified < policy
+    assert "windows_app_control_preverified_release.ps1" in body
+    assert "SigningEvidencePath" in body
+    assert SIGNING_EVIDENCE_SHA256 in body
+    assert "local_cryptopro_verification = 'NOT_REQUIRED'" in body
+    assert "russian_release_provenance = 'PREVERIFIED_EXACT_HASH_BOUND'" in body
+    assert "verify_russian_release.ps1" not in body
+    assert "Invoke-ReleaseVerifier" not in body
+    assert "CRYPTO_PRO_CSPTEST_PATH" not in body
     assert PRODUCTION_SETUP_SHA256 in body
     assert "62d313547b4d8c2c8e6951d6cd866bb954fdf199ad7650063c8ed3bfbc455801" in body
     assert "f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a" in body
     assert "EE1CFA955BA22F03C39C76B183D94CD37494582E" in body
+
+
+def test_preverified_helper_supports_cli_without_cryptopro_dependency():
+    body = text(PREVERIFIED)
+    assert "[string]$SigningEvidencePath" in body
+    assert "[switch]$AsJson" in body
+    assert "PREVERIFIED_EXACT_HASH_BOUND" in body
+    assert "local_cryptopro_verification = 'NOT_REQUIRED'" in body
+    assert SIGNING_EVIDENCE_SHA256 in body
+    assert "CryptoPro/Rutoken signing infrastructure" in body
+    assert "CRYPTO_PRO_CSPTEST_PATH" not in body
 
 
 def test_enterprise_pack_generates_supplemental_exact_hash_policy_only():
@@ -77,13 +92,13 @@ def test_enterprise_pack_preserves_script_enforcement_and_hash_trusts_maintenanc
 def test_enterprise_pack_binds_exact_inno_child_runtime_before_policy_authoring():
     body = text(PACK)
     helper = text(RUNTIME)
-    validate = body.index("$runtime = Invoke-RuntimeMaterialValidator")
+    validate = body.index("$runtime = Invoke-JsonHelper")
     policy = body.index("New-CIPolicy -MultiplePolicyFormat")
     assert validate < policy
     assert "windows_app_control_inno_runtime_material.ps1" in body
-    assert "& $Validator" in body
-    assert "powershell.exe -NoProfile -ExecutionPolicy Bypass -File $Validator" not in body
-    assert "-AsJson" in body
+    assert "& $ScriptPath @Arguments" in body
+    assert "powershell.exe -NoProfile -ExecutionPolicy Bypass -File" not in body
+    assert "AsJson = $true" in body
     assert "ConvertFrom-Json" in body
     assert ". $runtimeHelper" not in body
     assert "inno-setup-6.7.1-runtime-stub.exe" in body
@@ -163,12 +178,7 @@ def test_owner_source_mode_is_explicitly_nonproduction_and_never_changes_app_con
     assert "main_autostart_enabled = $false" in body
     assert "start/rollback Run ordering races" in body
     assert "EnableAutostart" not in body
-    for forbidden in (
-        "VerifiedAndReputablePolicyState",
-        "CiTool",
-        "Set-CIPolicy",
-        "ConvertFrom-CIPolicy",
-    ):
+    for forbidden in ("VerifiedAndReputablePolicyState", "CiTool", "Set-CIPolicy", "ConvertFrom-CIPolicy"):
         assert forbidden not in body
 
 

@@ -6,9 +6,20 @@
     owner-station signing acceptance record. This is for an acceptance host that
     does not carry CryptoPro/Rutoken signing infrastructure.
 
+    The file can be dot-sourced as a function library or invoked directly with
+    -ReleaseDirectory and -SigningEvidencePath. Direct invocation never requires
+    CryptoPro CSP because cryptographic signature verification happened upstream on
+    the governed owner/release station and is represented by immutable signing evidence.
+
     This helper does not claim Authenticode or SmartScreen trust and never changes
     App Control, Smart App Control, Defender, registry policy, proxy state, or files.
 #>
+[CmdletBinding()]
+param(
+    [string]$ReleaseDirectory = '',
+    [string]$SigningEvidencePath = '',
+    [switch]$AsJson
+)
 
 $script:ArvectumExpectedVersion = '0.2.3'
 $script:ArvectumExpectedTag = 'v0.2.3-ru.2'
@@ -82,6 +93,7 @@ function Assert-ArvectumPreverifiedRussianRelease {
         release_directory = $release
         signing_evidence_path = $evidencePath
         signing_evidence_sha256 = $evidenceHash
+        signer_thumbprint = $script:ArvectumExpectedSignerThumbprint
         setup = $setup
         setup_sha256 = $setupHash
         portable = $portable
@@ -90,5 +102,20 @@ function Assert-ArvectumPreverifiedRussianRelease {
         version = $script:ArvectumExpectedVersion
         tag = $script:ArvectumExpectedTag
         verification = 'PREVERIFIED_EXACT_HASH_BOUND'
+        local_cryptopro_verification = 'NOT_REQUIRED'
+    }
+}
+
+$directInvocationRequested = (-not [string]::IsNullOrWhiteSpace($ReleaseDirectory)) -or (-not [string]::IsNullOrWhiteSpace($SigningEvidencePath)) -or $AsJson
+if ($directInvocationRequested) {
+    if ([string]::IsNullOrWhiteSpace($ReleaseDirectory) -or [string]::IsNullOrWhiteSpace($SigningEvidencePath)) {
+        throw 'Direct invocation requires both -ReleaseDirectory and -SigningEvidencePath.'
+    }
+    $result = Assert-ArvectumPreverifiedRussianRelease -ReleaseDirectory $ReleaseDirectory -SigningEvidencePath $SigningEvidencePath
+    if ($AsJson) {
+        $result | ConvertTo-Json -Depth 6
+    }
+    else {
+        $result
     }
 }
