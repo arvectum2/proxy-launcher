@@ -6,10 +6,6 @@ Compression.Base.pas. Inno Setup is licensed under the Inno Setup License.
 """
 import argparse, hashlib, json, lzma, struct, sys, zlib
 from pathlib import Path
-try:
-    import pefile
-except ModuleNotFoundError as exc:
-    raise SystemExit("Missing required evidence dependency: pefile==2024.8.26") from exc
 
 TABLE_ID = b"rDlPtS\xcd\xe6\xd7\x7b\x0b\x2a"
 TABLE_VERSION = 2
@@ -30,6 +26,10 @@ def parse_table(data, file_size):
     return dict(total_size=total, offset_exe=offexe, uncompressed_size_exe=usize, crc_exe=crcexe & 0xffffffff, offset_0=off0, offset_1=off1, reserved_padding=padding, table_crc=tablecrc)
 
 def resource_table(path, raw):
+    try:
+        import pefile
+    except ModuleNotFoundError as exc:
+        raise SystemExit("Missing required evidence dependency: pefile==2024.8.26") from exc
     pe = pefile.PE(str(path), fast_load=False)
     found = []
     for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
