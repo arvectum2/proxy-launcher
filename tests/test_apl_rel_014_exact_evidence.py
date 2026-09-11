@@ -176,17 +176,33 @@ def test_code_integrity_block_fails_closed(tmp_path):
         module.build_evidence(contract, candidate, physical_path, release)
 
 
-def test_cli_refuses_to_write_evidence_inside_release_directory(tmp_path):
+def test_cli_writes_canonical_evidence_inside_release_directory(tmp_path):
     module, contract, candidate, physical, release, _ = make_fixture(tmp_path)
     rc = module.main([
         "--contract", str(contract),
         "--candidate-evidence", str(candidate),
         "--physical-result", str(physical),
         "--release-directory", str(release),
-        "--output", str(release / "apl-rel-014.json"),
+    ])
+    assert rc == 0
+    output = release / module.CANONICAL_EVIDENCE_NAME
+    assert output.is_file()
+    evidence = json.loads(output.read_text(encoding="utf-8"))
+    assert evidence["result"] == "PASS"
+
+
+def test_cli_refuses_noncanonical_or_external_output(tmp_path):
+    module, contract, candidate, physical, release, _ = make_fixture(tmp_path)
+    external = tmp_path / "external.json"
+    rc = module.main([
+        "--contract", str(contract),
+        "--candidate-evidence", str(candidate),
+        "--physical-result", str(physical),
+        "--release-directory", str(release),
+        "--output", str(external),
     ])
     assert rc == 2
-    assert not (release / "apl-rel-014.json").exists()
+    assert not external.exists()
 
 
 def test_script_has_no_secret_or_private_key_inputs():
