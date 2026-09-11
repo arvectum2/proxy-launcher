@@ -81,18 +81,39 @@ jobs:
           $contract.candidate | Add-Member -NotePropertyName policy_authoring_helper_sha256 -NotePropertyValue $helperIdentity.sha256 -Force
           $contract | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8
 
-          $sumsPath = Join-Path $output 'SHA256SUMS.txt'
-          $sums = Get-ChildItem -LiteralPath $output -File -Recurse | Where-Object { $_.Name -ne 'SHA256SUMS.txt' } | Sort-Object FullName | ForEach-Object {
-            $relative = $_.FullName.Substring($output.Length).TrimStart('\')
-            "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $relative"
-          }
+          # Build a relocatable checksum manifest. Resolve the output root first so
+          # FullName and root use the same absolute coordinate system.
+          $outputFull = (Resolve-Path -LiteralPath $output).Path
+          $sumsPath = Join-Path $outputFull 'SHA256SUMS.txt'
+          $sums = Get-ChildItem -LiteralPath $outputFull -File -Recurse |
+            Where-Object { $_.Name -ne 'SHA256SUMS.txt' } |
+            Sort-Object FullName |
+            ForEach-Object {
+              $relative = $_.FullName.Substring($outputFull.Length).TrimStart('\')
+              "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $relative"
+            }
           Set-Content -LiteralPath $sumsPath -Value $sums -Encoding ascii
 
-          Compress-Archive -Path "$output\*" -DestinationPath "$output.zip" -CompressionLevel Optimal
-          $hash = (Get-FileHash -LiteralPath "$output.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
-          "bundle_path=$output.zip" >> $env:GITHUB_OUTPUT
+          # Verify every manifest entry immediately. A bad path or changed byte is a
+          # hard build failure, so an uploaded final kit cannot carry a broken manifest.
+          foreach ($line in Get-Content -LiteralPath $sumsPath) {
+            if ($line -notmatch '^([0-9a-f]{64})  (.+)$') { throw "Malformed SHA256SUMS entry: $line" }
+            $expectedHash = $Matches[1]
+            $relativePath = $Matches[2]
+            if ([IO.Path]::IsPathRooted($relativePath)) { throw "SHA256SUMS path must be relative: $relativePath" }
+            $manifestFile = Join-Path $outputFull $relativePath
+            if (-not (Test-Path -LiteralPath $manifestFile -PathType Leaf)) { throw "SHA256SUMS path does not resolve inside final kit: $relativePath" }
+            $actualHash = (Get-FileHash -LiteralPath $manifestFile -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) { throw "SHA256SUMS hash mismatch for $relativePath" }
+          }
+          Write-Host "SHA256SUMS verified entries: $($sums.Count)"
+
+          $bundlePath = [IO.Path]::GetFullPath("$output.zip")
+          Compress-Archive -Path "$outputFull\*" -DestinationPath $bundlePath -CompressionLevel Optimal
+          $hash = (Get-FileHash -LiteralPath $bundlePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          "bundle_path=$bundlePath" >> $env:GITHUB_OUTPUT
           "bundle_sha256=$hash" >> $env:GITHUB_OUTPUT
-          Write-Host "FINAL_BUNDLE=$output.zip"
+          Write-Host "FINAL_BUNDLE=$bundlePath"
           Write-Host "FINAL_BUNDLE_SHA256=$hash"
           Write-Host "POLICY_AUTHORING_HELPER_SHA256=$($helperIdentity.sha256)"
 
