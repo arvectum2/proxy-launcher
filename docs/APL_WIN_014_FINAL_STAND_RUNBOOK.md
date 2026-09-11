@@ -16,6 +16,12 @@ For the final 0.2.4 acceptance, an **exact already-installed 0.2.3 predecessor s
 
 The final physical proof begins only after the exact predecessor state has been provisioned from canonical sealed 0.2.3 release material and independently verified. The 0.2.4 runner then verifies that exact state again before performing the real `0.2.3 -> 0.2.4` upgrade.
 
+## Candidate-derived Inno runtime boundary
+
+The Inno loader child executable materialized as `setup.tmp` is part of the executable trust surface. Its bytes are **not assumed to be invariant merely because the compiler version is Inno Setup 6.7.1**.
+
+The final workflow statically derives the exact child runtime from the exact candidate Setup with `tools/bootstrap/apl-win-014/extract_inno_6_7_1_runtime.py`, seals those bytes inside `policy-material`, records their SHA-256 and source Setup SHA-256 in both candidate evidence and the physical contract, and includes the derivation evidence in the same immutable final ZIP. The supplemental policy must authorize that candidate-derived runtime, not a historical runtime from a different Setup build.
+
 ## Inputs
 
 Use exactly these inputs:
@@ -24,10 +30,10 @@ Use exactly these inputs:
 - canonical sealed predecessor material in `C:\Arvectum\Releases\0.2.3-russian-production`;
 - canonical 0.2.3 Setup SHA-256 `5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414`;
 - canonical installed 0.2.3 application SHA-256 `f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a`;
-- accepted Inno Setup 6.7.1 runtime material at `C:\Arvectum\Evidence\APL-WIN-014\reference-bootstrap-final\runtime\inno-setup-6.7.1-runtime-stub.exe`, SHA-256 `b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8`;
+- candidate-derived Inno Setup 6.7.1 child runtime sealed inside the same candidate ZIP at the relative path recorded as `inno_runtime_filename` in `physical_test_contract.json`;
 - Windows ConfigCI cmdlets and `CiTool.exe`.
 
-Extract the workflow ZIP into a new immutable candidate directory. Do not edit, rebuild, rename, or substitute files inside it. `candidate_evidence.json`, `physical_test_contract.json`, and `SHA256SUMS.txt` are the sealed identity contract.
+Extract the workflow ZIP into a new immutable candidate directory. Do not edit, rebuild, rename, or substitute files inside it. `candidate_evidence.json`, `physical_test_contract.json`, the candidate-derived runtime/evidence, and `SHA256SUMS.txt` are the sealed identity contract.
 
 ## Phase 0 — exact predecessor precondition
 
@@ -52,9 +58,10 @@ Run elevated Windows PowerShell 5.1. On an App Control host the interactive shel
 $ps51 = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 $basePolicy = 'dc1c604c-46ea-40b7-9f47-cf582b225d5e'
 $previous = 'C:\Arvectum\Releases\0.2.3-russian-production'
-$runtime = 'C:\Arvectum\Evidence\APL-WIN-014\reference-bootstrap-final\runtime\inno-setup-6.7.1-runtime-stub.exe'
 $policyOut = 'C:\Arvectum\Evidence\APL-WIN-014\final-0.2.4-policy'
 $helper = Join-Path $candidate 'apl_win_014_prepare_0_2_4_supplemental_policy.ps1'
+$contract = Get-Content -LiteralPath (Join-Path $candidate 'physical_test_contract.json') -Raw | ConvertFrom-Json
+$runtime = Join-Path $candidate ([string]$contract.inno_runtime_filename)
 
 & $ps51 -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass `
     $helper `
@@ -65,7 +72,7 @@ $helper = Join-Path $candidate 'apl_win_014_prepare_0_2_4_supplemental_policy.ps
     -OutputDirectory $policyOut
 ```
 
-The authoring helper fails closed unless the sealed candidate, canonical predecessor Setup, accepted Inno runtime, physical runner, maintenance helpers, deterministic uninstaller, and base PolicyID all agree with the contract. It creates a `Level Hash` multiple-policy supplemental, keeps script enforcement enabled, and writes `trust-pack.json`, `POLICY_TO_DEPLOY.txt`, the supplemental XML/`.cip`, and `SHA256SUMS.txt`.
+The authoring helper fails closed unless the sealed candidate, canonical predecessor Setup, **candidate-derived Inno runtime**, physical runner, maintenance helpers, deterministic uninstaller, and base PolicyID all agree with the contract. It creates a `Level Hash` multiple-policy supplemental, keeps script enforcement enabled, and writes `trust-pack.json`, `POLICY_TO_DEPLOY.txt`, the supplemental XML/`.cip`, and `SHA256SUMS.txt`.
 
 The helper **does not deploy policy**, remove policy, install/uninstall the product, or weaken Windows protection.
 
@@ -129,8 +136,8 @@ C:\Arvectum\Evidence\APL-WIN-014\final-0.2.4\apl-win-014-final-0.2.4-physical-re
 
 APL-WIN-014 physical acceptance is complete only when that JSON records `result = PASS`, every lifecycle/App Control sub-gate is `PASS`, and `code_integrity_3077_count = 0`.
 
-Preserve the complete candidate directory, policy authoring directory, physical evidence directory, workflow run ID, workflow artifact SHA-256, predecessor identity evidence, and final `main` commit as the immutable acceptance record.
+Preserve the complete candidate directory, policy authoring directory, physical evidence directory, workflow run ID, workflow artifact SHA-256, predecessor identity evidence, candidate-derived runtime evidence, and final `main` commit as the immutable acceptance record.
 
 ## Fail-closed rule
 
-Any identity mismatch, missing file, wrong predecessor, wrong runtime, unauthorized/missing policy, Audit mode, occupied governed port, failed PAC/WinINET transition, changed installed byte, Code Integrity 3077 event, residual lifecycle state, or incomplete gate is **BLOCK**. Do not weaken Windows protection and do not replace a failed byte with an unsealed build. Preserve failed evidence and use a new evidence/output directory for a deliberate rerun.
+Any identity mismatch, missing file, wrong predecessor, wrong or non-candidate-derived runtime, unauthorized/missing policy, Audit mode, occupied governed port, failed PAC/WinINET transition, changed installed byte, Code Integrity 3077 event, residual lifecycle state, or incomplete gate is **BLOCK**. Do not weaken Windows protection and do not replace a failed byte with an unsealed build. Preserve failed evidence and use a new evidence/output directory for a deliberate rerun.
