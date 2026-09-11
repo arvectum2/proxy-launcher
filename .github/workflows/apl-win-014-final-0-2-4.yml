@@ -77,6 +77,10 @@ jobs:
         shell: pwsh
         run: choco install innosetup --version=6.7.1 --no-progress -y
 
+      - name: Install exact runtime evidence dependency
+        shell: pwsh
+        run: python -m pip install -r tools/bootstrap/apl-win-014/requirements-runtime-evidence.txt
+
       - name: Build once, prove lifecycle, and assemble one physical test kit
         id: candidate
         shell: pwsh
@@ -86,6 +90,41 @@ jobs:
             -CandidateSourceCommit $env:CANDIDATE_COMMIT `
             -CandidateOutputDirectory $output `
             -PythonExecutable python
+
+          # Derive the exact Inno child runtime from THIS sealed candidate Setup.
+          # The child is materialized as setup.tmp by Inno at execution time, so the
+          # supplemental App Control policy must authorize these exact bytes rather
+          # than a runtime derived from a historical Setup built with the same Inno version.
+          $setupPath = Join-Path $output 'Arvectum-Proxy-Launcher-0.2.4-windows-x64-setup.exe'
+          $policyMaterial = Join-Path $output 'policy-material'
+          $runtimeName = 'inno-setup-6.7.1-candidate-runtime.exe'
+          $runtimeRelative = "policy-material\$runtimeName"
+          $runtimePath = Join-Path $policyMaterial $runtimeName
+          $runtimeEvidenceName = 'inno-setup-6.7.1-candidate-runtime-evidence.json'
+          $runtimeEvidencePath = Join-Path $output $runtimeEvidenceName
+
+          python tools/bootstrap/apl-win-014/extract_inno_6_7_1_runtime.py `
+            $setupPath `
+            $runtimePath `
+            --evidence $runtimeEvidencePath
+          if ($LASTEXITCODE -ne 0) { throw 'Exact Inno child runtime derivation failed.' }
+          foreach ($path in @($runtimePath,$runtimeEvidencePath)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Runtime sealing output missing: $path" }
+          }
+
+          $setupHash = (Get-FileHash -LiteralPath $setupPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $runtimeHash = (Get-FileHash -LiteralPath $runtimePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $runtimeItem = Get-Item -LiteralPath $runtimePath
+          $runtimeEvidence = Get-Content -LiteralPath $runtimeEvidencePath -Raw | ConvertFrom-Json
+          if (([string]$runtimeEvidence.sealed_setup_sha256).ToLowerInvariant() -ne $setupHash) {
+            throw 'Derived Inno runtime evidence is not bound to the final candidate Setup.'
+          }
+          if (([string]$runtimeEvidence.derived_runtime_sha256).ToLowerInvariant() -ne $runtimeHash) {
+            throw 'Derived Inno runtime hash disagrees with runtime evidence.'
+          }
+          if ([long]$runtimeEvidence.derived_runtime_size -ne [long]$runtimeItem.Length) {
+            throw 'Derived Inno runtime size disagrees with runtime evidence.'
+          }
 
           # Seal the policy-authoring helper into the same physical kit and bind its
           # exact identity into both candidate evidence and the physical contract.
@@ -101,13 +140,29 @@ jobs:
 
           $candidateEvidencePath = Join-Path $output 'candidate_evidence.json'
           $candidateEvidence = Get-Content -LiteralPath $candidateEvidencePath -Raw | ConvertFrom-Json
+          if (([string]$candidateEvidence.setup.sha256).ToLowerInvariant() -ne $setupHash) {
+            throw 'Candidate evidence Setup identity disagrees with the runtime source Setup.'
+          }
           $candidateEvidence | Add-Member -NotePropertyName policy_authoring_helper -NotePropertyValue $helperIdentity -Force
+          $candidateEvidence.runtime_trust.exact_runtime_sha256 = $runtimeHash
+          $candidateEvidence.runtime_trust | Add-Member -NotePropertyName filename -NotePropertyValue $runtimeRelative -Force
+          $candidateEvidence.runtime_trust | Add-Member -NotePropertyName size -NotePropertyValue ([long]$runtimeItem.Length) -Force
+          $candidateEvidence.runtime_trust | Add-Member -NotePropertyName source_setup_sha256 -NotePropertyValue $setupHash -Force
+          $candidateEvidence.runtime_trust | Add-Member -NotePropertyName derivation_evidence_filename -NotePropertyValue $runtimeEvidenceName -Force
           $candidateEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $candidateEvidencePath -Encoding utf8
 
           $contractPath = Join-Path $output 'physical_test_contract.json'
           $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
           $contract.candidate | Add-Member -NotePropertyName policy_authoring_helper_sha256 -NotePropertyValue $helperIdentity.sha256 -Force
+          $contract.inno_runtime_sha256 = $runtimeHash
+          $contract | Add-Member -NotePropertyName inno_runtime_filename -NotePropertyValue $runtimeRelative -Force
+          $contract | Add-Member -NotePropertyName inno_runtime_source_setup_sha256 -NotePropertyValue $setupHash -Force
+          $contract | Add-Member -NotePropertyName inno_runtime_derivation_evidence_filename -NotePropertyValue $runtimeEvidenceName -Force
           $contract | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8
+
+          Write-Host "CANDIDATE_INNO_RUNTIME_SHA256=$runtimeHash"
+          Write-Host "CANDIDATE_INNO_RUNTIME_SIZE=$($runtimeItem.Length)"
+          Write-Host "CANDIDATE_INNO_RUNTIME_SOURCE_SETUP_SHA256=$setupHash"
 
           # Build a relocatable checksum manifest. Resolve the output root first so
           # FullName and root use the same absolute coordinate system.
