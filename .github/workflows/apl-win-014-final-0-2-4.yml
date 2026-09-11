@@ -91,12 +91,71 @@ jobs:
             -CandidateOutputDirectory $output `
             -PythonExecutable python
 
+          $setupPath = Join-Path $output 'Arvectum-Proxy-Launcher-0.2.4-windows-x64-setup.exe'
+          $appPath = Join-Path $output 'Arvectum Proxy Launcher.exe'
+          $policyMaterial = Join-Path $output 'policy-material'
+
+          # PyInstaller --onefile materializes native PE payload under %TEMP%\_MEI*.
+          # App Control evaluates those extracted DLL/PYD bytes independently of the
+          # already-authorized outer application EXE. Statically extract the exact
+          # native CArchive entries from THIS candidate and seal them into the same
+          # immutable kit so the supplemental policy can authorize exact hashes only.
+          $pyRuntimeDirectoryName = 'pyinstaller-runtime'
+          $pyRuntimeRelative = "policy-material\$pyRuntimeDirectoryName"
+          $pyRuntimePath = Join-Path $policyMaterial $pyRuntimeDirectoryName
+          $pyRuntimeEvidenceName = 'pyinstaller-onefile-runtime-evidence.json'
+          $pyRuntimeEvidencePath = Join-Path $output $pyRuntimeEvidenceName
+          $buildPython = Join-Path (Get-Location) '.build-venv\Scripts\python.exe'
+          if (-not (Test-Path -LiteralPath $buildPython -PathType Leaf)) {
+            throw "Pinned PyInstaller build Python missing: $buildPython"
+          }
+
+          & $buildPython tools/bootstrap/apl-win-014/extract_pyinstaller_onefile_binaries.py `
+            $appPath `
+            $pyRuntimePath `
+            --evidence $pyRuntimeEvidencePath
+          if ($LASTEXITCODE -ne 0) { throw 'Exact PyInstaller native runtime extraction failed.' }
+          if (-not (Test-Path -LiteralPath $pyRuntimeEvidencePath -PathType Leaf)) {
+            throw 'PyInstaller native runtime evidence missing.'
+          }
+
+          $appHash = (Get-FileHash -LiteralPath $appPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $pyRuntimeEvidence = Get-Content -LiteralPath $pyRuntimeEvidencePath -Raw | ConvertFrom-Json
+          if ([string]$pyRuntimeEvidence.result -ne 'PASS') { throw 'PyInstaller native runtime evidence is not PASS.' }
+          if (([string]$pyRuntimeEvidence.source_application_sha256).ToLowerInvariant() -ne $appHash) {
+            throw 'PyInstaller native runtime evidence is not bound to the final candidate application.'
+          }
+          if ([int]$pyRuntimeEvidence.binary_count -le 0) { throw 'PyInstaller native runtime evidence is empty.' }
+          $pyRuntimeFiles = @(Get-ChildItem -LiteralPath $pyRuntimePath -File -Recurse)
+          if ($pyRuntimeFiles.Count -ne [int]$pyRuntimeEvidence.binary_count) {
+            throw 'PyInstaller native runtime file count disagrees with evidence.'
+          }
+          $runtimeLeafNames = @($pyRuntimeFiles | ForEach-Object { $_.Name.ToLowerInvariant() })
+          foreach ($requiredNative in @('python312.dll','ucrtbase.dll')) {
+            if ($runtimeLeafNames -notcontains $requiredNative) {
+              throw "Required PyInstaller native runtime file is absent: $requiredNative"
+            }
+          }
+          foreach ($entry in @($pyRuntimeEvidence.entries)) {
+            $relative = ([string]$entry.path) -replace '/', '\'
+            $path = Join-Path $pyRuntimePath $relative
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "PyInstaller runtime file missing: $relative" }
+            $actualHash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne ([string]$entry.sha256).ToLowerInvariant()) {
+              throw "PyInstaller runtime hash mismatch: $relative"
+            }
+            if ((Get-Item -LiteralPath $path).Length -ne [long]$entry.size) {
+              throw "PyInstaller runtime size mismatch: $relative"
+            }
+          }
+          Write-Host "PYINSTALLER_NATIVE_RUNTIME_BINARY_COUNT=$($pyRuntimeEvidence.binary_count)"
+          Write-Host "PYINSTALLER_NATIVE_RUNTIME_TOTAL_SIZE=$($pyRuntimeEvidence.total_size)"
+          Write-Host "PYINSTALLER_NATIVE_RUNTIME_SOURCE_SHA256=$appHash"
+
           # Derive the exact Inno child runtime from THIS sealed candidate Setup.
           # The child is materialized as setup.tmp by Inno at execution time, so the
           # supplemental App Control policy must authorize these exact bytes rather
           # than a runtime derived from a historical Setup built with the same Inno version.
-          $setupPath = Join-Path $output 'Arvectum-Proxy-Launcher-0.2.4-windows-x64-setup.exe'
-          $policyMaterial = Join-Path $output 'policy-material'
           $runtimeName = 'inno-setup-6.7.1-candidate-runtime.exe'
           $runtimeRelative = "policy-material\$runtimeName"
           $runtimePath = Join-Path $policyMaterial $runtimeName
@@ -143,6 +202,9 @@ jobs:
           if (([string]$candidateEvidence.setup.sha256).ToLowerInvariant() -ne $setupHash) {
             throw 'Candidate evidence Setup identity disagrees with the runtime source Setup.'
           }
+          if (([string]$candidateEvidence.application.sha256).ToLowerInvariant() -ne $appHash) {
+            throw 'Candidate evidence application identity disagrees with PyInstaller runtime source.'
+          }
           $candidateEvidence | Add-Member -NotePropertyName policy_authoring_helper -NotePropertyValue $helperIdentity -Force
           $candidateEvidence.runtime_trust.exact_runtime_sha256 = $runtimeHash
           $candidateEvidence.runtime_trust.stand_expected_path = $runtimeRelative
@@ -154,7 +216,17 @@ jobs:
           if ([string]$candidateEvidence.runtime_trust.stand_expected_path -ne $runtimeRelative -or [string]$candidateEvidence.runtime_trust.path_scope -ne 'CANDIDATE_RELATIVE') {
             throw 'Candidate runtime evidence retained an ambiguous stand path.'
           }
-          $candidateEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $candidateEvidencePath -Encoding utf8
+          $candidateEvidence | Add-Member -NotePropertyName pyinstaller_runtime_trust -NotePropertyValue ([ordered]@{
+            directory = $pyRuntimeRelative
+            path_scope = 'CANDIDATE_RELATIVE'
+            evidence_filename = $pyRuntimeEvidenceName
+            source_application_sha256 = $appHash
+            pyinstaller_version = [string]$pyRuntimeEvidence.pyinstaller_version
+            binary_count = [int]$pyRuntimeEvidence.binary_count
+            total_size = [long]$pyRuntimeEvidence.total_size
+            required_runtime_binaries = @('python312.dll','ucrtbase.dll')
+          }) -Force
+          $candidateEvidence | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $candidateEvidencePath -Encoding utf8
 
           $contractPath = Join-Path $output 'physical_test_contract.json'
           $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
@@ -163,7 +235,12 @@ jobs:
           $contract | Add-Member -NotePropertyName inno_runtime_filename -NotePropertyValue $runtimeRelative -Force
           $contract | Add-Member -NotePropertyName inno_runtime_source_setup_sha256 -NotePropertyValue $setupHash -Force
           $contract | Add-Member -NotePropertyName inno_runtime_derivation_evidence_filename -NotePropertyValue $runtimeEvidenceName -Force
-          $contract | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8
+          $contract | Add-Member -NotePropertyName pyinstaller_runtime_directory -NotePropertyValue $pyRuntimeRelative -Force
+          $contract | Add-Member -NotePropertyName pyinstaller_runtime_evidence_filename -NotePropertyValue $pyRuntimeEvidenceName -Force
+          $contract | Add-Member -NotePropertyName pyinstaller_runtime_source_application_sha256 -NotePropertyValue $appHash -Force
+          $contract | Add-Member -NotePropertyName pyinstaller_runtime_binary_count -NotePropertyValue ([int]$pyRuntimeEvidence.binary_count) -Force
+          $contract | Add-Member -NotePropertyName pyinstaller_runtime_total_size -NotePropertyValue ([long]$pyRuntimeEvidence.total_size) -Force
+          $contract | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $contractPath -Encoding utf8
 
           Write-Host "CANDIDATE_INNO_RUNTIME_SHA256=$runtimeHash"
           Write-Host "CANDIDATE_INNO_RUNTIME_SIZE=$($runtimeItem.Length)"
