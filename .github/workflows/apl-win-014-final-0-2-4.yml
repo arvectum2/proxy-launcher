@@ -32,6 +32,13 @@ jobs:
           if (git status --porcelain) { throw 'Candidate source checkout is not clean.' }
           $version = (Get-Content -LiteralPath VERSION -Raw).Trim()
           if ($version -ne '0.2.4') { throw "Final candidate must be 0.2.4, got $version" }
+          foreach ($path in @(
+            'tools/build_apl_win_014_final_0_2_4_candidate.ps1',
+            'tools/apl_win_014_final_0_2_4_physical.ps1'
+          )) {
+            $text = Get-Content -LiteralPath $path -Raw
+            [void][scriptblock]::Create($text)
+          }
 
       - uses: actions/setup-python@v5
         with:
