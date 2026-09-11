@@ -6,14 +6,22 @@ on:
       - main
     paths:
       - 'tools/russian_production_release_gate.ps1'
+      - 'tools/apl_rel_014_exact_evidence.py'
       - 'release/APL_REL_013_RUSSIAN_PRODUCTION_RELEASE_GATE.md'
+      - 'release/APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json'
+      - 'release/APL_REL_014_EXACT_SIGNED_SET_LIFECYCLE_RECOVERY_EVIDENCE.md'
       - 'tests/test_russian_production_release_gate.py'
+      - 'tests/test_apl_rel_014_exact_evidence.py'
       - '.github/workflows/russian-production-release-gate.yml'
   pull_request:
     paths:
       - 'tools/russian_production_release_gate.ps1'
+      - 'tools/apl_rel_014_exact_evidence.py'
       - 'release/APL_REL_013_RUSSIAN_PRODUCTION_RELEASE_GATE.md'
+      - 'release/APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json'
+      - 'release/APL_REL_014_EXACT_SIGNED_SET_LIFECYCLE_RECOVERY_EVIDENCE.md'
       - 'tests/test_russian_production_release_gate.py'
+      - 'tests/test_apl_rel_014_exact_evidence.py'
       - '.github/workflows/russian-production-release-gate.yml'
   workflow_dispatch:
 
@@ -22,7 +30,7 @@ permissions:
 
 jobs:
   contract:
-    name: REL-013 repository contract
+    name: REL-013/014 repository contract
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,8 +40,11 @@ jobs:
           python-version: '3.11'
       - name: Install test runner
         run: python -m pip install pytest
-      - name: Run REL-013 contract tests
-        run: python -m pytest -q tests/test_russian_production_release_gate.py
+      - name: Run REL-013/014 contract tests
+        run: >-
+          python -m pytest -q
+          tests/test_russian_production_release_gate.py
+          tests/test_apl_rel_014_exact_evidence.py
 
   powershell-syntax:
     name: REL-013 Windows PowerShell syntax
