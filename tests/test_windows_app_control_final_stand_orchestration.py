@@ -11,6 +11,7 @@ BASE_POLICY_ID = "dc1c604c-46ea-40b7-9f47-cf582b225d5e"
 SETUP_SHA256 = "5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414"
 APP_SHA256 = "f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a"
 RUNTIME_SHA256 = "b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8"
+SIGNING_EVIDENCE_SHA256 = "67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e"
 
 
 def text(path: Path) -> str:
@@ -33,11 +34,24 @@ def test_stand_entrypoints_require_powershell_51_and_administrator():
 
 def test_prepare_is_bound_to_canonical_lab_base_and_exact_release_identities():
     body = text(PREPARE)
-    for expected in (BASE_POLICY_ID, SETUP_SHA256, APP_SHA256, RUNTIME_SHA256):
+    for expected in (BASE_POLICY_ID, SETUP_SHA256, APP_SHA256, RUNTIME_SHA256, SIGNING_EVIDENCE_SHA256):
         assert expected in body
     assert "arvectum2/proxy-launcher" in body
     assert "source_commit" in body
     assert "result = 'PREPARED'" in body
+
+
+def test_prepare_requires_upstream_signing_evidence_without_endpoint_cryptopro():
+    body = text(PREPARE)
+    assert "[Parameter(Mandatory = $true)] [string]$SigningEvidencePath" in body
+    assert "-SigningEvidencePath $SigningEvidencePath" in body
+    assert "russian_release_provenance" in body
+    assert "PREVERIFIED_EXACT_HASH_BOUND" in body
+    assert "local_cryptopro_verification" in body
+    assert "NOT_REQUIRED" in body
+    assert "CryptoPro/Rutoken is not required on the acceptance host" in body
+    assert "CRYPTO_PRO_CSPTEST_PATH" not in body
+    assert "verify_russian_release.ps1" not in body
 
 
 def test_prepare_orders_historical_recovery_before_both_trust_packs():
@@ -61,6 +75,7 @@ def test_prepare_seals_both_generated_policy_ids_and_cips_for_handoff():
         "supplemental_policy_id = $baselinePolicyId.ToString('D')",
         "supplemental_policy_id = $currentPolicyId.ToString('D')",
         "supplemental_policy_cip_sha256",
+        "signing_evidence_sha256 = $ExpectedSigningEvidenceSha256",
         "policy_deployment = 'NOT PERFORMED'",
         "security_controls_modified = $false",
         "product_lifecycle_modified = $false",
