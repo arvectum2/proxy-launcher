@@ -157,9 +157,10 @@ class ReleaseScriptTests(unittest.TestCase):
         self.assertIn(r"%USERPROFILE%\Documents\ArvectumProxyLauncher", text)
 
     def test_release_version_is_visible_in_gui(self):
+        product_version = self.read("VERSION").strip()
         core_text = self.read("proxy_core.py")
         gui_text = self.read("proxy_gui.py")
-        self.assertIn('APP_VERSION = "0.2.3"', core_text)
+        self.assertIn(f'APP_VERSION = "{product_version}"', core_text)
         self.assertIn('ENGINEERING_MILESTONE = "P0.2"', core_text)
         self.assertIn('APP_VERSION = core.APP_VERSION', gui_text)
         self.assertIn('ARVECTUM · %s · arvectum.com', gui_text)
@@ -171,8 +172,9 @@ class ReleaseScriptTests(unittest.TestCase):
     def test_windows_version_resource_is_required(self):
         build = self.read("tools/clean_build_windows.ps1")
         version = self.read("version_info.txt")
+        product_version = self.read("VERSION").strip()
         self.assertIn('--version-file "version_info.txt"', build)
-        for value in ('ООО «Арвектум»', 'Arvectum Proxy Launcher', '0.2.3', '0.2.3.0'):
+        for value in ('ООО «Арвектум»', 'Arvectum Proxy Launcher', product_version, f'{product_version}.0'):
             self.assertIn(value, version)
 
     @unittest.skipUnless(HAS_INSTALLER_TRACK, "installer track is not present in portable P0 branch")
@@ -388,8 +390,10 @@ class ReleaseScriptTests(unittest.TestCase):
             tc = tc[tc.index("{") + 1:]
             brace = 1
             for i, ch in enumerate(tc):
-                if ch == '{': brace += 1
-                elif ch == '}': brace -= 1
+                if ch == '{':
+                    brace += 1
+                elif ch == '}':
+                    brace -= 1
                 if brace == 0:
                     tc = tc[:i]
                     break
