@@ -4,13 +4,15 @@
 .DESCRIPTION
     Authoring-only wrapper. It verifies exact production bytes against canonical upstream
     signing evidence, statically extracts the Inno Setup 6.7.1 child runtime, proves the
-    runtime anchor, and invokes the enterprise trust-pack generator. CryptoPro/Rutoken is
-    not required on this acceptance/customer host.
+    runtime anchor, and invokes the enterprise trust-pack generator. Exact installer
+    maintenance helpers are supplied separately from governed release-source material.
+    CryptoPro/Rutoken is not required on this acceptance/customer host.
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [Guid]$BasePolicyId,
     [Parameter(Mandatory = $true)] [string]$SigningEvidencePath,
+    [Parameter(Mandatory = $true)] [string]$MaintenanceSourceRoot,
     [string]$ReleaseDirectory = 'C:\Arvectum\Releases\0.2.3-russian-production',
     [string]$InstalledRoot = '',
     [string]$RuntimeDirectory = 'C:\Arvectum\Evidence\APL-WIN-014\runtime',
@@ -24,6 +26,8 @@ if ($env:OS -ne 'Windows_NT') { throw 'Production runtime trust authoring must r
 
 $ExpectedSetupSha256 = '5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414'
 $ExpectedSigningEvidenceSha256 = '67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e'
+$ExpectedUpgradeHelperSha256 = '77e8bcb4d27aad5b2d1b40753f3ec2dfa2419e48a07f2eb17a7b15f2a9232218'
+$ExpectedUninstallHelperSha256 = '7abc1fe332975440d2c84be608773a890c5bb4deb130eea54378a128e79b0a44'
 $ExpectedRuntimeSize = 4473344
 $ExpectedRuntimeSha256 = 'b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8'
 $ExpectedRuntimeCrc32 = '021edadf'
@@ -37,6 +41,19 @@ foreach ($required in @($extractor,$validator,$packGenerator,$SigningEvidencePat
 }
 if ((Get-FileHash -LiteralPath $SigningEvidencePath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedSigningEvidenceSha256) {
     throw 'Canonical Russian signing evidence SHA256 mismatch.'
+}
+
+$MaintenanceSourceRoot = (Resolve-Path -LiteralPath $MaintenanceSourceRoot).Path
+$maintenanceUpgrade = Join-Path $MaintenanceSourceRoot 'upgrade_helper.ps1'
+$maintenanceUninstall = Join-Path $MaintenanceSourceRoot 'uninstall_helper.ps1'
+foreach ($required in @($maintenanceUpgrade,$maintenanceUninstall)) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required sealed maintenance helper is missing: $required" }
+}
+if ((Get-FileHash -LiteralPath $maintenanceUpgrade -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedUpgradeHelperSha256) {
+    throw 'Sealed upgrade_helper.ps1 SHA256 mismatch.'
+}
+if ((Get-FileHash -LiteralPath $maintenanceUninstall -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedUninstallHelperSha256) {
+    throw 'Sealed uninstall_helper.ps1 SHA256 mismatch.'
 }
 
 $python = Get-Command $PythonCommand -ErrorAction SilentlyContinue
@@ -77,6 +94,7 @@ if ([long]$runtime.size -ne $ExpectedRuntimeSize -or $runtime.sha256 -ne $Expect
 $authoringEvidence = [ordered]@{
     schema = 'arvectum.proxy.apl-win-014-production-runtime-authoring.v1'; task = 'APL-WIN-014'; created_utc = [DateTime]::UtcNow.ToString('o')
     production_setup_sha256 = $setupHash; signing_evidence_sha256 = $ExpectedSigningEvidenceSha256; local_cryptopro_verification = 'NOT_REQUIRED'
+    maintenance_source_root = $MaintenanceSourceRoot; upgrade_helper_sha256 = $ExpectedUpgradeHelperSha256; uninstall_helper_sha256 = $ExpectedUninstallHelperSha256
     runtime_size = [long]$runtime.size; runtime_sha256 = $runtime.sha256; runtime_crc32 = $runtime.crc32
     official_inno_tag = $runtime.official_inno_tag; official_inno_commit = $runtime.official_inno_commit
     evidence_workflow_run = $runtime.evidence_workflow_run; behavioral_workflow_run = $runtime.behavioral_workflow_run
@@ -87,7 +105,7 @@ $authoringEvidencePath = Join-Path $RuntimeDirectory 'production-runtime-authori
 $authoringEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $authoringEvidencePath -Encoding UTF8
 
 Write-Host '=== Generate canonical ReferenceFullHash trust pack ==='
-& $packGenerator -ReleaseDirectory $ReleaseDirectory -BasePolicyId $BasePolicyId -SigningEvidencePath $SigningEvidencePath -Mode ReferenceFullHash -InstalledRoot $InstalledRoot -InnoRuntimePath $runtimePath -InnoRuntimeEvidencePath $runtimeEvidencePath -OutputDirectory $TrustPackDirectory
+& $packGenerator -ReleaseDirectory $ReleaseDirectory -BasePolicyId $BasePolicyId -SigningEvidencePath $SigningEvidencePath -MaintenanceSourceRoot $MaintenanceSourceRoot -Mode ReferenceFullHash -InstalledRoot $InstalledRoot -InnoRuntimePath $runtimePath -InnoRuntimeEvidencePath $runtimeEvidencePath -OutputDirectory $TrustPackDirectory
 
 $verifier = Join-Path $PSScriptRoot 'windows_app_control_verify_runtime_trust_pack.ps1'
 & $verifier -TrustPackDirectory $TrustPackDirectory
@@ -100,6 +118,9 @@ Write-Host ''
 Write-Host 'APL-WIN-014 production runtime trust authoring: PASS'
 Write-Host "Production Setup SHA256: $ExpectedSetupSha256"
 Write-Host "Signing evidence SHA256: $ExpectedSigningEvidenceSha256"
+Write-Host "Maintenance source root: $MaintenanceSourceRoot"
+Write-Host "Upgrade helper SHA256: $ExpectedUpgradeHelperSha256"
+Write-Host "Uninstall helper SHA256: $ExpectedUninstallHelperSha256"
 Write-Host 'Local CryptoPro verification: NOT_REQUIRED'
 Write-Host "Inno runtime SHA256: $ExpectedRuntimeSha256"
 Write-Host "Runtime evidence: $RuntimeDirectory"
