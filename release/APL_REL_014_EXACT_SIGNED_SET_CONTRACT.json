@@ -1,0 +1,41 @@
+{
+  "schema": "arvectum.proxy.apl-rel-014-exact-set-contract.v1",
+  "task": "APL-REL-014",
+  "product": "Arvectum Proxy Launcher",
+  "version": "0.2.4",
+  "candidate_source_commit": "e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30",
+  "candidate": {
+    "portable_zip_sha256": "467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf",
+    "setup_sha256": "28eb0b06c2f478b46d5845c6bb1970c96e20a2f6fdaf1d48501ed69f52ea6965",
+    "application_sha256": "0415226f882e16a0ce370b766c4c68d3c23861f97361da093a1fd9d9f0e0832c"
+  },
+  "predecessor": {
+    "version": "0.2.3",
+    "setup_sha256": "5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414",
+    "application_sha256": "f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a"
+  },
+  "physical_evidence": {
+    "schema": "arvectum.proxy.apl-win-014-final-0.2.4-physical.v1",
+    "task": "APL-WIN-014",
+    "required_gates": [
+      "predecessor",
+      "upgrade",
+      "runtime",
+      "rollback",
+      "repair",
+      "uninstall"
+    ],
+    "required_app_control": [
+      "before",
+      "after",
+      "code_integrity_3077"
+    ],
+    "required_code_integrity_3077_count": 0,
+    "required_pac_url": "http://127.0.0.1:8082/proxy.pac"
+  },
+  "russian_release": {
+    "required_signing_mode": "russian-qualified-evidence",
+    "required_signer_thumbprint": "EE1CFA955BA22F03C39C76B183D94CD37494582E",
+    "rel013_post_sign_binding_required": true
+  }
+}

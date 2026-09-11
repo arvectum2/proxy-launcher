@@ -5,7 +5,7 @@ Canonical GitHub repository: `arvectum2/proxy-launcher`
 Canonical branch: `main`  
 Current product line: `0.2.4` physically accepted candidate
 
-Status legend: **DONE**, **CURRENT**, **READY**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **ADMIN PENDING**, **STOP-GATE**, **DEFERRED**.
+Status legend: **DONE**, **CURRENT**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **ADMIN PENDING**, **STOP-GATE**, **DEFERRED**.
 
 ## 0. Repository authority and migration recovery
 
@@ -25,7 +25,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **DONE** — Windows portable + installer productization, Gate R6 lifecycle, supportability, recovery and DPAPI credential protection.
 - **DONE** — APL-WIN-014 exact Inno Setup child-runtime derivation and exact PyInstaller one-file native-runtime trust are sealed into the final candidate evidence.
 - **DONE / PHYSICAL PASS** — APL-WIN-014 real-host App Control for Business gate closed on `ARVECTUM-DEMO` for exact candidate commit `e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30`: exact `0.2.3 -> 0.2.4` upgrade, runtime/PAC/WinINET, rollback, repair and uninstall all PASS; App Control before/after PASS; Arvectum Code Integrity event `3077` count `0`. Canonical closure record: `docs/evidence/APL_WIN_014_FINAL_PHYSICAL_ACCEPTANCE_2026-09-11.md`.
-- **PARTIAL / READY** — APL-REL-014 exact signed-set lifecycle/recovery evidence remains a separate release gate and is not implied complete by APL-WIN-014.
+- **PARTIAL / IMPLEMENTED / OWNER EVIDENCE EXPORT READY** — APL-REL-014 repository gate is implemented: an exact `0.2.4` identity contract, lifecycle/recovery evidence binder and mandatory REL-013 signed-asset binding now prevent release publication if the signed Setup/portable set differs from the APL-WIN-014-proven bytes. The preserved raw `candidate_evidence.json` and physical result still must be exported/materialized into the final release set before REL-011; APL-WIN-014 alone does not close the signed-set ceremony.
 
 The accepted `0.2.4` physical candidate is immutable at source commit `e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30`. Documentation-only closure commits do not change its accepted product identity.
 
@@ -36,7 +36,7 @@ The accepted `0.2.4` physical candidate is immutable at source commit `e2278dbbd
 - **DONE** — APL-REL-011 owner-operated signed-release manifest integration.
 - **DONE** — APL-REL-012 end-user verification UX.
 - **DONE** — APL-REL-013 fail-closed Russian production release gate.
-- **PARTIAL / READY** — APL-REL-014 exact signed-set lifecycle/recovery evidence remains to be closed for the selected `0.2.4` release candidate.
+- **PARTIAL / IMPLEMENTED / OWNER MATERIALIZATION REQUIRED** — APL-REL-014 exact signed-set lifecycle/recovery gate is repository-complete for the selected `0.2.4` candidate. The remaining per-release operation is to export the preserved raw candidate/physical evidence, generate canonical `apl-rel-014-lifecycle-evidence.json` inside the final release directory, let REL-011 sign it as a normal asset, and obtain REL-013 `rel014_signed_asset_binding = PASS`.
 - **NOT ACTIVATED** — embedded Russian code signing / ОТУЦ production identity remains a separate future gate.
 
 The historical `v0.2.3` tag is immutable and must not be moved. The physically accepted `0.2.4` candidate is not automatically a public stable release: public tagging/publication still requires the applicable release and human/legal gates.
@@ -81,9 +81,9 @@ Per-application routing is a product-next-stage item after the current Windows r
 1. **[Web/GitHub] DONE** — `arvectum2` repository reconciliation closed on migration baseline `357a1795c07b4a1e0c23ce6cbb553d3bc9feb9fa` with green exact-SHA CI/evidence and GitVerse mirror.
 2. **[Admin] DONE** — `main` protection restored and negative merge acceptance test PASS on PR #1.
 3. **[Win] DONE** — APL-WIN-014 real App Control cross-version physical gate PASS on `ARVECTUM-DEMO` for candidate `e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30`; preserve candidate, R2 policy and physical evidence, and do not remove the accepted supplemental policy until deliberate cleanup.
-4. **[Release] CURRENT / READY** — close APL-REL-014 exact signed-set lifecycle/recovery evidence for the selected `0.2.4` candidate and export/hash-verify any remaining host-local evidence.
+4. **[Release] CURRENT / IMPLEMENTED / OWNER MATERIALIZATION REQUIRED** — export/hash-bind the preserved raw `candidate_evidence.json` and authoritative APL-WIN-014 physical result, run `apl_rel_014_exact_evidence.py` into the exact `0.2.4` final release directory, and require the resulting `apl-rel-014-lifecycle-evidence.json` to become a normal REL-011 signed asset.
 5. **[Human] PARALLEL** — close R-1/R-2/R-3 and final APL-IP-001 authorized decision.
-6. **[Release] AFTER 4–5 AS APPLICABLE** — run the governed REL-011/012/013 owner-operated ceremony for the exact approved set, create a new immutable SemVer tag only when authorized, and publish only that exact verified set.
+6. **[Release] AFTER 4–5 AS APPLICABLE** — run the governed REL-011/012/013 owner-operated ceremony for the exact approved set; REL-013 must report both `rel014_exact_lifecycle_evidence = PASS` and `rel014_signed_asset_binding = PASS`; create a new immutable SemVer tag only when authorized, and publish only that exact verified set.
 7. **[Linux] NEXT PLATFORM** — after Windows evidence preservation is complete, install Astra dual boot, execute APL-LNX-010 and close Gate R8.
 8. **[Product] THEN** — resolve APL-ROUTE-003 Windows enforcement STOP-GATE and begin the next per-application-routing increment.
 

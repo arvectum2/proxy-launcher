@@ -27,6 +27,23 @@ def test_gate_is_bound_to_rel011_and_rel012_evidence_chain():
     assert "РЕЗУЛЬТАТ:\\s*ПРОВЕРКА ПРОЙДЕНА" in text
 
 
+def test_gate_requires_signed_rel014_exact_lifecycle_evidence():
+    text = GATE.read_text(encoding="utf-8")
+    assert "apl-rel-014-lifecycle-evidence.json" in text
+    assert "arvectum.proxy.apl-rel-014-exact-evidence.v1" in text
+    assert "EXACT_PRODUCT_SET_READY_FOR_REL011_SIGNING" in text
+    assert "APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json" in text
+    assert "contract_sha256" in text
+    assert "candidate_source_commit" in text
+    assert "release_assets.setup.sha256" in text
+    assert "release_assets.portable_zip.sha256" in text
+    assert "release_assets.application_inside_lifecycle.sha256" in text
+    assert "Assert-SignedRel014Asset" in text
+    assert "rel014_exact_lifecycle_evidence = 'PASS'" in text
+    assert "rel014_signed_asset_binding = 'PASS'" in text
+    assert "rel014_evidence_sha256" in text
+
+
 def test_gate_pins_governed_arvectum_signer_and_sensitive_key_boundaries():
     text = GATE.read_text(encoding="utf-8")
     assert "EE1CFA955BA22F03C39C76B183D94CD37494582E" in text
