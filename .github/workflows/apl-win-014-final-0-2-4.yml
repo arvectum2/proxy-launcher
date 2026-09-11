@@ -145,10 +145,15 @@ jobs:
           }
           $candidateEvidence | Add-Member -NotePropertyName policy_authoring_helper -NotePropertyValue $helperIdentity -Force
           $candidateEvidence.runtime_trust.exact_runtime_sha256 = $runtimeHash
+          $candidateEvidence.runtime_trust.stand_expected_path = $runtimeRelative
+          $candidateEvidence.runtime_trust | Add-Member -NotePropertyName path_scope -NotePropertyValue 'CANDIDATE_RELATIVE' -Force
           $candidateEvidence.runtime_trust | Add-Member -NotePropertyName filename -NotePropertyValue $runtimeRelative -Force
           $candidateEvidence.runtime_trust | Add-Member -NotePropertyName size -NotePropertyValue ([long]$runtimeItem.Length) -Force
           $candidateEvidence.runtime_trust | Add-Member -NotePropertyName source_setup_sha256 -NotePropertyValue $setupHash -Force
           $candidateEvidence.runtime_trust | Add-Member -NotePropertyName derivation_evidence_filename -NotePropertyValue $runtimeEvidenceName -Force
+          if ([string]$candidateEvidence.runtime_trust.stand_expected_path -ne $runtimeRelative -or [string]$candidateEvidence.runtime_trust.path_scope -ne 'CANDIDATE_RELATIVE') {
+            throw 'Candidate runtime evidence retained an ambiguous stand path.'
+          }
           $candidateEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $candidateEvidencePath -Encoding utf8
 
           $contractPath = Join-Path $output 'physical_test_contract.json'
