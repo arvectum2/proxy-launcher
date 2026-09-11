@@ -34,7 +34,8 @@ jobs:
           if ($version -ne '0.2.4') { throw "Final candidate must be 0.2.4, got $version" }
           foreach ($path in @(
             'tools/build_apl_win_014_final_0_2_4_candidate.ps1',
-            'tools/apl_win_014_final_0_2_4_physical.ps1'
+            'tools/apl_win_014_final_0_2_4_physical.ps1',
+            'tools/apl_win_014_prepare_0_2_4_supplemental_policy.ps1'
           )) {
             $text = Get-Content -LiteralPath $path -Raw
             [void][scriptblock]::Create($text)
@@ -57,12 +58,43 @@ jobs:
             -CandidateSourceCommit $env:CANDIDATE_COMMIT `
             -CandidateOutputDirectory $output `
             -PythonExecutable python
+
+          # Seal the policy-authoring helper into the same physical kit and bind its
+          # exact identity into both candidate evidence and the physical contract.
+          $helperSource = 'tools\apl_win_014_prepare_0_2_4_supplemental_policy.ps1'
+          $helperDestination = Join-Path $output 'apl_win_014_prepare_0_2_4_supplemental_policy.ps1'
+          Copy-Item -LiteralPath $helperSource -Destination $helperDestination
+          $helperItem = Get-Item -LiteralPath $helperDestination
+          $helperIdentity = [ordered]@{
+            filename = $helperItem.Name
+            size = [long]$helperItem.Length
+            sha256 = (Get-FileHash -LiteralPath $helperDestination -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+
+          $candidateEvidencePath = Join-Path $output 'candidate_evidence.json'
+          $candidateEvidence = Get-Content -LiteralPath $candidateEvidencePath -Raw | ConvertFrom-Json
+          $candidateEvidence | Add-Member -NotePropertyName policy_authoring_helper -NotePropertyValue $helperIdentity -Force
+          $candidateEvidence | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $candidateEvidencePath -Encoding utf8
+
+          $contractPath = Join-Path $output 'physical_test_contract.json'
+          $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+          $contract.candidate | Add-Member -NotePropertyName policy_authoring_helper_sha256 -NotePropertyValue $helperIdentity.sha256 -Force
+          $contract | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8
+
+          $sumsPath = Join-Path $output 'SHA256SUMS.txt'
+          $sums = Get-ChildItem -LiteralPath $output -File -Recurse | Where-Object { $_.FullName -ne $sumsPath } | Sort-Object FullName | ForEach-Object {
+            $relative = $_.FullName.Substring($output.Length).TrimStart('\')
+            "$((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $relative"
+          }
+          Set-Content -LiteralPath $sumsPath -Value $sums -Encoding ascii
+
           Compress-Archive -Path "$output\*" -DestinationPath "$output.zip" -CompressionLevel Optimal
           $hash = (Get-FileHash -LiteralPath "$output.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
           "bundle_path=$output.zip" >> $env:GITHUB_OUTPUT
           "bundle_sha256=$hash" >> $env:GITHUB_OUTPUT
           Write-Host "FINAL_BUNDLE=$output.zip"
           Write-Host "FINAL_BUNDLE_SHA256=$hash"
+          Write-Host "POLICY_AUTHORING_HELPER_SHA256=$($helperIdentity.sha256)"
 
       - name: Upload one final 0.2.4 test kit
         uses: actions/upload-artifact@v4
