@@ -37,6 +37,8 @@ $ExpectedReleaseCommit = '47823585c42da54ab51dc2246583dc24d74d4ba6'
 $ExpectedSetupSha256 = '5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414'
 $ExpectedPortableSha256 = '62d313547b4d8c2c8e6951d6cd866bb954fdf199ad7650063c8ed3bfbc455801'
 $ExpectedAppSha256 = 'f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a'
+$ExpectedUpgradeHelperSha256 = '77e8bcb4d27aad5b2d1b40753f3ec2dfa2419e48a07f2eb17a7b15f2a9232218'
+$ExpectedUninstallHelperSha256 = '7abc1fe332975440d2c84be608773a890c5bb4deb130eea54378a128e79b0a44'
 $ExpectedSignerThumbprint = 'EE1CFA955BA22F03C39C76B183D94CD37494582E'
 $ExpectedSigningEvidenceSha256 = '67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e'
 $ExpectedTrustSchema = 'arvectum.proxy.windows-app-control-enterprise-trust-pack.v1'
@@ -124,17 +126,15 @@ New-Item -ItemType Directory -Path $scanRoot -Force | Out-Null
 try {
     Expand-Archive -LiteralPath $portable -DestinationPath $portableExtract -Force
     $appExe = Get-OnePortableFile -Root $portableExtract -Name 'Arvectum Proxy Launcher.exe'
-    $portableManifestPath = Get-OnePortableFile -Root $portableExtract -Name 'build_manifest.json'
     $upgradeHelper = Get-OnePortableFile -Root $portableExtract -Name 'upgrade_helper.ps1'
     $uninstallHelper = Get-OnePortableFile -Root $portableExtract -Name 'uninstall_helper.ps1'
     $appHash = Get-Sha256 $appExe
     if ($appHash -ne $ExpectedAppSha256) { throw 'Portable application EXE SHA256 mismatch.' }
 
-    $portableManifest = Get-Content -LiteralPath $portableManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $upgradeHelperHash = Get-Sha256 $upgradeHelper
     $uninstallHelperHash = Get-Sha256 $uninstallHelper
-    if (-not $portableManifest.PSObject.Properties['upgrade_helper_sha256'] -or ([string]$portableManifest.upgrade_helper_sha256).ToLowerInvariant() -ne $upgradeHelperHash) { throw 'Portable upgrade_helper.ps1 SHA256 does not match build_manifest.json.' }
-    if (-not $portableManifest.PSObject.Properties['uninstall_helper_sha256'] -or ([string]$portableManifest.uninstall_helper_sha256).ToLowerInvariant() -ne $uninstallHelperHash) { throw 'Portable uninstall_helper.ps1 SHA256 does not match build_manifest.json.' }
+    if ($upgradeHelperHash -ne $ExpectedUpgradeHelperSha256) { throw 'Portable upgrade_helper.ps1 SHA256 does not match the sealed v0.2.3-ru.2 helper identity.' }
+    if ($uninstallHelperHash -ne $ExpectedUninstallHelperSha256) { throw 'Portable uninstall_helper.ps1 SHA256 does not match the sealed v0.2.3-ru.2 helper identity.' }
 
     Copy-Item -LiteralPath $setup -Destination (Join-Path $scanRoot 'Arvectum-Proxy-Launcher-0.2.3-windows-x64-setup.exe') -Force
     Copy-Item -LiteralPath $appExe -Destination (Join-Path $scanRoot 'Arvectum Proxy Launcher.exe') -Force
@@ -156,8 +156,8 @@ try {
         if ((Get-Sha256 $installedExe) -ne $ExpectedAppSha256) { throw 'Reference installation does not contain the exact sealed application EXE.' }
         if (-not (Test-Path -LiteralPath $repairSetup -PathType Leaf)) { throw 'Reference installation cached repair Setup is missing.' }
         if ((Get-Sha256 $repairSetup) -ne $ExpectedSetupSha256) { throw 'Reference cached repair Setup does not match the exact production installer.' }
-        if (-not (Test-Path -LiteralPath $installedUpgrade -PathType Leaf) -or (Get-Sha256 $installedUpgrade) -ne $upgradeHelperHash) { throw 'Reference installation upgrade_helper.ps1 does not match the sealed release helper.' }
-        if (-not (Test-Path -LiteralPath $installedUninstall -PathType Leaf) -or (Get-Sha256 $installedUninstall) -ne $uninstallHelperHash) { throw 'Reference installation uninstall_helper.ps1 does not match the sealed release helper.' }
+        if (-not (Test-Path -LiteralPath $installedUpgrade -PathType Leaf) -or (Get-Sha256 $installedUpgrade) -ne $ExpectedUpgradeHelperSha256) { throw 'Reference installation upgrade_helper.ps1 does not match the sealed release helper.' }
+        if (-not (Test-Path -LiteralPath $installedUninstall -PathType Leaf) -or (Get-Sha256 $installedUninstall) -ne $ExpectedUninstallHelperSha256) { throw 'Reference installation uninstall_helper.ps1 does not match the sealed release helper.' }
         $referenceStage = Join-Path $scanRoot 'installed-reference-tree'
         Copy-Item -LiteralPath $InstalledRoot -Destination $referenceStage -Recurse -Force
         $referenceFiles = @(Get-ChildItem -LiteralPath $InstalledRoot -File -Recurse -Force | ForEach-Object {
@@ -206,16 +206,28 @@ try {
             installer_authenticode_status = [string]$authSetup.Status
             application_authenticode_status = [string]$authApp.Status
         }
-        maintenance_scripts = @([ordered]@{ filename='upgrade_helper.ps1'; sha256=$upgradeHelperHash }, [ordered]@{ filename='uninstall_helper.ps1'; sha256=$uninstallHelperHash })
+        maintenance_scripts = @(
+            [ordered]@{ filename='upgrade_helper.ps1'; sha256=$upgradeHelperHash },
+            [ordered]@{ filename='uninstall_helper.ps1'; sha256=$uninstallHelperHash }
+        )
         script_enforcement_preserved = $true
         inno_runtime = [ordered]@{
-            filename = $runtime.filename; size = $runtime.size; sha256 = $runtime.sha256; crc32 = $runtime.crc32
-            source_setup_sha256 = $runtime.source_setup_sha256; extraction_evidence_sha256 = $runtime.extraction_evidence_sha256
-            observed_compressed_chunk_count = $runtime.observed_compressed_chunk_count; official_inno_tag = $runtime.official_inno_tag
-            official_inno_commit = $runtime.official_inno_commit; evidence_workflow_run = $runtime.evidence_workflow_run
-            behavioral_workflow_run = $runtime.behavioral_workflow_run; historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256
-            behavioral_anchor_workflow_run = $runtime.behavioral_workflow_run; behavioral_anchor_setup_sha256 = $runtime.behavioral_anchor_setup_sha256
-            static_to_behavioral_anchor = $runtime.static_to_behavioral_anchor; hash_policy_integrated = $true
+            filename = $runtime.filename
+            size = $runtime.size
+            sha256 = $runtime.sha256
+            crc32 = $runtime.crc32
+            source_setup_sha256 = $runtime.source_setup_sha256
+            extraction_evidence_sha256 = $runtime.extraction_evidence_sha256
+            observed_compressed_chunk_count = $runtime.observed_compressed_chunk_count
+            official_inno_tag = $runtime.official_inno_tag
+            official_inno_commit = $runtime.official_inno_commit
+            evidence_workflow_run = $runtime.evidence_workflow_run
+            behavioral_workflow_run = $runtime.behavioral_workflow_run
+            historical_anchor_setup_sha256 = $runtime.historical_anchor_setup_sha256
+            behavioral_anchor_workflow_run = $runtime.behavioral_workflow_run
+            behavioral_anchor_setup_sha256 = $runtime.behavioral_anchor_setup_sha256
+            static_to_behavioral_anchor = $runtime.static_to_behavioral_anchor
+            hash_policy_integrated = $true
         }
         policy_scope = $(if ($Mode -eq 'BootstrapHash') { 'exact production Setup + exact production application EXE + exact upgrade/uninstall maintenance scripts + exact Inno Setup 6.7.1 child runtime derived from that Setup' } else { 'exact production Setup + complete exact reference installation tree including generated maintenance binaries + exact upgrade/uninstall maintenance scripts + exact Inno Setup 6.7.1 child runtime derived from that Setup' })
         reference_files = $referenceFiles
@@ -254,6 +266,10 @@ SECURITY BOUNDARY
 The Russian CryptoPro/Rutoken detached signature was verified on the governed Arvectum
 release/owner station. This endpoint revalidates that immutable signing-evidence record
 and exact release bytes; it does not need CryptoPro CSP or a Rutoken.
+
+The maintenance helper identities are sealed release constants. They are extracted from
+the already hash-pinned production portable ZIP and must match their canonical SHA256
+values exactly; no self-declared manifest inside the portable archive is trusted.
 
 This pack does NOT disable Smart App Control, App Control for Business, Defender,
 script enforcement, or any other Windows protection. It does NOT deploy itself.
