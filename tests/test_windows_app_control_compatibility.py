@@ -14,6 +14,8 @@ DOC = ROOT / "docs" / "WINDOWS_APP_CONTROL_COMPATIBILITY.md"
 RUNTIME_SHA256 = "b37446a70e4ce841b58c1fcc35edd1295769184e5e9206188a3949ed02dc76d8"
 PRODUCTION_SETUP_SHA256 = "5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414"
 SIGNING_EVIDENCE_SHA256 = "67d379db11a238960b9324c8054e73790cf18b1eaa85db8c04a9226bb27bc58e"
+UPGRADE_HELPER_SHA256 = "77e8bcb4d27aad5b2d1b40753f3ec2dfa2419e48a07f2eb17a7b15f2a9232218"
+UNINSTALL_HELPER_SHA256 = "7abc1fe332975440d2c84be608773a890c5bb4deb130eea54378a128e79b0a44"
 
 
 def text(path: Path) -> str:
@@ -81,8 +83,10 @@ def test_enterprise_pack_preserves_script_enforcement_and_hash_trusts_maintenanc
     assert "-NoScript" not in policy_line
     assert "upgrade_helper.ps1" in body
     assert "uninstall_helper.ps1" in body
-    assert "upgrade_helper_sha256" in body
-    assert "uninstall_helper_sha256" in body
+    assert UPGRADE_HELPER_SHA256 in body
+    assert UNINSTALL_HELPER_SHA256 in body
+    assert "build_manifest.json" not in body
+    assert "sealed v0.2.3-ru.2 helper identity" in body
     assert "script_enforcement_preserved = $true" in body
     assert "Generated product supplemental policy disables script enforcement" in body
     assert "policyXmlText -match 'Disabled:Script Enforcement'" in body
