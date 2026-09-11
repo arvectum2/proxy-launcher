@@ -70,6 +70,7 @@ jobs:
           python -m unittest `
             tests.test_windows_app_control_legacy_baseline `
             tests.test_windows_app_control_final_local_gate `
+            tests.test_windows_installer_wdac_invocation `
             -v
 
       - name: Validate Inno Setup sovereignty contract
