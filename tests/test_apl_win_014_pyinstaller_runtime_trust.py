@@ -40,8 +40,8 @@ class AplWin014PyInstallerRuntimeTrustTests(unittest.TestCase):
     def test_policy_helper_hash_authorizes_exact_extracted_native_payload(self):
         text = POLICY_HELPER.read_text(encoding="utf-8")
         for expected in (
-            "pyinstaller-onefile-runtime-evidence.json",
-            "policy-material\\pyinstaller-runtime",
+            "pyinstaller_runtime_evidence_filename",
+            "pyinstaller_runtime_directory",
             "source_application_sha256",
             "pyinstaller_runtime_binary",
             "python312.dll",
