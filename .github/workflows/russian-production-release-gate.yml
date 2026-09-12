@@ -6,22 +6,38 @@ on:
       - main
     paths:
       - 'tools/russian_production_release_gate.ps1'
+      - 'tools/russian_production_release_gate_0_2_5.ps1'
+      - 'tools/materialize_0_2_5_accepted_portable.ps1'
       - 'tools/apl_rel_014_exact_evidence.py'
+      - 'tools/apl_rel_015_0_2_5_exact_evidence.py'
       - 'release/APL_REL_013_RUSSIAN_PRODUCTION_RELEASE_GATE.md'
       - 'release/APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json'
       - 'release/APL_REL_014_EXACT_SIGNED_SET_LIFECYCLE_RECOVERY_EVIDENCE.md'
+      - 'release/APL_REL_015_0_2_5_CFA_HOTFIX_CONTRACT.json'
+      - 'release/APL_REL_015_0_2_5_CFA_HOTFIX_RELEASE_EVIDENCE.md'
+      - 'docs/evidence/APL_0_2_5_CFA_PHYSICAL_ACCEPTANCE_2026-09-13.md'
+      - 'docs/evidence/APL_0_2_5_FINAL_PHYSICAL_REBOOT_2026-09-13.json'
       - 'tests/test_russian_production_release_gate.py'
       - 'tests/test_apl_rel_014_exact_evidence.py'
+      - 'tests/test_apl_rel_015_0_2_5.py'
       - '.github/workflows/russian-production-release-gate.yml'
   pull_request:
     paths:
       - 'tools/russian_production_release_gate.ps1'
+      - 'tools/russian_production_release_gate_0_2_5.ps1'
+      - 'tools/materialize_0_2_5_accepted_portable.ps1'
       - 'tools/apl_rel_014_exact_evidence.py'
+      - 'tools/apl_rel_015_0_2_5_exact_evidence.py'
       - 'release/APL_REL_013_RUSSIAN_PRODUCTION_RELEASE_GATE.md'
       - 'release/APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json'
       - 'release/APL_REL_014_EXACT_SIGNED_SET_LIFECYCLE_RECOVERY_EVIDENCE.md'
+      - 'release/APL_REL_015_0_2_5_CFA_HOTFIX_CONTRACT.json'
+      - 'release/APL_REL_015_0_2_5_CFA_HOTFIX_RELEASE_EVIDENCE.md'
+      - 'docs/evidence/APL_0_2_5_CFA_PHYSICAL_ACCEPTANCE_2026-09-13.md'
+      - 'docs/evidence/APL_0_2_5_FINAL_PHYSICAL_REBOOT_2026-09-13.json'
       - 'tests/test_russian_production_release_gate.py'
       - 'tests/test_apl_rel_014_exact_evidence.py'
+      - 'tests/test_apl_rel_015_0_2_5.py'
       - '.github/workflows/russian-production-release-gate.yml'
   workflow_dispatch:
 
@@ -30,7 +46,7 @@ permissions:
 
 jobs:
   contract:
-    name: REL-013/014 repository contract
+    name: REL-013/014/015 repository contract
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -40,36 +56,43 @@ jobs:
           python-version: '3.11'
       - name: Install test runner
         run: python -m pip install pytest
-      - name: Run REL-013/014 contract tests
+      - name: Run REL-013/014/015 contract tests
         run: >-
           python -m pytest -q
           tests/test_russian_production_release_gate.py
           tests/test_apl_rel_014_exact_evidence.py
+          tests/test_apl_rel_015_0_2_5.py
 
   powershell-syntax:
-    name: REL-013 Windows PowerShell syntax
+    name: REL-013/015 Windows PowerShell syntax
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - name: Parse gate script as UTF-8
+      - name: Parse release-gate and materializer scripts as UTF-8
         shell: powershell
         run: |
-          $file = 'tools/russian_production_release_gate.ps1'
-          $tokens = $null
-          $errors = $null
-          $text = [System.IO.File]::ReadAllText(
-            (Resolve-Path $file),
-            [System.Text.Encoding]::UTF8
-          )
-          [System.Management.Automation.Language.Parser]::ParseInput(
-            $text,
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object {
-              Write-Error ("line {0}, col {1}: {2}" -f $_.Extent.StartLineNumber, $_.Extent.StartColumnNumber, $_.Message)
+          foreach ($file in @(
+            'tools/russian_production_release_gate.ps1',
+            'tools/russian_production_release_gate_0_2_5.ps1',
+            'tools/materialize_0_2_5_accepted_portable.ps1'
+          )) {
+            $tokens = $null
+            $errors = $null
+            $text = [System.IO.File]::ReadAllText(
+              (Resolve-Path $file),
+              [System.Text.Encoding]::UTF8
+            )
+            [System.Management.Automation.Language.Parser]::ParseInput(
+              $text,
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object {
+                Write-Error ("${file}: line {0}, col {1}: {2}" -f $_.Extent.StartLineNumber, $_.Extent.StartColumnNumber, $_.Message)
+              }
+              throw "PowerShell parse failed: $file"
             }
-            throw 'PowerShell parse failed: tools/russian_production_release_gate.ps1'
+            Write-Host "PowerShell syntax PASS: $file"
           }
