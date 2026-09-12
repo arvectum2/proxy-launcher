@@ -68,7 +68,7 @@ class WindowsMaintenanceFlowTests(unittest.TestCase):
         self.assertIn("Stop-TargetRuntimeBestEffort $targetExe", helper)
         self.assertIn("Start-RuntimeAndVerify $previousExe 'previous-version recovery'", helper)
         self.assertIn("previous runtime restored after failed handover", helper)
-        self.assertIn("transactional application replacement rolled back", helper)
+        self.assertIn("transactional replacement rolled back", helper)
 
     def test_repair_does_not_execute_damaged_exe_when_no_recovery_is_pending(self):
         helper = self.read("installer/upgrade_helper.ps1")

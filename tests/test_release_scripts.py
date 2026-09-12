@@ -228,13 +228,17 @@ class ReleaseScriptTests(unittest.TestCase):
             self.assertIn('Name: "{app}\\' + name + '"', text)
 
     @unittest.skipUnless(HAS_INSTALLER_TRACK, "installer track is not present in portable P0 branch")
-    def test_verified_payload_placement_is_in_primary_files_phase(self):
+    def test_verified_payload_handover_is_deferred_until_postinstall(self):
         text = self.read("installer/ArvectumProxyLauncher.iss")
-        self.assertIn("AfterInstall: InstallVerifiedPayload", text)
-        install = text[text.index("procedure InstallVerifiedPayload"):text.index("procedure CurStepChanged")]
-        post_install = text[text.index("procedure CurStepChanged"):]
+        self.assertNotIn("AfterInstall: InstallVerifiedPayload", text)
+        install = text[text.index("procedure InstallVerifiedPayload"):text.index("procedure CacheRepairInstaller")]
+        post_install = text[text.index("procedure CurStepChanged"):text.index("function RunInstalledUninstallHelper")]
         self.assertIn("RunEmbeddedHelper('upgrade_helper.ps1'", install)
         self.assertIn("RaiseException(ErrorText)", install)
+        self.assertIn("if CurStep = ssPostInstall", post_install)
+        self.assertIn("CacheRepairInstaller();", post_install)
+        self.assertIn("InstallVerifiedPayload();", post_install)
+        self.assertLess(post_install.index("CacheRepairInstaller();"), post_install.index("InstallVerifiedPayload();"))
         self.assertNotIn("RunEmbeddedHelper('upgrade_helper.ps1'", post_install)
 
     def test_installer_workflow_waits_for_gui_processes(self):
