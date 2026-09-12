@@ -59,7 +59,19 @@ class WindowsMaintenanceFlowTests(unittest.TestCase):
         self.assertIn("if CurStep = ssPostInstall", step)
         self.assertIn("CacheRepairInstaller();", step)
         self.assertIn("InstallVerifiedPayload();", step)
+        self.assertIn("CommitInstallOwnership();", step)
         self.assertLess(step.index("CacheRepairInstaller();"), step.index("InstallVerifiedPayload();"))
+        self.assertLess(step.index("InstallVerifiedPayload();"), step.index("CommitInstallOwnership();"))
+
+    def test_install_ownership_marker_is_committed_only_after_verified_payload(self):
+        iss = self.read("installer/ArvectumProxyLauncher.iss")
+        ownership = iss[iss.index("procedure CommitInstallOwnership"):iss.index("procedure CurStepChanged")]
+        step = iss[iss.index("procedure CurStepChanged"):iss.index("function RunInstalledUninstallHelper")]
+        self.assertIn(".arvectum-install-owner", ownership)
+        self.assertIn("ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER", ownership)
+        self.assertIn("if not SaveStringToFile", ownership)
+        self.assertIn("could not commit the installation ownership marker", ownership)
+        self.assertLess(step.index("InstallVerifiedPayload();"), step.index("CommitInstallOwnership();"))
 
     def test_handover_restarts_previous_runtime_on_failure(self):
         helper = self.read("installer/upgrade_helper.ps1")
