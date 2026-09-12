@@ -50,13 +50,14 @@ def _normalize_command(value):
 
 
 def _known_legacy_recovery_dirs():
-    """Return exact historical directories that can prove legacy ownership."""
+    """Return exact current/historical directories that prove Arvectum ownership."""
     core = _core()
     home = os.path.expanduser("~")
     local = os.environ.get("LOCALAPPDATA") or os.path.join(home, "AppData", "Local")
     candidates = [
         core.install_dir(),
-        os.path.join(home, "Documents", "ArvectumProxyLauncher"),
+        core.stable_app_dir(),
+        core.historical_documents_app_dir(),
         os.path.join(local, "ArvectumProxyLauncher"),
         os.path.join(local, "Arvectum", "ProxyLauncher"),
     ]
@@ -147,7 +148,7 @@ def repair_portable_run_entries():
                     continue
                 if name == core._USER_AUTOSTART_RUN_VALUE:
                     winreg.SetValueEx(key, name, 0, winreg.REG_SZ, expected)
-                    core._log("legacy user autostart migrated to canonical Documents copy")
+                    core._log("legacy user autostart migrated to canonical LocalAppData Programs copy")
                 else:
                     winreg.DeleteValue(key, name)
                     core._log("legacy recovery Run value removed; P0 uses one user autostart entry")

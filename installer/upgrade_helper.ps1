@@ -1,5 +1,10 @@
 [CmdletBinding()]
-param([Parameter(Mandatory)] [string]$PayloadRoot, [Parameter(Mandatory)] [string]$InstallRoot, [switch]$PreflightOnly)
+param(
+  [Parameter(Mandatory)] [string]$PayloadRoot,
+  [Parameter(Mandatory)] [string]$InstallRoot,
+  [string]$LegacyInstallRoot,
+  [switch]$PreflightOnly
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $StateRoot = Join-Path $env:LOCALAPPDATA 'Arvectum\ProxyLauncher'
@@ -53,6 +58,7 @@ function Get-RecoveryBackups {
 }
 
 function Get-OwnedProcesses([string]$Exe) {
+  if (-not $Exe -or -not (Test-Path -LiteralPath $Exe -PathType Leaf)) { return @() }
   @(Get-CimInstance Win32_Process -Filter "Name='Arvectum Proxy Launcher.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.ExecutablePath -and (Test-ExactPath $_.ExecutablePath $Exe) })
 }
@@ -64,7 +70,7 @@ function Stop-OwnedProcess([string]$Exe) {
 }
 
 function Test-OwnedStartCommand([string]$Command, [string]$ExpectedExe) {
-  if (-not $Command) { return $false }
+  if (-not $Command -or -not $ExpectedExe) { return $false }
   if ($Command -notmatch '^\s*"([^"]+)"\s+--start\s*$') { return $false }
   return Test-ExactPath $matches[1] $ExpectedExe
 }
@@ -84,9 +90,22 @@ function Remove-StaleRecoveryRun([string]$ExpectedExe) {
   if (@(Get-RecoveryBackups).Count -ne 0) { return }
   $value = Get-RunValue $RecoveryRunName
   if (-not $value) { return }
-  if (Test-OwnedStartCommand $value $ExpectedExe) {
+  if ($ExpectedExe -and (Test-OwnedStartCommand $value $ExpectedExe)) {
     Remove-ItemProperty -Path $RunPath -Name $RecoveryRunName -ErrorAction Stop
     Write-InstallLog 'stale owned recovery Run value removed'
+  }
+}
+
+function Assert-PreflightRecoverySafe([string]$PreviousExe) {
+  $backups = @(Get-RecoveryBackups)
+  if ($backups.Count -ne 0 -and (-not $PreviousExe -or -not (Test-Path -LiteralPath $PreviousExe -PathType Leaf))) {
+    throw 'recovery backups remain but the installed Launcher executable is missing; repair is blocked until network recovery can be proven'
+  }
+  $recovery = Get-RunValue $RecoveryRunName
+  if ($recovery) {
+    if (-not $PreviousExe -or -not (Test-OwnedStartCommand $recovery $PreviousExe)) {
+      throw 'conflicting recovery autostart is not owned'
+    }
   }
 }
 
@@ -94,7 +113,7 @@ function Assert-RecoverySafe([string]$ExpectedExe) {
   $backups = @(Get-RecoveryBackups)
   if ($backups.Count -ne 0) { throw 'recovery backups remain after stopping the previous version' }
   $recovery = Get-RunValue $RecoveryRunName
-  if ($recovery -and -not (Test-OwnedStartCommand $recovery $ExpectedExe)) {
+  if ($recovery -and (-not $ExpectedExe -or -not (Test-OwnedStartCommand $recovery $ExpectedExe))) {
     throw 'conflicting recovery autostart is not owned'
   }
 }
@@ -107,12 +126,18 @@ function Remove-StalePid([string]$ExpectedExe) {
   $validPid = $false
   if ($raw -match '^\d+$') {
     try { $parsedPid = [int]$Matches[0]; $validPid = $true } catch { $validPid = $false }
+  } else {
+    try {
+      $record = $raw | ConvertFrom-Json
+      $parsedPid = [int]$record.pid
+      $validPid = $parsedPid -gt 0
+    } catch { $validPid = $false }
   }
   $process = $null
   if ($validPid -and $parsedPid -gt 0) {
     $process = Get-CimInstance Win32_Process -Filter "ProcessId=$parsedPid" -ErrorAction SilentlyContinue
   }
-  if (-not $process -or -not $process.ExecutablePath -or -not (Test-ExactPath $process.ExecutablePath $ExpectedExe)) {
+  if (-not $process -or -not $process.ExecutablePath -or -not $ExpectedExe -or -not (Test-ExactPath $process.ExecutablePath $ExpectedExe)) {
     Remove-Item -LiteralPath $pidPath -Force -ErrorAction Stop
     Write-InstallLog 'stale runtime PID removed'
   }
@@ -136,7 +161,7 @@ function Clear-StaleMaintenanceState([string]$ExpectedExe) {
 function Invoke-PreviousRollback([string]$ExistingExe) {
   $backups = @(Get-RecoveryBackups)
   if ($backups.Count -gt 0) {
-    if (-not (Test-Path -LiteralPath $ExistingExe -PathType Leaf)) {
+    if (-not $ExistingExe -or -not (Test-Path -LiteralPath $ExistingExe -PathType Leaf)) {
       throw 'recovery backups remain but the installed Launcher executable is missing; repair is blocked until network recovery can be proven'
     }
     Write-InstallLog 'waiting for previous-version network rollback'
@@ -145,14 +170,32 @@ function Invoke-PreviousRollback([string]$ExistingExe) {
     if (@(Get-RecoveryBackups).Count -gt 0) { throw 'recovery backups remain after previous-version rollback' }
     Write-InstallLog 'previous-version network rollback completed'
   }
-  Stop-OwnedProcess $ExistingExe
+  if ($ExistingExe) { Stop-OwnedProcess $ExistingExe }
 }
 
-function Get-MaintenanceKind([string]$ExistingExe, [string]$OwnerMarker, $IncomingManifest) {
-  if (-not (Test-Path -LiteralPath $ExistingExe) -and -not (Test-Path -LiteralPath $OwnerMarker)) {
+function Get-PreviousInstallRoot {
+  $candidates = @($InstallRoot)
+  if ($LegacyInstallRoot) { $candidates += $LegacyInstallRoot }
+  $seen = @{}
+  foreach ($root in $candidates) {
+    if (-not $root) { continue }
+    $key = $root -replace '\\+$',''
+    if ($seen.ContainsKey($key)) { continue }
+    $seen[$key] = $true
+    $exe = Join-Path $root 'Arvectum Proxy Launcher.exe'
+    $marker = Join-Path $root '.arvectum-install-owner'
+    if ((Test-Path -LiteralPath $exe -PathType Leaf) -or (Test-Path -LiteralPath $marker -PathType Leaf)) {
+      return $root
+    }
+  }
+  return $null
+}
+
+function Get-MaintenanceKind([string]$ExistingRoot, [string]$ExistingExe, [string]$OwnerMarker, $IncomingManifest) {
+  if (-not $ExistingRoot -or (-not (Test-Path -LiteralPath $ExistingExe -PathType Leaf) -and -not (Test-Path -LiteralPath $OwnerMarker -PathType Leaf))) {
     return 'INSTALL'
   }
-  $installedManifestPath = Join-Path $InstallRoot 'build_manifest.json'
+  $installedManifestPath = Join-Path $ExistingRoot 'build_manifest.json'
   if (Test-Path -LiteralPath $installedManifestPath -PathType Leaf) {
     try {
       $installedManifest = Get-Content -LiteralPath $installedManifestPath -Raw | ConvertFrom-Json
@@ -168,10 +211,51 @@ function Get-MaintenanceKind([string]$ExistingExe, [string]$OwnerMarker, $Incomi
   return 'REPAIR'
 }
 
+function Start-RuntimeAndVerify([string]$Exe, [string]$Label) {
+  if (-not (Test-Path -LiteralPath $Exe -PathType Leaf)) { throw "$Label executable is missing" }
+  $working = Split-Path -Parent $Exe
+  $process = Start-Process -FilePath $Exe -ArgumentList '--start' -WorkingDirectory $working -PassThru
+  $pidEvidence = Join-Path $StateRoot 'proxy_core.pid'
+  $internetEvidence = Join-Path $StateRoot 'proxy_internet_backup.json'
+  $envEvidence = Join-Path $StateRoot 'proxy_env_backup.json'
+
+  for ($attempt = 0; $attempt -lt 60; $attempt++) {
+    Start-Sleep -Milliseconds 500
+    $process.Refresh()
+    if ($process.HasExited) {
+      throw "$Label runtime exited during restart with code $($process.ExitCode)"
+    }
+    if (
+      (Test-Path -LiteralPath $pidEvidence -PathType Leaf) -and
+      (Test-Path -LiteralPath $internetEvidence -PathType Leaf) -and
+      (Test-Path -LiteralPath $envEvidence -PathType Leaf)
+    ) {
+      Write-InstallLog "$Label runtime restart verified alive with recovery evidence; PID=$($process.Id)"
+      return
+    }
+  }
+
+  throw "$Label runtime did not establish PID and network recovery evidence within 30 seconds"
+}
+
+function Stop-TargetRuntimeBestEffort([string]$Exe) {
+  try {
+    if (-not (Test-Path -LiteralPath $Exe -PathType Leaf)) { return }
+    if (@(Get-RecoveryBackups).Count -gt 0) {
+      $stop = Start-Process -FilePath $Exe -ArgumentList '--stop' -Wait -PassThru
+      Write-InstallLog "failed-handover target --stop exit code: $($stop.ExitCode)"
+    }
+    Stop-OwnedProcess $Exe
+  } catch {
+    Write-InstallLog "failed-handover target stop error: $($_.Exception.Message)"
+  }
+}
+
 try {
   Write-InstallLog '=== INSTALL SESSION START'
   Write-InstallLog "PayloadRoot: $PayloadRoot"
   Write-InstallLog "InstallRoot: $InstallRoot"
+  Write-InstallLog "LegacyInstallRoot: $LegacyInstallRoot"
   $manifest = Get-Content -LiteralPath (Join-Path $PayloadRoot 'build_manifest.json') -Raw | ConvertFrom-Json
   $payloadExe = Join-Path $PayloadRoot 'Arvectum Proxy Launcher.exe'
   Write-InstallLog "payload EXE: $payloadExe"
@@ -181,44 +265,94 @@ try {
   $selfHash = Get-Sha256 (Join-Path $PayloadRoot 'upgrade_helper.ps1')
   if ($selfHash -ine $manifest.upgrade_helper_sha256) { throw 'upgrade helper SHA256 verification failed' }
 
-  $existingExe = Join-Path $InstallRoot 'Arvectum Proxy Launcher.exe'
-  $ownerMarker = Join-Path $InstallRoot '.arvectum-install-owner'
-  $maintenanceKind = Get-MaintenanceKind $existingExe $ownerMarker $manifest
+  $previousRoot = Get-PreviousInstallRoot
+  $previousExe = $null
+  $ownerMarker = $null
+  if ($previousRoot) {
+    $previousExe = Join-Path $previousRoot 'Arvectum Proxy Launcher.exe'
+    $ownerMarker = Join-Path $previousRoot '.arvectum-install-owner'
+  }
+  $targetExe = Join-Path $InstallRoot 'Arvectum Proxy Launcher.exe'
+  $maintenanceKind = Get-MaintenanceKind $previousRoot $previousExe $ownerMarker $manifest
   Write-InstallLog "maintenance mode: $maintenanceKind"
   Write-InstallLog "incoming version: $($manifest.version)"
-  Write-InstallLog "final EXE: $existingExe"
+  Write-InstallLog "previous root: $previousRoot"
+  Write-InstallLog "previous EXE: $previousExe"
+  Write-InstallLog "final EXE: $targetExe"
 
-  Invoke-PreviousRollback $existingExe
-  Remove-StaleRecoveryRun $existingExe
-  Assert-RecoverySafe $existingExe
+  # Preflight is intentionally observational. No --stop, process kill, Run-value
+  # deletion, PID cleanup or installation-root mutation may occur before this exit.
+  Assert-PreflightRecoverySafe $previousExe
   if ($PreflightOnly) {
-    Write-InstallLog "=== INSTALL SESSION END: PASS (preflight $maintenanceKind)"
+    Write-InstallLog "=== INSTALL SESSION END: PASS (read-only preflight $maintenanceKind)"
     exit 0
   }
 
+  # Stage and hash-verify the incoming binary before touching the live runtime.
   New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
-  $staged = "$existingExe.new"
-  $old = "$existingExe.old"
+  $staged = "$targetExe.installing"
+  $old = "$targetExe.old"
   Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
   Copy-Item -LiteralPath $payloadExe -Destination $staged -Force
   if ((Get-Sha256 $staged) -ine $manifest.application_sha256) { throw 'staged application SHA256 verification failed' }
+  Write-InstallLog 'incoming application staged and verified before runtime handover'
+
+  $previousRuntimeActive = @(Get-RecoveryBackups).Count -gt 0
+  $targetExistedBefore = Test-Path -LiteralPath $targetExe -PathType Leaf
+  $handoverStarted = $false
 
   try {
-    Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue
-    if (Test-Path -LiteralPath $existingExe) { Move-Item -LiteralPath $existingExe -Destination $old -Force }
-    Move-Item -LiteralPath $staged -Destination $existingExe -Force
-    if ((Get-Sha256 $existingExe) -ine $manifest.application_sha256) { throw 'final application SHA256 verification failed' }
-    Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue
-    Write-InstallLog 'transactional replacement committed'
+    $handoverStarted = $true
+    Invoke-PreviousRollback $previousExe
+    Remove-StaleRecoveryRun $previousExe
+    Assert-RecoverySafe $previousExe
+    Clear-StaleMaintenanceState $targetExe
+
+    if (Test-Path -LiteralPath $old -PathType Leaf) { Remove-Item -LiteralPath $old -Force }
+    if ($targetExistedBefore -and (Test-Path -LiteralPath $targetExe -PathType Leaf)) {
+      Move-Item -LiteralPath $targetExe -Destination $old -Force
+    }
+    Move-Item -LiteralPath $staged -Destination $targetExe -Force
+    if ((Get-Sha256 $targetExe) -ine $manifest.application_sha256) { throw 'final application SHA256 verification failed' }
+
+    if ($previousRuntimeActive) {
+      Start-RuntimeAndVerify $targetExe 'new-version'
+    }
+
+    if (Test-Path -LiteralPath $old -PathType Leaf) { Remove-Item -LiteralPath $old -Force }
+    Write-InstallLog 'transactional runtime handover committed'
   } catch {
-    Remove-Item -LiteralPath $existingExe -Force -ErrorAction SilentlyContinue
-    if (Test-Path -LiteralPath $old) { Move-Item -LiteralPath $old -Destination $existingExe -Force }
-    Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
-    Write-InstallLog 'transactional replacement rolled back'
-    throw
+    $handoverError = $_
+    Write-InstallLog "transactional handover failure: $($handoverError.Exception.Message)"
+    Stop-TargetRuntimeBestEffort $targetExe
+
+    try {
+      if (Test-Path -LiteralPath $targetExe -PathType Leaf) {
+        Remove-Item -LiteralPath $targetExe -Force -ErrorAction Stop
+      }
+      if ($targetExistedBefore -and (Test-Path -LiteralPath $old -PathType Leaf)) {
+        Move-Item -LiteralPath $old -Destination $targetExe -Force
+      }
+      if (Test-Path -LiteralPath $staged -PathType Leaf) {
+        Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
+      }
+      Write-InstallLog 'transactional replacement rolled back'
+    } catch {
+      Write-InstallLog "application rollback error: $($_.Exception.Message)"
+    }
+
+    if ($handoverStarted -and $previousRuntimeActive -and $previousExe -and (Test-Path -LiteralPath $previousExe -PathType Leaf)) {
+      try {
+        Start-RuntimeAndVerify $previousExe 'previous-version recovery'
+        Write-InstallLog 'previous runtime restored after failed handover'
+      } catch {
+        Write-InstallLog "CRITICAL: previous runtime restart failed after handover failure: $($_.Exception.Message)"
+      }
+    }
+    throw $handoverError
   }
 
-  Clear-StaleMaintenanceState $existingExe
+  Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
   $releaseFolder = 'arvectum-proxy-launcher-windows'
   Write-InstallLog "=== INSTALL SESSION END: PASS ($maintenanceKind)"
 } catch {

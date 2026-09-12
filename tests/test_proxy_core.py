@@ -91,14 +91,14 @@ class ProxyCoreTests(unittest.TestCase):
                 self.assertFalse(core._is_temporary_arvectum_start('"%s" --start' % (temp_root / "Arvectum Proxy Launcher.exe.evil")))
                 self.assertFalse(core._is_temporary_arvectum_start('"%s" --start' % (Path(td) / "NotTemp" / "Arvectum Proxy Launcher.exe")))
 
-    def test_paths_keep_documents_executable_and_localappdata_state_with_cyrillic_user(self):
+    def test_paths_keep_localappdata_executable_and_state_with_cyrillic_user(self):
         home = r"C:\Users\Анастасия"
         local = home + r"\AppData\Local"
         with mock.patch.dict(application_filesystem.os.environ, {"LOCALAPPDATA": local}, clear=False), \
              mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.object(application_filesystem.os, "path", ntpath), \
              mock.patch.object(ntpath, "expanduser", return_value=home):
-            self.assertEqual(core.stable_app_exe(), home + r"\Documents\ArvectumProxyLauncher\Arvectum Proxy Launcher.exe")
+            self.assertEqual(core.stable_app_exe(), local + r"\Programs\ArvectumProxyLauncher\Arvectum Proxy Launcher.exe")
             self.assertEqual(core.data_dir(), local + r"\Arvectum\ProxyLauncher")
 
     def test_canonical_copy_failure_never_launches_old_executable(self):

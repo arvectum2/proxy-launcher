@@ -70,11 +70,23 @@ def runtime_dir() -> str:
     return _core().data_dir()
 
 
-def stable_app_dir() -> str:
-    """Canonical user-writable executable location (never the state folder)."""
+def historical_documents_app_dir() -> str:
+    """Pre-0.2.5 Windows executable location retained only for migration."""
     return os.path.join(
         os.path.expanduser("~"), "Documents", "ArvectumProxyLauncher"
     )
+
+
+def historical_documents_app_exe() -> str:
+    core = _core()
+    return os.path.join(core.historical_documents_app_dir(), core._LAUNCHER_EXE_NAME)
+
+
+def stable_app_dir() -> str:
+    """Canonical per-user executable location outside protected user folders."""
+    home = os.path.expanduser("~")
+    local = os.environ.get("LOCALAPPDATA") or os.path.join(home, "AppData", "Local")
+    return os.path.join(local, "Programs", "ArvectumProxyLauncher")
 
 
 def stable_app_exe() -> str:
@@ -134,7 +146,7 @@ def _legacy_state_dirs() -> list[str]:
     )
     candidates = [
         core.install_dir(),
-        os.path.join(home, "Documents", "ArvectumProxyLauncher"),
+        core.historical_documents_app_dir(),
         os.path.join(local, "ArvectumProxyLauncher"),
     ]
     seen = set()
@@ -268,6 +280,8 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core.is_windows = is_windows
     core.data_dir = data_dir
     core.runtime_dir = runtime_dir
+    core.historical_documents_app_dir = historical_documents_app_dir
+    core.historical_documents_app_exe = historical_documents_app_exe
     core.stable_app_dir = stable_app_dir
     core.stable_app_exe = stable_app_exe
     core._same_path = _same_path

@@ -149,7 +149,7 @@ try {
 }
 
 $lifecycle = Get-Content -LiteralPath $LifecycleEvidence -Raw | ConvertFrom-Json
-Add-Check 'lifecycle.schema' ([string]$lifecycle.schema -ceq 'arvectum.proxy.windows-rc-e2e.v1') ([string]$lifecycle.schema)
+Add-Check 'lifecycle.schema' ([string]$lifecycle.schema -ceq 'arvectum.proxy.windows-rc-e2e.v2') ([string]$lifecycle.schema)
 Add-Check 'lifecycle.result' ([string]$lifecycle.result -ceq 'PASS') ([string]$lifecycle.result)
 foreach ($phase in @('fresh_install_smoke','fresh_uninstall','upgrade','repair','uninstall')) {
     $property = $lifecycle.phases.PSObject.Properties[$phase]

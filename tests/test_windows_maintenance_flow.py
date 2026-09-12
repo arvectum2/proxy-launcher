@@ -18,9 +18,73 @@ class WindowsMaintenanceFlowTests(unittest.TestCase):
         self.assertIn('Type: files; Name: "{app}\\{#RepairExeName}"', iss)
         self.assertIn("SuppressibleMsgBox(ErrorText", iss)
 
+    def test_install_target_avoids_controlled_folder_access_user_folders(self):
+        iss = self.read("installer/ArvectumProxyLauncher.iss")
+        filesystem = self.read("application_filesystem.py")
+        portable = self.read("portable_lifecycle.py")
+
+        self.assertIn('#define AppDir "{localappdata}\\Programs\\ArvectumProxyLauncher"', iss)
+        self.assertIn("UsePreviousAppDir=no", iss)
+        self.assertIn('#define LegacyAppDir "{userdocs}\\ArvectumProxyLauncher"', iss)
+        self.assertNotIn('Name: "{autodesktop}\\Arvectum Proxy Launcher"', iss)
+        self.assertIn('os.path.join(local, "Programs", "ArvectumProxyLauncher")', filesystem)
+        self.assertIn("historical_documents_app_dir", filesystem)
+        self.assertIn("historical_documents_app_exe", filesystem)
+        self.assertIn("canonical LocalAppData Programs location", portable)
+
+    def test_preflight_is_observational_before_any_runtime_handover(self):
+        helper = self.read("installer/upgrade_helper.ps1")
+        start = helper.index("Assert-PreflightRecoverySafe $previousExe")
+        exit_point = helper.index("if ($PreflightOnly)", start)
+        handover = helper.index("Invoke-PreviousRollback $previousExe", exit_point)
+        stage = helper.index("incoming application staged and verified before runtime handover", exit_point)
+
+        self.assertLess(start, exit_point)
+        self.assertLess(exit_point, stage)
+        self.assertLess(stage, handover)
+        preflight_window = helper[start:exit_point]
+        self.assertNotIn("Invoke-PreviousRollback", preflight_window)
+        self.assertNotIn("Stop-Process", preflight_window)
+        self.assertNotIn("Remove-ItemProperty", preflight_window)
+        self.assertNotIn("Remove-StalePid", preflight_window)
+
+    def test_installer_defers_handover_until_postinstall(self):
+        iss = self.read("installer/ArvectumProxyLauncher.iss")
+        app_file_line = next(
+            line for line in iss.splitlines()
+            if 'Source: "{#PayloadDir}\\Arvectum Proxy Launcher.exe"' in line
+        )
+        self.assertNotIn("AfterInstall", app_file_line)
+        step = iss[iss.index("procedure CurStepChanged"):iss.index("function RunInstalledUninstallHelper")]
+        self.assertIn("if CurStep = ssPostInstall", step)
+        self.assertIn("CacheRepairInstaller();", step)
+        self.assertIn("InstallVerifiedPayload();", step)
+        self.assertIn("CommitInstallOwnership();", step)
+        self.assertLess(step.index("CacheRepairInstaller();"), step.index("InstallVerifiedPayload();"))
+        self.assertLess(step.index("InstallVerifiedPayload();"), step.index("CommitInstallOwnership();"))
+
+    def test_install_ownership_marker_is_committed_only_after_verified_payload(self):
+        iss = self.read("installer/ArvectumProxyLauncher.iss")
+        ownership = iss[iss.index("procedure CommitInstallOwnership"):iss.index("procedure CurStepChanged")]
+        step = iss[iss.index("procedure CurStepChanged"):iss.index("function RunInstalledUninstallHelper")]
+        self.assertIn(".arvectum-install-owner", ownership)
+        self.assertIn("ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER", ownership)
+        self.assertIn("if not SaveStringToFile", ownership)
+        self.assertIn("could not commit the installation ownership marker", ownership)
+        self.assertLess(step.index("InstallVerifiedPayload();"), step.index("CommitInstallOwnership();"))
+
+    def test_handover_restarts_previous_runtime_on_failure(self):
+        helper = self.read("installer/upgrade_helper.ps1")
+        self.assertIn("$previousRuntimeActive = @(Get-RecoveryBackups).Count -gt 0", helper)
+        self.assertIn("Start-RuntimeAndVerify $targetExe 'new-version'", helper)
+        self.assertIn("Stop-TargetRuntimeBestEffort $targetExe", helper)
+        self.assertIn("Start-RuntimeAndVerify $previousExe 'previous-version recovery'", helper)
+        self.assertIn("previous runtime restored after failed handover", helper)
+        self.assertIn("transactional replacement rolled back", helper)
+
     def test_repair_does_not_execute_damaged_exe_when_no_recovery_is_pending(self):
         helper = self.read("installer/upgrade_helper.ps1")
-        rollback = helper[helper.index("function Invoke-PreviousRollback"):helper.index("try {\n  Write-InstallLog")]
+        rollback = helper[helper.index("function Invoke-PreviousRollback"):helper.index("function Get-PreviousInstallRoot")]
         self.assertIn("$backups = @(Get-RecoveryBackups)", rollback)
         self.assertIn("if ($backups.Count -gt 0)", rollback)
         self.assertIn("Start-Process -FilePath $ExistingExe -ArgumentList '--stop' -Wait -PassThru", rollback)
@@ -53,7 +117,7 @@ class WindowsMaintenanceFlowTests(unittest.TestCase):
         self.assertIn("final EXE SHA256 does not match build manifest", regression)
         self.assertIn("uninstall registration was committed before preflight completed", regression)
         self.assertIn("recovery evidence was unexpectedly deleted", regression)
-        self.assertIn("PASS \\(preflight REPAIR\\)", regression)
+        self.assertIn("PASS \\(read-only preflight REPAIR\\)", regression)
 
     def test_repair_cleans_only_operational_stale_state(self):
         helper = self.read("installer/upgrade_helper.ps1")
@@ -95,13 +159,8 @@ class WindowsMaintenanceFlowTests(unittest.TestCase):
         workflow = self.read(".github/workflows/windows-installer.yml")
         e2e = self.read("qa/windows_rc_e2e.ps1")
 
-        # The workflow must execute the governed lifecycle harness instead of
-        # duplicating the maintenance test implementation inline in YAML.
         self.assertIn("./qa/windows_rc_e2e.ps1", workflow)
         self.assertIn("out\\windows-rc-e2e.json", workflow)
-
-        # APL-WIN-009 repair/uninstall invariants remain mandatory under the
-        # broader APL-WIN-012 RC lifecycle harness.
         self.assertIn("damaged-binary-for-apl-win-012-repair", e2e)
         self.assertIn("Arvectum Proxy Launcher Repair.exe", e2e)
         self.assertIn('"config_version":1', e2e)

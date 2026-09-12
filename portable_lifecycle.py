@@ -40,11 +40,11 @@ def _sha256_file(path: str) -> str:
 
 def _is_historical_documents_copy(path: str) -> bool:
     core = _core()
-    return core._same_path(path, core.stable_app_exe())
+    return core._same_path(path, core.historical_documents_app_exe())
 
 
 def ensure_stable_app_copy() -> str | None:
-    """Copy a frozen Windows portable launcher to the canonical Documents path.
+    """Copy a frozen Windows portable launcher to the canonical per-user app path.
 
     Copying is best-effort so a launcher opened from Downloads can still render
     actionable UI. An existing canonical copy is used only when its SHA-256
@@ -83,11 +83,11 @@ def ensure_stable_app_copy() -> str | None:
             encoding="ascii",
         ) as marker:
             marker.write(core._INSTALL_OWNER_VALUE)
-        core._log("portable launcher copied to canonical Documents location: %s" % target)
+        core._log("portable launcher copied to canonical LocalAppData Programs location: %s" % target)
         return target
     except Exception as error:
         core._LAST_SELF_HEAL_ERROR = (
-            "Не удалось обновить постоянную копию Launcher в Documents: %s" % error
+            "Не удалось обновить постоянную копию Launcher в LocalAppData: %s" % error
         )
         core._log("portable launcher self-heal failed: %r" % error)
         return None
@@ -106,8 +106,17 @@ def managed_executable() -> str | None:
 
 
 def handoff_to_stable_copy(arguments: Iterable[str] | None = None) -> bool:
-    """Continue a portable launch only from the matching canonical copy."""
+    """Continue an interactive/start portable launch from the canonical copy.
+
+    Stop, status and rollback are maintenance commands whose caller must be able
+    to wait for the exact process that performs the operation. They therefore
+    never use the asynchronous portable handoff. This is especially important
+    during installer migration from the historical Documents location.
+    """
     core = _core()
+    args = list(arguments or [])
+    if args and args[0] in ("--stop", "--status", "--rollback"):
+        return False
     if not (core.is_windows() and getattr(sys, "frozen", False)):
         return False
     source = os.path.realpath(sys.executable)
@@ -116,11 +125,11 @@ def handoff_to_stable_copy(arguments: Iterable[str] | None = None) -> bool:
         return False
     try:
         subprocess.Popen(
-            [target] + list(arguments or []),
+            [target] + args,
             cwd=os.path.dirname(target),
             creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
         )
-        core._log("portable launcher handed off to canonical Documents copy")
+        core._log("portable launcher handed off to canonical LocalAppData Programs copy")
         return True
     except Exception as error:
         core._log(
@@ -130,7 +139,7 @@ def handoff_to_stable_copy(arguments: Iterable[str] | None = None) -> bool:
 
 
 def canonical_install_exe() -> str | None:
-    """Return the canonical Documents path only when it matches this executable."""
+    """Return the canonical per-user app path only when it matches this executable."""
     core = _core()
     if not getattr(sys, "frozen", False):
         return None

@@ -62,7 +62,7 @@ class WindowsProductizationTests(unittest.TestCase):
         self.assertIn("return 'REPAIR'", helper)
         self.assertIn("maintenance mode: $maintenanceKind", helper)
 
-    def test_rc_e2e_covers_complete_lifecycle(self):
+    def test_rc_e2e_v2_covers_complete_lifecycle(self):
         script = read("qa/windows_rc_e2e.ps1")
         for marker in (
             "Assert-InstallMode 'INSTALL'", "Assert-InstallMode 'UPGRADE'", "Assert-InstallMode 'REPAIR'",
@@ -71,7 +71,7 @@ class WindowsProductizationTests(unittest.TestCase):
         ):
             self.assertIn(marker, script)
         self.assertIn("synthetic_lifecycle_fixture", script)
-        self.assertIn("arvectum.proxy.windows-rc-e2e.v1", script)
+        self.assertIn("arvectum.proxy.windows-rc-e2e.v2", script)
 
     def test_rc_acceptance_is_fail_closed_and_excludes_fixture(self):
         script = read("tools/windows_rc_acceptance.ps1")
