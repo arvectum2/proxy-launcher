@@ -34,6 +34,7 @@ $uninstaller = Join-Path $installRoot 'unins000.exe'
 $stateRoot = Join-Path $env:LOCALAPPDATA 'Arvectum\ProxyLauncher'
 $internetBackup = Join-Path $stateRoot 'proxy_internet_backup.json'
 $envBackup = Join-Path $stateRoot 'proxy_env_backup.json'
+$pidPath = Join-Path $stateRoot 'proxy_core.pid'
 $installLog = Join-Path $stateRoot 'install.log'
 $runPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
 $uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{6A5A0706-4015-4EAF-BFA1-25EF435C9E1B}_is1'
@@ -187,7 +188,7 @@ Copy-Item -LiteralPath $CurrentPortableExe -Destination $legacyExe -Force
 New-Item -ItemType Directory -Force -Path $stateRoot | Out-Null
 $settings = Join-Path $stateRoot 'proxy_settings.json'
 $noProxy = Join-Path $stateRoot 'no_proxy.txt'
-Set-Content -LiteralPath $settings -Value '{"config_version":1,"local_http_port":18080,"local_socks_port":11080,"local_pac_port":18082,"pac_path":"/proxy.pac","upstream":[{"host":"","port":8000}]}' -Encoding utf8
+Set-Content -LiteralPath $settings -Value '{"config_version":1,"local_http_port":18080,"local_socks_port":11080,"local_pac_port":18082,"pac_path":"/proxy.pac","upstream":[{"host":"127.0.0.1","port":65534}]}' -Encoding utf8
 Set-Content -LiteralPath $noProxy -Value 'issue-171.example' -Encoding utf8
 $settingsHash = (Get-FileHash -LiteralPath $settings -Algorithm SHA256).Hash
 $noProxyHash = (Get-FileHash -LiteralPath $noProxy -Algorithm SHA256).Hash
@@ -196,8 +197,9 @@ $ownedRecovery = '"' + $legacyExe + '" --start'
 New-ItemProperty -Path $runPath -Name 'ArvectumProxyLauncherRecovery' -Value $ownedRecovery -PropertyType String -Force | Out-Null
 
 Invoke-SetupSuccess 'portable-transition' | Out-Null
-if (Test-Path -LiteralPath $internetBackup) { throw 'portable-transition: WinINET recovery backup remains after transactional handover' }
-if (Test-Path -LiteralPath $envBackup) { throw 'portable-transition: environment recovery backup remains after transactional handover' }
+if (-not (Test-Path -LiteralPath $internetBackup -PathType Leaf)) { throw 'portable-transition: active proxy WinINET recovery backup was not re-established by the new runtime' }
+if (-not (Test-Path -LiteralPath $envBackup -PathType Leaf)) { throw 'portable-transition: active proxy environment recovery backup was not re-established by the new runtime' }
+if (-not (Test-Path -LiteralPath $pidPath -PathType Leaf)) { throw 'portable-transition: new runtime PID evidence is missing after active handover' }
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw 'portable-transition: installed manifest is missing' }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ([string]$manifest.version -cne $CurrentVersion) { throw 'portable-transition: installed version does not match current RC' }
@@ -214,15 +216,19 @@ if (-not (Test-Path -LiteralPath $installLog)) { throw 'portable-transition: ins
 $installRaw = Get-Content -LiteralPath $installLog -Raw
 if ($installRaw -notmatch 'PASS \(read-only preflight REPAIR\)') { throw 'portable-transition: read-only preflight PASS was not recorded' }
 if ($installRaw -notmatch 'previous-version network rollback completed') { throw 'portable-transition: late synchronous rollback completion was not recorded' }
+if ($installRaw -notmatch 'new-version runtime restart verified alive') { throw 'portable-transition: active runtime continuity was not verified after handover' }
 if ($installRaw.IndexOf('PASS (read-only preflight REPAIR)') -gt $installRaw.IndexOf('previous-version network rollback completed')) {
     throw 'portable-transition: network rollback occurred before read-only preflight completed'
 }
 $evidence.phases.active_portable_to_installer = 'PASS'
+$evidence.phases.active_runtime_continuity = 'PASS'
 $evidence.phases.cfa_safe_localappdata_target = 'PASS'
 $evidence.final_application_sha256 = $actualHash
 $evidence.configuration_preserved = $true
 
 Invoke-InstalledCleanup
+if (Test-Path -LiteralPath $internetBackup -PathType Leaf) { throw 'cleanup uninstall left WinINET recovery evidence after active handover' }
+if (Test-Path -LiteralPath $envBackup -PathType Leaf) { throw 'cleanup uninstall left environment recovery evidence after active handover' }
 Remove-OwnedTestSurface
 
 # ---------------------------------------------------------------------------
