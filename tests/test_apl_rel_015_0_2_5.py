@@ -41,6 +41,8 @@ def test_rel015_contract_pins_the_physically_accepted_0_2_5_identity():
     assert candidate["application_sha256"] == "1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c"
     assert candidate["recorded_same_run_portable_sha256"] == "7e65d980b376977b33263a7b7ad97ade9c3c83f3eb685c5ab624ce342fb71af0"
     assert contract["physical_acceptance"]["sha256"] == "2afe6af76a69dc4d0b6869385dda6c4467c3d01e38997a04ca554c28aa24021a"
+    assert contract["physical_acceptance"]["schema"] == "arvectum.proxy.0.2.5.final-physical-reboot.v1"
+    assert "https_through_proxy" in contract["physical_acceptance"]["required_checks"]
     assert contract["russian_release"]["required_signer_thumbprint"] == "EE1CFA955BA22F03C39C76B183D94CD37494582E"
 
 
@@ -130,8 +132,9 @@ def test_binder_requires_ci_cfa_physical_and_toolchain_boundaries():
         "windows-rc-e2e.v2",
         "fresh_install_smoke",
         "foreign_startup_preserved",
-        "arvectum.proxy.0.2.5.final-physical-reboot.v1",
-        "https_through_proxy",
+        'physical.get("schema") == pc["schema"]',
+        'pc["required_checks"]',
+        'network.get("https_status")',
         "BUILD_PYTHON_VERSION",
         "requirements-build.lock.txt",
         "READY_FOR_REL011_SIGNING",
