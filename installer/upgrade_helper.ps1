@@ -179,7 +179,7 @@ function Get-PreviousInstallRoot {
   $seen = @{}
   foreach ($root in $candidates) {
     if (-not $root) { continue }
-    $key = [IO.Path]::GetFullPath($root).TrimEnd('\').ToLowerInvariant()
+    $key = $root -replace '\\+$',''
     if ($seen.ContainsKey($key)) { continue }
     $seen[$key] = $true
     $exe = Join-Path $root 'Arvectum Proxy Launcher.exe'
@@ -291,9 +291,6 @@ try {
     Invoke-PreviousRollback $previousExe
     Remove-StaleRecoveryRun $previousExe
     Assert-RecoverySafe $previousExe
-
-    # Now that the old runtime/network state is safely restored, stale operational
-    # artifacts can be removed without jeopardizing recovery evidence.
     Clear-StaleMaintenanceState $targetExe
 
     if (Test-Path -LiteralPath $old -PathType Leaf) { Remove-Item -LiteralPath $old -Force }
@@ -324,7 +321,7 @@ try {
       if (Test-Path -LiteralPath $staged -PathType Leaf) {
         Remove-Item -LiteralPath $staged -Force -ErrorAction SilentlyContinue
       }
-      Write-InstallLog 'transactional application replacement rolled back'
+      Write-InstallLog 'transactional replacement rolled back'
     } catch {
       Write-InstallLog "application rollback error: $($_.Exception.Message)"
     }
