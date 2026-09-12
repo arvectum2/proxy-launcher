@@ -16,10 +16,14 @@
 #define AppPublisher "ООО «Арвектум»"
 #define AppPublisherURL "https://arvectum.com"
 #define AppSupportURL "https://github.com/arvectum2/proxy-launcher/issues"
-#define AppDir "{userdocs}\ArvectumProxyLauncher"
+#define LegacyAppDir "{userdocs}\ArvectumProxyLauncher"
 #ifdef SyntheticLifecycleFixture
+  ; The synthetic predecessor intentionally models the pre-0.2.5 Documents install.
+  #define AppDir LegacyAppDir
   #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup-synthetic-predecessor"
 #else
+  ; 0.2.5+: keep executable payload outside Controlled Folder Access user folders.
+  #define AppDir "{localappdata}\Programs\ArvectumProxyLauncher"
   #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup"
 #endif
 #define RepairExeName "Arvectum Proxy Launcher Repair.exe"
@@ -32,6 +36,8 @@ AppPublisher={#AppPublisher}
 AppPublisherURL={#AppPublisherURL}
 AppSupportURL={#AppSupportURL}
 DefaultDirName={#AppDir}
+; Never reuse the pre-0.2.5 Documents path persisted by an older AppId install.
+UsePreviousAppDir=no
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 OutputBaseFilename={#SetupName}
@@ -53,7 +59,8 @@ VersionInfoOriginalFileName={#SetupName}.exe
 
 [Files]
 ; All required files are compiled into the setup executable; no portable folder is consulted at install time.
-Source: "{#PayloadDir}\Arvectum Proxy Launcher.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; AfterInstall: InstallVerifiedPayload
+; The application stays in {tmp} until the late transactional handover in ssPostInstall.
+Source: "{#PayloadDir}\Arvectum Proxy Launcher.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "{#PayloadDir}\build_manifest.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\build_manifest.json"; Flags: dontcopy
 Source: "{#PayloadDir}\upgrade_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
@@ -74,7 +81,7 @@ Type: files; Name: "{app}\.arvectum-install-owner"
 [Icons]
 Name: "{autoprograms}\Arvectum Proxy Launcher"; Filename: "{app}\Arvectum Proxy Launcher.exe"; WorkingDir: "{app}"
 Name: "{autoprograms}\Repair Arvectum Proxy Launcher"; Filename: "{app}\{#RepairExeName}"; Parameters: "/SP-"; WorkingDir: "{app}"
-Name: "{autodesktop}\Arvectum Proxy Launcher"; Filename: "{app}\Arvectum Proxy Launcher.exe"; WorkingDir: "{app}"
+; No desktop shortcut: Desktop may itself be protected by Controlled Folder Access.
 
 [Code]
 function RunEmbeddedHelper(const Helper, Arguments: String; var ErrorText: String): Boolean;
@@ -99,18 +106,29 @@ begin
   end;
 end;
 
+function HelperArguments(const Extra: String): String;
+begin
+  Result := '-PayloadRoot "' + ExpandConstant('{tmp}') +
+    '" -InstallRoot "' + ExpandConstant('{app}') +
+    '" -LegacyInstallRoot "' + ExpandConstant('{#LegacyAppDir}') + '"';
+  if Extra <> '' then
+    Result := Result + ' ' + Extra;
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var ErrorText: String;
 begin
+  // Contract: preflight is observational only. It may validate/log, but it must
+  // not stop the current runtime, restore network state, or mutate install roots.
   Result := '';
-  if not RunEmbeddedHelper('upgrade_helper.ps1', '-PayloadRoot "' + ExpandConstant('{tmp}') + '" -InstallRoot "' + ExpandConstant('{app}') + '" -PreflightOnly', ErrorText) then
+  if not RunEmbeddedHelper('upgrade_helper.ps1', HelperArguments('-PreflightOnly'), ErrorText) then
     Result := ErrorText;
 end;
 
 procedure InstallVerifiedPayload();
 var ErrorText: String;
 begin
-  if not RunEmbeddedHelper('upgrade_helper.ps1', '-PayloadRoot "' + ExpandConstant('{tmp}') + '" -InstallRoot "' + ExpandConstant('{app}') + '"', ErrorText) then
+  if not RunEmbeddedHelper('upgrade_helper.ps1', HelperArguments(''), ErrorText) then
     RaiseException(ErrorText);
 end;
 
@@ -131,8 +149,11 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then begin
-    SaveStringToFile(ExpandConstant('{app}\.arvectum-install-owner'), 'ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER' + #13#10, False);
+    // Finish ordinary Inno writes first. Only then perform the runtime/network
+    // handover so an earlier Setup/CFA failure leaves the old runtime untouched.
     CacheRepairInstaller();
+    SaveStringToFile(ExpandConstant('{app}\.arvectum-install-owner'), 'ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER' + #13#10, False);
+    InstallVerifiedPayload();
   end;
 end;
 
