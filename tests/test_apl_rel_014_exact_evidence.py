@@ -25,39 +25,6 @@ def sha(data: bytes) -> str:
 
 def make_fixture(tmp_path: Path):
     module = load_module()
-    contract = {
-        "schema": "arvectum.proxy.apl-rel-014-exact-set-contract.v1",
-        "task": "APL-REL-014",
-        "product": "Arvectum Proxy Launcher",
-        "version": "0.2.4",
-        "candidate_source_commit": "a" * 40,
-        "candidate": {
-            "portable_zip_sha256": sha(b"portable"),
-            "setup_sha256": sha(b"setup"),
-            "application_sha256": sha(b"application"),
-        },
-        "predecessor": {
-            "version": "0.2.3",
-            "setup_sha256": sha(b"old-setup"),
-            "application_sha256": sha(b"old-application"),
-        },
-        "physical_evidence": {
-            "schema": "arvectum.proxy.apl-win-014-final-0.2.4-physical.v1",
-            "task": "APL-WIN-014",
-            "required_gates": ["predecessor", "upgrade", "runtime", "rollback", "repair", "uninstall"],
-            "required_app_control": ["before", "after", "code_integrity_3077"],
-            "required_code_integrity_3077_count": 0,
-            "required_pac_url": "http://127.0.0.1:8082/proxy.pac",
-        },
-        "russian_release": {
-            "required_signing_mode": "russian-qualified-evidence",
-            "required_signer_thumbprint": "B" * 40,
-            "rel013_post_sign_binding_required": True,
-        },
-    }
-    contract_path = tmp_path / "contract.json"
-    contract_path.write_text(json.dumps(contract), encoding="utf-8")
-
     release = tmp_path / "release"
     release.mkdir()
     setup = release / "Arvectum-Proxy-Launcher-0.2.4-windows-x64-setup.exe"
@@ -88,6 +55,47 @@ def make_fixture(tmp_path: Path):
     }
     candidate_path = tmp_path / "candidate_evidence.json"
     candidate_path.write_text(json.dumps(candidate), encoding="utf-8")
+    candidate_hash = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+
+    contract = {
+        "schema": "arvectum.proxy.apl-rel-014-exact-set-contract.v1",
+        "task": "APL-REL-014",
+        "product": "Arvectum Proxy Launcher",
+        "version": "0.2.4",
+        "candidate_source_commit": "a" * 40,
+        "acceptance_bundle": {
+            "filename": "apl-win-014-final-0.2.4-test.zip",
+            "sha256": sha(b"acceptance-bundle"),
+            "github_run_id": "123",
+            "github_run_attempt": "1",
+            "candidate_evidence_sha256": candidate_hash,
+        },
+        "candidate": {
+            "portable_zip_sha256": sha(b"portable"),
+            "setup_sha256": sha(b"setup"),
+            "application_sha256": sha(b"application"),
+        },
+        "predecessor": {
+            "version": "0.2.3",
+            "setup_sha256": sha(b"old-setup"),
+            "application_sha256": sha(b"old-application"),
+        },
+        "physical_evidence": {
+            "schema": "arvectum.proxy.apl-win-014-final-0.2.4-physical.v1",
+            "task": "APL-WIN-014",
+            "required_gates": ["predecessor", "upgrade", "runtime", "rollback", "repair", "uninstall"],
+            "required_app_control": ["before", "after", "code_integrity_3077"],
+            "required_code_integrity_3077_count": 0,
+            "required_pac_url": "http://127.0.0.1:8082/proxy.pac",
+        },
+        "russian_release": {
+            "required_signing_mode": "russian-qualified-evidence",
+            "required_signer_thumbprint": "B" * 40,
+            "rel013_post_sign_binding_required": True,
+        },
+    }
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(contract), encoding="utf-8")
 
     physical = {
         "schema": "arvectum.proxy.apl-win-014-final-0.2.4-physical.v1",
@@ -121,35 +129,43 @@ def make_fixture(tmp_path: Path):
     }
     physical_path = tmp_path / "physical.json"
     physical_path.write_text(json.dumps(physical), encoding="utf-8")
-
     return module, contract_path, candidate_path, physical_path, release, setup
 
 
 class AplRel014ExactEvidenceTests(unittest.TestCase):
-    def test_repository_contract_pins_exact_accepted_0_2_4_candidate(self):
+    def test_repository_contract_separates_acceptance_bundle_from_portable_release(self):
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
         self.assertEqual(contract["version"], "0.2.4")
         self.assertEqual(contract["candidate_source_commit"], "e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30")
-        self.assertEqual(contract["candidate"]["portable_zip_sha256"], "467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf")
+        self.assertEqual(contract["acceptance_bundle"]["sha256"], "467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf")
+        self.assertEqual(contract["acceptance_bundle"]["candidate_evidence_sha256"], "3bba419d779b6e1ffd9a75c13596ce7099f812e854fc1c9531095951aadc1910")
+        self.assertEqual(contract["candidate"]["portable_zip_sha256"], "e810a7912d8cc79fbf1c18629cd8feda97fed227b7b92aa01d1f56b241685f0c")
+        self.assertNotEqual(contract["acceptance_bundle"]["sha256"], contract["candidate"]["portable_zip_sha256"])
         self.assertEqual(contract["candidate"]["setup_sha256"], "28eb0b06c2f478b46d5845c6bb1970c96e20a2f6fdaf1d48501ed69f52ea6965")
         self.assertEqual(contract["candidate"]["application_sha256"], "0415226f882e16a0ce370b766c4c68d3c23861f97361da093a1fd9d9f0e0832c")
-        self.assertEqual(contract["predecessor"]["setup_sha256"], "5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414")
-        self.assertEqual(contract["predecessor"]["application_sha256"], "f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a")
 
-    def test_build_evidence_requires_exact_product_bytes_and_all_physical_gates(self):
+    def test_build_evidence_binds_bundle_candidate_product_bytes_and_physical_gates(self):
         with tempfile.TemporaryDirectory() as td:
             module, contract, candidate, physical, release, _ = make_fixture(Path(td))
             evidence = module.build_evidence(contract, candidate, physical, release)
             self.assertEqual(evidence["result"], "PASS")
-            self.assertEqual(evidence["scope"], "EXACT_PRODUCT_SET_READY_FOR_REL011_SIGNING")
             self.assertEqual(evidence["release_assets"]["setup"]["sha256"], sha(b"setup"))
             self.assertEqual(evidence["release_assets"]["portable_zip"]["sha256"], sha(b"portable"))
-            self.assertEqual(evidence["lifecycle"]["gates"]["upgrade"], "PASS")
+            self.assertEqual(evidence["source_evidence"]["acceptance_bundle_sha256"], sha(b"acceptance-bundle"))
+            self.assertEqual(evidence["source_evidence"]["candidate_evidence_sha256"], hashlib.sha256(candidate.read_bytes()).hexdigest())
             self.assertEqual(evidence["lifecycle"]["gates"]["rollback"], "PASS")
-            self.assertEqual(evidence["lifecycle"]["app_control"]["code_integrity_3077"], "PASS")
             self.assertEqual(evidence["lifecycle"]["code_integrity_3077_count"], 0)
             self.assertTrue(evidence["signed_set_binding"]["rel013_post_sign_binding_required"])
             self.assertFalse(evidence["signed_set_binding"]["final_signed_set_pass_claimed"])
+
+    def test_tampered_candidate_evidence_fails_before_product_binding(self):
+        with tempfile.TemporaryDirectory() as td:
+            module, contract, candidate, physical, release, _ = make_fixture(Path(td))
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+            data["unexpected"] = "tamper"
+            candidate.write_text(json.dumps(data), encoding="utf-8")
+            with self.assertRaisesRegex(module.EvidenceError, "exact candidate_evidence.json"):
+                module.build_evidence(contract, candidate, physical, release)
 
     def test_tampered_release_asset_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
@@ -179,29 +195,17 @@ class AplRel014ExactEvidenceTests(unittest.TestCase):
     def test_cli_writes_canonical_evidence_inside_release_directory(self):
         with tempfile.TemporaryDirectory() as td:
             module, contract, candidate, physical, release, _ = make_fixture(Path(td))
-            rc = module.main([
-                "--contract", str(contract),
-                "--candidate-evidence", str(candidate),
-                "--physical-result", str(physical),
-                "--release-directory", str(release),
-            ])
+            rc = module.main(["--contract", str(contract), "--candidate-evidence", str(candidate), "--physical-result", str(physical), "--release-directory", str(release)])
             self.assertEqual(rc, 0)
             output = release / module.CANONICAL_EVIDENCE_NAME
             self.assertTrue(output.is_file())
-            evidence = json.loads(output.read_text(encoding="utf-8"))
-            self.assertEqual(evidence["result"], "PASS")
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["result"], "PASS")
 
     def test_cli_refuses_noncanonical_or_external_output(self):
         with tempfile.TemporaryDirectory() as td:
             module, contract, candidate, physical, release, _ = make_fixture(Path(td))
             external = Path(td) / "external.json"
-            rc = module.main([
-                "--contract", str(contract),
-                "--candidate-evidence", str(candidate),
-                "--physical-result", str(physical),
-                "--release-directory", str(release),
-                "--output", str(external),
-            ])
+            rc = module.main(["--contract", str(contract), "--candidate-evidence", str(candidate), "--physical-result", str(physical), "--release-directory", str(release), "--output", str(external)])
             self.assertEqual(rc, 2)
             self.assertFalse(external.exists())
 

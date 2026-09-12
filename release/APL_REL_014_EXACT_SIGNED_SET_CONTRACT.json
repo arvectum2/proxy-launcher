@@ -4,8 +4,15 @@
   "product": "Arvectum Proxy Launcher",
   "version": "0.2.4",
   "candidate_source_commit": "e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30",
+  "acceptance_bundle": {
+    "filename": "apl-win-014-final-0.2.4-34642663604-1.zip",
+    "sha256": "467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf",
+    "github_run_id": "34642663604",
+    "github_run_attempt": "1",
+    "candidate_evidence_sha256": "3bba419d779b6e1ffd9a75c13596ce7099f812e854fc1c9531095951aadc1910"
+  },
   "candidate": {
-    "portable_zip_sha256": "467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf",
+    "portable_zip_sha256": "e810a7912d8cc79fbf1c18629cd8feda97fed227b7b92aa01d1f56b241685f0c",
     "setup_sha256": "28eb0b06c2f478b46d5845c6bb1970c96e20a2f6fdaf1d48501ed69f52ea6965",
     "application_sha256": "0415226f882e16a0ce370b766c4c68d3c23861f97361da093a1fd9d9f0e0832c"
   },
