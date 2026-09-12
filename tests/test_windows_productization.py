@@ -62,7 +62,7 @@ class WindowsProductizationTests(unittest.TestCase):
         self.assertIn("return 'REPAIR'", helper)
         self.assertIn("maintenance mode: $maintenanceKind", helper)
 
-    def test_rc_e2e_covers_complete_lifecycle(self):
+    def test_rc_e2e_v2_covers_complete_lifecycle(self):
         script = read("qa/windows_rc_e2e.ps1")
         for marker in (
             "Assert-InstallMode 'INSTALL'", "Assert-InstallMode 'UPGRADE'", "Assert-InstallMode 'REPAIR'",
