@@ -8,21 +8,34 @@ RECOMMENDED: WINDOWS INSTALLER
 2. Verify the published SHA-256 checksum before running the installer.
 3. Run Setup as the same Windows user who will use the Launcher. Administrator rights
    are not required by the standard per-user installation.
-4. Start "Arvectum Proxy Launcher" from the Start menu or desktop shortcut.
+4. Start "Arvectum Proxy Launcher" from the Start menu.
 5. Configure the upstream proxy and verify connectivity before enabling autostart.
 
-The installed application is kept under:
-  %USERPROFILE%\Documents\ArvectumProxyLauncher
+The installed application is kept under the per-user LocalAppData Programs directory:
+  %LOCALAPPDATA%\Programs\ArvectumProxyLauncher
 
 Persistent settings, no-proxy rules, logs and recovery state are kept under:
   %LOCALAPPDATA%\Arvectum\ProxyLauncher
 
+Versions before 0.2.5 could use this historical executable location:
+  %USERPROFILE%\Documents\ArvectumProxyLauncher
+
+That Documents path is retained only as a migration/ownership source. Current Setup does
+not install there. This avoids relying on a user folder that Windows Controlled Folder
+Access may protect. Setup also does not create a Desktop shortcut by default; use the
+Start-menu shortcut instead.
+
 UPGRADE
 
 To upgrade, download a newer canonical Setup and run it as the same Windows user.
-The installer verifies the embedded application payload, stops/rolls back the owned
-previous instance when needed, performs transactional replacement and preserves
-persistent user configuration.
+The installer verifies the embedded application payload and performs a read-only
+maintenance preflight before touching the running proxy. The incoming application is
+staged and hash-verified before the live runtime/network handover. Only after ordinary
+Setup writes have completed does the installer stop/roll back the owned previous runtime,
+commit the replacement and, when the previous proxy was active, start and verify the new
+runtime. If the late handover fails, the replacement is rolled back and the installer
+attempts to restore the previous working runtime without discarding recovery evidence.
+Persistent user configuration is preserved.
 
 REPAIR
 
@@ -48,9 +61,10 @@ For the portable ZIP:
 
 Extract the ZIP into a normal writable folder and run "Arvectum Proxy Launcher.exe".
 The package includes its own README.txt and SHA256SUMS.txt. When Windows permits the
-stable Documents handoff, the Launcher uses the same persistent locations as the
-installer. If the handoff is blocked, the current portable session can continue but
-autostart remains disabled.
+stable handoff, the Launcher uses the same canonical LocalAppData Programs location and
+persistent state directory as the installer. The pre-0.2.5 Documents location remains a
+recognized legacy source only. If stable-copy creation is blocked, the current portable
+session can continue but autostart remains disabled.
 
 DIAGNOSTICS AND SUPPORT
 
@@ -81,10 +95,9 @@ SAFETY AND RECOVERY
 INTEGRITY AND SIGNING
 
 The Arvectum icon and Windows version metadata identify the product but are not a digital
-signature. Production Russian code signing is governed separately by RELEASE_POLICY.md
-and the APL-REL-009/APL-REL-010 signing track. Until production signing is activated,
-verify release bytes against the published SHA256SUMS.txt and obtain packages only from
-the canonical release channel.
+signature. Production Russian release-evidence signing is governed separately by
+RELEASE_POLICY.md and the APL-REL signing track. Verify release bytes against the
+published SHA256SUMS.txt and obtain packages only from the canonical release channel.
 
 Project and support:
   https://github.com/arvectum2/proxy-launcher
