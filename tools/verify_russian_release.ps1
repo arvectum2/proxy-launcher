@@ -213,6 +213,7 @@ try {
     if ($cmsSigner.Subject -notmatch 'АРВЕКТУМ') { throw "Сертификат подписанта не идентифицирует Арвектум: $($cmsSigner.Subject)" }
 
     Write-Host ''
+    Write-Host 'APL_REL_012_RESULT=PASS'
     Write-Host 'РЕЗУЛЬТАТ: ПРОВЕРКА ПРОЙДЕНА' -ForegroundColor Green
     Write-Host "Файлов проверено по SHA-256: $verifiedCount"
     Write-Host 'Криптографическая целостность: ПОДТВЕРЖДЕНА'
@@ -229,6 +230,7 @@ try {
 }
 catch {
     Write-Host ''
+    Write-Host 'APL_REL_012_RESULT=FAIL'
     Write-Host 'РЕЗУЛЬТАТ: ПРОВЕРКА НЕ ПРОЙДЕНА' -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Write-Host 'Не запускайте файлы из этого релиза до получения исправного пакета из официального канала Арвектум.' -ForegroundColor Yellow

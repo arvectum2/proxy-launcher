@@ -69,6 +69,8 @@ def test_end_user_ux_is_russian_and_never_overclaims_windows_trust():
     combined = verifier + launcher
     assert "РЕЗУЛЬТАТ: ПРОВЕРКА ПРОЙДЕНА" in verifier
     assert "РЕЗУЛЬТАТ: ПРОВЕРКА НЕ ПРОЙДЕНА" in verifier
+    assert "APL_REL_012_RESULT=PASS" in verifier
+    assert "APL_REL_012_RESULT=FAIL" in verifier
     assert "Не запускайте файлы" in combined
     assert "НЕ означает, что EXE имеет Microsoft Authenticode-подпись" in verifier
     assert "НЕ означает репутацию SmartScreen" in verifier
@@ -90,11 +92,15 @@ def test_one_click_launcher_runs_only_the_bundled_verifier_and_decodes_utf8_expl
     assert "pause" in lowered
 
 
-def test_bundler_places_verifier_before_rel011_signing():
+def test_bundler_places_powershell51_safe_verifier_before_rel011_signing():
     text = BUNDLER.read_text(encoding="utf-8")
     assert "verify_russian_release.ps1" in text
     assert "VERIFY_RUSSIAN_RELEASE.cmd" in text
-    assert "Copy-Item" in text
+    assert "ReadAllText" in text
+    assert "System.Text.Encoding]::UTF8" in text
+    assert "UTF8Encoding" in text
+    assert "WriteAllText" in text
+    assert "0xEF" in text and "0xBB" in text and "0xBF" in text
     assert "BEFORE tools/russian_signed_release.ps1" in text
     assert "included in SHA256SUMS.txt" in text
 

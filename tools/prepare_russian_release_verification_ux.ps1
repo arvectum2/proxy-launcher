@@ -30,8 +30,27 @@ foreach ($source in @($verifierSource, $launcherSource)) {
     }
 }
 
-Copy-Item -LiteralPath $verifierSource -Destination (Join-Path $releasePath 'verify_russian_release.ps1') -Force
+# Windows PowerShell 5.1 treats UTF-8 .ps1 files without a BOM as ANSI when
+# invoked through -File. The verifier contains Russian end-user text, so package
+# the release copy explicitly as UTF-8 with BOM. The repository source remains
+# normal UTF-8 and the exact packaged bytes are covered by REL-011 afterwards.
+$verifierDestination = Join-Path $releasePath 'verify_russian_release.ps1'
+$verifierText = [System.IO.File]::ReadAllText($verifierSource, [System.Text.Encoding]::UTF8)
+$utf8Bom = New-Object System.Text.UTF8Encoding -ArgumentList $true
+[System.IO.File]::WriteAllText($verifierDestination, $verifierText, $utf8Bom)
+
+$verifierBytes = [System.IO.File]::ReadAllBytes($verifierDestination)
+if (
+    $verifierBytes.Length -lt 3 -or
+    $verifierBytes[0] -ne 0xEF -or
+    $verifierBytes[1] -ne 0xBB -or
+    $verifierBytes[2] -ne 0xBF
+) {
+    throw 'Packaged REL-012 verifier is not UTF-8 with BOM.'
+}
+
 Copy-Item -LiteralPath $launcherSource -Destination (Join-Path $releasePath 'VERIFY_RUSSIAN_RELEASE.cmd') -Force
 
 Write-Host 'APL-REL-012 verification UX added to release directory.'
+Write-Host 'Packaged verifier encoding: UTF-8 with BOM (Windows PowerShell 5.1 safe).'
 Write-Host 'Next: run tools/russian_signed_release.ps1 so both verifier files are included in SHA256SUMS.txt.'
