@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest import mock
 
@@ -16,12 +17,21 @@ class PortableMaintenanceHandoffTests(unittest.TestCase):
             spawn.assert_not_called()
 
     def test_start_remains_eligible_for_stable_copy_handoff(self):
-        with mock.patch.object(core, "is_windows", return_value=False), \
-             mock.patch.object(core, "ensure_stable_app_copy") as ensure:
-            self.assertFalse(core.handoff_to_stable_copy(["--start"]))
-        # The maintenance-command guard must not consume --start before the
-        # platform/frozen checks that own the normal canonical handoff.
-        ensure.assert_not_called()
+        source = os.path.realpath("source-launcher.exe")
+        target = os.path.realpath("canonical-launcher.exe")
+        with mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(portable_lifecycle.sys, "frozen", True, create=True), \
+             mock.patch.object(portable_lifecycle.sys, "executable", source), \
+             mock.patch.object(core, "ensure_stable_app_copy", return_value=target) as ensure, \
+             mock.patch.object(core, "_same_path", return_value=False), \
+             mock.patch.object(portable_lifecycle.subprocess, "Popen") as spawn:
+            self.assertTrue(core.handoff_to_stable_copy(["--start"]))
+        ensure.assert_called_once_with()
+        spawn.assert_called_once_with(
+            [target, "--start"],
+            cwd=os.path.dirname(target),
+            creationflags=getattr(portable_lifecycle.subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
+        )
 
 
 if __name__ == "__main__":
