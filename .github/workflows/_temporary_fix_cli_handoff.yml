@@ -1,0 +1,101 @@
+name: Temporary fix maintenance CLI handoff race
+
+on:
+  push:
+    branches:
+      - hotfix/0.2.5-cfa-installer-recovery
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[cli-handoff-fixed]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/0.2.5-cfa-installer-recovery
+          fetch-depth: 0
+
+      - name: Patch service-command dispatch before portable handoff
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('proxy_gui.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''    # A portable launch first tries the permanent Documents location.
+              # If Windows refuses that handoff, the already-running portable GUI remains
+              # a valid manual P0 fallback for the current session.
+              if core.handoff_to_stable_copy(sys.argv[1:]):
+                  return 0
+              handoff_error = core.self_heal_error()
+              portable_fallback = _portable_fallback_active()
+              if len(sys.argv) > 1 and sys.argv[1] in ("--start", "--stop", "--status", "--rollback"):
+                  sys.argv = [sys.argv[0], sys.argv[1]]
+                  return core.main()
+          '''.replace('              ', '')
+          new = '''    # Headless lifecycle commands must execute in the exact process the caller
+              # waits for. In particular, --stop/--rollback from a historical Documents
+              # copy must not asynchronously hand off to LocalAppData: installer
+              # maintenance relies on synchronous network recovery before replacement.
+              # core.main() owns the start-only stable-copy handoff for --start.
+              if len(sys.argv) > 1 and sys.argv[1] in ("--start", "--stop", "--status", "--rollback"):
+                  sys.argv = [sys.argv[0], sys.argv[1]]
+                  return core.main()
+
+              # Interactive portable launch tries the permanent LocalAppData Programs
+              # location. If Windows refuses that handoff, the already-running portable
+              # GUI remains a valid manual fallback for the current session.
+              if core.handoff_to_stable_copy(sys.argv[1:]):
+                  return 0
+              handoff_error = core.self_heal_error()
+              portable_fallback = _portable_fallback_active()
+          '''.replace('              ', '')
+          if text.count(old) != 1:
+              raise SystemExit(f'proxy_gui.py: expected one dispatch block, found {text.count(old)}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+
+          tests = Path('tests/test_proxy_gui.py')
+          t = tests.read_text(encoding='utf-8')
+          marker = '''\n\nclass FinalStatusUxTests(unittest.TestCase):\n'''
+          addition = '''\n\nclass ServiceCommandDispatchTests(unittest.TestCase):
+              def test_headless_lifecycle_commands_bypass_gui_portable_handoff(self):
+                  for command in ("--start", "--stop", "--status", "--rollback"):
+                      with self.subTest(command=command), \\
+                           mock.patch.object(gui.sys, "argv", ["Arvectum Proxy Launcher.exe", command]), \\
+                           mock.patch.object(gui.core, "main", return_value=0) as core_main, \\
+                           mock.patch.object(gui.core, "handoff_to_stable_copy") as gui_handoff, \\
+                           mock.patch.object(gui, "_portable_fallback_active") as fallback:
+                          self.assertEqual(gui.main(), 0)
+                      core_main.assert_called_once_with()
+                      gui_handoff.assert_not_called()
+                      fallback.assert_not_called()
+
+
+class FinalStatusUxTests(unittest.TestCase):
+          '''.replace('              ', '')
+          if t.count(marker) != 1:
+              raise SystemExit(f'tests/test_proxy_gui.py: expected one insertion marker, found {t.count(marker)}')
+          tests.write_text(t.replace(marker, addition), encoding='utf-8')
+
+          workflow = Path('.github/workflows/_temporary_fix_cli_handoff.yml')
+          workflow.unlink()
+
+      - name: Run focused regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_proxy_gui -v
+
+      - name: Commit fix and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "arvectum2"
+          git config user.email "actions@users.noreply.github.com"
+          git add proxy_gui.py tests/test_proxy_gui.py .github/workflows/_temporary_fix_cli_handoff.yml
+          git diff --cached --check
+          git commit -m "APL-WIN: make maintenance lifecycle commands synchronous [cli-handoff-fixed]"
+          git push origin HEAD:hotfix/0.2.5-cfa-installer-recovery
