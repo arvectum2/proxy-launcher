@@ -1,0 +1,42 @@
+﻿{
+    "schema":  "arvectum.proxy.0.2.5.final-physical-reboot.v1",
+    "source_commit":  "9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+    "timestamp":  "2026-09-13T01:48:14.7339704+03:00",
+    "boot_time":  "2026-09-13T01:45:22.5000000+03:00",
+    "result":  "PASS",
+    "application":  {
+                        "path":  "C:\\Users\\GN\\AppData\\Local\\Programs\\ArvectumProxyLauncher\\Arvectum Proxy Launcher.exe",
+                        "version":  "0.2.5",
+                        "sha256":  "1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c"
+                    },
+    "runtime":  {
+                    "pid":  8484,
+                    "path":  "C:\\Users\\GN\\AppData\\Local\\Programs\\ArvectumProxyLauncher\\Arvectum Proxy Launcher.exe",
+                    "command_line":  "\"C:\\Users\\GN\\AppData\\Local\\Programs\\ArvectumProxyLauncher\\Arvectum Proxy Launcher.exe\" --start"
+                },
+    "network":  {
+                    "pac_url":  "http://127.0.0.1:8082/proxy.pac",
+                    "pac_http_status":  200,
+                    "https_test_url":  "https://example.com/",
+                    "https_status":  200,
+                    "local_http_proxy":  "http://127.0.0.1:8080"
+                },
+    "autostart":  {
+                      "value":  "\"C:\\Users\\GN\\AppData\\Local\\Programs\\ArvectumProxyLauncher\\Arvectum Proxy Launcher.exe\" --start"
+                  },
+    "checks":  {
+                   "version_0_2_5":  true,
+                   "exe_hash_exact":  true,
+                   "autostart_exact":  true,
+                   "exactly_one_8082_listener":  true,
+                   "canonical_runtime_owns_8082":  true,
+                   "pac_http_200":  true,
+                   "https_through_proxy":  true,
+                   "legacy_python_absent":  true
+               },
+    "removed_legacy_desktop_shortcut":  {
+                                            "path":  "C:\\Users\\GN\\Desktop\\Arvectum Proxy Launcher.lnk",
+                                            "target":  "C:\\P0_2_RECOVERY\\Python312\\pythonw.exe",
+                                            "args":  "\"C:\\Opencode projects\\proxy-launcher\\proxy_gui.py\""
+                                        }
+}
