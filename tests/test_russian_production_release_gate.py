@@ -24,7 +24,17 @@ def test_gate_is_bound_to_rel011_and_rel012_evidence_chain():
     assert "russian-qualified-evidence" in text
     assert "detached_signature_verified" in text
     assert "Invoke-ReleaseVerifier" in text
-    assert "РЕЗУЛЬТАТ:\\s*ПРОВЕРКА ПРОЙДЕНА" in text
+    assert "APL_REL_012_RESULT=PASS" in text
+    assert "APL_REL_012_RESULT=FAIL" in text
+
+
+def test_gate_source_is_ascii_safe_for_windows_powershell_51_file_execution():
+    # Windows PowerShell 5.1 may decode BOM-less UTF-8 scripts as ANSI. Keep the
+    # REL-013 source ASCII-only so direct `powershell.exe -File` remains safe.
+    GATE.read_bytes().decode("ascii")
+    text = GATE.read_text(encoding="ascii")
+    assert "0x0410" in text
+    assert "[regex]::Escape($arvectumName)" in text
 
 
 def test_gate_requires_signed_rel014_exact_lifecycle_evidence():
@@ -47,7 +57,7 @@ def test_gate_requires_signed_rel014_exact_lifecycle_evidence():
 def test_gate_pins_governed_arvectum_signer_and_sensitive_key_boundaries():
     text = GATE.read_text(encoding="utf-8")
     assert "EE1CFA955BA22F03C39C76B183D94CD37494582E" in text
-    assert "АРВЕКТУМ" in text
+    assert "$arvectumName" in text
     assert "pin_stored" in text
     assert "private_key_export_attempted" in text
     assert "Publication is forbidden" in text
