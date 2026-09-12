@@ -60,12 +60,12 @@ function Invoke-ReleaseVerifier([string]$Directory, [bool]$ExpectSuccess) {
     $text = ($output | ForEach-Object { $_.ToString() }) -join "`n"
 
     if ($ExpectSuccess) {
-        if ($exitCode -ne 0 -or $text -notmatch 'РЕЗУЛЬТАТ:\s*ПРОВЕРКА ПРОЙДЕНА') {
+        if ($exitCode -ne 0 -or $text -notmatch '(?m)^APL_REL_012_RESULT=PASS\s*$') {
             throw "REL-012 verification did not PASS for the exact final release set. Exit=$exitCode"
         }
     }
     else {
-        if ($exitCode -eq 0 -or $text -notmatch 'РЕЗУЛЬТАТ:\s*ПРОВЕРКА НЕ ПРОЙДЕНА') {
+        if ($exitCode -eq 0 -or $text -notmatch '(?m)^APL_REL_012_RESULT=FAIL\s*$') {
             throw 'Negative tamper test unexpectedly passed. Publication is forbidden.'
         }
     }
@@ -111,10 +111,11 @@ if ([bool]$evidence.private_key_export_attempted) { throw 'Signing evidence repo
 $expectedThumbprint = Normalize-Thumbprint $ExpectedSignerThumbprint
 $evidenceThumbprint = Normalize-Thumbprint ([string]$evidence.signer_thumbprint)
 if ($evidenceThumbprint -ne $expectedThumbprint) {
-    throw "Signer thumbprint is not the governed ООО «Арвектум» release-evidence identity: $evidenceThumbprint"
+    throw "Signer thumbprint is not the governed Arvectum release-evidence identity: $evidenceThumbprint"
 }
-if (([string]$evidence.signer_subject) -notmatch 'АРВЕКТУМ') {
-    throw 'Signing evidence subject does not identify АРВЕКТУМ.'
+$arvectumName = -join ([char[]](0x0410,0x0420,0x0412,0x0415,0x041A,0x0422,0x0423,0x041C))
+if (([string]$evidence.signer_subject) -notmatch [regex]::Escape($arvectumName)) {
+    throw 'Signing evidence subject does not identify the governed Arvectum organization.'
 }
 
 # APL-REL-014: the lifecycle evidence itself must be a signed release asset,
