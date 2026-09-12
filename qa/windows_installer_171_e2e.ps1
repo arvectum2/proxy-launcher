@@ -1,11 +1,13 @@
 <#
-Regression harness for GitHub issue #171.
+Regression harness for GitHub issue #171 and the 0.2.5 CFA hotfix.
 
-Proves two installer invariants on Windows:
-  1. a portable-owned recovery state is rolled back synchronously before the
-     installer replaces the payload;
+Proves three installer invariants on Windows:
+  1. a pre-0.2.5 Documents portable-owned recovery state is rolled back only
+     during the late transactional handover, never by maintenance preflight;
   2. a maintenance preflight failure aborts Setup before installer ownership
-     metadata, repair cache, shortcuts, or uninstall registration are committed.
+     metadata, repair cache, shortcuts, or uninstall registration are committed;
+  3. the current installer commits to LocalAppData\Programs rather than a
+     Controlled Folder Access protected user folder.
 #>
 [CmdletBinding()]
 param(
@@ -21,7 +23,9 @@ if ($env:OS -ne 'Windows_NT') { throw 'Installer #171 regression must run on Win
 $CurrentSetup = (Resolve-Path -LiteralPath $CurrentSetup).Path
 $CurrentPortableExe = (Resolve-Path -LiteralPath $CurrentPortableExe).Path
 $documents = [Environment]::GetFolderPath('MyDocuments')
-$installRoot = Join-Path $documents 'ArvectumProxyLauncher'
+$legacyInstallRoot = Join-Path $documents 'ArvectumProxyLauncher'
+$legacyExe = Join-Path $legacyInstallRoot 'Arvectum Proxy Launcher.exe'
+$installRoot = Join-Path $env:LOCALAPPDATA 'Programs\ArvectumProxyLauncher'
 $installedExe = Join-Path $installRoot 'Arvectum Proxy Launcher.exe'
 $manifestPath = Join-Path $installRoot 'build_manifest.json'
 $ownerMarker = Join-Path $installRoot '.arvectum-install-owner'
@@ -42,9 +46,11 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $processTimeoutMs = 300000
 
 $evidence = [ordered]@{
-    schema = 'arvectum.proxy.windows-installer-171-e2e.v1'
+    schema = 'arvectum.proxy.windows-installer-171-e2e.v2'
     issue = 171
     current_version = $CurrentVersion
+    canonical_install_root = $installRoot
+    legacy_install_root = $legacyInstallRoot
     current_setup_sha256 = (Get-FileHash -LiteralPath $CurrentSetup -Algorithm SHA256).Hash.ToLowerInvariant()
     current_portable_exe_sha256 = (Get-FileHash -LiteralPath $CurrentPortableExe -Algorithm SHA256).Hash.ToLowerInvariant()
     phases = [ordered]@{}
@@ -52,6 +58,7 @@ $evidence = [ordered]@{
 
 function Remove-OwnedTestSurface {
     Remove-Item -LiteralPath $installRoot -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $legacyInstallRoot -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $stateRoot -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $mainProgramShortcut -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $repairProgramShortcut -Force -ErrorAction SilentlyContinue
@@ -104,17 +111,14 @@ function Publish-SetupDiagnostics([string]$Label, [int]$ExitCode, [string]$InnoL
     Write-Host "Setup exit code: $ExitCode"
     Write-Host "CurrentSetup: $CurrentSetup"
     Write-Host "InstallRoot: $installRoot"
+    Write-Host "LegacyInstallRoot: $legacyInstallRoot"
     Write-Host "StateRoot: $stateRoot"
     $installLogExists = Test-Path -LiteralPath $installLog
     Write-Host "install.log exists: $installLogExists"
-    if ($installLogExists) {
-        Write-Host "install.log length: $((Get-Item -LiteralPath $installLog).Length)"
-    }
+    if ($installLogExists) { Write-Host "install.log length: $((Get-Item -LiteralPath $installLog).Length)" }
     $innoLogExists = Test-Path -LiteralPath $InnoLog
     Write-Host "Inno log exists: $innoLogExists"
-    if ($innoLogExists) {
-        Write-Host "Inno log length: $((Get-Item -LiteralPath $InnoLog).Length)"
-    }
+    if ($innoLogExists) { Write-Host "Inno log length: $((Get-Item -LiteralPath $InnoLog).Length)" }
     if ($innoLogExists) {
         Write-Host "=== INNO SETUP LOG: $Label ==="
         Get-Content -LiteralPath $InnoLog | ForEach-Object { Write-Host "INNO> $_" }
@@ -175,11 +179,11 @@ function Invoke-InstalledCleanup {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 1: portable recovery-active state -> current installer.
+# Phase 1: historical Documents portable recovery state -> current installer.
 # ---------------------------------------------------------------------------
 Remove-OwnedTestSurface
-New-Item -ItemType Directory -Force -Path $installRoot | Out-Null
-Copy-Item -LiteralPath $CurrentPortableExe -Destination $installedExe -Force
+New-Item -ItemType Directory -Force -Path $legacyInstallRoot | Out-Null
+Copy-Item -LiteralPath $CurrentPortableExe -Destination $legacyExe -Force
 New-Item -ItemType Directory -Force -Path $stateRoot | Out-Null
 $settings = Join-Path $stateRoot 'proxy_settings.json'
 $noProxy = Join-Path $stateRoot 'no_proxy.txt'
@@ -188,12 +192,12 @@ Set-Content -LiteralPath $noProxy -Value 'issue-171.example' -Encoding utf8
 $settingsHash = (Get-FileHash -LiteralPath $settings -Algorithm SHA256).Hash
 $noProxyHash = (Get-FileHash -LiteralPath $noProxy -Algorithm SHA256).Hash
 Write-RecoverySnapshots
-$ownedRecovery = '"' + $installedExe + '" --start'
+$ownedRecovery = '"' + $legacyExe + '" --start'
 New-ItemProperty -Path $runPath -Name 'ArvectumProxyLauncherRecovery' -Value $ownedRecovery -PropertyType String -Force | Out-Null
 
 Invoke-SetupSuccess 'portable-transition' | Out-Null
-if (Test-Path -LiteralPath $internetBackup) { throw 'portable-transition: WinINET recovery backup remains after installer preflight' }
-if (Test-Path -LiteralPath $envBackup) { throw 'portable-transition: environment recovery backup remains after installer preflight' }
+if (Test-Path -LiteralPath $internetBackup) { throw 'portable-transition: WinINET recovery backup remains after transactional handover' }
+if (Test-Path -LiteralPath $envBackup) { throw 'portable-transition: environment recovery backup remains after transactional handover' }
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw 'portable-transition: installed manifest is missing' }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ([string]$manifest.version -cne $CurrentVersion) { throw 'portable-transition: installed version does not match current RC' }
@@ -205,11 +209,16 @@ if ((Get-FileHash -LiteralPath $noProxy -Algorithm SHA256).Hash -ne $noProxyHash
 foreach ($path in @($ownerMarker, $repairExe, $uninstaller)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "portable-transition: committed installer surface missing: $path" }
 }
+if (Test-Path -LiteralPath $desktopShortcut) { throw 'portable-transition: installer created a Desktop shortcut inside a CFA-protected user folder' }
 if (-not (Test-Path -LiteralPath $installLog)) { throw 'portable-transition: install.log is missing' }
 $installRaw = Get-Content -LiteralPath $installLog -Raw
-if ($installRaw -notmatch 'PASS \(preflight REPAIR\)') { throw 'portable-transition: preflight PASS was not recorded' }
-if ($installRaw -notmatch 'previous-version network rollback completed') { throw 'portable-transition: synchronous rollback completion was not recorded' }
+if ($installRaw -notmatch 'PASS \(read-only preflight REPAIR\)') { throw 'portable-transition: read-only preflight PASS was not recorded' }
+if ($installRaw -notmatch 'previous-version network rollback completed') { throw 'portable-transition: late synchronous rollback completion was not recorded' }
+if ($installRaw.IndexOf('PASS (read-only preflight REPAIR)') -gt $installRaw.IndexOf('previous-version network rollback completed')) {
+    throw 'portable-transition: network rollback occurred before read-only preflight completed'
+}
 $evidence.phases.active_portable_to_installer = 'PASS'
+$evidence.phases.cfa_safe_localappdata_target = 'PASS'
 $evidence.final_application_sha256 = $actualHash
 $evidence.configuration_preserved = $true
 
@@ -236,6 +245,5 @@ $evidenceDir = Split-Path -Parent $EvidencePath
 if ($evidenceDir) { New-Item -ItemType Directory -Force -Path $evidenceDir | Out-Null }
 $evidence | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $EvidencePath -Encoding utf8
 
-# Leave the shared runner clean for the broader RC lifecycle harness.
 Remove-OwnedTestSurface
-Write-Host "Windows installer blocker #171 regression PASS. Evidence: $EvidencePath"
+Write-Host "Windows installer blocker #171 / CFA regression PASS. Evidence: $EvidencePath"
