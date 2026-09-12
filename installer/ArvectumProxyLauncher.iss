@@ -146,14 +146,26 @@ begin
     RaiseException('InstallFailure: cached Windows repair installer is missing.');
 end;
 
+procedure CommitInstallOwnership();
+begin
+  // The marker is a claim that the canonical executable was committed. Creating
+  // it before InstallVerifiedPayload makes a fresh LocalAppData directory look
+  // like a prior installation and can hide the real Documents predecessor.
+  if not SaveStringToFile(ExpandConstant('{app}\.arvectum-install-owner'),
+    'ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER' + #13#10, False) then
+    RaiseException('InstallFailure: could not commit the installation ownership marker.');
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then begin
     // Finish ordinary Inno writes first. Only then perform the runtime/network
     // handover so an earlier Setup/CFA failure leaves the old runtime untouched.
     CacheRepairInstaller();
-    SaveStringToFile(ExpandConstant('{app}\.arvectum-install-owner'), 'ARVECTUM_PROXY_LAUNCHER_INSTALL_OWNER' + #13#10, False);
     InstallVerifiedPayload();
+    // Commit ownership only after the exact application payload and runtime
+    // handover have succeeded. A failed partial install must remain unowned.
+    CommitInstallOwnership();
   end;
 end;
 
