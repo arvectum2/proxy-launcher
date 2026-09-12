@@ -6,26 +6,25 @@
 
 ## 1. Goal
 
-APL-REL-014 binds the exact Windows product bytes selected for release to the already completed real APL-WIN-014 lifecycle proof and then makes that lifecycle proof part of the Russian signed release set itself.
+APL-REL-014 binds the exact Windows product bytes selected for publication to the already completed physical APL-WIN-014 lifecycle proof, then makes that proof part of the Russian signed release set itself.
 
-The gate must prove one continuous chain:
+The required chain is:
 
 ```text
-immutable 0.2.4 candidate
-  -> exact candidate_evidence.json
+immutable APL-WIN-014 acceptance bundle
+  -> exact candidate_evidence.json from that bundle
   -> exact APL-WIN-014 physical PASS result
-  -> exact Setup + portable ZIP selected for publication
+  -> exact Setup + portable release ZIP
   -> apl-rel-014-lifecycle-evidence.json
-  -> REL-011 SHA256SUMS.txt
-  -> detached CryptoPro/Rutoken signature
-  -> REL-012 exact-set verification
-  -> REL-013 signed-set binding
+  -> REL-011 SHA256SUMS.txt + CryptoPro/Rutoken detached signature
+  -> REL-012 verification
+  -> REL-013 post-sign binding
   -> PUBLISH
 ```
 
-A documentation statement that the same version was tested is not enough. The hashes must match at every boundary.
+A version label is never sufficient: every relevant boundary is SHA-256-bound.
 
-## 2. Exact governed 0.2.4 identity
+## 2. Exact governed identities
 
 Canonical contract:
 
@@ -33,58 +32,40 @@ Canonical contract:
 release/APL_REL_014_EXACT_SIGNED_SET_CONTRACT.json
 ```
 
-It pins:
+The contract deliberately distinguishes the acceptance transport from the customer release artifact:
 
 - candidate source commit: `e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30`;
-- portable ZIP SHA-256: `467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf`;
+- immutable APL-WIN-014 acceptance bundle: `apl-win-014-final-0.2.4-34642663604-1.zip`;
+- acceptance bundle SHA-256: `467864f286dc4c4de6c0f6033ae5cd5420a691c1bc9a32bf4891285c8c1d29bf`;
+- exact `candidate_evidence.json` inside that bundle SHA-256: `3bba419d779b6e1ffd9a75c13596ce7099f812e854fc1c9531095951aadc1910`;
+- **portable release ZIP** SHA-256: `e810a7912d8cc79fbf1c18629cd8feda97fed227b7b92aa01d1f56b241685f0c`;
 - Setup SHA-256: `28eb0b06c2f478b46d5845c6bb1970c96e20a2f6fdaf1d48501ed69f52ea6965`;
 - application EXE SHA-256: `0415226f882e16a0ce370b766c4c68d3c23861f97361da093a1fd9d9f0e0832c`;
 - predecessor `0.2.3` Setup SHA-256: `5808bde9d0ac45048d50bc256878519257f53bf0a9fa523a81ccb2eff0e21414`;
 - predecessor application SHA-256: `f8d98f987ce92dee7979b12b69a56d120ddb12244bebe2559bc51359a53f9c7a`;
-- required PAC URL: `http://127.0.0.1:8082/proxy.pac`;
 - required signer thumbprint: `EE1CFA955BA22F03C39C76B183D94CD37494582E`.
 
-Changing any governed identity requires an explicit new release contract. It must never be silently accepted by passing a different path or JSON file.
+The `467864…` hash is the immutable acceptance/test-kit bundle accepted during APL-WIN-014. It is **not** the portable artifact that customers receive. The portable release artifact inside that bundle is `e810a791…`. Keeping both identities is intentional: the first anchors provenance of the physical acceptance inputs; the second anchors the signed publication set.
 
-## 3. Authoritative physical source
+## 3. Authoritative physical evidence
 
-The accepted physical result was produced by:
-
-```text
-tools/apl_win_014_final_0_2_4_physical.ps1
-```
-
-Expected schema:
+The raw result must have schema:
 
 ```text
 arvectum.proxy.apl-win-014-final-0.2.4-physical.v1
 ```
 
-APL-REL-014 requires all of the following from the raw physical result:
+and must be the original output of:
 
-- `result = PASS`;
-- exact candidate source commit;
-- exact candidate Setup hash;
-- exact candidate application hash;
-- exact predecessor Setup hash;
-- predecessor PASS;
-- real upgrade `0.2.3 -> 0.2.4` PASS;
-- runtime PASS;
-- rollback PASS;
-- repair PASS;
-- uninstall PASS;
-- App Control before PASS;
-- App Control after PASS;
-- Code Integrity 3077 PASS with count `0`;
-- PAC HTTP `200`;
-- non-trivial PAC body;
-- exact WinINET `AutoConfigURL`;
-- real listener/starter process IDs;
-- no block reason.
+```text
+tools/apl_win_014_final_0_2_4_physical.ps1
+```
 
-The authoritative raw file remains on the dedicated acceptance stand at the path recorded by the APL-WIN-014 closure evidence. Do not reconstruct or hand-author this raw result from the Markdown summary.
+APL-REL-014 requires `result = PASS`, exact source/Setup/application/predecessor identities, PASS for predecessor/upgrade/runtime/rollback/repair/uninstall, PASS for App Control before/after/3077, zero Arvectum-related Code Integrity 3077 blocks, PAC HTTP 200, the governed WinINET PAC URL and real listener/starter process IDs.
 
-## 4. Evidence binder
+The raw physical JSON must be copied from the preserved dedicated acceptance stand. **Do not reconstruct or hand-author it from the Markdown closure summary.**
+
+## 4. Binder
 
 Canonical tool:
 
@@ -92,9 +73,9 @@ Canonical tool:
 tools/apl_rel_014_exact_evidence.py
 ```
 
-The tool accepts only non-secret evidence and release files. It does not accept a PIN, password, PFX, private key, certificate store mutation or signing secret.
+In addition to validating the product and physical evidence, the binder now refuses any `candidate_evidence.json` whose own SHA-256 differs from the exact copy embedded in the immutable accepted bundle. This prevents a later JSON with matching top-level hashes from being substituted for the artifact actually accepted.
 
-Example for the current release ceremony:
+Example:
 
 ```powershell
 py -3 .\tools\apl_rel_014_exact_evidence.py `
@@ -103,126 +84,52 @@ py -3 .\tools\apl_rel_014_exact_evidence.py `
   --release-directory "C:\Arvectum\Releases\0.2.4-final"
 ```
 
-The default output is deliberately fixed to:
+The only canonical output is:
 
 ```text
 C:\Arvectum\Releases\0.2.4-final\apl-rel-014-lifecycle-evidence.json
 ```
 
-A non-canonical filename or an output outside the final release directory is rejected.
+inside the release directory. External/non-canonical output is rejected.
 
-## 5. Why the REL-014 JSON is inside the release set
+## 5. Signed-set design
 
-`apl-rel-014-lifecycle-evidence.json` is created **before** REL-011 signing.
+`apl-rel-014-lifecycle-evidence.json` is created **before** REL-011. REL-011 therefore places it in `SHA256SUMS.txt` and `signing-evidence.json -> assets[]`, and the CryptoPro/Rutoken detached signature authenticates that evidence together with the exact Setup and portable release ZIP.
 
-That is intentional. It becomes a normal release asset and therefore must appear in:
+The generated evidence records the acceptance-bundle identity, exact source `candidate_evidence.json` hash, original raw physical-result hash, release asset hashes, lifecycle/App Control PASS state, runtime PAC/WinINET evidence, contract hash and required signer identity. It explicitly does **not** claim final signed-set PASS before REL-013.
 
-```text
-SHA256SUMS.txt
-signing-evidence.json -> assets[]
-```
+## 6. REL-013 post-sign binding
 
-The detached CryptoPro/Rutoken signature over `SHA256SUMS.txt` consequently authenticates the lifecycle evidence file together with the exact product bytes.
+`tools/russian_production_release_gate.ps1` fails closed unless the REL-014 JSON is a signed asset, its contract hash matches the clean release worktree, its Setup/portable/application/predecessor identities match the exact contract, all physical gates are PASS, REL-011 used the governed signer/mode, REL-012 verifies the complete signed set, the negative tamper test fails as expected, and Git provenance/worktree checks pass.
 
-This avoids a weak design where an unsigned external JSON could later be swapped independently of the signed release.
-
-## 6. What the generated evidence records
-
-The canonical schema is:
-
-```text
-arvectum.proxy.apl-rel-014-exact-evidence.v1
-```
-
-It records:
-
-- `result = PASS` only after all exact checks succeed;
-- version `0.2.4`;
-- accepted candidate source commit;
-- exact Setup filename/hash/size;
-- exact portable ZIP filename/hash/size;
-- exact application hash proven by the lifecycle;
-- exact predecessor identities;
-- every lifecycle/App Control gate as PASS;
-- runtime PAC/WinINET evidence;
-- SHA-256 of the repository exact-set contract;
-- SHA-256 of the original `candidate_evidence.json`;
-- SHA-256 of the original raw physical result;
-- required REL-011 signing mode and signer identity;
-- an explicit statement that final signed-set PASS is **not** claimed before REL-013.
-
-## 7. Post-sign binding in APL-REL-013
-
-`tools/russian_production_release_gate.ps1` now fails closed unless:
-
-1. `apl-rel-014-lifecycle-evidence.json` exists in the final release directory;
-2. it has the canonical schema/task/result/scope;
-3. its contract hash matches the exact contract in the clean tagged release worktree;
-4. its candidate source commit matches the contract;
-5. its Setup/portable/application hashes match the contract;
-6. its predecessor hashes match the contract;
-7. all lifecycle/App Control gates remain PASS and Code Integrity 3077 count is zero;
-8. the signer identity/mode requested by REL-014 matches REL-011;
-9. the REL-014 JSON itself appears exactly once in REL-011 `assets[]` with its actual SHA-256;
-10. the exact Setup and portable ZIP appear exactly once in REL-011 `assets[]` with the same hashes REL-014 proved;
-11. REL-012 successfully verifies the complete signed set and detached signature;
-12. the mandatory negative tamper test fails as expected;
-13. normal REL-013 Git provenance and clean-worktree requirements also PASS.
-
-Only then does the production decision include:
+Only then may REL-013 emit:
 
 ```text
 rel014_exact_lifecycle_evidence = PASS
 rel014_signed_asset_binding = PASS
+decision = PUBLISH
 ```
 
-and allow `decision = PUBLISH`.
+## 7. Required ceremony order
 
-## 8. Required ceremony order for 0.2.4
+1. Export the original raw APL-WIN-014 physical-result JSON from `ARVECTUM-DEMO` without editing it.
+2. Use the exact `candidate_evidence.json`, Setup and portable ZIP extracted from acceptance bundle SHA `467864…`.
+3. Assemble the final release directory with Setup SHA `28eb…` and portable SHA `e810…`.
+4. Prepare REL-012 consumer verification files.
+5. Run the REL-014 binder and require PASS.
+6. Confirm `apl-rel-014-lifecycle-evidence.json` is inside the final release directory.
+7. Run owner-operated REL-011 CryptoPro/Rutoken signing; do not modify release files afterwards.
+8. Run REL-012 and REL-013 against the exact signed directory and clean tagged release worktree.
+9. Publish only on REL-013 `PUBLISH` with both REL-014 PASS fields.
 
-Use this order. Do not sign first and add REL-014 evidence afterwards.
+## 8. Safety and fail-closed boundary
 
-1. Preserve/export the exact raw APL-WIN-014 physical result from `ARVECTUM-DEMO` without editing it.
-2. Preserve/export the exact `candidate_evidence.json` from the accepted final candidate kit.
-3. Assemble the final release directory with the exact governed Setup and portable ZIP.
-4. Run the REL-012 verification-UX preparation helper so the consumer verifier files are already present.
-5. Run `apl_rel_014_exact_evidence.py`; require PASS.
-6. Confirm `apl-rel-014-lifecycle-evidence.json` is now inside the release directory.
-7. Run REL-011 owner-operated CryptoPro/Rutoken signing. Do not modify release files afterwards.
-8. Run REL-013 against the exact signed directory and clean tagged release worktree.
-9. Publish only if REL-013 emits `PUBLISH` with both REL-014 fields set to PASS.
+Publication is blocked for wrong/missing acceptance evidence, candidate-evidence substitution, wrong Setup/portable/application/predecessor bytes, incomplete physical lifecycle/App Control proof, Code Integrity blocks, wrong PAC/runtime evidence, wrong signer, signed-set drift, verification failure or provenance failure.
 
-## 9. Fail-closed cases
+The historical owner-host APL-REL-014 incident remains authoritative. Destructive lifecycle acceptance is **not** repeated on an owner workstation. This task reuses the completed dedicated-host APL-WIN-014 physical PASS and binds it to the signed set.
 
-APL-REL-014 or REL-013 must block publication for any of these conditions:
+## 9. Current completion state
 
-- wrong candidate commit;
-- wrong Setup, portable ZIP or application hash;
-- wrong predecessor identity;
-- missing/raw malformed physical result;
-- physical result not PASS;
-- any lifecycle phase not PASS;
-- App Control before/after not PASS;
-- any Arvectum-related Code Integrity 3077 block;
-- wrong PAC URL/status/runtime evidence;
-- changed exact-set contract;
-- REL-014 evidence omitted from the signed manifest;
-- REL-014 evidence changed after signing;
-- signed Setup/ZIP differs from the lifecycle-proven set;
-- wrong signer identity or signing mode;
-- REL-012 verification failure;
-- negative tamper test unexpectedly succeeding.
+Repository implementation is complete after CI/merge. The remaining non-fabricable owner operation is to copy the original raw physical-result JSON from the preserved acceptance stand, materialize the REL-014 JSON with the binder, and execute the real REL-011/REL-012/REL-013 ceremony with the hardware-backed key.
 
-## 10. Safety boundary
-
-The 2026-08-20 owner-host APL-REL-014 incident remains authoritative historical evidence. Destructive lifecycle acceptance must not be rerun on a normal owner workstation.
-
-This implementation **reuses** the already completed dedicated-host APL-WIN-014 physical PASS and binds its exact bytes into the release ceremony. It does not weaken Windows App Control and does not repeat a destructive owner-host migration test.
-
-## 11. Current completion state
-
-Repository implementation is complete when this change is merged and CI passes.
-
-The current `0.2.4` per-release ceremony still requires one owner operation that GitHub cannot fabricate: export/copy the original raw `candidate_evidence.json` and `apl-win-014-final-0.2.4-physical-result.json` from the preserved acceptance material, run the binder against the exact final release directory, then execute REL-011/REL-013.
-
-Until that real evidence file is materialized and signed, do **not** describe the public `0.2.4` signed-set ceremony as complete and do not publish a stable release solely from repository implementation status.
+Until that original raw physical JSON is consumed and the real signing ceremony returns `PUBLISH`, `0.2.4` must not be described as a completed signed production release.
