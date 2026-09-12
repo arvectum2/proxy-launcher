@@ -106,8 +106,17 @@ def managed_executable() -> str | None:
 
 
 def handoff_to_stable_copy(arguments: Iterable[str] | None = None) -> bool:
-    """Continue a portable launch only from the matching canonical copy."""
+    """Continue an interactive/start portable launch from the canonical copy.
+
+    Stop, status and rollback are maintenance commands whose caller must be able
+    to wait for the exact process that performs the operation. They therefore
+    never use the asynchronous portable handoff. This is especially important
+    during installer migration from the historical Documents location.
+    """
     core = _core()
+    args = list(arguments or [])
+    if args and args[0] in ("--stop", "--status", "--rollback"):
+        return False
     if not (core.is_windows() and getattr(sys, "frozen", False)):
         return False
     source = os.path.realpath(sys.executable)
@@ -116,7 +125,7 @@ def handoff_to_stable_copy(arguments: Iterable[str] | None = None) -> bool:
         return False
     try:
         subprocess.Popen(
-            [target] + list(arguments or []),
+            [target] + args,
             cwd=os.path.dirname(target),
             creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
         )
