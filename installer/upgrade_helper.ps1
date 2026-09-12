@@ -215,12 +215,27 @@ function Start-RuntimeAndVerify([string]$Exe, [string]$Label) {
   if (-not (Test-Path -LiteralPath $Exe -PathType Leaf)) { throw "$Label executable is missing" }
   $working = Split-Path -Parent $Exe
   $process = Start-Process -FilePath $Exe -ArgumentList '--start' -WorkingDirectory $working -PassThru
-  Start-Sleep -Milliseconds 2000
-  $process.Refresh()
-  if ($process.HasExited) {
-    throw "$Label runtime exited during restart with code $($process.ExitCode)"
+  $pidEvidence = Join-Path $StateRoot 'proxy_core.pid'
+  $internetEvidence = Join-Path $StateRoot 'proxy_internet_backup.json'
+  $envEvidence = Join-Path $StateRoot 'proxy_env_backup.json'
+
+  for ($attempt = 0; $attempt -lt 60; $attempt++) {
+    Start-Sleep -Milliseconds 500
+    $process.Refresh()
+    if ($process.HasExited) {
+      throw "$Label runtime exited during restart with code $($process.ExitCode)"
+    }
+    if (
+      (Test-Path -LiteralPath $pidEvidence -PathType Leaf) -and
+      (Test-Path -LiteralPath $internetEvidence -PathType Leaf) -and
+      (Test-Path -LiteralPath $envEvidence -PathType Leaf)
+    ) {
+      Write-InstallLog "$Label runtime restart verified alive with recovery evidence; PID=$($process.Id)"
+      return
+    }
   }
-  Write-InstallLog "$Label runtime restart verified alive; PID=$($process.Id)"
+
+  throw "$Label runtime did not establish PID and network recovery evidence within 30 seconds"
 }
 
 function Stop-TargetRuntimeBestEffort([string]$Exe) {
