@@ -1,0 +1,91 @@
+{
+  "schema": "arvectum.proxy.apl-rel-015-cfa-hotfix-contract.v1",
+  "task": "APL-REL-015",
+  "product": "Arvectum Proxy Launcher",
+  "version": "0.2.5",
+  "accepted_product_source_commit": "9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+  "accepted_installer_candidate": {
+    "github_run_id": "34720855917",
+    "artifact_id": "10306540886",
+    "artifact_zip_sha256": "a9c973b68bfd58ff7c16afedb0d13edf98173ab0d690e189580e6f45327362ec",
+    "setup_filename": "Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe",
+    "setup_sha256": "9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3",
+    "application_sha256": "1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c",
+    "recorded_same_run_portable_sha256": "7e65d980b376977b33263a7b7ad97ade9c3c83f3eb685c5ab624ce342fb71af0",
+    "ci_evidence": {
+      "windows_rc_e2e": {
+        "filename": "windows-rc-e2e.json",
+        "sha256": "35e1c5bdb60ecbc562be7bee4ef8c2bcbc1e1fb30b07ab4d7605f3dea1b0579b"
+      },
+      "windows_installer_171_e2e": {
+        "filename": "windows-installer-171-e2e.json",
+        "sha256": "d41f4596e74364edeb3668da3ec57b92d4958cb7dd8eadce54a15afcb35c0447"
+      },
+      "windows_rc_acceptance": {
+        "filename": "windows-rc-acceptance.json",
+        "sha256": "1a1ae9864025ecf9c63e27eb107aac0e416cb69ec84737913078e769aec4cff5"
+      },
+      "windows_rc_sha256sums": {
+        "filename": "windows-rc-SHA256SUMS.txt",
+        "sha256": "2f9d15aa6f5cf2c25163ad33b22269ef96760ad290b6694a777e1a15c5c2a9d1"
+      }
+    }
+  },
+  "physical_acceptance": {
+    "filename": "apl-0.2.5-final-physical-reboot-evidence.json",
+    "sha256": "2afe6af76a69dc4d0b6869385dda6c4467c3d01e38997a04ca554c28aa24021a",
+    "schema": "arvectum.proxy.0.2.5.final-physical-reboot.v1",
+    "required_result": "PASS",
+    "required_checks": [
+      "version_0_2_5",
+      "exe_hash_exact",
+      "autostart_exact",
+      "exactly_one_8082_listener",
+      "canonical_runtime_owns_8082",
+      "pac_http_200",
+      "https_through_proxy",
+      "legacy_python_absent"
+    ],
+    "required_pac_url": "http://127.0.0.1:8082/proxy.pac",
+    "required_local_http_proxy": "http://127.0.0.1:8080",
+    "required_https_test_url": "https://example.com/"
+  },
+  "portable_materialization": {
+    "policy": "repackage-exact-physically-accepted-application",
+    "required_application_sha256": "1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c",
+    "template_source": {
+      "github_run_id": "34721698046",
+      "artifact_id": "10306576876",
+      "artifact_zip_sha256": "1ab596226b4b97f629f55949318eb5804a8c06ac4ed72fccd4cb3012e34d3757",
+      "inner_portable_zip_sha256": "ee828ba47a45e2725ffce9c400122cab6a36fb1061492a895a4c84ee635f1842",
+      "template_application_sha256": "fd253a86eeb64df602afaa99d45a4dea9899d7e556d348c67f55b0b59c08f91b"
+    },
+    "required_static_members": {
+      "LICENSE.txt": "36628c2f674cc182d1d37408a14c8e0d220245e1fb08023715de7d74e9e9a3c0",
+      "README.txt": "c7066e3c98183d0edf9323194fe0f702525e00821b8ef0dea608121bf33078f3",
+      "THIRD_PARTY_LICENSES/manifest.json": "f0e7e455d853493eb4ff35aa499a9233e30be92538f227d2a143918e81560fa9",
+      "THIRD_PARTY_LICENSES/pyinstaller/LICENSE-1.txt": "dcf75fdb959db1e3b41c0f8505069d2ece781b5ec6b3d0a4d30975cfc6580245",
+      "THIRD_PARTY_LICENSES/python/LICENSE-1.txt": "e502c6b880ff58d614901495a9009c136539cd0b1e2a2abb8fc00b934c203419",
+      "THIRD_PARTY_LICENSES/tcl/LICENSE-1.terms": "c0a69a2bfd757361ec7e6143973b103c90409316b49e9c88db26ad6388e79f16",
+      "THIRD_PARTY_LICENSES/tk/LICENSE-1.terms": "0d1e4405f6273f091732764ed89b57066be63ce64869be6c71ea337dc4f2f9b5",
+      "THIRD_PARTY_LICENSES/tk/LICENSE-2.terms": "2cde822b93ca16ae535c954b7dfe658b4ad10df2a193628d1b358f1765e8b198",
+      "THIRD_PARTY_NOTICES.txt": "c36fab57e42132ebcc4201d681e706dbd6fad3c54630d887aa836d04bd192530",
+      "diagnose_app_control.ps1": "61884ff8603a694a73896f1b9efce6843f0d7d23c4d41686c13f0714afc32de5",
+      "run_p01_native_qa_v2.ps1": "bd356d50f09cfafb079bffab59787d392d63a8e62d5087d75c8156ccbe5c457c"
+    }
+  },
+  "inherited_runtime_trust_baseline": {
+    "basis": "APL-WIN-014 0.2.4 physical App Control acceptance",
+    "accepted_0_2_4_source_commit": "e2278dbbd99b0d98ba9e4f836e40b2d60ea94b30",
+    "build_python_version": "3.12.10",
+    "build_python_version_file_sha256": "b245610104ce43d8c76ba5dcb632c0086807be9c57306c67eaefb1c2b41674a0",
+    "pyinstaller_version": "6.22.0",
+    "requirements_build_lock_sha256": "dc77d6b2144060d42a4aa1553764ebe8d86516866bf5054ba2eb7a980c73c66a",
+    "scope": "native-runtime/toolchain regression baseline only; does not claim byte-identical 0.2.4 executable trust"
+  },
+  "russian_release": {
+    "required_signing_mode": "russian-qualified-evidence",
+    "required_signer_thumbprint": "EE1CFA955BA22F03C39C76B183D94CD37494582E",
+    "rel013_post_sign_binding_required": true
+  }
+}
