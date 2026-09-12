@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   patch:
-    if: ${{ !contains(github.event.head_commit.message, '[cli-handoff-fixed]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,24 +17,18 @@ jobs:
           ref: hotfix/0.2.5-cfa-installer-recovery
           fetch-depth: 0
 
-      - name: Patch service-command dispatch before portable handoff
-        shell: python
+      - name: Patch service command dispatch
+        shell: bash
         run: |
+          python - <<'PY'
           from pathlib import Path
 
           path = Path('proxy_gui.py')
           text = path.read_text(encoding='utf-8')
-          old = '''    # A portable launch first tries the permanent Documents location.
-              # If Windows refuses that handoff, the already-running portable GUI remains
-              # a valid manual P0 fallback for the current session.
-              if core.handoff_to_stable_copy(sys.argv[1:]):
-                  return 0
-              handoff_error = core.self_heal_error()
-              portable_fallback = _portable_fallback_active()
-              if len(sys.argv) > 1 and sys.argv[1] in ("--start", "--stop", "--status", "--rollback"):
-                  sys.argv = [sys.argv[0], sys.argv[1]]
-                  return core.main()
-          '''.replace('              ', '')
+          start = text.index('    # A portable launch first tries the permanent Documents location.\n')
+          end_marker = '        return core.main()\n'
+          end = text.index(end_marker, start) + len(end_marker)
+          old = text[start:end]
           new = '''    # Headless lifecycle commands must execute in the exact process the caller
               # waits for. In particular, --stop/--rollback from a historical Documents
               # copy must not asynchronously hand off to LocalAppData: installer
@@ -53,14 +46,16 @@ jobs:
               handoff_error = core.self_heal_error()
               portable_fallback = _portable_fallback_active()
           '''.replace('              ', '')
-          if text.count(old) != 1:
-              raise SystemExit(f'proxy_gui.py: expected one dispatch block, found {text.count(old)}')
-          path.write_text(text.replace(old, new), encoding='utf-8')
+          path.write_text(text[:start] + new + text[end:], encoding='utf-8')
 
           tests = Path('tests/test_proxy_gui.py')
           t = tests.read_text(encoding='utf-8')
-          marker = '''\n\nclass FinalStatusUxTests(unittest.TestCase):\n'''
-          addition = '''\n\nclass ServiceCommandDispatchTests(unittest.TestCase):
+          marker = '\n\nclass FinalStatusUxTests(unittest.TestCase):\n'
+          if t.count(marker) != 1:
+              raise SystemExit(f'test insertion marker count={t.count(marker)}')
+          addition = '''
+
+          class ServiceCommandDispatchTests(unittest.TestCase):
               def test_headless_lifecycle_commands_bypass_gui_portable_handoff(self):
                   for command in ("--start", "--stop", "--status", "--rollback"):
                       with self.subTest(command=command), \\
@@ -74,14 +69,13 @@ jobs:
                       fallback.assert_not_called()
 
 
-class FinalStatusUxTests(unittest.TestCase):
-          '''.replace('              ', '')
-          if t.count(marker) != 1:
-              raise SystemExit(f'tests/test_proxy_gui.py: expected one insertion marker, found {t.count(marker)}')
+          class FinalStatusUxTests(unittest.TestCase):
+          '''
+          addition = '\n'.join(line[10:] if line.startswith('          ') else line for line in addition.splitlines()) + '\n'
           tests.write_text(t.replace(marker, addition), encoding='utf-8')
 
-          workflow = Path('.github/workflows/_temporary_fix_cli_handoff.yml')
-          workflow.unlink()
+          Path('.github/workflows/_temporary_fix_cli_handoff.yml').unlink()
+          PY
 
       - name: Run focused regression
         shell: bash
