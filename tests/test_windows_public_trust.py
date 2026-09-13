@@ -25,14 +25,15 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertFalse(contract["trust_layers"]["russian_release_evidence"]["embedded_authenticode_equivalent"])
         self.assertFalse(contract["trust_layers"]["russian_release_evidence"]["smartscreen_reputation_equivalent"])
 
-    def test_public_certificate_profile_is_rsa_authenticode_and_timestamped(self):
+    def test_public_certificate_profile_is_rsa_3072_authenticode_and_timestamped(self):
         contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
         profile = contract["trust_layers"]["public_consumer_windows"]["certificate_profile"]
         self.assertEqual(profile["key_algorithm"], "RSA")
-        self.assertGreaterEqual(profile["minimum_key_bits"], 2048)
+        self.assertGreaterEqual(profile["minimum_key_bits"], 3072)
         self.assertEqual(profile["code_signing_eku_oid"], "1.3.6.1.5.5.7.3.3")
         self.assertEqual(profile["digest"], "SHA256")
         self.assertIn("Microsoft Trusted Root Program", profile["chain_requirement"])
+        self.assertIn("CA/Browser Forum", profile["chain_requirement"])
         self.assertFalse(profile["self_signed_allowed"])
         timestamp = contract["trust_layers"]["public_consumer_windows"]["timestamp"]
         self.assertTrue(timestamp["required"])
@@ -51,6 +52,7 @@ class WindowsPublicTrustTests(unittest.TestCase):
         required = set(candidate["must_not_be_treated_as_public_windows_trust_until"])
         self.assertIn("microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified", required)
         self.assertIn("code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation", required)
+        self.assertIn("rsa_3072_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate", required)
 
     def test_byte_order_signs_application_before_packages_and_installer_before_final_hashes(self):
         contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
@@ -72,6 +74,7 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("RELEASE-EVIDENCE-ONLY", runbook)
         self.assertIn("Russian qualified release evidence", runbook)
         self.assertIn("vendor-neutral", runbook)
+        self.assertIn("RSA-3072", runbook)
         self.assertNotIn("GlobalSign is required", runbook)
 
     def test_public_trust_gate_checks_native_signature_motw_defender_and_manual_trp_evidence(self):
@@ -79,7 +82,7 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Get-AuthenticodeSignature", gate)
         self.assertIn("1.3.6.1.5.5.7.3.3", gate)
         self.assertIn("1.2.840.113549.1.1.1", gate)
-        self.assertIn("2048", gate)
+        self.assertIn("3072", gate)
         self.assertIn("X509Chain", gate)
         self.assertIn("AuthRoot", gate)
         self.assertIn("Zone.Identifier", gate)
@@ -97,6 +100,7 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Get-AuthenticodeSignature", packager)
         self.assertIn("ExpectedPublisher", packager)
         self.assertIn("ExpectedThumbprint", packager)
+        self.assertIn("3072", packager)
         self.assertIn("pre_sign_exe_sha256", packager)
         self.assertIn("application-signed-before-portable", packager)
         self.assertIn("windows_promoted_license_compliance.ps1", packager)
@@ -111,11 +115,11 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Hash $portableZipPath", installer)
         self.assertNotIn("$portableZip = Join-Path", installer)
 
-    def test_authenticode_primitive_enforces_rsa_profile(self):
+    def test_authenticode_primitive_enforces_rsa_3072_profile(self):
         script = self.read("tools/windows_authenticode.ps1")
         self.assertIn("1.2.840.113549.1.1.1", script)
         self.assertIn("RSACertificateExtensions", script)
-        self.assertIn("2048", script)
+        self.assertIn("3072", script)
         self.assertIn("APL-REL-016", script)
         self.assertIn("'/fd', 'SHA256'", script)
         self.assertIn("'/tr', $TimestampUrl, '/td', 'SHA256'", script)
