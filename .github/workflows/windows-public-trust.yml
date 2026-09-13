@@ -1,0 +1,90 @@
+name: APL-REL-016 Windows public trust
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+      - 'fix/**'
+      - 'feature/**'
+    paths:
+      - '.github/workflows/windows-public-trust.yml'
+      - '.github/workflows/windows-authenticode.yml'
+      - 'release/APL_REL_016_WINDOWS_PUBLIC_TRUST.md'
+      - 'release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json'
+      - 'tools/windows_authenticode.ps1'
+      - 'tools/windows_public_trust_gate.ps1'
+      - 'tools/package_signed_windows_portable.ps1'
+      - 'tools/windows_promoted_license_compliance.ps1'
+      - 'tools/build_windows_installer.ps1'
+      - 'tests/test_windows_public_trust.py'
+      - 'tests/test_windows_authenticode_foundation.py'
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+    paths:
+      - '.github/workflows/windows-public-trust.yml'
+      - '.github/workflows/windows-authenticode.yml'
+      - 'release/APL_REL_016_WINDOWS_PUBLIC_TRUST.md'
+      - 'release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json'
+      - 'tools/windows_authenticode.ps1'
+      - 'tools/windows_public_trust_gate.ps1'
+      - 'tools/package_signed_windows_portable.ps1'
+      - 'tools/windows_promoted_license_compliance.ps1'
+      - 'tools/build_windows_installer.ps1'
+      - 'tests/test_windows_public_trust.py'
+      - 'tests/test_windows_authenticode_foundation.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: REL-016 contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+      - name: Validate Windows public trust contract
+        run: python -m unittest tests.test_windows_public_trust -v
+
+  powershell-syntax:
+    name: REL-016 PowerShell syntax
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse public-trust scripts
+        shell: pwsh
+        run: |
+          $files = @(
+            '.\tools\windows_authenticode.ps1',
+            '.\tools\windows_public_trust_gate.ps1',
+            '.\tools\package_signed_windows_portable.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file).Path,
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Host "${file}: $($_.Message)" }
+              throw "$file has $($errors.Count) PowerShell parse error(s)."
+            }
+            Write-Host "PowerShell parse PASS: $file"
+          }
+
+      - name: Assert production secrets are not embedded in REL-016 sources
+        shell: pwsh
+        run: |
+          $text = Get-Content -Raw '.\tools\package_signed_windows_portable.ps1', '.\tools\windows_public_trust_gate.ps1'
+          if ($text -match '(?i)\.pfx\b|\.p12\b|pfx_password|certificatepassword') {
+            throw 'REL-016 source unexpectedly references exportable certificate/private-key secret material.'
+          }
+          Write-Host 'REL-016 secret-boundary scan PASS.'
