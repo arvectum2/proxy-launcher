@@ -1,0 +1,121 @@
+name: Probe GitVerse release asset upload with official SDK
+
+on:
+  push:
+    branches: [diag/gitverse-asset-endpoint]
+    paths:
+      - .github/workflows/diag-gitverse-sdk-upload.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TAG: v0.2.5
+  OWNER: arvectum
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.10'
+
+      - name: Download one canonical release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .probe-assets
+          mkdir .probe-assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'apl-rel-015-cfa-hotfix-evidence.json' --dir .probe-assets
+          expected="$(awk '$2 == "apl-rel-015-cfa-hotfix-evidence.json" {print $1}' docs/releases/0.2.5-public-assets.sha256)"
+          actual="$(sha256sum .probe-assets/apl-rel-015-cfa-hotfix-evidence.json | awk '{print $1}')"
+          test -n "$expected" && test "$actual" = "$expected"
+          echo "PASS canonical probe asset SHA-256: $actual"
+
+      - name: Probe upload through official GitVerse Go SDK
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GITVERSE_TOKEN"
+          test -n "$GITVERSE_REPOSITORY"
+          rm -rf .gitverse-sdk-probe
+          mkdir .gitverse-sdk-probe
+          cat > .gitverse-sdk-probe/go.mod <<'EOF'
+          module arvectum.local/gitverse-sdk-probe
+
+          go 1.25.10
+
+          require gitverse.ru/ifox777/gitverse-go-sdk v0.1.2
+          EOF
+          cat > .gitverse-sdk-probe/main.go <<'EOF'
+          package main
+
+          import (
+              "context"
+              "errors"
+              "fmt"
+              "os"
+
+              gitverse "gitverse.ru/ifox777/gitverse-go-sdk"
+          )
+
+          func fail(label string, resp *gitverse.Response, err error) {
+              if resp != nil && resp.Response != nil {
+                  fmt.Printf("%s HTTP=%d request_id=%s\n", label, resp.StatusCode, resp.RequestID)
+              }
+              var apiErr *gitverse.Error
+              if errors.As(err, &apiErr) {
+                  fmt.Printf("%s API error: status=%d message=%q\n", label, apiErr.StatusCode, apiErr.Message)
+              }
+              panic(err)
+          }
+
+          func main() {
+              ctx := context.Background()
+              owner := os.Getenv("OWNER")
+              repoName := os.Getenv("GITVERSE_REPOSITORY")
+              token := os.Getenv("GITVERSE_TOKEN")
+              client, err := gitverse.NewClient(
+                  gitverse.WithToken(token),
+                  gitverse.WithUserAgent("arvectum-proxy-launcher-gitverse-mirror/0.2.5"),
+              )
+              if err != nil { panic(err) }
+
+              repo, resp, err := client.GetRepository(ctx, owner, repoName)
+              if err != nil { fail("GetRepository", resp, err) }
+              fmt.Printf("repo=%s/%s permissions admin=%v push=%v pull=%v\n", owner, repoName, repo.Permissions.Admin, repo.Permissions.Push, repo.Permissions.Pull)
+
+              rel, resp, err := client.GetReleaseByTag(ctx, owner, repoName, os.Getenv("TAG"))
+              if err != nil { fail("GetReleaseByTag", resp, err) }
+              fmt.Printf("release id=%d tag=%s target=%q draft=%v prerelease=%v authorized_only=%v upload_url=%q existing_assets=%d\n", rel.ID, rel.TagName, rel.TargetCommitish, rel.Draft, rel.Prerelease, rel.IsAuthorizedOnly, rel.UploadURL, len(rel.Assets))
+
+              path := "../.probe-assets/apl-rel-015-cfa-hotfix-evidence.json"
+              f, err := os.Open(path)
+              if err != nil { panic(err) }
+              defer f.Close()
+              asset, resp, err := client.UploadReleaseAsset(ctx, owner, repoName, rel.ID, gitverse.MultipartFile{
+                  FieldName: "attachment",
+                  FileName:  "apl-rel-015-cfa-hotfix-evidence.json",
+                  Reader:    f,
+              })
+              if err != nil { fail("UploadReleaseAsset", resp, err) }
+              fmt.Printf("UPLOAD PASS id=%d name=%s size=%d url=%s\n", asset.ID, asset.Name, asset.Size, asset.BrowserDownloadURL)
+          }
+          EOF
+          (
+            cd .gitverse-sdk-probe
+            go mod download
+            go run .
+          )
