@@ -88,3 +88,103 @@ jobs:
             throw 'REL-016 source unexpectedly references exportable certificate/private-key secret material.'
           }
           Write-Host 'REL-016 secret-boundary scan PASS.'
+
+  ephemeral-signed-byte-order:
+    name: REL-016 signed app -> portable -> installer smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+
+      - name: Install pinned Inno Setup 6.7.1
+        shell: pwsh
+        run: choco install innosetup --version=6.7.1 --no-progress -y
+
+      - name: Build canonical unsigned baseline
+        shell: pwsh
+        run: ./tools/clean_build_windows.ps1 -PythonExecutable python
+
+      - name: Create ephemeral RSA code-signing identity
+        id: test_cert
+        shell: pwsh
+        run: |
+          $subject = 'CN=Arvectum REL016 CI Authenticode Test'
+          $cert = New-SelfSignedCertificate `
+            -Type CodeSigningCert `
+            -KeyAlgorithm RSA `
+            -KeyLength 2048 `
+            -Subject $subject `
+            -CertStoreLocation 'Cert:\CurrentUser\My' `
+            -NotAfter (Get-Date).AddDays(1)
+          $cerPath = Join-Path $env:RUNNER_TEMP 'arvectum-rel016-ci.cer'
+          Export-Certificate -Cert $cert -FilePath $cerPath | Out-Null
+          Import-Certificate -FilePath $cerPath -CertStoreLocation 'Cert:\LocalMachine\Root' | Out-Null
+          "thumbprint=$($cert.Thumbprint)" >> $env:GITHUB_OUTPUT
+          "subject=$($cert.Subject)" >> $env:GITHUB_OUTPUT
+
+      - name: Sign application before packaging
+        shell: pwsh
+        run: |
+          ./tools/windows_authenticode.ps1 `
+            -Mode Sign `
+            -Path 'dist\Arvectum Proxy Launcher.exe' `
+            -CertificateThumbprint '${{ steps.test_cert.outputs.thumbprint }}' `
+            -ExpectedPublisher '${{ steps.test_cert.outputs.subject }}' `
+            -SkipTimestamp
+
+      - name: Rebuild portable around exact signed application
+        id: signed_portable
+        shell: pwsh
+        run: |
+          ./tools/package_signed_windows_portable.ps1 `
+            -SignedApplication 'dist\Arvectum Proxy Launcher.exe' `
+            -BuildResultPath 'out\build-result.json' `
+            -ExpectedPublisher '${{ steps.test_cert.outputs.subject }}' `
+            -ExpectedThumbprint '${{ steps.test_cert.outputs.thumbprint }}'
+
+      - name: Build installer from exact signed application bytes
+        id: signed_installer
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $portable = "out\public-signed\Arvectum-Proxy-Launcher-$version-windows-x64-portable.zip"
+          $appHash = (Get-FileHash -LiteralPath 'dist\Arvectum Proxy Launcher.exe' -Algorithm SHA256).Hash
+          ./tools/build_windows_installer.ps1 `
+            -UseExistingPayload `
+            -ApplicationExe 'dist\Arvectum Proxy Launcher.exe' `
+            -PortableZip $portable `
+            -BuildResultPath 'out\public-signed\build-result.json' `
+            -ExpectedApplicationSha256 $appHash
+
+      - name: Sign and verify final installer after compilation
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem -LiteralPath 'out\installer' -Filter '*-windows-x64-setup.exe' -File | Select-Object -First 1
+          if (-not $setup) { throw 'REL-016 smoke did not produce Setup.' }
+          ./tools/windows_authenticode.ps1 `
+            -Mode Sign `
+            -Path $setup.FullName `
+            -CertificateThumbprint '${{ steps.test_cert.outputs.thumbprint }}' `
+            -ExpectedPublisher '${{ steps.test_cert.outputs.subject }}' `
+            -SkipTimestamp
+          ./tools/windows_authenticode.ps1 `
+            -Mode Verify `
+            -Path 'dist\Arvectum Proxy Launcher.exe' `
+            -ExpectedPublisher '${{ steps.test_cert.outputs.subject }}'
+          ./tools/windows_authenticode.ps1 `
+            -Mode Verify `
+            -Path $setup.FullName `
+            -ExpectedPublisher '${{ steps.test_cert.outputs.subject }}'
+          Write-Host 'APL-REL-016 ephemeral byte-order smoke PASS.'
+
+      - name: Remove ephemeral CI certificate
+        if: always()
+        shell: pwsh
+        run: |
+          $thumbprint = '${{ steps.test_cert.outputs.thumbprint }}'
+          if ($thumbprint) {
+            Remove-Item -LiteralPath "Cert:\CurrentUser\My\$thumbprint" -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath "Cert:\LocalMachine\Root\$thumbprint" -Force -ErrorAction SilentlyContinue
+          }
