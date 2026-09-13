@@ -12,6 +12,7 @@ RETIRED_REPOSITORY_SLUGS = (
     "arvectum1" + "/proxy-launcher",
 )
 CANONICAL_REPOSITORY_SLUG = "arvectum2/proxy-launcher"
+GITVERSE_MIRROR_URL = "https://gitverse.ru/arvectum/proxy-launcher"
 HISTORICAL_REFERENCE_PREFIXES = (
     "docs/evidence/",
     "release/baselines/",
@@ -68,11 +69,27 @@ class RepositoryHygieneTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
-            matched = [slug for slug in RETIRED_REPOSITORY_SLUGS if slug in text]
+            # `arvectum/proxy-launcher` is retired only as a GitHub/source identity.
+            # The independent GitVerse distribution mirror intentionally uses that
+            # owner/repository path, so remove the exact GitVerse URL before checking
+            # for stale bare or GitHub-side repository identities.
+            scan_text = text.replace(GITVERSE_MIRROR_URL, "")
+            matched = [slug for slug in RETIRED_REPOSITORY_SLUGS if slug in scan_text]
             if matched:
                 violations[relative] = matched
         if violations:
             self.fail(repr(violations))
+
+    def test_gitverse_mirror_does_not_change_canonical_source_identity(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        mirror_doc = (ROOT / "docs" / "releases" / "0.2.5-gitverse-mirror.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(GITVERSE_MIRROR_URL, readme)
+        self.assertIn(GITVERSE_MIRROR_URL, mirror_doc)
+        self.assertIn(CANONICAL_REPOSITORY_SLUG, readme)
+        self.assertNotIn("github.com/arvectum/proxy-launcher", readme)
+        self.assertNotIn("github.com/arvectum/proxy-launcher", mirror_doc)
 
     def test_historical_reference_allowlist_is_explicit_and_bounded(self):
         for relative in HISTORICAL_REFERENCE_FILES:
