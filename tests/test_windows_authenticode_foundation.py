@@ -15,6 +15,9 @@ class WindowsAuthenticodeFoundationTests(unittest.TestCase):
         self.assertIn("'/tr', $TimestampUrl, '/td', 'SHA256'", script)
         self.assertIn("'verify', '/pa', '/all', '/v'", script)
         self.assertIn("1.3.6.1.5.5.7.3.3", script)
+        self.assertIn("1.2.840.113549.1.1.1", script)
+        self.assertIn("RSACertificateExtensions", script)
+        self.assertIn("2048", script)
 
     def test_production_signing_requires_timestamp_by_default(self):
         script = self.read("tools/windows_authenticode.ps1")
