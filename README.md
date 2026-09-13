@@ -9,7 +9,7 @@ Arvectum Proxy Launcher is a local Windows client for routing traffic through a 
 **Windows 0.2.5** — текущий публичный стабильный релиз.
 
 - Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5
-- Independent GitVerse mirror: https://gitverse.ru/arvectum/proxy-launcher/releases
+- Independent GitVerse mirror: open https://gitverse.ru/arvectum, choose repository `proxy-launcher`, then **Releases / Релизы**
 - GitVerse mirror format and verification: [docs/releases/0.2.5-gitverse-mirror.md](docs/releases/0.2.5-gitverse-mirror.md)
 - Tag: `v0.2.5`
 - Accepted product source: `9e8ca7e851563082cd7d03d7543ccb360a37ec27`
@@ -42,7 +42,7 @@ Arvectum Proxy Launcher is a local Windows client for routing traffic through a 
 
 ### Независимое зеркало GitVerse
 
-Релиз также зеркалируется в GitVerse: https://gitverse.ru/arvectum/proxy-launcher/releases
+Релиз также зеркалируется в GitVerse: откройте https://gitverse.ru/arvectum, выберите репозиторий `proxy-launcher` и вкладку **«Релизы»**.
 
 GitHub остаётся канонической страницей с 9 файлами под исходными именами. GitVerse принимает напрямую не все расширения release assets, поэтому `.exe`, `.json`, `.sig`, `.cer`, `.cmd` и `.ps1` на зеркале помещены в однофайловые `.zip`-обёртки. Внутри находятся исходные файлы без изменений; workflow зеркала скачивает их обратно и проверяет канонический SHA-256 каждого из 9 payload.
 
@@ -110,7 +110,7 @@ Mutable application state and user settings are stored separately under LocalApp
 
 ### Independent GitVerse mirror
 
-The release is also mirrored on GitVerse: https://gitverse.ru/arvectum/proxy-launcher/releases
+The release is also mirrored on GitVerse: open https://gitverse.ru/arvectum, choose repository `proxy-launcher`, then open **Releases**.
 
 GitHub remains the canonical page exposing all 9 files under their original names. GitVerse does not accept every release-asset extension directly, so `.exe`, `.json`, `.sig`, `.cer`, `.cmd`, and `.ps1` files are carried as single-file `.zip` wrappers on the mirror. Each wrapper contains the unchanged canonical file, and the mirror workflow downloads all assets back and verifies all 9 canonical payload SHA-256 values.
 
