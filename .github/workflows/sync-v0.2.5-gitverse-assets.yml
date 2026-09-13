@@ -36,110 +36,86 @@ jobs:
           test "$actual_count" = "$expected_count"
           (cd .sync-assets && sha256sum -c ../docs/releases/0.2.5-public-assets.sha256)
 
-      - name: Upload assets with official GitVerse client implementation
+      - name: Upload exact assets to existing GitVerse v0.2.5 release
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
         shell: bash
         run: |
           set -euo pipefail
+          API='https://api.gitverse.ru'
+          OWNER='arvectum'
+          REPO="$GITVERSE_REPOSITORY"
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
+          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+
           test -n "$GITVERSE_TOKEN"
-          test -n "$GITVERSE_REPOSITORY"
+          test -n "$REPO"
 
-          rm -rf .gitverse-create-release
-          git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-create-release
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json
+          release_id="$(jq -r '.id' .gitverse-release.json)"
+          test -n "$release_id" && test "$release_id" != 'null'
 
-          mkdir -p .gitverse-create-release/cmd/arvectum-mirror-upload
-          cat > .gitverse-create-release/cmd/arvectum-mirror-upload/main.go <<'GO'
-          package main
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
 
-          import (
-              "fmt"
-              "os"
-              "path/filepath"
+          while IFS= read -r expected_line; do
+            [ -n "$expected_line" ] || continue
+            expected_hash="${expected_line%% *}"
+            name="${expected_line#*  }"
+            local_file=".sync-assets/$name"
+            test -f "$local_file"
 
-              "gitverse.ru/actions/create-release/internal/adapter/httpreleases"
-              "gitverse.ru/actions/create-release/internal/client/gitverse"
-              "gitverse.ru/actions/create-release/internal/dto"
-          )
+            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
+            test "$duplicate_count" -le 1
 
-          func fail(format string, args ...any) {
-              fmt.Fprintf(os.Stderr, format+"\n", args...)
-              os.Exit(1)
-          }
+            if [ "$duplicate_count" -eq 1 ]; then
+              asset_id="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .id' .gitverse-assets.json)"
+              url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
+              curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
+              actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
+              if [ "$actual_hash" = "$expected_hash" ]; then
+                echo "PASS existing GitVerse asset: $name"
+                continue
+              fi
 
-          func main() {
-              token := os.Getenv("GITVERSE_TOKEN")
-              owner := os.Getenv("GITVERSE_OWNER")
-              repo := os.Getenv("GITVERSE_REPOSITORY")
-              tag := os.Getenv("GITVERSE_TAG")
-              if token == "" || owner == "" || repo == "" || tag == "" {
-                  fail("missing GitVerse configuration")
-              }
-              if len(os.Args) < 2 {
-                  fail("no asset files supplied")
-              }
+              delete_status="$(curl -sS -o .gitverse-delete.json -w '%{http_code}' \
+                -X DELETE \
+                -H "$AUTH" -H "Accept: $ACCEPT" \
+                "$API/repos/$OWNER/$REPO/releases/$release_id/assets/$asset_id")"
+              case "$delete_status" in
+                200|202|204) ;;
+                *)
+                  echo "::error::GitVerse delete failed for $name with HTTP $delete_status"
+                  cat .gitverse-delete.json || true
+                  exit 1
+                  ;;
+              esac
+              echo "REMOVED mismatched GitVerse asset: $name"
+            fi
 
-              c, err := gitverse.New(
-                  gitverse.SetPublicApiUrl("https://api.gitverse.ru"),
-                  gitverse.SetAccessToken(token),
-              )
-              if err != nil {
-                  fail("create GitVerse client: %v", err)
-              }
-              r := httpreleases.New(c)
+            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
+            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
+              -X POST \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" \
+              -H "$AUTH" \
+              -H "Accept: $ACCEPT" \
+              -F "attachment=@$local_file")"
 
-              rel, _, err := r.GetReleaseByTag(owner, repo, tag)
-              if err != nil {
-                  fail("get release %s: %v", tag, err)
-              }
-              fmt.Printf("GitVerse release id=%d tag=%s\n", rel.ID, tag)
+            case "$upload_status" in
+              200|201|202) ;;
+              *)
+                echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
+                cat .gitverse-upload.json || true
+                exit 1
+                ;;
+            esac
+            echo "UPLOADED GitVerse asset: $name"
 
-              attachments, _, err := r.ListReleaseAttachments(owner, repo, rel.ID, dto.ListOptions{Page: 1, PerPage: dto.MaxPageSize})
-              if err != nil {
-                  fail("list release assets: %v", err)
-              }
-
-              for _, path := range os.Args[1:] {
-                  filename := filepath.Base(path)
-                  for _, a := range attachments {
-                      if a.Name == filename {
-                          fmt.Printf("Replacing existing asset %s (id=%d)\n", filename, a.ID)
-                          if _, err := r.DeleteReleaseAttachment(owner, repo, rel.ID, a.ID); err != nil {
-                              fail("delete existing asset %s: %v", filename, err)
-                          }
-                      }
-                  }
-
-                  f, err := os.Open(path)
-                  if err != nil {
-                      fail("open %s: %v", path, err)
-                  }
-                  _, resp, err := r.CreateReleaseAttachment(owner, repo, rel.ID, f, filename)
-                  f.Close()
-                  if err != nil {
-                      if resp != nil {
-                          fail("upload %s: HTTP %d: %v", filename, resp.StatusCode, err)
-                      }
-                      fail("upload %s: %v", filename, err)
-                  }
-                  fmt.Printf("UPLOADED GitVerse asset: %s\n", filename)
-              }
-          }
-          GO
-
-          mapfile -t assets < <(awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sed 's#^#.sync-assets/#')
-          test "${#assets[@]}" -eq 9
-
-          root="$PWD"
-          (
-            cd .gitverse-create-release
-            GITVERSE_OWNER='arvectum' \
-            GITVERSE_REPOSITORY="$GITVERSE_REPOSITORY" \
-            GITVERSE_TAG="$TAG" \
-            GITVERSE_TOKEN="$GITVERSE_TOKEN" \
-            go run ./cmd/arvectum-mirror-upload "${assets[@]/#/$root/}"
-          )
+            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
+          done < docs/releases/0.2.5-public-assets.sha256
 
       - name: Verify exact GitVerse release metadata and 9 assets
         env:
@@ -182,6 +158,8 @@ jobs:
             [ -n "$expected_line" ] || continue
             expected_hash="${expected_line%% *}"
             name="${expected_line#*  }"
+            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
+            test "$duplicate_count" -eq 1
             url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
             test -n "$url" && test "$url" != 'null'
             curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-verify-asset
