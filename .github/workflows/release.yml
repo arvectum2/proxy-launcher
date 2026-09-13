@@ -37,6 +37,7 @@ jobs:
       setup_name: ${{ steps.parse.outputs.setup_name }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
+      owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
     steps:
       - name: Checkout full repository history
         uses: actions/checkout@v4
@@ -72,9 +73,19 @@ jobs:
             PRERELEASE="true"
           fi
 
+          # 0.2.5 is an exact-byte, owner-operated Russian signed release.
+          # Its physically accepted Setup/application bytes are bound by APL-REL-015.
+          # Rebuilding from the tag could produce different PyInstaller one-file bytes,
+          # so the tag workflow MUST NOT publish replacement CI binaries.
+          OWNER_SIGNED_RELEASE="false"
+          if [ "$VERSION" = "0.2.5" ]; then
+            OWNER_SIGNED_RELEASE="true"
+          fi
+
           echo "Canonical product version: $VERSION"
           echo "Expected tag: $EXPECTED_TAG"
           echo "Prerelease: $PRERELEASE"
+          echo "Owner-operated signed release: $OWNER_SIGNED_RELEASE"
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "expected_tag=${EXPECTED_TAG}" >> "$GITHUB_OUTPUT"
@@ -82,6 +93,7 @@ jobs:
           echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
           echo "setup_name=${SETUP_NAME}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
+          echo "owner_signed_release=${OWNER_SIGNED_RELEASE}" >> "$GITHUB_OUTPUT"
 
           # Evaluate trigger context and guards
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "tag" ]; then
@@ -114,13 +126,19 @@ jobs:
               exit 1
             fi
 
-            # Check duplicate release
-            if gh release view "$TAG_NAME" >/dev/null 2>&1; then
-              echo "::error::GitHub Release for tag '$TAG_NAME' already exists; immutable release policy forbids overwrite"
-              exit 1
+            if [ "$OWNER_SIGNED_RELEASE" = "true" ]; then
+              echo "Owner-signed exact-byte release profile detected."
+              echo "Automated CI rebuild publication is intentionally disabled for $TAG_NAME."
+              echo "Publish only the REL-011/012/013/015 verified owner-signed directory."
+              echo "should_publish=false" >> "$GITHUB_OUTPUT"
+            else
+              # Generic automated-release path: preserve duplicate-release immutability.
+              if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+                echo "::error::GitHub Release for tag '$TAG_NAME' already exists; immutable release policy forbids overwrite"
+                exit 1
+              fi
+              echo "should_publish=true" >> "$GITHUB_OUTPUT"
             fi
-
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ "${{ github.ref }}" != "refs/heads/main" ]; then
               echo "::error::workflow_dispatch dry-run is only permitted on refs/heads/main"
@@ -136,11 +154,13 @@ jobs:
   build:
     name: Build Windows portable
     needs: validate
+    if: needs.validate.outputs.owner_signed_release != 'true'
     uses: ./.github/workflows/windows-p0.yml
 
   installer:
     name: Build Windows installer
     needs: validate
+    if: needs.validate.outputs.owner_signed_release != 'true'
     uses: ./.github/workflows/windows-installer.yml
 
   publish:
