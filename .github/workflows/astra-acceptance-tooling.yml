@@ -1,0 +1,58 @@
+name: APL-LNX-010 Astra acceptance tooling
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'qa/*astra*'
+      - 'tests/test_astra_real_host_acceptance_tooling.py'
+      - 'docs/APL_LNX_010_ASTRA_REAL_HOST_ACCEPTANCE.md'
+      - '.github/workflows/astra-acceptance-tooling.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'qa/*astra*'
+      - 'tests/test_astra_real_host_acceptance_tooling.py'
+      - 'docs/APL_LNX_010_ASTRA_REAL_HOST_ACCEPTANCE.md'
+      - '.github/workflows/astra-acceptance-tooling.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tooling-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax and deterministic contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n qa/collect_astra_acceptance_preflight.sh
+          python -m py_compile \
+            qa/collect_astra_acceptance_preflight.py \
+            qa/collect_astra_network_state.py \
+            qa/compare_astra_network_state.py \
+            qa/verify_astra_acceptance_bundle.py \
+            tests/test_astra_real_host_acceptance_tooling.py
+          python -m unittest tests.test_astra_real_host_acceptance_tooling -v
+      - name: Hosted runner must fail closed as non-Astra
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/non-astra-preflight.txt"
+          set +e
+          bash qa/collect_astra_acceptance_preflight.sh "$evidence"
+          rc=$?
+          set -e
+          test "$rc" -eq 3
+          grep -q '^astra_detected=no$' "$evidence"
+          grep -q '^ci_detected=yes$' "$evidence"
+          if grep -q '^allow_non_astra=yes$' "$evidence"; then
+            echo 'strict CI preflight unexpectedly used non-Astra override' >&2
+            exit 1
+          fi
