@@ -8,7 +8,9 @@ Arvectum Proxy Launcher is a local Windows client for routing traffic through a 
 
 **Windows 0.2.5** — текущий публичный стабильный релиз.
 
-- Release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5
+- Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5
+- Independent GitVerse mirror: https://gitverse.ru/arvectum/proxy-launcher/releases
+- GitVerse mirror format and verification: [docs/releases/0.2.5-gitverse-mirror.md](docs/releases/0.2.5-gitverse-mirror.md)
 - Tag: `v0.2.5`
 - Accepted product source: `9e8ca7e851563082cd7d03d7543ccb360a37ec27`
 - Release governance commit: `6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85`
@@ -37,6 +39,14 @@ Arvectum Proxy Launcher is a local Windows client for routing traffic through a 
 ```
 
 Рабочие настройки и изменяемые данные хранятся отдельно в LocalAppData.
+
+### Независимое зеркало GitVerse
+
+Релиз также зеркалируется в GitVerse: https://gitverse.ru/arvectum/proxy-launcher/releases
+
+GitHub остаётся канонической страницей с 9 файлами под исходными именами. GitVerse принимает напрямую не все расширения release assets, поэтому `.exe`, `.json`, `.sig`, `.cer`, `.cmd` и `.ps1` на зеркале помещены в однофайловые `.zip`-обёртки. Внутри находятся исходные файлы без изменений; workflow зеркала скачивает их обратно и проверяет канонический SHA-256 каждого из 9 payload.
+
+Для установки из GitVerse скачайте `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe.zip`, распакуйте один раз и используйте находящийся внутри исходный Setup. Подробнее: [формат и проверка GitVerse mirror](docs/releases/0.2.5-gitverse-mirror.md).
 
 ## Проверка скачанного Setup
 
@@ -97,6 +107,14 @@ The application is installed for the current user under:
 ```
 
 Mutable application state and user settings are stored separately under LocalAppData.
+
+### Independent GitVerse mirror
+
+The release is also mirrored on GitVerse: https://gitverse.ru/arvectum/proxy-launcher/releases
+
+GitHub remains the canonical page exposing all 9 files under their original names. GitVerse does not accept every release-asset extension directly, so `.exe`, `.json`, `.sig`, `.cer`, `.cmd`, and `.ps1` files are carried as single-file `.zip` wrappers on the mirror. Each wrapper contains the unchanged canonical file, and the mirror workflow downloads all assets back and verifies all 9 canonical payload SHA-256 values.
+
+For installation from GitVerse, download `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe.zip`, extract it once, and use the original Setup contained inside. See [GitVerse mirror format and verification](docs/releases/0.2.5-gitverse-mirror.md).
 
 ## Verify the downloaded Setup
 
