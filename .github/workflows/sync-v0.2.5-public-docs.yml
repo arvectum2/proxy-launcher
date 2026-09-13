@@ -97,9 +97,10 @@ jobs:
             echo "Found existing GitVerse release id=$release_id"
           elif [ "$status" = '404' ]; then
             create_status="$(curl -sS -o .gitverse-create.json -w '%{http_code}' \
-              -X POST \
-              -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
-              --data-binary @.gitverse-release-body.json \
+              --request POST \
+              --location \
+              -H "$AUTH" -H "Accept: $ACCEPT" \
+              --json @.gitverse-release-body.json \
               "$API/repos/$OWNER/$REPO/releases")"
 
             if [ "$create_status" = '201' ]; then
@@ -135,9 +136,10 @@ jobs:
           test -n "$release_id" && test "$release_id" != 'null'
 
           patch_status="$(curl -sS -o .gitverse-patch.json -w '%{http_code}' \
-            -X PATCH \
-            -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
-            --data-binary @.gitverse-release-body.json \
+            --request PATCH \
+            --location \
+            -H "$AUTH" -H "Accept: $ACCEPT" \
+            --json @.gitverse-release-body.json \
             "$API/repos/$OWNER/$REPO/releases/$release_id")"
           if [ "$patch_status" != '200' ]; then
             echo "::error::GitVerse release metadata update failed with HTTP $patch_status"
@@ -176,7 +178,8 @@ jobs:
 
             encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
             upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
-              -X POST \
+              --request POST \
+              --location \
               -H "$AUTH" -H "Accept: $ACCEPT" \
               -F "attachment=@$local_file" \
               "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
