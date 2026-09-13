@@ -1,0 +1,119 @@
+import json
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class WindowsPublicTrustTests(unittest.TestCase):
+    def read(self, relative: str) -> str:
+        return (ROOT / relative).read_text(encoding="utf-8-sig")
+
+    def test_machine_contract_separates_three_trust_layers(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        self.assertEqual(contract["schema"], "arvectum.proxy.apl-rel-016.windows-public-trust.v1")
+        self.assertEqual(contract["task"], "APL-REL-016")
+        self.assertEqual(contract["immutable_predecessor"]["version"], "0.2.5")
+        self.assertFalse(contract["immutable_predecessor"]["mutation_allowed"])
+        self.assertEqual(contract["first_eligible_release"], "0.2.6")
+        self.assertEqual(
+            set(contract["trust_layers"]),
+            {"public_consumer_windows", "managed_enterprise_windows", "russian_release_evidence"},
+        )
+        self.assertFalse(contract["trust_layers"]["managed_enterprise_windows"]["equivalent_to_public_consumer_trust"])
+        self.assertFalse(contract["trust_layers"]["russian_release_evidence"]["embedded_authenticode_equivalent"])
+        self.assertFalse(contract["trust_layers"]["russian_release_evidence"]["smartscreen_reputation_equivalent"])
+
+    def test_public_certificate_profile_is_rsa_authenticode_and_timestamped(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        profile = contract["trust_layers"]["public_consumer_windows"]["certificate_profile"]
+        self.assertEqual(profile["key_algorithm"], "RSA")
+        self.assertGreaterEqual(profile["minimum_key_bits"], 2048)
+        self.assertEqual(profile["code_signing_eku_oid"], "1.3.6.1.5.5.7.3.3")
+        self.assertEqual(profile["digest"], "SHA256")
+        self.assertIn("Microsoft Trusted Root Program", profile["chain_requirement"])
+        self.assertFalse(profile["self_signed_allowed"])
+        timestamp = contract["trust_layers"]["public_consumer_windows"]["timestamp"]
+        self.assertTrue(timestamp["required"])
+        self.assertEqual(timestamp["protocol"], "RFC3161")
+        self.assertEqual(timestamp["digest"], "SHA256")
+
+    def test_byte_order_signs_application_before_packages_and_installer_before_final_hashes(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        order = contract["direct_win32_byte_order"]
+        self.assertLess(order.index("authenticode_sign_application"), order.index("package_signed_application_into_portable"))
+        self.assertLess(order.index("package_signed_application_into_portable"), order.index("compile_installer_from_exact_signed_application"))
+        self.assertLess(order.index("authenticode_sign_installer"), order.index("generate_final_checksums"))
+        self.assertLess(order.index("generate_final_checksums"), order.index("cryptopro_rutoken_sign_final_release_manifest"))
+
+    def test_runbook_does_not_overclaim_signature_as_reputation(self):
+        runbook = self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST.md")
+        self.assertIn("SmartScreen", runbook)
+        self.assertIn("Smart App Control", runbook)
+        self.assertIn("App Control for Business", runbook)
+        self.assertIn("Microsoft Trusted Root Program", runbook)
+        self.assertIn("PUBLIC_SIGNATURE_READY_REPUTATION_PENDING", runbook)
+        self.assertIn("PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST", runbook)
+        self.assertIn("v0.2.5", runbook)
+        self.assertIn("RELEASE-EVIDENCE-ONLY", runbook)
+        self.assertIn("Russian qualified release evidence", runbook)
+        self.assertIn("vendor-neutral", runbook)
+        self.assertNotIn("GlobalSign is required", runbook)
+
+    def test_public_trust_gate_checks_native_signature_motw_defender_and_manual_trp_evidence(self):
+        gate = self.read("tools/windows_public_trust_gate.ps1")
+        self.assertIn("Get-AuthenticodeSignature", gate)
+        self.assertIn("1.3.6.1.5.5.7.3.3", gate)
+        self.assertIn("1.2.840.113549.1.1.1", gate)
+        self.assertIn("2048", gate)
+        self.assertIn("X509Chain", gate)
+        self.assertIn("AuthRoot", gate)
+        self.assertIn("Zone.Identifier", gate)
+        self.assertIn("ZoneId", gate)
+        self.assertIn("Get-MpComputerStatus", gate)
+        self.assertIn("Get-MpThreatDetection", gate)
+        self.assertIn("MicrosoftTrustedRootProgramReference", gate)
+        self.assertIn("membership_inferred_from_local_store = $false", gate)
+        self.assertIn("PUBLIC_SIGNATURE_READY_REPUTATION_PENDING", gate)
+        self.assertIn("PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST", gate)
+        self.assertIn("RequireNoSmartScreenWarning", gate)
+
+    def test_signed_portable_packager_binds_exact_signed_app_before_installer_consumption(self):
+        packager = self.read("tools/package_signed_windows_portable.ps1")
+        self.assertIn("Get-AuthenticodeSignature", packager)
+        self.assertIn("ExpectedPublisher", packager)
+        self.assertIn("ExpectedThumbprint", packager)
+        self.assertIn("pre_sign_exe_sha256", packager)
+        self.assertIn("application-signed-before-portable", packager)
+        self.assertIn("windows_promoted_license_compliance.ps1", packager)
+        self.assertIn("SHA256SUMS.txt", packager)
+        self.assertIn("Final portable ZIP application bytes do not match", packager)
+        self.assertIn("build-result.json", packager)
+
+    def test_authenticode_primitive_enforces_rsa_profile(self):
+        script = self.read("tools/windows_authenticode.ps1")
+        self.assertIn("1.2.840.113549.1.1.1", script)
+        self.assertIn("RSACertificateExtensions", script)
+        self.assertIn("2048", script)
+        self.assertIn("APL-REL-016", script)
+        self.assertIn("'/fd', 'SHA256'", script)
+        self.assertIn("'/tr', $TimestampUrl, '/td', 'SHA256'", script)
+
+    def test_forbidden_shortcuts_are_explicit(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        forbidden = set(contract["forbidden_shortcuts"])
+        for item in {
+            "mutate_v0.2.5",
+            "disable_defender",
+            "disable_smartscreen",
+            "disable_smart_app_control",
+            "test_signing_as_production_requirement",
+            "self_signed_certificate_as_public_trust",
+            "claim_windows_public_trust_from_russian_detached_signature_only",
+        }:
+            self.assertIn(item, forbidden)
+
+
+if __name__ == "__main__":
+    unittest.main()
