@@ -1,4 +1,4 @@
-name: Inspect official GitVerse release action
+name: Inspect GitVerse release interfaces
 
 on:
   push:
@@ -15,18 +15,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Clone official GitVerse action and show runtime contract
+      - uses: actions/checkout@v4
+
+      - name: Inspect official GitVerse release action upload contract
         shell: bash
         run: |
           set -euo pipefail
           git clone --depth 1 https://gitverse.ru/actions/create-release.git action-src
-          echo '=== action.yml ==='
-          cat action-src/action.yml
-          echo '=== cmd/releaseaction/main.go ==='
-          cat action-src/cmd/releaseaction/main.go
-          echo '=== internal/adapter/httpreleases/releases.go ==='
-          cat action-src/internal/adapter/httpreleases/releases.go
-          echo '=== internal/dto/releases.go ==='
-          cat action-src/internal/dto/releases.go
-          echo '=== go.mod ==='
-          cat action-src/go.mod
+          echo '=== official upload implementation ==='
+          sed -n '80,115p' action-src/internal/adapter/httpreleases/releases.go
+
+      - name: Inspect GitVerse MCP release and asset tools
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from sync_gitverse_release import GitVerseClient
+
+          client = GitVerseClient(os.environ['GITVERSE_TOKEN'], 'arvectum', 'proxy-launcher')
+          client.initialize_mcp()
+          print('=== matching MCP tools ===')
+          matched = 0
+          for name in sorted(client.tools):
+              if any(word in name.lower() for word in ('release', 'asset', 'attach', 'upload')):
+                  matched += 1
+                  tool = client.tools[name]
+                  print(name)
+                  print(json.dumps(tool.get('inputSchema') or tool.get('input_schema') or {}, ensure_ascii=False, sort_keys=True))
+          print(f'MATCHED={matched}')
+          PY
