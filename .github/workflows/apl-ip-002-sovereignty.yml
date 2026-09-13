@@ -1,0 +1,50 @@
+name: APL-IP-002 sovereignty
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'compliance/APL_IP_002_STACK_SOVEREIGNTY.json'
+      - 'APL-IP-002_RUSSIAN_STACK_DEPENDENCY_SOVEREIGNTY_AUDIT.md'
+      - 'APL-REG-001_RUSSIAN_SOFTWARE_REGISTRY_READINESS.md'
+      - 'requirements-build.lock.txt'
+      - 'requirements-build.windows-x64.hashes.txt'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tools/clean_build_windows.ps1'
+      - 'tools/build_windows_installer.ps1'
+      - 'tools/appimage-toolchain.lock'
+      - 'local_proxy_transport.py'
+      - 'tests/test_apl_ip_002_sovereignty_contract.py'
+      - '.github/workflows/apl-ip-002-sovereignty.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'compliance/APL_IP_002_STACK_SOVEREIGNTY.json'
+      - 'APL-IP-002_RUSSIAN_STACK_DEPENDENCY_SOVEREIGNTY_AUDIT.md'
+      - 'APL-REG-001_RUSSIAN_SOFTWARE_REGISTRY_READINESS.md'
+      - 'requirements-build.lock.txt'
+      - 'requirements-build.windows-x64.hashes.txt'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tools/clean_build_windows.ps1'
+      - 'tools/build_windows_installer.ps1'
+      - 'tools/appimage-toolchain.lock'
+      - 'local_proxy_transport.py'
+      - 'tests/test_apl_ip_002_sovereignty_contract.py'
+      - '.github/workflows/apl-ip-002-sovereignty.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sovereignty-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate APL-IP-002 contract
+        run: python -m unittest tests.test_apl_ip_002_sovereignty_contract -v
+      - name: Validate JSON syntax
+        run: python -m json.tool compliance/APL_IP_002_STACK_SOVEREIGNTY.json >/dev/null
