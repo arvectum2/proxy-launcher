@@ -15,16 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Clone official GitVerse action and show release client sources
+      - name: Clone official GitVerse action and show runtime contract
         shell: bash
         run: |
           set -euo pipefail
           git clone --depth 1 https://gitverse.ru/actions/create-release.git action-src
           echo '=== action.yml ==='
           cat action-src/action.yml
-          echo '=== Go files ==='
-          find action-src/internal action-src/cmd -type f -name '*.go' -print
-          echo '=== release/http/upload related source ==='
-          grep -RniE 'multipart|attachment|upload|asset|release|api.gitverse|Content-Type|FormFile|CreateForm' action-src/internal action-src/cmd || true
-          echo '=== internal/client/gitverse/http.go ==='
-          cat action-src/internal/client/gitverse/http.go
+          echo '=== cmd/releaseaction/main.go ==='
+          cat action-src/cmd/releaseaction/main.go
+          echo '=== internal/adapter/httpreleases/releases.go ==='
+          cat action-src/internal/adapter/httpreleases/releases.go
+          echo '=== internal/dto/releases.go ==='
+          cat action-src/internal/dto/releases.go
+          echo '=== go.mod ==='
+          cat action-src/go.mod
