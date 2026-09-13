@@ -116,6 +116,6 @@ jobs:
           EOF
           (
             cd .gitverse-sdk-probe
-            go mod download
+            go mod tidy
             go run .
           )
