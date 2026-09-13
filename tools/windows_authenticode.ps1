@@ -8,8 +8,8 @@
     RFC 3161 timestamp; -SkipTimestamp exists only for isolated CI/self-signed smoke tests.
 
     APL-REL-016 additionally requires an RSA code-signing identity with a minimum
-    2048-bit public key so the production profile is compatible with the Windows
-    public-trust / Smart App Control baseline.
+    3072-bit public key so the production profile meets the CA/Browser Forum public
+    Code Signing Baseline Requirements while remaining compatible with Smart App Control.
 #>
 
 [CmdletBinding()]
@@ -132,8 +132,8 @@ function Get-CodeSigningCertificate([string]$Thumbprint) {
         throw "Certificate $normalized declares RSA but no RSA public key could be resolved."
     }
     try {
-        if ($rsa.KeySize -lt 2048) {
-            throw "Certificate $normalized RSA key size is $($rsa.KeySize) bits; APL-REL-016 requires at least 2048 bits."
+        if ($rsa.KeySize -lt 3072) {
+            throw "Certificate $normalized RSA key size is $($rsa.KeySize) bits; APL-REL-016 requires at least 3072 bits for public code signing."
         }
     } finally {
         $rsa.Dispose()
