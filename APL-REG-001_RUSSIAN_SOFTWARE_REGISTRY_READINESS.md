@@ -2,7 +2,7 @@
 
 Status: **PRE-SUBMISSION WORKSTREAM OPEN**  
 Audit date: **2026-09-13**  
-Baseline: `main` @ `f05ae1b225153ca9ae739b7597eae3ee5481051f`  
+Baseline: `main` @ `c6a93e096eedde7be23ade93cd7372a04db311a0`  
 Tracking issue: #46
 
 ## 1. Goal and boundary
@@ -28,7 +28,7 @@ A Rospatent software-registration certificate can strengthen the evidence packag
 
 Resolution No. 1937 introduced a requirement for affected software to be compatible with at least two operating systems meeting the statutory trusted-software requirements, subject to the exceptions in the rules. The requirement is staged by software category.
 
-APL-REG-001A has now classified the current Proxy Launcher product scope as **02.02 — Программы обслуживания**. On the regulatory baseline current at 2026-09-13, the two-trusted-OS requirement for class 02.02 applies from **2027-01-01**.
+APL-REG-001A has classified the current Proxy Launcher product scope as **02.02 — Программы обслуживания**. On the regulatory baseline current at 2026-09-13, the two-trusted-OS requirement for class 02.02 applies from **2027-01-01**.
 
 That date is therefore a concrete delivery deadline rather than an unresolved classification-dependent estimate. The classification and law must still be rechecked immediately before filing.
 
@@ -71,17 +71,19 @@ Status vocabulary:
 | Rights of ООО «Арвектум» | EXTERNAL | Prove the complete exclusive-right chain for all material product code and assets. |
 | Rospatent software registration | OPTIONAL | Use as additional evidence if obtained; do not make it the only proof of rights. |
 | Corporate/rightsholder qualification | EXTERNAL | Verify ownership/control and other rightsholder conditions under the current rules. |
-| APL-IP-002 | MISSING | Complete Russian stack & dependency sovereignty audit first. |
+| APL-IP-002 | READY / HANDOFF | Governed stack/dependency sovereignty inventory exists; remediation is explicitly handed to APL-REG-001B and release-bound legal work to APL-IP-001. |
+| Runtime vendor-cloud independence | READY | No mandatory Arvectum API/cloud, telemetry, license server or updater; upstream proxy is user-supplied configuration. |
+| Windows offline build capability | READY | Canonical build supports local hash-locked wheelhouse with `--no-index` and `--require-hashes`. |
 | APL-IP-001 automation | PARTIAL | Provenance CI exists; complete human review/legal sign-off and freeze evidence for the submitted release after APL-IP-002. |
-| Dependency/license inventory | MISSING | Produce governed runtime/build/dev inventory and license disposition. |
+| Dependency/license inventory | READY / REFRESH | Governed APL-IP-002 inventory exists; refresh/freeze against exact submitted release. |
 | SBOM automation | PARTIAL | CycloneDX SBOM CI exists; retain/freeze the SBOM for the exact submitted release and complete legal disposition. |
-| THIRD_PARTY_NOTICES | MISSING | Produce notices for redistributed third-party components. |
+| THIRD_PARTY_NOTICES | PARTIAL | Notice already exists and distinguishes runtime/build/OS components; reconcile with exact submitted artifacts/license bundle. |
 | IP_PROVENANCE | PARTIAL | Automated source manifest exists; complete human/legal review and clean-IP baseline/tag. |
-| Foreign payment/dependency evidence | MISSING | Accounting/legal review of applicable foreign payments, licenses, services and rights. |
-| Source/object-code storage infrastructure | PARTIAL | Inventory physical hosting/control and map it to Resolution No. 1236 requirements. |
-| Build/compilation infrastructure | PARTIAL | Document where the submitted release is compiled and retain auditable build evidence. |
-| Release/distribution/activation/key infrastructure | PARTIAL | Inventory and document; do not assume GitHub alone satisfies Russian-infrastructure rules. |
-| GitVerse | PARTIAL | Useful sovereign mirror/evidence channel, but mirror existence alone does not prove every infrastructure requirement. |
+| Foreign payment/dependency evidence | EXTERNAL | Accounting/legal review of applicable foreign payments, licenses, services and rights remains outside the public repo. |
+| Source/object-code storage infrastructure | PARTIAL / BLOCKER | GitHub is a foreign lifecycle service; GitVerse is a Russian mirror. APL-REG-001B must establish authoritative Russian-controlled storage evidence. |
+| Build/compilation infrastructure | MISSING / BLOCKER | Offline build capability exists, but filing-grade Russian-controlled production CI/build execution and evidence are not yet established. |
+| Release/distribution/activation/key infrastructure | PARTIAL / BLOCKER | GitHub Releases is foreign; GitVerse mirror exists. Establish authoritative Russian artifact/distribution path and document absence/presence of activation/key infrastructure. |
+| GitVerse | PARTIAL | Russian platform/mirror and candidate sovereign component; mirror existence alone does not prove every infrastructure requirement. |
 | Russian-language GUI | PARTIAL | Verify the exact submitted version and remove mandatory untranslated UI where present. |
 | Functional characteristics document | PARTIAL | Convert existing technical documentation into expert-facing registry documentation. |
 | Install/operation/uninstall manual | PARTIAL | Existing material is substantial but needs a frozen registry-facing manual for the submitted version. |
@@ -107,24 +109,33 @@ Current filing position:
 - trusted-OS compatibility date 2027-01-01 under the current rules;
 - mandatory final recheck before filing.
 
-### APL-IP-002 — Russian stack & dependency sovereignty audit
+### APL-IP-002 — Russian stack & dependency sovereignty audit — COMPLETE
 
-Must precede final IP hardening. Inventory runtime/build/dev dependencies, origin, rightsholder, license, redistribution, network dependency, criticality, Russian analogue and replacement feasibility. Also inventory source/build/release infrastructure relevant to Resolution No. 1236.
+Repository evidence:
+
+- `APL-IP-002_RUSSIAN_STACK_DEPENDENCY_SOVEREIGNTY_AUDIT.md`;
+- `compliance/APL_IP_002_STACK_SOVEREIGNTY.json`;
+- `tests/test_apl_ip_002_sovereignty_contract.py`;
+- `.github/workflows/apl-ip-002-sovereignty.yml`.
+
+Key result: the current application runtime has no mandatory vendor-cloud control plane; the main sovereignty gap is the surrounding source/build/release lifecycle. Production Windows build can already operate from a local hash-locked wheelhouse without PyPI. Lifecycle remediation is now an explicit APL-REG-001B blocker rather than an undefined APL-IP-002 task.
 
 ### APL-IP-001 — IP provenance & human-authorship hardening
 
-The automation/provenance foundation already exists. Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, release-bound SBOM, THIRD_PARTY_NOTICES, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside the public repository.
+The automation/provenance foundation already exists. Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, release-bound SBOM, THIRD_PARTY_NOTICES/license bundle, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside the public repository.
 
 ### APL-REG-001B — sovereign lifecycle evidence
 
-Create a precise infrastructure diagram and evidence pack for:
+APL-IP-002 makes this the next infrastructure blocker. Create a precise infrastructure diagram and evidence pack for:
 
-- source-code storage;
-- object-code/artifact storage;
-- compilation/build;
+- authoritative Russian source-code storage;
+- authoritative Russian object-code/artifact storage;
+- controlled Russian compilation/build/CI;
 - release publication and distribution;
 - activation/licensing/key management if present;
 - support, maintenance and source modification.
+
+The production build path must not require GitHub or PyPI availability. Existing offline/hash-locked Windows build capability should be promoted into this controlled path. GitHub can remain an additional collaboration/public channel if legally acceptable, but it is not the sovereign-evidence baseline.
 
 Where current infrastructure fails a mandatory requirement, migrate before submission rather than documenting a known non-compliance.
 
@@ -173,13 +184,14 @@ Immediately before filing:
 
 1. re-check Resolution No. 1236 and the classifier for changes;
 2. re-run the APL-REG-001A classification against the exact product release;
-3. verify every application URL from a clean session;
-4. verify all submitted artifact hashes;
-5. verify release/version naming is identical across application, manuals and binaries;
-6. verify class and trusted-OS evidence;
-7. verify rightsholder evidence;
-8. freeze the submitted release/evidence set;
-9. only then sign and submit the electronic application.
+3. refresh APL-IP-002 inventory against the exact submitted release and lifecycle;
+4. verify every application URL from a clean session;
+5. verify all submitted artifact hashes;
+6. verify release/version naming is identical across application, manuals and binaries;
+7. verify class and trusted-OS evidence;
+8. verify rightsholder evidence;
+9. freeze the submitted release/evidence set;
+10. only then sign and submit the electronic application.
 
 ## 6. Relationship to APL-REL-016
 
@@ -193,7 +205,7 @@ APL-REG-001 repository preparation can be closed only when:
 
 - class 02.02 remains legally defensible for the exact submitted release after the final recheck;
 - every applicable Resolution No. 1236 condition is `PASS` or has a documented `NOT_APPLICABLE` rationale;
-- APL-IP-002 and final APL-IP-001 human/legal work are complete;
+- APL-IP-002 inventory is current and final APL-IP-001 human/legal work is complete;
 - the exact submitted release has governed dependency, license, SBOM and provenance evidence;
 - infrastructure evidence satisfies all requirements applicable on the filing date;
 - trusted-OS compatibility is implemented and documented if applicable;
