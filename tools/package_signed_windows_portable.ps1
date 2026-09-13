@@ -65,7 +65,7 @@ function Assert-CodeSigningCertificate([System.Security.Cryptography.X509Certifi
     $rsa = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPublicKey($Certificate)
     if (-not $rsa) { throw 'Unable to resolve RSA public key.' }
     try {
-        if ($rsa.KeySize -lt 2048) { throw "RSA key size $($rsa.KeySize) is below the 2048-bit minimum." }
+        if ($rsa.KeySize -lt 3072) { throw "RSA key size $($rsa.KeySize) is below the 3072-bit public code-signing minimum." }
     } finally {
         $rsa.Dispose()
     }
