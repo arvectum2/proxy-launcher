@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inspect GitVerse release object and probe one verified asset
+      - name: Probe canonical GitVerse upload URL with one verified asset
         env:
           GH_TOKEN: ${{ github.token }}
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
@@ -25,70 +25,38 @@ jobs:
         run: |
           set -euo pipefail
           API='https://api.gitverse.ru'
-          ACCEPT1='application/vnd.gitverse.object+json;version=1'
-          ACCEPTL='application/vnd.gitverse.object+json;version=latest'
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
-          OWNER='arvectum'
-          REPO='proxy-launcher'
           TAG='v0.2.5'
           NAME='apl-rel-015-cfa-hotfix-evidence.json'
           EXPECTED='d6c1d1f1b6894be45a0535b9ef5ffa6df61ddcfddc08fc688becd91b32609646'
 
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT1" \
-            "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > release.json
-          echo '=== selected release fields ==='
-          jq '{id,tag_name,name,target_commitish,upload_url,html_url,draft,prerelease,is_authorized_only,asset_count:(.assets|length)}' release.json
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/arvectum/proxy-launcher/releases/tags/$TAG" > release.json
+          UPLOAD_URL="$(jq -r '.upload_url' release.json)"
           RID="$(jq -r '.id' release.json)"
+          echo "Canonical upload URL: $UPLOAD_URL"
 
           mkdir -p probe
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$NAME" --dir probe
           test "$(sha256sum "probe/$NAME" | awk '{print $1}')" = "$EXPECTED"
 
-          current_count="$(curl -fsS -H "$AUTH" -H "Accept: $ACCEPT1" \
-            "$API/repos/$OWNER/$REPO/releases/$RID/assets?per_page=50&page=1" | \
+          current_count="$(curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/arvectum/proxy-launcher/releases/$RID/assets?per_page=50&page=1" | \
             jq --arg name "$NAME" '[.[] | select(.name == $name)] | length')"
           if [ "$current_count" = '1' ]; then
-            echo 'PASS desired probe asset already exists; no upload probe needed.'
+            echo 'PASS desired probe asset already exists.'
             exit 0
           fi
           test "$current_count" = '0'
 
-          try_upload() {
-            label="$1"; shift
-            echo "=== TRY: $label ==="
-            status="$(curl -sS -o probe-response.json -w '%{http_code}' "$@")"
-            echo "HTTP $status"
-            cat probe-response.json || true
-            echo
-            if [ "$status" = '201' ]; then
-              echo "UPLOAD_VARIANT_PASS=$label"
-              return 0
-            fi
-            return 1
-          }
-
-          URL="$API/repos/$OWNER/$REPO/releases/$RID/assets?name=$NAME"
-
-          try_upload 'http1-auto-boundary-v1' \
-            --http1.1 -X POST -H "$AUTH" -H "Accept: $ACCEPT1" \
-            -F "attachment=@probe/$NAME" "$URL" && exit 0
-
-          try_upload 'http1-auto-boundary-latest' \
-            --http1.1 -X POST -H "$AUTH" -H "Accept: $ACCEPTL" \
-            -F "attachment=@probe/$NAME" "$URL" && exit 0
-
-          try_upload 'http1-query-plus-name-form' \
-            --http1.1 -X POST -H "$AUTH" -H "Accept: $ACCEPT1" \
-            -F "name=$NAME" -F "attachment=@probe/$NAME" "$URL" && exit 0
-
-          try_upload 'http1-name-in-form-only' \
-            --http1.1 -X POST -H "$AUTH" -H "Accept: $ACCEPT1" \
-            -F "name=$NAME" -F "attachment=@probe/$NAME" \
-            "$API/repos/$OWNER/$REPO/releases/$RID/assets" && exit 0
-
-          try_upload 'http1-file-field' \
-            --http1.1 -X POST -H "$AUTH" -H "Accept: $ACCEPT1" \
-            -F "file=@probe/$NAME" "$URL" && exit 0
-
-          echo '::error::All safe GitVerse asset upload variants failed.'
-          exit 1
+          status="$(curl -sS -o response.json -w '%{http_code}' \
+            --http1.1 -X POST \
+            -H "$AUTH" -H "Accept: $ACCEPT" \
+            -F "attachment=@probe/$NAME" \
+            "$UPLOAD_URL?name=$NAME")"
+          echo "HTTP $status"
+          cat response.json || true
+          echo
+          test "$status" = '201'
+          echo 'UPLOAD_CANONICAL_URL_PASS'
