@@ -39,6 +39,19 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertEqual(timestamp["protocol"], "RFC3161")
         self.assertEqual(timestamp["digest"], "SHA256")
 
+    def test_russian_national_ca_is_priority_candidate_not_fabricated_public_trust(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        candidate = contract["provider_policy"]["russian_national_ca_candidate"]
+        self.assertEqual(candidate["observed_regulatory_source_date"], "2026-08-28")
+        self.assertEqual(candidate["status"], "DRAFT_REGULATORY_CANDIDATE_NOT_PRODUCTION_PROVEN")
+        self.assertEqual(candidate["priority"], "FIRST_RUSSIAN_NATIVE_PATH_TO_RECHECK")
+        self.assertIn("codeSigning EKU", candidate["observed_capability"])
+        self.assertIn("2.23.140.1.4.1", candidate["observed_capability"])
+        self.assertTrue(candidate["manual_installation_of_russian_trusted_root_is_not_public_consumer_trust"])
+        required = set(candidate["must_not_be_treated_as_public_windows_trust_until"])
+        self.assertIn("microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified", required)
+        self.assertIn("code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation", required)
+
     def test_byte_order_signs_application_before_packages_and_installer_before_final_hashes(self):
         contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
         order = contract["direct_win32_byte_order"]
