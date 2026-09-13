@@ -2,7 +2,9 @@ name: Sync v0.2.5 GitVerse assets
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - fix/gitverse-transport-wrappers
     paths:
       - .github/workflows/sync-v0.2.5-gitverse-assets.yml
   workflow_dispatch:
@@ -16,9 +18,9 @@ env:
 jobs:
   sync-assets:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Download and verify canonical GitHub v0.2.5 assets
@@ -27,8 +29,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .sync-assets
-          mkdir -p .sync-assets
+          rm -rf .sync-assets .gitverse-transport
+          mkdir -p .sync-assets .gitverse-transport
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir .sync-assets
           expected_count="$(wc -l < docs/releases/0.2.5-public-assets.sha256 | tr -d ' ')"
           actual_count="$(find .sync-assets -maxdepth 1 -type f | wc -l | tr -d ' ')"
@@ -36,7 +38,80 @@ jobs:
           test "$actual_count" = "$expected_count"
           (cd .sync-assets && sha256sum -c ../docs/releases/0.2.5-public-assets.sha256)
 
-      - name: Upload exact assets to existing GitVerse v0.2.5 release
+      - name: Build lossless GitVerse transport set
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import zipfile
+
+          manifest = Path('docs/releases/0.2.5-public-assets.sha256')
+          source = Path('.sync-assets')
+          out = Path('.gitverse-transport')
+          out.mkdir(exist_ok=True)
+
+          rows = []
+          for line in manifest.read_text(encoding='utf-8').splitlines():
+              if not line.strip():
+                  continue
+              expected_hash, original = line.split('  ', 1)
+              src = source / original
+              actual_hash = hashlib.sha256(src.read_bytes()).hexdigest()
+              if actual_hash != expected_hash:
+                  raise SystemExit(f'canonical hash mismatch before transport: {original}')
+
+              if original.endswith('.zip') or original.endswith('.txt'):
+                  transport = original
+                  (out / transport).write_bytes(src.read_bytes())
+                  mode = 'direct'
+              else:
+                  transport = original + '.zip'
+                  info = zipfile.ZipInfo(original, date_time=(1980, 1, 1, 0, 0, 0))
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.create_system = 3
+                  info.external_attr = 0o100644 << 16
+                  with zipfile.ZipFile(out / transport, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+                      zf.writestr(info, src.read_bytes())
+                  mode = 'wrapper'
+
+              transport_hash = hashlib.sha256((out / transport).read_bytes()).hexdigest()
+              rows.append((expected_hash, original, transport, mode, transport_hash))
+
+          if len(rows) != 9:
+              raise SystemExit(f'expected 9 canonical assets, got {len(rows)}')
+          if len({row[2] for row in rows}) != 9:
+              raise SystemExit('transport names are not unique')
+
+          Path('.gitverse-transport-map.tsv').write_text(
+              ''.join('\t'.join(row) + '\n' for row in rows), encoding='utf-8'
+          )
+          print('GitVerse transport map:')
+          for row in rows:
+              print('\t'.join(row))
+          PY
+
+          test "$(find .gitverse-transport -maxdepth 1 -type f | wc -l | tr -d ' ')" = '9'
+
+          while IFS=$'\t' read -r expected_hash original transport mode transport_hash; do
+            test -n "$original"
+            local_file=".gitverse-transport/$transport"
+            test -f "$local_file"
+            test "$(sha256sum "$local_file" | awk '{print $1}')" = "$transport_hash"
+            if [ "$mode" = 'direct' ]; then
+              test "$transport" = "$original"
+              test "$(sha256sum "$local_file" | awk '{print $1}')" = "$expected_hash"
+            else
+              test "$transport" = "$original.zip"
+              test "$(unzip -Z1 "$local_file" | wc -l | tr -d ' ')" = '1'
+              test "$(unzip -Z1 "$local_file")" = "$original"
+              unzip -p "$local_file" "$original" > .gitverse-inner
+              test "$(sha256sum .gitverse-inner | awk '{print $1}')" = "$expected_hash"
+            fi
+          done < .gitverse-transport-map.tsv
+
+      - name: Update GitVerse release notes with transport notice
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -57,67 +132,145 @@ jobs:
           release_id="$(jq -r '.id' .gitverse-release.json)"
           test -n "$release_id" && test "$release_id" != 'null'
 
+          cat docs/releases/0.2.5.md > .gitverse-release-body.md
+          cat >> .gitverse-release-body.md <<'EOF'
+
+          ---
+
+          ## GitVerse mirror transport / Формат зеркала GitVerse
+
+          GitVerse is an independent distribution mirror for this release. During automated mirror verification on 2026-09-13, the GitVerse release-assets API accepted `.zip` and `.txt` uploads but returned `HTTP 400 VALIDATION_ERROR` for the other canonical file extensions. To preserve the exact governed release bytes without renaming files inside the verification set, unsupported direct assets are published as single-file ZIP wrappers named `<canonical-name>.zip`.
+
+          GitVerse является независимым зеркалом распространения этого релиза. При автоматической проверке API release-assets GitVerse 13.09.2026 загрузка `.zip` и `.txt` принималась, а для остальных канонических расширений API возвращал `HTTP 400 VALIDATION_ERROR`. Поэтому файлы с неподдержанными прямыми расширениями опубликованы как однофайловые ZIP-обёртки с именем `<каноническое-имя>.zip`; внутри каждой обёртки находится исходный файл с неизменным именем и SHA-256.
+
+          The mirror workflow downloads every GitVerse asset back and verifies all 9 canonical inner SHA-256 values against `docs/releases/0.2.5-public-assets.sha256`.
+
+          Workflow зеркала скачивает каждый asset обратно из GitVerse и проверяет все 9 канонических SHA-256 исходных файлов по `docs/releases/0.2.5-public-assets.sha256`.
+          EOF
+
+          jq -n --rawfile body .gitverse-release-body.md '{body:$body}' > .gitverse-release-patch.json
+          status="$(curl -sS -o .gitverse-release-patch-response.json -w '%{http_code}' \
+            -X PATCH \
+            -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
+            --data-binary @.gitverse-release-patch.json \
+            "$API/repos/$OWNER/$REPO/releases/$release_id")"
+          case "$status" in 200|201) ;; *)
+            echo "::error::GitVerse release-note update failed with HTTP $status"
+            cat .gitverse-release-patch-response.json || true
+            exit 1
+          esac
+
+      - name: Sync exact 9-item GitVerse transport set
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://api.gitverse.ru'
+          OWNER='arvectum'
+          REPO="$GITVERSE_REPOSITORY"
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
+          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+
           curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
+            "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json
+          release_id="$(jq -r '.id' .gitverse-release.json)"
+          upload_url="$(jq -r '.upload_url' .gitverse-release.json)"
+          test -n "$release_id" && test "$release_id" != 'null'
+          test -n "$upload_url" && test "$upload_url" != 'null'
 
-          while IFS= read -r expected_line; do
-            [ -n "$expected_line" ] || continue
-            expected_hash="${expected_line%% *}"
-            name="${expected_line#*  }"
-            local_file=".sync-assets/$name"
-            test -f "$local_file"
+          list_assets() {
+            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1"
+          }
 
-            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
-            test "$duplicate_count" -le 1
-
-            if [ "$duplicate_count" -eq 1 ]; then
-              asset_id="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .id' .gitverse-assets.json)"
-              url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
-              curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
-              actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
-              if [ "$actual_hash" = "$expected_hash" ]; then
-                echo "PASS existing GitVerse asset: $name"
-                continue
-              fi
-
-              delete_status="$(curl -sS -o .gitverse-delete.json -w '%{http_code}' \
-                -X DELETE \
-                -H "$AUTH" -H "Accept: $ACCEPT" \
-                "$API/repos/$OWNER/$REPO/releases/$release_id/assets/$asset_id")"
-              case "$delete_status" in
-                200|202|204) ;;
-                *)
-                  echo "::error::GitVerse delete failed for $name with HTTP $delete_status"
-                  cat .gitverse-delete.json || true
-                  exit 1
-                  ;;
-              esac
-              echo "REMOVED mismatched GitVerse asset: $name"
-            fi
-
-            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
-              -X POST \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" \
-              -H "$AUTH" \
-              -H "Accept: $ACCEPT" \
-              -F "attachment=@$local_file")"
-
-            case "$upload_status" in
-              200|201|202) ;;
+          delete_asset_id() {
+            local id="$1" name="$2"
+            local status
+            status="$(curl -sS -o .gitverse-delete.json -w '%{http_code}' \
+              -X DELETE -H "$AUTH" -H "Accept: $ACCEPT" \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets/$id")"
+            case "$status" in 200|202|204) ;;
               *)
-                echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
-                cat .gitverse-upload.json || true
+                echo "::error::GitVerse delete failed for $name id=$id with HTTP $status"
+                cat .gitverse-delete.json || true
                 exit 1
                 ;;
             esac
-            echo "UPLOADED GitVerse asset: $name"
+            echo "REMOVED GitVerse asset: $name"
+          }
 
-            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
-          done < docs/releases/0.2.5-public-assets.sha256
+          verify_downloaded() {
+            local downloaded="$1" expected_hash="$2" original="$3" transport="$4" mode="$5"
+            if [ "$mode" = 'direct' ]; then
+              test "$transport" = "$original"
+              test "$(sha256sum "$downloaded" | awk '{print $1}')" = "$expected_hash"
+            else
+              test "$transport" = "$original.zip"
+              test "$(unzip -Z1 "$downloaded" | wc -l | tr -d ' ')" = '1'
+              test "$(unzip -Z1 "$downloaded")" = "$original"
+              unzip -p "$downloaded" "$original" > .gitverse-inner
+              test "$(sha256sum .gitverse-inner | awk '{print $1}')" = "$expected_hash"
+            fi
+          }
 
-      - name: Verify exact GitVerse release metadata and 9 assets
+          cut -f3 .gitverse-transport-map.tsv | sort > .expected-transport-names
+          list_assets > .gitverse-assets.json
+
+          # Remove stale probes and any non-canonical transport assets.
+          while IFS=$'\t' read -r id name; do
+            if ! grep -Fxq "$name" .expected-transport-names; then
+              delete_asset_id "$id" "$name"
+            fi
+          done < <(jq -r '.[] | [.id,.name] | @tsv' .gitverse-assets.json)
+
+          list_assets > .gitverse-assets.json
+
+          while IFS=$'\t' read -r expected_hash original transport mode transport_hash; do
+            local_file=".gitverse-transport/$transport"
+            duplicate_count="$(jq --arg name "$transport" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
+
+            if [ "$duplicate_count" -gt 1 ]; then
+              while IFS= read -r id; do
+                delete_asset_id "$id" "$transport"
+              done < <(jq -r --arg name "$transport" '.[] | select(.name == $name) | .id' .gitverse-assets.json)
+              duplicate_count=0
+              list_assets > .gitverse-assets.json
+            fi
+
+            if [ "$duplicate_count" -eq 1 ]; then
+              id="$(jq -r --arg name "$transport" '.[] | select(.name == $name) | .id' .gitverse-assets.json)"
+              url="$(jq -r --arg name "$transport" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
+              if curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset \
+                && verify_downloaded .gitverse-existing-asset "$expected_hash" "$original" "$transport" "$mode"; then
+                echo "PASS existing GitVerse transport asset: $transport -> $original"
+                continue
+              fi
+              delete_asset_id "$id" "$transport"
+              list_assets > .gitverse-assets.json
+            fi
+
+            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$transport")"
+            if [[ "$transport" == *.txt ]]; then
+              mime='text/plain'
+            else
+              mime='application/zip'
+            fi
+            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
+              -X POST "$upload_url?name=$encoded_name" \
+              -H "$AUTH" -H "Accept: $ACCEPT" \
+              -F "attachment=@$local_file;filename=$transport;type=$mime")"
+            test "$upload_status" = '201' || {
+              echo "::error::GitVerse upload failed for $transport with HTTP $upload_status"
+              cat .gitverse-upload.json || true
+              exit 1
+            }
+            echo "UPLOADED GitVerse transport asset: $transport -> $original"
+            list_assets > .gitverse-assets.json
+          done < .gitverse-transport-map.tsv
+
+      - name: Verify GitVerse release metadata and all 9 canonical payloads
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -135,14 +288,16 @@ jobs:
 
           test "$(jq -r '.tag_name' .gitverse-release.json)" = "$TAG"
           test "$(jq -r '.name' .gitverse-release.json)" = 'Arvectum Proxy Launcher 0.2.5'
-          printf '%s' "$(jq -r '.body' .gitverse-release.json)" > .gitverse-release-body.md
+          test "$(jq -r '.draft' .gitverse-release.json)" = 'false'
+          test "$(jq -r '.prerelease' .gitverse-release.json)" = 'false'
+          printf '%s' "$(jq -r '.body' .gitverse-release.json)" > .gitverse-actual-body.md
           python - <<'PY'
           from pathlib import Path
-          expected = Path('docs/releases/0.2.5.md').read_text(encoding='utf-8').rstrip('\n')
-          actual = Path('.gitverse-release-body.md').read_text(encoding='utf-8')
+          expected = Path('.gitverse-release-body.md').read_text(encoding='utf-8').rstrip('\n')
+          actual = Path('.gitverse-actual-body.md').read_text(encoding='utf-8')
           if actual != expected:
-              raise SystemExit('GitVerse release body does not match docs/releases/0.2.5.md')
-          print('PASS GitVerse release notes match canonical bilingual notes')
+              raise SystemExit('GitVerse release body mismatch')
+          print('PASS GitVerse release notes and transport notice')
           PY
 
           release_id="$(jq -r '.id' .gitverse-release.json)"
@@ -150,28 +305,34 @@ jobs:
             "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
 
           test "$(jq 'length' .gitverse-assets.json)" -eq 9
-          awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sort > .expected-names
+          cut -f3 .gitverse-transport-map.tsv | sort > .expected-names
           jq -r '.[].name' .gitverse-assets.json | sort > .actual-names
           diff -u .expected-names .actual-names
 
-          while IFS= read -r expected_line; do
-            [ -n "$expected_line" ] || continue
-            expected_hash="${expected_line%% *}"
-            name="${expected_line#*  }"
-            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
+          while IFS=$'\t' read -r expected_hash original transport mode transport_hash; do
+            duplicate_count="$(jq --arg name "$transport" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
             test "$duplicate_count" -eq 1
-            url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
+            url="$(jq -r --arg name "$transport" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
             test -n "$url" && test "$url" != 'null'
             curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-verify-asset
-            actual_hash="$(sha256sum .gitverse-verify-asset | awk '{print $1}')"
+
+            if [ "$mode" = 'direct' ]; then
+              actual_hash="$(sha256sum .gitverse-verify-asset | awk '{print $1}')"
+            else
+              test "$(unzip -Z1 .gitverse-verify-asset | wc -l | tr -d ' ')" = '1'
+              test "$(unzip -Z1 .gitverse-verify-asset)" = "$original"
+              unzip -p .gitverse-verify-asset "$original" > .gitverse-inner
+              actual_hash="$(sha256sum .gitverse-inner | awk '{print $1}')"
+            fi
+
             test "$actual_hash" = "$expected_hash" || {
-              echo "::error::GitVerse asset hash mismatch for $name: $actual_hash != $expected_hash"
+              echo "::error::Canonical payload hash mismatch for $original: $actual_hash != $expected_hash"
               exit 1
             }
-            echo "PASS GitVerse asset SHA-256: $expected_hash  $name"
-          done < docs/releases/0.2.5-public-assets.sha256
+            echo "PASS canonical GitVerse payload SHA-256: $expected_hash  $original (transport: $transport)"
+          done < .gitverse-transport-map.tsv
 
-      - name: Verify GitVerse README matches GitHub main
+      - name: Verify GitVerse README matches GitHub branch
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -184,24 +345,26 @@ jobs:
           ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
           expected="$(sha256sum README.md | awk '{print $1}')"
+          ref="$GITHUB_REF_NAME"
           curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/contents/README.md?ref=main" > .gitverse-readme.json
+            "$API/repos/$OWNER/$REPO/contents/README.md?ref=$ref" > .gitverse-readme.json
           jq -r '.content' .gitverse-readme.json | tr -d '\n' | base64 --decode > .gitverse-README.md
           actual="$(sha256sum .gitverse-README.md | awk '{print $1}')"
           test "$actual" = "$expected" || {
-            echo "::error::GitVerse README hash mismatch: $actual != $expected"
+            echo "::error::GitVerse README hash mismatch for ref $ref: $actual != $expected"
             exit 1
           }
-          echo "PASS GitVerse README SHA-256: $actual"
+          echo "PASS GitVerse README SHA-256 for $ref: $actual"
 
       - name: Summary
         shell: bash
         run: |
           {
             echo '### GitVerse v0.2.5 independent mirror PASS'
-            echo '- GitVerse release object: verified'
-            echo '- bilingual release notes: exact canonical match'
-            echo '- release assets: exact 9/9 names'
-            echo '- release assets: 9/9 SHA-256 match canonical GitHub release'
-            echo '- README: exact content hash matches GitHub main'
+            echo '- release object: verified'
+            echo '- release notes: canonical bilingual notes + GitVerse transport notice'
+            echo '- transport assets: exact 9/9 expected names'
+            echo '- canonical payloads: all 9/9 SHA-256 values verified after download from GitVerse'
+            echo '- unsupported direct extensions: losslessly carried in single-file ZIP wrappers'
+            echo '- README: exact content hash matches the mirrored Git ref'
           } >> "$GITHUB_STEP_SUMMARY"
