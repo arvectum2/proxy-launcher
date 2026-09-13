@@ -1,0 +1,68 @@
+name: GitVerse v0.2.5 recovery mirror
+
+on:
+  push:
+    branches:
+      - ops/gitverse-native-release-v025
+    paths:
+      - scripts/sync_gitverse_release.py
+      - .github/workflows/gitverse-release-v025-recovery.yml
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Download exact GitHub v0.2.5 release payload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-assets
+          gh release download v0.2.5 \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir .sync-assets
+          test "$(find .sync-assets -maxdepth 1 -type f | wc -l | tr -d ' ')" = '9'
+          (
+            cd .sync-assets
+            sha256sum -c ../docs/releases/0.2.5-public-assets.sha256
+          )
+
+      - name: Mirror and independently verify GitVerse v0.2.5
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GITVERSE_TOKEN" || { echo '::error::GITVERSE_TOKEN is missing'; exit 1; }
+          test -n "$GITVERSE_REPOSITORY" || { echo '::error::GITVERSE_REPO is missing'; exit 1; }
+
+          python scripts/sync_gitverse_release.py \
+            --owner arvectum \
+            --repo "$GITVERSE_REPOSITORY" \
+            --tag v0.2.5 \
+            --title 'Arvectum Proxy Launcher 0.2.5' \
+            --notes docs/releases/0.2.5.md \
+            --manifest docs/releases/0.2.5-public-assets.sha256 \
+            --assets-dir .sync-assets \
+            --readme README.md
+
+      - name: Summary
+        if: success()
+        shell: bash
+        run: |
+          {
+            echo '### GitVerse v0.2.5 recovery mirror PASS'
+            echo '- GitVerse release object exists and metadata matches canonical 0.2.5 notes.'
+            echo '- GitVerse owns exact copies of all 9 public release assets.'
+            echo '- Every GitVerse asset was downloaded back and SHA-256 verified.'
+            echo '- GitVerse README.md matches the checked-out canonical repository README.'
+          } >> "$GITHUB_STEP_SUMMARY"
