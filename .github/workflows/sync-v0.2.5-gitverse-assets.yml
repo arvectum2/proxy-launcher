@@ -164,7 +164,7 @@ jobs:
             if [ "$count" -eq 1 ]; then
               id="$(jq -r --arg n "$transport" '.[] | select(.name==$n) | .id' .assets.json)"
               url="$(jq -r --arg n "$transport" '.[] | select(.name==$n) | .browser_download_url' .assets.json)"
-              if curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .existing \
+              if curl -LfsS "$url" -o .existing \
                 && verify_payload .existing "$expected_hash" "$original" "$transport" "$mode"; then
                 echo "PASS existing: $transport -> $original"
                 continue
@@ -226,7 +226,7 @@ jobs:
           while IFS=$'\t' read -r expected_hash original transport mode transport_hash; do
             test "$(jq --arg n "$transport" '[.[] | select(.name==$n)] | length' .assets.json)" -eq 1
             url="$(jq -r --arg n "$transport" '.[] | select(.name==$n) | .browser_download_url' .assets.json)"
-            curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .verified
+            curl -LfsS "$url" -o .verified
             if [ "$mode" = direct ]; then
               actual_hash="$(sha256sum .verified | awk '{print $1}')"
             else
@@ -274,6 +274,6 @@ jobs:
             echo '### GitVerse v0.2.5 independent mirror PASS'
             echo '- release metadata and canonical bilingual notes: verified'
             echo '- transport assets: exact 9/9 expected names'
-            echo '- canonical payloads: all 9/9 SHA-256 values verified after download from GitVerse'
+            echo '- canonical payloads: all 9/9 SHA-256 values verified after public download from GitVerse'
             echo '- GitVerse-rejected direct extensions: losslessly carried in single-file ZIP wrappers'
           } >> "$GITHUB_STEP_SUMMARY"
