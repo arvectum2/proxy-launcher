@@ -106,7 +106,7 @@ jobs:
         shell: pwsh
         run: ./tools/clean_build_windows.ps1 -PythonExecutable python
 
-      - name: Create ephemeral RSA code-signing identity
+      - name: Create ephemeral RSA-3072 code-signing identity
         id: test_cert
         shell: pwsh
         run: |
@@ -114,7 +114,7 @@ jobs:
           $cert = New-SelfSignedCertificate `
             -Type CodeSigningCert `
             -KeyAlgorithm RSA `
-            -KeyLength 2048 `
+            -KeyLength 3072 `
             -Subject $subject `
             -CertStoreLocation 'Cert:\CurrentUser\My' `
             -NotAfter (Get-Date).AddDays(1)
