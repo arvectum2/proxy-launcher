@@ -74,7 +74,21 @@
     "foreign_provider_is_fallback_not_primary_policy": true,
     "provider_must_be_legally_operationally_able_to_issue_to_owner": true,
     "provider_must_satisfy_windows_public_chain_requirement": true,
-    "microsoft_artifact_signing_geography_must_be_checked_before_selection": true
+    "microsoft_artifact_signing_geography_must_be_checked_before_selection": true,
+    "russian_national_ca_candidate": {
+      "observed_regulatory_source_date": "2026-08-28",
+      "observed_capability": "Draft MinDigital requirements define a separate RSA code-signing certificate using international cryptographic algorithms, codeSigning EKU and CAB Forum code-signing policy OID 2.23.140.1.4.1.",
+      "status": "DRAFT_REGULATORY_CANDIDATE_NOT_PRODUCTION_PROVEN",
+      "priority": "FIRST_RUSSIAN_NATIVE_PATH_TO_RECHECK",
+      "must_not_be_treated_as_public_windows_trust_until": [
+        "final_rules_and_production_service_are_available",
+        "owner_is_eligible_and_certificate_can_be_issued",
+        "code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation",
+        "microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified",
+        "rsa_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"
+      ],
+      "manual_installation_of_russian_trusted_root_is_not_public_consumer_trust": true
+    }
   },
   "release_classifications": [
     "BLOCKED_NO_WINDOWS_PUBLIC_SIGNATURE",
