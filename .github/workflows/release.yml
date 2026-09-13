@@ -75,7 +75,7 @@ jobs:
 
           # 0.2.5 is an exact-byte, owner-operated Russian signed release.
           # Its physically accepted Setup/application bytes are bound by APL-REL-015.
-          # Rebuilding from the tag could produce different PyInstaller one-file bytes,
+          # Rebuilding from the tag can produce different one-file executable bytes,
           # so the tag workflow MUST NOT publish replacement CI binaries.
           OWNER_SIGNED_RELEASE="false"
           if [ "$VERSION" = "0.2.5" ]; then
