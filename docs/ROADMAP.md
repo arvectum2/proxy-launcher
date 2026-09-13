@@ -41,7 +41,8 @@ Canonical closure records:
 - **DONE** — APL-REL-011 owner-operated signed-release manifest integration.
 - **DONE** — APL-REL-012 end-user verification UX.
 - **DONE** — APL-REL-013 fail-closed Russian production release gate.
-- **DONE / SUPERSEDED BY PUBLISHED 0.2.5 CEREMONY** — the earlier APL-REL-014 `0.2.4` signed-set/lifecycle work is retained as historical release-hardening evidence rather than a current blocker.
+- **DONE / HISTORICAL** — APL-REL-014 `0.2.4` exact signed-set/lifecycle work is retained as release-hardening provenance rather than a current blocker.
+- **DONE / PUBLISHED** — APL-REL-015 binds the physically accepted `0.2.5` CFA hotfix identity into the exact Russian release-evidence/publication path.
 - **PUBLISHED** — `v0.2.5` public set is bound by SHA-256 and detached CryptoPro/Rutoken signature/certificate evidence.
 - **PUBLISHED / MIRRORED** — GitVerse is an independent Russian distribution point for `v0.2.5`. The canonical release has 9 public payloads; unsupported GitVerse extensions are carried in lossless one-file ZIP wrappers and verified back against canonical SHA-256 values. See `docs/releases/0.2.5-gitverse-mirror.md`.
 - **READY NOW / OPEN ISSUE #30** — APL-REL-016: define the Windows public-trust strategy for future releases (`0.2.6+`): distinguish SmartScreen/App Reputation, Smart App Control/Application Control, managed enterprise trust and Russian detached evidence; investigate Russian-native options first. International Microsoft/OV/EV provider paths remain low priority unless required by the chosen native Windows trust model.
@@ -52,9 +53,10 @@ Canonical closure records:
 - **DONE** — APL-IP-002 platform sovereignty audits.
 - **DONE** — APL-IP-003 canonical source refactor, Slices 1–23.
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
-- **DONE / TECHNICAL** — post-refactor/post-candidate provenance and dependency reconciliation evidence exists for the maintained source line.
+- **[Web] DONE — post-APL-IP-004 review reconciliation** — historical governance anchor remains candidate `ef9846e151a2e4e7046169e0787603969018cc97`; later technical evidence may bind newer maintained candidates without rewriting this review anchor.
+- **APL-IP-001 status: CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.**
 - **HUMAN/LEGAL PENDING** — close the remaining APL-IP-001 factual/legal boundary: R-1 author -> ООО rights basis; R-2 actual Rospatent status; R-3 corporate/interested-transaction basis where applicable; factual confirmation; explicit authorized final decision.
-- **READY AFTER EXPLICIT APPROVED** — create the governed clean-IP baseline/tag only for the exact candidate authorized by the completed human/legal sign-off.
+- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only for the exact candidate authorized by the completed human/legal sign-off.
 - **RULE** — automation, repository migration and technical provenance evidence do not substitute for a human/legal decision.
 - **HOLD** — AppImage remains outside promoted commercial scope until its downstream/type-2-runtime obligations are separately cleared.
 
