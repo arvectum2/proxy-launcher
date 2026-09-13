@@ -1,4 +1,4 @@
-name: Probe GitVerse release asset extension validation
+name: Probe public GitVerse release URLs
 
 on:
   push:
@@ -10,83 +10,21 @@ on:
 permissions:
   contents: read
 
-env:
-  TAG: v0.2.5
-  OWNER: arvectum
-
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Probe extension matrix and clean up
-        env:
-          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
-          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+      - name: Probe public URLs
         shell: bash
         run: |
-          set -uo pipefail
-          API='https://api.gitverse.ru'
-          ACCEPT='application/vnd.gitverse.object+json;version=1'
-          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
-          REPO="$GITVERSE_REPOSITORY"
-          test -n "$GITVERSE_TOKEN" || exit 1
-          test -n "$REPO" || exit 1
-
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json || exit 1
-          release_id="$(jq -r '.id' .gitverse-release.json)"
-          upload_url="$(jq -r '.upload_url' .gitverse-release.json)"
-          echo "release_id=$release_id"
-          echo "upload_url=$upload_url"
-
-          printf 'tiny probe\n' > tiny.bin
-
-          list_assets() {
-            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1"
-          }
-
-          delete_named() {
-            local n="$1"
-            list_assets > .assets.json || return 1
-            while IFS= read -r id; do
-              [ -n "$id" ] || continue
-              code="$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/$release_id/assets/$id")"
-              case "$code" in 200|202|204) ;; *) echo "cleanup failed $n id=$id HTTP=$code"; return 1;; esac
-            done < <(jq -r --arg n "$n" '.[] | select(.name==$n) | .id' .assets.json)
-          }
-
-          upload_probe() {
-            local name="$1" type="$2"
-            local encoded status
-            delete_named "$name" || return 2
-            encoded="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            status="$(curl -sS -o .probe-response -w '%{http_code}' -X POST "$upload_url?name=$encoded" -H "$AUTH" -H "Accept: $ACCEPT" -F "attachment=@tiny.bin;filename=$name;type=$type")"
-            printf 'PROBE %-24s %-32s HTTP=%s ' "$name" "$type" "$status"
-            cat .probe-response || true
-            echo
-            if [ "$status" = '201' ]; then
-              delete_named "$name" || return 2
-            fi
-          }
-
-          upload_probe 'probe.txt'  'text/plain'
-          upload_probe 'probe.json' 'application/json'
-          upload_probe 'probe.zip'  'application/zip'
-          upload_probe 'probe.exe'  'application/octet-stream'
-          upload_probe 'probe.sig'  'application/octet-stream'
-          upload_probe 'probe.cer'  'application/octet-stream'
-          upload_probe 'probe.cmd'  'text/plain'
-          upload_probe 'probe.ps1'  'text/plain'
-          upload_probe 'probe.bin'  'application/octet-stream'
-          upload_probe 'probe.dat'  'application/octet-stream'
-
-          echo '--- final assets after cleanup ---'
-          list_assets | jq -r '.[] | [.id,.name,.size] | @tsv'
-
-          # Diagnostic run intentionally fails so it can never be mistaken for mirror completion.
-          exit 1
+          set -euo pipefail
+          for url in \
+            'https://gitverse.ru/arvectum/proxy-launcher' \
+            'https://gitverse.ru/arvectum/proxy-launcher/releases' \
+            'https://gitverse.ru/arvectum/Proxy-launcher' \
+            'https://gitverse.ru/arvectum/Proxy-launcher/releases'; do
+            echo "=== $url ==="
+            curl -L -sS -o /tmp/body -w 'HTTP=%{http_code} FINAL=%{url_effective}\n' "$url"
+            grep -o -m1 '<title>[^<]*</title>' /tmp/body || true
+          done
