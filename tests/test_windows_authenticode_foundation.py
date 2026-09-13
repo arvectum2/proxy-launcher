@@ -17,7 +17,7 @@ class WindowsAuthenticodeFoundationTests(unittest.TestCase):
         self.assertIn("1.3.6.1.5.5.7.3.3", script)
         self.assertIn("1.2.840.113549.1.1.1", script)
         self.assertIn("RSACertificateExtensions", script)
-        self.assertIn("2048", script)
+        self.assertIn("3072", script)
 
     def test_production_signing_requires_timestamp_by_default(self):
         script = self.read("tools/windows_authenticode.ps1")
@@ -32,10 +32,12 @@ class WindowsAuthenticodeFoundationTests(unittest.TestCase):
         self.assertNotIn("/f',", script)
         self.assertIn("WINDOWS_SIGNING_CERT_THUMBPRINT", script)
 
-    def test_ci_smoke_uses_ephemeral_test_certificate_and_real_pe(self):
+    def test_ci_smoke_uses_ephemeral_rsa_3072_test_certificate_and_real_pe(self):
         workflow = self.read(".github/workflows/windows-authenticode.yml")
         self.assertIn("New-SelfSignedCertificate", workflow)
         self.assertIn("-Type CodeSigningCert", workflow)
+        self.assertIn("-KeyAlgorithm RSA", workflow)
+        self.assertIn("-KeyLength 3072", workflow)
         self.assertIn("./tools/clean_build_windows.ps1", workflow)
         self.assertIn("dist\\Arvectum Proxy Launcher.exe", workflow)
         self.assertIn("-SkipTimestamp", workflow)
