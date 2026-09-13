@@ -12,7 +12,8 @@ RETIRED_REPOSITORY_SLUGS = (
     "arvectum1" + "/proxy-launcher",
 )
 CANONICAL_REPOSITORY_SLUG = "arvectum2/proxy-launcher"
-GITVERSE_MIRROR_URL = "https://gitverse.ru/arvectum/proxy-launcher"
+GITVERSE_OWNER_URL = "https://gitverse.ru/arvectum"
+GITVERSE_MIRROR_URL = GITVERSE_OWNER_URL + "/proxy-launcher"
 HISTORICAL_REFERENCE_PREFIXES = (
     "docs/evidence/",
     "release/baselines/",
@@ -69,10 +70,10 @@ class RepositoryHygieneTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
-            # `arvectum/proxy-launcher` is retired only as a GitHub/source identity.
-            # The independent GitVerse distribution mirror intentionally uses that
-            # owner/repository path, so remove the exact GitVerse URL before checking
-            # for stale bare or GitHub-side repository identities.
+            # The old owner/repository slug is retired as a GitHub/source identity,
+            # but the independent GitVerse distribution mirror intentionally uses
+            # that path. Remove only the exact GitVerse mirror URL before checking
+            # for stale source-repository identities.
             scan_text = text.replace(GITVERSE_MIRROR_URL, "")
             matched = [slug for slug in RETIRED_REPOSITORY_SLUGS if slug in scan_text]
             if matched:
@@ -85,11 +86,14 @@ class RepositoryHygieneTests(unittest.TestCase):
         mirror_doc = (ROOT / "docs" / "releases" / "0.2.5-gitverse-mirror.md").read_text(
             encoding="utf-8"
         )
-        self.assertIn(GITVERSE_MIRROR_URL, readme)
+        # README may route users through the GitVerse owner page, while the detailed
+        # mirror contract must bind the exact repository URL.
+        self.assertIn(GITVERSE_OWNER_URL, readme)
         self.assertIn(GITVERSE_MIRROR_URL, mirror_doc)
         self.assertIn(CANONICAL_REPOSITORY_SLUG, readme)
-        self.assertNotIn("github.com/arvectum/proxy-launcher", readme)
-        self.assertNotIn("github.com/arvectum/proxy-launcher", mirror_doc)
+        retired_github_url = "github.com/arvectum" + "/proxy-launcher"
+        self.assertNotIn(retired_github_url, readme)
+        self.assertNotIn(retired_github_url, mirror_doc)
 
     def test_historical_reference_allowlist_is_explicit_and_bounded(self):
         for relative in HISTORICAL_REFERENCE_FILES:
