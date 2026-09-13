@@ -91,6 +91,13 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Final portable ZIP application bytes do not match", packager)
         self.assertIn("build-result.json", packager)
 
+    def test_installer_existing_payload_preserves_caller_supplied_portable_path(self):
+        installer = self.read("tools/build_windows_installer.ps1")
+        self.assertIn("$portableZipPath = Join-Path", installer)
+        self.assertIn("$portableZipPath = (Resolve-Path -LiteralPath $PortableZip).Path", installer)
+        self.assertIn("Hash $portableZipPath", installer)
+        self.assertNotIn("$portableZip = Join-Path", installer)
+
     def test_authenticode_primitive_enforces_rsa_profile(self):
         script = self.read("tools/windows_authenticode.ps1")
         self.assertIn("1.2.840.113549.1.1.1", script)
