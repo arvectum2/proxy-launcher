@@ -93,26 +93,15 @@ jobs:
             encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
             upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
               -X POST \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" \
               -H "$AUTH" \
               -H "Accept: $ACCEPT" \
-              -F "name=$name" \
-              -F "attachment=@$local_file;filename=$name;type=application/octet-stream" \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
-
-            if [ "$upload_status" != '201' ]; then
-              echo "Primary upload form failed for $name with HTTP $upload_status"
-              cat .gitverse-upload.json || true
-              upload_status="$(curl -sS -o .gitverse-upload-fallback.json -w '%{http_code}' \
-                -X POST \
-                -H "$AUTH" \
-                -H "Accept: $ACCEPT" \
-                -F "attachment=@$local_file;filename=$name" \
-                "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
-            fi
+              -H 'Content-Type: multipart/form-data' \
+              -F "attachment=@$local_file")"
 
             test "$upload_status" = '201' || {
               echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
-              cat .gitverse-upload-fallback.json 2>/dev/null || true
+              cat .gitverse-upload.json || true
               exit 1
             }
             echo "UPLOADED GitVerse asset: $name"
