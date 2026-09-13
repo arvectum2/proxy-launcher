@@ -86,6 +86,8 @@ jobs:
           $subject = 'CN=Arvectum CI Authenticode Test'
           $cert = New-SelfSignedCertificate `
             -Type CodeSigningCert `
+            -KeyAlgorithm RSA `
+            -KeyLength 3072 `
             -Subject $subject `
             -CertStoreLocation 'Cert:\CurrentUser\My' `
             -NotAfter (Get-Date).AddDays(1)
