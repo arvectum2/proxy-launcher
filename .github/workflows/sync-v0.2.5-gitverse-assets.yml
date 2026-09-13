@@ -28,10 +28,15 @@ jobs:
           rm -rf .gitverse-create-release
           git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-create-release
           echo '=== action.yml ==='
-          sed -n '1,240p' .gitverse-create-release/action.yml
-          echo '=== upload/API references ==='
-          grep -RniE 'multipart|attachment|assets|Upload|upload|api\.gitverse\.ru|releases' \
-            .gitverse-create-release --exclude-dir=.git --exclude='go.sum' --exclude='go.mod' | head -n 500 || true
+          cat .gitverse-create-release/action.yml
+          echo '=== cmd/releaseaction/main.go ==='
+          sed -n '1,220p' .gitverse-create-release/cmd/releaseaction/main.go
+          echo '=== internal/adapter/httpreleases/releases.go ==='
+          sed -n '1,180p' .gitverse-create-release/internal/adapter/httpreleases/releases.go
+          echo '=== internal/client/gitverse/http.go ==='
+          sed -n '1,220p' .gitverse-create-release/internal/client/gitverse/http.go
+          echo '=== internal/service/releases.go ==='
+          sed -n '1,180p' .gitverse-create-release/internal/service/releases.go
 
       - name: Download and verify canonical GitHub v0.2.5 assets
         env:
@@ -61,85 +66,39 @@ jobs:
           ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
 
-          test -n "$GITVERSE_TOKEN"
-          test -n "$REPO"
-
-          status="$(curl -sS -o .gitverse-release.json -w '%{http_code}' \
-            -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/releases/tags/$TAG")"
-          test "$status" = '200' || {
-            echo "::error::GitVerse release lookup failed with HTTP $status"
-            cat .gitverse-release.json || true
-            exit 1
-          }
+          status="$(curl -sS -o .gitverse-release.json -w '%{http_code}' -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/tags/$TAG")"
+          test "$status" = '200'
           release_id="$(jq -r '.id' .gitverse-release.json)"
-          test -n "$release_id" && test "$release_id" != 'null'
-          echo "GitVerse release id=$release_id"
-
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
-            > .gitverse-assets.json
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
 
           while IFS= read -r expected_line; do
             [ -n "$expected_line" ] || continue
             expected_hash="${expected_line%% *}"
             name="${expected_line#*  }"
             local_file=".sync-assets/$name"
-            test -f "$local_file"
-
             duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
-            test "$duplicate_count" -le 1
-
             if [ "$duplicate_count" -eq 1 ]; then
               url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
               curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
-              actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
-              test "$actual_hash" = "$expected_hash" || {
-                echo "::error::Existing GitVerse asset hash mismatch for $name"
-                exit 1
-              }
-              echo "PASS existing GitVerse asset: $name"
+              test "$(sha256sum .gitverse-existing-asset | awk '{print $1}')" = "$expected_hash"
               continue
             fi
-
             encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
-              -X POST \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" \
-              -H "$AUTH" \
-              -H "Accept: $ACCEPT" \
-              -H 'Content-Type: multipart/form-data' \
-              -F "attachment=@$local_file")"
-
-            test "$upload_status" = '201' || {
-              echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
-              cat .gitverse-upload.json || true
-              exit 1
-            }
-            echo "UPLOADED GitVerse asset: $name"
-
-            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
-              > .gitverse-assets.json
+            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' -X POST "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: multipart/form-data' -F "attachment=@$local_file")"
+            test "$upload_status" = '201' || { cat .gitverse-upload.json; exit 1; }
+            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
           done < docs/releases/0.2.5-public-assets.sha256
 
           awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sort > .expected-names
           jq -r '.[].name' .gitverse-assets.json | sort > .actual-names
           diff -u .expected-names .actual-names
-
           while IFS= read -r expected_line; do
             [ -n "$expected_line" ] || continue
             expected_hash="${expected_line%% *}"
             name="${expected_line#*  }"
             url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
-            test -n "$url" && test "$url" != 'null'
             curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-verify-asset
-            actual_hash="$(sha256sum .gitverse-verify-asset | awk '{print $1}')"
-            test "$actual_hash" = "$expected_hash" || {
-              echo "::error::Final GitVerse asset hash mismatch for $name"
-              exit 1
-            }
-            echo "PASS GitVerse asset SHA-256: $expected_hash  $name"
+            test "$(sha256sum .gitverse-verify-asset | awk '{print $1}')" = "$expected_hash"
           done < docs/releases/0.2.5-public-assets.sha256
 
       - name: Verify GitVerse README matches GitHub main
@@ -149,29 +108,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          API='https://api.gitverse.ru'
-          OWNER='arvectum'
-          REPO="$GITVERSE_REPOSITORY"
-          ACCEPT='application/vnd.gitverse.object+json;version=1'
-          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+          API='https://api.gitverse.ru'; OWNER='arvectum'; REPO="$GITVERSE_REPOSITORY"; ACCEPT='application/vnd.gitverse.object+json;version=1'; AUTH="Authorization: Bearer $GITVERSE_TOKEN"
           expected="$(sha256sum README.md | awk '{print $1}')"
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/contents/README.md?ref=main" > .gitverse-readme.json
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/contents/README.md?ref=main" > .gitverse-readme.json
           jq -r '.content' .gitverse-readme.json | tr -d '\n' | base64 --decode > .gitverse-README.md
           actual="$(sha256sum .gitverse-README.md | awk '{print $1}')"
-          test "$actual" = "$expected" || {
-            echo "::error::GitVerse README hash mismatch: $actual != $expected"
-            exit 1
-          }
+          test "$actual" = "$expected"
           echo "PASS GitVerse README SHA-256: $actual"
 
       - name: Summary
         shell: bash
         run: |
-          {
-            echo '### GitVerse v0.2.5 mirror PASS'
-            echo '- release object exists'
-            echo '- exact 9/9 public assets are present'
-            echo '- every asset SHA-256 matches the canonical GitHub release'
-            echo '- README content hash matches GitHub main'
-          } >> "$GITHUB_STEP_SUMMARY"
+          echo '### GitVerse v0.2.5 mirror PASS' >> "$GITHUB_STEP_SUMMARY"
