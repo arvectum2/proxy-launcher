@@ -45,6 +45,24 @@ jobs:
           test -n "$GITVERSE_TOKEN" || { echo '::error::GITVERSE_TOKEN is missing'; exit 1; }
           test -n "$GITVERSE_REPOSITORY" || { echo '::error::GITVERSE_REPO is missing'; exit 1; }
 
+          # GitVerse MCP currently names these two repository fields username/reponame.
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/sync_gitverse_release.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              '            "owner": self.owner,\n',
+              '            "username": self.owner,\n            "owner": self.owner,\n',
+              1,
+          )
+          text = text.replace(
+              '            "repo": self.repo,\n',
+              '            "reponame": self.repo,\n            "repo": self.repo,\n',
+              1,
+          )
+          p.write_text(text, encoding='utf-8')
+          PY
+
           python scripts/sync_gitverse_release.py \
             --owner arvectum \
             --repo "$GITVERSE_REPOSITORY" \
