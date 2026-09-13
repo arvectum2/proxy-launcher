@@ -72,6 +72,17 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("Windows P0 portable", release)
         self.assertIn('.conclusion == "success"', release)
 
+    def test_owner_signed_0_2_5_never_uses_automated_rebuild_publication(self):
+        release = self.read(".github/workflows/release.yml")
+        self.assertIn('if [ "$VERSION" = "0.2.5" ]', release)
+        self.assertIn('OWNER_SIGNED_RELEASE="true"', release)
+        self.assertIn('owner_signed_release=${OWNER_SIGNED_RELEASE}', release)
+        self.assertIn('if [ "$OWNER_SIGNED_RELEASE" = "true" ]', release)
+        self.assertIn("Automated CI rebuild publication is intentionally disabled", release)
+        self.assertIn("Publish only the REL-011/012/013/015 verified owner-signed directory", release)
+        self.assertIn("if: needs.validate.outputs.owner_signed_release != 'true'", release)
+        self.assertIn('echo "should_publish=false" >> "$GITHUB_OUTPUT"', release)
+
     def test_publish_job_structural_protection(self):
         release = self.read(".github/workflows/release.yml")
         publish_section = release.split("\n  publish:\n")[1]
