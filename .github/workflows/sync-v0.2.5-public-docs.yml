@@ -1,0 +1,250 @@
+name: Sync v0.2.5 public docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - README.md
+      - docs/releases/0.2.5.md
+      - docs/releases/0.2.5-public-assets.sha256
+      - .github/workflows/sync-v0.2.5-public-docs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TAG: v0.2.5
+  TITLE: Arvectum Proxy Launcher 0.2.5
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Verify exact GitHub public assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .sync-assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir .sync-assets
+
+          expected_count="$(wc -l < docs/releases/0.2.5-public-assets.sha256 | tr -d ' ')"
+          actual_count="$(find .sync-assets -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          test "$expected_count" = "9"
+          test "$actual_count" = "$expected_count"
+
+          (
+            cd .sync-assets
+            sha256sum -c ../docs/releases/0.2.5-public-assets.sha256
+          )
+
+      - name: Update GitHub release description
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release edit "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$TITLE" \
+            --notes-file docs/releases/0.2.5.md
+
+      - name: Create or update exact GitVerse release
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GITVERSE_TOKEN" || { echo '::error::GITVERSE_TOKEN is missing'; exit 1; }
+          test -n "$GITVERSE_REPOSITORY" || { echo '::error::GITVERSE_REPO is missing'; exit 1; }
+
+          API="https://api.gitverse.ru"
+          OWNER="arvectum"
+          REPO="$GITVERSE_REPOSITORY"
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
+          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+
+          jq -n \
+            --arg tag "$TAG" \
+            --arg title "$TITLE" \
+            --rawfile body docs/releases/0.2.5.md \
+            '{tag_name:$tag,name:$title,target_commitish:"main",body:$body,draft:false,prerelease:false,is_authorized_only:false}' \
+            > .gitverse-release-body.json
+
+          release_id=''
+          for attempt in $(seq 1 30); do
+            status="$(curl -sS -o .gitverse-release.json -w '%{http_code}' \
+              -H "$AUTH" -H "Accept: $ACCEPT" \
+              "$API/repos/$OWNER/$REPO/releases/tags/$TAG")"
+
+            if [ "$status" = '200' ]; then
+              release_id="$(jq -r '.id' .gitverse-release.json)"
+              break
+            fi
+
+            if [ "$status" != '404' ]; then
+              echo "::error::GitVerse release lookup failed with HTTP $status"
+              cat .gitverse-release.json || true
+              exit 1
+            fi
+
+            create_status="$(curl -sS -o .gitverse-create.json -w '%{http_code}' \
+              -X POST \
+              -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
+              --data-binary @.gitverse-release-body.json \
+              "$API/repos/$OWNER/$REPO/releases")"
+
+            if [ "$create_status" = '201' ]; then
+              release_id="$(jq -r '.id' .gitverse-create.json)"
+              break
+            fi
+
+            if [ "$create_status" = '404' ] || [ "$create_status" = '409' ] || [ "$create_status" = '422' ]; then
+              echo "GitVerse tag/release not ready yet (HTTP $create_status), retry $attempt/30"
+              sleep 5
+              continue
+            fi
+
+            echo "::error::GitVerse release creation failed with HTTP $create_status"
+            cat .gitverse-create.json || true
+            exit 1
+          done
+
+          test -n "$release_id" || { echo '::error::Timed out waiting for mirrored GitVerse tag/release'; exit 1; }
+
+          patch_status="$(curl -sS -o .gitverse-patch.json -w '%{http_code}' \
+            -X PATCH \
+            -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
+            --data-binary @.gitverse-release-body.json \
+            "$API/repos/$OWNER/$REPO/releases/$release_id")"
+          test "$patch_status" = '200' || {
+            echo "::error::GitVerse release metadata update failed with HTTP $patch_status"
+            cat .gitverse-patch.json || true
+            exit 1
+          }
+
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
+            > .gitverse-assets.json
+
+          while IFS= read -r expected_line; do
+            [ -n "$expected_line" ] || continue
+            expected_hash="${expected_line%% *}"
+            name="${expected_line#*  }"
+            local_file=".sync-assets/$name"
+            test -f "$local_file"
+
+            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
+            if [ "$duplicate_count" -gt 1 ]; then
+              echo "::error::Duplicate GitVerse release asset: $name"
+              exit 1
+            fi
+
+            if [ "$duplicate_count" -eq 1 ]; then
+              url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
+              curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
+              actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
+              if [ "$actual_hash" != "$expected_hash" ]; then
+                echo "::error::Existing GitVerse asset hash mismatch for $name: $actual_hash != $expected_hash"
+                exit 1
+              fi
+              echo "PASS existing GitVerse asset: $expected_hash  $name"
+              continue
+            fi
+
+            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
+            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
+              -X POST \
+              -H "$AUTH" -H "Accept: $ACCEPT" \
+              -F "attachment=@$local_file" \
+              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
+            test "$upload_status" = '201' || {
+              echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
+              cat .gitverse-upload.json || true
+              exit 1
+            }
+            echo "UPLOADED GitVerse asset: $name"
+          done < docs/releases/0.2.5-public-assets.sha256
+
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
+            > .gitverse-assets-final.json
+
+          awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sort > .expected-names
+          jq -r '.[].name' .gitverse-assets-final.json | sort > .actual-names
+          diff -u .expected-names .actual-names
+
+          while IFS= read -r expected_line; do
+            [ -n "$expected_line" ] || continue
+            expected_hash="${expected_line%% *}"
+            name="${expected_line#*  }"
+            url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets-final.json)"
+            curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-verify-asset
+            actual_hash="$(sha256sum .gitverse-verify-asset | awk '{print $1}')"
+            test "$actual_hash" = "$expected_hash" || {
+              echo "::error::Final GitVerse asset hash mismatch for $name"
+              exit 1
+            }
+            echo "PASS final GitVerse asset: $expected_hash  $name"
+          done < docs/releases/0.2.5-public-assets.sha256
+
+          echo "release_id=$release_id" >> "$GITHUB_ENV"
+          echo "gitverse_repo=$REPO" >> "$GITHUB_ENV"
+
+      - name: Verify mirrored README on GitVerse
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          API='https://api.gitverse.ru'
+          OWNER='arvectum'
+          REPO="$GITVERSE_REPOSITORY"
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
+          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+          expected="$(sha256sum README.md | awk '{print $1}')"
+
+          matched='false'
+          for attempt in $(seq 1 30); do
+            status="$(curl -sS -o .gitverse-readme.json -w '%{http_code}' \
+              -H "$AUTH" -H "Accept: $ACCEPT" \
+              "$API/repos/$OWNER/$REPO/contents/README.md?ref=main")"
+            if [ "$status" = '200' ]; then
+              jq -r '.content' .gitverse-readme.json | tr -d '\n' | base64 --decode > .gitverse-README.md
+              actual="$(sha256sum .gitverse-README.md | awk '{print $1}')"
+              if [ "$actual" = "$expected" ]; then
+                matched='true'
+                echo "PASS GitVerse README SHA-256: $actual"
+                break
+              fi
+            fi
+            echo "Waiting for GitVerse main mirror README ($attempt/30)..."
+            sleep 5
+          done
+
+          test "$matched" = 'true' || {
+            echo '::error::GitVerse README did not converge to GitHub main'
+            exit 1
+          }
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo '### v0.2.5 public distribution sync PASS'
+            echo '- GitHub release description: updated from docs/releases/0.2.5.md'
+            echo '- GitHub assets: exact 9/9 hashes verified'
+            echo "- GitVerse repository: arvectum/${gitverse_repo}"
+            echo "- GitVerse release id: ${release_id}"
+            echo '- GitVerse assets: exact 9/9 names and hashes verified'
+            echo '- GitVerse README: exact content hash matches GitHub main'
+          } >> "$GITHUB_STEP_SUMMARY"
