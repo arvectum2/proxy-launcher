@@ -42,7 +42,7 @@ if ($SyntheticPredecessor) {
 $versionCore = ($version -split '[-+]')[0]
 $versionInfoVersion = "$versionCore.0"
 $exe = Join-Path $root 'dist\Arvectum Proxy Launcher.exe'
-$portableZip = Join-Path $root "out\Arvectum-Proxy-Launcher-$canonicalVersion-windows-x64-portable.zip"
+$portableZipPath = Join-Path $root "out\Arvectum-Proxy-Launcher-$canonicalVersion-windows-x64-portable.zip"
 
 if ($UseExistingPayload) {
     foreach ($input in @($ApplicationExe, $PortableZip, $BuildResultPath)) {
@@ -50,22 +50,22 @@ if ($UseExistingPayload) {
         if (-not (Test-Path -LiteralPath $input -PathType Leaf)) { throw "UseExistingPayload input does not exist: $input" }
     }
     $exe = (Resolve-Path -LiteralPath $ApplicationExe).Path
-    $portableZip = (Resolve-Path -LiteralPath $PortableZip).Path
+    $portableZipPath = (Resolve-Path -LiteralPath $PortableZip).Path
     $buildResult = Get-Content -LiteralPath $BuildResultPath -Raw | ConvertFrom-Json
     if ([string]$buildResult.version -cne $canonicalVersion) { throw 'UseExistingPayload build-result version does not match VERSION.' }
     if ([string]$buildResult.format -cne 'portable') { throw 'UseExistingPayload build-result format must be portable.' }
     if ([string]$buildResult.source_commit -cne (git rev-parse HEAD).Trim()) { throw 'UseExistingPayload build-result source_commit does not match HEAD.' }
-    if ((Hash $portableZip) -cne ([string]$buildResult.zip_sha256).ToLowerInvariant()) { throw 'UseExistingPayload portable ZIP hash does not match build-result.json.' }
+    if ((Hash $portableZipPath) -cne ([string]$buildResult.zip_sha256).ToLowerInvariant()) { throw 'UseExistingPayload portable ZIP hash does not match build-result.json.' }
     if ((Hash $exe) -cne ([string]$buildResult.exe_sha256).ToLowerInvariant()) { throw 'UseExistingPayload application hash does not match build-result.json.' }
     if ($ExpectedApplicationSha256 -and (Hash $exe) -cne $ExpectedApplicationSha256.ToLowerInvariant()) { throw 'UseExistingPayload application hash does not match -ExpectedApplicationSha256.' }
-} elseif (-not (Test-Path -LiteralPath $exe) -or -not (Test-Path -LiteralPath $portableZip)) {
+} elseif (-not (Test-Path -LiteralPath $exe) -or -not (Test-Path -LiteralPath $portableZipPath)) {
     & (Join-Path $root 'tools\clean_build_windows.ps1') -PythonExecutable $PythonExecutable
     if ($LASTEXITCODE) { throw 'portable build failed' }
-    & (Join-Path $root 'tools\windows_promoted_license_compliance.ps1') -PortableZip $portableZip
+    & (Join-Path $root 'tools\windows_promoted_license_compliance.ps1') -PortableZip $portableZipPath
     if ($LASTEXITCODE) { throw 'APL-IP-004 portable license compliance failed' }
 }
 if (-not (Test-Path -LiteralPath $exe)) { throw 'dist\\Arvectum Proxy Launcher.exe is required' }
-if (-not (Test-Path -LiteralPath $portableZip)) { throw 'APL-IP-004 compliant portable ZIP is required' }
+if (-not (Test-Path -LiteralPath $portableZipPath)) { throw 'APL-IP-004 compliant portable ZIP is required' }
 
 $payload = Join-Path $root 'out\installer-payload'
 Remove-Item -LiteralPath $payload -Recurse -Force -ErrorAction SilentlyContinue
@@ -78,7 +78,7 @@ Copy-Item -LiteralPath (Join-Path $root 'THIRD_PARTY_NOTICES.txt') -Destination 
 
 $licenseExtract = Join-Path $root 'out\installer-license-source'
 Remove-Item -LiteralPath $licenseExtract -Recurse -Force -ErrorAction SilentlyContinue
-Expand-Archive -LiteralPath $portableZip -DestinationPath $licenseExtract -Force
+Expand-Archive -LiteralPath $portableZipPath -DestinationPath $licenseExtract -Force
 $portableExe = Join-Path $licenseExtract 'Arvectum Proxy Launcher.exe'
 if (-not (Test-Path -LiteralPath $portableExe -PathType Leaf)) { throw 'Portable ZIP does not contain Arvectum Proxy Launcher.exe.' }
 if ((Hash $portableExe) -cne (Hash $exe)) { throw 'Portable ZIP application bytes do not match the installer payload application.' }
