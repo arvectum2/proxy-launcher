@@ -34,10 +34,11 @@ def test_bundled_russian_verifier_is_rewritten_with_utf8_bom_before_signing():
     assert convert_index < signing_index
 
 
-def test_downstream_scripts_really_contain_unicode_and_need_the_encoding_boundary():
-    assert any(byte >= 128 for byte in GATE.read_bytes())
-    assert any(byte >= 128 for byte in VERIFIER.read_bytes())
-    assert any(byte >= 128 for byte in SIGNER.read_bytes())
+def test_downstream_scripts_are_valid_utf8_regardless_of_current_character_set():
+    for path in (GATE, VERIFIER, SIGNER):
+        raw = path.read_bytes()
+        decoded = raw.decode("utf-8")
+        assert decoded
 
 
 def _assert_cryptopro_native_stderr_is_exit_code_driven(path: Path):
