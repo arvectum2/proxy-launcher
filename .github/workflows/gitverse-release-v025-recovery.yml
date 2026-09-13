@@ -45,7 +45,10 @@ jobs:
           test -n "$GITVERSE_TOKEN" || { echo '::error::GITVERSE_TOKEN is missing'; exit 1; }
           test -n "$GITVERSE_REPOSITORY" || { echo '::error::GITVERSE_REPO is missing'; exit 1; }
 
-          # GitVerse MCP currently names these two repository fields username/reponame.
+          # GitVerse MCP currently requires username/reponame and, for updates,
+          # release_id even though these requirements are not fully reflected in
+          # the advertised input schema. Patch the recovery client at runtime;
+          # the permanent source fix is committed only after the end-to-end run passes.
           python - <<'PY'
           from pathlib import Path
           p = Path('scripts/sync_gitverse_release.py')
@@ -58,6 +61,17 @@ jobs:
           text = text.replace(
               '            "repo": self.repo,\n',
               '            "reponame": self.repo,\n            "repo": self.repo,\n',
+              1,
+          )
+          text = text.replace(
+              '        args = {key: values[key] for key in props if key in values}\n',
+              '        args = {key: values[key] for key in props if key in values}\n'
+              '        args.setdefault("username", self.owner)\n'
+              '        args.setdefault("reponame", self.repo)\n'
+              '        if tool_name == "create_release":\n'
+              '            args.setdefault("tag_name", tag)\n'
+              '        if release_id is not None:\n'
+              '            args.setdefault("release_id", release_id)\n',
               1,
           )
           p.write_text(text, encoding='utf-8')
