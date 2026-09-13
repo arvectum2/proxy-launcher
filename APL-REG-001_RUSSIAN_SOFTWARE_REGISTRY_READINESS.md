@@ -2,7 +2,7 @@
 
 Status: **PRE-SUBMISSION WORKSTREAM OPEN**  
 Audit date: **2026-09-13**  
-Baseline: `main` @ `6731e739534c4d3bd9f22fee94a5bb7c92ca5083`  
+Baseline: `main` @ `f05ae1b225153ca9ae739b7597eae3ee5481051f`  
 Tracking issue: #46
 
 ## 1. Goal and boundary
@@ -18,7 +18,7 @@ The pre-submission review must use the law actually effective on the submission 
 - Government Resolution of the Russian Federation No. 1236 of 2015-11-16, edition including amendments effective through 2026-09-13;
 - Government Resolution No. 1937 of 2025-11-28, effective from 2026-03-01, including staged trusted-OS compatibility requirements;
 - Government Resolution No. 1007 of 2026-08-13, whose relevant amendments to the register rules are effective from 2026-09-01;
-- the software classifier and its application rules effective on the actual submission date.
+- the software classifier approved by Ministry of Digital Development Order No. 486, in the edition effective on the actual submission date.
 
 ### 2.1 Rospatent is evidence, not a gate
 
@@ -26,30 +26,32 @@ A Rospatent software-registration certificate can strengthen the evidence packag
 
 ### 2.2 Trusted-OS compatibility changes the delivery plan
 
-Resolution No. 1937 introduced a requirement for affected software to be compatible with at least two operating systems meeting the statutory trusted-software requirements, subject to the exceptions in the rules. The requirement is staged by software category:
+Resolution No. 1937 introduced a requirement for affected software to be compatible with at least two operating systems meeting the statutory trusted-software requirements, subject to the exceptions in the rules. The requirement is staged by software category.
 
-- office software: 2026-09-01;
-- service programs and several system/infrastructure classes: 2027-01-01;
-- application software, industry application software and information-security software: 2027-06-01;
-- industrial software and organization-process management software: 2028-01-01.
+APL-REG-001A has now classified the current Proxy Launcher product scope as **02.02 — Программы обслуживания**. On the regulatory baseline current at 2026-09-13, the two-trusted-OS requirement for class 02.02 applies from **2027-01-01**.
 
-The exact date for Proxy Launcher therefore depends on its legally defensible classifier assignment. That classification is a blocking decision, not a cosmetic metadata choice.
+That date is therefore a concrete delivery deadline rather than an unresolved classification-dependent estimate. The classification and law must still be rechecked immediately before filing.
 
-## 3. Product classification policy
+## 3. Product classification decision
 
-Current public product description: Arvectum Proxy Launcher is a local client that routes traffic through a configured upstream HTTP proxy while exposing local HTTP, SOCKS5 and PAC endpoints; `no_proxy` rules can route selected destinations directly.
+Current public product description: Arvectum Proxy Launcher is a local user-space client/utility that routes traffic through a configured upstream HTTP proxy while exposing local HTTP, SOCKS5 and PAC endpoints; `no_proxy` rules can route selected destinations directly.
 
-Do **not** classify the product as information-security software merely because it works with network traffic or proxies. The current product is not represented as a cryptographic VPN, firewall, certified security product or channel-protection product.
+**APL-REG-001A decision:**
 
-Working hypothesis only: a system/service/network utility class may be more appropriate. Before submission, APL-REG-001A must compare the real release functionality against the classifier effective on that date and record:
+- primary class: **02.02 — Программы обслуживания**;
+- additional classes: **none for the current `0.2.x` product scope**;
+- decision record: `APL-REG-001A_SOFTWARE_CLASSIFICATION_DECISION.md`;
+- tracking issue: #48.
 
-1. primary class;
-2. any defensible additional class;
-3. rejected candidate classes and why;
-4. date on which the two-trusted-OS requirement becomes applicable;
-5. whether any class-specific evidence or certification is triggered.
+Rejected for the current scope:
 
-No application should be submitted while this decision remains unresolved.
+- **02.13 — Сетевая операционная система**: Proxy Launcher is not an OS, router firmware or full software-router/network-OS layer; registry examples in 02.13 include vESR and router software «Факел»;
+- **02.06 — Серверное и связующее ПО**: local HTTP/SOCKS5/PAC listeners are supporting mechanisms of the desktop utility, not a standalone middleware/server platform;
+- **02.08 — Средства мониторинга и управления**: monitoring/managing an estate of external objects is not the principal product function;
+- **03.* — Средства обеспечения информационной безопасности**: the product does not implement or claim cryptographic VPN protection, NGFW/firewall, IDS/IPS, DLP, access-control or another independent protection function;
+- **05.* — Прикладное ПО**: the product solves an auxiliary system/network-access task rather than a domain/business subject-matter task.
+
+Reclassification is mandatory if future releases materially add packet-level/system routing, router/appliance mode, an independent server/middleware role, security-policy/protection functions, VPN/cryptography or another function mapped to a different classifier class.
 
 ## 4. Readiness audit
 
@@ -70,11 +72,11 @@ Status vocabulary:
 | Rospatent software registration | OPTIONAL | Use as additional evidence if obtained; do not make it the only proof of rights. |
 | Corporate/rightsholder qualification | EXTERNAL | Verify ownership/control and other rightsholder conditions under the current rules. |
 | APL-IP-002 | MISSING | Complete Russian stack & dependency sovereignty audit first. |
-| APL-IP-001 | MISSING | Complete IP provenance / human-authorship hardening after APL-IP-002. |
+| APL-IP-001 automation | PARTIAL | Provenance CI exists; complete human review/legal sign-off and freeze evidence for the submitted release after APL-IP-002. |
 | Dependency/license inventory | MISSING | Produce governed runtime/build/dev inventory and license disposition. |
-| SBOM | MISSING | Produce SBOM tied to the exact submitted release. |
+| SBOM automation | PARTIAL | CycloneDX SBOM CI exists; retain/freeze the SBOM for the exact submitted release and complete legal disposition. |
 | THIRD_PARTY_NOTICES | MISSING | Produce notices for redistributed third-party components. |
-| IP_PROVENANCE | MISSING | Produce provenance record and clean-IP baseline/tag. |
+| IP_PROVENANCE | PARTIAL | Automated source manifest exists; complete human/legal review and clean-IP baseline/tag. |
 | Foreign payment/dependency evidence | MISSING | Accounting/legal review of applicable foreign payments, licenses, services and rights. |
 | Source/object-code storage infrastructure | PARTIAL | Inventory physical hosting/control and map it to Resolution No. 1236 requirements. |
 | Build/compilation infrastructure | PARTIAL | Document where the submitted release is compiled and retain auditable build evidence. |
@@ -86,29 +88,32 @@ Status vocabulary:
 | Support/maintenance statement | MISSING | Document support, warranty/maintenance and source modification by an eligible Russian entity/person. |
 | Price/licensing statement | MISSING | State price or price-determination procedure, or lawful free/open licensing terms, as applicable. |
 | Expert test package | MISSING | Prepare a clean test copy plus deterministic installation and verification instructions. |
-| Software class | MISSING / BLOCKER | Complete APL-REG-001A before filing. |
-| Two trusted OSes | MISSING / BLOCKER | Select two qualifying OSes of different rightsholders when the requirement applies. |
-| Linux runtime/product support | PARTIAL | Cross-platform work is in the roadmap, but registry compatibility must be proved by actual acceptance tests, not inferred from Python portability. |
-| Trusted-OS compatibility protocols | MISSING | Produce repeatable tests and signed/controlled evidence for the exact release. |
+| Software class | READY / RECHECK | 02.02 — Программы обслуживания; recheck classifier and actual release immediately before filing. |
+| Two trusted OSes | MISSING / BLOCKER | For class 02.02 the requirement applies from 2027-01-01 on the current legal baseline. Select and prove two qualifying OSes under APL-REG-001C. |
+| Linux runtime/product support | PARTIAL | Linux/Astra tooling exists, but registry compatibility must be proved by actual acceptance tests on two qualifying OSes, not inferred from generic Linux portability. |
+| Trusted-OS compatibility protocols | MISSING | Produce repeatable tests and governed evidence for the exact submitted release. |
 | Electronic application and UKЭП | EXTERNAL | Submit through the operator's current electronic process using an authorized qualified signature. |
 
 ## 5. Work order
 
-### APL-REG-001A — classifier decision
+### APL-REG-001A — classifier decision — DECIDED
 
-- obtain the classifier/rules effective on execution date;
-- map each material Proxy Launcher function to candidate classes;
-- reject overbroad/security classifications unsupported by functionality;
-- determine the staged trusted-OS deadline;
-- freeze the result as registry evidence.
+Repository decision: `APL-REG-001A_SOFTWARE_CLASSIFICATION_DECISION.md`.
+
+Current filing position:
+
+- primary class 02.02;
+- no additional classes for current scope;
+- trusted-OS compatibility date 2027-01-01 under the current rules;
+- mandatory final recheck before filing.
 
 ### APL-IP-002 — Russian stack & dependency sovereignty audit
 
-Must precede IP hardening. Inventory runtime/build/dev dependencies, origin, rightsholder, license, redistribution, network dependency, criticality, Russian analogue and replacement feasibility. Also inventory source/build/release infrastructure relevant to Resolution No. 1236.
+Must precede final IP hardening. Inventory runtime/build/dev dependencies, origin, rightsholder, license, redistribution, network dependency, criticality, Russian analogue and replacement feasibility. Also inventory source/build/release infrastructure relevant to Resolution No. 1236.
 
 ### APL-IP-001 — IP provenance & human-authorship hardening
 
-Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, SBOM, THIRD_PARTY_NOTICES, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside the public repository.
+The automation/provenance foundation already exists. Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, release-bound SBOM, THIRD_PARTY_NOTICES, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside the public repository.
 
 ### APL-REG-001B — sovereign lifecycle evidence
 
@@ -125,11 +130,11 @@ Where current infrastructure fails a mandatory requirement, migrate before submi
 
 ### APL-REG-001C — trusted Russian OS compatibility
 
-After classification establishes the applicable deadline:
+Because 02.02 is now the filing class, plan against the **2027-01-01** applicability date unless the law changes before submission.
 
-- choose two qualifying trusted general-purpose OSes from different rightsholders based on the official status at execution time;
+- choose two qualifying trusted general-purpose OSes from different rightsholders based on official status at execution time;
 - implement the product/runtime/UI packaging needed for them;
-- run clean-host installation/start/stop/routing/no-proxy/uninstall/regression tests;
+- run clean-host installation/start/stop/routing/no-proxy/restart/uninstall/regression tests;
 - record OS edition/version, package hashes and exact product commit/release;
 - prepare expert-readable compatibility protocols.
 
@@ -167,17 +172,18 @@ Never commit private keys, UKЭП material, personal data or restricted corporat
 Immediately before filing:
 
 1. re-check Resolution No. 1236 and the classifier for changes;
-2. verify every application URL from a clean session;
-3. verify all submitted artifact hashes;
-4. verify release/version naming is identical across application, manuals and binaries;
-5. verify class and trusted-OS evidence;
-6. verify rightsholder evidence;
-7. freeze the submitted release/evidence set;
-8. only then sign and submit the electronic application.
+2. re-run the APL-REG-001A classification against the exact product release;
+3. verify every application URL from a clean session;
+4. verify all submitted artifact hashes;
+5. verify release/version naming is identical across application, manuals and binaries;
+6. verify class and trusted-OS evidence;
+7. verify rightsholder evidence;
+8. freeze the submitted release/evidence set;
+9. only then sign and submit the electronic application.
 
 ## 6. Relationship to APL-REL-016
 
-APL-REG-001 is now an upstream business/compliance dependency of the Russia-first route for obtaining a future National Certification Authority code-signing certificate, to the extent the final NUC eligibility rules require registry inclusion.
+APL-REG-001 is an upstream business/compliance dependency of the Russia-first route for obtaining a future National Certification Authority code-signing certificate, to the extent the final NUC eligibility rules require registry inclusion.
 
 Registry inclusion must **not** be represented as proof of Microsoft public trust. APL-REL-016 retains its separate clean-Windows Authenticode/SmartScreen/Smart App Control acceptance gate.
 
@@ -185,9 +191,9 @@ Registry inclusion must **not** be represented as proof of Microsoft public trus
 
 APL-REG-001 repository preparation can be closed only when:
 
-- a legally defensible software class is recorded;
+- class 02.02 remains legally defensible for the exact submitted release after the final recheck;
 - every applicable Resolution No. 1236 condition is `PASS` or has a documented `NOT_APPLICABLE` rationale;
-- APL-IP-002 and APL-IP-001 are complete;
+- APL-IP-002 and final APL-IP-001 human/legal work are complete;
 - the exact submitted release has governed dependency, license, SBOM and provenance evidence;
 - infrastructure evidence satisfies all requirements applicable on the filing date;
 - trusted-OS compatibility is implemented and documented if applicable;
