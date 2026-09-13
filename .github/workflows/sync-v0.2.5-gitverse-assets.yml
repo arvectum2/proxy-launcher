@@ -21,6 +21,18 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
+      - name: Inspect official GitVerse create-release implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .gitverse-create-release
+          git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-create-release
+          echo '=== action.yml ==='
+          sed -n '1,240p' .gitverse-create-release/action.yml
+          echo '=== upload/API references ==='
+          grep -RniE 'multipart|attachment|assets|Upload|upload|api\.gitverse\.ru|releases' \
+            .gitverse-create-release --exclude-dir=.git --exclude='go.sum' --exclude='go.mod' | head -n 500 || true
+
       - name: Download and verify canonical GitHub v0.2.5 assets
         env:
           GH_TOKEN: ${{ github.token }}
