@@ -2,8 +2,7 @@ name: Sync v0.2.5 public docs
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - README.md
       - docs/releases/0.2.5.md
@@ -32,16 +31,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf .sync-assets
           mkdir -p .sync-assets
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir .sync-assets
           expected_count="$(wc -l < docs/releases/0.2.5-public-assets.sha256 | tr -d ' ')"
           actual_count="$(find .sync-assets -maxdepth 1 -type f | wc -l | tr -d ' ')"
           test "$expected_count" = "9"
           test "$actual_count" = "$expected_count"
-          (
-            cd .sync-assets
-            sha256sum -c ../docs/releases/0.2.5-public-assets.sha256
-          )
+          (cd .sync-assets && sha256sum -c ../docs/releases/0.2.5-public-assets.sha256)
 
       - name: Update GitHub release description
         env:
@@ -67,24 +64,24 @@ jobs:
           API='https://api.gitverse.ru'
           OWNER='arvectum'
           REPO="$GITVERSE_REPOSITORY"
-          ACCEPT='application/vnd.gitverse.object+json;version=latest'
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
 
           repo_status="$(curl -sS -o .gitverse-repo.json -w '%{http_code}' \
             -H "$AUTH" -H "Accept: $ACCEPT" \
             "$API/repos/$OWNER/$REPO")"
-          if [ "$repo_status" != '200' ]; then
+          test "$repo_status" = '200' || {
             echo "::error::GitVerse repository lookup failed with HTTP $repo_status"
             cat .gitverse-repo.json || true
             exit 1
-          fi
+          }
           echo "PASS GitVerse repository API access: $OWNER/$REPO"
 
           jq -n \
             --arg tag "$TAG" \
             --arg title "$TITLE" \
             --rawfile body docs/releases/0.2.5.md \
-            '{tag_name:$tag,name:$title,body:$body,draft:false,prerelease:false}' \
+            '{name:$title,tag_name:$tag,target_commitish:"main",body:$body,draft:false,prerelease:false,is_authorized_only:false}' \
             > .gitverse-release-body.json
 
           status="$(curl -sS -o .gitverse-release.json -w '%{http_code}' \
@@ -97,34 +94,29 @@ jobs:
             echo "Found existing GitVerse release id=$release_id"
           elif [ "$status" = '404' ]; then
             create_status="$(curl -sS -o .gitverse-create.json -w '%{http_code}' \
-              --request POST \
-              --location \
-              -H "$AUTH" -H "Accept: $ACCEPT" \
-              --json @.gitverse-release-body.json \
+              --location --request POST \
+              --header "Accept: $ACCEPT" \
+              --header "$AUTH" \
+              --header 'Content-Type: application/json' \
+              --data-raw "$(cat .gitverse-release-body.json)" \
               "$API/repos/$OWNER/$REPO/releases")"
-
             if [ "$create_status" = '201' ]; then
               release_id="$(jq -r '.id' .gitverse-create.json)"
               echo "Created GitVerse release id=$release_id"
             elif [ "$create_status" = '409' ]; then
-              echo 'GitVerse returned 409; checking whether the release now exists.'
               lookup_status="$(curl -sS -o .gitverse-release-after-conflict.json -w '%{http_code}' \
                 -H "$AUTH" -H "Accept: $ACCEPT" \
                 "$API/repos/$OWNER/$REPO/releases/tags/$TAG")"
-              if [ "$lookup_status" = '200' ]; then
-                release_id="$(jq -r '.id' .gitverse-release-after-conflict.json)"
-              else
+              test "$lookup_status" = '200' || {
                 echo '::error::GitVerse release creation conflicted and no release is retrievable.'
                 cat .gitverse-create.json || true
                 exit 1
-              fi
+              }
+              release_id="$(jq -r '.id' .gitverse-release-after-conflict.json)"
             else
               echo "::error::GitVerse release creation failed with HTTP $create_status"
-              echo '--- GitVerse response ---'
               cat .gitverse-create.json || true
-              echo
-              echo '--- Request shape (body text omitted from diagnostics) ---'
-              jq '{tag_name,name,draft,prerelease,body_length:(.body|length)}' .gitverse-release-body.json
+              jq '{tag_name,name,target_commitish,draft,prerelease,is_authorized_only,body_length:(.body|length)}' .gitverse-release-body.json
               exit 1
             fi
           else
@@ -136,16 +128,17 @@ jobs:
           test -n "$release_id" && test "$release_id" != 'null'
 
           patch_status="$(curl -sS -o .gitverse-patch.json -w '%{http_code}' \
-            --request PATCH \
-            --location \
-            -H "$AUTH" -H "Accept: $ACCEPT" \
-            --json @.gitverse-release-body.json \
+            --location --request PATCH \
+            --header "Accept: $ACCEPT" \
+            --header "$AUTH" \
+            --header 'Content-Type: application/json' \
+            --data-raw "$(cat .gitverse-release-body.json)" \
             "$API/repos/$OWNER/$REPO/releases/$release_id")"
-          if [ "$patch_status" != '200' ]; then
+          test "$patch_status" = '200' || {
             echo "::error::GitVerse release metadata update failed with HTTP $patch_status"
             cat .gitverse-patch.json || true
             exit 1
-          fi
+          }
 
           curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
             "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
@@ -168,10 +161,10 @@ jobs:
               url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
               curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
               actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
-              if [ "$actual_hash" != "$expected_hash" ]; then
+              test "$actual_hash" = "$expected_hash" || {
                 echo "::error::Existing GitVerse asset hash mismatch for $name: $actual_hash != $expected_hash"
                 exit 1
-              fi
+              }
               echo "PASS existing GitVerse asset: $expected_hash  $name"
               continue
             fi
@@ -179,15 +172,14 @@ jobs:
             encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
             upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
               --request POST \
-              --location \
               -H "$AUTH" -H "Accept: $ACCEPT" \
               -F "attachment=@$local_file" \
               "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
-            if [ "$upload_status" != '201' ]; then
+            test "$upload_status" = '201' || {
               echo "::error::GitVerse upload failed for $name with HTTP $upload_status"
               cat .gitverse-upload.json || true
               exit 1
-            fi
+            }
             echo "UPLOADED GitVerse asset: $name"
           done < docs/releases/0.2.5-public-assets.sha256
 
@@ -226,10 +218,9 @@ jobs:
           API='https://api.gitverse.ru'
           OWNER='arvectum'
           REPO="$GITVERSE_REPOSITORY"
-          ACCEPT='application/vnd.gitverse.object+json;version=latest'
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
           expected="$(sha256sum README.md | awk '{print $1}')"
-
           status="$(curl -sS -o .gitverse-readme.json -w '%{http_code}' \
             -H "$AUTH" -H "Accept: $ACCEPT" \
             "$API/repos/$OWNER/$REPO/contents/README.md?ref=main")"
@@ -238,7 +229,6 @@ jobs:
             cat .gitverse-readme.json || true
             exit 1
           }
-
           jq -r '.content' .gitverse-readme.json | tr -d '\n' | base64 --decode > .gitverse-README.md
           actual="$(sha256sum .gitverse-README.md | awk '{print $1}')"
           test "$actual" = "$expected" || {
