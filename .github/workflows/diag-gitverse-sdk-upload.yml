@@ -1,4 +1,4 @@
-name: Probe GitVerse asset filename validation
+name: Probe GitVerse release asset extension validation
 
 on:
   push:
@@ -22,22 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare probe files
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf .probe-assets
-          mkdir .probe-assets
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'apl-rel-015-cfa-hotfix-evidence.json' --dir .probe-assets
-          expected="$(awk '$2 == "apl-rel-015-cfa-hotfix-evidence.json" {print $1}' docs/releases/0.2.5-public-assets.sha256)"
-          actual="$(sha256sum .probe-assets/apl-rel-015-cfa-hotfix-evidence.json | awk '{print $1}')"
-          test -n "$expected" && test "$actual" = "$expected"
-          printf 'tiny probe\n' > .probe-assets/tiny.txt
-          echo "PASS canonical probe asset SHA-256: $actual"
-
-      - name: Isolate name versus content validation
+      - name: Probe extension matrix and clean up
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -58,6 +43,8 @@ jobs:
           echo "release_id=$release_id"
           echo "upload_url=$upload_url"
 
+          printf 'tiny probe\n' > tiny.bin
+
           list_assets() {
             curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
               "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1"
@@ -73,34 +60,33 @@ jobs:
             done < <(jq -r --arg n "$n" '.[] | select(.name==$n) | .id' .assets.json)
           }
 
-          upload() {
-            local label="$1" name="$2" file="$3" type="$4"
+          upload_probe() {
+            local name="$1" type="$2"
             local encoded status
+            delete_named "$name" || return 2
             encoded="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            status="$(curl -sS -o ".${label}.json" -w '%{http_code}' -X POST "$upload_url?name=$encoded" -H "$AUTH" -H "Accept: $ACCEPT" -F "attachment=@$file;filename=$name;type=$type")"
-            echo "$label HTTP=$status name=$name length=${#name} file_size=$(wc -c < "$file" | tr -d ' ')"
-            cat ".${label}.json" || true
+            status="$(curl -sS -o .probe-response -w '%{http_code}' -X POST "$upload_url?name=$encoded" -H "$AUTH" -H "Accept: $ACCEPT" -F "attachment=@tiny.bin;filename=$name;type=$type")"
+            printf 'PROBE %-24s %-32s HTTP=%s ' "$name" "$type" "$status"
+            cat .probe-response || true
             echo
             if [ "$status" = '201' ]; then
               delete_named "$name" || return 2
             fi
-            printf '%s' "$status"
           }
 
-          # Remove the successful probe left by the prior diagnostic run.
-          delete_named 'apl-gitverse-upload-probe.txt' || exit 1
+          upload_probe 'probe.txt'  'text/plain'
+          upload_probe 'probe.json' 'application/json'
+          upload_probe 'probe.zip'  'application/zip'
+          upload_probe 'probe.exe'  'application/octet-stream'
+          upload_probe 'probe.sig'  'application/octet-stream'
+          upload_probe 'probe.cer'  'application/octet-stream'
+          upload_probe 'probe.cmd'  'text/plain'
+          upload_probe 'probe.ps1'  'text/plain'
+          upload_probe 'probe.bin'  'application/octet-stream'
+          upload_probe 'probe.dat'  'application/octet-stream'
 
-          short_name='evidence.json'
-          short_status="$(upload shortname "$short_name" '.probe-assets/apl-rel-015-cfa-hotfix-evidence.json' 'application/json')"
-          echo "RESULT short-name canonical-content=$short_status"
+          echo '--- final assets after cleanup ---'
+          list_assets | jq -r '.[] | [.id,.name,.size] | @tsv'
 
-          canonical_name='apl-rel-015-cfa-hotfix-evidence.json'
-          tiny_status="$(upload longname "$canonical_name" '.probe-assets/tiny.txt' 'text/plain')"
-          echo "RESULT canonical-name tiny-content=$tiny_status"
-
-          medium_name='apl-rel-015-cfa-hotfix.json'
-          medium_status="$(upload mediumname "$medium_name" '.probe-assets/apl-rel-015-cfa-hotfix-evidence.json' 'application/json')"
-          echo "RESULT medium-name canonical-content=$medium_status"
-
-          # Fail intentionally so diagnostics are never mistaken for release completion.
+          # Diagnostic run intentionally fails so it can never be mistaken for mirror completion.
           exit 1
