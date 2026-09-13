@@ -188,3 +188,23 @@ jobs:
             Remove-Item -LiteralPath "Cert:\CurrentUser\My\$thumbprint" -Force -ErrorAction SilentlyContinue
             Remove-Item -LiteralPath "Cert:\LocalMachine\Root\$thumbprint" -Force -ErrorAction SilentlyContinue
           }
+
+  build:
+    name: build
+    needs:
+      - contract
+      - powershell-syntax
+      - ephemeral-signed-byte-order
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    steps:
+      - name: Aggregate required build status
+        env:
+          CONTRACT_RESULT: ${{ needs.contract.result }}
+          POWERSHELL_RESULT: ${{ needs.powershell-syntax.result }}
+          BYTE_ORDER_RESULT: ${{ needs.ephemeral-signed-byte-order.result }}
+        run: |
+          test "$CONTRACT_RESULT" = "success"
+          test "$POWERSHELL_RESULT" = "success"
+          test "$BYTE_ORDER_RESULT" = "success"
+          echo "Required build status PASS."
