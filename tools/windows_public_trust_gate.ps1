@@ -230,7 +230,7 @@ foreach ($artifact in @($app, $setup)) {
     if ($artifact.signature_status -cne 'Valid') { Add-Failure $failures "$($artifact.role): Authenticode status is $($artifact.signature_status), expected Valid." }
     if (-not $artifact.code_signing_eku) { Add-Failure $failures "$($artifact.role): Code Signing EKU $CodeSigningEkuOid is absent." }
     if ($artifact.public_key_algorithm_oid -cne $RsaOid) { Add-Failure $failures "$($artifact.role): signer is not RSA." }
-    if ([int]$artifact.rsa_key_bits -lt 2048) { Add-Failure $failures "$($artifact.role): RSA key is smaller than 2048 bits." }
+    if ([int]$artifact.rsa_key_bits -lt 3072) { Add-Failure $failures "$($artifact.role): RSA key is smaller than the 3072-bit public code-signing minimum." }
     if (-not $artifact.chain_build) { Add-Failure $failures "$($artifact.role): Windows certificate-chain build failed." }
     if (-not $artifact.root_present_in_windows_trust_store) { Add-Failure $failures "$($artifact.role): chain root is not present in a Windows trusted/auth root store." }
     if (-not [string]::IsNullOrWhiteSpace($ExpectedPublisher) -and $artifact.publisher -cne $ExpectedPublisher) {
@@ -274,7 +274,7 @@ if ($RequireNoSmartScreenWarning -and $SmartScreenOutcome -ne 'NoWarning') {
 }
 
 $signatureProfileReady = @($app, $setup) | Where-Object {
-    $_.signature_status -ne 'Valid' -or -not $_.code_signing_eku -or $_.public_key_algorithm_oid -ne $RsaOid -or $_.rsa_key_bits -lt 2048 -or -not $_.chain_build
+    $_.signature_status -ne 'Valid' -or -not $_.code_signing_eku -or $_.public_key_algorithm_oid -ne $RsaOid -or $_.rsa_key_bits -lt 3072 -or -not $_.chain_build
 }
 
 $classification = 'PUBLIC_SIGNATURE_READY_PHYSICAL_ACCEPTANCE_PENDING'
