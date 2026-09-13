@@ -60,7 +60,7 @@ jobs:
           jq -e '.tag_name == "v0.2.5"' .gitverse-release.json >/dev/null
           jq -e '.name == "Arvectum Proxy Launcher 0.2.5"' .gitverse-release.json >/dev/null
           jq -e '(.draft == false) and (.prerelease == false)' .gitverse-release.json >/dev/null
-          jq -r '.body // ""' .gitverse-release.json > .gitverse-release-notes.md
+          jq -j '.body // ""' .gitverse-release.json > .gitverse-release-notes.md
           cmp -s docs/releases/0.2.5.md .gitverse-release-notes.md || {
             echo '::error::GitVerse release notes differ from canonical 0.2.5 notes'
             echo "GitVerse body bytes: $(wc -c < .gitverse-release-notes.md)"
