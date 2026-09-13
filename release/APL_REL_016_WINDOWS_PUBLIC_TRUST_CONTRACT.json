@@ -16,10 +16,10 @@
       "required_for_direct_public_win32": true,
       "certificate_profile": {
         "key_algorithm": "RSA",
-        "minimum_key_bits": 2048,
+        "minimum_key_bits": 3072,
         "code_signing_eku_oid": "1.3.6.1.5.5.7.3.3",
         "digest": "SHA256",
-        "chain_requirement": "Certificate chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for the relevant code-signing use.",
+        "chain_requirement": "Certificate chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for the relevant code-signing use and meeting the CA/Browser Forum Code Signing Baseline Requirements.",
         "self_signed_allowed": false
       },
       "timestamp": {
@@ -85,7 +85,7 @@
         "owner_is_eligible_and_certificate_can_be_issued",
         "code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation",
         "microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified",
-        "rsa_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"
+        "rsa_3072_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"
       ],
       "manual_installation_of_russian_trusted_root_is_not_public_consumer_trust": true
     }
