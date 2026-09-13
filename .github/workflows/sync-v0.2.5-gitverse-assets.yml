@@ -21,23 +21,6 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Inspect official GitVerse create-release implementation
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf .gitverse-create-release
-          git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-create-release
-          echo '=== action.yml ==='
-          cat .gitverse-create-release/action.yml
-          echo '=== cmd/releaseaction/main.go ==='
-          sed -n '1,220p' .gitverse-create-release/cmd/releaseaction/main.go
-          echo '=== internal/adapter/httpreleases/releases.go ==='
-          sed -n '1,180p' .gitverse-create-release/internal/adapter/httpreleases/releases.go
-          echo '=== internal/client/gitverse/http.go ==='
-          sed -n '1,220p' .gitverse-create-release/internal/client/gitverse/http.go
-          echo '=== internal/service/releases.go ==='
-          sed -n '1,180p' .gitverse-create-release/internal/service/releases.go
-
       - name: Download and verify canonical GitHub v0.2.5 assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,7 +36,112 @@ jobs:
           test "$actual_count" = "$expected_count"
           (cd .sync-assets && sha256sum -c ../docs/releases/0.2.5-public-assets.sha256)
 
-      - name: Upload exact assets to existing GitVerse v0.2.5 release
+      - name: Upload assets with official GitVerse client implementation
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+          GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GITVERSE_TOKEN"
+          test -n "$GITVERSE_REPOSITORY"
+
+          rm -rf .gitverse-create-release
+          git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-create-release
+
+          mkdir -p .gitverse-create-release/cmd/arvectum-mirror-upload
+          cat > .gitverse-create-release/cmd/arvectum-mirror-upload/main.go <<'GO'
+          package main
+
+          import (
+              "fmt"
+              "os"
+              "path/filepath"
+
+              "gitverse.ru/actions/create-release/internal/adapter/httpreleases"
+              "gitverse.ru/actions/create-release/internal/client/gitverse"
+              "gitverse.ru/actions/create-release/internal/dto"
+          )
+
+          func fail(format string, args ...any) {
+              fmt.Fprintf(os.Stderr, format+"\n", args...)
+              os.Exit(1)
+          }
+
+          func main() {
+              token := os.Getenv("GITVERSE_TOKEN")
+              owner := os.Getenv("GITVERSE_OWNER")
+              repo := os.Getenv("GITVERSE_REPOSITORY")
+              tag := os.Getenv("GITVERSE_TAG")
+              if token == "" || owner == "" || repo == "" || tag == "" {
+                  fail("missing GitVerse configuration")
+              }
+              if len(os.Args) < 2 {
+                  fail("no asset files supplied")
+              }
+
+              c, err := gitverse.New(
+                  gitverse.SetPublicApiUrl("https://api.gitverse.ru"),
+                  gitverse.SetAccessToken(token),
+              )
+              if err != nil {
+                  fail("create GitVerse client: %v", err)
+              }
+              r := httpreleases.New(c)
+
+              rel, _, err := r.GetReleaseByTag(owner, repo, tag)
+              if err != nil {
+                  fail("get release %s: %v", tag, err)
+              }
+              fmt.Printf("GitVerse release id=%d tag=%s\n", rel.ID, tag)
+
+              attachments, _, err := r.ListReleaseAttachments(owner, repo, rel.ID, dto.ListOptions{Page: 1, PerPage: dto.MaxPageSize})
+              if err != nil {
+                  fail("list release assets: %v", err)
+              }
+
+              for _, path := range os.Args[1:] {
+                  filename := filepath.Base(path)
+                  for _, a := range attachments {
+                      if a.Name == filename {
+                          fmt.Printf("Replacing existing asset %s (id=%d)\n", filename, a.ID)
+                          if _, err := r.DeleteReleaseAttachment(owner, repo, rel.ID, a.ID); err != nil {
+                              fail("delete existing asset %s: %v", filename, err)
+                          }
+                      }
+                  }
+
+                  f, err := os.Open(path)
+                  if err != nil {
+                      fail("open %s: %v", path, err)
+                  }
+                  _, resp, err := r.CreateReleaseAttachment(owner, repo, rel.ID, f, filename)
+                  f.Close()
+                  if err != nil {
+                      if resp != nil {
+                          fail("upload %s: HTTP %d: %v", filename, resp.StatusCode, err)
+                      }
+                      fail("upload %s: %v", filename, err)
+                  }
+                  fmt.Printf("UPLOADED GitVerse asset: %s\n", filename)
+              }
+          }
+          GO
+
+          mapfile -t assets < <(awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sed 's#^#.sync-assets/#')
+          test "${#assets[@]}" -eq 9
+
+          root="$PWD"
+          (
+            cd .gitverse-create-release
+            GITVERSE_OWNER='arvectum' \
+            GITVERSE_REPOSITORY="$GITVERSE_REPOSITORY" \
+            GITVERSE_TAG="$TAG" \
+            GITVERSE_TOKEN="$GITVERSE_TOKEN" \
+            go run ./cmd/arvectum-mirror-upload "${assets[@]/#/$root/}"
+          )
+
+      - name: Verify exact GitVerse release metadata and 9 assets
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -66,39 +154,43 @@ jobs:
           ACCEPT='application/vnd.gitverse.object+json;version=1'
           AUTH="Authorization: Bearer $GITVERSE_TOKEN"
 
-          status="$(curl -sS -o .gitverse-release.json -w '%{http_code}' -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/tags/$TAG")"
-          test "$status" = '200'
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json
+
+          test "$(jq -r '.tag_name' .gitverse-release.json)" = "$TAG"
+          test "$(jq -r '.name' .gitverse-release.json)" = 'Arvectum Proxy Launcher 0.2.5'
+          printf '%s' "$(jq -r '.body' .gitverse-release.json)" > .gitverse-release-body.md
+          python - <<'PY'
+          from pathlib import Path
+          expected = Path('docs/releases/0.2.5.md').read_text(encoding='utf-8').rstrip('\n')
+          actual = Path('.gitverse-release-body.md').read_text(encoding='utf-8')
+          if actual != expected:
+              raise SystemExit('GitVerse release body does not match docs/releases/0.2.5.md')
+          print('PASS GitVerse release notes match canonical bilingual notes')
+          PY
+
           release_id="$(jq -r '.id' .gitverse-release.json)"
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
 
-          while IFS= read -r expected_line; do
-            [ -n "$expected_line" ] || continue
-            expected_hash="${expected_line%% *}"
-            name="${expected_line#*  }"
-            local_file=".sync-assets/$name"
-            duplicate_count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets.json)"
-            if [ "$duplicate_count" -eq 1 ]; then
-              url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
-              curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
-              test "$(sha256sum .gitverse-existing-asset | awk '{print $1}')" = "$expected_hash"
-              continue
-            fi
-            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' -X POST "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name" -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: multipart/form-data' -F "attachment=@$local_file")"
-            test "$upload_status" = '201' || { cat .gitverse-upload.json; exit 1; }
-            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" > .gitverse-assets.json
-          done < docs/releases/0.2.5-public-assets.sha256
-
+          test "$(jq 'length' .gitverse-assets.json)" -eq 9
           awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sort > .expected-names
           jq -r '.[].name' .gitverse-assets.json | sort > .actual-names
           diff -u .expected-names .actual-names
+
           while IFS= read -r expected_line; do
             [ -n "$expected_line" ] || continue
             expected_hash="${expected_line%% *}"
             name="${expected_line#*  }"
             url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets.json)"
+            test -n "$url" && test "$url" != 'null'
             curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-verify-asset
-            test "$(sha256sum .gitverse-verify-asset | awk '{print $1}')" = "$expected_hash"
+            actual_hash="$(sha256sum .gitverse-verify-asset | awk '{print $1}')"
+            test "$actual_hash" = "$expected_hash" || {
+              echo "::error::GitVerse asset hash mismatch for $name: $actual_hash != $expected_hash"
+              exit 1
+            }
+            echo "PASS GitVerse asset SHA-256: $expected_hash  $name"
           done < docs/releases/0.2.5-public-assets.sha256
 
       - name: Verify GitVerse README matches GitHub main
@@ -108,15 +200,30 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          API='https://api.gitverse.ru'; OWNER='arvectum'; REPO="$GITVERSE_REPOSITORY"; ACCEPT='application/vnd.gitverse.object+json;version=1'; AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+          API='https://api.gitverse.ru'
+          OWNER='arvectum'
+          REPO="$GITVERSE_REPOSITORY"
+          ACCEPT='application/vnd.gitverse.object+json;version=1'
+          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
           expected="$(sha256sum README.md | awk '{print $1}')"
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" "$API/repos/$OWNER/$REPO/contents/README.md?ref=main" > .gitverse-readme.json
+          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
+            "$API/repos/$OWNER/$REPO/contents/README.md?ref=main" > .gitverse-readme.json
           jq -r '.content' .gitverse-readme.json | tr -d '\n' | base64 --decode > .gitverse-README.md
           actual="$(sha256sum .gitverse-README.md | awk '{print $1}')"
-          test "$actual" = "$expected"
+          test "$actual" = "$expected" || {
+            echo "::error::GitVerse README hash mismatch: $actual != $expected"
+            exit 1
+          }
           echo "PASS GitVerse README SHA-256: $actual"
 
       - name: Summary
         shell: bash
         run: |
-          echo '### GitVerse v0.2.5 mirror PASS' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo '### GitVerse v0.2.5 independent mirror PASS'
+            echo '- GitVerse release object: verified'
+            echo '- bilingual release notes: exact canonical match'
+            echo '- release assets: exact 9/9 names'
+            echo '- release assets: 9/9 SHA-256 match canonical GitHub release'
+            echo '- README: exact content hash matches GitHub main'
+          } >> "$GITHUB_STEP_SUMMARY"
