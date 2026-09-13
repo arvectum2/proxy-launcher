@@ -125,7 +125,7 @@ jobs:
             encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
             upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
               -X POST \
-              -H "$AUTH" -H "Accept: $ACCEPT" \
+              -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: multipart/form-data' \
               -F "attachment=@$local_file" \
               "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
             test "$upload_status" = '201' || {
