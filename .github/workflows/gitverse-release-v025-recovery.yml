@@ -63,8 +63,6 @@ jobs:
           jq -j '.body // ""' .gitverse-release.json > .gitverse-release-notes.md
           cmp -s docs/releases/0.2.5.md .gitverse-release-notes.md || {
             echo '::error::GitVerse release notes differ from canonical 0.2.5 notes'
-            echo "GitVerse body bytes: $(wc -c < .gitverse-release-notes.md)"
-            echo "Canonical body bytes: $(wc -c < docs/releases/0.2.5.md)"
             exit 1
           }
 
@@ -74,67 +72,74 @@ jobs:
           echo "gitverse_repo=$REPO" >> "$GITHUB_ENV"
           echo "PASS GitVerse release metadata id=$release_id"
 
-      - name: Upload missing GitVerse assets and verify existing copies
+      - name: Upload exact assets with official GitVerse release client
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
         shell: bash
         run: |
           set -euo pipefail
-          API='https://api.gitverse.ru'
-          OWNER='arvectum'
-          REPO="$GITVERSE_REPOSITORY"
-          ACCEPT='application/vnd.gitverse.object+json;version=1'
-          AUTH="Authorization: Bearer $GITVERSE_TOKEN"
+          test "$GITVERSE_REPOSITORY" = 'proxy-launcher'
 
-          curl -fsS -H "$AUTH" -H "Accept: $ACCEPT" \
-            "$API/repos/$OWNER/$REPO/releases/$release_id/assets?per_page=50&page=1" \
-            > .gitverse-assets-before.json
+          git clone --depth 1 https://gitverse.ru/actions/create-release.git .gitverse-release-action
+          mkdir -p .gitverse-release-action/cmd/arvectum-upload
 
-          unexpected="$(jq -r '.[].name' .gitverse-assets-before.json | sort | comm -23 - <(awk '{print $2}' docs/releases/0.2.5-public-assets.sha256 | sort) || true)"
-          test -z "$unexpected" || {
-            echo "::error::Unexpected GitVerse release assets: $unexpected"
-            exit 1
-          }
+          cat > .gitverse-release-action/cmd/arvectum-upload/main.go <<'GO'
+          package main
 
-          while IFS= read -r expected_line; do
-            [ -n "$expected_line" ] || continue
-            expected_hash="${expected_line%% *}"
-            name="${expected_line#*  }"
-            local_file=".sync-assets/$name"
-            test -f "$local_file"
+          import (
+              "fmt"
+              "os"
+              "strconv"
 
-            count="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' .gitverse-assets-before.json)"
-            if [ "$count" -gt 1 ]; then
-              echo "::error::Duplicate GitVerse release asset: $name"
-              exit 1
-            fi
+              "gitverse.ru/actions/create-release/internal/adapter/httpreleases"
+              "gitverse.ru/actions/create-release/internal/client/gitverse"
+              "gitverse.ru/actions/create-release/internal/service"
+          )
 
-            if [ "$count" -eq 1 ]; then
-              url="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .browser_download_url' .gitverse-assets-before.json)"
-              curl -LfsS -H "$AUTH" -H "Accept: $ACCEPT" "$url" -o .gitverse-existing-asset
-              actual_hash="$(sha256sum .gitverse-existing-asset | awk '{print $1}')"
-              test "$actual_hash" = "$expected_hash" || {
-                echo "::error::Existing GitVerse asset hash mismatch for $name"
-                exit 1
+          func main() {
+              token := os.Getenv("GITVERSE_TOKEN")
+              if token == "" {
+                  panic("GITVERSE_TOKEN is missing")
               }
-              echo "PASS existing GitVerse asset: $expected_hash  $name"
-              continue
-            fi
+              if len(os.Args) < 3 {
+                  panic("usage: arvectum-upload RELEASE_ID FILE...")
+              }
+              releaseID, err := strconv.ParseInt(os.Args[1], 10, 64)
+              if err != nil {
+                  panic(err)
+              }
+              files := os.Args[2:]
+              if len(files) != 9 {
+                  panic(fmt.Sprintf("expected exactly 9 assets, got %d", len(files)))
+              }
 
-            encoded_name="$(python -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$name")"
-            upload_status="$(curl -sS -o .gitverse-upload.json -w '%{http_code}' \
-              -X POST \
-              -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: multipart/form-data' \
-              -F "attachment=@$local_file" \
-              "$API/repos/$OWNER/$REPO/releases/$release_id/assets?name=$encoded_name")"
-            test "$upload_status" = '201' || {
-              echo "::error::GitVerse upload failed for $name HTTP $upload_status"
-              cat .gitverse-upload.json || true
-              exit 1
-            }
-            echo "UPLOADED GitVerse asset: $name"
-          done < docs/releases/0.2.5-public-assets.sha256
+              c, err := gitverse.New(gitverse.SetAccessToken(token))
+              if err != nil {
+                  panic(err)
+              }
+              repository := httpreleases.New(c)
+              releases := service.New(repository)
+              if err := releases.UploadFiles("arvectum", "proxy-launcher", releaseID, files); err != nil {
+                  panic(err)
+              }
+              fmt.Printf("PASS official GitVerse client uploaded %d assets to release %d\n", len(files), releaseID)
+          }
+          GO
+
+          mapfile -t asset_names < <(awk '{print $2}' docs/releases/0.2.5-public-assets.sha256)
+          test "${#asset_names[@]}" = '9'
+          asset_paths=()
+          for name in "${asset_names[@]}"; do
+            path="$GITHUB_WORKSPACE/.sync-assets/$name"
+            test -f "$path"
+            asset_paths+=("$path")
+          done
+
+          (
+            cd .gitverse-release-action
+            go run ./cmd/arvectum-upload "$release_id" "${asset_paths[@]}"
+          )
 
       - name: Independently verify complete GitVerse release payload
         env:
