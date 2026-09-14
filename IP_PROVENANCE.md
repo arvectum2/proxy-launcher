@@ -98,6 +98,6 @@ The execution-ready rights-basis template is `docs/legal/APL_IP_001_RIGHTS_ASSIG
 - AppImage promoted distribution: **HOLD / OUT OF CURRENT APPROVAL SCOPE**.
 - R-1 through R-4: **PENDING — HUMAN/LEGAL ACTION**.
 - Overall machine verdict: **CONDITIONAL_HUMAN_LEGAL_GATE**.
-- **Clean IP baseline/tag:** **BLOCKED** until the required human/legal review is genuinely completed.
+- Clean IP baseline/tag: **BLOCKED** until the required human/legal review is genuinely completed.
 
-**NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** It may be created only after actual human/legal completion and explicit approval of the exact object; the immutable `v0.2.5` tag itself must never be moved.
+**NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** It may be created only after actual human/legal completion and the canonical sign-off is explicitly APPROVED by an authorized human; the immutable `v0.2.5` tag itself must never be moved.
