@@ -16,6 +16,16 @@ def git(*args: str, check: bool = True) -> str:
     return completed.stdout.strip()
 
 
+def git_object_available(ref: str) -> bool:
+    completed = subprocess.run(
+        ["git", "cat-file", "-e", f"{ref}^{{commit}}"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    return completed.returncode == 0
+
+
 def product_boundary(path: str) -> bool:
     p = Path(path)
     if len(p.parts) == 1 and (p.suffix == ".py" or p.suffix == ".bat"):
@@ -30,6 +40,15 @@ class AplIp001V025ReconciliationTests(unittest.TestCase):
     def setUpClass(cls):
         cls.data = json.loads(CONTRACT.read_text(encoding="utf-8"))
 
+    def require_full_history_objects(self, *refs: str) -> None:
+        missing = [ref for ref in refs if not git_object_available(ref)]
+        if missing:
+            self.skipTest(
+                "historical Git objects unavailable in shallow checkout; "
+                "dedicated APL-IP-001 workflow enforces this assertion with fetch-depth=0: "
+                + ", ".join(missing)
+            )
+
     def test_exact_release_identity(self):
         identity = self.data["accepted_release_identity"]
         self.assertEqual(identity["product_source_commit"], "9e8ca7e851563082cd7d03d7543ccb360a37ec27")
@@ -41,11 +60,13 @@ class AplIp001V025ReconciliationTests(unittest.TestCase):
 
     def test_immutable_tag_resolves_to_governed_commit(self):
         identity = self.data["accepted_release_identity"]
+        self.require_full_history_objects(identity["immutable_tag"])
         resolved = git("rev-parse", f'{identity["immutable_tag"]}^{{commit}}')
         self.assertEqual(resolved, identity["immutable_tag_commit"])
 
     def test_accepted_source_is_ancestor_of_tag(self):
         identity = self.data["accepted_release_identity"]
+        self.require_full_history_objects(identity["product_source_commit"], identity["immutable_tag_commit"])
         result = subprocess.run(
             ["git", "merge-base", "--is-ancestor", identity["product_source_commit"], identity["immutable_tag_commit"]],
             cwd=ROOT,
@@ -55,10 +76,12 @@ class AplIp001V025ReconciliationTests(unittest.TestCase):
     def test_no_product_boundary_drift_source_to_tag_or_tag_to_review_main(self):
         identity = self.data["accepted_release_identity"]
         baseline = self.data["reconciliation_baseline"]
-        for left, right in [
+        pairs = [
             (identity["product_source_commit"], identity["immutable_tag_commit"]),
             (identity["immutable_tag_commit"], baseline["main_commit_at_review_start"]),
-        ]:
+        ]
+        self.require_full_history_objects(*(ref for pair in pairs for ref in pair))
+        for left, right in pairs:
             changed = [p for p in git("diff", "--name-only", left, right).splitlines() if p]
             material = [p for p in changed if product_boundary(p)]
             self.assertEqual(material, [], f"unexpected product-boundary drift {left}..{right}: {material}")
