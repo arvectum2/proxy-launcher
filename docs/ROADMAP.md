@@ -1,11 +1,11 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-13  
+Updated: 2026-09-14  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: `0.2.5` — Windows stable release published on GitHub and independently mirrored to GitVerse
 
-Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **DEFERRED**, **FUTURE**.
+Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
 ## 0. Repository authority and release baseline
 
@@ -14,6 +14,7 @@ Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, *
 - **DONE** — GitVerse mirror logic is owner-independent on the GitHub side and current GitHub/GitVerse release mirroring is operational.
 - **DONE** — exact-SHA GitHub Actions evidence was rebuilt in the canonical repository for Windows portable, Windows installer/Gate R6, SAST, SBOM, provenance and release evidence.
 - **DONE** — `main` protection is governed by the active `Protect main` ruleset; PR + required `build` enforcement and negative merge acceptance have been proven.
+- **DONE** — stale Windows PowerShell 5.1 signing-chain encoding contract was corrected in PR #43; `Windows Russian-first Production Signing` is green again without changing production signing behavior.
 - **MIGRATION CLOSED** — the `arvectum1 -> arvectum2` repository migration is no longer an active project gate.
 
 Historical repository identifiers remain valid only inside explicit provenance, closed acceptance, immutable baseline or historical workflow material. They are not current operational authorities.
@@ -55,17 +56,19 @@ Canonical closure records:
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
 - **[Web] DONE — post-APL-IP-004 review reconciliation** — historical governance anchor remains candidate `ef9846e151a2e4e7046169e0787603969018cc97`; later technical evidence may bind newer maintained candidates without rewriting this review anchor.
 - **APL-IP-001 status: CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.**
-- **HUMAN/LEGAL PENDING** — close the remaining APL-IP-001 factual/legal boundary: R-1 author -> ООО rights basis; R-2 actual Rospatent status; R-3 corporate/interested-transaction basis where applicable; factual confirmation; explicit authorized final decision.
+- **DONE / CURRENT EXACT-OBJECT ENGINEERING** — APL-IP-001 has now been rebound to the exact accepted `v0.2.5` source/tag/artifact identity. Provenance and CycloneDX SBOM evidence are governed for that exact object; issue #57 remains open for final human/legal disposition.
+- **PRIVATE RIGHTS EVIDENCE RECORDED** — repository metadata now records SHA-256 digests and the human factual effect of an executed private rights instrument dated 2026-09-14 without publishing the private PDF/signature container. The record also states that the program is not yet registered with Rospatent and that Rospatent is not relied upon as the transfer basis.
+- **HUMAN/LEGAL PENDING / NOT APPROVED** — the canonical sign-off record remains fail-closed. R-1/R-2/R-3/R-4 must be actually reviewed and explicitly approved by an authorized human before any clean-IP baseline/tag is created.
 - **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only for the exact candidate authorized by the completed human/legal sign-off.
 - **RULE** — automation, repository migration and technical provenance evidence do not substitute for a human/legal decision.
 - **HOLD** — AppImage remains outside promoted commercial scope until its downstream/type-2-runtime obligations are separately cleared.
 
-The human/legal clean-IP lane remains important corporate/IP work, but it is no longer described as an unperformed `0.2.5` publication step: `v0.2.5` has already been published. The clean-IP decision governs its own controlled baseline/tag and future legal package.
+Canonical current records include `docs/APL_IP_001_V0_2_5_SIGNOFF.md` and `docs/evidence/APL_IP_001_V0_2_5_PRIVATE_RIGHTS_EVIDENCE_RECEIPT_2026-09-14.md`.
 
-## 4. Linux / Astra Linux — next platform lane
+## 4. Linux / Astra Linux — primary desktop platform lane
 
 - **DONE** — APL-LNX-001..009 engineering: environment detection, NetworkManager preflight, capability UX, PolicyKit UX, autostart, diagnostics, Debian package, AppImage engineering and Ubuntu CI acceptance.
-- **READY NOW / RECOMMENDED NEXT** — convert `ARVECTUM-DEMO` to persistent Windows 11 + Astra Linux SE 1.8 dual boot. The Windows `0.2.5` release/evidence set is now externally preserved and published, so the old Windows-release-preservation dependency is closed.
+- **READY NOW / RECOMMENDED PRIMARY LOCAL TASK** — convert `ARVECTUM-DEMO` to persistent Windows 11 + Astra Linux SE 1.8 dual boot. The Windows `0.2.5` release/evidence set is externally preserved and published, so the old Windows-release-preservation dependency is closed.
 - **READY NOW** — APL-LNX-010 real Astra acceptance on physical Astra Linux.
 - **PENDING** — Gate R8 closes only from real Astra-host PASS evidence; Ubuntu CI is not a substitute.
 - **PROMOTED LANE** — Debian `.deb` remains the preferred Linux/Astra production package.
@@ -73,67 +76,100 @@ The human/legal clean-IP lane remains important corporate/IP work, but it is no 
 
 APL-LNX-010 acceptance should cover at minimum: install/update/remove, GUI/runtime startup, NetworkManager/PolicyKit behavior, enable/sync/disable, rollback, autostart, crash/reboot recovery, diagnostics/privacy and preservation of Windows dual-boot bootability.
 
-## 5. macOS
+## 5. Russian Software Register / APL-REG-001
+
+This is now a distinct active workstream rather than an implicit legal tail of Linux/IP work.
+
+- **DECIDED** — APL-REG-001A classification working position: primary class `02.02 — Программы обслуживания`, with mandatory final classifier/law recheck immediately before filing.
+- **DONE** — APL-IP-002 sovereignty inventory feeds this workstream.
+- **REPOSITORY TOOLING COMPLETE / PHYSICAL GATE OPEN** — APL-REG-001B sovereign lifecycle contract/tooling exists. Remaining proof must come from real Russian-controlled source/build/artifact/distribution infrastructure; GitHub/GitHub Actions/GitHub Releases remain development/secondary channels, not filing-grade proof by themselves.
+- **PAUSED / WAITING ON TWO REAL-HOST ACCEPTANCE RUNS** — APL-REG-001C trusted-OS compatibility is deliberately paused.
+- **WORKING ACCEPTANCE PAIR** — Astra Linux Special Edition + РЕД ОС, subject to re-verification of qualifying status and different-rightsholder status at execution time.
+- **RESUME GATE** — do not continue compatibility-dependent registry engineering/documentation until both real-host acceptance runs exist. Generic Ubuntu CI, containers or claimed Python portability do not substitute.
+- **AFTER TWO-OS PASS** — reconcile platform differences/failures, implement only required compatibility changes, rerun affected cases, freeze compatibility contract, then produce expert-readable protocols.
+- **THEN** — APL-REG-001D registry documentation pack; APL-REG-001E private corporate evidence pack; APL-REG-001F pre-submission audit.
+
+Canonical registry readiness contract: `APL-REG-001_RUSSIAN_SOFTWARE_REGISTRY_READINESS.md`.
+
+## 6. macOS
 
 - **DONE** — APL-MAC-001..008 engineering/acceptance track and Gate R9 evidence retained.
 - **DEFERRED** — Apple production identity signing/notarization under the Russia-first priority model.
 - **DEFERRED** — controlled endpoint-denied build-input hardening where it requires Apple-specific production infrastructure.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit and does not weaken recovery/update semantics.
 
-## 6. Per-application routing — next product capability
+## 7. Per-application routing — next desktop product capability
 
 - **DONE** — APL-ROUTE-001 platform-neutral routing-rule model.
 - **DONE** — APL-ROUTE-002 per-platform feasibility matrix.
 - **AUTONOMOUS COMPLETE / LOCAL-NATIVE PENDING** — APL-ROUTE-003 Windows control-plane prototype.
 - **DONE** — APL-ROUTE-004 durable ownership/recovery/security journal.
-- **READY NOW FOR ARCHITECTURE DECISION** — the prerequisite “stable Windows baseline proven in the field/physically” is now satisfied by the `0.2.5` line.
+- **READY NOW FOR ARCHITECTURE DECISION** — the prerequisite “stable Windows baseline proven in the field/physically” is satisfied by the `0.2.5` line.
 - **STOP-GATE** — before Windows native production enforcement, deliberately choose an accepted enforcement architecture. Test-signing/developer modes are not a production workaround.
 - **AFTER WINDOWS NATIVE PATH** — extend the same product model to macOS/Linux where technically appropriate, with capability-aware UX rather than pretending every platform supports identical enforcement.
 
 Per-application routing must remain a new-version feature. It must not be retrofitted into immutable `v0.2.5` assets.
 
-## 7. Mobile applications — future platform stage
+## 8. Mobile applications
 
-- **FUTURE / AFTER DESKTOP BASELINES** — build iOS and Android applications as the next platform stage after the desktop product lines are sufficiently stable.
-- **FUTURE** — carry over the common routing/configuration model where platform APIs permit it.
-- **FUTURE / CAPABILITY-DEPENDENT** — support application-level selection/routing on iOS/Android only to the extent allowed by each platform; unsupported capabilities must be explicit in UX rather than emulated unsafely.
+### Android — APL-MOB-001 active dogfood branch
 
-Mobile work is not a blocker for Windows/Astra/macOS release closure.
+- **ACTIVE / DRAFT PR #53** — `apl-mob-001-android-spike` now contains a native Android project and real `VpnService`/TUN dogfood slice; this is no longer merely a future idea.
+- **IMPLEMENTED IN SPIKE** — minimal Russian UX, SOCKS5/HTTP proxy profile, full-device IPv4/IPv6 routing, virtual DNS, self-bypass, encrypted password storage via Android Keystore, foreground VPN lifecycle and user-visible connection/error state.
+- **ENGINE CHOICE FOR DOGFOOD** — `tun2proxy v0.8.3`, isolated behind `ProxyEngineAdapter`; upstream Android binaries are not committed and CI pins the upstream archive by SHA-256.
+- **CI PASS / APK BUILT** — PR head has a successful mobile workflow and publishes a debug APK artifact.
+- **PHYSICAL GATE OPEN** — before merge/closing APL-MOB-001: install on a real Android phone; verify SOCKS5 and the real HTTP proxy; wrong credentials/outage; browser + ordinary apps; sleep/wake; Wi-Fi↔cellular transitions; performance comparison; credential leakage inspection.
+- **POLICY** — Always-on/reconnect behavior remains deliberately undecided until physical dogfood evidence exists.
 
-## 8. All currently available next steps
+### iOS and later mobile work
 
-The project no longer has a single mandatory sequential next step. The following lanes are available from the current `0.2.5` baseline:
+- **FUTURE / AFTER ANDROID DOGFOOD + DESKTOP BASELINES** — build iOS application using the same product model where platform APIs permit it.
+- **FUTURE** — APL-MOB-002 proxy pool/health checks/automatic failover after MVP semantics are proven.
+- **CAPABILITY-DEPENDENT** — application-level selection/routing on iOS/Android only where the platform actually permits it; unsupported capabilities must be explicit in UX.
 
-1. **[Linux / recommended primary] APL-LNX-010 real Astra acceptance — READY NOW.** Prepare the dual-boot stand, install Astra Linux SE 1.8, test the `.deb` end-to-end and close Gate R8 from physical evidence.
-2. **[Windows trust / parallel] APL-REL-016 — READY NOW.** Investigate and choose the future Windows public-trust/distribution model without mutating `v0.2.5`; target any binary-signing change at `0.2.6+`.
-3. **[Human/legal / parallel] APL-IP-001 final sign-off — READY FOR HUMAN INPUT.** Close R-1/R-2/R-3, factual provenance and the authorized clean-IP decision; if `APPROVED`, create the governed clean-IP baseline/tag.
-4. **[Product / parallel discovery] per-application routing architecture — READY NOW.** Resolve the Windows enforcement STOP-GATE and define the first production-native increment after the existing control-plane prototype.
-5. **[macOS / optional priority] production distribution hardening — AVAILABLE BUT DEFERRED.** Apple signing/notarization and production distribution can be activated when macOS becomes a commercial priority.
-6. **[Windows maintenance] `0.2.5` support/hotfix lane — AVAILABLE AS NEEDED.** Triage field feedback and regressions; any changed product bytes require a new version and fresh exact-byte evidence rather than replacing `v0.2.5`.
-7. **[Release] next SemVer release — AVAILABLE WHEN A MATERIAL CHANGE EXISTS.** Do not create `0.2.6` merely to refresh documentation; use it for REL-016 signing/distribution changes, bug fixes, routing increments or another real product change, then repeat the applicable exact-SHA/physical/release-evidence gates.
-8. **[Mobile] iOS/Android — PLANNED, NOT YET PRIMARY.** Start after desktop baselines are sufficiently mature; preserve capability-aware routing semantics.
+## 9. All currently available workstreams
 
-### Recommended execution order from 2026-09-13
+The project now has multiple genuinely available branches of work from the current `0.2.5` baseline:
 
-1. **APL-LNX-010 / Astra Linux real-host acceptance and Gate R8.**
-2. In parallel, **APL-REL-016 Russian-first Windows trust investigation** and **APL-IP-001 human/legal closure**.
-3. After Gate R8, choose whether the next product increment is **Windows per-application routing** or **macOS production distribution**, based on commercial demand.
-4. Cut the next SemVer release only when one of those material changes is ready for governed acceptance.
-5. Move to **iOS/Android** after the desktop matrix is sufficiently stable.
+1. **[Linux / primary local] APL-LNX-010 real Astra acceptance — READY NOW.** Dual boot → Astra Linux SE → `.deb` end-to-end → Gate R8.
+2. **[Registry / physical] APL-REG-001C first half — READY NOW THROUGH ASTRA ACCEPTANCE.** The same Astra real-host evidence should be captured so it can serve both Gate R8 and the first trusted-OS acceptance record. After Astra, perform the second real-host acceptance on РЕД ОС before resuming compatibility-dependent registry work.
+3. **[Android / product dogfood] APL-MOB-001 PR #53 — READY NOW FOR PHYSICAL PHONE TESTING.** CI/APK exist; the remaining gate is real-device acceptance.
+4. **[Windows trust / parallel] APL-REL-016 — READY NOW.** Choose future Windows public-trust/distribution architecture for `0.2.6+`, Russia-first, without mutating `v0.2.5`.
+5. **[IP/legal / parallel] APL-IP-001 issue #57 — READY FOR FINAL HUMAN REVIEW.** Exact-object engineering and private rights evidence exist; canonical sign-off is still NOT APPROVED until an authorized human closes R-1..R-4 and selects the final decision.
+6. **[Registry infrastructure / parallel] APL-REG-001B physical sovereign lifecycle evidence — READY WHEN INFRASTRUCTURE IS AVAILABLE.** Prove Russian-controlled authoritative source/build/artifact/distribution reality using the existing fail-closed tooling.
+7. **[Product architecture / parallel] per-application routing — READY NOW FOR ARCHITECTURE DECISION.** Resolve the Windows native enforcement STOP-GATE before implementation/release.
+8. **[Windows maintenance] `0.2.5` support/hotfix lane — AVAILABLE AS NEEDED.** Any changed product bytes require a new version and fresh exact-byte evidence rather than replacing `v0.2.5`.
+9. **[macOS] production distribution hardening — AVAILABLE BUT DEFERRED.** Apple signing/notarization can be activated when macOS becomes a commercial priority.
+10. **[Release] next SemVer release — AVAILABLE WHEN A MATERIAL CHANGE EXISTS.** Do not create `0.2.6` merely for docs; use it for a real trust/signing change, bug fix, routing increment or other product change.
+11. **[iOS] mobile stage — FUTURE.** Start after Android dogfood and desktop baselines provide a stable product contract.
+12. **[Registry docs/submission] APL-REG-001D/E/F — BLOCKED BY TWO-OS COMPATIBILITY GATE where dependent.** Resume after Astra + РЕД ОС acceptance and current-law recheck.
 
-## 9. Desktop release matrix
+### Recommended execution order from 2026-09-14
+
+1. **Physical Astra Linux acceptance first**: prepare dual boot, execute APL-LNX-010, close Gate R8, and preserve evidence in a form reusable by APL-REG-001C.
+2. In parallel, **physically dogfood Android PR #53** on a real phone; this does not depend on Astra.
+3. In parallel, close **APL-IP-001 human/legal sign-off** and continue **APL-REL-016** architecture research.
+4. After Astra, execute the **РЕД ОС** real-host acceptance required by APL-REG-001C.
+5. Once both Russian OS acceptance records exist, resume APL-REG-001C compatibility reconciliation and then APL-REG-001D/F registry preparation.
+6. Choose the next major desktop feature increment: **Windows per-application routing** versus **macOS production distribution**, based on commercial priority.
+7. Cut the next SemVer release only for a material product/trust change.
+8. Move from Android dogfood to polished Android MVP, then iOS, after physical evidence supports the architecture.
+
+## 10. Platform / distribution matrix
 
 | Platform / form | Current state | Next gate |
 | --- | --- | --- |
 | Windows installer | **PUBLISHED 0.2.5** | REL-016 only for future native Windows trust; otherwise maintenance |
 | Windows portable | **PUBLISHED 0.2.5** | Maintenance / future feature release |
 | Linux Debian `.deb` | **ENGINEERING DONE** | APL-LNX-010 physical Astra PASS / Gate R8 |
+| Linux on Astra Linux SE | **READY FOR REAL-HOST ACCEPTANCE** | APL-LNX-010 + registry-compatible evidence capture |
+| Linux on РЕД ОС | **PLANNED REAL-HOST ACCEPTANCE** | Second APL-REG-001C OS acceptance |
 | Linux AppImage | **ENGINEERING DONE / COMMERCIAL HOLD** | Separate compliance clearance before promotion |
 | macOS `.app` / DMG | **ENGINEERING/ACCEPTANCE DONE** | Apple production signing/notarization when prioritized |
 | macOS portable | **OPTIONAL FUTURE** | Implement only if technically/product-wise useful |
-| iOS | **FUTURE** | Mobile-stage architecture |
-| Android | **FUTURE** | Mobile-stage architecture |
+| Android | **ACTIVE DOGFOOD / DRAFT PR #53** | Physical phone acceptance, then merge/polish MVP |
+| iOS | **FUTURE** | Mobile-stage architecture after Android dogfood / desktop stability |
 
 ## Completion discipline
 
-Do not substitute CI for physical App Control/Astra evidence, detached Russian release evidence for Microsoft native Windows publisher trust, or automation for human/legal decisions. Do not rewrite historical repository identities where they are part of provenance. Do not retarget immutable tags or replace published release assets in place. A documentation-only commit does not create a new product candidate. Current operational references must resolve to `arvectum2/proxy-launcher`.
+Do not substitute CI for physical App Control/Astra/РЕД ОС/mobile-device evidence, detached Russian release evidence for Microsoft native Windows publisher trust, or automation for human/legal decisions. Do not rewrite historical repository identities where they are part of provenance. Do not retarget immutable tags or replace published release assets in place. A documentation-only commit does not create a new product candidate. Current operational references must resolve to `arvectum2/proxy-launcher`.
