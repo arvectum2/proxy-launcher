@@ -17,17 +17,19 @@ Prepare Arvectum Proxy Launcher for inclusion in the Unified Register of Russian
 | Area | Status | Current evidence / next boundary |
 |---|---|---|
 | Release integrity/provenance | READY | Governed hashes and Russian detached-signature evidence exist for the current release. |
-| Rights of ООО «Арвектум» | EXTERNAL | Prove the complete exclusive-right chain for all material product code and assets. |
-| Rospatent software registration | OPTIONAL | Use as additional evidence if obtained; do not make it the only proof of rights. |
-| Corporate/rightsholder qualification | EXTERNAL | Verify ownership/control and other rightsholder conditions under the current rules. |
+| Rights of ООО «Арвектум» | EXTERNAL / BLOCKER | Verify/execute the complete exclusive-right chain for the exact submitted object; APL-IP-001 R-1 remains human/legal. |
+| Rospatent software registration | OPTIONAL / VERIFY IF USED | Use as additional evidence if obtained; APL-IP-001 R-2 requires factual verification if cited. |
+| Corporate/rightsholder qualification | EXTERNAL / BLOCKER | Verify ownership/control and applicable corporate basis; APL-IP-001 R-3 remains human/legal. |
 | APL-IP-002 | COMPLETE | Governed stack/dependency sovereignty inventory exists; lifecycle remediation handed to APL-REG-001B and release-bound legal work to APL-IP-001. |
 | Runtime vendor-cloud independence | READY | No mandatory Arvectum API/cloud, telemetry, license server or updater; upstream proxy is user-supplied configuration. |
 | Windows offline build capability | READY | Canonical build supports local hash-locked wheelhouse with `--no-index` and `--require-hashes`. |
-| APL-IP-001 automation | PARTIAL | Provenance CI exists; complete human review/legal sign-off and freeze evidence for submitted release. |
+| APL-IP-001 engineering reconciliation | READY / HUMAN-LEGAL GATE | Exact v0.2.5 source/tag/artifact identity, provenance and SBOM evidence are governed; R-1..R-4 remain real human/legal gates and no clean-IP tag is authorized. |
+| Human authorship/control carry-forward | EXTERNAL / BLOCKER | Historical factual provenance exists; authorized human must carry it forward to exact v0.2.5 drift and release scope under R-4. |
 | Dependency/license inventory | READY / REFRESH | Governed APL-IP-002 inventory exists; refresh/freeze against exact submitted release. |
-| SBOM automation | PARTIAL | CycloneDX SBOM CI exists; retain/freeze SBOM for exact submitted release and complete legal disposition. |
-| THIRD_PARTY_NOTICES | PARTIAL | Notice exists and distinguishes runtime/build/OS components; reconcile with exact submitted artifacts/license bundle. |
-| IP_PROVENANCE | PARTIAL | Automated source manifest exists; complete human/legal review and clean-IP baseline/tag. |
+| SBOM automation | READY / RELEASE FREEZE | Exact accepted v0.2.5 source has successful CycloneDX evidence; preserve/freeze exact SBOM bytes for submitted release and legal disposition. |
+| THIRD_PARTY_NOTICES | PARTIAL / RELEASE FREEZE | Notice exists and distinguishes runtime/build/OS components; reconcile with exact submitted artifacts/license bundle. |
+| IP_PROVENANCE | READY / HUMAN-LEGAL GATE | Exact accepted v0.2.5 source is bound to successful provenance evidence; ownership/authorship conclusions remain human/legal. |
+| Clean-IP baseline/tag | BLOCKED | Must not be created until APL-IP-001 R-1..R-4 are genuinely completed and canonical sign-off is explicitly approved. |
 | Foreign payment/dependency evidence | EXTERNAL | Accounting/legal review of applicable foreign payments, licenses, services and rights remains outside public repo. |
 | APL-REG-001B lifecycle contract/tooling | READY / PHYSICAL GATE | Contract, fail-closed release evidence generator and CI exist. Physical Russian perimeter evidence is still required. |
 | Source/object-code storage infrastructure | PHYSICAL BLOCKER | Target is Russian-controlled authoritative source/artifact storage. GitVerse is a candidate; current mirror existence alone is not proof. |
@@ -84,9 +86,28 @@ GitHub/GitHub Actions/GitHub Releases can remain development/public secondary ch
 
 The release evidence generator fails closed unless the exact build records `dependency_mode=offline-hash-locked`, a concrete source commit and matching artifact SHA-256. It does not claim physical Russian infrastructure is proven. Before filing, perform and retain the physical source/build/artifact/distribution evidence described in the APL-REG-001B contract.
 
-### APL-IP-001 — IP provenance & human-authorship hardening
+### APL-IP-001 — IP provenance & human-authorship hardening — ENGINEERING RECONCILED / HUMAN-LEGAL GATE OPEN
 
-Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, release-bound SBOM, THIRD_PARTY_NOTICES/license bundle, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside public repository.
+Current canonical repository evidence:
+
+- `compliance/APL_IP_001_V0_2_5_CLEAN_IP.json`;
+- `docs/evidence/APL_IP_001_V0_2_5_CANDIDATE_RECONCILIATION_2026-09-14.md`;
+- `docs/APL_IP_001_V0_2_5_SIGNOFF.md`;
+- `docs/legal/APL_IP_001_RIGHTS_ASSIGNMENT_V0_2_5_CANDIDATE_ADDENDUM_2026-09-14.md`;
+- `IP_PROVENANCE.md`;
+- `tests/test_apl_ip_001_v0_2_5_reconciliation.py`;
+- `.github/workflows/apl-ip-001-v0-2-5.yml`.
+
+Exact accepted v0.2.5 object is now governed by source commit/tree, immutable tag identity and accepted application/Setup SHA-256. The exact accepted source has successful APL-IP-001 provenance and CycloneDX SBOM workflow evidence. Material runtime drift since the historical 0.2.3 sign-off was bounded and engineering-reviewed; the old 0.2.3 sign-off is no longer treated as the current release approval object.
+
+Repository automation remains deliberately fail-closed. It cannot prove authorship/ownership or create a clean-IP tag. Before filing, complete the actual human/legal findings:
+
+- R-1 — executed rights basis covering the exact object;
+- R-2 — factual Rospatent status if relied upon;
+- R-3 — applicable corporate approval/exception basis;
+- R-4 — authorized human factual authorship/control carry-forward to v0.2.5 and selected release scope.
+
+AppImage remains outside the current clean-IP approval scope on HOLD. The immutable `v0.2.5` tag must not be moved.
 
 ### APL-REG-001C — trusted Russian OS compatibility
 
