@@ -63,6 +63,11 @@ def data_dir() -> str:
             "Arvectum",
             "ProxyLauncher",
         )
+    if sys.platform.startswith("linux"):
+        xdg_state = os.environ.get("XDG_STATE_HOME")
+        if not xdg_state or not os.path.isabs(xdg_state):
+            xdg_state = os.path.join(os.path.expanduser("~"), ".local", "state")
+        return os.path.join(xdg_state, "Arvectum", "ProxyLauncher")
     return core.install_dir()
 
 
