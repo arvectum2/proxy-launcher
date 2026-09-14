@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 task_id: APL-LNX-010-GATE-R8
 goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final Linux .deb candidate, while preserving evidence reusable for the first APL-REG-001C trusted-OS acceptance record."
 authority: HUMAN
@@ -14,27 +14,27 @@ definition_of_done:
 completed:
   - "Physical Astra/Fly acceptance completed through reboot recovery, package lifecycle, diagnostics privacy and final cleanup."
   - "Final physical candidate source d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
-  - "Normal disable, SIGKILL crash recovery, reboot/login recovery and final cleanup all restored exact captured NetworkManager baseline."
+  - "Normal disable, SIGKILL crash recovery, reboot/login recovery and final cleanup all restored the exact captured NetworkManager baseline."
   - "Phase 9 reinstall/remove/reinstall preserved user state and restored the governed 0.2.5 package."
   - "Phase 10 diagnostics privacy PASS; literal home-path leak fixed with regression coverage."
   - "HOST_ATTESTATION.env and SUMMARY.md completed; qa/verify_astra_acceptance_bundle.py => APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
-  - "PR #62 reconciled with current main; Linux/Astra, SAST, SBOM, Secret Scan, macOS and other checks are passing; Windows-only simulated-Linux test portability was corrected."
-current: "Obtain green exact-head CI on PR #62, then merge and close Gate R8."
-pending:
-  - "Check current PR #62 head CI and repair any remaining regression without changing accepted physical-host semantics."
-  - "Merge PR #62 to main when required checks are green."
-  - "Update execution queue/backlog/checkpoint to done/completed with final main commit and validation results."
-last_verified_commit: "09fd428f849aacaf35311132337677f873330a1d"
+  - "Exact PR #62 head e0012b2d196f75cc3329e0bddec0a655387145a9 passed all 16 reported GitHub Actions workflows, including Windows P0 portable and Windows installer."
+  - "PR #62 merged to main as cb8655278bcb0899104bb5e4161c4de0497b6226."
+current: null
+pending: []
+last_verified_commit: "cb8655278bcb0899104bb5e4161c4de0497b6226"
 test_results:
   - "Physical Astra Gate R8 evidence verifier: EVIDENCE COMPLETE."
-  - "Focused Linux state/diagnostics tests after Windows-host portability correction: 11/11 PASS on Astra."
-  - "Previous complete deterministic suite after R8 privacy hardening: 803/803 PASS; final test-only portability correction awaits exact-head GitHub CI."
-updated_at: "2026-09-14T15:38:30Z"
-resume_instruction: "Check GitHub Actions for the current PR #62 head. The last product/test change is 09fd428f849aacaf35311132337677f873330a1d; it fixes only Windows-host simulation of Linux HOME fallback. If Windows P0 portable, Windows installer and required checks are green, merge PR #62, verify main, mark .agent execution queue/current task and docs backlog completed, record final main commit/tests, and do not rerun physical Astra phases."
+  - "Physical Astra exact NetworkManager comparators: PASS for normal disable, crash recovery, reboot recovery and final cleanup."
+  - "Focused post-fix Linux state/diagnostics tests on Astra: 11/11 PASS."
+  - "Complete deterministic suite after R8 privacy hardening: 803/803 PASS before the final test-only Windows portability correction."
+  - "Exact-head GitHub Actions at e0012b2d196f75cc3329e0bddec0a655387145a9: 16/16 workflows SUCCESS."
+updated_at: "2026-09-14T15:47:00Z"
+resume_instruction: null
 execution:
-  claimed_by: "human-owner"
-  execution_id: "APL-LNX-010-R8-PHYSICAL-20260914"
-  branch: "fix/apl-lnx-010-r8-astra"
-  base_commit: "3db2f506bce97f492fcb4352c62cd8bbfccc6197"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
