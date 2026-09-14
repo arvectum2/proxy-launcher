@@ -24,5 +24,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Fetch pinned tun2proxy native libraries
+        run: python3 mobile/android/tools/fetch_tun2proxy.py
       - name: Assemble debug APK
         run: gradle -p mobile/android assembleDebug --stacktrace
+      - name: Record APK SHA-256
+        run: sha256sum mobile/android/app/build/outputs/apk/debug/app-debug.apk | tee mobile/android/app/build/outputs/apk/debug/SHA256SUMS.txt
+      - name: Upload dogfood APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-launcher-android-debug
+          path: |
+            mobile/android/app/build/outputs/apk/debug/app-debug.apk
+            mobile/android/app/build/outputs/apk/debug/SHA256SUMS.txt
+          if-no-files-found: error
