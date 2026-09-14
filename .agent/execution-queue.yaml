@@ -1,6 +1,6 @@
 version: 1
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-14T15:05:00Z"
+updated_at: "2026-09-14T15:47:00Z"
 owner_controls_order: true
 
 # Ordered execution view over the accepted active backlog. The executor may update
@@ -9,7 +9,7 @@ items:
   - order: 10
     task_id: APL-LNX-010-GATE-R8
     title: "Astra Linux real-host acceptance / Gate R8"
-    status: in_progress
+    status: done
     authority: HUMAN
     independent: true
     auto_merge: false
@@ -17,9 +17,7 @@ items:
     dependencies: []
     owner_gate: "Physical dual-boot/host actions and any destructive disk/boot step require explicit human participation."
     executor_scope: "Prepare/check instructions, evidence templates and repository reconciliation; do not repartition/reboot/install an OS autonomously."
-    active_pr: 62
-    active_branch: "fix/apl-lnx-010-r8-astra"
-    evidence: "Physical Astra run is active; phases 4-7 PASS on final candidate d18cf396b8e324da070bd21a0ae14598df7d394f; current checkpoint is Phase 8 reboot/login recovery."
+    evidence: "DONE: physical Astra Linux SE 1.8/Fly Gate R8 evidence is complete; verifier => EVIDENCE COMPLETE; exact NetworkManager rollback comparators PASS; PR #62 exact-head CI 16/16 SUCCESS; fixes merged to main at cb8655278bcb0899104bb5e4161c4de0497b6226."
 
   - order: 20
     task_id: APL-MOB-001-ANDROID-DOGFOOD
