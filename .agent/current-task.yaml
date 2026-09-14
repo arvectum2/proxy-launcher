@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 task_id: APL-LNX-010-GATE-R8
 goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final Linux .deb candidate, while preserving evidence reusable for the first APL-REG-001C trusted-OS acceptance record."
 authority: HUMAN
@@ -12,31 +12,29 @@ definition_of_done:
   - "qa/verify_astra_acceptance_bundle.py reports APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
   - "Required R8 fixes are merged to main, final commit/hash and CI/tests recorded, queue/checkpoint marked done."
 completed:
-  - "Physical Astra acceptance discovered two product defects; fixes are in PR #62 (fix/apl-lnx-010-r8-astra)."
-  - "R8 defects fixed on the PR #62 branch; deterministic suite 802/802 PASS."
-  - "Final physical candidate built from d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
-  - "Strict preflight/baseline, package install, GUI Linux/Astra validation and real enable completed."
-  - "Phase 4 no-proxy UI sync/restoration PASS; durable rollback baseline preserved."
-  - "Phase 5 GUI disable exact rollback comparator PASS."
-  - "Phase 6 XDG per-user autostart enabled; network unchanged; login proof combined with Phase 8."
-  - "Phase 7 SIGKILL crash/relaunch GUI recovery exact comparator PASS; rollback evidence cleaned only after recovery."
-current: "Phase 8 reboot/login recovery on the exact final candidate."
-pending:
-  - "Phase 8 reboot/login recovery."
-  - "Phase 9 update/remove/reinstall state preservation."
-  - "Phase 10 diagnostics privacy and final cleanup."
-  - "Host attestation, SUMMARY.md and final verifier."
-  - "Reconcile PR #62 with current main/executor checkpoint, obtain required CI, merge fixes, then close Gate R8 checkpoint."
-last_verified_commit: "d18cf396b8e324da070bd21a0ae14598df7d394f"
+  - "Physical Astra/Fly acceptance completed through reboot recovery, package lifecycle, diagnostics privacy and final cleanup."
+  - "Final physical candidate source d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
+  - "Normal disable, SIGKILL crash recovery, reboot/login recovery and final cleanup all restored the exact captured NetworkManager baseline."
+  - "Phase 9 reinstall/remove/reinstall preserved user state and restored the governed 0.2.5 package."
+  - "Phase 10 diagnostics privacy PASS; literal home-path leak fixed with regression coverage."
+  - "HOST_ATTESTATION.env and SUMMARY.md completed; qa/verify_astra_acceptance_bundle.py => APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
+  - "Exact PR #62 head e0012b2d196f75cc3329e0bddec0a655387145a9 passed all 16 reported GitHub Actions workflows, including Windows P0 portable and Windows installer."
+  - "PR #62 merged to main as cb8655278bcb0899104bb5e4161c4de0497b6226."
+current: null
+pending: []
+last_verified_commit: "cb8655278bcb0899104bb5e4161c4de0497b6226"
 test_results:
-  - "python3 -m unittest discover: 802/802 PASS"
-  - "Physical Astra phases 4/5/6/7 PASS including exact rollback comparators"
-updated_at: "2026-09-14T15:05:00Z"
-resume_instruction: "Open $HOME/APL-LNX-010-FINAL-20260914-160951 and continue at Phase 8. Baseline is clean, autostart is enabled, and Phase 7 is PASS. Dismiss any success dialog, enable proxy normally, confirm rollback exists, record pre-reboot boot ID/state, reboot normally while active, then after Fly login prove one autostart launch/pending rollback and recover through product before comparator."
+  - "Physical Astra Gate R8 evidence verifier: EVIDENCE COMPLETE."
+  - "Physical Astra exact NetworkManager comparators: PASS for normal disable, crash recovery, reboot recovery and final cleanup."
+  - "Focused post-fix Linux state/diagnostics tests on Astra: 11/11 PASS."
+  - "Complete deterministic suite after R8 privacy hardening: 803/803 PASS before the final test-only Windows portability correction."
+  - "Exact-head GitHub Actions at e0012b2d196f75cc3329e0bddec0a655387145a9: 16/16 workflows SUCCESS."
+updated_at: "2026-09-14T15:47:00Z"
+resume_instruction: null
 execution:
-  claimed_by: "human-owner"
-  execution_id: "APL-LNX-010-R8-PHYSICAL-20260914"
-  branch: "fix/apl-lnx-010-r8-astra"
-  base_commit: "3db2f506bce97f492fcb4352c62cd8bbfccc6197"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
