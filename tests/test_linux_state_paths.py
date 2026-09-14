@@ -24,6 +24,7 @@ class LinuxStatePathTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td, \
              mock.patch.object(application_filesystem.sys, "platform", "linux"), \
              mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(application_filesystem.os.path, "expanduser", return_value=td), \
              mock.patch.dict(application_filesystem.os.environ, {
                  "HOME": td,
                  "XDG_STATE_HOME": "relative-state",
