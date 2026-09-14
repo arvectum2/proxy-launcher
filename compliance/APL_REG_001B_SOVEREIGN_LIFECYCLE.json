@@ -1,0 +1,118 @@
+{
+  "schema": "arvectum.proxy.apl-reg-001b.sovereign-lifecycle.v1",
+  "decision_date": "2026-09-14",
+  "tracking_issue": 55,
+  "product": "Arvectum Proxy Launcher",
+  "policy": {
+    "github_may_remain_collaboration_mirror": true,
+    "github_is_authoritative_registry_evidence": false,
+    "production_build_may_require_pypi": false,
+    "russian_service_name_alone_proves_compliance": false,
+    "private_keys_or_credentials_in_repository": false,
+    "v0_2_5_mutable": false
+  },
+  "lifecycle": {
+    "source_code": {
+      "target_role": "RUSSIAN_CONTROLLED_AUTHORITATIVE",
+      "candidate": "GitVerse or self-hosted Russian Git service",
+      "github_role": "COLLABORATION_AND_PUBLIC_MIRROR",
+      "current_status": "PHYSICAL_EVIDENCE_REQUIRED",
+      "required_evidence": [
+        "provider/operator and hosting jurisdiction",
+        "repository ownership/control by ООО «Арвектум»",
+        "exact main commit parity with submitted release",
+        "export/backup procedure independent of GitHub"
+      ]
+    },
+    "object_code_and_artifacts": {
+      "target_role": "RUSSIAN_CONTROLLED_AUTHORITATIVE",
+      "candidate": "Russian-controlled artifact/object storage",
+      "github_releases_role": "OPTIONAL_PUBLIC_MIRROR",
+      "current_status": "PHYSICAL_EVIDENCE_REQUIRED",
+      "required_evidence": [
+        "artifact storage operator/location/control",
+        "release artifact SHA256",
+        "release evidence bundle SHA256",
+        "independent retrieval and offline verification"
+      ]
+    },
+    "build_and_compilation": {
+      "target_role": "RUSSIAN_CONTROLLED_PRODUCTION_BUILD",
+      "windows_dependency_mode": "offline-hash-locked",
+      "pypi_required": false,
+      "github_actions_role": "DEVELOPMENT_CI_NOT_REGISTRY_PRODUCTION_BASELINE",
+      "current_status": "TOOLING_READY_PHYSICAL_RUN_REQUIRED",
+      "required_inputs": [
+        "CPython 3.12.10 x64 controlled bootstrap archive",
+        "governed Windows wheelhouse",
+        "requirements-build.windows-x64.hashes.txt",
+        "source commit from authoritative Russian source storage"
+      ],
+      "required_evidence": [
+        "Russian-controlled build host/operator/location",
+        "offline build execution log",
+        "build-result.json with dependency_mode=offline-hash-locked",
+        "exact source commit",
+        "artifact hashes"
+      ]
+    },
+    "distribution": {
+      "target_role": "RUSSIAN_CONTROLLED_PRIMARY_DISTRIBUTION",
+      "current_status": "PHYSICAL_EVIDENCE_REQUIRED",
+      "github_releases_role": "OPTIONAL_SECONDARY_CHANNEL",
+      "required_evidence": [
+        "primary Russian distribution endpoint/operator",
+        "published exact artifact hashes",
+        "retrieval verification from clean client"
+      ]
+    },
+    "activation_and_license_keys": {
+      "present": false,
+      "status": "NOT_APPLICABLE_CURRENT_PRODUCT_SCOPE",
+      "rule": "If activation, subscriptions or license keys are introduced, this section must become fail-closed until infrastructure is documented."
+    },
+    "runtime_vendor_control_plane": {
+      "present": false,
+      "status": "NOT_APPLICABLE",
+      "user_upstream_proxy_is_vendor_service": false
+    }
+  },
+  "release_evidence_bundle": {
+    "required_files": [
+      "build-result.json",
+      "SHA256SUMS.txt",
+      "THIRD_PARTY_NOTICES.txt",
+      "BUILD_PYTHON_VERSION",
+      "requirements-build.lock.txt",
+      "requirements-build.windows-x64.hashes.txt",
+      "compliance/APL_IP_002_STACK_SOVEREIGNTY.json",
+      "compliance/APL_REG_001B_SOVEREIGN_LIFECYCLE.json"
+    ],
+    "optional_release_bound_files": [
+      "CycloneDX SBOM and checksum",
+      "IP provenance manifest",
+      "Russian detached signature evidence",
+      "production Authenticode evidence for 0.2.6+"
+    ],
+    "must_record": [
+      "source commit",
+      "product version",
+      "artifact SHA256",
+      "dependency mode",
+      "bundle SHA256"
+    ]
+  },
+  "acceptance": {
+    "repository_tooling_complete_when": [
+      "contract tests pass",
+      "evidence bundle generator is deterministic and fail-closed",
+      "registry readiness document references this contract"
+    ],
+    "filing_grade_complete_when": [
+      "authoritative Russian source storage is physically evidenced",
+      "Russian-controlled offline production build is executed",
+      "authoritative Russian artifact storage/distribution is physically evidenced",
+      "exact release evidence bundle is retained and verified"
+    ]
+  }
+}
