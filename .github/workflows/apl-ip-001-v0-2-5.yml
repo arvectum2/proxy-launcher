@@ -57,7 +57,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           text = Path('.github/workflows/apl-ip-001-v0-2-5.yml').read_text(encoding='utf-8')
-          assert 'contents: write' not in text
-          assert 'contents: read' in text
+          forbidden = 'contents' + ': ' + 'write'
+          required = 'contents' + ': ' + 'read'
+          assert forbidden not in text
+          assert required in text
           print('Workflow is read-only and cannot push a clean-IP tag')
           PY
