@@ -1,0 +1,112 @@
+{
+  "schema": "arvectum.proxy.apl-ip-001.v0-2-5-clean-ip.v1",
+  "decision_date": "2026-09-14",
+  "tracking_issue": 57,
+  "product": "Arvectum Proxy Launcher",
+  "version": "0.2.5",
+  "historical_review_candidate": {
+    "version": "0.2.3",
+    "commit": "adc917e905acca1f8e97d560a3363b07adc279fb",
+    "status": "SUPERSEDED_FOR_CURRENT_RELEASE_IDENTITY"
+  },
+  "accepted_release_identity": {
+    "product_source_commit": "9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+    "product_source_tree": "12eb128762ba4e50d12af35c681aa80d0818e19a",
+    "immutable_tag": "v0.2.5",
+    "immutable_tag_commit": "6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85",
+    "application_sha256": "1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c",
+    "setup_sha256": "9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3",
+    "physical_acceptance_evidence_sha256": "2afe6af76a69dc4d0b6869385dda6c4467c3d01e38997a04ca554c28aa24021a"
+  },
+  "reconciliation_baseline": {
+    "main_commit_at_review_start": "310a671253618183296be308f85d16f8808ca5c4",
+    "main_tree_at_review_start": "fe1472877553e9e71f16a21123eae9f094e8c108",
+    "product_source_changed_between_accepted_source_and_v0_2_5_tag": false,
+    "product_source_changed_between_v0_2_5_tag_and_review_start_main": false,
+    "v0_2_5_mutable": false
+  },
+  "material_product_source_drift_since_historical_candidate": [
+    {
+      "path": "application_filesystem.py",
+      "engineering_classification": "STABLE_LOCATION_AND_LEGACY_MIGRATION_HARDENING",
+      "engineering_review": "REVIEWED_NO_OBVIOUS_EXTERNAL_SOURCE_IMPORT",
+      "human_factual_carry_forward_required": true
+    },
+    {
+      "path": "portable_lifecycle.py",
+      "engineering_classification": "MAINTENANCE_HANDOFF_AND_LIFECYCLE_SAFETY",
+      "engineering_review": "REVIEWED_NO_OBVIOUS_EXTERNAL_SOURCE_IMPORT",
+      "human_factual_carry_forward_required": true
+    },
+    {
+      "path": "proxy_core.py",
+      "engineering_classification": "VERSION_METADATA_UPDATE",
+      "engineering_review": "REVIEWED_NO_OBVIOUS_EXTERNAL_SOURCE_IMPORT",
+      "human_factual_carry_forward_required": true
+    },
+    {
+      "path": "recovery_autostart.py",
+      "engineering_classification": "LEGACY_LOCATION_MIGRATION_UPDATE",
+      "engineering_review": "REVIEWED_NO_OBVIOUS_EXTERNAL_SOURCE_IMPORT",
+      "human_factual_carry_forward_required": true
+    }
+  ],
+  "material_release_code_drift": [
+    "installer/ArvectumProxyLauncher.iss",
+    "installer/uninstall_helper.ps1",
+    "installer/upgrade_helper.ps1"
+  ],
+  "automated_evidence": {
+    "provenance": {
+      "workflow_run_id": 34720855901,
+      "source_commit": "9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+      "artifact_id": 10306615531,
+      "artifact_name": "apl-ip-001-source-provenance",
+      "artifact_digest": "sha256:5a502a7ab674ea395828130b1724fa134ce7b4c62b032d7dbf1c45305f449db0",
+      "result": "SUCCESS",
+      "legal_meaning": "ENGINEERING_EVIDENCE_ONLY"
+    },
+    "sbom": {
+      "workflow_run_id": 34720856022,
+      "source_commit": "9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+      "artifact_id": 10306326080,
+      "artifact_name": "arvectum-proxy-launcher-sbom-9e8ca7e851563082cd7d03d7543ccb360a37ec27",
+      "artifact_digest": "sha256:102e2b6a3a9f509aef6881b179aaab6e5ada6593b62d465a27c627885c27060e",
+      "result": "SUCCESS",
+      "digest_scope": "GITHUB_ARTIFACT_ARCHIVE",
+      "legal_meaning": "BUILD_DEPENDENCY_EVIDENCE_ONLY"
+    }
+  },
+  "third_party_boundary": {
+    "governed_notice": "THIRD_PARTY_NOTICES.txt",
+    "dependency_sovereignty_contract": "compliance/APL_IP_002_STACK_SOVEREIGNTY.json",
+    "appimage_distribution_status": "HOLD_EXCLUDED_FROM_CURRENT_CLEAN_IP_APPROVAL_SCOPE",
+    "foreign_oss_is_automatic_failure": false
+  },
+  "human_legal_gates": {
+    "R-1": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Executed author-to-ООО Арвектум rights basis covering the exact v0.2.5 object must be verified."
+    },
+    "R-2": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Factual Rospatent status must be verified if relied upon."
+    },
+    "R-3": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Applicable corporate approval/exception basis must be verified."
+    },
+    "R-4": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Authorized human must explicitly carry forward factual authorship/control statements to the reviewed v0.2.5 drift and selected release scope."
+    }
+  },
+  "policy": {
+    "automated_legal_approval": false,
+    "automated_authorship_proof": false,
+    "clean_ip_tag_authorized": false,
+    "git_history_rewrite_for_provenance": false,
+    "existing_v0_2_5_tag_may_be_moved": false
+  },
+  "machine_verdict": "CONDITIONAL_HUMAN_LEGAL_GATE"
+}

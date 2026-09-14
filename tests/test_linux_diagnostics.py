@@ -278,6 +278,29 @@ class LinuxDiagnosticsTests(unittest.TestCase):
         for marker in markers.values():
             self.assertNotIn(marker, joined)
 
+    def test_bundle_collapses_home_prefix_in_sanitized_logs(self):
+        with tempfile.TemporaryDirectory() as td:
+            fake = FakeCore(td)
+            Path(fake.data_dir()).mkdir(parents=True)
+            literal_home = os.path.abspath(os.path.expanduser("~"))
+            Path(fake.log_path()).write_text(
+                json.dumps({"event": "path-test", "fields": {"path": literal_home + "/private/file"}}) + "\n",
+                encoding="utf-8",
+            )
+            output = Path(td) / "support.zip"
+            patches = self._patch_environment(td, fake)
+            for item in patches:
+                item.start()
+            try:
+                diag.create_support_bundle(str(output))
+            finally:
+                for item in reversed(patches):
+                    item.stop()
+            payload = self._read_members(output)["logs/proxy_core.log"].decode("utf-8")
+
+        self.assertNotIn(literal_home + os.sep, payload)
+        self.assertIn("~/private/file", payload)
+
     def test_bundle_redacts_process_proxy_and_log_secrets(self):
         env_secret = _canary("env")
         log_secret = _canary("log")

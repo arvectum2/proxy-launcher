@@ -1,205 +1,157 @@
-# APL-REG-001 — Russian Software Registry readiness
+# APL-REG-001 — Russian Software Register readiness
 
-Status: **PRE-SUBMISSION WORKSTREAM OPEN**  
-Audit date: **2026-09-13**  
-Baseline: `main` @ `f05ae1b225153ca9ae739b7597eae3ee5481051f`  
-Tracking issue: #46
+## Purpose
 
-## 1. Goal and boundary
+Prepare Arvectum Proxy Launcher for inclusion in the Unified Register of Russian Software without confusing repository engineering readiness with external legal or physical evidence.
 
-Prepare Arvectum Proxy Launcher and the ООО «Арвектум» evidence package for an application to the Unified Register of Russian Programs for Computers and Databases under the rules established by Government Resolution No. 1236 in the edition effective on the audit date.
+## Current filing position
 
-Repository changes can make the product **application-ready**. Inclusion in the register itself is an external decision of the competent authority/expert process and is not a repository acceptance criterion.
+- Product/rightsholder: ООО «Арвектум»; private corporate/right-chain proof remains external.
+- Primary software class: **02.02 — Программы обслуживания**, subject to final classifier recheck immediately before filing.
+- Under the current roadmap, trusted-OS compatibility for this class is planned against **2027-01-01**, subject to a current-law recheck before filing.
+- Rospatent registration is useful supporting evidence, not a standalone mandatory gate to the software-register application.
+- Registry inclusion is an upstream dependency/candidate prerequisite for the Russia-first NUC code-signing route; it does not itself establish Microsoft public Windows trust.
+- **Execution hold (2026-09-14): APL-REG-001C is paused until real acceptance has been completed on two target Russian OSes. The planned acceptance pair is Astra Linux Special Edition + РЕД ОС, subject to re-verification of qualifying trusted-software status and different-rightsholder status at the time of test. Do not resume registry engineering/documentation work past this gate until both real-host acceptance runs exist.**
 
-## 2. Regulatory baseline
+## Readiness matrix
 
-The pre-submission review must use the law actually effective on the submission date. The baseline for this document is:
-
-- Government Resolution of the Russian Federation No. 1236 of 2015-11-16, edition including amendments effective through 2026-09-13;
-- Government Resolution No. 1937 of 2025-11-28, effective from 2026-03-01, including staged trusted-OS compatibility requirements;
-- Government Resolution No. 1007 of 2026-08-13, whose relevant amendments to the register rules are effective from 2026-09-01;
-- the software classifier approved by Ministry of Digital Development Order No. 486, in the edition effective on the actual submission date.
-
-### 2.1 Rospatent is evidence, not a gate
-
-A Rospatent software-registration certificate can strengthen the evidence package, but APL-REG-001 does not treat Rospatent registration as a mandatory prerequisite to a registry application. The controlling gate is evidence that the exclusive right and the rightsholder satisfy the applicable requirements of Resolution No. 1236.
-
-### 2.2 Trusted-OS compatibility changes the delivery plan
-
-Resolution No. 1937 introduced a requirement for affected software to be compatible with at least two operating systems meeting the statutory trusted-software requirements, subject to the exceptions in the rules. The requirement is staged by software category.
-
-APL-REG-001A has now classified the current Proxy Launcher product scope as **02.02 — Программы обслуживания**. On the regulatory baseline current at 2026-09-13, the two-trusted-OS requirement for class 02.02 applies from **2027-01-01**.
-
-That date is therefore a concrete delivery deadline rather than an unresolved classification-dependent estimate. The classification and law must still be rechecked immediately before filing.
-
-## 3. Product classification decision
-
-Current public product description: Arvectum Proxy Launcher is a local user-space client/utility that routes traffic through a configured upstream HTTP proxy while exposing local HTTP, SOCKS5 and PAC endpoints; `no_proxy` rules can route selected destinations directly.
-
-**APL-REG-001A decision:**
-
-- primary class: **02.02 — Программы обслуживания**;
-- additional classes: **none for the current `0.2.x` product scope**;
-- decision record: `APL-REG-001A_SOFTWARE_CLASSIFICATION_DECISION.md`;
-- tracking issue: #48.
-
-Rejected for the current scope:
-
-- **02.13 — Сетевая операционная система**: Proxy Launcher is not an OS, router firmware or full software-router/network-OS layer; registry examples in 02.13 include vESR and router software «Факел»;
-- **02.06 — Серверное и связующее ПО**: local HTTP/SOCKS5/PAC listeners are supporting mechanisms of the desktop utility, not a standalone middleware/server platform;
-- **02.08 — Средства мониторинга и управления**: monitoring/managing an estate of external objects is not the principal product function;
-- **03.* — Средства обеспечения информационной безопасности**: the product does not implement or claim cryptographic VPN protection, NGFW/firewall, IDS/IPS, DLP, access-control or another independent protection function;
-- **05.* — Прикладное ПО**: the product solves an auxiliary system/network-access task rather than a domain/business subject-matter task.
-
-Reclassification is mandatory if future releases materially add packet-level/system routing, router/appliance mode, an independent server/middleware role, security-policy/protection functions, VPN/cryptography or another function mapped to a different classifier class.
-
-## 4. Readiness audit
-
-Status vocabulary:
-
-- `READY` — evidence already exists and is usable with normal version refresh;
-- `PARTIAL` — useful implementation/evidence exists but registry-specific evidence is incomplete;
-- `MISSING` — required work or evidence has not been established;
-- `EXTERNAL` — corporate, physical, regulatory or submission action outside the public repository;
-- `OPTIONAL` — useful supporting evidence, not treated as a standalone legal gate.
-
-| Area | Status | Finding / required action |
+| Area | Status | Current evidence / next boundary |
 |---|---|---|
-| Windows release | READY | Public stable 0.2.5 exists with installer and portable package. |
-| Basic Russian install instructions | READY | README contains Russian installation, portable and verification instructions. |
 | Release integrity/provenance | READY | Governed hashes and Russian detached-signature evidence exist for the current release. |
-| Rights of ООО «Арвектум» | EXTERNAL | Prove the complete exclusive-right chain for all material product code and assets. |
-| Rospatent software registration | OPTIONAL | Use as additional evidence if obtained; do not make it the only proof of rights. |
-| Corporate/rightsholder qualification | EXTERNAL | Verify ownership/control and other rightsholder conditions under the current rules. |
-| APL-IP-002 | MISSING | Complete Russian stack & dependency sovereignty audit first. |
-| APL-IP-001 automation | PARTIAL | Provenance CI exists; complete human review/legal sign-off and freeze evidence for the submitted release after APL-IP-002. |
-| Dependency/license inventory | MISSING | Produce governed runtime/build/dev inventory and license disposition. |
-| SBOM automation | PARTIAL | CycloneDX SBOM CI exists; retain/freeze the SBOM for the exact submitted release and complete legal disposition. |
-| THIRD_PARTY_NOTICES | MISSING | Produce notices for redistributed third-party components. |
-| IP_PROVENANCE | PARTIAL | Automated source manifest exists; complete human/legal review and clean-IP baseline/tag. |
-| Foreign payment/dependency evidence | MISSING | Accounting/legal review of applicable foreign payments, licenses, services and rights. |
-| Source/object-code storage infrastructure | PARTIAL | Inventory physical hosting/control and map it to Resolution No. 1236 requirements. |
-| Build/compilation infrastructure | PARTIAL | Document where the submitted release is compiled and retain auditable build evidence. |
-| Release/distribution/activation/key infrastructure | PARTIAL | Inventory and document; do not assume GitHub alone satisfies Russian-infrastructure rules. |
-| GitVerse | PARTIAL | Useful sovereign mirror/evidence channel, but mirror existence alone does not prove every infrastructure requirement. |
-| Russian-language GUI | PARTIAL | Verify the exact submitted version and remove mandatory untranslated UI where present. |
+| Rights of ООО «Арвектум» | EXTERNAL / BLOCKER | Verify/execute the complete exclusive-right chain for the exact submitted object; APL-IP-001 R-1 remains human/legal. |
+| Rospatent software registration | OPTIONAL / VERIFY IF USED | Use as additional evidence if obtained; APL-IP-001 R-2 requires factual verification if cited. |
+| Corporate/rightsholder qualification | EXTERNAL / BLOCKER | Verify ownership/control and applicable corporate basis; APL-IP-001 R-3 remains human/legal. |
+| APL-IP-002 | COMPLETE | Governed stack/dependency sovereignty inventory exists; lifecycle remediation handed to APL-REG-001B and release-bound legal work to APL-IP-001. |
+| Runtime vendor-cloud independence | READY | No mandatory Arvectum API/cloud, telemetry, license server or updater; upstream proxy is user-supplied configuration. |
+| Windows offline build capability | READY | Canonical build supports local hash-locked wheelhouse with `--no-index` and `--require-hashes`. |
+| APL-IP-001 engineering reconciliation | READY / HUMAN-LEGAL GATE | Exact v0.2.5 source/tag/artifact identity, provenance and SBOM evidence are governed; R-1..R-4 remain real human/legal gates and no clean-IP tag is authorized. |
+| Human authorship/control carry-forward | EXTERNAL / BLOCKER | Historical factual provenance exists; authorized human must carry it forward to exact v0.2.5 drift and release scope under R-4. |
+| Dependency/license inventory | READY / REFRESH | Governed APL-IP-002 inventory exists; refresh/freeze against exact submitted release. |
+| SBOM automation | READY / RELEASE FREEZE | Exact accepted v0.2.5 source has successful CycloneDX evidence; preserve/freeze exact SBOM bytes for submitted release and legal disposition. |
+| THIRD_PARTY_NOTICES | PARTIAL / RELEASE FREEZE | Notice exists and distinguishes runtime/build/OS components; reconcile with exact submitted artifacts/license bundle. |
+| IP_PROVENANCE | READY / HUMAN-LEGAL GATE | Exact accepted v0.2.5 source is bound to successful provenance evidence; ownership/authorship conclusions remain human/legal. |
+| Clean-IP baseline/tag | BLOCKED | Must not be created until APL-IP-001 R-1..R-4 are genuinely completed and canonical sign-off is explicitly approved. |
+| Foreign payment/dependency evidence | EXTERNAL | Accounting/legal review of applicable foreign payments, licenses, services and rights remains outside public repo. |
+| APL-REG-001B lifecycle contract/tooling | READY / PHYSICAL GATE | Contract, fail-closed release evidence generator and CI exist. Physical Russian perimeter evidence is still required. |
+| Source/object-code storage infrastructure | PHYSICAL BLOCKER | Target is Russian-controlled authoritative source/artifact storage. GitVerse is a candidate; current mirror existence alone is not proof. |
+| Build/compilation infrastructure | TOOLING READY / PHYSICAL BLOCKER | Offline hash-locked build and controlled build-input archive exist; execute exact release on a Russian-controlled production build host and retain evidence. |
+| Release/distribution infrastructure | PHYSICAL BLOCKER | GitHub Releases may be secondary only. Establish and evidence Russian-controlled primary artifact/distribution location. |
+| Activation/license-key infrastructure | N/A CURRENT VERSION | No activation, subscription control plane or license-key server exists. Reopen if product scope changes. |
+| GitVerse | CANDIDATE / EVIDENCE REQUIRED | Russian mirror/candidate lifecycle component; verify operator/hosting/control and promote deliberately, not by assumption. |
+| Russian-language GUI | PARTIAL | Verify exact submitted version and remove mandatory untranslated UI where present. |
 | Functional characteristics document | PARTIAL | Convert existing technical documentation into expert-facing registry documentation. |
-| Install/operation/uninstall manual | PARTIAL | Existing material is substantial but needs a frozen registry-facing manual for the submitted version. |
+| Install/operation/uninstall manual | PARTIAL | Existing material is substantial but needs a frozen registry-facing manual for submitted version. |
 | Support/maintenance statement | MISSING | Document support, warranty/maintenance and source modification by an eligible Russian entity/person. |
 | Price/licensing statement | MISSING | State price or price-determination procedure, or lawful free/open licensing terms, as applicable. |
-| Expert test package | MISSING | Prepare a clean test copy plus deterministic installation and verification instructions. |
+| Expert test package | MISSING | Prepare clean test copy plus deterministic installation and verification instructions. |
 | Software class | READY / RECHECK | 02.02 — Программы обслуживания; recheck classifier and actual release immediately before filing. |
-| Two trusted OSes | MISSING / BLOCKER | For class 02.02 the requirement applies from 2027-01-01 on the current legal baseline. Select and prove two qualifying OSes under APL-REG-001C. |
-| Linux runtime/product support | PARTIAL | Linux/Astra tooling exists, but registry compatibility must be proved by actual acceptance tests on two qualifying OSes, not inferred from generic Linux portability. |
-| Trusted-OS compatibility protocols | MISSING | Produce repeatable tests and governed evidence for the exact submitted release. |
-| Electronic application and UKЭП | EXTERNAL | Submit through the operator's current electronic process using an authorized qualified signature. |
+| Two trusted OSes | WAITING ON REAL-HOST ACCEPTANCE / BLOCKER | Planned pair: Astra Linux Special Edition + РЕД ОС. Resume APL-REG-001C only after both real-host acceptance runs are completed and their qualifying status is rechecked at execution time. |
+| Linux runtime/product support | PARTIAL / PAUSED | Existing Linux/Astra tooling may be reused. No further registry-compatibility implementation is scheduled until the two-OS acceptance gate is executed. |
+| Trusted-OS compatibility protocols | WAITING ON ACCEPTANCE | Build governed protocols from actual Astra Linux SE and РЕД ОС acceptance evidence; do not substitute generic Linux CI for physical acceptance. |
+| Electronic application and УКЭП | EXTERNAL | Submit through operator's current electronic process using an authorized qualified signature. |
 
-## 5. Work order
+## Work order
 
 ### APL-REG-001A — classifier decision — DECIDED
 
 Repository decision: `APL-REG-001A_SOFTWARE_CLASSIFICATION_DECISION.md`.
 
-Current filing position:
+Current filing position: primary class 02.02; no additional classes for current scope; trusted-OS compatibility date 2027-01-01 under current baseline; mandatory final recheck before filing.
 
-- primary class 02.02;
-- no additional classes for current scope;
-- trusted-OS compatibility date 2027-01-01 under the current rules;
-- mandatory final recheck before filing.
+### APL-IP-002 — Russian stack & dependency sovereignty audit — COMPLETE
 
-### APL-IP-002 — Russian stack & dependency sovereignty audit
+Repository evidence:
 
-Must precede final IP hardening. Inventory runtime/build/dev dependencies, origin, rightsholder, license, redistribution, network dependency, criticality, Russian analogue and replacement feasibility. Also inventory source/build/release infrastructure relevant to Resolution No. 1236.
+- `APL-IP-002_RUSSIAN_STACK_DEPENDENCY_SOVEREIGNTY_AUDIT.md`;
+- `compliance/APL_IP_002_STACK_SOVEREIGNTY.json`;
+- `tests/test_apl_ip_002_sovereignty_contract.py`;
+- `.github/workflows/apl-ip-002-sovereignty.yml`.
 
-### APL-IP-001 — IP provenance & human-authorship hardening
+Key result: current application runtime has no mandatory vendor-cloud control plane; the main sovereignty gap is the surrounding source/build/release lifecycle. Production Windows build can operate from a local hash-locked wheelhouse without PyPI.
 
-The automation/provenance foundation already exists. Complete source audit, dependency/license audit, OSS-overlap review, human review of significant modules, remediation where needed, release-bound SBOM, THIRD_PARTY_NOTICES, IP_PROVENANCE and clean-IP baseline/tag. Corporate rights documents stay outside the public repository.
+### APL-REG-001B — sovereign lifecycle evidence — REPOSITORY TOOLING COMPLETE / PHYSICAL GATE OPEN
 
-### APL-REG-001B — sovereign lifecycle evidence
+Repository evidence:
 
-Create a precise infrastructure diagram and evidence pack for:
+- `APL-REG-001B_SOVEREIGN_LIFECYCLE.md`;
+- `compliance/APL_REG_001B_SOVEREIGN_LIFECYCLE.json`;
+- `tools/apl_reg_001b_release_evidence.py`;
+- `tests/test_apl_reg_001b_sovereign_lifecycle.py`;
+- `.github/workflows/apl-reg-001b-sovereign-lifecycle.yml`.
 
-- source-code storage;
-- object-code/artifact storage;
-- compilation/build;
-- release publication and distribution;
-- activation/licensing/key management if present;
-- support, maintenance and source modification.
+Target chain:
 
-Where current infrastructure fails a mandatory requirement, migrate before submission rather than documenting a known non-compliance.
+`Russian authoritative source → Russian-controlled build host → offline governed inputs → exact artifacts → Russian authoritative artifact/distribution storage → release evidence bundle`.
 
-### APL-REG-001C — trusted Russian OS compatibility
+GitHub/GitHub Actions/GitHub Releases can remain development/public secondary channels but are not the filing-grade sovereign baseline. Existing `tools/archive_windows_build_inputs.ps1` plus `tools/clean_build_windows.ps1 -WheelhousePath` already provide the controlled/offline Windows build primitives.
 
-Because 02.02 is now the filing class, plan against the **2027-01-01** applicability date unless the law changes before submission.
+The release evidence generator fails closed unless the exact build records `dependency_mode=offline-hash-locked`, a concrete source commit and matching artifact SHA-256. It does not claim physical Russian infrastructure is proven. Before filing, perform and retain the physical source/build/artifact/distribution evidence described in the APL-REG-001B contract.
 
-- choose two qualifying trusted general-purpose OSes from different rightsholders based on official status at execution time;
-- implement the product/runtime/UI packaging needed for them;
-- run clean-host installation/start/stop/routing/no-proxy/restart/uninstall/regression tests;
-- record OS edition/version, package hashes and exact product commit/release;
-- prepare expert-readable compatibility protocols.
+### APL-IP-001 — IP provenance & human-authorship hardening — ENGINEERING RECONCILED / HUMAN-LEGAL GATE OPEN
 
-Do not hard-code candidate OS brands in the legal contract until their qualifying status is verified at the time of test.
+Current canonical repository evidence:
+
+- `compliance/APL_IP_001_V0_2_5_CLEAN_IP.json`;
+- `docs/evidence/APL_IP_001_V0_2_5_CANDIDATE_RECONCILIATION_2026-09-14.md`;
+- `docs/APL_IP_001_V0_2_5_SIGNOFF.md`;
+- `docs/legal/APL_IP_001_RIGHTS_ASSIGNMENT_V0_2_5_CANDIDATE_ADDENDUM_2026-09-14.md`;
+- `IP_PROVENANCE.md`;
+- `tests/test_apl_ip_001_v0_2_5_reconciliation.py`;
+- `.github/workflows/apl-ip-001-v0-2-5.yml`.
+
+Exact accepted v0.2.5 object is now governed by source commit/tree, immutable tag identity and accepted application/Setup SHA-256. The exact accepted source has successful APL-IP-001 provenance and CycloneDX SBOM workflow evidence. Material runtime drift since the historical 0.2.3 sign-off was bounded and engineering-reviewed; the old 0.2.3 sign-off is no longer treated as the current release approval object.
+
+Repository automation remains deliberately fail-closed. It cannot prove authorship/ownership or create a clean-IP tag. Before filing, complete the actual human/legal findings:
+
+- R-1 — executed rights basis covering the exact object;
+- R-2 — factual Rospatent status if relied upon;
+- R-3 — applicable corporate approval/exception basis;
+- R-4 — authorized human factual authorship/control carry-forward to v0.2.5 and selected release scope.
+
+AppImage remains outside the current clean-IP approval scope on HOLD. The immutable `v0.2.5` tag must not be moved.
+
+### APL-REG-001C — trusted Russian OS compatibility — PAUSED / WAITING ON TWO REAL-HOST ACCEPTANCE RUNS
+
+Because 02.02 is the filing class, plan against **2027-01-01** unless law changes before submission.
+
+Working acceptance pair:
+
+- **Astra Linux Special Edition**;
+- **РЕД ОС**.
+
+This pair is an execution target, not a frozen legal assertion. Immediately before each acceptance run, re-verify that the tested editions qualify for the applicable trusted-software requirement and that the two products satisfy the different-rightsholder requirement then in force.
+
+**Resume gate:** do not continue APL-REG-001C implementation, registry compatibility claims, or APL-REG-001D/F work that depends on compatibility until real acceptance has been completed on both OSes.
+
+Each acceptance run must retain enough evidence to identify reality, including at minimum:
+
+- OS product, edition and exact version/build;
+- OS/rightsholder qualification check current at test time;
+- exact Proxy Launcher commit/release and package SHA-256;
+- clean installation result;
+- application start/stop;
+- proxy routing and no-proxy behavior;
+- restart/recovery/autostart behavior where included in the tested product scope;
+- diagnostics/log collection sufficient to investigate failures;
+- uninstall/removal and post-state;
+- dated human acceptance result and supporting machine-readable/raw evidence where practical.
+
+After both acceptance runs exist, resume from this exact point: reconcile failures/differences, implement only the required compatibility changes, rerun affected acceptance cases, freeze the resulting compatibility contract, and produce expert-readable protocols for the submitted release.
+
+Generic Ubuntu/GitHub CI, container tests or claimed Python portability are not substitutes for these two real-host acceptance runs.
 
 ### APL-REG-001D — registry documentation pack
 
-Produce version-frozen Russian documents for:
-
-- product purpose and functional characteristics;
-- system requirements;
-- installation;
-- operation and configuration;
-- removal/recovery;
-- support and maintenance;
-- licensing/price;
-- expert test procedure;
-- known restrictions and required external proxy configuration.
+Produce version-frozen Russian documents for product purpose/functionality, system requirements, installation, operation/configuration, removal/recovery, support/maintenance, licensing/price, expert test procedure, known restrictions and external proxy configuration.
 
 ### APL-REG-001E — private corporate evidence pack
 
-Keep outside the public Git repository:
-
-- charter / applicable EGRUL materials;
-- corporate control/ownership evidence where required;
-- author/employee/contractor IP transfer documents;
-- accounting evidence concerning applicable foreign payments;
-- powers/authorizations for the applicant;
-- qualified-signature material and credentials.
-
-Never commit private keys, UKЭП material, personal data or restricted corporate evidence.
+Keep outside public Git repository: charter/EGRUL materials, ownership/control evidence, author/employee/contractor IP-transfer documents, accounting evidence for applicable foreign payments, applicant powers/authorizations and qualified-signature material. Never commit private keys, УКЭП material, personal data or restricted corporate evidence.
 
 ### APL-REG-001F — pre-submission audit
 
-Immediately before filing:
+Immediately before filing, re-check current law, classifier, trusted-OS applicability, exact release bytes, rights chain, infrastructure evidence and all registry-facing documents. The filing package must describe reality at submission time, not historical assumptions.
 
-1. re-check Resolution No. 1236 and the classifier for changes;
-2. re-run the APL-REG-001A classification against the exact product release;
-3. verify every application URL from a clean session;
-4. verify all submitted artifact hashes;
-5. verify release/version naming is identical across application, manuals and binaries;
-6. verify class and trusted-OS evidence;
-7. verify rightsholder evidence;
-8. freeze the submitted release/evidence set;
-9. only then sign and submit the electronic application.
+## NUC / Windows trust relationship
 
-## 6. Relationship to APL-REL-016
-
-APL-REG-001 is an upstream business/compliance dependency of the Russia-first route for obtaining a future National Certification Authority code-signing certificate, to the extent the final NUC eligibility rules require registry inclusion.
-
-Registry inclusion must **not** be represented as proof of Microsoft public trust. APL-REL-016 retains its separate clean-Windows Authenticode/SmartScreen/Smart App Control acceptance gate.
-
-## 7. Acceptance criteria
-
-APL-REG-001 repository preparation can be closed only when:
-
-- class 02.02 remains legally defensible for the exact submitted release after the final recheck;
-- every applicable Resolution No. 1236 condition is `PASS` or has a documented `NOT_APPLICABLE` rationale;
-- APL-IP-002 and final APL-IP-001 human/legal work are complete;
-- the exact submitted release has governed dependency, license, SBOM and provenance evidence;
-- infrastructure evidence satisfies all requirements applicable on the filing date;
-- trusted-OS compatibility is implemented and documented if applicable;
-- Russian registry-facing product/support/licensing/test documentation is frozen;
-- the private corporate dossier is complete outside the repository;
-- a final pre-submission legal/technical re-check has been performed;
-- no secret, private key, UKЭП material, personal data or restricted corporate document has been committed.
-
-The external filing and the authority's inclusion decision are tracked separately from repository completion.
+Russian Software Register inclusion is an upstream dependency/candidate prerequisite for the Russia-first National Certification Authority code-signing route identified in APL-REL-016. It does not prove Microsoft public Windows trust. APL-REL-016 remains a separate trust/signing workstream and v0.2.5 remains immutable.
