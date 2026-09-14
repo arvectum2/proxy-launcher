@@ -73,6 +73,28 @@ def _safe_section(collector):
         return {"ok": False, "error": _error_text(exc)}
 
 
+def _collapse_home_text(text):
+    """Collapse literal home prefixes, including JSON-escaped Windows paths."""
+    value = str(text)
+    try:
+        home = os.path.abspath(os.path.expanduser("~"))
+        if home and home != os.sep:
+            # Structured log lines are serialized before this final privacy pass.
+            # On Windows that means backslashes in the home prefix may already be
+            # JSON-escaped, so cover both raw and escaped path representations.
+            roots = {home, home.replace("\\", "\\\\")}
+            separators = {os.sep, "/", "\\", "\\\\"}
+            for root in roots:
+                if value == root:
+                    value = "~"
+                    continue
+                for separator in separators:
+                    value = value.replace(root + separator, "~" + separator)
+    except (OSError, TypeError, ValueError):
+        pass
+    return value
+
+
 def _display_path(path):
     """Keep path shape useful while avoiding a literal home-directory prefix."""
     value = os.path.abspath(os.path.expanduser(os.fspath(path)))
@@ -154,8 +176,6 @@ def _settings_summary(settings):
     for item in settings.get("upstream") or []:
         if not isinstance(item, dict):
             continue
-        # Credential fields are intentionally omitted, rather than relying only
-        # on redaction, because support normally needs endpoint reachability.
         upstream.append({
             "host": str(item.get("host", "") or ""),
             "port": item.get("port"),
@@ -245,8 +265,6 @@ def _proxy_state_to_dict(state):
         "method": state.method,
         "browser_only": bool(state.browser_only),
         "pac_url": state.pac_url,
-        # PAC script may be useful for conflict diagnosis, but remains bounded
-        # and passes through the global secret-redaction layer.
         "pac_script": state.pac_script,
     }
 
@@ -418,7 +436,7 @@ def _sanitized_log_text(path, max_lines=LOG_MAX_LINES):
         return json.dumps({"log_read_error": _error_text(exc)}, ensure_ascii=False) + "\n"
     if not lines:
         return ""
-    return redact_text("\n".join(lines) + "\n")
+    return _collapse_home_text(redact_text("\n".join(lines) + "\n"))
 
 
 def _log_candidates():
