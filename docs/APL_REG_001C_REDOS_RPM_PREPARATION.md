@@ -26,7 +26,7 @@ The RPM requires `NetworkManager`, which matches the governed Linux backend. It 
 
 ## CI boundary
 
-The RPM workflow may prove packaging structure, dependencies, absence of lifecycle scriptlets, payload identity and basic binary startability in a Fedora-family build container. It **does not** constitute a RED OS acceptance result.
+The RPM workflow may prove packaging structure, dependencies, absence of lifecycle scriptlets, payload identity and RPM format/payload inspection around the canonical Ubuntu-built Linux artifact. It **does not** constitute a RED OS acceptance result.
 
 A physical or otherwise explicitly accepted RED OS evidence run must still record:
 
