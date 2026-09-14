@@ -1,13 +1,21 @@
-version: 1
+version: 2
 repository: arvectum2/proxy-launcher
 status: completed
 task_id: null
 goal: null
+authority: null
 definition_of_done: []
 completed: []
 current: null
 pending: []
 last_verified_commit: null
 test_results: []
-updated_at: null
+updated_at: "2026-09-14T13:45:00Z"
 resume_instruction: null
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
+  lease_until: null
+  manual_override: false
