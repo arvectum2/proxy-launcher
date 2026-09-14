@@ -1,0 +1,27 @@
+task_id: APL-LNX-010
+status: in_progress
+goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final 0.2.5 .deb candidate."
+definition_of_done:
+  - "All mandatory APL-LNX-010 phases pass on the physical Astra/Fly host."
+  - "Exact NetworkManager rollback comparator passes for normal disable, crash recovery, reboot recovery, and final cleanup."
+  - "Package update/remove/reinstall preserves user state; diagnostics privacy review passes."
+  - "HOST_ATTESTATION.env and SUMMARY.md satisfy the verifier contract."
+  - "qa/verify_astra_acceptance_bundle.py reports APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
+  - "R8 fixes are merged to main, final commit/hash and CI/tests recorded, checkpoint marked completed."
+completed_stages:
+  - "R8 defects fixed on PR #62 branch; full deterministic suite 802/802 PASS."
+  - "Final candidate built from d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
+  - "Final-run strict preflight/baseline, package install, GUI Linux/Astra validation, real enable completed."
+  - "Phase 4 no-proxy UI sync/restoration PASS; durable rollback baseline preserved."
+  - "Phase 5 GUI disable exact rollback comparator PASS."
+  - "Phase 6 XDG per-user autostart enabled; network unchanged; login proof combined with Phase 8."
+  - "Phase 7 SIGKILL crash/relaunch GUI recovery exact comparator PASS; rollback evidence cleaned only after recovery."
+current_stage: "Phase 8 reboot/login recovery on the exact final candidate."
+remaining_stages:
+  - "Phase 8 reboot/login recovery."
+  - "Phase 9 update/remove/reinstall state preservation."
+  - "Phase 10 diagnostics privacy and final cleanup."
+  - "Host attestation, SUMMARY.md, final verifier, merge PR #62, final CI/checkpoint closure."
+last_verified_commit: "d18cf396b8e324da070bd21a0ae14598df7d394f"
+last_tests: "python3 -m unittest discover: 802/802 PASS; final real-host phases 4/5/6/7 PASS including exact rollback comparators."
+resume_instruction: "Open $HOME/APL-LNX-010-FINAL-20260914-160951 and continue at Phase 8. Baseline is clean, autostart is enabled, and Phase 7 is PASS. Dismiss any success dialog, enable proxy normally, confirm rollback exists, record pre-reboot boot ID/state, reboot normally while active, then after Fly login prove one autostart launch/pending rollback and recover through product before comparator."
