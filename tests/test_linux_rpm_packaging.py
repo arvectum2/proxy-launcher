@@ -45,6 +45,8 @@ class LinuxRpmPackagingContractTests(unittest.TestCase):
         self.assertIn("--sort=name", self.text)
         self.assertIn("--owner=0 --group=0 --numeric-owner", self.text)
         self.assertIn("_buildhost arvectum-reproducible", self.text)
+        self.assertIn("%global __os_install_post %{nil}", self.text)
+        self.assertIn('"/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher"', self.text)
 
     def test_red_os_acceptance_package_is_explicitly_x86_64(self):
         self.assertIn('[[ "$arch" == "x86_64" ]]', self.text)

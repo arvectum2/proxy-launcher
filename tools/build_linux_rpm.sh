@@ -79,6 +79,7 @@ Source0:        %{name}-%{version}-payload.tar
 
 %global debug_package %{nil}
 %global __strip /bin/true
+%global __os_install_post %{nil}
 
 %description
 Cross-platform system proxy launcher with explicit ownership, rollback and
@@ -99,7 +100,7 @@ tar -xf %{SOURCE0} -C %{buildroot}
 %license /usr/share/doc/$package/LICENSE.txt
 %doc /usr/share/doc/$package/THIRD_PARTY_NOTICES.txt
 %doc /usr/share/doc/$package/THIRD_PARTY_LICENSES
-/opt/arvectum-proxy-launcher/Arvectum\ Proxy\ Launcher
+"/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher"
 /usr/bin/arvectum-proxy-launcher
 /usr/share/applications/arvectum-proxy-launcher.desktop
 /usr/share/icons/hicolor/256x256/apps/arvectum-proxy-launcher.png
