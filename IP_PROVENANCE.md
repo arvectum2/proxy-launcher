@@ -15,7 +15,7 @@ The current canonical v0.2.5 reconciliation is `docs/evidence/APL_IP_001_V0_2_5_
 - accepted application SHA-256: `1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c`;
 - accepted Setup SHA-256: `9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3`.
 
-`v0.2.5` is immutable. Provenance work must not move the tag, rewrite history or replace accepted release bytes.
+`v0.2.5` is immutable. **Git history must not be rewritten** to manufacture provenance, and this work must not move the tag or replace accepted release bytes.
 
 ## Repository-authored source boundary
 
@@ -98,6 +98,6 @@ The execution-ready rights-basis template is `docs/legal/APL_IP_001_RIGHTS_ASSIG
 - AppImage promoted distribution: **HOLD / OUT OF CURRENT APPROVAL SCOPE**.
 - R-1 through R-4: **PENDING — HUMAN/LEGAL ACTION**.
 - Overall machine verdict: **CONDITIONAL_HUMAN_LEGAL_GATE**.
-- Clean-IP baseline/tag: **BLOCKED**.
+- **Clean IP baseline/tag:** **BLOCKED** until the required human/legal review is genuinely completed.
 
 **NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** It may be created only after actual human/legal completion and explicit approval of the exact object; the immutable `v0.2.5` tag itself must never be moved.
