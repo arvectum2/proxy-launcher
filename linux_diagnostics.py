@@ -74,14 +74,22 @@ def _safe_section(collector):
 
 
 def _collapse_home_text(text):
-    """Collapse the current user's literal home prefix in persisted diagnostics text."""
+    """Collapse literal home prefixes, including JSON-escaped Windows paths."""
     value = str(text)
     try:
         home = os.path.abspath(os.path.expanduser("~"))
         if home and home != os.sep:
-            value = value.replace(home + os.sep, "~" + os.sep)
-            if value == home:
-                value = "~"
+            # Structured log lines are serialized before this final privacy pass.
+            # On Windows that means backslashes in the home prefix may already be
+            # JSON-escaped, so cover both raw and escaped path representations.
+            roots = {home, home.replace("\\", "\\\\")}
+            separators = {os.sep, "/", "\\", "\\\\"}
+            for root in roots:
+                if value == root:
+                    value = "~"
+                    continue
+                for separator in separators:
+                    value = value.replace(root + separator, "~" + separator)
     except (OSError, TypeError, ValueError):
         pass
     return value
