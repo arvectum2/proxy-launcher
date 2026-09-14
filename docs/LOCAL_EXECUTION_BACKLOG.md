@@ -24,39 +24,31 @@ Repository migration is closed and is not an active blocker.
 - **PUBLISHED / MIRRORED** — GitVerse independent mirror carries the same canonical payload set.
 - **IMMUTABLE** — do not move `v0.2.5` or replace its published assets.
 
-## P2 — Astra Linux / Gate R8 — IN PROGRESS / PRIMARY LOCAL TASK
+## P2 — Astra Linux / Gate R8 — DONE / PHYSICAL PASS
 
-Current stand: `ARVECTUM-DEMO`, x86-64 physical laptop, Windows 11 Enterprise 25H2 + Astra Linux SE 1.8 x86-64 dual-boot acceptance path.
+Physical acceptance stand: x86-64 HP EliteBook 735 G6 running Astra Linux Special Edition 1.8.1 / Fly / X11 on a non-virtualized host.
 
-Active implementation/fix PR: `#62`, branch `fix/apl-lnx-010-r8-astra`.
+Final accepted `0.2.5` candidate source: `d18cf396b8e324da070bd21a0ae14598df7d394f`; `.deb` SHA-256: `d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588`.
 
-Real-host acceptance exposed two product defects in the Linux candidate: mutable runtime/state resolving into the root-owned install directory, and Windows-specific active/recovery UX copy. PR #62 fixes both and adds focused regression tests. The deterministic suite is **802/802 PASS**.
+Gate R8 closure:
 
-Physical acceptance progress on final candidate source `d18cf396b8e324da070bd21a0ae14598df7d394f`, `.deb` SHA-256 `d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588`:
+- **PASS** — strict Astra physical-host preflight, package install and GUI/Linux-Astra UX;
+- **PASS** — real NetworkManager enable and normal disable with exact rollback comparator;
+- **PASS** — no-proxy synchronization while preserving the durable captured baseline;
+- **PASS** — XDG per-user autostart/login behavior;
+- **PASS** — SIGKILL crash/relaunch recovery with exact rollback comparator;
+- **PASS** — real reboot/login recovery with pending rollback surviving reboot and exact post-recovery comparator;
+- **PASS** — reinstall/remove/reinstall lifecycle with user-state preservation;
+- **PASS** — diagnostics/support privacy and final cleanup; no pending rollback remains;
+- **PASS** — `HOST_ATTESTATION.env`, `SUMMARY.md` and `qa/verify_astra_acceptance_bundle.py` (`APL-LNX-010 VERDICT: EVIDENCE COMPLETE`);
+- **MERGED** — R8 fixes in PR `#62`, main merge commit `cb8655278bcb0899104bb5e4161c4de0497b6226`;
+- **CI PASS** — exact PR head `e0012b2d196f75cc3329e0bddec0a655387145a9` passed all 16 reported GitHub Actions workflows, including Windows P0 portable and Windows installer.
 
-- strict preflight/baseline, package install, GUI Linux/Astra validation and real enable — PASS;
-- Phase 4 no-proxy UI sync/restoration — PASS;
-- Phase 5 GUI disable exact rollback comparator — PASS;
-- Phase 6 XDG per-user autostart setup/network preservation — PASS so far; login proof is combined with Phase 8;
-- Phase 7 SIGKILL crash/relaunch recovery + exact comparator — PASS;
-- **current checkpoint: Phase 8 reboot/login recovery**.
+Real-host acceptance exposed and closed Linux per-user state-path, Linux/Astra status-copy, diagnostics home-path privacy and cross-platform regression-test portability defects. Ubuntu CI was not used as a substitute for the physical Gate R8 evidence. AppImage remains outside promoted commercial scope pending separate compliance clearance.
 
-Remaining local sequence:
+## P3 — РЕД ОС / second registry OS acceptance — NEXT TRUSTED-OS GATE
 
-1. complete Phase 8 reboot/login recovery on the exact final candidate;
-2. complete Phase 9 update/remove/reinstall state preservation;
-3. complete Phase 10 diagnostics privacy and final cleanup;
-4. produce host attestation and `SUMMARY.md`;
-5. run `qa/verify_astra_acceptance_bundle.py` to `APL-LNX-010 VERDICT: EVIDENCE COMPLETE`;
-6. preserve the same run with enough machine-readable/raw evidence to serve as the first APL-REG-001C trusted-OS acceptance record;
-7. reconcile/merge PR #62 with current `main` under required review/CI rules;
-8. close Gate R8 only from complete real Astra-host PASS evidence.
-
-Ubuntu CI is not a substitute for Gate R8. AppImage remains outside promoted commercial scope pending separate compliance clearance.
-
-## P3 — РЕД ОС / second registry OS acceptance — READY AFTER ASTRA GATE R8
-
-APL-REG-001C is paused until two real-host acceptance records exist. Working pair: Astra Linux Special Edition + РЕД ОС.
+The Astra half of APL-REG-001C is now complete. The remaining second-OS record requires a qualifying РЕД ОС environment and real-host/accepted evidence form.
 
 For РЕД ОС:
 
@@ -168,13 +160,13 @@ After Android dogfood and sufficiently stable desktop/mobile product semantics:
 
 ## Current parallel execution order
 
-- **[Primary local] IN PROGRESS:** Astra APL-LNX-010 physical acceptance -> finish Phase 8/9/10 -> verifier -> Gate R8 + first APL-REG-001C OS record.
+- **[Primary local] DONE:** Astra APL-LNX-010 / Gate R8 physical acceptance; first APL-REG-001C trusted-OS record is complete.
 - **[Mobile local] READY NOW:** physical Android dogfood for PR #53.
 - **[Human] READY NOW:** final APL-IP-001 R-1..R-4 review and decision.
 - **[Windows trust] PARALLEL:** APL-REL-016 architecture for `0.2.6+`.
 - **[Registry infrastructure] PARALLEL WHEN AVAILABLE:** APL-REG-001B physical sovereign lifecycle proof.
 - **[Product discovery] PARALLEL/OPTIONAL:** resolve per-application-routing Windows enforcement architecture.
-- **[Second Linux OS] NEXT AFTER R8:** РЕД ОС real-host acceptance to unlock APL-REG-001C continuation.
+- **[Second Linux OS] NEXT / ENVIRONMENT REQUIRED:** РЕД ОС real-host acceptance to complete APL-REG-001C.
 - **[macOS] DEFERRED:** production signing/notarization when prioritized.
 - **[iOS] FUTURE:** after Android dogfood and desktop stability.
 
