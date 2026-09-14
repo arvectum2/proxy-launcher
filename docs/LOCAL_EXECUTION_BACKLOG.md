@@ -61,6 +61,16 @@ For РЕД ОС:
 
 Generic Linux CI is not a substitute for these two OS acceptance runs.
 
+Repository preparation is now complete in draft PR `#70` on head `7809e0ab3d8d8e8959676b659a745c20584b6f9e`:
+
+- native x86-64 RPM packaging exists for the governed Linux frozen artifact;
+- RED OS strict preflight, privacy-preserving NetworkManager snapshots, exact rollback comparator and fail-closed bundle verifier are implemented;
+- all 15 reported PR checks PASS, including RPM build/inspection and RED OS acceptance-tooling contracts;
+- current CI RPM: `arvectum-proxy-launcher-0.2.5-1.x86_64.rpm`;
+- current RPM SHA-256: `0898b7681b502aaa926876a537d0b4bc6ce5a3c62dc224d7c9b70f03b62665f7`.
+
+The remaining gate is therefore environmental/physical, not repository-tooling work: install the accepted RED OS target, transfer the exact RPM candidate, execute `docs/APL_REG_001C_REDOS_REAL_HOST_ACCEPTANCE.md`, and retain a verifier-complete bundle.
+
 ## P4 — Android APL-MOB-001 physical dogfood — READY NOW
 
 Draft PR: `#53`, branch `apl-mob-001-android-spike`.

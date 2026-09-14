@@ -1,40 +1,37 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-LNX-010-GATE-R8
-goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final Linux .deb candidate, while preserving evidence reusable for the first APL-REG-001C trusted-OS acceptance record."
+status: blocked
+task_id: APL-REG-001C-REDOS
+goal: "Complete the second APL-REG-001C trusted-OS acceptance record on a qualifying physical RED OS x86-64 graphical host using the exact governed RPM candidate and fail-closed evidence tooling."
 authority: HUMAN
 definition_of_done:
-  - "All mandatory APL-LNX-010 phases pass on the physical Astra/Fly host."
-  - "Exact NetworkManager rollback comparator passes for normal disable, crash recovery, reboot recovery, and final cleanup."
-  - "Package update/remove/reinstall preserves user state; diagnostics privacy review passes."
-  - "HOST_ATTESTATION.env and SUMMARY.md satisfy the verifier contract."
-  - "qa/verify_astra_acceptance_bundle.py reports APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
-  - "Required R8 fixes are merged to main, final commit/hash and CI/tests recorded, queue/checkpoint marked done."
+  - "Exact RED OS edition/version/build and x86-64 physical graphical host are recorded."
+  - "Exact repository commit and RPM SHA-256 are bound into the preflight/package evidence."
+  - "Install/start, real proxy + no-proxy, exact disable rollback, autostart, crash recovery, reboot recovery, diagnostics/privacy and update/remove phases pass."
+  - "HOST_ATTESTATION.env and SUMMARY.md satisfy the RED OS verifier contract."
+  - "qa/verify_redos_acceptance_bundle.py reports APL-REG-001C RED OS VERDICT: EVIDENCE COMPLETE."
 completed:
-  - "Physical Astra/Fly acceptance completed through reboot recovery, package lifecycle, diagnostics privacy and final cleanup."
-  - "Final physical candidate source d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
-  - "Normal disable, SIGKILL crash recovery, reboot/login recovery and final cleanup all restored the exact captured NetworkManager baseline."
-  - "Phase 9 reinstall/remove/reinstall preserved user state and restored the governed 0.2.5 package."
-  - "Phase 10 diagnostics privacy PASS; literal home-path leak fixed with regression coverage."
-  - "HOST_ATTESTATION.env and SUMMARY.md completed; qa/verify_astra_acceptance_bundle.py => APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
-  - "Exact PR #62 head e0012b2d196f75cc3329e0bddec0a655387145a9 passed all 16 reported GitHub Actions workflows, including Windows P0 portable and Windows installer."
-  - "PR #62 merged to main as cb8655278bcb0899104bb5e4161c4de0497b6226."
-current: null
-pending: []
-last_verified_commit: "cb8655278bcb0899104bb5e4161c4de0497b6226"
+  - "Astra Linux SE first trusted-OS record is complete and Gate R8 is closed."
+  - "Draft PR #70 adds native x86-64 RPM packaging and strict RED OS acceptance tooling."
+  - "PR #70 head 7809e0ab3d8d8e8959676b659a745c20584b6f9e has all 15 reported checks PASS."
+  - "RPM CI artifact arvectum-proxy-launcher-0.2.5-1.x86_64.rpm built and inspected successfully."
+  - "RPM SHA256 0898b7681b502aaa926876a537d0b4bc6ce5a3c62dc224d7c9b70f03b62665f7."
+current: "Blocked on installing/booting the accepted RED OS target on the physical stand and executing the real-host protocol."
+pending:
+  - "Install RED OS alongside the existing Windows + Astra setup without destroying either existing OS."
+  - "Transfer the exact RPM candidate to RED OS."
+  - "Execute docs/APL_REG_001C_REDOS_REAL_HOST_ACCEPTANCE.md and preserve the evidence bundle."
+last_verified_commit: "7809e0ab3d8d8e8959676b659a745c20584b6f9e"
 test_results:
-  - "Physical Astra Gate R8 evidence verifier: EVIDENCE COMPLETE."
-  - "Physical Astra exact NetworkManager comparators: PASS for normal disable, crash recovery, reboot recovery and final cleanup."
-  - "Focused post-fix Linux state/diagnostics tests on Astra: 11/11 PASS."
-  - "Complete deterministic suite after R8 privacy hardening: 803/803 PASS before the final test-only Windows portability correction."
-  - "Exact-head GitHub Actions at e0012b2d196f75cc3329e0bddec0a655387145a9: 16/16 workflows SUCCESS."
-updated_at: "2026-09-14T15:47:00Z"
-resume_instruction: null
+  - "Local RPM contract tests: 6/6 PASS."
+  - "Local RPM + RED OS acceptance/IP focused tests: 22/22 PASS before final RPM path fix; final RPM contract rerun 6/6 PASS."
+  - "GitHub PR #70: 15/15 reported checks PASS, including RPM build/inspection, RED OS tooling, Windows regressions, Linux acceptance, SAST, dependency scan, SBOM and provenance."
+updated_at: "2026-09-14T19:05:00Z"
+resume_instruction: "Resume only when the physical stand is ready for RED OS installation/boot or when preparing that installation media/partition plan. Do not claim RED OS acceptance from CI."
 execution:
   claimed_by: null
   execution_id: null
-  branch: null
-  base_commit: null
+  branch: agent/apl-reg-001c-redos-prep
+  base_commit: 6c2ef0b83b2cce68c465556d94a60262d64d20e2
   lease_until: null
   manual_override: false
