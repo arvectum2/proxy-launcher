@@ -78,7 +78,7 @@ hard_stops:
   - sign binaries, legal documents or submissions with owner/company credentials
   - create payments, purchases or paid commitments
   - accept legal, security or commercial risk on behalf of the owner/company
-  - expose or rotate secrets, private keys, UKЭП or private corporate evidence without explicit authorization
+  - expose or rotate secrets, private keys, УКЭП or private corporate evidence without explicit authorization
   - destructive or irreversible host/storage/boot changes without an explicit task-specific human gate
   - production infrastructure mutation not explicitly pre-authorized by a queue item
   - external supplier/customer/regulator communication
