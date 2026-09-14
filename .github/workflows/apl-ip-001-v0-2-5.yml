@@ -40,12 +40,12 @@ jobs:
 
       - name: Regenerate current repository provenance evidence
         run: |
-          rm -rf artifacts/ip-provenance-ci
-          python tools/ip_provenance_check.py --output artifacts/ip-provenance-ci
+          rm -rf artifacts/ip-provenance
+          python tools/ip_provenance_check.py
           python - <<'PY'
           import json
           from pathlib import Path
-          path = Path('artifacts/ip-provenance-ci/source-manifest.json')
+          path = Path('artifacts/ip-provenance/source-manifest.json')
           data = json.loads(path.read_text(encoding='utf-8'))
           assert data['human_review_required'] is True
           assert data['legal_signoff_required'] is True
