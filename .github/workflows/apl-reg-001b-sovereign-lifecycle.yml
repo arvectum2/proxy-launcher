@@ -1,0 +1,33 @@
+name: APL-REG-001B sovereign lifecycle
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Sovereign lifecycle contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version-file: BUILD_PYTHON_VERSION
+      - name: Validate JSON contract
+        run: python -m json.tool compliance/APL_REG_001B_SOVEREIGN_LIFECYCLE.json >/dev/null
+      - name: Run APL-REG-001B tests
+        run: python -m unittest tests.test_apl_reg_001b_sovereign_lifecycle -v
+      - name: Compile evidence generator
+        run: python -m py_compile tools/apl_reg_001b_release_evidence.py
