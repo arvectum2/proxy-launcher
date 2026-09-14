@@ -167,7 +167,27 @@ class LinuxLauncher(shared_gui.Launcher):
         running = core.is_running()
         enabled = core.system_proxy_enabled()
         pending = core.network_restore_pending()
-        if enabled or pending:
+        if enabled:
+            self.status_hint.config(
+                text=(
+                    "Системный профиль NetworkManager включён и направлен через "
+                    "Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит "
+                    "работать в фоне."
+                ),
+                bg=MINT_SOFT, fg=NAVY,
+            )
+            self.status_hint.grid()
+            return
+        if pending:
+            self.status_hint.config(
+                text=(
+                    "Предыдущий сеанс Linux/Astra завершился некорректно. "
+                    "Сначала восстановите сохранённые настройки NetworkManager, "
+                    "затем снова включите прокси."
+                ),
+                bg=MINT_SOFT, fg=NAVY,
+            )
+            self.status_hint.grid()
             return
 
         try:
