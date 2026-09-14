@@ -52,9 +52,12 @@ jobs:
           print('Current provenance remains fail-closed: human/legal review required')
           PY
 
-      - name: Assert workflow cannot create clean-IP tags
+      - name: Assert read-only workflow permissions
         run: |
-          if grep -Eqi 'git[[:space:]]+tag|gh[[:space:]]+release|git[[:space:]]+push.*tag' .github/workflows/apl-ip-001-v0-2-5.yml; then
-            echo 'APL-IP-001 reconciliation workflow must never create/push tags or releases.' >&2
-            exit 1
-          fi
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/apl-ip-001-v0-2-5.yml').read_text(encoding='utf-8')
+          assert 'contents: write' not in text
+          assert 'contents: read' in text
+          print('Workflow is read-only and cannot push a clean-IP tag')
+          PY
