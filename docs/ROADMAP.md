@@ -83,7 +83,7 @@ This is now a distinct active workstream rather than an implicit legal tail of L
 - **DECIDED** — APL-REG-001A classification working position: primary class `02.02 — Программы обслуживания`, with mandatory final classifier/law recheck immediately before filing.
 - **DONE** — APL-IP-002 sovereignty inventory feeds this workstream.
 - **REPOSITORY TOOLING COMPLETE / PHYSICAL GATE OPEN** — APL-REG-001B sovereign lifecycle contract/tooling exists. Remaining proof must come from real Russian-controlled source/build/artifact/distribution infrastructure; GitHub/GitHub Actions/GitHub Releases remain development/secondary channels, not filing-grade proof by themselves.
-- **PAUSED / WAITING ON TWO REAL-HOST ACCEPTANCE RUNS** — APL-REG-001C trusted-OS compatibility is deliberately paused.
+- **ASTRA RECORD DONE / RED OS PHYSICAL GATE OPEN** — APL-REG-001C now has the completed Astra Linux SE record. RED OS RPM packaging and strict acceptance tooling are prepared in draft PR #70; the remaining second-OS gate is the real RED OS run.
 - **WORKING ACCEPTANCE PAIR** — Astra Linux Special Edition + РЕД ОС, subject to re-verification of qualifying status and different-rightsholder status at execution time.
 - **RESUME GATE** — do not continue compatibility-dependent registry engineering/documentation until both real-host acceptance runs exist. Generic Ubuntu CI, containers or claimed Python portability do not substitute.
 - **AFTER TWO-OS PASS** — reconcile platform differences/failures, implement only required compatibility changes, rerun affected cases, freeze compatibility contract, then produce expert-readable protocols.
@@ -131,8 +131,8 @@ Per-application routing must remain a new-version feature. It must not be retrof
 
 The project now has multiple genuinely available branches of work from the current `0.2.5` baseline:
 
-1. **[Linux / primary local] APL-LNX-010 real Astra acceptance — READY NOW.** Dual boot → Astra Linux SE → `.deb` end-to-end → Gate R8.
-2. **[Registry / physical] APL-REG-001C first half — READY NOW THROUGH ASTRA ACCEPTANCE.** The same Astra real-host evidence should be captured so it can serve both Gate R8 and the first trusted-OS acceptance record. After Astra, perform the second real-host acceptance on РЕД ОС before resuming compatibility-dependent registry work.
+1. **[Linux / primary local] APL-LNX-010 real Astra acceptance — DONE.** Physical Astra Linux SE acceptance closed Gate R8 and produced the first APL-REG-001C trusted-OS record.
+2. **[Registry / physical] APL-REG-001C RED OS second record — PHYSICAL ENVIRONMENT REQUIRED.** Native RPM packaging plus strict RED OS evidence tooling are prepared in draft PR #70; install the accepted RED OS target and run the exact real-host protocol before resuming compatibility-dependent registry work.
 3. **[Android / product dogfood] APL-MOB-001 PR #53 — READY NOW FOR PHYSICAL PHONE TESTING.** CI/APK exist; the remaining gate is real-device acceptance.
 4. **[Windows trust / parallel] APL-REL-016 — READY NOW.** Choose future Windows public-trust/distribution architecture for `0.2.6+`, Russia-first, without mutating `v0.2.5`.
 5. **[IP/legal / parallel] APL-IP-001 issue #57 — READY FOR FINAL HUMAN REVIEW.** Exact-object engineering and private rights evidence exist; canonical sign-off is still NOT APPROVED until an authorized human closes R-1..R-4 and selects the final decision.
@@ -146,10 +146,10 @@ The project now has multiple genuinely available branches of work from the curre
 
 ### Recommended execution order from 2026-09-14
 
-1. **Physical Astra Linux acceptance first**: prepare dual boot, execute APL-LNX-010, close Gate R8, and preserve evidence in a form reusable by APL-REG-001C.
-2. In parallel, **physically dogfood Android PR #53** on a real phone; this does not depend on Astra.
-3. In parallel, close **APL-IP-001 human/legal sign-off** and continue **APL-REL-016** architecture research.
-4. After Astra, execute the **РЕД ОС** real-host acceptance required by APL-REG-001C.
+1. **Install and execute the РЕД ОС real-host acceptance** required by APL-REG-001C using the prepared RPM/evidence lane in draft PR #70.
+2. In parallel, **physically dogfood Android PR #53** on a real phone.
+3. In parallel, close **APL-IP-001 human/legal sign-off** and resolve the prepared **APL-REL-016** owner decision packet.
+4. Resolve the prepared **Windows per-application routing architecture** owner decision packet before native enforcement implementation.
 5. Once both Russian OS acceptance records exist, resume APL-REG-001C compatibility reconciliation and then APL-REG-001D/F registry preparation.
 6. Choose the next major desktop feature increment: **Windows per-application routing** versus **macOS production distribution**, based on commercial priority.
 7. Cut the next SemVer release only for a material product/trust change.
@@ -161,9 +161,9 @@ The project now has multiple genuinely available branches of work from the curre
 | --- | --- | --- |
 | Windows installer | **PUBLISHED 0.2.5** | REL-016 only for future native Windows trust; otherwise maintenance |
 | Windows portable | **PUBLISHED 0.2.5** | Maintenance / future feature release |
-| Linux Debian `.deb` | **ENGINEERING DONE** | APL-LNX-010 physical Astra PASS / Gate R8 |
-| Linux on Astra Linux SE | **READY FOR REAL-HOST ACCEPTANCE** | APL-LNX-010 + registry-compatible evidence capture |
-| Linux on РЕД ОС | **PLANNED REAL-HOST ACCEPTANCE** | Second APL-REG-001C OS acceptance |
+| Linux Debian `.deb` | **ENGINEERING + PHYSICAL ASTRA PASS** | Maintenance / regression |
+| Linux on Astra Linux SE | **PHYSICAL PASS / GATE R8 DONE** | Maintenance / regression |
+| Linux on РЕД ОС | **RPM + ACCEPTANCE TOOLING PREPARED / PHYSICAL RUN PENDING** | Install RED OS and complete second APL-REG-001C real-host record |
 | Linux AppImage | **ENGINEERING DONE / COMMERCIAL HOLD** | Separate compliance clearance before promotion |
 | macOS `.app` / DMG | **ENGINEERING/ACCEPTANCE DONE** | Apple production signing/notarization when prioritized |
 | macOS portable | **OPTIONAL FUTURE** | Implement only if technically/product-wise useful |

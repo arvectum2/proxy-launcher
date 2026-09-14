@@ -1,0 +1,58 @@
+name: APL-REG-001C RED OS acceptance tooling
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'qa/*redos*'
+      - 'tests/test_redos_real_host_acceptance_tooling.py'
+      - 'docs/APL_REG_001C_REDOS_REAL_HOST_ACCEPTANCE.md'
+      - '.github/workflows/redos-acceptance-tooling.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'qa/*redos*'
+      - 'tests/test_redos_real_host_acceptance_tooling.py'
+      - 'docs/APL_REG_001C_REDOS_REAL_HOST_ACCEPTANCE.md'
+      - '.github/workflows/redos-acceptance-tooling.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tooling-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax and deterministic contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n qa/collect_redos_acceptance_preflight.sh
+          python -m py_compile \
+            qa/collect_redos_acceptance_preflight.py \
+            qa/collect_redos_network_state.py \
+            qa/compare_redos_network_state.py \
+            qa/verify_redos_acceptance_bundle.py \
+            tests/test_redos_real_host_acceptance_tooling.py
+          python -m unittest tests.test_redos_real_host_acceptance_tooling -v
+      - name: Hosted runner must fail closed as non-RED-OS
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence="$RUNNER_TEMP/non-redos-preflight.txt"
+          set +e
+          bash qa/collect_redos_acceptance_preflight.sh "$evidence"
+          rc=$?
+          set -e
+          test "$rc" -eq 3
+          grep -q '^redos_detected=no$' "$evidence"
+          grep -q '^ci_detected=yes$' "$evidence"
+          if grep -q '^allow_non_redos=yes$' "$evidence"; then
+            echo 'strict CI preflight unexpectedly used non-RED-OS override' >&2
+            exit 1
+          fi
