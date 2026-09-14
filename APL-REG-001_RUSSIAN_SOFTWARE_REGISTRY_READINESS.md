@@ -11,6 +11,7 @@ Prepare Arvectum Proxy Launcher for inclusion in the Unified Register of Russian
 - Under the current roadmap, trusted-OS compatibility for this class is planned against **2027-01-01**, subject to a current-law recheck before filing.
 - Rospatent registration is useful supporting evidence, not a standalone mandatory gate to the software-register application.
 - Registry inclusion is an upstream dependency/candidate prerequisite for the Russia-first NUC code-signing route; it does not itself establish Microsoft public Windows trust.
+- **Execution hold (2026-09-14): APL-REG-001C is paused until real acceptance has been completed on two target Russian OSes. The planned acceptance pair is Astra Linux Special Edition + РЕД ОС, subject to re-verification of qualifying trusted-software status and different-rightsholder status at the time of test. Do not resume registry engineering/documentation work past this gate until both real-host acceptance runs exist.**
 
 ## Readiness matrix
 
@@ -44,9 +45,9 @@ Prepare Arvectum Proxy Launcher for inclusion in the Unified Register of Russian
 | Price/licensing statement | MISSING | State price or price-determination procedure, or lawful free/open licensing terms, as applicable. |
 | Expert test package | MISSING | Prepare clean test copy plus deterministic installation and verification instructions. |
 | Software class | READY / RECHECK | 02.02 — Программы обслуживания; recheck classifier and actual release immediately before filing. |
-| Two trusted OSes | MISSING / BLOCKER | For class 02.02 plan against 2027-01-01 on current baseline. Select and prove two qualifying OSes under APL-REG-001C. |
-| Linux runtime/product support | PARTIAL | Linux/Astra tooling exists, but registry compatibility must be proved on two qualifying OSes. |
-| Trusted-OS compatibility protocols | MISSING | Produce repeatable tests and governed evidence for exact submitted release. |
+| Two trusted OSes | WAITING ON REAL-HOST ACCEPTANCE / BLOCKER | Planned pair: Astra Linux Special Edition + РЕД ОС. Resume APL-REG-001C only after both real-host acceptance runs are completed and their qualifying status is rechecked at execution time. |
+| Linux runtime/product support | PARTIAL / PAUSED | Existing Linux/Astra tooling may be reused. No further registry-compatibility implementation is scheduled until the two-OS acceptance gate is executed. |
+| Trusted-OS compatibility protocols | WAITING ON ACCEPTANCE | Build governed protocols from actual Astra Linux SE and РЕД ОС acceptance evidence; do not substitute generic Linux CI for physical acceptance. |
 | Electronic application and УКЭП | EXTERNAL | Submit through operator's current electronic process using an authorized qualified signature. |
 
 ## Work order
@@ -109,17 +110,35 @@ Repository automation remains deliberately fail-closed. It cannot prove authorsh
 
 AppImage remains outside the current clean-IP approval scope on HOLD. The immutable `v0.2.5` tag must not be moved.
 
-### APL-REG-001C — trusted Russian OS compatibility
+### APL-REG-001C — trusted Russian OS compatibility — PAUSED / WAITING ON TWO REAL-HOST ACCEPTANCE RUNS
 
 Because 02.02 is the filing class, plan against **2027-01-01** unless law changes before submission.
 
-- choose two qualifying trusted general-purpose OSes from different rightsholders based on official status at execution time;
-- implement product/runtime/UI packaging needed for them;
-- run clean-host installation/start/stop/routing/no-proxy/restart/uninstall/regression tests;
-- record OS edition/version, package hashes and exact product commit/release;
-- prepare expert-readable compatibility protocols.
+Working acceptance pair:
 
-Do not hard-code candidate OS brands in the legal contract until their qualifying status is verified at time of test.
+- **Astra Linux Special Edition**;
+- **РЕД ОС**.
+
+This pair is an execution target, not a frozen legal assertion. Immediately before each acceptance run, re-verify that the tested editions qualify for the applicable trusted-software requirement and that the two products satisfy the different-rightsholder requirement then in force.
+
+**Resume gate:** do not continue APL-REG-001C implementation, registry compatibility claims, or APL-REG-001D/F work that depends on compatibility until real acceptance has been completed on both OSes.
+
+Each acceptance run must retain enough evidence to identify reality, including at minimum:
+
+- OS product, edition and exact version/build;
+- OS/rightsholder qualification check current at test time;
+- exact Proxy Launcher commit/release and package SHA-256;
+- clean installation result;
+- application start/stop;
+- proxy routing and no-proxy behavior;
+- restart/recovery/autostart behavior where included in the tested product scope;
+- diagnostics/log collection sufficient to investigate failures;
+- uninstall/removal and post-state;
+- dated human acceptance result and supporting machine-readable/raw evidence where practical.
+
+After both acceptance runs exist, resume from this exact point: reconcile failures/differences, implement only the required compatibility changes, rerun affected acceptance cases, freeze the resulting compatibility contract, and produce expert-readable protocols for the submitted release.
+
+Generic Ubuntu/GitHub CI, container tests or claimed Python portability are not substitutes for these two real-host acceptance runs.
 
 ### APL-REG-001D — registry documentation pack
 
