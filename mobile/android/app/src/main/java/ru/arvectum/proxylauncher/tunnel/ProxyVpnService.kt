@@ -73,6 +73,7 @@ class ProxyVpnService : VpnService() {
         val tun = try {
             val builder = Builder()
                 .setSession("Arvectum Proxy Launcher")
+                .setBlocking(false)
                 .setMtu(Tun2ProxyEngineAdapter.TUN_MTU)
                 .addAddress("10.111.0.1", 32)
                 .addRoute("0.0.0.0", 0)
