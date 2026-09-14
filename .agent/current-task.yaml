@@ -1,21 +1,42 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: null
-goal: null
-authority: null
-definition_of_done: []
-completed: []
-current: null
-pending: []
-last_verified_commit: null
-test_results: []
-updated_at: "2026-09-14T13:45:00Z"
-resume_instruction: null
+status: in_progress
+task_id: APL-LNX-010-GATE-R8
+goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final Linux .deb candidate, while preserving evidence reusable for the first APL-REG-001C trusted-OS acceptance record."
+authority: HUMAN
+definition_of_done:
+  - "All mandatory APL-LNX-010 phases pass on the physical Astra/Fly host."
+  - "Exact NetworkManager rollback comparator passes for normal disable, crash recovery, reboot recovery, and final cleanup."
+  - "Package update/remove/reinstall preserves user state; diagnostics privacy review passes."
+  - "HOST_ATTESTATION.env and SUMMARY.md satisfy the verifier contract."
+  - "qa/verify_astra_acceptance_bundle.py reports APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
+  - "Required R8 fixes are merged to main, final commit/hash and CI/tests recorded, queue/checkpoint marked done."
+completed:
+  - "Physical Astra acceptance discovered two product defects; fixes are in PR #62 (fix/apl-lnx-010-r8-astra)."
+  - "R8 defects fixed on the PR #62 branch; deterministic suite 802/802 PASS."
+  - "Final physical candidate built from d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
+  - "Strict preflight/baseline, package install, GUI Linux/Astra validation and real enable completed."
+  - "Phase 4 no-proxy UI sync/restoration PASS; durable rollback baseline preserved."
+  - "Phase 5 GUI disable exact rollback comparator PASS."
+  - "Phase 6 XDG per-user autostart enabled; network unchanged; login proof combined with Phase 8."
+  - "Phase 7 SIGKILL crash/relaunch GUI recovery exact comparator PASS; rollback evidence cleaned only after recovery."
+current: "Phase 8 reboot/login recovery on the exact final candidate."
+pending:
+  - "Phase 8 reboot/login recovery."
+  - "Phase 9 update/remove/reinstall state preservation."
+  - "Phase 10 diagnostics privacy and final cleanup."
+  - "Host attestation, SUMMARY.md and final verifier."
+  - "Reconcile PR #62 with current main/executor checkpoint, obtain required CI, merge fixes, then close Gate R8 checkpoint."
+last_verified_commit: "d18cf396b8e324da070bd21a0ae14598df7d394f"
+test_results:
+  - "python3 -m unittest discover: 802/802 PASS"
+  - "Physical Astra phases 4/5/6/7 PASS including exact rollback comparators"
+updated_at: "2026-09-14T15:05:00Z"
+resume_instruction: "Open $HOME/APL-LNX-010-FINAL-20260914-160951 and continue at Phase 8. Baseline is clean, autostart is enabled, and Phase 7 is PASS. Dismiss any success dialog, enable proxy normally, confirm rollback exists, record pre-reboot boot ID/state, reboot normally while active, then after Fly login prove one autostart launch/pending rollback and recover through product before comparator."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "human-owner"
+  execution_id: "APL-LNX-010-R8-PHYSICAL-20260914"
+  branch: "fix/apl-lnx-010-r8-astra"
+  base_commit: "3db2f506bce97f492fcb4352c62cd8bbfccc6197"
   lease_until: null
-  manual_override: false
+  manual_override: true
