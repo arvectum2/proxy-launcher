@@ -1,36 +1,41 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
-goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
+status: in_progress
+task_id: APL-REDOS-001
+goal: "Prepare the physical test laptop for a safe third-OS RED OS 8 installation alongside existing Windows and Astra Linux, and create verified RED OS installation media on windows-dev."
 authority: HUMAN
 definition_of_done:
-  - "Identify the exact Linux 0.2.6 integration defect and the Windows equivalent system-proxy publication path."
-  - "Audit Windows browser/system-proxy behavior for Firefox and Chromium-family consumers against the implemented Windows proxy settings."
-  - "Run relevant deterministic Windows proxy tests and Windows CI verification."
-  - "If a defect exists, implement the smallest production-safe fix with rollback/recovery regression coverage; otherwise document evidence that no analogous defect exists."
-  - "Record final verified commit and test evidence and mark this checkpoint completed."
+  - "Record the current test-laptop disk/UEFI layout and preserve Windows and Astra Linux partitions."
+  - "Download the current official RED OS 8 Standard x86_64 installation ISO from RED SOFT and verify it against the publisher checksum."
+  - "Create a bootable RED OS USB drive on windows-dev using the already available flashing tool, with the target USB positively identified before destructive writes."
+  - "Verify the resulting USB is readable and has a plausible RED OS boot layout."
+  - "Prepare safe free space for RED OS on the test laptop without reinstalling Windows or Astra Linux; do not perform destructive partition changes until boot media is verified."
+  - "Record final preparation state, checks performed, and exact resume instruction for the installation stage."
 completed:
-  - "Loaded the completed APL-LNX-011 checkpoint and confirmed the Linux root cause: Firefox network.proxy.type=5 consumed desktop GSettings while 0.2.5 only published PAC through NetworkManager; 0.2.6 added governed GSettings PAC integration."
-  - "Audited windows_system_proxy.py: Windows publishes the PAC directly to HKCU WinINET AutoConfigURL, sets ProxyEnable=0, preserves/restores prior Internet Settings, updates per-user proxy environment, and calls InternetSetOptionW SETTINGS_CHANGED/REFRESH."
-  - "Verified current Firefox documentation describes Use system proxy settings as consuming OS proxy configuration; Mozilla Windows support material identifies the Windows/IE LAN settings, while Chromium documents WinINET system proxy use on Windows."
-  - "Confirmed WinHTTP is an intentionally separate documented product boundary, not the browser/system-proxy settings plane involved in the Linux defect."
-  - "Added explicit successful-enable regression coverage for WinINET PAC publication and refresh semantics."
-  - "Focused Windows proxy/backend/core regression: 71 passed + 3 subtests passed."
-current: null
-pending: []
-last_verified_commit: "0bdd79ebc9ab4dff01ee97eb0d833325b079e388"
+  - "Previously inspected test laptop arvectum-astra: HP EliteBook 735 G6, UEFI/GPT, Windows on BitLocker partition ~305.7 GiB, Astra Linux ext4 partition ~170 GiB with ~146 GiB free, existing EFI system partition 100 MiB."
+  - "Connected windows-dev through Remote Desktop Commander as ARUTYUNOVNS."
+  - "Positively identified installation-media target as USB Disk 1, VendorCo ProductCode, 14.56 GiB, FAT32, drive E:. Internal system disk is Disk 0 NVMe 238.47 GiB."
+  - "Confirmed Rufus 4.15 portable is already available on windows-dev."
+  - "Confirmed official current Standard image on RED SOFT downloads page: RED OS 8.0.3 x86_64, source file redos-8-20260716.0-Everything-x86_64-DVD1.iso."
+  - "Downloaded publisher MD5SUM file; expected MD5 is 882b618822735bd7a32d2a002b683430."
+current: "Download the official RED OS 8.0.3 x86_64 installation ISO to windows-dev and verify MD5 before flashing."
+pending:
+  - "Finish ISO download and verify MD5."
+  - "Flash USB Disk 1 with the verified ISO using Rufus and verify the written media."
+  - "Re-check test-laptop boot and disk state immediately before any partition resize."
+  - "Create safe unallocated space for RED OS while preserving Windows and Astra Linux."
+  - "Record preparation completion and handoff into RED OS installation/triple-boot verification."
+last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
 test_results:
-  - "Focused: python3 -m pytest -q tests/test_windows_system_proxy.py tests/test_windows_backend.py tests/test_proxy_core.py => 71 passed, 3 subtests passed."
-  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure."
-  - "GitHub Actions APL-IP-003 canonical source on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: Windows SUCCESS, macOS SUCCESS, Ubuntu SUCCESS."
-  - "GitHub Actions Windows P0 portable on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: SUCCESS, including canonical Windows clean build and unit discovery."
-updated_at: "2026-09-15T06:18:00Z"
-resume_instruction: null
+  - "windows-dev storage identification: Disk 0 internal NVMe 238.47 GiB; Disk 1 USB 14.56 GiB, FAT32 E:, healthy."
+  - "windows-dev free C: space before ISO download: ~92.57 GiB."
+  - "Official RED SOFT MD5SUM: 882b618822735bd7a32d2a002b683430 for redos-8-20260716.0-Everything-x86_64-DVD1.iso."
+updated_at: "2026-09-15T09:24:00Z"
+resume_instruction: "On windows-dev ARUTYUNOVNS, continue/resume the official ISO download from https://files.red-soft.ru/redos/8.0/x86_64/iso/redos-8-20260716.0-Everything-x86_64-DVD1.iso, verify MD5 equals 882b618822735bd7a32d2a002b683430, then flash only USB Disk 1 (VendorCo ProductCode 14.56 GiB) with Rufus; do not touch Disk 0. After media verification, re-inspect arvectum-astra before any partition resize."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: "audit/windows-system-proxy-parity"
-  base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
+  claimed_by: "ChatGPT"
+  execution_id: "2026-09-15-redos-prep"
+  branch: "agent/redos-prep"
+  base_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
   lease_until: null
-  manual_override: false
+  manual_override: true
