@@ -1,6 +1,6 @@
 version: 1
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-14T15:47:00Z"
+updated_at: "2026-09-14T18:20:00Z"
 owner_controls_order: true
 
 # Ordered execution view over the accepted active backlog. The executor may update
@@ -46,7 +46,7 @@ items:
   - order: 40
     task_id: APL-REL-016
     title: "Windows public trust / Authenticode / SmartScreen strategy"
-    status: ready
+    status: blocked
     authority: REVIEW
     independent: true
     auto_merge: false
@@ -54,6 +54,10 @@ items:
     dependencies: []
     owner_gate: "Final production trust/distribution path and any paid/external certificate commitment require owner approval."
     executor_scope: "Research current requirements, maintain the trust matrix, prepare architecture/recommendation and repository changes up to a review-ready PR. Never mutate v0.2.5."
+    active_pr: 67
+    active_branch: "agent/apl-rel-016-windows-trust-review"
+    blocker: "Review-ready decision packet is prepared in PR #67; explicit Owner/Product Owner choice of distribution/signing path, provider eligibility, budget and key-custody boundary remains required before production implementation."
+    evidence: "PR #67 documents current Microsoft SmartScreen/SAC/Authenticode distinctions, Russian detached-evidence separation, 0.2.6+ acceptance matrix and decision options without selecting or purchasing a signer."
 
   - order: 50
     task_id: APL-REG-001B-PHYSICAL-PROOF
