@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 task_id: APL-WIN-DEV-HYGIENE-001
 goal: "Audit and tidy the windows-dev laptop into a clean, intentional Proxy Launcher development/test workstation while preserving GN, required dev tooling, active project data, and installed Proxy Launcher behavior."
 authority: HUMAN
@@ -11,32 +11,31 @@ definition_of_done:
   - "Verify GN, Remote Desktop Commander connectivity, active Proxy Launcher installation/configuration, and core development tools still work after cleanup."
   - "Record freed space, remaining intentional exceptions, and final verification evidence."
 completed:
-  - "Prior task removed five obsolete APLWIN014REF* users/profiles; GN and Proxy Launcher remained intact."
-  - "Audited disk/startup/services/dev roots: initial C: free space 79.5 GB of 237.5 GB."
-  - "Verified RED OS ISO MD5 882B618822735BD7A32D2A002B683430 and removed 13 completed-download .part/.tail fragments totaling about 6.05 GB while preserving the verified ISO."
-  - "Purged safe pip/npm caches, user TEMP, old Chrome debug/CDP profiles and stale temporary acceptance directories."
-  - "Removed legacy unreferenced Documents\\ArvectumProxyLauncher installation while preserving registered 0.2.5 under AppData\\Local\\Programs."
-  - "Removed expired TBankBot_5Days and TBankBot_10Days reminder tasks."
-  - "Removed duplicate SSH Startup entry and reduced Keep-SshTunnels to one scheduled instance."
-  - "Pruned eleven stale npx runtime roots while preserving active Remote Desktop Commander root 4b4c857f6efdfb61; RDC remained connected."
-  - "Reworked Keep-SshTunnels with single-instance mutex, 1.5s TCP precheck, exponential retry backoff up to 300s and 1 MB log rotation; unreachable 192.168.1.77/.78 no longer spawn ssh.exe every 15 seconds."
-  - "Removed obsolete Python Manager 3.14.3 after path/reference audit; python and py -3.14 now consistently resolve to Python 3.14.7."
-current: "Audit old Proxy Launcher/Codex build trees and optional background software for further safe reduction, then perform final integrity verification."
-pending:
-  - "Classify historical Proxy Launcher build/worktree directories for clean deletion versus evidence retention."
-  - "Evaluate optional high-RAM background utilities without disrupting user-required tools."
-  - "Run final verification of GN, RDC, Proxy Launcher, Python, SSH keeper and disk space; record final evidence and complete checkpoint."
+  - "Removed five obsolete APLWIN014REF* Windows test users/profiles in prior completed cleanup."
+  - "Removed verified RED OS download fragments while preserving the verified ISO; purged safe pip/npm/temp/debug caches and stale temporary acceptance artifacts."
+  - "Removed legacy unreferenced Documents\\ArvectumProxyLauncher installation, expired TBank reminder tasks, duplicate SSH Startup entry, and stale npx runtimes."
+  - "Kept only active RDC npx runtime 4b4c857f6efdfb61; RDC remained connected throughout cleanup."
+  - "Reworked Keep-SshTunnels to single-instance operation with TCP precheck, exponential backoff up to 300s and 1 MB log rotation; removed old rotated log."
+  - "Removed obsolete Python Manager 3.14.3; python and py -3.14 now both resolve to Python 3.14.7; retained Python 3.11 and controlled P0.2 Python 3.12."
+  - "Removed four clean historical Proxy Launcher build-tree copies after verifying they contained no local changes and their commits remain present in retained repositories."
+  - "Preserved proxy-launcher-build-0.2.4-repair-convergence-final because it contains 118 lines of uncommitted source changes, and preserved proxy-launcher-p0-1 because it contains untracked IP/provenance artifacts."
+  - "Evaluated optional Windows background utilities; left CrossDevice/Phone Link intact because it is a user-facing Windows feature rather than proven disposable dev clutter."
+current: null
+pending: []
 last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
 test_results:
-  - "Verified RED OS ISO remains 6492782592 bytes with matching MD5 after fragment cleanup."
-  - "RDC processes remain active from preserved npx root 4b4c857f6efdfb61 after stale npx pruning."
-  - "Keep-SshTunnels syntax PASS; one scheduled keeper process; unreachable targets back off 30s then 60s with zero persistent ssh.exe churn."
-  - "Python cleanup PASS: py -0p now reports 3.14.7 at C:\\Python314, P0.2 Python 3.12, and Python 3.11; python --version and py -3.14 --version both return 3.14.7."
-  - "Current C: free space observed at 98.11 GB during cleanup, versus 79.5 GB initial baseline."
-updated_at: "2026-09-15T17:43:00+03:00"
-resume_instruction: "On windows-dev ArutyunovNS, continue from historical build/worktree classification and optional background utility audit. Preserve P0_2_STAGE/RECOVERY/VM, verified RED OS ISO, active RDC npx root 4b4c857f6efdfb61, registered Proxy Launcher 0.2.5 and all release/evidence roots unless independently proven obsolete. Then run final verification and mark completed."
+  - "Final C: free space 98.96 GB versus 79.5 GB initial baseline; approximately 19.46 GB reclaimed."
+  - "GN local account exists and remains enabled."
+  - "Registered Arvectum Proxy Launcher 0.2.5 executable and proxy_settings.json remain present; HKCU autostart still points to the registered executable with --start."
+  - "Remote Desktop Commander processes remain active from npx root 4b4c857f6efdfb61."
+  - "Python verification PASS: python --version and py -3.14 --version both return Python 3.14.7."
+  - "SSH keeper verification PASS: exactly one Keep-SshTunnels.ps1 process remains."
+  - "Four clean historical build directories are absent; two dirty/evidence-bearing trees remain and their local changes were verified."
+  - "RED OS ISO, P0_2_STAGE/RECOVERY/VM, C:\\Arvectum release/evidence roots and user-facing CrossDevice functionality intentionally retained."
+updated_at: "2026-09-15T18:58:00+03:00"
+resume_instruction: null
 execution:
-  claimed_by: ChatGPT
+  claimed_by: null
   execution_id: "apl-win-dev-hygiene-20260915"
   branch: "agent/windows-dev-hygiene"
   base_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
