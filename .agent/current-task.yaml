@@ -1,47 +1,30 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-LNX-011-FIREFOX-SYSTEM-PROXY
-goal: "Reproduce and fix the real Astra/Fly Firefox failure when Firefox is set to Use system proxy settings while Proxy Launcher is active, without regressing NetworkManager rollback/recovery semantics."
+status: in_progress
+task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
+goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
 authority: HUMAN
 definition_of_done:
-  - "Reproduce the user-reported Firefox system-proxy failure on the physical Astra host without disturbing the user's working profile."
-  - "Identify the exact integration boundary between Firefox, Fly desktop proxy settings, NetworkManager PAC state, and the local Proxy Launcher/PAC service."
-  - "If the defect is in Proxy Launcher, implement the smallest production-safe fix with regression coverage."
-  - "Verify real browser/system-proxy end-to-end HTTPS routing through Proxy Launcher on Astra, including the user-reported ChatGPT path where feasible."
-  - "Verify no regression in exact NetworkManager rollback/recovery and autostart behavior."
-  - "Run relevant deterministic tests and required exact-head CI; merge fixes and mark the checkpoint completed only after evidence passes."
+  - "Identify the exact Linux 0.2.6 integration defect and the Windows equivalent system-proxy publication path."
+  - "Audit Windows browser/system-proxy behavior for Firefox and Chromium-family consumers against the implemented Windows proxy settings."
+  - "Run relevant deterministic Windows proxy tests and, where possible, Windows CI/runtime verification."
+  - "If a defect exists, implement the smallest production-safe fix with rollback/recovery regression coverage; otherwise document evidence that no analogous defect exists."
+  - "Record final verified commit and test evidence and mark this checkpoint completed."
 completed:
-  - "User report reproduced on physical Astra/Fly without changing the user's working Firefox profile."
-  - "Root cause proved: Firefox network.proxy.type=5 reads desktop GSettings on Astra/Fly, while 0.2.5 only published the PAC through NetworkManager."
-  - "Implemented governed GSettings PAC integration alongside NetworkManager with rollback schema v2, exact prior-state restore, foreign-change protection, and v1 recovery compatibility."
-  - "Added libglib2.0-bin Debian dependency, Linux UX updates, sovereignty documentation, and regression coverage."
-  - "Installed a local non-published 0.2.6-rc1 candidate on Astra; NetworkManager and org.gnome.system.proxy both switched to the Arvectum PAC."
-  - "Isolated Firefox type=5 used Proxy Launcher egress IP 68.209.60.141, opened the ChatGPT public loading path, and established live connections to 127.0.0.1:8080."
-  - "Physical rollback returned NetworkManager and GSettings to exact baseline; NetworkManager comparator PASS, GSettings cmp PASS, pending rollback NO."
-  - "User working Firefox profile remained manual and untouched; XDG autostart remained enabled."
-  - "First GitHub exact-head CI exposed one Windows portability defect in session detection; corrected without changing the physically tested Astra behavior."
-  - "Final PR #71 exact head 76fa9e46a1a54ab62e6e304d7e79d590092d3831 passed all 13 triggered workflows, including Windows P0 portable and Windows installer."
-  - "PR #71 merged to main as e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d; immutable v0.2.5 tag/assets were not changed and no release/package was published."
-current: null
-pending: []
+  - "Loaded the completed APL-LNX-011 checkpoint and confirmed the Linux root cause: Firefox network.proxy.type=5 consumed desktop GSettings while 0.2.5 only published PAC through NetworkManager; 0.2.6 added governed GSettings PAC integration."
+current: "Inspect the Windows implementation and tests for the system PAC/proxy publication path and browser consumption semantics."
+pending:
+  - "Compare Windows registry/WinINet/WinHTTP publication with browser consumers."
+  - "Run focused Windows proxy integration tests."
+  - "Fix and verify if needed."
 last_verified_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
-test_results:
-  - "Pre-fix reproduction: isolated Firefox type=5 used direct egress 46.138.33.133 while NetworkManager PAC was active."
-  - "Controlled GSettings proof: setting desktop auto/PAC changed isolated Firefox egress to Proxy Launcher egress 68.209.60.141."
-  - "Focused Linux/runtime tests after functional fix: 79/79 PASS."
-  - "Full deterministic suite after functional fix: 812/812 PASS."
-  - "Local non-published 0.2.6-rc1 .deb SHA256: f4cb2b1c937e7686c64707439608f97a486f27ef3460defd6c894e2ad887b93c."
-  - "Physical Firefox system-proxy E2E: PASS; Firefox type=5 egress matched Proxy Launcher egress and live Firefox sockets reached 127.0.0.1:8080."
-  - "Physical rollback: PASS; NetworkManager exact comparator PASS, GSettings baseline cmp PASS, pending rollback NO."
-  - "Windows portability correction focused suite: 30/30 PASS; full deterministic suite: 813/813 PASS."
-  - "GitHub Actions exact head 76fa9e46a1a54ab62e6e304d7e79d590092d3831: 13/13 triggered workflows SUCCESS."
-updated_at: "2026-09-15T05:04:00Z"
-resume_instruction: null
+test_results: []
+updated_at: "2026-09-15T05:53:00Z"
+resume_instruction: "Inspect Windows system proxy/PAC code and regression tests on current main; compare with the Linux 0.2.6 GSettings fix and continue through verification or a production-safe fix."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260915-win-proxy-parity"
+  branch: "audit/windows-system-proxy-parity"
+  base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
   lease_until: null
   manual_override: false
