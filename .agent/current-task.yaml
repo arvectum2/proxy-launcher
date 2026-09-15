@@ -18,9 +18,12 @@ completed:
   - "Second installer run reused existing p6/p7 and reformatted only those two partitions."
   - "Second-run pending-action summary reviewed: only p6/p7 affected; p1-p5 untouched."
   - "Second installation completed successfully and RED OS 8.0 first desktop/welcome screen was reached."
-current: "RED OS is installed and booted to KDE desktop. Next verify the installed system (partition mounts, zRam/swap, network/hardware, EFI entries), then verify Astra and Windows boot paths, and only after all three boot paths pass re-enable BitLocker protection."
+  - "User configured network access and browser proxy on RED OS and is now chatting from the installed RED OS system."
+current: "Bootstrap Node.js/npm and pair Remote Desktop Commander on RED OS so subsequent RED OS verification and setup can be completed remotely."
 pending:
-  - "Verify RED OS root is on p7 and /boot/efi is on p6; confirm p1-p5 unchanged."
+  - "Install Node.js >=18 and npm from RED OS repositories, verify versions."
+  - "Run Remote Desktop Commander remote agent and pair the RED OS device."
+  - "Once remote access is online, verify RED OS root is on p7 and /boot/efi is on p6; confirm p1-p5 unchanged."
   - "Verify zRam/swap state, network, audio and basic hardware."
   - "Verify UEFI boot entries and identify RED OS boot entry/order."
   - "Reboot and verify Astra Linux boot."
@@ -34,7 +37,7 @@ test_results:
   - "First RED OS install attempt STALLED at alsa-sof-firmware."
   - "Second-run storage action review PASS: p1-p5 untouched."
   - "RED OS second installation and first graphical boot: PASS."
-resume_instruction: "Continue from the installed RED OS KDE desktop. First verify lsblk/df/swapon and efibootmgr, then basic network/hardware. Do not alter p1-p5. After RED OS sanity checks, test Astra and Windows boot paths. Re-enable BitLocker only after all three OS boot successfully."
+resume_instruction: "On RED OS install Node.js/npm and start `npx @wonderwhy-er/desktop-commander@latest remote`; pair the machine with the same Remote Desktop Commander account. Once the new RED OS device appears online, use Remote Desktop Commander to continue all remaining RED OS sanity checks and triple-boot verification. Do not alter p1-p5 and do not re-enable BitLocker until all three OS boot paths pass."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
