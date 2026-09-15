@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
 goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
 authority: HUMAN
@@ -17,19 +17,19 @@ completed:
   - "Confirmed WinHTTP is an intentionally separate documented product boundary, not the browser/system-proxy settings plane involved in the Linux defect."
   - "Added explicit successful-enable regression coverage for WinINET PAC publication and refresh semantics."
   - "Focused Windows proxy/backend/core regression: 71 passed + 3 subtests passed."
-current: "Run exact branch CI on Windows and close the audit if green."
-pending:
-  - "Open PR and verify Windows/cross-platform required checks on the exact head."
-  - "Mark checkpoint completed and merge if all required evidence is green."
-last_verified_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
+current: null
+pending: []
+last_verified_commit: "0bdd79ebc9ab4dff01ee97eb0d833325b079e388"
 test_results:
   - "Focused: python3 -m pytest -q tests/test_windows_system_proxy.py tests/test_windows_backend.py tests/test_proxy_core.py => 71 passed, 3 subtests passed."
-  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure. Exact Windows CI remains required."
-updated_at: "2026-09-15T06:09:00Z"
-resume_instruction: "Open the audit branch PR, wait for exact-head Windows CI, inspect failures if any, then mark this checkpoint completed and merge only when required checks are green."
+  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure."
+  - "GitHub Actions APL-IP-003 canonical source on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: Windows SUCCESS, macOS SUCCESS, Ubuntu SUCCESS."
+  - "GitHub Actions Windows P0 portable on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: SUCCESS, including canonical Windows clean build and unit discovery."
+updated_at: "2026-09-15T06:18:00Z"
+resume_instruction: null
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "interactive-20260915-win-proxy-parity"
+  claimed_by: null
+  execution_id: null
   branch: "audit/windows-system-proxy-parity"
   base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
   lease_until: null
