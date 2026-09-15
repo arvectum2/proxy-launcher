@@ -190,6 +190,31 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             self.assertTrue(path.exists())
             broadcast.assert_not_called()
 
+    def test_enable_publishes_pac_to_wininet_and_refreshes_consumers(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["local_pac_port"] = 9092
+        settings["pac_path"] = "/custom.pac"
+        settings["local_http_port"] = 8181
+        with mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "_save_internet_backup", return_value=True), \
+             mock.patch.object(core, "_reg_set", return_value=True) as set_value, \
+             mock.patch.object(core, "_enable_client_proxy_env", return_value=True) as env_enable, \
+             mock.patch.object(core, "_enable_recovery_autostart", return_value=True) as recovery, \
+             mock.patch.object(core, "_refresh_internet") as refresh, \
+             mock.patch.object(core, "_log"):
+            self.assertTrue(windows_system_proxy.enable_system_proxy())
+
+        set_value.assert_any_call(
+            "AutoConfigURL",
+            "http://127.0.0.1:9092/custom.pac",
+            "REG_SZ",
+        )
+        set_value.assert_any_call("ProxyEnable", "0", "REG_DWORD")
+        env_enable.assert_called_once_with(8181)
+        recovery.assert_called_once_with()
+        refresh.assert_called_once_with()
+
     def test_enable_aborts_before_registry_mutation_when_backup_cannot_be_proven(self):
         settings = dict(core.DEFAULT_SETTINGS)
         with mock.patch.object(core, "load_settings", return_value=settings), \
