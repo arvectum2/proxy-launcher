@@ -12,6 +12,7 @@ from linux_backend import (
     NetworkManagerError,
     NetworkManagerProxyState,
 )
+from linux_desktop_proxy import DesktopProxyState
 
 
 CONFIG = ProxyBackendConfig(
@@ -82,16 +83,36 @@ class _FakeNetworkManager:
         self.calls.append(("reapply", device))
 
 
+class _FakeDesktopProxy:
+    def __init__(self):
+        self.state = DesktopProxyState("none", "")
+        self.calls = []
+        self.fail_next_set = False
+
+    def get_state(self):
+        self.calls.append(("get_state",))
+        return self.state
+
+    def set_state(self, state):
+        self.calls.append(("set_state", state))
+        if self.fail_next_set:
+            self.fail_next_set = False
+            raise RuntimeError("injected desktop proxy failure")
+        self.state = state
+
+
 class LinuxBackendTests(unittest.TestCase):
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory()
         self.backup_path = os.path.join(self.tempdir.name, "linux_proxy_backup.json")
         self.client = _FakeNetworkManager()
+        self.desktop = _FakeDesktopProxy()
         self.logs = []
         self.backend = LinuxBackend(
             client=self.client,
             state_path=self.backup_path,
             logger=self.logs.append,
+            desktop_client=self.desktop,
         )
 
     def tearDown(self):
@@ -119,6 +140,16 @@ class LinuxBackendTests(unittest.TestCase):
         with open(self.backup_path, "r", encoding="utf-8") as stream:
             payload = json.load(stream)
         self.assertEqual(payload["backend"], "linux")
+        self.assertEqual(payload["schema_version"], 2)
+        self.assertEqual(payload["desktop_proxy"]["backend"], "gsettings")
+        self.assertEqual(
+            payload["desktop_proxy"]["state"],
+            {"mode": "none", "autoconfig_url": ""},
+        )
+        self.assertEqual(
+            self.desktop.state,
+            DesktopProxyState("auto", CONFIG.pac_url),
+        )
         self.assertEqual(
             set(payload["connections"]),
             {
@@ -139,6 +170,7 @@ class LinuxBackendTests(unittest.TestCase):
 
     def test_disable_restores_exact_profiles_and_is_idempotent(self):
         original = dict(self.client.proxy)
+        original_desktop = self.desktop.state
         self.assertTrue(self.backend.enable(CONFIG))
 
         # Persistent Arvectum state must be restored even if one profile later
@@ -152,6 +184,7 @@ class LinuxBackendTests(unittest.TestCase):
 
         self.assertTrue(self.backend.disable())
         self.assertFalse(self.backend.restore_pending())
+        self.assertEqual(self.desktop.state, original_desktop)
         for uuid in (
             "11111111-1111-1111-1111-111111111111",
             "22222222-2222-2222-2222-222222222222",
@@ -254,6 +287,58 @@ class LinuxBackendTests(unittest.TestCase):
         for config in variants:
             with self.subTest(config=config):
                 self.assertFalse(self.backend.sync_no_proxy(config))
+
+    def test_desktop_foreign_change_prevents_destructive_disable(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.desktop.state = DesktopProxyState(
+            "auto", "http://foreign.example/proxy.pac"
+        )
+        before = dict(self.client.proxy)
+
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+        self.assertEqual(self.client.proxy, before)
+        self.assertEqual(
+            self.desktop.state.autoconfig_url,
+            "http://foreign.example/proxy.pac",
+        )
+
+    def test_desktop_enable_failure_rolls_back_networkmanager_and_desktop(self):
+        original_profiles = dict(self.client.proxy)
+        original_desktop = self.desktop.state
+        self.desktop.fail_next_set = True
+
+        self.assertFalse(self.backend.enable(CONFIG))
+        self.assertFalse(self.backend.restore_pending())
+        self.assertEqual(self.client.proxy, original_profiles)
+        self.assertEqual(self.desktop.state, original_desktop)
+
+    def test_disable_retry_accepts_already_restored_desktop_state(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        with open(self.backup_path, "r", encoding="utf-8") as stream:
+            payload = json.load(stream)
+        self.desktop.state = DesktopProxyState("none", "")
+
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertEqual(self.desktop.state, DesktopProxyState("none", ""))
+
+    def test_legacy_v1_backup_remains_recoverable_without_desktop_mutation(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        with open(self.backup_path, "r", encoding="utf-8") as stream:
+            payload = json.load(stream)
+        payload["schema_version"] = 1
+        payload.pop("desktop_proxy", None)
+        with open(self.backup_path, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream)
+        self.desktop.state = DesktopProxyState("manual", "http://foreign/pac")
+
+        self.assertTrue(self.backend.is_enabled(CONFIG))
+        self.assertTrue(self.backend.disable())
+        self.assertEqual(
+            self.desktop.state,
+            DesktopProxyState("manual", "http://foreign/pac"),
+        )
 
     def test_corrupt_existing_backup_fails_closed_without_mutation(self):
         with open(self.backup_path, "w", encoding="utf-8") as stream:

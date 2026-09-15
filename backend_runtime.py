@@ -243,6 +243,12 @@ def create_backend(platform=None, runtime_core=None, logger=None, linux_runner=N
         return MacOSBackend(logger=logger)
     if backend_id == "linux":
         from linux_backend import LinuxBackend, NetworkManagerClient
+        from linux_desktop_proxy import detect_desktop_proxy_client
         client = NetworkManagerClient(runner=linux_runner) if linux_runner is not None else None
-        return LinuxBackend(client=client, logger=logger)
+        desktop_client = detect_desktop_proxy_client()
+        return LinuxBackend(
+            client=client,
+            logger=logger,
+            desktop_client=desktop_client,
+        )
     raise AssertionError("unreachable backend id: %s" % backend_id)

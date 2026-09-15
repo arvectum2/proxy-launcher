@@ -19,9 +19,11 @@ import subprocess
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 from proxy_backend import ProxyBackend, ProxyBackendConfig
+from linux_desktop_proxy import DesktopProxyState
 
 
-_BACKUP_SCHEMA_VERSION = 1
+_BACKUP_SCHEMA_VERSION = 2
+_SUPPORTED_BACKUP_SCHEMA_VERSIONS = frozenset({1, 2})
 _BACKEND_ID = "linux"
 _BACKUP_FILENAME = "linux_proxy_backup.json"
 _IGNORED_ACTIVE_TYPES = frozenset({"vpn", "loopback"})
@@ -119,6 +121,30 @@ def _state_from_dict(payload: Mapping[str, Any]) -> NetworkManagerProxyState:
         browser_only=browser_only,
         pac_url=pac_url,
         pac_script=pac_script,
+    )
+
+
+def _desktop_state_to_dict(state: DesktopProxyState) -> Dict[str, Any]:
+    return {
+        "mode": state.mode,
+        "autoconfig_url": state.autoconfig_url,
+    }
+
+
+def _desktop_state_from_dict(payload: Mapping[str, Any]) -> DesktopProxyState:
+    mode = payload.get("mode")
+    autoconfig_url = payload.get("autoconfig_url")
+    if mode not in {"none", "manual", "auto"}:
+        raise RollbackStateError("invalid desktop proxy mode in rollback state")
+    if not isinstance(autoconfig_url, str):
+        raise RollbackStateError("invalid desktop PAC URL in rollback state")
+    return DesktopProxyState(mode=mode, autoconfig_url=autoconfig_url)
+
+
+def _desired_desktop_state(applied: Mapping[str, Any]) -> DesktopProxyState:
+    return DesktopProxyState(
+        mode="auto",
+        autoconfig_url=str(applied.get("pac_url", "")),
     )
 
 
@@ -342,12 +368,14 @@ class LinuxBackend(ProxyBackend):
         state_path: Optional[str] = None,
         store: Optional[JsonRollbackStore] = None,
         logger: Optional[Callable[[str], None]] = None,
+        desktop_client: Optional[object] = None,
     ):
         if state_path is not None and store is not None:
             raise ValueError("pass either state_path or store, not both")
         self._client = client or NetworkManagerClient()
         self._store = store or JsonRollbackStore(state_path)
         self._logger = logger
+        self._desktop_client = desktop_client
 
     @property
     def backend_id(self) -> str:
@@ -401,7 +429,7 @@ class LinuxBackend(ProxyBackend):
 
     def _load_backup(self) -> Dict[str, Any]:
         payload = self._store.load()
-        if payload.get("schema_version") != _BACKUP_SCHEMA_VERSION:
+        if payload.get("schema_version") not in _SUPPORTED_BACKUP_SCHEMA_VERSIONS:
             raise RollbackStateError("unsupported Linux rollback schema")
         if payload.get("backend") != _BACKEND_ID:
             raise RollbackStateError("rollback state belongs to another backend")
@@ -420,6 +448,16 @@ class LinuxBackend(ProxyBackend):
             if not isinstance(proxy, dict):
                 raise RollbackStateError("invalid NetworkManager proxy snapshot")
             _state_from_dict(proxy)
+        desktop_proxy = payload.get("desktop_proxy")
+        if desktop_proxy is not None:
+            if not isinstance(desktop_proxy, dict):
+                raise RollbackStateError("invalid desktop proxy snapshot")
+            if desktop_proxy.get("backend") != "gsettings":
+                raise RollbackStateError("unsupported desktop proxy rollback backend")
+            state = desktop_proxy.get("state")
+            if not isinstance(state, dict):
+                raise RollbackStateError("invalid desktop proxy rollback state")
+            _desktop_state_from_dict(state)
         return payload
 
     def _payload_matches_config(
@@ -447,14 +485,56 @@ class LinuxBackend(ProxyBackend):
         snapshot: Mapping[str, Any],
         applied: Mapping[str, Any],
         current_profiles: Mapping[str, str],
+        allow_restored: bool = False,
     ) -> bool:
         if uuid not in current_profiles:
             return True
         if current_profiles[uuid] != str(snapshot.get("connection_type", "")).lower():
             return False
         try:
-            return self._client.get_proxy(uuid) == _desired_proxy_state(applied)
+            current = self._client.get_proxy(uuid)
         except Exception:
+            return False
+        if current == _desired_proxy_state(applied):
+            return True
+        return bool(allow_restored and current == _state_from_dict(snapshot["proxy"]))
+
+    def _desktop_snapshot_from_payload(
+        self, payload: Mapping[str, Any]
+    ) -> Optional[DesktopProxyState]:
+        desktop_proxy = payload.get("desktop_proxy")
+        if desktop_proxy is None:
+            return None
+        return _desktop_state_from_dict(desktop_proxy["state"])
+
+    def _desktop_matches_owned_state(
+        self, payload: Mapping[str, Any], allow_restored: bool = False
+    ) -> bool:
+        original = self._desktop_snapshot_from_payload(payload)
+        if original is None:
+            return True
+        if self._desktop_client is None:
+            return False
+        try:
+            current = self._desktop_client.get_state()
+        except Exception:
+            return False
+        if current == _desired_desktop_state(payload["applied_config"]):
+            return True
+        return bool(allow_restored and current == original)
+
+    def _restore_desktop(self, payload: Mapping[str, Any]) -> bool:
+        original = self._desktop_snapshot_from_payload(payload)
+        if original is None:
+            return True
+        if self._desktop_client is None:
+            self._log("Linux desktop rollback unavailable: GSettings client missing")
+            return False
+        try:
+            self._desktop_client.set_state(original)
+            return True
+        except Exception as exc:
+            self._log("Linux desktop rollback failed: %s" % exc)
             return False
 
     def _payload_is_owned_and_active(self, payload: Mapping[str, Any]) -> bool:
@@ -468,6 +548,8 @@ class LinuxBackend(ProxyBackend):
                 uuid, snapshot, payload["applied_config"], current_profiles
             ):
                 return False
+        if not self._desktop_matches_owned_state(payload):
+            return False
         if not active:
             return False
         stored = payload["connections"]
@@ -523,13 +605,26 @@ class LinuxBackend(ProxyBackend):
 
         try:
             snapshots = self._snapshot_active_connections()
+            desktop_snapshot = (
+                self._desktop_client.get_state()
+                if self._desktop_client is not None
+                else None
+            )
             payload = {
                 "schema_version": _BACKUP_SCHEMA_VERSION,
                 "backend": _BACKEND_ID,
                 "applied_config": canonical,
                 "connections": snapshots,
+                "desktop_proxy": (
+                    {
+                        "backend": "gsettings",
+                        "state": _desktop_state_to_dict(desktop_snapshot),
+                    }
+                    if desktop_snapshot is not None
+                    else None
+                ),
             }
-            # Durable rollback evidence precedes every persistent nmcli mutation.
+            # Durable rollback evidence precedes every persistent system-proxy mutation.
             self._store.save(payload)
         except Exception as exc:
             self._log("Linux enable refused before mutation: %s" % exc)
@@ -540,16 +635,25 @@ class LinuxBackend(ProxyBackend):
             uuid: str(snapshot["device"]) for uuid, snapshot in snapshots.items()
         }
         touched = []
+        desktop_touched = False
         try:
             for uuid, snapshot in snapshots.items():
                 touched.append(uuid)
                 self._client.set_proxy(uuid, desired)
                 self._client.reapply(str(snapshot["device"]))
+            if desktop_snapshot is not None:
+                desktop_touched = True
+                self._desktop_client.set_state(_desired_desktop_state(canonical))
             return True
         except Exception as exc:
-            self._log("Linux enable failed; restoring profiles: %s" % exc)
-            restored = self._restore_profiles(snapshots, touched, active_devices)
-            if restored:
+            self._log("Linux enable failed; restoring system proxy state: %s" % exc)
+            desktop_restored = True
+            if desktop_touched:
+                desktop_restored = self._restore_desktop(payload)
+            profiles_restored = self._restore_profiles(
+                snapshots, touched, active_devices
+            )
+            if desktop_restored and profiles_restored:
                 try:
                     self._store.clear()
                 except Exception as clear_exc:
@@ -590,20 +694,35 @@ class LinuxBackend(ProxyBackend):
         }
         for uuid, snapshot in existing.items():
             if not self._profile_matches_owned_state(
-                uuid, snapshot, payload["applied_config"], current_profiles
+                uuid,
+                snapshot,
+                payload["applied_config"],
+                current_profiles,
+                allow_restored=True,
             ):
                 self._log(
-                    "Linux disable refused: %s no longer matches Arvectum-owned state"
+                    "Linux disable refused: %s no longer matches Arvectum-owned or saved state"
                     % uuid
                 )
                 return False
+        if not self._desktop_matches_owned_state(payload, allow_restored=True):
+            self._log(
+                "Linux disable refused: desktop proxy no longer matches Arvectum-owned or saved state"
+            )
+            return False
 
         active_devices = {
             connection.uuid: connection.device
             for connection in active_connections
             if connection.device and connection.device != "--"
         }
-        if not self._restore_profiles(existing, tuple(existing), active_devices):
+        # Both restorers are retry-safe: already-restored saved state remains an
+        # accepted ownership state while rollback evidence exists.
+        desktop_restored = self._restore_desktop(payload)
+        profiles_restored = self._restore_profiles(
+            existing, tuple(existing), active_devices
+        )
+        if not (desktop_restored and profiles_restored):
             return False
         try:
             self._store.clear()

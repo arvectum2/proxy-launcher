@@ -17,6 +17,7 @@ class LinuxDebPackagingContractTests(unittest.TestCase):
         self.assertIn('/usr/bin/arvectum-proxy-launcher', self.text)
         self.assertIn('/usr/share/applications/arvectum-proxy-launcher.desktop', self.text)
         self.assertIn('network-manager', self.text)
+        self.assertIn('libglib2.0-bin', self.text)
 
     def test_package_does_not_run_privileged_network_mutation_hooks(self):
         for forbidden in ("postinst", "prerm", "postrm"):

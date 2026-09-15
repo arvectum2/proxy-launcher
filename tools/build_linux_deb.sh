@@ -68,10 +68,10 @@ Priority: optional
 Architecture: $arch
 Maintainer: Arvectum
 Installed-Size: $installed_size
-Depends: network-manager
+Depends: network-manager, libglib2.0-bin
 Description: Arvectum Proxy Launcher
  Cross-platform system proxy launcher with explicit ownership, rollback and
- diagnostics boundaries. Linux/Astra integration uses NetworkManager/nmcli.
+ diagnostics boundaries. Linux/Astra integration uses NetworkManager/nmcli and desktop GSettings PAC state.
 EOF
 chmod 0644 "$root/DEBIAN/control"
 

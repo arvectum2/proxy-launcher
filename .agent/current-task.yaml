@@ -1,40 +1,49 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-LNX-010-GATE-R8
-goal: "Close Gate R8 with a complete, verifier-passing real Astra Linux 1.8 physical-host evidence bundle for the exact final Linux .deb candidate, while preserving evidence reusable for the first APL-REG-001C trusted-OS acceptance record."
+status: in_progress
+task_id: APL-LNX-011-FIREFOX-SYSTEM-PROXY
+goal: "Reproduce and fix the real Astra/Fly Firefox failure when Firefox is set to Use system proxy settings while Proxy Launcher is active, without regressing NetworkManager rollback/recovery semantics."
 authority: HUMAN
 definition_of_done:
-  - "All mandatory APL-LNX-010 phases pass on the physical Astra/Fly host."
-  - "Exact NetworkManager rollback comparator passes for normal disable, crash recovery, reboot recovery, and final cleanup."
-  - "Package update/remove/reinstall preserves user state; diagnostics privacy review passes."
-  - "HOST_ATTESTATION.env and SUMMARY.md satisfy the verifier contract."
-  - "qa/verify_astra_acceptance_bundle.py reports APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
-  - "Required R8 fixes are merged to main, final commit/hash and CI/tests recorded, queue/checkpoint marked done."
+  - "Reproduce the user-reported Firefox system-proxy failure on the physical Astra host without disturbing the user's working profile."
+  - "Identify the exact integration boundary between Firefox, Fly desktop proxy settings, NetworkManager PAC state, and the local Proxy Launcher/PAC service."
+  - "If the defect is in Proxy Launcher, implement the smallest production-safe fix with regression coverage."
+  - "Verify real browser/system-proxy end-to-end HTTPS routing through Proxy Launcher on Astra, including the user-reported ChatGPT path where feasible."
+  - "Verify no regression in exact NetworkManager rollback/recovery and autostart behavior."
+  - "Run relevant deterministic tests and required exact-head CI; merge fixes and mark the checkpoint completed only after evidence passes."
 completed:
-  - "Physical Astra/Fly acceptance completed through reboot recovery, package lifecycle, diagnostics privacy and final cleanup."
-  - "Final physical candidate source d18cf396b8e324da070bd21a0ae14598df7d394f; .deb SHA256 d8b119f622961360ef08ac39bede6ff221b54f67ee9a37b19711a5d6774d1588."
-  - "Normal disable, SIGKILL crash recovery, reboot/login recovery and final cleanup all restored the exact captured NetworkManager baseline."
-  - "Phase 9 reinstall/remove/reinstall preserved user state and restored the governed 0.2.5 package."
-  - "Phase 10 diagnostics privacy PASS; literal home-path leak fixed with regression coverage."
-  - "HOST_ATTESTATION.env and SUMMARY.md completed; qa/verify_astra_acceptance_bundle.py => APL-LNX-010 VERDICT: EVIDENCE COMPLETE."
-  - "Exact PR #62 head e0012b2d196f75cc3329e0bddec0a655387145a9 passed all 16 reported GitHub Actions workflows, including Windows P0 portable and Windows installer."
-  - "PR #62 merged to main as cb8655278bcb0899104bb5e4161c4de0497b6226."
-current: null
-pending: []
-last_verified_commit: "cb8655278bcb0899104bb5e4161c4de0497b6226"
+  - "User report captured: Firefox failed after switching from manual proxy to Use system proxy settings while Proxy Launcher was active."
+  - "Current installed package is 0.2.5 amd64; Proxy Launcher local HTTP/SOCKS/PAC listeners are active on 127.0.0.1:8080/1080/8082."
+  - "NetworkManager active Wi-Fi connection is proxy.method=auto with PAC URL http://127.0.0.1:8082/proxy.pac; rollback evidence exists."
+  - "Direct curl through the local HTTP proxy succeeds (example.com HTTP 200), proving proxy-core/upstream transport is alive."
+  - "Root cause proved on physical Astra/Fly: Firefox network.proxy.type=5 reads desktop GSettings, while 0.2.5 only published the PAC through NetworkManager."
+  - "Installed local non-published 0.2.6-rc1 candidate on Astra; NetworkManager and org.gnome.system.proxy both switched to the Arvectum PAC."
+  - "Isolated Firefox type=5 used Proxy Launcher egress IP 68.209.60.141 and opened the ChatGPT public loading path; live Firefox sockets connected to 127.0.0.1:8080."
+  - "Candidate rollback returned NetworkManager and GSettings to exact baseline; NetworkManager comparator PASS, GSettings cmp PASS, pending rollback NO."
+  - "User working Firefox profile remained manual (network.proxy.type=1) and XDG autostart remained enabled throughout validation."
+current: "Publish the Windows portability correction to PR #71 and require a new exact-head green CI before merge."
+pending:
+  - "Publish the Windows portability correction and obtain a new exact-head green GitHub CI on PR #71."
+  - "Merge the fix after required checks pass and update checkpoint to completed."
+last_verified_commit: "6c06db1397ded99d259a2a1412a0f5c20942cd44"
 test_results:
-  - "Physical Astra Gate R8 evidence verifier: EVIDENCE COMPLETE."
-  - "Physical Astra exact NetworkManager comparators: PASS for normal disable, crash recovery, reboot recovery and final cleanup."
-  - "Focused post-fix Linux state/diagnostics tests on Astra: 11/11 PASS."
-  - "Complete deterministic suite after R8 privacy hardening: 803/803 PASS before the final test-only Windows portability correction."
-  - "Exact-head GitHub Actions at e0012b2d196f75cc3329e0bddec0a655387145a9: 16/16 workflows SUCCESS."
-updated_at: "2026-09-14T15:47:00Z"
-resume_instruction: null
+  - "Current local Proxy Launcher HTTP proxy: HTTPS tunnel to example.com returned HTTP 200."
+  - "Current NetworkManager PAC endpoint: HTTP 200."
+  - "Isolated Firefox type=5 reproduced direct-IP bypass while NetworkManager PAC was active."
+  - "Temporary GSettings auto/PAC test made isolated Firefox use the Proxy Launcher egress IP, proving the missing desktop proxy integration."
+  - "Implemented GSettings desktop proxy snapshot/apply/restore with rollback schema v2 and v1 recovery compatibility; focused suite 79/79 PASS."
+  - "Complete deterministic suite after the fix: 812/812 PASS."
+  - "Built local non-published 0.2.6-rc1 .deb candidate SHA256 f4cb2b1c937e7686c64707439608f97a486f27ef3460defd6c894e2ad887b93c."
+  - "Physical Firefox system-proxy E2E: PASS; Firefox type=5 egress matched local Proxy Launcher egress 68.209.60.141."
+  - "Physical rollback: PASS; NetworkManager exact comparator PASS and GSettings baseline cmp PASS; pending rollback NO."
+  - "First GitHub exact-head CI at c339bef8a1151f1e4fb24ebec671e73779ef9213 found one Windows portability error: linux_desktop_proxy._session_environment called os.getuid() even when DBUS_SESSION_BUS_ADDRESS was already explicit."
+  - "Portability fix now returns an explicit DBus session environment before any POSIX uid lookup and guards getuid availability; focused suite 30/30 PASS and full suite 813/813 PASS."
+updated_at: "2026-09-15T04:57:13Z"
+resume_instruction: "Publish the tested Windows portability correction to fix/apl-lnx-011-firefox-system-proxy, wait for the new exact-head CI, diagnose any remaining failures, and merge PR #71 only when required checks are green. Physical Astra E2E need not be repeated because the correction only avoids POSIX uid lookup when an explicit DBus address is already present."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "human-owner"
+  execution_id: "APL-LNX-011-ASTRA-FIREFOX-20260914"
+  branch: "fix/apl-lnx-011-firefox-system-proxy"
+  base_commit: "6c2ef0b83b2cce68c465556d94a60262d64d20e2"
   lease_until: null
-  manual_override: false
+  manual_override: true

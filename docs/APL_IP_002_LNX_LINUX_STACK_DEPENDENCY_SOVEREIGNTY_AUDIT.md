@@ -9,6 +9,7 @@ Status: **CONDITIONAL PASS** for repository/CI scope. Real Astra host acceptance
 | Python runtime frozen by PyInstaller | runtime | Python/PyInstaller ecosystem | yes | no after build | critical | versioned build lock; frozen into artifact |
 | Tcl/Tk | runtime/UI | OS/Python distribution | yes in frozen artifact as selected by PyInstaller | no after build | critical GUI | included in THIRD_PARTY_NOTICES; inspect SBOM per release |
 | NetworkManager / `nmcli` | host runtime | Linux distribution / NetworkManager project | no | no | critical for system-proxy mutation | fail closed if unavailable; no fallback to ungoverned network stack |
+| GLib GSettings / `/usr/bin/gsettings` (`libglib2.0-bin`) | host runtime | Linux distribution / GLib project | no | no | critical for Firefox/system-proxy PAC on Fly/GNOME-family desktops | only the per-user `org.gnome.system.proxy` mode and PAC URL are owned; exact prior values are restored |
 | PolicyKit authorization used by NetworkManager | host runtime | Linux distribution | no | no | conditional | Arvectum does not ship/use sudo, pkexec or a password helper; `nmcli --ask` is opt-in only |
 | `/etc/os-release`, optional `/etc/astra_version`, XDG environment | host runtime interfaces | distribution standards/files | no | no | detection only | read-only capability detection |
 | XDG user config/state/autostart paths | host runtime interfaces | desktop/user session | no | no | product state | user-owned; package lifecycle does not delete or overwrite them |
@@ -26,7 +27,7 @@ Status: **CONDITIONAL PASS** for repository/CI scope. Real Astra host acceptance
 
 ## External network calls
 
-The application runtime has no required vendor SaaS/API/cloud dependency. Linux system-proxy operation is local and uses host NetworkManager. Network access during build is confined to package/tool acquisition in CI; AppImage acquisition is isolated in `tools/fetch_appimage_toolchain.sh` and verified by SHA-256 before use.
+The application runtime has no required vendor SaaS/API/cloud dependency. Linux system-proxy operation is local and uses host NetworkManager plus the desktop GSettings proxy source on supported Fly/GNOME-family sessions. Network access during build is confined to package/tool acquisition in CI; AppImage acquisition is isolated in `tools/fetch_appimage_toolchain.sh` and verified by SHA-256 before use.
 
 ## Replacement / localization options
 

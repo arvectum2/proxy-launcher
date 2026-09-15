@@ -170,7 +170,7 @@ class LinuxLauncher(shared_gui.Launcher):
         if enabled:
             self.status_hint.config(
                 text=(
-                    "Системный профиль NetworkManager включён и направлен через "
+                    "Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через "
                     "Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит "
                     "работать в фоне."
                 ),
@@ -182,7 +182,7 @@ class LinuxLauncher(shared_gui.Launcher):
             self.status_hint.config(
                 text=(
                     "Предыдущий сеанс Linux/Astra завершился некорректно. "
-                    "Сначала восстановите сохранённые настройки NetworkManager, "
+                    "Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, "
                     "затем снова включите прокси."
                 ),
                 bg=MINT_SOFT, fg=NAVY,
@@ -293,7 +293,7 @@ class LinuxLauncher(shared_gui.Launcher):
             self.refresh_status()
             messagebox.showinfo(
                 APP_NAME,
-                "Прокси подключен, системный профиль NetworkManager применён.\n\n"
+                "Прокси подключен, NetworkManager и desktop proxy применены.\n\n"
                 "Приложения, которые кэшируют настройки сети, может потребоваться перезапустить.",
             )
             return
@@ -325,7 +325,7 @@ class LinuxLauncher(shared_gui.Launcher):
     def restore_network(self, confirm=True):
         if confirm and not messagebox.askyesno(
             APP_NAME,
-            "Восстановить сохранённые исходные настройки NetworkManager и остановить proxy?",
+            "Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?",
             icon="warning",
         ):
             return
