@@ -1,36 +1,46 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
-goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
-authority: HUMAN
+task_id: APL-REDOS-002
+status: in_progress
+goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
-  - "Identify the exact Linux 0.2.6 integration defect and the Windows equivalent system-proxy publication path."
-  - "Audit Windows browser/system-proxy behavior for Firefox and Chromium-family consumers against the implemented Windows proxy settings."
-  - "Run relevant deterministic Windows proxy tests and Windows CI verification."
-  - "If a defect exists, implement the smallest production-safe fix with rollback/recovery regression coverage; otherwise document evidence that no analogous defect exists."
-  - "Record final verified commit and test evidence and mark this checkpoint completed."
+  - "RED OS installed only on p6/p7."
+  - "Windows, Astra and RED OS all boot."
+  - "BitLocker protection restored only after triple-boot verification."
 completed:
-  - "Loaded the completed APL-LNX-011 checkpoint and confirmed the Linux root cause: Firefox network.proxy.type=5 consumed desktop GSettings while 0.2.5 only published PAC through NetworkManager; 0.2.6 added governed GSettings PAC integration."
-  - "Audited windows_system_proxy.py: Windows publishes the PAC directly to HKCU WinINET AutoConfigURL, sets ProxyEnable=0, preserves/restores prior Internet Settings, updates per-user proxy environment, and calls InternetSetOptionW SETTINGS_CHANGED/REFRESH."
-  - "Verified current Firefox documentation describes Use system proxy settings as consuming OS proxy configuration; Mozilla Windows support material identifies the Windows/IE LAN settings, while Chromium documents WinINET system proxy use on Windows."
-  - "Confirmed WinHTTP is an intentionally separate documented product boundary, not the browser/system-proxy settings plane involved in the Linux defect."
-  - "Added explicit successful-enable regression coverage for WinINET PAC publication and refresh semantics."
-  - "Focused Windows proxy/backend/core regression: 71 passed + 3 subtests passed."
-current: null
-pending: []
-last_verified_commit: "0bdd79ebc9ab4dff01ee97eb0d833325b079e388"
+  - "Prepared and verified RED OS USB; safely shrank Astra and verified Astra boot."
+  - "Created p6 512 MiB EFI and p7 69 GiB ext4 only in prepared free space; p1-p5 preserved."
+  - "First RED OS install stalled at alsa-sof-firmware; second install completed successfully using only p6/p7."
+  - "RED OS 8.0.3 Standard Desktop booted successfully; network/browser proxy working."
+  - "Node.js/npm installed; Remote Desktop Commander paired as device arvectumredos and verified online."
+  - "Remote verification: / is nvme0n1p7 ext4 69 GiB; /boot/efi is nvme0n1p6 FAT32 512 MiB; p1-p5 retain expected sizes/types including Windows BitLocker p3 and Astra ext4 p5."
+  - "zRam active as /dev/zram0 8 GiB swap; root has ~52 GiB free and EFI ~504 MiB free."
+  - "UEFI entries verified: Boot0006 RED OS on p6, Boot0008 astralinux on p1, Boot0002 Windows Boot Manager on p1; current boot is RED OS and boot order begins RED OS, Astra, Windows."
+  - "Hardware sanity: Intel AC9260 Wi-Fi connected via iwlwifi; Realtek Ethernet uses r8169; AMD Vega graphics uses amdgpu; HDA audio devices detected; webcam/Bluetooth/smartcard visible on USB."
+  - "systemctl --failed reports zero failed units. Boot log has non-blocking firmware/desktop warnings (HP ACPI/RDRAND, KDE PowerDevil coredump, irrelevant NVIDIA udev rule on AMD-only hardware); no failure blocking Proxy Launcher testing identified."
+  - "Installed stable per-user Remote Desktop Commander copy and KDE autostart entry."
+  - "RED OS package update transaction completed at 22:37 and updated/installed 161 packages; kernel-lt 6.12.101-1.red80 is installed. Refreshed repositories and `dnf list --upgrades` shows no remaining package upgrades. Current session still runs kernel 6.12.92 until next reboot."
+  - "Disabled KDE automatic screen lock for user arvectum by setting kscreenlockerrc Daemon/Autolock=false and LockOnResume=false. Verified no configured automatic GUI/session logout, shell TMOUT, or systemd-logind IdleAction. AC/Battery profiles contain no idle SuspendSession action; low-battery suspend remains as a safety action."
+current: "RED OS is fully updated with no pending package upgrades; new kernel is installed and will take effect on next reboot. Automatic screen locking is disabled. There is no automatic logout policy configured. User postponed physical Astra/Windows boot verification until later."
+pending:
+  - "User physically reboot and select astralinux; verify normal Astra boot and Remote Desktop Commander reconnect."
+  - "Then physically reboot and select Windows Boot Manager; verify normal Windows boot."
+  - "Only after both pass, re-enable BitLocker protection and confirm recovery protector remains available."
+  - "Verify RED OS Remote Desktop Commander KDE autostart and kernel 6.12.101 after the next RED OS login."
+last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
 test_results:
-  - "Focused: python3 -m pytest -q tests/test_windows_system_proxy.py tests/test_windows_backend.py tests/test_proxy_core.py => 71 passed, 3 subtests passed."
-  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure."
-  - "GitHub Actions APL-IP-003 canonical source on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: Windows SUCCESS, macOS SUCCESS, Ubuntu SUCCESS."
-  - "GitHub Actions Windows P0 portable on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: SUCCESS, including canonical Windows clean build and unit discovery."
-updated_at: "2026-09-15T06:18:00Z"
-resume_instruction: null
+  - "Media verification PASS."
+  - "Astra resize/post-resize boot PASS."
+  - "RED OS second install/first boot PASS."
+  - "RED OS partition/mount verification PASS: p7=/, p6=/boot/efi, p1-p5 preserved."
+  - "RED OS zRam/network/GPU/Wi-Fi/audio-device/UEFI sanity PASS."
+  - "System failed units: 0."
+  - "Package freshness PASS: repositories refreshed; no remaining dnf upgrades; kernel 6.12.101 installed pending reboot."
+  - "KDE autolock configuration PASS: Autolock=false, LockOnResume=false."
+  - "Automatic logout audit PASS: no auto-logout/TMOUT/logind IdleAction found; no normal AC/Battery idle suspend action configured."
+resume_instruction: "User postponed reboot checks. When they are ready, reboot the physical test laptop and select `UEFI - astralinux`; verify Astra through existing Remote Desktop Commander device `arvectum-astra`. Then repeat with `Windows Boot Manager`. Do not modify partitions. Re-enable BitLocker only after all three OS boot successfully. On the next RED OS boot, confirm kernel 6.12.101 and Remote Desktop Commander autostart."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: "audit/windows-system-proxy-parity"
-  base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
-  lease_until: null
-  manual_override: false
+  claimed_by: "ChatGPT"
+  execution_id: "2026-09-15-redos-install"
+  branch: "agent/redos-prep"
+  manual_override: true
