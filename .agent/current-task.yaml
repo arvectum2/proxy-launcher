@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: blocked
 task_id: APL-WIN-DEV-PROFILE-CLEANUP-001
 goal: "Remove the five APLWIN014REF* Windows test accounts/profiles created during Proxy Launcher Windows acceptance testing from the windows-dev laptop without disturbing the real user, Windows system profiles, or the installed Proxy Launcher configuration."
 authority: HUMAN
@@ -14,17 +14,19 @@ completed:
   - "Connected to windows-dev device ArutyunovNS and confirmed it is Windows."
   - "Identified exactly five enabled test accounts: APLWIN014REF through APLWIN014REF5, all last used on 2026-08-27."
   - "Confirmed matching C:\\Users\\APLWIN014REF* profile directories exist."
-current: "Verify SIDs/profile load state, then remove the five test accounts and profiles."
+current: "Blocked on Windows UAC consent for the exact elevated cleanup script on windows-dev."
 pending:
-  - "Read exact SIDs and Win32_UserProfile Loaded/Special state."
-  - "Remove the five test profiles and local accounts."
+  - "Approve the pending Windows UAC elevation and execute the exact cleanup script."
   - "Run post-cleanup verification and record evidence."
 last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
 test_results:
   - "Pre-cleanup Get-LocalUser shows exactly five APLWIN014REF* test accounts."
   - "Pre-cleanup C:\\Users listing shows exactly five matching profile directories."
-updated_at: "2026-09-15T13:30:00Z"
-resume_instruction: "On windows-dev ArutyunovNS, verify APLWIN014REF* profiles are not Loaded/Special, then remove exactly those five profiles/accounts and verify all five are gone while GN and Arvectum Proxy Launcher remain intact."
+  - "All five Win32_UserProfile records verified Loaded=False, Special=False, Status=0; exact SIDs 1006-1010 identified."
+  - "First non-elevated Remove-CimInstance attempt failed closed with HRESULT 0x80070522 before any deletion."
+  - "Prepared C:\\Users\\GN\\Arvectum\\cleanup-aplwin014ref.ps1 with exact-name/SID/load-state guards and post-cleanup verification; launched via Start-Process -Verb RunAs and is awaiting UAC consent."
+updated_at: "2026-09-15T13:42:00Z"
+resume_instruction: "Wait only for the user to approve the pending Windows UAC prompt. Then verify cleanup-aplwin014ref.log ends in PASS, confirm no APLWIN014REF* local users or C:\\Users\\APLWIN014REF* directories remain, confirm GN and installed Arvectum Proxy Launcher data remain intact, then mark completed."
 execution:
   claimed_by: ChatGPT
   execution_id: "apl-win-dev-profile-cleanup-20260915"
