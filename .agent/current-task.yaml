@@ -21,9 +21,9 @@ completed:
   - "Isolated Firefox type=5 used Proxy Launcher egress IP 68.209.60.141 and opened the ChatGPT public loading path; live Firefox sockets connected to 127.0.0.1:8080."
   - "Candidate rollback returned NetworkManager and GSettings to exact baseline; NetworkManager comparator PASS, GSettings cmp PASS, pending rollback NO."
   - "User working Firefox profile remained manual (network.proxy.type=1) and XDG autostart remained enabled throughout validation."
-current: "Publish the tested fix branch to GitHub, run exact-head CI, merge only after required checks pass, then close the checkpoint."
+current: "Publish the Windows portability correction to PR #71 and require a new exact-head green CI before merge."
 pending:
-  - "Run exact-head deterministic tests and GitHub CI on the tested fix branch."
+  - "Publish the Windows portability correction and obtain a new exact-head green GitHub CI on PR #71."
   - "Merge the fix after required checks pass and update checkpoint to completed."
 last_verified_commit: "6c06db1397ded99d259a2a1412a0f5c20942cd44"
 test_results:
@@ -36,8 +36,10 @@ test_results:
   - "Built local non-published 0.2.6-rc1 .deb candidate SHA256 f4cb2b1c937e7686c64707439608f97a486f27ef3460defd6c894e2ad887b93c."
   - "Physical Firefox system-proxy E2E: PASS; Firefox type=5 egress matched local Proxy Launcher egress 68.209.60.141."
   - "Physical rollback: PASS; NetworkManager exact comparator PASS and GSettings baseline cmp PASS; pending rollback NO."
-updated_at: "2026-09-15T04:48:02Z"
-resume_instruction: "Push the tested APL-LNX-011 tree to fix/apl-lnx-011-firefox-system-proxy, run exact-head CI, merge only if required checks are green, then set status completed and record the merge commit. Do not repeat physical Astra E2E unless code changes after the tested commit."
+  - "First GitHub exact-head CI at c339bef8a1151f1e4fb24ebec671e73779ef9213 found one Windows portability error: linux_desktop_proxy._session_environment called os.getuid() even when DBUS_SESSION_BUS_ADDRESS was already explicit."
+  - "Portability fix now returns an explicit DBus session environment before any POSIX uid lookup and guards getuid availability; focused suite 30/30 PASS and full suite 813/813 PASS."
+updated_at: "2026-09-15T04:57:13Z"
+resume_instruction: "Publish the tested Windows portability correction to fix/apl-lnx-011-firefox-system-proxy, wait for the new exact-head CI, diagnose any remaining failures, and merge PR #71 only when required checks are green. Physical Astra E2E need not be repeated because the correction only avoids POSIX uid lookup when an explicit DBus address is already present."
 execution:
   claimed_by: "human-owner"
   execution_id: "APL-LNX-011-ASTRA-FIREFOX-20260914"

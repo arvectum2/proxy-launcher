@@ -95,6 +95,16 @@ class GSettingsProxyClientTests(unittest.TestCase):
         )
         self.assertIsNone(client)
 
+    def test_explicit_session_bus_does_not_require_posix_uid_lookup(self):
+        client = detect_desktop_proxy_client(
+            environ={
+                "XDG_CURRENT_DESKTOP": "Fly",
+                "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
+            },
+            which=lambda name: "/usr/bin/gsettings" if name == "gsettings" else None,
+        )
+        self.assertIsInstance(client, GSettingsProxyClient)
+
     def test_graphical_desktop_without_session_bus_is_not_claimed(self):
         client = detect_desktop_proxy_client(
             environ={"XDG_CURRENT_DESKTOP": "Fly", "XDG_RUNTIME_DIR": "/missing"},

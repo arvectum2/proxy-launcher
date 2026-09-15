@@ -130,19 +130,23 @@ def _desktop_uses_gsettings(environ: Mapping[str, str]) -> bool:
 
 def _session_environment(environ: Mapping[str, str]) -> Optional[dict]:
     result = dict(environ)
+    address = str(result.get("DBUS_SESSION_BUS_ADDRESS", "") or "").strip()
+    if address:
+        return result
+
     runtime = str(result.get("XDG_RUNTIME_DIR", "") or "").strip()
-    if not runtime:
-        candidate = "/run/user/%s" % os.getuid()
+    getuid = getattr(os, "getuid", None)
+    if not runtime and getuid is not None:
+        candidate = "/run/user/%s" % getuid()
         if os.path.isdir(candidate):
             runtime = candidate
             result["XDG_RUNTIME_DIR"] = candidate
-    address = str(result.get("DBUS_SESSION_BUS_ADDRESS", "") or "").strip()
-    if not address and runtime:
+    if runtime:
         bus = os.path.join(runtime, "bus")
         if os.path.exists(bus):
             result["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=%s" % bus
-            address = result["DBUS_SESSION_BUS_ADDRESS"]
-    return result if address else None
+            return result
+    return None
 
 
 def detect_desktop_proxy_client(
