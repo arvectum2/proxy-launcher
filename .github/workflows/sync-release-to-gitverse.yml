@@ -153,6 +153,12 @@ jobs:
                 cp .gitverse-create.json .gitverse-release.json
                 break
               fi
+              if [ "$create_status" = 422 ]; then
+                echo "::error::GitVerse rejected release creation with HTTP 422"
+                cat .gitverse-create.json || true
+                jq '{tag_name,name,target_commitish,draft,prerelease,is_authorized_only,body_length:(.body|length)}' .gitverse-release-body.json
+                exit 1
+              fi
               case "$create_status" in 401|403)
                 echo "::error::GitVerse release creation unauthorized (HTTP $create_status)"; cat .gitverse-create.json; exit 1;;
               esac
