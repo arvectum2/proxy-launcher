@@ -6,14 +6,14 @@ goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifyi
 definition_of_done:
   - "RED OS installed only on p6/p7."
   - "Windows, Astra and RED OS all boot from the unified menu."
-  - "BitLocker protection restored only after triple-boot verification."
+  - "ARVECTUM-DEMO remains a low-complexity demo stand; BitLocker is not required and must not be re-enabled as part of this task."
 completed:
   - "RED OS 8.0.3 installed on p6/p7; p1-p5 preserved."
   - "RED OS Boot0006 repaired and real reboot test PASS; BootCurrent=0006."
   - "RED OS is running kernel 6.12.101-1.red80.x86_64; previous 6.12.92 retained as rollback kernel plus rescue entry."
   - "Windows and Astra both booted successfully after RED OS installation; Astra clean GUI reboot retest remains pending."
   - "Windows Proxy Launcher 0.2.5 installed, configured and working; obsolete Windows launcher/test artifacts cleaned."
-  - "Windows RTC UTC interoperability fixed; BitLocker remains intentionally suspended until final triple-boot validation."
+  - "Windows RTC UTC interoperability fixed; BitLocker protection is currently suspended."
   - "RED OS Desktop Commander persistence fixed with ~/.config/systemd/user/desktop-commander-remote.service; sole-connector/ping test PASS."
   - "Removed obsolete KDE RDC autostart and stale ~/.npm/_npx cache."
   - "Root GRUB/BLS inspection completed. BLS contains current 6.12.101, fallback 6.12.92 and rescue; grubby default-kernel is 6.12.101 and default-index is 0."
@@ -22,6 +22,7 @@ completed:
   - "Installed explicit chainloader entries for Windows 11 and Astra Linux 1.8 using shared ESP UUID 3EE2-B918; verified both EFI targets exist before regeneration."
   - "Set GRUB_TIMEOUT_STYLE=menu and GRUB_DISABLE_OS_PROBER=true to avoid duplicate auto-detected Windows/Astra entries; kept BLS enabled and retained rollback/rescue kernels."
   - "Regenerated /boot/grub2/grub.cfg via a temporary file, grub2-script-check PASS, then installed atomically with mode 0600. EFI stub remained unchanged."
+  - "User clarified ARVECTUM-DEMO is a disposable/low-data three-OS demo stand, distinct from the Windows development laptop whose user is GN. Decision: no security value in keeping BitLocker on this stand; do not restore BitLocker after triple-boot validation."
 current: "Unified RED OS GRUB configuration is staged and syntax-checked. Next physical reboot must test the explicit Astra Linux 1.8 chainloader entry and Astra automatic GUI startup."
 pending:
   - "Reboot and choose `Astra Linux 1.8` from the RED OS GRUB menu; verify the custom chainloader works."
@@ -29,8 +30,8 @@ pending:
   - "Verify Astra RDC persistence/health and return through the unified menu."
   - "Test the explicit Windows 11 entry from the unified RED OS menu."
   - "Return to RED OS once more if needed to confirm its default/current-kernel path after cross-OS tests."
-  - "Final Windows boot: verify Windows RDC Startup persistence, remove obsolete _npx cache if unused, then re-enable BitLocker and confirm recovery protector."
-last_verified_commit: "cc6df0821f7c8fd006b3b01c1b6dc931ccd19e0d"
+  - "Final Windows boot: verify Windows RDC Startup persistence, remove obsolete _npx cache if unused, and leave BitLocker disabled/suspended; if a clean final state is desired, decrypt C: fully with manage-bde -off rather than leaving a permanently suspended encrypted volume."
+last_verified_commit: "4e42b67a48843101792e86878a065975255d01db"
 test_results:
   - "RED OS Boot0006 post-repair reboot: PASS."
   - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
@@ -44,8 +45,8 @@ test_results:
   - "GRUB default kernel: PASS, /boot/vmlinuz-6.12.101-1.red80.x86_64, index 0."
   - "Explicit Astra/Windows chainloader runtime: RETEST NEEDED."
   - "Astra automatic GUI start: RETEST NEEDED."
-  - "BitLocker remains suspended pending final validation."
-resume_instruction: "Current OS is RED OS and RDC is persistent via user systemd. Unified GRUB is staged: BLS current/fallback/rescue plus explicit `Windows 11` and `Astra Linux 1.8` chainloaders in 40_custom; os-prober is disabled to avoid duplicates; timeout style is menu; grub.cfg passed grub2-script-check. Reboot physically and select `Astra Linux 1.8`. Once Astra desktop appears, immediately check `arvectum-astra` RDC, verify fly-dm/Xorg GUI startup and system health. Then use unified menu to test Windows 11, return for final validation, and re-enable BitLocker only after all three menu paths pass."
+  - "BitLocker restore requirement: REMOVED by user for ARVECTUM-DEMO demo stand."
+resume_instruction: "Current OS is RED OS and RDC is persistent via user systemd. Unified GRUB is staged: BLS current/fallback/rescue plus explicit `Windows 11` and `Astra Linux 1.8` chainloaders in 40_custom; os-prober is disabled to avoid duplicates; timeout style is menu; grub.cfg passed grub2-script-check. ARVECTUM-DEMO is the demo stand, not the Windows dev laptop (that one uses user GN). Do NOT re-enable BitLocker on ARVECTUM-DEMO. Reboot physically and select `Astra Linux 1.8`. Once Astra desktop appears, immediately check `arvectum-astra` RDC, verify fly-dm/Xorg GUI startup and system health. Then use unified menu to test Windows 11 and return for final validation. On final Windows pass, verify RDC persistence and, if desired for a clean no-BitLocker state, fully decrypt C: rather than leaving BitLocker merely suspended."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
