@@ -231,9 +231,14 @@ jobs:
             ls -la release-stage/
             exit 1
           fi
-          if [ ! -f "release-stage/${SETUP_NAME}" ]; then
-            echo "::error::Expected release installer 'release-stage/${SETUP_NAME}' not found"
+          SETUP_PATH="$(find release-stage -type f -name "$SETUP_NAME" -print -quit)"
+          if [ -z "$SETUP_PATH" ]; then
+            echo "::error::Expected release installer '$SETUP_NAME' not found under release-stage"
+            find release-stage -maxdepth 3 -type f -print
             exit 1
+          fi
+          if [ "$SETUP_PATH" != "release-stage/${SETUP_NAME}" ]; then
+            cp "$SETUP_PATH" "release-stage/${SETUP_NAME}"
           fi
           if [ ! -f "release-stage/${LINUX_DEB_NAME}" ]; then
             echo "::error::Expected Astra/Linux package 'release-stage/${LINUX_DEB_NAME}' not found"

@@ -32,28 +32,36 @@ completed:
   stable release.
 - 'Local release/repository tests: 27 passed; version-policy tests: 5 passed; workflow YAML parsed successfully; git diff
   --check clean.'
-current: Commit and push release/v0.2.6-final, open PR, and obtain exact-head CI.
+- 'PR #75 merged to main at 3b67aedfe02d996da9b9f442e53e8c0c896152bd; exact-head PR CI green across release dry-run, Windows
+  P0/installer, Linux DEB/acceptance, security and canonical-source gates.'
+- Exact-main CI on 3b67aedfe02d996da9b9f442e53e8c0c896152bd is green for Windows P0, Windows installer, Linux Debian package,
+  Linux Ubuntu acceptance, SAST/SBOM/security, and Release Evidence Package.
+- Immutable annotated tag v0.2.6 exists and points exactly to main commit 3b67aedfe02d996da9b9f442e53e8c0c896152bd.
+- Tag release workflow built Windows portable and installer successfully and downloaded the exact-main Astra DEB, but publication
+  failed because the reusable installer artifact stores Setup under installer/; root cause identified and hotfix prepared.
+current: Fix release workflow nested installer artifact handling, publish v0.2.6 from already verified exact-tag/exact-main
+  artifacts, verify GitVerse mirror, and finish physical Astra validation.
 pending:
-- Push PR and obtain exact-head CI.
-- Merge to main and verify exact-main release prerequisites.
-- Download the exact-main Ubuntu 22.04 Debian artifact and physically validate it on Astra Linux 1.8.
-- Create immutable tag v0.2.6 and verify GitHub release.
-- Verify GitVerse mirror payloads and final published package on Astra.
-- Close checkpoint with final evidence.
-last_verified_commit: 04d5f9865b4e7e16c4e1828e239abb7635706ca1
+- Merge release installer-path hotfix for future releases.
+- Publish GitHub v0.2.6 from exact tag-run Windows artifacts plus exact-main Ubuntu 22.04 DEB and SHA256SUMS.
+- Run/verify GitVerse v0.2.6 mirror and canonical payload hashes.
+- Physically validate exact-main 0.2.6 DEB on Astra; sudo/password interaction may be required for package upgrade.
+- Close checkpoint with final release URLs, hashes and evidence.
+last_verified_commit: 3b67aedfe02d996da9b9f442e53e8c0c896152bd
 test_results:
 - python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
 - /usr/bin/python3 -m unittest tests.test_version_policy -v => 5 passed.
 - PyYAML parse of release.yml, release-evidence.yml and sync-release-to-gitverse.yml => PASS.
 - python3 -m py_compile proxy_core.py => PASS; git diff --check => PASS.
-updated_at: '2026-09-16T20:05:00Z'
-resume_instruction: Push branch release/v0.2.6-final from /tmp/proxy-launcher-release-check, open PR, fix any exact-head CI
-  failures, merge, wait for exact-main Windows/Linux/release-evidence gates, physically test the exact-main Ubuntu 22.04 DEB
-  on Astra, then tag v0.2.6 and verify both GitHub and GitVerse releases. Do not publish rc1.
+- 'Hotfix focused release/repository tests: 27 passed; git diff --check PASS.'
+updated_at: '2026-09-16T20:35:00Z'
+resume_instruction: Finish v0.2.6 publication using the immutable tag at 3b67aed and exact verified artifacts; do not move/recreate
+  the tag. Merge installer-path hotfix separately, verify GitVerse payload parity, physically validate exact-main DEB on Astra,
+  then mark completed.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-017-20260916
-  branch: release/v0.2.6-final
-  base_commit: 04d5f9865b4e7e16c4e1828e239abb7635706ca1
-  lease_until: '2026-09-16T21:35:00Z'
+  branch: fix/v026-release-installer-path
+  base_commit: 3b67aedfe02d996da9b9f442e53e8c0c896152bd
+  lease_until: '2026-09-16T22:25:00Z'
   manual_override: true

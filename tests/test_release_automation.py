@@ -94,6 +94,8 @@ class ReleaseAutomationTests(unittest.TestCase):
         release = self.read(".github/workflows/release.yml")
         self.assertIn("actions/download-artifact@v4", release)
         self.assertIn("sha256sum \"$ZIP_NAME\" > SHA256SUMS.txt", release)
+        self.assertIn('SETUP_PATH="$(find release-stage -type f -name "$SETUP_NAME" -print -quit)"', release)
+        self.assertIn('cp "$SETUP_PATH" "release-stage/${SETUP_NAME}"', release)
         self.assertIn("gh release create", release)
         self.assertIn("--verify-tag", release)
         self.assertIn("--generate-notes", release)
