@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REDOS-002
-status: in_progress
+status: blocked
 goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
   - "RED OS installed only on p6/p7."
@@ -14,7 +14,7 @@ completed:
   - "Windows and Astra both booted successfully after RED OS installation."
   - "Windows Proxy Launcher 0.2.5 installed, configured and working; obsolete Windows launcher/test artifacts cleaned."
   - "Windows RTC UTC interoperability fixed."
-  - "RED OS Desktop Commander persistence fixed with ~/.config/systemd/user/desktop-commander-remote.service; sole-connector/ping test PASS."
+  - "RED OS Desktop Commander persistence was configured with ~/.config/systemd/user/desktop-commander-remote.service and previously passed a sole-connector/ping test."
   - "Removed obsolete RED OS KDE RDC autostart and stale ~/.npm/_npx cache."
   - "Root GRUB/BLS inspection completed. BLS contains current 6.12.101, fallback 6.12.92 and rescue; grubby default-kernel is 6.12.101 and default-index is 0."
   - "Confirmed repaired /boot/efi/EFI/redos/grub.cfg is owned by grub2-efi-x64 and grub2-common scriptlet preserves an already-unified EFI stub."
@@ -28,22 +28,25 @@ completed:
   - "Astra Desktop Commander 0.2.50 migrated to permanent ~/.local/share/desktop-commander and enabled user systemd autostart; sole-connector/ping PASS; stale ~/.npm/_npx removed."
   - "Explicit `Windows 11` entry from RED OS GRUB runtime test: PASS; Windows booted normally."
   - "Windows RDC Startup entry `Arvectum Desktop Commander.cmd` launches the permanent `%LOCALAPPDATA%\\Programs\\DesktopCommander` copy automatically after logon."
-  - "Windows RDC duplicate manual npx tree removed; stale npm-cache/_npx removed; current connector uses only the permanent copy and is online."
+  - "Windows RDC duplicate manual npx tree removed; stale npm-cache/_npx removed; current connector uses only the permanent copy and is online when Windows is running."
   - "Windows Proxy Launcher runtime verified: v0.2.5 core listens on 127.0.0.1 ports 1080/8080/8082 and enables PAC at http://127.0.0.1:8082/proxy.pac."
   - "Added Windows Startup entry `Arvectum Proxy Launcher.cmd` with a 12-second logon delay and canonical `--start`; live idempotency test PASS."
   - "Local elevated `manage-bde -off C:` was run by the user. BitLocker event log Event ID 770 at 2026-09-16 20:45:33 confirms decryption started for C:."
-current: "BitLocker decryption is in progress. Microsoft documentation confirms encryption/decryption resumes after a restart, so the next physical step is a final RED OS default/current-kernel boot while decryption continues. After RED OS is verified, reboot once more and select Windows 11 without manually repairing network or starting Proxy Launcher, to prove both Windows autostarts end-to-end."
+  - "Final physical reboot to the default RED OS path reached the RED OS desktop successfully according to the user."
+current: "Final RED OS reboot exposed a remaining persistence issue: after the RED OS desktop loaded, the `arvectumredos` Desktop Commander device did not come online. The stale Windows device record still appeared online in list_devices but did not answer ping, confirming the laptop is actually in RED OS. One local restart of the RED OS user service is required to regain remote access; then inspect the current-boot user-service journal and fix the boot/login autostart race before proceeding."
 pending:
-  - "Reboot from Windows and let the default/current RED OS entry boot; verify RED OS kernel, RDC autostart and system health."
-  - "From RED OS reboot and select `Windows 11`; do not manually repair network or launch Proxy Launcher. Verify automatic RDC + Proxy Launcher/network after logon."
-  - "Verify BitLocker reaches fully decrypted state (event/log or local elevated status if needed)."
-  - "Mark task completed once final RED OS and clean Windows autostart paths pass and C: is fully decrypted."
-last_verified_commit: "4dd70e3d46cfd10cc374b8ca3d4cf9cf0daa89b0"
+  - "User locally runs `systemctl --user restart desktop-commander-remote.service` in RED OS to restore RDC access."
+  - "After reconnect, inspect `systemctl --user status` and `journalctl --user -u desktop-commander-remote.service -b`; fix the RED OS autostart/reconnect race and prove it survives another login/boot."
+  - "Verify RED OS final kernel 6.12.101, BootCurrent=0006 and zero failed system units on this boot."
+  - "Reboot and select `Windows 11`; do not manually repair network or launch Proxy Launcher. Verify automatic RDC + Proxy Launcher/network after logon."
+  - "Verify BitLocker reaches fully decrypted state."
+  - "Mark task completed once RED OS automatic RDC and clean Windows autostart paths pass and C: is fully decrypted."
+last_verified_commit: "072da9a65961165a7174e3b2f8f46175aa602088"
 test_results:
   - "RED OS Boot0006 post-repair reboot: PASS."
-  - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
-  - "RED OS UEFI/mounts: PASS, p7=/, p6=/boot/efi, BootCurrent=0006."
-  - "RED OS systemd-managed RDC sole-connector test: PASS."
+  - "RED OS current kernel before final cycle: PASS, 6.12.101-1.red80.x86_64."
+  - "RED OS UEFI/mounts before final cycle: PASS, p7=/, p6=/boot/efi, BootCurrent=0006."
+  - "RED OS systemd-managed RDC sole-connector prior live test: PASS, but final cold/login reboot autostart: FAIL/REPAIR NEEDED."
   - "Unified grub.cfg generation: PASS; grub2-script-check returned success."
   - "Explicit Astra chainloader runtime: PASS."
   - "Astra automatic GUI start: PASS; zero failed units."
@@ -51,10 +54,10 @@ test_results:
   - "Explicit Windows chainloader runtime: PASS."
   - "Windows permanent RDC Startup/sole connector: PASS."
   - "Windows Proxy Launcher 0.2.5 current runtime/listeners: PASS."
-  - "Windows explicit Proxy Launcher Startup script creation + live idempotency test: PASS; reboot test pending."
+  - "Windows explicit Proxy Launcher Startup script creation + live idempotency test: PASS; clean reboot test pending."
   - "BitLocker decryption start: PASS, event ID 770 confirms C: decryption began at 20:45:33."
-  - "BitLocker restore requirement: REMOVED by user for ARVECTUM-DEMO demo stand."
-resume_instruction: "Current OS is Windows on ARVECTUM-DEMO. BitLocker C: decryption is in progress (Event ID 770 at 20:45:33) and may safely continue across reboot. Ask the user to reboot normally and let the default/current RED OS entry boot. Once arvectumredos is online, verify current kernel 6.12.101, RDC autostart and system health. Then have the user reboot and select `Windows 11` from unified GRUB, with no manual network repair and no manual Proxy Launcher start. Verify Windows RDC and Proxy Launcher autostarts/network automatically, then verify C: is fully decrypted and mark task completed. Do not re-enable BitLocker."
+  - "Final default RED OS physical boot to desktop: PASS by user observation; RDC automatic reconnect on that boot: FAIL."
+resume_instruction: "Current OS is RED OS on ARVECTUM-DEMO. The desktop has loaded, but arvectumredos did not reconnect automatically. Ask the user only to run `systemctl --user restart desktop-commander-remote.service`; once the device is online, immediately inspect the service status and current-boot journal to identify why it failed to reconnect automatically. Fix persistence and prove it across another boot/login before moving to the final Windows clean-autostart test. Branch agent/redos-prep head before this checkpoint was 072da9a65961165a7174e3b2f8f46175aa602088. Do not re-enable BitLocker; decryption was already started on Windows."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
