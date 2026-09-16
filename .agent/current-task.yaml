@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REDOS-002
-status: blocked
+status: completed
 goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
   - "RED OS installed only on p6/p7."
@@ -41,12 +41,11 @@ completed:
   - "Windows Proxy Launcher final autostart proof: PASS. `--start` process appeared automatically after logon, ports 1080/8080/8082 are listening, PAC URL is set, local PAC returns HTTP 200, and an end-to-end HTTPS request through 127.0.0.1:8080 returned HTTP 200."
   - "Windows network final clean boot: PASS. Wi-Fi is up and direct TCP connectivity to 1.1.1.1:443 succeeds without manual repair."
   - "Cross-OS RTC interoperability final Windows check: PASS. Windows shows correct UTC+03 local time and registry `RealTimeIsUniversal=1` after RED OS UTC-RTC transition."
-current: "All functional triple-boot/RDC/Proxy Launcher/network checks are complete and pass. BitLocker decryption was started, but the non-elevated RDC session cannot query manage-bde/WMI conversion status. Readable BitLocker logs still show Event ID 770 start but no Event ID 778 unprotected-state event. A several-minute background poll also found no 778. Final completion therefore requires one local elevated `manage-bde -status C:` check; no further reboot or functional changes are needed."
-pending:
-  - "User runs one elevated `manage-bde -status C:` and saves/shares the result so we can confirm Conversion Status Fully Decrypted and Percentage Encrypted 0.0%."
-  - "If still decrypting, leave Windows running until it reaches 0.0%, then verify once more."
-  - "When C: is fully decrypted/unprotected, mark task completed; do not re-enable BitLocker."
-last_verified_commit: "db934fb52f4034732116a1b78afd2d974a757e85"
+  - "BitLocker final removal: PASS. Elevated `manage-bde -status C:` reports BitLocker Version=None, Conversion Status=Fully Decrypted, Percentage Encrypted=0.0%, Encryption Method=None, Protection Off, and no key protectors."
+  - "Final Windows RDC liveness after all checks: PASS; ARVECTUM-DEMO answered ping at 2026-09-16T19:21:46Z."
+current: "APL-REDOS-002 is complete. ARVECTUM-DEMO now has a validated Windows 11 + Astra Linux 1.8 + RED OS 8.0.3 triple-boot flow from the RED OS GRUB, persistent RDC on all three OSes, automatic Windows Proxy Launcher startup/network recovery, UTC-compatible RTC behavior, and BitLocker fully removed from the demo stand."
+pending: []
+last_verified_commit: "f8a155699882d6d32dd5590b553eb3c1260e16fc"
 test_results:
   - "RED OS Boot0006/default path: PASS."
   - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
@@ -60,8 +59,8 @@ test_results:
   - "Windows final network without manual repair: PASS."
   - "Windows final clock/RTC: PASS; correct UTC+03 local time, RealTimeIsUniversal=1."
   - "BitLocker decryption start: PASS, Event ID 770 at 20:45:33."
-  - "BitLocker full-decryption completion: BLOCKED on one elevated status query; non-elevated manage-bde/WMI is access-denied and no Event ID 778 has appeared yet."
-resume_instruction: "Current OS is Windows on ARVECTUM-DEMO. All triple-boot and autostart/network tests have passed. Only final BitLocker decryption confirmation remains. Ask the user to open an elevated Windows Terminal/PowerShell and run `manage-bde -status C:` (preferably redirect/save output to a user-readable file if desired). Confirm `Conversion Status: Fully Decrypted` and `Percentage Encrypted: 0.0%`. If not yet at 0.0%, leave Windows running and recheck later. Once confirmed, update checkpoint status=completed with final commit/test results. Do not re-enable BitLocker."
+  - "BitLocker full-decryption completion: PASS; Fully Decrypted, 0.0%, Protection Off, Encryption Method None, no key protectors."
+resume_instruction: "Task completed. No further action is required for APL-REDOS-002. Preserve the validated triple-boot/GRUB layout, keep BitLocker disabled on ARVECTUM-DEMO, and do not alter p1-p5 unless a new explicitly scoped task requires it."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
