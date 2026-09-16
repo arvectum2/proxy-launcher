@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REDOS-002
-status: blocked
+status: in_progress
 goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
   - "RED OS installed only on p6/p7."
@@ -13,7 +13,7 @@ completed:
   - "RED OS is running kernel 6.12.101-1.red80.x86_64; previous 6.12.92 retained as rollback kernel plus rescue entry."
   - "Windows and Astra both booted successfully after RED OS installation."
   - "Windows Proxy Launcher 0.2.5 installed, configured and working; obsolete Windows launcher/test artifacts cleaned."
-  - "Windows RTC UTC interoperability fixed; BitLocker protection is currently suspended."
+  - "Windows RTC UTC interoperability fixed."
   - "RED OS Desktop Commander persistence fixed with ~/.config/systemd/user/desktop-commander-remote.service; sole-connector/ping test PASS."
   - "Removed obsolete RED OS KDE RDC autostart and stale ~/.npm/_npx cache."
   - "Root GRUB/BLS inspection completed. BLS contains current 6.12.101, fallback 6.12.92 and rescue; grubby default-kernel is 6.12.101 and default-index is 0."
@@ -23,7 +23,7 @@ completed:
   - "Set GRUB_TIMEOUT_STYLE=menu and GRUB_DISABLE_OS_PROBER=true; kept BLS enabled and retained rollback/rescue kernels."
   - "Regenerated /boot/grub2/grub.cfg atomically; grub2-script-check PASS; EFI stub remained unchanged."
   - "User clarified ARVECTUM-DEMO is the disposable/low-data three-OS demo stand, distinct from the Windows development laptop whose user is GN. Do not restore BitLocker on this stand."
-  - "Explicit `Astra Linux 1.8` entry from RED OS GRUB runtime test: PASS. Astra booted while UEFI BootCurrent remained 0006 as expected for chainloading from RED OS."
+  - "Explicit `Astra Linux 1.8` entry from RED OS GRUB runtime test: PASS."
   - "Astra clean GUI boot retest: PASS. fly-dm is enabled+active; Xorg :0 vt7 and fly-wm started automatically; zero failed systemd units."
   - "Astra Desktop Commander 0.2.50 migrated to permanent ~/.local/share/desktop-commander and enabled user systemd autostart; sole-connector/ping PASS; stale ~/.npm/_npx removed."
   - "Explicit `Windows 11` entry from RED OS GRUB runtime test: PASS; Windows booted normally."
@@ -31,13 +31,13 @@ completed:
   - "Windows RDC duplicate manual npx tree removed; stale npm-cache/_npx removed; current connector uses only the permanent copy and is online."
   - "Windows Proxy Launcher runtime verified: v0.2.5 core listens on 127.0.0.1 ports 1080/8080/8082 and enables PAC at http://127.0.0.1:8082/proxy.pac."
   - "Added Windows Startup entry `Arvectum Proxy Launcher.cmd` with a 12-second logon delay and canonical `--start`; live idempotency test PASS."
-current: "BitLocker full removal is blocked only by Windows elevation. Remote Start-Process -Verb RunAs returned an InvalidOperation/user-cancelled result and no UAC prompt became visible to the local user, so the non-elevated RDC session cannot start decryption. User must run one elevated local PowerShell/Terminal command to start `manage-bde -off C:`."
+  - "Local elevated `manage-bde -off C:` was run by the user. BitLocker event log Event ID 770 at 2026-09-16 20:45:33 confirms: `BitLocker decryption was started for volume C:`."
+current: "Windows C: BitLocker decryption is actively in progress after a successful local elevated start. The non-elevated RDC session cannot query the BitLocker provider directly, so completion is being monitored via the BitLocker Management event log. RDC permanent-only state and current Proxy Launcher runtime remain healthy."
 pending:
-  - "User opens Windows Terminal/PowerShell as Administrator and starts full C: decryption with manage-bde -off C:."
-  - "After decryption starts, verify progress and wait for fully decrypted state."
+  - "Wait for/verify BitLocker full decryption completion (event-log completion evidence and/or local elevated status if needed)."
   - "Perform final clean Windows reboot test with no manual network repair: verify RDC autostart and Proxy Launcher autostart/network recovery."
-  - "Return to RED OS once more if needed to confirm default/current-kernel path; mark task completed when all DoD items pass."
-last_verified_commit: "a70baa96b649217d3dc11b428bfa7686118df496"
+  - "Perform one final RED OS default/current-kernel boot from the unified menu after the final cross-OS cycle, then mark task completed when all DoD items pass."
+last_verified_commit: "cf07adc3726497002c9a285d90c6fd26f3b5e671"
 test_results:
   - "RED OS Boot0006 post-repair reboot: PASS."
   - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
@@ -51,6 +51,11 @@ test_results:
   - "Windows permanent RDC Startup/sole connector: PASS."
   - "Windows Proxy Launcher 0.2.5 current runtime/listeners: PASS."
   - "Windows explicit Proxy Launcher Startup script creation + live idempotency test: PASS; reboot test pending."
-  - "Remote UAC/elevation for BitLocker disable: BLOCKED; no visible prompt, local elevated action required."
+  - "BitLocker decryption start: PASS, event ID 770 confirms C: decryption began at 20:45:33."
   - "BitLocker restore requirement: REMOVED by user for ARVECTUM-DEMO demo stand."
-resume_instruction: "Current OS is Windows on ARVECTUM-DEMO. RDC is now clean and permanent-only; Proxy Launcher 0.2.5 is healthy and has a Startup script, but its real reboot/network-recovery test is still pending. Remote UAC elevation did not surface locally, so ask the user to open Windows Terminal or PowerShell as Administrator and run `manage-bde -off C:` (optionally followed by `manage-bde -status C:`). Once decryption has started, verify from RDC, wait for fully decrypted, then do one final Windows reboot without manual network repair and confirm automatic RDC + Proxy Launcher. Do not re-enable BitLocker."}
+resume_instruction: "Current OS is Windows on ARVECTUM-DEMO. BitLocker C: decryption has started successfully (BitLocker Management event ID 770 at 20:45:33). RDC is clean/permanent-only and Proxy Launcher 0.2.5 is healthy with an explicit Startup script. Continue monitoring decryption via the BitLocker Management event log because the RDC session is non-elevated. Once fully decrypted, perform a clean Windows reboot without manual network repair and confirm automatic RDC + Proxy Launcher/network. Then do one final RED OS default/current-kernel boot from the unified menu and mark the task completed. Do not re-enable BitLocker."
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "2026-09-15-redos-install"
+  branch: "agent/redos-prep"
+  manual_override: true
