@@ -67,6 +67,7 @@ class VersionPolicyTests(unittest.TestCase):
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-macos-arm64.dmg", policy_text)
+        self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz", policy_text)
         self.assertIn("SHA256SUMS.txt", policy_text)
 

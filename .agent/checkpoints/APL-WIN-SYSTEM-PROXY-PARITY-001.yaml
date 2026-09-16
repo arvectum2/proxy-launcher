@@ -1,0 +1,36 @@
+version: 2
+repository: arvectum2/proxy-launcher
+status: completed
+task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
+goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
+authority: HUMAN
+definition_of_done:
+  - "Identify the exact Linux 0.2.6 integration defect and the Windows equivalent system-proxy publication path."
+  - "Audit Windows browser/system-proxy behavior for Firefox and Chromium-family consumers against the implemented Windows proxy settings."
+  - "Run relevant deterministic Windows proxy tests and Windows CI verification."
+  - "If a defect exists, implement the smallest production-safe fix with rollback/recovery regression coverage; otherwise document evidence that no analogous defect exists."
+  - "Record final verified commit and test evidence and mark this checkpoint completed."
+completed:
+  - "Loaded the completed APL-LNX-011 checkpoint and confirmed the Linux root cause: Firefox network.proxy.type=5 consumed desktop GSettings while 0.2.5 only published PAC through NetworkManager; 0.2.6 added governed GSettings PAC integration."
+  - "Audited windows_system_proxy.py: Windows publishes the PAC directly to HKCU WinINET AutoConfigURL, sets ProxyEnable=0, preserves/restores prior Internet Settings, updates per-user proxy environment, and calls InternetSetOptionW SETTINGS_CHANGED/REFRESH."
+  - "Verified current Firefox documentation describes Use system proxy settings as consuming OS proxy configuration; Mozilla Windows support material identifies the Windows/IE LAN settings, while Chromium documents WinINET system proxy use on Windows."
+  - "Confirmed WinHTTP is an intentionally separate documented product boundary, not the browser/system-proxy settings plane involved in the Linux defect."
+  - "Added explicit successful-enable regression coverage for WinINET PAC publication and refresh semantics."
+  - "Focused Windows proxy/backend/core regression: 71 passed + 3 subtests passed."
+current: null
+pending: []
+last_verified_commit: "0bdd79ebc9ab4dff01ee97eb0d833325b079e388"
+test_results:
+  - "Focused: python3 -m pytest -q tests/test_windows_system_proxy.py tests/test_windows_backend.py tests/test_proxy_core.py => 71 passed, 3 subtests passed."
+  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure."
+  - "GitHub Actions APL-IP-003 canonical source on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: Windows SUCCESS, macOS SUCCESS, Ubuntu SUCCESS."
+  - "GitHub Actions Windows P0 portable on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: SUCCESS, including canonical Windows clean build and unit discovery."
+updated_at: "2026-09-15T06:18:00Z"
+resume_instruction: null
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: "audit/windows-system-proxy-parity"
+  base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
+  lease_until: null
+  manual_override: false

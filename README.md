@@ -1,190 +1,110 @@
 # Arvectum Proxy Launcher
 
-Arvectum Proxy Launcher — локальный Windows-клиент для маршрутизации трафика через настроенный upstream HTTP proxy с локальными HTTP, SOCKS5 и PAC endpoint'ами. Правила `no_proxy.txt` отправляют указанный трафик напрямую.
+Arvectum Proxy Launcher — кроссплатформенный локальный клиент для безопасного управления системным proxy/PAC, `no_proxy`, локальными HTTP/SOCKS5 endpoint'ами и восстановления сетевых настроек.
 
-Arvectum Proxy Launcher is a local Windows client for routing traffic through a configured upstream HTTP proxy while exposing local HTTP, SOCKS5 and PAC endpoints. Entries in `no_proxy.txt` are routed directly.
+Arvectum Proxy Launcher is a cross-platform local client for safe system proxy/PAC management, `no_proxy`, local HTTP/SOCKS5 endpoints, and network-settings recovery.
 
 ## Текущий релиз / Current release
 
-**Windows 0.2.5** — текущий публичный стабильный релиз.
+**0.2.6** — стабильный релиз для **Windows x64** и **Astra Linux 1.8 x86-64**.
 
-- Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5
-- Independent GitVerse mirror: open https://gitverse.ru/arvectum, choose repository `proxy-launcher`, then **Releases / Релизы**
-- GitVerse mirror format and verification: [docs/releases/0.2.5-gitverse-mirror.md](docs/releases/0.2.5-gitverse-mirror.md)
-- Tag: `v0.2.5`
-- Accepted product source: `9e8ca7e851563082cd7d03d7543ccb360a37ec27`
-- Release governance commit: `6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85`
-- Full bilingual release notes: [docs/releases/0.2.5.md](docs/releases/0.2.5.md)
+- Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.6
+- Independent GitVerse mirror: https://gitverse.ru/arvectum/proxy-launcher/releases
+- Tag: `v0.2.6`
+- Full bilingual release notes: [docs/releases/0.2.6.md](docs/releases/0.2.6.md)
+- GitVerse mirror details: [docs/releases/0.2.6-gitverse-mirror.md](docs/releases/0.2.6-gitverse-mirror.md)
+
+### Release assets
+
+GitHub publishes the canonical package bytes under their original names:
+
+- `Arvectum-Proxy-Launcher-0.2.6-windows-x64-setup.exe`
+- `Arvectum-Proxy-Launcher-0.2.6-windows-x64-portable.zip`
+- `Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb`
+- `SHA256SUMS.txt`
+
+Verify all three packages against `SHA256SUMS.txt` before installation when provenance matters.
 
 ---
 
 # Русский
 
-## Быстрая установка на Windows
+## Windows
 
-1. Откройте официальный релиз [`v0.2.5`](https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5).
-2. Скачайте `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe`.
-3. Запустите скачанный файл.
-4. Windows может показать окно **Microsoft Defender SmartScreen — «Система Windows защитила компьютер»**, потому что версия 0.2.5 пока не имеет Microsoft Authenticode-подписи.
-5. В этом окне нажмите **«Подробнее»**, затем **«Выполнить в любом случае»**.
-6. Если появится стандартный запрос UAC, подтвердите запуск установщика.
-7. После установки запускайте **Arvectum Proxy Launcher** из меню «Пуск».
+Для обычной установки скачайте `Arvectum-Proxy-Launcher-0.2.6-windows-x64-setup.exe` и запустите Setup. Windows может показать SmartScreen для неизвестного издателя: релиз 0.2.6 не заявляет Microsoft Authenticode-подпись. Отключать Defender, SmartScreen или Controlled Folder Access не требуется.
 
-**Не отключайте Microsoft Defender, SmartScreen или Controlled Folder Access.** Для установки это не требуется.
+Приложение устанавливается для текущего пользователя в `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. Portable-вариант доступен как `Arvectum-Proxy-Launcher-0.2.6-windows-x64-portable.zip`.
 
-Приложение устанавливается для текущего пользователя в:
+## Astra Linux
 
-```text
-%LOCALAPPDATA%\Programs\ArvectumProxyLauncher
+Пакет `Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb` предназначен для Astra Linux 1.8 x86-64 и Debian-совместимых систем с NetworkManager и GSettings (`libglib2.0-bin`). Установка:
+
+```bash
+sudo apt install ./Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb
 ```
 
-Рабочие настройки и изменяемые данные хранятся отдельно в LocalAppData.
+Запуск после установки:
 
-### Независимое зеркало GitVerse
-
-Релиз также зеркалируется в GitVerse: откройте https://gitverse.ru/arvectum, выберите репозиторий `proxy-launcher` и вкладку **«Релизы»**.
-
-GitHub остаётся канонической страницей с 9 файлами под исходными именами. GitVerse принимает напрямую не все расширения release assets, поэтому `.exe`, `.json`, `.sig`, `.cer`, `.cmd` и `.ps1` на зеркале помещены в однофайловые `.zip`-обёртки. Внутри находятся исходные файлы без изменений; workflow зеркала скачивает их обратно и проверяет канонический SHA-256 каждого из 9 payload.
-
-Для установки из GitVerse скачайте `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe.zip`, распакуйте один раз и используйте находящийся внутри исходный Setup. Подробнее: [формат и проверка GitVerse mirror](docs/releases/0.2.5-gitverse-mirror.md).
-
-## Проверка скачанного Setup
-
-SHA-256 официального Setup 0.2.5:
-
-```text
-9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3
+```bash
+arvectum-proxy-launcher
 ```
 
-Проверка в PowerShell:
+В 0.2.6 исправлен путь **Firefox → «Использовать системные настройки прокси»** на Astra/Fly: Proxy Launcher публикует PAC не только через NetworkManager, но и в desktop GSettings, сохраняя rollback/recovery и защиту от чужих изменений.
 
-```powershell
-Get-FileHash "$env:USERPROFILE\Downloads\Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe" -Algorithm SHA256
-```
+## GitVerse
 
-Если хэш не совпадает, файл не запускайте и скачайте его заново с официальной страницы релиза.
+GitVerse является независимым российским зеркалом публичного релиза. Из-за ограничений форматов release assets `.exe` и `.deb` транспортируются там как детерминированные однофайловые `.zip`-обёртки. Внутри лежат исходные канонические файлы без изменения байтов; workflow зеркала повторно проверяет SHA-256 каждого payload после публичного скачивания.
 
-## Portable-версия
+Для Astra Linux скачайте `Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb.zip`, распакуйте один раз и установите находящийся внутри `.deb`.
 
-Если установка не нужна, можно скачать:
+## Целостность и подпись
 
-```text
-Arvectum-Proxy-Launcher-0.2.5-windows-x64-portable.zip
-```
-
-SHA-256 portable ZIP:
-
-```text
-5543419da395370599f2609ad6056da393470280d99b21ef342223d01906402e
-```
-
-## Подпись российского релиза
-
-Релиз 0.2.5 имеет отдельную российскую цепочку подтверждения целостности: SHA-256 manifest + detached CryptoPro/Rutoken signature сертификатом ООО «Арвектум». В assets релиза опубликованы `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `signer-certificate.cer`, `signing-evidence.json` и скрипты проверки.
-
-Эта подпись подтверждает происхождение и целостность опубликованного набора, но **не является Microsoft Authenticode-подписью EXE** и поэтому сама по себе не убирает предупреждение SmartScreen.
+`SHA256SUMS.txt` в релизе 0.2.6 покрывает Windows portable, Windows Setup и Astra Linux DEB. Российская detached CryptoPro/Rutoken-подпись, опубликованная для исторического релиза 0.2.5, не переносится автоматически на 0.2.6; этот релиз не заявляет такую подпись до отдельного owner-operated signing gate.
 
 ---
 
 # English
 
-## Quick Windows installation
+## Windows
 
-1. Open the official [`v0.2.5` release](https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.5).
-2. Download `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe`.
-3. Run the downloaded file.
-4. Windows may show **Microsoft Defender SmartScreen — “Windows protected your PC”** because version 0.2.5 does not yet carry a Microsoft Authenticode signature.
-5. Click **More info**, then **Run anyway**.
-6. Confirm the normal UAC prompt if shown.
-7. After installation, launch **Arvectum Proxy Launcher** from the Start menu.
+For a normal installation, download `Arvectum-Proxy-Launcher-0.2.6-windows-x64-setup.exe` and run Setup. Windows may show SmartScreen for an unrecognized publisher; release 0.2.6 does not claim Microsoft Authenticode signing. Defender, SmartScreen, and Controlled Folder Access do not need to be disabled.
 
-**Do not disable Microsoft Defender, SmartScreen or Controlled Folder Access.** Installation does not require disabling Windows security features.
+The application installs per-user under `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. A portable package is available as `Arvectum-Proxy-Launcher-0.2.6-windows-x64-portable.zip`.
 
-The application is installed for the current user under:
+## Astra Linux
 
-```text
-%LOCALAPPDATA%\Programs\ArvectumProxyLauncher
+`Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb` targets Astra Linux 1.8 x86-64 and compatible Debian-family systems with NetworkManager and GSettings (`libglib2.0-bin`). Install it with:
+
+```bash
+sudo apt install ./Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb
 ```
 
-Mutable application state and user settings are stored separately under LocalAppData.
+Then launch:
 
-### Independent GitVerse mirror
-
-The release is also mirrored on GitVerse: open https://gitverse.ru/arvectum, choose repository `proxy-launcher`, then open **Releases**.
-
-GitHub remains the canonical page exposing all 9 files under their original names. GitVerse does not accept every release-asset extension directly, so `.exe`, `.json`, `.sig`, `.cer`, `.cmd`, and `.ps1` files are carried as single-file `.zip` wrappers on the mirror. Each wrapper contains the unchanged canonical file, and the mirror workflow downloads all assets back and verifies all 9 canonical payload SHA-256 values.
-
-For installation from GitVerse, download `Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe.zip`, extract it once, and use the original Setup contained inside. See [GitVerse mirror format and verification](docs/releases/0.2.5-gitverse-mirror.md).
-
-## Verify the downloaded Setup
-
-Official 0.2.5 Setup SHA-256:
-
-```text
-9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3
+```bash
+arvectum-proxy-launcher
 ```
 
-PowerShell verification:
+Version 0.2.6 fixes the **Firefox → Use system proxy settings** path on Astra/Fly: Proxy Launcher publishes the PAC through both NetworkManager and desktop GSettings while preserving rollback/recovery and foreign-change protection.
 
-```powershell
-Get-FileHash "$env:USERPROFILE\Downloads\Arvectum-Proxy-Launcher-0.2.5-windows-x64-setup.exe" -Algorithm SHA256
-```
+## GitVerse
 
-If the hash does not match, do not run the file. Download it again from the official release page.
+GitVerse is maintained as an independent Russian release mirror. Because GitVerse restricts release-asset extensions, `.exe` and `.deb` payloads are transported in deterministic single-file `.zip` wrappers. The original canonical bytes remain unchanged and the mirror workflow re-verifies every canonical payload SHA-256 after public download.
 
-## Portable build
+For Astra Linux, download `Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb.zip`, extract it once, and install the enclosed `.deb`.
 
-If you do not want to install the application, download:
+## Integrity and signing
 
-```text
-Arvectum-Proxy-Launcher-0.2.5-windows-x64-portable.zip
-```
-
-Portable ZIP SHA-256:
-
-```text
-5543419da395370599f2609ad6056da393470280d99b21ef342223d01906402e
-```
-
-## Russian release signature
-
-Release 0.2.5 also carries a Russian integrity/provenance layer: a SHA-256 manifest and detached CryptoPro/Rutoken signature made with the certificate of ООО «Арвектум». The release assets include `SHA256SUMS.txt`, `SHA256SUMS.txt.sig`, `signer-certificate.cer`, `signing-evidence.json` and verification scripts.
-
-This verifies the integrity and provenance of the published release set, but it is **not a Microsoft Authenticode signature on the EXE**, so it does not by itself suppress SmartScreen warnings.
-
----
-
-## Release assets
-
-The public `v0.2.5` release contains the installer, portable package and the governed verification/evidence files. Published release assets and the `v0.2.5` tag are immutable under Arvectum release policy and must not be replaced in place.
-
-See [RELEASE_POLICY.md](RELEASE_POLICY.md) for versioning, provenance and release-governance rules.
+Release 0.2.6 `SHA256SUMS.txt` covers the Windows portable ZIP, Windows Setup, and Astra Linux DEB. The detached CryptoPro/Rutoken signature published for historical release 0.2.5 is not implicitly carried forward; 0.2.6 does not claim that signature until a separate owner-operated signing gate is completed.
 
 ## Build and test
 
-Canonical Windows build prerequisites: Windows x64 with Python 3.12.10 x64.
-
-PowerShell:
-
-```powershell
-pwsh -NoProfile -File .\tools\clean_build_windows.ps1
-pwsh -NoProfile -File .\tools\build_windows_installer.ps1
-```
-
-Windows PowerShell compatibility path:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\clean_build_windows.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\build_windows_installer.ps1
-```
+Canonical Windows builds use the pinned clean-build pipeline in `tools/clean_build_windows.ps1`. Canonical Astra/Linux DEB publication reuses the exact successful Ubuntu 22.04 artifact from the release commit's `main` CI run; the same source is also tested on Ubuntu 24.04.
 
 Source tests:
 
-```powershell
-python -m py_compile proxy_core.py proxy_gui.py
+```text
 python -m unittest discover -s tests -v
 ```
 
-## License and contribution
-
-See [LICENSE](LICENSE), [SECURITY](SECURITY), [CONTRIBUTING](CONTRIBUTING), and [CODE_OF_CONDUCT](CODE_OF_CONDUCT).
+See [RELEASE_POLICY.md](RELEASE_POLICY.md), [LICENSE](LICENSE), [SECURITY](SECURITY), [CONTRIBUTING](CONTRIBUTING), and [CODE_OF_CONDUCT](CODE_OF_CONDUCT).

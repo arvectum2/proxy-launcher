@@ -37,6 +37,7 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         for required in (
             "windows-p0.yml|Windows P0 portable|required",
             "windows-installer.yml|Windows installer|required",
+            "linux-deb.yml|APL-LNX-007 Debian package|required",
             "secret-scan.yml|Secret scan|optional",
             "dependency-scan.yml|Dependency vulnerability scan|optional",
             "sbom.yml|SBOM|required",
@@ -61,6 +62,9 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         self.assertIn("evidence/manifest.json", workflow)
         self.assertIn("evidence/source-inputs.sha256", workflow)
         self.assertIn(".github/workflows/release-evidence.yml", workflow)
+        self.assertIn(".github/workflows/linux-deb.yml", workflow)
+        self.assertIn(".github/workflows/release.yml", workflow)
+        self.assertIn(".github/workflows/sync-release-to-gitverse.yml", workflow)
         self.assertIn("SHA256SUMS.txt", workflow)
         self.assertIn("sha256sum -c SHA256SUMS.txt", workflow)
 

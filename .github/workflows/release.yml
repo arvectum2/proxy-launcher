@@ -12,6 +12,11 @@ on:
       - '.github/workflows/release.yml'
       - '.github/workflows/release-evidence.yml'
       - '.github/workflows/windows-p0.yml'
+      - '.github/workflows/linux-deb.yml'
+      - '.github/workflows/sync-release-to-gitverse.yml'
+      - 'build_linux.sh'
+      - 'tools/build_linux_deb.sh'
+      - 'docs/releases/*.md'
       - 'VERSION'
       - 'RELEASE_POLICY.md'
       - 'tests/test_release_automation.py'
@@ -35,6 +40,8 @@ jobs:
       artifact_name: ${{ steps.parse.outputs.artifact_name }}
       zip_name: ${{ steps.parse.outputs.zip_name }}
       setup_name: ${{ steps.parse.outputs.setup_name }}
+      linux_deb_name: ${{ steps.parse.outputs.linux_deb_name }}
+      linux_run_id: ${{ steps.parse.outputs.linux_run_id }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
       owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
@@ -67,6 +74,7 @@ jobs:
           ARTIFACT_NAME="Arvectum-Proxy-Launcher-${VERSION}-windows-x64-portable"
           ZIP_NAME="${ARTIFACT_NAME}.zip"
           SETUP_NAME="Arvectum-Proxy-Launcher-${VERSION}-windows-x64-setup.exe"
+          LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"
 
           PRERELEASE="false"
           if [[ "$VERSION" =~ - ]]; then
@@ -92,6 +100,7 @@ jobs:
           echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
           echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
           echo "setup_name=${SETUP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "linux_deb_name=${LINUX_DEB_NAME}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
           echo "owner_signed_release=${OWNER_SIGNED_RELEASE}" >> "$GITHUB_OUTPUT"
 
@@ -114,10 +123,14 @@ jobs:
             RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/runs?head_sha=${{ github.sha }}&branch=main&event=push" --jq '.workflow_runs')"
             SUCCESSFUL_PORTABLE_RUN="$(echo "$RUNS_JSON" | jq -e '.[] | select((.path == ".github/workflows/windows-p0.yml" or .name == "Windows P0 portable") and .conclusion == "success")' || true)"
             SUCCESSFUL_INSTALLER_RUN="$(echo "$RUNS_JSON" | jq -e '.[] | select((.path == ".github/workflows/windows-installer.yml" or .name == "Windows installer") and .conclusion == "success")' || true)"
-            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ]; then
-              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable and Windows installer push CI"
+            LINUX_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-deb.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
+            SUCCESSFUL_LINUX_RUN="$(echo "$LINUX_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
+            LINUX_RUN_ID="$(echo "$LINUX_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ]; then
+              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, and Linux Debian package push CI"
               exit 1
             fi
+            echo "linux_run_id=${LINUX_RUN_ID}" >> "$GITHUB_OUTPUT"
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
@@ -175,6 +188,9 @@ jobs:
       contents: write
       actions: read
     steps:
+      - name: Checkout release source
+        uses: actions/checkout@v4
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -187,11 +203,29 @@ jobs:
           name: ${{ needs.installer.outputs.artifact_name }}
           path: release-stage
 
+      - name: Download exact-main Astra/Linux Debian artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-linux
+          gh run download "${{ needs.validate.outputs.linux_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name apl-lnx-007-deb-ubuntu-22.04 \
+            --dir release-linux
+          source_deb="$(find release-linux -type f -name 'arvectum-proxy-launcher_*.deb' -print -quit)"
+          test -n "$source_deb"
+          test "$(dpkg-deb -f "$source_deb" Package)" = "arvectum-proxy-launcher"
+          test "$(dpkg-deb -f "$source_deb" Version)" = "${{ needs.validate.outputs.version }}"
+          test "$(dpkg-deb -f "$source_deb" Architecture)" = "amd64"
+          cp "$source_deb" "release-stage/${{ needs.validate.outputs.linux_deb_name }}"
+
       - name: Verify artifact package and calculate public SHA256SUMS
         run: |
           set -euo pipefail
           ZIP_NAME="${{ needs.validate.outputs.zip_name }}"
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
+          LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
           if [ ! -f "release-stage/${ZIP_NAME}" ]; then
             echo "::error::Expected release package 'release-stage/${ZIP_NAME}' not found"
             ls -la release-stage/
@@ -201,10 +235,15 @@ jobs:
             echo "::error::Expected release installer 'release-stage/${SETUP_NAME}' not found"
             exit 1
           fi
+          if [ ! -f "release-stage/${LINUX_DEB_NAME}" ]; then
+            echo "::error::Expected Astra/Linux package 'release-stage/${LINUX_DEB_NAME}' not found"
+            exit 1
+          fi
 
           cd release-stage
           sha256sum "$ZIP_NAME" > SHA256SUMS.txt
           sha256sum "$SETUP_NAME" >> SHA256SUMS.txt
+          sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt
           cat SHA256SUMS.txt
           sha256sum -c SHA256SUMS.txt
 
@@ -229,17 +268,35 @@ jobs:
           PRERELEASE="${{ needs.validate.outputs.prerelease }}"
           ZIP_NAME="${{ needs.validate.outputs.zip_name }}"
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
+          LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
 
           EXTRA_FLAGS=()
           if [ "$PRERELEASE" = "true" ]; then
             EXTRA_FLAGS+=("--prerelease" "--latest=false")
           fi
 
+          NOTES_ARGS=("--generate-notes")
+          if [ -f "docs/releases/${VERSION}.md" ]; then
+            NOTES_ARGS=("--notes-file" "docs/releases/${VERSION}.md")
+          fi
+
           gh release create "$TAG" \
             "release-stage/${ZIP_NAME}" \
             "release-stage/${SETUP_NAME}" \
+            "release-stage/${LINUX_DEB_NAME}" \
             "release-stage/SHA256SUMS.txt" \
             --title "Arvectum Proxy Launcher ${VERSION}" \
             --verify-tag \
-            --generate-notes \
+            "${NOTES_ARGS[@]}" \
             "${EXTRA_FLAGS[@]}"
+
+  gitverse:
+    name: Mirror release to GitVerse
+    needs:
+      - validate
+      - publish
+    if: github.event_name == 'push' && github.ref_type == 'tag' && needs.validate.outputs.should_publish == 'true'
+    uses: ./.github/workflows/sync-release-to-gitverse.yml
+    with:
+      tag: ${{ needs.validate.outputs.expected_tag }}
+    secrets: inherit
