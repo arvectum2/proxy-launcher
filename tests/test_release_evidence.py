@@ -32,6 +32,15 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         self.assertIn('git merge-base --is-ancestor "$SOURCE_SHA" origin/main', workflow)
         self.assertIn('test "$(git rev-parse HEAD)" = "$SOURCE_SHA"', workflow)
 
+    def test_automatic_evidence_skips_non_release_main_commits(self):
+        workflow = self.read(".github/workflows/release-evidence.yml")
+        self.assertIn("Determine automatic evidence eligibility", workflow)
+        self.assertIn("linux-deb.yml/runs?head_sha=${SOURCE_SHA}&event=push", workflow)
+        self.assertIn("Skipping release evidence", workflow)
+        self.assertIn("if: steps.eligibility.outputs.eligible == 'true'", workflow)
+        self.assertIn("if: steps.eligibility.outputs.eligible != 'true'", workflow)
+        self.assertIn("Manual evidence dispatch is fail-closed", workflow)
+
     def test_all_release_gates_are_collected_for_exact_push_sha(self):
         workflow = self.read(".github/workflows/release-evidence.yml")
         for required in (
@@ -85,6 +94,10 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         self.assertIn(".github/workflows/release-evidence.yml", release)
         self.assertIn("Release Evidence Package", release)
         self.assertIn("SUCCESSFUL_EVIDENCE_RUN", release)
+        self.assertIn("EVIDENCE_RUN_ID", release)
+        self.assertIn("EXPECTED_EVIDENCE_ARTIFACT", release)
+        self.assertIn("arvectum-proxy-launcher-release-evidence-${{ github.sha }}", release)
+        self.assertIn("actions/runs/${EVIDENCE_RUN_ID}/artifacts", release)
         self.assertIn("release-evidence.yml/runs?head_sha=${{ github.sha }}", release)
         self.assertIn('.conclusion == "success"', release)
 

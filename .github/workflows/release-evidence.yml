@@ -64,7 +64,42 @@ jobs:
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           git merge-base --is-ancestor "$SOURCE_SHA" origin/main
 
+      - name: Determine automatic evidence eligibility
+        id: eligibility
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+            echo "Manual evidence dispatch is fail-closed and always attempts full exact-SHA packaging."
+            exit 0
+          fi
+
+          eligible=false
+          for attempt in $(seq 1 6); do
+            response="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/linux-deb.yml/runs?head_sha=${SOURCE_SHA}&event=push&per_page=20")"
+            if jq -e --arg sha "$SOURCE_SHA" '
+              .workflow_runs | any(.head_sha == $sha and .event == "push")
+            ' <<< "$response" >/dev/null; then
+              eligible=true
+              break
+            fi
+            sleep 5
+          done
+          echo "eligible=$eligible" >> "$GITHUB_OUTPUT"
+          if [ "$eligible" != true ]; then
+            echo "::notice::Skipping release evidence for ${SOURCE_SHA}: no exact-SHA Linux Debian push run exists, so this main commit is not release-evidence eligible."
+          fi
+
+      - name: Explain ineligible automatic run
+        if: steps.eligibility.outputs.eligible != 'true'
+        run: echo "No release evidence artifact is produced for this non-release main commit."
+
       - name: Collect exact-SHA workflow evidence
+        if: steps.eligibility.outputs.eligible == 'true'
         id: gates
         shell: bash
         env:
@@ -176,6 +211,7 @@ jobs:
           rm -rf evidence/gates
 
       - name: Download exact SBOM and SAST reports
+        if: steps.eligibility.outputs.eligible == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -195,6 +231,7 @@ jobs:
             --dir evidence/sast
 
       - name: Verify included scanner reports
+        if: steps.eligibility.outputs.eligible == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -223,6 +260,7 @@ jobs:
           PY
 
       - name: Record source identity and immutable inputs
+        if: steps.eligibility.outputs.eligible == 'true'
         shell: bash
         env:
           SOURCE_SHA: ${{ steps.source.outputs.sha }}
@@ -273,6 +311,7 @@ jobs:
             > evidence/source-inputs.sha256
 
       - name: Seal evidence package
+        if: steps.eligibility.outputs.eligible == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -285,6 +324,7 @@ jobs:
           )
 
       - name: Upload release evidence package
+        if: steps.eligibility.outputs.eligible == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: arvectum-proxy-launcher-release-evidence-${{ steps.source.outputs.sha }}

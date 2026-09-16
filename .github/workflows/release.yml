@@ -134,8 +134,15 @@ jobs:
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
-            if [ -z "$SUCCESSFUL_EVIDENCE_RUN" ]; then
+            EVIDENCE_RUN_ID="$(echo "$EVIDENCE_RUNS_JSON" | jq -r '[.[] | select(.name == "Release Evidence Package" and .conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_EVIDENCE_RUN" ] || [ -z "$EVIDENCE_RUN_ID" ]; then
               echo "::error::Commit ${{ github.sha }} requires a successful Release Evidence Package for the exact main SHA"
+              exit 1
+            fi
+            EVIDENCE_ARTIFACTS="$(gh api "repos/${{ github.repository }}/actions/runs/${EVIDENCE_RUN_ID}/artifacts?per_page=100")"
+            EXPECTED_EVIDENCE_ARTIFACT="arvectum-proxy-launcher-release-evidence-${{ github.sha }}"
+            if ! jq -e --arg name "$EXPECTED_EVIDENCE_ARTIFACT" '.artifacts | any(.name == $name and .expired == false)' <<< "$EVIDENCE_ARTIFACTS" >/dev/null; then
+              echo "::error::Successful Release Evidence Package run ${EVIDENCE_RUN_ID} has no live exact-SHA evidence artifact '${EXPECTED_EVIDENCE_ARTIFACT}'"
               exit 1
             fi
 
