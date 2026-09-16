@@ -1,36 +1,68 @@
 version: 2
 repository: arvectum2/proxy-launcher
+task_id: APL-REDOS-002
 status: completed
-task_id: APL-WIN-SYSTEM-PROXY-PARITY-001
-goal: "Verify that the Windows build does not have an integration gap analogous to the Astra/Fly Firefox system-proxy defect fixed for Linux 0.2.6, and fix it if present."
-authority: HUMAN
+goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
-  - "Identify the exact Linux 0.2.6 integration defect and the Windows equivalent system-proxy publication path."
-  - "Audit Windows browser/system-proxy behavior for Firefox and Chromium-family consumers against the implemented Windows proxy settings."
-  - "Run relevant deterministic Windows proxy tests and Windows CI verification."
-  - "If a defect exists, implement the smallest production-safe fix with rollback/recovery regression coverage; otherwise document evidence that no analogous defect exists."
-  - "Record final verified commit and test evidence and mark this checkpoint completed."
+  - "RED OS installed only on p6/p7."
+  - "Windows, Astra and RED OS all boot from the unified menu."
+  - "ARVECTUM-DEMO remains a low-complexity demo stand; BitLocker is not required and must not be re-enabled as part of this task."
 completed:
-  - "Loaded the completed APL-LNX-011 checkpoint and confirmed the Linux root cause: Firefox network.proxy.type=5 consumed desktop GSettings while 0.2.5 only published PAC through NetworkManager; 0.2.6 added governed GSettings PAC integration."
-  - "Audited windows_system_proxy.py: Windows publishes the PAC directly to HKCU WinINET AutoConfigURL, sets ProxyEnable=0, preserves/restores prior Internet Settings, updates per-user proxy environment, and calls InternetSetOptionW SETTINGS_CHANGED/REFRESH."
-  - "Verified current Firefox documentation describes Use system proxy settings as consuming OS proxy configuration; Mozilla Windows support material identifies the Windows/IE LAN settings, while Chromium documents WinINET system proxy use on Windows."
-  - "Confirmed WinHTTP is an intentionally separate documented product boundary, not the browser/system-proxy settings plane involved in the Linux defect."
-  - "Added explicit successful-enable regression coverage for WinINET PAC publication and refresh semantics."
-  - "Focused Windows proxy/backend/core regression: 71 passed + 3 subtests passed."
-current: null
+  - "RED OS 8.0.3 installed on p6/p7; p1-p5 preserved."
+  - "RED OS Boot0006 repaired and real reboot test PASS; BootCurrent=0006."
+  - "RED OS is running kernel 6.12.101-1.red80.x86_64; previous 6.12.92 retained as rollback kernel plus rescue entry."
+  - "Windows and Astra both booted successfully after RED OS installation."
+  - "Windows Proxy Launcher 0.2.5 installed, configured and working; obsolete Windows launcher/test artifacts cleaned."
+  - "Windows RTC UTC interoperability fixed."
+  - "RED OS Desktop Commander persistence configured with ~/.config/systemd/user/desktop-commander-remote.service and permanent ~/.local/share/desktop-commander copy."
+  - "Removed obsolete RED OS KDE RDC autostart and stale ~/.npm/_npx cache."
+  - "Root GRUB/BLS inspection completed. BLS contains current 6.12.101, fallback 6.12.92 and rescue; grubby default-kernel is 6.12.101 and default-index is 0."
+  - "Confirmed repaired /boot/efi/EFI/redos/grub.cfg is owned by grub2-efi-x64 and grub2-common scriptlet preserves an already-unified EFI stub."
+  - "Backed up /etc/default/grub, /etc/grub.d/40_custom and /boot/grub2/grub.cfg with timestamp 20260916-160707."
+  - "Installed explicit chainloader entries for Windows 11 and Astra Linux 1.8 using shared ESP UUID 3EE2-B918; verified both EFI targets exist before regeneration."
+  - "Set GRUB_TIMEOUT_STYLE=menu and GRUB_DISABLE_OS_PROBER=true; kept BLS enabled and retained rollback/rescue kernels."
+  - "Regenerated /boot/grub2/grub.cfg atomically; grub2-script-check PASS; EFI stub remained unchanged."
+  - "User clarified ARVECTUM-DEMO is the disposable/low-data three-OS demo stand, distinct from the Windows development laptop whose user is GN. Do not restore BitLocker on this stand."
+  - "Explicit `Astra Linux 1.8` entry from RED OS GRUB runtime test: PASS."
+  - "Astra clean GUI boot retest: PASS. fly-dm is enabled+active; Xorg :0 vt7 and fly-wm started automatically; zero failed systemd units."
+  - "Astra Desktop Commander 0.2.50 migrated to permanent ~/.local/share/desktop-commander and enabled user systemd autostart; sole-connector/ping PASS; stale ~/.npm/_npx removed."
+  - "Explicit `Windows 11` entry from RED OS GRUB runtime test: PASS; Windows booted normally."
+  - "Windows RDC Startup entry `Arvectum Desktop Commander.cmd` launches the permanent `%LOCALAPPDATA%\\Programs\\DesktopCommander` copy automatically after logon."
+  - "Windows RDC duplicate manual npx tree removed; stale npm-cache/_npx removed; current connector uses only the permanent copy."
+  - "Windows Proxy Launcher runtime verified: v0.2.5 core listens on 127.0.0.1 ports 1080/8080/8082 and enables PAC at http://127.0.0.1:8082/proxy.pac."
+  - "Added Windows Startup entry `Arvectum Proxy Launcher.cmd` with a 12-second logon delay and canonical `--start`; live idempotency test PASS."
+  - "Local elevated `manage-bde -off C:` was run by the user. BitLocker event log Event ID 770 at 2026-09-16 20:45:33 confirms decryption started for C:."
+  - "Final default RED OS boots reach desktop on kernel 6.12.101 with BootCurrent=0006 and zero failed system units."
+  - "Diagnosed RED OS RDC cold-boot failure as startup-before-network combined with a three-hour RTC transition. RED OS is configured for UTC RTC and the RDC unit now gates on `/usr/bin/nm-online -q --timeout=60`, RestartSec=10."
+  - "RED OS automatic RDC cold-reboot proof after hardening: PASS. Without any manual RDC command, `arvectumredos` came online and answered ping; the user service is enabled+active, NRestarts=0, and starts when Wi-Fi reaches CONNECTED_GLOBAL."
+  - "RED OS kernel 6.12.101, BootCurrent=0006, zero failed system units and NTP health PASS on final control boot."
+  - "Final clean Windows 11 boot from unified RED OS GRUB: PASS. User performed no manual network repair and did not manually start RDC or Proxy Launcher."
+  - "Windows RDC final autostart proof: PASS. ARVECTUM-DEMO came online automatically and answered ping; permanent RDC process started after logon from `%LOCALAPPDATA%\\Programs\\DesktopCommander`."
+  - "Windows Proxy Launcher final autostart proof: PASS. `--start` process appeared automatically after logon, ports 1080/8080/8082 are listening, PAC URL is set, local PAC returns HTTP 200, and an end-to-end HTTPS request through 127.0.0.1:8080 returned HTTP 200."
+  - "Windows network final clean boot: PASS. Wi-Fi is up and direct TCP connectivity to 1.1.1.1:443 succeeds without manual repair."
+  - "Cross-OS RTC interoperability final Windows check: PASS. Windows shows correct UTC+03 local time and registry `RealTimeIsUniversal=1` after RED OS UTC-RTC transition."
+  - "BitLocker final removal: PASS. Elevated `manage-bde -status C:` reports BitLocker Version=None, Conversion Status=Fully Decrypted, Percentage Encrypted=0.0%, Encryption Method=None, Protection Off, and no key protectors."
+  - "Final Windows RDC liveness after all checks: PASS; ARVECTUM-DEMO answered ping at 2026-09-16T19:21:46Z."
+current: "APL-REDOS-002 is complete. ARVECTUM-DEMO now has a validated Windows 11 + Astra Linux 1.8 + RED OS 8.0.3 triple-boot flow from the RED OS GRUB, persistent RDC on all three OSes, automatic Windows Proxy Launcher startup/network recovery, UTC-compatible RTC behavior, and BitLocker fully removed from the demo stand."
 pending: []
-last_verified_commit: "0bdd79ebc9ab4dff01ee97eb0d833325b079e388"
+last_verified_commit: "f8a155699882d6d32dd5590b553eb3c1260e16fc"
 test_results:
-  - "Focused: python3 -m pytest -q tests/test_windows_system_proxy.py tests/test_windows_backend.py tests/test_proxy_core.py => 71 passed, 3 subtests passed."
-  - "Local full unittest discovery on Mac executed 786 tests but had 4 import errors because Homebrew Python 3.14 lacks _tkinter; this is a local toolchain limitation, not a product/test failure."
-  - "GitHub Actions APL-IP-003 canonical source on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: Windows SUCCESS, macOS SUCCESS, Ubuntu SUCCESS."
-  - "GitHub Actions Windows P0 portable on exact head 0bdd79ebc9ab4dff01ee97eb0d833325b079e388: SUCCESS, including canonical Windows clean build and unit discovery."
-updated_at: "2026-09-15T06:18:00Z"
-resume_instruction: null
+  - "RED OS Boot0006/default path: PASS."
+  - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
+  - "RED OS UEFI: PASS, BootCurrent=0006."
+  - "RED OS failed system units: PASS, zero failed units."
+  - "RED OS RDC automatic cold-reboot autostart after nm-online hardening: PASS."
+  - "Astra explicit chainloader + GUI + permanent RDC autostart: PASS."
+  - "Windows explicit chainloader runtime: PASS."
+  - "Windows final clean RDC Startup: PASS; online automatically, ping PASS."
+  - "Windows final clean Proxy Launcher Startup: PASS; ports 1080/8080/8082, PAC HTTP 200, HTTPS-through-proxy HTTP 200."
+  - "Windows final network without manual repair: PASS."
+  - "Windows final clock/RTC: PASS; correct UTC+03 local time, RealTimeIsUniversal=1."
+  - "BitLocker decryption start: PASS, Event ID 770 at 20:45:33."
+  - "BitLocker full-decryption completion: PASS; Fully Decrypted, 0.0%, Protection Off, Encryption Method None, no key protectors."
+resume_instruction: "Task completed. No further action is required for APL-REDOS-002. Preserve the validated triple-boot/GRUB layout, keep BitLocker disabled on ARVECTUM-DEMO, and do not alter p1-p5 unless a new explicitly scoped task requires it."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: "audit/windows-system-proxy-parity"
-  base_commit: "e80ca58a7ee90ecb0cf3f86ec49bdb3c60f2a69d"
-  lease_until: null
-  manual_override: false
+  claimed_by: "ChatGPT"
+  execution_id: "2026-09-15-redos-install"
+  branch: "agent/redos-prep"
+  manual_override: true

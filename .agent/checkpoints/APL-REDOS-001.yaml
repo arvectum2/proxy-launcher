@@ -1,0 +1,31 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-REDOS-001
+status: completed
+goal: "Prepare the physical test laptop for a safe third-OS RED OS 8 installation alongside existing Windows and Astra Linux, and create verified RED OS installation media on windows-dev."
+definition_of_done:
+  - "Record the current test-laptop disk/UEFI layout and preserve Windows and Astra Linux partitions."
+  - "Download the current official RED OS 8 Standard x86_64 installation ISO and verify the publisher checksum."
+  - "Create and verify bootable RED OS installation media."
+  - "Prepare safe free space for RED OS without reinstalling Windows or Astra Linux."
+  - "Verify Astra boots normally after resize and record handoff into installation."
+completed:
+  - "Verified official RED OS 8.0.3 x86_64 ISO, size 6492782592 bytes, MD5 882b618822735bd7a32d2a002b683430 matching RED SOFT."
+  - "Created USB media in Rufus DD mode on positively identified removable USB and verified GPT/layout plus sampled content hashes against the source ISO."
+  - "Created and saved a 48-digit BitLocker Recovery Password outside the laptop; BitLocker protection remained disabled/suspended for boot changes."
+  - "Used RED OS rescue shell with installed systems unmounted."
+  - "Shrank Astra ext4 filesystem from ~170 GiB to 99 GiB; pre/post/final e2fsck checks completed cleanly."
+  - "Shrank Astra partition p5 to exactly 100 GiB: start 641441792s, end 851156991s."
+  - "Created exactly 70 GiB unallocated space: 851156992s..997957631s, before Windows Recovery p4 at 997957632s."
+  - "Windows p3, EFI p1, MSR p2, and Recovery p4 were not moved or reformatted."
+  - "Astra booted normally after resize. Root mounted from /dev/nvme0n1p5 ext4, 96.4G filesystem visible, ~13.1G used, ~78.3G available."
+  - "Astra root UUID remains 07487fa6-590f-4ed4-96ab-ec72d4dac1e1 and matches /etc/fstab. EFI UUID remains 3EE2-B918 and matches /etc/fstab."
+  - "UEFI still contains astralinux Boot0008 first and Windows Boot Manager Boot0002."
+last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
+test_results:
+  - "Astra post-resize boot: PASS."
+  - "Root mount/fs size: /dev/nvme0n1p5 ext4 96.4G, used 13.1G, avail 78.3G, 14%."
+  - "Disk geometry: p5 100 GiB at start sector 641441792; p4 still starts 997957632; implied unallocated interval exactly 70 GiB."
+  - "UEFI entries intact: astralinux 0008, Windows Boot Manager 0002."
+resume_instruction: "Preparation is complete. Start APL-REDOS-002: install RED OS 8.0.3 Standard Workstation from the verified USB into only the 70 GiB unallocated interval. Use manual/custom partitioning; preserve p1/p2/p3/p4/p5. Prefer a dedicated new EFI System Partition inside the 70 GiB free region rather than reusing the nearly-full existing 100 MiB ESP. After installation verify RED OS, Astra, and Windows boot paths before re-enabling BitLocker protection."
+completed_at: "2026-09-15T12:58:00Z"
