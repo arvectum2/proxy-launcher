@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REDOS-002
-status: blocked
+status: in_progress
 goal: "Install RED OS 8.0.3 as third OS beside Windows and Astra without modifying existing partitions p1-p5."
 definition_of_done:
   - "RED OS installed only on p6/p7."
@@ -14,7 +14,7 @@ completed:
   - "Windows and Astra both booted successfully after RED OS installation."
   - "Windows Proxy Launcher 0.2.5 installed, configured and working; obsolete Windows launcher/test artifacts cleaned."
   - "Windows RTC UTC interoperability fixed."
-  - "RED OS Desktop Commander persistence was configured with ~/.config/systemd/user/desktop-commander-remote.service and previously passed a sole-connector/ping test."
+  - "RED OS Desktop Commander persistence configured with ~/.config/systemd/user/desktop-commander-remote.service and permanent ~/.local/share/desktop-commander copy."
   - "Removed obsolete RED OS KDE RDC autostart and stale ~/.npm/_npx cache."
   - "Root GRUB/BLS inspection completed. BLS contains current 6.12.101, fallback 6.12.92 and rescue; grubby default-kernel is 6.12.101 and default-index is 0."
   - "Confirmed repaired /boot/efi/EFI/redos/grub.cfg is owned by grub2-efi-x64 and grub2-common scriptlet preserves an already-unified EFI stub."
@@ -32,21 +32,27 @@ completed:
   - "Windows Proxy Launcher runtime verified: v0.2.5 core listens on 127.0.0.1 ports 1080/8080/8082 and enables PAC at http://127.0.0.1:8082/proxy.pac."
   - "Added Windows Startup entry `Arvectum Proxy Launcher.cmd` with a 12-second logon delay and canonical `--start`; live idempotency test PASS."
   - "Local elevated `manage-bde -off C:` was run by the user. BitLocker event log Event ID 770 at 2026-09-16 20:45:33 confirms decryption started for C:."
-  - "Final physical reboot to the default RED OS path reached the RED OS desktop successfully according to the user."
-current: "Final RED OS reboot exposed a remaining persistence issue: after the RED OS desktop loaded, the `arvectumredos` Desktop Commander device did not come online. The stale Windows device record still appeared online in list_devices but did not answer ping, confirming the laptop is actually in RED OS. One local restart of the RED OS user service is required to regain remote access; then inspect the current-boot user-service journal and fix the boot/login autostart race before proceeding."
+  - "Final physical reboot to the default RED OS path reached the RED OS desktop successfully. Kernel 6.12.101, BootCurrent=0006 and zero failed system units reconfirmed."
+  - "Diagnosed RED OS RDC cold-boot failure: RED OS had RTC configured as LOCAL while Windows/Astra use UTC. On boot the clock was three hours wrong; chronyd stepped it by +10800.7s after Wi-Fi/NTP, invalidating the persisted RDC JWT during startup."
+  - "Converted RED OS RTC policy to UTC (`timedatectl set-local-rtc 0`) and corrected the temporary +3h clock shift with privileged `chronyc makestep` plus `hwclock --systohc --utc`. Current RTC is UTC and chrony reports zero system-time offset / Leap Normal."
+  - "Hardened RED OS RDC user unit with `ExecStartPre=/usr/bin/nm-online -q --timeout=60` and RestartSec=10 so it waits for real network connectivity before starting. Unit daemon-reloaded and current live service is enabled+active."
+current: "RED OS RTC and RDC startup race are repaired in the live system. One automatic cold reboot is required to prove the fix from boot with UTC RTC and nm-online gating. If arvectumredos reconnects automatically, verify boot time/chrony/journal and then proceed to the final clean Windows 11 reboot test with no manual network repair or Proxy Launcher start."
 pending:
-  - "User locally runs `systemctl --user restart desktop-commander-remote.service` in RED OS to restore RDC access."
-  - "After reconnect, inspect `systemctl --user status` and `journalctl --user -u desktop-commander-remote.service -b`; fix the RED OS autostart/reconnect race and prove it survives another login/boot."
-  - "Verify RED OS final kernel 6.12.101, BootCurrent=0006 and zero failed system units on this boot."
+  - "Reboot RED OS once more without manual RDC intervention; verify arvectumredos automatically reconnects, RTC remains UTC, no 3-hour clock step occurs, current kernel is 6.12.101, BootCurrent=0006 and zero failed system units."
   - "Reboot and select `Windows 11`; do not manually repair network or launch Proxy Launcher. Verify automatic RDC + Proxy Launcher/network after logon."
   - "Verify BitLocker reaches fully decrypted state."
   - "Mark task completed once RED OS automatic RDC and clean Windows autostart paths pass and C: is fully decrypted."
-last_verified_commit: "072da9a65961165a7174e3b2f8f46175aa602088"
+last_verified_commit: "a3f45810803cca51cfea79b9bd3e8c5ffc52db87"
 test_results:
   - "RED OS Boot0006 post-repair reboot: PASS."
-  - "RED OS current kernel before final cycle: PASS, 6.12.101-1.red80.x86_64."
-  - "RED OS UEFI/mounts before final cycle: PASS, p7=/, p6=/boot/efi, BootCurrent=0006."
-  - "RED OS systemd-managed RDC sole-connector prior live test: PASS, but final cold/login reboot autostart: FAIL/REPAIR NEEDED."
+  - "RED OS final default boot to desktop: PASS."
+  - "RED OS current kernel: PASS, 6.12.101-1.red80.x86_64."
+  - "RED OS UEFI/mounts: PASS, BootCurrent=0006 and p7/p6 layout previously verified."
+  - "RED OS failed system units: PASS, zero failed units."
+  - "RED OS RDC cold-boot autostart before RTC fix: FAIL; root cause identified as LOCAL-vs-UTC RTC 10800-second step plus startup-before-Wi-Fi."
+  - "RED OS RTC conversion: PASS live, RTC in local TZ=no and /etc/adjtime=UTC after correction."
+  - "RED OS chrony after correction: PASS, System time 0.000000000 seconds from NTP and Leap status Normal."
+  - "RED OS RDC hardened unit current-state test: PASS, enabled+active with nm-online ExecStartPre and permanent package. Cold reboot proof pending."
   - "Unified grub.cfg generation: PASS; grub2-script-check returned success."
   - "Explicit Astra chainloader runtime: PASS."
   - "Astra automatic GUI start: PASS; zero failed units."
@@ -56,8 +62,7 @@ test_results:
   - "Windows Proxy Launcher 0.2.5 current runtime/listeners: PASS."
   - "Windows explicit Proxy Launcher Startup script creation + live idempotency test: PASS; clean reboot test pending."
   - "BitLocker decryption start: PASS, event ID 770 confirms C: decryption began at 20:45:33."
-  - "Final default RED OS physical boot to desktop: PASS by user observation; RDC automatic reconnect on that boot: FAIL."
-resume_instruction: "Current OS is RED OS on ARVECTUM-DEMO. The desktop has loaded, but arvectumredos did not reconnect automatically. Ask the user only to run `systemctl --user restart desktop-commander-remote.service`; once the device is online, immediately inspect the service status and current-boot journal to identify why it failed to reconnect automatically. Fix persistence and prove it across another boot/login before moving to the final Windows clean-autostart test. Branch agent/redos-prep head before this checkpoint was 072da9a65961165a7174e3b2f8f46175aa602088. Do not re-enable BitLocker; decryption was already started on Windows."
+resume_instruction: "Current OS is RED OS on ARVECTUM-DEMO. The prior RDC boot failure is diagnosed and fixed: RED OS RTC was LOCAL while the shared triple-boot RTC is UTC, causing a 10800-second chrony step and RDC token failure; RTC is now UTC and corrected. The RDC user unit now waits for NetworkManager online for up to 60s before starting and restarts every 10s. Reboot RED OS once more and do not manually start RDC. If arvectumredos reconnects automatically, verify RTC/time/journal/kernel/BootCurrent/system health, then reboot and select Windows 11 for the final no-manual-intervention RDC + Proxy Launcher/network test. Verify BitLocker is fully decrypted and mark completed. Do not re-enable BitLocker."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
