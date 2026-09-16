@@ -25,7 +25,7 @@ completed:
   - "Inspected Astra bootloader defaults: GRUB_TIMEOUT=5 and GRUB_DISABLE_OS_PROBER=false; os-prober is installed."
   - "Windows Boot Manager boots successfully after the RED OS installation; user is at the Windows desktop."
   - "Windows `winget install OpenJS.NodeJS.LTS --source winget` successfully downloaded and hash-verified Node.js 24.19.0 MSI, but MSI installation failed with Windows Installer code 1625 because installation is prohibited by organization policy."
-current: "Need a non-MSI per-user Node.js installation on Windows so npm/npx can run without requiring blocked installer policy. Use the official Node.js ZIP distribution under the user profile, add its directory to the user PATH, then pair Remote Desktop Commander."
+current: "Install portable Node.js v24.19.0 on Windows. Direct Invoke-WebRequest currently follows the HKCU user proxy 68.209.60.141:8000 and fails with HTTP 407 because the authenticated-proxy wrapper/helper is not running; WinHTTP itself is configured for direct access. Use an authenticated per-command download or restore the existing wrapper, then extract under the user profile and avoid MSI."
 pending:
   - "Install portable/per-user Node.js from the official ZIP under the Windows user profile and verify node/npm/npx."
   - "Pair Remote Desktop Commander on Windows."
@@ -45,7 +45,8 @@ test_results:
   - "Astra automatic GUI start: INCONCLUSIVE/RETEST NEEDED. Initial Xorg started at ~6 s and terminated successfully at ~8 s; fly-dm stayed active without Xorg. Manual fly-dm restart produced healthy Xorg on vt7 and successful graphical login."
   - "Windows boot to desktop: PASS; remote verification pending Remote Desktop Commander setup."
   - "Windows Node.js MSI install: BLOCKED by organization policy (MSI exit code 1625); portable ZIP fallback required."
-resume_instruction: "On Windows, avoid the MSI installer. Download the official Node.js v24.19.0 win-x64 ZIP, extract it into a per-user directory such as `%LOCALAPPDATA%\\Programs\\nodejs`, prepend that extracted directory to the current and user PATH, verify `node -v`, `npm -v`, and `npx -v`, then run `npx @wonderwhy-er/desktop-commander@latest remote` and pair the device. Once online, remotely verify BitLocker protectors/status, disk layout and UEFI entries without enabling BitLocker. Then continue Astra GUI retest and RED OS post-update reboot, followed by unified GRUB menu setup/testing and finally BitLocker re-enable."
+  - "Windows portable ZIP download attempt: BLOCKED by HTTP 407 Proxy Authentication Required. WinHTTP reports direct access; HKCU Internet Settings ProxyServer=68.209.60.141:8000; no obvious proxy/px/cntlm/arvectum helper process is running."
+resume_instruction: "On Windows, do not retry MSI. For the Node.js v24.19.0 win-x64 ZIP, either restore the authenticated proxy wrapper/helper or use `Get-Credential` plus Invoke-WebRequest `-Proxy http://68.209.60.141:8000 -ProxyCredential $cred` so credentials are prompted interactively and not pasted into chat. Extract under `%LOCALAPPDATA%\\Programs\\nodejs`, prepend the extracted directory to the current PATH, persist the user PATH using registry cmdlets rather than blocked `[Environment]` static methods, verify `node -v`, `npm.cmd -v`, and `npx.cmd -v`, then run `npx.cmd @wonderwhy-er/desktop-commander@latest remote` and pair the device. Once online, remotely verify BitLocker protectors/status, disk layout and UEFI entries without enabling BitLocker. Then continue Astra GUI retest and RED OS post-update reboot, followed by unified GRUB menu setup/testing and finally BitLocker re-enable."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
