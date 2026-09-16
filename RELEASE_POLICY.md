@@ -22,7 +22,7 @@ MAJOR.MINOR.PATCH
 While product versions are below `1.0.0` (e.g. `0.2.3`), minor releases may contain non-backward-compatible improvements, accompanied by mandatory release notes.
 
 ### Current Version Status
-* **Canonical Product Version:** `0.2.3`
+* **Canonical Product Version:** `0.2.6`
 * The presence of a version number in code or documentation indicates the software version baseline, **not** that a public release has already been published.
 
 ## 3. Engineering Milestones vs. Product Versions
@@ -66,22 +66,23 @@ Canonical distribution flow:
 source change
   -> Pull Request
   -> main
-  -> green CI (via tools/clean_build_windows.ps1)
-  -> version consistency validation
+  -> green CI (exact-main Windows + Linux)
+  -> version consistency and release-evidence validation
   -> Git tag (vX.Y.Z)
   -> GitHub Release workflow (.github/workflows/release.yml)
-  -> canonical Windows build & smoke QA
-  -> public SHA256SUMS.txt generation
+  -> canonical Windows tag builds + reuse of exact-main Astra/Linux DEB
+  -> public SHA256SUMS.txt generation and verification
   -> GitHub Release publication
+  -> verified independent GitVerse mirror
 ```
 
 * **Workflow definition:** `.github/workflows/release.yml`.
 * **Real publication triggers:** Only pushes of matching SemVer tags (`v*.*.*`) can trigger publication.
 * **Tag consistency:** Pushed tag must strictly equal `v${VERSION}` (where `${VERSION}` is read from `VERSION`).
 * **Main ancestry:** Tagged commit must be an ancestor of `origin/main`.
-* **Prior green main CI:** Tagged commit must have a preceding successful push run on `main` for the canonical Windows workflow.
-* **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation and reusable Windows builds in safe dry-run mode and **never** publish releases.
-* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), and one external checksum manifest (`SHA256SUMS.txt`) covering both.
+* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, and the Linux Debian package workflow, plus a successful exact-SHA Release Evidence Package.
+* **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation/reusable build checks in safe dry-run mode and **never** publish releases.
+* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
 * **Prerelease handling:** SemVer prerelease identifiers (e.g. `0.2.4-rc.1`) are automatically flagged as GitHub prereleases.
 * **Immutability:** Existing GitHub Releases cannot be overwritten or clobbered (`--clobber` is prohibited). Duplicate release attempts fail.
 * **Developer workstation builds:** Binaries built on developer workstations are strictly for local testing and debugging. They are not canonical release artifacts.
@@ -111,7 +112,8 @@ Standard release filenames:
 The installer is built from the same portable application binary and `VERSION` using `tools/build_windows_installer.ps1`. The repository contains an **Authenticode foundation** in `tools/windows_authenticode.ps1` and `.github/workflows/windows-authenticode.yml`, but **production signing is not yet activated**. APL-REL-009 makes the Russian signing architecture canonical. When embedded production code signing is activated, the portable application executable must be signed before portable packaging, and the installer executable must be signed after Inno Setup compilation; both signatures must be verified against the expected publisher before final checksums. The final checksum manifest is then qualified-signed through the approved Russian Rutoken/CryptoPro path before publication.
 * **macOS Apple Silicon:** `Arvectum-Proxy-Launcher-X.Y.Z-macos-arm64.dmg`
 * **macOS Intel:** `Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg` (when supported)
-* **Linux x86_64:** `Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz`
+* **Astra Linux amd64:** `Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`
+* **Generic Linux x86_64 tarball:** `Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz` (development/future distribution track; not part of the 0.2.6 public release set)
 * **Checksum Manifest:** `SHA256SUMS.txt`
 
 ## 8. Checksum Manifest Policy
@@ -120,11 +122,11 @@ The installer is built from the same portable application binary and `VERSION` u
   ```text
   <sha256>  <filename>
   ```
-* For GitHub Releases, `SHA256SUMS.txt` must cover all final downloadable release packages (ZIP, EXE, DMG, tar.gz) and portable executables.
+* For GitHub Releases, `SHA256SUMS.txt` must cover every final downloadable product package (including ZIP, EXE, DEB, DMG or tar.gz artifacts where published).
 * Once the Russian production signing path is activated, checksum generation must occur after every byte-changing embedded signature operation, and the final manifest must be covered by the approved detached Russian electronic signature.
 
 ## 9. Platform Release Maturity
 
-* **Windows (0.2.3):** Verified production track with Documents handoff, LocalAppData isolation, DPAPI credential protection, rollback/recovery, and process-ownership enforcement.
+* **Windows (0.2.6):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
 * **macOS:** Retained for continued development; not verified for production release until dedicated CI build and verification gates are implemented.
-* **Linux:** Retained for continued development; not verified for production release until dedicated CI build and verification gates are implemented.
+* **Astra Linux (0.2.6):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance. РЕД ОС remains a separate compatibility/registry acceptance gate.

@@ -110,6 +110,27 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn('echo "should_publish=false"', release)
         self.assertIn("refs/heads/main", release)
 
+    def test_cross_platform_release_includes_exact_main_astra_deb(self):
+        release = self.read(".github/workflows/release.yml")
+        self.assertIn('LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"', release)
+        self.assertIn("linux-deb.yml/runs?head_sha=${{ github.sha }}", release)
+        self.assertIn("Linux Debian package push CI", release)
+        self.assertIn("apl-lnx-007-deb-ubuntu-22.04", release)
+        self.assertIn('sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt', release)
+        self.assertIn('"release-stage/${LINUX_DEB_NAME}"', release)
+
+    def test_release_calls_verified_gitverse_mirror(self):
+        release = self.read(".github/workflows/release.yml")
+        mirror = self.read(".github/workflows/sync-release-to-gitverse.yml")
+        self.assertIn("uses: ./.github/workflows/sync-release-to-gitverse.yml", release)
+        self.assertIn("secrets: inherit", release)
+        self.assertIn("workflow_call:", mirror)
+        self.assertIn("gh release download", mirror)
+        self.assertIn("SHA256SUMS.txt", mirror)
+        self.assertIn("single-file ZIP wrapper", mirror)
+        self.assertIn("Immutable GitVerse asset differs", mirror)
+        self.assertNotIn("DELETE", mirror)
+
 
 if __name__ == "__main__":
     unittest.main()
