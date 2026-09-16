@@ -23,9 +23,11 @@ completed:
   - "Astra UEFI verification PASS: BootCurrent=0008 astralinux; RED OS Boot0006 and Windows Boot0002 remain present; boot order is RED OS, Astra, Windows."
   - "Astra health verification PASS after graphical recovery: graphical.target/display-manager/fly-dm active, Xorg running on vt7, Wi-Fi up, zero failed systemd units."
   - "Inspected Astra bootloader defaults: GRUB_TIMEOUT=5 and GRUB_DISABLE_OS_PROBER=false; os-prober is installed."
-current: "Astra OS boot itself is healthy and storage/UEFI integrity is verified. On this first post-RED-OS Astra boot, fly-dm initially remained active while Xorg exited cleanly about 2 seconds after startup, leaving only tty login. A manual `sudo systemctl restart fly-dm` restored the graphical login/session; current Xorg and GUI are healthy. User also wants to simplify OS selection so changing between RED OS/Astra/Windows does not require entering the firmware/BIOS administrator password for F9. Preferred design after validation: keep a single default UEFI entry and configure a GRUB menu listing all three OSes, avoiding firmware boot-menu selection for normal use."
+  - "Windows Boot Manager now boots successfully after the RED OS installation; user is at the Windows desktop."
+current: "Windows boot path is confirmed to reach the desktop, but Remote Desktop Commander is not yet available because `npx` is not installed/in PATH on this Windows installation. Next install Node.js LTS (which includes npm/npx), pair Remote Desktop Commander, then remotely verify Windows BitLocker/partition/UEFI state without enabling BitLocker yet."
 pending:
-  - "User physically reboot and select Windows Boot Manager; verify normal Windows boot and disk/BitLocker state through Remote Desktop Commander."
+  - "Install Node.js LTS/npm/npx on Windows and pair Remote Desktop Commander."
+  - "Verify Windows disk/BitLocker status, recovery protector, and UEFI entries through Remote Desktop Commander without enabling BitLocker yet."
   - "Reboot Astra one more time and confirm fly-dm/Xorg reaches GUI without manual restart. If the anomaly repeats, diagnose/fix before completion."
   - "Verify RED OS Remote Desktop Commander KDE autostart and kernel 6.12.101 on the next RED OS login."
   - "After all three OS boot paths are verified, configure a unified GRUB boot menu (preferably on the default RED OS boot entry) with RED OS, Astra Linux and Windows Boot Manager entries and a short timeout, so normal OS selection does not require F9/BIOS administrator authentication. Test all three menu entries before BitLocker re-enable."
@@ -39,7 +41,8 @@ test_results:
   - "RED OS package freshness PASS; kernel 6.12.101 installed pending reboot."
   - "Astra post-RED-OS boot/storage/UEFI/network/systemd verification PASS."
   - "Astra automatic GUI start: INCONCLUSIVE/RETEST NEEDED. Initial Xorg started at ~6 s and terminated successfully at ~8 s; fly-dm stayed active without Xorg. Manual fly-dm restart produced healthy Xorg on vt7 and successful graphical login."
-resume_instruction: "From the current Astra desktop, have the user physically reboot and select `Windows Boot Manager`. Once Windows is up, use the existing Windows Remote Desktop Commander device to verify boot, partitions, BitLocker status/protectors, and UEFI entries without enabling BitLocker yet. Then retest Astra once more for automatic GUI startup and perform one RED OS post-update reboot. After all three boot paths pass, configure and test a unified GRUB menu to select RED OS/Astra/Windows without using the firmware F9 menu. Re-enable BitLocker only after the unified menu is also validated. Do not modify disk partitions."
+  - "Windows boot to desktop: PASS; remote verification pending Node.js/Remote Desktop Commander setup."
+resume_instruction: "On Windows, install Node.js LTS so npm/npx become available, then run `npx @wonderwhy-er/desktop-commander@latest remote` and pair the device. Once online, remotely verify BitLocker protectors/status, disk layout and UEFI entries without enabling BitLocker. Then continue Astra GUI retest and RED OS post-update reboot, followed by unified GRUB menu setup/testing and finally BitLocker re-enable."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
