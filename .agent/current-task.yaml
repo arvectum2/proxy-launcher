@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: blocked
 task_id: APL-REL-017-V0.2.6
 goal: Publish a clean stable v0.2.6 release containing Windows and Astra Linux artifacts on GitHub and an independently verified
   GitVerse mirror.
@@ -39,29 +39,46 @@ completed:
 - Immutable annotated tag v0.2.6 exists and points exactly to main commit 3b67aedfe02d996da9b9f442e53e8c0c896152bd.
 - Tag release workflow built Windows portable and installer successfully and downloaded the exact-main Astra DEB, but publication
   failed because the reusable installer artifact stores Setup under installer/; root cause identified and hotfix prepared.
-current: Fix release workflow nested installer artifact handling, publish v0.2.6 from already verified exact-tag/exact-main
-  artifacts, verify GitVerse mirror, and finish physical Astra validation.
+- GitHub v0.2.6 release published at https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.6 with Windows portable,
+  Windows Setup, Astra Linux amd64 DEB and SHA256SUMS; public re-download checksum verification PASS.
+- 'Public asset SHA-256: Windows portable 987535611a9c4127898b4d063b26d3eb79254ebe149887fd3fcd16fa617e4e64; Windows Setup
+  33d04b01702504b9ef81e7643b62baaa12a77545401cf54fe7979d6dd488d7db; Astra DEB 1176ca8c7a97d0eb173a76fd108460e9fada1bcb70fb1819029f299a30dcbc20.'
+- GitVerse v0.2.6 release published at https://gitverse.ru/arvectum/proxy-launcher/releases/tag/v0.2.6; mirror run 35148004635
+  verified all canonical payload hashes after download. Main idempotency run 35148469014 also PASS with existing immutable
+  assets.
+- 'PR #76 fixed nested Windows installer artifact normalization and GitVerse JSON transport compatibility; merged to main
+  at 0897891eea5cd80a98474d60c6afe77ec9f091fd after green CI.'
+- Exact-main Astra DEB downloaded to physical Astra stand at ~/Загрузки/ProxyLauncher-0.2.6-final/Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb
+  and SHA-256 verified as 1176ca8c7a97d0eb173a76fd108460e9fada1bcb70fb1819029f299a30dcbc20; package metadata and ELF payload
+  verified.
+current: Physical Astra package upgrade is waiting at the local sudo password prompt in Fly Terminal.
 pending:
-- Merge release installer-path hotfix for future releases.
-- Publish GitHub v0.2.6 from exact tag-run Windows artifacts plus exact-main Ubuntu 22.04 DEB and SHA256SUMS.
-- Run/verify GitVerse v0.2.6 mirror and canonical payload hashes.
-- Physically validate exact-main 0.2.6 DEB on Astra; sudo/password interaction may be required for package upgrade.
-- Close checkpoint with final release URLs, hashes and evidence.
-last_verified_commit: 3b67aedfe02d996da9b9f442e53e8c0c896152bd
+- On the Astra stand, enter the local sudo password in the already-open Fly Terminal so dpkg can replace installed 0.2.6-rc1
+  with exact public 0.2.6.
+- After installation, restart/launch Proxy Launcher, verify installed package version 0.2.6, autostart, system-proxy/PAC browser
+  path and rollback/recovery, then mark checkpoint completed.
+last_verified_commit: 0897891eea5cd80a98474d60c6afe77ec9f091fd
 test_results:
 - python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
 - /usr/bin/python3 -m unittest tests.test_version_policy -v => 5 passed.
 - PyYAML parse of release.yml, release-evidence.yml and sync-release-to-gitverse.yml => PASS.
 - python3 -m py_compile proxy_core.py => PASS; git diff --check => PASS.
 - 'Hotfix focused release/repository tests: 27 passed; git diff --check PASS.'
-updated_at: '2026-09-16T20:35:00Z'
-resume_instruction: Finish v0.2.6 publication using the immutable tag at 3b67aed and exact verified artifacts; do not move/recreate
-  the tag. Merge installer-path hotfix separately, verify GitVerse payload parity, physically validate exact-main DEB on Astra,
-  then mark completed.
+- 'GitHub public v0.2.6 re-download: SHA256SUMS verification PASS for all three product packages.'
+- 'GitVerse mirror run 35148004635: release metadata PASS; four assets uploaded; post-download canonical payload SHA-256 PASS.'
+- 'GitVerse main idempotency run 35148469014: existing immutable assets PASS; post-download canonical payload SHA-256 PASS.'
+- 'PR #76 exact-head CI: release validation, Windows P0, standalone/reusable Windows installers, SAST/SBOM/Gitleaks/provenance
+  all PASS.'
+updated_at: '2026-09-16T20:50:00Z'
+resume_instruction: First check whether the visible Astra Fly Terminal sudo install completed. If installed version is 0.2.6,
+  restart/launch the exact public package, verify autostart and PAC/system-proxy enable-disable rollback on the physical stand,
+  then update this checkpoint to completed. Do not move tag v0.2.6 or replace published release assets.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-017-20260916
-  branch: fix/v026-release-installer-path
-  base_commit: 3b67aedfe02d996da9b9f442e53e8c0c896152bd
-  lease_until: '2026-09-16T22:25:00Z'
+  branch: chore/v026-release-final-checkpoint
+  base_commit: 0897891eea5cd80a98474d60c6afe77ec9f091fd
+  lease_until: null
   manual_override: true
+blocker: Astra Linux requires interactive local sudo authentication to install the final public .deb. The password must be
+  entered locally on the stand and is not available to the agent.
