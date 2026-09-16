@@ -148,7 +148,7 @@ jobs:
             for attempt in $(seq 1 12); do
               create_status="$(curl -sS -o .gitverse-create.json -w '%{http_code}' -X POST \
                 -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json' \
-                "$API/repos/$OWNER/$REPO/releases" --data-binary @.gitverse-release-body.json)"
+                "$API/repos/$OWNER/$REPO/releases" --data-raw "$(cat .gitverse-release-body.json)")"
               if [ "$create_status" = 201 ]; then
                 cp .gitverse-create.json .gitverse-release.json
                 break
