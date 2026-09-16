@@ -22,12 +22,14 @@ completed:
   - "Astra storage verification PASS: root=/dev/nvme0n1p5 ext4 100 GiB, /boot/efi=/dev/nvme0n1p1 vfat 100 MiB; Windows p1-p4 and RED OS p6/p7 remain present and unmodified/unmounted by Astra."
   - "Astra UEFI verification PASS: BootCurrent=0008 astralinux; RED OS Boot0006 and Windows Boot0002 remain present; boot order is RED OS, Astra, Windows."
   - "Astra health verification PASS after graphical recovery: graphical.target/display-manager/fly-dm active, Xorg running on vt7, Wi-Fi up, zero failed systemd units."
-current: "Astra OS boot itself is healthy and storage/UEFI integrity is verified. On this first post-RED-OS Astra boot, fly-dm initially remained active while Xorg exited cleanly about 2 seconds after startup, leaving only tty login. A manual `sudo systemctl restart fly-dm` restored the graphical login/session; current Xorg and GUI are healthy. Treat this as a transient display-manager startup anomaly until one more Astra boot proves normal GUI startup. Next verify Windows Boot Manager, then retest Astra graphical startup before restoring BitLocker."
+  - "Inspected Astra bootloader defaults: GRUB_TIMEOUT=5 and GRUB_DISABLE_OS_PROBER=false; os-prober is installed."
+current: "Astra OS boot itself is healthy and storage/UEFI integrity is verified. On this first post-RED-OS Astra boot, fly-dm initially remained active while Xorg exited cleanly about 2 seconds after startup, leaving only tty login. A manual `sudo systemctl restart fly-dm` restored the graphical login/session; current Xorg and GUI are healthy. User also wants to simplify OS selection so changing between RED OS/Astra/Windows does not require entering the firmware/BIOS administrator password for F9. Preferred design after validation: keep a single default UEFI entry and configure a GRUB menu listing all three OSes, avoiding firmware boot-menu selection for normal use."
 pending:
   - "User physically reboot and select Windows Boot Manager; verify normal Windows boot and disk/BitLocker state through Remote Desktop Commander."
   - "Reboot Astra one more time and confirm fly-dm/Xorg reaches GUI without manual restart. If the anomaly repeats, diagnose/fix before completion."
   - "Verify RED OS Remote Desktop Commander KDE autostart and kernel 6.12.101 on the next RED OS login."
-  - "Only after Windows, Astra graphical retest, and RED OS post-update reboot all pass, re-enable BitLocker protection and confirm recovery protector remains available."
+  - "After all three OS boot paths are verified, configure a unified GRUB boot menu (preferably on the default RED OS boot entry) with RED OS, Astra Linux and Windows Boot Manager entries and a short timeout, so normal OS selection does not require F9/BIOS administrator authentication. Test all three menu entries before BitLocker re-enable."
+  - "Only after Windows, Astra graphical retest, RED OS post-update reboot, and unified boot-menu validation all pass, re-enable BitLocker protection and confirm recovery protector remains available."
 last_verified_commit: "04d5f9865b4e7e16c4e1828e239abb7635706ca1"
 test_results:
   - "Media verification PASS."
@@ -37,7 +39,7 @@ test_results:
   - "RED OS package freshness PASS; kernel 6.12.101 installed pending reboot."
   - "Astra post-RED-OS boot/storage/UEFI/network/systemd verification PASS."
   - "Astra automatic GUI start: INCONCLUSIVE/RETEST NEEDED. Initial Xorg started at ~6 s and terminated successfully at ~8 s; fly-dm stayed active without Xorg. Manual fly-dm restart produced healthy Xorg on vt7 and successful graphical login."
-resume_instruction: "From the current Astra desktop, have the user physically reboot and select `Windows Boot Manager`. Once Windows is up, use the existing Windows Remote Desktop Commander device to verify boot, partitions, BitLocker status/protectors, and UEFI entries without enabling BitLocker yet. Then retest Astra once more for automatic GUI startup. Also perform one RED OS post-update reboot to verify kernel 6.12.101 and Remote Desktop Commander autostart. Re-enable BitLocker only after all these checks pass. Do not modify disk partitions."
+resume_instruction: "From the current Astra desktop, have the user physically reboot and select `Windows Boot Manager`. Once Windows is up, use the existing Windows Remote Desktop Commander device to verify boot, partitions, BitLocker status/protectors, and UEFI entries without enabling BitLocker yet. Then retest Astra once more for automatic GUI startup and perform one RED OS post-update reboot. After all three boot paths pass, configure and test a unified GRUB menu to select RED OS/Astra/Windows without using the firmware F9 menu. Re-enable BitLocker only after the unified menu is also validated. Do not modify disk partitions."
 execution:
   claimed_by: "ChatGPT"
   execution_id: "2026-09-15-redos-install"
