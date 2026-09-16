@@ -66,7 +66,7 @@ Canonical distribution flow:
 source change
   -> Pull Request
   -> main
-  -> green exact-main Windows + Linux CI
+  -> green CI (exact-main Windows + Linux)
   -> version consistency and release-evidence validation
   -> Git tag (vX.Y.Z)
   -> GitHub Release workflow (.github/workflows/release.yml)
