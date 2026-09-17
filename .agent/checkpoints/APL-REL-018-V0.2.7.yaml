@@ -1,68 +1,78 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 task_id: APL-REL-018-V0.2.7
-goal: Publish a clean stable 0.2.7 release that distinguishes RED OS from Astra Linux
-  in product UX, ships the accepted RED OS RPM, leaves a clean installed RED OS application
-  with a user desktop shortcut on the physical stand, and mirrors the immutable release
-  to GitVerse.
+goal: Publish a clean stable 0.2.7 release that distinguishes RED OS from Astra Linux in product UX, ships the accepted
+  RED OS RPM, leaves a clean installed RED OS application with a user desktop shortcut on the physical stand, and
+  mirrors the immutable release to GitVerse.
 authority: HUMAN
 definition_of_done:
-- RED OS runtime is identified separately from Astra and displays the platform/version
-  signature as Linux / RED OS while Astra continues to display Linux / Astra Linux.
-- Canonical version is 0.2.7 and release metadata/tests are consistent with it without
-  mutating the immutable v0.2.6 release.
-- RED OS RPM packaging remains accepted and the release pipeline publishes an exact-main
-  RPM asset alongside Windows portable/setup and Astra DEB.
-- Relevant unit/package/release automation tests pass and exact-head CI is green before
-  merge/tag publication.
-- The exact public 0.2.7 RED OS RPM is installed on the physical RED OS 8.0.3 stand;
-  rpm -V and runtime/platform label are verified; a user-owned working desktop shortcut
-  is present.
-- GitHub v0.2.7 release is published with canonical assets and SHA256SUMS; GitVerse
-  mirrors the same canonical payloads (wrapping unsupported extensions losslessly)
-  and post-download hashes verify.
-- Final release/tag/main identities, package hashes and release URLs are recorded
-  and checkpoint status is completed.
+- RED OS runtime is identified separately from Astra and displays the platform/version signature as Linux / RED
+  OS while Astra continues to display Linux / Astra Linux.
+- Canonical version is 0.2.7 and release metadata/tests are consistent with it without mutating the immutable v0.2.6
+  release.
+- RED OS RPM packaging remains accepted and the release pipeline publishes an exact-main RPM asset alongside Windows
+  portable/setup and Astra DEB.
+- Relevant unit/package/release automation tests pass and exact-head CI is green before merge/tag publication.
+- The exact public 0.2.7 RED OS RPM is installed on the physical RED OS 8.0.3 stand; rpm -V and runtime/platform
+  label are verified; a user-owned working desktop shortcut is present.
+- GitHub v0.2.7 release is published with canonical assets and SHA256SUMS; GitVerse mirrors the same canonical payloads
+  (wrapping unsupported extensions losslessly) and post-download hashes verify.
+- Final release/tag/main identities, package hashes and release URLs are recorded and checkpoint status is completed.
 completed:
 - Recovered completed APL-REG-001C RED OS acceptance and merged main at c3389e82013431e91b2e35e3699e5dcfd6a158a7.
-- Confirmed immutable v0.2.6 policy: existing published release must not be modified
-    in place; 0.2.7 is the next clean stable release.
-- Confirmed current UX hard-codes Linux / Astra Linux and current release workflow
-  publishes Windows + Astra DEB but not RED OS RPM.
-- 'RED OS runtime/platform signature implemented: ID=redos -> Linux / RED OS; Astra
-  remains Linux / Astra Linux; generic Linux -> Linux.'
-- Canonical product version advanced to 0.2.7; Windows VERSIONINFO and release policy/docs
-  are consistent with the new patch release.
-- Added exact-main RED OS RPM CI workflow and extended release validation/publication
-  so SHA256SUMS and GitHub/GitVerse release sets include the RED OS RPM.
-- Release Evidence Package now requires the exact-SHA RED OS RPM workflow in addition
-  to existing release gates.
-- First PR RPM CI exposed non-executable builder invocation; workflow corrected to
-  invoke tools/build_linux_rpm.sh explicitly through bash at b043c716d897e2589d67a5d92988503f031de381.
-- 'PR CI concurrency hardened: release.yml no longer duplicates reusable Windows portable/installer
-  builds on pull_request; standalone Windows PR workflows remain authoritative while
-  tag/manual release builds are preserved.'
-- 'PR #84 merged to main as 2237c6eaa44a6cab11a074f127eb29d4914e224b after exact-head
-  CI 24/24 PASS.'
-- Historical v0.2.5 public-docs sync was found to trigger on generic README changes
-  and attempt obsolete GitVerse asset repair; trigger scope narrowed to immutable
-  0.2.5 release/evidence files or manual dispatch.
-current: Merge main-hygiene trigger fix, then wait for the new exact-main release
-  gates and Release Evidence Package before tagging v0.2.7.
-pending:
-- Implement and test RED OS-specific platform identification/signature while preserving
-  Astra behavior.
-- Extend canonical release automation with an exact-main RED OS RPM artifact and SHA256
-  manifest entry.
-- Bump canonical product version and release notes/contracts to 0.2.7.
-- Run focused/full tests, push PR, wait for exact-head CI, merge to main.
-- Publish immutable v0.2.7 GitHub release and verify all public hashes.
-- Verify GitVerse v0.2.7 mirror and canonical inner payload hashes.
-- Install exact public RPM on physical RED OS, verify runtime label/package integrity,
-  create and verify desktop shortcut.
-- Finalize release evidence/checkpoint as completed.
-last_verified_commit: 2237c6eaa44a6cab11a074f127eb29d4914e224b
+- Confirmed immutable v0.2.6 policy: existing published release must not be modified in place; 0.2.7 is the next
+    clean stable release.
+- Confirmed current UX hard-codes Linux / Astra Linux and current release workflow publishes Windows + Astra DEB
+  but not RED OS RPM.
+- 'RED OS runtime/platform signature implemented: ID=redos -> Linux / RED OS; Astra remains Linux / Astra Linux;
+  generic Linux -> Linux.'
+- Canonical product version advanced to 0.2.7; Windows VERSIONINFO and release policy/docs are consistent with the
+  new patch release.
+- Added exact-main RED OS RPM CI workflow and extended release validation/publication so SHA256SUMS and GitHub/GitVerse
+  release sets include the RED OS RPM.
+- Release Evidence Package now requires the exact-SHA RED OS RPM workflow in addition to existing release gates.
+- First PR RPM CI exposed non-executable builder invocation; workflow corrected to invoke tools/build_linux_rpm.sh
+  explicitly through bash at b043c716d897e2589d67a5d92988503f031de381.
+- 'PR CI concurrency hardened: release.yml no longer duplicates reusable Windows portable/installer builds on pull_request;
+  standalone Windows PR workflows remain authoritative while tag/manual release builds are preserved.'
+- 'PR #84 merged to main as 2237c6eaa44a6cab11a074f127eb29d4914e224b after exact-head CI 24/24 PASS.'
+- Historical v0.2.5 public-docs sync was found to trigger on generic README changes and attempt obsolete GitVerse
+  asset repair; trigger scope narrowed to immutable 0.2.5 release/evidence files or manual dispatch.
+- 'PR #85 historical v0.2.5 sync hygiene merged to main as 44a503d42efe4eeedebeae2dd480b3766df1175d after exact-head
+  CI 9/9 PASS.'
+- Immutable annotated tag v0.2.7 created on release-content commit 2237c6eaa44a6cab11a074f127eb29d4914e224b after
+  exact-main Windows portable/installer, Astra DEB, RED OS RPM, SAST and Release Evidence Package all PASS.
+- GitHub v0.2.7 release published successfully at https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.7
+  with Windows portable/setup, Astra DEB, RED OS RPM and SHA256SUMS.txt.
+- Downloaded the public GitHub v0.2.7 release as an external consumer and verified all four package hashes against
+  SHA256SUMS.txt; RED OS RPM SHA-256 is 231c4c75d092b5468a842631ca39fa08eccee2cf2787d08f6809738f6d99440b.
+- GitVerse v0.2.7 mirror workflow completed success; public release is visible at https://gitverse.ru/arvectum/proxy-launcher/releases/tag/v0.2.7.
+- Independently downloaded public GitVerse Arvectum-Proxy-Launcher-0.2.7-redos-linux-x86_64.rpm.zip; it contains
+  exactly one RPM whose SHA-256 is 231c4c75d092b5468a842631ca39fa08eccee2cf2787d08f6809738f6d99440b, matching GitHub.
+- Created user-owned executable KDE desktop shortcut at /home/arvectum/Рабочий стол/Arvectum Proxy Launcher.desktop
+  pointing to the stable arvectum-proxy-launcher command.
+- 'PR #85 historical v0.2.5 sync hygiene merged to main as 44a503d42efe4eeedebeae2dd480b3766df1175d; v0.2.5 sync
+  no longer triggers on generic README/current-release churn.'
+- Immutable tag v0.2.7 points to release-content commit 2237c6eaa44a6cab11a074f127eb29d4914e224b, which is an ancestor
+  of main and had successful exact-main Windows portable/installer, Astra DEB, RED OS RPM, SAST and Release Evidence
+  gates before tagging.
+- 'GitHub Release v0.2.7 published successfully with Windows portable, Windows setup, Astra DEB, RED OS RPM and
+  SHA256SUMS.txt: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.7.'
+- 'Public RED OS RPM SHA-256 verified from GitHub: 231c4c75d092b5468a842631ca39fa08eccee2cf2787d08f6809738f6d99440b.'
+- 'GitVerse Release v0.2.7 published successfully: https://gitverse.ru/arvectum/proxy-launcher/releases/tag/v0.2.7;
+  lossless RED OS RPM transport payload independently unpacked and matched the GitHub RPM SHA-256 exactly.'
+- Exact public RED OS RPM installed on physical RED OS 8.0.3 as arvectum-proxy-launcher-0.2.7-1.redos8.x86_64; rpm
+  -V clean and installed ELF SHA-256 af57029559eb9d0c93f0b266577974d9629c9a86a220e9e2c651d341c88b20db matched the
+  public RPM payload.
+- User desktop shortcut /home/arvectum/Рабочий стол/Arvectum Proxy Launcher.desktop created user-owned/executable
+  and launched the installed GUI in Plasma/X11; observed window title Arvectum Proxy Launcher · Linux / RED OS.
+- 'Final RED OS stand left clean: application installed, GUI stopped, proxy listeners 18080/18081/18082 absent,
+  rollback backup absent.'
+current: 'Completed: v0.2.7 is published on GitHub and GitVerse, and the exact public RED OS RPM is installed and
+  verified on the physical RED OS 8.0.3 stand with a working desktop shortcut and Linux / RED OS GUI signature.'
+pending: []
+last_verified_commit: 44a503d42efe4eeedebeae2dd480b3766df1175d
 test_results:
 - APL-REG-001C RED OS physical acceptance => PASS.
 - Previous exact-head CI for merged RED OS acceptance => PASS 13/13 workflows.
@@ -72,12 +82,18 @@ test_results:
 - NetworkManager preflight regression => PASS 7/7.
 - VERSION/APP_VERSION/Windows VERSIONINFO/release naming consistency => PASS for 0.2.7.
 - Modified GitHub Actions workflows parse as valid YAML; git diff --check => PASS.
-updated_at: '2026-09-17T10:45:00Z'
-resume_instruction: 'Continue from the first unfinished APL-REL-018 item: inspect
-  Linux runtime/capability labeling and release workflows, implement RED OS-specific
-  label plus RPM release asset, bump to 0.2.7, test, merge, publish GitHub/GitVerse,
-  then install the exact public RPM and create the RED OS desktop shortcut before
-  marking completed.'
+- GitHub v0.2.7 public release external checksum verification => PASS 4/4; RED OS RPM SHA-256 231c4c75d092b5468a842631ca39fa08eccee2cf2787d08f6809738f6d99440b.
+- GitVerse v0.2.7 mirror workflow => PASS; independent public RED OS RPM.zip inner-payload SHA-256 parity => PASS.
+- Final v0.2.7 GitHub Release workflow run 35212068695 => PASS including Publish GitHub Release and Mirror release
+  to GitVerse.
+- GitHub public SHA256SUMS verification => PASS for 4/4 canonical assets.
+- GitVerse public RED OS RPM transport parity => PASS; inner RPM SHA-256 231c4c75d092b5468a842631ca39fa08eccee2cf2787d08f6809738f6d99440b.
+- 'Physical RED OS final install => PASS: package 0.2.7-1.redos8, rpm -V clean, installed payload parity PASS.'
+- 'Physical RED OS GUI/shortcut => PASS: exact desktop shortcut launched title Arvectum Proxy Launcher · Linux /
+  RED OS.'
+- 'Final physical state => PASS: STOPPED/no 18080-18082 listeners/no rollback backup.'
+updated_at: '2026-09-17T10:59:53Z'
+resume_instruction: Task completed; no continuation is required unless a release or RED OS regression is reported.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-018-20260917
