@@ -1,0 +1,42 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-REG-001D-MINCIFRY-APPLICATION
+status: completed
+goal: Prepare a filing-grade, version-frozen Russian application dossier for Arvectum Proxy Launcher v0.2.9 for the Unified Register of Russian Software without inventing private, legal, accounting, physical-infrastructure or signature evidence.
+definition_of_done:
+  - Official 2026 filing baseline verified and recorded.
+  - Current repository and physical acceptance evidence reconciled.
+  - Russian filing documentation pack completed for v0.2.9 / class 02.02.
+  - Portal-field worksheet and private-evidence checklist completed.
+  - Rule 1236/current-vs-future gates audited.
+  - Relevant dossier tests pass and exact-head CI is green.
+  - Reviewable PR exists and no external submission/signature action is taken.
+completed:
+  - Official baseline checked against ФГИС Реестры ПО, Resolution No. 1236, Resolution No. 1937 and Resolution No. 1931 on 2026-09-17.
+  - Dossier added under docs/registry and master readiness reconciled.
+  - Rule 1236 matrix explicitly retains rights/control, accounting, physical Russian infrastructure, support entity, GUI, signer and signature evidence as non-repository gates.
+  - Trusted-OS timing corrected: class 02.02 enters the two-trusted-OS condition on 2027-01-01 under the verified baseline.
+  - RED OS exact-v0.2.8 physical acceptance and unchanged-v0.2.9 Linux lineage are described accurately; no false exact-v0.2.9 physical claim is made.
+  - Static v0.2.9 GUI review performed; final visual language gate remains explicit because technical/user-visible Latin tokens are present.
+  - Focused registry dossier tests: 6/6 PASS on Mac mini.
+  - Exact-head e50f079f8020c2c87b19bc6aeafb4586e5aad0cb CI: 10/10 workflows SUCCESS, including Windows P0 portable and Windows installer RC/E2E.
+  - PR #95 opened and reviewable.
+current: Completed repository dossier. External filing remains HOLD pending real external evidence.
+remaining: []
+external_blockers_not_part_of_completed_repository_task:
+  - Executed exclusive-right and corporate-control evidence.
+  - Foreign-payment/accounting evidence.
+  - Physical Russian source/build/storage/release-distribution evidence.
+  - Eligible Russian support/modification evidence and official contacts.
+  - Final exact-v0.2.9 Russian GUI visual verification.
+  - Corporate applicant data, signer authority and УКЭП.
+  - Live portal/current-law recheck and human signing/submission.
+future_follow_up:
+  - When Astra and RED OS stands are online, exact public v0.2.9 DEB/RPM physical smoke is preferred future-proof evidence before the 2027-01-01 trusted-OS gate, but it is not claimed as complete here.
+last_verified_commit: e50f079f8020c2c87b19bc6aeafb4586e5aad0cb
+test_results:
+  - focused_registry_dossier: 6/6 PASS
+  - github_exact_head_e50f079: 10/10 workflows SUCCESS
+  - mac_full_source_secondary: 815 tests reached; 4 environment import errors because Homebrew Python 3.14 lacks _tkinter; noncanonical host limitation
+resume_instruction: This task is complete. If the owner wants to proceed to actual filing, create a new pre-submission gate task from docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md after HUMAN/PRIVATE/PHYSICAL evidence is available. Never use private keys/УКЭП or submit/sign externally without the authorized human step.
+updated_at: '2026-09-17T23:35:00+03:00'
