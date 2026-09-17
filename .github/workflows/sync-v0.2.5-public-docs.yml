@@ -3,11 +3,12 @@ name: Sync v0.2.5 public docs
 on:
   push:
     branches: [main]
+    # Historical 0.2.5 sync is intentionally scoped to its immutable release
+    # evidence. General README/current-release changes must not mutate or repair
+    # the old GitVerse release implicitly. Use workflow_dispatch for maintenance.
     paths:
-      - README.md
       - docs/releases/0.2.5.md
       - docs/releases/0.2.5-public-assets.sha256
-      - .github/workflows/sync-v0.2.5-public-docs.yml
   workflow_dispatch:
 
 permissions:
