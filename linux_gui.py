@@ -17,6 +17,7 @@ import connection_test as connection_test_module
 import doctor as doctor_module
 import linux_autostart
 import linux_policykit_ux as policykit_ux
+from linux_runtime import detect_linux_runtime
 import proxy_core as core
 import proxy_gui as shared_gui
 
@@ -122,17 +123,21 @@ class LinuxLauncher(shared_gui.Launcher):
         return True
 
     def _apply_linux_labels(self):
-        self.root.title(APP_NAME + " · Linux/Astra")
+        try:
+            platform_label = detect_linux_runtime().platform_label
+        except Exception:
+            platform_label = "Linux"
+        self.root.title(APP_NAME + " · " + platform_label)
         try:
             # The shared header has two labels; replace only the platform badge.
             header = self.root.winfo_children()[0]
             labels = header.winfo_children()
             if len(labels) >= 2:
-                labels[-1].configure(text="Linux/Astra · %s" % shared_gui.APP_VERSION)
+                labels[-1].configure(text="%s · %s" % (platform_label, shared_gui.APP_VERSION))
         except Exception:
             pass
         try:
-            self.autostart_check.configure(text="Автоподключение прокси при входе в Linux/Astra")
+            self.autostart_check.configure(text="Автоподключение прокси при входе в %s" % platform_label)
             autostart_state = self._autostart_status()
             if autostart_state.managed and not autostart_state.conflict:
                 self.autostart_check.state(["!disabled"])

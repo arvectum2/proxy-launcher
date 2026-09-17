@@ -21,7 +21,17 @@ class LinuxOperationalStatusTests(unittest.TestCase):
         view = backend_runtime.operational_status_view(status)
         self.assertTrue(view["enabled"])
         self.assertEqual(view["badge"], "Доступно")
-        self.assertEqual(view["platform_label"], "Linux / Astra Linux")
+        self.assertEqual(view["platform_label"], "Linux")
+
+
+    def test_redos_runtime_uses_distinct_platform_signature(self):
+        status = backend_runtime.operational_status_for_platform(
+            "linux",
+            linux_preflight=self.fake(PreflightStatus.READY),
+            linux_runtime=SimpleNamespace(platform_label="Linux / RED OS"),
+        )
+        self.assertEqual(status.platform_label, "Linux / RED OS")
+        self.assertIn("Linux / RED OS", status.message)
 
     def test_auth_required_is_not_misreported_as_ready(self):
         status = backend_runtime.operational_status_for_platform(

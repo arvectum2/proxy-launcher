@@ -2,36 +2,61 @@ version: 2
 repository: arvectum2/proxy-launcher
 status: in_progress
 task_id: APL-REL-018-V0.2.7
-goal: Publish a clean stable 0.2.7 release that distinguishes RED OS from Astra Linux in product UX, ships the accepted RED OS RPM, leaves a clean installed RED OS application with a user desktop shortcut on the physical stand, and mirrors the immutable release to GitVerse.
+goal: Publish a clean stable 0.2.7 release that distinguishes RED OS from Astra Linux
+  in product UX, ships the accepted RED OS RPM, leaves a clean installed RED OS application
+  with a user desktop shortcut on the physical stand, and mirrors the immutable release
+  to GitVerse.
 authority: HUMAN
 definition_of_done:
-- RED OS runtime is identified separately from Astra and displays the platform/version signature as Linux / RED OS while Astra continues to display Linux / Astra Linux.
-- Canonical version is 0.2.7 and release metadata/tests are consistent with it without mutating the immutable v0.2.6 release.
-- RED OS RPM packaging remains accepted and the release pipeline publishes an exact-main RPM asset alongside Windows portable/setup and Astra DEB.
-- Relevant unit/package/release automation tests pass and exact-head CI is green before merge/tag publication.
-- The exact public 0.2.7 RED OS RPM is installed on the physical RED OS 8.0.3 stand; rpm -V and runtime/platform label are verified; a user-owned working desktop shortcut is present.
-- GitHub v0.2.7 release is published with canonical assets and SHA256SUMS; GitVerse mirrors the same canonical payloads (wrapping unsupported extensions losslessly) and post-download hashes verify.
-- Final release/tag/main identities, package hashes and release URLs are recorded and checkpoint status is completed.
+- RED OS runtime is identified separately from Astra and displays the platform/version
+  signature as Linux / RED OS while Astra continues to display Linux / Astra Linux.
+- Canonical version is 0.2.7 and release metadata/tests are consistent with it without
+  mutating the immutable v0.2.6 release.
+- RED OS RPM packaging remains accepted and the release pipeline publishes an exact-main
+  RPM asset alongside Windows portable/setup and Astra DEB.
+- Relevant unit/package/release automation tests pass and exact-head CI is green before
+  merge/tag publication.
+- The exact public 0.2.7 RED OS RPM is installed on the physical RED OS 8.0.3 stand;
+  rpm -V and runtime/platform label are verified; a user-owned working desktop shortcut
+  is present.
+- GitHub v0.2.7 release is published with canonical assets and SHA256SUMS; GitVerse
+  mirrors the same canonical payloads (wrapping unsupported extensions losslessly)
+  and post-download hashes verify.
+- Final release/tag/main identities, package hashes and release URLs are recorded
+  and checkpoint status is completed.
 completed:
 - Recovered completed APL-REG-001C RED OS acceptance and merged main at c3389e82013431e91b2e35e3699e5dcfd6a158a7.
-- Confirmed immutable v0.2.6 policy: existing published release must not be modified in place; 0.2.7 is the next clean stable release.
-- Confirmed current UX hard-codes Linux / Astra Linux and current release workflow publishes Windows + Astra DEB but not RED OS RPM.
-current: Implement RED OS-specific runtime/platform label, 0.2.7 versioning, RPM release CI asset, release/GitVerse metadata, and tests on branch apl-rel-018-v0.2.7-redos.
+- Confirmed immutable v0.2.6 policy: existing published release must not be modified
+    in place; 0.2.7 is the next clean stable release.
+- Confirmed current UX hard-codes Linux / Astra Linux and current release workflow
+  publishes Windows + Astra DEB but not RED OS RPM.
+- 'RED OS runtime/platform signature implemented: ID=redos -> Linux / RED OS; Astra
+  remains Linux / Astra Linux; generic Linux -> Linux.'
+current: Extend canonical CI/release automation so exact-main RED OS RPM is built,
+  verified, included in SHA256SUMS, and mirrored by GitVerse.
 pending:
-- Implement and test RED OS-specific platform identification/signature while preserving Astra behavior.
-- Extend canonical release automation with an exact-main RED OS RPM artifact and SHA256 manifest entry.
+- Implement and test RED OS-specific platform identification/signature while preserving
+  Astra behavior.
+- Extend canonical release automation with an exact-main RED OS RPM artifact and SHA256
+  manifest entry.
 - Bump canonical product version and release notes/contracts to 0.2.7.
 - Run focused/full tests, push PR, wait for exact-head CI, merge to main.
 - Publish immutable v0.2.7 GitHub release and verify all public hashes.
 - Verify GitVerse v0.2.7 mirror and canonical inner payload hashes.
-- Install exact public RPM on physical RED OS, verify runtime label/package integrity, create and verify desktop shortcut.
+- Install exact public RPM on physical RED OS, verify runtime label/package integrity,
+  create and verify desktop shortcut.
 - Finalize release evidence/checkpoint as completed.
 last_verified_commit: c3389e82013431e91b2e35e3699e5dcfd6a158a7
 test_results:
 - APL-REG-001C RED OS physical acceptance => PASS.
 - Previous exact-head CI for merged RED OS acceptance => PASS 13/13 workflows.
-updated_at: '2026-09-17T09:55:00Z'
-resume_instruction: "Continue from the first unfinished APL-REL-018 item: inspect Linux runtime/capability labeling and release workflows, implement RED OS-specific label plus RPM release asset, bump to 0.2.7, test, merge, publish GitHub/GitVerse, then install the exact public RPM and create the RED OS desktop shortcut before marking completed."
+- Linux runtime/capability/preflight focused suite => PASS 30/30.
+updated_at: '2026-09-17T10:05:00Z'
+resume_instruction: 'Continue from the first unfinished APL-REL-018 item: inspect
+  Linux runtime/capability labeling and release workflows, implement RED OS-specific
+  label plus RPM release asset, bump to 0.2.7, test, merge, publish GitHub/GitVerse,
+  then install the exact public RPM and create the RED OS desktop shortcut before
+  marking completed.'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-018-20260917

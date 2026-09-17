@@ -129,13 +129,13 @@ _CAPABILITY_MATRIX: Dict[str, PlatformCapabilities] = {
     ),
     "linux": PlatformCapabilities(
         backend_id="linux",
-        platform_label="Linux / Astra Linux",
+        platform_label="Linux",
         capabilities=_common_supported() + (
             Capability(
                 Feature.AUTOSTART,
                 CapabilityState.SUPPORTED,
                 "Автозапуск",
-                "Per-user XDG autostart может безопасно запускать прокси при входе в Linux/Astra; интерактивный PolicyKit при фоновом старте не разрешается.",
+                "Per-user XDG autostart может безопасно запускать прокси при входе в Linux; интерактивный PolicyKit при фоновом старте не разрешается.",
             ),
             _planned_app_routing(),
         ),

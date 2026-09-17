@@ -118,7 +118,7 @@ def _macos_operational_status(macos_preflight=None):
     )
 
 
-def operational_status_for_platform(platform=None, linux_preflight=None, macos_preflight=None):
+def operational_status_for_platform(platform=None, linux_preflight=None, macos_preflight=None, linux_runtime=None):
     """Return host-specific readiness without mutating network state.
 
     Windows keeps its customer-proven backend validation path. Linux/Astra
@@ -140,7 +140,13 @@ def operational_status_for_platform(platform=None, linux_preflight=None, macos_p
 
     reasons = tuple(getattr(linux_preflight, "reasons", ()) or ())
     preflight_state = getattr(linux_preflight, "status", None)
-    platform_label = capabilities_for_backend("linux").platform_label
+    if linux_runtime is None:
+        try:
+            from linux_runtime import detect_linux_runtime
+            linux_runtime = detect_linux_runtime(platform_name=platform)
+        except Exception:
+            linux_runtime = None
+    platform_label = str(getattr(linux_runtime, "platform_label", "") or capabilities_for_backend("linux").platform_label)
 
     if preflight_state == PreflightStatus.READY:
         return BackendOperationalStatus(
@@ -149,7 +155,7 @@ def operational_status_for_platform(platform=None, linux_preflight=None, macos_p
             state=OperationalState.READY,
             can_enable=True,
             title="NetworkManager готов",
-            message="Linux/Astra готов к безопасному применению системного прокси Arvectum.",
+            message="%s готов к безопасному применению системного прокси Arvectum." % platform_label,
             reasons=reasons,
         )
     if preflight_state == PreflightStatus.AUTH_REQUIRED:
@@ -172,9 +178,9 @@ def operational_status_for_platform(platform=None, linux_preflight=None, macos_p
         can_enable=False,
         title="Системный прокси недоступен",
         message=(
-            "На этом Linux/Astra-хосте NetworkManager сейчас не готов к безопасному "
+            "На этом %s-хосте NetworkManager сейчас не готов к безопасному "
             "применению системного прокси. Сеть оставлена без изменений."
-        ),
+        ) % platform_label,
         reasons=reasons,
     )
 
@@ -200,12 +206,13 @@ def operational_status_view(status):
     }
 
 
-def require_enable_operational(platform=None, linux_preflight=None, macos_preflight=None):
+def require_enable_operational(platform=None, linux_preflight=None, macos_preflight=None, linux_runtime=None):
     """Fail closed before a new proxy mutation when host preflight is not ready."""
     status = operational_status_for_platform(
         platform,
         linux_preflight=linux_preflight,
         macos_preflight=macos_preflight,
+        linux_runtime=linux_runtime,
     )
     if not status.can_enable:
         raise BackendOperationalError(status)
