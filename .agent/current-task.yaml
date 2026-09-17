@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-WIN-FOREIGN-STATE-SYMMETRY
-status: in_progress
+status: blocked
 goal: Make Windows proxy rollback ownership-symmetric with Linux for external proxy changes, validate on physical
   ARVECTUM-DEMO, and publish the next immutable release to GitHub and GitVerse.
 authority: HUMAN
@@ -31,7 +31,8 @@ completed:
   restore fixture missing the new current-state read; both corrected.'
 - 'Subtask A PASS: exact-head 0433a4187ad61273635c5e9fd83fa410389a4b40 passed all 24 PR workflows, including Windows portable, installer, controlled-offline build, full contracts and security gates.'
 - 'Exact-head artifact SHA256: portable ZIP 80259f6239d52e6fd8c968080c615c6fb726f4a17bbb2b3e6133ce3950c0b484; installer ab94709ef1efad21ff89409190c11eee3e2694b7761815e7c234638fb34191be.'
-current: Subtask B - run physical exact-head Windows acceptance on ARVECTUM-DEMO.
+- 'ARVECTUM-DEMO exact CI bytes transferred and hash-verified; WDAC blocks new hashes as designed. Authored hash-only supplemental policy {97B17333-FACA-4389-A7F6-6EA871C325FE}, CIP SHA256 d66ea27213be76ac86f5e2c8ad73380bafb30cf2c8de219e0666f09f077009ce; script enforcement preserved.'
+current: Subtask B - exact candidate trust policy authored; waiting only for UAC approval to deploy it on ARVECTUM-DEMO.
 pending:
 - Run physical Windows external-change acceptance, including foreign-state fail-closed preservation and saved-state
   recovery.
@@ -47,8 +48,8 @@ test_results:
   by missing _tkinter and is pending Windows execution.'
 - 'Post-CI-fix local proxy_core/Windows subset: 83 runtime tests PASS; test_version_policy remains Mac-only import-blocked
   by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
-resume_instruction: Subtask B: transfer only exact-head 0433a41 Windows artifacts to ARVECTUM-DEMO, verify SHA256, then run physical foreign-state fail-closed and saved-state recovery acceptance before merge.
-updated_at: '2026-09-17T17:25:00Z'
+resume_instruction: User must approve the already-open UAC prompt on ARVECTUM-DEMO. Then verify policy deployment by launching exact candidate, run B1 foreign-state fail-closed and B2 saved-state recovery acceptance, update checkpoint, and continue to final-head CI/merge.
+updated_at: '2026-09-17T17:39:00Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-SYMMETRY-20260917

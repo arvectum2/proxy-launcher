@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-WIN-FOREIGN-STATE-SYMMETRY
-status: in_progress
+status: blocked
 goal: Make Windows proxy rollback ownership-symmetric with Linux for external proxy changes, validate on physical
   ARVECTUM-DEMO, and publish the next immutable release to GitHub and GitVerse.
 authority: HUMAN
