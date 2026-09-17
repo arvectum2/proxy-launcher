@@ -38,8 +38,13 @@ completed:
   so SHA256SUMS and GitHub/GitVerse release sets include the RED OS RPM.
 - Release Evidence Package now requires the exact-SHA RED OS RPM workflow in addition
   to existing release gates.
-current: Push the complete 0.2.7 candidate branch, open PR, and converge exact-head
-  CI including the new RED OS RPM workflow.
+- First PR RPM CI exposed non-executable builder invocation; workflow corrected to
+  invoke tools/build_linux_rpm.sh explicitly through bash at b043c716d897e2589d67a5d92988503f031de381.
+- 'PR CI concurrency hardened: release.yml no longer duplicates reusable Windows portable/installer
+  builds on pull_request; standalone Windows PR workflows remain authoritative while
+  tag/manual release builds are preserved.'
+current: 'Push concurrency hardening, then converge PR #84 exact-head CI including
+  standalone Windows checks and RED OS RPM.'
 pending:
 - Implement and test RED OS-specific platform identification/signature while preserving
   Astra behavior.
@@ -52,7 +57,7 @@ pending:
 - Install exact public RPM on physical RED OS, verify runtime label/package integrity,
   create and verify desktop shortcut.
 - Finalize release evidence/checkpoint as completed.
-last_verified_commit: c3389e82013431e91b2e35e3699e5dcfd6a158a7
+last_verified_commit: b043c716d897e2589d67a5d92988503f031de381
 test_results:
 - APL-REG-001C RED OS physical acceptance => PASS.
 - Previous exact-head CI for merged RED OS acceptance => PASS 13/13 workflows.
@@ -62,7 +67,7 @@ test_results:
 - NetworkManager preflight regression => PASS 7/7.
 - VERSION/APP_VERSION/Windows VERSIONINFO/release naming consistency => PASS for 0.2.7.
 - Modified GitHub Actions workflows parse as valid YAML; git diff --check => PASS.
-updated_at: '2026-09-17T10:20:00Z'
+updated_at: '2026-09-17T10:40:00Z'
 resume_instruction: 'Continue from the first unfinished APL-REL-018 item: inspect
   Linux runtime/capability labeling and release workflows, implement RED OS-specific
   label plus RPM release asset, bump to 0.2.7, test, merge, publish GitHub/GitVerse,

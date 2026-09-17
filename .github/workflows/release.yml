@@ -178,13 +178,13 @@ jobs:
   build:
     name: Build Windows portable
     needs: validate
-    if: needs.validate.outputs.owner_signed_release != 'true'
+    if: github.event_name != 'pull_request' && needs.validate.outputs.owner_signed_release != 'true'
     uses: ./.github/workflows/windows-p0.yml
 
   installer:
     name: Build Windows installer
     needs: validate
-    if: needs.validate.outputs.owner_signed_release != 'true'
+    if: github.event_name != 'pull_request' && needs.validate.outputs.owner_signed_release != 'true'
     uses: ./.github/workflows/windows-installer.yml
 
   publish:

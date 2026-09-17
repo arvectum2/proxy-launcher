@@ -133,6 +133,13 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("rpm2cpio", rpm_workflow)
         self.assertIn("tools/build_linux_rpm.sh", rpm_workflow)
 
+    def test_pull_request_release_validation_does_not_duplicate_windows_builds(self):
+        release = self.read(".github/workflows/release.yml")
+        guard = "github.event_name != 'pull_request' && needs.validate.outputs.owner_signed_release != 'true'"
+        self.assertGreaterEqual(release.count(guard), 2)
+        self.assertIn("uses: ./.github/workflows/windows-p0.yml", release)
+        self.assertIn("uses: ./.github/workflows/windows-installer.yml", release)
+
     def test_release_calls_verified_gitverse_mirror(self):
         release = self.read(".github/workflows/release.yml")
         mirror = self.read(".github/workflows/sync-release-to-gitverse.yml")
