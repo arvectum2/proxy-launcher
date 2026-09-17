@@ -21,13 +21,13 @@ completed:
   - Produced the version-frozen Russian registry dossier under docs/registry, including application worksheet, Rule 1236 matrix, functional characteristics, install/operation/recovery manual, support/maintenance statement, technical-infrastructure statement, licensing/price statement, expert test procedure, private-evidence checklist and pre-submission audit.
   - Separated current Rule 1236 filing blockers from the future trusted-OS gate; for class 02.02 the two-trusted-OS requirement starts on 2027-01-01 under the verified current baseline.
   - Added and fixed dossier consistency tests; the Windows code-page-sensitive guillemet assertion was replaced with stable table-row anchors.
-  - Ran focused dossier tests on Mac mini: 6/6 PASS on the final documentation content.
+  - Ran focused dossier tests on Mac mini: 6/6 PASS on final head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5.
   - Ran the full local Mac source suite as a secondary check: 815 tests executed before 4 environment import errors caused by Homebrew Python 3.14 lacking _tkinter; this is recorded as a local host limitation, not a branch defect.
-  - Verified exact-head commit e50f079f8020c2c87b19bc6aeafb4586e5aad0cb with 10/10 GitHub workflows successful, including Windows P0 portable, Windows installer RC/E2E, SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation and sovereignty gates.
+  - Verified exact-head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5 with 10/10 GitHub workflows successful, including Windows P0 portable, Windows installer RC/E2E, SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation and sovereignty gates.
   - Performed static exact-v0.2.9 GUI string review: primary GUI controls/help are Russian; technical/user-visible tokens such as PASS/WARN/FAIL and protocol identifiers remain, so p. 5 «л» is intentionally retained as a final visual verification gate rather than falsely closed.
-  - Opened reviewable PR #95 containing the filing package.
+  - Merged PR #95 into main as ab0f11ead2499e5626a88791ab3982f25eea2c21 after exact-head CI was fully green.
   - Confirmed Remote Desktop Commander target state during finalization: Astra and RED OS acceptance devices were offline, so no exact-v0.2.9 physical rerun was fabricated.
-current: Repository preparation task is complete. The external application itself remains PRE-SUBMISSION / HOLD until real HUMAN/PRIVATE/PHYSICAL filing gates are closed.
+current: Repository preparation task is complete and merged. The external application itself remains PRE-SUBMISSION / HOLD until real HUMAN/PRIVATE/PHYSICAL filing gates are closed.
 pending: []
 external_filing_gates:
   - Executed exclusive-right chain and current Russian-control/corporate evidence for ООО «Арвектум».
@@ -39,13 +39,14 @@ external_filing_gates:
   - Live-form/current-law recheck immediately before signing and submission.
 future_gate:
   - Under the verified 2026-09-17 baseline, the two-trusted-OS compatibility condition applies to class 02.02 from 2027-01-01. Exact public v0.2.9 Astra/RED physical smoke remains preferred future-proof evidence when both stands are online, but is not represented as already executed.
-last_verified_commit: e50f079f8020c2c87b19bc6aeafb4586e5aad0cb
+last_verified_commit: 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5
+merged_commit: ab0f11ead2499e5626a88791ab3982f25eea2c21
 test_results:
-  - Focused registry dossier tests on Mac mini: 6/6 PASS.
-  - Exact-head GitHub CI on e50f079f8020c2c87b19bc6aeafb4586e5aad0cb: 10/10 workflows SUCCESS.
+  - Focused registry dossier tests on final head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5: 6/6 PASS.
+  - Exact-head GitHub CI on 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5: 10/10 workflows SUCCESS.
   - Secondary full Mac source run: 815 tests reached; 4 import errors due to missing _tkinter in Homebrew Python 3.14, not used as canonical acceptance.
 resume_instruction: No repository continuation is required for APL-REG-001D. For actual filing, start a new pre-submission gate task from docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md only when the required HUMAN/PRIVATE/PHYSICAL evidence is available. Re-check live law/portal at that time. Never sign, submit, or use УКЭП/private-key material autonomously.
-updated_at: '2026-09-17T23:35:00+03:00'
+updated_at: '2026-09-17T23:42:00+03:00'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-001D-20260917
