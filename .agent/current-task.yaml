@@ -32,32 +32,32 @@ completed:
   and RFC3161 timestamp presence.
 - Updated the machine contract, runbook, Owner decision packet, workflow path filters and regression tests for the post-v0.2.6/current-policy
   baseline.
-current: Commit and push the refreshed APL-REL-016 review branch, open a fresh PR from current main, and obtain exact-head
-  Windows public-trust CI.
+- 'Opened fresh review PR #81 from current main at exact head 989bf9c3708d57c1a2462ef953eee1850ce00dfc.'
+- 'Closed stale pre-migration PR #67 as superseded by #81 without rewriting its unrelated history.'
+current: 'Obtain exact-head CI for PR #81, with special attention to Windows PowerShell parsing and ephemeral signed-byte-order/public-trust
+  smoke.'
 pending:
-- Commit/push branch agent/apl-rel-016-windows-trust-review-v2 and open the replacement review PR.
-- 'Close stale pre-migration PR #67 as superseded after the replacement PR exists.'
 - Obtain exact-head green REL-016 Windows public-trust, Authenticode, security and repository CI; remediate any Windows PowerShell/runtime
   failures.
-- Update the queue/checkpoint to blocked at the explicit Owner decision gate; do not merge, purchase, enroll, sign production
+- Update queue/checkpoint to blocked at the explicit Owner decision gate; do not merge, purchase, enroll, sign production
   binaries or publish a release.
 - Continue autonomously to the next independent executable roadmap item after releasing the REL-016 lease.
-last_verified_commit: 695ee4e4a3b7a8293408631fbafa99ce17663974
+last_verified_commit: 989bf9c3708d57c1a2462ef953eee1850ce00dfc
 test_results:
 - python3 -m unittest tests.test_windows_public_trust tests.test_windows_authenticode_foundation -q => 19 passed.
 - python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
 - PyYAML parse of windows-public-trust.yml and windows-authenticode.yml => PASS.
 - git diff --check => PASS.
 - Local pwsh unavailable; PowerShell parse/runtime validation delegated to exact-head Windows CI.
-updated_at: '2026-09-17T02:16:00Z'
-resume_instruction: 'Push the current APL-REL-016 refresh branch, open a replacement PR from current main, close stale PR
-  #67 as superseded, fix any exact-head Windows CI failures, then mark REL-016 blocked at the Owner decision gate without
-  merging or activating production signing. Continue to the next independent ready roadmap item.'
+updated_at: '2026-09-17T02:16:40Z'
+resume_instruction: 'Watch exact-head CI for PR #81 and fix any failures. When all required checks are green, mark APL-REL-016
+  blocked at the Owner decision gate without merging, release the lease, and continue to the next independent ready roadmap
+  item.'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-016-20260917
   branch: agent/apl-rel-016-windows-trust-review-v2
   base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
-  lease_until: '2026-09-17T04:06:00Z'
+  lease_until: '2026-09-17T04:06:40Z'
   manual_override: false
 blocker: null
