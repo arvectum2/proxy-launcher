@@ -31,26 +31,42 @@ completed:
 - Canonical patch version advanced to 0.2.8; historical v0.2.7 release/docs remain immutable.
 - 'Broader Linux/runtime/packaging/release regression suite: 120/120 PASS; no static Linux/Astra marker
   remains in GUI/PolicyKit source; Python syntax and mirror-doc checks PASS.'
-current: Commit/push the 0.2.8 candidate, fetch it on physical RED OS, run Tk-capable version tests, build
-  RPM, then prove recovery of the currently stranded v0.2.7 evidence.
+- Physical RED OS candidate upgrade 0.2.7 -> 0.2.8 preserved the real stranded v0.2.7 rollback evidence;
+  rpm -V remained clean.
+- '0.2.8 recovered the exact real stranded mixed KDE state in the real Plasma session: NetworkManager
+  restored to none, KDE to original manual/empty PAC, rollback evidence removed, status STOPPED.'
+- 'Fresh physical candidate cycle passed: start -> HTTP/SOCKS/PAC listeners -> chatgpt.com route through
+  local HTTP proxy -> external KDE ProxyType change to manual while Arvectum PAC remained -> ordinary
+  stop -> exact baseline restoration.'
+- Post-stop NetworkManager baseline was none/no/empty, kioslaverc SHA-256 returned to 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde,
+  rollback evidence absent, no 18080/18081/18082 listeners remained.
+current: Push physical acceptance evidence summary in checkpoint, open PR for 0.2.8, wait for exact-head
+  CI, then merge and publish immutable v0.2.8.
 pending:
-- Run broader Linux tests and full version-policy check on a Tk-capable RED OS environment.
-- Build/install 0.2.8 RPM on physical RED OS and prove recovery of the existing mixed-state rollback evidence.
-- Run physical start -> external KDE proxy change -> stop/recovery -> exact baseline restoration plus
-  real routing check.
-- Push PR, obtain exact-head CI, merge, publish immutable v0.2.8 GitHub/GitVerse release, install exact
-  public RPM, and finalize checkpoint.
-last_verified_commit: 47352114cc0aced21c81f66127a4475b9209952e
+- Open PR and obtain exact-head CI for 0.2.8.
+- Merge to main; wait for exact-main release gates and Release Evidence Package.
+- Publish immutable v0.2.8 GitHub release and verify SHA256SUMS.
+- Verify GitVerse v0.2.8 mirror payload parity.
+- Install exact public v0.2.8 RPM on physical RED OS, verify rpm -V/payload/GUI shortcut and leave clean
+  baseline state.
+- Finalize checkpoint as completed and merge closeout metadata.
+last_verified_commit: 71c41a7995034d9adb1979ba222526842b2edc8d
 test_results:
 - 'Focused mixed-recovery + GUI/PolicyKit suite: 37/37 PASS.'
 - 'Combined release/RPM/recovery suite: 58 PASS; Mac-only test_version_policy import blocked by missing
   _tkinter, to be rerun on RED OS.'
 - 'Static VERSION/proxy_core/version_info consistency: PASS for 0.2.8.'
 - 'Broader Linux/runtime/packaging/release suite: 120/120 PASS.'
-resume_instruction: Fetch the pushed 0.2.8 candidate on RED OS, run version/focused tests, build RPM,
-  upgrade the physical host while preserving the existing v0.2.7 rollback evidence, and verify candidate
-  --rollback clears the mixed KDE state safely.
-updated_at: '2026-09-17T11:32:30Z'
+- 'RED OS Tk-capable version + backend/runtime/GUI/PolicyKit suite: 59/59 PASS.'
+- Native RED OS 0.2.8 candidate RPM built with verified frozen third-party license bundle; SHA-256 7e7623f704b3bbe3c2ad3f8d94caa71eff9617ae66e6d098ecd84d7f778eff1d.
+- 'Physical real stranded-state recovery: PASS.'
+- 'Physical fresh start -> mixed external change -> ordinary stop exact restoration: PASS.'
+- chatgpt.com through 127.0.0.1:18080 returned HTTP 403 with curl rc=0, proving target connectivity through
+  launcher; browser-level GUI check remains covered by prior Chromium system-PAC acceptance.
+resume_instruction: Open the 0.2.8 PR at head 71c41a7, wait for exact-head CI, merge only if green, then
+  run exact-main release gates, publish v0.2.8 to GitHub/GitVerse, install the exact public RED OS RPM
+  and finalize checkpoint.
+updated_at: '2026-09-17T11:38:42Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-002-20260917
