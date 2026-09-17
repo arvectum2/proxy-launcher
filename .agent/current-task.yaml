@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REG-001D-MINCIFRY-APPLICATION
-status: in_progress
+status: completed
 goal: Prepare a filing-grade application package for inclusion of Arvectum Proxy Launcher in the Unified Register of Russian Software, based on the completed Astra Linux SE and RED OS physical acceptance records and the current v0.2.9 release baseline.
 authority: HUMAN
 definition_of_done:
@@ -14,23 +14,38 @@ definition_of_done:
   - Relevant documentation/contract tests or internal consistency checks pass.
   - Open a reviewable PR with the filing package and checkpoint; do not submit or sign the external application without the authorized human/qualified-signature step.
 completed:
-  - Confirmed canonical main at 1081a54de662bcabf5c2b92c37c450600a2723c1 (2026-09-17).
-  - Confirmed APL-REG-001C RED OS acceptance was merged in PR #83: RED OS 8.0.3 Standard Desktop x86_64 physical PASS with exact candidate evidence and 62/62 focused regressions.
-  - Confirmed current product release line is v0.2.9 and public release payload includes Windows, Astra DEB and RED OS RPM artifacts.
-  - Confirmed official registry portal currently requires a verified Gosuslugi account, filing materials, signature software and a qualified electronic-signature certificate; submission is signed electronically and the published service target is up to 45 working days after registration.
-current: Reconcile current repository evidence and official 2026 registry requirements, then author APL-REG-001D filing documents and portal worksheet.
-pending:
-  - Inspect current classification/IP/lifecycle/legal documentation and exact current release metadata.
-  - Verify classifier/trusted-OS applicability and current Rule 1236 evidence requirements immediately relevant to class 02.02.
-  - Draft and commit registry-facing documents and application field map.
-  - Add/update lightweight consistency checks if needed.
-  - Run checks, perform pre-submission audit, update checkpoint and open PR.
-last_verified_commit: 1081a54de662bcabf5c2b92c37c450600a2723c1
+  - Re-verified the 2026-09-17 official filing baseline against ФГИС Реестры ПО and Government Resolution No. 1236 / amendments No. 1937 / trusted-software rules No. 1931; recorded official source URLs in docs/registry/README.md.
+  - Confirmed current filing flow requires a verified Gosuslugi account, prepared filing materials, electronic-signature software and a qualified certificate; the application and attachments are signed electronically by the authorized applicant.
+  - Reconciled APL-REG-001C evidence: Astra Linux SE physical compatibility exists on the Astra acceptance line; RED OS 8.0.3 physical acceptance was closed by PR #83 with 62/62 focused regressions; the dossier does not falsely relabel prior Linux evidence as exact v0.2.9 execution.
+  - Confirmed current public product release is v0.2.9 with Windows x64, Astra Linux DEB, RED OS RPM and SHA256SUMS.txt.
+  - Produced the version-frozen Russian registry dossier under docs/registry, including application worksheet, Rule 1236 matrix, functional characteristics, install/operation/recovery manual, support/maintenance statement, technical-infrastructure statement, licensing/price statement, expert test procedure, private-evidence checklist and pre-submission audit.
+  - Separated current Rule 1236 filing blockers from the future trusted-OS gate; for class 02.02 the two-trusted-OS requirement starts on 2027-01-01 under the verified current baseline.
+  - Added and fixed dossier consistency tests; the Windows code-page-sensitive guillemet assertion was replaced with stable table-row anchors.
+  - Ran focused dossier tests on Mac mini: 6/6 PASS on the final documentation content.
+  - Ran the full local Mac source suite as a secondary check: 815 tests executed before 4 environment import errors caused by Homebrew Python 3.14 lacking _tkinter; this is recorded as a local host limitation, not a branch defect.
+  - Verified exact-head commit e50f079f8020c2c87b19bc6aeafb4586e5aad0cb with 10/10 GitHub workflows successful, including Windows P0 portable, Windows installer RC/E2E, SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation and sovereignty gates.
+  - Performed static exact-v0.2.9 GUI string review: primary GUI controls/help are Russian; technical/user-visible tokens such as PASS/WARN/FAIL and protocol identifiers remain, so p. 5 «л» is intentionally retained as a final visual verification gate rather than falsely closed.
+  - Opened reviewable PR #95 containing the filing package.
+  - Confirmed Remote Desktop Commander target state during finalization: Astra and RED OS acceptance devices were offline, so no exact-v0.2.9 physical rerun was fabricated.
+current: Repository preparation task is complete. The external application itself remains PRE-SUBMISSION / HOLD until real HUMAN/PRIVATE/PHYSICAL filing gates are closed.
+pending: []
+external_filing_gates:
+  - Executed exclusive-right chain and current Russian-control/corporate evidence for ООО «Арвектум».
+  - Accounting evidence for applicable foreign-payment criterion.
+  - Physical Russian source/object storage, build/compilation and release/distribution perimeter evidence under APL-REG-001B.
+  - Confirmation of the actual eligible Russian support/modification entity/person and official support contacts.
+  - Final exact-v0.2.9 visual Russian-GUI review; remediate and release a new version if a legally material language gap is found.
+  - Current corporate facts, signer authority and qualified electronic signature.
+  - Live-form/current-law recheck immediately before signing and submission.
+future_gate:
+  - Under the verified 2026-09-17 baseline, the two-trusted-OS compatibility condition applies to class 02.02 from 2027-01-01. Exact public v0.2.9 Astra/RED physical smoke remains preferred future-proof evidence when both stands are online, but is not represented as already executed.
+last_verified_commit: e50f079f8020c2c87b19bc6aeafb4586e5aad0cb
 test_results:
-  - APL-REG-001C RED OS focused suite at completion: 62/62 PASS (per merged PR #83).
-  - v0.2.9 exact-main release/CI evidence was green before this documentation task; no new tests run yet for APL-REG-001D.
-resume_instruction: Continue on branch apl-reg-001d-ministry-application. Start by reading APL-REG-001/001A/001B, APL-IP-001 materials, current release metadata and APL-REG-001C acceptance docs; then author the filing-grade Russian documentation pack and portal-field worksheet. Do not claim external corporate/legal facts not evidenced in the repository, and do not submit/sign the application without the authorized human/УКЭП step.
-updated_at: '2026-09-17T22:45:00+03:00'
+  - Focused registry dossier tests on Mac mini: 6/6 PASS.
+  - Exact-head GitHub CI on e50f079f8020c2c87b19bc6aeafb4586e5aad0cb: 10/10 workflows SUCCESS.
+  - Secondary full Mac source run: 815 tests reached; 4 import errors due to missing _tkinter in Homebrew Python 3.14, not used as canonical acceptance.
+resume_instruction: No repository continuation is required for APL-REG-001D. For actual filing, start a new pre-submission gate task from docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md only when the required HUMAN/PRIVATE/PHYSICAL evidence is available. Re-check live law/portal at that time. Never sign, submit, or use УКЭП/private-key material autonomously.
+updated_at: '2026-09-17T23:35:00+03:00'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-001D-20260917
