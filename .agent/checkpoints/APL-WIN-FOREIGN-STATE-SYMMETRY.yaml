@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-WIN-FOREIGN-STATE-SYMMETRY
-status: blocked
+status: in_progress
 goal: Make Windows proxy rollback ownership-symmetric with Linux for external proxy changes, validate on physical
   ARVECTUM-DEMO, and publish the next immutable release to GitHub and GitVerse.
 authority: HUMAN
@@ -29,9 +29,9 @@ completed:
   release docs remain immutable.
 - 'Diagnosed first PR CI failures as two compatibility issues: stale FixedFileInfo 0.2.8 tuples and a legacy proxy_core
   restore fixture missing the new current-state read; both corrected.'
-current: Push corrected 0.2.9 head and require a fresh exact-head CI run before physical acceptance.
+- 'Subtask B PASS on physical ARVECTUM-DEMO under enforced WDAC: exact-head 0.2.9 preserved foreign PAC and foreign manual proxy on stop; durable WinINET backup stayed pending; after resolving only the test foreign field, recovery restored saved baseline. Manual Arvectum PAC disable -> stop -> restart -> stop also passed. Final network state: ProxyEnable=1, ProxyServer=68.209.60.141:8000, AutoConfigURL absent, listeners 0, backup absent, saved proxy environment preserved.'
+current: Subtask C - require final exact-head CI, merge PR #93, and pass exact-main release gates.
 pending:
-- Build and test the 0.2.9 Windows candidate on ARVECTUM-DEMO, including Tk/version metadata tests.
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
 - Install exact public Windows v0.2.9 build on ARVECTUM-DEMO and run final acceptance.
@@ -44,9 +44,8 @@ test_results:
   by missing _tkinter and is pending Windows execution.'
 - 'Post-CI-fix local proxy_core/Windows subset: 83 runtime tests PASS; test_version_policy remains Mac-only import-blocked
   by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
-resume_instruction: Wait for exact-head CI after the compatibility fix; use only the corrected Windows portable/installer
-  artifacts for ARVECTUM-DEMO physical acceptance.
-updated_at: '2026-09-17T17:16:06Z'
+resume_instruction: Subtask C: wait for all required checks on latest PR #93 head, merge only exact green head, then verify exact-main Windows portable/installer and Release Evidence gates before tagging v0.2.9.
+updated_at: '2026-09-17T17:56:00Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-SYMMETRY-20260917
