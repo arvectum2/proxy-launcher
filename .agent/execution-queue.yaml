@@ -1,127 +1,128 @@
 version: 1
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-14T15:47:00Z"
+updated_at: '2026-09-17T02:20:58Z'
 owner_controls_order: true
-
-# Ordered execution view over the accepted active backlog. The executor may update
-# status/evidence only; it must not silently reorder or reclassify items.
 items:
-  - order: 10
-    task_id: APL-LNX-010-GATE-R8
-    title: "Astra Linux real-host acceptance / Gate R8"
-    status: done
-    authority: HUMAN
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P2"
-    dependencies: []
-    owner_gate: "Physical dual-boot/host actions and any destructive disk/boot step require explicit human participation."
-    executor_scope: "Prepare/check instructions, evidence templates and repository reconciliation; do not repartition/reboot/install an OS autonomously."
-    evidence: "DONE: physical Astra Linux SE 1.8/Fly Gate R8 evidence is complete; verifier => EVIDENCE COMPLETE; exact NetworkManager rollback comparators PASS; PR #62 exact-head CI 16/16 SUCCESS; fixes merged to main at cb8655278bcb0899104bb5e4161c4de0497b6226."
-
-  - order: 20
-    task_id: APL-MOB-001-ANDROID-DOGFOOD
-    title: "Android physical dogfood for APL-MOB-001"
-    status: ready
-    authority: HUMAN
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #50; draft PR #53"
-    dependencies: []
-    owner_gate: "Requires a physical Android device and real-network acceptance evidence."
-    executor_scope: "Prepare diagnostics/fixes/PR evidence around the existing spike, but do not claim physical PASS without device evidence."
-
-  - order: 30
-    task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
-    title: "Final IP provenance / human-legal sign-off"
-    status: blocked
-    authority: OWNER
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57"
-    dependencies: []
-    blocker: "Engineering provenance/SBOM work is complete; explicit authorized R-1..R-4 legal/factual review and decision remain."
-    executor_scope: "Keep evidence coherent and prepare a review packet; never manufacture APPROVED status or a clean-IP tag."
-
-  - order: 40
-    task_id: APL-REL-016
-    title: "Windows public trust / Authenticode / SmartScreen strategy"
-    status: ready
-    authority: REVIEW
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30"
-    dependencies: []
-    owner_gate: "Final production trust/distribution path and any paid/external certificate commitment require owner approval."
-    executor_scope: "Research current requirements, maintain the trust matrix, prepare architecture/recommendation and repository changes up to a review-ready PR. Never mutate v0.2.5."
-
-  - order: 50
-    task_id: APL-REG-001B-PHYSICAL-PROOF
-    title: "Russian sovereign lifecycle physical infrastructure proof"
-    status: blocked
-    authority: HUMAN
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P6; issue #55"
-    dependencies: []
-    blocker: "Requires actual Russian-controlled build/storage/distribution infrastructure and human evidence."
-
-  - order: 60
-    task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
-    title: "Per-application routing production enforcement architecture"
-    status: ready
-    authority: OWNER
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8"
-    dependencies: []
-    owner_gate: "Architecture/enforcement choice is an explicit stop-gate before production implementation."
-    executor_scope: "May prepare options, trade-offs and reversible prototypes only; do not select the production architecture as owner approval."
-
-  - order: 70
-    task_id: APL-REG-001C-REDOS
-    title: "RED OS second trusted-OS real-host acceptance"
-    status: blocked
-    authority: HUMAN
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P3"
-    dependencies:
-      - APL-LNX-010-GATE-R8
-    blocker: "Requires a qualifying RED OS environment and real-host/accepted evidence form."
-
-  - order: 80
-    task_id: APL-REG-001D-F
-    title: "Russian Software Register documentation and pre-submission package"
-    status: blocked
-    authority: REVIEW
-    independent: false
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P10; issue #46"
-    dependencies:
-      - APL-LNX-010-GATE-R8
-      - APL-REG-001C-REDOS
-      - APL-IP-001-HUMAN-LEGAL-SIGNOFF
-      - APL-REG-001B-PHYSICAL-PROOF
-    owner_gate: "Private corporate evidence, final filing decision and electronic submission remain human/owner actions."
-
-  - order: 90
-    task_id: APL-MAC-PRODUCTION-DISTRIBUTION
-    title: "macOS production signing/notarization"
-    status: deferred
-    authority: REVIEW
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P9"
-    dependencies: []
-
-  - order: 100
-    task_id: APL-IOS-LATER-STAGE
-    title: "iOS mobile stage and later APL-MOB-002"
-    status: deferred
-    authority: REVIEW
-    independent: false
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51"
-    dependencies:
-      - APL-MOB-001-ANDROID-DOGFOOD
+- order: 10
+  task_id: APL-LNX-010-GATE-R8
+  title: Astra Linux real-host acceptance / Gate R8
+  status: done
+  authority: HUMAN
+  independent: true
+  auto_merge: false
+  source: docs/LOCAL_EXECUTION_BACKLOG.md#P2
+  dependencies: []
+  owner_gate: Physical dual-boot/host actions and any destructive disk/boot step require explicit human participation.
+  executor_scope: Prepare/check instructions, evidence templates and repository reconciliation; do not repartition/reboot/install
+    an OS autonomously.
+  evidence: 'DONE: physical Astra Linux SE 1.8/Fly Gate R8 evidence is complete; verifier => EVIDENCE COMPLETE; exact NetworkManager
+    rollback comparators PASS; PR #62 exact-head CI 16/16 SUCCESS; fixes merged to main at cb8655278bcb0899104bb5e4161c4de0497b6226.'
+- order: 20
+  task_id: APL-MOB-001-ANDROID-DOGFOOD
+  title: Android physical dogfood for APL-MOB-001
+  status: ready
+  authority: HUMAN
+  independent: true
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #50; draft PR #53'
+  dependencies: []
+  owner_gate: Requires a physical Android device and real-network acceptance evidence.
+  executor_scope: Prepare diagnostics/fixes/PR evidence around the existing spike, but do not claim physical PASS without
+    device evidence.
+- order: 30
+  task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
+  title: Final IP provenance / human-legal sign-off
+  status: blocked
+  authority: OWNER
+  independent: true
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57'
+  dependencies: []
+  blocker: Engineering provenance/SBOM work is complete; explicit authorized R-1..R-4 legal/factual review and decision remain.
+  executor_scope: Keep evidence coherent and prepare a review packet; never manufacture APPROVED status or a clean-IP tag.
+- order: 40
+  task_id: APL-REL-016
+  title: Windows public trust / Authenticode / SmartScreen strategy
+  status: blocked
+  authority: REVIEW
+  independent: true
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30'
+  dependencies: []
+  owner_gate: Final production trust/distribution path and any paid/external certificate commitment require owner approval.
+  executor_scope: Research current requirements, maintain the trust matrix, prepare architecture/recommendation and repository
+    changes up to a review-ready PR. Never mutate v0.2.5.
+  active_pr: 81
+  active_branch: agent/apl-rel-016-windows-trust-review-v2
+  evidence: 'PR #81 exact-head e3847d0884c079e28c20b1773d31d3a650fc7c12: APL-REL-016 contract tests PASS; PowerShell syntax
+    PASS; signed app -> portable -> installer smoke PASS; Windows P0/installer/offline build/SAST/SBOM/Gitleaks/provenance
+    PASS. Decision packet refreshed through 2026-09-17; first immutable-safe production Authenticode target is 0.2.7+.'
+  blocker: 'Review-ready PR #81 is exact-head green. Explicit Owner/Product Owner decision remains required for production
+    distribution lane, signer/provider class, legal eligibility, budget/external dependency and key-custody/operator boundary.
+    Microsoft Artifact Signing Public Trust currently does not list Russia in its published organization geography.'
+- order: 50
+  task_id: APL-REG-001B-PHYSICAL-PROOF
+  title: Russian sovereign lifecycle physical infrastructure proof
+  status: blocked
+  authority: HUMAN
+  independent: true
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P6; issue #55'
+  dependencies: []
+  blocker: Requires actual Russian-controlled build/storage/distribution infrastructure and human evidence.
+- order: 60
+  task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
+  title: Per-application routing production enforcement architecture
+  status: ready
+  authority: OWNER
+  independent: true
+  auto_merge: false
+  source: docs/LOCAL_EXECUTION_BACKLOG.md#P8
+  dependencies: []
+  owner_gate: Architecture/enforcement choice is an explicit stop-gate before production implementation.
+  executor_scope: May prepare options, trade-offs and reversible prototypes only; do not select the production architecture
+    as owner approval.
+- order: 70
+  task_id: APL-REG-001C-REDOS
+  title: RED OS second trusted-OS real-host acceptance
+  status: blocked
+  authority: HUMAN
+  independent: true
+  auto_merge: false
+  source: docs/LOCAL_EXECUTION_BACKLOG.md#P3
+  dependencies:
+  - APL-LNX-010-GATE-R8
+  blocker: Requires a qualifying RED OS environment and real-host/accepted evidence form.
+- order: 80
+  task_id: APL-REG-001D-F
+  title: Russian Software Register documentation and pre-submission package
+  status: blocked
+  authority: REVIEW
+  independent: false
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P10; issue #46'
+  dependencies:
+  - APL-LNX-010-GATE-R8
+  - APL-REG-001C-REDOS
+  - APL-IP-001-HUMAN-LEGAL-SIGNOFF
+  - APL-REG-001B-PHYSICAL-PROOF
+  owner_gate: Private corporate evidence, final filing decision and electronic submission remain human/owner actions.
+- order: 90
+  task_id: APL-MAC-PRODUCTION-DISTRIBUTION
+  title: macOS production signing/notarization
+  status: deferred
+  authority: REVIEW
+  independent: true
+  auto_merge: false
+  source: docs/LOCAL_EXECUTION_BACKLOG.md#P9
+  dependencies: []
+- order: 100
+  task_id: APL-IOS-LATER-STAGE
+  title: iOS mobile stage and later APL-MOB-002
+  status: deferred
+  authority: REVIEW
+  independent: false
+  auto_merge: false
+  source: 'docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51'
+  dependencies:
+  - APL-MOB-001-ANDROID-DOGFOOD
