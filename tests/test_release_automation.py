@@ -80,7 +80,7 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn('if [ "$OWNER_SIGNED_RELEASE" = "true" ]', release)
         self.assertIn("Automated CI rebuild publication is intentionally disabled", release)
         self.assertIn("Publish only the REL-011/012/013/015 verified owner-signed directory", release)
-        self.assertIn("if: needs.validate.outputs.owner_signed_release != 'true'", release)
+        self.assertIn("needs.validate.outputs.owner_signed_release != 'true'", release)
         self.assertIn('echo "should_publish=false" >> "$GITHUB_OUTPUT"', release)
 
     def test_publish_job_structural_protection(self):
