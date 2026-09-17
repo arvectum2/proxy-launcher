@@ -1,0 +1,26 @@
+version: 1
+task_id: APL-REG-001C
+status: in_progress
+goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and retain governed compatibility evidence.
+definition_of_done:
+- Exact RED OS host identity and current qualification/rightsholder evidence boundary recorded.
+- Exact launcher source/release/package hash bound to the run.
+- Native RED OS package and compatibility changes implemented if required.
+- Physical clean install, start/stop, proxy/no-proxy, restart/recovery/autostart, diagnostics, uninstall/removal and post-state checks pass.
+- Raw machine-readable evidence and expert-readable protocol committed.
+- Relevant tests/CI pass and final commit is recorded.
+completed:
+- Physical target identified as RED OS 8.0.3 Standard Desktop x86_64, kernel 6.12.101-1.red80.x86_64.
+- rpm and dnf confirmed present; no current launcher installation detected.
+current: Inspect Linux packaging/runtime assumptions and prepare native RPM acceptance path.
+pending:
+- Qualification/rightsholder recheck.
+- Packaging/runtime inspection.
+- Implement/build native RED OS package as needed.
+- Physical acceptance execution and evidence capture.
+- Repository protocol/evidence update.
+- Final tests/CI and completion checkpoint.
+last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+test_results:
+- RED OS host identity probe PASS.
+resume_instruction: Continue from packaging/runtime inspection on branch apl-reg-001c-redos-acceptance and physical host arvectumredos.
