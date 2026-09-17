@@ -1,6 +1,6 @@
 version: 2
 task_id: APL-REG-001C
-status: in_progress
+status: blocked
 goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and retain governed compatibility evidence.
 definition_of_done:
 - Exact RED OS host identity and current qualification/rightsholder evidence boundary recorded.
@@ -22,7 +22,7 @@ completed:
 - Final RPM reinstall PASS; installed payload verified.
 - Clean start/stop PASS with NetworkManager + KDE PAC activation and exact byte-for-byte KDE plus NetworkManager baseline restoration.
 - Real GUI Chromium PASS through system PAC; localhost no-proxy path PASS.
-current: Complete recovery/autostart/diagnostics/uninstall-reinstall and final post-state checks, then preserve sanitized evidence/protocol.
+current: Blocked only on local PolicyKit authorization for final privileged remove/reinstall proof on the physical RED OS host.
 pending:
 - Recheck and document RED OS qualification/rightsholder evidence boundary.
 - Complete KDE backend identity safety tests.
@@ -41,4 +41,4 @@ test_results:
 - Physical clean start/stop and exact rollback: PASS.
 - GUI Chromium system-PAC routing and localhost bypass: PASS.
 updated_at: '2026-09-17T07:27:00Z'
-resume_instruction: Preserve original NetworkManager/KDE baselines; continue recovery, autostart, diagnostics, uninstall/reinstall and final cleanup; then commit sanitized evidence/protocol and complete after green tests/CI.
+resume_instruction: After the operator approves the already-open local PolicyKit prompt on arvectumredos, verify dnf remove completed; then clean-install the exact RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a, run one final start/stop and exact NetworkManager/KDE post-state comparison, restore acceptance-created user settings, update protocol/checkpoint to completed, push, wait for exact-head green CI, and merge PR #83.

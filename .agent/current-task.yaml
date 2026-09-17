@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: blocked
 task_id: APL-REG-001C
 goal: Complete physical RED OS acceptance for Arvectum Proxy Launcher, implement only compatibility changes required by the real host, and preserve governed evidence for the trusted-Russian-OS compatibility workstream.
 authority: HUMAN
@@ -28,7 +28,7 @@ completed:
 - Clean lifecycle start PASS: launcher listens on 127.0.0.1:18080/18081/18082; NetworkManager and KDE both use PAC http://127.0.0.1:18082/proxy.pac; backup records original NM none and KDE manual state.
 - Clean stop/rollback PASS: NetworkManager matches captured baseline, KDE kioslaverc restored byte-for-byte (SHA-256 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde), rollback backup removed.
 - Real GUI Chromium system-proxy PASS: fresh RED OS Chromium profile without proxy flags routed http://proxy-route.invalid/gui-proof-003 through the launcher/upstream; localhost:19081/direct-proof-002 bypassed the proxy and reached the direct origin.
-current: Complete recovery, autostart, diagnostics, uninstall/reinstall and final post-state checks; then preserve sanitized acceptance evidence and protocol.
+current: Blocked only on local PolicyKit authorization for final privileged remove/reinstall proof on the physical RED OS host.
 pending:
 - Recheck qualifying OS/rightsholder evidence current at test time and capture the boundary without overstating legal conclusions.
 - Inspect current Linux/Astra package/runtime implementation for Debian-specific assumptions.
@@ -45,7 +45,7 @@ test_results:
 - Real KDE adapter exact round-trip => PASS; original kioslaverc file hash restored byte-for-byte.
 - Post-fix frozen artifact build => PASS. First post-fix RPM exposed a RED OS build-id ownership conflict with python3-pyinstaller; packaging was hardened to disable global build-id links. Final candidate RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a and contains no /usr/lib/.build-id payload.
 updated_at: '2026-09-17T07:27:00Z'
-resume_instruction: Preserve the captured original NetworkManager and KDE baselines. Continue with physical recovery/rollback, autostart where in scope, diagnostics/log collection, final uninstall/reinstall and post-state validation; then commit sanitized evidence/protocol, run final tests/CI, and complete the checkpoint.
+resume_instruction: After the operator approves the already-open local PolicyKit prompt on arvectumredos, verify dnf remove completed; then clean-install the exact RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a, run one final start/stop and exact NetworkManager/KDE post-state comparison, restore acceptance-created user settings, update protocol/checkpoint to completed, push, wait for exact-head green CI, and merge PR #83.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-001C-20260917
