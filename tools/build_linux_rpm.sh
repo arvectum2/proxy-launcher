@@ -63,6 +63,8 @@ License:        Proprietary
 BuildArch:      %{_apl_arch}
 Requires:       NetworkManager
 Requires:       glib2
+Requires:       kf5-kconfig-core
+Requires:       dbus-tools
 %global debug_package %{nil}
 %global _build_id_links none
 
