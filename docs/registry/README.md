@@ -61,3 +61,7 @@
 RED ОС physical acceptance было закрыто на exact public `v0.2.8`; `v0.2.9` изменил Windows rollback/recovery и release notes фиксируют неизменное Linux-поведение. Пакет не выдаёт это за physical exact-0.2.9 run.
 
 До 2027 revalidation предпочтительно прогнать точные публичные `v0.2.9` DEB/RPM на Astra Linux SE и RED ОС и сохранить OS version + package SHA-256 + PASS/FAIL protocol.
+
+## Текущий filing decision
+
+Репозиторная подготовка APL-REG-001D завершена. Внешняя заявка остаётся **HOLD** до закрытия G1–G7 из `APL_REG_001F_PRE_SUBMISSION_AUDIT.md` реальными HUMAN/PRIVATE/PHYSICAL evidence. Trusted-OS exact-v0.2.9 rerun относится к future-proofing перед 2027-01-01 и не подменяет текущие filing blockers.
