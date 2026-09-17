@@ -47,7 +47,7 @@ test_results:
 - Python syntax checks PASS for windows_system_proxy.py, windows_backend.py and proxy_core.py.
 resume_instruction: Open PR from apl-win-foreign-state-fix, wait for exact-head CI, download its Windows artifact, physically
   validate ownership-safe rollback on ARVECTUM-DEMO, then continue through merge and v0.2.9 release.
-updated_at: '2026-09-17T14:21:30.842999+00:00'
+updated_at: '2026-09-17T14:21:30.859229+00:00'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-020-20260917

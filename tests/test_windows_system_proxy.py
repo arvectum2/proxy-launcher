@@ -34,6 +34,13 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             "_internet_backup_path",
             "_read_internet_settings",
             "_valid_internet_backup",
+            "_state_item_equal",
+            "_desired_internet_state",
+            "_internet_state_matches_owned_backup",
+            "_valid_env_backup",
+            "_read_proxy_env_state",
+            "_desired_proxy_env_state",
+            "_proxy_env_matches_owned_backup",
             "_known_internet_backup_paths",
             "_valid_internet_backup_at",
             "_exact_arvectum_pac_url",
@@ -50,6 +57,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             "_reg_set",
             "_reg_del",
             "_refresh_internet",
+            "_restore_preflight_owned",
         ):
             self.assertEqual(getattr(core, name).__module__, "windows_system_proxy")
 
@@ -105,6 +113,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             self.assertEqual(json.loads(path.read_text(encoding="utf-8")), snapshot)
 
             with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=snapshot), \
                  mock.patch.object(core, "_reg_set", return_value=True) as set_value, \
                  mock.patch.object(core, "_reg_del", return_value=True) as delete_value, \
                  mock.patch.object(core, "_log"):
@@ -182,6 +191,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
                 return name != "HTTPS_PROXY"
 
             with mock.patch.object(core, "_env_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_proxy_env_state", return_value=snapshot), \
                  mock.patch.object(core, "_write_user_env", side_effect=write_env), \
                  mock.patch.object(core, "_delete_user_env", return_value=True), \
                  mock.patch.object(core, "_broadcast_environment_change") as broadcast, \
@@ -189,6 +199,102 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
                 self.assertFalse(core._disable_client_proxy_env())
             self.assertTrue(path.exists())
             broadcast.assert_not_called()
+
+    def test_wininet_mixed_saved_and_applied_fields_are_recoverable(self):
+        snapshot = self._internet_snapshot()
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["local_pac_port"] = 9092
+        settings["pac_path"] = "/proxy.pac"
+        desired = core._desired_internet_state(snapshot, settings=settings)
+
+        mixed = dict(snapshot)
+        mixed["AutoConfigURL"] = dict(snapshot["AutoConfigURL"])
+        mixed["ProxyEnable"] = dict(desired["ProxyEnable"])
+        self.assertTrue(
+            core._internet_state_matches_owned_backup(snapshot, mixed, settings=settings)
+        )
+
+        inverse = dict(snapshot)
+        inverse["AutoConfigURL"] = dict(desired["AutoConfigURL"])
+        inverse["ProxyEnable"] = dict(snapshot["ProxyEnable"])
+        self.assertTrue(
+            core._internet_state_matches_owned_backup(snapshot, inverse, settings=settings)
+        )
+
+    def test_wininet_foreign_active_change_refuses_restore_without_mutation(self):
+        snapshot = self._internet_snapshot()
+        foreign = dict(snapshot)
+        foreign["AutoConfigURL"] = {"exists": True, "value": "http://foreign.example/pac"}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_internet_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=foreign), \
+                 mock.patch.object(core, "_reg_set") as set_value, \
+                 mock.patch.object(core, "_reg_del") as delete_value, \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._restore_internet_backup())
+            self.assertTrue(path.exists())
+            set_value.assert_not_called()
+            delete_value.assert_not_called()
+
+    def test_user_disables_arvectum_pac_to_saved_absent_state_is_recoverable(self):
+        snapshot = self._internet_snapshot()
+        snapshot["AutoConfigURL"] = {"exists": False, "value": None}
+        snapshot["ProxyEnable"] = {"exists": True, "value": 1}
+        current = dict(snapshot)
+        current["AutoConfigURL"] = {"exists": False, "value": None}
+        current["ProxyEnable"] = {"exists": True, "value": 0}
+        self.assertTrue(core._internet_state_matches_owned_backup(snapshot, current))
+
+    def test_proxy_env_mixed_state_is_recoverable_and_foreign_state_is_not(self):
+        snapshot = self._env_snapshot()
+        with mock.patch.object(core, "load_no_proxy", return_value=["example.test"]):
+            desired = core._desired_proxy_env_state(snapshot, 8181)
+            mixed = {name: dict(snapshot[name]) for name in snapshot}
+            mixed["HTTP_PROXY"] = dict(desired["HTTP_PROXY"])
+            mixed["ALL_PROXY"] = dict(desired["ALL_PROXY"])
+            self.assertTrue(core._proxy_env_matches_owned_backup(snapshot, mixed, port=8181))
+            foreign = {name: dict(desired[name]) for name in desired}
+            foreign["HTTPS_PROXY"] = {"exists": True, "value": "http://foreign:3128"}
+            self.assertFalse(core._proxy_env_matches_owned_backup(snapshot, foreign, port=8181))
+
+    def test_disable_preflight_is_atomic_when_wininet_contains_foreign_change(self):
+        internet = self._internet_snapshot()
+        env = self._env_snapshot()
+        foreign = dict(internet)
+        foreign["ProxyServer"] = {"exists": True, "value": "foreign:9999"}
+        with tempfile.TemporaryDirectory() as td:
+            internet_path = Path(td) / "internet.json"
+            env_path = Path(td) / "env.json"
+            internet_path.write_text(json.dumps(internet), encoding="utf-8")
+            env_path.write_text(json.dumps(env), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(internet_path)), \
+                 mock.patch.object(core, "_env_backup_path", return_value=str(env_path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=foreign), \
+                 mock.patch.object(core, "_read_proxy_env_state") as read_env, \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._restore_preflight_owned())
+            read_env.assert_not_called()
+
+    def test_disable_preflight_rejects_foreign_env_before_any_restore(self):
+        internet = self._internet_snapshot()
+        env = self._env_snapshot()
+        with mock.patch.object(core, "load_no_proxy", return_value=[]):
+            desired_env = core._desired_proxy_env_state(env, int(core.DEFAULT_SETTINGS["local_http_port"]))
+        desired_env["NO_PROXY"] = {"exists": True, "value": "foreign.example"}
+        with tempfile.TemporaryDirectory() as td:
+            internet_path = Path(td) / "internet.json"
+            env_path = Path(td) / "env.json"
+            internet_path.write_text(json.dumps(internet), encoding="utf-8")
+            env_path.write_text(json.dumps(env), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(internet_path)), \
+                 mock.patch.object(core, "_env_backup_path", return_value=str(env_path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=internet), \
+                 mock.patch.object(core, "_read_proxy_env_state", return_value=desired_env), \
+                 mock.patch.object(core, "load_no_proxy", return_value=[]), \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._restore_preflight_owned())
 
     def test_enable_publishes_pac_to_wininet_and_refreshes_consumers(self):
         settings = dict(core.DEFAULT_SETTINGS)
@@ -250,6 +356,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
 
     def test_disable_keeps_recovery_owner_until_network_state_is_safe(self):
         with mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "_restore_preflight_owned", return_value=True), \
              mock.patch.object(core, "system_proxy_enabled", side_effect=[True, True, True]), \
              mock.patch.object(core, "_valid_internet_backup_at", return_value=True), \
              mock.patch.object(core, "_restore_internet_backup", return_value=False), \
