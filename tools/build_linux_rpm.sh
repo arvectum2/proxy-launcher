@@ -15,6 +15,10 @@ for cmd in rpmbuild rpm install python3; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required tool: $cmd" >&2; exit 2; }
 done
 [[ -f "$artifact" ]] || { echo "Missing Linux application artifact: $artifact" >&2; exit 2; }
+# rpmbuild executes %install from its BUILD directory, so every external input
+# passed as a macro must be absolute. This also preserves paths containing spaces.
+artifact="$(cd "$(dirname "$artifact")" && pwd)/$(basename "$artifact")"
+out_dir="$(mkdir -p "$out_dir" && cd "$out_dir" && pwd)"
 
 version="$(tr -d '[:space:]' < VERSION)"
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.+~-][A-Za-z0-9.+:~-]+)?$ ]] || {
@@ -27,7 +31,7 @@ work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 top="$work/rpmbuild"
 license_bundle="$work/THIRD_PARTY_LICENSES"
-mkdir -p "$top"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS} "$out_dir"
+mkdir -p "$top"/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
 python3 tools/third_party_license_bundle.py --build --output "$license_bundle"
 python3 tools/third_party_license_bundle.py --verify --output "$license_bundle"
@@ -63,7 +67,7 @@ Requires:       glib2
 %global _build_id_links none
 
 %description
-Cross-platform system proxy launcher with explicit ownership, rollback and diagnostics boundaries. RED OS integration uses NetworkManager/nmcli and desktop GSettings PAC state.
+Cross-platform system proxy launcher with explicit ownership, rollback and diagnostics boundaries. RED OS integration uses NetworkManager/nmcli plus the active desktop's governed system-proxy store, including KDE/KConfig.
 
 %install
 rm -rf %{buildroot}
