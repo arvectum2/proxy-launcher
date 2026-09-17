@@ -47,7 +47,7 @@ test_results:
   by missing _tkinter and is pending Windows execution.'
 - 'Post-CI-fix local proxy_core/Windows subset: 83 runtime tests PASS; test_version_policy remains Mac-only import-blocked
   by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
-resume_instruction: Subtask C: wait for all required checks on latest PR #93 head, merge only exact green head, then verify exact-main Windows portable/installer and Release Evidence gates before tagging v0.2.9.
+resume_instruction: 'Subtask C: wait for all required checks on latest PR #93 head, merge only exact green head, then verify exact-main Windows portable/installer and Release Evidence gates before tagging v0.2.9.'
 updated_at: '2026-09-17T17:56:00Z'
 execution:
   claimed_by: chatgpt
