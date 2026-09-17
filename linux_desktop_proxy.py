@@ -26,6 +26,7 @@ _GSETTINGS_DESKTOP_TOKENS = (
     "budgie",
     "mate",
 )
+_KDE_DESKTOP_TOKENS = ("kde", "plasma")
 
 
 class DesktopProxyError(RuntimeError):
@@ -54,6 +55,8 @@ def _gvariant_string(value: str) -> str:
 
 class GSettingsProxyClient:
     """Small injectable adapter for org.gnome.system.proxy."""
+
+    backend_id = "gsettings"
 
     def __init__(
         self,
@@ -120,12 +123,104 @@ class GSettingsProxyClient:
             raise DesktopProxyError("desktop proxy verification failed")
 
 
-def _desktop_uses_gsettings(environ: Mapping[str, str]) -> bool:
-    desktop = " ".join(
+class KDEProxyClient:
+    """KDE/Plasma PAC adapter preserving the existing proxy mode/script."""
+
+    backend_id = "kde"
+
+    def __init__(
+        self,
+        read_binary: str = "/usr/bin/kreadconfig5",
+        write_binary: str = "/usr/bin/kwriteconfig5",
+        notifier_binary: str = "/usr/bin/dbus-send",
+        runner: Callable[..., object] = subprocess.run,
+        environ: Optional[Mapping[str, str]] = None,
+    ) -> None:
+        self.read_binary = str(read_binary)
+        self.write_binary = str(write_binary)
+        self.notifier_binary = str(notifier_binary or "")
+        self._runner = runner
+        self._environ = dict(os.environ if environ is None else environ)
+
+    def _run(self, binary: str, *arguments: str) -> str:
+        try:
+            result = self._runner(
+                [binary, *arguments],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+                env=self._environ,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise DesktopProxyError("KDE proxy utility could not be executed") from exc
+        if int(getattr(result, "returncode", 1) or 0) != 0:
+            detail = str(getattr(result, "stderr", "") or "").strip()
+            raise DesktopProxyError(
+                "KDE proxy utility failed%s" % (": %s" % detail if detail else "")
+            )
+        return str(getattr(result, "stdout", "") or "").strip()
+
+    def _read_key(self, key: str) -> str:
+        return self._run(
+            self.read_binary, "--file", "kioslaverc", "--group", "Proxy Settings",
+            "--key", key,
+        )
+
+    def _write_key(self, key: str, value: str) -> None:
+        self._run(
+            self.write_binary, "--file", "kioslaverc", "--group", "Proxy Settings",
+            "--key", key, str(value),
+        )
+
+    def _notify(self) -> None:
+        if not self.notifier_binary:
+            return
+        try:
+            self._runner(
+                [self.notifier_binary, "--session", "--type=signal", "/KIO/Scheduler",
+                 "org.kde.KIO.Scheduler.reparseSlaveConfiguration", "string:"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5,
+                check=False, env=self._environ,
+            )
+        except Exception:
+            pass
+
+    def get_state(self) -> DesktopProxyState:
+        proxy_type = self._read_key("ProxyType").strip() or "0"
+        mode = {"0": "none", "1": "manual", "2": "auto"}.get(proxy_type)
+        if mode is None:
+            raise DesktopProxyError("unsupported KDE proxy type")
+        return DesktopProxyState(mode, self._read_key("Proxy Config Script"))
+
+    def set_state(self, state: DesktopProxyState) -> None:
+        if not isinstance(state, DesktopProxyState):
+            raise DesktopProxyError("invalid desktop proxy state")
+        proxy_type = {"none": "0", "manual": "1", "auto": "2"}.get(state.mode)
+        if proxy_type is None:
+            raise DesktopProxyError("unsupported desktop proxy mode")
+        self._write_key("Proxy Config Script", state.autoconfig_url)
+        self._write_key("ProxyType", proxy_type)
+        self._notify()
+        if self.get_state() != state:
+            raise DesktopProxyError("KDE desktop proxy verification failed")
+
+
+def _desktop_name(environ: Mapping[str, str]) -> str:
+    return " ".join(
         str(environ.get(key, "") or "").lower()
         for key in ("XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "GDMSESSION")
     )
+
+
+def _desktop_uses_gsettings(environ: Mapping[str, str]) -> bool:
+    desktop = _desktop_name(environ)
     return any(token in desktop for token in _GSETTINGS_DESKTOP_TOKENS)
+
+
+def _desktop_uses_kde(environ: Mapping[str, str]) -> bool:
+    desktop = _desktop_name(environ)
+    return any(token in desktop for token in _KDE_DESKTOP_TOKENS)
 
 
 def _session_environment(environ: Mapping[str, str]) -> Optional[dict]:
@@ -162,12 +257,24 @@ def detect_desktop_proxy_client(
     desktop configuration store.
     """
     environment = os.environ if environ is None else environ
+    session_env = _session_environment(environment)
+    if session_env is None:
+        return None
+    if _desktop_uses_kde(environment):
+        read_binary = str(which("kreadconfig5") or which("kreadconfig6") or "")
+        write_binary = str(which("kwriteconfig5") or which("kwriteconfig6") or "")
+        if not read_binary or not write_binary:
+            return None
+        return KDEProxyClient(
+            read_binary=read_binary,
+            write_binary=write_binary,
+            notifier_binary=str(which("dbus-send") or ""),
+            runner=runner,
+            environ=session_env,
+        )
     if not _desktop_uses_gsettings(environment):
         return None
     binary = str(which("gsettings") or "")
     if not binary:
-        return None
-    session_env = _session_environment(environment)
-    if session_env is None:
         return None
     return GSettingsProxyClient(binary=binary, runner=runner, environ=session_env)

@@ -48,6 +48,7 @@ cp -a "$license_bundle" "$work/rpmbuild/SOURCES/THIRD_PARTY_LICENSES"
 
 cat > "$work/rpmbuild/SPECS/$package.spec" <<'SPEC'
 %global debug_package %{nil}
+%global _build_id_links none
 %global __arch_install_post %{nil}
 %global __os_install_post %{nil}
 %global __check_files %{nil}

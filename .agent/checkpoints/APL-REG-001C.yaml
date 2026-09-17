@@ -1,26 +1,44 @@
-version: 1
+version: 2
 task_id: APL-REG-001C
 status: in_progress
 goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and retain governed compatibility evidence.
 definition_of_done:
 - Exact RED OS host identity and current qualification/rightsholder evidence boundary recorded.
-- Exact launcher source/release/package hash bound to the run.
-- Native RED OS package and compatibility changes implemented if required.
-- Physical clean install, start/stop, proxy/no-proxy, restart/recovery/autostart, diagnostics, uninstall/removal and post-state checks pass.
-- Raw machine-readable evidence and expert-readable protocol committed.
-- Relevant tests/CI pass and final commit is recorded.
+- Acceptance bound to exact source/release and package SHA-256.
+- Native RED OS package provided and verified.
+- Clean install, GUI/runtime, proxy/no-proxy, rollback/recovery/autostart, diagnostics, uninstall and post-state acceptance pass on physical RED OS.
+- Raw/sanitized evidence and expert-readable protocol preserved.
+- Relevant tests pass and final commit is recorded.
 completed:
-- Physical target identified as RED OS 8.0.3 Standard Desktop x86_64, kernel 6.12.101-1.red80.x86_64.
-- rpm and dnf confirmed present; no current launcher installation detected.
-current: Inspect Linux packaging/runtime assumptions and prepare native RPM acceptance path.
+- Physical target confirmed: RED OS 8.0.3 Standard Desktop x86_64, kernel 6.12.101-1.red80.x86_64, physical Plasma/X11 session.
+- Native RPM built and packaging contract passed; original candidate SHA-256 229f7465cbfdda33e137359898c7036eae6fece0b15ec01b47f0beb36ebe494e.
+- RPM installed through normal PolicyKit/DNF flow; installed GUI launched successfully in the real session.
+- Pre-mutation NetworkManager baseline captured at /home/arvectum/APL-REG-001C-20260917-090901.
+- Physical run found RED OS KDE/Plasma gap: existing ~/.config/kioslaverc manual proxy was outside the prior GSettings-only desktop integration.
+- In-progress KDE adapter added with native kreadconfig5/kwriteconfig5 round-trip verification; focused regression suite passes 41 tests.
+- KDE rollback backend identity hardened; focused suite passes 42 tests; with the build-id packaging regression the focused total is 43 tests.
+- Real physical KDE round-trip restored the original kioslaverc byte-for-byte.
+- Post-fix frozen ELF and native RPM built from commit 18b593024c83208d26b829a64be68f7c6f822c5c; RPM build exposed and then fixed a global build-id ownership conflict; final candidate SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a.
+- Final RPM reinstall PASS; installed payload verified.
+- Clean start/stop PASS with NetworkManager + KDE PAC activation and exact byte-for-byte KDE plus NetworkManager baseline restoration.
+- Real GUI Chromium PASS through system PAC; localhost no-proxy path PASS.
+current: Complete recovery/autostart/diagnostics/uninstall-reinstall and final post-state checks, then preserve sanitized evidence/protocol.
 pending:
-- Qualification/rightsholder recheck.
-- Packaging/runtime inspection.
-- Implement/build native RED OS package as needed.
-- Physical acceptance execution and evidence capture.
-- Repository protocol/evidence update.
-- Final tests/CI and completion checkpoint.
-last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+- Recheck and document RED OS qualification/rightsholder evidence boundary.
+- Complete KDE backend identity safety tests.
+- Execute physical proxy/no-proxy/rollback/recovery/autostart/diagnostics/uninstall matrix.
+- Add RED OS acceptance protocol and governed evidence; update roadmap/readiness status after PASS.
+- Run final tests/CI and mark completed.
+last_verified_commit: ad3baea60c32a941a5ab79fc8b1915dee67c1781
 test_results:
-- RED OS host identity probe PASS.
-resume_instruction: Continue from packaging/runtime inspection on branch apl-reg-001c-redos-acceptance and physical host arvectumredos.
+- Host identity: PASS.
+- RPM packaging contract: PASS 5/5.
+- Installed RPM + Plasma/X11 GUI launch: PASS.
+- KDE desktop/backend/runtime/RPM regression: PASS 42 tests.
+- Real KDE adapter round-trip: PASS, byte-exact baseline restored.
+- Post-fix RPM build: PASS after removing global build-id ownership; final candidate SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a.
+- Focused lifecycle regression: PASS 62 tests.
+- Physical clean start/stop and exact rollback: PASS.
+- GUI Chromium system-PAC routing and localhost bypass: PASS.
+updated_at: '2026-09-17T07:27:00Z'
+resume_instruction: Preserve original NetworkManager/KDE baselines; continue recovery, autostart, diagnostics, uninstall/reinstall and final cleanup; then commit sanitized evidence/protocol and complete after green tests/CI.

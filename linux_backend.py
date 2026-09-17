@@ -452,7 +452,7 @@ class LinuxBackend(ProxyBackend):
         if desktop_proxy is not None:
             if not isinstance(desktop_proxy, dict):
                 raise RollbackStateError("invalid desktop proxy snapshot")
-            if desktop_proxy.get("backend") != "gsettings":
+            if desktop_proxy.get("backend") not in {"gsettings", "kde"}:
                 raise RollbackStateError("unsupported desktop proxy rollback backend")
             state = desktop_proxy.get("state")
             if not isinstance(state, dict):
@@ -507,13 +507,22 @@ class LinuxBackend(ProxyBackend):
             return None
         return _desktop_state_from_dict(desktop_proxy["state"])
 
+    def _desktop_backend_matches_payload(self, payload: Mapping[str, Any]) -> bool:
+        desktop_proxy = payload.get("desktop_proxy")
+        if desktop_proxy is None:
+            return True
+        if self._desktop_client is None:
+            return False
+        actual = str(getattr(self._desktop_client, "backend_id", "gsettings") or "")
+        return actual == str(desktop_proxy.get("backend", "") or "")
+
     def _desktop_matches_owned_state(
         self, payload: Mapping[str, Any], allow_restored: bool = False
     ) -> bool:
         original = self._desktop_snapshot_from_payload(payload)
         if original is None:
             return True
-        if self._desktop_client is None:
+        if self._desktop_client is None or not self._desktop_backend_matches_payload(payload):
             return False
         try:
             current = self._desktop_client.get_state()
@@ -528,7 +537,10 @@ class LinuxBackend(ProxyBackend):
         if original is None:
             return True
         if self._desktop_client is None:
-            self._log("Linux desktop rollback unavailable: GSettings client missing")
+            self._log("Linux desktop rollback unavailable: desktop proxy client missing")
+            return False
+        if not self._desktop_backend_matches_payload(payload):
+            self._log("Linux desktop rollback refused: desktop proxy backend changed")
             return False
         try:
             self._desktop_client.set_state(original)
@@ -617,7 +629,10 @@ class LinuxBackend(ProxyBackend):
                 "connections": snapshots,
                 "desktop_proxy": (
                     {
-                        "backend": "gsettings",
+                        "backend": str(
+                            getattr(self._desktop_client, "backend_id", "gsettings")
+                            or "gsettings"
+                        ),
                         "state": _desktop_state_to_dict(desktop_snapshot),
                     }
                     if desktop_snapshot is not None

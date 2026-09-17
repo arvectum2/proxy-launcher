@@ -16,20 +16,36 @@ completed:
 - Confirmed current main before task start is 6f034850841b999c7b7e63b4ae44c2147f0b292a.
 - Confirmed physical host arvectumredos is online and reports RED OS 8.0.3 Standard Desktop, x86_64, kernel 6.12.101-1.red80.x86_64.
 - Confirmed RED OS host is RPM/DNF based; no Arvectum Proxy Launcher package is currently installed.
-current: Inspect repository packaging/runtime assumptions and establish a RED OS-native acceptance path.
+- Built native RPM arvectum-proxy-launcher-0.2.6-1.redos8.x86_64.rpm and verified its packaging contract; SHA-256 229f7465cbfdda33e137359898c7036eae6fece0b15ec01b47f0beb36ebe494e.
+- Installed the RPM successfully on the physical RED OS host via the normal PolicyKit/DNF path and verified installed payload plus real Plasma/X11 GUI launch.
+- Captured pre-mutation NetworkManager baseline in private evidence bundle /home/arvectum/APL-REG-001C-20260917-090901.
+- Physical acceptance exposed a real compatibility gap: RED OS 8.0.3 uses KDE Plasma and has an existing user proxy in ~/.config/kioslaverc, while v0.2.6 desktop integration only handled GSettings desktops. Implemented an in-progress KDE/Plasma adapter using kreadconfig5/kwriteconfig5 with read-after-write verification and exact mode/PAC restoration semantics.
+- Added focused KDE desktop-proxy tests; combined desktop/backend/runtime/RPM suite passes 41 tests.
+- Hardened rollback backend identity so KDE and GSettings backups cannot be restored through the wrong desktop store; focused suite now passes 42 tests; packaging regression suite expansion brings the focused total to 43 tests.
+- Real KDE/Plasma source-adapter round-trip on the physical host passed: manual -> PAC auto -> exact original manual state, with kioslaverc SHA-256 unchanged.
+- Built post-fix frozen ELF from commit 18b593024c83208d26b829a64be68f7c6f822c5c and first post-fix RPM; RED OS reinstall exposed a global build-id conflict, then packaging was corrected. Final candidate RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a.
+- Reinstalled the final RPM on the physical RED OS host; rpm -V is clean and installed ELF SHA-256 matches the frozen candidate payload.
+- Clean lifecycle start PASS: launcher listens on 127.0.0.1:18080/18081/18082; NetworkManager and KDE both use PAC http://127.0.0.1:18082/proxy.pac; backup records original NM none and KDE manual state.
+- Clean stop/rollback PASS: NetworkManager matches captured baseline, KDE kioslaverc restored byte-for-byte (SHA-256 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde), rollback backup removed.
+- Real GUI Chromium system-proxy PASS: fresh RED OS Chromium profile without proxy flags routed http://proxy-route.invalid/gui-proof-003 through the launcher/upstream; localhost:19081/direct-proof-002 bypassed the proxy and reached the direct origin.
+current: Complete recovery, autostart, diagnostics, uninstall/reinstall and final post-state checks; then preserve sanitized acceptance evidence and protocol.
 pending:
 - Recheck qualifying OS/rightsholder evidence current at test time and capture the boundary without overstating legal conclusions.
 - Inspect current Linux/Astra package/runtime implementation for Debian-specific assumptions.
-- Create/update native RED OS packaging and compatibility code/tests if required.
 - Build exact package and transfer/install it on the physical RED OS host.
 - Execute full physical acceptance matrix and capture raw evidence.
 - Add expert-readable RED OS acceptance protocol and governed evidence to repository.
 - Run final tests/CI, merge/finalize changes, and mark checkpoint completed.
-last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+last_verified_commit: ad3baea60c32a941a5ab79fc8b1915dee67c1781
 test_results:
 - Physical host identity probe => PASS: RED OS 8.0.3 Standard Desktop x86_64; rpm and dnf present.
-updated_at: '2026-09-17T02:16:00Z'
-resume_instruction: Read this checkpoint, inspect actual repository HEAD and physical arvectumredos state, then continue from repository packaging/runtime inspection without repeating the completed host identity probe.
+- Native RPM packaging contract => PASS: 5/5 unittest checks.
+- Installed RPM + physical Plasma/X11 GUI launch => PASS.
+- Focused KDE desktop/backend/runtime/RPM regression => PASS: 42 tests.
+- Real KDE adapter exact round-trip => PASS; original kioslaverc file hash restored byte-for-byte.
+- Post-fix frozen artifact build => PASS. First post-fix RPM exposed a RED OS build-id ownership conflict with python3-pyinstaller; packaging was hardened to disable global build-id links. Final candidate RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a and contains no /usr/lib/.build-id payload.
+updated_at: '2026-09-17T07:27:00Z'
+resume_instruction: Preserve the captured original NetworkManager and KDE baselines. Continue with physical recovery/rollback, autostart where in scope, diagnostics/log collection, final uninstall/reinstall and post-state validation; then commit sanitized evidence/protocol, run final tests/CI, and complete the checkpoint.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-001C-20260917

@@ -19,6 +19,9 @@ class LinuxRpmPackagingContractTests(unittest.TestCase):
         self.assertIn('Requires:       NetworkManager', self.text)
         self.assertIn('Requires:       glib2', self.text)
 
+    def test_package_does_not_claim_global_build_id_links(self):
+        self.assertIn("%global _build_id_links none", self.text)
+
     def test_package_has_no_privileged_lifecycle_network_hooks(self):
         for forbidden in ("%post", "%pre", "%preun", "%postun"):
             self.assertNotIn(forbidden, self.text)
