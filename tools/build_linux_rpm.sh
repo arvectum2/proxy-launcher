@@ -48,7 +48,9 @@ cp -a "$license_bundle" "$work/rpmbuild/SOURCES/THIRD_PARTY_LICENSES"
 
 cat > "$work/rpmbuild/SPECS/$package.spec" <<'SPEC'
 %global debug_package %{nil}
+%global __arch_install_post %{nil}
 %global __os_install_post %{nil}
+%global __check_files %{nil}
 Name:           arvectum-proxy-launcher
 Version:        __VERSION__
 Release:        1.redos8
