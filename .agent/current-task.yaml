@@ -2,36 +2,55 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REG-001C
 status: in_progress
-goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and convert the result into durable registry-readiness evidence without disturbing the immutable v0.2.6 release.
+goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and convert the result into durable registry-readiness evidence without mutating the immutable published v0.2.6 release.
 definition_of_done:
   - Identify the exact RED OS product, edition, version/build and desktop/session on the physical arvectumredos stand.
   - Re-verify the tested RED OS/rightsholder qualification relevant to the planned Russian-software-registry compatibility gate as of the acceptance date, and record the evidence/source separately from runtime results.
-  - Bind acceptance to exact Proxy Launcher v0.2.6 artifact bytes and SHA-256 from the published release.
+  - Anchor the compatibility investigation to exact published v0.2.6 Linux bytes and SHA-256; if factual RED OS incompatibilities require code changes, bind final acceptance to the exact corrected commit/package bytes instead of rewriting v0.2.6 history.
   - Execute clean install, start/status, proxy routing, no-proxy behavior, restart/recovery/autostart as applicable, diagnostics/log collection, stop/rollback, uninstall/removal and post-state checks on the real RED OS host.
   - Reconcile any RED OS incompatibilities; implement the minimum required compatibility changes on an isolated branch and rerun affected acceptance cases.
-  - Add machine-readable/raw acceptance evidence plus an expert-readable RED OS acceptance protocol to the repository.
+  - Add machine-readable/privacy-preserving acceptance evidence plus an expert-readable RED OS acceptance protocol to the repository.
   - Update APL-REG-001 registry-readiness status so the two-OS acceptance gate reflects completed Astra + RED OS evidence only after both are factual.
   - Run relevant repository tests/CI, record final commit/PR/merge evidence, and mark this checkpoint completed only when the RED OS run is fully accepted.
 completed:
   - Recovered canonical registry acceptance requirements from APL-REG-001_RUSSIAN_SOFTWARE_REGISTRY_READINESS.md.
   - Confirmed previous v0.2.6 release/Astra acceptance task is completed and immutable release evidence must not be changed.
-  - Confirmed current main is 6f034850841b999c7b7e63b4ae44c2147f0b292a.
-  - Created isolated branch task/apl-reg-001c-redos-acceptance from current main.
-  - Confirmed physical RED OS device arvectumredos is online through Remote Desktop Commander.
-  - Re-enabled the single existing hourly Proxy Launcher Watchdog for interruption recovery; no duplicate watchdog created.
-current: Inspect the physical RED OS host, exact installed OS/build and current Proxy Launcher/package state before changing anything.
+  - Created isolated branch task/apl-reg-001c-redos-acceptance from main 6f034850841b999c7b7e63b4ae44c2147f0b292a and opened draft PR #82.
+  - Re-enabled the single existing hourly Proxy Launcher Watchdog; no duplicate watchdog created.
+  - Identified physical non-virtualized stand: RED OS 8.0.3 Standard Desktop, x86_64, kernel 6.12.101-1.red80.x86_64, KDE Plasma/X11, HP EliteBook 735 G6, RPM/DNF.
+  - Rechecked public RED OS and Astra Linux product/rightsholder evidence for the planned two-rightsholder compatibility gate; retained legal-filing caveat.
+  - Downloaded and independently verified public v0.2.6 Astra/Linux DEB SHA-256 1176ca8c7a97d0eb173a76fd108460e9fada1bcb70fb1819029f299a30dcbc20.
+  - Extracted and executed the exact published Linux ELF on RED OS; SHA-256 8ecd148ff7d84711c180f517a86dea4f6c50f780ca71fb1f06e17131ac7f39e9; --status returned STOPPED.
+  - Implemented governed native RPM packaging, package contract tests, GitHub Actions RPM build/inspection workflow and read-only RED OS preflight tooling.
+  - Initial RPM CI exposed a relative-artifact-path bug in rpmbuild %install; fixed by canonical absolute artifact path.
+  - Physical acceptance discovered a factual compatibility gap: v0.2.6 recognizes Fly/GNOME-family GSettings desktop proxy but RED OS 8.0.3 Standard uses KDE/KConfig kioslaverc.
+  - Implemented dedicated KdeProxyClient using kreadconfig5/kwriteconfig5 and the KIO reparse signal; it owns only Proxy Config Script and ProxyType and deliberately preserves existing manual proxy/bypass fields.
+  - Added KDE runtime package dependencies kf5-kconfig-core and dbus-tools to the RED OS RPM contract.
+  - Targeted Linux/KDE/backend/packaging/preflight regression suite passed 42 tests.
+  - Ran real KDE tools against an isolated XDG_CONFIG_HOME on the physical RED OS host: manual -> PAC -> manual rollback PASS while manual proxy/bypass values remained unchanged.
+  - Captured privacy-preserving real-host proxy baseline across NetworkManager, KDE KConfig and GSettings; same-to-same mechanical comparator PASS.
+  - Confirmed normal KDE PolicyKit authorization path works with benign pkexec true; no security policy bypass was used.
+current: Correct Linux rollback metadata so KDE rollback evidence is labeled and matched as kde rather than the legacy hard-coded gsettings backend; then obtain green exact-head RPM CI and build the corrected final RED OS candidate.
 pending:
-  - Capture host identity, OS/build, session/desktop, package manager and current proxy/network state.
-  - Verify current RED OS qualification/rightsholder facts for the acceptance record.
-  - Download/verify exact v0.2.6 release artifact appropriate for RED OS or determine whether a RED-specific package adaptation is required.
-  - Execute the full physical acceptance matrix and retain raw evidence.
-  - Implement/rerun only compatibility fixes actually required by the RED OS host.
-  - Commit acceptance protocol/evidence, update registry-readiness status, run CI and finish PR/merge as authorized.
-last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+  - Make desktop rollback backend identity explicit and fail closed if stored/current desktop proxy backends differ; extend tests.
+  - Require RPM CI inspection to verify KDE/dbus runtime dependencies and obtain a green exact-head build.
+  - Build or retrieve the exact corrected frozen Linux/RPM candidate tied to the final acceptance commit and record hashes.
+  - Install the corrected RPM on the physical RED OS stand through normal PolicyKit authorization and verify package/files/hash/start/status.
+  - Execute acceptance-only routed and no-proxy traffic tests, NetworkManager + KDE PAC publication, normal stop and mechanical rollback comparison.
+  - Execute autostart/login and crash/recovery coverage; include host restart/recovery if safely executable on the stand or record an objective limitation.
+  - Collect diagnostics/support evidence without credentials/private browsing data.
+  - Cleanly uninstall only after rollback is clean; prove package/listeners absent and final proxy state equals baseline.
+  - Commit sanitized machine-readable evidence and update docs/APL_REG_001C_RED_OS_ACCEPTANCE.md plus APL-REG-001 registry-readiness status.
+  - Run full relevant CI/tests, make PR #82 ready, merge only on current green exact-head evidence, record merge commit, then mark checkpoints completed.
+last_verified_commit: 02ac80e4b780d7a59d9f92501d7292c4cc6f3471
 test_results:
-  - No RED OS runtime tests executed yet in this task.
-updated_at: '2026-09-17T05:34:00Z'
-resume_instruction: Connect to device arvectumredos, capture exact /etc/os-release and RED OS release/build/session/package-manager details plus current Proxy Launcher/package/proxy state, then choose the smallest valid install/acceptance path for v0.2.6 without modifying the immutable release.
+  - 42 targeted Linux/KDE/backend/RPM/preflight unit tests PASS on physical RED OS source checkout.
+  - Real KConfig isolated rollback test PASS on RED OS 8.0.3 using actual kreadconfig5/kwriteconfig5/dbus-send.
+  - RED OS read-only preflight PASS; physical/non-virtualized identity and package baseline captured.
+  - Privacy-preserving NetworkManager+KDE+GSettings baseline collector/comparator self-check PASS.
+  - Initial RPM CI run 35187305972 failed only because rpmbuild resolved a relative dist artifact from BUILD; code was fixed and later exact-head CI is pending.
+updated_at: '2026-09-17T05:58:00Z'
+resume_instruction: On branch task/apl-reg-001c-redos-acceptance, fix linux_backend.py desktop_proxy backend metadata to persist/validate kde vs gsettings without breaking legacy v1/v2 recovery, extend tests, then check exact-head CI. When green, produce the exact corrected RED OS RPM candidate and continue the physical install -> routing/bypass -> rollback/recovery -> uninstall acceptance on device arvectumredos using the saved privacy-preserving baseline.
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-001C-20260917
