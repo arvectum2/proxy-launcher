@@ -29,16 +29,17 @@ completed:
   release docs remain immutable.
 - 'Diagnosed first PR CI failures as two compatibility issues: stale FixedFileInfo 0.2.8 tuples and a legacy proxy_core
   restore fixture missing the new current-state read; both corrected.'
-current: Push corrected 0.2.9 head and require a fresh exact-head CI run before physical acceptance.
+- 'Subtask A PASS: exact-head 0433a4187ad61273635c5e9fd83fa410389a4b40 passed all 24 PR workflows, including Windows portable, installer, controlled-offline build, full contracts and security gates.'
+- 'Exact-head artifact SHA256: portable ZIP 80259f6239d52e6fd8c968080c615c6fb726f4a17bbb2b3e6133ce3950c0b484; installer ab94709ef1efad21ff89409190c11eee3e2694b7761815e7c234638fb34191be.'
+current: Subtask B - run physical exact-head Windows acceptance on ARVECTUM-DEMO.
 pending:
-- Build and test the 0.2.9 Windows candidate on ARVECTUM-DEMO, including Tk/version metadata tests.
 - Run physical Windows external-change acceptance, including foreign-state fail-closed preservation and saved-state
   recovery.
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
 - Install exact public Windows v0.2.9 build on ARVECTUM-DEMO and run final acceptance.
 - Finalize checkpoint as completed.
-last_verified_commit: b6cc543b6b16779415c90d700e51ff4e6ab8f9ae
+last_verified_commit: 0433a4187ad61273635c5e9fd83fa410389a4b40
 test_results:
 - 'Focused Windows ownership/backend suite: 41/41 PASS.'
 - 'Broader Windows lifecycle/installer contract suite: 149/149 PASS.'
@@ -46,9 +47,8 @@ test_results:
   by missing _tkinter and is pending Windows execution.'
 - 'Post-CI-fix local proxy_core/Windows subset: 83 runtime tests PASS; test_version_policy remains Mac-only import-blocked
   by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
-resume_instruction: Wait for exact-head CI after the compatibility fix; use only the corrected Windows portable/installer
-  artifacts for ARVECTUM-DEMO physical acceptance.
-updated_at: '2026-09-17T17:16:06Z'
+resume_instruction: Subtask B: transfer only exact-head 0433a41 Windows artifacts to ARVECTUM-DEMO, verify SHA256, then run physical foreign-state fail-closed and saved-state recovery acceptance before merge.
+updated_at: '2026-09-17T17:25:00Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-SYMMETRY-20260917
