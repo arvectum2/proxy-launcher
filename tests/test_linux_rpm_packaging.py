@@ -17,6 +17,8 @@ class LinuxRpmPackagingContractTests(unittest.TestCase):
         self.assertIn('%{_bindir}/arvectum-proxy-launcher', self.text)
         self.assertIn('Requires:       NetworkManager', self.text)
         self.assertIn('Requires:       glib2', self.text)
+        self.assertIn('Requires:       kf5-kconfig-core', self.text)
+        self.assertIn('Requires:       dbus-tools', self.text)
         self.assertIn('redos-linux-${arch}.rpm', self.text)
 
     def test_package_has_no_privileged_network_or_lifecycle_scriptlets(self):
@@ -44,6 +46,7 @@ class LinuxRpmPackagingContractTests(unittest.TestCase):
         self.assertIn('SOURCE_DATE_EPOCH', self.text)
         self.assertIn('rpm -qip', self.text)
         self.assertIn('rpm -qlp', self.text)
+        self.assertIn('artifact="$(cd "$(dirname "$artifact")" && pwd)/$(basename "$artifact")"', self.text)
 
 
 if __name__ == "__main__":
