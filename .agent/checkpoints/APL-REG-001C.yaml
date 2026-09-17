@@ -1,0 +1,35 @@
+version: 2
+task_id: APL-REG-001C
+status: completed
+goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and retain governed compatibility evidence.
+definition_of_done:
+- Exact RED OS host identity and current qualification/rightsholder evidence boundary recorded.
+- Acceptance bound to exact source/release and package SHA-256.
+- Native RED OS RPM provided and verified.
+- Clean install, GUI/runtime, proxy/no-proxy, rollback/recovery/autostart, diagnostics, uninstall and post-state acceptance pass on physical RED OS.
+- Raw/private evidence and expert-readable sanitized protocol preserved.
+- Relevant tests and CI pass and verified commit is recorded.
+completed:
+- Physical target confirmed as RED OS 8.0.3 Standard Desktop x86_64 on KDE Plasma/X11 with RPM/DNF.
+- RED OS provenance/rightsholder boundary documented without claiming Arvectum registry/certification status.
+- Native RPM and KDE/Plasma desktop-proxy support implemented, including rollback backend identity and RED OS packaging hardening.
+- Final candidate RPM SHA-256 7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a.
+- Clean start/stop, emergency rollback, GUI Chromium system-PAC routing, localhost bypass, autostart, and diagnostics all PASS on physical RED OS.
+- Privileged package removal PASS with no package-owned payload left and exact original NetworkManager/KDE state retained.
+- Clean reinstall of the exact candidate PASS; rpm -V clean and installed ELF matches candidate payload.
+- Final post-reinstall start/stop PASS; NetworkManager exact baseline restored and kioslaverc restored byte-for-byte to SHA-256 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde.
+- Acceptance-only stubs/profiles cleaned; rollback backup absent; original autostart absence preserved.
+- Final focused suite PASS 62/62; exact-head GitHub Actions on 9bc3867be324a4fed80b81ff3f80cd989140134c PASS 13/13.
+current: Completed.
+pending: []
+last_verified_commit: 9bc3867be324a4fed80b81ff3f80cd989140134c
+test_results:
+- Physical RED OS acceptance matrix: PASS.
+- Final privileged remove/reinstall: PASS.
+- rpm -V / installed payload identity: PASS.
+- NetworkManager exact post-state: PASS.
+- KDE byte-exact post-state: PASS.
+- Focused regression: PASS 62/62.
+- GitHub Actions exact-head 9bc3867be324a4fed80b81ff3f80cd989140134c: PASS 13/13.
+updated_at: '2026-09-17T09:41:14Z'
+resume_instruction: Task completed. No further work is required unless a regression is reported; if final repository merge was interrupted, verify PR #83 exact-head CI and merge it.

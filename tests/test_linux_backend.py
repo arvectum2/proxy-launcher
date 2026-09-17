@@ -84,6 +84,8 @@ class _FakeNetworkManager:
 
 
 class _FakeDesktopProxy:
+    backend_id = "gsettings"
+
     def __init__(self):
         self.state = DesktopProxyState("none", "")
         self.calls = []
@@ -287,6 +289,21 @@ class LinuxBackendTests(unittest.TestCase):
         for config in variants:
             with self.subTest(config=config):
                 self.assertFalse(self.backend.sync_no_proxy(config))
+
+    def test_kde_backend_identity_is_persisted_and_required_for_restore(self):
+        self.desktop.backend_id = "kde"
+        self.assertTrue(self.backend.enable(CONFIG))
+        with open(self.backup_path, "r", encoding="utf-8") as stream:
+            payload = json.load(stream)
+        self.assertEqual(payload["desktop_proxy"]["backend"], "kde")
+
+        self.desktop.backend_id = "gsettings"
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+
+        self.desktop.backend_id = "kde"
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
 
     def test_desktop_foreign_change_prevents_destructive_disable(self):
         self.assertTrue(self.backend.enable(CONFIG))

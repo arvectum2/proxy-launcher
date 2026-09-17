@@ -5,6 +5,7 @@ from linux_desktop_proxy import (
     DesktopProxyError,
     DesktopProxyState,
     GSettingsProxyClient,
+    KDEProxyClient,
     detect_desktop_proxy_client,
 )
 
@@ -41,6 +42,62 @@ class _GSettingsRunner:
             self.values[key] = argv[4].strip("'\"")
             return SimpleNamespace(returncode=0, stdout="", stderr="")
         raise AssertionError(argv)
+
+
+class _KDERunner:
+    def __init__(self):
+        self.values = {"ProxyType": "1", "Proxy Config Script": ""}
+        self.calls = []
+
+    def __call__(self, argv, **kwargs):
+        self.calls.append((tuple(argv), dict(kwargs)))
+        if "kreadconfig" in argv[0]:
+            key = argv[argv.index("--key") + 1]
+            return SimpleNamespace(returncode=0, stdout=self.values[key] + "\n", stderr="")
+        if "kwriteconfig" in argv[0]:
+            key = argv[argv.index("--key") + 1]
+            self.values[key] = argv[-1]
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+        if argv[0].endswith("dbus-send"):
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+        raise AssertionError(argv)
+
+
+class KDEProxyClientTests(unittest.TestCase):
+    def test_preserves_manual_mode_and_roundtrips_pac_state(self):
+        runner = _KDERunner()
+        client = KDEProxyClient(
+            read_binary="/usr/bin/kreadconfig5",
+            write_binary="/usr/bin/kwriteconfig5",
+            notifier_binary="/usr/bin/dbus-send",
+            runner=runner,
+            environ={"DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus"},
+        )
+        original = client.get_state()
+        self.assertEqual(original, DesktopProxyState("manual", ""))
+        desired = DesktopProxyState("auto", "http://127.0.0.1:8082/proxy.pac")
+        client.set_state(desired)
+        self.assertEqual(client.get_state(), desired)
+        client.set_state(original)
+        self.assertEqual(client.get_state(), original)
+        self.assertTrue(any(call[0][0].endswith("dbus-send") for call in runner.calls))
+
+    def test_detects_kde_plasma_with_native_config_tools(self):
+        runner = _KDERunner()
+        paths = {
+            "kreadconfig5": "/usr/bin/kreadconfig5",
+            "kwriteconfig5": "/usr/bin/kwriteconfig5",
+            "dbus-send": "/usr/bin/dbus-send",
+        }
+        client = detect_desktop_proxy_client(
+            environ={
+                "XDG_CURRENT_DESKTOP": "KDE",
+                "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
+            },
+            which=lambda name: paths.get(name),
+            runner=runner,
+        )
+        self.assertIsInstance(client, KDEProxyClient)
 
 
 class GSettingsProxyClientTests(unittest.TestCase):
@@ -88,10 +145,10 @@ class GSettingsProxyClientTests(unittest.TestCase):
     def test_unsupported_desktop_does_not_mutate_unrelated_store(self):
         client = detect_desktop_proxy_client(
             environ={
-                "XDG_CURRENT_DESKTOP": "KDE",
+                "XDG_CURRENT_DESKTOP": "XFCE",
                 "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
             },
-            which=lambda name: "/usr/bin/gsettings",
+            which=lambda name: "/usr/bin/gsettings" if name == "gsettings" else None,
         )
         self.assertIsNone(client)
 
