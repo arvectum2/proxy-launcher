@@ -14,6 +14,8 @@ class LinuxGuiStatusCopyTests(unittest.TestCase):
         recovery = TEXT.split('if pending:', 1)[1].split('try:', 1)[0]
         self.assertIn('настройки NetworkManager и desktop proxy', recovery)
         self.assertNotIn('Windows', recovery)
+        self.assertNotIn('Linux/Astra', recovery)
+        self.assertIn('self._platform_label', recovery)
 
 if __name__ == '__main__':
     unittest.main()

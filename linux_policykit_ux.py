@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Linux/Astra PolicyKit authorization UX primitives.
+"""Linux desktop PolicyKit authorization UX primitives.
 
 the interactive PolicyKit path keeps authorization opt-in and narrow. Read-only capability probes
 never request credentials. Only a mutation explicitly started by the user from
@@ -75,8 +75,13 @@ def run_nmcli_with_policykit(arguments: Sequence[str], **kwargs: Any) -> Any:
     return subprocess.run(list(interactive_nmcli_arguments(arguments)), **kwargs)
 
 
-def linux_capability_view(operational_view: Mapping[str, Any], *, running: bool = False):
-    """Map backend readiness to stable Linux/Astra GUI state.
+def linux_capability_view(
+    operational_view: Mapping[str, Any],
+    *,
+    running: bool = False,
+    platform_label: str = "Linux",
+):
+    """Map backend readiness to stable Linux desktop GUI state.
 
     ``auth_required`` is actionable, but not represented as ready. The enable
     button means "start the explicit authorization flow", not "permission is
@@ -84,6 +89,7 @@ def linux_capability_view(operational_view: Mapping[str, Any], *, running: bool 
     """
     state = str((operational_view or {}).get("state", "unavailable"))
     message = str((operational_view or {}).get("message", "") or "").strip()
+    platform_label = str(platform_label or "Linux").strip() or "Linux"
 
     if state == "ready":
         return {
@@ -111,9 +117,9 @@ def linux_capability_view(operational_view: Mapping[str, Any], *, running: bool 
         "key": "linux_unavailable",
         "label": "СИСТЕМНЫЙ ПРОКСИ НЕДОСТУПЕН",
         "hint": message or (
-            "NetworkManager на этом Linux/Astra-хосте сейчас не готов к безопасному "
+            "NetworkManager на этом %s-хосте сейчас не готов к безопасному "
             "применению системного прокси. Сеть оставлена без изменений."
-        ),
+        ) % platform_label,
         "can_on": False,
         "can_off": bool(running),
         "authorization_required": False,

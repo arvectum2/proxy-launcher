@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Linux/Astra GUI entry point for Arvectum Proxy Launcher (the interactive PolicyKit path/005).
+"""Linux desktop GUI entry point for Arvectum Proxy Launcher (the interactive PolicyKit path/005).
 
 The established Windows launcher remains untouched. This entry point reuses the
 shared branded dialogs/widgets while replacing Windows-specific runtime UX with
-Linux/Astra capability states, an explicit PolicyKit authorization flow and a
+Linux desktop capability states, an explicit PolicyKit authorization flow and a
 per-user production-safe XDG autostart control.
 """
 
@@ -79,10 +79,14 @@ class LinuxExceptionsDialog(shared_gui.ExceptionsDialog):
 
 
 class LinuxLauncher(shared_gui.Launcher):
-    """Linux/Astra presentation of the common launcher controls."""
+    """Linux desktop presentation of the common launcher controls."""
 
     def __init__(self, root):
         self._linux_start_process = None
+        try:
+            self._platform_label = detect_linux_runtime().platform_label
+        except Exception:
+            self._platform_label = "Linux"
         super().__init__(root)
         self._apply_linux_labels()
         self.refresh_status()
@@ -123,10 +127,7 @@ class LinuxLauncher(shared_gui.Launcher):
         return True
 
     def _apply_linux_labels(self):
-        try:
-            platform_label = detect_linux_runtime().platform_label
-        except Exception:
-            platform_label = "Linux"
+        platform_label = self._platform_label
         self.root.title(APP_NAME + " · " + platform_label)
         try:
             # The shared header has two labels; replace only the platform badge.
@@ -186,10 +187,10 @@ class LinuxLauncher(shared_gui.Launcher):
         if pending:
             self.status_hint.config(
                 text=(
-                    "Предыдущий сеанс Linux/Astra завершился некорректно. "
+                    "Предыдущий сеанс %s завершился некорректно. "
                     "Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, "
                     "затем снова включите прокси."
-                ),
+                ) % self._platform_label,
                 bg=MINT_SOFT, fg=NAVY,
             )
             self.status_hint.grid()
@@ -197,7 +198,7 @@ class LinuxLauncher(shared_gui.Launcher):
 
         try:
             operational = core.backend_operational_view()
-            view = policykit_ux.linux_capability_view(operational, running=running)
+            view = policykit_ux.linux_capability_view(operational, running=running, platform_label=self._platform_label)
         except Exception:
             view = policykit_ux.linux_capability_view(
                 {
@@ -208,6 +209,7 @@ class LinuxLauncher(shared_gui.Launcher):
                     ),
                 },
                 running=running,
+                platform_label=self._platform_label,
             )
 
         color = {

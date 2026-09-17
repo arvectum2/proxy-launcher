@@ -528,9 +528,21 @@ class LinuxBackend(ProxyBackend):
             current = self._desktop_client.get_state()
         except Exception:
             return False
-        if current == _desired_desktop_state(payload["applied_config"]):
+        desired = _desired_desktop_state(payload["applied_config"])
+        if current == desired:
             return True
-        return bool(allow_restored and current == original)
+        if not allow_restored:
+            return False
+        # Recovery is field-owned rather than whole-object-owned. A desktop UI may
+        # restore one of the two keys (for example KDE ProxyType) while leaving the
+        # Arvectum PAC URL in place. That mixed state is still safe to recover when
+        # every field is exactly either the original value or the value Arvectum
+        # applied. Any third/foreign value remains fail-closed.
+        return bool(
+            current.mode in {original.mode, desired.mode}
+            and current.autoconfig_url
+            in {original.autoconfig_url, desired.autoconfig_url}
+        )
 
     def _restore_desktop(self, payload: Mapping[str, Any]) -> bool:
         original = self._desktop_snapshot_from_payload(payload)
