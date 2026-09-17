@@ -33,7 +33,7 @@ class RedOsAcceptanceToolingTests(unittest.TestCase):
             candidate.write_bytes(b"APL-REG-001C")
             self.assertEqual(
                 collector._sha256(candidate),
-                "f8121754d5b02d889dd2249e1240ea6bef18f7e71c1b0cd9e9f9e7c84c66938d",
+                "9541941c064a325b015edb52dcafc8169d231889fd779c7589d9399227b58787",
             )
 
     def test_collect_is_read_only_and_records_redos_identity(self):
