@@ -148,6 +148,7 @@ class LinuxDiagnosticsTests(unittest.TestCase):
             session_type="x11",
             nmcli_path="/usr/bin/nmcli",
             is_astra=True,
+            is_redos=False,
             is_debian_family=True,
             network_manager_client_available=True,
         )

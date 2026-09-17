@@ -17,6 +17,15 @@ VERSION_ID=1.8_x86-64
 VERSION_CODENAME=1.8_x86-64
 '''
 
+REDOS_RELEASE = '''
+PRETTY_NAME="RED OS 8.0.3 (Standard Desktop)"
+NAME="RED OS"
+ID=redos
+ID_LIKE="rhel centos fedora"
+VERSION_ID="8.0.3"
+EDITION="Standard"
+'''
+
 DEBIAN_RELEASE = '''
 PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
 NAME="Debian GNU/Linux"
@@ -52,13 +61,32 @@ class LinuxRuntimeDetectionTests(unittest.TestCase):
             read_text=self._reader({"/etc/os-release": ASTRA_RELEASE}),
         )
         self.assertTrue(runtime.is_astra)
+        self.assertFalse(runtime.is_redos)
         self.assertTrue(runtime.is_debian_family)
         self.assertEqual(runtime.runtime_id, "astra")
+        self.assertEqual(runtime.platform_label, "Linux / Astra Linux")
         self.assertEqual(runtime.version_id, "1.8_x86-64")
         self.assertEqual(runtime.desktop_environment, "FLY")
         self.assertEqual(runtime.session_type, "x11")
         self.assertTrue(runtime.network_manager_client_available)
         self.assertEqual(runtime.nmcli_path, "/usr/bin/nmcli")
+
+
+    def test_redos_detected_with_distinct_product_signature(self):
+        runtime = detect_linux_runtime(
+            platform_name="linux",
+            environ={"XDG_CURRENT_DESKTOP": "KDE", "XDG_SESSION_TYPE": "x11"},
+            which=lambda name: "/usr/bin/nmcli" if name == "nmcli" else None,
+            uname=self._uname,
+            read_text=self._reader({"/etc/os-release": REDOS_RELEASE}),
+        )
+        self.assertFalse(runtime.is_astra)
+        self.assertTrue(runtime.is_redos)
+        self.assertFalse(runtime.is_debian_family)
+        self.assertEqual(runtime.runtime_id, "redos")
+        self.assertEqual(runtime.platform_label, "Linux / RED OS")
+        self.assertEqual(runtime.version_id, "8.0.3")
+        self.assertEqual(runtime.desktop_environment, "KDE")
 
     def test_astra_version_file_is_supported_as_legacy_specific_marker(self):
         runtime = detect_linux_runtime(
@@ -85,8 +113,10 @@ class LinuxRuntimeDetectionTests(unittest.TestCase):
             read_text=self._reader({"/etc/os-release": DEBIAN_RELEASE}),
         )
         self.assertFalse(runtime.is_astra)
+        self.assertFalse(runtime.is_redos)
         self.assertTrue(runtime.is_debian_family)
         self.assertEqual(runtime.runtime_id, "debian")
+        self.assertEqual(runtime.platform_label, "Linux")
         self.assertEqual(runtime.desktop_environment, "gnome")
 
     def test_id_like_marks_debian_family(self):

@@ -22,8 +22,8 @@ class CapabilityModelTests(unittest.TestCase):
         cases = {
             "win32": ("windows", "Windows"),
             "darwin": ("macos", "macOS"),
-            "linux": ("linux", "Linux / Astra Linux"),
-            "linux2": ("linux", "Linux / Astra Linux"),
+            "linux": ("linux", "Linux"),
+            "linux2": ("linux", "Linux"),
         }
         for platform, expected in cases.items():
             with self.subTest(platform=platform):

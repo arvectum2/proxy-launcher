@@ -1,0 +1,99 @@
+name: APL-REG-001C RED OS RPM
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'build_linux.sh'
+      - 'tools/build_linux_rpm.sh'
+      - 'requirements-build.lock.txt'
+      - 'VERSION'
+      - 'linux_*.py'
+      - 'proxy_*.py'
+      - 'system_proxy_runtime.py'
+      - 'application_filesystem.py'
+      - 'configuration_storage.py'
+      - 'portable_lifecycle.py'
+      - 'assets/**'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tests/test_linux_rpm_packaging.py'
+      - '.github/workflows/linux-rpm.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'build_linux.sh'
+      - 'tools/build_linux_rpm.sh'
+      - 'requirements-build.lock.txt'
+      - 'VERSION'
+      - 'linux_*.py'
+      - 'proxy_*.py'
+      - 'system_proxy_runtime.py'
+      - 'application_filesystem.py'
+      - 'configuration_storage.py'
+      - 'portable_lifecycle.py'
+      - 'assets/**'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tests/test_linux_rpm_packaging.py'
+      - '.github/workflows/linux-rpm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rpm:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux and RPM packaging prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y python3-venv python3-tk rpm cpio file
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements-build.lock.txt
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Run RED OS RPM contract tests
+        run: .venv/bin/python -m unittest tests.test_linux_rpm_packaging tests.test_linux_runtime -v
+
+      - name: Build canonical Linux frozen artifact
+        run: ./build_linux.sh
+
+      - name: Build RED OS RPM package
+        run: bash ./tools/build_linux_rpm.sh
+
+      - name: Inspect RPM metadata and payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rpm_path="$(find dist/rpm -maxdepth 1 -type f -name 'arvectum-proxy-launcher-*.redos8.x86_64.rpm' -print -quit)"
+          test -n "$rpm_path"
+          test "$(rpm -qp --qf '%{NAME}' "$rpm_path")" = "arvectum-proxy-launcher"
+          test "$(rpm -qp --qf '%{VERSION}' "$rpm_path")" = "$(tr -d '[:space:]' < VERSION)"
+          test "$(rpm -qp --qf '%{ARCH}' "$rpm_path")" = "x86_64"
+          rpm -qp --requires "$rpm_path" | grep -qx 'NetworkManager'
+          rpm -qp --requires "$rpm_path" | grep -qx 'glib2'
+          root="$RUNNER_TEMP/rpm-root"
+          mkdir -p "$root"
+          (cd "$root" && rpm2cpio "$GITHUB_WORKSPACE/$rpm_path" | cpio -id --quiet)
+          test -x "$root/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher"
+          test -x "$root/usr/bin/arvectum-proxy-launcher"
+          test -f "$root/usr/share/applications/arvectum-proxy-launcher.desktop"
+          test -f "$root/usr/share/icons/hicolor/256x256/apps/arvectum-proxy-launcher.png"
+          test -f "$root/usr/share/doc/arvectum-proxy-launcher/LICENSE"
+          test -f "$root/usr/share/doc/arvectum-proxy-launcher/THIRD_PARTY_NOTICES.txt"
+          file "$root/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher" | grep -q ELF
+          ! rpm -qpl "$rpm_path" | grep -q '^/usr/lib/.build-id/'
+
+      - name: Upload RED OS RPM evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: apl-redos-rpm-ubuntu-22.04
+          path: dist/rpm/*.rpm
+          if-no-files-found: error

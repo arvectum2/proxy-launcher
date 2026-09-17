@@ -40,13 +40,27 @@ class LinuxRuntimeEnvironment:
     session_type: str
     nmcli_path: str
     is_astra: bool
+    is_redos: bool
     is_debian_family: bool
     network_manager_client_available: bool
 
     @property
     def runtime_id(self) -> str:
         """Stable product-facing runtime id used by later Linux gates."""
-        return "astra" if self.is_astra else (self.distro_id or "linux")
+        if self.is_astra:
+            return "astra"
+        if self.is_redos:
+            return "redos"
+        return self.distro_id or "linux"
+
+    @property
+    def platform_label(self) -> str:
+        """Product-facing platform signature for the detected Linux distribution."""
+        if self.is_astra:
+            return "Linux / Astra Linux"
+        if self.is_redos:
+            return "Linux / RED OS"
+        return "Linux"
 
 
 def _unquote_os_release_value(raw: str) -> str:
@@ -143,8 +157,9 @@ def detect_linux_runtime(
     pretty_name = str(release.get("PRETTY_NAME", "") or "").strip()
     astra_version = _read_optional_first_line(astra_version_path, read_text)
 
-    astra_text = " ".join((distro_id, name, pretty_name)).lower()
-    is_astra = distro_id == "astra" or "astra linux" in astra_text or bool(astra_version)
+    distro_text = " ".join((distro_id, name, pretty_name)).lower()
+    is_astra = distro_id == "astra" or "astra linux" in distro_text or bool(astra_version)
+    is_redos = distro_id == "redos" or "red os" in distro_text
     is_debian_family = distro_id == "debian" or "debian" in id_like or is_astra
 
     system_uname = uname()
@@ -168,6 +183,7 @@ def detect_linux_runtime(
         session_type=str(environment.get("XDG_SESSION_TYPE", "") or "").strip().lower(),
         nmcli_path=nmcli_path,
         is_astra=is_astra,
+        is_redos=is_redos,
         is_debian_family=is_debian_family,
         network_manager_client_available=bool(nmcli_path),
     )
