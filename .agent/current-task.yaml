@@ -1,100 +1,40 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: completed
-task_id: APL-REL-017-V0.2.6
-goal: Publish a clean stable v0.2.6 release containing Windows and Astra Linux artifacts on GitHub and an independently verified
-  GitVerse mirror.
-authority: HUMAN
+task_id: APL-REG-001C
+status: in_progress
+goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and convert the result into durable registry-readiness evidence without disturbing the immutable v0.2.6 release.
 definition_of_done:
-- Bump the canonical product/runtime/package version to 0.2.6 and document the material Linux/Astra Firefox system-proxy fix.
-- Extend the canonical GitHub release pipeline so v0.2.6 publishes Windows portable, Windows installer, Astra Linux amd64
-  Debian package, and SHA256SUMS from one immutable tag.
-- Require exact-main green Windows P0, Windows installer, Linux Debian package, and release-evidence gates before publication.
-- Provide a generic GitVerse release mirror path that mirrors the GitHub v0.2.6 release, losslessly wraps unsupported GitVerse
-  extensions, and verifies canonical payload SHA-256 after public download.
-- Validate the final Linux package on the physical Astra Linux 1.8 x86-64 stand, including install/upgrade, launch, autostart,
-  PAC/system-proxy browser path, and rollback/recovery behavior.
-- Merge the release PR to main with all required CI green, create immutable tag v0.2.6, and verify clean public releases on
-  GitHub and GitVerse with matching payload hashes.
-- Record final main/tag commit, public asset hashes, release URLs/evidence, and mark this checkpoint completed.
+  - Identify the exact RED OS product, edition, version/build and desktop/session on the physical arvectumredos stand.
+  - Re-verify the tested RED OS/rightsholder qualification relevant to the planned Russian-software-registry compatibility gate as of the acceptance date, and record the evidence/source separately from runtime results.
+  - Bind acceptance to exact Proxy Launcher v0.2.6 artifact bytes and SHA-256 from the published release.
+  - Execute clean install, start/status, proxy routing, no-proxy behavior, restart/recovery/autostart as applicable, diagnostics/log collection, stop/rollback, uninstall/removal and post-state checks on the real RED OS host.
+  - Reconcile any RED OS incompatibilities; implement the minimum required compatibility changes on an isolated branch and rerun affected acceptance cases.
+  - Add machine-readable/raw acceptance evidence plus an expert-readable RED OS acceptance protocol to the repository.
+  - Update APL-REG-001 registry-readiness status so the two-OS acceptance gate reflects completed Astra + RED OS evidence only after both are factual.
+  - Run relevant repository tests/CI, record final commit/PR/merge evidence, and mark this checkpoint completed only when the RED OS run is fully accepted.
 completed:
-- Recovered prior completed Windows system-proxy parity task and preserved it in .agent/checkpoints/APL-WIN-SYSTEM-PROXY-PARITY-001.yaml.
-- 'Confirmed physical stand: Astra Linux 1.8 x86-64; currently installed test package is 0.2.6-rc1 and must not be reused
-  as the public stable artifact.'
-- Confirmed release base main commit is 04d5f9865b4e7e16c4e1828e239abb7635706ca1 and current public VERSION is 0.2.5.
-- Implemented canonical 0.2.6 version bump across VERSION, runtime APP_VERSION, and Windows file/product metadata.
-- Extended release.yml to require exact-main Windows P0, Windows installer, Linux Debian package, and Release Evidence Package
-  before tag publication; public release set now includes Windows portable, Windows Setup, Astra Linux amd64 DEB, and SHA256SUMS.
-- Added generic immutable GitVerse release mirror workflow with deterministic single-file ZIP wrappers for unsupported extensions
-  such as .exe and .deb and post-download canonical payload SHA-256 verification.
-- Extended exact-SHA release evidence to require Linux Debian CI and seal release/mirror workflow inputs.
-- Updated README, RELEASE_POLICY, bilingual v0.2.6 release notes, and GitVerse mirror documentation for the Windows + Astra
-  stable release.
-- 'Local release/repository tests: 27 passed; version-policy tests: 5 passed; workflow YAML parsed successfully; git diff
-  --check clean.'
-- 'PR #75 merged to main at 3b67aedfe02d996da9b9f442e53e8c0c896152bd; exact-head PR CI green across release dry-run, Windows
-  P0/installer, Linux DEB/acceptance, security and canonical-source gates.'
-- Exact-main CI on 3b67aedfe02d996da9b9f442e53e8c0c896152bd is green for Windows P0, Windows installer, Linux Debian package,
-  Linux Ubuntu acceptance, SAST/SBOM/security, and Release Evidence Package.
-- Immutable annotated tag v0.2.6 exists and points exactly to main commit 3b67aedfe02d996da9b9f442e53e8c0c896152bd.
-- Tag release workflow built Windows portable and installer successfully and downloaded the exact-main Astra DEB, but publication
-  failed because the reusable installer artifact stores Setup under installer/; root cause identified and hotfix prepared.
-- GitHub v0.2.6 release published at https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.6 with Windows portable,
-  Windows Setup, Astra Linux amd64 DEB and SHA256SUMS; public re-download checksum verification PASS.
-- 'Public asset SHA-256: Windows portable 987535611a9c4127898b4d063b26d3eb79254ebe149887fd3fcd16fa617e4e64; Windows Setup
-  33d04b01702504b9ef81e7643b62baaa12a77545401cf54fe7979d6dd488d7db; Astra DEB 1176ca8c7a97d0eb173a76fd108460e9fada1bcb70fb1819029f299a30dcbc20.'
-- GitVerse v0.2.6 release published at https://gitverse.ru/arvectum/proxy-launcher/releases/tag/v0.2.6; mirror run 35148004635
-  verified all canonical payload hashes after download. Main idempotency run 35148469014 also PASS with existing immutable
-  assets.
-- 'PR #76 fixed nested Windows installer artifact normalization and GitVerse JSON transport compatibility; merged to main
-  at 0897891eea5cd80a98474d60c6afe77ec9f091fd after green CI.'
-- Exact-main Astra DEB downloaded to physical Astra stand at ~/Загрузки/ProxyLauncher-0.2.6-final/Arvectum-Proxy-Launcher-0.2.6-astra-linux-amd64.deb
-  and SHA-256 verified as 1176ca8c7a97d0eb173a76fd108460e9fada1bcb70fb1819029f299a30dcbc20; package metadata and ELF payload
-  verified.
-- 'Physical Astra stand: exact public package installed as arvectum-proxy-launcher 0.2.6 amd64; installed launcher ELF SHA-256
-  matched the extracted public DEB payload.'
-- 'Physical Astra restart/enable PASS: final installed 0.2.6 reported RUNNING, listeners on 127.0.0.1:8080 and :8082, GSettings
-  mode=auto with PAC http://127.0.0.1:8082/proxy.pac, and active NetworkManager Wi-Fi profile proxy.method=auto with the same
-  PAC URL.'
-- 'Physical Astra rollback PASS: backup schema v2 recorded original NetworkManager proxy.method=none and desktop GSettings
-  mode=none; --stop returned both exactly to none, removed rollback backup, and closed proxy/PAC listeners.'
-- 'Physical Astra re-enable PASS: fresh backup recreated from the original none/none state and PAC endpoint served successfully
-  after restart.'
-- 'Firefox system-proxy acceptance PASS on final 0.2.6: opening https://chatgpt.com produced an ESTABLISHED Firefox connection
-  to 127.0.0.1:8080 owned by Arvectum Proxy Launcher.'
-- 'Astra idle lock annoyance fixed separately on stand: PowerDevil automatic SuspendSession idleTime set to 0 for AC, Battery
-  and LowBattery; X11 screensaver timeout and DPMS standby/suspend/off verified at 0 while manual locking remains available.'
-current: 'Task completed: stable v0.2.6 is published and independently mirrored; final public Astra package passed install,
-  restart, rollback, re-enable and Firefox system-proxy acceptance on physical Astra Linux 1.8.'
-pending: []
-last_verified_commit: 77590ba578c0d1a03d758b577fe11ef5805c50d2
+  - Recovered canonical registry acceptance requirements from APL-REG-001_RUSSIAN_SOFTWARE_REGISTRY_READINESS.md.
+  - Confirmed previous v0.2.6 release/Astra acceptance task is completed and immutable release evidence must not be changed.
+  - Confirmed current main is 6f034850841b999c7b7e63b4ae44c2147f0b292a.
+  - Created isolated branch task/apl-reg-001c-redos-acceptance from current main.
+  - Confirmed physical RED OS device arvectumredos is online through Remote Desktop Commander.
+  - Re-enabled the single existing hourly Proxy Launcher Watchdog for interruption recovery; no duplicate watchdog created.
+current: Inspect the physical RED OS host, exact installed OS/build and current Proxy Launcher/package state before changing anything.
+pending:
+  - Capture host identity, OS/build, session/desktop, package manager and current proxy/network state.
+  - Verify current RED OS qualification/rightsholder facts for the acceptance record.
+  - Download/verify exact v0.2.6 release artifact appropriate for RED OS or determine whether a RED-specific package adaptation is required.
+  - Execute the full physical acceptance matrix and retain raw evidence.
+  - Implement/rerun only compatibility fixes actually required by the RED OS host.
+  - Commit acceptance protocol/evidence, update registry-readiness status, run CI and finish PR/merge as authorized.
+last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
 test_results:
-- python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
-- /usr/bin/python3 -m unittest tests.test_version_policy -v => 5 passed.
-- PyYAML parse of release.yml, release-evidence.yml and sync-release-to-gitverse.yml => PASS.
-- python3 -m py_compile proxy_core.py => PASS; git diff --check => PASS.
-- 'Hotfix focused release/repository tests: 27 passed; git diff --check PASS.'
-- 'GitHub public v0.2.6 re-download: SHA256SUMS verification PASS for all three product packages.'
-- 'GitVerse mirror run 35148004635: release metadata PASS; four assets uploaded; post-download canonical payload SHA-256 PASS.'
-- 'GitVerse main idempotency run 35148469014: existing immutable assets PASS; post-download canonical payload SHA-256 PASS.'
-- 'PR #76 exact-head CI: release validation, Windows P0, standalone/reusable Windows installers, SAST/SBOM/Gitleaks/provenance
-  all PASS.'
-- 'Astra package query: arvectum-proxy-launcher 0.2.6 amd64 => PASS.'
-- 'Astra final runtime: --status RUNNING; system proxy ENABLED; 127.0.0.1:8080 and :8082 listeners => PASS.'
-- 'Astra rollback: GSettings auto/PAC -> none/empty; NetworkManager auto/PAC -> none/empty; backup removed; listeners closed
-  => PASS.'
-- 'Astra re-enable: GSettings and NetworkManager both restored to PAC auto mode; rollback backup schema v2 recreated; PAC
-  fetch => PASS.'
-- 'Firefox ChatGPT system-proxy test: ESTABLISHED firefox pid 3214 -> 127.0.0.1:8080 and matching launcher socket => PASS.'
-- 'Astra idle lock/power: PowerDevil SuspendSession idleTime=0 for AC/Battery/LowBattery; X11 Screen Saver timeout=0; DPMS
-  Standby/Suspend/Off=0 => PASS.'
-updated_at: '2026-09-16T21:52:00Z'
-resume_instruction: Task is completed. Do not resume APL-REL-017. Keep immutable tag v0.2.6 and published assets unchanged;
-  start a new task/checkpoint for future Proxy Launcher work.
+  - No RED OS runtime tests executed yet in this task.
+updated_at: '2026-09-17T05:34:00Z'
+resume_instruction: Connect to device arvectumredos, capture exact /etc/os-release and RED OS release/build/session/package-manager details plus current Proxy Launcher/package/proxy state, then choose the smallest valid install/acceptance path for v0.2.6 without modifying the immutable release.
 execution:
   claimed_by: chatgpt
-  execution_id: APL-REL-017-20260916
-  branch: chore/rel017-complete
-  base_commit: 77590ba578c0d1a03d758b577fe11ef5805c50d2
-  lease_until: null
+  execution_id: APL-REG-001C-20260917
+  branch: task/apl-reg-001c-redos-acceptance
+  base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
   manual_override: true
