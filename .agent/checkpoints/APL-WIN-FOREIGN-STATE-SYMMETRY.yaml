@@ -32,8 +32,6 @@ completed:
 current: Push corrected 0.2.9 head and require a fresh exact-head CI run before physical acceptance.
 pending:
 - Build and test the 0.2.9 Windows candidate on ARVECTUM-DEMO, including Tk/version metadata tests.
-- Run physical Windows external-change acceptance, including foreign-state fail-closed preservation and saved-state
-  recovery.
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
 - Install exact public Windows v0.2.9 build on ARVECTUM-DEMO and run final acceptance.

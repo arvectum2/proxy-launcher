@@ -34,8 +34,6 @@ completed:
 - 'ARVECTUM-DEMO exact CI bytes transferred and hash-verified; WDAC blocks new hashes as designed. Authored hash-only supplemental policy {97B17333-FACA-4389-A7F6-6EA871C325FE}, CIP SHA256 d66ea27213be76ac86f5e2c8ad73380bafb30cf2c8de219e0666f09f077009ce; script enforcement preserved.'
 current: Subtask B - exact candidate trust policy authored; waiting only for UAC approval to deploy it on ARVECTUM-DEMO.
 pending:
-- Run physical Windows external-change acceptance, including foreign-state fail-closed preservation and saved-state
-  recovery.
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
 - Install exact public Windows v0.2.9 build on ARVECTUM-DEMO and run final acceptance.
