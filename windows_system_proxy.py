@@ -124,6 +124,98 @@ def _exact_arvectum_pac_url(value, settings=None) -> bool:
         return False
 
 
+
+
+def _internet_item_equal(name, left, right) -> bool:
+    """Compare one persisted/current WinINET value with DWORD normalization."""
+    left = left if isinstance(left, dict) else {}
+    right = right if isinstance(right, dict) else {}
+    left_exists = bool(left.get("exists"))
+    right_exists = bool(right.get("exists"))
+    if left_exists != right_exists:
+        return False
+    if not left_exists:
+        return True
+    if name in ("ProxyEnable", "AutoDetect"):
+        try:
+            return int(left.get("value")) == int(right.get("value"))
+        except (TypeError, ValueError):
+            return False
+    return str(left.get("value", "")) == str(right.get("value", ""))
+
+
+def _internet_backup_matches_owned_state(values) -> bool:
+    """Accept only saved-or-Arvectum current WinINET fields before rollback."""
+    core = _core()
+    if not core._valid_internet_backup(values):
+        return False
+    current = core._read_internet_settings()
+    if not core._valid_internet_backup(current):
+        return False
+
+    applied = {name: dict(values[name]) for name in _INTERNET_SETTINGS_NAMES}
+    applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(core.load_settings())}
+    applied["ProxyEnable"] = {"exists": True, "value": 0}
+    for name in _INTERNET_SETTINGS_NAMES:
+        if not (
+            _internet_item_equal(name, current[name], values[name])
+            or _internet_item_equal(name, current[name], applied[name])
+        ):
+            core._log("WinINET rollback refused: %s has a newer foreign value" % name)
+            return False
+    return True
+
+
+def _load_env_backup():
+    core = _core()
+    path = core._env_backup_path()
+    try:
+        with io.open(path, "r", encoding="utf-8") as stream:
+            backup = json.load(stream)
+    except Exception:
+        return None
+    if not isinstance(backup, dict) or not all(name in backup for name in _PROXY_ENV_NAMES):
+        return None
+    return backup
+
+
+def _env_item_equal(left, right) -> bool:
+    left = left if isinstance(left, dict) else {}
+    right = right if isinstance(right, dict) else {}
+    left_exists = bool(left.get("exists"))
+    right_exists = bool(right.get("exists"))
+    if left_exists != right_exists:
+        return False
+    if not left_exists:
+        return True
+    return str(left.get("value", "")) == str(right.get("value", ""))
+
+
+def _env_backup_matches_owned_state(backup) -> bool:
+    """Accept only saved-or-Arvectum current per-user proxy environment."""
+    core = _core()
+    if not isinstance(backup, dict) or not all(name in backup for name in _PROXY_ENV_NAMES):
+        return False
+    settings = core.load_settings()
+    local_proxy = "http://127.0.0.1:%d" % int(settings.get("local_http_port", 8080))
+    applied = {
+        "HTTP_PROXY": {"exists": True, "value": local_proxy},
+        "HTTPS_PROXY": {"exists": True, "value": local_proxy},
+        "ALL_PROXY": {"exists": True, "value": local_proxy},
+        "NO_PROXY": {"exists": True, "value": ",".join(core._combined_no_proxy(backup))},
+    }
+    for name in _PROXY_ENV_NAMES:
+        exists, value = core._read_user_env(name)
+        current = {"exists": bool(exists), "value": value if exists else ""}
+        if not (
+            _env_item_equal(current, backup[name])
+            or _env_item_equal(current, applied[name])
+        ):
+            core._log("proxy environment rollback refused: %s has a newer foreign value" % name)
+            return False
+    return True
+
+
 def _save_internet_backup() -> bool:
     """Persist original WinINET state before any mutation or fail closed."""
     core = _core()
@@ -178,6 +270,9 @@ def _restore_internet_backup() -> bool:
             "no WinINET values changed"
         )
         return True
+    if not core._internet_backup_matches_owned_state(values):
+        core._log("internet settings restore refused: current state is not saved-or-Arvectum")
+        return False
 
     ok = True
     for name, item in values.items():
@@ -372,14 +467,11 @@ def _disable_client_proxy_env() -> bool:
     """Restore the exact user proxy environment and retain evidence on failure."""
     core = _core()
     backup_path = core._env_backup_path()
-    try:
-        with io.open(backup_path, "r", encoding="utf-8") as stream:
-            backup = json.load(stream)
-    except Exception:
-        backup = None
-    if not isinstance(backup, dict) or not all(
-        name in backup for name in _PROXY_ENV_NAMES
-    ):
+    backup = core._load_env_backup()
+    if backup is None:
+        return False
+    if not core._env_backup_matches_owned_state(backup):
+        core._log("client proxy environment restore refused: current state is not saved-or-Arvectum")
         return False
 
     ok = True
@@ -546,9 +638,36 @@ def disable_system_proxy() -> bool:
         return True
 
     was_active = core.system_proxy_enabled()
-    valid_backup = core._valid_internet_backup_at(core._internet_backup_path())
+    internet_path = core._internet_backup_path()
+    env_path = core._env_backup_path()
+    valid_backup = core._valid_internet_backup_at(internet_path)
+
+    internet_values = None
+    if os.path.exists(internet_path):
+        try:
+            with io.open(internet_path, "r", encoding="utf-8") as stream:
+                internet_values = json.load(stream)
+        except Exception:
+            internet_values = None
+        if not core._valid_internet_backup(internet_values):
+            core._log("system proxy restore refused: WinINET rollback evidence is invalid")
+            return False
+        if not core._internet_backup_matches_owned_state(internet_values):
+            core._log("system proxy restore refused: WinINET current state is foreign")
+            return False
+
+    env_backup = None
+    if os.path.exists(env_path):
+        env_backup = core._load_env_backup()
+        if env_backup is None:
+            core._log("system proxy restore refused: environment rollback evidence is invalid")
+            return False
+        if not core._env_backup_matches_owned_state(env_backup):
+            core._log("system proxy restore refused: proxy environment current state is foreign")
+            return False
+
     ok = core._restore_internet_backup()
-    env_ok = core._disable_client_proxy_env()
+    env_ok = core._disable_client_proxy_env() if env_backup is not None else True
 
     # A recovery Run entry may be removed only once the owned PAC is inactive
     # and the proxy environment either restored or proven absent.
@@ -607,6 +726,11 @@ def install_into_core(core: ModuleType) -> ModuleType:
         "_known_internet_backup_paths",
         "_valid_internet_backup_at",
         "_exact_arvectum_pac_url",
+        "_internet_item_equal",
+        "_internet_backup_matches_owned_state",
+        "_load_env_backup",
+        "_env_item_equal",
+        "_env_backup_matches_owned_state",
         "_save_internet_backup",
         "_restore_internet_backup",
         "_read_user_env",
