@@ -1,6 +1,6 @@
 version: 1
 repository: arvectum2/proxy-launcher
-updated_at: '2026-09-17T02:16:40Z'
+updated_at: '2026-09-17T02:20:58Z'
 owner_controls_order: true
 items:
 - order: 10
@@ -43,7 +43,7 @@ items:
 - order: 40
   task_id: APL-REL-016
   title: Windows public trust / Authenticode / SmartScreen strategy
-  status: in_progress
+  status: blocked
   authority: REVIEW
   independent: true
   auto_merge: false
@@ -54,8 +54,12 @@ items:
     changes up to a review-ready PR. Never mutate v0.2.5.
   active_pr: 81
   active_branch: agent/apl-rel-016-windows-trust-review-v2
-  evidence: 'Fresh post-migration PR #81 refreshes the v0.2.6 baseline, current Microsoft Artifact Signing geography, CA/B
-    Forum BR v3.11.0 profile, and fail-closed public-trust gate. Exact-head CI pending.'
+  evidence: 'PR #81 exact-head e3847d0884c079e28c20b1773d31d3a650fc7c12: APL-REL-016 contract tests PASS; PowerShell syntax
+    PASS; signed app -> portable -> installer smoke PASS; Windows P0/installer/offline build/SAST/SBOM/Gitleaks/provenance
+    PASS. Decision packet refreshed through 2026-09-17; first immutable-safe production Authenticode target is 0.2.7+.'
+  blocker: 'Review-ready PR #81 is exact-head green. Explicit Owner/Product Owner decision remains required for production
+    distribution lane, signer/provider class, legal eligibility, budget/external dependency and key-custody/operator boundary.
+    Microsoft Artifact Signing Public Trust currently does not list Russia in its published organization geography.'
 - order: 50
   task_id: APL-REG-001B-PHYSICAL-PROOF
   title: Russian sovereign lifecycle physical infrastructure proof

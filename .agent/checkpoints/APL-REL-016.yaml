@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: blocked
 task_id: APL-REL-016
 goal: Refresh and complete the Windows public-trust / Authenticode / SmartScreen decision packet against the current v0.2.6
   baseline and current Microsoft/CA-Browser requirements, producing a review-ready repository PR without selecting or purchasing
@@ -34,30 +34,37 @@ completed:
   baseline.
 - 'Opened fresh review PR #81 from current main at exact head 989bf9c3708d57c1a2462ef953eee1850ce00dfc.'
 - 'Closed stale pre-migration PR #67 as superseded by #81 without rewriting its unrelated history.'
-current: 'Obtain exact-head CI for PR #81, with special attention to Windows PowerShell parsing and ephemeral signed-byte-order/public-trust
-  smoke.'
+- 'Exact-head PR #81 CI at e3847d0884c079e28c20b1773d31d3a650fc7c12 is green: REL-016 contract tests, PowerShell syntax, signed
+  app -> portable -> installer smoke, Windows P0, installer, controlled offline build, SAST, SBOM, Gitleaks, provenance and
+  sovereign-lifecycle checks PASS.'
+- Engineering/research preparation is review-ready; no provider, purchase, production signer, signing credential, release
+  mutation or publication action was performed.
+current: 'Blocked at the explicit Owner/Product Owner production trust decision gate; PR #81 remains open and unmerged for
+  review.'
 pending:
-- Obtain exact-head green REL-016 Windows public-trust, Authenticode, security and repository CI; remediate any Windows PowerShell/runtime
-  failures.
-- Update queue/checkpoint to blocked at the explicit Owner decision gate; do not merge, purchase, enroll, sign production
-  binaries or publish a release.
-- Continue autonomously to the next independent executable roadmap item after releasing the REL-016 lease.
-last_verified_commit: 989bf9c3708d57c1a2462ef953eee1850ce00dfc
+- 'Owner/Product Owner chooses distribution lane(s): direct public Win32, Microsoft Store, managed enterprise, or a combination.'
+- Owner/Product Owner chooses an eligible Microsoft-trusted signer/provider class for direct Win32, confirms legal availability
+  to ООО «Арвектум», and approves any budget/external dependency.
+- Owner/Product Owner approves production private-key/signing-service custody and operator authority boundary.
+- After approval, implement production signing only in 0.2.7+ and perform clean-machine MOTW/SmartScreen/Smart App Control
+  acceptance; keep v0.2.5/v0.2.6 immutable.
+last_verified_commit: e3847d0884c079e28c20b1773d31d3a650fc7c12
 test_results:
-- python3 -m unittest tests.test_windows_public_trust tests.test_windows_authenticode_foundation -q => 19 passed.
-- python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
-- PyYAML parse of windows-public-trust.yml and windows-authenticode.yml => PASS.
-- git diff --check => PASS.
-- Local pwsh unavailable; PowerShell parse/runtime validation delegated to exact-head Windows CI.
-updated_at: '2026-09-17T02:16:40Z'
-resume_instruction: 'Watch exact-head CI for PR #81 and fix any failures. When all required checks are green, mark APL-REL-016
-  blocked at the Owner decision gate without merging, release the lease, and continue to the next independent ready roadmap
-  item.'
+- 'Local: tests.test_windows_public_trust + tests.test_windows_authenticode_foundation => 19 passed.'
+- 'Local: release automation/evidence/repository hygiene => 27 passed; workflow YAML parse PASS; git diff --check PASS.'
+- 'GitHub Actions run 35173800274 on exact head e3847d0: REL-016 contract tests PASS; PowerShell syntax PASS; signed app ->
+  portable -> installer smoke PASS; aggregate build PASS.'
+- 'Exact-head PR #81: Windows P0 portable PASS; Windows installer PASS; APL-IP-002-WIN controlled offline build PASS; Bandit
+  SAST PASS; CycloneDX SBOM PASS; Gitleaks PASS; provenance PASS; v0.2.5 reconciliation PASS; sovereign lifecycle PASS.'
+updated_at: '2026-09-17T02:20:58Z'
+resume_instruction: 'APL-REL-016 is blocked at Owner review. Do not merge PR #81 or activate/purchase production signing without
+  explicit Owner approval. Preserve v0.2.5/v0.2.6 immutability. Continue with the next independent executable queue item.'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-016-20260917
   branch: agent/apl-rel-016-windows-trust-review-v2
   base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
-  lease_until: '2026-09-17T04:06:40Z'
+  lease_until: null
   manual_override: false
-blocker: null
+blocker: 'Explicit Owner/Product Owner decision is required for production distribution/signing path, provider/legal eligibility,
+  budget and key-custody/operator boundary. PR #81 is review-ready and exact-head green.'
