@@ -124,6 +124,35 @@ def _exact_arvectum_pac_url(value, settings=None) -> bool:
         return False
 
 
+def _state_item_matches(actual, expected) -> bool:
+    """Compare one persisted value including absence as part of its identity."""
+    actual = actual or {}
+    expected = expected or {}
+    actual_exists = bool(actual.get("exists"))
+    expected_exists = bool(expected.get("exists"))
+    if actual_exists != expected_exists:
+        return False
+    if not actual_exists:
+        return True
+    return actual.get("value") == expected.get("value")
+
+
+def _internet_state_is_owned_or_saved(saved, current, settings=None) -> bool:
+    """Accept only fields still equal to the saved state or Arvectum-applied state."""
+    core = _core()
+    if not core._valid_internet_backup(saved) or not core._valid_internet_backup(current):
+        return False
+    settings = settings or core.load_settings()
+    applied = {name: dict(saved[name]) for name in _INTERNET_SETTINGS_NAMES}
+    applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(settings)}
+    applied["ProxyEnable"] = {"exists": True, "value": 0}
+    return all(
+        _state_item_matches(current[name], saved[name])
+        or _state_item_matches(current[name], applied[name])
+        for name in _INTERNET_SETTINGS_NAMES
+    )
+
+
 def _save_internet_backup() -> bool:
     """Persist original WinINET state before any mutation or fail closed."""
     core = _core()
@@ -178,6 +207,14 @@ def _restore_internet_backup() -> bool:
             "no WinINET values changed"
         )
         return True
+
+    current = core._read_internet_settings()
+    if not _internet_state_is_owned_or_saved(values, current):
+        core._log(
+            "internet settings restore refused: current WinINET state contains "
+            "foreign values; backup kept for retry"
+        )
+        return False
 
     ok = True
     for name, item in values.items():
@@ -368,6 +405,29 @@ def sync_client_no_proxy() -> bool:
     return True
 
 
+def _env_state_is_owned_or_saved(backup, port) -> bool:
+    """Verify every governed proxy environment value before destructive restore."""
+    core = _core()
+    if not isinstance(backup, dict) or not all(name in backup for name in _PROXY_ENV_NAMES):
+        return False
+    local_proxy = "http://127.0.0.1:%d" % int(port)
+    applied = {
+        "HTTP_PROXY": {"exists": True, "value": local_proxy},
+        "HTTPS_PROXY": {"exists": True, "value": local_proxy},
+        "ALL_PROXY": {"exists": True, "value": local_proxy},
+        "NO_PROXY": {"exists": True, "value": ",".join(core._combined_no_proxy(backup))},
+    }
+    for name in _PROXY_ENV_NAMES:
+        exists, value = core._read_user_env(name)
+        current = {"exists": bool(exists), "value": str(value) if exists else ""}
+        if not (
+            _state_item_matches(current, backup[name])
+            or _state_item_matches(current, applied[name])
+        ):
+            return False
+    return True
+
+
 def _disable_client_proxy_env() -> bool:
     """Restore the exact user proxy environment and retain evidence on failure."""
     core = _core()
@@ -380,6 +440,16 @@ def _disable_client_proxy_env() -> bool:
     if not isinstance(backup, dict) or not all(
         name in backup for name in _PROXY_ENV_NAMES
     ):
+        return False
+
+    settings = core.load_settings()
+    if not _env_state_is_owned_or_saved(
+        backup, int(settings.get("local_http_port", 8080))
+    ):
+        core._log(
+            "client proxy environment restore refused: current environment contains "
+            "foreign values; backup kept for retry"
+        )
         return False
 
     ok = True
@@ -551,10 +621,12 @@ def disable_system_proxy() -> bool:
     env_ok = core._disable_client_proxy_env()
 
     # A recovery Run entry may be removed only once the owned PAC is inactive
-    # and the proxy environment either restored or proven absent.
+    # and all durable rollback evidence is gone. Foreign state can make our PAC
+    # inactive while a WinINET backup still requires explicit resolution.
+    internet_pending = os.path.exists(core._internet_backup_path())
     env_pending = os.path.exists(core._env_backup_path())
     still_active = core.system_proxy_enabled()
-    if not still_active and (env_ok or not env_pending):
+    if not still_active and not internet_pending and not env_pending:
         core._disable_recovery_autostart()
 
     core._refresh_internet()
@@ -568,7 +640,13 @@ def disable_system_proxy() -> bool:
         core._log("system proxy restored successfully")
     else:
         core._log("system proxy already inactive")
-    return ok and (env_ok or not env_pending) and not still_active
+    return (
+        ok
+        and env_ok
+        and not internet_pending
+        and not env_pending
+        and not still_active
+    )
 
 
 def system_proxy_enabled() -> bool:
