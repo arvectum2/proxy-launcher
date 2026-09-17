@@ -1,76 +1,93 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REG-002-REDOS-RECOVERY
-status: in_progress
-goal: Fix RED OS proxy/recovery regression after browser/system proxy changes and remove Astra-specific
-  user-facing wording from RED OS runtime messages.
+status: completed
+goal: Fix RED OS proxy/recovery regression after browser/system proxy changes and remove Astra-specific user-facing
+  wording from RED OS runtime messages.
 authority: HUMAN
 definition_of_done:
-- Reproduce and explain the RED OS failure mode that leaves recovery pending or restoration failing after
-  proxy/browser settings are changed while the launcher is active.
-- Fix recovery/start-stop behavior so externally changed proxy settings do not strand the application
-  or destroy the original baseline; recovery remains fail-safe and idempotent.
-- All RED OS user-facing service/recovery text uses RED OS or dynamic platform wording; Astra Linux wording
-  remains only on Astra runtime.
+- Reproduce and explain the RED OS failure mode that leaves recovery pending or restoration failing after proxy/browser
+  settings are changed while the launcher is active.
+- Fix recovery/start-stop behavior so externally changed proxy settings do not strand the application or destroy
+  the original baseline; recovery remains fail-safe and idempotent.
+- All RED OS user-facing service/recovery text uses RED OS or dynamic platform wording; Astra Linux wording remains
+  only on Astra runtime.
 - Add regression tests for the reproduced failure and dynamic platform messages.
-- Build and install a corrected RED OS RPM on the physical RED OS 8.0.3 stand and verify start -> external
-  proxy change -> stop/restart/recovery -> clean baseline restoration.
-- Relevant local and CI tests pass, changes are merged, release/version handling is resolved without mutating
-  immutable v0.2.7.
+- Build and install a corrected RED OS RPM on the physical RED OS 8.0.3 stand and verify start -> external proxy
+  change -> stop/restart/recovery -> clean baseline restoration.
+- Relevant local and CI tests pass, changes are merged, release/version handling is resolved without mutating immutable
+  v0.2.7.
 completed:
-- Captured user report and screenshot showing v0.2.7 RED OS enters recovery-required state and displays
-  stale Linux/Astra wording after proxy settings were changed externally.
-- 'Root cause reproduced from physical RED OS evidence: NetworkManager remained Arvectum-owned while KDE
-  became a mixed state with the saved mode and Arvectum PAC URL; v0.2.7 rejected whole-object recovery
-  three times.'
-- 'Linux desktop rollback ownership changed only for recovery: each governed field may equal either saved
-  original or Arvectum-applied value; any third foreign value still fails closed.'
+- Captured user report and screenshot showing v0.2.7 RED OS enters recovery-required state and displays stale Linux/Astra
+  wording after proxy settings were changed externally.
+- 'Root cause reproduced from physical RED OS evidence: NetworkManager remained Arvectum-owned while KDE became
+  a mixed state with the saved mode and Arvectum PAC URL; v0.2.7 rejected whole-object recovery three times.'
+- 'Linux desktop rollback ownership changed only for recovery: each governed field may equal either saved original
+  or Arvectum-applied value; any third foreign value still fails closed.'
 - RED OS recovery/capability copy now uses detected platform label instead of static Linux/Astra wording.
-- Regression tests for both mixed desktop states, foreign-value refusal, RED OS recovery copy and PolicyKit
-  fallback label pass; focused suite 37/37 and combined non-Tk release/regression tests 58/58 PASS.
+- Regression tests for both mixed desktop states, foreign-value refusal, RED OS recovery copy and PolicyKit fallback
+  label pass; focused suite 37/37 and combined non-Tk release/regression tests 58/58 PASS.
 - Canonical patch version advanced to 0.2.8; historical v0.2.7 release/docs remain immutable.
-- 'Broader Linux/runtime/packaging/release regression suite: 120/120 PASS; no static Linux/Astra marker
-  remains in GUI/PolicyKit source; Python syntax and mirror-doc checks PASS.'
-- Physical RED OS candidate upgrade 0.2.7 -> 0.2.8 preserved the real stranded v0.2.7 rollback evidence;
-  rpm -V remained clean.
-- '0.2.8 recovered the exact real stranded mixed KDE state in the real Plasma session: NetworkManager
-  restored to none, KDE to original manual/empty PAC, rollback evidence removed, status STOPPED.'
-- 'Fresh physical candidate cycle passed: start -> HTTP/SOCKS/PAC listeners -> chatgpt.com route through
-  local HTTP proxy -> external KDE ProxyType change to manual while Arvectum PAC remained -> ordinary
-  stop -> exact baseline restoration.'
+- 'Broader Linux/runtime/packaging/release regression suite: 120/120 PASS; no static Linux/Astra marker remains
+  in GUI/PolicyKit source; Python syntax and mirror-doc checks PASS.'
+- Physical RED OS candidate upgrade 0.2.7 -> 0.2.8 preserved the real stranded v0.2.7 rollback evidence; rpm -V
+  remained clean.
+- '0.2.8 recovered the exact real stranded mixed KDE state in the real Plasma session: NetworkManager restored to
+  none, KDE to original manual/empty PAC, rollback evidence removed, status STOPPED.'
+- 'Fresh physical candidate cycle passed: start -> HTTP/SOCKS/PAC listeners -> chatgpt.com route through local HTTP
+  proxy -> external KDE ProxyType change to manual while Arvectum PAC remained -> ordinary stop -> exact baseline
+  restoration.'
 - Post-stop NetworkManager baseline was none/no/empty, kioslaverc SHA-256 returned to 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde,
   rollback evidence absent, no 18080/18081/18082 listeners remained.
-current: Push physical acceptance evidence summary in checkpoint, open PR for 0.2.8, wait for exact-head
-  CI, then merge and publish immutable v0.2.8.
-pending:
-- Open PR and obtain exact-head CI for 0.2.8.
-- Merge to main; wait for exact-main release gates and Release Evidence Package.
-- Publish immutable v0.2.8 GitHub release and verify SHA256SUMS.
-- Verify GitVerse v0.2.8 mirror payload parity.
-- Install exact public v0.2.8 RPM on physical RED OS, verify rpm -V/payload/GUI shortcut and leave clean
-  baseline state.
-- Finalize checkpoint as completed and merge closeout metadata.
-last_verified_commit: 71c41a7995034d9adb1979ba222526842b2edc8d
+- 'PR #87 merged to main as 1000b7d7a8766349cfdc6521c3f643583aee33b5 after exact-head CI; immutable tag v0.2.8 points
+  to the merged release content.'
+- GitHub v0.2.8 release published successfully at https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.8;
+  release workflow 35217460980 and exact-main Release Evidence Package 35217151937 PASS.
+- GitVerse v0.2.8 mirror workflow PASS; independently downloaded public RED OS transport contains exactly one RPM
+  whose SHA-256 matches GitHub.
+- Exact public RED OS RPM SHA-256 is 79508be3f344921a61d77e12139efa2bae340c76de823f6fc5315c6d9df695f6; exact public
+  RPM reinstalled on physical RED OS 8.0.3 and rpm -V is clean.
+- Installed public ELF SHA-256 is 20ff9e401e2716ba268c5f92ee842a65bd2ce2149c25fffb5bb1bcdd50506b15 and matches the
+  payload extracted from the public RPM byte-for-byte.
+- 'Public-build Chromium system-proxy validation PASS: fresh RED OS Chromium with no proxy flags opened https://chatgpt.com/
+  and its NetworkService held TCP connections to 127.0.0.1:18080.'
+- 'Public-build reported regression cycle PASS: start in real KDE session -> external KDE ProxyType change producing
+  the real mixed state -> ordinary stop restored exact baseline without recovery error -> restart succeeded -> final
+  stop restored exact baseline again.'
+- 'Final physical baseline PASS: NetworkManager proxy none, KDE ProxyType=1 with empty PAC, kioslaverc SHA-256 1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde,
+  rollback backup absent and no listeners on 18080/18081/18082.'
+- Desktop shortcut on the public build opens Arvectum Proxy Launcher · Linux / RED OS; no static Linux/Astra marker
+  remains in linux_gui.py, policykit_ux.py, shared_gui.py or linux_runtime.py at v0.2.8.
+current: 'Completed: public v0.2.8 recovery regression accepted on the physical RED OS stand and mirrored releases
+  verified.'
+pending: []
+last_verified_commit: 1000b7d7a8766349cfdc6521c3f643583aee33b5
 test_results:
 - 'Focused mixed-recovery + GUI/PolicyKit suite: 37/37 PASS.'
-- 'Combined release/RPM/recovery suite: 58 PASS; Mac-only test_version_policy import blocked by missing
-  _tkinter, to be rerun on RED OS.'
+- 'Combined release/RPM/recovery suite: 58 PASS; Mac-only test_version_policy import blocked by missing _tkinter,
+  to be rerun on RED OS.'
 - 'Static VERSION/proxy_core/version_info consistency: PASS for 0.2.8.'
 - 'Broader Linux/runtime/packaging/release suite: 120/120 PASS.'
 - 'RED OS Tk-capable version + backend/runtime/GUI/PolicyKit suite: 59/59 PASS.'
 - Native RED OS 0.2.8 candidate RPM built with verified frozen third-party license bundle; SHA-256 7e7623f704b3bbe3c2ad3f8d94caa71eff9617ae66e6d098ecd84d7f778eff1d.
 - 'Physical real stranded-state recovery: PASS.'
 - 'Physical fresh start -> mixed external change -> ordinary stop exact restoration: PASS.'
-- chatgpt.com through 127.0.0.1:18080 returned HTTP 403 with curl rc=0, proving target connectivity through
-  launcher; browser-level GUI check remains covered by prior Chromium system-PAC acceptance.
-resume_instruction: Open the 0.2.8 PR at head 71c41a7, wait for exact-head CI, merge only if green, then
-  run exact-main release gates, publish v0.2.8 to GitHub/GitVerse, install the exact public RED OS RPM
-  and finalize checkpoint.
-updated_at: '2026-09-17T11:38:42Z'
+- chatgpt.com through 127.0.0.1:18080 returned HTTP 403 with curl rc=0, proving target connectivity through launcher;
+  browser-level GUI check remains covered by prior Chromium system-PAC acceptance.
+- Public v0.2.8 GitHub release assets and exact-main release evidence => PASS.
+- GitVerse public RED OS RPM inner-payload parity => PASS, SHA-256 79508be3f344921a61d77e12139efa2bae340c76de823f6fc5315c6d9df695f6.
+- Exact public RPM install + rpm -V + installed payload parity => PASS; ELF SHA-256 20ff9e401e2716ba268c5f92ee842a65bd2ce2149c25fffb5bb1bcdd50506b15.
+- Real KDE/Chromium system-PAC path => PASS; ChatGPT page loaded and Chromium connected to launcher 127.0.0.1:18080.
+- Exact user regression sequence on public build (mixed external proxy change -> stop -> restart -> stop) => PASS
+  with exact baseline restoration and no recovery error.
+- RED OS platform copy scan and desktop shortcut title => PASS; Linux / RED OS only in active user-facing path.
+resume_instruction: Task completed; no continuation is required unless a RED OS proxy/recovery or platform-copy
+  regression is reported.
+updated_at: '2026-09-17T12:30:41Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-002-20260917
-  branch: apl-reg-002-redos-recovery
+  branch: apl-reg-002-v0.2.8-closeout
   base_commit: 47352114cc0aced21c81f66127a4475b9209952e
   lease_until: null
   manual_override: true
