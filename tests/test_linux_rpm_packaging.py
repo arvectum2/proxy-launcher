@@ -14,7 +14,7 @@ class LinuxRpmPackagingContractTests(unittest.TestCase):
     def test_package_identity_and_payload_are_canonical(self):
         self.assertIn('package="arvectum-proxy-launcher"', self.text)
         self.assertIn('/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher', self.text)
-        self.assertIn('/usr/bin/arvectum-proxy-launcher', self.text)
+        self.assertIn('%{_bindir}/arvectum-proxy-launcher', self.text)
         self.assertIn('Requires:       NetworkManager', self.text)
         self.assertIn('Requires:       glib2', self.text)
         self.assertIn('redos-linux-${arch}.rpm', self.text)
