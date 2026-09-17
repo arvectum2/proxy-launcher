@@ -1,0 +1,32 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-REG-001C
+status: in_progress
+goal: Validate and complete Arvectum Proxy Launcher support for RED OS on the physical arvectumredos x86-64 stand, fixing any compatibility gaps found and recording reproducible acceptance evidence.
+definition_of_done:
+  - Identify exact RED OS version, desktop/session, package manager, browser path, and current repository/package state on the physical stand.
+  - Verify the current stable or candidate Proxy Launcher package installs and launches on RED OS x86-64 without unsupported distro assumptions.
+  - Verify start/status/stop/re-enable lifecycle, local proxy and PAC listeners, desktop/system proxy configuration, and exact rollback to the pre-test state.
+  - Verify a real browser using system proxy reaches the launcher on 127.0.0.1:8080.
+  - Fix any RED OS-specific packaging/runtime/desktop integration defects in the repository, with focused tests and regression checks for Astra/Ubuntu/Windows where relevant.
+  - Persist acceptance evidence and documentation for RED OS and leave the repository checkpoint completed only after all relevant checks pass.
+completed:
+  - Confirmed physical RDC device arvectumredos is online and Linux x86-64.
+  - Confirmed the single hourly Proxy Launcher Watchdog exists and is enabled.
+current: Inspect physical RED OS baseline and repository/package state before mutating the stand.
+pending:
+  - Capture RED OS identity, desktop/session, proxy backends, installed launcher/package and working tree state.
+  - Run non-destructive preflight and determine the exact acceptance package/build to test.
+  - Execute install/runtime/system-proxy/browser/rollback acceptance; fix defects if any.
+  - Run regression tests, record evidence, commit final changes, and mark completed.
+last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+test_results: []
+resume_instruction: On arvectumredos, inspect OS release, desktop/session, git clone/worktree, installed package and proxy state. Preserve the original proxy settings before any launcher lifecycle test. Then execute RED OS acceptance from the first unverified Definition-of-Done item.
+updated_at: '2026-09-17T10:14:00+03:00'
+execution:
+  claimed_by: chatgpt
+  execution_id: APL-REG-001C-20260917
+  branch: feat/apl-reg-001c-redos-acceptance
+  base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+  lease_until: null
+  manual_override: true
