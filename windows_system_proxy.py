@@ -124,6 +124,119 @@ def _exact_arvectum_pac_url(value, settings=None) -> bool:
         return False
 
 
+def _state_item_equal(left, right) -> bool:
+    """Compare persisted proxy items while treating absence as value-independent."""
+    left = left if isinstance(left, dict) else {}
+    right = right if isinstance(right, dict) else {}
+    left_exists = bool(left.get("exists"))
+    right_exists = bool(right.get("exists"))
+    if left_exists != right_exists:
+        return False
+    if not left_exists:
+        return True
+    return left.get("value") == right.get("value")
+
+
+def _internet_applied_state(saved, settings=None):
+    """Return the WinINET state Arvectum owns while active."""
+    core = _core()
+    if not core._valid_internet_backup(saved):
+        return None
+    applied = {
+        name: dict(saved.get(name) or {})
+        for name in _INTERNET_SETTINGS_NAMES
+    }
+    settings = settings or core.load_settings()
+    applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(settings)}
+    applied["ProxyEnable"] = {"exists": True, "value": 0}
+    return applied
+
+
+def _internet_current_state_owned_or_saved(saved) -> bool:
+    """Accept only per-field saved or Arvectum-applied WinINET state."""
+    core = _core()
+    current = core._read_internet_settings()
+    applied = _internet_applied_state(saved)
+    if not core._valid_internet_backup(current) or applied is None:
+        return False
+    return all(
+        _state_item_equal(current.get(name), saved.get(name))
+        or _state_item_equal(current.get(name), applied.get(name))
+        for name in _INTERNET_SETTINGS_NAMES
+    )
+
+
+def _valid_env_backup(values) -> bool:
+    return isinstance(values, dict) and all(name in values for name in _PROXY_ENV_NAMES)
+
+
+def _env_applied_state(saved):
+    """Return the per-user proxy environment Arvectum owns while active."""
+    core = _core()
+    if not _valid_env_backup(saved):
+        return None
+    settings = core.load_settings()
+    local_proxy = "http://127.0.0.1:%d" % int(settings.get("local_http_port", 8080))
+    applied = {name: dict(saved.get(name) or {}) for name in _PROXY_ENV_NAMES}
+    for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+        applied[name] = {"exists": True, "value": local_proxy}
+    applied["NO_PROXY"] = {
+        "exists": True,
+        "value": ",".join(core._combined_no_proxy(saved)),
+    }
+    return applied
+
+
+def _env_current_state_owned_or_saved(saved) -> bool:
+    """Accept only per-field saved or Arvectum-applied proxy environment state."""
+    core = _core()
+    applied = _env_applied_state(saved)
+    if applied is None:
+        return False
+    for name in _PROXY_ENV_NAMES:
+        exists, value = core._read_user_env(name)
+        current = {"exists": bool(exists), "value": value}
+        if not (
+            _state_item_equal(current, saved.get(name))
+            or _state_item_equal(current, applied.get(name))
+        ):
+            return False
+    return True
+
+
+def _rollback_current_state_owned_or_saved() -> bool:
+    """Preflight every Windows proxy surface before any rollback mutation."""
+    core = _core()
+    internet_path = core._internet_backup_path()
+    if os.path.exists(internet_path):
+        try:
+            with io.open(internet_path, "r", encoding="utf-8") as stream:
+                internet_saved = json.load(stream)
+        except Exception:
+            internet_saved = None
+        if not core._valid_internet_backup(internet_saved):
+            core._log("Windows rollback refused: WinINET backup is invalid")
+            return False
+        if not _internet_current_state_owned_or_saved(internet_saved):
+            core._log("Windows rollback refused: WinINET state contains foreign changes")
+            return False
+
+    env_path = core._env_backup_path()
+    if os.path.exists(env_path):
+        try:
+            with io.open(env_path, "r", encoding="utf-8") as stream:
+                env_saved = json.load(stream)
+        except Exception:
+            env_saved = None
+        if not _valid_env_backup(env_saved):
+            core._log("Windows rollback refused: proxy environment backup is invalid")
+            return False
+        if not _env_current_state_owned_or_saved(env_saved):
+            core._log("Windows rollback refused: proxy environment contains foreign changes")
+            return False
+    return True
+
+
 def _save_internet_backup() -> bool:
     """Persist original WinINET state before any mutation or fail closed."""
     core = _core()
@@ -544,6 +657,13 @@ def disable_system_proxy() -> bool:
     if not core.is_windows():
         core._log("system proxy: (non-Windows) disabled")
         return True
+
+    # Validate both WinINET and environment ownership before mutating either
+    # surface. This prevents partial rollback and preserves newer foreign/admin
+    # proxy changes made while Arvectum is active.
+    if not _rollback_current_state_owned_or_saved():
+        core._log("system proxy restore refused: current state is not Arvectum-owned or saved")
+        return False
 
     was_active = core.system_proxy_enabled()
     valid_backup = core._valid_internet_backup_at(core._internet_backup_path())
