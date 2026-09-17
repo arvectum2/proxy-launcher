@@ -29,8 +29,11 @@ completed:
 - Advanced canonical version to 0.2.9 and added immutable 0.2.9 release/mirror documentation while preserving historical
   0.2.8 docs.
 - 'Focused Windows recovery suite: 41/41 PASS; Windows/release suite after version bump: 94/94 PASS.'
-current: Commit and push the 0.2.9 candidate, then build/install that exact candidate on physical ARVECTUM-DEMO
-  for Windows acceptance.
+- 'First exact-head full CI exposed two contract-test metadata gaps: numeric PE version tuple remained 0.2.8.0 and
+  two historical proxy_core restore fixtures lacked current-state evidence.'
+- Updated version_info numeric tuple to 0.2.9.0 and adapted historical restore fixtures to the new current-state
+  preflight contract.
+current: Push the corrected exact-head and require clean CI before transferring its Windows artifact to ARVECTUM-DEMO.
 pending:
 - Commit/push exact candidate branch and run Windows Tk/version tests on ARVECTUM-DEMO.
 - Build/install exact candidate on ARVECTUM-DEMO and run physical regression matrix.
@@ -43,9 +46,11 @@ test_results:
 - 'Windows/release focused suite after 0.2.9 version bump: 94/94 PASS.'
 - 'Broader attempted suite: 135 PASS plus two non-product harness/import issues on Mac (nonexistent test module
   name and Homebrew Python missing _tkinter); version policy will be rerun on Windows.'
-resume_instruction: Commit/push the 0.2.9 candidate branch, fetch it on ARVECTUM-DEMO, run version/Tk tests and
-  physical Windows recovery acceptance before opening the PR.
-updated_at: '2026-09-17T14:55:00Z'
+- 'After CI-gap fix: 70 proxy_core/windows-system-proxy tests PASS on Mac; test_version_policy remains locally blocked
+  only by Homebrew Python missing _tkinter; numeric 0.2.9.0 tuple check PASS.'
+resume_instruction: Wait for clean exact-head CI after the metadata/fixture correction; then transfer exact-head
+  Windows CI artifact to ARVECTUM-DEMO and run physical acceptance.
+updated_at: '2026-09-17T15:02:00Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REG-003-20260917
