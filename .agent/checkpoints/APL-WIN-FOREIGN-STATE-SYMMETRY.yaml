@@ -30,7 +30,7 @@ completed:
 - 'Diagnosed first PR CI failures as two compatibility issues: stale FixedFileInfo 0.2.8 tuples and a legacy proxy_core
   restore fixture missing the new current-state read; both corrected.'
 - 'Subtask B PASS on physical ARVECTUM-DEMO under enforced WDAC: exact-head 0.2.9 preserved foreign PAC and foreign manual proxy on stop; durable WinINET backup stayed pending; after resolving only the test foreign field, recovery restored saved baseline. Manual Arvectum PAC disable -> stop -> restart -> stop also passed. Final network state: ProxyEnable=1, ProxyServer=68.209.60.141:8000, AutoConfigURL absent, listeners 0, backup absent, saved proxy environment preserved.'
-current: Subtask C - require final exact-head CI, merge PR #93, and pass exact-main release gates.
+current: 'Subtask C - require final exact-head CI, merge PR #93, and pass exact-main release gates.'
 pending:
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.

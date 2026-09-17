@@ -33,7 +33,7 @@ completed:
 - 'Exact-head artifact SHA256: portable ZIP 80259f6239d52e6fd8c968080c615c6fb726f4a17bbb2b3e6133ce3950c0b484; installer ab94709ef1efad21ff89409190c11eee3e2694b7761815e7c234638fb34191be.'
 - 'ARVECTUM-DEMO exact CI bytes transferred and hash-verified; WDAC blocks new hashes as designed. Authored hash-only supplemental policy {97B17333-FACA-4389-A7F6-6EA871C325FE}, CIP SHA256 d66ea27213be76ac86f5e2c8ad73380bafb30cf2c8de219e0666f09f077009ce; script enforcement preserved.'
 - 'Subtask B PASS on physical ARVECTUM-DEMO under enforced WDAC: exact-head 0.2.9 preserved foreign PAC and foreign manual proxy on stop; durable WinINET backup stayed pending; after resolving only the test foreign field, recovery restored saved baseline. Manual Arvectum PAC disable -> stop -> restart -> stop also passed. Final network state: ProxyEnable=1, ProxyServer=68.209.60.141:8000, AutoConfigURL absent, listeners 0, backup absent, saved proxy environment preserved.'
-current: Subtask C - require final exact-head CI, merge PR #93, and pass exact-main release gates.
+current: 'Subtask C - require final exact-head CI, merge PR #93, and pass exact-main release gates.'
 pending:
 - Open/merge exact-head PR and pass exact-main release gates.
 - Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
