@@ -1,82 +1,40 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-WIN-FOREIGN-STATE-SYMMETRY
-status: completed
-goal: Make Windows proxy rollback ownership-symmetric with Linux for external proxy changes, validate on physical ARVECTUM-DEMO,
-  and publish the next immutable release to GitHub and GitVerse.
+task_id: APL-REG-001D-MINCIFRY-APPLICATION
+status: in_progress
+goal: Prepare a filing-grade application package for inclusion of Arvectum Proxy Launcher in the Unified Register of Russian Software, based on the completed Astra Linux SE and RED OS physical acceptance records and the current v0.2.9 release baseline.
 authority: HUMAN
 definition_of_done:
-- Windows disable/recovery accepts current fields only when each governed field is either the saved original value or the
-  Arvectum-applied value; third/foreign values fail closed and are preserved.
-- Add regression tests for manual Arvectum PAC disable, mixed saved/applied fields, and foreign PAC/manual proxy changes.
-- Existing Windows lifecycle/installer tests remain green.
-- Physical ARVECTUM-DEMO acceptance proves start -> external change -> stop/recovery semantics and clean baseline restoration.
-- Publish next immutable release on GitHub and GitVerse, verify checksums/parity, install exact public Windows build on ARVECTUM-DEMO,
-  and leave clean state.
+  - Re-verify the current official registry filing requirements and application flow against the Ministry/registry operator sources current on the filing date.
+  - Reconcile repository registration readiness with the completed APL-REG-001C Astra Linux SE + RED OS physical acceptance and current v0.2.9 release.
+  - Produce a version-frozen Russian registry documentation pack: product/function description, system requirements, installation/operation/removal/recovery, support/maintenance statement, licensing/price statement, expert verification procedure, known restrictions and external-proxy configuration.
+  - Produce an application-field worksheet mapping each known portal field to a ready answer, public evidence URL/document, or explicit HUMAN/PRIVATE input.
+  - Produce a private-evidence checklist for corporate/right-chain, foreign-payment, authority and УКЭП materials without committing personal data, private keys or restricted corporate evidence.
+  - Run a pre-submission gap audit and clearly separate repository-complete items from human/legal/portal-signature blockers.
+  - Relevant documentation/contract tests or internal consistency checks pass.
+  - Open a reviewable PR with the filing package and checkpoint; do not submit or sign the external application without the authorized human/qualified-signature step.
 completed:
-- Audited Windows rollback asymmetry from APL-AUD-003 and confirmed ARVECTUM-DEMO starts from a clean WinINET/environment
-  baseline.
-- Implemented saved-or-Arvectum current-state validation for every WinINET value rollback can mutate and every governed proxy
-  environment variable.
-- Recovery autostart now remains owned while either WinINET or environment rollback evidence is still present.
-- Added regressions for mixed state, manual Arvectum PAC disable, foreign PAC/manual-proxy state and foreign proxy environment
-  state.
-- Focused Windows ownership/backend suite 41/41 PASS; broader Windows lifecycle/installer contract suite 149/149 PASS.
-- Canonical product version advanced to 0.2.9 with new bilingual release and GitVerse mirror notes; historical v0.2.8 release
-  docs remain immutable.
-- 'Diagnosed first PR CI failures as two compatibility issues: stale FixedFileInfo 0.2.8 tuples and a legacy proxy_core restore
-  fixture missing the new current-state read; both corrected.'
-- 'Subtask A PASS: exact-head 0433a4187ad61273635c5e9fd83fa410389a4b40 passed all 24 PR workflows, including Windows portable,
-  installer, controlled-offline build, full contracts and security gates.'
-- 'Exact-head artifact SHA256: portable ZIP 80259f6239d52e6fd8c968080c615c6fb726f4a17bbb2b3e6133ce3950c0b484; installer ab94709ef1efad21ff89409190c11eee3e2694b7761815e7c234638fb34191be.'
-- ARVECTUM-DEMO exact CI bytes transferred and hash-verified; WDAC blocks new hashes as designed. Authored hash-only supplemental
-  policy {97B17333-FACA-4389-A7F6-6EA871C325FE}, CIP SHA256 d66ea27213be76ac86f5e2c8ad73380bafb30cf2c8de219e0666f09f077009ce;
-  script enforcement preserved.
-- 'Subtask B PASS on physical ARVECTUM-DEMO under enforced WDAC: exact-head 0.2.9 preserved foreign PAC and foreign manual
-  proxy on stop; durable WinINET backup stayed pending; after resolving only the test foreign field, recovery restored saved
-  baseline. Manual Arvectum PAC disable -> stop -> restart -> stop also passed. Final network state: ProxyEnable=1, ProxyServer=68.209.60.141:8000,
-  AutoConfigURL absent, listeners 0, backup absent, saved proxy environment preserved.'
-- 'Subtask C PASS: PR #93 merged exact-head ca7c1019e78cb3ee1e57173f2b58ecea0c27b919 as main commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2;
-  all 24 exact-main push workflows PASS, including Windows portable, Windows installer, SAST and Release Evidence Package.'
-- 'Subtask D PASS: immutable tag v0.2.9 points to verified release commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2; GitHub
-  Release published and tag release workflow Windows build/installer PASS.'
-- 'Public GitHub release independently downloaded and SHA256SUMS verified: Windows portable 6f541b28c08834170258b48e27ffeafc6a0ad0e9c3a27760ec02cc7d01a305d0;
-  Windows setup a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c; Astra DEB f1bdb58ed4dad02bcc391ae88c8102062a2ed75860f5735cbe45dd6569d77711;
-  RED OS RPM 59a3a45562da3c65691e901471bdaab16f0de94f5bbc4dfa786f524d417660fc.'
-- GitVerse v0.2.9 mirror completed success including Verify public GitVerse payload parity.
-- Exact-public Windows EXE SHA256 8e3f56e795c53b4c79abafe1b3f8daee6ecd88dff467570d4097907f6a04559e transferred to ARVECTUM-DEMO
-  with exact public setup; authored hash-only supplemental policy {AD04BEB9-21E7-44E9-A836-3C89F7466350}, CIP SHA256 41f36f1182a1d4024506ebf8d25f2a5475cb7588e5bb632cc42d460b01821bd5,
-  script enforcement preserved.
-- 'Release v0.2.9 workflow run 35258608779 completed success: tag build, Windows installer E2E, GitHub publication and GitVerse
-  mirror/public payload parity all PASS. Independent public GitHub SHA256SUMS verification passed for Windows portable/setup,
-  Astra DEB and RED OS RPM.'
-- 'Subtask E PASS on exact-public v0.2.9 at physical ARVECTUM-DEMO under enforced WDAC: public setup SHA256 a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c
-  installed ProductVersion 0.2.9; installed EXE SHA256 8e3f56e795c53b4c79abafe1b3f8daee6ecd88dff467570d4097907f6a04559e. Foreign
-  PAC was preserved fail-closed with WinINET backup retained; after resolving only the test foreign field, rollback restored
-  the saved baseline. Manual Arvectum PAC disable -> stop exit 0 -> restart ACTIVE -> final stop exit 0 passed. Final state:
-  AutoConfigURL absent, ProxyEnable=1, ProxyServer=68.209.60.141:8000, listeners 0, WinINET/env backups absent, saved proxy
-  env preserved.'
-current: Completed - v0.2.9 Windows foreign-state symmetry release and exact-public physical acceptance are closed.
-pending: []
-last_verified_commit: d13d9dac2ae2439c2fe70d32e1b168df320a9bd2
+  - Confirmed canonical main at 1081a54de662bcabf5c2b92c37c450600a2723c1 (2026-09-17).
+  - Confirmed APL-REG-001C RED OS acceptance was merged in PR #83: RED OS 8.0.3 Standard Desktop x86_64 physical PASS with exact candidate evidence and 62/62 focused regressions.
+  - Confirmed current product release line is v0.2.9 and public release payload includes Windows, Astra DEB and RED OS RPM artifacts.
+  - Confirmed official registry portal currently requires a verified Gosuslugi account, filing materials, signature software and a qualified electronic-signature certificate; submission is signed electronically and the published service target is up to 45 working days after registration.
+current: Reconcile current repository evidence and official 2026 registry requirements, then author APL-REG-001D filing documents and portal worksheet.
+pending:
+  - Inspect current classification/IP/lifecycle/legal documentation and exact current release metadata.
+  - Verify classifier/trusted-OS applicability and current Rule 1236 evidence requirements immediately relevant to class 02.02.
+  - Draft and commit registry-facing documents and application field map.
+  - Add/update lightweight consistency checks if needed.
+  - Run checks, perform pre-submission audit, update checkpoint and open PR.
+last_verified_commit: 1081a54de662bcabf5c2b92c37c450600a2723c1
 test_results:
-- 'Focused Windows ownership/backend suite: 41/41 PASS.'
-- 'Broader Windows lifecycle/installer contract suite: 149/149 PASS.'
-- 'Version/release set excluding test_version_policy: 116/116 PASS; Mac test_version_policy import blocked only by missing
-  _tkinter and is pending Windows execution.'
-- 'Post-CI-fix local proxy_core/Windows subset: 83 runtime tests PASS; test_version_policy remains Mac-only import-blocked
-  by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
-- 'Exact-main d13d9dac2ae2439c2fe70d32e1b168df320a9bd2: 24/24 push workflows PASS; Windows installer and Release Evidence
-  Package PASS.'
-- 'Tag/release workflow 35258608779: completed success; GitHub Release and GitVerse public payload parity PASS.'
-- 'Physical exact-public ARVECTUM-DEMO acceptance: foreign PAC fail-closed PASS; manual-disable recovery PASS; restart/final
-  stop PASS; final network baseline clean.'
-resume_instruction: Task completed. No remaining engineering or release action for APL-WIN-FOREIGN-STATE-SYMMETRY.
-updated_at: '2026-09-17T19:35:58Z'
+  - APL-REG-001C RED OS focused suite at completion: 62/62 PASS (per merged PR #83).
+  - v0.2.9 exact-main release/CI evidence was green before this documentation task; no new tests run yet for APL-REG-001D.
+resume_instruction: Continue on branch apl-reg-001d-ministry-application. Start by reading APL-REG-001/001A/001B, APL-IP-001 materials, current release metadata and APL-REG-001C acceptance docs; then author the filing-grade Russian documentation pack and portal-field worksheet. Do not claim external corporate/legal facts not evidenced in the repository, and do not submit/sign the application without the authorized human/УКЭП step.
+updated_at: '2026-09-17T22:45:00+03:00'
 execution:
   claimed_by: chatgpt
-  execution_id: APL-WIN-SYMMETRY-20260917
-  branch: apl-win-foreign-state-symmetry-closeout
-  base_commit: 4884f88077811272befb19c80d049421f9160c04
+  execution_id: APL-REG-001D-20260917
+  branch: apl-reg-001d-ministry-application
+  base_commit: 1081a54de662bcabf5c2b92c37c450600a2723c1
   lease_until: null
   manual_override: true
