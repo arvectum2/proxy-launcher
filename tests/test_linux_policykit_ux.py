@@ -84,6 +84,14 @@ class LinuxCapabilityViewTests(unittest.TestCase):
         self.assertFalse(view["authorization_required"])
         self.assertIn("Сеть оставлена", view["hint"])
 
+    def test_unavailable_fallback_uses_runtime_platform_label(self):
+        view = ux.linux_capability_view(
+            {"state": "unavailable", "message": ""},
+            platform_label="Linux / RED OS",
+        )
+        self.assertIn("Linux / RED OS", view["hint"])
+        self.assertNotIn("Linux/Astra", view["hint"])
+
     def test_ready_allows_enable_without_authorization_prompt(self):
         view = ux.linux_capability_view(
             {"state": "ready", "message": "ready"}, running=True

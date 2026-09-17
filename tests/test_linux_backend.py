@@ -305,6 +305,38 @@ class LinuxBackendTests(unittest.TestCase):
         self.assertTrue(self.backend.disable())
         self.assertFalse(self.backend.restore_pending())
 
+    def test_desktop_mixed_original_and_applied_fields_remain_recoverable(self):
+        self.desktop.state = DesktopProxyState("manual", "")
+        original_profiles = dict(self.client.proxy)
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        # KDE/system proxy UIs can switch ProxyType back to the saved mode while
+        # leaving Arvectum's PAC URL behind. Recovery must remove only this
+        # Arvectum-owned residue instead of stranding the rollback evidence.
+        self.desktop.state = DesktopProxyState("manual", CONFIG.pac_url)
+
+        self.assertFalse(self.backend.is_enabled(CONFIG))
+        self.assertTrue(self.backend.restore_pending())
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertEqual(self.desktop.state, DesktopProxyState("manual", ""))
+        for uuid in (
+            "11111111-1111-1111-1111-111111111111",
+            "22222222-2222-2222-2222-222222222222",
+        ):
+            self.assertEqual(self.client.proxy[uuid], original_profiles[uuid])
+
+    def test_desktop_inverse_mixed_state_is_also_recoverable(self):
+        self.desktop.state = DesktopProxyState("manual", "http://saved.example/pac")
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.desktop.state = DesktopProxyState("auto", "http://saved.example/pac")
+
+        self.assertTrue(self.backend.disable())
+        self.assertEqual(
+            self.desktop.state,
+            DesktopProxyState("manual", "http://saved.example/pac"),
+        )
+
     def test_desktop_foreign_change_prevents_destructive_disable(self):
         self.assertTrue(self.backend.enable(CONFIG))
         self.desktop.state = DesktopProxyState(
