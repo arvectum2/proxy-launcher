@@ -6,6 +6,7 @@ cd "$repo_root"
 
 artifact="${1:-dist/Arvectum Proxy Launcher}"
 out_dir="${2:-dist/rpm}"
+license_bundle_source="${3:-}"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
   echo "APL-REG-001C: RPM packaging is Linux-only" >&2
@@ -30,8 +31,14 @@ mkdir -p "$work/rpmbuild/BUILD" "$work/rpmbuild/BUILDROOT" "$work/rpmbuild/RPMS"
   "$work/rpmbuild/SOURCES" "$work/rpmbuild/SPECS" "$work/rpmbuild/SRPMS" "$out_dir"
 
 license_bundle="$work/THIRD_PARTY_LICENSES"
-python3 tools/third_party_license_bundle.py --build --output "$license_bundle"
-python3 tools/third_party_license_bundle.py --verify --output "$license_bundle"
+if [[ -n "$license_bundle_source" ]]; then
+  [[ -d "$license_bundle_source" ]] || { echo "Missing supplied third-party license bundle: $license_bundle_source" >&2; exit 2; }
+  python3 tools/third_party_license_bundle.py --verify --output "$license_bundle_source"
+  cp -a "$license_bundle_source" "$license_bundle"
+else
+  python3 tools/third_party_license_bundle.py --build --output "$license_bundle"
+  python3 tools/third_party_license_bundle.py --verify --output "$license_bundle"
+fi
 
 install -m755 "$artifact" "$work/rpmbuild/SOURCES/Arvectum Proxy Launcher"
 install -m644 assets/arvectum-icon-0.2.2-transparent.png "$work/rpmbuild/SOURCES/arvectum-proxy-launcher.png"
