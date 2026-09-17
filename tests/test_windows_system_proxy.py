@@ -105,6 +105,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             self.assertEqual(json.loads(path.read_text(encoding="utf-8")), snapshot)
 
             with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=snapshot), \
                  mock.patch.object(core, "_reg_set", return_value=True) as set_value, \
                  mock.patch.object(core, "_reg_del", return_value=True) as delete_value, \
                  mock.patch.object(core, "_log"):
@@ -181,7 +182,17 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
             def write_env(name, value):
                 return name != "HTTPS_PROXY"
 
+            applied = {
+                "HTTP_PROXY": (True, "http://127.0.0.1:8080"),
+                "HTTPS_PROXY": (True, "http://127.0.0.1:8080"),
+                "ALL_PROXY": (True, "http://127.0.0.1:8080"),
+                "NO_PROXY": (True, "corp.local,localhost"),
+            }
             with mock.patch.object(core, "_env_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_user_env", side_effect=lambda name: applied[name]), \
+                 mock.patch.object(core, "load_settings", return_value={"local_http_port": 8080}), \
+                 mock.patch.object(core, "load_no_proxy", return_value=[]), \
+                 mock.patch.object(core, "DEFAULT_NO_PROXY", ("localhost",)), \
                  mock.patch.object(core, "_write_user_env", side_effect=write_env), \
                  mock.patch.object(core, "_delete_user_env", return_value=True), \
                  mock.patch.object(core, "_broadcast_environment_change") as broadcast, \
@@ -189,6 +200,96 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
                 self.assertFalse(core._disable_client_proxy_env())
             self.assertTrue(path.exists())
             broadcast.assert_not_called()
+
+    def test_internet_mixed_saved_and_arvectum_fields_restore_safely(self):
+        snapshot = self._internet_snapshot()
+        current = dict(snapshot)
+        current["AutoConfigURL"] = {"exists": True, "value": "http://127.0.0.1:8082/proxy.pac"}
+        current["ProxyEnable"] = {"exists": True, "value": 1}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_internet_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=current), \
+                 mock.patch.object(core, "load_settings", return_value=dict(core.DEFAULT_SETTINGS)), \
+                 mock.patch.object(core, "_reg_set", return_value=True), \
+                 mock.patch.object(core, "_reg_del", return_value=True), \
+                 mock.patch.object(core, "_log"):
+                self.assertTrue(core._restore_internet_backup())
+            self.assertFalse(path.exists())
+
+    def test_manual_arvectum_pac_disable_to_saved_state_is_recoverable(self):
+        snapshot = self._internet_snapshot()
+        snapshot["AutoConfigURL"] = {"exists": False, "value": None}
+        snapshot["ProxyEnable"] = {"exists": True, "value": 0}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_internet_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=snapshot), \
+                 mock.patch.object(core, "_reg_set", return_value=True), \
+                 mock.patch.object(core, "_reg_del", return_value=True), \
+                 mock.patch.object(core, "_log"):
+                self.assertTrue(core._restore_internet_backup())
+            self.assertFalse(path.exists())
+
+    def test_foreign_wininet_change_refuses_restore_and_keeps_backup(self):
+        snapshot = self._internet_snapshot()
+        current = dict(snapshot)
+        current["AutoConfigURL"] = {"exists": True, "value": "https://corp-new.example/proxy.pac"}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_internet_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=current), \
+                 mock.patch.object(core, "_reg_set") as set_value, \
+                 mock.patch.object(core, "_reg_del") as delete_value, \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._restore_internet_backup())
+            self.assertTrue(path.exists())
+            set_value.assert_not_called()
+            delete_value.assert_not_called()
+
+    def test_foreign_manual_proxy_field_refuses_restore(self):
+        snapshot = self._internet_snapshot()
+        current = dict(snapshot)
+        current["ProxyServer"] = {"exists": True, "value": "new-corp:8443"}
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_internet_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=current), \
+                 mock.patch.object(core, "_reg_set") as set_value, \
+                 mock.patch.object(core, "_reg_del") as delete_value, \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._restore_internet_backup())
+            self.assertTrue(path.exists())
+            set_value.assert_not_called()
+            delete_value.assert_not_called()
+
+    def test_foreign_proxy_environment_change_refuses_restore(self):
+        snapshot = self._env_snapshot()
+        current = {
+            "HTTP_PROXY": (True, "http://127.0.0.1:8080"),
+            "HTTPS_PROXY": (True, "http://foreign.example:3128"),
+            "ALL_PROXY": (True, "http://127.0.0.1:8080"),
+            "NO_PROXY": (True, "corp.local,localhost"),
+        }
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_env_backup.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            with mock.patch.object(core, "_env_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_user_env", side_effect=lambda name: current[name]), \
+                 mock.patch.object(core, "load_settings", return_value={"local_http_port": 8080}), \
+                 mock.patch.object(core, "load_no_proxy", return_value=[]), \
+                 mock.patch.object(core, "DEFAULT_NO_PROXY", ("localhost",)), \
+                 mock.patch.object(core, "_write_user_env") as write_env, \
+                 mock.patch.object(core, "_delete_user_env") as delete_env, \
+                 mock.patch.object(core, "_log"):
+                self.assertFalse(core._disable_client_proxy_env())
+            self.assertTrue(path.exists())
+            write_env.assert_not_called()
+            delete_env.assert_not_called()
 
     def test_enable_publishes_pac_to_wininet_and_refreshes_consumers(self):
         settings = dict(core.DEFAULT_SETTINGS)
@@ -254,6 +355,7 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
              mock.patch.object(core, "_valid_internet_backup_at", return_value=True), \
              mock.patch.object(core, "_restore_internet_backup", return_value=False), \
              mock.patch.object(core, "_disable_client_proxy_env", return_value=False), \
+             mock.patch.object(core, "_internet_backup_path", return_value="internet.json"), \
              mock.patch.object(core, "_env_backup_path", return_value="proxy_env_backup.json"), \
              mock.patch.object(os.path, "exists", return_value=True), \
              mock.patch.object(core, "_disable_recovery_autostart") as recovery_disable, \

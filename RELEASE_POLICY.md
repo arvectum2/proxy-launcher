@@ -22,7 +22,7 @@ MAJOR.MINOR.PATCH
 While product versions are below `1.0.0` (e.g. `0.2.3`), minor releases may contain non-backward-compatible improvements, accompanied by mandatory release notes.
 
 ### Current Version Status
-* **Canonical Product Version:** `0.2.8`
+* **Canonical Product Version:** `0.2.9`
 * The presence of a version number in code or documentation indicates the software version baseline, **not** that a public release has already been published.
 
 ## 3. Engineering Milestones vs. Product Versions
@@ -114,7 +114,7 @@ The installer is built from the same portable application binary and `VERSION` u
 * **macOS Intel:** `Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg` (when supported)
 * **Astra Linux amd64:** `Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`
 * **RED OS x86_64:** `Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`
-* **Generic Linux x86_64 tarball:** `Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz` (development/future distribution track; not part of the 0.2.8 public release set)
+* **Generic Linux x86_64 tarball:** `Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz` (development/future distribution track; not part of the 0.2.9 public release set)
 * **Checksum Manifest:** `SHA256SUMS.txt`
 
 ## 8. Checksum Manifest Policy
@@ -128,7 +128,7 @@ The installer is built from the same portable application binary and `VERSION` u
 
 ## 9. Platform Release Maturity
 
-* **Windows (0.2.8):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
+* **Windows (0.2.9):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
 * **macOS:** Retained for continued development; not verified for production release until dedicated CI build and verification gates are implemented.
-* **Astra Linux (0.2.8):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
-* **RED OS (0.2.8):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
+* **Astra Linux (0.2.9):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
+* **RED OS (0.2.9):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
