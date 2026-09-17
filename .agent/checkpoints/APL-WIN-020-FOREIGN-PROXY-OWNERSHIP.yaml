@@ -51,7 +51,7 @@ test_results:
   diff --check PASS.'
 resume_instruction: 'Wait for PR #91 exact-head CI after the CI-contract fix. Once Windows portable/installer jobs are green,
   download exact-head artifact and run physical mixed/foreign rollback acceptance on ARVECTUM-DEMO before merge.'
-updated_at: '2026-09-17T14:24:49.985892+00:00'
+updated_at: '2026-09-17T14:24:50.005293+00:00'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-020-20260917
