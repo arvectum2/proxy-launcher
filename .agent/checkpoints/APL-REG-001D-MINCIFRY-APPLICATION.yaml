@@ -18,10 +18,10 @@ completed:
   - Trusted-OS timing corrected: class 02.02 enters the two-trusted-OS condition on 2027-01-01 under the verified baseline.
   - RED OS exact-v0.2.8 physical acceptance and unchanged-v0.2.9 Linux lineage are described accurately; no false exact-v0.2.9 physical claim is made.
   - Static v0.2.9 GUI review performed; final visual language gate remains explicit because technical/user-visible Latin tokens are present.
-  - Focused registry dossier tests: 6/6 PASS on Mac mini.
-  - Exact-head e50f079f8020c2c87b19bc6aeafb4586e5aad0cb CI: 10/10 workflows SUCCESS, including Windows P0 portable and Windows installer RC/E2E.
-  - PR #95 opened and reviewable.
-current: Completed repository dossier. External filing remains HOLD pending real external evidence.
+  - Focused registry dossier tests on final head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5: 6/6 PASS.
+  - Exact-head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5 CI: 10/10 workflows SUCCESS, including Windows P0 portable and Windows installer RC/E2E.
+  - PR #95 merged into main as ab0f11ead2499e5626a88791ab3982f25eea2c21.
+current: Completed and merged repository dossier. External filing remains HOLD pending real external evidence.
 remaining: []
 external_blockers_not_part_of_completed_repository_task:
   - Executed exclusive-right and corporate-control evidence.
@@ -33,10 +33,11 @@ external_blockers_not_part_of_completed_repository_task:
   - Live portal/current-law recheck and human signing/submission.
 future_follow_up:
   - When Astra and RED OS stands are online, exact public v0.2.9 DEB/RPM physical smoke is preferred future-proof evidence before the 2027-01-01 trusted-OS gate, but it is not claimed as complete here.
-last_verified_commit: e50f079f8020c2c87b19bc6aeafb4586e5aad0cb
+last_verified_commit: 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5
+merged_commit: ab0f11ead2499e5626a88791ab3982f25eea2c21
 test_results:
-  - focused_registry_dossier: 6/6 PASS
-  - github_exact_head_e50f079: 10/10 workflows SUCCESS
+  - focused_registry_dossier_final_head: 6/6 PASS
+  - github_exact_head_98ac652: 10/10 workflows SUCCESS
   - mac_full_source_secondary: 815 tests reached; 4 environment import errors because Homebrew Python 3.14 lacks _tkinter; noncanonical host limitation
 resume_instruction: This task is complete. If the owner wants to proceed to actual filing, create a new pre-submission gate task from docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md after HUMAN/PRIVATE/PHYSICAL evidence is available. Never use private keys/УКЭП or submit/sign externally without the authorized human step.
-updated_at: '2026-09-17T23:35:00+03:00'
+updated_at: '2026-09-17T23:42:00+03:00'
