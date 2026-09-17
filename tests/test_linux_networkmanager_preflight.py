@@ -40,6 +40,7 @@ def runtime(nmcli_path="/usr/bin/nmcli", is_astra=True):
         session_type="x11",
         nmcli_path=nmcli_path,
         is_astra=is_astra,
+        is_redos=False,
         is_debian_family=True,
         network_manager_client_available=bool(nmcli_path),
     )

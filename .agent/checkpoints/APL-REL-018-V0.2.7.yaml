@@ -32,8 +32,14 @@ completed:
   publishes Windows + Astra DEB but not RED OS RPM.
 - 'RED OS runtime/platform signature implemented: ID=redos -> Linux / RED OS; Astra
   remains Linux / Astra Linux; generic Linux -> Linux.'
-current: Extend canonical CI/release automation so exact-main RED OS RPM is built,
-  verified, included in SHA256SUMS, and mirrored by GitVerse.
+- Canonical product version advanced to 0.2.7; Windows VERSIONINFO and release policy/docs
+  are consistent with the new patch release.
+- Added exact-main RED OS RPM CI workflow and extended release validation/publication
+  so SHA256SUMS and GitHub/GitVerse release sets include the RED OS RPM.
+- Release Evidence Package now requires the exact-SHA RED OS RPM workflow in addition
+  to existing release gates.
+current: Push the complete 0.2.7 candidate branch, open PR, and converge exact-head
+  CI including the new RED OS RPM workflow.
 pending:
 - Implement and test RED OS-specific platform identification/signature while preserving
   Astra behavior.
@@ -51,7 +57,12 @@ test_results:
 - APL-REG-001C RED OS physical acceptance => PASS.
 - Previous exact-head CI for merged RED OS acceptance => PASS 13/13 workflows.
 - Linux runtime/capability/preflight focused suite => PASS 30/30.
-updated_at: '2026-09-17T10:05:00Z'
+- Release automation + RPM packaging contracts => PASS 20/20.
+- Diagnostics/runtime/release regression subset => PASS 101/101.
+- NetworkManager preflight regression => PASS 7/7.
+- VERSION/APP_VERSION/Windows VERSIONINFO/release naming consistency => PASS for 0.2.7.
+- Modified GitHub Actions workflows parse as valid YAML; git diff --check => PASS.
+updated_at: '2026-09-17T10:20:00Z'
 resume_instruction: 'Continue from the first unfinished APL-REL-018 item: inspect
   Linux runtime/capability labeling and release workflows, implement RED OS-specific
   label plus RPM release asset, bump to 0.2.7, test, merge, publish GitHub/GitVerse,

@@ -116,10 +116,22 @@ class ReleaseAutomationTests(unittest.TestCase):
         release = self.read(".github/workflows/release.yml")
         self.assertIn('LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"', release)
         self.assertIn("linux-deb.yml/runs?head_sha=${{ github.sha }}", release)
-        self.assertIn("Linux Debian package push CI", release)
+        self.assertIn("Linux Debian package, and RED OS RPM push CI", release)
         self.assertIn("apl-lnx-007-deb-ubuntu-22.04", release)
         self.assertIn('sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('"release-stage/${LINUX_DEB_NAME}"', release)
+
+    def test_cross_platform_release_includes_exact_main_redos_rpm(self):
+        release = self.read(".github/workflows/release.yml")
+        rpm_workflow = self.read(".github/workflows/linux-rpm.yml")
+        self.assertIn('LINUX_RPM_NAME="Arvectum-Proxy-Launcher-${VERSION}-redos-linux-x86_64.rpm"', release)
+        self.assertIn("linux-rpm.yml/runs?head_sha=${{ github.sha }}", release)
+        self.assertIn("RED OS RPM push CI", release)
+        self.assertIn("apl-redos-rpm-ubuntu-22.04", release)
+        self.assertIn('sha256sum "$LINUX_RPM_NAME" >> SHA256SUMS.txt', release)
+        self.assertIn('"release-stage/${LINUX_RPM_NAME}"', release)
+        self.assertIn("rpm2cpio", rpm_workflow)
+        self.assertIn("tools/build_linux_rpm.sh", rpm_workflow)
 
     def test_release_calls_verified_gitverse_mirror(self):
         release = self.read(".github/workflows/release.yml")

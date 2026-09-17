@@ -13,13 +13,16 @@ on:
       - '.github/workflows/release-evidence.yml'
       - '.github/workflows/windows-p0.yml'
       - '.github/workflows/linux-deb.yml'
+      - '.github/workflows/linux-rpm.yml'
       - '.github/workflows/sync-release-to-gitverse.yml'
       - 'build_linux.sh'
       - 'tools/build_linux_deb.sh'
+      - 'tools/build_linux_rpm.sh'
       - 'docs/releases/*.md'
       - 'VERSION'
       - 'RELEASE_POLICY.md'
       - 'tests/test_release_automation.py'
+      - 'tests/test_linux_rpm_packaging.py'
       - 'tests/test_release_evidence.py'
       - 'tests/test_version_policy.py'
 
@@ -42,6 +45,8 @@ jobs:
       setup_name: ${{ steps.parse.outputs.setup_name }}
       linux_deb_name: ${{ steps.parse.outputs.linux_deb_name }}
       linux_run_id: ${{ steps.parse.outputs.linux_run_id }}
+      linux_rpm_name: ${{ steps.parse.outputs.linux_rpm_name }}
+      linux_rpm_run_id: ${{ steps.parse.outputs.linux_rpm_run_id }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
       owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
@@ -75,6 +80,7 @@ jobs:
           ZIP_NAME="${ARTIFACT_NAME}.zip"
           SETUP_NAME="Arvectum-Proxy-Launcher-${VERSION}-windows-x64-setup.exe"
           LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"
+          LINUX_RPM_NAME="Arvectum-Proxy-Launcher-${VERSION}-redos-linux-x86_64.rpm"
 
           PRERELEASE="false"
           if [[ "$VERSION" =~ - ]]; then
@@ -101,6 +107,7 @@ jobs:
           echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
           echo "setup_name=${SETUP_NAME}" >> "$GITHUB_OUTPUT"
           echo "linux_deb_name=${LINUX_DEB_NAME}" >> "$GITHUB_OUTPUT"
+          echo "linux_rpm_name=${LINUX_RPM_NAME}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
           echo "owner_signed_release=${OWNER_SIGNED_RELEASE}" >> "$GITHUB_OUTPUT"
 
@@ -126,11 +133,15 @@ jobs:
             LINUX_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-deb.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_LINUX_RUN="$(echo "$LINUX_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
             LINUX_RUN_ID="$(echo "$LINUX_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
-            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ]; then
-              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, and Linux Debian package push CI"
+            RPM_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-rpm.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
+            SUCCESSFUL_RPM_RUN="$(echo "$RPM_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
+            LINUX_RPM_RUN_ID="$(echo "$RPM_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ]; then
+              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, and RED OS RPM push CI"
               exit 1
             fi
             echo "linux_run_id=${LINUX_RUN_ID}" >> "$GITHUB_OUTPUT"
+            echo "linux_rpm_run_id=${LINUX_RPM_RUN_ID}" >> "$GITHUB_OUTPUT"
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
@@ -220,12 +231,36 @@ jobs:
           test "$(dpkg-deb -f "$source_deb" Architecture)" = "amd64"
           cp "$source_deb" "release-stage/${{ needs.validate.outputs.linux_deb_name }}"
 
+      - name: Install RPM inspection tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y rpm
+
+      - name: Download exact-main RED OS RPM artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-rpm
+          gh run download "${{ needs.validate.outputs.linux_rpm_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name apl-redos-rpm-ubuntu-22.04 \
+            --dir release-rpm
+          source_rpm="$(find release-rpm -type f -name 'arvectum-proxy-launcher-*.redos8.x86_64.rpm' -print -quit)"
+          test -n "$source_rpm"
+          test "$(rpm -qp --qf '%{NAME}' "$source_rpm")" = "arvectum-proxy-launcher"
+          test "$(rpm -qp --qf '%{VERSION}' "$source_rpm")" = "${{ needs.validate.outputs.version }}"
+          test "$(rpm -qp --qf '%{ARCH}' "$source_rpm")" = "x86_64"
+          cp "$source_rpm" "release-stage/${{ needs.validate.outputs.linux_rpm_name }}"
+
       - name: Verify artifact package and calculate public SHA256SUMS
         run: |
           set -euo pipefail
           ZIP_NAME="${{ needs.validate.outputs.zip_name }}"
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
+          LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
           if [ ! -f "release-stage/${ZIP_NAME}" ]; then
             echo "::error::Expected release package 'release-stage/${ZIP_NAME}' not found"
             ls -la release-stage/
@@ -244,11 +279,16 @@ jobs:
             echo "::error::Expected Astra/Linux package 'release-stage/${LINUX_DEB_NAME}' not found"
             exit 1
           fi
+          if [ ! -f "release-stage/${LINUX_RPM_NAME}" ]; then
+            echo "::error::Expected RED OS RPM 'release-stage/${LINUX_RPM_NAME}' not found"
+            exit 1
+          fi
 
           cd release-stage
           sha256sum "$ZIP_NAME" > SHA256SUMS.txt
           sha256sum "$SETUP_NAME" >> SHA256SUMS.txt
           sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt
+          sha256sum "$LINUX_RPM_NAME" >> SHA256SUMS.txt
           cat SHA256SUMS.txt
           sha256sum -c SHA256SUMS.txt
 
@@ -274,6 +314,7 @@ jobs:
           ZIP_NAME="${{ needs.validate.outputs.zip_name }}"
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
+          LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
 
           EXTRA_FLAGS=()
           if [ "$PRERELEASE" = "true" ]; then
@@ -289,6 +330,7 @@ jobs:
             "release-stage/${ZIP_NAME}" \
             "release-stage/${SETUP_NAME}" \
             "release-stage/${LINUX_DEB_NAME}" \
+            "release-stage/${LINUX_RPM_NAME}" \
             "release-stage/SHA256SUMS.txt" \
             --title "Arvectum Proxy Launcher ${VERSION}" \
             --verify-tag \
