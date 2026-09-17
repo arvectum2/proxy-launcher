@@ -33,8 +33,10 @@ class RegistryFilingPackTests(unittest.TestCase):
 
     def test_current_rule_1236_blockers_are_explicit(self):
         matrix = (REGISTRY / "APL_REG_001D_RULE_1236_COMPLIANCE_MATRIX_RU.md").read_text(encoding="utf-8")
-        for marker in ('п. 5 «а»', 'п. 5 «в»', 'п. 5 «з»', 'п. 5 «и»', 'п. 5 «к»', 'п. 5 «л»'):
-            self.assertIn(marker, matrix)
+        # Use table-row anchors rather than typographic guillemets so this
+        # contract is stable on Windows console/code-page combinations.
+        for row in ("| а |", "| в |", "| з |", "| и |", "| к |", "| л |"):
+            self.assertIn(row, matrix)
         self.assertIn("PHYSICAL BLOCKER", matrix)
         self.assertIn("PRIVATE/ACCOUNTING BLOCKER", matrix)
 
