@@ -66,7 +66,7 @@ jobs:
         run: ./build_linux.sh
 
       - name: Build RED OS RPM package
-        run: ./tools/build_linux_rpm.sh
+        run: bash ./tools/build_linux_rpm.sh
 
       - name: Inspect RPM metadata and payload
         shell: bash
