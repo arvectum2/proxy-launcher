@@ -96,7 +96,7 @@ chmod 0644 "%{buildroot}/usr/share/applications/arvectum-proxy-launcher.desktop"
 
 %files
 %defattr(-,root,root,-)
-/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher
+"/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher"
 /usr/bin/arvectum-proxy-launcher
 /usr/share/applications/arvectum-proxy-launcher.desktop
 /usr/share/icons/hicolor/256x256/apps/arvectum-proxy-launcher.png
