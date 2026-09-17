@@ -1,6 +1,6 @@
 # APL-REG-001C — RED OS physical acceptance
 
-Status: **PASS pending final privileged remove/reinstall proof**
+Status: **PASS**
 
 Date: 2026-09-17
 
@@ -130,8 +130,22 @@ Raw physical evidence is retained privately at:
 
 It is intentionally not committed verbatim because it can contain local usernames, connection metadata, local paths, and the user's pre-existing proxy configuration. Repository evidence is a sanitized summary with hashes and pass/fail facts only.
 
-## Remaining closeout gate
+## Final privileged package lifecycle
 
-The only remaining physical gate is a final privileged `dnf remove` followed by a clean install of the exact candidate and a final post-state comparison. It requires the normal local PolicyKit authorization prompt; no password or authorization secret is stored in the repository or automation.
+The closeout gate was executed through the normal local PolicyKit/DNF authorization path without storing or exposing any password.
 
-After that gate passes, update this status to **PASS**, run the final repository suite/CI, and mark `.agent/current-task.yaml` completed.
+- privileged `dnf remove arvectum-proxy-launcher`: PASS;
+- `rpm -q` after removal reports the package absent: PASS;
+- no package-owned payload remains after removal: PASS;
+- NetworkManager and KDE remain exactly at the captured baseline after removal: PASS;
+- clean install of the exact RPM SHA-256 `7573287133bec48e936330e6563ad4ec144fd83558665f08067e6d3cc7656c0a`: PASS;
+- `rpm -V arvectum-proxy-launcher` after clean install: PASS;
+- installed ELF SHA-256 `e6f26d6be36b5e7218fbe6e11679bf9dc99e4af2b90f602db0899e0fda48912f` equals the candidate payload ELF: PASS;
+- final clean `--start` raised listeners `18080/18081/18082`, applied KDE/NetworkManager PAC state, and created durable rollback evidence: PASS;
+- final `--stop` restored NetworkManager exactly and restored `kioslaverc` byte-for-byte to SHA-256 `1c6a823fa976f465adf012e85aeb55d965c8df379cfb72f7f9f4c56733f3fbde`: PASS;
+- rollback backup removed and original absent autostart state preserved: PASS;
+- acceptance-only local stubs on ports 19080/19081 and temporary Chromium profiles removed: PASS.
+
+Final focused RED OS regression suite: **62/62 PASS**. Pre-finalization exact-head GitHub Actions for commit `9bc3867be324a4fed80b81ff3f80cd989140134c`: **13/13 workflows PASS**.
+
+APL-REG-001C physical RED OS acceptance result: **PASS**.
