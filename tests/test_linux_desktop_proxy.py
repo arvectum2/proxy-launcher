@@ -7,6 +7,7 @@ from linux_desktop_proxy import (
     GSettingsProxyClient,
     detect_desktop_proxy_client,
 )
+from linux_kde_proxy import KdeProxyClient
 
 
 class _GSettingsRunner:
@@ -85,13 +86,38 @@ class GSettingsProxyClientTests(unittest.TestCase):
         )
         self.assertIsInstance(client, GSettingsProxyClient)
 
-    def test_unsupported_desktop_does_not_mutate_unrelated_store(self):
+    def test_detects_kde_session_with_kconfig_tools(self):
+        tools = {
+            "kreadconfig5": "/usr/bin/kreadconfig5",
+            "kwriteconfig5": "/usr/bin/kwriteconfig5",
+            "dbus-send": "/usr/bin/dbus-send",
+        }
         client = detect_desktop_proxy_client(
             environ={
                 "XDG_CURRENT_DESKTOP": "KDE",
                 "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
             },
+            which=lambda name: tools.get(name),
+        )
+        self.assertIsInstance(client, KdeProxyClient)
+
+    def test_unknown_desktop_does_not_mutate_unrelated_store(self):
+        client = detect_desktop_proxy_client(
+            environ={
+                "XDG_CURRENT_DESKTOP": "UnknownShell",
+                "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
+            },
             which=lambda name: "/usr/bin/gsettings",
+        )
+        self.assertIsNone(client)
+
+    def test_kde_without_complete_kconfig_tools_fails_closed(self):
+        client = detect_desktop_proxy_client(
+            environ={
+                "XDG_CURRENT_DESKTOP": "KDE",
+                "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1001/bus",
+            },
+            which=lambda name: "/usr/bin/kreadconfig5" if name == "kreadconfig5" else None,
         )
         self.assertIsNone(client)
 

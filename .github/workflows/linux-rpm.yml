@@ -1,0 +1,101 @@
+name: APL-REG-001C RED OS RPM package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'build_linux.sh'
+      - 'tools/build_linux_rpm.sh'
+      - 'requirements-build.lock.txt'
+      - 'VERSION'
+      - 'linux_*.py'
+      - 'proxy_*.py'
+      - 'system_proxy_runtime.py'
+      - 'application_filesystem.py'
+      - 'configuration_storage.py'
+      - 'portable_lifecycle.py'
+      - 'assets/**'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tests/test_linux_rpm_packaging.py'
+      - '.github/workflows/linux-rpm.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'build_linux.sh'
+      - 'tools/build_linux_rpm.sh'
+      - 'requirements-build.lock.txt'
+      - 'VERSION'
+      - 'linux_*.py'
+      - 'proxy_*.py'
+      - 'system_proxy_runtime.py'
+      - 'application_filesystem.py'
+      - 'configuration_storage.py'
+      - 'portable_lifecycle.py'
+      - 'assets/**'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'tests/test_linux_rpm_packaging.py'
+      - '.github/workflows/linux-rpm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rpm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux and RPM packaging prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y python3-venv python3-tk rpm cpio file
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements-build.lock.txt
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Run RPM packaging contract tests
+        run: .venv/bin/python -m unittest tests.test_linux_rpm_packaging -v
+
+      - name: Build canonical Linux frozen artifact
+        run: ./build_linux.sh
+
+      - name: Build RED OS RPM package
+        run: bash tools/build_linux_rpm.sh
+
+      - name: Inspect RPM metadata, payload and scriptlets
+        shell: bash
+        run: |
+          set -euo pipefail
+          rpm_file="$(find dist/rpm -maxdepth 1 -type f -name 'Arvectum-Proxy-Launcher-*-redos-linux-x86_64.rpm' -print -quit)"
+          test -n "$rpm_file"
+          rpm -qip "$rpm_file"
+          rpm -qlp "$rpm_file"
+          test "$(rpm -qp --qf '%{NAME}' "$rpm_file")" = "arvectum-proxy-launcher"
+          test "$(rpm -qp --qf '%{VERSION}' "$rpm_file")" = "$(tr -d '[:space:]' < VERSION)"
+          test "$(rpm -qp --qf '%{ARCH}' "$rpm_file")" = "x86_64"
+          rpm -qpR "$rpm_file" | grep -q '^NetworkManager'
+          rpm -qpR "$rpm_file" | grep -q '^glib2'
+          test -z "$(rpm -qp --scripts "$rpm_file" | tr -d '[:space:]')"
+          root="$RUNNER_TEMP/rpm-root"
+          mkdir -p "$root"
+          (cd "$root" && rpm2cpio "$GITHUB_WORKSPACE/$rpm_file" | cpio -idmu --quiet)
+          test -x "$root/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher"
+          test -x "$root/usr/bin/arvectum-proxy-launcher"
+          test -f "$root/usr/share/applications/arvectum-proxy-launcher.desktop"
+          test -f "$root/usr/share/icons/hicolor/256x256/apps/arvectum-proxy-launcher.png"
+          test -f "$root/usr/share/doc/arvectum-proxy-launcher/LICENSE"
+          test -f "$root/usr/share/doc/arvectum-proxy-launcher/THIRD_PARTY_NOTICES.txt"
+          file "$root/opt/arvectum-proxy-launcher/Arvectum Proxy Launcher" | grep -q ELF
+
+      - name: Upload RPM evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: apl-reg-001c-redos-rpm
+          path: dist/rpm/*.rpm
+          if-no-files-found: error

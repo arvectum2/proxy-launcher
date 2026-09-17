@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Per-user desktop system-proxy integration for Linux/Astra.
+"""Per-user desktop system-proxy integration for Linux desktops.
 
-NetworkManager stores proxy metadata per connection, but Firefox on Astra/Fly
-uses the desktop GSettings proxy source for its "Use system proxy settings"
-mode.  This module owns only the two GSettings keys required for PAC routing and
-leaves every manual-proxy key untouched.
+NetworkManager stores proxy metadata per connection, while graphical browsers
+can consume desktop-specific system proxy stores. Astra/Fly uses GSettings;
+RED OS 8 Standard Desktop uses KDE/KConfig. Detection remains side-effect free
+and selects only the store belonging to the active graphical desktop.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from typing import Callable, Mapping, Optional
 
 
 _GSETTINGS_SCHEMA = "org.gnome.system.proxy"
+_KDE_DESKTOP_TOKENS = ("kde", "plasma")
 _GSETTINGS_DESKTOP_TOKENS = (
     "fly",
     "gnome",
@@ -54,6 +55,8 @@ def _gvariant_string(value: str) -> str:
 
 class GSettingsProxyClient:
     """Small injectable adapter for org.gnome.system.proxy."""
+
+    backend_id = "gsettings"
 
     def __init__(
         self,
@@ -120,11 +123,20 @@ class GSettingsProxyClient:
             raise DesktopProxyError("desktop proxy verification failed")
 
 
-def _desktop_uses_gsettings(environ: Mapping[str, str]) -> bool:
-    desktop = " ".join(
+def _desktop_identity(environ: Mapping[str, str]) -> str:
+    return " ".join(
         str(environ.get(key, "") or "").lower()
         for key in ("XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "GDMSESSION")
     )
+
+
+def _desktop_uses_kde(environ: Mapping[str, str]) -> bool:
+    desktop = _desktop_identity(environ)
+    return any(token in desktop for token in _KDE_DESKTOP_TOKENS)
+
+
+def _desktop_uses_gsettings(environ: Mapping[str, str]) -> bool:
+    desktop = _desktop_identity(environ)
     return any(token in desktop for token in _GSETTINGS_DESKTOP_TOKENS)
 
 
@@ -154,20 +166,37 @@ def detect_desktop_proxy_client(
     environ: Optional[Mapping[str, str]] = None,
     which: Callable[[str], Optional[str]] = shutil.which,
     runner: Callable[..., object] = subprocess.run,
-) -> Optional[GSettingsProxyClient]:
-    """Return the governed GSettings adapter for compatible graphical sessions.
+) -> Optional[object]:
+    """Return the governed desktop proxy adapter for the active session.
 
-    Detection is side-effect free.  Unsupported desktops deliberately keep the
+    Detection is side-effect free. Unsupported desktops deliberately keep the
     historical NetworkManager-only behavior rather than mutating an unrelated
     desktop configuration store.
     """
     environment = os.environ if environ is None else environ
+    session_env = _session_environment(environment)
+    if session_env is None:
+        return None
+
+    if _desktop_uses_kde(environment):
+        read_binary = str(which("kreadconfig5") or "")
+        write_binary = str(which("kwriteconfig5") or "")
+        signal_binary = str(which("dbus-send") or "")
+        if not read_binary or not write_binary or not signal_binary:
+            return None
+        from linux_kde_proxy import KdeProxyClient
+
+        return KdeProxyClient(
+            read_binary=read_binary,
+            write_binary=write_binary,
+            signal_binary=signal_binary,
+            runner=runner,
+            environ=session_env,
+        )
+
     if not _desktop_uses_gsettings(environment):
         return None
     binary = str(which("gsettings") or "")
     if not binary:
-        return None
-    session_env = _session_environment(environment)
-    if session_env is None:
         return None
     return GSettingsProxyClient(binary=binary, runner=runner, environ=session_env)

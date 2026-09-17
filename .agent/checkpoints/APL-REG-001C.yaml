@@ -1,0 +1,39 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REG-001C
+status: in_progress
+goal: Complete real-host RED OS acceptance for Arvectum Proxy Launcher and convert the result into durable registry-readiness evidence without disturbing immutable v0.2.6 release bytes.
+definition_of_done:
+  - Identify exact RED OS product/edition/version/build and desktop/session on physical arvectumredos host.
+  - Re-verify tested RED OS/rightsholder qualification relevant to the planned registry compatibility gate on the acceptance date.
+  - Bind acceptance to exact Proxy Launcher v0.2.6 artifact bytes and SHA-256.
+  - Execute clean install, start/status, proxy routing, no-proxy behavior, restart/recovery/autostart as applicable, diagnostics, stop/rollback, uninstall/removal and post-state checks.
+  - Implement only compatibility changes required by factual RED OS failures and rerun affected cases.
+  - Commit machine-readable/raw acceptance evidence and an expert-readable protocol.
+  - Update APL-REG-001 status after Astra + RED OS acceptance is factual.
+  - Run relevant tests/CI and record final commit/PR/merge evidence.
+completed:
+  - Recovered APL-REG-001C acceptance requirements.
+  - Confirmed main 6f034850841b999c7b7e63b4ae44c2147f0b292a and immutable v0.2.6/Astra acceptance baseline.
+  - Created task/apl-reg-001c-redos-acceptance.
+  - Confirmed arvectumredos physical device is online.
+  - Re-enabled the single existing Proxy Launcher Watchdog.
+current: Inspect RED OS host identity and baseline state before changes.
+pending:
+  - Host/OS/session/package-manager/proxy baseline capture.
+  - Legal/qualification source verification for tested RED OS edition/rightsholder.
+  - Exact v0.2.6 artifact selection/download/hash verification.
+  - Physical acceptance matrix and raw evidence capture.
+  - Required compatibility fixes and reruns, if any.
+  - Protocol/evidence/status update, tests/CI, PR/merge, completed checkpoint.
+last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+test_results:
+  - No RED OS runtime tests executed yet.
+updated_at: '2026-09-17T05:34:00Z'
+resume_instruction: Connect to arvectumredos and capture exact OS/build/session/package manager plus current Proxy Launcher/package/proxy state; then proceed with exact v0.2.6 physical acceptance.
+execution:
+  claimed_by: chatgpt
+  execution_id: APL-REG-001C-20260917
+  branch: task/apl-reg-001c-redos-acceptance
+  base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
+  manual_override: true
