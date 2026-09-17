@@ -1,7 +1,7 @@
 {
   "schema": "arvectum.proxy.apl-rel-016.windows-public-trust.v1",
   "task": "APL-REL-016",
-  "decision_date": "2026-09-13",
+  "decision_date": "2026-09-17",
   "product": "Arvectum Proxy Launcher",
   "owner": "ООО «Арвектум»",
   "immutable_predecessor": {
@@ -9,7 +9,7 @@
     "tag": "v0.2.5",
     "mutation_allowed": false
   },
-  "first_eligible_release": "0.2.6",
+  "first_eligible_release": "0.2.7",
   "trust_layers": {
     "public_consumer_windows": {
       "purpose": "Native Windows publisher identity and public download/launch trust for direct Win32 distribution.",
@@ -20,12 +20,26 @@
         "code_signing_eku_oid": "1.3.6.1.5.5.7.3.3",
         "digest": "SHA256",
         "chain_requirement": "Certificate chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for the relevant code-signing use and meeting the CA/Browser Forum Code Signing Baseline Requirements.",
-        "self_signed_allowed": false
+        "self_signed_allowed": false,
+        "cabf_code_signing_requirements": {
+          "version": "3.11.0",
+          "reviewed_on": "2026-09-17",
+          "subscriber_reserved_policy_oids": {
+            "non_ev": "2.23.140.1.4.1",
+            "ev": "2.23.140.1.3",
+            "required_exact_count": 1,
+            "effective_from": "2026-09-15"
+          },
+          "subscriber_certificate_max_validity_days": 460,
+          "max_validity_effective_from": "2026-03-01",
+          "subscriber_private_key_protection": "Hardware-protected or compliant signing-service custody per CA/B Forum Code Signing BR 6.2.7; exportable private keys in repository or ordinary CI are forbidden."
+        }
       },
       "timestamp": {
         "required": true,
         "protocol": "RFC3161",
-        "digest": "SHA256"
+        "digest": "SHA256",
+        "timestamp_certificate_policy_oid": "2.23.140.1.4.2"
       },
       "smartscreen": {
         "signature_is_not_reputation": true,
@@ -87,7 +101,32 @@
         "microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified",
         "rsa_3072_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"
       ],
-      "manual_installation_of_russian_trusted_root_is_not_public_consumer_trust": true
+      "manual_installation_of_russian_trusted_root_is_not_public_consumer_trust": true,
+      "last_rechecked_date": "2026-09-17",
+      "cabf_policy_oid_compatibility_observed": true,
+      "microsoft_public_root_program_proof_observed": false
+    },
+    "microsoft_artifact_signing_public_trust": {
+      "reviewed_on": "2026-09-17",
+      "status": "RUSSIAN_ORGANIZATION_NOT_ELIGIBLE_UNDER_CURRENT_PUBLISHED_GEOGRAPHY",
+      "owner_currently_eligible": false,
+      "published_organization_geographies": [
+        "United States",
+        "Canada",
+        "European Union",
+        "United Kingdom",
+        "Australia",
+        "New Zealand",
+        "Japan",
+        "South Korea",
+        "Singapore",
+        "Switzerland",
+        "Norway",
+        "Israel"
+      ],
+      "russia_listed": false,
+      "reference": "https://learn.microsoft.com/azure/artifact-signing/quickstart",
+      "recheck_condition": "Microsoft changes Public Trust geography or Owner explicitly approves a separately eligible legal-entity path after legal review."
     }
   },
   "release_classifications": [
@@ -109,7 +148,10 @@
     "expected_certificate_thumbprint_verified": true,
     "microsoft_trusted_root_program_chain_evidence_required": true,
     "smartscreen_outcome_recorded": true,
-    "smart_app_control_outcome_recorded_when_enforced": true
+    "smart_app_control_outcome_recorded_when_enforced": true,
+    "cabf_reserved_code_signing_policy_oid_count": 1,
+    "subscriber_certificate_validity_window_compliant": true,
+    "rfc3161_timestamp_present": true
   },
   "forbidden_shortcuts": [
     "mutate_v0.2.5",
@@ -121,6 +163,16 @@
     "test_signing_as_production_requirement",
     "self_signed_certificate_as_public_trust",
     "pfx_or_private_key_material_in_repository_or_cloud_ci",
-    "claim_windows_public_trust_from_russian_detached_signature_only"
-  ]
+    "claim_windows_public_trust_from_russian_detached_signature_only",
+    "mutate_v0.2.6",
+    "claim_artifact_signing_public_trust_is_available_to_russian_owner_without_current_microsoft_eligibility"
+  ],
+  "reviewed_through": "2026-09-17",
+  "current_public_baseline": {
+    "version": "0.2.6",
+    "tag": "v0.2.6",
+    "mutation_allowed": false,
+    "windows_public_authenticode_active": false,
+    "note": "v0.2.6 is already published and immutable; APL-REL-016 production signing must start in a later release."
+  }
 }

@@ -1,10 +1,10 @@
 # APL-REL-016 — Windows public trust decision packet
 
 Status: `REVIEW-READY / no production choice approved`
-Date: `2026-09-14`
+Date / current-requirements review: `2026-09-17`
 Repository: `arvectum2/proxy-launcher`
 Issue: `#30`
-Release boundary: `v0.2.5` is immutable; any Authenticode/public-trust change belongs to `0.2.6+`.
+Release boundary: `v0.2.5` and the published `v0.2.6` are immutable; any production Authenticode/public-trust byte change belongs to `0.2.7+`.
 
 ## 1. Purpose
 
@@ -14,7 +14,7 @@ The current public `v0.2.5` Windows installer is governed and byte-identified bu
 
 ## 2. Current Microsoft trust model
 
-As of 2026-09-14, Microsoft documents three materially different concepts that must remain separate:
+As of 2026-09-17, Microsoft documents three materially different concepts that must remain separate:
 
 1. **Authenticode signature validation / publisher identity.** A Windows binary can carry a code-signing signature whose certificate chains to a provider trusted by Windows. For Smart App Control, Microsoft currently requires RSA-based signing; ECC signatures are not currently accepted by the Smart App Control signature check.
 2. **Microsoft Defender SmartScreen App Reputation.** SmartScreen considers both publisher/certificate reputation and file-hash reputation. A valid OV/EV or Microsoft Artifact Signing signature does **not** guarantee that a newly released file will avoid an “unrecognized app” prompt on first downloads. Microsoft states that EV no longer gets an automatic SmartScreen reputation bypass.
@@ -26,13 +26,15 @@ Primary Microsoft references checked on 2026-09-14:
 - Smart App Control signing: https://learn.microsoft.com/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control
 - Code-signing options for Windows app developers: https://learn.microsoft.com/windows/apps/package-and-deploy/code-signing-options
 - Microsoft Trusted Root Program participant list: https://learn.microsoft.com/security/trusted-root/participants-list
+- Artifact Signing quickstart / Public Trust geography: https://learn.microsoft.com/azure/artifact-signing/quickstart
+- CA/Browser Forum Code Signing Baseline Requirements v3.11.0: https://cabforum.org/working-groups/code-signing/requirements/
 
 ## 3. Trust matrix
 
 | Distribution lane | What must be true | What it proves | What it does **not** prove | Recommended role |
 |---|---|---|---|---|
-| Public direct download, unsigned | Exact bytes may still be governed/reproducible | Artifact identity only | Publisher identity, Smart App Control signing trust, SmartScreen reputation | Not acceptable as the long-term `0.2.6+` public trust target |
-| Public direct download, RSA Authenticode from Microsoft-trusted provider | Valid signature over installer and relevant executable payloads; trusted chain; timestamping policy | Native Windows publisher identity and signing integrity; compatible basis for Smart App Control | Guaranteed first-download SmartScreen reputation | Primary technical candidate for direct-download `0.2.6+` |
+| Public direct download, unsigned | Exact bytes may still be governed/reproducible | Artifact identity only | Publisher identity, Smart App Control signing trust, SmartScreen reputation | Not acceptable as the long-term `0.2.7+` public trust target |
+| Public direct download, RSA Authenticode from Microsoft-trusted provider | Valid signature over installer and relevant executable payloads; trusted chain; timestamping policy | Native Windows publisher identity and signing integrity; compatible basis for Smart App Control | Guaranteed first-download SmartScreen reputation | Primary technical candidate for direct-download `0.2.7+` |
 | Microsoft Artifact Signing public trust | Eligible organization + service availability + signing integration | Microsoft-managed trusted signing identity | Guaranteed elimination of SmartScreen warnings; availability for an ООО «Арвектум» Russian legal entity | Candidate only if legal/geographic eligibility is independently confirmed at decision time |
 | Microsoft Store distribution | Store packaging/submission accepted; Store re-signing/distribution | Microsoft-managed distribution trust/reputation path | Suitability for all current desktop packaging, Russian-market distribution strategy, or offline channels | Optional parallel channel, not assumed primary |
 | Managed enterprise distribution | Customer/admin deploys trusted App Control/WDAC policy and/or enterprise trust | Controlled organization-specific allow policy | Public consumer trust or SmartScreen reputation | Strong B2B/enterprise lane |
@@ -53,17 +55,26 @@ Until a concrete Russian provider and exact certificate hierarchy satisfy those 
 
 The Microsoft Trusted Root Program participant source should be re-checked at the time of purchase because participants and permitted usage change over time. Absence of a familiar Russian CA name from a cached list must not be elevated into a permanent legal/technical impossibility claim.
 
-## 5. Artifact Signing eligibility caveat
+## 5. Artifact Signing eligibility — current result
 
-Microsoft’s 2026 documentation has changed materially during the year and public eligibility has expanded unevenly by geography. Therefore this packet does **not** assert that an ООО «Арвектум» Russian legal entity is eligible for Artifact Signing Public Trust.
+As re-checked on 2026-09-17, Microsoft’s Artifact Signing quickstart lists Public Trust organization eligibility for the United States, Canada, the European Union, the United Kingdom, Australia, New Zealand, Japan, South Korea, Singapore, Switzerland, Norway and Israel. **Russia is not listed.** Therefore Artifact Signing Public Trust is not a currently available production path for ООО «Арвектум» as the Russian legal entity.
 
-Before selecting Artifact Signing, the decision owner must verify current organization-country eligibility in Microsoft’s current quickstart/portal and identity-validation rules. Service availability in an Azure region does not itself prove identity-validation eligibility for a Russian company.
+This is a current service-eligibility result, not a permanent impossibility claim. Re-check if Microsoft changes geography or if the Owner explicitly considers a separately eligible legal entity after legal review. Azure signing endpoint availability by itself does not create Public Trust identity-validation eligibility.
+
+## 5.1 Current CA/B Forum profile
+
+The current Code Signing Baseline Requirements are v3.11.0. Two dates now materially affect new REL-016 procurement:
+
+- certificates issued on or after **2026-03-01** have a maximum validity period of **460 days**;
+- effective **2026-09-15**, a Subscriber Code Signing Certificate must contain exactly one reserved CAB Forum code-signing policy OID: `2.23.140.1.4.1` for Non-EV or `2.23.140.1.3` for EV.
+
+The public-trust acceptance gate therefore must inspect certificate policy, validity window and RFC 3161 timestamp evidence in addition to ordinary Authenticode validity.
 
 ## 6. Candidate production architecture for review
 
 This is a technical recommendation, not an approved production decision.
 
-For a future direct-download `0.2.6+` release, the lowest-surprise Windows-native architecture is:
+For a future direct-download `0.2.7+` release, the lowest-surprise Windows-native architecture is:
 
 1. keep the existing Russian detached CryptoPro/Rutoken release-evidence chain;
 2. add a separate **RSA Authenticode** signing stage using a certificate/service that chains to a Microsoft-trusted public provider and is legally obtainable by the Company;
@@ -80,13 +91,14 @@ Do not purchase EV solely for the historical expectation of immediate SmartScree
 
 EV may still have independent value for identity assurance, enterprise procurement, or a provider-specific operational model. That value must be justified separately; it is not a technical SmartScreen bypass criterion.
 
-## 8. Acceptance matrix for `0.2.6+`
+## 8. Acceptance matrix for `0.2.7+`
 
 Before production release, the chosen path should prove at minimum:
 
 | Gate | Required evidence |
 |---|---|
 | Native signature | `Get-AuthenticodeSignature` / SignTool reports valid signature and expected publisher on installer and declared payloads |
+| Current CA/B profile | Exactly one reserved subscriber code-signing policy OID is present; current validity ceiling is satisfied |
 | Trusted chain | Clean supported Windows validates the chain without installing a private Arvectum root |
 | RSA / SAC compatibility | Signing algorithm and chain satisfy current Smart App Control requirements |
 | Timestamp | Signature verifies after normal certificate validity semantics; timestamp source and policy recorded |
@@ -96,7 +108,7 @@ Before production release, the chosen path should prove at minimum:
 | Smart App Control | SAC-enabled clean-machine test where practical; no security-control disablement accepted as PASS |
 | Enterprise lane | If marketed for managed organizations, WDAC/App Control deployment behavior documented separately |
 | Russian evidence | CryptoPro/Rutoken detached release-evidence signature generated and verified independently |
-| Immutability | `v0.2.5` tag/assets remain untouched; all changes are in a new release line |
+| Immutability | `v0.2.5` and `v0.2.6` tags/assets remain untouched; all production-signing changes are in `0.2.7+` |
 | Recovery/renewal | Certificate/key/service outage, renewal, revocation and signer-identity continuity procedure documented |
 
 ## 9. Key custody and CI boundary
@@ -120,14 +132,14 @@ Cons/unknowns:
 - cost and identity-validation/legal constraints require Owner review;
 - SmartScreen reputation still accumulates and is not guaranteed on first release.
 
-### Option B — Microsoft Artifact Signing + Russian detached evidence
+### Option B — Microsoft Artifact Signing + Russian detached evidence (currently unavailable to Russian organization)
 
 Pros:
 - Microsoft-managed signing service and CI-friendly operating model;
 - Microsoft currently presents it as the preferred signing approach where available.
 
 Cons/unknowns:
-- Russian legal-entity eligibility is not established by this packet;
+- Microsoft’s current Public Trust geography does not include Russia, so ООО «Арвектум» is not currently eligible through the Russian legal entity;
 - external Azure/service dependency and paid commitment require Owner approval;
 - SmartScreen first-download reputation is still not guaranteed.
 
@@ -154,12 +166,12 @@ Cons:
 Recommended **decision direction** for Owner/Product Owner consideration:
 
 - preserve a two-layer model: **Windows-native Authenticode public trust + Russian detached release evidence**;
-- prefer an RSA Microsoft-trusted signing path for `0.2.6+` direct downloads;
-- treat Artifact Signing as preferred operationally only if current legal-entity eligibility is verified;
+- prefer an RSA Microsoft-trusted signing path for `0.2.7+` direct downloads;
+- treat Artifact Signing as unavailable to the current Russian legal entity unless Microsoft changes published geography or the Owner explicitly approves a separately eligible legal-entity path;
 - otherwise compare qualified Microsoft-trusted OV/RSA providers that can lawfully issue to ООО «Арвектум»;
 - keep Microsoft Store and enterprise WDAC/App Control as separate optional distribution lanes rather than conflating them with direct-download Authenticode;
 - do not buy EV merely for SmartScreen reputation;
-- do not mutate `v0.2.5`.
+- do not mutate `v0.2.5` or `v0.2.6`.
 
 No provider, purchase, certificate, release, signing key, Azure resource, Store submission, or production signing action is approved by this document.
 
@@ -172,7 +184,7 @@ To advance from REVIEW to implementation, record an explicit decision covering:
 3. confirmation that the issuing/service path is available to and legally usable by ООО «Арвектум»;
 4. approved budget/external dependency if any;
 5. key-custody/signing-service authority and operator boundary;
-6. `0.2.6+` release acceptance matrix;
+6. `0.2.7+` release acceptance matrix;
 7. retention of the Russian detached evidence layer.
 
 Until then, `APL-REL-016` remains `REVIEW` and must not progress into production signing or release publication.

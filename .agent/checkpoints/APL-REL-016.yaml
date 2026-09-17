@@ -2,35 +2,62 @@ version: 2
 repository: arvectum2/proxy-launcher
 status: in_progress
 task_id: APL-REL-016
-goal: Refresh and complete the Windows public-trust / Authenticode / SmartScreen decision packet against the current v0.2.6 baseline and current Microsoft/CA-Browser requirements, producing a review-ready repository PR without selecting or purchasing a production signer.
+goal: Refresh and complete the Windows public-trust / Authenticode / SmartScreen decision packet against the current v0.2.6
+  baseline and current Microsoft/CA-Browser requirements, producing a review-ready repository PR without selecting or purchasing
+  a production signer.
 authority: REVIEW
 definition_of_done:
-  - Revalidate SmartScreen, Smart App Control, Authenticode, Artifact Signing and CA/B Forum code-signing requirements using current authoritative sources.
-  - Reconcile the trust strategy with the already-published immutable v0.2.6 release; do not mutate v0.2.5 or v0.2.6 assets/tags.
-  - Maintain a clear trust matrix for public direct download, managed enterprise/App Control and Russian detached release evidence.
-  - State current Artifact Signing geographic eligibility and Russian legal-entity implications without claiming unsupported eligibility.
-  - Define provider-neutral RSA Authenticode, timestamp, key-custody, signing-order and clean-machine MOTW acceptance requirements.
-  - Add deterministic repository checks/evidence needed to prevent trust-model regressions.
-  - Open a fresh review-ready PR from current main with exact-head CI green; stop before merge, purchase, enrollment, production signing or public release.
+- Revalidate SmartScreen, Smart App Control, Authenticode, Artifact Signing and CA/B Forum code-signing requirements using
+  current authoritative sources.
+- Reconcile the trust strategy with the already-published immutable v0.2.6 release; do not mutate v0.2.5 or v0.2.6 assets/tags.
+- Maintain a clear trust matrix for public direct download, managed enterprise/App Control and Russian detached release evidence.
+- State current Artifact Signing geographic eligibility and Russian legal-entity implications without claiming unsupported
+  eligibility.
+- Define provider-neutral RSA Authenticode, timestamp, key-custody, signing-order and clean-machine MOTW acceptance requirements.
+- Add deterministic repository checks/evidence needed to prevent trust-model regressions.
+- Open a fresh review-ready PR from current main with exact-head CI green; stop before merge, purchase, enrollment, production
+  signing or public release.
 completed:
-  - Recovered existing APL-REL-016 issue #30 and stale PR #67 decision packet without reusing its unrelated pre-migration history.
-  - Confirmed v0.2.6 is already immutable/published and must be treated as the current unsigned-public-trust baseline, not a release target to mutate.
-current: Refresh decision packet and inspect current Windows trust/signing implementation on main.
+- Recovered existing APL-REL-016 issue
+- Confirmed v0.2.6 is already immutable/published and must be treated as the current unsigned-public-trust baseline, not a
+  release target to mutate.
+- Revalidated the current Windows public-trust model through 2026-09-17 and reconciled the already-published immutable v0.2.6
+  baseline; first eligible production Authenticode release is now 0.2.7+.
+- 'Refreshed the CA/B Forum Code Signing profile to BR v3.11.0: RSA-3072 floor retained, 460-day maximum subscriber certificate
+  validity for certificates issued on/after 2026-03-01, and exactly one reserved subscriber code-signing policy OID required
+  from 2026-09-15.'
+- 'Rechecked Microsoft Artifact Signing Public Trust geography: current published organization eligibility does not list Russia,
+  so the Russian ООО «Арвектум» legal entity is not treated as currently eligible.'
+- Hardened windows_public_trust_gate.ps1 to emit and fail closed on certificate policy OIDs, current validity-window compliance
+  and RFC3161 timestamp presence.
+- Updated the machine contract, runbook, Owner decision packet, workflow path filters and regression tests for the post-v0.2.6/current-policy
+  baseline.
+current: Commit and push the refreshed APL-REL-016 review branch, open a fresh PR from current main, and obtain exact-head
+  Windows public-trust CI.
 pending:
-  - Audit current windows-public-trust/AuthentiCode workflows, tools and tests on main.
-  - Update decision packet with 2026-09-17 Microsoft and CA/B Forum evidence.
-  - Add or adjust deterministic repository tests/guards if gaps are found.
-  - Run focused/full relevant tests and open fresh review-ready PR.
-  - Mark task blocked at Owner decision gate and continue to next independent ready queue item.
-last_verified_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
-test_results: []
-updated_at: '2026-09-17T02:09:23Z'
-resume_instruction: Continue APL-REL-016 on branch agent/apl-rel-016-windows-trust-review-v2. Refresh current Microsoft/CA-Browser evidence, reconcile v0.2.6, strengthen repository trust guards as needed, obtain exact-head green CI, then stop at the explicit Owner decision gate without merging or creating paid/signing resources.
+- Commit/push branch agent/apl-rel-016-windows-trust-review-v2 and open the replacement review PR.
+- 'Close stale pre-migration PR #67 as superseded after the replacement PR exists.'
+- Obtain exact-head green REL-016 Windows public-trust, Authenticode, security and repository CI; remediate any Windows PowerShell/runtime
+  failures.
+- Update the queue/checkpoint to blocked at the explicit Owner decision gate; do not merge, purchase, enroll, sign production
+  binaries or publish a release.
+- Continue autonomously to the next independent executable roadmap item after releasing the REL-016 lease.
+last_verified_commit: 695ee4e4a3b7a8293408631fbafa99ce17663974
+test_results:
+- python3 -m unittest tests.test_windows_public_trust tests.test_windows_authenticode_foundation -q => 19 passed.
+- python3 -m unittest tests.test_release_automation tests.test_release_evidence tests.test_repository_hygiene -q => 27 passed.
+- PyYAML parse of windows-public-trust.yml and windows-authenticode.yml => PASS.
+- git diff --check => PASS.
+- Local pwsh unavailable; PowerShell parse/runtime validation delegated to exact-head Windows CI.
+updated_at: '2026-09-17T02:16:00Z'
+resume_instruction: 'Push the current APL-REL-016 refresh branch, open a replacement PR from current main, close stale PR
+  #67 as superseded, fix any exact-head Windows CI failures, then mark REL-016 blocked at the Owner decision gate without
+  merging or activating production signing. Continue to the next independent ready roadmap item.'
 execution:
   claimed_by: chatgpt
   execution_id: APL-REL-016-20260917
   branch: agent/apl-rel-016-windows-trust-review-v2
   base_commit: 6f034850841b999c7b7e63b4ae44c2147f0b292a
-  lease_until: '2026-09-17T03:59:23Z'
+  lease_until: '2026-09-17T04:06:00Z'
   manual_override: false
 blocker: null

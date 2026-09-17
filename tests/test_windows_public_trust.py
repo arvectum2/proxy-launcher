@@ -16,7 +16,10 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertEqual(contract["task"], "APL-REL-016")
         self.assertEqual(contract["immutable_predecessor"]["version"], "0.2.5")
         self.assertFalse(contract["immutable_predecessor"]["mutation_allowed"])
-        self.assertEqual(contract["first_eligible_release"], "0.2.6")
+        self.assertEqual(contract["current_public_baseline"]["version"], "0.2.6")
+        self.assertFalse(contract["current_public_baseline"]["mutation_allowed"])
+        self.assertFalse(contract["current_public_baseline"]["windows_public_authenticode_active"])
+        self.assertEqual(contract["first_eligible_release"], "0.2.7")
         self.assertEqual(
             set(contract["trust_layers"]),
             {"public_consumer_windows", "managed_enterprise_windows", "russian_release_evidence"},
@@ -40,11 +43,35 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertEqual(timestamp["protocol"], "RFC3161")
         self.assertEqual(timestamp["digest"], "SHA256")
 
+    def test_current_cabf_profile_is_explicit_and_post_september_2026(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        cabf = contract["trust_layers"]["public_consumer_windows"]["certificate_profile"]["cabf_code_signing_requirements"]
+        self.assertEqual(cabf["version"], "3.11.0")
+        self.assertEqual(cabf["reviewed_on"], "2026-09-17")
+        policies = cabf["subscriber_reserved_policy_oids"]
+        self.assertEqual(policies["non_ev"], "2.23.140.1.4.1")
+        self.assertEqual(policies["ev"], "2.23.140.1.3")
+        self.assertEqual(policies["required_exact_count"], 1)
+        self.assertEqual(policies["effective_from"], "2026-09-15")
+        self.assertEqual(cabf["subscriber_certificate_max_validity_days"], 460)
+        self.assertEqual(cabf["max_validity_effective_from"], "2026-03-01")
+
+    def test_artifact_signing_geography_does_not_fabricate_russian_eligibility(self):
+        contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
+        artifact = contract["provider_policy"]["microsoft_artifact_signing_public_trust"]
+        self.assertEqual(artifact["reviewed_on"], "2026-09-17")
+        self.assertFalse(artifact["owner_currently_eligible"])
+        self.assertFalse(artifact["russia_listed"])
+        self.assertIn("United Kingdom", artifact["published_organization_geographies"])
+        self.assertEqual(artifact["status"], "RUSSIAN_ORGANIZATION_NOT_ELIGIBLE_UNDER_CURRENT_PUBLISHED_GEOGRAPHY")
+
     def test_russian_national_ca_is_priority_candidate_not_fabricated_public_trust(self):
         contract = json.loads(self.read("release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"))
         candidate = contract["provider_policy"]["russian_national_ca_candidate"]
         self.assertEqual(candidate["observed_regulatory_source_date"], "2026-08-28")
+        self.assertEqual(candidate["last_rechecked_date"], "2026-09-17")
         self.assertEqual(candidate["status"], "DRAFT_REGULATORY_CANDIDATE_NOT_PRODUCTION_PROVEN")
+        self.assertFalse(candidate["microsoft_public_root_program_proof_observed"])
         self.assertEqual(candidate["priority"], "FIRST_RUSSIAN_NATIVE_PATH_TO_RECHECK")
         self.assertIn("codeSigning EKU", candidate["observed_capability"])
         self.assertIn("2.23.140.1.4.1", candidate["observed_capability"])
@@ -71,6 +98,10 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("PUBLIC_SIGNATURE_READY_REPUTATION_PENDING", runbook)
         self.assertIn("PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST", runbook)
         self.assertIn("v0.2.5", runbook)
+        self.assertIn("v0.2.6", runbook)
+        self.assertIn("0.2.7+", runbook)
+        self.assertIn("2026-09-15", runbook)
+        self.assertIn("460", runbook)
         self.assertIn("RELEASE-EVIDENCE-ONLY", runbook)
         self.assertIn("Russian qualified release evidence", runbook)
         self.assertIn("vendor-neutral", runbook)
@@ -91,9 +122,20 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Get-MpThreatDetection", gate)
         self.assertIn("MicrosoftTrustedRootProgramReference", gate)
         self.assertIn("membership_inferred_from_local_store = $false", gate)
+        self.assertIn("2.5.29.32", gate)
+        self.assertIn("2.23.140.1.4.1", gate)
+        self.assertIn("2.23.140.1.3", gate)
+        self.assertIn("CabfMaxSubscriberValidityDays = 460", gate)
+        self.assertIn("TimeStamperCertificate", gate)
+        self.assertIn("cabf_reserved_code_signing_policy_count", gate)
+        self.assertIn("timestamp_present", gate)
         self.assertIn("PUBLIC_SIGNATURE_READY_REPUTATION_PENDING", gate)
         self.assertIn("PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST", gate)
         self.assertIn("RequireNoSmartScreenWarning", gate)
+
+    def test_workflow_tracks_current_decision_packet(self):
+        workflow = self.read(".github/workflows/windows-public-trust.yml")
+        self.assertIn("docs/windows/APL-REL-016-WINDOWS-TRUST-DECISION-PACKET.md", workflow)
 
     def test_signed_portable_packager_binds_exact_signed_app_before_installer_consumption(self):
         packager = self.read("tools/package_signed_windows_portable.ps1")
@@ -129,12 +171,14 @@ class WindowsPublicTrustTests(unittest.TestCase):
         forbidden = set(contract["forbidden_shortcuts"])
         for item in {
             "mutate_v0.2.5",
+            "mutate_v0.2.6",
             "disable_defender",
             "disable_smartscreen",
             "disable_smart_app_control",
             "test_signing_as_production_requirement",
             "self_signed_certificate_as_public_trust",
             "claim_windows_public_trust_from_russian_detached_signature_only",
+            "claim_artifact_signing_public_trust_is_available_to_russian_owner_without_current_microsoft_eligibility",
         }:
             self.assertIn(item, forbidden)
 
