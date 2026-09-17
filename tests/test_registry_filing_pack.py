@@ -11,9 +11,11 @@ class RegistryFilingPackTests(unittest.TestCase):
         required = {
             "README.md",
             "APL_REG_001D_APPLICATION_WORKSHEET_RU.md",
+            "APL_REG_001D_RULE_1236_COMPLIANCE_MATRIX_RU.md",
             "APL_REG_001D_FUNCTIONAL_CHARACTERISTICS_RU.md",
             "APL_REG_001D_INSTALL_OPERATION_MANUAL_RU.md",
             "APL_REG_001D_SUPPORT_MAINTENANCE_RU.md",
+            "APL_REG_001D_TECHNICAL_INFRASTRUCTURE_RU.md",
             "APL_REG_001D_LICENSE_PRICE_RU.md",
             "APL_REG_001D_EXPERT_TEST_PROCEDURE_RU.md",
             "APL_REG_001E_PRIVATE_EVIDENCE_CHECKLIST.md",
@@ -24,24 +26,33 @@ class RegistryFilingPackTests(unittest.TestCase):
     def test_pack_is_frozen_to_current_release_and_class(self):
         for path in REGISTRY.glob("*.md"):
             text = path.read_text(encoding="utf-8")
-            if "001E_PRIVATE" not in path.name:
-                self.assertIn("0.2.9", text, path.name)
+            self.assertIn("0.2.9", text, path.name)
         worksheet = (REGISTRY / "APL_REG_001D_APPLICATION_WORKSHEET_RU.md").read_text(encoding="utf-8")
         self.assertIn("02.02", worksheet)
         self.assertIn("Программы обслуживания", worksheet)
 
-    def test_filing_blockers_are_explicit(self):
+    def test_current_rule_1236_blockers_are_explicit(self):
+        matrix = (REGISTRY / "APL_REG_001D_RULE_1236_COMPLIANCE_MATRIX_RU.md").read_text(encoding="utf-8")
+        for marker in ('п. 5 «а»', 'п. 5 «в»', 'п. 5 «з»', 'п. 5 «и»', 'п. 5 «к»', 'п. 5 «л»'):
+            self.assertIn(marker, matrix)
+        self.assertIn("PHYSICAL BLOCKER", matrix)
+        self.assertIn("PRIVATE/ACCOUNTING BLOCKER", matrix)
+
+    def test_filing_blockers_and_future_gate_are_separated(self):
         audit = (REGISTRY / "APL_REG_001F_PRE_SUBMISSION_AUDIT.md").read_text(encoding="utf-8")
-        for gate in ("G1", "G2", "G3", "G4", "G5", "G6"):
+        for gate in ("G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"):
             self.assertIn(gate, audit)
         self.assertIn("HOLD", audit)
+        self.assertIn("NOT YET EFFECTIVE", audit)
+        self.assertIn("2027-01-01", audit)
         self.assertIn("v0.2.9", audit)
-        self.assertIn("exact public", audit)
 
-    def test_public_pack_does_not_claim_closed_private_evidence(self):
+    def test_public_pack_does_not_claim_closed_private_or_physical_evidence(self):
         checklist = (REGISTRY / "APL_REG_001E_PRIVATE_EVIDENCE_CHECKLIST.md").read_text(encoding="utf-8")
         self.assertIn("PRIVATE/HUMAN", checklist)
-        self.assertIn("BLOCKED", checklist)
+        self.assertIn("PHYSICAL BLOCKER", checklist)
+        infra = (REGISTRY / "APL_REG_001D_TECHNICAL_INFRASTRUCTURE_RU.md").read_text(encoding="utf-8")
+        self.assertIn("BLOCKED FOR FILING EVIDENCE", infra)
         audit = (REGISTRY / "APL_REG_001F_PRE_SUBMISSION_AUDIT.md").read_text(encoding="utf-8")
         self.assertNotIn("READY TO FILE\n", audit)
 
