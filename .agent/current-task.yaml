@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-WIN-FOREIGN-STATE-SYMMETRY
-status: in_progress
+status: blocked
 goal: Make Windows proxy rollback ownership-symmetric with Linux for external proxy changes, validate on physical ARVECTUM-DEMO,
   and publish the next immutable release to GitHub and GitVerse.
 authority: HUMAN
@@ -38,10 +38,18 @@ completed:
   AutoConfigURL absent, listeners 0, backup absent, saved proxy environment preserved.'
 - 'Subtask C PASS: PR #93 merged exact-head ca7c1019e78cb3ee1e57173f2b58ecea0c27b919 as main commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2;
   all 24 exact-main push workflows PASS, including Windows portable, Windows installer, SAST and Release Evidence Package.'
-current: Subtask D - publish immutable v0.2.9 from verified release commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2 to GitHub
-  and GitVerse.
+- 'Subtask D PASS: immutable tag v0.2.9 points to verified release commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2; GitHub
+  Release published and tag release workflow Windows build/installer PASS.'
+- 'Public GitHub release independently downloaded and SHA256SUMS verified: Windows portable 6f541b28c08834170258b48e27ffeafc6a0ad0e9c3a27760ec02cc7d01a305d0;
+  Windows setup a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c; Astra DEB f1bdb58ed4dad02bcc391ae88c8102062a2ed75860f5735cbe45dd6569d77711;
+  RED OS RPM 59a3a45562da3c65691e901471bdaab16f0de94f5bbc4dfa786f524d417660fc.'
+- GitVerse v0.2.9 mirror completed success including Verify public GitVerse payload parity.
+- Exact-public Windows EXE SHA256 8e3f56e795c53b4c79abafe1b3f8daee6ecd88dff467570d4097907f6a04559e transferred to ARVECTUM-DEMO
+  with exact public setup; authored hash-only supplemental policy {AD04BEB9-21E7-44E9-A836-3C89F7466350}, CIP SHA256 41f36f1182a1d4024506ebf8d25f2a5475cb7588e5bb632cc42d460b01821bd5,
+  script enforcement preserved.
+current: Subtask E - exact-public Windows acceptance; waiting only for user approval of the already-open UAC prompt that deploys
+  the public-byte hash-only WDAC supplemental policy.
 pending:
-- Publish immutable v0.2.9 to GitHub/GitVerse and verify checksums/parity.
 - Install exact public Windows v0.2.9 build on ARVECTUM-DEMO and run final acceptance.
 - Finalize checkpoint as completed.
 last_verified_commit: d13d9dac2ae2439c2fe70d32e1b168df320a9bd2
@@ -54,9 +62,10 @@ test_results:
   by missing _tkinter, while its metadata defect is fixed by the canonical generator.'
 - 'Exact-main d13d9dac2ae2439c2fe70d32e1b168df320a9bd2: 24/24 push workflows PASS; Windows installer and Release Evidence
   Package PASS.'
-resume_instruction: 'Subtask D: if v0.2.9 does not yet exist, tag verified release commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2;
-  wait for GitHub Release and GitVerse mirror; verify public checksums/parity before exact-public Windows acceptance.'
-updated_at: '2026-09-17T18:20:00Z'
+resume_instruction: User must approve the already-open UAC prompt on ARVECTUM-DEMO. Then confirm CiTool exit 0, install exact-public
+  v0.2.9 setup SHA256 a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c, verify installed EXE SHA256 8e3f56e795c53b4c79abafe1b3f8daee6ecd88dff467570d4097907f6a04559e,
+  run final external-change recovery/start-stop acceptance, leave clean baseline, and close checkpoint.
+updated_at: '2026-09-17T18:40:00Z'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-SYMMETRY-20260917
