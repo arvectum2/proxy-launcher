@@ -693,6 +693,7 @@ class ProxyCoreTests(unittest.TestCase):
             }
             path.write_text(json.dumps(backup), encoding="utf-8")
             with mock.patch.object(core, "_internet_backup_path", return_value=str(path)), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=backup), \
                  mock.patch.object(core, "_reg_set", return_value=True) as reg_set, \
                  mock.patch.object(core, "_reg_del", return_value=True):
                 self.assertTrue(core._restore_internet_backup())

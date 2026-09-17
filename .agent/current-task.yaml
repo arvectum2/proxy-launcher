@@ -29,8 +29,10 @@ completed:
   other owned fields remain applied.
 - Added regression coverage for WinINET mixed/inverse/foreign, proxy-env mixed/foreign, and atomic preflight behavior.
 - Advanced canonical product version to 0.2.9 and added bilingual release/mirror documentation.
-current: Commit and push 0.2.9 candidate, open PR, obtain exact-head CI artifacts, then run physical Windows acceptance on
-  ARVECTUM-DEMO.
+- 'Fixed two exact-head CI contract drifts: legacy ProxyOverride restore test now supplies an owned current WinINET snapshot;
+  Windows FixedFileInfo tuple now matches 0.2.9.'
+current: Push CI-contract fix and wait for clean exact-head PR checks; then download the exact-head Windows artifact for physical
+  acceptance on ARVECTUM-DEMO.
 pending:
 - Open PR and pass exact-head CI.
 - Install/run exact-head Windows candidate artifact on ARVECTUM-DEMO and validate mixed + foreign proxy scenarios physically.
@@ -45,9 +47,11 @@ test_results:
 - Mac test_version_policy is locally blocked only by Homebrew Python missing _tkinter; version/core/version_info consistency
   checked directly and will run in CI/Windows.
 - Python syntax checks PASS for windows_system_proxy.py, windows_backend.py and proxy_core.py.
-resume_instruction: Open PR from apl-win-foreign-state-fix, wait for exact-head CI, download its Windows artifact, physically
-  validate ownership-safe rollback on ARVECTUM-DEMO, then continue through merge and v0.2.9 release.
-updated_at: '2026-09-17T14:21:30.842999+00:00'
+- 'Post-CI-fix proxy_core + windows_system_proxy suite: 71/71 PASS; version_info FixedFileInfo 0.2.9.0 consistency PASS; git
+  diff --check PASS.'
+resume_instruction: 'Wait for PR #91 exact-head CI after the CI-contract fix. Once Windows portable/installer jobs are green,
+  download exact-head artifact and run physical mixed/foreign rollback acceptance on ARVECTUM-DEMO before merge.'
+updated_at: '2026-09-17T14:24:49.985892+00:00'
 execution:
   claimed_by: chatgpt
   execution_id: APL-WIN-020-20260917
