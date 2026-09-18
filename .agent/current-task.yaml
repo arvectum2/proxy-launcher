@@ -27,12 +27,12 @@ pending:
   - "Update Android README and issue evidence."
   - "Open PR, run exact-head Android CI, inspect artifact and SHA-256."
   - "Hand off 0.1.5 APK for physical two-profile acceptance."
-last_verified_commit: "4af8bbe4614b4fedc46d896571907f5e66d722e2"
+last_verified_commit: "2b44b8049ef32f5e6283d0f17f890882fd263dd9"
 test_results:
   - "Previous Android 0.1.4 physical dogfood: PASS for HTTP/HTTPS CONNECT, public-IP routing, OFF/ON and sleep/wake."
-  - "Previous PR #53 exact-head CI before merge: PASS."
-resume_instruction: "Resume on branch apl-mob-001-android-multiprofile at 4af8bbe4614b4fedc46d896571907f5e66d722e2. Open/update the PR, run exact-head Android CI, fix only compile/storage/profile-UX defects, inspect the resulting 0.1.5 APK/signature/SHA-256, then hand it to the owner for in-place migration and two-profile physical acceptance. Do not change the already accepted tunnel transport unless a profile-selection integration defect requires it."
-updated_at: "2026-09-18T15:12:00+03:00"
+  - "Previous PR #53 exact-head CI before merge: PASS."\n  - "PR #104 first Android CI attempt: FAIL at Kotlin compilation due compareBy generic inference; deterministic source fix committed as 2b44b8049ef32f5e6283d0f17f890882fd263dd9."
+resume_instruction: "Resume on branch apl-mob-001-android-multiprofile at 2b44b8049ef32f5e6283d0f17f890882fd263dd9. Open/update the PR, run exact-head Android CI, fix only compile/storage/profile-UX defects, inspect the resulting 0.1.5 APK/signature/SHA-256, then hand it to the owner for in-place migration and two-profile physical acceptance. Do not change the already accepted tunnel transport unless a profile-selection integration defect requires it."
+updated_at: "2026-09-18T15:22:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-001-ANDROID-MULTIPROFILE-20260918"
