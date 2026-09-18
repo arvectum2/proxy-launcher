@@ -77,12 +77,15 @@ jobs:
           test "$(jq -r '.tagName' .github-release.json)" = "$TAG"
           test "$(jq -r '.isDraft' .github-release.json)" = false
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir .sync-assets
-          test -f .sync-assets/SHA256SUMS.txt
-          manifest_count="$(grep -Ec '^[0-9a-fA-F]{64}  .+' .sync-assets/SHA256SUMS.txt)"
-          asset_count="$(find .sync-assets -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          mapfile -t manifests < <(find .sync-assets -maxdepth 1 -type f -name '*SHA256SUMS.txt' -print)
+          test "${#manifests[@]}" -eq 1
+          manifest_path="${manifests[0]}"
+          manifest_name="$(basename "$manifest_path")"
+          manifest_count="$(grep -Ec '^[0-9a-fA-F]{64}  .+' "$manifest_path")"
+          payload_count="$(find .sync-assets -maxdepth 1 -type f ! -name "$manifest_name" | wc -l | tr -d ' ')"
           test "$manifest_count" -ge 1
-          test "$asset_count" -eq "$((manifest_count + 1))"
-          (cd .sync-assets && sha256sum -c SHA256SUMS.txt)
+          test "$payload_count" -eq "$manifest_count"
+          (cd .sync-assets && sha256sum -c "$manifest_name")
 
       - name: Build lossless GitVerse transport set
         shell: bash
