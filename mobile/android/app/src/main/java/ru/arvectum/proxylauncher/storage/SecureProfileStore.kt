@@ -9,6 +9,12 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import org.json.JSONArray
+import org.json.JSONObject
+import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
+import ru.arvectum.proxylauncher.model.ProxyHealthSnapshot
+import ru.arvectum.proxylauncher.model.ProxyHealthStatus
+import ru.arvectum.proxylauncher.model.ProxyPoolEvent
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
@@ -163,6 +169,21 @@ class SecureProfileStore(context: Context) {
         if (prefs.getString(KEY_LAST_AUTO_ID, null) == id) {
             editor.remove(KEY_LAST_AUTO_ID)
         }
+        if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
+            val nextPrimary = remainingIds
+                .mapNotNull(::loadProfileMetadata)
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .firstOrNull()
+                ?.id
+            if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
+            else editor.putString(KEY_PRIMARY_ID, nextPrimary)
+        }
+        if (prefs.getString(KEY_RECENTLY_FAILED_ID, null) == id) {
+            editor.remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT)
+        }
+        editor.remove(healthKey(id, "status"))
+            .remove(healthKey(id, "latency"))
+            .remove(healthKey(id, "checked_at"))
 
         check(editor.commit()) { "Failed to delete proxy profile" }
     }
@@ -175,6 +196,139 @@ class SecureProfileStore(context: Context) {
         ?: ProxyVpnService.STATE_DISCONNECTED
 
     fun getLastDetail(): String? = prefs.getString(KEY_LAST_DETAIL, null)
+
+    fun getPrimaryProfileId(): String? {
+        ensureLegacyProfileIndexed()
+        val stored = prefs.getString(KEY_PRIMARY_ID, null)
+        if (stored != null && loadProfileMetadata(stored) != null) return stored
+        return listProfiles().firstOrNull()?.id
+    }
+
+    fun setPrimaryProfileId(id: String) {
+        ensureLegacyProfileIndexed()
+        require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+        check(prefs.edit().putString(KEY_PRIMARY_ID, id).commit()) {
+            "Failed to persist primary proxy"
+        }
+    }
+
+    fun getRestorePolicy(): PrimaryRestorePolicy = runCatching {
+        PrimaryRestorePolicy.valueOf(
+            prefs.getString(KEY_RESTORE_POLICY, PrimaryRestorePolicy.STAY_ON_CURRENT.name)!!,
+        )
+    }.getOrDefault(PrimaryRestorePolicy.STAY_ON_CURRENT)
+
+    fun setRestorePolicy(policy: PrimaryRestorePolicy) {
+        check(prefs.edit().putString(KEY_RESTORE_POLICY, policy.name).commit()) {
+            "Failed to persist primary restore policy"
+        }
+    }
+
+    fun setHealth(
+        profileId: String,
+        status: ProxyHealthStatus,
+        latencyMs: Long?,
+        checkedAtMs: Long = System.currentTimeMillis(),
+    ) {
+        if (loadProfileMetadata(profileId) == null) return
+        val editor = prefs.edit()
+            .putString(healthKey(profileId, "status"), status.name)
+            .putLong(healthKey(profileId, "checked_at"), checkedAtMs)
+        if (latencyMs == null) editor.remove(healthKey(profileId, "latency"))
+        else editor.putLong(healthKey(profileId, "latency"), latencyMs.coerceAtLeast(0L))
+        editor.commit()
+    }
+
+    fun getHealth(profileId: String): ProxyHealthSnapshot? {
+        if (loadProfileMetadata(profileId) == null) return null
+        val statusName = prefs.getString(healthKey(profileId, "status"), null) ?: return null
+        val status = runCatching { ProxyHealthStatus.valueOf(statusName) }
+            .getOrDefault(ProxyHealthStatus.UNKNOWN)
+        val latency = if (prefs.contains(healthKey(profileId, "latency"))) {
+            prefs.getLong(healthKey(profileId, "latency"), 0L)
+        } else null
+        return ProxyHealthSnapshot(
+            profileId = profileId,
+            status = status,
+            latencyMs = latency,
+            checkedAtMs = prefs.getLong(healthKey(profileId, "checked_at"), 0L),
+        )
+    }
+
+    fun markRecentlyFailedProfile(id: String, atMs: Long = System.currentTimeMillis()) {
+        check(
+            prefs.edit()
+                .putString(KEY_RECENTLY_FAILED_ID, id)
+                .putLong(KEY_RECENTLY_FAILED_AT, atMs)
+                .commit(),
+        ) { "Failed to persist failed proxy state" }
+    }
+
+    fun getRecentlyFailedProfileId(): String? = prefs.getString(KEY_RECENTLY_FAILED_ID, null)
+
+    fun getRecentlyFailedAtMs(): Long = prefs.getLong(KEY_RECENTLY_FAILED_AT, 0L)
+
+    fun clearRecentlyFailedProfile() {
+        prefs.edit().remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT).commit()
+    }
+
+    fun setLastFailoverAtMs(value: Long) {
+        prefs.edit().putLong(KEY_LAST_FAILOVER_AT, value).commit()
+    }
+
+    fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
+
+    fun markFailoverRestartPending() {
+        prefs.edit().putBoolean(KEY_FAILOVER_RESTART_PENDING, true).commit()
+    }
+
+    fun consumeFailoverRestartPending(): Boolean {
+        val pending = prefs.getBoolean(KEY_FAILOVER_RESTART_PENDING, false)
+        if (pending) prefs.edit().putBoolean(KEY_FAILOVER_RESTART_PENDING, false).commit()
+        return pending
+    }
+
+    fun appendPoolEvent(
+        type: String,
+        profileId: String?,
+        profileName: String?,
+        detail: String? = null,
+        timestampMs: Long = System.currentTimeMillis(),
+    ) {
+        val events = runCatching { JSONArray(prefs.getString(KEY_POOL_EVENTS, "[]")) }
+            .getOrDefault(JSONArray())
+        val item = JSONObject()
+            .put("timestamp", timestampMs)
+            .put("type", type.take(40))
+            .put("profile_id", profileId ?: JSONObject.NULL)
+            .put("profile_name", profileName?.take(80) ?: JSONObject.NULL)
+            .put("detail", detail?.take(100) ?: JSONObject.NULL)
+        val compact = JSONArray()
+        val start = (events.length() - (MAX_POOL_EVENTS - 1)).coerceAtLeast(0)
+        for (index in start until events.length()) compact.put(events.optJSONObject(index))
+        compact.put(item)
+        prefs.edit().putString(KEY_POOL_EVENTS, compact.toString()).commit()
+    }
+
+    fun listPoolEvents(limit: Int = 20): List<ProxyPoolEvent> {
+        val events = runCatching { JSONArray(prefs.getString(KEY_POOL_EVENTS, "[]")) }
+            .getOrDefault(JSONArray())
+        val start = (events.length() - limit.coerceIn(1, MAX_POOL_EVENTS)).coerceAtLeast(0)
+        return (events.length() - 1 downTo start).mapNotNull { index ->
+            events.optJSONObject(index)?.let { item ->
+                ProxyPoolEvent(
+                    timestampMs = item.optLong("timestamp", 0L),
+                    type = item.optString("type", "event"),
+                    profileId = item.optNullableString("profile_id"),
+                    profileName = item.optNullableString("profile_name"),
+                    detail = item.optNullableString("detail"),
+                )
+            }
+        }
+    }
+
+    private fun JSONObject.optNullableString(key: String): String? =
+        if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() }
 
     private fun ensureLegacyProfileIndexed() {
         if (prefs.contains(KEY_PROFILE_IDS)) return
@@ -269,6 +423,7 @@ class SecureProfileStore(context: Context) {
 
     private fun profileKey(id: String, field: String) = "profile.$id.$field"
     private fun secretKey(id: String) = "secret.$id"
+    private fun healthKey(id: String, field: String) = "health.$id.$field"
 
     companion object {
         private const val PREFS_NAME = "apl_mobile_profiles_v1"
@@ -278,6 +433,14 @@ class SecureProfileStore(context: Context) {
         private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
         private const val KEY_LAST_STATE = "tunnel_state"
         private const val KEY_LAST_DETAIL = "tunnel_detail"
+        private const val KEY_PRIMARY_ID = "pool_primary_profile_id"
+        private const val KEY_RESTORE_POLICY = "pool_restore_policy"
+        private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"
+        private const val KEY_RECENTLY_FAILED_AT = "pool_recently_failed_at"
+        private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
+        private const val KEY_FAILOVER_RESTART_PENDING = "pool_failover_restart_pending"
+        private const val KEY_POOL_EVENTS = "pool_events_v1"
+        private const val MAX_POOL_EVENTS = 40
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
     }

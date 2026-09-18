@@ -41,7 +41,11 @@ No Clash/sing-box profiles, YAML/JSON, subscriptions, GeoIP or routing terminolo
 - automatic migration of the pre-0.1.5 single active profile into the profile index;
 - saved-profile selector remains active while connected and orchestrates disconnect → selection → reconnect;
 - profile create/edit/save/delete controls remain locked while the tunnel is active;
-- pool-level Auto probes saved profiles with bounded timeouts, prefers the last successful Auto profile, and connects through the first working candidate;
+- pool-level Auto probes saved profiles with bounded timeouts and connects through the first working candidate according to the documented primary/last-success/fallback policy;
+- connected Auto continuously checks the active upstream, confirms failures with debounce, and hands off to a fresh isolated VPN process for automatic fallback without requesting VPN permission again;
+- saved profiles expose bounded health state and probe latency in the existing profile chooser; latency is a connection-health signal, not a throughput guarantee;
+- Auto can either stay on the working fallback or return to the designated primary after recovery, with cooldown/hysteresis to avoid flapping;
+- a bounded credential-free Auto event log records unavailable/switch/restored decisions;
 - Auto status names the saved profile and resolved transport selected for the tunnel;
 - Android Keystore AES-GCM protection for each persisted proxy password;
 - no plaintext credentials in config files or logs.
@@ -225,3 +229,19 @@ The design review explicitly recommends adding no further controls to the home s
 - header is one bottom-aligned row: AV mark · Arvectum Proxy Launcher · 0.1.13 at the far right.
 
 Networking and profile behavior are unchanged.
+
+## 0.1.14 continuous Auto failover
+
+0.1.14 completes the remaining Android APL-MOB-002 pool behavior while preserving the accepted 0.1.13 home screen.
+
+- **Primary and backups:** one saved profile is designated primary; every other saved profile is an eligible backup.
+- **Auto order:** primary first, then the last successful Auto profile, then the remaining saved profiles. A recently failed profile is temporarily pushed to the end of the list.
+- **Health:** while Auto is connected, the active upstream is probed on a bounded interval. Saved-profile health and successful probe latency are shown only inside the existing profile chooser. The latency value is not a bandwidth or throughput estimate.
+- **Failure confirmation:** three consecutive health failures are required before automatic failover. A switch cooldown and recently-failed suppression window prevent rapid oscillation.
+- **Process-safe switching:** tun2proxy is not restarted inside the same `:vpn` process. The failing process closes its TUN, persists failover intent, and an internal non-exported receiver starts a fresh VPN process. Android VPN permission is reused rather than requested again.
+- **Primary recovery:** the user can keep the current working fallback (default) or automatically return to primary after it is healthy again and cooldown has elapsed.
+- **Network transitions:** default-network changes add a settle grace before health failures count, reducing false switches during Wi-Fi/cellular transitions. The periodic monitor naturally resumes after sleep/wake.
+- **No working proxy:** the old tunnel is closed before fallback probing; if every candidate fails, the app reports an explicit error and leaves no ambiguous active TUN.
+- **Events:** Auto records only timestamp, event type, profile id/name and fixed non-secret detail. Host, username, password and proxy authorization are never written to the event log.
+
+Physical acceptance for this slice must kill the active Auto-selected test proxy and confirm automatic fallback plus Internet recovery without another VPN permission prompt. A short transient outage must not create repeated switching.
