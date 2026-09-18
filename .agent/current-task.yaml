@@ -18,7 +18,7 @@ completed:
   - "Read current main, APL-MOB-001 issue #50, roadmap/queue, accepted Android checkpoint, MainActivity and SecureProfileStore."
   - "Preserved blocked APL-IP-001-V0.2.9 state in its dedicated checkpoint before claiming this independent manual Android slice."
   - "Created branch apl-mob-001-android-multiprofile from main 24fb77d8e83e95ad493e9f40372cfeafbdba8fae."
-current: "Open review PR and run exact-head Android CI for 0.1.5-dogfood multiprofile candidate."
+current: "Owner physical Android acceptance of 0.1.5-dogfood multiprofile candidate from verified code head 99b9a7f6861533f37e6c3f096536855e9d261443."
 pending:
   - "Extend SecureProfileStore for profile listing, active selection, deletion and legacy single-profile migration."
   - "Extend MainActivity with name field, saved-profile selector and new/save/delete controls."
@@ -27,12 +27,12 @@ pending:
   - "Update Android README and issue evidence."
   - "Open PR, run exact-head Android CI, inspect artifact and SHA-256."
   - "Hand off 0.1.5 APK for physical two-profile acceptance."
-last_verified_commit: "2b44b8049ef32f5e6283d0f17f890882fd263dd9"
+last_verified_commit: "99b9a7f6861533f37e6c3f096536855e9d261443"
 test_results:
   - "Previous Android 0.1.4 physical dogfood: PASS for HTTP/HTTPS CONNECT, public-IP routing, OFF/ON and sleep/wake."
-  - "Previous PR #53 exact-head CI before merge: PASS."\n  - "PR #104 first Android CI attempt: FAIL at Kotlin compilation due compareBy generic inference; deterministic source fix committed as 2b44b8049ef32f5e6283d0f17f890882fd263dd9."
-resume_instruction: "Resume on branch apl-mob-001-android-multiprofile at 2b44b8049ef32f5e6283d0f17f890882fd263dd9. Open/update the PR, run exact-head Android CI, fix only compile/storage/profile-UX defects, inspect the resulting 0.1.5 APK/signature/SHA-256, then hand it to the owner for in-place migration and two-profile physical acceptance. Do not change the already accepted tunnel transport unless a profile-selection integration defect requires it."
-updated_at: "2026-09-18T15:22:00+03:00"
+  - "Previous PR #53 exact-head CI before merge: PASS."\n  - "PR #104 first Android CI attempt: FAIL at Kotlin compilation due compareBy generic inference; deterministic source fix committed as 2b44b8049ef32f5e6283d0f17f890882fd263dd9."\n  - "PR #104 Android workflow run 35344115825: PASS."\n  - "0.1.5 signer/branding verification: PASS."\n  - "0.1.5 APK SHA-256: d798afbfe7c01f6fe24a2098a558f4eaed60a2e0b7aae368e5c793a8e59062e8."
+resume_instruction: "Resume from owner physical feedback on 0.1.5-dogfood APK SHA-256 d798afbfe7c01f6fe24a2098a558f4eaed60a2e0b7aae368e5c793a8e59062e8. Verify in-place update from 0.1.4, automatic migration of the old profile, creation/save of a second profile, manual switching/connect through each, and lockout of profile mutation while VPN is active. Patch only the first concrete defect if any. If all pass, mark this task completed in .agent/checkpoints, restore APL-IP-001-V0.2.9 as .agent/current-task.yaml, run exact-head CI and merge PR #104 only when green."
+updated_at: "2026-09-18T15:25:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-001-ANDROID-MULTIPROFILE-20260918"
