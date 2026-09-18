@@ -53,6 +53,7 @@ class SecureProfileStore(context: Context) {
             .putString(profileKey(profile.id, "password_ref"), passwordRef)
         if (makeActive) {
             editor.putString(KEY_ACTIVE_ID, profile.id)
+                .putBoolean(KEY_AUTO_SELECTION, false)
         }
         check(editor.commit()) { "Failed to persist proxy profile" }
     }
@@ -69,10 +70,44 @@ class SecureProfileStore(context: Context) {
         return prefs.getString(KEY_ACTIVE_ID, null)
     }
 
+    fun isAutoProfileSelection(): Boolean {
+        ensureLegacyProfileIndexed()
+        return prefs.getBoolean(KEY_AUTO_SELECTION, false)
+    }
+
+    fun setAutoProfileSelection(enabled: Boolean) {
+        ensureLegacyProfileIndexed()
+        check(prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled).commit()) {
+            "Failed to persist Auto proxy selection"
+        }
+    }
+
+    fun getLastAutoProfileId(): String? {
+        ensureLegacyProfileIndexed()
+        return prefs.getString(KEY_LAST_AUTO_ID, null)
+    }
+
+    fun setLastAutoProfileId(id: String?) {
+        ensureLegacyProfileIndexed()
+        val editor = prefs.edit()
+        if (id == null) {
+            editor.remove(KEY_LAST_AUTO_ID)
+        } else {
+            require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+            editor.putString(KEY_LAST_AUTO_ID, id)
+        }
+        check(editor.commit()) { "Failed to persist last Auto proxy" }
+    }
+
     fun setActiveProfile(id: String) {
         ensureLegacyProfileIndexed()
         require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
-        check(prefs.edit().putString(KEY_ACTIVE_ID, id).commit()) {
+        check(
+            prefs.edit()
+                .putString(KEY_ACTIVE_ID, id)
+                .putBoolean(KEY_AUTO_SELECTION, false)
+                .commit(),
+        ) {
             "Failed to persist active proxy profile"
         }
     }
@@ -124,6 +159,9 @@ class SecureProfileStore(context: Context) {
             editor.remove(KEY_ACTIVE_ID)
         } else {
             editor.putString(KEY_ACTIVE_ID, nextActiveId)
+        }
+        if (prefs.getString(KEY_LAST_AUTO_ID, null) == id) {
+            editor.remove(KEY_LAST_AUTO_ID)
         }
 
         check(editor.commit()) { "Failed to delete proxy profile" }
@@ -236,6 +274,8 @@ class SecureProfileStore(context: Context) {
         private const val PREFS_NAME = "apl_mobile_profiles_v1"
         private const val KEY_PROFILE_IDS = "profile_ids"
         private const val KEY_ACTIVE_ID = "active_profile_id"
+        private const val KEY_AUTO_SELECTION = "auto_profile_selection"
+        private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
         private const val KEY_LAST_STATE = "tunnel_state"
         private const val KEY_LAST_DETAIL = "tunnel_detail"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
