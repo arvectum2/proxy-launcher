@@ -46,7 +46,7 @@ jobs:
           "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-signing.txt
           grep -Fqi "certificate SHA-256 digest: fd57cd46ad1e54a153aa9ed56b4bbb630b33015e23d4c6a86077a67cf0e28313" /tmp/apk-signing.txt
           unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_launcher_foreground.png"
-          unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_wordmark.png"
+          unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_mark.png"
           unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher.xml"
           unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher_round.xml"
       - name: Record APK SHA-256
