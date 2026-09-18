@@ -161,3 +161,22 @@ No new controls should be added to this version. The current information archite
 Adding settings, diagnostics, ping, IP address, failover controls or extra cards now would weaken the “install → choose → connect” model. Those belong in later dedicated surfaces only if a real user need appears.
 
 No further home-screen element is recommended for 0.1.12.
+
+
+## Physical 0.1.12 review → 0.1.13
+
+Two residual visual issues remain on the target launcher/header.
+
+### Launcher
+The clean 0.1.12 AV+globe recomposition removed squircle seams but changed the relative geometry enough that the artwork clips under the OEM circular mask.
+
+**0.1.13 correction:** restore the accepted 0.1.11 geometry exactly — source artwork at 60% centered — but pre-clean the source so all squircle/background pixels become transparent. Only Mint AV pixels and the complete globe badge survive. The adaptive Deep Navy background remains the only launcher background.
+
+This preserves the better 0.1.11 scale while removing the square/squircle traces that caused the earlier defect.
+
+### Header
+Version should not occupy a second line.
+
+**0.1.13 correction:** AV mark, `Arvectum Proxy Launcher`, and semantic version are rendered in one horizontal row with `Gravity.BOTTOM`. The version sits at the far right and shares the row's lower edge.
+
+No home-screen controls or connection behavior change.
