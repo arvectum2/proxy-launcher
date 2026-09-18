@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-SYNC-20260918-PM
-status: in_progress
+status: completed
 goal: "Synchronize the canonical Proxy Launcher roadmap/execution queue with actual 2026-09-18 afternoon repository state without changing Owner-controlled priority."
 authority: REVIEW
 definition_of_done:
@@ -13,26 +13,29 @@ definition_of_done:
   - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
   - "Exact-head CI required by repository governance passes before merge."
 completed:
-  - "Verified main 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021 and stable v0.2.9 baseline."
+  - "Verified pre-sync main 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021 and stable v0.2.9 baseline."
   - "Verified PR #104 merged at 600cecfc1f54cb3046c72a93ef000691c0c394a1 after its physical multiprofile gate."
-  - "Verified active draft PR #105 carries APL-MOB-002 Android hot-switch/Auto work; networking slice is physically accepted and 0.1.7 UX/branding remains physical gate."
-  - "Verified PR #103 is the current APL-REL-016 v0.2.9 refresh; PR #81 is superseded."
-current: "Update canonical queue, roadmap and local backlog with factual status only; preserve Owner-controlled ordering and reserved gates."
-pending:
-  - "Update .agent/execution-queue.yaml."
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
-  - "Open PR, verify exact-head CI and merge if governance permits."
-  - "Record final merged checkpoint."
-last_verified_commit: "2cb0921c1fe31a22f1ea054fb4d37af2e5fca021"
+  - "Recorded Android APL-MOB-001 lane DONE and activated APL-MOB-002 at the existing later-mobile queue position with draft PR #105."
+  - "Recorded APL-REL-016 current v0.2.9 packet as PR #103 / Owner-review gate and classified PR #81 as superseded."
+  - "Updated docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml without changing Owner-controlled task order."
+  - "PR #109 exact head 5951a85a748b045916a141540ec9f124989ea037 completed all 13 reported checks successfully, including required build and full Windows installer E2E."
+  - "PR #109 merged to main as 4ac8db58dab02e91665f9bcf90aaff8e12f88e24."
+current: "Roadmap synchronization is complete. Canonical next-state is: MOB-002 physical gate active; APL-REL-016 awaits Owner review; next safe autonomous preparation lane is per-app routing PR #68 refresh against v0.2.9."
+pending: []
+last_verified_commit: "4ac8db58dab02e91665f9bcf90aaff8e12f88e24"
+merged_commit: "4ac8db58dab02e91665f9bcf90aaff8e12f88e24"
 test_results:
-  - "Repository/PR state inspection complete; no product bytes changed."
-updated_at: "2026-09-18T17:14:00+03:00"
-resume_instruction: "Continue this metadata-only roadmap synchronization. Do not merge PR #103/#105 or cross their Owner/HUMAN gates. After roadmap-sync PR exact-head CI is green, merge the metadata-only sync and write a completed closeout checkpoint with the final merge SHA."
+  - "PR #109 exact head 5951a85a748b04591665f9bcf90aaff8e12f88e24: 13/13 reported checks SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
+  - "Bandit SAST, pip-audit, Gitleaks, CycloneDX SBOM, provenance, v0.2.5/v0.2.9 clean-IP gates, sovereign lifecycle and Windows signing checks: SUCCESS."
+  - "Mirror repository: SUCCESS."
+resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260918-PM. On the next watchdog run, read .agent/execution-queue.yaml from main, skip done/HUMAN/blocked gates as defined, do not recreate APL-REL-016 PR #103, and use the next admissible safe preparation lane; currently that is refreshing per-app routing PR #68 against v0.2.9 while stopping before the Owner architecture decision."
+updated_at: "2026-09-18T17:24:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-SYNC-20260918-PM"
-  branch: "agent/roadmap-sync-20260918-pm"
-  base_commit: "2cb0921c1fe31a22f1ea054fb4d37af2e5fca021"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
