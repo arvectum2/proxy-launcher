@@ -15,6 +15,9 @@ on:
       - '.github/workflows/linux-appimage.yml'
       - 'build_linux.sh'
       - 'VERSION'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'APPIMAGE_RUNTIME_LICENSE.txt'
       - 'assets/**'
   push:
     branches: [main]
@@ -31,6 +34,9 @@ on:
       - '.github/workflows/linux-appimage.yml'
       - 'build_linux.sh'
       - 'VERSION'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'APPIMAGE_RUNTIME_LICENSE.txt'
       - 'assets/**'
   workflow_dispatch:
 permissions:
@@ -71,6 +77,8 @@ jobs:
           test -x squashfs-root/usr/bin/arvectum-proxy-launcher
           test -f squashfs-root/arvectum-proxy-launcher.desktop
           test -L squashfs-root/.DirIcon
+          test -f squashfs-root/usr/share/doc/arvectum-proxy-launcher/APPIMAGE_RUNTIME_LICENSE.txt
+          grep -q 'AppImage/type2-runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12' squashfs-root/usr/share/doc/arvectum-proxy-launcher/APPIMAGE_RUNTIME_LICENSE.txt
       - uses: actions/upload-artifact@v4
         with:
           name: apl-lnx-008-appimage

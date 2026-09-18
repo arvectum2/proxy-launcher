@@ -32,6 +32,10 @@ class AppImagePackagingContractTests(unittest.TestCase):
         self.assertIn("usr/share/doc/arvectum-proxy-launcher", BUILD)
         self.assertIn('install -m644 LICENSE "$docdir/LICENSE.txt"', BUILD)
         self.assertIn('install -m644 THIRD_PARTY_NOTICES.txt "$docdir/THIRD_PARTY_NOTICES.txt"', BUILD)
+        self.assertIn('install -m644 APPIMAGE_RUNTIME_LICENSE.txt "$docdir/APPIMAGE_RUNTIME_LICENSE.txt"', BUILD)
+
+    def test_appimage_is_not_left_in_commercial_hold_by_builder(self):
+        self.assertNotIn("remains EXCLUDED from promoted commercial scope", BUILD)
 
 
 if __name__ == "__main__":

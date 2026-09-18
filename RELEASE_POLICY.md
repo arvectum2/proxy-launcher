@@ -66,11 +66,11 @@ Canonical distribution flow:
 source change
   -> Pull Request
   -> main
-  -> green CI (exact-main Windows + Astra DEB + RED OS RPM)
+  -> green CI (exact-main Windows + Astra DEB + RED OS RPM + AppImage)
   -> version consistency and release-evidence validation
   -> Git tag (vX.Y.Z)
   -> GitHub Release workflow (.github/workflows/release.yml)
-  -> canonical Windows tag builds + reuse of exact-main Astra/Linux DEB and RED OS RPM
+  -> canonical Windows tag builds + reuse of exact-main Astra/Linux DEB, RED OS RPM and AppImage
   -> public SHA256SUMS.txt generation and verification
   -> GitHub Release publication
   -> verified independent GitVerse mirror
@@ -80,9 +80,9 @@ source change
 * **Real publication triggers:** Only pushes of matching SemVer tags (`v*.*.*`) can trigger publication.
 * **Tag consistency:** Pushed tag must strictly equal `v${VERSION}` (where `${VERSION}` is read from `VERSION`).
 * **Main ancestry:** Tagged commit must be an ancestor of `origin/main`.
-* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, and the RED OS RPM workflow, plus a successful exact-SHA Release Evidence Package.
+* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, the RED OS RPM workflow, and the Linux AppImage workflow, plus a successful exact-SHA Release Evidence Package.
 * **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation/reusable build checks in safe dry-run mode and **never** publish releases.
-* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), RED OS x86_64 RPM (`Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
+* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), RED OS x86_64 RPM (`Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`), portable Linux x86_64 AppImage (`Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
 * **Prerelease handling:** SemVer prerelease identifiers (e.g. `0.2.4-rc.1`) are automatically flagged as GitHub prereleases.
 * **Immutability:** Existing GitHub Releases cannot be overwritten or clobbered (`--clobber` is prohibited). Duplicate release attempts fail.
 * **Developer workstation builds:** Binaries built on developer workstations are strictly for local testing and debugging. They are not canonical release artifacts.
@@ -114,6 +114,7 @@ The installer is built from the same portable application binary and `VERSION` u
 * **macOS Intel:** `Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg` (when supported)
 * **Astra Linux amd64:** `Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`
 * **RED OS x86_64:** `Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`
+* **Portable Linux x86_64 AppImage:** `Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`
 * **Generic Linux x86_64 tarball:** `Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz` (development/future distribution track; not part of the 0.2.9 public release set)
 * **Checksum Manifest:** `SHA256SUMS.txt`
 
@@ -123,7 +124,7 @@ The installer is built from the same portable application binary and `VERSION` u
   ```text
   <sha256>  <filename>
   ```
-* For GitHub Releases, `SHA256SUMS.txt` must cover every final downloadable product package (including ZIP, EXE, DEB, DMG or tar.gz artifacts where published).
+* For GitHub Releases, `SHA256SUMS.txt` must cover every final downloadable product package (including ZIP, EXE, DEB, RPM, AppImage, DMG or tar.gz artifacts where published).
 * Once the Russian production signing path is activated, checksum generation must occur after every byte-changing embedded signature operation, and the final manifest must be covered by the approved detached Russian electronic signature.
 
 ## 9. Platform Release Maturity
@@ -132,3 +133,4 @@ The installer is built from the same portable application binary and `VERSION` u
 * **macOS:** Retained for continued development; not verified for production release until dedicated CI build and verification gates are implemented.
 * **Astra Linux (0.2.9):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
 * **RED OS (0.2.9):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
+* **Generic Linux AppImage (next release after v0.2.9):** portable x86_64 distribution lane built from the same canonical Linux frozen application, with hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and checksum publication. v0.2.9 remains immutable and does not gain this asset retroactively.

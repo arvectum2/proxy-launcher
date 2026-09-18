@@ -25,6 +25,7 @@ install -m755 "$artifact" "$appdir/usr/bin/arvectum-proxy-launcher"
 install -m644 assets/arvectum-icon-0.2.2-transparent.png "$appdir/usr/share/icons/hicolor/256x256/apps/arvectum-proxy-launcher.png"
 install -m644 LICENSE "$docdir/LICENSE.txt"
 install -m644 THIRD_PARTY_NOTICES.txt "$docdir/THIRD_PARTY_NOTICES.txt"
+install -m644 APPIMAGE_RUNTIME_LICENSE.txt "$docdir/APPIMAGE_RUNTIME_LICENSE.txt"
 mkdir -p "$docdir/THIRD_PARTY_LICENSES"
 cp -a "$license_bundle/." "$docdir/THIRD_PARTY_LICENSES/"
 cat > "$appdir/AppRun" <<'EOF'
@@ -51,5 +52,5 @@ out="$out_dir/Arvectum_Proxy_Launcher-${version}-x86_64.AppImage"
 rm -f "$out"
 ARCH=x86_64 VERSION="$version" APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --runtime-file "$runtime" "$appdir" "$out"
 chmod 0755 "$out"
-echo "APL-IP-004: base desktop bundle embedded; AppImage remains EXCLUDED from promoted commercial scope pending dedicated type-2 runtime/transitive LGPL compliance clearance." >&2
+echo "APL-LNX-008: AppImage embeds the pinned type-2 runtime notice and promoted-package third-party notices." >&2
 echo "$out"

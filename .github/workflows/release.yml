@@ -14,15 +14,21 @@ on:
       - '.github/workflows/windows-p0.yml'
       - '.github/workflows/linux-deb.yml'
       - '.github/workflows/linux-rpm.yml'
+      - '.github/workflows/linux-appimage.yml'
       - '.github/workflows/sync-release-to-gitverse.yml'
       - 'build_linux.sh'
       - 'tools/build_linux_deb.sh'
       - 'tools/build_linux_rpm.sh'
+      - 'tools/build_linux_appimage.sh'
+      - 'tools/fetch_appimage_toolchain.sh'
+      - 'tools/appimage-toolchain.lock'
+      - 'APPIMAGE_RUNTIME_LICENSE.txt'
       - 'docs/releases/*.md'
       - 'VERSION'
       - 'RELEASE_POLICY.md'
       - 'tests/test_release_automation.py'
       - 'tests/test_linux_rpm_packaging.py'
+      - 'tests/test_linux_appimage_packaging.py'
       - 'tests/test_release_evidence.py'
       - 'tests/test_version_policy.py'
 
@@ -47,6 +53,8 @@ jobs:
       linux_run_id: ${{ steps.parse.outputs.linux_run_id }}
       linux_rpm_name: ${{ steps.parse.outputs.linux_rpm_name }}
       linux_rpm_run_id: ${{ steps.parse.outputs.linux_rpm_run_id }}
+      linux_appimage_name: ${{ steps.parse.outputs.linux_appimage_name }}
+      linux_appimage_run_id: ${{ steps.parse.outputs.linux_appimage_run_id }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
       owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
@@ -81,6 +89,7 @@ jobs:
           SETUP_NAME="Arvectum-Proxy-Launcher-${VERSION}-windows-x64-setup.exe"
           LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"
           LINUX_RPM_NAME="Arvectum-Proxy-Launcher-${VERSION}-redos-linux-x86_64.rpm"
+          LINUX_APPIMAGE_NAME="Arvectum_Proxy_Launcher-${VERSION}-x86_64.AppImage"
 
           PRERELEASE="false"
           if [[ "$VERSION" =~ - ]]; then
@@ -108,6 +117,7 @@ jobs:
           echo "setup_name=${SETUP_NAME}" >> "$GITHUB_OUTPUT"
           echo "linux_deb_name=${LINUX_DEB_NAME}" >> "$GITHUB_OUTPUT"
           echo "linux_rpm_name=${LINUX_RPM_NAME}" >> "$GITHUB_OUTPUT"
+          echo "linux_appimage_name=${LINUX_APPIMAGE_NAME}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
           echo "owner_signed_release=${OWNER_SIGNED_RELEASE}" >> "$GITHUB_OUTPUT"
 
@@ -136,12 +146,16 @@ jobs:
             RPM_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-rpm.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_RPM_RUN="$(echo "$RPM_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
             LINUX_RPM_RUN_ID="$(echo "$RPM_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
-            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ]; then
-              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, and RED OS RPM push CI"
+            APPIMAGE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-appimage.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
+            SUCCESSFUL_APPIMAGE_RUN="$(echo "$APPIMAGE_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
+            LINUX_APPIMAGE_RUN_ID="$(echo "$APPIMAGE_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ] || [ -z "$SUCCESSFUL_APPIMAGE_RUN" ] || [ -z "$LINUX_APPIMAGE_RUN_ID" ]; then
+              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, RED OS RPM, and Linux AppImage push CI"
               exit 1
             fi
             echo "linux_run_id=${LINUX_RUN_ID}" >> "$GITHUB_OUTPUT"
             echo "linux_rpm_run_id=${LINUX_RPM_RUN_ID}" >> "$GITHUB_OUTPUT"
+            echo "linux_appimage_run_id=${LINUX_APPIMAGE_RUN_ID}" >> "$GITHUB_OUTPUT"
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
@@ -254,6 +268,23 @@ jobs:
           test "$(rpm -qp --qf '%{ARCH}' "$source_rpm")" = "x86_64"
           cp "$source_rpm" "release-stage/${{ needs.validate.outputs.linux_rpm_name }}"
 
+      - name: Download exact-main Linux AppImage artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-appimage
+          gh run download "${{ needs.validate.outputs.linux_appimage_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name apl-lnx-008-appimage \
+            --dir release-appimage
+          source_appimage="$(find release-appimage -type f -name '*.AppImage' -print -quit)"
+          test -n "$source_appimage"
+          test -x "$source_appimage"
+          file "$source_appimage" | grep -q ELF
+          test "$(basename "$source_appimage")" = "${{ needs.validate.outputs.linux_appimage_name }}"
+          cp "$source_appimage" "release-stage/${{ needs.validate.outputs.linux_appimage_name }}"
+
       - name: Verify artifact package and calculate public SHA256SUMS
         run: |
           set -euo pipefail
@@ -261,6 +292,7 @@ jobs:
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
           LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
+          LINUX_APPIMAGE_NAME="${{ needs.validate.outputs.linux_appimage_name }}"
           if [ ! -f "release-stage/${ZIP_NAME}" ]; then
             echo "::error::Expected release package 'release-stage/${ZIP_NAME}' not found"
             ls -la release-stage/
@@ -283,12 +315,17 @@ jobs:
             echo "::error::Expected RED OS RPM 'release-stage/${LINUX_RPM_NAME}' not found"
             exit 1
           fi
+          if [ ! -f "release-stage/${LINUX_APPIMAGE_NAME}" ]; then
+            echo "::error::Expected Linux AppImage 'release-stage/${LINUX_APPIMAGE_NAME}' not found"
+            exit 1
+          fi
 
           cd release-stage
           sha256sum "$ZIP_NAME" > SHA256SUMS.txt
           sha256sum "$SETUP_NAME" >> SHA256SUMS.txt
           sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt
           sha256sum "$LINUX_RPM_NAME" >> SHA256SUMS.txt
+          sha256sum "$LINUX_APPIMAGE_NAME" >> SHA256SUMS.txt
           cat SHA256SUMS.txt
           sha256sum -c SHA256SUMS.txt
 
@@ -315,6 +352,7 @@ jobs:
           SETUP_NAME="${{ needs.validate.outputs.setup_name }}"
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
           LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
+          LINUX_APPIMAGE_NAME="${{ needs.validate.outputs.linux_appimage_name }}"
 
           EXTRA_FLAGS=()
           if [ "$PRERELEASE" = "true" ]; then
@@ -331,6 +369,7 @@ jobs:
             "release-stage/${SETUP_NAME}" \
             "release-stage/${LINUX_DEB_NAME}" \
             "release-stage/${LINUX_RPM_NAME}" \
+            "release-stage/${LINUX_APPIMAGE_NAME}" \
             "release-stage/SHA256SUMS.txt" \
             --title "Arvectum Proxy Launcher ${VERSION}" \
             --verify-tag \

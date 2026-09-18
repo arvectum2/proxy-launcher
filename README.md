@@ -28,6 +28,19 @@ GitHub publishes the canonical package bytes under their original names:
 
 Verify all four packages against `SHA256SUMS.txt` before installation when provenance matters.
 
+### AppImage in the next release
+
+The repository now has a promoted x86_64 AppImage release lane. It will be published starting with the next release after immutable `v0.2.9`, under the name `Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`. The existing Astra `.deb` and RED OS `.rpm` remain the preferred native packages; AppImage is the portable generic-Linux option.
+
+Typical use after download:
+
+```bash
+chmod +x Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage
+./Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage
+```
+
+The AppImage is built from the same canonical Linux frozen executable as DEB/RPM and includes the pinned AppImage runtime notice and product third-party notices.
+
 ---
 
 # Русский
@@ -114,7 +127,7 @@ Release 0.2.9 `SHA256SUMS.txt` covers the Windows portable ZIP, Windows Setup, A
 
 ## Build and test
 
-Canonical Windows builds use the pinned clean-build pipeline in `tools/clean_build_windows.ps1`. Canonical Astra/Linux DEB publication reuses the exact successful Ubuntu 22.04 artifact from the release commit's `main` CI run; the same source is also tested on Ubuntu 24.04. Canonical RED OS RPM publication reuses the exact successful Ubuntu 22.04 RPM artifact from the same `main` commit.
+Canonical Windows builds use the pinned clean-build pipeline in `tools/clean_build_windows.ps1`. Canonical Astra/Linux DEB publication reuses the exact successful Ubuntu 22.04 artifact from the release commit's `main` CI run; the same source is also tested on Ubuntu 24.04. Canonical RED OS RPM publication reuses the exact successful Ubuntu 22.04 RPM artifact from the same `main` commit. Starting with the next release after v0.2.9, AppImage publication likewise reuses the exact successful Ubuntu 22.04 AppImage artifact from the tagged main commit.
 
 Source tests:
 
