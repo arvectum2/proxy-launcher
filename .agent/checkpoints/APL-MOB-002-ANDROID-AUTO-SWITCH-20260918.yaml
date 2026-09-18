@@ -1,0 +1,20 @@
+version: 1
+task_id: APL-MOB-002-ANDROID-AUTO-SWITCH-20260918
+status: completed
+canonical_pr: 105
+merged_at: "2026-09-18T19:49:05Z"
+merge_commit: 9e81d8e5d65a6fe0554131c4ad031018ce40d326
+accepted_source_head: 6676ccfb6c8266940d04bcc7ec62fef222d6d2cc
+accepted_apk_sha256: c3395dde459e8e5752d8ea9e46f735794df6558daa146def7d090deb239296d1
+physical_evidence:
+  - "Owner physical acceptance PASS for final 0.1.13 UX/branding candidate was recorded before merge."
+  - "Previously accepted connected hot-switch and pool-Auto networking behavior remained in the merged slice."
+ci_evidence:
+  - "PR #105 exact source head has successful Mobile Android spike, Windows portable/installer, SAST, secret scan, dependency scan, SBOM, provenance, APL-IP reconciliation and sovereign-lifecycle repository workflows."
+reconciliation:
+  main_verified: 75696eb257664a9f3cc5ce7139a31ff68e985827
+  note: "Stale main current-task wording said in_progress after PR #105 had already merged; repository facts override that wording."
+out_of_scope:
+  - "continuous background failover after an already-connected upstream dies"
+  - "iOS implementation/distribution"
+resume_instruction: "Completed. Do not repeat physical or CI acceptance for this slice absent a new explicit regression or queue item."
