@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IP-001-V0.2.9
-status: in_progress
+status: blocked
 goal: "Complete the final APL-IP-001 provenance/right-chain disposition for the current filing/release object v0.2.9, preserving v0.2.5 as immutable historical evidence and keeping legal approval fail-closed."
 authority: OWNER
 definition_of_done:
@@ -35,7 +35,8 @@ completed:
   - "Owner confirmed current v0.2.9 promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only from the current approval, not permanently."
   - "Owner confirmed no employment/service-work rights basis is relied upon for post-2026-09-14 contributions."
   - "Prepared docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md covering exact v0.2.9 post-2026-09-14 results and sufficiently individualized future Arvectum Proxy Launcher versions/platforms, including potential AppImage/Android/iOS."
-current: "Owner requested execution. Preparing the private signature-ready R-1B agreement package (DOCX/PDF) against the confirmed company/signatory facts; the signed private file will remain outside the public repository."
+  - "Signature-ready private R-1B agreement package prepared as DOCX/PDF on 2026-09-18; two-page layout visually verified. Private execution copy is not committed to the public repository."
+current: "Private signature-ready R-1B DOCX/PDF package is prepared and visually verified. APL-IP-001 is blocked only on the Owner physically/electronically executing both signature capacities and returning the signed private file for hash/evidence receipt."
 pending:
   - "Owner executes the private R-1B assignment/future-results agreement after final review; public repo stores only a safe receipt/digest, not personal/signature data."
   - "After execution, record R-1B as satisfied and obtain explicit authorized APPROVED or REMEDIATION REQUIRED decision."
@@ -48,8 +49,8 @@ test_results:
   - "Provenance, CycloneDX SBOM, SAST, Gitleaks, pip-audit, sovereign lifecycle, Russian-first signing: SUCCESS."
   - "Windows P0 portable required build: SUCCESS."
   - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
-resume_instruction: "Finish and visually verify the private signature-ready R-1B DOCX/PDF package. Do not commit the private execution copy. Once delivered, set checkpoint blocked awaiting two signatures (Author and General Director) and return to evidence receipt/hash only after the signed file is uploaded."
-updated_at: "2026-09-18T16:28:00+03:00"
+resume_instruction: "Do not regenerate the agreement unless the Owner requests edits. Wait for the signed private PDF/scan with two signatures: (1) Author / Rightsholder and (2) General Director of ООО «АРВЕКТУМ». After upload, calculate SHA-256, store only a public-safe receipt/storage reference, mark R-1B satisfied, and obtain the explicit final APPROVED or REMEDIATION REQUIRED decision. Never commit the signed private document."
+updated_at: "2026-09-18T16:36:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
