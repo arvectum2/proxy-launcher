@@ -1,42 +1,59 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MOB-001-ANDROID-MULTIPROFILE-20260918
-status: in_progress
-goal: "Extend the physically validated Android dogfood client from one implicit profile to multiple securely stored proxy profiles with simple manual active-profile selection, while preserving the one-button proxy-as-VPN UX and upgrade compatibility."
-authority: HUMAN
+task_id: APL-IP-001-V0.2.9
+status: blocked
+goal: "Complete the final APL-IP-001 provenance/right-chain disposition for the current filing/release object v0.2.9, preserving v0.2.5 as immutable historical evidence and keeping legal approval fail-closed."
+authority: OWNER
 definition_of_done:
-  - "Existing 0.1.4 single-profile data migrates without uninstall or credential loss."
-  - "User can save multiple named proxy profiles using host/port/username/password/type."
-  - "User can manually select an active saved profile and the VPN service uses that exact active profile."
-  - "User can create a new profile, edit/save an existing profile, and delete a profile while disconnected."
-  - "Passwords remain encrypted with Android Keystore and are never added to plaintext logs/config."
-  - "Profile controls cannot race an active CONNECTING/CONNECTED/DISCONNECTING tunnel."
-  - "Dogfood version is bumped with the same stable signer and installs over 0.1.4."
-  - "Exact-head Android CI passes signer/branding/build checks and publishes an APK with recorded SHA-256."
-  - "Owner physical dogfood confirms in-place update plus save/select/connect for at least two profiles."
+  - "Exact v0.2.9 tag/source/release-asset identity is governed."
+  - "Material product/release drift from v0.2.5 to v0.2.9 is engineering-reconciled."
+  - "Exact v0.2.9 provenance/SBOM evidence is recorded and bound by exact tree."
+  - "The 2026-09-14 private rights instrument remains preserved as base evidence; no unnecessary version-specific re-execution is represented as required."
+  - "A v0.2.9 human/legal sign-off record replaces v0.2.5 as the current final disposition object, while v0.2.5 remains immutable historical evidence."
+  - "IP_PROVENANCE, compliance contract, roadmap, execution queue and registry pre-submission references are consistent with v0.2.9."
+  - "Fail-closed tests/CI protect exact identity and prevent automated APPROVED/clean-IP status."
+  - "Exact-head CI passes before merge."
+  - "Owner/Human R-1A, R-1B, R-2, R-3 and R-4 findings are explicitly recorded against the exact v0.2.9 object."
+  - "An authorized human selects APPROVED or REMEDIATION REQUIRED, with reviewer identity/role/date and approved promoted scope."
 completed:
-  - "Read current main, APL-MOB-001 issue #50, roadmap/queue, accepted Android checkpoint, MainActivity and SecureProfileStore."
-  - "Preserved blocked APL-IP-001-V0.2.9 state in its dedicated checkpoint before claiming this independent manual Android slice."
-  - "Created branch apl-mob-001-android-multiprofile from main 24fb77d8e83e95ad493e9f40372cfeafbdba8fae."
-current: "Owner physical Android acceptance of 0.1.5-dogfood multiprofile candidate from verified code head 99b9a7f6861533f37e6c3f096536855e9d261443."
+  - "Verified annotated v0.2.9 tag object 59dfd56191c8d9aa0e71a9fba2d86baaaf843520 resolves to commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
+  - "Verified accepted product source ca7c1019e78cb3ee1e57173f2b58ecea0c27b919 and final tag commit resolve to exact tree 55f2d50f96387e5d55583ac90ca3d0b48f80ce99."
+  - "Verified public v0.2.9 SHA-256 digests for Windows portable/Setup, Astra DEB, RED OS RPM and SHA256SUMS."
+  - "Classified material v0.2.5 -> v0.2.9 evolution across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices."
+  - "Bound exact-tree provenance run 35255499712 artifact 10511679846 and SBOM run 35255499669 artifact 10512014953 to the released tree."
+  - "Prepared the v0.2.9 reconciliation, sign-off, rights carry-forward note and machine-readable fail-closed contract."
+  - "Added v0.2.9 reconciliation tests and a read-only CI workflow; historical v0.2.5 contracts remain enforced."
+  - "Updated IP_PROVENANCE.md, ROADMAP.md, LOCAL_EXECUTION_BACKLOG.md, .agent/execution-queue.yaml and registry pre-submission G1 to make v0.2.9 the current exact object."
+  - "Explicitly preserved the executed 2026-09-14 private rights instrument as the base chain-of-title evidence and stated that a duplicate version-specific transfer is not required solely because the release number changed."
+  - "PR #99 exact head 34e5f13ed7091af550592dcfdb83fd533abef712 passed all 11 reported workflows and 14 reported checks, including Windows P0 portable and full installer/Gate R6 E2E."
+  - "PR #99 merged to main at 270560d4b88f928d0995a23bdd022c569a1909bc."
+  - "Issue #57 retitled/reconciled to v0.2.9 and intentionally left open only for Owner/Human findings."
+  - "Owner supplied the executed 2026-09-14 decision for visual review; repository records public-safe findings without committing the private scan."
+  - "R-1A factually satisfied: instrument identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full, and authorizes modification/reworking."
+  - "Owner confirmed R-2 current Rospatent status, R-3 corporate/Russian-control facts, and R-4 human creative-control/no-known-deliberate-copying facts for v0.2.9."
+  - "The supplied instrument contains no express future-results assignment; R-1B remains open for later human-authored creative contributions."
+  - "Owner confirmed current v0.2.9 promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only from the current approval, not permanently."
+  - "Owner confirmed no employment/service-work rights basis is relied upon for post-2026-09-14 contributions."
+  - "Prepared docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md covering exact v0.2.9 post-2026-09-14 results and sufficiently individualized future Arvectum Proxy Launcher versions/platforms, including potential AppImage/Android/iOS."
+current: "Promoted v0.2.9 scope is confirmed and an R-1B future-rights assignment draft is prepared. APL-IP-001 is blocked only on actual private execution of that instrument and the subsequent explicit final human disposition."
 pending:
-  - "Extend SecureProfileStore for profile listing, active selection, deletion and legacy single-profile migration."
-  - "Extend MainActivity with name field, saved-profile selector and new/save/delete controls."
-  - "Lock profile mutation while tunnel is not fully disconnected."
-  - "Bump to 0.1.5-dogfood with stable signer unchanged."
-  - "Update Android README and issue evidence."
-  - "Open PR, run exact-head Android CI, inspect artifact and SHA-256."
-  - "Hand off 0.1.5 APK for physical two-profile acceptance."
-last_verified_commit: "99b9a7f6861533f37e6c3f096536855e9d261443"
+  - "Owner executes the private R-1B assignment/future-results agreement after final review; public repo stores only a safe receipt/digest, not personal/signature data."
+  - "After execution, record R-1B as satisfied and obtain explicit authorized APPROVED or REMEDIATION REQUIRED decision."
+last_verified_commit: "270560d4b88f928d0995a23bdd022c569a1909bc"
 test_results:
-  - "Previous Android 0.1.4 physical dogfood: PASS for HTTP/HTTPS CONNECT, public-IP routing, OFF/ON and sleep/wake."
-  - "Previous PR #53 exact-head CI before merge: PASS."\n  - "PR #104 first Android CI attempt: FAIL at Kotlin compilation due compareBy generic inference; deterministic source fix committed as 2b44b8049ef32f5e6283d0f17f890882fd263dd9."\n  - "PR #104 Android workflow run 35344115825: PASS."\n  - "0.1.5 signer/branding verification: PASS."\n  - "0.1.5 APK SHA-256: d798afbfe7c01f6fe24a2098a558f4eaed60a2e0b7aae368e5c793a8e59062e8."
-resume_instruction: "Resume from owner physical feedback on 0.1.5-dogfood APK SHA-256 d798afbfe7c01f6fe24a2098a558f4eaed60a2e0b7aae368e5c793a8e59062e8. Verify in-place update from 0.1.4, automatic migration of the old profile, creation/save of a second profile, manual switching/connect through each, and lockout of profile mutation while VPN is active. Patch only the first concrete defect if any. If all pass, mark this task completed in .agent/checkpoints, restore APL-IP-001-V0.2.9 as .agent/current-task.yaml, run exact-head CI and merge PR #104 only when green."
-updated_at: "2026-09-18T15:25:00+03:00"
+  - "PR #99 exact-head GitHub workflows: 11/11 SUCCESS."
+  - "PR #99 exact-head reported checks: 14/14 SUCCESS."
+  - "APL-IP-001 v0.2.9 fail-closed gate: SUCCESS."
+  - "APL-IP-001 v0.2.5 historical gate: SUCCESS."
+  - "Provenance, CycloneDX SBOM, SAST, Gitleaks, pip-audit, sovereign lifecycle, Russian-first signing: SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
+resume_instruction: "Do not repeat the R-1B drafting or scope collection. The next real action is private execution of the R-1B assignment/future-results agreement. After the Owner confirms it is signed, record only a public-safe receipt/storage reference/SHA-256 digest, mark R-1B satisfied, and obtain the explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never publish the signed private file or create a clean-IP tag before approval."
+updated_at: "2026-09-18T12:05:00+03:00"
 execution:
-  claimed_by: "ChatGPT"
-  execution_id: "APL-MOB-001-ANDROID-MULTIPROFILE-20260918"
-  branch: "apl-mob-001-android-multiprofile"
-  base_commit: "24fb77d8e83e95ad493e9f40372cfeafbdba8fae"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
