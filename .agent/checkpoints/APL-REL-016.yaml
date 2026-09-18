@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REL-016
-status: in_progress
+status: blocked
 goal: "Refresh the Windows public-trust / Authenticode / SmartScreen review packet from its stale v0.2.6 baseline to current published v0.2.9, preserving REVIEW and Owner gates."
 authority: REVIEW
 definition_of_done:
@@ -11,24 +11,30 @@ definition_of_done:
   - "Stop before provider/certificate purchase, key-custody commitment, production signing, release publication or merge reserved to review."
 completed:
   - "Read canonical executor policy, queue, roadmap and local backlog from main."
-  - "Reconciled PR #81: open but diverged 4 ahead / 51 behind current main; its checkpoint still targets v0.2.6 and is stale against published v0.2.9."
-  - "Created isolated refresh branch agent/apl-rel-016-v029-refresh from current main instead of rebasing stale queue/governance files from PR #81."
-current: "Fresh review PR #103 is open from the v0.2.9 refresh branch; local deterministic suites are green. Await exact-head CI, then stop at Owner/Product Owner review gate."
+  - "Reconciled PR #81 as stale against published v0.2.9 and created isolated refresh branch agent/apl-rel-016-v029-refresh."
+  - "Ported the substantive trust packet/contract/gate/workflow/tests to v0.2.9 / 0.2.10+ semantics without selecting a provider, using credentials, signing, publishing or mutating a published release."
+  - "Local deterministic validation: Windows public-trust + Authenticode foundation 19 passed; release automation/evidence/repository hygiene 29 passed; git diff --check PASS."
+  - "Opened fresh REVIEW PR #103 from the v0.2.9 refresh branch."
+  - "Reconciled PR #103 at 2026-09-18T16:57+03:00: current head 8dc257f77d08f6a5c8f926c269a92405bde8ae6a; branch is 3 ahead / 8 behind main and PR is not mergeable."
+  - "Exact current-head checks inspected once: only Mirror repository ran at 8dc257f77d08f6a5c8f926c269a92405bde8ae6a and succeeded; the required substantive exact-head CI set is therefore not yet evidenced on the current head."
+current: "Engineering refresh is implemented and locally green, but PR #103 must be synchronized with current main and obtain substantive exact-head CI before it can be called review-ready."
 pending:
-  - "Verify PR #103 exact-head CI is green; fix only task-caused regressions if needed."
-  - "Stop at Owner/Product Owner review gate."
-last_verified_commit: "04a7537e68435058820f9ec84a13a5564f856660"
+  - "Synchronize agent/apl-rel-016-v029-refresh with current main without dropping either the v0.2.9 trust changes or newer canonical roadmap/governance work."
+  - "Run/observe the required substantive exact-head CI set on the synchronized head and fix only task-caused regressions."
+  - "Then stop at the Owner/Product Owner review gate; do not merge this REVIEW item."
+last_verified_commit: "8dc257f77d08f6a5c8f926c269a92405bde8ae6a"
 test_results:
   - "Local: tests.test_windows_public_trust + tests.test_windows_authenticode_foundation => 19 passed."
   - "Local: release automation/evidence/repository hygiene => 29 passed."
   - "git diff --check => PASS."
-  - "Opened fresh REVIEW PR #103 at head 4a7451c3efa10f53dd89aea396c4a15ab9da80cd."
-updated_at: "2026-09-18T14:08:00+03:00"
-resume_instruction: "Inspect PR #103 exact-head CI once. If green, mark engineering preparation review-ready/blocked and release the lease; stop before merge at the Owner/Product Owner gate. If failing, fix only task-caused regressions. Do not merge, purchase, enroll, sign or publish."
+  - "GitHub exact head 8dc257f77d08f6a5c8f926c269a92405bde8ae6a: Mirror repository SUCCESS; no substantive exact-head CI checks present."
+updated_at: "2026-09-18T16:57:38+03:00"
+resume_instruction: "Reconcile PR #103 against current main first. Synchronize the branch using a real merge/rebase that preserves both sides; do not fake a merge by moving refs or discarding newer main state. Then inspect substantive exact-head CI once. If green, mark review preparation blocked only at Owner/Product Owner decision and release the lease. Do not merge, purchase, enroll, sign or publish."
 execution:
-  claimed_by: chatgpt-watchdog
-  execution_id: APL-REL-016-20260918T1001+0300
+  claimed_by: null
+  execution_id: null
   branch: agent/apl-rel-016-v029-refresh
   base_commit: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
-  lease_until: "2026-09-18T15:58:00+03:00"
+  lease_until: null
   manual_override: false
+blocker: "PR #103 is behind current main and lacks substantive exact-head CI evidence at its current head; repository API available in this run does not provide a safe conflict-aware merge/rebase operation, so branch synchronization must be performed by a later executor with a real git worktree/merge capability before review-ready status."
