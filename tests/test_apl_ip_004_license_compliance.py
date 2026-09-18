@@ -91,9 +91,17 @@ class PromotedArtifactContractTests(unittest.TestCase):
         self.assertIn("THIRD_PARTY_LICENSES", dmg)
         self.assertIn("--verify", dmg)
 
-    def test_appimage_hold_is_not_silently_removed(self):
+    def test_appimage_promotion_preserves_historical_hold_and_adds_runtime_notice(self):
         script = (REPO / "tools" / "build_linux_appimage.sh").read_text(encoding="utf-8")
-        self.assertIn("EXCLUDED from promoted commercial scope", script)
+        runtime_notice = (REPO / "APPIMAGE_RUNTIME_LICENSE.txt").read_text(encoding="utf-8")
+        roadmap = (REPO / "docs" / "ROADMAP.md").read_text(encoding="utf-8")
+        self.assertIn("APPIMAGE_RUNTIME_LICENSE.txt", script)
+        self.assertIn("AppImage/type2-runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12", runtime_notice)
+        self.assertNotIn("EXCLUDED from promoted commercial scope", script)
+        self.assertIn("PROMOTED FOR NEXT RELEASE", roadmap)
+
+        # Historical APL-IP-004 evidence remains immutable context and must not be
+        # rewritten merely because a later Owner directive admits AppImage.
         review = (REPO / "docs" / "evidence" / "APL_IP_001_POST_REFACTOR_REVIEW_2026-08-22.md").read_text(encoding="utf-8")
         self.assertIn("APPIMAGE EXCLUDED FROM THE CLEAN-IP PROMOTED COMMERCIAL ARTIFACT SCOPE", review)
 
