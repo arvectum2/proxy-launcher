@@ -130,6 +130,23 @@ class FinalStatusUxTests(unittest.TestCase):
         view = self.status(running=True, enabled=True, pending=True)
         self.assertEqual(view["key"], "active")
 
+    def test_status_copy_can_target_macos_without_windows_leakage(self):
+        view = gui._final_status_view(
+            running=True,
+            enabled=True,
+            pending=False,
+            orphaned_pac=False,
+            stale_proxy=False,
+            platform_label="macOS",
+        )
+        self.assertIn("macOS", view["hint"])
+        self.assertNotIn("Windows", view["hint"])
+
+    def test_platform_label_reports_macos_for_darwin(self):
+        with mock.patch.object(gui.sys, "platform", "darwin"):
+            self.assertEqual(gui._platform_label(), "macOS")
+            self.assertIn("macOS", gui._autostart_label())
+
 
 if __name__ == "__main__":
     unittest.main()

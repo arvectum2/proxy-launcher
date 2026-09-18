@@ -1,4 +1,6 @@
 import pathlib
+import subprocess
+import sys
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -20,6 +22,17 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
         self.assertIn('assets/arvectum.icns', SCRIPT)
         self.assertIn('no_proxy.txt:.', SCRIPT)
         self.assertIn('assets:assets', SCRIPT)
+        self.assertTrue((ROOT / "assets" / "arvectum-icon-macos.png").is_file())
+
+    @unittest.skipUnless(sys.platform == "darwin", "macOS icon metadata requires sips")
+    def test_canonical_icns_preserves_transparent_squircle(self):
+        result = subprocess.run(
+            ["sips", "-g", "hasAlpha", str(ROOT / "assets" / "arvectum.icns")],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.assertIn("hasAlpha: yes", result.stdout)
 
     def test_app_bundle_contains_product_and_third_party_notices(self):
         self.assertIn('Contents/Resources', SCRIPT)

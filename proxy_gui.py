@@ -55,8 +55,44 @@ WHITE = "#FFFFFF"
 MINT_SOFT = "#E5F7F3"     # очень светлый мятный (hover)
 DISABLED_BG = "#E6ECEE"
 DISABLED_FG = "#96AAA6"
+SURFACE = "#F4F7FA"
+BORDER = "#DCE4EA"
+MUTED = "#667085"
+NAVY_SOFT = "#102846"
 
 B = {}  # бренд-конфиг: шрифты и стили, заполняется после создания root
+
+
+def _is_macos():
+    return sys.platform == "darwin"
+
+
+def _platform_label():
+    if _is_macos():
+        return "macOS"
+    if os.name == "nt":
+        return "Windows"
+    return "Linux"
+
+
+def _autostart_label():
+    platform_name = _platform_label()
+    if platform_name == "Windows":
+        return "Запускать прокси при входе в Windows"
+    return "Запускать Arvectum Proxy Launcher при входе в %s" % platform_name
+
+
+def _center_window(root):
+    """Center the main launcher after Tk has calculated its natural size."""
+    try:
+        root.update_idletasks()
+        width = root.winfo_reqwidth()
+        height = root.winfo_reqheight()
+        x = max(0, (root.winfo_screenwidth() - width) // 2)
+        y = max(0, (root.winfo_screenheight() - height) // 2 - 24)
+        root.geometry("+%d+%d" % (x, y))
+    except Exception:
+        pass
 
 
 def setup_brand(root):
@@ -70,14 +106,19 @@ def setup_brand(root):
 
     body = pick(["PT Sans", "Segoe UI", "Tahoma", "Helvetica Neue", "Helvetica", "Arial"])
     mono = pick(["JetBrains Mono", "Cascadia Mono", "Consolas", "Menlo", "Courier New"])
-    B["font"] = (body, 10)
-    B["font_bold"] = (body, 10, "bold")
-    B["font_small"] = (body, 9)
-    B["font_h"] = (body, 12, "bold")
-    B["font_brand"] = (body, 20, "bold")
-    B["font_section"] = (body, 10, "bold")
-    B["font_mono"] = (mono, 9)
-    B["font_mono_bold"] = (mono, 10, "bold")
+    body_size = 13 if _is_macos() else 10
+    small_size = 11 if _is_macos() else 9
+    heading_size = 15 if _is_macos() else 12
+    brand_size = 22 if _is_macos() else 20
+    mono_size = 11 if _is_macos() else 9
+    B["font"] = (body, body_size)
+    B["font_bold"] = (body, body_size, "bold")
+    B["font_small"] = (body, small_size)
+    B["font_h"] = (body, heading_size, "bold")
+    B["font_brand"] = (body, brand_size, "bold")
+    B["font_section"] = (body, body_size, "bold")
+    B["font_mono"] = (mono, mono_size)
+    B["font_mono_bold"] = (mono, mono_size, "bold")
     B["title"] = body
 
     style = ttk.Style(root)
@@ -191,6 +232,9 @@ def _bind_clipboard_paste(entry):
 
     entry.bind("<Control-v>", paste)
     entry.bind("<Control-V>", paste)
+    if _is_macos():
+        entry.bind("<Command-v>", paste)
+        entry.bind("<Command-V>", paste)
     # В русской раскладке Tk получает Ctrl+V как keysym «м». Проверяем
     # физический keycode клавиши V, чтобы Ctrl+V работал при любой раскладке.
     def paste_ctrl_v(event):
@@ -578,7 +622,7 @@ class ExceptionsDialog(tk.Toplevel):
             if not core.sync_client_no_proxy():
                 messagebox.showwarning(
                     APP_NAME,
-                    "Исключения сохранены, но Windows NO_PROXY не удалось обновить. "
+                    "Исключения сохранены, но системный NO_PROXY не удалось обновить. "
                     "Перезапустите прокси и проверьте «Журнал».",
                     parent=self)
             core._refresh_internet()
@@ -588,10 +632,10 @@ class ExceptionsDialog(tk.Toplevel):
 LEGACY_ORPHANED_PAC_DIAGNOSTIC = "ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM"
 
 
-def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
-    """Return the user-facing final state for the Windows launcher.
+def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy, platform_label="Windows"):
+    """Return the user-facing final state for the launcher.
 
-    Windows single-instance activation keeps low-level engine/PAC details out of the primary status
+    Single-instance activation keeps low-level engine/PAC details out of the primary status
     label and makes every stable state answer two questions: what is happening
     now, and what (if anything) the user should do next.
     """
@@ -601,8 +645,8 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
             "label": "ПРОКСИ РАБОТАЕТ",
             "color": MINT,
             "hint": (
-                "Системный прокси Windows включён и направлен через Arvectum Proxy Launcher. "
-                "Окно можно закрыть — прокси продолжит работать в фоне."
+                "Системный прокси %s включён и направлен через Arvectum Proxy Launcher. " % platform_label
+                + "Окно можно закрыть — прокси продолжит работать в фоне."
             ),
             "can_on": False,
             "can_off": True,
@@ -616,8 +660,8 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
             "label": "ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН",
             "color": MINT_LIGHT,
             "hint": (
-                "Локальный прокси-процесс работает, но Windows пока не направляет через него трафик. "
-                "Нажмите «Включить прокси», чтобы подключить системный прокси."
+                "Локальный прокси-процесс работает, но %s пока не направляет через него трафик. " % platform_label
+                + "Нажмите «Включить прокси», чтобы подключить системный прокси."
             ),
             "can_on": True,
             "can_off": True,
@@ -647,9 +691,9 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
             "label": "НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ",
             "color": MINT_LIGHT,
             "hint": (
-                "Windows использует локальные настройки Arvectum от предыдущего сеанса, "
-                "но прокси-процесс уже не работает и резервная копия недоступна. "
-                "Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки Windows."
+                "%s использует локальные настройки Arvectum от предыдущего сеанса, " % platform_label
+                + "но прокси-процесс уже не работает и резервная копия недоступна. "
+                + "Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы."
             ),
             "can_on": False,
             "can_off": False,
@@ -663,8 +707,8 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
             "label": "НУЖНА ДИАГНОСТИКА СЕТИ",
             "color": MINT_LIGHT,
             "hint": (
-                "Windows всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить "
-                "предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал»."
+                "%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить " % platform_label
+                + "предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал»."
             ),
             "can_on": False,
             "can_off": False,
@@ -691,9 +735,10 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy):
 class Launcher:
     def __init__(self, root):
         self.root = root
+        self._mac_ui = _is_macos()
         root.title(APP_NAME)
         root.resizable(False, False)
-        root.configure(bg=WHITE)
+        root.configure(bg=SURFACE if self._mac_ui else WHITE)
         core._ensure_local_files()
         setup_brand(root)
         self._images = []
@@ -701,140 +746,164 @@ class Launcher:
         self._set_window_icon()
 
         # ---------- фирменная шапка ----------
-        # Не используем растровый banner: заголовок должен быть частью UI,
-        # а не картинкой. По брендбуку: PT Sans Bold, Mint на Deep Navy.
-        header = tk.Frame(root, bg=NAVY, padx=20, pady=16)
+        header = tk.Frame(root, bg=NAVY, padx=24 if self._mac_ui else 20,
+                          pady=18 if self._mac_ui else 16)
         header.pack(fill="x")
+        brand = tk.Frame(header, bg=NAVY)
+        brand.pack(side="left")
         tk.Label(
-            header, text=APP_NAME, bg=NAVY, fg=MINT,
-            font=B["font_brand"], anchor="w").pack(side="left")
+            brand, text="ARVECTUM", bg=NAVY, fg=MINT,
+            font=B["font_bold"], anchor="w").pack(anchor="w")
         tk.Label(
-            header, text="Windows · %s" % APP_VERSION, bg=NAVY, fg=MINT_LIGHT,
-            font=B["font_small"]).pack(side="right", pady=(5, 0))
+            brand, text="Proxy Launcher", bg=NAVY, fg=WHITE,
+            font=B["font_brand"], anchor="w").pack(anchor="w", pady=(1, 0))
 
-        body = tk.Frame(root, bg=WHITE, padx=20, pady=18)
+        platform_badge = tk.Label(
+            header, text="%s  ·  %s" % (_platform_label(), APP_VERSION),
+            bg=NAVY_SOFT, fg=MINT_LIGHT, font=B["font_small"],
+            padx=11, pady=6)
+        platform_badge.pack(side="right", pady=(8, 0))
+
+        body_bg = SURFACE if self._mac_ui else WHITE
+        body = tk.Frame(root, bg=body_bg, padx=24 if self._mac_ui else 20,
+                        pady=22 if self._mac_ui else 18)
         body.pack(fill="both", expand=True)
         body.grid_columnconfigure(0, weight=1)
 
         # ---------- состояние ----------
         status_card = tk.Frame(
-            body, bg=WHITE, padx=14, pady=12,
-            highlightbackground=SOFT_GRAY, highlightthickness=1)
+            body, bg=WHITE, padx=16, pady=14,
+            highlightbackground=BORDER if self._mac_ui else SOFT_GRAY,
+            highlightthickness=1)
         status_card.grid(row=0, column=0, sticky="ew")
         status_card.grid_columnconfigure(0, weight=1)
 
         status_top = tk.Frame(status_card, bg=WHITE)
         status_top.grid(row=0, column=0, sticky="ew")
         tk.Label(
-            status_top, text="Состояние", bg=WHITE, fg=GRAPHITE,
+            status_top, text="Состояние подключения", bg=WHITE, fg=NAVY,
             font=B["font_section"]).pack(side="left")
         self.chip = tk.Label(
             status_top, text="", bg=SOFT_GRAY, fg=NAVY,
-            font=B["font_bold"], padx=12, pady=5)
+            font=B["font_bold"], padx=11, pady=5)
         self.chip.pack(side="right")
 
         current = core.load_settings()
-        ports_text = "HTTP 127.0.0.1:%s    ·    SOCKS5 127.0.0.1:%s    ·    PAC 127.0.0.1:%s" % (
+        ports_text = "HTTP 127.0.0.1:%s   ·   SOCKS5 127.0.0.1:%s   ·   PAC 127.0.0.1:%s" % (
             current.get("local_http_port", 8080), current.get("local_socks_port", 1080),
             current.get("local_pac_port", 8082))
         tk.Label(
-            status_card, text=ports_text, bg=WHITE, fg=GRAPHITE,
-            font=B["font_mono"]).grid(row=1, column=0, sticky="w", pady=(8, 0))
+            status_card, text=ports_text, bg=WHITE, fg=MUTED if self._mac_ui else GRAPHITE,
+            font=B["font_mono"]).grid(row=1, column=0, sticky="w", pady=(9, 0))
 
         self.status_hint = tk.Label(
             status_card, text="", bg=MINT_SOFT, fg=NAVY, font=B["font_small"],
-            justify="left", anchor="w", padx=10, pady=7)
-        self.status_hint.grid(row=2, column=0, sticky="ew", pady=(10, 0))
+            justify="left", anchor="w", padx=11, pady=8,
+            wraplength=610 if self._mac_ui else 720)
+        self.status_hint.grid(row=2, column=0, sticky="ew", pady=(11, 0))
         self.status_hint.grid_remove()
 
-        # ---------- основные действия ----------
+        # ---------- подключение ----------
         tk.Label(
-            body, text="Управление", bg=WHITE, fg=GRAPHITE,
-            font=B["font_section"]).grid(row=1, column=0, sticky="w", pady=(16, 7))
+            body, text="Подключение", bg=body_bg, fg=NAVY if self._mac_ui else GRAPHITE,
+            font=B["font_section"]).grid(row=1, column=0, sticky="w", pady=(18, 8))
 
-        row1 = tk.Frame(body, bg=WHITE)
-        row1.grid(row=2, column=0, sticky="ew")
+        actions = tk.Frame(body, bg=body_bg)
+        actions.grid(row=2, column=0, sticky="ew")
+        actions.grid_columnconfigure(0, weight=1, uniform="connection")
+        actions.grid_columnconfigure(1, weight=1, uniform="connection")
         self.btn_on = ttk.Button(
-            row1, text="Включить прокси", style="Mint.TButton", command=self.on)
-        self.btn_on.pack(side="left", padx=(0, 6))
+            actions, text="Включить прокси", style="Mint.TButton", command=self.on)
+        self.btn_on.grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.btn_off = ttk.Button(
-            row1, text="Выключить прокси", style="Navy.TButton", command=self.off)
-        self.btn_off.pack(side="left", padx=6)
-        self.btn_check = ttk.Button(
-            row1, text="Проверить соединение", style="Ghost.TButton", command=self.check)
-        self.btn_check.pack(side="left", padx=6)
+            actions, text="Выключить прокси", style="Navy.TButton", command=self.off)
+        self.btn_off.grid(row=0, column=1, sticky="ew", padx=(5, 0))
         self.btn_orphan_pac = ttk.Button(
-            row1, text="Удалить старый PAC и продолжить", style="Mint.TButton",
+            actions, text="Удалить старый PAC и продолжить", style="Mint.TButton",
             command=self.clear_orphaned_pac)
+        self.btn_orphan_pac.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        self.btn_orphan_pac.grid_remove()
 
-        # ---------- URL диагностики ----------
-        check_row = tk.Frame(body, bg=WHITE)
-        check_row.grid(row=3, column=0, sticky="ew", pady=(10, 0))
+        # ---------- проверка соединения ----------
         tk.Label(
-            check_row, text="URL проверки", bg=WHITE, fg=GRAPHITE,
-            font=B["font_small"]).pack(side="left", padx=(0, 8))
+            body, text="Проверка соединения", bg=body_bg,
+            fg=NAVY if self._mac_ui else GRAPHITE,
+            font=B["font_section"]).grid(row=3, column=0, sticky="w", pady=(18, 8))
+
+        check_card = tk.Frame(
+            body, bg=WHITE, padx=14, pady=12,
+            highlightbackground=BORDER if self._mac_ui else SOFT_GRAY,
+            highlightthickness=1)
+        check_card.grid(row=4, column=0, sticky="ew")
+        check_card.grid_columnconfigure(0, weight=1)
         self.check_url_var = tk.StringVar(value="https://arvectum.com")
         check_entry = tk.Entry(
-            check_row, textvariable=self.check_url_var, width=38,
+            check_card, textvariable=self.check_url_var,
             bg=WHITE, fg=NAVY, relief="solid", bd=1,
-            insertbackground=GRAPHITE, font=B["font_mono"])
-        check_entry.pack(side="left", fill="x", expand=True, ipady=3)
+            insertbackground=GRAPHITE, font=B["font_mono"],
+            highlightthickness=0)
+        check_entry.grid(row=0, column=0, sticky="ew", ipady=5, padx=(0, 10))
         _bind_clipboard_paste(check_entry)
+        self.btn_check = ttk.Button(
+            check_card, text="Проверить", style="Ghost.TButton", command=self.check)
+        self.btn_check.grid(row=0, column=1, sticky="e")
 
         # ---------- настройки и сервис ----------
         tk.Label(
-            body, text="Настройки и сервис", bg=WHITE, fg=GRAPHITE,
-            font=B["font_section"]).grid(row=4, column=0, sticky="w", pady=(16, 7))
+            body, text="Настройки и сервис", bg=body_bg,
+            fg=NAVY if self._mac_ui else GRAPHITE,
+            font=B["font_section"]).grid(row=5, column=0, sticky="w", pady=(18, 8))
 
-        service = tk.Frame(body, bg=WHITE)
-        service.grid(row=5, column=0, sticky="ew")
-        service.grid_columnconfigure(0, weight=1)
-        left_tools = tk.Frame(service, bg=WHITE)
-        left_tools.grid(row=0, column=0, sticky="w")
+        service = tk.Frame(body, bg=body_bg)
+        service.grid(row=6, column=0, sticky="ew")
+        service.grid_columnconfigure(0, weight=1, uniform="service")
+        service.grid_columnconfigure(1, weight=1, uniform="service")
         ttk.Button(
-            left_tools, text="Настройки прокси…", style="Ghost.TButton",
-            command=self.settings).pack(side="left", padx=(0, 6))
+            service, text="Настройки прокси…", style="Ghost.TButton",
+            command=self.settings).grid(row=0, column=0, sticky="ew", padx=(0, 5), pady=(0, 6))
         ttk.Button(
-            left_tools, text="Исключения…", style="Ghost.TButton",
-            command=self.exceptions).pack(side="left", padx=6)
+            service, text="Исключения…", style="Ghost.TButton",
+            command=self.exceptions).grid(row=0, column=1, sticky="ew", padx=(5, 0), pady=(0, 6))
         ttk.Button(
-            left_tools, text="Журнал", style="Ghost.TButton",
-            command=self.show_log).pack(side="left", padx=6)
+            service, text="Журнал", style="Ghost.TButton",
+            command=self.show_log).grid(row=1, column=0, sticky="ew", padx=(0, 5))
         self.btn_doctor = ttk.Button(
-            left_tools, text="Диагностика", style="Ghost.TButton",
+            service, text="Диагностика", style="Ghost.TButton",
             command=self.doctor)
-        self.btn_doctor.pack(side="left", padx=6)
+        self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
 
         self.btn_restore = ttk.Button(
-            service, text="Восстановить настройки сети", style="Ghost.TButton",
+            body, text="Восстановить настройки сети", style="Ghost.TButton",
             command=self.restore_network)
-        self.btn_restore.grid(row=0, column=1, sticky="e", padx=(12, 0))
+        self.btn_restore.grid(row=7, column=0, sticky="e", pady=(10, 0))
 
         # ---------- автозапуск ----------
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
             value=False if portable_fallback else self._autostart_enabled())
         self.autostart_check = ttk.Checkbutton(
-            body, text="Запускать Arvectum Proxy Launcher при входе в macOS" if os.name != "nt" else "Запускать прокси при входе в Windows",
+            body, text=_autostart_label(),
             variable=self.auto_var, command=self._toggle_autostart,
             style="Brand.TCheckbutton")
-        self.autostart_check.grid(row=6, column=0, sticky="w", pady=(16, 0))
+        self.autostart_check.grid(row=8, column=0, sticky="w", pady=(18, 0))
         if portable_fallback:
             self.autostart_check.state(["disabled"])
 
         tk.Label(
-            body, text="Окно можно закрыть — запущенный proxy продолжит работать в фоне.",
-            bg=WHITE, fg=GRAPHITE, font=B["font_small"]).grid(
-            row=7, column=0, sticky="w", pady=(4, 0))
+            body, text="Окно можно закрыть — запущенный прокси продолжит работать в фоне.",
+            bg=body_bg, fg=MUTED if self._mac_ui else GRAPHITE,
+            font=B["font_small"]).grid(row=9, column=0, sticky="w", pady=(5, 0))
 
         # ---------- футер ----------
-        tk.Frame(body, bg=SOFT_GRAY, height=1).grid(row=8, column=0, sticky="ew", pady=(16, 8))
+        tk.Frame(body, bg=BORDER if self._mac_ui else SOFT_GRAY, height=1).grid(
+            row=10, column=0, sticky="ew", pady=(18, 10))
         tk.Label(
-            body, text="ARVECTUM · %s · arvectum.com" % APP_VERSION,
-            bg=WHITE, fg=DISABLED_FG, font=B["font_mono"]).grid(
-            row=9, column=0, sticky="w")
+            body, text="ARVECTUM  ·  %s  ·  arvectum.com" % APP_VERSION,
+            bg=body_bg, fg=MUTED if self._mac_ui else DISABLED_FG,
+            font=B["font_mono"]).grid(row=11, column=0, sticky="w")
 
         self.refresh_status()
+        _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
 
@@ -844,7 +913,10 @@ class Launcher:
                 ico = _asset_path("arvectum.ico")
                 if ico:
                     self.root.iconbitmap(ico)
-            icon = _load_photo("arvectum-icon.png", "arvectum-icon.gif")
+            if _is_macos():
+                icon = _load_photo("arvectum-icon-macos.png")
+            else:
+                icon = _load_photo("arvectum-icon.png", "arvectum-icon.gif")
             if icon:
                 self._images.append(icon)
                 self.root.iconphoto(False, icon)
@@ -868,6 +940,7 @@ class Launcher:
             pending=pending,
             orphaned_pac=orphaned_pac,
             stale_proxy=stale_proxy,
+            platform_label=_platform_label(),
         )
 
         self.btn_doctor.state(["!disabled"])
@@ -876,7 +949,7 @@ class Launcher:
             self.btn_restore.configure(style="Mint.TButton")
         else:
             self.btn_restore.configure(style="Ghost.TButton")
-        self.btn_orphan_pac.pack_forget()
+        self.btn_orphan_pac.grid_remove()
 
         self.chip.config(text="  %s  " % view["label"], bg=view["color"], fg=NAVY)
         self.status_hint.config(text=view["hint"], bg=MINT_SOFT, fg=NAVY)
@@ -888,7 +961,7 @@ class Launcher:
 
         if view["show_orphan_action"]:
             self.btn_orphan_pac.state(["!disabled"])
-            self.btn_orphan_pac.pack(side="left", padx=6)
+            self.btn_orphan_pac.grid()
 
     # -- действия ------------------------------------------------------------
 
@@ -981,7 +1054,7 @@ class Launcher:
             self.refresh_status()
             messagebox.showinfo(
                 APP_NAME,
-                "Старый PAC Arvectum удалён. Остальные настройки Windows не изменялись. "
+                "Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. "
                 "Теперь можно снова включить прокси.")
         else:
             self.refresh_status()

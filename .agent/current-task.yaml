@@ -1,43 +1,48 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-PERSONAL-DOGFOOD-20260918
-status: completed
-goal: "Produce and locally validate a private macOS arm64 build for Owner personal use without mutating the immutable public v0.2.9 release."
+task_id: APL-MAC-UI-POLISH-20260918
+status: in_progress
+goal: "Polish the private macOS desktop experience: correct platform-specific copy/layout and replace the square app icon with a proper transparent macOS squircle."
 authority: OWNER_DIRECTIVE
 definition_of_done:
-  - "Build the canonical macOS .app and DMG from the immutable v0.2.9 product source on the Owner Mac mini."
-  - "Verify bundle identity, architecture, hdiutil integrity and bundled license notices."
-  - "Install the private build into /Applications without publishing or retagging v0.2.9."
-  - "Launch the app in the logged-in macOS session and verify it stays running without immediate crash."
-  - "Run the relevant macOS automated tests."
-  - "Record exact source/tag, artifact hashes, local validation evidence and final state."
+  - "Main launcher no longer presents Windows-specific identity/copy on macOS."
+  - "macOS layout is visually cleaner and compact while preserving existing proxy actions and safety states."
+  - "Canonical macOS icon has transparent squircle corners and is used by the .app bundle, Finder/Desktop and Dock."
+  - "Relevant GUI/macOS packaging tests pass."
+  - "Private arm64 app is rebuilt, reinstalled and launch-checked on the Mac mini without publishing a release."
 completed:
-  - "Synced canonical repository main to b1639da17cda13af975acbff37936a7f6818e9ff and isolated immutable v0.2.9 product source at d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
-  - "Installed a dedicated Homebrew Python 3.12.14 + Tk 9.0 build toolchain; existing Python 3.13/3.14 lacked _tkinter."
-  - "Supplied the exact upstream CPython 3.12.14 LICENSE to the local build environment; SHA256 3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf."
-  - "Discovered that post-PyInstaller license injection invalidated the macOS ad-hoc bundle signature."
-  - "Fixed tools/build_macos_app.sh to re-seal the final resource-complete bundle and require strict codesign verification; added deterministic regression coverage and documentation."
-  - "Built private Arvectum_Proxy_Launcher-0.2.9-arm64.dmg from v0.2.9 runtime source with the packaging-only reseal fix."
-  - "Final DMG SHA256 ffbc28b687a80993569516ceccfc5cf4f885f8c707646eced1bab8489587b936; embedded launcher executable SHA256 be2bdf045d51a68997d315e2abbad1cea361dc84ccd75a455adc023becc9484f."
-  - "Verified bundle id ru.arvectum.proxylauncher, native arm64 Mach-O, ad-hoc signature, strict deep codesign PASS, hdiutil verify PASS and governed third-party license bundle."
-  - "Installed /Applications/Arvectum Proxy Launcher.app and verified the exact application process remained running after launch."
-  - "Ran read-only real-host preflight on macOS 27.0 arm64: networksetup available and four enabled network services readable; no network mutation was performed."
-  - "Canonical packaging fix committed as d91acd1b76052ffb660f36a9502117fe2451dd04."
-current: "Completed. Private macOS arm64 app is installed and running; public Apple signing/notarization remains deferred and no release/tag was changed."
-pending: []
-last_verified_commit: "d91acd1b76052ffb660f36a9502117fe2451dd04"
+  - "Recovered prior completed dogfood checkpoint and verified Mac mini/repository state."
+  - "Verified installed Arvectum Proxy Launcher process was running before changes."
+  - "Identified macOS defects: hard-coded Windows platform/status copy, dense Windows-oriented layout, square no-alpha .icns."
+  - "Implemented platform-aware macOS copy, larger macOS typography, branded two-line header, compact card/grid layout, Command-V paste binding and centered window."
+  - "Replaced macOS window icon path with a dedicated transparent asset."
+  - "Regenerated canonical macOS .icns from the existing high-resolution transparent Arvectum squircle source; installed icon is 1024x1024 with alpha and fully transparent corners."
+  - "Added macOS status/platform regression coverage and an on-macOS .icns alpha contract test."
+  - "Render-only Tk probe on Mac mini produced a centered 736x874 window with macOS copy and no network mutation."
+  - "Full macOS discovery suite passed 42/42; broader GUI/backend/runtime/license suite passed 58/58."
+  - "Built a new native arm64 private .app with PyInstaller 6.22.0 / Python 3.12.14; license bundle verification and strict deep codesign passed."
+  - "Safely replaced only the GUI app in /Applications while leaving the active proxy engine PID 1139 and PAC settings untouched; new GUI PID 73256 launched successfully."
+  - "Preserved the previous installed app under the private dogfood evidence directory for rollback."
+  - "Refreshed Quick Look, Finder and Dock icon caches; desktop shortcut still resolves to the canonical /Applications app."
+  - "Verified proxy engine remained alive on 127.0.0.1:1080, :8082 and :8080 and system PAC remained http://127.0.0.1:8082/proxy.pac on all four services after GUI replacement."
+current: "Commit and push the validated macOS UI/icon implementation, then finalize the canonical checkpoint."
+pending:
+  - "Commit and push implementation branch."
+  - "Record implementation commit and mark checkpoint completed."
+last_verified_commit: "b82755a231042f55d568b8fb962715b414d0b9c9"
 test_results:
-  - "Exact v0.2.9 source before packaging fix: macOS suite 40/40 PASS; shared backend/gui suite 29/29 PASS."
-  - "Canonical branch after packaging fix: macOS suite 41/41 PASS; shared backend/gui suite 29/29 PASS; license compliance 9/9 PASS; git diff --check PASS."
-  - "Private final app: codesign --verify --deep --strict PASS; hdiutil verify PASS; launch health PASS."
-  - "Read-only real-host preflight on Mac mini macOS 27.0 arm64 exited successfully."
-resume_instruction: "Task is complete. For personal use, launch /Applications/Arvectum Proxy Launcher.app. Do not publish this private v0.2.9 macOS artifact or mutate v0.2.9. Future public macOS distribution is a separate REVIEW task requiring Apple Developer ID signing/notarization."
-updated_at: "2026-09-18T20:05:00+03:00"
+  - "Focused GUI/macOS suite: 40/40 PASS."
+  - "Full test_macos*.py discovery: 42/42 PASS."
+  - "Broader GUI/backend/runtime/license suite: 58/58 PASS."
+  - "Render-only Tk probe: macOS, requested 736x874, centered geometry 736x874+592+79."
+  - "Built private app: bundle id ru.arvectum.proxylauncher; native arm64; strict deep codesign PASS; governed license bundle verified."
+  - "Installed icon: 1024x1024 hasAlpha=yes; corner alpha values all 0."
+  - "Post-install launch health PASS; active proxy engine/listeners and PAC state remained unchanged."
+resume_instruction: "Commit and push current implementation on agent/macos-ui-polish-20260918, capture the commit hash, update/archival checkpoint to completed, push the checkpoint commit, and report the installed UI/icon result. Do not disable or mutate the currently active proxy."
+updated_at: "2026-09-18T22:34:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-MAC-PERSONAL-DOGFOOD-20260918"
-  branch: "agent/macos-personal-dogfood-20260918"
-  base_commit: "b1639da17cda13af975acbff37936a7f6818e9ff"
-  implementation_commit: "d91acd1b76052ffb660f36a9502117fe2451dd04"
-  lease_until: null
+  execution_id: "APL-MAC-UI-POLISH-20260918"
+  branch: "agent/macos-ui-polish-20260918"
+  base_commit: "b82755a231042f55d568b8fb962715b414d0b9c9"
   manual_override: true
