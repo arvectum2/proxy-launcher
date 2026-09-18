@@ -1,44 +1,31 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260918
-status: completed
-goal: "Reconcile the canonical Proxy Launcher roadmap/execution queue to the actual 2026-09-18 repository and release state, so the hourly watchdog selects only current tracks from the v0.2.9 baseline."
-authority: AUTO
+task_id: APL-REL-016
+status: in_progress
+goal: "Refresh the Windows public-trust / Authenticode / SmartScreen review packet from its stale v0.2.6 baseline to current published v0.2.9, preserving REVIEW and Owner gates."
+authority: REVIEW
 definition_of_done:
-  - "Canonical roadmap reflects published v0.2.9 as the current stable product line."
-  - "Astra Gate R8 and RED OS APL-REG-001C physical acceptance are recorded as completed."
-  - "APL-REG-001D registry dossier preparation is recorded as completed, while external filing gates remain fail-closed."
-  - "Execution queue reflects current statuses and preserves HUMAN/OWNER/REVIEW boundaries."
-  - "Open active tracks are reconciled against current PR/issue state; superseded duplicate PRs are not treated as roadmap tracks."
-  - "Proxy Launcher Watchdog is enabled as the single hourly recovery/execution task and reads the canonical queue."
-  - "ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md are synchronized to the same factual baseline."
-  - "Exact-head CI for the roadmap synchronization PR passes before merge."
+  - "Reconcile the existing PR #81 trust packet and deterministic checks to current immutable v0.2.9 baseline."
+  - "Revalidate current trust requirements and keep Russian detached evidence separate from native Windows publisher trust."
+  - "Produce a fresh review-ready PR from current main with exact-head CI green."
+  - "Stop before provider/certificate purchase, key-custody commitment, production signing, release publication or merge reserved to review."
 completed:
-  - "Verified pre-sync canonical main at 52fc4f8bbaa9d7fca6274f28c99041eabf1e410a."
-  - "Verified public stable release v0.2.9 with Windows x64 setup/portable, Astra Linux DEB, RED OS RPM and SHA256SUMS."
-  - "Verified RED OS 8.0.3 physical acceptance completed in merged PR #83."
-  - "Verified registry filing dossier APL-REG-001D completed in merged PR #95 with final checkpoint PR #96."
-  - "Re-enabled and updated the single hourly Proxy Launcher Watchdog to scan the canonical execution queue after completed/blocked tasks."
-  - "Reconciled .agent/execution-queue.yaml to v0.2.9 and separated completed dossier work from fail-closed external filing gates."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to current physical/compliance/product state while preserving historical APL-IP-001 governance anchors."
-  - "Recorded Android PR #53, Windows trust PR #81 and per-app routing PR #68 as the current actionable product/review tracks."
-  - "Recorded open PRs #90/#91/#92 and #70/#74/#82 as superseded implementation/preparation paths rather than active roadmap tracks; PR #80 is maintenance-only."
-  - "PR #97 exact head 1a5cf6bfb3b09baf89afcb82b2fee47ffed0e6e0 passed all 10 reported GitHub workflows."
-  - "PR #97 merged to main at 7fb03504a3ed17c4021ff0765e69be208075753b."
-current: "Canonical roadmap synchronization is complete."
-pending: []
-last_verified_commit: "7fb03504a3ed17c4021ff0765e69be208075753b"
-test_results:
-  - "PR #97 exact-head GitHub CI: 10/10 workflows SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer full fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation, sovereign lifecycle and Russian-first signing: SUCCESS."
-updated_at: "2026-09-18T10:10:00+03:00"
-resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260918. The Proxy Launcher Watchdog should scan .agent/execution-queue.yaml. The first useful autonomous review-preparation lane is APL-REL-016 unless a higher-priority HUMAN/OWNER item is actively claimed; never cross its REVIEW gate."
+  - "Read canonical executor policy, queue, roadmap and local backlog from main."
+  - "Reconciled PR #81: open but diverged 4 ahead / 51 behind current main; its checkpoint still targets v0.2.6 and is stale against published v0.2.9."
+  - "Created isolated refresh branch agent/apl-rel-016-v029-refresh from current main instead of rebasing stale queue/governance files from PR #81."
+current: "Inventory substantive PR #81 trust files against current main and port only still-valid review material to the v0.2.9 baseline."
+pending:
+  - "Port/reconcile substantive trust packet, contract, gate, workflow and tests without overwriting current queue/roadmap governance."
+  - "Run deterministic tests and exact-head CI; open a fresh review-ready PR."
+  - "Stop at Owner/Product Owner review gate."
+last_verified_commit: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
+test_results: []
+updated_at: "2026-09-18T10:01:00+03:00"
+resume_instruction: "Compare PR #81 substantive files with current main; port only still-valid trust changes and update all immutable-baseline references from v0.2.6/0.2.7+ to current v0.2.9/next-release semantics. Do not copy stale .agent queue/current-task state from PR #81."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
-  lease_until: null
+  claimed_by: chatgpt-watchdog
+  execution_id: APL-REL-016-20260918T1001+0300
+  branch: agent/apl-rel-016-v029-refresh
+  base_commit: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
+  lease_until: "2026-09-18T11:51:00+03:00"
   manual_override: false
