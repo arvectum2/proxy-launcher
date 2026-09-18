@@ -26,6 +26,13 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
         self.assertIn('install -m644 LICENSE "$resources/LICENSE.txt"', SCRIPT)
         self.assertIn('install -m644 THIRD_PARTY_NOTICES.txt "$resources/THIRD_PARTY_NOTICES.txt"', SCRIPT)
 
+    def test_final_bundle_is_resealed_after_license_resources_are_added(self):
+        license_verify = SCRIPT.index('third_party_license_bundle.py --verify')
+        resign = SCRIPT.index('codesign --force --deep --sign - "$app"')
+        signature_verify = SCRIPT.index('codesign --verify --deep --strict "$app"')
+        self.assertLess(license_verify, resign)
+        self.assertLess(resign, signature_verify)
+
 
 if __name__ == '__main__':
     unittest.main()
