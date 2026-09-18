@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-18T09:48:00+03:00"
+updated_at: "2026-09-18T11:35:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
+  main_sha_verified: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
   stable_release: "v0.2.9"
   stable_release_published_at: "2026-09-17"
   platforms:
@@ -42,15 +42,16 @@ items:
 
   - order: 30
     task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
-    title: "Final IP provenance / human-legal sign-off"
+    title: "Final v0.2.9 IP provenance / human-legal sign-off"
     status: blocked
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57; docs/APL_IP_001_V0_2_9_SIGNOFF.md"
     dependencies: []
-    blocker: "Engineering provenance/SBOM evidence exists, but executed exclusive-right chain, current corporate/Russian-control facts and explicit authorized legal/factual disposition remain human/owner evidence."
-    executor_scope: "Keep evidence coherent and prepare review material; never manufacture APPROVED status, legal conclusion or clean-IP tag."
+    blocker: "Exact v0.2.9 source/tag tree, package digests and provenance/SBOM evidence are reconciled. Owner/human must inspect the executed 2026-09-14 base instrument, establish the rights basis for post-2026-09-14 creative contributions, confirm Rospatent/corporate/Russian-control facts, and explicitly approve or remediate the exact v0.2.9 scope."
+    executor_scope: "Keep exact-object evidence coherent; preserve v0.2.5 as historical anchor; never manufacture future-results coverage, APPROVED status, legal conclusion or clean-IP tag."
+    evidence: "v0.2.9 reconciliation/sign-off packet prepared; base private instrument remains recorded without requiring duplicate version-specific execution solely because the version changed."
 
   - order: 40
     task_id: APL-REL-016
