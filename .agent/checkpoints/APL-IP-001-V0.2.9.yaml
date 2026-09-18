@@ -1,8 +1,8 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IP-001-V0.2.9
-status: in_progress
-goal: "Move the final APL-IP-001 human/legal provenance gate from historical v0.2.5 to the current filing/release object v0.2.9, while preserving v0.2.5 as immutable historical evidence and without fabricating legal approval."
+status: blocked
+goal: "Complete the final APL-IP-001 provenance/right-chain disposition for the current filing/release object v0.2.9, preserving v0.2.5 as immutable historical evidence and keeping legal approval fail-closed."
 authority: OWNER
 definition_of_done:
   - "Exact v0.2.9 tag/source/release-asset identity is governed."
@@ -13,36 +13,45 @@ definition_of_done:
   - "IP_PROVENANCE, compliance contract, roadmap, execution queue and registry pre-submission references are consistent with v0.2.9."
   - "Fail-closed tests/CI protect exact identity and prevent automated APPROVED/clean-IP status."
   - "Exact-head CI passes before merge."
+  - "Owner/Human R-1A, R-1B, R-2, R-3 and R-4 findings are explicitly recorded against the exact v0.2.9 object."
+  - "An authorized human selects APPROVED or REMEDIATION REQUIRED, with reviewer identity/role/date and approved promoted scope."
 completed:
-  - "Verified canonical pre-task main at 3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f."
-  - "Verified annotated tag v0.2.9 object 59dfd56191c8d9aa0e71a9fba2d86baaaf843520 resolves to commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
-  - "Verified accepted product source ca7c1019e78cb3ee1e57173f2b58ecea0c27b919 and tag commit resolve to exact tree 55f2d50f96387e5d55583ac90ca3d0b48f80ce99."
-  - "Verified public v0.2.9 package SHA-256 digests for Windows portable/Setup, Astra DEB, RED OS RPM and SHA256SUMS."
-  - "Compared v0.2.5..v0.2.9 and classified material evolution across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices."
-  - "Verified exact-tree provenance run 35255499712 artifact 10511679846 and SBOM run 35255499669 artifact 10512014953; PR synthetic merge, accepted source and release tag share the exact tree."
-  - "Rechecked current Russian IP-law baseline: future-result transfers are possible if sufficiently individualized; software modification can create derivative work; exact instrument wording and later-contribution basis must be reviewed."
-  - "Prepared docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md."
-  - "Prepared docs/APL_IP_001_V0_2_9_SIGNOFF.md with R-1A/R-1B/R-2/R-3/R-4 fail-closed human gates."
-  - "Prepared docs/legal/APL_IP_001_V0_2_9_RIGHTS_CARRY_FORWARD_NOTE_2026-09-18.md; it explicitly avoids duplicate re-execution solely because the version changed while leaving post-2026-09-14 rights basis human-required."
-  - "Added compliance/APL_IP_001_V0_2_9_CLEAN_IP.json, v0.2.9 reconciliation tests and read-only CI workflow."
-  - "Updated IP_PROVENANCE.md, ROADMAP.md, LOCAL_EXECUTION_BACKLOG.md, execution queue and registry pre-submission G1 to make v0.2.9 the current exact object."
-current: "Review branch diff, open PR, run exact-head CI, fix any failures, then merge if all required checks are green."
+  - "Verified annotated v0.2.9 tag object 59dfd56191c8d9aa0e71a9fba2d86baaaf843520 resolves to commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
+  - "Verified accepted product source ca7c1019e78cb3ee1e57173f2b58ecea0c27b919 and final tag commit resolve to exact tree 55f2d50f96387e5d55583ac90ca3d0b48f80ce99."
+  - "Verified public v0.2.9 SHA-256 digests for Windows portable/Setup, Astra DEB, RED OS RPM and SHA256SUMS."
+  - "Classified material v0.2.5 -> v0.2.9 evolution across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices."
+  - "Bound exact-tree provenance run 35255499712 artifact 10511679846 and SBOM run 35255499669 artifact 10512014953 to the released tree."
+  - "Prepared the v0.2.9 reconciliation, sign-off, rights carry-forward note and machine-readable fail-closed contract."
+  - "Added v0.2.9 reconciliation tests and a read-only CI workflow; historical v0.2.5 contracts remain enforced."
+  - "Updated IP_PROVENANCE.md, ROADMAP.md, LOCAL_EXECUTION_BACKLOG.md, .agent/execution-queue.yaml and registry pre-submission G1 to make v0.2.9 the current exact object."
+  - "Explicitly preserved the executed 2026-09-14 private rights instrument as the base chain-of-title evidence and stated that a duplicate version-specific transfer is not required solely because the release number changed."
+  - "PR #99 exact head 34e5f13ed7091af550592dcfdb83fd533abef712 passed all 11 reported workflows and 14 reported checks, including Windows P0 portable and full installer/Gate R6 E2E."
+  - "PR #99 merged to main at 270560d4b88f928d0995a23bdd022c569a1909bc."
+  - "Issue #57 retitled/reconciled to v0.2.9 and intentionally left open only for Owner/Human findings."
+current: "Engineering reconciliation is complete and merged. APL-IP-001 is blocked only on real Owner/Human R-1A/R-1B/R-2/R-3/R-4 facts and explicit final disposition."
 pending:
-  - "Review changed-file set for accidental scope drift."
-  - "Open PR and require exact-head CI."
-  - "Fix any CI failures without weakening fail-closed legal boundaries."
-  - "Merge only exact green head, then update issue #57 and checkpoint."
-  - "After merge, collect the minimal Owner facts required for R-1A/R-1B/R-2/R-3/R-4; do not mark APPROVED without them."
-last_verified_commit: "b9c9f20f3595836859d792394083f45db2c3b269"
+  - "R-1A: inspect/confirm the executed 2026-09-14 Arvectum Proxy Launcher rights instrument and its private evidence identity."
+  - "R-1B: establish the actual rights basis for material creative contributions made after 2026-09-14 and included in exact v0.2.9; do not infer future-results coverage from repository metadata."
+  - "R-2: confirm current factual Rospatent status and whether any application/registration number is relied upon."
+  - "R-3: confirm applicable corporate approval/exception basis and current Russian-control facts."
+  - "R-4: explicitly carry forward human creative/architectural control, AI-as-tool review/correction/final acceptance and no-known-deliberate-copying facts to v0.2.9."
+  - "Confirm promoted approval scope: Windows Setup/portable, Astra DEB, RED OS RPM; AppImage excluded unless separately cleared."
+  - "Record reviewer name/role/date and explicit APPROVED or REMEDIATION REQUIRED decision."
+last_verified_commit: "270560d4b88f928d0995a23bdd022c569a1909bc"
 test_results:
-  - "Pre-PR evidence verification: exact source/tag tree PASS; provenance/SBOM exact-tree binding PASS."
-  - "Task-specific branch CI not yet run."
-resume_instruction: "On branch apl-ip-001-v0-2-9-reconciliation, review compare against main, open the PR, require the new APL-IP-001 v0.2.9 fail-closed workflow plus standard checks, fix only real defects, merge only exact green head. Then leave APL-IP-001 blocked only on real Owner/human facts."
-updated_at: "2026-09-18T11:45:00+03:00"
+  - "PR #99 exact-head GitHub workflows: 11/11 SUCCESS."
+  - "PR #99 exact-head reported checks: 14/14 SUCCESS."
+  - "APL-IP-001 v0.2.9 fail-closed gate: SUCCESS."
+  - "APL-IP-001 v0.2.5 historical gate: SUCCESS."
+  - "Provenance, CycloneDX SBOM, SAST, Gitleaks, pip-audit, sovereign lifecycle, Russian-first signing: SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
+resume_instruction: "Do not repeat engineering reconciliation. Obtain/verify Owner facts for R-1A/R-1B/R-2/R-3/R-4 against docs/APL_IP_001_V0_2_9_SIGNOFF.md. In particular inspect the actual 2026-09-14 instrument wording for future results/modifications or identify the real post-2026-09-14 rights basis. Then record the promoted scope and an explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never manufacture approval or create a clean-IP tag before that decision."
+updated_at: "2026-09-18T11:08:00+03:00"
 execution:
-  claimed_by: chatgpt
-  execution_id: APL-IP-001-V0.2.9-20260918
-  branch: apl-ip-001-v0-2-9-reconciliation
-  base_commit: 3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
