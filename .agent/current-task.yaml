@@ -13,17 +13,18 @@ completed:
   - "Read canonical executor policy, queue, roadmap and local backlog from main."
   - "Reconciled PR #81: open but diverged 4 ahead / 51 behind current main; its checkpoint still targets v0.2.6 and is stale against published v0.2.9."
   - "Created isolated refresh branch agent/apl-rel-016-v029-refresh from current main instead of rebasing stale queue/governance files from PR #81."
-current: "Ported substantive PR #81 trust implementation to v0.2.9/0.2.10+ semantics; local deterministic suites are green. Await exact-head CI and fresh review PR."
+current: "Fresh review PR #103 is open from the v0.2.9 refresh branch; local deterministic suites are green. Await exact-head CI, then stop at Owner/Product Owner review gate."
 pending:
-  - "Run exact-head CI and open a fresh review-ready PR."
+  - "Verify PR #103 exact-head CI is green; fix only task-caused regressions if needed."
   - "Stop at Owner/Product Owner review gate."
 last_verified_commit: "04a7537e68435058820f9ec84a13a5564f856660"
 test_results:
   - "Local: tests.test_windows_public_trust + tests.test_windows_authenticode_foundation => 19 passed."
   - "Local: release automation/evidence/repository hygiene => 29 passed."
   - "git diff --check => PASS."
+  - "Opened fresh REVIEW PR #103 at head 4a7451c3efa10f53dd89aea396c4a15ab9da80cd."
 updated_at: "2026-09-18T14:08:00+03:00"
-resume_instruction: "Inspect exact-head CI once. If green, open a fresh review-ready PR from agent/apl-rel-016-v029-refresh to main and stop before merge at the Owner/Product Owner gate. If failing, fix only task-caused regressions. Do not merge, purchase, enroll, sign or publish."
+resume_instruction: "Inspect PR #103 exact-head CI once. If green, mark engineering preparation review-ready/blocked and release the lease; stop before merge at the Owner/Product Owner gate. If failing, fix only task-caused regressions. Do not merge, purchase, enroll, sign or publish."
 execution:
   claimed_by: chatgpt-watchdog
   execution_id: APL-REL-016-20260918T1001+0300
