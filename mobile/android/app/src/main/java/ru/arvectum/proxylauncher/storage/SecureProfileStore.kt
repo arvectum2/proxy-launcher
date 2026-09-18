@@ -61,7 +61,7 @@ class SecureProfileStore(context: Context) {
         ensureLegacyProfileIndexed()
         return profileIds()
             .mapNotNull(::loadProfileMetadata)
-            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
+            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
     }
 
     fun getActiveProfileId(): String? {
@@ -103,7 +103,7 @@ class SecureProfileStore(context: Context) {
         val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
             remainingIds
                 .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
                 .firstOrNull()
                 ?.id
         } else {
