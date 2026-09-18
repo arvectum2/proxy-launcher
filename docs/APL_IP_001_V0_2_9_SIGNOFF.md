@@ -33,6 +33,22 @@ The repository already records private evidence for an executed 2026-09-14 sole-
 
 This sign-off does **not** ask for the same transfer to be re-executed merely because the current release is v0.2.9. The reviewer must instead inspect the actual wording and establish the rights basis for post-2026-09-14 creative contributions.
 
+## Owner factual evidence received on 2026-09-18
+
+Human-provided factual evidence is recorded in:
+
+`docs/evidence/APL_IP_001_V0_2_9_OWNER_FACT_CONFIRMATION_2026-09-18.md`.
+
+Repository status from that human evidence:
+
+- R-1A actual instrument inspection: **FACTUALLY SATISFIED**;
+- R-2 current Rospatent facts: **OWNER CONFIRMED**;
+- R-3 current corporate/Russian-control facts: **OWNER CONFIRMED**;
+- R-4 human creative-control carry-forward: **OWNER CONFIRMED**;
+- R-1B post-2026-09-14 creative-contribution rights basis: **STILL OPEN**.
+
+The checkboxes below remain intentionally unticked by automation. They may only be completed as the authorized human/legal disposition.
+
 ## Required human/legal findings
 
 Automation, AI and CI must not tick these boxes.
