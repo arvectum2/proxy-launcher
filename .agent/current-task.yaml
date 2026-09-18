@@ -2,7 +2,7 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-ANDROID-AUTO-SWITCH-20260918
 status: in_progress
-goal: "Complete Android 0.1.11 residual visual polish: visually equalize Proxy Launcher with the Arvectum wordmark, fit the launcher foreground fully inside the Android circular safe zone, make the proxy editor fully visible without scrolling, and shorten connecting-state copy to fit the power circle."
+goal: "Complete Android 0.1.12 final visual cleanup: remove desktop-squircle seams from the adaptive launcher, unify Arvectum Proxy Launcher typography/baseline, simplify visible version metadata, and remove unnecessary technical status copy without changing accepted networking."
 authority: HUMAN
 definition_of_done:
   - "Physically accepted 0.1.5 multiprofile baseline is preserved and PR #104 is merged."
@@ -21,6 +21,14 @@ definition_of_done:
   - "Android UI follows desktop Arvectum brand tokens: Deep Navy #001432, Mint #00C8A0, Mint Light #78FAE6, Soft Gray #C8D2DC, Graphite #283246, white surfaces."
   - "Primary connect/disconnect control is a large circular branded button with visible press/ripple feedback."
 completed:
+  - "Owner physical 0.1.11 feedback: launcher sizing is nearly correct but desktop squircle seam lines remain visible inside the Android circle."
+  - "Owner physical 0.1.11 feedback: Arvectum and Proxy Launcher should use the same font metrics and vertical alignment."
+  - "Owner requested visible version metadata to omit both Android and dogfood."
+  - "Critical UI/UX re-review found the home information architecture already minimal enough; no new controls are recommended for this version."
+  - "0.1.12 launcher generation no longer embeds the desktop squircle background; it composes the clean canonical AV brand mark plus circular globe badge on transparent adaptive foreground."
+  - "0.1.12 header uses the canonical AV mark image plus a single TextView 'Arvectum Proxy Launcher', guaranteeing identical font/weight/size/baseline for both words."
+  - "0.1.12 visible metadata is semantic version only and Android versionName is 0.1.12 without dogfood."
+  - "0.1.12 home status removes (CONNECT) and transient 'Создаём VPN…' implementation copy; protocol editor remains unchanged."
   - "Owner physical 0.1.10 feedback: branded wordmark header works, but Proxy Launcher text is visually larger than the Arvectum wordmark."
   - "Owner physical 0.1.10 feedback: launcher is much better but canonical logo still clips slightly at the Android circular mask edge."
   - "Owner physical 0.1.10 feedback: New proxy editor still requires a small amount of vertical scrolling."
@@ -109,16 +117,14 @@ completed:
   - "PR #104 merged to main as 600cecfc1f54cb3046c72a93ef000691c0c394a1 after exact-head CI passed."
   - "Created branch apl-mob-002-android-auto-switch from merged 0.1.5 main."
   - "Read APL-MOB-002 issue #51 and current Android MainActivity/SecureProfileStore/ProxyVpnService/Probe/manifest/build files."
-current: "Owner physical verification of Android 0.1.11-dogfood residual visual polish."
+current: "Build and verify Android 0.1.12 final visual-cleanup candidate after critical UI/UX review."
 pending:
-  - "Install 0.1.11 over 0.1.10."
-  - "Confirm Proxy Launcher is visually the same text size as the Arvectum wordmark."
-  - "Confirm launcher icon shows the complete canonical squircle/AV/globe fully inside the Android circular mask with no clipping."
-  - "Confirm New/Edit proxy dialog fits completely on the target screen without vertical scrolling."
-  - "Confirm power state label Подключение fits comfortably in one line inside the circle."
-  - "Confirm accepted Auto/radio selector/hot-switch networking remains intact."
-  - "If physical acceptance passes, archive task, restore canonical main task state, final exact-head CI, merge PR #105."
-last_verified_commit: "cb80baaa743fcdb1099e34414010b514154ddc0d"
+  - "Rebase 0.1.12 visual candidate onto current main if needed."
+  - "Run exact-head Android CI and fix only concrete compile/branding regressions."
+  - "Inspect packaged clean launcher foreground + AV mark, stable signer and APK SHA-256."
+  - "Hand off 0.1.12 for owner physical verification of icon seam removal, unified header typography and simplified metadata/status."
+  - "If accepted, archive task, restore canonical main task state, final exact-head CI, merge PR #105."
+last_verified_commit: "730041d86af1f0f328f35a39379a6d93ecb01f7c"
 test_results:
   - "0.1.5 physical multiprofile acceptance: PASS."
   - "PR #104 exact-head required CI before merge: PASS."
@@ -140,8 +146,8 @@ test_results:
   - "0.1.11 exact source-head checks on cb80baaa743fcdb1099e34414010b514154ddc0d: PASS."
   - "0.1.11 Android workflow 35371668521 signer/branding verification: PASS."
   - "0.1.11 APK SHA-256: 8efee9f27b1c7a718d72304c6fb9ed57f6c8ea21b685650438da3625d0131b7b."
-resume_instruction: "Resume from owner physical feedback on 0.1.11-dogfood APK SHA-256 8efee9f27b1c7a718d72304c6fb9ed57f6c8ea21b685650438da3625d0131b7b. Verify equalized header title sizing, fully contained launcher artwork at 60% adaptive foreground, fully visible non-scroll New/Edit form, and one-line Подключение state label, plus no Auto/hot-switch regression. Patch only the first concrete residual defect. If all pass, archive the task, restore canonical main task state, rerun final exact-head CI and merge PR #105 only when green."
-updated_at: "2026-09-18T20:13:00+03:00"
+resume_instruction: "Resume on PR #105 branch apl-mob-002-android-auto-switch at the implemented 0.1.12 visual-cleanup candidate. Rebase onto current main if needed, then run exact-head Android CI. Verify packaged launcher foreground contains no desktop squircle seam, packaged arvectum_mark.png is clean, stable signer remains unchanged, and record APK SHA-256. Do not add more home-screen controls or change accepted Auto/hot-switch networking. Hand off 0.1.12 for physical visual acceptance."
+updated_at: "2026-09-18T21:29:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-002-ANDROID-AUTO-SWITCH-20260918"
