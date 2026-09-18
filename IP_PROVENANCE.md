@@ -26,7 +26,7 @@ Promoted package SHA-256:
 - Astra Linux DEB: `f1bdb58ed4dad02bcc391ae88c8102062a2ed75860f5735cbe45dd6569d77711`;
 - RED OS RPM: `59a3a45562da3c65691e901471bdaab16f0de94f5bbc4dfa786f524d417660fc`.
 
-Existing release tags and published release bytes are immutable evidence objects and must not be rewritten.
+Existing release tags and published release bytes are immutable evidence objects and must not be rewritten. **Git history must not be rewritten** to manufacture or improve the appearance of provenance.
 
 ## Historical v0.2.5 anchor
 
