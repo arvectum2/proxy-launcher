@@ -2,7 +2,7 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-ANDROID-AUTO-SWITCH-20260918
 status: in_progress
-goal: "Complete Android 0.1.12 final visual cleanup: remove desktop-squircle seams from the adaptive launcher, unify Arvectum Proxy Launcher typography/baseline, simplify visible version metadata, and remove unnecessary technical status copy without changing accepted networking."
+goal: "Complete Android 0.1.13 final icon/header correction: restore the visually successful 0.1.11 launcher scale while making all non-logo/non-globe foreground transparent over a uniform Deep Navy adaptive background, and place AV mark, Arvectum Proxy Launcher and version on one bottom-aligned header row."
 authority: HUMAN
 definition_of_done:
   - "Physically accepted 0.1.5 multiprofile baseline is preserved and PR #104 is merged."
@@ -21,6 +21,9 @@ definition_of_done:
   - "Android UI follows desktop Arvectum brand tokens: Deep Navy #001432, Mint #00C8A0, Mint Light #78FAE6, Soft Gray #C8D2DC, Graphite #283246, white surfaces."
   - "Primary connect/disconnect control is a large circular branded button with visible press/ripple feedback."
 completed:
+  - "Owner physical 0.1.12 feedback: clean recomposed launcher removed square seams but the AV/globe composition became too large and clips in the Android circle; owner explicitly prefers the 0.1.11 scale."
+  - "Owner requested the launcher to use the 0.1.11 geometry/scale, but with a completely uniform Deep Navy background everywhere except the AV logo and globe badge."
+  - "Owner requested AV mark, Arvectum Proxy Launcher and version to sit on one header row with the same lower edge; version moves to the far right."
   - "Owner physical 0.1.11 feedback: launcher sizing is nearly correct but desktop squircle seam lines remain visible inside the Android circle."
   - "Owner physical 0.1.11 feedback: Arvectum and Proxy Launcher should use the same font metrics and vertical alignment."
   - "Owner requested visible version metadata to omit both Android and dogfood."
@@ -122,15 +125,14 @@ completed:
   - "PR #104 merged to main as 600cecfc1f54cb3046c72a93ef000691c0c394a1 after exact-head CI passed."
   - "Created branch apl-mob-002-android-auto-switch from merged 0.1.5 main."
   - "Read APL-MOB-002 issue #51 and current Android MainActivity/SecureProfileStore/ProxyVpnService/Probe/manifest/build files."
-current: "Owner physical verification of Android 0.1.12 final visual-cleanup candidate."
+current: "Implement owner-requested 0.1.13 launcher/background and single-row header alignment corrections."
 pending:
-  - "Install 0.1.12 over 0.1.11."
-  - "Confirm launcher has no visible desktop square/squircle seam lines and the complete AV + globe composition fits inside the Android circle."
-  - "Confirm header shows AV mark + 'Arvectum Proxy Launcher' with identical typography/baseline for Arvectum and Proxy Launcher."
-  - "Confirm visible metadata is version only (0.1.12), with no Android or dogfood."
-  - "Confirm home connection detail shows HTTP/HTTPS without (CONNECT) and no transient 'Создаём VPN…' noise."
-  - "Confirm one-screen layout, compact editor, radio selector and Auto/hot-switch networking remain intact."
-  - "If physical acceptance passes, archive task, restore canonical main task state, final exact-head CI, merge PR #105."
+  - "Build launcher foreground at the accepted 0.1.11 60% centered scale, preserving only AV mint pixels plus the globe badge; all other squircle/background pixels become transparent over full-bleed Deep Navy adaptive background."
+  - "Rebuild header as one horizontal bottom-aligned row: AV mark | Arvectum Proxy Launcher | 0.1.13 at far right."
+  - "Bump versionCode 14 / versionName 0.1.13."
+  - "Run exact-head Android CI, inspect packaged launcher foreground under circular mask, signer and SHA-256."
+  - "Hand off 0.1.13 for owner physical verification."
+  - "If accepted, archive task, restore canonical main task state, final exact-head CI and merge PR #105."
 last_verified_commit: "66eefa2ba365c25fc75c2f4728b02b3889aca682"
 test_results:
   - "0.1.5 physical multiprofile acceptance: PASS."
@@ -156,8 +158,8 @@ test_results:
   - "0.1.12 exact source-head checks on 66eefa2ba365c25fc75c2f4728b02b3889aca682: PASS."
   - "0.1.12 Android workflow 35379971591 signer/branding verification: PASS."
   - "0.1.12 APK SHA-256: 815aa83edcfbc030ef791f8ba543f91bb26cdee08047a2839dea5c6aee1cc525."
-resume_instruction: "Resume from owner physical feedback on Android 0.1.12 APK SHA-256 815aa83edcfbc030ef791f8ba543f91bb26cdee08047a2839dea5c6aee1cc525. Verify launcher seam removal, unified AV-mark + Arvectum Proxy Launcher typography, version-only metadata, simplified HTTP/HTTPS status, and no regression in one-screen layout/editor/radio/Auto/hot-switch. Patch only the first concrete residual defect. If all pass, archive this task, restore canonical main task state, rerun final exact-head CI and merge PR #105 only when green."
-updated_at: "2026-09-18T21:34:00+03:00"
+resume_instruction: "Resume on PR #105 branch apl-mob-002-android-auto-switch from owner physical 0.1.12 feedback. Implement exactly two visual corrections without touching accepted networking: launcher uses the 0.1.11 centered 60% geometry but strips every squircle/background pixel to transparent except the mint AV logo and complete globe badge over full-bleed Deep Navy adaptive background; header is one bottom-aligned row with AV mark, Arvectum Proxy Launcher and version at far right. Bump to 0.1.13/versionCode 14, run exact-head CI, inspect packaged icon/signer/SHA-256, hand off APK."
+updated_at: "2026-09-18T22:02:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-002-ANDROID-AUTO-SWITCH-20260918"
