@@ -69,16 +69,21 @@ Repository/CI provides a native Android project, real `VpnService`/TUN path, sec
 
 ## P5 — IP / corporate rights boundary — BLOCKED / OWNER-HUMAN
 
-Engineering provenance/SBOM evidence exists, but the current filing gate still requires real human/private facts:
+Current final object: exact public `v0.2.9`.
 
-1. executed exclusive-right chain for the filing object/scope;
-2. current Russian-control/corporate facts for ООО «Арвектум»;
-3. any applicable corporate approval/exception basis;
-4. explicit authorized factual/legal disposition;
-5. no fabricated clean-IP tag or APPROVED state.
+Repository engineering is reconciled: exact source/tag tree, promoted package digests, provenance and CycloneDX SBOM are governed; the v0.2.5 -> v0.2.9 material drift is classified. Historical v0.2.5 remains an immutable provenance/physical-acceptance anchor.
 
-Issue: `#57`.
+The executed 2026-09-14 private decision remains the base rights-chain evidence. **Do not re-execute it merely because the release version changed.** Remaining human/private findings are:
 
+1. inspect the actual 2026-09-14 instrument and verify the base Arvectum Proxy Launcher rights transfer (R-1A);
+2. establish the actual rights basis for material creative contributions after 2026-09-14 included in v0.2.9 (R-1B) — existing future-results wording, service/employment basis, separate assignment or another real documented basis;
+3. confirm current Rospatent factual status (R-2);
+4. confirm applicable corporate approval/exception and current Russian-control facts (R-3);
+5. explicitly carry forward human creative/architectural control and no-known-deliberate-copying facts to v0.2.9 (R-4);
+6. select the promoted approval scope (Windows Setup/portable, Astra DEB, RED OS RPM; AppImage remains excluded);
+7. make an explicit authorized `APPROVED` or remediation decision.
+
+Issue: `#57`. Current sign-off: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
 ## P6 — Russian Software Register sovereign lifecycle — BLOCKED / PHYSICAL INFRASTRUCTURE
 
 APL-REG-001B repository tooling exists, but filing-grade physical proof remains open.

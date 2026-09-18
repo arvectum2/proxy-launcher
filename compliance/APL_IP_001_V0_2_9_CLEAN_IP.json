@@ -1,0 +1,120 @@
+{
+  "schema": "arvectum.proxy.apl-ip-001.v0-2-9-clean-ip.v1",
+  "decision_date": "2026-09-18",
+  "tracking_issue": 57,
+  "product": "Arvectum Proxy Launcher",
+  "version": "0.2.9",
+  "historical_anchor": {
+    "version": "0.2.5",
+    "tag_commit": "6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85",
+    "status": "IMMUTABLE_HISTORICAL_PROVENANCE_AND_PHYSICAL_ACCEPTANCE_ANCHOR"
+  },
+  "accepted_release_identity": {
+    "product_source_commit": "ca7c1019e78cb3ee1e57173f2b58ecea0c27b919",
+    "product_source_tree": "55f2d50f96387e5d55583ac90ca3d0b48f80ce99",
+    "immutable_tag": "v0.2.9",
+    "annotated_tag_object": "59dfd56191c8d9aa0e71a9fba2d86baaaf843520",
+    "immutable_tag_commit": "d13d9dac2ae2439c2fe70d32e1b168df320a9bd2",
+    "tag_commit_tree": "55f2d50f96387e5d55583ac90ca3d0b48f80ce99",
+    "release_assets": {
+      "windows_portable_zip_sha256": "6f541b28c08834170258b48e27ffeafc6a0ad0e9c3a27760ec02cc7d01a305d0",
+      "windows_setup_sha256": "a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c",
+      "astra_deb_sha256": "f1bdb58ed4dad02bcc391ae88c8102062a2ed75860f5735cbe45dd6569d77711",
+      "redos_rpm_sha256": "59a3a45562da3c65691e901471bdaab16f0de94f5bbc4dfa786f524d417660fc",
+      "sha256sums_asset_sha256": "20042bcc6e65fce39cdeb777ff4c6e06c91403034cbcd1eaf1bd9ecc9823bc38"
+    }
+  },
+  "tree_evidence": {
+    "pull_request_synthetic_merge_commit": "1f4658c509a8b285461f212d0b9c5cbb08583a92",
+    "tree_sha": "55f2d50f96387e5d55583ac90ca3d0b48f80ce99",
+    "same_tree_as_product_source": true,
+    "same_tree_as_tag_commit": true
+  },
+  "material_drift_since_v0_2_5": {
+    "v0_2_5_to_v0_2_6": {
+      "classification": "ASTRA_LINUX_RUNTIME_DESKTOP_PROXY_DIAGNOSTICS_AND_PACKAGING_EXPANSION",
+      "human_factual_carry_forward_required": true
+    },
+    "v0_2_6_to_v0_2_7": {
+      "classification": "RED_OS_KDE_RPM_PLATFORM_EXPANSION",
+      "human_factual_carry_forward_required": true
+    },
+    "v0_2_7_to_v0_2_8": {
+      "classification": "LINUX_MIXED_STATE_RECOVERY_HARDENING",
+      "human_factual_carry_forward_required": true
+    },
+    "v0_2_8_to_v0_2_9": {
+      "classification": "WINDOWS_ROLLBACK_OWNERSHIP_SYMMETRY",
+      "human_factual_carry_forward_required": true
+    }
+  },
+  "automated_evidence": {
+    "provenance": {
+      "workflow_run_id": 35255499712,
+      "pr_head_commit": "ca7c1019e78cb3ee1e57173f2b58ecea0c27b919",
+      "evidence_commit": "1f4658c509a8b285461f212d0b9c5cbb08583a92",
+      "evidence_tree": "55f2d50f96387e5d55583ac90ca3d0b48f80ce99",
+      "artifact_id": 10511679846,
+      "artifact_name": "apl-ip-001-source-provenance",
+      "artifact_digest": "sha256:67e65674c80aa483c1914ed9d3768f89bb95d9f57383382536a20b1de05ea2d4",
+      "result": "SUCCESS",
+      "legal_meaning": "ENGINEERING_EVIDENCE_ONLY"
+    },
+    "sbom": {
+      "workflow_run_id": 35255499669,
+      "pr_head_commit": "ca7c1019e78cb3ee1e57173f2b58ecea0c27b919",
+      "evidence_commit": "1f4658c509a8b285461f212d0b9c5cbb08583a92",
+      "evidence_tree": "55f2d50f96387e5d55583ac90ca3d0b48f80ce99",
+      "artifact_id": 10512014953,
+      "artifact_name": "arvectum-proxy-launcher-sbom-1f4658c509a8b285461f212d0b9c5cbb08583a92",
+      "artifact_digest": "sha256:eee846c8995cc1b5c17ad491774048831d87394f13011007637a29cd70360fef",
+      "result": "SUCCESS",
+      "digest_scope": "GITHUB_ARTIFACT_ARCHIVE",
+      "legal_meaning": "BUILD_DEPENDENCY_EVIDENCE_ONLY"
+    }
+  },
+  "rights_basis": {
+    "private_instrument_date": "2026-09-14",
+    "public_receipt": "docs/evidence/APL_IP_001_V0_2_5_PRIVATE_RIGHTS_EVIDENCE_RECEIPT_2026-09-14.md",
+    "duplicate_version_specific_reexecution_required_by_repository": false,
+    "future_result_scope_verified": false,
+    "post_2026_09_14_contributions_basis": "HUMAN_REQUIRED"
+  },
+  "third_party_boundary": {
+    "governed_notice": "THIRD_PARTY_NOTICES.txt",
+    "dependency_sovereignty_contract": "compliance/APL_IP_002_STACK_SOVEREIGNTY.json",
+    "dependency_lock_changed_since_v0_2_5": false,
+    "appimage_distribution_status": "HOLD_EXCLUDED_FROM_CURRENT_CLEAN_IP_APPROVAL_SCOPE",
+    "foreign_oss_is_automatic_failure": false
+  },
+  "human_legal_gates": {
+    "R-1A": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Inspect and verify the executed 2026-09-14 base rights instrument and private evidence identity."
+    },
+    "R-1B": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Establish the actual rights basis for material creative contributions after 2026-09-14 included in exact v0.2.9."
+    },
+    "R-2": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Verify current factual Rospatent status; do not rely on registration if none exists."
+    },
+    "R-3": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Verify applicable corporate approval/exception and current Russian-control facts."
+    },
+    "R-4": {
+      "status": "HUMAN_REQUIRED",
+      "meaning": "Authorized human must carry forward factual authorship/creative-control statements to v0.2.5 -> v0.2.9 drift and selected release scope."
+    }
+  },
+  "policy": {
+    "automated_legal_approval": false,
+    "automated_authorship_proof": false,
+    "clean_ip_tag_authorized": false,
+    "git_history_rewrite_for_provenance": false,
+    "existing_release_tags_may_be_moved": false
+  },
+  "machine_verdict": "CONDITIONAL_HUMAN_LEGAL_GATE"
+}

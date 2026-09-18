@@ -1,103 +1,125 @@
 # IP_PROVENANCE.md — Arvectum Proxy Launcher source provenance
 
-Status: **v0.2.5 ENGINEERING RECONCILED / HUMAN-LEGAL SIGN-OFF PENDING**
+Status: **v0.2.9 ENGINEERING RECONCILED / HUMAN-LEGAL SIGN-OFF PENDING**
 
-This record defines the repository provenance boundary for APL-IP-001. Automated scans, Git history and AI review are engineering evidence; none of them by themselves prove copyright authorship, exclusive ownership or legal approval.
+This record defines the repository provenance boundary for APL-IP-001. Automated scans, Git history, CI and AI review are engineering evidence; none of them by themselves prove copyright authorship, exclusive ownership or legal approval.
 
-The current canonical v0.2.5 reconciliation is `docs/evidence/APL_IP_001_V0_2_5_CANDIDATE_RECONCILIATION_2026-09-14.md`. The execution-ready human/legal decision record is `docs/APL_IP_001_V0_2_5_SIGNOFF.md`. Historical 0.2.3 sign-off files remain historical evidence and are superseded for current release identity.
+The current canonical reconciliation is `docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md`. The current human/legal decision record is `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
 
-## Exact v0.2.5 boundary
+The former v0.2.5 packet remains immutable historical provenance and physical-acceptance evidence. It is no longer the final filing/current-release sign-off object.
 
-- accepted product-source commit: `9e8ca7e851563082cd7d03d7543ccb360a37ec27`;
-- accepted source tree: `12eb128762ba4e50d12af35c681aa80d0818e19a`;
-- immutable tag: `v0.2.5`;
-- tag commit: `6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85`;
-- accepted application SHA-256: `1ab36b7a6a0a225dcf06fb2c630d0d2ba47ec17578dbd5949f08e992853d653c`;
-- accepted Setup SHA-256: `9b5368d67874b7164ee56a245c75db4b23af593a1d72f7e947774516abcc95e3`.
+## Exact v0.2.9 boundary
 
-`v0.2.5` is immutable. **Git history must not be rewritten** to manufacture provenance, and this work must not move the tag or replace accepted release bytes.
+- accepted product-source commit: `ca7c1019e78cb3ee1e57173f2b58ecea0c27b919`;
+- accepted source tree: `55f2d50f96387e5d55583ac90ca3d0b48f80ce99`;
+- immutable tag: `v0.2.9`;
+- annotated tag object: `59dfd56191c8d9aa0e71a9fba2d86baaaf843520`;
+- tag commit: `d13d9dac2ae2439c2fe70d32e1b168df320a9bd2`;
+- tag tree: `55f2d50f96387e5d55583ac90ca3d0b48f80ce99`.
+
+The accepted PR head and final tag commit resolve to the exact same tree.
+
+Promoted package SHA-256:
+
+- Windows portable ZIP: `6f541b28c08834170258b48e27ffeafc6a0ad0e9c3a27760ec02cc7d01a305d0`;
+- Windows Setup: `a483c64205ad8a0d7a2e53e795714dd67d30c5c95f70f231d05a45b6f6db425c`;
+- Astra Linux DEB: `f1bdb58ed4dad02bcc391ae88c8102062a2ed75860f5735cbe45dd6569d77711`;
+- RED OS RPM: `59a3a45562da3c65691e901471bdaab16f0de94f5bbc4dfa786f524d417660fc`.
+
+Existing release tags and published release bytes are immutable evidence objects and must not be rewritten. **Git history must not be rewritten** to manufacture or improve the appearance of provenance.
+
+## Historical v0.2.5 anchor
+
+v0.2.5 remains the first physically sealed Windows CFA-safe provenance/acceptance anchor:
+
+- historical tag commit: `6509d5e7228a90bb5c0b779ea6e2b9df0e9d0d85`;
+- historical sign-off packet: `docs/APL_IP_001_V0_2_5_SIGNOFF.md`;
+- historical reconciliation: `docs/evidence/APL_IP_001_V0_2_5_CANDIDATE_RECONCILIATION_2026-09-14.md`.
+
+Those files are preserved as evidence rather than repurposed as the current v0.2.9 decision.
 
 ## Repository-authored source boundary
 
-Arvectum product/repository source includes top-level Python product modules, platform backends/runtime/preflight/diagnostics/autostart modules, PowerShell/shell build and release scripts, Inno Setup configuration, tests, GitHub/GitVerse CI definitions, product documentation and Arvectum-created visual assets.
+Arvectum product/repository source includes top-level Python product modules, platform backends/runtime/preflight/diagnostics/autostart modules, PowerShell/shell build and release scripts, Inno Setup configuration, tests, CI definitions, product documentation and Arvectum-created visual assets.
 
-No third-party source tree is intentionally treated as Arvectum-owned merely because it is present in a build or release. Third-party components are governed through SBOM, `THIRD_PARTY_NOTICES.txt`, APL-IP-002 and exact platform/release evidence.
+No third-party source tree is treated as Arvectum-owned merely because it is present in a build or release. Third-party components remain governed by SBOM, `THIRD_PARTY_NOTICES.txt`, APL-IP-002 and exact platform/release evidence.
 
-## v0.2.5 drift reconciliation
+## v0.2.5 -> v0.2.9 material evolution
 
-The historical post-0.2.3 review candidate `adc917e905acca1f8e97d560a3363b07adc279fb` predates material v0.2.5 work and cannot serve as the current clean-IP object without reconciliation.
+The current release is 135 commits ahead of v0.2.5. Material product changes are grouped as follows:
 
-The bounded material runtime-source drift reviewed for v0.2.5 is:
+- v0.2.5 -> v0.2.6: Astra/Linux runtime, desktop-proxy, diagnostics and packaging expansion;
+- v0.2.6 -> v0.2.7: RED OS/KDE/RPM platform expansion;
+- v0.2.7 -> v0.2.8: Linux mixed-state recovery hardening;
+- v0.2.8 -> v0.2.9: Windows saved-or-Arvectum rollback ownership symmetry.
 
-- `application_filesystem.py` — stable-location and legacy-migration hardening;
-- `portable_lifecycle.py` — maintenance handoff/lifecycle safety;
-- `proxy_core.py` — version metadata update;
-- `recovery_autostart.py` — legacy-location migration update.
+The exact paths and classification are recorded in the current reconciliation. This engineering classification does not replace a human authorship/rights review.
 
-Material installer lifecycle drift includes `installer/ArvectumProxyLauncher.iss`, `installer/uninstall_helper.ps1` and `installer/upgrade_helper.ps1` and is additionally bound to exact v0.2.5 release/physical-acceptance evidence.
-
-Engineering review found no obvious external source import in the bounded runtime drift. That is not an exhaustive legal similarity opinion. The historical human factual provenance must be explicitly carried forward to this exact v0.2.5 object by an authorized human under R-4.
-
-No material product-runtime source changed between accepted source `9e8ca7e...` and immutable tag `6509d5e...`, nor between that tag and the reconciliation-start main `310a671...`; later changes are governance/compliance/signing/QA/release tooling.
+The dependency lock did not change across v0.2.5..v0.2.9.
 
 ## Automated provenance evidence
 
-`tools/ip_provenance_check.py`:
+The final PR head `ca7c1019...`, the pull-request synthetic merge `1f4658c509a8b285461f212d0b9c5cbb08583a92` and the release tag commit `d13d9dac...` resolve to the same exact tree `55f2d50f...`.
 
-1. obtains the version-controlled source inventory from `git ls-files`;
-2. hashes each governed source/build/config file with SHA-256;
-3. records size, path and source category in a deterministic JSON manifest;
-4. surfaces header-style third-party/generated-code markers for review;
-5. always records `human_review_required=true` and `legal_signoff_required=true`.
+Exact-tree provenance evidence:
 
-For the exact accepted product-source commit, the successful provenance evidence is:
+- workflow run `35255499712`;
+- artifact ID `10511679846` (`apl-ip-001-source-provenance`);
+- artifact digest `sha256:67e65674c80aa483c1914ed9d3768f89bb95d9f57383382536a20b1de05ea2d4`;
+- result: **SUCCESS**.
 
-- workflow run `34720855901`;
-- artifact ID `10306615531` (`apl-ip-001-source-provenance`);
-- GitHub artifact digest `sha256:5a502a7ab674ea395828130b1724fa134ce7b4c62b032d7dbf1c45305f449db0`.
-
-A valid or zero-finding manifest is not a copyright certificate.
+A valid/zero-finding provenance manifest is not a copyright certificate.
 
 ## SBOM / third-party boundary
 
-The exact accepted source also has successful CycloneDX evidence:
+Exact-tree CycloneDX build-SBOM evidence:
 
-- workflow run `34720856022`;
-- artifact ID `10306326080`;
-- artifact `arvectum-proxy-launcher-sbom-9e8ca7e851563082cd7d03d7543ccb360a37ec27`;
-- GitHub artifact archive digest `sha256:102e2b6a3a9f509aef6881b179aaab6e5ada6593b62d465a27c627885c27060e`.
+- workflow run `35255499669`;
+- artifact ID `10512014953`;
+- artifact `arvectum-proxy-launcher-sbom-1f4658c509a8b285461f212d0b9c5cbb08583a92`;
+- artifact digest `sha256:eee846c8995cc1b5c17ad491774048831d87394f13011007637a29cd70360fef`;
+- result: **SUCCESS**.
 
-The repository SBOM is a build-dependency SBOM and must not be misrepresented as a complete cross-platform shipped-payload inventory.
+The repository SBOM is a build-dependency SBOM and must not be represented as a universal final-payload legal inventory.
 
-The governed third-party boundary includes CPython/Python stdlib, Tcl/Tk, PyInstaller and build dependencies, Inno Setup, host OS components/APIs and other items documented by `THIRD_PARTY_NOTICES.txt` and APL-IP-002. Foreign/international OSS is not automatically treated as a registry or IP failure; actual rights/license/distribution obligations govern.
+AppImage remains **HOLD / excluded from the current clean-IP approval scope** until separately cleared.
 
-AppImage remains **HOLD / excluded from the current clean-IP approval scope** until its separately bounded type-2 runtime obligations are deliberately cleared for promoted distribution.
+## Existing private rights instrument
+
+The executed 2026-09-14 private rights evidence remains the primary historical chain-of-title instrument:
+
+`docs/evidence/APL_IP_001_V0_2_5_PRIVATE_RIGHTS_EVIDENCE_RECEIPT_2026-09-14.md`.
+
+The public receipt identifies Arvectum Proxy Launcher rather than a replacement v0.2.9-only object. The repository therefore does not require a duplicate transfer merely because a version number changed.
+
+However, repository metadata cannot decide whether the exact private wording also covers future results/modifications created after 2026-09-14. The current rights carry-forward note is:
+
+`docs/legal/APL_IP_001_V0_2_9_RIGHTS_CARRY_FORWARD_NOTE_2026-09-18.md`.
 
 ## Human-authorship / legal boundary
 
-Historical factual provenance records human creative control, base-logo authorship, no deliberate copying from external projects, and human review/acceptance or correction of AI-assisted code. Those historical facts are evidence, not an automatic legal carry-forward.
+The exact v0.2.9 object remains blocked on:
 
-The exact v0.2.5 object remains blocked on:
+- **R-1A:** inspect/verify the executed 2026-09-14 base rights instrument;
+- **R-1B:** establish the actual rights basis for material post-2026-09-14 creative contributions included in v0.2.9;
+- **R-2:** verify current factual Rospatent status;
+- **R-3:** verify applicable corporate approval/exception basis and current corporate/Russian-control facts;
+- **R-4:** authorized human factual carry-forward for the v0.2.5 -> v0.2.9 evolution and selected promoted release scope.
 
-- **R-1:** executed author → ООО «Арвектум» rights basis covering the exact v0.2.5 object;
-- **R-2:** factual Rospatent status if relied upon;
-- **R-3:** applicable corporate approval/exception basis;
-- **R-4:** authorized human factual carry-forward for the material v0.2.5 changes and selected release scope.
-
-The execution-ready rights-basis template is `docs/legal/APL_IP_001_RIGHTS_ASSIGNMENT_V0_2_5_CANDIDATE_ADDENDUM_2026-09-14.md`. Repository presence does not mean it has been executed.
+R-1B may be satisfied by the existing instrument if its actual wording validly covers the relevant future results, by service/employment allocation, by a separate assignment, or by another real documented basis. Automation must not choose among those possibilities.
 
 ## Baseline verdict
 
-- Automated source inventory/hash manifest: **IMPLEMENTED**.
-- APL-IP-003 engineering refactor: **COMPLETE**.
-- APL-IP-002 dependency/sovereignty inventory: **COMPLETE / release refresh required**.
-- Exact v0.2.5 provenance binding: **PASS**.
-- Exact v0.2.5 build-SBOM binding: **PASS**.
-- v0.2.5 bounded runtime-source drift engineering review: **PASS / HUMAN FACTUAL CARRY-FORWARD REQUIRED**.
-- Third-party notices/release boundary: **IMPLEMENTED / exact scope review required**.
+- APL-IP-003 canonical-source engineering: **COMPLETE**.
+- APL-IP-002 dependency/sovereignty inventory: **COMPLETE / release facts governed separately**.
+- Exact v0.2.9 source/tag tree identity: **PASS**.
+- Exact-tree provenance binding: **PASS**.
+- Exact-tree build-SBOM binding: **PASS**.
+- v0.2.5 -> v0.2.9 engineering drift reconciliation: **PASS / HUMAN FACTUAL CARRY-FORWARD REQUIRED**.
+- Existing 2026-09-14 private rights evidence: **RECORDED / SCOPE CARRY-FORWARD REVIEW REQUIRED**.
 - AppImage promoted distribution: **HOLD / OUT OF CURRENT APPROVAL SCOPE**.
-- R-1 through R-4: **PENDING — HUMAN/LEGAL ACTION**.
+- R-1A/R-1B/R-2/R-3/R-4: **PENDING — HUMAN/LEGAL ACTION**.
 - Overall machine verdict: **CONDITIONAL_HUMAN_LEGAL_GATE**.
-- Clean IP baseline/tag: **BLOCKED** until the required human/legal review is genuinely completed.
+- Clean IP baseline/tag: **BLOCKED** until the exact v0.2.9 sign-off is **explicitly APPROVED** by an authorized human/legal reviewer.
 
-**NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** It may be created only after actual human/legal completion and the canonical sign-off is explicitly APPROVED by an authorized human; the immutable `v0.2.5` tag itself must never be moved.
+**NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** Existing `v0.2.5` and `v0.2.9` tags must never be moved.
