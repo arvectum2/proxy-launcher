@@ -89,11 +89,16 @@ Repository engineering and Owner-factual evidence are complete for the current f
 - the executed 2026-09-14 private sole-participant/rightsholder decision remains the operative chain-of-title evidence;
 - the actual instrument was reviewed and identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full and authorizes modification/reworking;
 - current Rospatent, corporate/Russian-control and human creative-control facts were confirmed by the Owner;
-- approved current scope: Windows Setup/portable, Astra DEB and RED OS RPM; AppImage excluded from the current scope only.
+- historical v0.2.9 filing scope: Windows Setup/portable, Astra DEB and RED OS RPM;
+- Owner directive 2026-09-18 separately admits AppImage for the next release. This does not alter the exact v0.2.9 filing-evidence object or its already executed rights record.
 
 The previously prepared R-1B two-party/future-rights agreement is **not required to complete this project filing-evidence task** and must not be presented to the Owner as a mandatory signature step. It is retained only as optional external legal hardening. A future registry/expert clarification or external-counsel review may still recommend a separate instrument for later human-authored copyrightable contributions.
 
 Issue: `#57`. Current record: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
+
+### AppImage next-release lane — OWNER DIRECTIVE / IMPLEMENTATION ACTIVE
+
+The repository already contained APL-LNX-008 engineering and CI. The 2026-09-18 Owner directive promotes AppImage for the next product release without mutating v0.2.9. Release integration must reuse the exact-main AppImage artifact, include it in `SHA256SUMS.txt`, preserve the pinned type-2 runtime/source identity and package the runtime/third-party notices. DEB/RPM remain native preferred Linux packages.
 
 ## P6 — Russian Software Register sovereign lifecycle — BLOCKED / PHYSICAL INFRASTRUCTURE
 
