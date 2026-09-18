@@ -126,6 +126,6 @@ This record does not decide the residual copyright question as a legal opinion. 
 - R-1B future-rights instrument: **OPTIONAL EXTERNAL LEGAL HARDENING / NOT A CURRENT FILING BLOCKER**.
 - Current project verdict: **FILING_EVIDENCE_COMPLETE_WITH_OPTIONAL_LEGAL_HARDENING**.
 - Clean-IP/legal tag is not required for the current registry filing packet; do not manufacture one from automation. If a separate legal-baseline tag is ever desired, require a deliberately scoped human review.
-- Clean IP baseline/tag: **BLOCKED** as a separate optional legal-baseline action until that deliberately scoped human/legal review occurs; this BLOCKED state does not block the current filing-evidence packet.
+- Clean IP baseline/tag: **BLOCKED** as a separate optional legal-baseline action until that deliberately scoped human/legal review occurs; this BLOCKED state does not block the current filing-evidence packet. A separate clean-IP baseline/tag may be created only after that optional review is **explicitly APPROVED** by the authorized human/legal reviewer.
 
 **NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** Existing `v0.2.5` and `v0.2.9` tags must never be moved.
