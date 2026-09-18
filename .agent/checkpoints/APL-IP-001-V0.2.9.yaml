@@ -28,13 +28,13 @@ completed:
   - "PR #99 exact head 34e5f13ed7091af550592dcfdb83fd533abef712 passed all 11 reported workflows and 14 reported checks, including Windows P0 portable and full installer/Gate R6 E2E."
   - "PR #99 merged to main at 270560d4b88f928d0995a23bdd022c569a1909bc."
   - "Issue #57 retitled/reconciled to v0.2.9 and intentionally left open only for Owner/Human findings."
-current: "Engineering reconciliation is complete and merged. APL-IP-001 is blocked only on real Owner/Human R-1A/R-1B/R-2/R-3/R-4 facts and explicit final disposition."
+  - "Owner supplied the executed 2026-09-14 decision for visual review; repository records public-safe findings without committing the private scan."
+  - "R-1A factually satisfied: instrument identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full, and authorizes modification/reworking."
+  - "Owner confirmed R-2 current Rospatent status, R-3 corporate/Russian-control facts, and R-4 human creative-control/no-known-deliberate-copying facts for v0.2.9."
+  - "The supplied instrument contains no express future-results assignment; R-1B remains open for later human-authored creative contributions."
+current: "Owner factual evidence received: R-1A/R-2/R-3/R-4 are factually satisfied/confirmed. APL-IP-001 remains blocked on R-1B later-contribution rights basis, promoted-scope confirmation and explicit final disposition."
 pending:
-  - "R-1A: inspect/confirm the executed 2026-09-14 Arvectum Proxy Launcher rights instrument and its private evidence identity."
-  - "R-1B: establish the actual rights basis for material creative contributions made after 2026-09-14 and included in exact v0.2.9; do not infer future-results coverage from repository metadata."
-  - "R-2: confirm current factual Rospatent status and whether any application/registration number is relied upon."
-  - "R-3: confirm applicable corporate approval/exception basis and current Russian-control facts."
-  - "R-4: explicitly carry forward human creative/architectural control, AI-as-tool review/correction/final acceptance and no-known-deliberate-copying facts to v0.2.9."
+  - "R-1B: establish the actual rights basis for material creative contributions made after 2026-09-14 and included in exact v0.2.9; the supplied 2026-09-14 instrument has no express future-results clause."
   - "Confirm promoted approval scope: Windows Setup/portable, Astra DEB, RED OS RPM; AppImage excluded unless separately cleared."
   - "Record reviewer name/role/date and explicit APPROVED or REMEDIATION REQUIRED decision."
 last_verified_commit: "270560d4b88f928d0995a23bdd022c569a1909bc"
@@ -46,8 +46,8 @@ test_results:
   - "Provenance, CycloneDX SBOM, SAST, Gitleaks, pip-audit, sovereign lifecycle, Russian-first signing: SUCCESS."
   - "Windows P0 portable required build: SUCCESS."
   - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
-resume_instruction: "Do not repeat engineering reconciliation. Obtain/verify Owner facts for R-1A/R-1B/R-2/R-3/R-4 against docs/APL_IP_001_V0_2_9_SIGNOFF.md. In particular inspect the actual 2026-09-14 instrument wording for future results/modifications or identify the real post-2026-09-14 rights basis. Then record the promoted scope and an explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never manufacture approval or create a clean-IP tag before that decision."
-updated_at: "2026-09-18T11:08:00+03:00"
+resume_instruction: "Do not repeat engineering reconciliation or R-1A/R-2/R-3/R-4 factual collection. Resolve only R-1B by documenting the real rights basis for post-2026-09-14 human-authored creative contributions, then confirm promoted scope and obtain an explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never manufacture approval or create a clean-IP tag before that decision."
+updated_at: "2026-09-18T11:35:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
