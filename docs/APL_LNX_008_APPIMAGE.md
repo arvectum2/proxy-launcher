@@ -8,7 +8,7 @@ The AppImage is built from the same frozen Linux application used by the Debian 
 
 `tools/appimage-toolchain.lock` records the exact appimagetool version, source/runtime provenance and SHA-256 digests. `tools/fetch_appimage_toolchain.sh` is the only network-fetch step. `tools/build_linux_appimage.sh` performs no network download and refuses a tool/runtime whose digest does not match the lock.
 
-These are build-only dependencies; they are not required on the end-user host and are recorded for APL-IP-002-LNX. The AppImage embeds `APPIMAGE_RUNTIME_LICENSE.txt`, copied from the exact pinned upstream type-2 runtime license notice, plus the product `THIRD_PARTY_NOTICES.txt` and third-party license bundle. The pinned runtime source commit remains recorded in `tools/appimage-toolchain.lock`.
+These are build-only dependencies; they are not required on the end-user host and are recorded for APL-IP-002-LNX. The AppImage embeds `APPIMAGE_RUNTIME_LICENSE.txt`, copied from the exact pinned upstream type-2 runtime license notice, plus the product `THIRD_PARTY_NOTICES.txt` and third-party license bundle. The pinned runtime source commit remains recorded in `tools/appimage-toolchain.lock`. This repository record is engineering/compliance evidence, not an external legal opinion.
 
 ## Safety boundary
 
@@ -22,7 +22,7 @@ The AppImage contains application files only. Packaging does not invoke `sudo`, 
 - [x] Build does not rely on an implicit latest runtime download.
 - [x] CI extracts and inspects the image without FUSE.
 - [x] Packaging cannot mutate proxy or user state.
-- [x] Real graphical Linux baseline is already covered by the completed Astra Gate R8 application acceptance; AppImage CI additionally verifies its own extracted package structure.
+- [x] The underlying Linux application behavior has a completed physical Astra Gate R8 baseline. This is not represented as a separate physical AppImage launch acceptance; AppImage-specific CI verifies the extracted portable package structure.
 - [x] Generic tagged-release publication reuses the exact successful main AppImage artifact and adds it to `SHA256SUMS.txt`.
 
 ## Release scope
