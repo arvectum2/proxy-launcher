@@ -202,3 +202,16 @@ No tunnel, Auto-selection, hot-switch or profile-storage behavior changes are pa
 - connection-state button labels are shortened to `Подключение`, `Отключение`, and `Переключение` without ellipses while remaining single-line/autosized.
 
 No tunnel, Auto-selection, hot-switch or profile-storage behavior changes are part of 0.1.11.
+
+
+## 0.1.12 visual cleanup
+
+0.1.12 keeps the accepted connection/profile behavior and makes the final visual cleanup from physical 0.1.11 review:
+
+- launcher foreground is rebuilt from the clean canonical AV mark plus the circular globe badge; the desktop squircle background is no longer embedded, so square/squircle seam lines cannot appear inside the Android circle;
+- the header uses the canonical AV mark followed by a single Android-rendered `Arvectum Proxy Launcher` text run, giving Arvectum and Proxy Launcher identical font, weight, size and baseline;
+- the visible subtitle is the semantic version only;
+- Android `versionName` is `0.1.12` (no `dogfood` suffix);
+- home connection detail simplifies `HTTP/HTTPS (CONNECT)` to `HTTP/HTTPS` and removes transient “Создаём VPN…” wording.
+
+The design review explicitly recommends adding no further controls to the home screen in this slice.
