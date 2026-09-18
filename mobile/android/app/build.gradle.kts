@@ -20,8 +20,8 @@ android {
         applicationId = "ru.arvectum.proxylauncher"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.1.4-dogfood"
+        versionCode = 6
+        versionName = "0.1.5-dogfood"
     }
 
     signingConfigs {
