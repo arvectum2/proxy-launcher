@@ -1,47 +1,38 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IP-001-V0.2.9
-status: completed
-goal: "Complete filing-grade exact-object IP/provenance evidence for v0.2.9 without converting optional legal hardening into repetitive per-version signature work."
-authority: OWNER
+task_id: APL-ROADMAP-SYNC-20260918-PM
+status: in_progress
+goal: "Synchronize the canonical Proxy Launcher roadmap/execution queue with actual 2026-09-18 afternoon repository state without changing Owner-controlled priority."
+authority: REVIEW
 definition_of_done:
-  - "Exact v0.2.9 tag/source/release-asset identity is governed."
-  - "Material product/release drift from v0.2.5 to v0.2.9 is engineering-reconciled."
-  - "Exact v0.2.9 provenance/SBOM evidence is bound by exact tree."
-  - "The executed 2026-09-14 private rights instrument is inspected and preserved as current chain-of-title evidence."
-  - "Current Rospatent, corporate/Russian-control and human creative-control facts are Owner-confirmed."
-  - "Current promoted scope is recorded: Windows Setup/portable, Astra DEB, RED OS RPM; AppImage excluded from current scope only."
-  - "No duplicate version-specific or two-capacity self-signing agreement is represented as a current filing prerequisite."
-  - "Residual later-contribution copyright hardening is documented as optional external legal review, not an engineering/filing blocker."
-  - "Roadmap, backlog, execution queue, sign-off and IP_PROVENANCE are consistent."
-  - "Exact-head CI passes before merge."
+  - "Current main/release/open PR state is re-verified."
+  - "APL-MOB-001 Android dogfood is recorded from merged/physical evidence rather than stale PR #53/#104 gates."
+  - "APL-MOB-002 active PR #105 is represented at the existing later-mobile queue position without priority reordering."
+  - "APL-REL-016 points to current v0.2.9 refresh PR #103 and stops at Owner review."
+  - "Superseded PR #81 is classified as repository hygiene, not an active trust track."
+  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
+  - "Exact-head CI required by repository governance passes before merge."
 completed:
-  - "Exact v0.2.9 source/tag/package identity and hashes governed."
-  - "v0.2.5 -> v0.2.9 material evolution reconciled."
-  - "Exact-tree provenance and CycloneDX SBOM evidence bound to released source tree."
-  - "Executed 2026-09-14 decision visually inspected; public-safe findings recorded without publishing the private scan."
-  - "Owner confirmed current Rospatent, corporate/Russian-control and human creative-control facts."
-  - "Owner confirmed current promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only for current scope."
-  - "R-1B two-party/self-signing agreement path was prepared, then explicitly rejected by Owner as unnecessary process overhead."
-  - "Project correction: R-1B future-rights instrument retained only as optional external legal hardening; not a current filing prerequisite."
-  - "APL-IP-001 filing-evidence gate removed as dependency blocker from current execution queue."
-current: "APL-IP-001 is complete for the current v0.2.9 filing-evidence objective. No document needs to be signed now. Optional external legal hardening may be reopened only if the registry/expert/counsel specifically requests it or the Owner deliberately chooses it."
-pending: []
-last_verified_commit: "edb4c0def476048beb89a2d803ba090d03405582"
+  - "Verified main 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021 and stable v0.2.9 baseline."
+  - "Verified PR #104 merged at 600cecfc1f54cb3046c72a93ef000691c0c394a1 after its physical multiprofile gate."
+  - "Verified active draft PR #105 carries APL-MOB-002 Android hot-switch/Auto work; networking slice is physically accepted and 0.1.7 UX/branding remains physical gate."
+  - "Verified PR #103 is the current APL-REL-016 v0.2.9 refresh; PR #81 is superseded."
+current: "Update canonical queue, roadmap and local backlog with factual status only; preserve Owner-controlled ordering and reserved gates."
+pending:
+  - "Update .agent/execution-queue.yaml."
+  - "Update docs/ROADMAP.md."
+  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
+  - "Open PR, verify exact-head CI and merge if governance permits."
+  - "Record final merged checkpoint."
+last_verified_commit: "2cb0921c1fe31a22f1ea054fb4d37af2e5fca021"
 test_results:
-  - "PR #107 exact head bcdac93303b29980e19714d386579962dae65319: 11/11 reported workflows SUCCESS."
-  - "APL-IP-001 provenance, v0.2.5 reconciliation and v0.2.9 reconciliation: SUCCESS."
-  - "CycloneDX SBOM, SAST, dependency vulnerability scan and secret scan: SUCCESS."
-  - "APL-REG-001B sovereign lifecycle and Windows Russian-first Production Signing: SUCCESS."
-  - "Windows P0 portable: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
-  - "PR #107 merged to main at edb4c0def476048beb89a2d803ba090d03405582."
-resume_instruction: "Do not reopen APL-IP-001 or regenerate the R-1B agreement as routine version work. Treat docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md as optional external legal hardening only. If a registry/expert/counsel later asks for stronger chain-of-title evidence, open a new targeted legal-hardening task with that concrete request."
-updated_at: "2026-09-18T16:55:00+03:00"
+  - "Repository/PR state inspection complete; no product bytes changed."
+updated_at: "2026-09-18T17:14:00+03:00"
+resume_instruction: "Continue this metadata-only roadmap synchronization. Do not merge PR #103/#105 or cross their Owner/HUMAN gates. After roadmap-sync PR exact-head CI is green, merge the metadata-only sync and write a completed closeout checkpoint with the final merge SHA."
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "chatgpt"
+  execution_id: "APL-ROADMAP-SYNC-20260918-PM"
+  branch: "agent/roadmap-sync-20260918-pm"
+  base_commit: "2cb0921c1fe31a22f1ea054fb4d37af2e5fca021"
   lease_until: null
-  manual_override: false
+  manual_override: true
