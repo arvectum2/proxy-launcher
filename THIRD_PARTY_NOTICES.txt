@@ -29,10 +29,16 @@ AppImage type-2 runtime — Linux AppImage only
 ----------------------------------------------
 The Linux AppImage artifact includes the separately hash-pinned AppImage type-2
 runtime. The upstream runtime project is MIT licensed and documents statically
-linked third-party code from musl libc, libfuse, squashfuse, libzstd and zlib,
-with their respective upstream license terms. The exact runtime SHA-256 and
-source commit used by Arvectum are recorded in tools/appimage-toolchain.lock.
-This runtime is not present in the Debian .deb package.
+linked third-party code from musl libc, libfuse, squashfuse, libzstd and zlib.
+The exact pinned runtime Makefile also links mimalloc; Arvectum records that MIT
+notice explicitly even though it is not enumerated in the upstream runtime
+LICENSE. The exact runtime SHA-256 and source commit used by Arvectum are
+recorded in tools/appimage-toolchain.lock.
+
+Promoted AppImages embed a hash-bound APPIMAGE_RUNTIME_LICENSES manifest and are
+published together with a corresponding-source companion containing the exact
+type2-runtime source commit and pinned libfuse/squashfuse source inputs. This
+runtime is not present in the Debian .deb package.
 
 Build-only tooling
 ------------------
