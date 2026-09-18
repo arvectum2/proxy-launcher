@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IP-001-V0.2.9
-status: in_progress
+status: blocked
 goal: "Complete the final APL-IP-001 provenance/right-chain disposition for the current filing/release object v0.2.9, preserving v0.2.5 as immutable historical evidence and keeping legal approval fail-closed."
 authority: OWNER
 definition_of_done:
@@ -32,10 +32,12 @@ completed:
   - "R-1A factually satisfied: instrument identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full, and authorizes modification/reworking."
   - "Owner confirmed R-2 current Rospatent status, R-3 corporate/Russian-control facts, and R-4 human creative-control/no-known-deliberate-copying facts for v0.2.9."
   - "The supplied instrument contains no express future-results assignment; R-1B remains open for later human-authored creative contributions."
-current: "Owner confirmed promoted v0.2.9 scope and absence of employment/service-work rights basis. Preparing a minimal written R-1B assignment for post-2026-09-14 and future Arvectum Proxy Launcher creative contributions."
+  - "Owner confirmed current v0.2.9 promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only from the current approval, not permanently."
+  - "Owner confirmed no employment/service-work rights basis is relied upon for post-2026-09-14 contributions."
+  - "Prepared docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md covering exact v0.2.9 post-2026-09-14 results and sufficiently individualized future Arvectum Proxy Launcher versions/platforms, including potential AppImage/Android/iOS."
+current: "Promoted v0.2.9 scope is confirmed and an R-1B future-rights assignment draft is prepared. APL-IP-001 is blocked only on actual private execution of that instrument and the subsequent explicit final human disposition."
 pending:
-  - "Prepare and review a minimal written assignment covering existing post-2026-09-14 creative changes through v0.2.9 and sufficiently individualized future Arvectum Proxy Launcher versions/modifications."
-  - "Owner executes the private agreement; public repo stores only a safe receipt/digest, not personal/signature data."
+  - "Owner executes the private R-1B assignment/future-results agreement after final review; public repo stores only a safe receipt/digest, not personal/signature data."
   - "After execution, record R-1B as satisfied and obtain explicit authorized APPROVED or REMEDIATION REQUIRED decision."
 last_verified_commit: "270560d4b88f928d0995a23bdd022c569a1909bc"
 test_results:
@@ -46,8 +48,8 @@ test_results:
   - "Provenance, CycloneDX SBOM, SAST, Gitleaks, pip-audit, sovereign lifecycle, Russian-first signing: SUCCESS."
   - "Windows P0 portable required build: SUCCESS."
   - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
-resume_instruction: "Continue the R-1B future-rights task on branch apl-ip-001-r1b-future-rights-20260918. Draft a narrow written assignment covering post-2026-09-14 and future Arvectum Proxy Launcher creative contributions, preserve flexibility for future AppImage/mobile platforms, and keep the task blocked on actual execution plus final human APPROVED/REMEDIATION decision. Do not publish private personal/signature data."
-updated_at: "2026-09-18T11:50:00+03:00"
+resume_instruction: "Do not repeat the R-1B drafting or scope collection. The next real action is private execution of the R-1B assignment/future-results agreement. After the Owner confirms it is signed, record only a public-safe receipt/storage reference/SHA-256 digest, mark R-1B satisfied, and obtain the explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never publish the signed private file or create a clean-IP tag before approval."
+updated_at: "2026-09-18T12:05:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
