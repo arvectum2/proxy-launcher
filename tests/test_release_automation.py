@@ -152,6 +152,11 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("uses: ./.github/workflows/windows-p0.yml", release)
         self.assertIn("uses: ./.github/workflows/windows-installer.yml", release)
 
+    def test_gitverse_mirror_accepts_android_release_namespace(self):
+        mirror = self.read(".github/workflows/sync-release-to-gitverse.yml")
+        self.assertIn("android-v[0-9]*.[0-9]*.[0-9]*", mirror)
+        self.assertIn("v[0-9]*.[0-9]*.[0-9]*", mirror)
+
     def test_release_calls_verified_gitverse_mirror(self):
         release = self.read(".github/workflows/release.yml")
         mirror = self.read(".github/workflows/sync-release-to-gitverse.yml")
