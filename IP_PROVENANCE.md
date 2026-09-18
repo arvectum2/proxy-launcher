@@ -120,6 +120,6 @@ R-1B may be satisfied by the existing instrument if its actual wording validly c
 - AppImage promoted distribution: **HOLD / OUT OF CURRENT APPROVAL SCOPE**.
 - R-1A/R-1B/R-2/R-3/R-4: **PENDING — HUMAN/LEGAL ACTION**.
 - Overall machine verdict: **CONDITIONAL_HUMAN_LEGAL_GATE**.
-- Clean IP baseline/tag: **BLOCKED** until actual human/legal approval.
+- Clean IP baseline/tag: **BLOCKED** until the exact v0.2.9 sign-off is **explicitly APPROVED** by an authorized human/legal reviewer.
 
 **NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** Existing `v0.2.5` and `v0.2.9` tags must never be moved.
