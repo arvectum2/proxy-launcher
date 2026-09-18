@@ -1,41 +1,37 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260918-PM
-status: completed
-goal: "Synchronize the canonical Proxy Launcher roadmap/execution queue with actual 2026-09-18 afternoon repository state without changing Owner-controlled priority."
-authority: REVIEW
+task_id: APL-LNX-APPIMAGE-20260918
+status: in_progress
+goal: "Add a portable AppImage build and release asset so Proxy Launcher has a complete Linux distribution set alongside DEB and RPM."
+authority: EXECUTION
 definition_of_done:
-  - "Current main/release/open PR state is re-verified."
-  - "APL-MOB-001 Android dogfood is recorded from merged/physical evidence rather than stale PR #53/#104 gates."
-  - "APL-MOB-002 active PR #105 is represented at the existing later-mobile queue position without priority reordering."
-  - "APL-REL-016 points to current v0.2.9 refresh PR #103 and stops at Owner review."
-  - "Superseded PR #81 is classified as repository hygiene, not an active trust track."
-  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
-  - "Exact-head CI required by repository governance passes before merge."
+  - "A reproducible AppImage build script/workflow exists for x86_64 Linux."
+  - "CI validates AppImage creation and basic executable/package structure."
+  - "release.yml requires exact-main AppImage CI for tagged releases and publishes the AppImage."
+  - "SHA256SUMS.txt covers AppImage together with existing Windows, DEB, and RPM assets."
+  - "README/release documentation explains AppImage usage and scope without changing DEB/RPM support."
+  - "Relevant automated tests and exact-head CI pass."
+  - "Final commit/PR state is recorded in this checkpoint."
 completed:
-  - "Verified pre-sync main 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021 and stable v0.2.9 baseline."
-  - "Verified PR #104 merged at 600cecfc1f54cb3046c72a93ef000691c0c394a1 after its physical multiprofile gate."
-  - "Recorded Android APL-MOB-001 lane DONE and activated APL-MOB-002 at the existing later-mobile queue position with draft PR #105."
-  - "Recorded APL-REL-016 current v0.2.9 packet as PR #103 / Owner-review gate and classified PR #81 as superseded."
-  - "Updated docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml without changing Owner-controlled task order."
-  - "PR #109 exact head 5951a85a748b045916a141540ec9f124989ea037 completed all 13 reported checks successfully, including required build and full Windows installer E2E."
-  - "PR #109 merged to main as 4ac8db58dab02e91665f9bcf90aaff8e12f88e24."
-current: "Roadmap synchronization is complete. Canonical next-state is: MOB-002 physical gate active; APL-REL-016 awaits Owner review; next safe autonomous preparation lane is per-app routing PR #68 refresh against v0.2.9."
-pending: []
-last_verified_commit: "4ac8db58dab02e91665f9bcf90aaff8e12f88e24"
-merged_commit: "4ac8db58dab02e91665f9bcf90aaff8e12f88e24"
+  - "Verified current main head b03c93ff437f62b79eee9d779e1d949e4733e00b and existing v0.2.9 release pipeline."
+  - "Verified release.yml currently publishes Windows Setup/portable, Astra DEB, and RED OS RPM only; no AppImage lane exists."
+  - "Created branch feat/appimage-linux-package from current main."
+current: "Implement AppImage packaging lane, release integration, tests, and documentation."
+pending:
+  - "Inspect existing Linux build/package scripts and release tests for reusable patterns."
+  - "Add AppImage build tooling and workflow."
+  - "Integrate AppImage exact-main artifact into release.yml and checksum/publication flow."
+  - "Add/update tests and documentation."
+  - "Run/verify CI, fix failures, and merge when governance permits."
+last_verified_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
 test_results:
-  - "PR #109 exact head 5951a85a748b04591665f9bcf90aaff8e12f88e24: 13/13 reported checks SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "Bandit SAST, pip-audit, Gitleaks, CycloneDX SBOM, provenance, v0.2.5/v0.2.9 clean-IP gates, sovereign lifecycle and Windows signing checks: SUCCESS."
-  - "Mirror repository: SUCCESS."
-resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260918-PM. On the next watchdog run, read .agent/execution-queue.yaml from main, skip done/HUMAN/blocked gates as defined, do not recreate APL-REL-016 PR #103, and use the next admissible safe preparation lane; currently that is refreshing per-app routing PR #68 against v0.2.9 while stopping before the Owner architecture decision."
-updated_at: "2026-09-18T17:24:00+03:00"
+  - "Not run yet for AppImage task."
+resume_instruction: "Continue on feat/appimage-linux-package. Inspect existing Linux DEB/RPM build scripts/workflows and release automation tests, then implement AppImage by reusing the canonical Linux binary/build path. Do not replace DEB/RPM; add AppImage as an additional portable Linux artifact."
+updated_at: "2026-09-18T18:12:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "ChatGPT"
+  execution_id: "APL-LNX-APPIMAGE-20260918"
+  branch: "feat/appimage-linux-package"
+  base_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
   lease_until: null
-  manual_override: false
+  manual_override: true
