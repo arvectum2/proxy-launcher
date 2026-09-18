@@ -51,6 +51,8 @@ The checkboxes below remain intentionally unticked by automation. They may only 
 
 ## Current project disposition — 2026-09-18
 
+Separate clean-IP/legal-baseline status: **NOT APPROVED**. No separate clean-IP tag or legal opinion is authorized by completion of the filing-evidence packet.
+
 The Owner has rejected execution of a two-party/self-signing R-1B agreement as unnecessary process overhead for the current APL-IP-001 objective.
 
 Project disposition:
