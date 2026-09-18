@@ -15,6 +15,9 @@ on:
       - '.github/workflows/linux-appimage.yml'
       - 'build_linux.sh'
       - 'VERSION'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'APPIMAGE_RUNTIME_LICENSE.txt'
       - 'assets/**'
   push:
     branches: [main]
@@ -31,6 +34,9 @@ on:
       - '.github/workflows/linux-appimage.yml'
       - 'build_linux.sh'
       - 'VERSION'
+      - 'LICENSE'
+      - 'THIRD_PARTY_NOTICES.txt'
+      - 'APPIMAGE_RUNTIME_LICENSE.txt'
       - 'assets/**'
   workflow_dispatch:
 permissions:
