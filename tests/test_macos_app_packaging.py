@@ -27,11 +27,19 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
     @unittest.skipUnless(sys.platform == "darwin", "macOS icon metadata requires sips")
     def test_canonical_icns_preserves_transparent_squircle(self):
         result = subprocess.run(
-            ["sips", "-g", "hasAlpha", str(ROOT / "assets" / "arvectum.icns")],
+            [
+                "sips",
+                "-g", "pixelWidth",
+                "-g", "pixelHeight",
+                "-g", "hasAlpha",
+                str(ROOT / "assets" / "arvectum.icns"),
+            ],
             check=True,
             capture_output=True,
             text=True,
         )
+        self.assertIn("pixelWidth: 1024", result.stdout)
+        self.assertIn("pixelHeight: 1024", result.stdout)
         self.assertIn("hasAlpha: yes", result.stdout)
 
     def test_app_bundle_contains_product_and_third_party_notices(self):

@@ -104,21 +104,53 @@ def setup_brand(root):
                 return f
         return group[-1]
 
+    if _is_macos():
+        # Keep the native Aqua theme. The previous forced "clam" theme was the
+        # main reason the app looked like a Windows/cross-platform admin panel.
+        body = pick(["Helvetica Neue", "Helvetica", "Arial"])
+        mono = pick(["SF Mono", "Menlo", "JetBrains Mono", "Courier New"])
+        B["font"] = (body, 13)
+        B["font_bold"] = (body, 13, "bold")
+        B["font_small"] = (body, 11)
+        B["font_h"] = (body, 15, "bold")
+        B["font_brand"] = (body, 24, "bold")
+        B["font_section"] = (body, 13, "bold")
+        B["font_mono"] = (mono, 11)
+        B["font_mono_bold"] = (mono, 11, "bold")
+        B["title"] = body
+
+        style = ttk.Style(root)
+        try:
+            style.theme_use("aqua")
+        except Exception:
+            pass
+
+        # Semantic macOS styles intentionally avoid custom backgrounds so Aqua
+        # can follow system Light/Dark appearance.
+        style.configure("MacEyebrow.TLabel", font=(body, 10, "bold"), foreground=MINT)
+        style.configure("MacTitle.TLabel", font=(body, 24, "bold"))
+        style.configure("MacMeta.TLabel", font=(body, 11), foreground="systemSecondaryLabelColor")
+        style.configure("MacSection.TLabel", font=(body, 13, "bold"))
+        style.configure("MacStatus.TLabel", font=(body, 16, "bold"))
+        style.configure("MacSecondary.TLabel", font=(body, 12), foreground="systemSecondaryLabelColor")
+        style.configure("MacPorts.TLabel", font=(mono, 11), foreground="systemSecondaryLabelColor")
+        style.configure("MacFooter.TLabel", font=(body, 10), foreground="systemSecondaryLabelColor")
+        style.configure("MacPrimary.TButton", font=(body, 13, "bold"), padding=(14, 8))
+        style.configure("MacSecondary.TButton", font=(body, 13), padding=(12, 7))
+        style.configure("MacCompact.TButton", font=(body, 12), padding=(10, 6))
+        style.configure("Mac.TCheckbutton", font=(body, 12))
+        return
+
     body = pick(["PT Sans", "Segoe UI", "Tahoma", "Helvetica Neue", "Helvetica", "Arial"])
     mono = pick(["JetBrains Mono", "Cascadia Mono", "Consolas", "Menlo", "Courier New"])
-    body_size = 13 if _is_macos() else 10
-    small_size = 11 if _is_macos() else 9
-    heading_size = 15 if _is_macos() else 12
-    brand_size = 22 if _is_macos() else 20
-    mono_size = 11 if _is_macos() else 9
-    B["font"] = (body, body_size)
-    B["font_bold"] = (body, body_size, "bold")
-    B["font_small"] = (body, small_size)
-    B["font_h"] = (body, heading_size, "bold")
-    B["font_brand"] = (body, brand_size, "bold")
-    B["font_section"] = (body, body_size, "bold")
-    B["font_mono"] = (mono, mono_size)
-    B["font_mono_bold"] = (mono, mono_size, "bold")
+    B["font"] = (body, 10)
+    B["font_bold"] = (body, 10, "bold")
+    B["font_small"] = (body, 9)
+    B["font_h"] = (body, 12, "bold")
+    B["font_brand"] = (body, 20, "bold")
+    B["font_section"] = (body, 10, "bold")
+    B["font_mono"] = (mono, 9)
+    B["font_mono_bold"] = (mono, 10, "bold")
     B["title"] = body
 
     style = ttk.Style(root)
@@ -162,7 +194,6 @@ def setup_brand(root):
               background=[("active", WHITE)],
               indicatorcolor=[("selected", MINT), ("pressed", MINT_LIGHT)],
               foreground=[("disabled", DISABLED_FG)])
-
 
 def _asset_path(name):
     base = os.path.join(core.app_dir(), "assets")
@@ -348,8 +379,42 @@ def _autostart_target():
     return '"%s" "%s" --start' % (sys.executable, os.path.join(core.app_dir(), "proxy_core.py"))
 
 
+def _window_bg():
+    return "systemWindowBackgroundColor" if _is_macos() else WHITE
+
+
+def _control_bg():
+    return "systemControlBackgroundColor" if _is_macos() else WHITE
+
+
+def _text_color():
+    return "systemTextColor" if _is_macos() else GRAPHITE
+
+
+def _secondary_text_color():
+    return "systemSecondaryLabelColor" if _is_macos() else GRAPHITE
+
+
+def _button_style(primary=False, compact=False):
+    if _is_macos():
+        if compact:
+            return "MacCompact.TButton"
+        return "MacPrimary.TButton" if primary else "MacSecondary.TButton"
+    return "Mint.TButton" if primary else "Ghost.TButton"
+
+
 def _header_title(root, title):
-    """Однотонная фирменная шапка без декоративных линий."""
+    """Platform-appropriate title area for secondary windows."""
+    if _is_macos():
+        hdr = ttk.Frame(root, padding=(18, 16, 18, 10))
+        hdr.pack(fill="x")
+        hdr.grid_columnconfigure(0, weight=1)
+        ttk.Label(hdr, text=title, style="MacSection.TLabel").grid(
+            row=0, column=0, sticky="w")
+        ttk.Label(hdr, text=APP_NAME, style="MacMeta.TLabel").grid(
+            row=0, column=1, sticky="e")
+        ttk.Separator(root, orient="horizontal").pack(fill="x", padx=18)
+        return
     hdr = tk.Frame(root, bg=NAVY, padx=16, pady=12)
     tk.Label(hdr, text=title, bg=NAVY, fg=WHITE, font=B["font_h"]).pack(side="left")
     tk.Label(hdr, text=APP_NAME, bg=NAVY, fg=MINT, font=B["font_bold"]).pack(side="right")
@@ -364,7 +429,7 @@ class SettingsDialog(tk.Toplevel):
         self.title("Настройки прокси · " + APP_NAME)
         self.settings = settings
         self.result = None
-        self.configure(bg=WHITE)
+        self.configure(bg=_window_bg())
         self.grab_set()
         self.resizable(False, False)
         self._build()
@@ -382,28 +447,33 @@ class SettingsDialog(tk.Toplevel):
     def _build(self):
         _header_title(self, "Настройки прокси")
 
-        frm = tk.Frame(self, bg=WHITE, padx=16, pady=14)
+        frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
+                       pady=16 if _is_macos() else 14)
         frm.pack(fill="both", expand=True)
 
         tk.Label(frm, text="Внешние прокси-серверы (по порядку, с запасным):",
-                 bg=WHITE, fg=GRAPHITE, font=B["font_bold"]).grid(
+                 bg=_window_bg(), fg=_text_color(), font=B["font_bold"]).grid(
             row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
 
-        self.listbox = tk.Listbox(frm, width=46, height=6, bg=WHITE, fg=GRAPHITE,
-                                  selectbackground=MINT, selectforeground=NAVY,
-                                  relief="solid", bd=1, highlightthickness=0, font=B["font"])
+        self.listbox = tk.Listbox(
+            frm, width=46, height=6,
+            bg=_control_bg(), fg=_text_color(),
+            selectbackground="systemSelectedContentBackgroundColor" if _is_macos() else MINT,
+            selectforeground=WHITE if _is_macos() else NAVY,
+            relief="solid", bd=0 if _is_macos() else 1,
+            highlightthickness=0, font=B["font"])
         self.listbox.grid(row=1, column=0, columnspan=3, sticky="nsew")
         scroll = ttk.Scrollbar(frm, orient="vertical", command=self.listbox.yview)
         scroll.grid(row=1, column=3, sticky="ns")
         self.listbox.configure(yscrollcommand=scroll.set)
 
-        btns = tk.Frame(frm, bg=WHITE)
+        btns = tk.Frame(frm, bg=_window_bg())
         btns.grid(row=2, column=0, columnspan=4, sticky="w", pady=(8, 8))
-        b_add = ttk.Button(btns, text="Добавить", style="Ghost.TButton", command=self._add)
+        b_add = ttk.Button(btns, text="Добавить", style=_button_style(compact=True), command=self._add)
         b_add.grid(row=0, column=0, padx=3)
-        b_edit = ttk.Button(btns, text="Изменить", style="Ghost.TButton", command=self._edit)
+        b_edit = ttk.Button(btns, text="Изменить", style=_button_style(compact=True), command=self._edit)
         b_edit.grid(row=0, column=1, padx=3)
-        b_del = ttk.Button(btns, text="Удалить", style="Ghost.TButton", command=self._delete)
+        b_del = ttk.Button(btns, text="Удалить", style=_button_style(compact=True), command=self._delete)
         b_del.grid(row=0, column=2, padx=3)
 
         self._fields = {}
@@ -411,19 +481,29 @@ class SettingsDialog(tk.Toplevel):
         keys = ("host", "port", "username", "password")
         shows = (None, None, None, "*")
         for i, (label, key, show) in enumerate(zip(labels, keys, shows)):
-            tk.Label(frm, text=label, bg=WHITE, fg=GRAPHITE, font=B["font"]).grid(
-                row=3 + i, column=0, sticky="e", pady=3, padx=(0, 8))
-            e = tk.Entry(frm, width=30, show=show, bg=WHITE, fg=NAVY,
-                         relief="solid", bd=1, insertbackground=GRAPHITE,
-                         font=B["font_mono"] if key in ("host", "port") else B["font"])
-            e.grid(row=3 + i, column=1, columnspan=3, sticky="w", pady=3)
+            tk.Label(frm, text=label, bg=_window_bg(), fg=_text_color(), font=B["font"]).grid(
+                row=3 + i, column=0, sticky="e", pady=4 if _is_macos() else 3, padx=(0, 8))
+            if _is_macos():
+                e = ttk.Entry(
+                    frm, width=30, show=show,
+                    font=B["font_mono"] if key in ("host", "port") else B["font"])
+            else:
+                e = tk.Entry(
+                    frm, width=30, show=show, bg=WHITE, fg=NAVY,
+                    relief="solid", bd=1, insertbackground=GRAPHITE,
+                    font=B["font_mono"] if key in ("host", "port") else B["font"])
+            e.grid(row=3 + i, column=1, columnspan=3, sticky="w", pady=4 if _is_macos() else 3)
             self._fields[key] = e
             _bind_clipboard_paste(e)
 
-        foot = tk.Frame(frm, bg=WHITE)
+        foot = tk.Frame(frm, bg=_window_bg())
         foot.grid(row=9, column=0, columnspan=4, sticky="e", pady=(10, 0))
-        ttk.Button(foot, text="Сохранить", style="Mint.TButton", command=self._ok).grid(row=0, column=0, padx=4)
-        ttk.Button(foot, text="Отмена", style="Ghost.TButton", command=self.destroy).grid(row=0, column=1)
+        ttk.Button(
+            foot, text="Сохранить", style=_button_style(primary=True), command=self._ok
+        ).grid(row=0, column=0, padx=4)
+        ttk.Button(
+            foot, text="Отмена", style=_button_style(), command=self.destroy
+        ).grid(row=0, column=1)
 
         self._refresh_list()
 
@@ -530,7 +610,7 @@ class ExceptionsDialog(tk.Toplevel):
         super().__init__(master)
         self.title("Исключения (no_proxy) · " + APP_NAME)
         self.domains = core.load_no_proxy()
-        self.configure(bg=WHITE)
+        self.configure(bg=_window_bg())
         self.grab_set()
         self.resizable(False, False)
         self._build()
@@ -548,45 +628,62 @@ class ExceptionsDialog(tk.Toplevel):
     def _build(self):
         _header_title(self, "Исключения (no_proxy)")
 
-        frm = tk.Frame(self, bg=WHITE, padx=16, pady=14)
+        frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
+                       pady=16 if _is_macos() else 14)
         frm.pack(fill="both", expand=True)
 
         tk.Label(frm,
                  text="Сайты из списка открываются напрямую (минуя прокси).\n"
                       "Можно вставлять целиком URL или host:port — само «почистится».\n"
                       "Изменения применяются сразу, перезапуск не нужен.",
-                 bg=WHITE, fg=GRAPHITE, font=B["font_small"], justify="left").grid(
+                 bg=_window_bg(), fg=_secondary_text_color(),
+                 font=B["font_small"], justify="left").grid(
             row=0, column=0, columnspan=3, sticky="w", pady=(0, 8))
 
-        self.listbox = tk.Listbox(frm, width=54, height=12, bg=WHITE, fg=GRAPHITE,
-                                  selectbackground=MINT, selectforeground=NAVY,
-                                  relief="solid", bd=1, highlightthickness=0, font=B["font"])
+        self.listbox = tk.Listbox(
+            frm, width=54, height=12,
+            bg=_control_bg(), fg=_text_color(),
+            selectbackground="systemSelectedContentBackgroundColor" if _is_macos() else MINT,
+            selectforeground=WHITE if _is_macos() else NAVY,
+            relief="solid", bd=0 if _is_macos() else 1,
+            highlightthickness=0, font=B["font"])
         self.listbox.grid(row=1, column=0, columnspan=3, sticky="nsew")
         scroll = ttk.Scrollbar(frm, orient="vertical", command=self.listbox.yview)
         scroll.grid(row=1, column=3, sticky="ns")
         self.listbox.configure(yscrollcommand=scroll.set)
 
-        tk.Label(frm, text="Новое исключение:", bg=WHITE, fg=GRAPHITE,
+        tk.Label(frm, text="Новое исключение:", bg=_window_bg(), fg=_text_color(),
                  font=B["font"]).grid(row=2, column=0, sticky="e", pady=(8, 0), padx=(0, 6))
-        self.entry = tk.Entry(frm, width=32, bg=WHITE, fg=NAVY, relief="solid", bd=1,
-                              insertbackground=GRAPHITE, font=B["font"])
+        if _is_macos():
+            self.entry = ttk.Entry(frm, width=32, font=B["font"])
+        else:
+            self.entry = tk.Entry(
+                frm, width=32, bg=WHITE, fg=NAVY, relief="solid", bd=1,
+                insertbackground=GRAPHITE, font=B["font"])
         self.entry.grid(row=2, column=1, pady=(8, 0), sticky="w")
         self.entry.bind("<Return>", lambda e: self._add())
         _bind_clipboard_paste(self.entry)
-        ttk.Button(frm, text="Добавить", style="Mint.TButton",
-                   command=self._add).grid(row=2, column=2, pady=(8, 0), padx=(6, 0))
+        ttk.Button(
+            frm, text="Добавить", style=_button_style(primary=True, compact=True),
+            command=self._add).grid(row=2, column=2, pady=(8, 0), padx=(6, 0))
 
-        btns = tk.Frame(frm, bg=WHITE)
+        btns = tk.Frame(frm, bg=_window_bg())
         btns.grid(row=3, column=0, columnspan=4, sticky="w", pady=(8, 0))
-        ttk.Button(btns, text="Удалить выбранное", style="Ghost.TButton",
-                   command=self._remove).grid(row=0, column=0, padx=3)
-        ttk.Button(btns, text="Очистить всё", style="Ghost.TButton",
-                   command=self._clear).grid(row=0, column=1, padx=3)
+        ttk.Button(
+            btns, text="Удалить выбранное", style=_button_style(compact=True),
+            command=self._remove).grid(row=0, column=0, padx=3)
+        ttk.Button(
+            btns, text="Очистить всё", style=_button_style(compact=True),
+            command=self._clear).grid(row=0, column=1, padx=3)
 
-        foot = tk.Frame(frm, bg=WHITE)
+        foot = tk.Frame(frm, bg=_window_bg())
         foot.grid(row=4, column=0, columnspan=4, sticky="e", pady=(10, 0))
-        ttk.Button(foot, text="Сохранить", style="Mint.TButton", command=self._save).grid(row=0, column=0, padx=4)
-        ttk.Button(foot, text="Отмена", style="Ghost.TButton", command=self.destroy).grid(row=0, column=1)
+        ttk.Button(
+            foot, text="Сохранить", style=_button_style(primary=True), command=self._save
+        ).grid(row=0, column=0, padx=4)
+        ttk.Button(
+            foot, text="Отмена", style=_button_style(), command=self.destroy
+        ).grid(row=0, column=1)
 
         self._refresh()
 
@@ -738,16 +835,189 @@ class Launcher:
         self._mac_ui = _is_macos()
         root.title(APP_NAME)
         root.resizable(False, False)
-        root.configure(bg=SURFACE if self._mac_ui else WHITE)
+        if self._mac_ui:
+            root.configure(bg="systemWindowBackgroundColor")
+            root.option_add("*tearOff", False)
+        else:
+            root.configure(bg=WHITE)
+
         core._ensure_local_files()
         setup_brand(root)
         self._images = []
         self._recovery_prompt_shown = False
+        self._status_dot = None
         self._set_window_icon()
 
-        # ---------- фирменная шапка ----------
-        header = tk.Frame(root, bg=NAVY, padx=24 if self._mac_ui else 20,
-                          pady=18 if self._mac_ui else 16)
+        if self._mac_ui:
+            self._build_macos_main()
+        else:
+            self._build_classic_main()
+
+        self.refresh_status()
+        _center_window(self.root)
+        self._maybe_first_run()
+        self.root.after(200, self._maybe_prompt_recovery)
+
+    def _build_macos_main(self):
+        """Build the Aqua-native main window without changing launcher behavior."""
+        outer = ttk.Frame(self.root, padding=(26, 22, 26, 20))
+        outer.pack(fill="both", expand=True)
+        outer.grid_columnconfigure(0, weight=1)
+
+        # Product identity — quiet, title-bar-like hierarchy instead of a large
+        # custom navy banner.
+        header = ttk.Frame(outer)
+        header.grid(row=0, column=0, sticky="ew")
+        header.grid_columnconfigure(0, weight=1)
+        identity = ttk.Frame(header)
+        identity.grid(row=0, column=0, sticky="w")
+        ttk.Label(identity, text="ARVECTUM", style="MacEyebrow.TLabel").grid(
+            row=0, column=0, sticky="w")
+        ttk.Label(identity, text="Proxy Launcher", style="MacTitle.TLabel").grid(
+            row=1, column=0, sticky="w", pady=(1, 0))
+        ttk.Label(
+            header,
+            text="%s · %s" % (_platform_label(), APP_VERSION),
+            style="MacMeta.TLabel",
+        ).grid(row=0, column=1, sticky="ne", pady=(5, 0))
+
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=1, column=0, sticky="ew", pady=(17, 18))
+
+        # Status area.
+        status = ttk.Frame(outer)
+        status.grid(row=2, column=0, sticky="ew")
+        status.grid_columnconfigure(1, weight=1)
+
+        self._status_dot = tk.Label(
+            status,
+            text="●",
+            bg="systemWindowBackgroundColor",
+            fg="#8E8E93",
+            font=(B["title"], 14),
+            padx=0,
+            pady=0,
+        )
+        self._status_dot.grid(row=0, column=0, sticky="w", padx=(0, 8))
+
+        self.chip = ttk.Label(status, text="", style="MacStatus.TLabel")
+        self.chip.grid(row=0, column=1, sticky="w")
+
+        current = core.load_settings()
+        ports_text = "HTTP %s   ·   SOCKS5 %s   ·   PAC %s" % (
+            current.get("local_http_port", 8080),
+            current.get("local_socks_port", 1080),
+            current.get("local_pac_port", 8082),
+        )
+        ttk.Label(status, text=ports_text, style="MacPorts.TLabel").grid(
+            row=1, column=1, sticky="w", pady=(5, 0))
+
+        self.status_hint = ttk.Label(
+            status,
+            text="",
+            style="MacSecondary.TLabel",
+            justify="left",
+            anchor="w",
+            wraplength=570,
+        )
+        self.status_hint.grid(row=2, column=1, sticky="ew", pady=(8, 0))
+
+        actions = ttk.Frame(outer)
+        actions.grid(row=3, column=0, sticky="ew", pady=(18, 0))
+        actions.grid_columnconfigure(0, weight=1, uniform="connection")
+        actions.grid_columnconfigure(1, weight=1, uniform="connection")
+        self.btn_on = ttk.Button(
+            actions, text="Включить прокси", style="MacPrimary.TButton", command=self.on)
+        self.btn_on.grid(row=0, column=0, sticky="ew", padx=(0, 5))
+        self.btn_off = ttk.Button(
+            actions, text="Выключить прокси", style="MacSecondary.TButton", command=self.off)
+        self.btn_off.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+        self.btn_orphan_pac = ttk.Button(
+            actions,
+            text="Удалить старые настройки Arvectum",
+            style="MacPrimary.TButton",
+            command=self.clear_orphaned_pac,
+        )
+        self.btn_orphan_pac.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(9, 0))
+        self.btn_orphan_pac.grid_remove()
+
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=4, column=0, sticky="ew", pady=(20, 17))
+
+        # Connection check.
+        ttk.Label(outer, text="Проверка соединения", style="MacSection.TLabel").grid(
+            row=5, column=0, sticky="w")
+        check_row = ttk.Frame(outer)
+        check_row.grid(row=6, column=0, sticky="ew", pady=(9, 0))
+        check_row.grid_columnconfigure(0, weight=1)
+        self.check_url_var = tk.StringVar(value="https://arvectum.com")
+        check_entry = ttk.Entry(check_row, textvariable=self.check_url_var, font=B["font_mono"])
+        check_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        _bind_clipboard_paste(check_entry)
+        self.btn_check = ttk.Button(
+            check_row, text="Проверить", style="MacCompact.TButton", command=self.check)
+        self.btn_check.grid(row=0, column=1)
+
+        # Service controls.
+        ttk.Label(outer, text="Настройки", style="MacSection.TLabel").grid(
+            row=7, column=0, sticky="w", pady=(20, 0))
+        service = ttk.Frame(outer)
+        service.grid(row=8, column=0, sticky="ew", pady=(9, 0))
+        service.grid_columnconfigure(0, weight=1, uniform="service")
+        service.grid_columnconfigure(1, weight=1, uniform="service")
+        ttk.Button(
+            service, text="Прокси…", style="MacCompact.TButton",
+            command=self.settings).grid(row=0, column=0, sticky="ew", padx=(0, 5), pady=(0, 7))
+        ttk.Button(
+            service, text="Исключения…", style="MacCompact.TButton",
+            command=self.exceptions).grid(row=0, column=1, sticky="ew", padx=(5, 0), pady=(0, 7))
+        ttk.Button(
+            service, text="Журнал", style="MacCompact.TButton",
+            command=self.show_log).grid(row=1, column=0, sticky="ew", padx=(0, 5))
+        self.btn_doctor = ttk.Button(
+            service, text="Диагностика", style="MacCompact.TButton",
+            command=self.doctor)
+        self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
+
+        self.btn_restore = ttk.Button(
+            outer,
+            text="Восстановить настройки сети",
+            style="MacSecondary.TButton",
+            command=self.restore_network,
+        )
+        self.btn_restore.grid(row=9, column=0, sticky="e", pady=(12, 0))
+
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=10, column=0, sticky="ew", pady=(19, 14))
+
+        portable_fallback = _portable_fallback_active()
+        self.auto_var = tk.BooleanVar(
+            value=False if portable_fallback else self._autostart_enabled())
+        self.autostart_check = ttk.Checkbutton(
+            outer,
+            text="Запускать Arvectum Proxy Launcher при входе в macOS",
+            variable=self.auto_var,
+            command=self._toggle_autostart,
+            style="Mac.TCheckbutton",
+        )
+        self.autostart_check.grid(row=11, column=0, sticky="w")
+        if portable_fallback:
+            self.autostart_check.state(["disabled"])
+
+        ttk.Label(
+            outer,
+            text="Окно можно закрыть — активный прокси продолжит работать в фоне.",
+            style="MacFooter.TLabel",
+        ).grid(row=12, column=0, sticky="w", pady=(6, 0))
+        ttk.Label(
+            outer,
+            text="Arvectum · %s · arvectum.com" % APP_VERSION,
+            style="MacFooter.TLabel",
+        ).grid(row=13, column=0, sticky="w", pady=(13, 0))
+
+    def _build_classic_main(self):
+        """Preserve the established Windows/classic presentation."""
+        header = tk.Frame(self.root, bg=NAVY, padx=20, pady=16)
         header.pack(fill="x")
         brand = tk.Frame(header, bg=NAVY)
         brand.pack(side="left")
@@ -757,27 +1027,20 @@ class Launcher:
         tk.Label(
             brand, text="Proxy Launcher", bg=NAVY, fg=WHITE,
             font=B["font_brand"], anchor="w").pack(anchor="w", pady=(1, 0))
-
-        platform_badge = tk.Label(
+        tk.Label(
             header, text="%s  ·  %s" % (_platform_label(), APP_VERSION),
             bg=NAVY_SOFT, fg=MINT_LIGHT, font=B["font_small"],
-            padx=11, pady=6)
-        platform_badge.pack(side="right", pady=(8, 0))
+            padx=11, pady=6).pack(side="right", pady=(8, 0))
 
-        body_bg = SURFACE if self._mac_ui else WHITE
-        body = tk.Frame(root, bg=body_bg, padx=24 if self._mac_ui else 20,
-                        pady=22 if self._mac_ui else 18)
+        body = tk.Frame(self.root, bg=WHITE, padx=20, pady=18)
         body.pack(fill="both", expand=True)
         body.grid_columnconfigure(0, weight=1)
 
-        # ---------- состояние ----------
         status_card = tk.Frame(
             body, bg=WHITE, padx=16, pady=14,
-            highlightbackground=BORDER if self._mac_ui else SOFT_GRAY,
-            highlightthickness=1)
+            highlightbackground=SOFT_GRAY, highlightthickness=1)
         status_card.grid(row=0, column=0, sticky="ew")
         status_card.grid_columnconfigure(0, weight=1)
-
         status_top = tk.Frame(status_card, bg=WHITE)
         status_top.grid(row=0, column=0, sticky="ew")
         tk.Label(
@@ -793,22 +1056,17 @@ class Launcher:
             current.get("local_http_port", 8080), current.get("local_socks_port", 1080),
             current.get("local_pac_port", 8082))
         tk.Label(
-            status_card, text=ports_text, bg=WHITE, fg=MUTED if self._mac_ui else GRAPHITE,
+            status_card, text=ports_text, bg=WHITE, fg=GRAPHITE,
             font=B["font_mono"]).grid(row=1, column=0, sticky="w", pady=(9, 0))
-
         self.status_hint = tk.Label(
             status_card, text="", bg=MINT_SOFT, fg=NAVY, font=B["font_small"],
-            justify="left", anchor="w", padx=11, pady=8,
-            wraplength=610 if self._mac_ui else 720)
+            justify="left", anchor="w", padx=11, pady=8, wraplength=720)
         self.status_hint.grid(row=2, column=0, sticky="ew", pady=(11, 0))
         self.status_hint.grid_remove()
 
-        # ---------- подключение ----------
-        tk.Label(
-            body, text="Подключение", bg=body_bg, fg=NAVY if self._mac_ui else GRAPHITE,
-            font=B["font_section"]).grid(row=1, column=0, sticky="w", pady=(18, 8))
-
-        actions = tk.Frame(body, bg=body_bg)
+        tk.Label(body, text="Подключение", bg=WHITE, fg=GRAPHITE,
+                 font=B["font_section"]).grid(row=1, column=0, sticky="w", pady=(18, 8))
+        actions = tk.Frame(body, bg=WHITE)
         actions.grid(row=2, column=0, sticky="ew")
         actions.grid_columnconfigure(0, weight=1, uniform="connection")
         actions.grid_columnconfigure(1, weight=1, uniform="connection")
@@ -824,37 +1082,27 @@ class Launcher:
         self.btn_orphan_pac.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         self.btn_orphan_pac.grid_remove()
 
-        # ---------- проверка соединения ----------
-        tk.Label(
-            body, text="Проверка соединения", bg=body_bg,
-            fg=NAVY if self._mac_ui else GRAPHITE,
-            font=B["font_section"]).grid(row=3, column=0, sticky="w", pady=(18, 8))
-
+        tk.Label(body, text="Проверка соединения", bg=WHITE, fg=GRAPHITE,
+                 font=B["font_section"]).grid(row=3, column=0, sticky="w", pady=(18, 8))
         check_card = tk.Frame(
             body, bg=WHITE, padx=14, pady=12,
-            highlightbackground=BORDER if self._mac_ui else SOFT_GRAY,
-            highlightthickness=1)
+            highlightbackground=SOFT_GRAY, highlightthickness=1)
         check_card.grid(row=4, column=0, sticky="ew")
         check_card.grid_columnconfigure(0, weight=1)
         self.check_url_var = tk.StringVar(value="https://arvectum.com")
         check_entry = tk.Entry(
             check_card, textvariable=self.check_url_var,
             bg=WHITE, fg=NAVY, relief="solid", bd=1,
-            insertbackground=GRAPHITE, font=B["font_mono"],
-            highlightthickness=0)
+            insertbackground=GRAPHITE, font=B["font_mono"], highlightthickness=0)
         check_entry.grid(row=0, column=0, sticky="ew", ipady=5, padx=(0, 10))
         _bind_clipboard_paste(check_entry)
         self.btn_check = ttk.Button(
             check_card, text="Проверить", style="Ghost.TButton", command=self.check)
         self.btn_check.grid(row=0, column=1, sticky="e")
 
-        # ---------- настройки и сервис ----------
-        tk.Label(
-            body, text="Настройки и сервис", bg=body_bg,
-            fg=NAVY if self._mac_ui else GRAPHITE,
-            font=B["font_section"]).grid(row=5, column=0, sticky="w", pady=(18, 8))
-
-        service = tk.Frame(body, bg=body_bg)
+        tk.Label(body, text="Настройки и сервис", bg=WHITE, fg=GRAPHITE,
+                 font=B["font_section"]).grid(row=5, column=0, sticky="w", pady=(18, 8))
+        service = tk.Frame(body, bg=WHITE)
         service.grid(row=6, column=0, sticky="ew")
         service.grid_columnconfigure(0, weight=1, uniform="service")
         service.grid_columnconfigure(1, weight=1, uniform="service")
@@ -868,16 +1116,13 @@ class Launcher:
             service, text="Журнал", style="Ghost.TButton",
             command=self.show_log).grid(row=1, column=0, sticky="ew", padx=(0, 5))
         self.btn_doctor = ttk.Button(
-            service, text="Диагностика", style="Ghost.TButton",
-            command=self.doctor)
+            service, text="Диагностика", style="Ghost.TButton", command=self.doctor)
         self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
-
         self.btn_restore = ttk.Button(
             body, text="Восстановить настройки сети", style="Ghost.TButton",
             command=self.restore_network)
         self.btn_restore.grid(row=7, column=0, sticky="e", pady=(10, 0))
 
-        # ---------- автозапуск ----------
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
             value=False if portable_fallback else self._autostart_enabled())
@@ -891,21 +1136,14 @@ class Launcher:
 
         tk.Label(
             body, text="Окно можно закрыть — запущенный прокси продолжит работать в фоне.",
-            bg=body_bg, fg=MUTED if self._mac_ui else GRAPHITE,
-            font=B["font_small"]).grid(row=9, column=0, sticky="w", pady=(5, 0))
-
-        # ---------- футер ----------
-        tk.Frame(body, bg=BORDER if self._mac_ui else SOFT_GRAY, height=1).grid(
+            bg=WHITE, fg=GRAPHITE, font=B["font_small"]).grid(
+                row=9, column=0, sticky="w", pady=(5, 0))
+        tk.Frame(body, bg=SOFT_GRAY, height=1).grid(
             row=10, column=0, sticky="ew", pady=(18, 10))
         tk.Label(
             body, text="ARVECTUM  ·  %s  ·  arvectum.com" % APP_VERSION,
-            bg=body_bg, fg=MUTED if self._mac_ui else DISABLED_FG,
-            font=B["font_mono"]).grid(row=11, column=0, sticky="w")
-
-        self.refresh_status()
-        _center_window(self.root)
-        self._maybe_first_run()
-        self.root.after(200, self._maybe_prompt_recovery)
+            bg=WHITE, fg=DISABLED_FG, font=B["font_mono"]).grid(
+                row=11, column=0, sticky="w")
 
     def _set_window_icon(self):
         try:
@@ -945,14 +1183,39 @@ class Launcher:
 
         self.btn_doctor.state(["!disabled"])
         self.btn_restore.state(["!disabled"])
-        if view["restore_primary"]:
+        if self._mac_ui:
+            self.btn_restore.configure(
+                style="MacPrimary.TButton" if view["restore_primary"] else "MacSecondary.TButton")
+        elif view["restore_primary"]:
             self.btn_restore.configure(style="Mint.TButton")
         else:
             self.btn_restore.configure(style="Ghost.TButton")
         self.btn_orphan_pac.grid_remove()
 
-        self.chip.config(text="  %s  " % view["label"], bg=view["color"], fg=NAVY)
-        self.status_hint.config(text=view["hint"], bg=MINT_SOFT, fg=NAVY)
+        if self._mac_ui:
+            display_labels = {
+                "active": "Прокси подключён",
+                "engine_only": "Прокси запущен, но не подключён",
+                "recovery_required": "Нужно восстановить сеть",
+                "orphaned_arvectum_pac": "Нужно восстановить настройки",
+                "diagnostics_required": "Требуется диагностика",
+                "off": "Прокси выключен",
+            }
+            dot_colors = {
+                "active": MINT,
+                "engine_only": "#FF9F0A",
+                "recovery_required": "#FF9F0A",
+                "orphaned_arvectum_pac": "#FF9F0A",
+                "diagnostics_required": "#FF453A",
+                "off": "#8E8E93",
+            }
+            self.chip.configure(text=display_labels.get(view["key"], view["label"]))
+            if self._status_dot is not None:
+                self._status_dot.configure(fg=dot_colors.get(view["key"], "#8E8E93"))
+            self.status_hint.configure(text=view["hint"])
+        else:
+            self.chip.config(text="  %s  " % view["label"], bg=view["color"], fg=NAVY)
+            self.status_hint.config(text=view["hint"], bg=MINT_SOFT, fg=NAVY)
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
@@ -1006,9 +1269,9 @@ class Launcher:
         if ok:
             messagebox.showinfo(
                 APP_NAME,
-                "Прокси подключен.\nСистемный proxy установлен.\n\n"
-                "Для корректной работы приложений через proxy полностью "
-                "закройте их через Диспетчер задач и запустите заново.")
+                "Прокси подключён.\nСистемные настройки прокси применены.\n\n"
+                "Если отдельное приложение не подхватило новые настройки, "
+                "полностью закройте его и запустите заново.")
         elif attempt < 40:
             # One-file PyInstaller + антивирус на первом запуске могут
             # стартовать заметно дольше нескольких секунд.
@@ -1080,7 +1343,12 @@ class Launcher:
             messagebox.showinfo(APP_NAME, "Сеть восстановлена. Теперь можно снова включить прокси.")
 
     def _set_busy(self, text, color):
-        self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
+        if self._mac_ui:
+            self.chip.configure(text=text)
+            if self._status_dot is not None:
+                self._status_dot.configure(fg=MINT)
+        else:
+            self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
         for b in (
                 self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
                 self.btn_restore, self.btn_orphan_pac):

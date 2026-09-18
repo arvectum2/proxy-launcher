@@ -8,6 +8,7 @@ CI uses explicit macOS 15 arm64 and Intel runner labels, Python 3.12, runs the m
 
 - [x] deterministic `.app` bundle name and identifier;
 - [x] canonical transparent macOS squircle icon/resources bundled (arvectum.icns + arvectum-icon-macos.png);
+- [x] icon artwork uses macOS system-icon optical occupancy (~80.5% of the 1024px canvas) rather than filling the canvas edge-to-edge;
 - [x] arm64 and x64 build lanes;
 - [x] plist validation and signing-state inspection;
 - [x] packaging contract tests;
