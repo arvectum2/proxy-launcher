@@ -1,44 +1,40 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260918
-status: completed
-goal: "Reconcile the canonical Proxy Launcher roadmap/execution queue to the actual 2026-09-18 repository and release state, so the hourly watchdog selects only current tracks from the v0.2.9 baseline."
-authority: AUTO
+task_id: APL-IP-001-V0.2.9
+status: in_progress
+goal: "Move the final APL-IP-001 human/legal provenance gate from historical v0.2.5 to the current filing/release object v0.2.9, while preserving v0.2.5 as immutable historical evidence and without fabricating legal approval."
+authority: OWNER
 definition_of_done:
-  - "Canonical roadmap reflects published v0.2.9 as the current stable product line."
-  - "Astra Gate R8 and RED OS APL-REG-001C physical acceptance are recorded as completed."
-  - "APL-REG-001D registry dossier preparation is recorded as completed, while external filing gates remain fail-closed."
-  - "Execution queue reflects current statuses and preserves HUMAN/OWNER/REVIEW boundaries."
-  - "Open active tracks are reconciled against current PR/issue state; superseded duplicate PRs are not treated as roadmap tracks."
-  - "Proxy Launcher Watchdog is enabled as the single hourly recovery/execution task and reads the canonical queue."
-  - "ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md are synchronized to the same factual baseline."
-  - "Exact-head CI for the roadmap synchronization PR passes before merge."
+  - "Exact v0.2.9 tag/source/release-asset identity is governed."
+  - "Material product/release drift from v0.2.5 to v0.2.9 is engineering-reconciled."
+  - "Exact v0.2.9 provenance/SBOM evidence is recorded where available; otherwise the missing evidence remains fail-closed and a dedicated generation path is prepared."
+  - "The 2026-09-14 private rights instrument remains preserved as historical/private evidence; no unnecessary re-execution is represented as required without a legal basis."
+  - "A v0.2.9 human/legal sign-off record replaces v0.2.5 as the current final disposition object, while v0.2.5 remains immutable historical evidence."
+  - "IP_PROVENANCE, compliance contract, roadmap, execution queue and registry pre-submission references are consistent with v0.2.9."
+  - "Fail-closed tests/CI protect exact identity and prevent automated APPROVED/clean-IP status."
+  - "Exact-head CI passes before merge."
 completed:
-  - "Verified pre-sync canonical main at 52fc4f8bbaa9d7fca6274f28c99041eabf1e410a."
-  - "Verified public stable release v0.2.9 with Windows x64 setup/portable, Astra Linux DEB, RED OS RPM and SHA256SUMS."
-  - "Verified RED OS 8.0.3 physical acceptance completed in merged PR #83."
-  - "Verified registry filing dossier APL-REG-001D completed in merged PR #95 with final checkpoint PR #96."
-  - "Re-enabled and updated the single hourly Proxy Launcher Watchdog to scan the canonical execution queue after completed/blocked tasks."
-  - "Reconciled .agent/execution-queue.yaml to v0.2.9 and separated completed dossier work from fail-closed external filing gates."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to current physical/compliance/product state while preserving historical APL-IP-001 governance anchors."
-  - "Recorded Android PR #53, Windows trust PR #81 and per-app routing PR #68 as the current actionable product/review tracks."
-  - "Recorded open PRs #90/#91/#92 and #70/#74/#82 as superseded implementation/preparation paths rather than active roadmap tracks; PR #80 is maintenance-only."
-  - "PR #97 exact head 1a5cf6bfb3b09baf89afcb82b2fee47ffed0e6e0 passed all 10 reported GitHub workflows."
-  - "PR #97 merged to main at 7fb03504a3ed17c4021ff0765e69be208075753b."
-current: "Canonical roadmap synchronization is complete."
-pending: []
-last_verified_commit: "7fb03504a3ed17c4021ff0765e69be208075753b"
+  - "Verified canonical main at 3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f."
+  - "Verified annotated tag v0.2.9 resolves to commit d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
+  - "Verified current public v0.2.9 release assets and GitHub SHA-256 digests."
+  - "Compared v0.2.5..v0.2.9: 135 commits ahead with material cross-platform/runtime/release changes, so silent legal carry-forward is not acceptable."
+  - "Rechecked current Russian IP-law baseline: future-result transfers are legally possible when the instrument is sufficiently individualized; later software modifications/new derivative work still require a real rights basis and cannot be inferred from repository metadata alone."
+current: "Build exact v0.2.9 reconciliation, current sign-off, fail-closed contract/tests and roadmap/registry carry-forward."
+pending:
+  - "Resolve exact v0.2.9 source tree and automated provenance/SBOM evidence."
+  - "Classify v0.2.5 -> v0.2.9 material product-source/release drift."
+  - "Create v0.2.9 reconciliation/sign-off/contract/tests/workflow updates."
+  - "Update IP_PROVENANCE, roadmap, execution queue, local backlog and registry pre-submission references."
+  - "Open PR, require exact-head CI, merge only if green, then mark checkpoint completed or blocked on Owner facts."
+last_verified_commit: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
 test_results:
-  - "PR #97 exact-head GitHub CI: 10/10 workflows SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer full fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation, sovereign lifecycle and Russian-first signing: SUCCESS."
-updated_at: "2026-09-18T10:10:00+03:00"
-resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260918. The Proxy Launcher Watchdog should scan .agent/execution-queue.yaml. The first useful autonomous review-preparation lane is APL-REL-016 unless a higher-priority HUMAN/OWNER item is actively claimed; never cross its REVIEW gate."
+  - "Pre-change repository state only; no task-specific CI run yet."
+resume_instruction: "Continue on branch apl-ip-001-v0-2-9-reconciliation. Resolve exact v0.2.9 identity/evidence, then implement the v0.2.9 fail-closed reconciliation and current Owner sign-off packet. Do not mark APPROVED or create a clean-IP tag."
+updated_at: "2026-09-18T10:55:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: chatgpt
+  execution_id: APL-IP-001-V0.2.9-20260918
+  branch: apl-ip-001-v0-2-9-reconciliation
+  base_commit: 3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f
   lease_until: null
-  manual_override: false
+  manual_override: true
