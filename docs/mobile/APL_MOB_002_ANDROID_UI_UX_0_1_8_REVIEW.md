@@ -123,3 +123,41 @@ Owner screenshots on the target Android device exposed three residual presentati
    - 0.1.9 restores a true adaptive icon: Deep Navy fills the complete Android launcher mask and the canonical source is used as an unpadded foreground. The source is not cropped, scaled down or wrapped in another circle.
 
 These are physical-device corrections only. Auto selection, hot switching, profile storage and tunnel transport remain unchanged.
+
+
+## Physical 0.1.11 review → 0.1.12
+
+Owner screenshots confirm the one-screen hierarchy, circular state control, profile panel and compact editor direction are now stable. The remaining issues are purely visual polish.
+
+### Finding 1 — launcher still carries the desktop squircle seam
+The 0.1.11 adaptive foreground scales the entire desktop product icon, so the beveled squircle edge remains visible inside the Android circle even though it no longer clips.
+
+**0.1.12 fix:** the adaptive foreground no longer reuses the desktop squircle background. It is recomposed from the clean canonical AV brand mark plus the circular globe badge only; the full-bleed Deep Navy adaptive background is responsible for the Android circle.
+
+### Finding 2 — header typography is internally inconsistent
+Using the canonical wordmark bitmap for “Arvectum” next to Android-rendered “Proxy Launcher” necessarily produces different font metrics and baseline behavior.
+
+**0.1.12 fix:** keep the canonical AV brand mark image, but render the complete text `Arvectum Proxy Launcher` as one single-line Android TextView using one typeface, one weight, one size and one baseline. This is the cleanest way to satisfy both brand recognition and typographic consistency.
+
+### Finding 3 — platform/build labels are implementation noise
+`Android · 0.1.11-dogfood` exposes build-channel detail that has no value in the normal connection flow.
+
+**0.1.12 fix:** visible metadata is reduced to the bare semantic version only. Internal signing remains dogfood, but the Android `versionName` is also simplified to `0.1.12`.
+
+### Finding 4 — status copy is more technical than the core UX requires
+`HTTP/HTTPS (CONNECT)` is diagnostically correct but unnecessarily implementation-specific on the main screen.
+
+**0.1.12 fix:** the home status simplifies it to `HTTP/HTTPS` and strips transient “Создаём VPN…” noise. The editor still exposes concrete protocol choices.
+
+### Critical UI/UX conclusion
+
+No new controls should be added to this version. The current information architecture is already close to the product goal:
+
+- one primary connection action;
+- one concise connection-detail line;
+- one profile selector;
+- one secondary New/Edit path.
+
+Adding settings, diagnostics, ping, IP address, failover controls or extra cards now would weaken the “install → choose → connect” model. Those belong in later dedicated surfaces only if a real user need appears.
+
+No further home-screen element is recommended for 0.1.12.
