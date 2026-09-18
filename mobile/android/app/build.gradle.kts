@@ -1,9 +1,8 @@
 import java.awt.RenderingHints
-import java.awt.geom.Ellipse2D
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
+import kotlin.math.hypot
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 plugins {
@@ -61,11 +60,46 @@ val generateBrandingResources = tasks.register("generateBrandingResources") {
             "Unable to encode Android Arvectum brand mark"
         }
 
-        // Launcher foreground: do not reuse the desktop squircle background.
-        // The Android adaptive background already supplies full-bleed Deep Navy.
-        // Compose only the clean AV mark plus the circular globe badge, so no
-        // square/squircle seams can remain inside the launcher circle.
+        // Match the visually successful 0.1.11 geometry: the complete canonical
+        // desktop artwork is scaled to 60% and centered. Before scaling, strip
+        // every desktop squircle/background pixel. Preserve only the Mint AV
+        // artwork and the complete circular globe badge. The adaptive icon XML
+        // supplies the one uniform Deep Navy background behind them.
+        val cleaned = BufferedImage(source.width, source.height, BufferedImage.TYPE_INT_ARGB)
+        val minSize = minOf(source.width, source.height).toDouble()
+        val globeCenterX = source.width * 0.79
+        val globeCenterY = source.height * 0.78
+        val globeRadius = minSize * 0.135
+
+        for (y in 0 until source.height) {
+            for (x in 0 until source.width) {
+                val argb = source.getRGB(x, y)
+                val alpha = (argb ushr 24) and 0xFF
+                if (alpha <= 8) continue
+
+                val red = (argb ushr 16) and 0xFF
+                val green = (argb ushr 8) and 0xFF
+                val blue = argb and 0xFF
+                val inGlobe = hypot(x - globeCenterX, y - globeCenterY) <= globeRadius
+                val isMintLogo =
+                    green >= 105 &&
+                    blue >= 80 &&
+                    green >= red + 30 &&
+                    (green + blue) >= 245
+
+                if (inGlobe || isMintLogo) {
+                    cleaned.setRGB(x, y, argb)
+                }
+            }
+        }
+
         val canvasSize = max(source.width, source.height)
+        val foregroundScale = 0.60
+        val targetWidth = (cleaned.width * foregroundScale).roundToInt()
+        val targetHeight = (cleaned.height * foregroundScale).roundToInt()
+        val targetX = (canvasSize - targetWidth) / 2
+        val targetY = (canvasSize - targetHeight) / 2
+
         val foreground = BufferedImage(canvasSize, canvasSize, BufferedImage.TYPE_INT_ARGB)
         val graphics = foreground.createGraphics()
         try {
@@ -81,44 +115,14 @@ val generateBrandingResources = tasks.register("generateBrandingResources") {
                 RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON,
             )
-
-            val avTargetWidth = (canvasSize * 0.56).roundToInt()
-            val avTargetHeight = (mark.height * (avTargetWidth.toDouble() / mark.width)).roundToInt()
-            val avX = ((canvasSize - avTargetWidth) * 0.43).roundToInt()
-            val avY = (canvasSize * 0.23).roundToInt()
-            graphics.drawImage(mark, avX, avY, avTargetWidth, avTargetHeight, null)
-
-            // Extract the product globe badge from the canonical desktop icon
-            // with a circular clip; surrounding squircle pixels are excluded.
-            val srcDiameter = (min(source.width, source.height) * 0.34).roundToInt()
-            val srcCenterX = (source.width * 0.79).roundToInt()
-            val srcCenterY = (source.height * 0.78).roundToInt()
-            val srcX = (srcCenterX - srcDiameter / 2).coerceIn(0, source.width - srcDiameter)
-            val srcY = (srcCenterY - srcDiameter / 2).coerceIn(0, source.height - srcDiameter)
-
-            val badgeDiameter = (canvasSize * 0.20).roundToInt()
-            val badgeX = (canvasSize * 0.66).roundToInt()
-            val badgeY = (canvasSize * 0.61).roundToInt()
-            val oldClip = graphics.clip
-            graphics.clip = Ellipse2D.Double(
-                badgeX.toDouble(),
-                badgeY.toDouble(),
-                badgeDiameter.toDouble(),
-                badgeDiameter.toDouble(),
-            )
             graphics.drawImage(
-                source,
-                badgeX,
-                badgeY,
-                badgeX + badgeDiameter,
-                badgeY + badgeDiameter,
-                srcX,
-                srcY,
-                srcX + srcDiameter,
-                srcY + srcDiameter,
+                cleaned,
+                targetX,
+                targetY,
+                targetWidth,
+                targetHeight,
                 null,
             )
-            graphics.clip = oldClip
         } finally {
             graphics.dispose()
         }
@@ -141,8 +145,8 @@ android {
         applicationId = "ru.arvectum.proxylauncher"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.1.12"
+        versionCode = 14
+        versionName = "0.1.13"
     }
 
     signingConfigs {
