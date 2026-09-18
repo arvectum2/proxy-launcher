@@ -29,14 +29,14 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor; later releases do not rewrite that evidence.
 - **HISTORICAL** — v0.2.6 introduced the first Windows + Astra release lane; v0.2.7 added the RED OS release track; v0.2.8 hardened Linux mixed-state recovery; v0.2.9 closes the Windows recovery-symmetry gap.
 
-Current canonical main verified for this roadmap refresh: 52fc4f8bbaa9d7fca6274f28c99041eabf1e410a.
+Current canonical main verified for this roadmap refresh: 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
 - **DONE / HISTORICAL EVIDENCE** — the company УКЭП/CryptoPro path is treated as RELEASE-EVIDENCE-ONLY; it is not represented as Microsoft Authenticode/SmartScreen publisher trust.
 - **DONE** — APL-REL-011/012/013 release manifest, verification UX and fail-closed Russian production release gate.
 - **CURRENT PUBLIC RELEASE** — v0.2.9 is published, but APL-REL-016 remains the separate future native Windows trust track.
-- **READY / REVIEW — issue #30, PR #81** — refresh the Windows public-trust decision packet from its v0.2.6 baseline to current v0.2.9; keep SmartScreen/App Reputation, Smart App Control/Application Control, enterprise managed trust and Russian detached evidence separate.
+- **READY FOR OWNER REVIEW — issue #30, PR #103** — the Windows public-trust packet has been refreshed to immutable v0.2.9; PR #103 supersedes stale PR #81 and defines 0.2.10+ as the first eligible embedded-signing/public-trust release. Focused public-trust and release/repository suites recorded by the PR pass; final decision/merge remains reserved.
 - **OWNER GATE** — provider/certificate selection, spend, key custody and production signing path are not delegated to automation.
 - **RULE** — never retrofit embedded signing into an immutable published release; any future Authenticode/public-trust change belongs to a new version.
 ## 3. IP / legal / sovereignty
@@ -98,12 +98,13 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **AFTER APPROVAL** — implementation requires real Windows host acceptance, ownership/recovery proofs and a new product version.
 ## 8. Mobile applications
 
-### Android — APL-MOB-001
+### Android — APL-MOB-001 / APL-MOB-002
 
-- **ACTIVE / DRAFT PR #53** — native Android VpnService/TUN dogfood slice exists with simple Russian UX, SOCKS5/HTTP profiles, secure password storage and a CI-built debug APK.
-- **READY FOR HUMAN PHYSICAL DOGFOOD** — install on a real Android phone; verify real SOCKS5 and desktop HTTP proxy routing, wrong credentials/outage, browser + ordinary apps, sleep/wake, Wi-Fi↔cellular transitions, performance and credential leakage.
-- **POLICY** — the PR remains draft and Always-on/reconnect semantics remain undecided until physical evidence exists.
-- **AFTER DOGFOOD** — merge/polish Android MVP, then consider APL-MOB-002 proxy pool/health/failover.
+- **DONE — APL-MOB-001 Android dogfood baseline.** PR #53 merged the physically accepted 0.1.4 VpnService/TUN transport baseline with real HTTP/HTTPS CONNECT traffic, public-IP change and lifecycle checks.
+- **DONE — multiprofile MVP increment.** PR #104 merged 0.1.5 multiprofile migration/save/select/delete after its physical upgrade and two-profile selection gate.
+- **IN PROGRESS / DRAFT PR #105 — APL-MOB-002.** Manual connected A → B hot switch and pool-level Auto selection/networking are already recorded as physically accepted. The current 0.1.7 candidate adds a dedicated Auto screen, Arvectum branding, large circular power control and adaptive launcher icon.
+- **CURRENT HUMAN GATE** — install 0.1.7 over the accepted prior build and verify Auto/editor separation, branded rendering/press feedback, unclipped launcher icon and unchanged hot-switch/network behavior.
+- **LATER APL-MOB-002 SLICE** — continuous background failover after an already-connected upstream dies; do not conflate this with the already accepted manual hot-switch/initial Auto selection behavior.
 
 ### iOS
 
@@ -111,25 +112,25 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **CAPABILITY-DEPENDENT** — per-app routing is promised only where platform APIs and distribution model actually allow it.
 ## 9. Currently available workstreams
 
-1. **[Android / HUMAN] APL-MOB-001 physical dogfood — READY NOW.** PR #53 is technically prepared; the remaining gate is a real phone.
+1. **[Android / HUMAN] APL-MOB-001 Android baseline — DONE; APL-MOB-002 PR #105 — IN PROGRESS.** Current gate is the 0.1.7 physical UX/branding/network-regression check; continuous background failover is a later slice.
 2. **[IP/legal] APL-IP-001 v0.2.9 filing-evidence packet — DONE.** Optional external legal hardening is non-blocking unless specifically requested.
-3. **[Windows trust / REVIEW] APL-REL-016 — READY NOW.** PR #81 must be refreshed from v0.2.6 to v0.2.9, then presented for Owner decision.
+3. **[Windows trust / REVIEW] APL-REL-016 — READY FOR OWNER REVIEW.** PR #103 is the current v0.2.9 packet; PR #81 is superseded. No provider, certificate, key-custody or release action is approved by the packet itself.
 4. **[Registry infrastructure / HUMAN] APL-REG-001B — BLOCKED UNTIL PHYSICAL RUSSIAN LIFECYCLE EVIDENCE EXISTS.**
-5. **[Per-app routing / OWNER] production architecture decision — READY NOW.** PR #68 contains the decision packet; refresh against v0.2.9 if needed, then resolve the Owner stop-gate.
-6. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/corporate/accounting/infrastructure/support/signature/live-portal evidence remains.
+5. **[Per-app routing / OWNER] production architecture decision — READY NOW.** PR #68 contains the decision packet; its assumptions may be safely refreshed against v0.2.9, but architecture selection remains an Owner stop-gate.
+6. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 7. **[Windows/release maintenance] — AVAILABLE AS NEEDED.** PR #80 is a release-evidence workflow maintenance fix and must be reconciled with current main before use.
 8. **[macOS production distribution] — DEFERRED.** Engineering baseline exists; Apple production signing/notarization remains non-primary.
-9. **[iOS + APL-MOB-002] — DEFERRED.** Starts after Android dogfood.
+9. **[iOS] — DEFERRED.** Start after the Android product semantics are stable and the Apple entitlement/distribution path is explicit.
 
 ### Repository-hygiene note
 
-Open PRs #90/#91/#92 are superseded Windows recovery implementations overtaken by merged PR #93/#94 and public v0.2.9. Open PRs #70/#74/#82 are superseded RED OS preparation paths overtaken by merged PR #83. They are not active roadmap tracks and must be reconciled before any reuse.
+Open PR #81 is superseded by current APL-REL-016 PR #103. Open PRs #90/#91/#92 are superseded Windows recovery implementations overtaken by merged PR #93/#94 and public v0.2.9. Open PRs #70/#74/#82 are superseded RED OS preparation paths overtaken by merged PR #83. They are not active roadmap tracks and must be reconciled before any reuse.
 
 ### Execution order
 
-- Human/device work can advance Android dogfood and the registry/IP evidence gates.
-- The hourly watchdog may autonomously advance safe preparation on the earliest independent eligible REVIEW/AUTO workstream; with current HUMAN/OWNER blockers, APL-REL-016 is the first useful review-preparation lane.
-- Per-app routing remains an Owner stop-gate after its decision packet is current.
+- Human/device work can advance the current APL-MOB-002 0.1.7 physical gate and the registry physical/private evidence gates.
+- APL-REL-016 preparation is already at the Owner-review boundary in PR #103; the watchdog should not repeatedly recreate that work.
+- The next safe repository-preparation lane is the v0.2.9 refresh of per-app-routing decision material in PR #68, while architecture selection itself remains an Owner stop-gate.
 - External Ministry submission remains outside automation.
 ## 10. Platform / distribution matrix
 
@@ -141,7 +142,7 @@ Open PRs #90/#91/#92 are superseded Windows recovery implementations overtaken b
 | RED OS .rpm | **PUBLISHED v0.2.9 / PHYSICAL BASELINE PROVEN** | Optional exact-v0.2.9 future-proof smoke; registry physical acceptance already exists |
 | Linux AppImage | **ENGINEERING DONE / COMMERCIAL HOLD** | Separate compliance clearance |
 | macOS .app / DMG | **ENGINEERING/ACCEPTANCE DONE** | Apple production signing/notarization when prioritized |
-| Android | **ACTIVE DOGFOOD / DRAFT PR #53** | Physical phone acceptance |
+| Android | **APL-MOB-001 BASELINE DONE / APL-MOB-002 DRAFT PR #105** | 0.1.7 physical UX/branding/regression gate; later continuous failover |
 | iOS | **DEFERRED** | Start after Android dogfood / entitlement path |
 ## Completion discipline
 
