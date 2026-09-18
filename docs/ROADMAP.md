@@ -53,7 +53,7 @@ Current canonical main verified for this roadmap refresh: 2cb0921c1fe31a22f1ea05
 - **DONE / EXACT-TREE EVIDENCE** — provenance run `35255499712` and CycloneDX SBOM run `35255499669` bind to the exact released source tree.
 - **DONE / ENGINEERING DRIFT RECONCILIATION** — material v0.2.5 -> v0.2.9 evolution is classified across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices.
 - **DONE / OWNER FACTS** — the actual 2026-09-14 private sole-participant/rightsholder decision was reviewed; it identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full and authorizes modification/reworking. Current Rospatent, corporate/Russian-control and human creative-control facts were confirmed by the Owner.
-- **CURRENT SCOPE** — Windows Setup + portable, Astra DEB and RED OS RPM. AppImage is excluded from the current approval only and may be added later through its own release/compliance gate.
+- **v0.2.9 HISTORICAL SCOPE** — Windows Setup + portable, Astra DEB and RED OS RPM. Owner directive 2026-09-18 separately admits AppImage for the next release; immutable v0.2.9 evidence is not rewritten.
 - **PROCESS CORRECTION** — the previously prepared R-1B two-party/self-signing future-rights agreement is not a mandatory APL-IP-001 or registry-filing step. It is retained only as optional external legal hardening for the residual question of later human-authored copyrightable contributions. Do not reintroduce it as a blocker without new Owner/legal input.
 - **RULE** — repository evidence is not a legal opinion. If the registry/expert or external counsel specifically requests a stronger chain-of-title instrument for later contributions, handle that as a targeted legal-hardening task rather than per-version compliance ritual.
 
@@ -66,7 +66,7 @@ Canonical current records: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`, `docs/evidence/A
 - **DONE** — APL-LNX-011 fixed Firefox system-proxy behavior on Astra/Fly and was closed by PR #71/#72.
 - **CURRENT RELEASE** — v0.2.9 publishes Arvectum-Proxy-Launcher-0.2.9-astra-linux-amd64.deb.
 - **PROMOTED LANE** — Debian .deb remains the preferred Astra/Linux package.
-- **HOLD** — AppImage remains outside the promoted commercial set until its separate downstream/type-2-runtime compliance obligations are cleared.
+- **PROMOTED FOR NEXT RELEASE** — the x86_64 AppImage lane uses the same canonical Linux frozen executable, hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and release checksum coverage. `v0.2.9` remains unchanged.
 ## 5. Russian Software Register / APL-REG-001
 
 This is an active compliance/filing workstream, but repository dossier preparation is now substantially complete.
@@ -140,7 +140,7 @@ Open PR #81 is superseded by current APL-REL-016 PR #103. Open PRs #90/#91/#92 a
 | Windows portable | **PUBLISHED v0.2.9** | Maintenance / future feature release |
 | Astra Linux .deb | **PUBLISHED v0.2.9 / PHYSICAL BASELINE PROVEN** | Optional exact-v0.2.9 future-proof smoke for registry evidence |
 | RED OS .rpm | **PUBLISHED v0.2.9 / PHYSICAL BASELINE PROVEN** | Optional exact-v0.2.9 future-proof smoke; registry physical acceptance already exists |
-| Linux AppImage | **ENGINEERING DONE / COMMERCIAL HOLD** | Separate compliance clearance |
+| Linux AppImage | **ENGINEERING DONE / PROMOTED FOR NEXT RELEASE** | Green exact-main AppImage CI on the next tagged release; v0.2.9 remains immutable |
 | macOS .app / DMG | **ENGINEERING/ACCEPTANCE DONE** | Apple production signing/notarization when prioritized |
 | Android | **APL-MOB-001 BASELINE DONE / APL-MOB-002 DRAFT PR #105** | 0.1.7 physical UX/branding/regression gate; later continuous failover |
 | iOS | **DEFERRED** | Start after Android dogfood / entitlement path |
