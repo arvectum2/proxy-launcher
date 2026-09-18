@@ -2,6 +2,8 @@
 
 Status: **v0.2.9 FILING-EVIDENCE COMPLETE / OPTIONAL EXTERNAL LEGAL HARDENING**
 
+Separate legal-baseline status: **HUMAN-LEGAL SIGN-OFF PENDING** only if a distinct clean-IP/legal baseline is deliberately requested. This is not a blocker for the current registry filing-evidence packet.
+
 This record defines the repository provenance boundary for APL-IP-001. Automated scans, Git history, CI and AI review are engineering evidence; none of them by themselves prove copyright authorship, exclusive ownership or legal approval.
 
 The current canonical reconciliation is `docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md`. The current human/legal decision record is `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
@@ -124,5 +126,6 @@ This record does not decide the residual copyright question as a legal opinion. 
 - R-1B future-rights instrument: **OPTIONAL EXTERNAL LEGAL HARDENING / NOT A CURRENT FILING BLOCKER**.
 - Current project verdict: **FILING_EVIDENCE_COMPLETE_WITH_OPTIONAL_LEGAL_HARDENING**.
 - Clean-IP/legal tag is not required for the current registry filing packet; do not manufacture one from automation. If a separate legal-baseline tag is ever desired, require a deliberately scoped human review.
+- Clean IP baseline/tag: **BLOCKED** as a separate optional legal-baseline action until that deliberately scoped human/legal review occurs; this BLOCKED state does not block the current filing-evidence packet.
 
 **NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** Existing `v0.2.5` and `v0.2.9` tags must never be moved.
