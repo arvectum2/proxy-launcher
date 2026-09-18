@@ -24,6 +24,8 @@ completed:
   - "Read-only live classification confirms Ethernet=SAVED, Wi-Fi=SAVED, Tailscale=OWNED, Thunderbolt Bridge=OWNED."
   - "Confirmed the baseline tunnel-proxy.py is a separate process and current Launcher settings collide with its 8080/1080/8082 ports; post-recovery port separation remains required before enabling Arvectum."
   - "Removed an exact-owned LaunchAgent accidentally created by an early local test; no network/PAC state was changed."
+  - "Implementation committed and pushed as 943de63."
+  - "Built and verified fixed private arm64 app without installing it; strict codesign PASS, bundle id ru.arvectum.proxylauncher, executable SHA256 b4dfe66fa1a4cf9476ec3f433356869440176765948b1983cabfa24f3c557d9c."
 current: "Implementation is committed/pushed and the fixed private arm64 app is built. Await owner execution of the exact saved-state PAC recovery command before installing or changing local ports."
 pending:
   - "Owner executes the exact saved-state PAC recovery command and confirms completion."
