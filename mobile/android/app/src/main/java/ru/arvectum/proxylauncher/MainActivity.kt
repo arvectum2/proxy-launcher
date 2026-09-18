@@ -165,22 +165,28 @@ class MainActivity : Activity() {
             }
             titleRow.addView(
                 ImageView(this@MainActivity).apply {
-                    setImageResource(R.drawable.arvectum_wordmark)
+                    setImageResource(R.drawable.arvectum_mark)
                     adjustViewBounds = true
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     contentDescription = "Arvectum"
                 },
-                LinearLayout.LayoutParams(dp(116), dp(33)),
+                LinearLayout.LayoutParams(dp(34), dp(28)),
             )
             titleRow.addView(
                 TextView(this@MainActivity).apply {
-                    text = "Proxy Launcher"
+                    text = "Arvectum Proxy Launcher"
                     textSize = 18f
                     setTextColor(MINT)
-                    setTypeface(typeface, Typeface.BOLD)
+                    typeface = Typeface.create("sans-serif", Typeface.BOLD)
                     setSingleLine(true)
                     includeFontPadding = false
-                    setPadding(dp(8), 0, 0, 0)
+                    setAutoSizeTextTypeUniformWithConfiguration(
+                        16,
+                        18,
+                        1,
+                        TypedValue.COMPLEX_UNIT_SP,
+                    )
+                    setPadding(dp(7), 0, 0, 0)
                 },
                 LinearLayout.LayoutParams(
                     0,
@@ -191,10 +197,11 @@ class MainActivity : Activity() {
             addView(titleRow)
 
             addView(TextView(this@MainActivity).apply {
-                text = "Android · ${currentVersionName()}"
-                textSize = 12.5f
+                text = currentVersionName()
+                textSize = 11.5f
                 setTextColor(MINT_LIGHT)
-                setPadding(0, dp(4), 0, 0)
+                alpha = 0.72f
+                setPadding(dp(41), dp(3), 0, 0)
             })
         }
 
@@ -868,7 +875,7 @@ class MainActivity : Activity() {
         }
 
         if (state == ProxyVpnService.STATE_CONNECTED && detail != null) {
-            val parts = detail.split(" · ")
+            val parts = simplifyConnectionDetail(detail).split(" · ")
             val useful = if (parts.firstOrNull()?.startsWith("Подключено") == true) {
                 parts.drop(1)
             } else {
@@ -878,7 +885,7 @@ class MainActivity : Activity() {
         }
 
         if (state == ProxyVpnService.STATE_CONNECTING && !detail.isNullOrBlank()) {
-            return detail
+            return simplifyConnectionDetail(detail)
                 .removePrefix("Проверяем прокси…")
                 .trim()
                 .ifBlank { "Проверяем выбранный прокси" }
@@ -891,6 +898,15 @@ class MainActivity : Activity() {
         val choice = profileChoices.firstOrNull { it.key == currentSelectionKey() }
         return choice?.label ?: "Выберите прокси"
     }
+
+    private fun simplifyConnectionDetail(detail: String): String =
+        detail
+            .replace("HTTP/HTTPS (CONNECT)", "HTTP/HTTPS")
+            .replace(". Создаём VPN…", "")
+            .replace(". Создаём VPN...", "")
+            .replace(" · Создаём VPN…", "")
+            .replace(" · Создаём VPN...", "")
+            .trim()
 
     private fun updateProfileControls() {
         val editable = currentState in editableStates && !switchInProgress
