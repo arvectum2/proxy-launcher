@@ -1,0 +1,44 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-001-ANDROID-MULTIPROFILE-20260918
+status: completed
+goal: "Extend the physically validated Android dogfood client from one implicit profile to multiple securely stored proxy profiles with simple manual active-profile selection, while preserving the one-button proxy-as-VPN UX and upgrade compatibility."
+authority: HUMAN
+definition_of_done:
+  - "Existing 0.1.4 single-profile data migrates without uninstall or credential loss."
+  - "User can save multiple named proxy profiles using host/port/username/password/type."
+  - "User can manually select an active saved profile and the VPN service uses that exact active profile."
+  - "User can create a new profile, edit/save an existing profile, and delete a profile while disconnected."
+  - "Passwords remain encrypted with Android Keystore and are never added to plaintext logs/config."
+  - "Profile controls cannot race an active CONNECTING/CONNECTED/DISCONNECTING tunnel."
+  - "Dogfood version is bumped with the same stable signer and installs over 0.1.4."
+  - "Exact-head Android CI passes signer/branding/build checks and publishes an APK with recorded SHA-256."
+  - "Owner physical dogfood confirms in-place update plus save/select/connect for at least two profiles."
+completed:
+  - "Implemented persistent multi-profile index, automatic 0.1.4 legacy migration, list/load/set-active/delete operations."
+  - "Implemented saved-profile selector, optional profile name, New/Save/Delete, save-on-connect and manual active-profile switching."
+  - "Profile mutation is locked while VPN is CONNECTING/CONNECTED/DISCONNECTING."
+  - "Passwords remain Android-Keystore encrypted per profile."
+  - "Failed preflight now terminates :vpn so the next attempt reads freshly committed active-profile state."
+  - "Bumped to stable-signed 0.1.5-dogfood / versionCode 6."
+  - "Android workflow run 35344115825: SUCCESS; signer and branding verification PASS."
+  - "Artifact 10546726676 built; APK SHA-256 d798afbfe7c01f6fe24a2098a558f4eaed60a2e0b7aae368e5c793a8e59062e8."
+  - "Owner physical acceptance PASS: 0.1.5 works on-device, multiple profiles work, manual switching works while disconnected, and switching is correctly blocked while VPN is active."
+current: null
+pending: []
+last_verified_commit: "99b9a7f6861533f37e6c3f096536855e9d261443"
+test_results:
+  - "Previous 0.1.4 physical transport baseline: PASS."
+  - "PR #104 first compile attempt: FAIL only on Kotlin generic inference; fixed."
+  - "PR #104 Android workflow run 35344115825: PASS."
+  - "0.1.5 stable signer/branding: PASS."
+  - "0.1.5 physical multiprofile acceptance: PASS."
+resume_instruction: null
+updated_at: "2026-09-18T16:12:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
+  lease_until: null
+  manual_override: false
