@@ -102,6 +102,28 @@ Evidence/reference: _______________________________________________
 
 Reviewer factual note/reference: __________________________________
 
+## Owner scope confirmation received on 2026-09-18
+
+Human factual scope is recorded in:
+
+`docs/evidence/APL_IP_001_V0_2_9_SCOPE_CONFIRMATION_2026-09-18.md`.
+
+Confirmed current v0.2.9 scope:
+
+- Windows x64 Setup: **IN SCOPE**;
+- Windows x64 portable ZIP: **IN SCOPE**;
+- Astra Linux x86-64 DEB: **IN SCOPE**;
+- RED OS x86-64 RPM: **IN SCOPE**;
+- AppImage: **EXCLUDED / HOLD FOR CURRENT APPROVAL ONLY**.
+
+The AppImage exclusion is not permanent. Future AppImage, Android, iOS and other platform additions remain possible through later governed platform/release/compliance decisions.
+
+Owner also confirmed that no employment/service-work basis is being relied upon for post-2026-09-14 creative contributions. A narrow R-1B assignment/future-results draft is prepared at:
+
+`docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md`.
+
+R-1B remains **OPEN UNTIL ACTUAL PRIVATE EXECUTION**.
+
 ## Distribution/license disposition
 
 - [ ] Windows x64 Setup reviewed.
