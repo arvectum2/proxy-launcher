@@ -288,6 +288,10 @@ class ProxyVpnService : VpnService() {
         publishState(STATE_ERROR, message)
         stopForegroundCompat()
         stopSelf()
+        // The VPN process owns its own SharedPreferences instance. Kill it after
+        // a failed preflight so the next connect starts fresh and reads any
+        // active-profile change committed by the UI process.
+        terminateVpnProcess()
     }
 
     private fun terminateVpnProcess() {

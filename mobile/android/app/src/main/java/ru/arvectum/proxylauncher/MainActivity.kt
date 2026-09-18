@@ -1,6 +1,7 @@
 package ru.arvectum.proxylauncher
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -13,12 +14,15 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
+import java.util.UUID
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
@@ -26,14 +30,23 @@ import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 
 class MainActivity : Activity() {
     private lateinit var status: TextView
+    private lateinit var profileSpinner: Spinner
+    private lateinit var nameField: EditText
     private lateinit var hostField: EditText
     private lateinit var portField: EditText
     private lateinit var usernameField: EditText
     private lateinit var passwordField: EditText
     private lateinit var typeSpinner: Spinner
+    private lateinit var newProfileButton: Button
+    private lateinit var saveProfileButton: Button
+    private lateinit var deleteProfileButton: Button
     private lateinit var connectButton: Button
     private lateinit var store: SecureProfileStore
+
     private var currentState = ProxyVpnService.STATE_DISCONNECTED
+    private var currentProfileId: String? = null
+    private var suppressProfileSelection = false
+    private var profileChoices: List<ProfileChoice> = emptyList()
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -77,16 +90,58 @@ class MainActivity : Activity() {
 
         status = TextView(this).apply {
             textSize = 18f
-            setPadding(0, 24, 0, 24)
+            setPadding(0, 24, 0, 16)
         }
         root.addView(status)
+
+        root.addView(TextView(this).apply {
+            text = "Профиль"
+            textSize = 14f
+            alpha = 0.72f
+        })
+
+        profileSpinner = Spinner(this)
+        root.addView(
+            profileSpinner,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
+
+        val profileActions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 4, 0, 8)
+        }
+        newProfileButton = Button(this).apply {
+            text = "НОВЫЙ"
+            setOnClickListener { beginNewProfile() }
+        }
+        saveProfileButton = Button(this).apply {
+            text = "СОХРАНИТЬ"
+            setOnClickListener {
+                saveCurrentProfile(showSavedMessage = true)
+            }
+        }
+        deleteProfileButton = Button(this).apply {
+            text = "УДАЛИТЬ"
+            setOnClickListener { confirmDeleteCurrentProfile() }
+        }
+        profileActions.addView(newProfileButton, actionButtonParams())
+        profileActions.addView(saveProfileButton, actionButtonParams())
+        profileActions.addView(deleteProfileButton, actionButtonParams())
+        root.addView(
+            profileActions,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
 
         fun field(hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT) = EditText(this).also {
             it.hint = hint
             it.inputType = inputType
-            root.addView(it, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            root.addView(
+                it,
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+            )
         }
 
+        nameField = field("Название профиля (необязательно)")
         hostField = field("Адрес прокси")
         portField = field("Порт", InputType.TYPE_CLASS_NUMBER)
         usernameField = field("Логин (необязательно)")
@@ -107,7 +162,10 @@ class MainActivity : Activity() {
                 ),
             )
         }
-        root.addView(typeSpinner, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        root.addView(
+            typeSpinner,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
 
         root.addView(TextView(this).apply {
             text = "Авто использует один адрес, порт, логин и пароль. Обычный системный «HTTPS proxy» обычно работает через HTTP CONNECT; TLS до самого прокси проверяется отдельно в последнюю очередь."
@@ -126,10 +184,34 @@ class MainActivity : Activity() {
                 }
             }
         }
-        root.addView(connectButton, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        root.addView(
+            connectButton,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
 
-        setContentView(root)
-        loadSavedProfile()
+        val scroll = ScrollView(this).apply {
+            addView(
+                root,
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+            )
+        }
+        setContentView(scroll)
+
+        profileSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                if (suppressProfileSelection || currentState !in editableStates) return
+                val choice = profileChoices.getOrNull(position) ?: return
+                if (choice.id == null) {
+                    beginNewProfile(updateSpinner = false)
+                } else if (choice.id != currentProfileId) {
+                    selectSavedProfile(choice.id)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+        }
+
+        refreshProfileChoices(store.getActiveProfileId())
         renderState(store.getLastState(), store.getLastDetail())
     }
 
@@ -149,11 +231,52 @@ class MainActivity : Activity() {
         super.onStop()
     }
 
-    private fun loadSavedProfile() {
-        val saved = runCatching { store.loadActive() }.getOrNull() ?: run {
-            typeSpinner.setSelection(0)
+    private fun refreshProfileChoices(selectedId: String?) {
+        val profiles = runCatching { store.listProfiles() }.getOrElse {
+            renderState(ProxyVpnService.STATE_ERROR, "Не удалось прочитать сохранённые профили")
+            emptyList()
+        }
+        profileChoices = buildList {
+            add(ProfileChoice(null, "＋ Новый прокси"))
+            profiles.forEach { add(ProfileChoice(it.id, it.name)) }
+        }
+
+        suppressProfileSelection = true
+        profileSpinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            profileChoices,
+        )
+        val position = profileChoices.indexOfFirst { it.id == selectedId }.takeIf { it >= 0 } ?: 0
+        profileSpinner.setSelection(position)
+        suppressProfileSelection = false
+
+        val id = profileChoices.getOrNull(position)?.id
+        if (id == null) {
+            clearProfileForm()
+        } else {
+            loadProfileIntoForm(id)
+        }
+        updateProfileControls()
+    }
+
+    private fun selectSavedProfile(id: String) {
+        try {
+            store.setActiveProfile(id)
+            loadProfileIntoForm(id)
+        } catch (_: Exception) {
+            renderState(ProxyVpnService.STATE_ERROR, "Не удалось выбрать профиль")
+        }
+        updateProfileControls()
+    }
+
+    private fun loadProfileIntoForm(id: String) {
+        val saved = runCatching { store.loadProfile(id) }.getOrNull() ?: run {
+            renderState(ProxyVpnService.STATE_ERROR, "Не удалось прочитать профиль")
             return
         }
+        currentProfileId = saved.profile.id
+        nameField.setText(saved.profile.name)
         hostField.setText(saved.profile.host)
         portField.setText(saved.profile.port.toString())
         usernameField.setText(saved.profile.username.orEmpty())
@@ -161,24 +284,50 @@ class MainActivity : Activity() {
         typeSpinner.setSelection(proxyTypes.indexOf(saved.profile.type).coerceAtLeast(0))
     }
 
-    private fun saveProfileAndRequestVpnPermission() {
+    private fun beginNewProfile(updateSpinner: Boolean = true) {
+        if (currentState !in editableStates) return
+        currentProfileId = null
+        clearProfileForm()
+        if (updateSpinner && profileChoices.isNotEmpty()) {
+            suppressProfileSelection = true
+            profileSpinner.setSelection(0)
+            suppressProfileSelection = false
+        }
+        updateProfileControls()
+    }
+
+    private fun clearProfileForm() {
+        currentProfileId = null
+        nameField.setText("")
+        hostField.setText("")
+        portField.setText("")
+        usernameField.setText("")
+        passwordField.setText("")
+        typeSpinner.setSelection(0)
+    }
+
+    private fun saveCurrentProfile(showSavedMessage: Boolean): Boolean {
+        if (currentState !in editableStates) return false
+
         val host = hostField.text.toString().trim()
         val port = portField.text.toString().toIntOrNull()
         if (host.isBlank()) {
             renderState(ProxyVpnService.STATE_ERROR, "Введите адрес прокси")
-            return
+            return false
         }
         if (port == null || port !in 1..65535) {
             renderState(ProxyVpnService.STATE_ERROR, "Порт должен быть от 1 до 65535")
-            return
+            return false
         }
 
-        val username = usernameField.text.toString().takeIf { it.isNotBlank() }
+        val username = usernameField.text.toString().trim().takeIf { it.isNotBlank() }
         val password = if (username != null) passwordField.text.toString().toCharArray() else null
         val type = proxyTypes.getOrElse(typeSpinner.selectedItemPosition) { ProxyType.AUTO }
+        val profileId = currentProfileId ?: "profile-${UUID.randomUUID()}"
+        val profileName = nameField.text.toString().trim().ifBlank { "$host:$port" }
         val profile = ProxyProfile(
-            id = "default",
-            name = "$host:$port",
+            id = profileId,
+            name = profileName,
             host = host,
             port = port,
             type = type,
@@ -186,14 +335,48 @@ class MainActivity : Activity() {
         )
 
         try {
-            store.saveActive(profile, password)
+            store.saveProfile(profile, password, makeActive = true)
         } catch (_: Exception) {
-            password?.fill('\u0000')
             renderState(ProxyVpnService.STATE_ERROR, "Не удалось безопасно сохранить профиль")
-            return
+            return false
         } finally {
             password?.fill('\u0000')
         }
+
+        currentProfileId = profileId
+        refreshProfileChoices(profileId)
+        if (showSavedMessage) {
+            renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $profileName")
+        }
+        return true
+    }
+
+    private fun confirmDeleteCurrentProfile() {
+        val id = currentProfileId ?: return
+        if (currentState !in editableStates) return
+        val label = nameField.text.toString().trim().ifBlank { hostField.text.toString().trim() }
+        AlertDialog.Builder(this)
+            .setTitle("Удалить профиль?")
+            .setMessage(label)
+            .setNegativeButton("Отмена", null)
+            .setPositiveButton("Удалить") { _, _ -> deleteProfile(id) }
+            .show()
+    }
+
+    private fun deleteProfile(id: String) {
+        try {
+            store.deleteProfile(id)
+        } catch (_: Exception) {
+            renderState(ProxyVpnService.STATE_ERROR, "Не удалось удалить профиль")
+            return
+        }
+        val nextActiveId = store.getActiveProfileId()
+        refreshProfileChoices(nextActiveId)
+        renderState(ProxyVpnService.STATE_DISCONNECTED, "Профиль удалён")
+    }
+
+    private fun saveProfileAndRequestVpnPermission() {
+        if (!saveCurrentProfile(showSavedMessage = false)) return
 
         val permissionIntent = VpnService.prepare(this)
         if (permissionIntent != null) {
@@ -258,9 +441,38 @@ class MainActivity : Activity() {
             else -> "ВКЛ"
         }
         connectButton.isEnabled = state != ProxyVpnService.STATE_DISCONNECTING
+        updateProfileControls()
+    }
+
+    private fun updateProfileControls() {
+        val editable = currentState in editableStates
+        profileSpinner.isEnabled = editable
+        nameField.isEnabled = editable
+        hostField.isEnabled = editable
+        portField.isEnabled = editable
+        usernameField.isEnabled = editable
+        passwordField.isEnabled = editable
+        typeSpinner.isEnabled = editable
+        newProfileButton.isEnabled = editable
+        saveProfileButton.isEnabled = editable
+        deleteProfileButton.isEnabled = editable && currentProfileId != null
+    }
+
+    private fun actionButtonParams() =
+        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+
+    private data class ProfileChoice(
+        val id: String?,
+        val label: String,
+    ) {
+        override fun toString(): String = label
     }
 
     companion object {
         private const val VPN_REQUEST = 1001
+        private val editableStates = setOf(
+            ProxyVpnService.STATE_DISCONNECTED,
+            ProxyVpnService.STATE_ERROR,
+        )
     }
 }

@@ -2,16 +2,16 @@
 
 This directory is an isolated native Android implementation for the Mobile MVP. It does not alter the desktop runtimes.
 
-> Dogfood note (2026-09-18): physical testing exposed four early runtime defects. After fixing process isolation, IPv6 parity and main-thread networking, 0.1.3 showed that the first Auto candidate (TLS-to-proxy HTTPS) could block indefinitely because the TLS handshake had no read timeout. 0.1.4 adds a hard TLS handshake timeout, shorter bounded probe timeouts, per-candidate status, and a system-proxy-compatible Auto order: HTTP CONNECT → SOCKS5 → TLS-to-proxy HTTPS.
+> Dogfood note (2026-09-18): 0.1.4 passed physical end-to-end acceptance for HTTP CONNECT, public-IP routing, repeated OFF/ON and sleep/wake. 0.1.5 keeps that tunnel path unchanged and adds the next MVP slice: multiple securely stored named proxy profiles plus manual active-profile selection.
 
 ## Product contract
 
 The user-facing flow stays intentionally small:
 
-1. enter proxy address and port once;
-2. optionally enter username/password once;
+1. choose an existing saved proxy or tap `НОВЫЙ`;
+2. enter a profile name, address/port and optional username/password;
 3. keep the default `Авто: HTTP/HTTPS → SOCKS5 → HTTPS-proxy (TLS)`, or force one transport for diagnostics;
-4. press `ВКЛ`;
+4. save the profile or simply press `ВКЛ` (connect also saves it);
 5. approve Android's VPN permission once;
 6. press `ВЫКЛ` to disconnect.
 
@@ -36,7 +36,10 @@ No Clash/sing-box profiles, YAML/JSON, subscriptions, GeoIP or routing terminolo
 - virtual DNS through the tunnel;
 - one-button connect/disconnect lifecycle;
 - foreground VPN notification;
-- Android Keystore AES-GCM protection for the persisted proxy password;
+- multiple named proxy profiles with manual active-profile selection;
+- automatic migration of the pre-0.1.5 single active profile into the profile index;
+- create/edit/save/delete profile controls are locked while the tunnel is connecting/connected/disconnecting;
+- Android Keystore AES-GCM protection for each persisted proxy password;
 - no plaintext credentials in config files or logs.
 
 ## Why the VPN process is separate
@@ -86,7 +89,7 @@ GitHub Actions performs both steps and publishes the resulting debug APK as a wo
 
 ## Physical dogfood acceptance
 
-0.1.4-dogfood passed on the owner's Android test device:
+0.1.4-dogfood passed on the owner's Android test device and is the transport baseline for 0.1.5:
 
 - in-place update from the stable-signed dogfood line;
 - Auto selected HTTP/HTTPS (CONNECT);
@@ -100,3 +103,15 @@ Wi-Fi ↔ cellular remains deferred because the current test device has no SIM. 
 Further robustness checks remain useful for later slices: wrong credentials/unavailable proxy, Wi-Fi-to-Wi-Fi or hotspot transitions, cellular transition on a SIM/eSIM device, and longer-running battery/reconnect behavior.
 
 `SUPPORTS_ALWAYS_ON` remains disabled until reconnect/network-transition behavior is proven more broadly.
+
+
+## 0.1.5 multiprofile dogfood gate
+
+The next physical check is intentionally small:
+
+- install 0.1.5 over 0.1.4 without uninstalling;
+- confirm the existing 0.1.4 proxy appears automatically as a saved profile;
+- save a second named proxy profile;
+- switch between the two saved profiles while disconnected;
+- connect through each profile and confirm the selected endpoint is the one used;
+- confirm profile New/Save/Delete controls are disabled while the VPN is active.

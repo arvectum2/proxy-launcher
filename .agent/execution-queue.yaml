@@ -33,12 +33,12 @@ items:
     authority: HUMAN
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #50; draft PR #53"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #50; merged PR #53; draft PR #104"
     dependencies: []
     owner_gate: "Requires a physical Android device and real-network acceptance evidence."
-    executor_scope: "May keep PR #53 current, prepare diagnostics/fixes and evidence tooling; must not claim physical PASS without device evidence."
-    active_pr: 53
-    evidence: "Current spike provides native Android VpnService/TUN, secure profile storage and a CI-built debug APK; physical dogfood remains the gate."
+    executor_scope: "May keep the Android MVP candidate current, prepare diagnostics/fixes and evidence tooling; must not claim new physical PASS without device evidence."
+    active_pr: 104
+    evidence: "PR #53 merged the physically accepted 0.1.4 baseline: real HTTP/HTTPS CONNECT traffic, public-IP change, OFF/ON and sleep/wake PASS. Draft PR #104 adds 0.1.5 multiprofile migration/save/select/delete; its two-profile physical dogfood remains the current gate."
 
   - order: 30
     task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF

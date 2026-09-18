@@ -22,10 +22,16 @@ class SecureProfileStore(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /**
-     * Commit synchronously: the VPN service runs in a separate process so the profile
-     * must be on disk before Android starts that process.
+     * Commit synchronously: the VPN service runs in a separate process so the active
+     * profile must be on disk before Android starts that process.
      */
     fun saveActive(profile: ProxyProfile, password: CharArray?) {
+        saveProfile(profile, password, makeActive = true)
+    }
+
+    fun saveProfile(profile: ProxyProfile, password: CharArray?, makeActive: Boolean = true) {
+        ensureLegacyProfileIndexed()
+
         val passwordRef = if (password != null) {
             val ok = prefs.edit().putString(secretKey(profile.id), encrypt(password)).commit()
             check(ok) { "Failed to persist encrypted credential" }
@@ -36,36 +42,45 @@ class SecureProfileStore(context: Context) {
             null
         }
 
-        val ok = prefs.edit()
-            .putString(KEY_ACTIVE_ID, profile.id)
+        val ids = profileIds().toMutableSet().apply { add(profile.id) }
+        val editor = prefs.edit()
+            .putStringSet(KEY_PROFILE_IDS, ids)
             .putString(profileKey(profile.id, "name"), profile.name)
             .putString(profileKey(profile.id, "host"), profile.host)
             .putInt(profileKey(profile.id, "port"), profile.port)
             .putString(profileKey(profile.id, "type"), profile.type.name)
             .putString(profileKey(profile.id, "username"), profile.username)
             .putString(profileKey(profile.id, "password_ref"), passwordRef)
-            .commit()
-        check(ok) { "Failed to persist proxy profile" }
+        if (makeActive) {
+            editor.putString(KEY_ACTIVE_ID, profile.id)
+        }
+        check(editor.commit()) { "Failed to persist proxy profile" }
     }
 
-    fun loadActive(): ResolvedProxyProfile? {
-        val id = prefs.getString(KEY_ACTIVE_ID, null) ?: return null
-        val host = prefs.getString(profileKey(id, "host"), null) ?: return null
-        val port = prefs.getInt(profileKey(id, "port"), -1)
-        val type = runCatching {
-            ProxyType.valueOf(prefs.getString(profileKey(id, "type"), ProxyType.AUTO.name)!!)
-        }.getOrDefault(ProxyType.AUTO)
-        val passwordRef = prefs.getString(profileKey(id, "password_ref"), null)
-        val profile = ProxyProfile(
-            id = id,
-            name = prefs.getString(profileKey(id, "name"), "$host:$port") ?: "$host:$port",
-            host = host,
-            port = port,
-            type = type,
-            username = prefs.getString(profileKey(id, "username"), null),
-            passwordRef = passwordRef,
-        )
-        val password = if (passwordRef != null) {
+    fun listProfiles(): List<ProxyProfile> {
+        ensureLegacyProfileIndexed()
+        return profileIds()
+            .mapNotNull(::loadProfileMetadata)
+            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+    }
+
+    fun getActiveProfileId(): String? {
+        ensureLegacyProfileIndexed()
+        return prefs.getString(KEY_ACTIVE_ID, null)
+    }
+
+    fun setActiveProfile(id: String) {
+        ensureLegacyProfileIndexed()
+        require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+        check(prefs.edit().putString(KEY_ACTIVE_ID, id).commit()) {
+            "Failed to persist active proxy profile"
+        }
+    }
+
+    fun loadProfile(id: String): ResolvedProxyProfile? {
+        ensureLegacyProfileIndexed()
+        val profile = loadProfileMetadata(id) ?: return null
+        val password = if (profile.passwordRef != null) {
             val encrypted = prefs.getString(secretKey(id), null)
                 ?: error("Encrypted password is missing")
             decrypt(encrypted)
@@ -73,6 +88,45 @@ class SecureProfileStore(context: Context) {
             null
         }
         return ResolvedProxyProfile(profile, password)
+    }
+
+    fun loadActive(): ResolvedProxyProfile? {
+        val id = getActiveProfileId() ?: return null
+        return loadProfile(id)
+    }
+
+    fun deleteProfile(id: String) {
+        ensureLegacyProfileIndexed()
+        if (loadProfileMetadata(id) == null) return
+
+        val remainingIds = profileIds().toMutableSet().apply { remove(id) }
+        val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
+            remainingIds
+                .mapNotNull(::loadProfileMetadata)
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .firstOrNull()
+                ?.id
+        } else {
+            prefs.getString(KEY_ACTIVE_ID, null)
+        }
+
+        val editor = prefs.edit()
+            .putStringSet(KEY_PROFILE_IDS, remainingIds)
+            .remove(secretKey(id))
+            .remove(profileKey(id, "name"))
+            .remove(profileKey(id, "host"))
+            .remove(profileKey(id, "port"))
+            .remove(profileKey(id, "type"))
+            .remove(profileKey(id, "username"))
+            .remove(profileKey(id, "password_ref"))
+
+        if (nextActiveId == null) {
+            editor.remove(KEY_ACTIVE_ID)
+        } else {
+            editor.putString(KEY_ACTIVE_ID, nextActiveId)
+        }
+
+        check(editor.commit()) { "Failed to delete proxy profile" }
     }
 
     fun setLastState(state: String, detail: String? = null) {
@@ -83,6 +137,45 @@ class SecureProfileStore(context: Context) {
         ?: ProxyVpnService.STATE_DISCONNECTED
 
     fun getLastDetail(): String? = prefs.getString(KEY_LAST_DETAIL, null)
+
+    private fun ensureLegacyProfileIndexed() {
+        if (prefs.contains(KEY_PROFILE_IDS)) return
+
+        val activeId = prefs.getString(KEY_ACTIVE_ID, null)
+        val legacyIds = if (
+            activeId != null &&
+            prefs.getString(profileKey(activeId, "host"), null) != null
+        ) {
+            setOf(activeId)
+        } else {
+            emptySet()
+        }
+
+        check(prefs.edit().putStringSet(KEY_PROFILE_IDS, legacyIds).commit()) {
+            "Failed to initialize proxy profile index"
+        }
+    }
+
+    private fun profileIds(): Set<String> =
+        prefs.getStringSet(KEY_PROFILE_IDS, emptySet())?.toSet().orEmpty()
+
+    private fun loadProfileMetadata(id: String): ProxyProfile? {
+        val host = prefs.getString(profileKey(id, "host"), null) ?: return null
+        val port = prefs.getInt(profileKey(id, "port"), -1)
+        if (port !in 1..65535) return null
+        val type = runCatching {
+            ProxyType.valueOf(prefs.getString(profileKey(id, "type"), ProxyType.AUTO.name)!!)
+        }.getOrDefault(ProxyType.AUTO)
+        return ProxyProfile(
+            id = id,
+            name = prefs.getString(profileKey(id, "name"), "$host:$port") ?: "$host:$port",
+            host = host,
+            port = port,
+            type = type,
+            username = prefs.getString(profileKey(id, "username"), null),
+            passwordRef = prefs.getString(profileKey(id, "password_ref"), null),
+        )
+    }
 
     private fun encrypt(value: CharArray): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -141,6 +234,7 @@ class SecureProfileStore(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "apl_mobile_profiles_v1"
+        private const val KEY_PROFILE_IDS = "profile_ids"
         private const val KEY_ACTIVE_ID = "active_profile_id"
         private const val KEY_LAST_STATE = "tunnel_state"
         private const val KEY_LAST_DETAIL = "tunnel_detail"
