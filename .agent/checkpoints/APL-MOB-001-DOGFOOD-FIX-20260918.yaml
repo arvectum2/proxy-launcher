@@ -1,0 +1,53 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-001-DOGFOOD-FIX-20260918
+status: completed
+goal: "Turn Android APL-MOB-001 dogfood feedback into a stable upgradeable dogfood build with reliable install/update, bounded proxy detection, working tunnel connectivity, stable OFF/ON lifecycle, visible version, and desktop-consistent branding."
+authority: HUMAN
+definition_of_done:
+  - "Canonical dogfood feedback is recorded in issue/PR."
+  - "Dogfood signing stays stable across builds so APKs update in place."
+  - "Version and canonical desktop icon are visible/correct."
+  - "Auto proxy detection is bounded, shows per-candidate progress, and cannot hang indefinitely."
+  - "System-style HTTPS proxy semantics are represented correctly."
+  - "Known-good proxy credentials pass traffic on a physical Android device and public IP changes."
+  - "OFF -> ON repeated cycles do not terminate the UI or race service state."
+  - "Android CI builds the exact code head with signer/branding verification and publishes a dogfood APK + SHA-256."
+completed:
+  - "Dedicated :vpn process contains tun2proxy native shutdown behavior so UI survives disconnect/restart."
+  - "IPv6 TUN/engine parity fixed."
+  - "Shared credentials and Auto/manual proxy modes implemented."
+  - "HTTP CONNECT, SOCKS5 and TLS-to-proxy HTTPS transports implemented behind ProxyEngineAdapter."
+  - "Proxy preflight moved off Android main thread with session/cancellation guards."
+  - "Connect/read/TLS-handshake timeouts are bounded and per-candidate progress is visible."
+  - "Android Keystore AES-GCM protects persisted proxy password."
+  - "Stable non-production dogfood signing identity introduced; later dogfood APKs update in place."
+  - "Visible version label and canonical desktop icon added."
+  - "0.1.4 code head 0f0346cf1b49ee05e171be8acf8883fd65c010fb passed Android workflow run 35331949915."
+  - "0.1.4 artifact 10541656857 inspected; 4 Android ABIs and canonical launcher resource present."
+  - "0.1.4 APK SHA-256 607423710a18e3d6904baab6691e671687537391b80c9f768e43ce4586a40771."
+  - "Physical Android acceptance PASS: Auto selected HTTP/HTTPS (CONNECT), live traffic passed through the configured proxy, repeated OFF/ON passed, sleep/wake passed."
+  - "Public-IP acceptance PASS: connected browser IP matched the proxy exit; disconnected browser used a different ordinary Wi-Fi IPv6 address."
+  - "Wi-Fi <-> cellular test deferred because the current device has no SIM; not a failure."
+current: null
+pending: []
+last_verified_commit: "0f0346cf1b49ee05e171be8acf8883fd65c010fb"
+test_results:
+  - "Android workflow 35331949915: SUCCESS."
+  - "Stable signer verification: PASS."
+  - "Assembled APK signer/branding verification: PASS."
+  - "Physical end-to-end connectivity: PASS."
+  - "Auto protocol selection: PASS, HTTP/HTTPS (CONNECT)."
+  - "Public IP changes to proxy exit: PASS."
+  - "Repeated OFF -> ON: PASS."
+  - "Sleep/wake: PASS."
+  - "Wi-Fi <-> cellular: NOT RUN, no SIM on test device."
+resume_instruction: null
+updated_at: "2026-09-18T14:46:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
+  lease_until: null
+  manual_override: false

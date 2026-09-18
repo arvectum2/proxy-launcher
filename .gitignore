@@ -16,3 +16,8 @@ __pycache__/
 
 # Local QA artifacts
 qa/
+
+# Android generated state and fetched native dependencies
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/app/src/main/jniLibs/
