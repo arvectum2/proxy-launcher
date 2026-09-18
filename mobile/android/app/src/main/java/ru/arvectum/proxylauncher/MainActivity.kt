@@ -161,8 +161,9 @@ class MainActivity : Activity() {
 
             val titleRow = LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
+                gravity = Gravity.BOTTOM
             }
+
             titleRow.addView(
                 ImageView(this@MainActivity).apply {
                     setImageResource(R.drawable.arvectum_mark)
@@ -170,8 +171,9 @@ class MainActivity : Activity() {
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     contentDescription = "Arvectum"
                 },
-                LinearLayout.LayoutParams(dp(34), dp(28)),
+                LinearLayout.LayoutParams(dp(34), dp(23)),
             )
+
             titleRow.addView(
                 TextView(this@MainActivity).apply {
                     text = "Arvectum Proxy Launcher"
@@ -181,12 +183,13 @@ class MainActivity : Activity() {
                     setSingleLine(true)
                     includeFontPadding = false
                     setAutoSizeTextTypeUniformWithConfiguration(
-                        16,
+                        15,
                         18,
                         1,
                         TypedValue.COMPLEX_UNIT_SP,
                     )
-                    setPadding(dp(7), 0, 0, 0)
+                    setPadding(dp(7), 0, dp(8), 0)
+                    gravity = Gravity.BOTTOM
                 },
                 LinearLayout.LayoutParams(
                     0,
@@ -194,15 +197,23 @@ class MainActivity : Activity() {
                     1f,
                 ),
             )
-            addView(titleRow)
 
-            addView(TextView(this@MainActivity).apply {
-                text = currentVersionName()
-                textSize = 11.5f
-                setTextColor(MINT_LIGHT)
-                alpha = 0.72f
-                setPadding(dp(41), dp(3), 0, 0)
-            })
+            titleRow.addView(
+                TextView(this@MainActivity).apply {
+                    text = currentVersionName()
+                    textSize = 11.5f
+                    setTextColor(MINT_LIGHT)
+                    alpha = 0.72f
+                    includeFontPadding = false
+                    gravity = Gravity.BOTTOM or Gravity.END
+                },
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
+            )
+
+            addView(titleRow)
         }
 
     private fun buildPowerButton(): Button =
