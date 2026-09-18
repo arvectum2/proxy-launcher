@@ -1,56 +1,43 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-REG-001D-MINCIFRY-APPLICATION
-status: completed
-goal: Prepare a filing-grade application package for inclusion of Arvectum Proxy Launcher in the Unified Register of Russian Software, based on the completed Astra Linux SE and RED OS physical acceptance records and the current v0.2.9 release baseline.
-authority: HUMAN
+task_id: APL-ROADMAP-SYNC-20260918
+status: in_progress
+goal: "Reconcile the canonical Proxy Launcher roadmap/execution queue to the actual 2026-09-18 repository and release state, so the hourly watchdog selects only current tracks from the v0.2.9 baseline."
+authority: AUTO
 definition_of_done:
-  - Re-verify the current official registry filing requirements and application flow against the Ministry/registry operator sources current on the filing date.
-  - Reconcile repository registration readiness with the completed APL-REG-001C Astra Linux SE + RED OS physical acceptance and current v0.2.9 release.
-  - Produce a version-frozen Russian registry documentation pack: product/function description, system requirements, installation/operation/removal/recovery, support/maintenance statement, licensing/price statement, expert verification procedure, known restrictions and external-proxy configuration.
-  - Produce an application-field worksheet mapping each known portal field to a ready answer, public evidence URL/document, or explicit HUMAN/PRIVATE input.
-  - Produce a private-evidence checklist for corporate/right-chain, foreign-payment, authority and УКЭП materials without committing personal data, private keys or restricted corporate evidence.
-  - Run a pre-submission gap audit and clearly separate repository-complete items from human/legal/portal-signature blockers.
-  - Relevant documentation/contract tests or internal consistency checks pass.
-  - Open a reviewable PR with the filing package and checkpoint; do not submit or sign the external application without the authorized human/qualified-signature step.
+  - "Canonical roadmap reflects published v0.2.9 as the current stable product line."
+  - "Astra Gate R8 and RED OS APL-REG-001C physical acceptance are recorded as completed."
+  - "APL-REG-001D registry dossier preparation is recorded as completed, while external filing gates remain fail-closed."
+  - "Execution queue reflects current statuses and preserves HUMAN/OWNER/REVIEW boundaries."
+  - "Open active tracks are reconciled against current PR/issue state; superseded duplicate PRs are not treated as roadmap tracks."
+  - "Proxy Launcher Watchdog is enabled as the single hourly recovery/execution task and reads the canonical queue."
+  - "ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md are synchronized to the same factual baseline."
+  - "Exact-head CI for the roadmap synchronization PR passes before merge."
 completed:
-  - Re-verified the 2026-09-17 official filing baseline against ФГИС Реестры ПО and Government Resolution No. 1236 / amendments No. 1937 / trusted-software rules No. 1931; recorded official source URLs in docs/registry/README.md.
-  - Confirmed current filing flow requires a verified Gosuslugi account, prepared filing materials, electronic-signature software and a qualified certificate; the application and attachments are signed electronically by the authorized applicant.
-  - Reconciled APL-REG-001C evidence: Astra Linux SE physical compatibility exists on the Astra acceptance line; RED OS 8.0.3 physical acceptance was closed by PR #83 with 62/62 focused regressions; the dossier does not falsely relabel prior Linux evidence as exact v0.2.9 execution.
-  - Confirmed current public product release is v0.2.9 with Windows x64, Astra Linux DEB, RED OS RPM and SHA256SUMS.txt.
-  - Produced the version-frozen Russian registry dossier under docs/registry, including application worksheet, Rule 1236 matrix, functional characteristics, install/operation/recovery manual, support/maintenance statement, technical-infrastructure statement, licensing/price statement, expert test procedure, private-evidence checklist and pre-submission audit.
-  - Separated current Rule 1236 filing blockers from the future trusted-OS gate; for class 02.02 the two-trusted-OS requirement starts on 2027-01-01 under the verified current baseline.
-  - Added and fixed dossier consistency tests; the Windows code-page-sensitive guillemet assertion was replaced with stable table-row anchors.
-  - Ran focused dossier tests on Mac mini: 6/6 PASS on final head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5.
-  - Ran the full local Mac source suite as a secondary check: 815 tests executed before 4 environment import errors caused by Homebrew Python 3.14 lacking _tkinter; this is recorded as a local host limitation, not a branch defect.
-  - Verified exact-head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5 with 10/10 GitHub workflows successful, including Windows P0 portable, Windows installer RC/E2E, SAST, dependency scan, secret scan, SBOM, provenance, IP reconciliation and sovereignty gates.
-  - Performed static exact-v0.2.9 GUI string review: primary GUI controls/help are Russian; technical/user-visible tokens such as PASS/WARN/FAIL and protocol identifiers remain, so p. 5 «л» is intentionally retained as a final visual verification gate rather than falsely closed.
-  - Merged PR #95 into main as ab0f11ead2499e5626a88791ab3982f25eea2c21 after exact-head CI was fully green.
-  - Confirmed Remote Desktop Commander target state during finalization: Astra and RED OS acceptance devices were offline, so no exact-v0.2.9 physical rerun was fabricated.
-current: Repository preparation task is complete and merged. The external application itself remains PRE-SUBMISSION / HOLD until real HUMAN/PRIVATE/PHYSICAL filing gates are closed.
-pending: []
-external_filing_gates:
-  - Executed exclusive-right chain and current Russian-control/corporate evidence for ООО «Арвектум».
-  - Accounting evidence for applicable foreign-payment criterion.
-  - Physical Russian source/object storage, build/compilation and release/distribution perimeter evidence under APL-REG-001B.
-  - Confirmation of the actual eligible Russian support/modification entity/person and official support contacts.
-  - Final exact-v0.2.9 visual Russian-GUI review; remediate and release a new version if a legally material language gap is found.
-  - Current corporate facts, signer authority and qualified electronic signature.
-  - Live-form/current-law recheck immediately before signing and submission.
-future_gate:
-  - Under the verified 2026-09-17 baseline, the two-trusted-OS compatibility condition applies to class 02.02 from 2027-01-01. Exact public v0.2.9 Astra/RED physical smoke remains preferred future-proof evidence when both stands are online, but is not represented as already executed.
-last_verified_commit: 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5
-merged_commit: ab0f11ead2499e5626a88791ab3982f25eea2c21
-test_results:
-  - Focused registry dossier tests on final head 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5: 6/6 PASS.
-  - Exact-head GitHub CI on 98ac6529895ce7f86977ed8d14a6a9c1cd765ef5: 10/10 workflows SUCCESS.
-  - Secondary full Mac source run: 815 tests reached; 4 import errors due to missing _tkinter in Homebrew Python 3.14, not used as canonical acceptance.
-resume_instruction: No repository continuation is required for APL-REG-001D. For actual filing, start a new pre-submission gate task from docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md only when the required HUMAN/PRIVATE/PHYSICAL evidence is available. Re-check live law/portal at that time. Never sign, submit, or use УКЭП/private-key material autonomously.
-updated_at: '2026-09-17T23:42:00+03:00'
+  - "Verified canonical main at 52fc4f8bbaa9d7fca6274f28c99041eabf1e410a."
+  - "Verified public stable release v0.2.9 with Windows x64 setup/portable, Astra Linux DEB, RED OS RPM and SHA256SUMS."
+  - "Verified RED OS 8.0.3 physical acceptance completed in merged PR #83."
+  - "Verified registry filing dossier APL-REG-001D completed in merged PR #95 with final checkpoint PR #96."
+  - "Verified current open active tracks: Android PR #53, Windows trust PR #81, per-app routing decision PR #68, registry/IP/sovereign-lifecycle issues; identified stale superseded PRs."
+  - "Re-enabled and updated the single hourly Proxy Launcher Watchdog to scan the canonical execution queue after completed/blocked tasks."
+  - "Updated .agent/execution-queue.yaml to v0.2.9: Astra and RED OS DONE, registry dossier DONE, external filing split into fail-closed HUMAN pre-submission gates, REL-016/Android/per-app tracks reconciled."
+  - "Updated docs/ROADMAP.md to v0.2.9 while preserving historical APL-IP-001 governance markers required by repository contracts."
+  - "Updated docs/LOCAL_EXECUTION_BACKLOG.md to current physical/compliance/product state and recorded superseded open PRs as non-roadmap hygiene."
+  - "Opened PR #97 from agent/roadmap-sync-20260918 to main; GitHub reports mergeable=true."
+  - "Pre-merge review check: no submitted reviews and no review threads; current Company AM-4 base authorization and 2026-09-16 renewal are Approved."
+  - "Exact-head CI started on ffcf4ddcafd073a52011bfcb54db51093d21fdb9; APL-IP-001 provenance and Windows Russian-first Production Signing already SUCCESS at the latest checkpoint."
+current: "PR #97 is open and mergeable; verify exact-head CI to completion."
+pending:
+  - "Open PR, run exact-head CI, merge if required checks are green."
+  - "Mark checkpoint completed with final merge SHA and verification result."
+last_verified_commit: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
+test_results: []
+updated_at: "2026-09-18T10:00:00+03:00"
+resume_instruction: "Check exact-head CI for PR #97 head ffcf4ddcafd073a52011bfcb54db51093d21fdb9. If all required checks are green and main has not invalidated the merge, merge PR #97. Then write a final completed checkpoint on main with the merge SHA and CI summary."
 execution:
   claimed_by: chatgpt
-  execution_id: APL-REG-001D-20260917
-  branch: apl-reg-001d-ministry-application
-  base_commit: 1081a54de662bcabf5c2b92c37c450600a2723c1
+  execution_id: APL-ROADMAP-SYNC-20260918
+  branch: agent/roadmap-sync-20260918
+  base_commit: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
   lease_until: null
   manual_override: true

@@ -1,7 +1,16 @@
-version: 1
+version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-14T15:47:00Z"
+updated_at: "2026-09-18T09:48:00+03:00"
 owner_controls_order: true
+baseline:
+  main_sha_verified: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
+  stable_release: "v0.2.9"
+  stable_release_published_at: "2026-09-17"
+  platforms:
+    - Windows x64 setup
+    - Windows x64 portable
+    - Astra Linux 1.8 x86-64 DEB
+    - RED OS 8.0.3 x86-64 RPM
 
 # Ordered execution view over the accepted active backlog. The executor may update
 # status/evidence only; it must not silently reorder or reclassify items.
@@ -15,9 +24,7 @@ items:
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P2"
     dependencies: []
-    owner_gate: "Physical dual-boot/host actions and any destructive disk/boot step require explicit human participation."
-    executor_scope: "Prepare/check instructions, evidence templates and repository reconciliation; do not repartition/reboot/install an OS autonomously."
-    evidence: "DONE: physical Astra Linux SE 1.8/Fly Gate R8 evidence is complete; verifier => EVIDENCE COMPLETE; exact NetworkManager rollback comparators PASS; PR #62 exact-head CI 16/16 SUCCESS; fixes merged to main at cb8655278bcb0899104bb5e4161c4de0497b6226."
+    evidence: "DONE: physical Astra Linux SE 1.8/Fly Gate R8 evidence complete; verifier EVIDENCE COMPLETE; fixes merged through PR #62 and checkpoint closeout."
 
   - order: 20
     task_id: APL-MOB-001-ANDROID-DOGFOOD
@@ -29,7 +36,9 @@ items:
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #50; draft PR #53"
     dependencies: []
     owner_gate: "Requires a physical Android device and real-network acceptance evidence."
-    executor_scope: "Prepare diagnostics/fixes/PR evidence around the existing spike, but do not claim physical PASS without device evidence."
+    executor_scope: "May keep PR #53 current, prepare diagnostics/fixes and evidence tooling; must not claim physical PASS without device evidence."
+    active_pr: 53
+    evidence: "Current spike provides native Android VpnService/TUN, secure profile storage and a CI-built debug APK; physical dogfood remains the gate."
 
   - order: 30
     task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
@@ -40,8 +49,8 @@ items:
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57"
     dependencies: []
-    blocker: "Engineering provenance/SBOM work is complete; explicit authorized R-1..R-4 legal/factual review and decision remain."
-    executor_scope: "Keep evidence coherent and prepare a review packet; never manufacture APPROVED status or a clean-IP tag."
+    blocker: "Engineering provenance/SBOM evidence exists, but executed exclusive-right chain, current corporate/Russian-control facts and explicit authorized legal/factual disposition remain human/owner evidence."
+    executor_scope: "Keep evidence coherent and prepare review material; never manufacture APPROVED status, legal conclusion or clean-IP tag."
 
   - order: 40
     task_id: APL-REL-016
@@ -50,10 +59,12 @@ items:
     authority: REVIEW
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30; PR #81"
     dependencies: []
-    owner_gate: "Final production trust/distribution path and any paid/external certificate commitment require owner approval."
-    executor_scope: "Research current requirements, maintain the trust matrix, prepare architecture/recommendation and repository changes up to a review-ready PR. Never mutate v0.2.5."
+    owner_gate: "Final production trust/distribution path, paid provider/certificate commitment and key-custody decision require Owner approval."
+    executor_scope: "Refresh the review packet from its v0.2.6 baseline to current v0.2.9, verify current trust requirements, maintain tests/contracts and stop at review-ready state."
+    active_pr: 81
+    evidence: "PR #81 contains the current trust decision packet but explicitly targets the older v0.2.6 baseline; it requires reconciliation to v0.2.9 before final review."
 
   - order: 50
     task_id: APL-REG-001B-PHYSICAL-PROOF
@@ -64,7 +75,8 @@ items:
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P6; issue #55"
     dependencies: []
-    blocker: "Requires actual Russian-controlled build/storage/distribution infrastructure and human evidence."
+    blocker: "Requires actual Russian-controlled authoritative source/object storage, build/compilation and release/distribution perimeter evidence."
+    executor_scope: "Repository tooling/documentation may be maintained, but physical/provider facts must not be fabricated."
 
   - order: 60
     task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
@@ -73,37 +85,53 @@ items:
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #68"
     dependencies: []
-    owner_gate: "Architecture/enforcement choice is an explicit stop-gate before production implementation."
-    executor_scope: "May prepare options, trade-offs and reversible prototypes only; do not select the production architecture as owner approval."
+    owner_gate: "Production enforcement architecture is an explicit Owner/Product Owner stop-gate."
+    executor_scope: "May refresh options/trade-offs and reversible prototypes against v0.2.9; do not select or implement the production architecture as if approved."
+    active_pr: 68
+    evidence: "PR #68 contains an owner-decision packet recommending, but not approving, an Arvectum-owned WFP ALE callout/service path."
 
   - order: 70
     task_id: APL-REG-001C-REDOS
     title: "RED OS second trusted-OS real-host acceptance"
-    status: blocked
+    status: done
     authority: HUMAN
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P3"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P3; merged PR #83"
     dependencies:
       - APL-LNX-010-GATE-R8
-    blocker: "Requires a qualifying RED OS environment and real-host/accepted evidence form."
+    evidence: "DONE: RED OS 8.0.3 Standard Desktop x86_64 physical acceptance PASS; focused suite 62/62 PASS; acceptance implementation merged in PR #83."
 
   - order: 80
-    task_id: APL-REG-001D-F
-    title: "Russian Software Register documentation and pre-submission package"
-    status: blocked
+    task_id: APL-REG-001D-DOSSIER
+    title: "Russian Software Register filing-grade documentation dossier"
+    status: done
     authority: REVIEW
     independent: false
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P10; issue #46"
+    source: "docs/registry; merged PR #95; checkpoint PR #96"
     dependencies:
       - APL-LNX-010-GATE-R8
       - APL-REG-001C-REDOS
+    evidence: "DONE: v0.2.9/class 02.02 filing dossier, application worksheet, Rule 1236 matrix, manuals, support/licensing statements, expert procedure, private-evidence checklist and pre-submission audit merged; exact-head CI 10/10 SUCCESS."
+
+  - order: 85
+    task_id: APL-REG-001E-F-PRESUBMISSION
+    title: "Russian Software Register private evidence and external pre-submission gate"
+    status: blocked
+    authority: HUMAN
+    independent: false
+    auto_merge: false
+    source: "docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md; issue #46"
+    dependencies:
       - APL-IP-001-HUMAN-LEGAL-SIGNOFF
       - APL-REG-001B-PHYSICAL-PROOF
-    owner_gate: "Private corporate evidence, final filing decision and electronic submission remain human/owner actions."
+      - APL-REG-001D-DOSSIER
+    blocker: "PRE-SUBMISSION / HOLD pending private corporate/right-chain and accounting evidence, Russian lifecycle physical proof, factual support contacts, exact-v0.2.9 Russian-GUI visual review, signer authority/qualified electronic signature and live-form/current-law recheck."
+    owner_gate: "External filing, legal representations, electronic signing and submission require authorized human action and УКЭП."
+    executor_scope: "May maintain the dossier and pre-submission checklist; never sign or submit the application or ingest private-key/УКЭП material."
 
   - order: 90
     task_id: APL-MAC-PRODUCTION-DISTRIBUTION
@@ -125,3 +153,16 @@ items:
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51"
     dependencies:
       - APL-MOB-001-ANDROID-DOGFOOD
+
+repository_hygiene:
+  superseded_open_prs:
+    - 90
+    - 91
+    - 92
+    - 70
+    - 74
+    - 82
+  note: "These open PRs represent superseded implementation/preparation paths whose substantive work was overtaken by merged PR #83 or merged v0.2.9 recovery work (#93/#94). Reconcile before any reuse; they are not active roadmap tracks."
+  maintenance_prs:
+    - 80
+  maintenance_note: "PR #80 is a release-evidence workflow maintenance fix, not a product-priority track; reconcile it independently with current main before merge."
