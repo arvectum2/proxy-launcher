@@ -18,7 +18,7 @@ completed:
   - "Read current main, APL-MOB-001 issue #50, roadmap/queue, accepted Android checkpoint, MainActivity and SecureProfileStore."
   - "Preserved blocked APL-IP-001-V0.2.9 state in its dedicated checkpoint before claiming this independent manual Android slice."
   - "Created branch apl-mob-001-android-multiprofile from main 24fb77d8e83e95ad493e9f40372cfeafbdba8fae."
-current: "Implement profile index/storage migration and minimal profile selector/new/save/delete UX."
+current: "Open review PR and run exact-head Android CI for 0.1.5-dogfood multiprofile candidate."
 pending:
   - "Extend SecureProfileStore for profile listing, active selection, deletion and legacy single-profile migration."
   - "Extend MainActivity with name field, saved-profile selector and new/save/delete controls."
@@ -27,12 +27,12 @@ pending:
   - "Update Android README and issue evidence."
   - "Open PR, run exact-head Android CI, inspect artifact and SHA-256."
   - "Hand off 0.1.5 APK for physical two-profile acceptance."
-last_verified_commit: "24fb77d8e83e95ad493e9f40372cfeafbdba8fae"
+last_verified_commit: "4af8bbe4614b4fedc46d896571907f5e66d722e2"
 test_results:
   - "Previous Android 0.1.4 physical dogfood: PASS for HTTP/HTTPS CONNECT, public-IP routing, OFF/ON and sleep/wake."
   - "Previous PR #53 exact-head CI before merge: PASS."
-resume_instruction: "Resume on branch apl-mob-001-android-multiprofile. First implement SecureProfileStore multi-profile index/active-selection/delete with automatic migration of existing active_profile_id=default, then update MainActivity for a minimal saved-profile selector plus New/Save/Delete. Preserve the stable dogfood signer and do not alter tunnel transport behavior unless required by profile selection."
-updated_at: "2026-09-18T15:00:00+03:00"
+resume_instruction: "Resume on branch apl-mob-001-android-multiprofile at 4af8bbe4614b4fedc46d896571907f5e66d722e2. Open/update the PR, run exact-head Android CI, fix only compile/storage/profile-UX defects, inspect the resulting 0.1.5 APK/signature/SHA-256, then hand it to the owner for in-place migration and two-profile physical acceptance. Do not change the already accepted tunnel transport unless a profile-selection integration defect requires it."
+updated_at: "2026-09-18T15:12:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-001-ANDROID-MULTIPROFILE-20260918"
