@@ -44,6 +44,9 @@ Current canonical main verified for this roadmap refresh: 52fc4f8bbaa9d7fca6274f
 - **DONE** — APL-IP-002 platform sovereignty audits.
 - **DONE** — APL-IP-003 canonical source refactor, Slices 1–23.
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
+- **[Web] DONE — post-APL-IP-004 review reconciliation** — historical governance anchor remains candidate `ef9846e151a2e4e7046169e0787603969018cc97`; later v0.2.9 filing evidence does not rewrite that historical review.
+- **HISTORICAL CONTRACT — CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.** This phrase is retained solely for the historical clean-IP/legal-baseline contract; it does not mean the current registry filing-evidence packet is blocked.
+- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only if a distinct clean-IP/legal-baseline action is deliberately reopened.
 - **DONE FOR CURRENT FILING EVIDENCE — APL-IP-001 / v0.2.9.**
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe IP/provenance baseline; its source/tag/artifact evidence and 2026-09-14 packet are preserved and are not rewritten.
 - **DONE / EXACT-OBJECT ENGINEERING** — accepted v0.2.9 source commit `ca7c1019...`, source tree `55f2d50f...`, immutable tag commit `d13d9dac...` and promoted release-package digests are governed.
