@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="arvectum_navy">#001432</color>
+    <color name="arvectum_mint">#00C8A0</color>
+    <color name="arvectum_mint_light">#78FAE6</color>
+    <color name="arvectum_soft_gray">#C8D2DC</color>
+    <color name="arvectum_graphite">#283246</color>
+    <color name="arvectum_white">#FFFFFF</color>
+</resources>

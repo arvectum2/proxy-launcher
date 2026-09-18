@@ -78,22 +78,8 @@ class ProxyVpnService : VpnService() {
         publishState(STATE_CONNECTING, "Проверяем прокси…")
 
         val thread = Thread({
-            val resolved = try {
-                store.loadActive() ?: run {
-                    failStartFromWorker(generation, "Сначала добавьте прокси")
-                    return@Thread
-                }
-            } catch (_: Exception) {
-                failStartFromWorker(generation, "Не удалось прочитать сохранённые credentials")
-                return@Thread
-            }
-
-            val selectedProfile = try {
-                probe.resolve(resolved.profile, resolved.password) { candidate ->
-                    mainHandler.post {
-                        publishPreflightProgress(generation, candidate)
-                    }
-                }
+            val prepared = try {
+                resolveProxySelection(generation)
             } catch (e: ProxyProbeException) {
                 failStartFromWorker(generation, e.message ?: "Прокси недоступен")
                 return@Thread
@@ -101,12 +87,12 @@ class ProxyVpnService : VpnService() {
                 failStartFromWorker(generation, e.message ?: "Внутренняя ошибка проверки прокси")
                 return@Thread
             } catch (_: Exception) {
-                failStartFromWorker(generation, "Не удалось проверить прокси")
+                failStartFromWorker(generation, "Не удалось проверить сохранённые прокси")
                 return@Thread
             }
 
             mainHandler.post {
-                continueStartAfterPreflight(generation, resolved, selectedProfile)
+                continueStartAfterPreflight(generation, prepared)
             }
         }, "APL-proxy-preflight")
 
@@ -119,9 +105,16 @@ class ProxyVpnService : VpnService() {
 
     private fun continueStartAfterPreflight(
         generation: Long,
-        resolved: ResolvedProxyProfile,
-        selectedProfile: ProxyProfile,
+        prepared: PreparedProxy,
     ) {
+        val resolved = prepared.resolved
+        val selectedProfile = prepared.selectedProfile
+        val selectionLabel = if (prepared.autoSelection) {
+            "Авто → ${resolved.profile.name}"
+        } else {
+            resolved.profile.name
+        }
+
         synchronized(lock) {
             if (generation != sessionGeneration || stopping) return
             preflightWorker = null
@@ -129,7 +122,7 @@ class ProxyVpnService : VpnService() {
 
         publishState(
             STATE_CONNECTING,
-            "Прокси проверен: ${protocolLabel(selectedProfile.type)}. Создаём VPN…",
+            "$selectionLabel · ${protocolLabel(selectedProfile.type)}. Создаём VPN…",
         )
 
         val tun = try {
@@ -185,21 +178,107 @@ class ProxyVpnService : VpnService() {
             }
             if (running) {
                 val label = protocolLabel(selectedProfile.type)
-                startForegroundCompat("Подключено · $label")
+                startForegroundCompat("Подключено · $selectionLabel")
                 publishState(
                     STATE_CONNECTED,
-                    "Подключено · $label · ${resolved.profile.host}:${resolved.profile.port}",
+                    "Подключено · $selectionLabel · $label · ${resolved.profile.host}:${resolved.profile.port}",
                 )
             }
         }, CONNECT_CONFIRM_DELAY_MS)
     }
 
-    private fun publishPreflightProgress(generation: Long, type: ProxyType) {
+    private fun resolveProxySelection(generation: Long): PreparedProxy {
+        if (!store.isAutoProfileSelection()) {
+            val resolved = store.loadActive()
+                ?: throw ProxyProbeException("Сначала добавьте прокси")
+            val selectedProfile = probe.resolve(resolved.profile, resolved.password) { candidate ->
+                mainHandler.post {
+                    publishPreflightProgress(
+                        generation = generation,
+                        profileName = resolved.profile.name,
+                        type = candidate,
+                        autoSelection = false,
+                    )
+                }
+            }
+            return PreparedProxy(resolved, selectedProfile, autoSelection = false)
+        }
+
+        val profiles = store.listProfiles()
+        if (profiles.isEmpty()) {
+            throw ProxyProbeException("Нет сохранённых прокси для режима Авто")
+        }
+
+        val lastAutoId = store.getLastAutoProfileId()
+        val ordered = profiles.sortedWith(
+            compareBy<ProxyProfile> { if (it.id == lastAutoId) 0 else 1 }
+                .thenBy { it.name.lowercase() }
+                .thenBy { it.id },
+        )
+        val failures = mutableListOf<String>()
+
+        for (profile in ordered) {
+            mainHandler.post {
+                publishAutoProfileProgress(generation, profile.name)
+            }
+
+            val resolved = try {
+                store.loadProfile(profile.id)
+            } catch (_: Exception) {
+                null
+            }
+            if (resolved == null) {
+                failures += "${profile.name}: не удалось прочитать профиль"
+                continue
+            }
+
+            try {
+                val selectedProfile = probe.resolve(resolved.profile, resolved.password) { candidate ->
+                    mainHandler.post {
+                        publishPreflightProgress(
+                            generation = generation,
+                            profileName = resolved.profile.name,
+                            type = candidate,
+                            autoSelection = true,
+                        )
+                    }
+                }
+                runCatching { store.setLastAutoProfileId(profile.id) }
+                return PreparedProxy(resolved, selectedProfile, autoSelection = true)
+            } catch (e: ProxyProbeException) {
+                failures += "${profile.name}: ${e.message ?: "недоступен"}"
+            } catch (e: Exception) {
+                failures += "${profile.name}: ${e.message?.take(80) ?: "ошибка проверки"}"
+            }
+        }
+
+        val detail = failures.joinToString("; ").take(MAX_AUTO_ERROR_LENGTH)
+        throw ProxyProbeException(
+            if (detail.isBlank()) "Нет рабочего сохранённого прокси"
+            else "Нет рабочего прокси. $detail",
+        )
+    }
+
+    private fun publishAutoProfileProgress(generation: Long, profileName: String) {
         val active = synchronized(lock) {
             generation == sessionGeneration && !stopping
         }
         if (!active) return
-        publishState(STATE_CONNECTING, "Проверяем: ${protocolLabel(type)}…")
+        publishState(STATE_CONNECTING, "Авто: проверяем $profileName…")
+    }
+
+    private fun publishPreflightProgress(
+        generation: Long,
+        profileName: String,
+        type: ProxyType,
+        autoSelection: Boolean,
+    ) {
+        val active = synchronized(lock) {
+            generation == sessionGeneration && !stopping
+        }
+        if (!active) return
+        val prefix = if (autoSelection) "Авто: $profileName" else profileName
+        publishState(STATE_CONNECTING, "$prefix · ${protocolLabel(type)}…")
     }
 
     private fun failStartFromWorker(generation: Long, message: String) {
@@ -358,6 +437,12 @@ class ProxyVpnService : VpnService() {
         }
     }
 
+    private data class PreparedProxy(
+        val resolved: ResolvedProxyProfile,
+        val selectedProfile: ProxyProfile,
+        val autoSelection: Boolean,
+    )
+
     companion object {
         const val ACTION_CONNECT = "ru.arvectum.proxylauncher.CONNECT"
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
@@ -374,6 +459,7 @@ class ProxyVpnService : VpnService() {
         private const val CHANNEL_ID = "proxy_vpn"
         private const val NOTIFICATION_ID = 1001
         private const val CONNECT_CONFIRM_DELAY_MS = 500L
+        private const val MAX_AUTO_ERROR_LENGTH = 520
         private const val ENGINE_START_FAILURE = -1000
     }
 }

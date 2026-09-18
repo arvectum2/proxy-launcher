@@ -6,8 +6,8 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/arvectum_launcher"
-        android:roundIcon="@drawable/arvectum_launcher"
+        android:icon="@mipmap/arvectum_launcher"
+        android:roundIcon="@mipmap/arvectum_launcher_round"
         android:label="Proxy Launcher"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity" android:exported="true">
