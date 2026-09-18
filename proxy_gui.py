@@ -64,7 +64,7 @@ B = {}  # бренд-конфиг: шрифты и стили, заполняе�
 
 
 def _is_macos():
-    return sys.platform == "darwin"
+    return sys.platform == "darwin" and os.name != "nt"
 
 
 def _platform_label():
@@ -1360,9 +1360,23 @@ class Launcher:
         return False
 
     def _autostart_enabled(self):
-        # Current versions use HKCU\\...\\Run: no elevation is required. A
-        # provably-owned legacy task still counts as enabled until migrated or
-        # explicitly disabled.
+        if _is_macos():
+            if macos_autostart_module is None:
+                return False
+            try:
+                return bool(macos_autostart_module.is_autostart_enabled())
+            except Exception as exc:
+                try:
+                    core.structured_log(
+                        "macOS autostart state unreadable",
+                        event="autostart.state_unknown",
+                        error=repr(exc),
+                    )
+                except Exception:
+                    pass
+                return False
+        # Current Windows versions use HKCU\\...\\Run: no elevation is required.
+        # A provably-owned legacy task still counts as enabled until migrated.
         try:
             if self._autostart_run_is_ours():
                 return True
@@ -1386,6 +1400,31 @@ class Launcher:
         return ok
 
     def _enable_autostart(self):
+        if _is_macos():
+            if macos_autostart_module is None:
+                self.auto_var.set(False)
+                messagebox.showerror(
+                    APP_NAME,
+                    "Компонент автозапуска macOS недоступен. Запускайте приложение вручную."
+                )
+                return False
+            try:
+                target = macos_autostart_module.enable_autostart()
+                if not macos_autostart_module.is_autostart_enabled(target):
+                    raise RuntimeError("LaunchAgent не прошёл проверку после записи")
+            except Exception as exc:
+                self.auto_var.set(False)
+                messagebox.showerror(
+                    APP_NAME,
+                    "Не удалось добавить Launcher в автозапуск macOS: %s" % exc
+                )
+                return False
+            messagebox.showinfo(
+                APP_NAME,
+                "Arvectum Proxy Launcher будет запускаться при входе в macOS."
+            )
+            return True
+
         settings = core.load_settings()
         configured = any((u.get("host") or "").strip() for u in settings.get("upstream") or [])
         if not configured:
@@ -1482,6 +1521,32 @@ class Launcher:
         return True
 
     def _disable_autostart(self):
+        if _is_macos():
+            if macos_autostart_module is None:
+                messagebox.showerror(APP_NAME, "Компонент автозапуска macOS недоступен.")
+                return False
+            target = macos_autostart_module.default_launchagent_path()
+            if not os.path.exists(target):
+                return True
+            if not macos_autostart_module.is_autostart_enabled(target):
+                messagebox.showerror(
+                    APP_NAME,
+                    "Файл LaunchAgent существует, но не принадлежит Arvectum. "
+                    "Он не будет изменён или удалён."
+                )
+                return False
+            try:
+                removed = macos_autostart_module.disable_autostart(target)
+                if not removed or os.path.exists(target):
+                    raise RuntimeError("LaunchAgent остался после удаления")
+                return True
+            except Exception as exc:
+                messagebox.showerror(
+                    APP_NAME,
+                    "Не удалось выключить автозапуск macOS: %s" % exc
+                )
+                return False
+
         errors = []
 
         try:

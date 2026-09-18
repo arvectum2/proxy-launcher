@@ -290,6 +290,8 @@ class MacOSBackend(ProxyBackend):
                 raise RollbackStateError("invalid automatic-proxy snapshot")
             if not isinstance(auto.get("url"), str) or not isinstance(bypass, list):
                 raise RollbackStateError("invalid rollback snapshot values")
+            if auto.get("enabled") and not str(auto.get("url") or "").strip():
+                raise RollbackStateError("enabled automatic-proxy snapshot has no URL")
         return payload
 
     def _snapshot_enabled_services(self) -> Dict[str, Any]:
@@ -330,6 +332,34 @@ class MacOSBackend(ProxyBackend):
             and auto.url == str(applied.get("pac_url", ""))
             and _domains_equal(bypass, self._expected_bypass(snapshot, applied))
         )
+
+    def _service_matches_snapshot(
+        self,
+        service_name: str,
+        snapshot: Mapping[str, Any],
+    ) -> bool:
+        """Return True when the live service is functionally back at its saved state.
+
+        macOS networksetup cannot clear an Automatic Proxy Configuration URL once
+        one has been written. For a saved disabled+empty PAC state, the only
+        observable/functional restoration available is therefore Enabled: No;
+        a stale remembered URL is ignored while disabled.
+        """
+        try:
+            auto = self._client.get_auto_proxy(service_name)
+            bypass = self._client.get_bypass_domains(service_name)
+        except Exception:
+            return False
+        expected = snapshot["auto_proxy"]
+        expected_enabled = bool(expected["enabled"])
+        expected_url = str(expected["url"] or "").strip()
+        if auto.enabled != expected_enabled:
+            return False
+        if expected_url and auto.url != expected_url:
+            return False
+        if expected_enabled and not expected_url:
+            return False
+        return _domains_equal(bypass, snapshot.get("bypass_domains", ()))
 
     def _payload_matches_config(
         self,
@@ -415,9 +445,18 @@ class MacOSBackend(ProxyBackend):
 
     def _restore_service(self, service_name: str, snapshot: Mapping[str, Any]) -> None:
         auto = snapshot["auto_proxy"]
-        # setautoproxyurl may enable PAC, so restore the original state afterwards.
-        self._client.set_auto_proxy_url(service_name, str(auto["url"]))
-        self._client.set_auto_proxy_state(service_name, bool(auto["enabled"]))
+        enabled = bool(auto["enabled"])
+        url = str(auto["url"] or "").strip()
+        if enabled and not url:
+            raise RollbackStateError(
+                "cannot restore enabled automatic proxy without a saved URL"
+            )
+        # networksetup rejects -setautoproxyurl <service> "" on current macOS.
+        # A disabled+empty original state is restored by switching PAC off; if a
+        # URL was saved, restore it first because setautoproxyurl may enable PAC.
+        if url:
+            self._client.set_auto_proxy_url(service_name, url)
+        self._client.set_auto_proxy_state(service_name, enabled)
         self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
 
     def _restore_touched_services(
@@ -458,21 +497,40 @@ class MacOSBackend(ProxyBackend):
             return False
 
         applied = payload["applied_config"]
-        snapshots = {
-            name: snapshot
-            for name, snapshot in payload["services"].items()
-            if name in current_names
-        }
-        # If user/admin changed an owned dimension, preserve the newer foreign state.
-        for service_name, snapshot in snapshots.items():
-            if not self._service_matches_owned_state(service_name, snapshot, applied):
-                self._log(
-                    "macOS disable refused: %s no longer matches Arvectum-owned state"
-                    % service_name
-                )
-                return False
+        saved_names = set(payload["services"])
+        missing_names = saved_names - current_names
+        if missing_names:
+            self._log(
+                "macOS disable refused: saved network services are unavailable: %s"
+                % ", ".join(sorted(missing_names))
+            )
+            return False
 
-        if not self._restore_touched_services(snapshots, tuple(snapshots)):
+        snapshots = dict(payload["services"])
+        to_restore = []
+        # Recovery is retry-safe: a service may still be in Arvectum-owned state,
+        # or it may already equal its saved snapshot after a previous partial
+        # rollback. Anything else is treated as a newer foreign/admin change.
+        for service_name, snapshot in snapshots.items():
+            if self._service_matches_owned_state(service_name, snapshot, applied):
+                to_restore.append(service_name)
+                continue
+            if self._service_matches_snapshot(service_name, snapshot):
+                continue
+            self._log(
+                "macOS disable refused: %s matches neither Arvectum-owned nor saved state"
+                % service_name
+            )
+            return False
+
+        if not self._restore_touched_services(snapshots, tuple(to_restore)):
+            return False
+
+        if not all(
+            self._service_matches_snapshot(service_name, snapshot)
+            for service_name, snapshot in snapshots.items()
+        ):
+            self._log("macOS disable incomplete: restored services failed verification")
             return False
         try:
             self._store.clear()
