@@ -46,6 +46,7 @@ Current canonical main verified for this roadmap refresh: 52fc4f8bbaa9d7fca6274f
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
 - **[Web] DONE — post-APL-IP-004 review reconciliation** — historical governance anchor remains candidate `ef9846e151a2e4e7046169e0787603969018cc97`; later technical evidence may bind newer maintained candidates without rewriting this review anchor.
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe IP/provenance baseline; its source/tag/artifact evidence and 2026-09-14 packet are preserved and are not rewritten.
+- **APL-IP-001 status: CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.** This historical governance status remains true; the current exact disposition object is v0.2.9.
 - **APL-IP-001 CURRENT OBJECT: v0.2.9 / ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.**
 - **DONE / EXACT-OBJECT ENGINEERING** — current APL-IP-001 is bound to accepted source commit `ca7c1019...`, source tree `55f2d50f...`, immutable tag commit `d13d9dac...` and the exact promoted v0.2.9 release-package digests.
 - **DONE / EXACT-TREE EVIDENCE** — provenance run `35255499712` and CycloneDX SBOM run `35255499669` were generated from the PR synthetic merge tree `55f2d50f...`, identical to both the accepted source tree and final v0.2.9 tag tree.
