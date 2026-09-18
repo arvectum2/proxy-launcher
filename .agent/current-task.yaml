@@ -24,20 +24,20 @@ completed:
   - "Read-only live classification confirms Ethernet=SAVED, Wi-Fi=SAVED, Tailscale=OWNED, Thunderbolt Bridge=OWNED."
   - "Confirmed the baseline tunnel-proxy.py is a separate process and current Launcher settings collide with its 8080/1080/8082 ports; post-recovery port separation remains required before enabling Arvectum."
   - "Removed an exact-owned LaunchAgent accidentally created by an early local test; no network/PAC state was changed."
-current: "Commit/push validated recovery fixes and build the private arm64 app; then provide owner the exact manual PAC recovery command."
+current: "Implementation is committed/pushed and the fixed private arm64 app is built. Await owner execution of the exact saved-state PAC recovery command before installing or changing local ports."
 pending:
-  - "Commit/push implementation."
-  - "Build and verify private arm64 app without installing it yet."
-  - "Provide owner exact manual recovery command and wait for confirmation."
+  - "Owner executes the exact saved-state PAC recovery command and confirms completion."
   - "After owner recovery, reconnect via RDC, move Arvectum to non-conflicting local ports, install fixed app, verify enable/disable/restore/autostart, then complete checkpoint."
-last_verified_commit: "87c14fe"
+last_verified_commit: "943de63ac1b5c12c5c47c464c6287b8dbca9b8c1"
 test_results:
   - "Targeted backend/process/GUI/autostart: 42/42 PASS."
   - "Full test_macos*.py discovery: 45/45 PASS."
   - "Broader process/GUI/runtime/core/backend/license suite: 115/115 PASS."
-  - "git diff --check PASS."
-resume_instruction: "Commit/push current fixes, build the private macOS app, give the owner the exact manual recovery command. After owner confirms recovery, reconnect via RDC, change Arvectum local ports away from baseline 8080/1080/8082, install fixed app and run live functional acceptance."
-updated_at: "2026-09-19T02:37:00+03:00"
+  - "git diff --check PASS.
+  - "Implementation commit 943de63ac1b5c12c5c47c464c6287b8dbca9b8c1 pushed to origin/agent/macos-recovery-autostart-20260919."
+  - "Private arm64 app build PASS; strict deep codesign PASS; executable SHA256 2e73c93f0a4cd8b18666cbc5da662e18eb77d5b970980270d8d3051e1ebfd925."
+resume_instruction: "Owner must first run the provided saved-state PAC recovery command. After confirmation, verify PAC state via RDC, change Arvectum local ports away from baseline 8080/1080/8082, install the already-built fixed app, and run live enable/disable/restore/autostart acceptance."
+updated_at: "2026-09-19T02:45:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MAC-RECOVERY-AUTOSTART-20260919"
