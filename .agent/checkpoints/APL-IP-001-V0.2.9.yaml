@@ -32,6 +32,9 @@ completed:
   - "R-1A factually satisfied: instrument identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full, and authorizes modification/reworking."
   - "Owner confirmed R-2 current Rospatent status, R-3 corporate/Russian-control facts, and R-4 human creative-control/no-known-deliberate-copying facts for v0.2.9."
   - "The supplied instrument contains no express future-results assignment; R-1B remains open for later human-authored creative contributions."
+  - "Owner confirmed current v0.2.9 promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only from the current approval, not permanently."
+  - "Owner confirmed no employment/service-work rights basis is relied upon for post-2026-09-14 contributions."
+  - "Prepared docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md covering exact v0.2.9 post-2026-09-14 results and sufficiently individualized future Arvectum Proxy Launcher versions/platforms, including potential AppImage/Android/iOS."
 current: "Owner factual evidence received: R-1A/R-2/R-3/R-4 are factually satisfied/confirmed. APL-IP-001 remains blocked on R-1B later-contribution rights basis, promoted-scope confirmation and explicit final disposition."
 pending:
   - "R-1B: establish the actual rights basis for material creative contributions made after 2026-09-14 and included in exact v0.2.9; the supplied 2026-09-14 instrument has no express future-results clause."
