@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-LNX-APPIMAGE-20260918
-status: blocked
+status: completed
 goal: "Promote the existing portable x86_64 AppImage engineering lane into the canonical next-release set alongside DEB and RPM, without mutating immutable v0.2.9."
 authority: OWNER_DIRECTIVE
 definition_of_done:
@@ -14,38 +14,29 @@ definition_of_done:
   - "Relevant exact-head PR CI passes."
   - "Final PR/merge state and verification evidence are recorded here."
 completed:
-  - "Verified current main head b03c93ff437f62b79eee9d779e1d949e4733e00b and immutable stable release v0.2.9."
-  - "Verified APL-LNX-008 AppImage build tooling/workflow already exists on main but release promotion was held."
-  - "Verified one hourly Proxy Launcher Watchdog already exists and is enabled; no duplicate was created."
-  - "Verified pinned type-2 runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12 upstream LICENSE: MIT runtime plus disclosed statically linked musl/libfuse/squashfuse/zstd/zlib components."
-  - "Added APPIMAGE_RUNTIME_LICENSE.txt tied to the pinned runtime source identity and embedded it in AppImage documentation payload."
-  - "Updated AppImage CI to verify the embedded runtime notice."
-  - "Integrated exact-main linux-appimage.yml success/run-id into release validation."
-  - "Added AppImage artifact download, filename verification, SHA256SUMS coverage and GitHub Release publication."
-  - "Confirmed GitVerse mirror allowlist already carries .AppImage directly and verifies canonical SHA-256 parity."
+  - "Verified immutable stable release v0.2.9 remains unchanged."
+  - "Verified APL-LNX-008 AppImage build tooling/workflow is hash-pinned and x86_64-only."
+  - "Added and embedded APPIMAGE_RUNTIME_LICENSE.txt tied to pinned type-2 runtime source identity plus product third-party notices."
+  - "Integrated exact-main linux-appimage.yml success/run-id into release validation and exact artifact reuse."
+  - "Added AppImage artifact filename verification, SHA256SUMS coverage and GitHub Release publication for the next release."
+  - "Confirmed GitVerse mirror allowlist carries .AppImage directly with canonical SHA-256 parity verification."
   - "Updated release automation tests, AppImage docs, RELEASE_POLICY.md, README.md, ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md."
-current: "Technical implementation is review-ready in PR #111. Exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 passed all 15/15 PR workflows. Only blocker: explicit merge authorization; canonical queue has no auto_merge:true for this Owner-directed task."
-pending:
-  - "Created reviewable PR #111 against main."
-  - "Verified exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52: all 15/15 PR workflows PASS."
-  - "Fixed two CI failures caused by stale AppImage-HOLD and RPM release-guard contract expectations."
-  - "Stop at green review-ready PR unless a separate explicit merge authorization is provided; canonical queue has no auto_merge:true for this task."
-  - "After explicit Owner merge authorization, re-check current PR head/ruleset/CI, merge PR #111, record merge commit, and close the checkpoint as completed."
-last_verified_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
+  - "PR #111 exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 passed all 15/15 PR workflows."
+  - "PR #111 was merged on 2026-09-18 as merge commit abc91cdc95a82b0214b440ad5f62d12f36ce304e."
+  - "Reconciled canonical main after merge: main HEAD is abc91cdc95a82b0214b440ad5f62d12f36ce304e; PR #111 is closed/merged."
+current: "APL-LNX-APPIMAGE-20260918 is complete. AppImage is admitted into the next-release canonical package set; immutable v0.2.9 was not republished or retagged."
+pending: []
+last_verified_commit: "abc91cdc95a82b0214b440ad5f62d12f36ce304e"
+merged_commit: "abc91cdc95a82b0214b440ad5f62d12f36ce304e"
 test_results:
-  - "Static repository review: AppImage build is hash-pinned and existing GitVerse direct .AppImage transport is already implemented."
-  - "PR #111 exact head 4ad020c55e41f63aec8c789ce9ba33fae6e49f75: APL-LNX-008 AppImage SUCCESS; contract tests, frozen app, pinned toolchain fetch, build, extraction/inspection and artifact upload all SUCCESS."
-  - "PR #111 exact head: GitHub Release SUCCESS; SAST, dependency scan, secret scan, SBOM, provenance, v0.2.5/v0.2.9 reconciliation, sovereign lifecycle and Russian-first signing checks SUCCESS."
-  - "Exact-head 6f8a421996bc57af83e8c7ec26fa8097111caa68: AppImage, GitHub Release, Debian Ubuntu acceptance and all security/provenance/IP checks PASS; three Windows workflows failed only because the shared 855-test suite exposed two stale contract tests."
-  - "Failure 1: test_apl_ip_004_license_compliance still required the historical AppImage commercial HOLD string; updated to require embedded runtime notice + next-release promotion while preserving immutable historical APL-IP-004 evidence."
-  - "Failure 2: test_release_automation RPM assertion expected the old guard substring; updated to the new combined RED OS RPM + Linux AppImage guard string."
-  - "Final technical verification: exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 has 15/15 SUCCESS: AppImage, Debian Ubuntu acceptance, Windows P0 portable, Windows installer, Authenticode foundation, GitHub Release, SAST, SBOM, dependency vulnerability scan, secret scan, provenance, v0.2.5/v0.2.9 reconciliation, sovereign lifecycle, and Russian-first signing."
-resume_instruction: "PR #111 is technically ready. Exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 passed all 15 PR workflows. This checkpoint-only closeout commit may trigger another redundant PR run; do not treat it as a code regression. Do not auto-merge because canonical queue has no auto_merge:true. On explicit Owner merge authorization, inspect latest PR head and required checks/ruleset, merge if green/current, then record the merge commit and set status completed. Never publish or retag v0.2.9."
-updated_at: "2026-09-18T18:57:00+03:00"
+  - "Final pre-merge technical verification: exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 had 15/15 SUCCESS, including AppImage, Debian Ubuntu acceptance, Windows P0 portable, Windows installer, Authenticode foundation, GitHub Release, SAST, SBOM, dependency scan, secret scan, provenance, v0.2.5/v0.2.9 reconciliation, sovereign lifecycle and Russian-first signing."
+  - "Post-merge factual verification: PR #111 merged=true; merge commit abc91cdc95a82b0214b440ad5f62d12f36ce304e equals current main HEAD."
+resume_instruction: "No continuation is required for APL-LNX-APPIMAGE-20260918. On the next watchdog run, read canonical execution-queue.yaml from main and select strictly by queue order, skipping done/deferred/blocked HUMAN/OWNER gates as policy requires. Never publish or retag v0.2.9."
+updated_at: "2026-09-18T19:05:00+03:00"
 execution:
-  claimed_by: "ChatGPT"
-  execution_id: "APL-LNX-APPIMAGE-20260918"
-  branch: "feat/appimage-linux-package"
+  claimed_by: null
+  execution_id: null
+  branch: null
   base_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
   lease_until: null
-  manual_override: true
+  manual_override: false
