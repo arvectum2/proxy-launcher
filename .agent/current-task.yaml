@@ -20,17 +20,17 @@ completed:
   - "Verified registry filing dossier APL-REG-001D completed in merged PR #95 with final checkpoint PR #96."
   - "Verified current open active tracks: Android PR #53, Windows trust PR #81, per-app routing decision PR #68, registry/IP/sovereign-lifecycle issues; identified stale superseded PRs."
   - "Re-enabled and updated the single hourly Proxy Launcher Watchdog to scan the canonical execution queue after completed/blocked tasks."
-current: "Update execution queue, ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md from the verified v0.2.9 baseline."
+  - "Updated .agent/execution-queue.yaml to v0.2.9: Astra and RED OS DONE, registry dossier DONE, external filing split into fail-closed HUMAN pre-submission gates, REL-016/Android/per-app tracks reconciled."
+  - "Updated docs/ROADMAP.md to v0.2.9 while preserving historical APL-IP-001 governance markers required by repository contracts."
+  - "Updated docs/LOCAL_EXECUTION_BACKLOG.md to current physical/compliance/product state and recorded superseded open PRs as non-roadmap hygiene."
+current: "Open the roadmap synchronization PR and verify exact-head CI."
 pending:
-  - "Write synchronized canonical execution queue."
-  - "Rewrite canonical ROADMAP.md."
-  - "Rewrite LOCAL_EXECUTION_BACKLOG.md."
   - "Open PR, run exact-head CI, merge if required checks are green."
   - "Mark checkpoint completed with final merge SHA and verification result."
 last_verified_commit: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
 test_results: []
-updated_at: "2026-09-18T09:45:00+03:00"
-resume_instruction: "Continue on branch agent/roadmap-sync-20260918. Update .agent/execution-queue.yaml, docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the verified v0.2.9/registry state; then open a PR, wait only by checking CI once per productive turn, merge after exact-head required checks pass, and mark this checkpoint completed."
+updated_at: "2026-09-18T09:55:00+03:00"
+resume_instruction: "Open a PR from agent/roadmap-sync-20260918 to main. Verify exact-head required CI. If green and no review gate blocks this docs/metadata synchronization, merge; then update .agent/current-task.yaml on main to completed with merge SHA and final CI results."
 execution:
   claimed_by: chatgpt
   execution_id: APL-ROADMAP-SYNC-20260918
