@@ -35,6 +35,7 @@ completed:
   - "Owner confirmed current v0.2.9 promoted scope: Windows Setup + portable, Astra DEB and RED OS RPM; AppImage excluded only from the current approval, not permanently."
   - "Owner confirmed no employment/service-work rights basis is relied upon for post-2026-09-14 contributions."
   - "Prepared docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md covering exact v0.2.9 post-2026-09-14 results and sufficiently individualized future Arvectum Proxy Launcher versions/platforms, including potential AppImage/Android/iOS."
+  - "Signature-ready private R-1B agreement package prepared as DOCX/PDF on 2026-09-18; two-page layout visually verified. Private execution copy is not committed to the public repository."
 current: "Promoted v0.2.9 scope is confirmed and an R-1B future-rights assignment draft is prepared. APL-IP-001 is blocked only on actual private execution of that instrument and the subsequent explicit final human disposition."
 pending:
   - "Owner executes the private R-1B assignment/future-results agreement after final review; public repo stores only a safe receipt/digest, not personal/signature data."
@@ -49,7 +50,7 @@ test_results:
   - "Windows P0 portable required build: SUCCESS."
   - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
 resume_instruction: "Do not repeat the R-1B drafting or scope collection. The next real action is private execution of the R-1B assignment/future-results agreement. After the Owner confirms it is signed, record only a public-safe receipt/storage reference/SHA-256 digest, mark R-1B satisfied, and obtain the explicit authorized APPROVED or REMEDIATION REQUIRED decision. Never publish the signed private file or create a clean-IP tag before approval."
-updated_at: "2026-09-18T12:05:00+03:00"
+updated_at: "2026-09-18T16:36:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
