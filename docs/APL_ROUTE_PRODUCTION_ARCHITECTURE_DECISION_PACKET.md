@@ -1,7 +1,7 @@
 # APL-ROUTE — Windows production enforcement architecture decision packet
 
 Status: `OWNER REVIEW REQUIRED / no production architecture approved`
-Date: `2026-09-14`
+Date: `2026-09-18`
 Source: `docs/LOCAL_EXECUTION_BACKLOG.md#P8`
 Related: `APL-ROUTE-001..004`
 
@@ -20,6 +20,12 @@ The repository has already proven the following control-plane pieces:
 - `APL-ROUTE-003` uses the real Windows WFP `FwpmGetAppIdFromFileName0` application identity API and compiles rules into a non-mutating ALE connect-redirect filter plan.
 - `APL-ROUTE-004` defines durable ownership/recovery state: prepared -> applied -> restoring -> verified cleanup, Arvectum-only resource identities, plan digest binding, fail-closed recovery, and no deletion of foreign firewall/WFP resources.
 
+### Current v0.2.9 safety baseline
+
+The production decision must now be evaluated against the published `v0.2.9` rollback-safety baseline rather than the older pre-release state in which this packet was first drafted. Windows, Astra/Fly and RED OS/KDE now share the same saved-or-Arvectum ownership rule: if the host presents a third/foreign proxy state, Proxy Launcher fails closed and preserves durable rollback evidence instead of overwriting that state. Any future per-application enforcement plane must preserve that invariant rather than introducing a broader privileged cleanup authority.
+
+Consequently, an approved Windows enforcement implementation must keep WFP/service ownership evidence separate from system-proxy rollback evidence, must never treat unrelated WFP/firewall/VPN/EDR resources as Arvectum-owned, and must make update/uninstall recovery verifiable before deleting its own durable ownership journal. This refresh does not approve an architecture; it only carries the current stable safety contract into the Owner decision.
+
 The missing work is therefore not “how to represent routing rules.” It is choosing and proving the **privileged enforcement plane**.
 
 ## 3. Microsoft-native mechanism
@@ -33,7 +39,7 @@ Microsoft documents WFP ALE connect redirection as the native mechanism for redi
 - the implementation must detect its own previously redirected traffic and avoid redirect loops;
 - TCP and UDP are supported by the WFP redirection architecture, but UDP behavior has additional edge cases and must be tested explicitly rather than inferred from TCP success.
 
-Microsoft references checked 2026-09-14:
+Microsoft references checked 2026-09-14 and retained as the mechanism baseline for this repository decision packet:
 
 - https://learn.microsoft.com/windows-hardware/drivers/network/using-bind-or-connect-redirection
 - https://learn.microsoft.com/windows-hardware/drivers/network/using-proxied-connections-tracking
@@ -120,7 +126,7 @@ They may remain compatibility helpers but must not be represented as equivalent 
 
 Technical recommendation for Owner/Product Owner review: **Option A — Arvectum-owned narrow WFP ALE callout + privileged service + local proxy**, with an intentionally small kernel/native surface.
 
-The recommendation is based on continuity with the completed APL-ROUTE-001..004 work and the fact that Windows already supplies the exact process-aware connect-redirection primitives the product needs.
+The recommendation is based on continuity with the completed APL-ROUTE-001..004 work and the fact that Windows already supplies the exact process-aware connect-redirection primitives the product needs. The v0.2.9 safety refresh strengthens, rather than weakens, the case for a narrow ownership namespace and fail-closed recovery: the privileged plane must be able to prove what it owns before mutating or removing anything.
 
 Recommended division of responsibility:
 
@@ -172,7 +178,7 @@ CIDR/all selectors can reach production before domain selectors if the capabilit
 
 ## 8. Required recovery invariants
 
-Any approved implementation must preserve APL-ROUTE-004 and prove at minimum:
+Any approved implementation must preserve APL-ROUTE-004 and the published v0.2.9 saved-or-Arvectum safety contract, and prove at minimum:
 
 1. journal written before first host mutation;
 2. only `Arvectum.ProxyLauncher.*` resources created/removed;
@@ -181,7 +187,8 @@ Any approved implementation must preserve APL-ROUTE-004 and prove at minimum:
 5. corrupted/mismatched journal fails closed and does not start a second session;
 6. uninstall/update cannot erase ownership evidence before WFP resources are verified absent/restored;
 7. service/proxy outbound sockets cannot enter an infinite redirect loop;
-8. coexistence with unrelated firewall, VPN, EDR and WFP providers does not trigger foreign cleanup.
+8. coexistence with unrelated firewall, VPN, EDR and WFP providers does not trigger foreign cleanup;
+9. detection of foreign/ambiguous enforcement state blocks destructive reconciliation and surfaces a recoverable diagnostic rather than silently adopting or deleting that state.
 
 ## 9. Security boundary
 
@@ -199,7 +206,7 @@ A production WFP enforcement service is a privileged security component. Therefo
 
 Production Option A depends on a trustworthy Windows signing/distribution path for the privileged service/callout and any required driver package.
 
-This decision must therefore remain coordinated with APL-REL-016. The architecture may be approved before final certificate/provider procurement, but production release cannot claim completion until the exact driver/service signing requirements and clean-machine install behavior are proven.
+This decision must therefore remain coordinated with APL-REL-016. The architecture may be approved before final certificate/provider procurement, but production release cannot claim completion until the exact driver/service signing requirements and clean-machine install behavior are proven. The current public `v0.2.9` release is immutable and is not eligible for retrofitted embedded signing or per-application enforcement; either change belongs to a later version after its own gates.
 
 No current decision packet authorizes signing credentials, certificate purchase or release publication.
 
