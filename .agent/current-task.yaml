@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-LNX-APPIMAGE-20260918
-status: in_progress
+status: blocked
 goal: "Promote the existing portable x86_64 AppImage engineering lane into the canonical next-release set alongside DEB and RPM, without mutating immutable v0.2.9."
 authority: OWNER_DIRECTIVE
 definition_of_done:
@@ -24,13 +24,13 @@ completed:
   - "Added AppImage artifact download, filename verification, SHA256SUMS coverage and GitHub Release publication."
   - "Confirmed GitVerse mirror allowlist already carries .AppImage directly and verifies canonical SHA-256 parity."
   - "Updated release automation tests, AppImage docs, RELEASE_POLICY.md, README.md, ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md."
-current: "PR #111: two stale full-suite contract expectations were corrected after exact-head Windows jobs exposed them; run final exact-head CI on the new checkpoint head and stop at review-ready state because canonical queue has no auto_merge:true for this Owner-directed task."
+current: "Technical implementation is review-ready in PR #111. Exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 passed all 15/15 PR workflows. Only blocker: explicit merge authorization; canonical queue has no auto_merge:true for this Owner-directed task."
 pending:
   - "Created reviewable PR #111 against main."
-  - "Verify remaining exact-head general regression CI; AppImage and GitHub Release workflows already PASS."
+  - "Verified exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52: all 15/15 PR workflows PASS."
   - "Fixed two CI failures caused by stale AppImage-HOLD and RPM release-guard contract expectations."
   - "Stop at green review-ready PR unless a separate explicit merge authorization is provided; canonical queue has no auto_merge:true for this task."
-  - "Record final commit/PR/test state and mark completed when Definition of Done is satisfied."
+  - "After explicit Owner merge authorization, re-check current PR head/ruleset/CI, merge PR #111, record merge commit, and close the checkpoint as completed."
 last_verified_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
 test_results:
   - "Static repository review: AppImage build is hash-pinned and existing GitVerse direct .AppImage transport is already implemented."
@@ -39,8 +39,9 @@ test_results:
   - "Exact-head 6f8a421996bc57af83e8c7ec26fa8097111caa68: AppImage, GitHub Release, Debian Ubuntu acceptance and all security/provenance/IP checks PASS; three Windows workflows failed only because the shared 855-test suite exposed two stale contract tests."
   - "Failure 1: test_apl_ip_004_license_compliance still required the historical AppImage commercial HOLD string; updated to require embedded runtime notice + next-release promotion while preserving immutable historical APL-IP-004 evidence."
   - "Failure 2: test_release_automation RPM assertion expected the old guard substring; updated to the new combined RED OS RPM + Linux AppImage guard string."
-resume_instruction: "Resume PR #111 on feat/appimage-linux-package. Inspect exact-head CI after commits 9ff02592e3b8ad9648e55e9435ad66b8c63eac95 and 9f8c2238cab491271e45405b4f32c7df0a0cd7e6 plus this checkpoint commit. If any test fails, fix without weakening release/compliance gates. If all relevant exact-head CI is green, do not auto-merge: canonical queue has no auto_merge:true for this Owner-directed task. Record review-ready/blocked-on-merge state. Never publish or retag v0.2.9."
-updated_at: "2026-09-18T18:48:00+03:00"
+  - "Final technical verification: exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 has 15/15 SUCCESS: AppImage, Debian Ubuntu acceptance, Windows P0 portable, Windows installer, Authenticode foundation, GitHub Release, SAST, SBOM, dependency vulnerability scan, secret scan, provenance, v0.2.5/v0.2.9 reconciliation, sovereign lifecycle, and Russian-first signing."
+resume_instruction: "PR #111 is technically ready. Exact code head 832f8ab1d87c0346d141c090dd650f07a6708a52 passed all 15 PR workflows. This checkpoint-only closeout commit may trigger another redundant PR run; do not treat it as a code regression. Do not auto-merge because canonical queue has no auto_merge:true. On explicit Owner merge authorization, inspect latest PR head and required checks/ruleset, merge if green/current, then record the merge commit and set status completed. Never publish or retag v0.2.9."
+updated_at: "2026-09-18T18:57:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-LNX-APPIMAGE-20260918"
