@@ -27,4 +27,10 @@ install -m644 LICENSE "$resources/LICENSE.txt"
 install -m644 THIRD_PARTY_NOTICES.txt "$resources/THIRD_PARTY_NOTICES.txt"
 "$python_bin" tools/third_party_license_bundle.py --build --output "$licenses"
 "$python_bin" tools/third_party_license_bundle.py --verify --output "$licenses"
+
+# PyInstaller signs the bundle before these governed license resources are added.
+# Re-seal the final artifact so macOS sees a valid ad-hoc signature for personal/CI builds.
+codesign --force --deep --sign - "$app"
+codesign --verify --deep --strict "$app"
+
 echo "$app"

@@ -1,49 +1,32 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-LNX-APPIMAGE-20260918
-status: completed
-goal: "Promote the existing portable x86_64 AppImage engineering lane into the canonical next-release set alongside DEB and RPM, without mutating immutable v0.2.9."
+task_id: APL-MAC-PERSONAL-DOGFOOD-20260918
+status: in_progress
+goal: "Produce and locally validate a private macOS arm64 build for Owner personal use without mutating the immutable public v0.2.9 release."
 authority: OWNER_DIRECTIVE
 definition_of_done:
-  - "A reproducible AppImage build/workflow exists for x86_64 Linux."
-  - "AppImage embeds the pinned type-2 runtime license notice plus product third-party notices."
-  - "release.yml requires successful exact-main AppImage CI for tagged releases and reuses that exact artifact."
-  - "SHA256SUMS.txt covers AppImage together with Windows, DEB, and RPM assets."
-  - "GitHub Release publication includes AppImage and the existing GitVerse mirror can carry .AppImage directly."
-  - "README/release policy/roadmap/backlog document AppImage as next-release portable Linux option while preserving v0.2.9 immutability."
-  - "Relevant exact-head PR CI passes."
-  - "Final PR/merge state and verification evidence are recorded in this checkpoint."
+  - "Build the canonical macOS .app and DMG from the immutable v0.2.9 source on the Owner Mac mini."
+  - "Verify bundle identity, architecture, hdiutil integrity and bundled license notices."
+  - "Install the private build into /Applications without publishing or retagging v0.2.9."
+  - "Launch the app in the logged-in macOS session and verify it stays running without immediate crash."
+  - "Run the relevant macOS automated tests against the v0.2.9 source."
+  - "Record exact source/tag, artifact hashes, local validation evidence and final state."
 completed:
-  - "Verified existing APL-LNX-008 AppImage engineering and CI on main and preserved the existing native DEB/RPM lanes."
-  - "Verified pinned type-2 runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12 upstream license/provenance and added APPIMAGE_RUNTIME_LICENSE.txt to the promoted AppImage payload."
-  - "Updated AppImage CI to verify the embedded runtime notice and extracted package structure."
-  - "Integrated exact-main linux-appimage.yml success/run-id into release validation."
-  - "Added AppImage exact-main artifact download, filename verification, SHA256SUMS coverage and GitHub Release publication."
-  - "Confirmed the existing GitVerse mirror already accepts .AppImage directly and verifies canonical SHA-256 parity."
-  - "Updated release automation tests, AppImage docs, RELEASE_POLICY.md, README.md, ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md."
-  - "Reconciled historical APL-IP-004 HOLD evidence with the later 2026-09-18 Owner directive without rewriting historical evidence."
-  - "PR #111 exact head 3bf42989926f0a2e9f8e75377e1cd75fe9265ad4 passed all 15/15 PR workflows with no review/change-request threads."
-  - "Owner explicitly authorized merge of PR #111."
-  - "PR #111 was squash-merged into main as abc91cdc95a82b0214b440ad5f62d12f36ce304e."
-current: "Completed. AppImage is part of the canonical next-release distribution set; immutable v0.2.9 remains unchanged."
-pending: []
-last_verified_commit: "abc91cdc95a82b0214b440ad5f62d12f36ce304e"
-test_results:
-  - "PR #111 exact head 3bf42989926f0a2e9f8e75377e1cd75fe9265ad4: 15/15 workflows SUCCESS."
-  - "APL-LNX-008 AppImage: SUCCESS, including contract tests, canonical frozen Linux build, pinned toolchain fetch, AppImage build, FUSE-less extraction/inspection and artifact upload."
-  - "GitHub Release validation: SUCCESS with AppImage exact-main gating and publication contract."
-  - "APL-LNX-009 Debian Ubuntu acceptance: SUCCESS."
-  - "Windows P0 portable, Windows installer, Windows Authenticode foundation and Russian-first signing: SUCCESS."
-  - "SAST, SBOM, dependency vulnerability scan, secret scan, provenance, v0.2.5/v0.2.9 reconciliation and sovereign lifecycle checks: SUCCESS."
-  - "Merge result: PR #111 -> main squash commit abc91cdc95a82b0214b440ad5f62d12f36ce304e."
-resume_instruction: "Task is complete. Do not reopen APL-LNX-APPIMAGE-20260918 unless a new defect or Owner-directed scope change is recorded. Future release publication remains a separate release action; never mutate or retag v0.2.9."
-updated_at: "2026-09-18T19:05:00+03:00"
+  - "Synced the local canonical repository to GitHub main b1639da17cda13af975acbff37936a7f6818e9ff."
+  - "Confirmed existing APL-MAC-001..008 engineering/acceptance track, canonical .app/DMG builders, and historical real-host Gate R9 PASS."
+current: "Prepare isolated immutable-v0.2.9 build worktree and verify the local macOS build toolchain."
+pending:
+  - "Build and test exact v0.2.9 macOS candidate."
+  - "Install into /Applications and verify launch/process health."
+  - "Record hashes/evidence and complete checkpoint."
+last_verified_commit: "b1639da17cda13af975acbff37936a7f6818e9ff"
+test_results: []
+resume_instruction: "Continue from the isolated v0.2.9 macOS build: verify toolchain, run macOS tests, build .app/DMG, install privately, launch, then record artifact hashes and mark completed."
+updated_at: "2026-09-18T19:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-LNX-APPIMAGE-20260918"
-  branch: "feat/appimage-linux-package"
-  base_commit: "b03c93ff437f62b79eee9d779e1d949e4733e00b"
-  merged_pr: 111
-  merge_commit: "abc91cdc95a82b0214b440ad5f62d12f36ce304e"
+  execution_id: "APL-MAC-PERSONAL-DOGFOOD-20260918"
+  branch: "agent/macos-personal-dogfood-20260918"
+  base_commit: "b1639da17cda13af975acbff37936a7f6818e9ff"
   lease_until: null
   manual_override: true
