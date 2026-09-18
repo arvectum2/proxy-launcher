@@ -27,12 +27,17 @@ completed:
   - "APL-IP-001 filing-evidence gate removed as dependency blocker from current execution queue."
 current: "APL-IP-001 is complete for the current v0.2.9 filing-evidence objective. No document needs to be signed now. Optional external legal hardening may be reopened only if the registry/expert/counsel specifically requests it or the Owner deliberately chooses it."
 pending: []
-last_verified_commit: "4b10da407b4308c5679d38d6ecd34a57206f458b"
+last_verified_commit: "edb4c0def476048beb89a2d803ba090d03405582"
 test_results:
-  - "Prior v0.2.9 exact-object/provenance/SBOM/Windows workflows passed."
-  - "Final corrective PR exact-head CI pending at checkpoint authoring; merge only after green."
+  - "PR #107 exact head bcdac93303b29980e19714d386579962dae65319: 11/11 reported workflows SUCCESS."
+  - "APL-IP-001 provenance, v0.2.5 reconciliation and v0.2.9 reconciliation: SUCCESS."
+  - "CycloneDX SBOM, SAST, dependency vulnerability scan and secret scan: SUCCESS."
+  - "APL-REG-001B sovereign lifecycle and Windows Russian-first Production Signing: SUCCESS."
+  - "Windows P0 portable: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 acceptance matrix: SUCCESS."
+  - "PR #107 merged to main at edb4c0def476048beb89a2d803ba090d03405582."
 resume_instruction: "Do not reopen APL-IP-001 or regenerate the R-1B agreement as routine version work. Treat docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md as optional external legal hardening only. If a registry/expert/counsel later asks for stronger chain-of-title evidence, open a new targeted legal-hardening task with that concrete request."
-updated_at: "2026-09-18T16:50:00+03:00"
+updated_at: "2026-09-18T16:55:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
