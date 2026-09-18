@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-18T11:35:00+03:00"
+updated_at: "2026-09-18T16:45:00+03:00"
 owner_controls_order: true
 baseline:
   main_sha_verified: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
@@ -42,16 +42,15 @@ items:
 
   - order: 30
     task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
-    title: "Final v0.2.9 IP provenance / human-legal sign-off"
-    status: blocked
+    title: "v0.2.9 IP provenance / filing-evidence disposition"
+    status: done
     authority: OWNER
     independent: true
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57; docs/APL_IP_001_V0_2_9_SIGNOFF.md"
     dependencies: []
-    blocker: "Exact v0.2.9 source/tag tree, package digests and provenance/SBOM evidence are reconciled. Owner/human must inspect the executed 2026-09-14 base instrument, establish the rights basis for post-2026-09-14 creative contributions, confirm Rospatent/corporate/Russian-control facts, and explicitly approve or remediate the exact v0.2.9 scope."
-    executor_scope: "Keep exact-object evidence coherent; preserve v0.2.5 as historical anchor; never manufacture future-results coverage, APPROVED status, legal conclusion or clean-IP tag."
-    evidence: "v0.2.9 reconciliation/sign-off packet prepared; base private instrument remains recorded without requiring duplicate version-specific execution solely because the version changed."
+    executor_scope: "Preserve exact-object evidence and v0.2.5 historical anchor. Optional future-rights hardening is not a filing blocker and must not be reintroduced without new Owner/legal input."
+    evidence: "Exact v0.2.9 source/tag/package identity, provenance/SBOM, executed 2026-09-14 rights instrument review, Owner factual confirmations and current platform scope are recorded. Two-party/self-signing R-1B agreement withdrawn as mandatory; optional external legal hardening only."
 
   - order: 40
     task_id: APL-REL-016
@@ -127,7 +126,6 @@ items:
     auto_merge: false
     source: "docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md; issue #46"
     dependencies:
-      - APL-IP-001-HUMAN-LEGAL-SIGNOFF
       - APL-REG-001B-PHYSICAL-PROOF
       - APL-REG-001D-DOSSIER
     blocker: "PRE-SUBMISSION / HOLD pending private corporate/right-chain and accounting evidence, Russian lifecycle physical proof, factual support contacts, exact-v0.2.9 Russian-GUI visual review, signer authority/qualified electronic signature and live-form/current-law recheck."

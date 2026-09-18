@@ -1,5 +1,7 @@
 # APL-IP-001 — R-1B future-rights assignment draft
 
+> **SUPERSEDED AS MANDATORY / OPTIONAL LEGAL HARDENING ONLY.** Do not sign this draft merely to complete APL-IP-001 or the current v0.2.9 filing-evidence packet. The Owner rejected the two-party/self-signing path as unnecessary process overhead. Preserve this document only as an optional external-counsel hardening draft if a future legal review specifically recommends it.
+
 Status: DRAFT FOR HUMAN/LEGAL REVIEW — NOT EXECUTED — NOT APPROVED
 Date prepared: 2026-09-18
 Tracking: #57

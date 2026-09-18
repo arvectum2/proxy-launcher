@@ -1,6 +1,6 @@
 # APL-IP-001 — v0.2.9 human/legal sign-off record
 
-Status: **EXECUTION-READY / NOT APPROVED / HUMAN-LEGAL SIGN-OFF REQUIRED**  
+Status: **FILING-EVIDENCE COMPLETE / OWNER FACTS RECORDED / OPTIONAL EXTERNAL LEGAL HARDENING**  
 Tracking: #57  
 Reconciliation: `docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md`
 
@@ -48,6 +48,23 @@ Repository status from that human evidence:
 - R-1B post-2026-09-14 creative-contribution rights basis: **STILL OPEN**.
 
 The checkboxes below remain intentionally unticked by automation. They may only be completed as the authorized human/legal disposition.
+
+## Current project disposition — 2026-09-18
+
+Separate clean-IP/legal-baseline status: **NOT APPROVED**. No separate clean-IP tag or legal opinion is authorized by completion of the filing-evidence packet.
+
+The Owner has rejected execution of a two-party/self-signing R-1B agreement as unnecessary process overhead for the current APL-IP-001 objective.
+
+Project disposition:
+
+- the executed 2026-09-14 sole-participant/rightsholder decision remains the operative private chain-of-title evidence for Arvectum Proxy Launcher;
+- exact v0.2.9 source/tag/artifact provenance is reconciled;
+- R-1A, R-2, R-3 and R-4 factual findings have been supplied by the Owner;
+- the promoted scope is fixed to Windows Setup + portable, Astra DEB and RED OS RPM; AppImage remains excluded from the current scope;
+- no additional version-specific or two-capacity self-agreement is a project filing prerequisite;
+- the question whether later human-authored creative contributions merit a separate transfer instrument is retained as an **optional residual legal-hardening question**, suitable for external counsel if desired or if the registry/expert specifically requests clarification.
+
+This project record does not itself issue a legal opinion on ownership of every later copyrightable contribution and does not fabricate a court-proof chain of title. It records the evidence actually available for the current filing workflow and prevents optional hardening from blocking engineering/filing preparation.
 
 ## Required human/legal findings
 
@@ -122,7 +139,7 @@ Owner also confirmed that no employment/service-work basis is being relied upon 
 
 `docs/legal/APL_IP_001_R1B_FUTURE_RIGHTS_ASSIGNMENT_DRAFT_2026-09-18.md`.
 
-R-1B remains **OPEN UNTIL ACTUAL PRIVATE EXECUTION**.
+R-1B is **NOT A CURRENT FILING BLOCKER**. The draft remains available only as optional legal hardening or for use if an authorized external legal reviewer specifically requires an additional instrument.
 
 ## Distribution/license disposition
 
@@ -146,6 +163,6 @@ Authorized reviewer name/role: ____________________________________
 Decision date: ____________________________________________________  
 Signature / internal evidence reference: ___________________________
 
-Until **APPROVED** is genuinely selected by an authorized human reviewer, the operative state is **NOT APPROVED**.
+No automated system may represent this record as a legal opinion. For project purposes, the v0.2.9 filing-evidence packet is complete; any stronger chain-of-title opinion or additional transfer instrument is optional external legal hardening unless specifically requested by the registry/expert or counsel.
 
 **NO CLEAN-IP TAG MAY BE CREATED FROM THIS TEMPLATE OR BY CI.** Existing release tags, including `v0.2.5` and `v0.2.9`, must never be moved.

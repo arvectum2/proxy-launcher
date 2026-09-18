@@ -67,23 +67,23 @@ Repository/CI provides a native Android project, real `VpnService`/TUN path, sec
 9. inspect logs/files for credential leakage;
 10. only then decide reconnect/Always-on behavior and whether PR #53 may leave draft.
 
-## P5 — IP / corporate rights boundary — BLOCKED / OWNER-HUMAN
+## P5 — IP / corporate rights boundary — DONE FOR CURRENT FILING EVIDENCE
 
 Current final object: exact public `v0.2.9`.
 
-Repository engineering is reconciled: exact source/tag tree, promoted package digests, provenance and CycloneDX SBOM are governed; the v0.2.5 -> v0.2.9 material drift is classified. Historical v0.2.5 remains an immutable provenance/physical-acceptance anchor.
+Repository engineering and Owner-factual evidence are complete for the current filing packet:
 
-The executed 2026-09-14 private decision remains the base rights-chain evidence. **Do not re-execute it merely because the release version changed.** Remaining human/private findings are:
+- exact source/tag tree, promoted package digests, provenance and CycloneDX SBOM are governed;
+- v0.2.5 -> v0.2.9 material drift is reconciled;
+- the executed 2026-09-14 private sole-participant/rightsholder decision remains the operative chain-of-title evidence;
+- the actual instrument was reviewed and identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full and authorizes modification/reworking;
+- current Rospatent, corporate/Russian-control and human creative-control facts were confirmed by the Owner;
+- approved current scope: Windows Setup/portable, Astra DEB and RED OS RPM; AppImage excluded from the current scope only.
 
-1. inspect the actual 2026-09-14 instrument and verify the base Arvectum Proxy Launcher rights transfer (R-1A);
-2. establish the actual rights basis for material creative contributions after 2026-09-14 included in v0.2.9 (R-1B) — existing future-results wording, service/employment basis, separate assignment or another real documented basis;
-3. confirm current Rospatent factual status (R-2);
-4. confirm applicable corporate approval/exception and current Russian-control facts (R-3);
-5. explicitly carry forward human creative/architectural control and no-known-deliberate-copying facts to v0.2.9 (R-4);
-6. select the promoted approval scope (Windows Setup/portable, Astra DEB, RED OS RPM; AppImage remains excluded);
-7. make an explicit authorized `APPROVED` or remediation decision.
+The previously prepared R-1B two-party/future-rights agreement is **not required to complete this project filing-evidence task** and must not be presented to the Owner as a mandatory signature step. It is retained only as optional external legal hardening. A future registry/expert clarification or external-counsel review may still recommend a separate instrument for later human-authored copyrightable contributions.
 
-Issue: `#57`. Current sign-off: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
+Issue: `#57`. Current record: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
+
 ## P6 — Russian Software Register sovereign lifecycle — BLOCKED / PHYSICAL INFRASTRUCTURE
 
 APL-REG-001B repository tooling exists, but filing-grade physical proof remains open.
@@ -194,7 +194,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 ## Current execution view
 
 - **HUMAN READY:** Android physical dogfood (#53).
-- **OWNER/HUMAN BLOCKED:** final IP/corporate rights disposition (#57).
+- **DONE FOR CURRENT FILING EVIDENCE:** APL-IP-001 v0.2.9 provenance/right-chain packet (#57); optional legal hardening remains non-blocking.
 - **REVIEW READY:** APL-REL-016 trust packet refresh to v0.2.9 (#81).
 - **HUMAN BLOCKED:** sovereign lifecycle physical proof (#55).
 - **OWNER READY:** per-app routing architecture decision (#68).

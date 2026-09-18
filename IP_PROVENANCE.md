@@ -1,6 +1,8 @@
 # IP_PROVENANCE.md — Arvectum Proxy Launcher source provenance
 
-Status: **v0.2.9 ENGINEERING RECONCILED / HUMAN-LEGAL SIGN-OFF PENDING**
+Status: **v0.2.9 FILING-EVIDENCE COMPLETE / OPTIONAL EXTERNAL LEGAL HARDENING**
+
+Separate legal-baseline status: **HUMAN-LEGAL SIGN-OFF PENDING** only if a distinct clean-IP/legal baseline is deliberately requested. This is not a blocker for the current registry filing-evidence packet.
 
 This record defines the repository provenance boundary for APL-IP-001. Automated scans, Git history, CI and AI review are engineering evidence; none of them by themselves prove copyright authorship, exclusive ownership or legal approval.
 
@@ -98,15 +100,17 @@ However, repository metadata cannot decide whether the exact private wording als
 
 ## Human-authorship / legal boundary
 
-The exact v0.2.9 object remains blocked on:
+The Owner supplied the actual 2026-09-14 instrument and current factual confirmations. For the current v0.2.9 filing-evidence packet:
 
-- **R-1A:** inspect/verify the executed 2026-09-14 base rights instrument;
-- **R-1B:** establish the actual rights basis for material post-2026-09-14 creative contributions included in v0.2.9;
-- **R-2:** verify current factual Rospatent status;
-- **R-3:** verify applicable corporate approval/exception basis and current corporate/Russian-control facts;
-- **R-4:** authorized human factual carry-forward for the v0.2.5 -> v0.2.9 evolution and selected promoted release scope.
+- R-1A instrument review is complete;
+- R-2 current Rospatent facts are confirmed;
+- R-3 current corporate/Russian-control facts are confirmed;
+- R-4 human creative-control / AI-as-tool / no-known-deliberate-copying facts are confirmed;
+- current promoted platform scope is confirmed.
 
-R-1B may be satisfied by the existing instrument if its actual wording validly covers the relevant future results, by service/employment allocation, by a separate assignment, or by another real documented basis. Automation must not choose among those possibilities.
+A separate question remains possible in legal theory for independently copyrightable human-authored contributions created after 2026-09-14. The project previously escalated that residual question into a mandatory two-party/future-rights agreement. The Owner rejected that process as unnecessary, and the project now treats such an instrument as **optional external legal hardening**, not as a blocker for the current APL-IP-001 engineering/filing-evidence objective.
+
+This record does not decide the residual copyright question as a legal opinion. If an expert council, registry reviewer or external counsel specifically requires an additional chain-of-title instrument, address that request directly.
 
 ## Baseline verdict
 
@@ -115,11 +119,13 @@ R-1B may be satisfied by the existing instrument if its actual wording validly c
 - Exact v0.2.9 source/tag tree identity: **PASS**.
 - Exact-tree provenance binding: **PASS**.
 - Exact-tree build-SBOM binding: **PASS**.
-- v0.2.5 -> v0.2.9 engineering drift reconciliation: **PASS / HUMAN FACTUAL CARRY-FORWARD REQUIRED**.
-- Existing 2026-09-14 private rights evidence: **RECORDED / SCOPE CARRY-FORWARD REVIEW REQUIRED**.
+- v0.2.5 -> v0.2.9 engineering drift reconciliation: **PASS / OWNER FACTUAL CARRY-FORWARD RECORDED**.
+- Existing 2026-09-14 private rights evidence: **REVIEWED / OPERATIVE CURRENT CHAIN-OF-TITLE EVIDENCE**.
 - AppImage promoted distribution: **HOLD / OUT OF CURRENT APPROVAL SCOPE**.
-- R-1A/R-1B/R-2/R-3/R-4: **PENDING — HUMAN/LEGAL ACTION**.
-- Overall machine verdict: **CONDITIONAL_HUMAN_LEGAL_GATE**.
-- Clean IP baseline/tag: **BLOCKED** until the exact v0.2.9 sign-off is **explicitly APPROVED** by an authorized human/legal reviewer.
+- R-1A/R-2/R-3/R-4 factual evidence: **COMPLETE / OWNER CONFIRMED**.
+- R-1B future-rights instrument: **OPTIONAL EXTERNAL LEGAL HARDENING / NOT A CURRENT FILING BLOCKER**.
+- Current project verdict: **FILING_EVIDENCE_COMPLETE_WITH_OPTIONAL_LEGAL_HARDENING**.
+- Clean-IP/legal tag is not required for the current registry filing packet; do not manufacture one from automation. If a separate legal-baseline tag is ever desired, require a deliberately scoped human review.
+- Clean IP baseline/tag: **BLOCKED** as a separate optional legal-baseline action until that deliberately scoped human/legal review occurs; this BLOCKED state does not block the current filing-evidence packet. A separate clean-IP baseline/tag may be created only after that optional review is **explicitly APPROVED** by the authorized human/legal reviewer.
 
 **NO CLEAN-IP TAG IS AUTHORIZED BY AUTOMATION OR THIS RECORD.** Existing `v0.2.5` and `v0.2.9` tags must never be moved.
