@@ -215,3 +215,13 @@ No tunnel, Auto-selection, hot-switch or profile-storage behavior changes are pa
 - home connection detail simplifies `HTTP/HTTPS (CONNECT)` to `HTTP/HTTPS` and removes transient “Создаём VPN…” wording.
 
 The design review explicitly recommends adding no further controls to the home screen in this slice.
+
+
+## 0.1.13 launcher/header correction
+
+- launcher returns to the visually accepted 0.1.11 60%-centered geometry;
+- before scaling, all desktop squircle/background pixels are stripped to transparent;
+- only Mint AV artwork plus the complete globe badge remain above the full-bleed Deep Navy adaptive background;
+- header is one bottom-aligned row: AV mark · Arvectum Proxy Launcher · 0.1.13 at the far right.
+
+Networking and profile behavior are unchanged.
