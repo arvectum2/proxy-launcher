@@ -41,7 +41,10 @@ jobs:
             TAG="${{ inputs.tag }}"
           fi
           test -n "$TAG"
-          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) echo "::error::Invalid release tag: $TAG"; exit 1;; esac
+          case "$TAG" in
+            v[0-9]*.[0-9]*.[0-9]*|android-v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "::error::Invalid release tag: $TAG"; exit 1;;
+          esac
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Checkout tagged source
