@@ -1,0 +1,69 @@
+name: APL-IP-001 v0.2.9 reconciliation
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'apl-ip-001-**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    name: v0.2.9 clean-IP fail-closed gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout full history and tags
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Set up build Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version-file: BUILD_PYTHON_VERSION
+
+      - name: Validate governed JSON contract
+        run: python -m json.tool compliance/APL_IP_001_V0_2_9_CLEAN_IP.json >/dev/null
+
+      - name: Run v0.2.9 reconciliation tests
+        run: python -m unittest tests.test_apl_ip_001_v0_2_9_reconciliation -v
+
+      - name: Preserve historical v0.2.5 reconciliation checks
+        run: python -m unittest tests.test_apl_ip_001_v0_2_5_reconciliation -v
+
+      - name: Run existing provenance contract tests
+        run: python -m unittest tests.test_ip_provenance_contract -v
+
+      - name: Regenerate current repository provenance evidence
+        run: |
+          rm -rf artifacts/ip-provenance
+          python tools/ip_provenance_check.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('artifacts/ip-provenance/source-manifest.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['human_review_required'] is True
+          assert data['legal_signoff_required'] is True
+          print('Current provenance remains fail-closed: human/legal review required')
+          PY
+
+      - name: Assert read-only workflow permissions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/apl-ip-001-v0-2-9.yml').read_text(encoding='utf-8')
+          forbidden = 'contents' + ': ' + 'write'
+          required = 'contents' + ': ' + 'read'
+          assert forbidden not in text
+          assert required in text
+          print('Workflow is read-only and cannot push a clean-IP tag')
+          PY
