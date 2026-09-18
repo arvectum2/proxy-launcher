@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-18T22:44:00+03:00"
+updated_at: "2026-09-19T02:24:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "3ed589531e4d60da8610cc8c16ff7e94cf4c9b2f"
+  main_sha_verified: "75696eb257664a9f3cc5ce7139a31ff68e985827"
   stable_release: "v0.2.9"
   stable_release_published_at: "2026-09-17"
   platforms:
@@ -146,15 +146,15 @@ items:
   - order: 100
     task_id: APL-IOS-LATER-STAGE
     title: "iOS mobile stage and later APL-MOB-002"
-    status: in_progress
+    status: ready
     authority: REVIEW
     independent: false
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51; draft PR #105"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51; merged PR #105; release android-v0.1.13"
     dependencies:
       - APL-MOB-001-ANDROID-DOGFOOD
-    active_pr: 105
-    evidence: "Owner explicitly advanced the first Android APL-MOB-002 slice before iOS: hot manual switch, connect-time Auto working-proxy selection, and Android round launcher branding are in draft PR #105. Continuous background failover and iOS remain later gates."
+    merged_pr: 105
+    evidence: "First Android APL-MOB-002 slice is DONE and released: owner physically accepted 0.1.13; PR #105 merged as 9e81d8e5d65a6fe0554131c4ad031018ce40d326; GitHub release android-v0.1.13 published with APK SHA-256 c3395dde459e8e5752d8ea9e46f735794df6558daa146def7d090deb239296d1; GitVerse mirror run 35389823401 PASS with public payload parity verified. Remaining scope is continuous background health monitoring/failover after an already-connected upstream dies, plus the separate later iOS stage."
 
 repository_hygiene:
   superseded_open_prs:
