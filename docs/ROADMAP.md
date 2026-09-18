@@ -44,21 +44,18 @@ Current canonical main verified for this roadmap refresh: 52fc4f8bbaa9d7fca6274f
 - **DONE** — APL-IP-002 platform sovereignty audits.
 - **DONE** — APL-IP-003 canonical source refactor, Slices 1–23.
 - **DONE** — APL-IP-004 promoted-artifact third-party license bundle engineering.
-- **[Web] DONE — post-APL-IP-004 review reconciliation** — historical governance anchor remains candidate `ef9846e151a2e4e7046169e0787603969018cc97`; later technical evidence may bind newer maintained candidates without rewriting this review anchor.
+- **DONE FOR CURRENT FILING EVIDENCE — APL-IP-001 / v0.2.9.**
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe IP/provenance baseline; its source/tag/artifact evidence and 2026-09-14 packet are preserved and are not rewritten.
-- **APL-IP-001 status: CONDITIONAL / POST-APL-IP-004 ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.** This historical governance status remains true; the current exact disposition object is v0.2.9.
-- **APL-IP-001 CURRENT OBJECT: v0.2.9 / ENGINEERING RECONCILED / HUMAN-LEGAL PENDING.**
-- **DONE / EXACT-OBJECT ENGINEERING** — current APL-IP-001 is bound to accepted source commit `ca7c1019...`, source tree `55f2d50f...`, immutable tag commit `d13d9dac...` and the exact promoted v0.2.9 release-package digests.
-- **DONE / EXACT-TREE EVIDENCE** — provenance run `35255499712` and CycloneDX SBOM run `35255499669` were generated from the PR synthetic merge tree `55f2d50f...`, identical to both the accepted source tree and final v0.2.9 tag tree.
-- **DONE / ENGINEERING DRIFT RECONCILIATION** — material v0.2.5 -> v0.2.9 evolution is classified across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices. This does not substitute for human authorship/right-chain findings.
-- **PRIVATE RIGHTS EVIDENCE PRESERVED** — the executed 2026-09-14 private sole-participant/rightsholder instrument remains the base chain-of-title evidence. The repository does not require a duplicate version-specific transfer merely because the release number changed.
-- **HUMAN/LEGAL PENDING / NOT APPROVED** — R-1A verifies the executed base instrument; R-1B establishes the actual rights basis for post-2026-09-14 creative contributions included in v0.2.9; R-2 verifies current Rospatent facts; R-3 verifies corporate/Russian-control facts; R-4 carries forward human creative-control/authorship facts.
-- **RULE** — the absence of a version number in a rights instrument is relevant but does not by itself prove that every future creative contribution is covered. The exact private wording and factual creation basis control.
-- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only for the exact candidate authorized by the completed human/legal sign-off.
-- **AFTER explicit APPROVED** — create a governed clean-IP/legal baseline only for the exact v0.2.9 object and approved promoted scope; never move an existing release tag.
-- **HOLD** — AppImage remains outside promoted commercial scope until separately cleared.
+- **DONE / EXACT-OBJECT ENGINEERING** — accepted v0.2.9 source commit `ca7c1019...`, source tree `55f2d50f...`, immutable tag commit `d13d9dac...` and promoted release-package digests are governed.
+- **DONE / EXACT-TREE EVIDENCE** — provenance run `35255499712` and CycloneDX SBOM run `35255499669` bind to the exact released source tree.
+- **DONE / ENGINEERING DRIFT RECONCILIATION** — material v0.2.5 -> v0.2.9 evolution is classified across Astra/Linux, RED OS/RPM, Linux recovery and Windows rollback-ownership slices.
+- **DONE / OWNER FACTS** — the actual 2026-09-14 private sole-participant/rightsholder decision was reviewed; it identifies Arvectum Proxy Launcher without a version number, transfers the exclusive right in full and authorizes modification/reworking. Current Rospatent, corporate/Russian-control and human creative-control facts were confirmed by the Owner.
+- **CURRENT SCOPE** — Windows Setup + portable, Astra DEB and RED OS RPM. AppImage is excluded from the current approval only and may be added later through its own release/compliance gate.
+- **PROCESS CORRECTION** — the previously prepared R-1B two-party/self-signing future-rights agreement is not a mandatory APL-IP-001 or registry-filing step. It is retained only as optional external legal hardening for the residual question of later human-authored copyrightable contributions. Do not reintroduce it as a blocker without new Owner/legal input.
+- **RULE** — repository evidence is not a legal opinion. If the registry/expert or external counsel specifically requests a stronger chain-of-title instrument for later contributions, handle that as a targeted legal-hardening task rather than per-version compliance ritual.
 
-Canonical current records: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`, `docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md`, `docs/legal/APL_IP_001_V0_2_9_RIGHTS_CARRY_FORWARD_NOTE_2026-09-18.md`. Historical v0.2.5 records remain evidence.
+Canonical current records: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`, `docs/evidence/APL_IP_001_V0_2_9_CANDIDATE_RECONCILIATION_2026-09-18.md`, `docs/evidence/APL_IP_001_V0_2_9_OWNER_FACT_CONFIRMATION_2026-09-18.md`. Historical v0.2.5 records remain evidence.
+
 ## 4. Linux / Astra Linux
 
 - **DONE** — APL-LNX-001..009 engineering: environment detection, NetworkManager preflight, capability/PolicyKit UX, autostart, diagnostics, Debian packaging and CI acceptance.
@@ -112,7 +109,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 ## 9. Currently available workstreams
 
 1. **[Android / HUMAN] APL-MOB-001 physical dogfood — READY NOW.** PR #53 is technically prepared; the remaining gate is a real phone.
-2. **[IP/legal / OWNER] APL-IP-001 final rights/corporate disposition — BLOCKED ON HUMAN EVIDENCE.** Engineering provenance is available; legal/factual approval must be real.
+2. **[IP/legal] APL-IP-001 v0.2.9 filing-evidence packet — DONE.** Optional external legal hardening is non-blocking unless specifically requested.
 3. **[Windows trust / REVIEW] APL-REL-016 — READY NOW.** PR #81 must be refreshed from v0.2.6 to v0.2.9, then presented for Owner decision.
 4. **[Registry infrastructure / HUMAN] APL-REG-001B — BLOCKED UNTIL PHYSICAL RUSSIAN LIFECYCLE EVIDENCE EXISTS.**
 5. **[Per-app routing / OWNER] production architecture decision — READY NOW.** PR #68 contains the decision packet; refresh against v0.2.9 if needed, then resolve the Owner stop-gate.
