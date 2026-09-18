@@ -54,6 +54,7 @@ Current canonical main verified for this roadmap refresh: 52fc4f8bbaa9d7fca6274f
 - **PRIVATE RIGHTS EVIDENCE PRESERVED** — the executed 2026-09-14 private sole-participant/rightsholder instrument remains the base chain-of-title evidence. The repository does not require a duplicate version-specific transfer merely because the release number changed.
 - **HUMAN/LEGAL PENDING / NOT APPROVED** — R-1A verifies the executed base instrument; R-1B establishes the actual rights basis for post-2026-09-14 creative contributions included in v0.2.9; R-2 verifies current Rospatent facts; R-3 verifies corporate/Russian-control facts; R-4 carries forward human creative-control/authorship facts.
 - **RULE** — the absence of a version number in a rights instrument is relevant but does not by itself prove that every future creative contribution is covered. The exact private wording and factual creation basis control.
+- **[Web after explicit APPROVED] — create governed clean-IP baseline/tag** only for the exact candidate authorized by the completed human/legal sign-off.
 - **AFTER explicit APPROVED** — create a governed clean-IP/legal baseline only for the exact v0.2.9 object and approved promoted scope; never move an existing release tag.
 - **HOLD** — AppImage remains outside promoted commercial scope until separately cleared.
 
