@@ -23,14 +23,17 @@ completed:
   - "Updated .agent/execution-queue.yaml to v0.2.9: Astra and RED OS DONE, registry dossier DONE, external filing split into fail-closed HUMAN pre-submission gates, REL-016/Android/per-app tracks reconciled."
   - "Updated docs/ROADMAP.md to v0.2.9 while preserving historical APL-IP-001 governance markers required by repository contracts."
   - "Updated docs/LOCAL_EXECUTION_BACKLOG.md to current physical/compliance/product state and recorded superseded open PRs as non-roadmap hygiene."
-current: "Open the roadmap synchronization PR and verify exact-head CI."
+  - "Opened PR #97 from agent/roadmap-sync-20260918 to main; GitHub reports mergeable=true."
+  - "Pre-merge review check: no submitted reviews and no review threads; current Company AM-4 base authorization and 2026-09-16 renewal are Approved."
+  - "Exact-head CI started on ffcf4ddcafd073a52011bfcb54db51093d21fdb9; APL-IP-001 provenance and Windows Russian-first Production Signing already SUCCESS at the latest checkpoint."
+current: "PR #97 is open and mergeable; verify exact-head CI to completion."
 pending:
   - "Open PR, run exact-head CI, merge if required checks are green."
   - "Mark checkpoint completed with final merge SHA and verification result."
 last_verified_commit: "52fc4f8bbaa9d7fca6274f28c99041eabf1e410a"
 test_results: []
-updated_at: "2026-09-18T09:55:00+03:00"
-resume_instruction: "Open a PR from agent/roadmap-sync-20260918 to main. Verify exact-head required CI. If green and no review gate blocks this docs/metadata synchronization, merge; then update .agent/current-task.yaml on main to completed with merge SHA and final CI results."
+updated_at: "2026-09-18T10:00:00+03:00"
+resume_instruction: "Check exact-head CI for PR #97 head ffcf4ddcafd073a52011bfcb54db51093d21fdb9. If all required checks are green and main has not invalidated the merge, merge PR #97. Then write a final completed checkpoint on main with the merge SHA and CI summary."
 execution:
   claimed_by: chatgpt
   execution_id: APL-ROADMAP-SYNC-20260918
