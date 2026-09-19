@@ -19,9 +19,9 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "PR #135 is open. Exact-head Mobile iOS personal run #14 is green at 3e7aaac (core-tests + unsigned-device-build). Xcode installation on Mac mini is now proceeding through the Mac App Store without a paid Developer Program."
+current: "PR #135 is open. Exact-head Mobile iOS personal CI is green. Apple Developer Terms were accepted for the new Arvectum Apple Account. Xcode 26.6 installation is ready to retry through xcodes and requires one interactive Apple ID/2FA run in the visible Terminal."
 pending:
-  - "Finish full Xcode installation on the Mac mini and run local Xcode validation."
+  - "Complete one interactive xcodes authentication/install run for Xcode 26.6 on the Mac mini, then run local Xcode validation."
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
 last_verified_commit: "3e7aaac9aea7899ca6dac38833a3d61dc8b4820c"
 test_results:
@@ -34,9 +34,9 @@ test_results:
   - "PASS: swiftc -parse for every tracked iOS Swift source"
   - "EXPECTED LOCAL INFRA FAILURE: swift test reached the test target but Command Line Tools do not include the XCTest framework; full Xcode is absent."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Local signing still has 0 valid identities and Packet Tunnel signing requires an eligible Apple Developer team. Xcode itself is installing free through the Mac App Store."
-resume_instruction: "Continue on feat/ios-personal-0.1.19. Wait for the already-running Mac App Store Xcode install to finish, then run local XcodeGen/core tests/unsigned iPhone build. After that, the remaining DoD gate is physical iPhone signing/install/acceptance with an eligible Apple Developer team. Do not start per-app routing or public distribution."
-updated_at: "2026-09-19T15:14:00+03:00"
+blocker: "xcodes cannot complete Apple authentication from the non-interactive RDC shell; Owner must run the prepared xcodes command once in visible Terminal and complete Apple ID/2FA. Local signing still has 0 valid identities and Packet Tunnel signing requires an eligible Apple Developer team."
+resume_instruction: "Continue on feat/ios-personal-0.1.19 after Owner runs the prepared xcodes install command in visible Terminal and completes Apple ID/2FA. Verify /Applications/Xcode.app, run local XcodeGen/core tests/unsigned iPhone build, then proceed to the remaining physical iPhone signing/install/acceptance gate. Do not start per-app routing or public distribution."
+updated_at: "2026-09-19T18:09:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
