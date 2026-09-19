@@ -1,0 +1,41 @@
+name: Mobile iOS personal
+
+on:
+  pull_request:
+    paths:
+      - "mobile/ios/**"
+      - ".github/workflows/mobile-ios-personal.yml"
+  push:
+    paths:
+      - "mobile/ios/**"
+      - ".github/workflows/mobile-ios-personal.yml"
+
+jobs:
+  core-tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Core policy tests
+        run: swift test --package-path mobile/ios
+
+  unsigned-device-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Fetch pinned tun2proxy XCFramework
+        run: python3 mobile/ios/Tools/fetch_tun2proxy.py
+      - name: Generate Xcode project
+        run: xcodegen generate --spec mobile/ios/project.yml
+      - name: Build unsigned iPhone app
+        run: |
+          xcodebuild \
+            -project mobile/ios/ArvectumProxyLauncherIOS.xcodeproj \
+            -scheme ArvectumProxyLauncher \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build

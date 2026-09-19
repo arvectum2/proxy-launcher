@@ -1,0 +1,59 @@
+name: ArvectumProxyLauncherIOS
+options:
+  bundleIdPrefix: ru.arvectum.proxylauncher
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.19"
+    CURRENT_PROJECT_VERSION: "20"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+targets:
+  ArvectumProxyLauncher:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+      - SharedCore
+    resources:
+      - Resources
+    dependencies:
+      - target: PacketTunnel
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios
+        PRODUCT_NAME: "Arvectum Proxy Launcher"
+        INFOPLIST_FILE: Config/App-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/App.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+  PacketTunnel:
+    type: app-extension
+    platform: iOS
+    sources:
+      - PacketTunnel
+      - Shared
+      - SharedCore
+    dependencies:
+      - framework: Frameworks/tun2proxy.xcframework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios.PacketTunnel
+        PRODUCT_NAME: "Arvectum Packet Tunnel"
+        INFOPLIST_FILE: Config/PacketTunnel-Info.plist
+        CODE_SIGN_ENTITLEMENTS: Config/PacketTunnel.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+schemes:
+  ArvectumProxyLauncher:
+    build:
+      targets:
+        ArvectumProxyLauncher: all
+        PacketTunnel: all
+    run:
+      config: Debug
+    archive:
+      config: Release
