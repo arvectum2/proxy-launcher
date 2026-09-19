@@ -272,7 +272,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func setSettings(_ settings: NEPacketTunnelNetworkSettings) async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             setTunnelNetworkSettings(settings) { error in
                 if let error { continuation.resume(throwing: error) }
                 else { continuation.resume() }
@@ -303,7 +303,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         var hints = addrinfo(
             ai_flags: AI_ADDRCONFIG,
             ai_family: AF_UNSPEC,
-            ai_socktype: Int32(SOCK_STREAM.rawValue),
+            ai_socktype: SOCK_STREAM,
             ai_protocol: 0,
             ai_addrlen: 0,
             ai_canonname: nil,
