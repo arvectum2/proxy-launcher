@@ -1,0 +1,41 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-SYNC-20260919
+status: completed
+goal: "Synchronize canonical Proxy Launcher roadmap, local backlog and executor queue to the verified 2026-09-19 repository/release state without changing Owner-controlled priority."
+authority: REVIEW
+definition_of_done:
+  - "Current main, stable desktop release, Android release, active PRs and checkpoints are verified."
+  - "Desktop stable baseline is v0.2.10 with AppImage published."
+  - "APL-MOB-002 is recorded completed/released at Android 0.1.17."
+  - "APL-MOB-003 physical acceptance is reconciled from its authoritative completed branch checkpoint."
+  - "APL-MOB-004 monetization/dual-distribution plan is represented after MOB-003 without implementation claims."
+  - "APL-IP-001 remains done for the v0.2.9 filing-evidence object."
+  - "APL-REL-016 is reconciled to the fact that v0.2.10 is immutable/published and requires a v0.2.10 -> next-version refresh before Owner decision."
+  - "Roadmap, backlog and execution queue agree and preserve Owner-controlled ordering."
+  - "Exact-head required CI passes before merge."
+completed:
+  - "Verified public desktop v0.2.10 with Windows Setup/portable, Astra DEB, RED OS RPM, AppImage and SHA256SUMS."
+  - "Verified separate macOS dogfood prerelease v0.2.10-macos-test.1."
+  - "Verified APL-MOB-002 / android-v0.1.17 complete and public."
+  - "Verified APL-MOB-003 checkpoint on PR #125 branch: physical myip.com exclusion PASS, 0.1.19 UX accepted, Android CI run 35435184809 SUCCESS, APK SHA-256 c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71."
+  - "Recorded APL-MOB-004 as roadmap-only Owner-gated future work; no ad SDK/private release infrastructure claimed."
+  - "Executor queue, ROADMAP and LOCAL_EXECUTION_BACKLOG synchronized to v0.2.10 and current mobile/trust state."
+  - "PR #127 exact head 4948f95dd5d1c4206f49a80a9c3e199094591e76 passed the required build and the original full 13-check suite; merged as 31e912fd6109cd14f4fb7e3a271d32af4f92d991."
+  - "Duplicate PR #128 closed without merge."
+current: "Synchronization completed; MOB-003 implementation/physical task is completed but PR #125 remains open pending explicit merge/release decision."
+pending: []
+last_verified_commit: "31e912fd6109cd14f4fb7e3a271d32af4f92d991"
+merged_commit: "31e912fd6109cd14f4fb7e3a271d32af4f92d991"
+test_results:
+  - "PR #127 required Windows P0 portable build: SUCCESS."
+  - "Original PR #127 check suite: installer, security, provenance, SBOM, signing, lifecycle and mirror checks SUCCESS."
+resume_instruction: "No continuation is required for this roadmap-sync task. Read current main and .agent/execution-queue.yaml. Do not re-open MOB-003 physical work; PR #125 merge/release remains an explicit decision. The next independent REVIEW-preparation lane is APL-REL-016 PR #103 refresh to v0.2.10 / first eligible v0.2.11+."
+updated_at: "2026-09-19T13:15:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
+  lease_until: null
+  manual_override: false
