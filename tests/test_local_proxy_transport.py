@@ -98,6 +98,29 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         src.close.assert_called_once_with()
         dst.close.assert_called_once_with()
 
+    def test_relay_logs_byte_counts_and_client_eof(self):
+        src = mock.Mock()
+        dst = mock.Mock()
+        stop = mock.Mock()
+        stop.is_set.return_value = False
+        src.recv.return_value = b"abc"
+        dst.recv.side_effect = [b"xy", b""]
+
+        with mock.patch.object(
+            local_proxy_transport.select,
+            "select",
+            side_effect=[([src], [], []), ([dst], [], []), ([dst], [], [])],
+        ), mock.patch.object(core, "structured_log") as log:
+            core.ProxyCore._relay(src, dst, stop)
+
+        dst.sendall.assert_called_once_with(b"abc")
+        src.sendall.assert_called_once_with(b"xy")
+        close_call = log.call_args
+        self.assertEqual(close_call.kwargs["event"], "proxy.relay.closed")
+        self.assertEqual(close_call.kwargs["upstream_to_client_bytes"], 3)
+        self.assertEqual(close_call.kwargs["client_to_upstream_bytes"], 2)
+        self.assertEqual(close_call.kwargs["termination_reason"], "eof:client")
+
     def test_http_connect_fails_over_after_rejected_upstream(self):
         settings = {
             "upstream": [
