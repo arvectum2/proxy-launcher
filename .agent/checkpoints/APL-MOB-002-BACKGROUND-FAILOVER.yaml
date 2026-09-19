@@ -1,0 +1,16 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-002-BACKGROUND-FAILOVER
+status: in_progress
+authority: REVIEW
+source: "execution-queue order 100; issue #51"
+base_commit: "88a9a25770dcd7417cf6179f30d1ba9fb50bfb79"
+branch: "agent/apl-mob-002-background-failover"
+evidence:
+  - "Issue #51 remains open and explicitly leaves continuous background failover after connected-upstream death unfinished."
+  - "Merged/released Android 0.1.13 already closes manual hot-switch and connect-time Auto selection; do not repeat those stages."
+  - "ProxyVpnService on main resolves Auto only in start preflight; on engine exit it publishes ERROR/DISCONNECTED, stops foreground/service and kills :vpn."
+next: "Inspect SecureProfileStore and Android tests, then implement a bounded fail-closed health/failover loop reusing existing probe/store semantics."
+last_verified_commit: "99ccea3337db7bd76afe5d275bc210ecc172a86f"
+tests: []
+updated_at: "2026-09-19T09:09:00+03:00"
