@@ -1,59 +1,24 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: completed
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: 2cab7b8f14e52f80d75820efe19a7fabb45acc85
+last_verified_commit: 8b07165a2f8404ed711399c6e65ec76a22b46a72
 completed:
-  - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
-  - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
-  - PR #119 opened and is mergeable.
-  - First exact-head Android run 35406964755 compiled production Kotlin successfully but failed one deterministic unit assertion: recentlyFailedCandidateMovesBehindBackups.
-  - Reconciled the failure against FailoverPolicy's documented stable-storage-order contract: implementation correctly produced backup-b, backup-a, primary; the test incorrectly expected backup-a, backup-b, primary.
-  - Corrected only the stale assertion in commit 3ad383875db49902dec4f0985d31e3aedfe3a05c; no product behavior changed.
-  - Subsequent static lifecycle review found cross-process SharedPreferences telemetry coherence risk and Android 12+ background foreground-service restart restrictions before physical handoff.
-  - Current local review moves health/events plus persisted tunnel UI state to a default-process-only telemetry store via explicit non-exported relay and changes failover handoff to START_STICKY :vpn process recreation, avoiding both cross-process UI-state cache dependence and an app-initiated background foreground-service restart.
-  - Added deterministic coverage for network settle grace, empty candidate sets and recently-failed suppression expiry.
-  - Product-code head 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 Android workflow 35422943955 SUCCESS.
-  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c all observed workflows SUCCESS, including Android run 35422996797.
-  - Final exact-head APK SHA-256 de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8; V2 signer FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13.
-  - Final candidate downloaded to /Users/master/Downloads/Arvectum-Proxy-Launcher-Android-0.1.14-final-head/app-debug.apk.
-  - Issue #51 comment 5739547946 records CI/artifact evidence and the physical checklist.
+  - "Continuous Auto health/failover, primary/backups, restore policy, anti-flapping, credential-free Journal and physical-network handoff implemented and exact-head CI validated in PR #119."
+  - "HUMAN physical Android 0.1.17 acceptance PASS: Wi-Fi -> hotspot -> Wi-Fi automatically recovered without manual OFF/ON or repeated VPN permission prompt."
+  - "PR #119 merged as 8b07165a2f8404ed711399c6e65ec76a22b46a72."
+  - "GitHub android-v0.1.17 release verified at the merge commit; APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; checksum asset SHA-256 c3de09849bbce2104b5e4239cbc7d93f23dee56a9a46be9ff6ae0cc2bbe07638."
+  - "GitVerse mirror workflow 35427636174 SUCCESS and post-download payload parity PASS."
+  - "Issue #51 closed completed; final evidence comment 5740046899."
 test_results:
-  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android unit/build/signer/artifact PASS.
-  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and reconciliation workflows PASS.
-  - HUMAN physical 0.1.14 feedback: main failover behavior works, but + Новый is disabled while VPN is connected; network-transition test remains pending.
-  - Owner requested События Auto to be renamed to Журнал.
-  - Implemented + Новый in CONNECTED state with makeActive=false and no live selection/tunnel/status mutation; primary checkbox is disabled while creating connected.
-  - Existing-profile edit/delete remains disconnected-only.
-  - Renamed Auto event UI to Журнал and bumped candidate to 0.1.15 / versionCode 16 for in-place update.
-  - 0.1.15 fix committed as 232a7284fb6336516f94ce7d62c2f5a7787a5033 and merged with current main in a5a84850133efbb516780163c8dcbbf75cc38fa8.
-  - Android workflow 35424959015 and all observed repository workflows on a5a84850133efbb516780163c8dcbbf75cc38fa8 PASS.
-  - 0.1.15 APK SHA-256 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; issue #51 comment 5739764135 records the evidence.
-  - HUMAN Wi-Fi A -> hotspot B on installed 0.1.14 FAILED: Auto marked primary unavailable and remained stuck in fallback handoff until manual OFF -> ON; screenshots confirm 0.1.14 was tested.
-  - Implemented 0.1.16 migration: bind :vpn process sockets/DNS to replacement default Network, set VpnService underlying network consistently, reset health failure accumulation on real transitions, and keep capability churn from extending settle grace.
-  - Added Журнал event смена сети and preserved 0.1.15 connected + Новый/Журнал fixes; versionCode 17.
-  - git diff --check PASS. Local Android build not available because Mac mini has no system gradle and repository has no Gradle Wrapper.
-  - 0.1.16 network-migration repair committed as 7dfa8f40dd4aacfdd26a9adf1fd07c30f9a4abfd and synced with current main in exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e.
-  - Android workflow 35425798518 and all observed repository workflows on 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e PASS.
-  - 0.1.16 APK SHA-256 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; issue #51 comment 5739853051 records the evidence.
-  - HUMAN 0.1.16 Wi-Fi -> hotspot retest FAILED: traffic stops while UI remains Подключено, no смена сети Journal event appears, and manual OFF -> ON recovers immediately.
-  - Implemented 0.1.17 INTERNET+NOT_VPN physical-network observation and reconciliation.
-  - On actual carrier identity change, record смена сети and sticky-restart only :vpn so fresh tun2proxy sockets use the replacement network; do not mark proxy failed or advance failover cooldown.
-  - Removed 0.1.16 process-binding strategy; preserved 0.1.15 UI fixes and normal Auto proxy-failure failover; versionCode 18.
-  - git diff --check PASS and old registerDefaultNetworkCallback/bindProcessToNetwork calls are absent.
-  - 0.1.17 repair committed as fd7214922aee61a969bdcf4a9018bcf7579a4f3d.
-  - Android workflow 35426368514 and all observed repository workflows on fd7214922aee61a969bdcf4a9018bcf7579a4f3d PASS.
-  - 0.1.17 APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; issue #51 comment 5739916204 records the evidence.
-  - HUMAN physical 0.1.17 PASS: Wi-Fi -> hotspot -> Wi-Fi recovered automatically without manual OFF/ON; screenshot shows active VPN and Journal смена сети events at 09:34:40 and 09:34:52.
-  - Exact PR head 2cab7b8f14e52f80d75820efe19a7fabb45acc85 is mergeable and all observed exact-head workflows PASS; issue #51 comment 5739970341 records acceptance and the remaining governance gate.
-  - Owner explicitly authorized merge PR #119 and Android 0.1.17 release publication to GitHub and GitVerse on 2026-09-19.
-  - Re-resolved exact PR head 59bce0be0ecb8a8448e2b870589b24cbea908a7e: mergeable and all observed exact-head workflows PASS.
-pending:
-  - Merge PR #119 at exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e.
-  - Publish immutable android-v0.1.17 release from resulting main commit, mirror to GitVerse, verify public payload parity, close issue #51, and mark task completed.
-resume_instruction: Explicit merge+release authorization is granted. Merge PR #119 at the revalidated exact head, then execute governed Android 0.1.17 GitHub/GitVerse release and final closeout.
+  - "Exact-head Android and observed repository workflows PASS before merge."
+  - "Physical Android 0.1.17 acceptance PASS."
+  - "GitVerse public payload parity PASS."
+pending: []
+resume_instruction: "Completed. Do not resume this task unless an explicit new regression or roadmap item reopens it."
+updated_at: "2026-09-19T10:02:09+03:00"
