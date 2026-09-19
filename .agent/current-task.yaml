@@ -1,67 +1,36 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-REL-017-V0.2.10-20260919
-status: completed
-goal: "Re-verify current functionality and publish the next immutable public release as v0.2.10 without mutating v0.2.9."
+task_id: APL-MAC-TEST-DIST-20260919
+status: in_progress
+goal: "Publish a clearly labeled, non-notarized macOS arm64 test distribution of the already released 0.2.10 code for friends/testing, without mutating canonical stable v0.2.10."
 authority: OWNER_DIRECTIVE
 definition_of_done:
-  - "Live macOS functional acceptance is repeated: enable, connectivity/status, stop, exact baseline restore, autostart sanity."
-  - "All repository tests relevant to release pass on the selected candidate."
-  - "Version is bumped to 0.2.10 and release notes accurately describe changes and public platform set."
-  - "Recovery + macOS visual work is integrated into main through a reviewed/verified PR."
-  - "Exact main candidate has required green Windows portable, Windows installer, DEB, RPM, AppImage and release-evidence workflows."
-  - "Immutable tag v0.2.10 is created on the exact eligible main commit."
-  - "GitHub Release v0.2.10 is published by the canonical workflow with Windows Setup/portable, Astra DEB, RED OS RPM, AppImage and SHA256SUMS."
-  - "No macOS production-signing/notarization claim or public macOS asset is made without Apple production identity/notarization."
-  - "Final release URL/tag/assets/checksums and commit are recorded; checkpoint status is completed."
+  - "Build DMG from exact stable release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695 / v0.2.10 source."
+  - "DMG contains arm64 Arvectum Proxy Launcher.app version 0.2.10, ad-hoc signed and strict codesign-valid."
+  - "Test distribution is explicitly labeled non-notarized / Gatekeeper Open Anyway; it is not represented as the canonical stable macOS release."
+  - "Stable v0.2.10 GitHub Release and tag remain byte-for-byte / ref immutable and are not edited."
+  - "Publish a separate GitHub prerelease/tag for macOS test distribution with DMG and SHA256 manifest."
+  - "Publish an equivalent GitVerse test release; if GitVerse cannot accept DMG directly, use a deterministic single-file ZIP transport and verify inner canonical DMG SHA256."
+  - "Download/verify public GitHub and GitVerse payloads after publication."
+  - "Archive final URLs, hashes and verification results; mark checkpoint completed."
 completed:
-  - "Real Mac mini acceptance repeated: enable/PAC/HTTP/SOCKS/stop/exact network restore PASS; baseline tunnel remained alive."
-  - "macOS autostart enable-disable-enable PASS; LaunchAgent ownership/path/mode checks PASS."
-  - "Fixed macOS Aqua UI/icon/recovery/autostart work and bundle-version metadata; local corrected 0.2.10 app reports CFBundleShortVersionString=0.2.10 and CFBundleVersion=0.2.10 with strict codesign PASS."
-  - "Local post-fix targeted suite 65/65 PASS; full repository suite 873/873 PASS."
-  - "PR #121 exact-head CI completed with 25/25 workflows successful after cross-platform test-seam fix."
-  - "PR #121 merged to main as release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
-  - "Exact-main push CI completed 24/24 workflows successful, including Windows portable, Windows installer/E2E/Gate R6, Astra DEB, RED OS RPM, AppImage and macOS packaging."
-  - "Release Evidence Package run 35423610388 completed successfully for exact release commit."
-  - "Annotated immutable tag v0.2.10 created; tag object 2b86b3a207aaefca4db26bc7f6ff7793fe0075a2 resolves to release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
-  - "GitHub Release workflow run 35423854759 completed successfully and published stable v0.2.10."
-  - "GitHub Release has exactly five product packages plus SHA256SUMS.txt; no public macOS DMG was published."
-  - "Downloaded public SHA256SUMS.txt; its SHA256 is 35a8ecdb367b5128a1a74e481eb1c533b0e4ae37c8aabb83e4bd783ce4667a51 and every manifest line matches GitHub release asset digest metadata."
-  - "GitVerse mirror-release job completed successfully; it downloaded each public GitVerse asset and re-verified canonical payload SHA-256 parity for all six published items."
-current: "Completed. v0.2.10 is published and independently mirrored with verified payload parity."
-pending: []
-last_verified_commit: "1c5d7aaf37e19b6c1fbfc06f945f606d6206a695"
+  - "Confirmed canonical v0.2.10 release task is completed and stable tag v0.2.10 points to release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
+  - "Confirmed current main is bb8a383d7998255eb6e32737d80529af8b1a4950 and stable v0.2.10 will not be modified."
+current: "Inspect DMG builder and GitVerse transport constraints, then build test DMG from exact v0.2.10 source."
+pending:
+  - "Inspect tools/build_macos_dmg.sh and existing mirror transport behavior."
+  - "Build and verify exact-release-source DMG plus checksum/readme."
+  - "Create separate GitHub prerelease/tag and upload test assets."
+  - "Create equivalent GitVerse test release and upload/verify public bytes."
+  - "Close checkpoint through PR without touching stable v0.2.10."
+last_verified_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
 test_results:
-  - "macOS live functional acceptance: PASS."
-  - "macOS autostart acceptance: PASS."
-  - "Post-fix local targeted suite: 65/65 PASS."
-  - "Post-fix local full repository suite: 873/873 PASS."
-  - "PR #121 exact-head workflows: 25/25 success."
-  - "Exact-main push workflows: 24/24 success."
-  - "Release Evidence Package: success."
-  - "GitHub Release workflow: success."
-  - "GitVerse public payload parity verification: success for all six items."
-release:
-  version: "0.2.10"
-  tag: "v0.2.10"
-  tag_object: "2b86b3a207aaefca4db26bc7f6ff7793fe0075a2"
-  release_commit: "1c5d7aaf37e19b6c1fbfc06f945f606d6206a695"
-  github_release_url: "https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.10"
-  gitverse_releases_url: "https://gitverse.ru/arvectum/proxy-launcher/releases"
-  github_release_workflow_run: 35423854759
-  release_evidence_workflow_run: 35423610388
-  assets:
-    "Arvectum-Proxy-Launcher-0.2.10-windows-x64-portable.zip": "cfc8cf565506e9631d8795e018f344224832bbcafd93a9877de2dd75e0bde94f"
-    "Arvectum-Proxy-Launcher-0.2.10-windows-x64-setup.exe": "29e0745fe94801946c43bc799bf5b953c2040d8f71be11add4dfe21b3dacfab5"
-    "Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb": "941db2499f0dcc6af1cf1f0458234383570cb99393222a6dee8c6452434530ac"
-    "Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm": "08d0b9c745590c17fb0eafda2071a0c3dfe2c67b5874413d6332472e9ec76373"
-    "Arvectum_Proxy_Launcher-0.2.10-x86_64.AppImage": "25a662ff8269f83a1a66a681c219496add4d432498bc270e0ae187918115139f"
-    "SHA256SUMS.txt": "35a8ecdb367b5128a1a74e481eb1c533b0e4ae37c8aabb83e4bd783ce4667a51"
-resume_instruction: "Task complete. Do not mutate v0.2.10 or v0.2.9. Future public macOS distribution is a separate task requiring Apple Developer ID signing/notarization; future fixes require a new SemVer release."
-updated_at: "2026-09-19T08:37:27+03:00"
+  - "Stable v0.2.10: 873/873 local tests; exact-main/release workflows successful; GitHub/GitVerse payload parity verified."
+resume_instruction: "Inspect DMG packaging/mirror constraints. Build only from exact v0.2.10 release source. Publish under a separate explicitly non-notarized macOS test prerelease; never add assets to canonical v0.2.10."
+updated_at: "2026-09-19T08:52:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-REL-017-V0.2.10-20260919"
-  branch: "main"
-  base_commit: "1c5d7aaf37e19b6c1fbfc06f945f606d6206a695"
+  execution_id: "APL-MAC-TEST-DIST-20260919"
+  branch: "agent/macos-test-distribution-20260919"
+  base_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
   manual_override: true
