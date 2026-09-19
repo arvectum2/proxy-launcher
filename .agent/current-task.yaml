@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -33,17 +33,21 @@ completed:
   - "Reworked live health/event telemetry and persisted tunnel UI state into a default-process-only PoolUiStateStore fed by an explicit non-exported relay receiver; UI no longer depends on cross-process SharedPreferences cache coherence for CONNECTED/ERROR/health/event display, while failover-critical pool state remains synchronously committed in :vpn."
   - "Reworked failover handoff to keep the existing START_STICKY VpnService started, close the old TUN/native engine, persist failure state, and terminate only :vpn so Android recreates the service in a fresh process without a new foreground-service start request."
   - "Expanded pure FailoverPolicy coverage for network settle grace, empty candidate sets and suppression expiry."
-current: "Validate the current PR #119 head with Android unit/build/signer gates plus repository checks; product-code head is 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 and later descendants may be checkpoint-only."
+  - "Product-code head 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 passed Android workflow 35422943955 including unit tests, assemble, signer/branding verification and APK publication."
+  - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c passed all observed workflows: Android 35422996797, SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and reconciliation."
+  - "Final exact-head Android APK downloaded to /Users/master/Downloads/Arvectum-Proxy-Launcher-Android-0.1.14-final-head/app-debug.apk; SHA-256 de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8."
+  - "Exact-head APK V2 signer verified by CI: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
+  - "Issue #51 updated with candidate evidence and the mandatory HUMAN physical acceptance checklist in comment 5739547946."
+current: "Blocked on HUMAN physical Android acceptance; no further autonomous merge/release/close action is permitted before PASS evidence."
 pending:
-  - "Resolve the current PR #119 head dynamically, verify its exact-head Android CI and repository required checks, and fix only task-caused failures."
-  - "Capture dogfood APK artifact signer/SHA-256 evidence from the final green exact head."
-  - "Perform owner physical dogfood gate: active Auto upstream kill -> automatic fallback -> Internet recovery with no repeated VPN permission prompt, plus transient-loss anti-flapping check."
-  - "After physical PASS, merge/release/close issue #51 and mark checkpoint completed."
-last_verified_commit: "b0249e2ae9430ef3d10aa07ea124848749679924"
+  - "HUMAN physical dogfood: install/update 0.1.14; Auto with at least two profiles; kill active upstream and confirm automatic fallback + Internet recovery without another VPN permission prompt."
+  - "HUMAN physical dogfood: confirm transient loss does not flap; sleep/wake; Wi-Fi/cellular (or equivalent real default-network) transitions; optional return-to-primary; credential-free Auto event log."
+  - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release Android 0.1.14 only with explicit release authority, close issue #51, and set checkpoint completed."
+last_verified_commit: "f58e481eb5c588057714ea9e8f98fa16a9d1907c"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
-  - "Baseline release APK SHA-256: c3395dde459e8e5752d8ea9e46f735794df6558daa146def7d090deb239296d1."
-  - "PR #119 head 9e80f0da641aef0aa50b2f079967dce62eed4938: production Kotlin compile PASS; 4/5 FailoverPolicy tests PASS; one stale ordering assertion FAIL; all observed non-Android workflows PASS."
-  - "git diff --check after process-safety review: PASS."
-  - "Local Gradle gate: unavailable because no gradle executable/wrapper exists on the Mac mini PATH; exact-head GitHub CI remains the compile/test authority."
-resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-mob-002-continuous-failover on branch agent/apl-mob-002-continuous-failover-20260919. Resolve the current PR #119 head from GitHub and inspect exact-head workflows once; product-code head is 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 unless later code commits exist. Repair only task-caused failures. If green, record APK SHA/signing evidence and stop at the HUMAN physical acceptance gate; do not merge/release/close issue #51 before physical PASS."
+  - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android workflow 35422996797 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
+  - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency vulnerability scan, Windows installer, Windows portable, provenance, sovereign lifecycle and both IP reconciliation workflows SUCCESS."
+  - "Final candidate APK SHA-256: de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8."
+  - "Final candidate signer SHA-256: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
+resume_instruction: "Do not repeat implementation or CI work. Wait for HUMAN physical acceptance evidence for Android 0.1.14. On PASS, first resolve the then-current PR #119 head and applicable merge/release authority, re-check required CI if the head changed, then complete merge/release/issue-close only within explicit authority. On FAIL, reproduce the specific physical defect and resume the smallest repair slice."

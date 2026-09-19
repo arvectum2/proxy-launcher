@@ -1,13 +1,13 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: 3ad383875db49902dec4f0985d31e3aedfe3a05c
+last_verified_commit: f58e481eb5c588057714ea9e8f98fa16a9d1907c
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -18,13 +18,15 @@ completed:
   - Subsequent static lifecycle review found cross-process SharedPreferences telemetry coherence risk and Android 12+ background foreground-service restart restrictions before physical handoff.
   - Current local review moves health/events plus persisted tunnel UI state to a default-process-only telemetry store via explicit non-exported relay and changes failover handoff to START_STICKY :vpn process recreation, avoiding both cross-process UI-state cache dependence and an app-initiated background foreground-service restart.
   - Added deterministic coverage for network settle grace, empty candidate sets and recently-failed suppression expiry.
+  - Product-code head 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 Android workflow 35422943955 SUCCESS.
+  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c all observed workflows SUCCESS, including Android run 35422996797.
+  - Final exact-head APK SHA-256 de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8; V2 signer FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13.
+  - Final candidate downloaded to /Users/master/Downloads/Arvectum-Proxy-Launcher-Android-0.1.14-final-head/app-debug.apk.
+  - Issue #51 comment 5739547946 records CI/artifact evidence and the physical checklist.
 test_results:
-  - Previous PR head 9e80f0da641aef0aa50b2f079967dce62eed4938: all observed non-Android workflows SUCCESS; Android compile SUCCESS; 4/5 FailoverPolicy tests passed, 1 assertion failed.
-  - Stale ordering assertion corrected at 3ad383875db49902dec4f0985d31e3aedfe3a05c.
-  - Current process-safety review: git diff --check PASS; compile/unit validation pending next exact-head CI because no local Gradle executable/wrapper is available.
+  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android unit/build/signer/artifact PASS.
+  - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and reconciliation workflows PASS.
 pending:
-  - Resolve the current PR #119 head dynamically and inspect its exact-head Android and required repository checks; product-code head is 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 unless later code commits exist.
-  - After exact-head Android CI passes, record APK signer/SHA-256 evidence and prepare physical dogfood instructions.
-  - HUMAN physical gate remains mandatory: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake and network-transition behavior.
-  - Do not merge, publish/release, or close issue #51 before physical PASS and reserved human/review gates.
-resume_instruction: Resolve the current PR #119 head from GitHub, then inspect its exact-head workflows once. Product-code head is 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 unless later code commits exist. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; if failed, repair only task-caused failures. Do not repeat baseline implementation or 0.1.13 acceptance.
+  - HUMAN physical acceptance: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake; real default-network transition; restore-policy behavior; credential-free events.
+  - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
+resume_instruction: Wait for HUMAN physical acceptance evidence for Android 0.1.14. On PASS, resolve the then-current PR #119 head and authority/checks before merge/release/close. On FAIL, reproduce only the reported defect and resume the smallest repair slice.
