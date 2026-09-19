@@ -2,29 +2,29 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
 status: blocked
-goal: "Refresh the per-application Windows production enforcement architecture decision packet against the published v0.2.9 ownership/recovery baseline without selecting or implementing the Owner-reserved architecture."
+goal: "Refresh the per-application Windows production enforcement architecture decision packet against the published v0.2.10 ownership/recovery baseline without selecting or implementing the Owner-reserved architecture."
 authority: OWNER
 definition_of_done:
-  - "Existing PR #68 is reconciled against the current v0.2.9 safety/release baseline."
+  - "Existing PR #68 is reconciled against the current v0.2.10 safety/release baseline."
   - "Decision packet preserves APL-ROUTE-001..004 facts and explicit architecture alternatives."
-  - "Published v0.2.9 saved-or-Arvectum fail-closed ownership/recovery invariant is carried into privileged-enforcement requirements."
+  - "Current v0.2.10 saved-or-Arvectum fail-closed ownership/recovery invariant is carried into privileged-enforcement requirements."
   - "No architecture approval, privileged host mutation, signing, purchase, production change or release is performed."
   - "Owner/Product Owner decision remains the final stop-gate."
 completed:
-  - "Read canonical executor policy, execution queue, roadmap and local execution backlog; skipped completed and HUMAN/REVIEW-blocked higher queue items as permitted."
-  - "Reconciled open PR #68: still open and unmerged; its decision packet predated the published v0.2.9 safety baseline."
-  - "Refreshed docs/APL_ROUTE_PRODUCTION_ARCHITECTURE_DECISION_PACKET.md on PR #68 branch in commit 4bf589fdb3828f92d2032094919543e8186b852b."
-  - "Added v0.2.9 saved-or-Arvectum/foreign-state fail-closed requirements, explicit separation of WFP ownership evidence from system-proxy rollback evidence, immutable-v0.2.9 release boundary, and a foreign/ambiguous enforcement-state recovery invariant."
+  - "Read canonical executor policy, execution queue, current task, roadmap and local execution backlog from main on 2026-09-19."
+  - "Reconciled open PR #68: still open and unmerged; canonical main now identifies v0.2.10 as the stable desktop baseline."
+  - "Refreshed docs/APL_ROUTE_PRODUCTION_ARCHITECTURE_DECISION_PACKET.md for v0.2.10 in commit 60a464e33196fde14fc988df51662607cbc8b33a."
+  - "Preserved the saved-or-Arvectum/foreign-state fail-closed requirements, separation of WFP ownership evidence from system-proxy rollback evidence, immutable-release boundary, and foreign/ambiguous enforcement-state recovery invariant."
   - "Preserved Option A as a technical recommendation only; no production architecture was selected or approved."
 current: "Safe autonomous refresh is complete. PR #68 remains at the Owner/Product Owner architecture stop-gate."
 pending:
   - "Owner/Product Owner explicitly selects Option A/B/C or requests more evidence."
   - "After an attributable decision, reconcile PR #68 and create only separately admitted implementation/acceptance work authorized by that decision."
-last_verified_commit: "4bf589fdb3828f92d2032094919543e8186b852b"
+last_verified_commit: "60a464e33196fde14fc988df51662607cbc8b33a"
 test_results:
-  - "Documentation-only REVIEW preparation; no product/runtime code changed in this refresh."
-  - "PR exact-head CI is not yet claimed green for the refreshed head; check once on the next run."
-updated_at: "2026-09-18T18:00:00+03:00"
+  - "Documentation/checkpoint-only OWNER preparation; no product/runtime code changed."
+  - "Exact-head check sampled once after commit 60a464e33196fde14fc988df51662607cbc8b33a: Mirror repository queued; no green exact-head CI claim made."
+updated_at: "2026-09-19T14:04:00+03:00"
 resume_instruction: "Check PR #68 exact-head CI/state once. If no Owner/Product Owner architecture decision exists, preserve blocked state and scan the canonical queue for a later independent executable item. Do not implement privileged WFP/service production enforcement or merge the Owner decision packet as approved."
 execution:
   claimed_by: null
