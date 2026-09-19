@@ -1,0 +1,55 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-TEST-DIST-20260919
+status: completed
+goal: "Publish a clearly labeled, non-notarized macOS arm64 test distribution of the already released 0.2.10 code for friends/testing, without mutating canonical stable v0.2.10."
+authority: OWNER_DIRECTIVE
+definition_of_done:
+  - "Build DMG from exact stable release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695 / v0.2.10 source."
+  - "DMG contains arm64 Arvectum Proxy Launcher.app version 0.2.10, ad-hoc signed and strict codesign-valid."
+  - "Test distribution is explicitly labeled non-notarized / Gatekeeper Open Anyway; it is not represented as the canonical stable macOS release."
+  - "Stable v0.2.10 GitHub Release and tag remain immutable and are not edited."
+  - "Publish a separate GitHub prerelease/tag for macOS test distribution with DMG and SHA256 manifest."
+  - "Publish an equivalent GitVerse test release and verify public payload SHA256 parity."
+  - "Download/verify public GitHub payloads after publication."
+  - "Archive final URLs, hashes and verification results; mark checkpoint completed."
+completed:
+  - "Created isolated detached worktree at exact stable release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
+  - "Built fresh macOS app with Python 3.12.14/PyInstaller 6.22.0; bundle version 0.2.10, native arm64, strict deep codesign PASS."
+  - "Built Arvectum_Proxy_Launcher-0.2.10-arm64.dmg; hdiutil verification PASS."
+  - "Mounted DMG and re-verified embedded app architecture/version/codesign/CLI STOPPED status."
+  - "Gatekeeper spctl assessment rejected the ad-hoc/non-notarized app as expected; release notes explicitly instruct System Settings -> Privacy & Security -> Open Anyway."
+  - "Canonical DMG SHA256: c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9."
+  - "Published separate GitHub prerelease v0.2.10-macos-test.1 targeting exact stable release commit; canonical v0.2.10 release assets remained unchanged."
+  - "GitHub prerelease contains exactly Arvectum_Proxy_Launcher-0.2.10-arm64.dmg and SHA256SUMS.txt."
+  - "GitHub public DMG was downloaded again and verified against SHA256SUMS.txt: PASS."
+  - "GitHub SHA256SUMS.txt SHA256: b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa."
+  - "Automatic GitVerse mirror run 35424990177 completed successfully for v0.2.10-macos-test.1."
+  - "GitVerse accepted DMG directly (no ZIP wrapper) and public payload parity verification passed after redownload: DMG c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9; SHA256SUMS.txt b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa."
+current: "Completed. Separate non-notarized macOS arm64 test distribution is public on GitHub and mirrored to GitVerse; stable v0.2.10 is unchanged."
+pending: []
+last_verified_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
+test_results:
+  - "Fresh exact-v0.2.10 macOS app build: PASS."
+  - "DMG hdiutil verify: PASS."
+  - "Mounted app strict codesign/version/arm64/status checks: PASS."
+  - "Expected Gatekeeper non-notarized rejection: PASS."
+  - "GitHub public redownload + SHA256SUMS verification: PASS."
+  - "GitVerse mirror workflow/public redownload canonical payload parity: PASS."
+distribution:
+  tag: "v0.2.10-macos-test.1"
+  source_commit: "1c5d7aaf37e19b6c1fbfc06f945f606d6206a695"
+  github_release_url: "https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.10-macos-test.1"
+  gitverse_releases_url: "https://gitverse.ru/arvectum/proxy-launcher/releases"
+  gitverse_mirror_run: 35424990177
+  asset: "Arvectum_Proxy_Launcher-0.2.10-arm64.dmg"
+  asset_sha256: "c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9"
+  checksum_manifest_sha256: "b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa"
+resume_instruction: "Task complete. Do not add this DMG to canonical stable v0.2.10. It is an explicitly non-notarized test distribution. Future production macOS public release requires Apple Developer ID signing/notarization and a new release decision."
+updated_at: "2026-09-19T08:53:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-TEST-DIST-20260919"
+  branch: "agent/macos-test-distribution-20260919"
+  base_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
+  manual_override: true
