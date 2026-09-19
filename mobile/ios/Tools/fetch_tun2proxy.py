@@ -34,7 +34,19 @@ def main() -> None:
         shutil.rmtree(TARGET, ignore_errors=True)
         TARGET.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, TARGET)
-        (TARGET.parent / ".tun2proxy-version").write_text(f"{VERSION}\\nsha256={ARCHIVE_SHA256}\\n", encoding="utf-8")
+
+        headers = TARGET / "ios-arm64" / "Headers"
+        # Upstream ships tun2proxy.modulemap; Xcode expects module.modulemap
+        # for this static-library XCFramework to expose a Clang module to Swift.
+        (headers / "module.modulemap").write_text(
+            'module tun2proxy {\n    header "tun2proxy.h"\n    export *\n}\n',
+            encoding="utf-8",
+        )
+
+        (TARGET.parent / ".tun2proxy-version").write_text(
+            f"{VERSION}\nsha256={ARCHIVE_SHA256}\n",
+            encoding="utf-8",
+        )
         print(f"Installed {TARGET.relative_to(ROOT)}")
 
 if __name__ == "__main__":
