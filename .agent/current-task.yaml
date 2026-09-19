@@ -27,14 +27,16 @@ completed:
   - "Exact-candidate macOS build exposed PyInstaller default CFBundleShortVersionString=0.0.0; release was not advanced with incorrect bundle metadata."
   - "Updated macOS builder to bind CFBundleShortVersionString and CFBundleVersion to canonical VERSION numeric core before final signing; added contract test/documentation."
   - "Post-fix focused packaging/version/release suite passed 65/65; full repository discovery passed 873/873."
-current: "macOS bundle-version defect found and fixed. Commit/push the corrected candidate, rebuild exact macOS 0.2.10, then open integration PR to main."
+  - "Corrected candidate commit b872010fe73bf725b1fd8788bb803506c3d4ca0f was pushed to release/v0.2.10."
+  - "Exact corrected candidate macOS arm64 build passed: bundle short/build version 0.2.10, bundle id ru.arvectum.proxylauncher, strict codesign PASS, executable SHA256 8481c70b692523c1c6862e8c03b3e28ab6109596cfcf1b28b11aa0631ae33508."
+  - "Corrected exact candidate was installed and launch-checked on Mac mini in STOPPED state with baseline PAC/tunnel unchanged."
+current: "Corrected 0.2.10 candidate is locally validated. Open integration PR to main and wait for exact-head CI."
 pending:
-  - "Commit/push corrected exact release candidate and build exact local macOS 0.2.10 sanity artifact."
   - "Open/merge integration PR after exact-head CI is green."
   - "Wait for required exact-main build/evidence workflows to succeed."
   - "Create immutable v0.2.10 tag with explicit Owner release authorization."
   - "Verify canonical GitHub release and GitVerse mirror outcome; record assets/checksums."
-last_verified_commit: "bdf00d6"
+last_verified_commit: "b872010fe73bf725b1fd8788bb803506c3d4ca0f"
 test_results:
   - "Previous macOS visual task: targeted 51/51, macOS 48/48, full repository 870/870 PASS."
   - "Previous live recovery acceptance: enable/stop/exact restore/autostart PASS."
@@ -43,7 +45,7 @@ test_results:
   - "0.2.10 full repository discovery before bundle metadata fix: 872/872 PASS."
   - "Post-fix focused packaging/version/release suite: 65/65 PASS."
   - "Post-fix full repository discovery: 873/873 PASS."
-resume_instruction: "Commit and push the corrected 0.2.10 candidate including macOS bundle metadata fix. Rebuild local macOS app from that exact commit and verify CFBundleShortVersionString/CFBundleVersion=0.2.10 plus launch/network sanity. Then open PR to main and continue through CI/merge/exact-main gates/tag/release."
+resume_instruction: "Open release/v0.2.10 -> main PR. Wait for exact-head required CI and resolve only real failures. Merge under the explicit Owner release directive once branch protection allows. Then wait for exact-main Windows portable/installer, DEB, RPM, AppImage and Release Evidence gates before creating immutable v0.2.10 tag."
 updated_at: "2026-09-19T08:03:00+03:00"
 execution:
   claimed_by: "ChatGPT"
