@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-CHATGPT-ROUTING-20260919
-status: in_progress
+status: completed
 goal: "Diagnose and harden macOS APL routing so enabling APL does not strand browser traffic while coexisting safely with the user's existing launchd/PAC proxy."
 authority: HUMAN
 definition_of_done:
@@ -39,12 +39,11 @@ completed:
   - "Final clean-profile APL ON test after settings cleanup: PAC 18082 active, URLSession chatgpt.com HTTP 200 (~499 KB); final APL OFF restored PAC 8082 and Doctor PASS 11/WARN 0/FAIL 0."
   - "A fresh headless Chrome probe produced no ERR_PROXY/ERR_TUNNEL/407 diagnostics but did not exit cleanly; the isolated headless profile processes were terminated and user Chrome was not touched."
   - "Exactly one enabled hourly Proxy Launcher Watchdog exists; no duplicate was created."
-current: "Push the review-ready branch and open a PR; then record PR/CI state and mark the checkpoint completed."
-pending:
-  - "Commit this final runtime/build evidence."
-  - "Push branch to origin and open review-ready PR."
-  - "Record PR/exact-head CI state; do not merge or publish a release without the applicable gate."
-  - "Mark checkpoint completed and push the final checkpoint commit."
+  - "Opened review-ready GitHub PR #141: https://github.com/arvectum2/proxy-launcher/pull/141; PR reported mergeable=true on head 0fb59a7c4f7d388520e758072f16e081562fc3a0."
+  - "Initial exact-head CI observation for 0fb59a7: 17 pull-request workflow runs discovered; 3 completed success, 9 in progress, 5 queued, 0 failures at observation time."
+  - "No merge, release publication, tag mutation, or published asset replacement was performed."
+current: "Completed. Product fix, packaged MacBook acceptance, configuration cleanup, review-ready PR #141, and initial exact-head CI observation are complete; no release or merge was performed."
+pending: []
 last_verified_commit: "d9c17a155fe608e4116919328c7625afb70de2e1"
 test_results:
   - "git diff --check + compileall: PASS."
@@ -54,8 +53,8 @@ test_results:
   - "DMG hdiutil verify/codesign/arm64/package Doctor: PASS."
   - "MacBook forced-407 failover acceptance: PASS; ChatGPT HTTP 200 through fallback upstream."
   - "MacBook post-cleanup acceptance: PASS; ChatGPT HTTP 200; final network rollback/baseline restore PASS."
-resume_instruction: "Commit this checkpoint, push fix/macos-chatgpt-proxy-routing-20260919, open a review-ready PR against main, inspect initial exact-head CI state once, then complete the checkpoint without merging or publishing."
-updated_at: "2026-09-19T21:36:00+03:00"
+resume_instruction: "Task complete. PR #141 is open for CI/review. On a future run, inspect the then-current exact-head CI once; merge only if separately authorized by the applicable repository/Company gate. Do not publish or mutate release assets as part of this completed task."
+updated_at: "2026-09-19T21:42:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MAC-CHATGPT-ROUTING-20260919"
