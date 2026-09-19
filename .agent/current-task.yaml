@@ -19,4 +19,4 @@ verified_stages:
   - "Added optional protected-socket seam to ProxyProtocolProbe so connected-session health checks can call VpnService.protect before connect and avoid recursively routing monitor traffic through the tunnel."
 tests:
   - "LOCAL BLOCKER: repository has no Gradle wrapper and Mac host has no gradle executable; exact Android CI will validate the JVM policy test and protected-probe compile."
-next_instruction: "CI-validate FailoverPolicy plus protected-probe compilation, then add credential-safe health/event store APIs and wire active-session monitoring/failover without changing manual mode."
+next_instruction: "Check exact-head Android CI once for aff301bf9d10e823d84cb06b4beb2b7a04b0ff14. If policy tests and compilation are green, add credential-safe health/event store APIs and wire active-session monitoring/failover without changing manual mode; if red, fix only the observed failure."
