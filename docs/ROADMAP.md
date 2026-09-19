@@ -104,8 +104,8 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 
 - **DONE — APL-MOB-001 Android dogfood baseline.** The physically accepted VpnService/TUN transport baseline supports real HTTP/HTTPS CONNECT traffic, multiprofile storage and the one-button mobile UX.
 - **DONE — APL-MOB-002 proxy pool / automatic failover.** Android 0.1.17 is physically accepted and publicly released; Wi-Fi -> hotspot -> Wi-Fi handoff and automatic proxy failover recover without manual OFF/ON.
-- **IN PROGRESS / HUMAN GATE — APL-MOB-003 site exclusions.** PR #125 / Android 0.1.18 adds site/domain exclusions without starting per-application routing. Exact-head Android CI is green; merge/release remains blocked on physical direct-vs-proxied egress and connected-save acceptance.
-- **PLANNED — APL-MOB-004 Android monetization + dual distribution.** Start only after the current site-exclusions slice is accepted and the mobile baseline is stable.
+- **DONE / PHYSICAL ACCEPTANCE — APL-MOB-003 site exclusions.** PR #125 now contains the accepted Android 0.1.19 candidate. Owner-reported myip.com bypass works; clarified Add/list/remove UX was accepted; Android CI run 35435184809 is green. PR #125 is still open, so merge/release remains a separate explicit decision.
+- **PLANNED — APL-MOB-004 Android monetization + dual distribution.** MOB-003 physical acceptance is complete; start implementation only after PR #125 is integrated into main and the Owner explicitly prioritizes monetization/package-update identity.
   - Public Android artifacts distributed through GitHub, GitVerse, the Arvectum site and RuStore will use the ad-enabled channel after APL-MOB-004 is released.
   - Initial monetization target: Yandex Mobile Ads / App Open advertising, with first-launch grace, frequency limiting, fail-open behavior when an ad is unavailable, and privacy/consent documentation before production enablement.
   - A private no-ads build will be produced from the same product code, not maintained as a divergent second application. Prefer Gradle product flavors/build configuration with the ad SDK absent or disabled in the private artifact.
@@ -120,7 +120,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **CAPABILITY-DEPENDENT** — per-app routing is promised only where platform APIs and distribution model actually allow it.
 ## 9. Currently available workstreams
 
-1. **[Android / HUMAN] APL-MOB-002 — DONE; APL-MOB-003 PR #125 — HUMAN GATE; APL-MOB-004 — PLANNED.** Current gate is physical acceptance of Android 0.1.18 site exclusions. Monetization/dual distribution follows later and must not start per-application routing.
+1. **[Android / HUMAN/OWNER] APL-MOB-002 — DONE; APL-MOB-003 — PHYSICALLY ACCEPTED / PR #125 OPEN; APL-MOB-004 — PLANNED.** The site-exclusion implementation/physical task is complete; merge/release of #125 remains explicit. Monetization/dual distribution follows only after integration + Owner priority and must not start per-application routing.
 2. **[IP/legal] APL-IP-001 v0.2.9 filing-evidence packet — DONE.** Optional external legal hardening is non-blocking unless specifically requested.
 3. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** PR #103 contains the substantive packet but must be reconciled to current immutable v0.2.10; the first eligible future embedded-signing release is now v0.2.11+.
 4. **[Registry infrastructure / HUMAN] APL-REG-001B — BLOCKED UNTIL PHYSICAL RUSSIAN LIFECYCLE EVIDENCE EXISTS.**
@@ -137,7 +137,7 @@ Open PR #81 is superseded by current APL-REL-016 PR #103. Open PRs #90/#91/#92 a
 ### Execution order
 
 - Human/device work can advance the current APL-MOB-003 Android 0.1.18 physical site-exclusions gate and the registry physical/private evidence gates; APL-MOB-004 remains planned behind that gate.
-- With APL-MOB-003 blocked on physical Android evidence, the first useful autonomous REVIEW lane is refreshing APL-REL-016 PR #103 to the now-published v0.2.10 baseline and a v0.2.11+ eligible signing target.
+- APL-MOB-003 physical work is complete but PR #125 merge/release is explicit HUMAN/OWNER action; the first useful autonomous REVIEW lane is therefore APL-REL-016 PR #103 refresh to the now-published v0.2.10 baseline and a v0.2.11+ eligible signing target.
 - After REL-016 reaches the Owner-review boundary again, the next safe repository-preparation lane is refreshing per-app-routing decision material in PR #68 against v0.2.10; architecture selection itself remains an Owner stop-gate.
 - External Ministry submission remains outside automation.
 ## 10. Platform / distribution matrix
@@ -150,7 +150,7 @@ Open PR #81 is superseded by current APL-REL-016 PR #103. Open PRs #90/#91/#92 a
 | RED OS .rpm | **PUBLISHED v0.2.10 / PHYSICAL BASELINE PROVEN** | Existing RED OS acceptance retained; rerun only when required by a material change/filing gate |
 | Linux AppImage | **PUBLISHED v0.2.10** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **TEST PRERELEASE v0.2.10-macos-test.1 / PRODUCTION DEFERRED** | Apple Developer ID signing/notarization when prioritized |
-| Android | **0.1.17 PUBLIC / APL-MOB-002 DONE / APL-MOB-003 PR #125 HUMAN GATE** | Accept 0.1.18 site exclusions; then APL-MOB-004 public-ads + private-no-ads distribution |
+| Android | **0.1.17 PUBLIC / APL-MOB-002 DONE / APL-MOB-003 0.1.19 PHYSICAL PASS, PR #125 OPEN** | Explicit merge/release decision for #125; then Owner-gated APL-MOB-004 public-ads + private-no-ads distribution |
 | iOS | **DEFERRED** | Start after Android product semantics / entitlement path |
 
 ## Completion discipline
