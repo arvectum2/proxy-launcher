@@ -47,6 +47,10 @@ def is_autostart_enabled(path: Optional[str] = None) -> bool:
 
 def enable_autostart(path: Optional[str] = None, executable: str = DEFAULT_EXECUTABLE) -> str:
     target = os.path.abspath(os.path.expanduser(path or default_launchagent_path()))
+    if os.path.exists(target) and not is_autostart_enabled(target):
+        raise RuntimeError(
+            "LaunchAgent path is occupied by a configuration not owned by Arvectum"
+        )
     parent = os.path.dirname(target)
     os.makedirs(parent, mode=0o700, exist_ok=True)
     fd, temp = tempfile.mkstemp(prefix=LABEL + ".", suffix=".tmp", dir=parent)
@@ -63,8 +67,9 @@ def enable_autostart(path: Optional[str] = None, executable: str = DEFAULT_EXECU
 
 def disable_autostart(path: Optional[str] = None) -> bool:
     target = os.path.abspath(os.path.expanduser(path or default_launchagent_path()))
-    try:
-        os.remove(target)
-        return True
-    except FileNotFoundError:
+    if not os.path.exists(target):
         return False
+    if not is_autostart_enabled(target):
+        return False
+    os.remove(target)
+    return True

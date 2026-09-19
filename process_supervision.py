@@ -150,6 +150,25 @@ def _windows_process_executable_path(pid):
         return None
 
 
+def _macos_process_executable_path(pid):
+    """Return the real executable path for a macOS PID, or None if unprovable."""
+    if sys.platform != "darwin":
+        return None
+    try:
+        import ctypes
+        libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        proc_pidpath = libproc.proc_pidpath
+        proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+        proc_pidpath.restype = ctypes.c_int
+        buffer = ctypes.create_string_buffer(4096)
+        size = proc_pidpath(int(pid), buffer, len(buffer))
+        if size <= 0:
+            return None
+        return os.path.realpath(buffer.value.decode("utf-8"))
+    except Exception:
+        return None
+
+
 def _read_pid():
     core = _core()
     try:
@@ -178,26 +197,38 @@ def is_running():
     core = _core()
     if not core.proxy_listener_active():
         return False
-    if not core.is_windows():
-        return True
     record = core._read_pid()
-    if (
-        not isinstance(record, dict)
-        or not record.get("pid")
-        or record.get("created") is None
-    ):
-        return False
-    actual = core._windows_process_creation_time(int(record["pid"]))
-    if actual is None or int(actual) != int(record["created"]):
-        return False
-    recorded_path = record.get("exe_path")
-    actual_path = core._windows_process_executable_path(int(record["pid"]))
-    return bool(
-        recorded_path
-        and actual_path
-        and os.path.normcase(os.path.realpath(recorded_path))
-        == os.path.normcase(os.path.realpath(actual_path))
-    )
+    if core.is_windows():
+        if (
+            not isinstance(record, dict)
+            or not record.get("pid")
+            or record.get("created") is None
+        ):
+            return False
+        actual = core._windows_process_creation_time(int(record["pid"]))
+        if actual is None or int(actual) != int(record["created"]):
+            return False
+        recorded_path = record.get("exe_path")
+        actual_path = core._windows_process_executable_path(int(record["pid"]))
+        return bool(
+            recorded_path
+            and actual_path
+            and os.path.normcase(os.path.realpath(recorded_path))
+            == os.path.normcase(os.path.realpath(actual_path))
+        )
+    if sys.platform == "darwin":
+        if not isinstance(record, dict) or not record.get("pid"):
+            return False
+        recorded_path = record.get("exe_path")
+        actual_path = core._macos_process_executable_path(int(record["pid"]))
+        return bool(
+            recorded_path
+            and actual_path
+            and os.path.realpath(recorded_path) == os.path.realpath(actual_path)
+        )
+    # Historical Linux behavior remains listener-health based until Linux PID
+    # ownership receives its own platform-specific identity primitive.
+    return True
 
 
 def _write_pid():
@@ -256,6 +287,25 @@ def _kill_pid(record):
                 )
                 return False
             return True
+        if sys.platform == "darwin":
+            if not isinstance(record, dict) or not record.get("exe_path"):
+                core._log(
+                    "refusing unsafe macOS kill for pid=%s: executable identity missing"
+                    % pid
+                )
+                return False
+            actual_path = core._macos_process_executable_path(pid)
+            recorded_path = record.get("exe_path")
+            if (
+                not actual_path
+                or os.path.realpath(str(recorded_path))
+                != os.path.realpath(str(actual_path))
+            ):
+                core._log(
+                    "refusing unsafe macOS kill for pid=%s: process identity mismatch"
+                    % pid
+                )
+                return False
         os.kill(pid, 9)
         return True
     except Exception as exc:
@@ -271,6 +321,7 @@ def install_into_core(core: ModuleType) -> None:
         "proxy_listener_active",
         "_windows_process_creation_time",
         "_windows_process_executable_path",
+        "_macos_process_executable_path",
         "_read_pid",
         "is_running",
         "_write_pid",

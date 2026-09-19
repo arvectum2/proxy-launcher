@@ -19,7 +19,30 @@ rm -rf "dist/Arvectum Proxy Launcher.app" build/macos-app
   "$repo_root/proxy_gui.py"
 app="dist/Arvectum Proxy Launcher.app"
 [[ -d "$app/Contents/MacOS" && -f "$app/Contents/Info.plist" ]] || { echo "Invalid .app bundle" >&2; exit 3; }
-/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" | grep -qx 'ru.arvectum.proxylauncher'
+plist="$app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist" | grep -qx 'ru.arvectum.proxylauncher'
+
+# PyInstaller defaults the bundle version to 0.0.0 unless a spec overrides it.
+# Bind bundle metadata to the canonical repository VERSION before final signing.
+product_version="$(tr -d '[:space:]' < "$repo_root/VERSION")"
+[[ "$product_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]] || {
+  echo "Invalid canonical VERSION for macOS bundle: $product_version" >&2
+  exit 3
+}
+bundle_version="${product_version%%[-+]*}"
+set_plist_string() {
+  local key="$1" value="$2"
+  if /usr/libexec/PlistBuddy -c "Print :$key" "$plist" >/dev/null 2>&1; then
+    /usr/libexec/PlistBuddy -c "Set :$key $value" "$plist"
+  else
+    /usr/libexec/PlistBuddy -c "Add :$key string $value" "$plist"
+  fi
+}
+set_plist_string CFBundleShortVersionString "$bundle_version"
+set_plist_string CFBundleVersion "$bundle_version"
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist" | grep -qx "$bundle_version"
+/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist" | grep -qx "$bundle_version"
+
 resources="$app/Contents/Resources"
 licenses="$resources/THIRD_PARTY_LICENSES"
 mkdir -p "$resources"
@@ -27,4 +50,10 @@ install -m644 LICENSE "$resources/LICENSE.txt"
 install -m644 THIRD_PARTY_NOTICES.txt "$resources/THIRD_PARTY_NOTICES.txt"
 "$python_bin" tools/third_party_license_bundle.py --build --output "$licenses"
 "$python_bin" tools/third_party_license_bundle.py --verify --output "$licenses"
+
+# PyInstaller signs the bundle before these governed license resources are added.
+# Re-seal the final artifact so macOS sees a valid ad-hoc signature for personal/CI builds.
+codesign --force --deep --sign - "$app"
+codesign --verify --deep --strict "$app"
+
 echo "$app"

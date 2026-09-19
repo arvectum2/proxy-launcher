@@ -123,6 +123,7 @@ class WindowsPacRecoveryOwnershipTests(unittest.TestCase):
         }
         calls = []
         with mock.patch.object(core, "orphaned_arvectum_pac", return_value=True), \
+             mock.patch.object(core, "load_settings", return_value={"local_pac_port": 8082, "pac_path": "/proxy.pac"}), \
              mock.patch.object(core, "_read_internet_settings", return_value=values), \
              mock.patch.object(core, "_write_orphaned_pac_snapshot", side_effect=lambda data: calls.append("snapshot") or "snapshot.json"), \
              mock.patch.object(core, "_reg_del", side_effect=lambda name: calls.append("delete:%s" % name) or True) as delete, \
