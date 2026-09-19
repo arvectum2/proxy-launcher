@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -74,10 +74,14 @@ completed:
   - "Current exact PR head 2cab7b8f14e52f80d75820efe19a7fabb45acc85 differs from product head fd7214922aee61a969bdcf4a9018bcf7579a4f3d only by checkpoint files and is mergeable."
   - "All observed exact-head workflows on 2cab7b8f14e52f80d75820efe19a7fabb45acc85 PASS, including Mobile Android spike, SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations."
   - "Issue #51 updated with HUMAN physical PASS and governance gate in comment 5739970341."
-current: "Engineering and physical acceptance are complete; blocked only on explicit HUMAN/REVIEW authorization to merge PR #119 and separately publish Android 0.1.17 release assets."
+  - "Owner explicitly authorized merge of PR #119 and publication of Android 0.1.17 on GitHub and GitVerse on 2026-09-19."
+  - "Re-resolved PR #119 exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e: mergeable=true and all observed exact-head workflows PASS."
+current: "Execute the explicitly authorized merge of PR #119, then publish Android 0.1.17 on GitHub and GitVerse using the governed Android release path and verify public hashes/parity."
 pending:
-  - "Obtain explicit human authorization for merge of PR #119 because canonical queue has auto_merge: false / REVIEW-HUMAN semantics."
-  - "If separately authorized, publish Android 0.1.17 release assets under the release policy, verify GitHub/GitVerse parity, close issue #51, and set checkpoint completed."
+  - "Merge PR #119 against exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e."
+  - "Resolve resulting main merge commit; create/publish immutable android-v0.1.17 release under existing Android release policy."
+  - "Mirror Android 0.1.17 to GitVerse and verify byte/hash parity."
+  - "Close issue #51, record final identities/evidence, and set checkpoint completed."
 last_verified_commit: "2cab7b8f14e52f80d75820efe19a7fabb45acc85"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
@@ -91,4 +95,4 @@ test_results:
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: Android workflow 35425798518 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
   - "0.1.16 APK SHA-256: 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Do not repeat implementation, CI, or physical testing. Engineering + HUMAN physical acceptance are complete. Wait for explicit authorization to merge PR #119; release/publication of Android 0.1.17 requires separate explicit authorization. On authorization, re-resolve then-current PR head/checks before acting."
+resume_instruction: "Explicit merge+release authorization is granted. Continue with exact-head merge of PR #119, then governed Android 0.1.17 GitHub release + GitVerse mirror, verify public hashes/parity, close issue #51, and mark completed. Do not repeat implementation or physical testing."

@@ -1,7 +1,7 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
@@ -51,7 +51,9 @@ test_results:
   - 0.1.17 APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; issue #51 comment 5739916204 records the evidence.
   - HUMAN physical 0.1.17 PASS: Wi-Fi -> hotspot -> Wi-Fi recovered automatically without manual OFF/ON; screenshot shows active VPN and Journal смена сети events at 09:34:40 and 09:34:52.
   - Exact PR head 2cab7b8f14e52f80d75820efe19a7fabb45acc85 is mergeable and all observed exact-head workflows PASS; issue #51 comment 5739970341 records acceptance and the remaining governance gate.
+  - Owner explicitly authorized merge PR #119 and Android 0.1.17 release publication to GitHub and GitVerse on 2026-09-19.
+  - Re-resolved exact PR head 59bce0be0ecb8a8448e2b870589b24cbea908a7e: mergeable and all observed exact-head workflows PASS.
 pending:
-  - Explicit HUMAN/REVIEW authorization for merge of PR #119 because canonical queue has auto_merge: false.
-  - Separate explicit release authorization before publishing Android 0.1.17 assets; then verify public parity and close issue #51.
-resume_instruction: Engineering and physical acceptance are complete. Wait for explicit merge authorization, and separately explicit release authorization; re-resolve current PR head/checks before any action.
+  - Merge PR #119 at exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e.
+  - Publish immutable android-v0.1.17 release from resulting main commit, mirror to GitVerse, verify public payload parity, close issue #51, and mark task completed.
+resume_instruction: Explicit merge+release authorization is granted. Merge PR #119 at the revalidated exact head, then execute governed Android 0.1.17 GitHub/GitVerse release and final closeout.
