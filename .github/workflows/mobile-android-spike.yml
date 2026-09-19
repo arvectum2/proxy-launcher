@@ -6,8 +6,6 @@ on:
       - 'mobile/android/**'
       - '.github/workflows/mobile-android-spike.yml'
   push:
-    branches:
-      - apl-mob-001-android-spike
     paths:
       - 'mobile/android/**'
       - '.github/workflows/mobile-android-spike.yml'
