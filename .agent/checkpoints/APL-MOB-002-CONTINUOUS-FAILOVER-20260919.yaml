@@ -7,7 +7,7 @@ branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: fd7214922aee61a969bdcf4a9018bcf7579a4f3d
+last_verified_commit: 2cab7b8f14e52f80d75820efe19a7fabb45acc85
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -49,8 +49,9 @@ test_results:
   - 0.1.17 repair committed as fd7214922aee61a969bdcf4a9018bcf7579a4f3d.
   - Android workflow 35426368514 and all observed repository workflows on fd7214922aee61a969bdcf4a9018bcf7579a4f3d PASS.
   - 0.1.17 APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; issue #51 comment 5739916204 records the evidence.
+  - HUMAN physical 0.1.17 PASS: Wi-Fi -> hotspot -> Wi-Fi recovered automatically without manual OFF/ON; screenshot shows active VPN and Journal смена сети events at 09:34:40 and 09:34:52.
+  - Exact PR head 2cab7b8f14e52f80d75820efe19a7fabb45acc85 is mergeable and all observed exact-head workflows PASS; issue #51 comment 5739970341 records acceptance and the remaining governance gate.
 pending:
-  - HUMAN Wi-Fi -> hotspot -> Wi-Fi retest without manual OFF/ON; expect automatic reconnect and Journal event смена сети.
-  - HUMAN regression check: connected + Новый and Журнал still work.
-  - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Wait for HUMAN physical 0.1.17 retest. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect.
+  - Explicit HUMAN/REVIEW authorization for merge of PR #119 because canonical queue has auto_merge: false.
+  - Separate explicit release authorization before publishing Android 0.1.17 assets; then verify public parity and close issue #51.
+resume_instruction: Engineering and physical acceptance are complete. Wait for explicit merge authorization, and separately explicit release authorization; re-resolve current PR head/checks before any action.
