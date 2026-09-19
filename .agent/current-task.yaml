@@ -1,55 +1,35 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-TEST-DIST-20260919
-status: completed
-goal: "Publish a clearly labeled, non-notarized macOS arm64 test distribution of the already released 0.2.10 code for friends/testing, without mutating canonical stable v0.2.10."
-authority: OWNER_DIRECTIVE
+task_id: APL-MOB-002-BACKGROUND-FAILOVER
+authority: REVIEW
+status: in_progress
+goal: "Complete the remaining Android APL-MOB-002 continuous background health/failover slice after the physically accepted 0.1.13 Auto/hot-switch release, without starting the separate iOS stage."
 definition_of_done:
-  - "Build DMG from exact stable release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695 / v0.2.10 source."
-  - "DMG contains arm64 Arvectum Proxy Launcher.app version 0.2.10, ad-hoc signed and strict codesign-valid."
-  - "Test distribution is explicitly labeled non-notarized / Gatekeeper Open Anyway; it is not represented as the canonical stable macOS release."
-  - "Stable v0.2.10 GitHub Release and tag remain immutable and are not edited."
-  - "Publish a separate GitHub prerelease/tag for macOS test distribution with DMG and SHA256 manifest."
-  - "Publish an equivalent GitVerse test release and verify public payload SHA256 parity."
-  - "Download/verify public GitHub payloads after publication."
-  - "Archive final URLs, hashes and verification results; mark checkpoint completed."
+  - "When an already-connected Auto-mode upstream becomes unavailable, the tunnel automatically moves to a working saved reserve and restores internet without user action."
+  - "Transient packet loss does not cause endless switching; failover uses bounded debounce/cooldown/hysteresis semantics."
+  - "If no saved proxy is working, publish an unambiguous state and do not leave an unexplained half-working tunnel."
+  - "Failover remains safe across sleep/wake and Wi-Fi/cellular transitions."
+  - "Health checks and event/status output do not expose credentials."
+  - "The simple APL-MOB-001 add-proxy -> connect path and accepted manual hot-switch/initial Auto selection remain intact."
+  - "Deterministic tests and exact-head CI are green; prepare a review-ready PR and stop before merge/physical acceptance."
 completed:
-  - "Created isolated detached worktree at exact stable release commit 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
-  - "Built fresh macOS app with Python 3.12.14/PyInstaller 6.22.0; bundle version 0.2.10, native arm64, strict deep codesign PASS."
-  - "Built Arvectum_Proxy_Launcher-0.2.10-arm64.dmg; hdiutil verification PASS."
-  - "Mounted DMG and re-verified embedded app architecture/version/codesign/CLI STOPPED status."
-  - "Gatekeeper spctl assessment rejected the ad-hoc/non-notarized app as expected; release notes explicitly instruct System Settings -> Privacy & Security -> Open Anyway."
-  - "Canonical DMG SHA256: c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9."
-  - "Published separate GitHub prerelease v0.2.10-macos-test.1 targeting exact stable release commit; canonical v0.2.10 release assets remained unchanged."
-  - "GitHub prerelease contains exactly Arvectum_Proxy_Launcher-0.2.10-arm64.dmg and SHA256SUMS.txt."
-  - "GitHub public DMG was downloaded again and verified against SHA256SUMS.txt: PASS."
-  - "GitHub SHA256SUMS.txt SHA256: b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa."
-  - "Automatic GitVerse mirror run 35424990177 completed successfully for v0.2.10-macos-test.1."
-  - "GitVerse accepted DMG directly (no ZIP wrapper) and public payload parity verification passed after redownload: DMG c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9; SHA256SUMS.txt b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa."
-current: "Completed. Separate non-notarized macOS arm64 test distribution is public on GitHub and mirrored to GitVerse; stable v0.2.10 is unchanged."
-pending: []
-last_verified_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
-test_results:
-  - "Fresh exact-v0.2.10 macOS app build: PASS."
-  - "DMG hdiutil verify: PASS."
-  - "Mounted app strict codesign/version/arm64/status checks: PASS."
-  - "Expected Gatekeeper non-notarized rejection: PASS."
-  - "GitHub public redownload + SHA256SUMS verification: PASS."
-  - "GitVerse mirror workflow/public redownload canonical payload parity: PASS."
-distribution:
-  tag: "v0.2.10-macos-test.1"
-  source_commit: "1c5d7aaf37e19b6c1fbfc06f945f606d6206a695"
-  github_release_url: "https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.10-macos-test.1"
-  gitverse_releases_url: "https://gitverse.ru/arvectum/proxy-launcher/releases"
-  gitverse_mirror_run: 35424990177
-  asset: "Arvectum_Proxy_Launcher-0.2.10-arm64.dmg"
-  asset_sha256: "c8d34edba81b45c8a06dc12ac6520598f866266578a149cce620385833591de9"
-  checksum_manifest_sha256: "b80216e574d4cd19609a9b1c3cfeb64c6a77829d9eb5eb8b0600af266b85cbaa"
-resume_instruction: "Task complete. Do not add this DMG to canonical stable v0.2.10. It is an explicitly non-notarized test distribution. Future production macOS public release requires Apple Developer ID signing/notarization and a new release decision."
-updated_at: "2026-09-19T08:53:00+03:00"
+  - "Reconciled canonical queue and issue #51: Android 0.1.13 Auto/manual-hot-switch slice is complete; continuous background failover remains explicitly open."
+  - "Inspected current ProxyVpnService: Auto selection probes only during connect/reconnect; engine exit currently reports error/disconnect and terminates the VPN process, so continuous failover is not yet implemented."
+  - "Created isolated branch agent/apl-mob-002-background-failover from canonical main 88a9a25770dcd7417cf6179f30d1ba9fb50bfb79."
+current: "Design the smallest fail-closed service-owned health/failover loop that reuses ProxyProtocolProbe and SecureProfileStore without exposing credentials or adding a second VPN permission flow."
+pending:
+  - "Inspect existing Android tests/service seams and SecureProfileStore APIs needed for failover state."
+  - "Implement bounded health monitoring/failover and event/status semantics."
+  - "Add deterministic regressions for confirmed outage, transient failure/cooldown, no-working-proxy, credentials privacy and baseline connect behavior."
+  - "Run Android/focused tests and exact-head CI; open REVIEW PR and stop before merge/physical acceptance."
+last_verified_commit: "88a9a25770dcd7417cf6179f30d1ba9fb50bfb79"
+test_results: []
+updated_at: "2026-09-19T09:08:00+03:00"
+resume_instruction: "Inspect Android service/store tests and implement only the remaining continuous background failover slice from issue #51. Preserve accepted 0.1.13 behavior and stop at review-ready PR/physical gate."
 execution:
-  claimed_by: "ChatGPT"
-  execution_id: "APL-MAC-TEST-DIST-20260919"
-  branch: "agent/macos-test-distribution-20260919"
-  base_commit: "bb8a383d7998255eb6e32737d80529af8b1a4950"
-  manual_override: true
+  claimed_by: "Proxy Launcher Watchdog"
+  execution_id: "APL-MOB-002-BACKGROUND-FAILOVER-20260919"
+  branch: "agent/apl-mob-002-background-failover"
+  base_commit: "88a9a25770dcd7417cf6179f30d1ba9fb50bfb79"
+  lease_until: "2026-09-19T10:58:00+03:00"
+  manual_override: false
