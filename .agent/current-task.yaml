@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -38,11 +38,17 @@ completed:
   - "Final exact-head Android APK downloaded to /Users/master/Downloads/Arvectum-Proxy-Launcher-Android-0.1.14-final-head/app-debug.apk; SHA-256 de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8."
   - "Exact-head APK V2 signer verified by CI: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
   - "Issue #51 updated with candidate evidence and the mandatory HUMAN physical acceptance checklist in comment 5739547946."
-current: "Blocked on HUMAN physical Android acceptance; no further autonomous merge/release/close action is permitted before PASS evidence."
+  - "HUMAN physical dogfood on 0.1.14 reported the main implemented behavior working, but found a UX regression: + Новый is disabled while VPN is connected. Network-transition acceptance remains to be exercised without cellular service."
+  - "Owner requested Auto event entry label/dialog to be renamed from События Auto to Журнал."
+  - "Implemented physical-feedback fix: + Новый is enabled in CONNECTED state; saving a new profile while connected uses makeActive=false, preserves current selection/tunnel/status, and leaves primary changes disabled until disconnect."
+  - "Existing-profile edit/delete remains restricted to DISCONNECTED/ERROR."
+  - "Renamed События Auto / empty-state copy to Журнал and bumped Android to 0.1.15 / versionCode 16 for reliable in-place update from the installed 0.1.14 candidate."
+current: "Static-check, commit/push the 0.1.15 physical-feedback fix, then validate exact-head Android/repository CI and issue the replacement APK."
 pending:
-  - "HUMAN physical dogfood: install/update 0.1.14; Auto with at least two profiles; kill active upstream and confirm automatic fallback + Internet recovery without another VPN permission prompt."
-  - "HUMAN physical dogfood: confirm transient loss does not flap; sleep/wake; Wi-Fi/cellular (or equivalent real default-network) transitions; optional return-to-primary; credential-free Auto event log."
-  - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release Android 0.1.14 only with explicit release authority, close issue #51, and set checkpoint completed."
+  - "Run static checks, commit/push 0.1.15, and verify exact-head Android/repository checks."
+  - "Issue a replacement 0.1.15 APK with signer/SHA evidence."
+  - "HUMAN physical recheck of connected + Новый and real network transition without SIM."
+  - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release only with explicit release authority, close issue #51, and set checkpoint completed."
 last_verified_commit: "f58e481eb5c588057714ea9e8f98fa16a9d1907c"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
@@ -50,4 +56,4 @@ test_results:
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency vulnerability scan, Windows installer, Windows portable, provenance, sovereign lifecycle and both IP reconciliation workflows SUCCESS."
   - "Final candidate APK SHA-256: de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8."
   - "Final candidate signer SHA-256: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Do not repeat implementation or CI work. Wait for HUMAN physical acceptance evidence for Android 0.1.14. On PASS, first resolve the then-current PR #119 head and applicable merge/release authority, re-check required CI if the head changed, then complete merge/release/issue-close only within explicit authority. On FAIL, reproduce the specific physical defect and resume the smallest repair slice."
+resume_instruction: "Commit/push the implemented 0.1.15 physical-feedback fix on PR #119, inspect exact-head Android/repository CI, and issue a replacement APK. Then wait for HUMAN recheck of connected + Новый and real network transition without SIM."

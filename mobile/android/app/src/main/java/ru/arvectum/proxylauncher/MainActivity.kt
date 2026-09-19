@@ -482,7 +482,7 @@ class MainActivity : Activity() {
 
         rows.addView(
             TextView(this).apply {
-                text = "События Auto"
+                text = "Журнал"
                 textSize = 14f
                 setTextColor(MINT_LIGHT)
                 setTypeface(typeface, Typeface.BOLD)
@@ -581,7 +581,7 @@ class MainActivity : Activity() {
         val events = runCatching { poolUiStore.listEvents(20) }.getOrDefault(emptyList())
         val formatter = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
         val message = if (events.isEmpty()) {
-            "Событий Auto пока нет"
+            "Журнал пока пуст"
         } else {
             events.joinToString("\n") { event ->
                 val time = formatter.format(Date(event.timestampMs))
@@ -590,7 +590,7 @@ class MainActivity : Activity() {
             }
         }
         AlertDialog.Builder(this)
-            .setTitle("События Auto")
+            .setTitle("Журнал")
             .setMessage(message)
             .setPositiveButton("Закрыть", null)
             .show()
@@ -677,7 +677,14 @@ class MainActivity : Activity() {
         profileChoices.firstOrNull { it.key == currentSelectionKey() }
 
     private fun showProfileEditor(profileId: String?) {
-        if (currentState !in editableStates || switchInProgress) return
+        if (switchInProgress) return
+        val creating = profileId == null
+        val creatingWhileConnected = creating && currentState == ProxyVpnService.STATE_CONNECTED
+        if (creating) {
+            if (currentState !in creatableStates) return
+        } else if (currentState !in editableStates) {
+            return
+        }
 
         val existing = if (profileId == null) {
             null
@@ -759,6 +766,8 @@ class MainActivity : Activity() {
                 intArrayOf(MINT, SOFT_GRAY),
             )
             isChecked = existing?.profile?.id?.let { it == primaryId } ?: (primaryId == null)
+            isEnabled = !creatingWhileConnected
+            alpha = if (isEnabled) 1f else 0.55f
             setPadding(dp(3), 0, 0, 0)
         }
         fields.addView(
@@ -859,14 +868,20 @@ class MainActivity : Activity() {
                     )
 
                     try {
-                        store.saveProfile(profile, password, makeActive = true)
-                        val currentPrimary = store.getPrimaryProfileId()
-                        if (primaryCheck.isChecked || currentPrimary == null) {
-                            store.setPrimaryProfileId(id)
-                        } else if (currentPrimary == id) {
-                            store.listProfiles()
-                                .firstOrNull { it.id != id }
-                                ?.let { store.setPrimaryProfileId(it.id) }
+                        store.saveProfile(
+                            profile,
+                            password,
+                            makeActive = !creatingWhileConnected,
+                        )
+                        if (!creatingWhileConnected) {
+                            val currentPrimary = store.getPrimaryProfileId()
+                            if (primaryCheck.isChecked || currentPrimary == null) {
+                                store.setPrimaryProfileId(id)
+                            } else if (currentPrimary == id) {
+                                store.listProfiles()
+                                    .firstOrNull { it.id != id }
+                                    ?.let { store.setPrimaryProfileId(it.id) }
+                            }
                         }
                     } catch (_: Exception) {
                         hostField.error = "Не удалось безопасно сохранить профиль"
@@ -875,9 +890,13 @@ class MainActivity : Activity() {
                         password?.fill('\u0000')
                     }
 
-                    currentProfileId = id
-                    refreshProfileChoices(id)
-                    renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                    if (creatingWhileConnected) {
+                        refreshProfileChoices(currentSelectionKey())
+                    } else {
+                        currentProfileId = id
+                        refreshProfileChoices(id)
+                        renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                    }
                     dialog.dismiss()
                 }
             },
@@ -1105,14 +1124,15 @@ class MainActivity : Activity() {
 
     private fun updateProfileControls() {
         val editable = currentState in editableStates && !switchInProgress
+        val creatable = currentState in creatableStates && !switchInProgress
         val namedSelected = currentSelectionKey() != AUTO_KEY && currentProfileId != null
 
         profileSelectorShell.isEnabled =
             currentState != ProxyVpnService.STATE_DISCONNECTING && !switchInProgress
         profileSelectorShell.alpha = if (profileSelectorShell.isEnabled) 1f else 0.58f
 
-        newProfileButton.isEnabled = editable
-        newProfileButton.alpha = if (editable) 1f else 0.5f
+        newProfileButton.isEnabled = creatable
+        newProfileButton.alpha = if (creatable) 1f else 0.5f
 
         editProfileButton.visibility = if (namedSelected) View.VISIBLE else View.GONE
         editProfileButton.isEnabled = editable && namedSelected
@@ -1233,5 +1253,6 @@ class MainActivity : Activity() {
             ProxyVpnService.STATE_DISCONNECTED,
             ProxyVpnService.STATE_ERROR,
         )
+        private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED
     }
 }

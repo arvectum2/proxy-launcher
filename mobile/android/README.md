@@ -40,7 +40,7 @@ No Clash/sing-box profiles, YAML/JSON, subscriptions, GeoIP or routing terminolo
 - multiple named proxy profiles with persisted manual or pool-level Auto selection;
 - automatic migration of the pre-0.1.5 single active profile into the profile index;
 - saved-profile selector remains active while connected and orchestrates disconnect → selection → reconnect;
-- profile create/edit/save/delete controls remain locked while the tunnel is active;
+- while connected, a new saved profile can be added to the pool without changing the live tunnel; editing/deleting existing profiles remains locked until disconnect;
 - pool-level Auto probes saved profiles with bounded timeouts and connects through the first working candidate according to the documented primary/last-success/fallback policy;
 - connected Auto continuously checks the active upstream, confirms failures with debounce, and hands off to a fresh isolated VPN process for automatic fallback without requesting VPN permission again;
 - saved profiles expose bounded health state and probe latency in the existing profile chooser; latency is a connection-health signal, not a throughput guarantee;
@@ -246,3 +246,13 @@ Networking and profile behavior are unchanged.
 - **Events:** Auto records only timestamp, event type, profile id/name and fixed non-secret detail. Host, username, password and proxy authorization are never written to the event log.
 
 Physical acceptance for this slice must kill the active Auto-selected test proxy and confirm automatic fallback plus Internet recovery without another VPN permission prompt. A short transient outage must not create repeated switching.
+
+## 0.1.15 connected profile-create fix
+
+0.1.15 is a dogfood follow-up to the 0.1.14 physical pass.
+
+- `+ Новый` stays available while VPN state is `CONNECTED`.
+- Saving a new profile while connected adds it to storage only; it does not change the active profile, live tunnel, primary designation, or visible connection state. The new profile becomes eligible for the next reconnect/fresh VPN process.
+- Editing/deleting an existing profile remains locked while connected.
+- The Auto event entry/dialog is renamed from `События Auto` to `Журнал`.
+- `versionCode` advances to 16 so the physical test device can update in place from the already-installed 0.1.14 candidate.

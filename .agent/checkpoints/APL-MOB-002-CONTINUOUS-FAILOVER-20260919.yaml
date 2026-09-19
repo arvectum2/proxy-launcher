@@ -1,7 +1,7 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
@@ -26,7 +26,13 @@ completed:
 test_results:
   - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android unit/build/signer/artifact PASS.
   - Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and reconciliation workflows PASS.
+  - HUMAN physical 0.1.14 feedback: main failover behavior works, but + Новый is disabled while VPN is connected; network-transition test remains pending.
+  - Owner requested События Auto to be renamed to Журнал.
+  - Implemented + Новый in CONNECTED state with makeActive=false and no live selection/tunnel/status mutation; primary checkbox is disabled while creating connected.
+  - Existing-profile edit/delete remains disconnected-only.
+  - Renamed Auto event UI to Журнал and bumped candidate to 0.1.15 / versionCode 16 for in-place update.
 pending:
-  - HUMAN physical acceptance: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake; real default-network transition; restore-policy behavior; credential-free events.
+  - Commit/push and validate exact-head Android/repository CI.
+  - Issue replacement 0.1.15 APK and return to HUMAN recheck for + Новый and no-SIM network transition.
   - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Wait for HUMAN physical acceptance evidence for Android 0.1.14. On PASS, resolve the then-current PR #119 head and authority/checks before merge/release/close. On FAIL, reproduce only the reported defect and resume the smallest repair slice.
+resume_instruction: Commit/push the implemented 0.1.15 fix, run exact-head CI, issue the replacement APK, then wait for HUMAN recheck of connected + Новый and real network transition without SIM.
