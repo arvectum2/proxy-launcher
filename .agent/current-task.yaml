@@ -66,11 +66,12 @@ completed:
   - "Built third canonical unpublished arm64 macOS candidate from local commit 951e9f981417a5f8fa6f43ef865178ab8898abba; bundle 0.2.10 / ru.arvectum.proxylauncher, strict deep codesign PASS, binary SHA256 543623c8f65c2a1fdb14bb8677c68a2c7e528baa5dcb4e74e06331fe4c8ec96a."
   - "Third candidate ZIP SHA256 f9a600757e0ffed94d30127f9d1c1d191aa5e2a673ba08e4b6c06867e4beec46 transferred to MacBook with matching hash; temporary transfer server removed."
   - "Installed third candidate into /Applications while APL remained OFF; legacy PAC http://127.0.0.1:8082/proxy.pac and foreign tunnel-proxy PID 911 preserved; installed Doctor PASS 11/WARN 0/FAIL 0."
-current: "Third Safari candidate with complete CONNECT framing is built and installed on MacBook with APL OFF. Next acceptance must use a persistent socket capture that survives an OFF toggle."
+  - "Prepared MacBook capture helper under Application Support to persist PAC state, WebKit PID, local 8080/18080 sockets and APL upstream socket state without packet contents; 3-second OFF-baseline smoke capture succeeded."
+current: "Third Safari candidate is installed with APL OFF. Persistent socket/PAC capture is prepared and smoke-tested; next step is the third real Safari acceptance with capture armed before APL enable."
 pending:
-  - "Synchronize the latest checkpoint to PR #143 and verify exact-head CI for the third fix."
-  - "Arm a persistent MacBook capture of PAC state, WebKit PID, 8080/18080 sockets, and APL upstream sockets before enabling APL."
-  - "Run one real Safari ChatGPT acceptance with the third candidate. If the user must disable APL to return, inspect the persisted capture before any new hypothesis."
+  - "Verify exact-head CI after the latest checkpoint synchronization."
+  - "When the user is ready for another disruptive check, start the persistent capture first, then enable APL and reset WebKit Networking to clear legacy 8080 reuse."
+  - "Have the user reload ChatGPT in Safari; if APL must be disabled to return, inspect the persisted capture before forming any new hypothesis."
   - "If Safari passes, run final Doctor/OFF rollback and complete. Do not publish a release."
 
 last_verified_commit: "951e9f981417a5f8fa6f43ef865178ab8898abba"
@@ -93,8 +94,8 @@ test_results:
   - "Split-CONNECT regression before third fix: 9 pass / 1 fail; after fix plus early-data coverage: 11/11 pass."
   - "Focused suite after third fix: 85 pass + 9 subtests."
   - "Full suite after third fix: 1051 pass / same 3 pre-existing fail / 93 subtests."
-resume_instruction: "Third candidate is already installed and APL is OFF. First synchronize this checkpoint and verify PR #143 exact-head CI. Then start a persistent socket/PAC capture on MacBook that writes to disk for several minutes and survives an APL OFF toggle. Only after capture is armed, enable APL, reset WebKit Networking to clear 8080 reuse, and ask the user to reload ChatGPT. If it fails, inspect the persisted capture before changing code; if it works, final Doctor/OFF rollback and complete. Do not publish a release."
-updated_at: "2026-09-19T23:57:11+03:00"
+resume_instruction: "Third candidate is installed and APL is OFF. Persistent capture helper is ready. First verify exact-head PR #143 CI. For the next user-approved acceptance, start capture to a fresh timestamped file, enable APL, reset WebKit Networking, then ask for Safari ChatGPT reload. If the user disables APL to return, inspect the capture file before any code change. If Safari passes, final Doctor/OFF rollback and complete. Do not publish a release."
+updated_at: "2026-09-19T23:58:39+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MAC-CHATGPT-INTERMITTENT-20260919"
