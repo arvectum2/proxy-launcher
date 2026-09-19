@@ -25,7 +25,7 @@ completed:
   - "Bumped dogfood to Android 0.1.18/versionCode 19 and documented the exact-host/wildcard boundary."
   - "Committed and pushed d38c27ae29bef91df45e4363f54a0a00ed7d7d2d; opened PR #125."
   - "Re-read executor policy/queue: this user-directed implementation is HUMAN/manual override; no automatic merge/release is authorized by the queue."
-current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner; PR #125 remains open for an explicit merge/release decision."
+current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner. Original PR #125 is closed as superseded; current integration candidate is PR #130, which remains open for an explicit merge/release decision."
 pending: []
 last_verified_commit: "473b0938550eb72bd812d135be9e4955f794624a"
 test_results:
@@ -41,7 +41,7 @@ test_results:
   - "Fresh CI rebuild attempt 2 of run 35435184809: SUCCESS; artifact 10581924654 produced."
   - "Owner accepted task closure after delivery of fresh Android 0.1.19 APK."
 blocker: null
-resume_instruction: "Task completed. No continuation required. Do not reopen unless a new defect or follow-up requirement is reported."
+resume_instruction: "Task implementation/physical acceptance is complete. Do not reopen engineering unless a new defect is reported. PR #130 is the current rebased integration candidate; merge/release remains explicit and must not be inferred from task completion."
 updated_at: "2026-09-19T12:15:00+03:00"
 execution:
   claimed_by: null

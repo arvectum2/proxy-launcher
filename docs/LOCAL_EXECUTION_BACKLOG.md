@@ -77,11 +77,11 @@ Completed evidence:
 - Android CI run `35435184809` succeeded after the compile fix and mobile-branch workflow trigger update;
 - accepted 0.1.19 APK SHA-256: `c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71`.
 
-The implementation/physical task is complete. PR #125 remains open; merge and any public Android release are separate explicit decisions. Do not represent the 0.1.19 candidate as public until those actions occur.
+The implementation/physical task is complete. Original PR #125 is closed as superseded. Current rebased integration candidate PR #130 remains open; merge and any public Android release are separate explicit decisions. Do not represent the 0.1.19 candidate as public until those actions occur.
 
 ### APL-MOB-004 — PLANNED / AFTER MOB-003 INTEGRATION + OWNER PRIORITY
 
-Roadmap only; no ad SDK/private distribution implementation exists yet. MOB-003 physical acceptance is complete, but implementation should start only after PR #125 is integrated into main and the Owner explicitly prioritizes the monetization/package-update design.
+Roadmap only; no ad SDK/private distribution implementation exists yet. MOB-003 physical acceptance is complete, but implementation should start only after PR #130 is integrated into main and the Owner explicitly prioritizes the monetization/package-update design.
 
 - public channel: ads-enabled Android artifacts for GitHub, GitVerse, Arvectum site and RuStore;
 - initial target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation;
@@ -234,8 +234,8 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 - **DESKTOP STABLE:** v0.2.10 is public with Windows Setup/portable, Astra DEB, RED OS RPM and Linux AppImage.
 - **DONE:** APL-MOB-001 and APL-MOB-002; public Android baseline is 0.1.17.
-- **DONE / PR OPEN:** APL-MOB-003 site exclusions physically accepted on Android 0.1.19; PR #125 awaits explicit merge/release decision.
-- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after #125 integration + explicit Owner priority.
+- **DONE / PR OPEN:** APL-MOB-003 site exclusions physically accepted on Android 0.1.19; PR #130 awaits explicit merge/release decision.
+- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after #130 integration + explicit Owner priority.
 - **DONE FOR CURRENT FILING EVIDENCE:** APL-IP-001 v0.2.9 provenance/right-chain packet; optional legal hardening remains non-blocking.
 - **REVIEW PREP READY:** APL-REL-016 PR #103 must be refreshed to current v0.2.10 / first eligible v0.2.11+.
 - **HUMAN BLOCKED:** sovereign lifecycle physical proof (#55).
@@ -244,7 +244,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **MAC:** test prerelease exists; production Apple signing/notarization remains deferred.
 - **DEFERRED:** iOS.
 
-With APL-MOB-003 physical work complete and #125 merge/release held for explicit action, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
+With APL-MOB-003 physical work complete and #130 merge/release held for explicit action, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
 
 ## Completion discipline
 
