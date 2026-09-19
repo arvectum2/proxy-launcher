@@ -23,7 +23,8 @@ completed:
   - "Executor queue, ROADMAP and LOCAL_EXECUTION_BACKLOG synchronized to v0.2.10 and current mobile/trust state."
   - "PR #127 exact head 4948f95dd5d1c4206f49a80a9c3e199094591e76 passed the required build and the original full 13-check suite; merged as 31e912fd6109cd14f4fb7e3a271d32af4f92d991."
   - "Duplicate PR #128 closed without merge."
-current: "Synchronization completed; MOB-003 implementation/physical task is completed but PR #125 remains open pending explicit merge/release decision."
+  - "Original MOB-003 PR #125 closed as superseded after accepted payload was rebased cleanly onto current main in PR #130."
+current: "Synchronization completed; MOB-003 implementation/physical task is completed. Original PR #125 is closed as superseded; rebased integration PR #130 remains open pending explicit merge/release decision."
 pending: []
 last_verified_commit: "31e912fd6109cd14f4fb7e3a271d32af4f92d991"
 merged_commit: "31e912fd6109cd14f4fb7e3a271d32af4f92d991"
