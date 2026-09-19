@@ -1,7 +1,7 @@
 # APL-ROUTE — Windows production enforcement architecture decision packet
 
 Status: `OWNER REVIEW REQUIRED / no production architecture approved`
-Date: `2026-09-18`
+Date: `2026-09-19`
 Source: `docs/LOCAL_EXECUTION_BACKLOG.md#P8`
 Related: `APL-ROUTE-001..004`
 
@@ -20,9 +20,9 @@ The repository has already proven the following control-plane pieces:
 - `APL-ROUTE-003` uses the real Windows WFP `FwpmGetAppIdFromFileName0` application identity API and compiles rules into a non-mutating ALE connect-redirect filter plan.
 - `APL-ROUTE-004` defines durable ownership/recovery state: prepared -> applied -> restoring -> verified cleanup, Arvectum-only resource identities, plan digest binding, fail-closed recovery, and no deletion of foreign firewall/WFP resources.
 
-### Current v0.2.9 safety baseline
+### Current v0.2.10 safety baseline
 
-The production decision must now be evaluated against the published `v0.2.9` rollback-safety baseline rather than the older pre-release state in which this packet was first drafted. Windows, Astra/Fly and RED OS/KDE now share the same saved-or-Arvectum ownership rule: if the host presents a third/foreign proxy state, Proxy Launcher fails closed and preserves durable rollback evidence instead of overwriting that state. Any future per-application enforcement plane must preserve that invariant rather than introducing a broader privileged cleanup authority.
+The production decision is evaluated against the published `v0.2.10` desktop baseline. `v0.2.10` preserves the saved-or-Arvectum rollback-safety contract established in `v0.2.9` while promoting the governed AppImage lane; it does not broaden Windows host-mutation authority. Windows, Astra/Fly and RED OS/KDE therefore continue to share the same ownership rule: if the host presents a third/foreign proxy state, Proxy Launcher fails closed and preserves durable rollback evidence instead of overwriting that state. Any future per-application enforcement plane must preserve that invariant rather than introducing broader privileged cleanup authority.
 
 Consequently, an approved Windows enforcement implementation must keep WFP/service ownership evidence separate from system-proxy rollback evidence, must never treat unrelated WFP/firewall/VPN/EDR resources as Arvectum-owned, and must make update/uninstall recovery verifiable before deleting its own durable ownership journal. This refresh does not approve an architecture; it only carries the current stable safety contract into the Owner decision.
 
@@ -126,7 +126,7 @@ They may remain compatibility helpers but must not be represented as equivalent 
 
 Technical recommendation for Owner/Product Owner review: **Option A — Arvectum-owned narrow WFP ALE callout + privileged service + local proxy**, with an intentionally small kernel/native surface.
 
-The recommendation is based on continuity with the completed APL-ROUTE-001..004 work and the fact that Windows already supplies the exact process-aware connect-redirection primitives the product needs. The v0.2.9 safety refresh strengthens, rather than weakens, the case for a narrow ownership namespace and fail-closed recovery: the privileged plane must be able to prove what it owns before mutating or removing anything.
+The recommendation is based on continuity with the completed APL-ROUTE-001..004 work and the fact that Windows already supplies the exact process-aware connect-redirection primitives the product needs. The current v0.2.10 safety baseline strengthens, rather than weakens, the case for a narrow ownership namespace and fail-closed recovery: the privileged plane must be able to prove what it owns before mutating or removing anything.
 
 Recommended division of responsibility:
 
@@ -178,7 +178,7 @@ CIDR/all selectors can reach production before domain selectors if the capabilit
 
 ## 8. Required recovery invariants
 
-Any approved implementation must preserve APL-ROUTE-004 and the published v0.2.9 saved-or-Arvectum safety contract, and prove at minimum:
+Any approved implementation must preserve APL-ROUTE-004 and the current v0.2.10 saved-or-Arvectum safety contract, and prove at minimum:
 
 1. journal written before first host mutation;
 2. only `Arvectum.ProxyLauncher.*` resources created/removed;
@@ -206,7 +206,7 @@ A production WFP enforcement service is a privileged security component. Therefo
 
 Production Option A depends on a trustworthy Windows signing/distribution path for the privileged service/callout and any required driver package.
 
-This decision must therefore remain coordinated with APL-REL-016. The architecture may be approved before final certificate/provider procurement, but production release cannot claim completion until the exact driver/service signing requirements and clean-machine install behavior are proven. The current public `v0.2.9` release is immutable and is not eligible for retrofitted embedded signing or per-application enforcement; either change belongs to a later version after its own gates.
+This decision must therefore remain coordinated with APL-REL-016. The architecture may be approved before final certificate/provider procurement, but production release cannot claim completion until the exact driver/service signing requirements and clean-machine install behavior are proven. The current public `v0.2.10` release is immutable and is not eligible for retrofitted embedded signing or per-application enforcement; either change belongs to `v0.2.11+` or another later version after its own gates.
 
 No current decision packet authorizes signing credentials, certificate purchase or release publication.
 
