@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-003-SITE-EXCLUSIONS-20260919
-status: blocked
+status: completed
 goal: "Add Android site/domain exclusions with the same user-facing purpose as desktop no_proxy, without starting per-application routing."
 authority: HUMAN
 definition_of_done:
@@ -25,22 +25,24 @@ completed:
   - "Bumped dogfood to Android 0.1.18/versionCode 19 and documented the exact-host/wildcard boundary."
   - "Committed and pushed d38c27ae29bef91df45e4363f54a0a00ed7d7d2d; opened PR #125."
   - "Re-read executor policy/queue: this user-directed implementation is HUMAN/manual override; no automatic merge/release is authorized by the queue."
-current: "Implementation and CI are complete in PR #125; waiting for physical Android acceptance before merge/release."
-pending:
-  - "HUMAN GATE: install the 0.1.18 dogfood artifact on a real Android device."
-  - "Verify a concrete excluded site uses direct egress while a non-excluded site remains proxied."
-  - "While connected, edit/save exclusions and verify controlled reconnect reuses VPN permission and applies the new list."
-  - "Clear exclusions and verify the accepted 0.1.17 full-tunnel/virtual-DNS baseline is restored."
-  - "After physical PASS, record evidence and decide merge; do not auto-release without an explicit release instruction."
-last_verified_commit: "d38c27ae29bef91df45e4363f54a0a00ed7d7d2d"
+current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner; fresh CI rebuild delivered."
+pending: []
+last_verified_commit: "473b0938550eb72bd812d135be9e4955f794624a"
 test_results:
   - "git diff --check: PASS before commit."
   - "Architecture review against Android VpnService excludeRoute and pinned tun2proxy v0.8.3: PASS."
   - "GitHub Android CI run 35431805810: SUCCESS; testDebugUnitTest + assembleDebug PASS; dogfood signer/branding verification PASS."
   - "Artifact proxy-launcher-android-debug id 10580893480; workflow artifact digest sha256:ef620c22eb72e4a14e771db0ed812cdee1b9aa7251fa2cad7882a02e8e4e9172."
-blocker: "Physical Android network acceptance is required before representing site-exclusion routing as physically accepted or merging/releasing the candidate."
-resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mobile-exclusions after the Owner provides physical Android results for PR #125 / 0.1.18. Record direct-vs-proxied egress, connected-save reconnect and clear-list regression evidence. Fix any observed defect, rerun exact-head Android CI, and only then proceed to the permitted merge gate. Do not auto-release."
-updated_at: "2026-09-19T11:30:00+03:00"
+  - "Physical Android: myip.com exclusion reported working by Owner on 0.1.18."
+  - "0.1.19 UX commit 79067df: explicit site input + Add button + per-entry rows/remove; git diff --check PASS."
+  - "Fixed Kotlin nullable normalization compile defect in 473b093 and generalized Android workflow push trigger for mobile branches."
+  - "GitHub Android CI run 35435184809 on 473b093: SUCCESS; tests, assemble, signer/branding, SHA-256 and artifact upload PASS."
+  - "0.1.19 APK SHA-256: c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71."
+  - "Fresh CI rebuild attempt 2 of run 35435184809: SUCCESS; artifact 10581924654 produced."
+  - "Owner accepted task closure after delivery of fresh Android 0.1.19 APK."
+blocker: null
+resume_instruction: "Task completed. No continuation required. Do not reopen unless a new defect or follow-up requirement is reported."
+updated_at: "2026-09-19T12:15:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-003-SITE-EXCLUSIONS-20260919"
