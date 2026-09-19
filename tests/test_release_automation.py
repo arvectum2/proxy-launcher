@@ -173,6 +173,9 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("SHA256SUMS.txt", mirror)
         self.assertIn("single-file ZIP wrapper", mirror)
         self.assertIn("Immutable GitVerse asset differs", mirror)
+        self.assertIn("-X PATCH", mirror)
+        self.assertIn("UPDATED GitVerse release metadata", mirror)
+        self.assertIn("gitverse-release-metadata-update.json", mirror)
         self.assertNotIn("DELETE", mirror)
 
 
