@@ -1,0 +1,47 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: blocked
+goal: "Refresh the Windows public-trust / Authenticode / SmartScreen review packet to the immutable public v0.2.10 baseline and first eligible v0.2.11+ release, preserving REVIEW and Owner gates."
+authority: REVIEW
+definition_of_done:
+  - "Substantive PR #103 trust implementation is ported onto current main without stale roadmap/checkpoint state."
+  - "Current Microsoft SmartScreen, Smart App Control and Artifact Signing eligibility are rechecked."
+  - "Current CA/B Forum Code Signing Baseline Requirements are rechecked."
+  - "v0.2.10 is explicitly immutable/unsigned at native Authenticode layer and v0.2.11+ is the first eligible future signed release."
+  - "Russian CryptoPro/Rutoken detached evidence remains separate from Microsoft native publisher trust."
+  - "Exact-head substantive CI is green."
+  - "A review-ready PR is produced and work stops before provider/certificate/key-custody/production-signing/release/merge Owner decisions."
+completed:
+  - "Rechecked Microsoft SmartScreen, Smart App Control and Artifact Signing official guidance on 2026-09-19."
+  - "Confirmed Smart App Control still requires RSA-based trusted-provider signing; ECC is not accepted by the SAC signature check."
+  - "Confirmed valid OV/EV signing does not guarantee first-download SmartScreen reputation and EV no longer automatically bypasses SmartScreen."
+  - "Confirmed Microsoft Artifact Signing Public Trust organization geography still does not list Russia."
+  - "Rechecked CA/B Forum Code Signing BR v3.11.0: 460-day maximum for subscriber certificates issued on/after 2026-03-01 and exactly one reserved subscriber policy OID effective 2026-09-15."
+  - "Ported PR #103 substantive workflow/decision packet/runbook/contract/tests/public-trust gate onto current main in PR #132."
+  - "Updated current public baseline to immutable v0.2.10 and first eligible future signed release to v0.2.11+."
+  - "PR #132 exact head 0830e2a3c7157f802052ccc2ed8330639264b9b7 is mergeable and all observed checks completed SUCCESS, including REL-016 contract tests, PowerShell syntax, signed app -> portable -> installer smoke, required build, installer and controlled-offline-build."
+current: "REVIEW-READY / OWNER GATE. PR #132 is the current APL-REL-016 decision packet. No provider, certificate, key-custody, production signing, merge or release choice has been approved."
+pending:
+  - "OWNER REVIEW: accept/reject/modify the APL-REL-016 production trust direction in PR #132."
+  - "If approved later, separately choose a legally obtainable provider/certificate path and key-custody model."
+  - "Production signing and physical MOTW/SmartScreen/SAC acceptance require a future v0.2.11+ candidate and separate authorization."
+last_verified_commit: "0830e2a3c7157f802052ccc2ed8330639264b9b7"
+test_results:
+  - "PR #132 exact-head REL-016 contract tests: SUCCESS."
+  - "PR #132 exact-head REL-016 PowerShell syntax: SUCCESS."
+  - "PR #132 exact-head REL-016 signed app -> portable -> installer smoke: SUCCESS."
+  - "PR #132 exact-head required build: SUCCESS."
+  - "PR #132 exact-head Windows installer E2E/Gate R6: SUCCESS."
+  - "PR #132 exact-head controlled-offline-build: SUCCESS."
+  - "PR #132 exact-head SAST, dependency scan, secret scan, SBOM, provenance, sovereign lifecycle and clean-IP gates: SUCCESS."
+blocker: "Owner/Product Owner review is required before merging the substantive REVIEW PR or making provider/certificate/key-custody/production-signing/release decisions."
+resume_instruction: "Review PR #132. Do not merge it or take provider/certificate/signing/release actions unless the Owner explicitly approves the relevant decision. If Owner approval is provided, resume from the approved scope only."
+updated_at: "2026-09-19T13:02:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: "agent/apl-rel-016-v0210-refresh"
+  base_commit: "54ecd0085d54c481dbfd165ef6511d039933d1db"
+  lease_until: null
+  manual_override: false
