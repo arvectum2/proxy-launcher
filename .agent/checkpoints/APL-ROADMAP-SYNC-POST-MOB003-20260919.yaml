@@ -1,0 +1,38 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-SYNC-POST-MOB003-20260919
+status: completed
+goal: "Reconcile canonical roadmap/executor metadata after APL-MOB-003 integration and APL-REL-016 v0.2.10 refresh preparation."
+authority: REVIEW
+definition_of_done:
+  - "APL-MOB-003 is recorded DONE and integrated via PR #130 / main."
+  - "APL-MOB-004 no longer depends on an open MOB-003 integration PR; it remains Owner-gated and unimplemented."
+  - "APL-REL-016 points to current PR #132, records green exact-head preparation and stops at Owner review."
+  - "Superseded PR #103/#125 are classified as historical/superseded rather than active."
+  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
+  - "Required exact-head CI passes before metadata merge."
+completed:
+  - "Verified APL-MOB-003 physical/UX acceptance and merged integration PR #130 at c645825ec8b3fd142e0b6b7eca3c1fc8f6261550."
+  - "Updated .agent/execution-queue.yaml: MOB-003 integrated, MOB-004 Owner-gated, REL-016 current PR #132/Owner review, next safe prep #68."
+  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
+  - "Verified PR #132 exact head 0830e2a3c7157f802052ccc2ed8330639264b9b7 with all observed checks SUCCESS; left it open at the REVIEW/Owner gate."
+  - "PR #133 exact head 925a0c6c97c43b365fd6930fe1c3a9eac19fd379: 13/13 reported checks SUCCESS, including required build and full Windows installer E2E."
+  - "PR #133 merged to main as c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c."
+current: "Roadmap synchronization complete. Canonical next state: APL-REL-016 waits on Owner review in PR #132; APL-MOB-004 waits on explicit Owner priority/package identity; next safe autonomous preparation lane is per-app routing PR #68 against v0.2.10."
+pending: []
+last_verified_commit: "c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c"
+merged_commit: "c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c"
+test_results:
+  - "PR #133 exact head 925a0c6c97c43b365fd6930fe1c3a9eac19fd379: 13/13 reported checks SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
+  - "SAST, dependency audit, secret scan, SBOM, provenance, clean-IP gates, sovereign lifecycle, Windows signing checks and mirror: SUCCESS."
+resume_instruction: "No continuation is required for this roadmap-sync task. On the next watchdog run, read the canonical queue from main. Do not merge REVIEW PR #132 or begin APL-MOB-004 without the Owner gate. The next safe independent preparation lane is per-app routing PR #68 against v0.2.10, stopping before architecture selection."
+updated_at: "2026-09-19T13:02:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
+  lease_until: null
+  manual_override: false
