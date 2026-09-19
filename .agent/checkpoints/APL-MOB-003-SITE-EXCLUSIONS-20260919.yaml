@@ -25,7 +25,7 @@ completed:
   - "Bumped dogfood to Android 0.1.18/versionCode 19 and documented the exact-host/wildcard boundary."
   - "Committed and pushed d38c27ae29bef91df45e4363f54a0a00ed7d7d2d; opened PR #125."
   - "Re-read executor policy/queue: this user-directed implementation is HUMAN/manual override; no automatic merge/release is authorized by the queue."
-current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner; PR #125 remains open for an explicit merge/release decision."
+current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner; fresh CI rebuild delivered."
 pending: []
 last_verified_commit: "473b0938550eb72bd812d135be9e4955f794624a"
 test_results:
@@ -44,9 +44,8 @@ blocker: null
 resume_instruction: "Task completed. No continuation required. Do not reopen unless a new defect or follow-up requirement is reported."
 updated_at: "2026-09-19T12:15:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
-  lease_until: null
-  manual_override: false
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MOB-003-SITE-EXCLUSIONS-20260919"
+  branch: "agent/apl-mob-003-site-exclusions-20260919"
+  base_commit: "8b07165a2f8404ed711399c6e65ec76a22b46a72"
+  manual_override: true
