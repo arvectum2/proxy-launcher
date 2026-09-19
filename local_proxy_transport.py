@@ -11,6 +11,7 @@ import select
 import socket
 import struct
 import threading
+import time
 from types import ModuleType
 
 
@@ -104,8 +105,10 @@ class ProxyCore:
         ) + b"\r\n\r\n"
 
     def _open_upstream_tunnel(self, host, port, client_request=None):
+        core = _core()
         for host_u, proxy_port, token in self._upstreams:
             stream = None
+            started = time.monotonic()
             try:
                 stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 stream.settimeout(15)
@@ -115,11 +118,31 @@ class ProxyCore:
                 )
                 stream.sendall(request)
                 status, response = self._read_proxy_response(stream)
+                elapsed_ms = int((time.monotonic() - started) * 1000)
+                core.structured_log(
+                    "upstream CONNECT response received",
+                    event="proxy.connect.upstream_response",
+                    proxy_host=host_u,
+                    proxy_port=proxy_port,
+                    target_port=port,
+                    status=status,
+                    header_bytes=len(response),
+                    elapsed_ms=elapsed_ms,
+                )
                 if 200 <= status < 300:
                     stream.settimeout(300)
                     return stream, response
-            except Exception:
-                pass
+            except Exception as exc:
+                core.structured_log(
+                    "upstream CONNECT attempt failed",
+                    level="WARNING",
+                    event="proxy.connect.upstream_error",
+                    proxy_host=host_u,
+                    proxy_port=proxy_port,
+                    target_port=port,
+                    error_type=type(exc).__name__,
+                    elapsed_ms=int((time.monotonic() - started) * 1000),
+                )
             if stream is not None:
                 try:
                     stream.close()
@@ -156,27 +179,57 @@ class ProxyCore:
 
     @staticmethod
     def _relay(src, dst, stop):
+        core = _core()
+        src_to_dst = 0
+        dst_to_src = 0
+        reason = "stop_requested"
+        started = time.monotonic()
         try:
             while not stop.is_set():
                 try:
                     ready, _, _ = select.select([src, dst], [], [], 300)
-                except (OSError, ValueError):
+                except (OSError, ValueError) as exc:
+                    reason = "select_error:%s" % type(exc).__name__
                     return
                 if not ready:
                     # Match the proven legacy transport: retire fully idle
                     # tunnels so browsers cannot keep reusing a stale CONNECT.
+                    reason = "idle_timeout"
                     break
                 for stream in ready:
+                    side = "upstream" if stream is src else "client"
                     try:
                         data = stream.recv(65536)
-                    except OSError:
+                    except OSError as exc:
+                        reason = "recv_error:%s:%s" % (side, type(exc).__name__)
                         return
                     if not data:
+                        reason = "eof:%s" % side
                         return
-                    (dst if stream is src else src).sendall(data)
-        except Exception:
-            pass
+                    target = dst if stream is src else src
+                    try:
+                        target.sendall(data)
+                    except OSError as exc:
+                        reason = "send_error:%s:%s" % (
+                            "client" if stream is src else "upstream",
+                            type(exc).__name__,
+                        )
+                        return
+                    if stream is src:
+                        src_to_dst += len(data)
+                    else:
+                        dst_to_src += len(data)
+        except Exception as exc:
+            reason = "relay_error:%s" % type(exc).__name__
         finally:
+            core.structured_log(
+                "proxy relay closed",
+                event="proxy.relay.closed",
+                upstream_to_client_bytes=src_to_dst,
+                client_to_upstream_bytes=dst_to_src,
+                elapsed_ms=int((time.monotonic() - started) * 1000),
+                termination_reason=reason,
+            )
             for stream in (src, dst):
                 try:
                     stream.close()
@@ -255,6 +308,13 @@ class ProxyCore:
                         self._send_error(client, 502, "All external proxies unreachable")
                         return
                     client.sendall(response)
+                    core.structured_log(
+                        "CONNECT response forwarded to client",
+                        event="proxy.connect.client_ready",
+                        target_port=port,
+                        response_bytes=len(response),
+                        buffered_client_bytes=len(buffered_after_headers),
+                    )
                     if buffered_after_headers:
                         upstream.sendall(buffered_after_headers)
                     self._relay(upstream, client, self._stop)
