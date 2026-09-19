@@ -3,7 +3,7 @@
 Updated: 2026-09-19
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
-Current stable product line: 0.2.9 — stable rollback-safety release for Windows x64, Astra Linux 1.8 x86-64 and RED OS 8.0.3 x86-64
+Current stable product line: 0.2.10 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64 and generic Linux x86-64 AppImage
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
@@ -21,22 +21,23 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 
 ## 1. Current stable product line
 
-- **CURRENT / PUBLISHED — v0.2.9** (published 2026-09-17): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, plus SHA256SUMS.txt.
-- **CURRENT SAFETY CONTRACT** — Windows rollback/recovery now uses the same saved-or-Arvectum ownership rule already enforced on Astra/Fly and RED OS/KDE: a third/foreign proxy state fails closed and durable rollback evidence is preserved instead of being overwritten.
-- **DONE** — the Windows ownership-symmetry fix was merged through PR #93 and closed out by PR #94 before the public v0.2.9 release.
+- **CURRENT / PUBLISHED — v0.2.10** (published 2026-09-19): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, plus SHA256SUMS.txt.
+- **DONE — AppImage promoted.** PR #111 promoted the governed APL-LNX-008 AppImage engineering lane into the canonical release set; v0.2.10 is the first public stable release that includes the AppImage.
+- **CURRENT SAFETY CONTRACT** — Windows rollback/recovery uses the same saved-or-Arvectum ownership rule enforced on Astra/Fly and RED OS/KDE: a third/foreign proxy state fails closed and durable rollback evidence is preserved instead of being overwritten.
 - **DONE / PHYSICAL** — Astra Linux Gate R8 is closed on a real Astra Linux SE 1.8/Fly host.
 - **DONE / PHYSICAL** — RED OS 8.0.3 Standard Desktop real-host acceptance is closed by PR #83; focused RED OS regression suite 62/62 PASS.
+- **DONE / MAC TEST DISTRIBUTION** — separate prerelease v0.2.10-macos-test.1 exists for arm64 dogfood; it is not the stable public macOS lane and does not imply Developer ID/notarization.
 - **HISTORICAL** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor; later releases do not rewrite that evidence.
-- **HISTORICAL** — v0.2.6 introduced the first Windows + Astra release lane; v0.2.7 added the RED OS release track; v0.2.8 hardened Linux mixed-state recovery; v0.2.9 closes the Windows recovery-symmetry gap.
+- **HISTORICAL** — v0.2.6 introduced Windows + Astra, v0.2.7 RED OS, v0.2.8 Linux recovery hardening, v0.2.9 Windows recovery symmetry, and v0.2.10 added the promoted AppImage plus the current desktop packaging baseline.
 
-Current canonical main verified for this roadmap refresh: 2cb0921c1fe31a22f1ea054fb4d37af2e5fca021.
+Current canonical main verified for this roadmap refresh: eff09f7ee25e26991909dedc0918109a7b90a609.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
 - **DONE / HISTORICAL EVIDENCE** — the company УКЭП/CryptoPro path is treated as RELEASE-EVIDENCE-ONLY; it is not represented as Microsoft Authenticode/SmartScreen publisher trust.
 - **DONE** — APL-REL-011/012/013 release manifest, verification UX and fail-closed Russian production release gate.
-- **CURRENT PUBLIC RELEASE** — v0.2.9 is published, but APL-REL-016 remains the separate future native Windows trust track.
-- **READY FOR OWNER REVIEW — issue #30, PR #103** — the Windows public-trust packet has been refreshed to immutable v0.2.9; PR #103 supersedes stale PR #81 and defines 0.2.10+ as the first eligible embedded-signing/public-trust release. Focused public-trust and release/repository suites recorded by the PR pass; final decision/merge remains reserved.
+- **CURRENT PUBLIC RELEASE** — v0.2.10 is published without native Authenticode; APL-REL-016 remains the separate future Windows publisher-trust track.
+- **READY / REVIEW PREP — issue #30, PR #103** — PR #103 supersedes stale PR #81 and contains the substantive trust packet, but still describes v0.2.9 as current and 0.2.10+ as first eligible. Because v0.2.10 is now immutable/public, refresh the packet to v0.2.10 and make v0.2.11+ the first eligible embedded-signing release before Owner review.
 - **OWNER GATE** — provider/certificate selection, spend, key custody and production signing path are not delegated to automation.
 - **RULE** — never retrofit embedded signing into an immutable published release; any future Authenticode/public-trust change belongs to a new version.
 ## 3. IP / legal / sovereignty
@@ -83,6 +84,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 ## 6. macOS
 
 - **DONE** — APL-MAC-001..008 engineering/acceptance track and Gate R9 evidence retained.
+- **DONE / TEST DISTRIBUTION** — separate arm64 prerelease `v0.2.10-macos-test.1` was published for dogfood and mirrored with checksum parity. It is not the stable production macOS channel.
 - **DEFERRED** — Apple production identity signing/notarization under the Russia-first priority model.
 - **DEFERRED** — controlled endpoint-denied build-input hardening where it requires Apple-specific production infrastructure.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit and does not weaken recovery/update semantics.
@@ -120,9 +122,9 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 
 1. **[Android / HUMAN] APL-MOB-002 — DONE; APL-MOB-003 PR #125 — HUMAN GATE; APL-MOB-004 — PLANNED.** Current gate is physical acceptance of Android 0.1.18 site exclusions. Monetization/dual distribution follows later and must not start per-application routing.
 2. **[IP/legal] APL-IP-001 v0.2.9 filing-evidence packet — DONE.** Optional external legal hardening is non-blocking unless specifically requested.
-3. **[Windows trust / REVIEW] APL-REL-016 — READY FOR OWNER REVIEW.** PR #103 is the current v0.2.9 packet; PR #81 is superseded. No provider, certificate, key-custody or release action is approved by the packet itself.
+3. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** PR #103 contains the substantive packet but must be reconciled to current immutable v0.2.10; the first eligible future embedded-signing release is now v0.2.11+.
 4. **[Registry infrastructure / HUMAN] APL-REG-001B — BLOCKED UNTIL PHYSICAL RUSSIAN LIFECYCLE EVIDENCE EXISTS.**
-5. **[Per-app routing / OWNER] production architecture decision — READY NOW.** PR #68 contains the decision packet; its assumptions may be safely refreshed against v0.2.9, but architecture selection remains an Owner stop-gate.
+5. **[Per-app routing / OWNER] production architecture decision — READY NOW.** PR #68 contains the decision packet; its assumptions may be safely refreshed against v0.2.10, but architecture selection remains an Owner stop-gate.
 6. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 7. **[Windows/release maintenance] — AVAILABLE AS NEEDED.** PR #80 is a release-evidence workflow maintenance fix and must be reconciled with current main before use.
 8. **[macOS production distribution] — DEFERRED.** Engineering baseline exists; Apple production signing/notarization remains non-primary.
@@ -135,21 +137,22 @@ Open PR #81 is superseded by current APL-REL-016 PR #103. Open PRs #90/#91/#92 a
 ### Execution order
 
 - Human/device work can advance the current APL-MOB-003 Android 0.1.18 physical site-exclusions gate and the registry physical/private evidence gates; APL-MOB-004 remains planned behind that gate.
-- APL-REL-016 preparation is already at the Owner-review boundary in PR #103; the watchdog should not repeatedly recreate that work.
-- The next safe repository-preparation lane is the v0.2.9 refresh of per-app-routing decision material in PR #68, while architecture selection itself remains an Owner stop-gate.
+- With APL-MOB-003 blocked on physical Android evidence, the first useful autonomous REVIEW lane is refreshing APL-REL-016 PR #103 to the now-published v0.2.10 baseline and a v0.2.11+ eligible signing target.
+- After REL-016 reaches the Owner-review boundary again, the next safe repository-preparation lane is refreshing per-app-routing decision material in PR #68 against v0.2.10; architecture selection itself remains an Owner stop-gate.
 - External Ministry submission remains outside automation.
 ## 10. Platform / distribution matrix
 
 | Platform / form | Current state | Next gate |
 | --- | --- | --- |
-| Windows installer | **PUBLISHED v0.2.9** | Maintenance; APL-REL-016 for future native public trust |
-| Windows portable | **PUBLISHED v0.2.9** | Maintenance / future feature release |
-| Astra Linux .deb | **PUBLISHED v0.2.9 / PHYSICAL BASELINE PROVEN** | Optional exact-v0.2.9 future-proof smoke for registry evidence |
-| RED OS .rpm | **PUBLISHED v0.2.9 / PHYSICAL BASELINE PROVEN** | Optional exact-v0.2.9 future-proof smoke; registry physical acceptance already exists |
-| Linux AppImage | **ENGINEERING DONE / PROMOTED FOR NEXT RELEASE** | Green exact-main AppImage CI on the next tagged release; v0.2.9 remains immutable |
-| macOS .app / DMG | **ENGINEERING/ACCEPTANCE DONE** | Apple production signing/notarization when prioritized |
+| Windows installer | **PUBLISHED v0.2.10** | Maintenance; APL-REL-016 for a future signed release |
+| Windows portable | **PUBLISHED v0.2.10** | Maintenance / future feature release |
+| Astra Linux .deb | **PUBLISHED v0.2.10 / PHYSICAL BASELINE PROVEN** | Existing Astra acceptance retained; rerun only when required by a material change/filing gate |
+| RED OS .rpm | **PUBLISHED v0.2.10 / PHYSICAL BASELINE PROVEN** | Existing RED OS acceptance retained; rerun only when required by a material change/filing gate |
+| Linux AppImage | **PUBLISHED v0.2.10** | Maintain governed runtime/license/release parity |
+| macOS .app / DMG | **TEST PRERELEASE v0.2.10-macos-test.1 / PRODUCTION DEFERRED** | Apple Developer ID signing/notarization when prioritized |
 | Android | **0.1.17 PUBLIC / APL-MOB-002 DONE / APL-MOB-003 PR #125 HUMAN GATE** | Accept 0.1.18 site exclusions; then APL-MOB-004 public-ads + private-no-ads distribution |
-| iOS | **DEFERRED** | Start after Android dogfood / entitlement path |
+| iOS | **DEFERRED** | Start after Android product semantics / entitlement path |
+
 ## Completion discipline
 
 Do not substitute CI for physical App Control/Astra/РЕД ОС/mobile-device evidence, detached Russian release evidence for Microsoft native Windows publisher trust, or automation for human/legal decisions. Do not rewrite historical repository identities where they are part of provenance. Do not retarget immutable tags or replace published release assets in place. A documentation-only commit does not create a new product candidate. Current operational references must resolve to `arvectum2/proxy-launcher`.

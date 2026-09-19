@@ -1,8 +1,8 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-18  
+Updated: 2026-09-19  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
-Current stable release: `v0.2.9`
+Current stable release: `v0.2.10`
 
 This file contains the remaining work that cannot be truthfully completed by hosted repository automation alone, plus active review/owner gates after the Windows/Astra/RED OS desktop baseline and registry dossier work.
 
@@ -12,17 +12,18 @@ This file contains the remaining work that cannot be truthfully completed by hos
 - **DONE** — the single hourly `Proxy Launcher Watchdog` is enabled and reads `.agent/executor-policy.yaml`, `.agent/execution-queue.yaml`, `.agent/current-task.yaml`, this backlog and the canonical roadmap.
 - **RULE** — watchdog may skip blocked HUMAN/OWNER gates to do later independent admitted preparation, but may not reorder the queue or invent scope/approval.
 
-## P1 — current stable release `v0.2.9` — PUBLISHED
+## P1 — current stable release `v0.2.10` — PUBLISHED
 
-Published 2026-09-17:
+Published 2026-09-19:
 
 - Windows x64 Setup;
 - Windows x64 portable ZIP;
 - Astra Linux x86-64 DEB;
 - RED OS 8.0.3 x86-64 RPM;
+- generic Linux x86-64 AppImage;
 - `SHA256SUMS.txt`.
 
-`v0.2.9` closes the Windows rollback-ownership asymmetry found during cross-platform recovery comparison. Third/foreign system-proxy state now fails closed rather than being silently overwritten.
+`v0.2.10` is the current immutable desktop release. It retains the v0.2.9 rollback-ownership safety contract and promotes the governed AppImage lane into the public stable release set. Stable macOS distribution remains excluded pending deliberate Apple production signing/notarization; separate `v0.2.10-macos-test.1` arm64 prerelease exists for dogfood only.
 
 Historical progression retained for provenance:
 
@@ -30,7 +31,8 @@ Historical progression retained for provenance:
 - `v0.2.6` — Windows + Astra release lane;
 - `v0.2.7` — RED OS release track;
 - `v0.2.8` — Linux mixed-state recovery hardening;
-- `v0.2.9` — Windows saved-or-Arvectum recovery symmetry.
+- `v0.2.9` — Windows saved-or-Arvectum recovery symmetry;
+- `v0.2.10` — promoted AppImage + current desktop packaging baseline.
 
 ## P2 — Astra Linux / Gate R8 — DONE / PHYSICAL PASS
 
@@ -50,33 +52,50 @@ Astra acceptance remains a trusted-OS compatibility evidence record; an exact-`v
 
 Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and are not active roadmap tracks.
 
-## P4 — Android mobile dogfood — APL-MOB-001 DONE / APL-MOB-002 IN PROGRESS
+## P4 — Android mobile track — MOB-001/MOB-002 DONE, MOB-003 HUMAN GATE, MOB-004 PLANNED
 
-### APL-MOB-001 Android lane — DONE
+### APL-MOB-001 — DONE
 
-- **MERGED / PHYSICAL** — PR #53 established the physically accepted 0.1.4 VpnService/TUN baseline with real HTTP/HTTPS CONNECT routing, public-IP change and lifecycle checks.
-- **MERGED / PHYSICAL** — PR #104 added 0.1.5 multiprofile migration/save/select/delete and passed its physical upgrade/two-profile selection gate.
-- The Android APL-MOB-001 dogfood prerequisite for APL-MOB-002 is therefore closed. Issue #50 may still carry broader cross-platform/mobile scope; do not reinterpret that as an unpassed Android baseline.
+- PR #53 established the physically accepted VpnService/TUN transport baseline.
+- PR #104 added the physically accepted multiprofile baseline.
 
-### APL-MOB-002 — IN PROGRESS / HUMAN GATE
+### APL-MOB-002 — DONE / PUBLIC ANDROID 0.1.17
 
-Draft PR: `#105`, branch `apl-mob-002-android-auto-switch`.
+- **MERGED / PHYSICAL** — PR #119 completed continuous Auto health/failover and physical-network handoff.
+- **PUBLIC** — `android-v0.1.17` is published from merge commit `8b07165a2f8404ed711399c6e65ec76a22b46a72`.
+- **PASS** — physical acceptance covers Wi-Fi → hotspot → Wi-Fi handoff and automatic proxy failover without manual OFF/ON.
+- **MIRRORED** — GitVerse parity is recorded by the completed release track.
 
-Already recorded as physically accepted in the PR:
-- connected manual A → B hot switch through app-managed disconnect/select/reconnect;
-- pool-level **Auto** selection distinct from per-profile protocol Auto;
-- bounded candidate probing and selection of a working saved proxy;
-- status naming the concrete Auto-selected profile/transport.
+### APL-MOB-003 — BLOCKED / HUMAN PHYSICAL ACCEPTANCE
 
-Current 0.1.7 physical gate before merge:
-1. install over the accepted previous build;
-2. verify the Auto screen hides host/port/login/password/protocol editor fields;
-3. verify New/named profiles still expose editing while disconnected;
-4. verify Arvectum header/status/card/power-button rendering and visible press feedback;
-5. verify the adaptive launcher icon is full-size and unclipped;
-6. rerun networking/hot-switch regression.
+Current PR: `#125`, Android dogfood `0.1.18`.
 
-Continuous background failover after an already-connected upstream later dies remains a later APL-MOB-002 slice.
+Repository/CI implementation is ready:
+- site/domain/URL/IP exclusions in the existing proxy popup;
+- no per-application chooser;
+- Android 13+ `excludeRoute`, Android 8–12 deterministic route complements;
+- physical-network DNS when exclusions are active;
+- controlled reconnect when saving while connected;
+- empty-list behavior preserves the accepted 0.1.17 full-tunnel baseline.
+
+Remaining physical gate:
+1. install the current 0.1.18 artifact;
+2. add a concrete IP-check site to exclusions and verify direct egress;
+3. verify a non-excluded site remains proxied;
+4. save exclusions while connected and verify reconnect applies them without a second VPN permission grant;
+5. clear exclusions and confirm the accepted full-tunnel baseline returns.
+
+Do not merge/release #125 as physically accepted until this evidence exists.
+
+### APL-MOB-004 — PLANNED / AFTER MOB-003
+
+Roadmap only; no ad SDK/private distribution implementation exists yet.
+
+- public channel: ads-enabled Android artifacts for GitHub, GitVerse, Arvectum site and RuStore;
+- initial target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation;
+- private channel: no-ads artifact from the same codebase, preferably via Gradle flavor/build configuration;
+- private artifact must live outside the public GitHub release surface; retain immutable private APKs/hashes plus a stable latest APK on the Mac mini;
+- before implementation, Owner must decide private package identity/update semantics so public/RuStore updates cannot unexpectedly replace the private build.
 
 ## P5 — IP / corporate rights boundary — DONE FOR CURRENT FILING EVIDENCE
 
@@ -96,9 +115,9 @@ The previously prepared R-1B two-party/future-rights agreement is **not required
 
 Issue: `#57`. Current record: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`.
 
-### AppImage next-release lane — OWNER DIRECTIVE / IMPLEMENTATION ACTIVE
+### AppImage lane — DONE / PUBLISHED IN v0.2.10
 
-The repository already contained APL-LNX-008 engineering and CI. The 2026-09-18 Owner directive promotes AppImage for the next product release without mutating v0.2.9. Release integration must reuse the exact-main AppImage artifact, include it in `SHA256SUMS.txt`, preserve the pinned type-2 runtime/source identity and package the runtime/third-party notices. DEB/RPM remain native preferred Linux packages.
+PR #111 promoted the governed APL-LNX-008 AppImage lane into the canonical release set, and public v0.2.10 includes the x86_64 AppImage plus checksum coverage. The pinned type-2 runtime/source identity and runtime/third-party notices remain part of the packaging contract. DEB/RPM remain native preferred Linux packages.
 
 ## P6 — Russian Software Register sovereign lifecycle — BLOCKED / PHYSICAL INFRASTRUCTURE
 
@@ -112,16 +131,20 @@ Do not claim GitVerse or another provider is compliant merely because it is Russ
 
 Issue: `#55`.
 
-## P7 — Windows public trust / APL-REL-016 — READY FOR OWNER REVIEW
+## P7 — Windows public trust / APL-REL-016 — READY FOR REVIEW REFRESH
 
 Issue: `#30`. Current review PR: `#103`.
 
-- **DONE / PREPARATION** — PR #103 supersedes stale PR #81 and refreshes the packet from v0.2.6 to immutable v0.2.9; the first eligible embedded-signing/public-trust version is 0.2.10+.
-- **DONE / FOCUSED VALIDATION** — PR records 19 public-trust/AuthentiCode-foundation tests and 29 release/evidence/repository tests passing; current head also reports the mirror check green.
-- **PRESERVED BOUNDARY** — SmartScreen/App Reputation, Smart App Control/Application Control, managed-enterprise trust and Russian detached CryptoPro/Rutoken release evidence remain distinct.
-- **OWNER GATE** — review/merge of the decision packet and any provider/certificate spend, key-custody commitment, production signing or release decision remain Owner-reserved.
+PR #103 contains the substantive APL-REL-016 packet and supersedes #81, but its version boundary is now stale because public `v0.2.10` has shipped without native Authenticode.
 
-Until Owner review, automation should maintain factual freshness only; it must not recreate the same decision packet or infer approval.
+Current action:
+1. reconcile PR #103 to immutable/current `v0.2.10`;
+2. change the first eligible future embedded-signing release from `0.2.10+` to `0.2.11+`;
+3. re-verify current SmartScreen/App Reputation, Smart App Control/Application Control and managed-enterprise trust requirements;
+4. keep Russian detached CryptoPro/Rutoken release evidence separate from Microsoft native publisher trust;
+5. stop at Owner review before provider/certificate purchase, key-custody commitment, production signing or release.
+
+Final provider/distribution/signing architecture remains an Owner gate.
 
 ## P8 — per-application routing — READY FOR OWNER DECISION
 
@@ -131,7 +154,7 @@ The packet recommends, but does not approve, an Arvectum-owned WFP ALE callout +
 
 Remaining gate:
 
-1. refresh assumptions against current `v0.2.9` ownership/recovery baseline if necessary;
+1. refresh assumptions against current `v0.2.10` ownership/recovery baseline if necessary;
 2. Owner/Product Owner selects or rejects the production architecture;
 3. only after approval implement the privileged enforcement slice;
 4. require real Windows host recovery/security acceptance;
@@ -139,13 +162,14 @@ Remaining gate:
 
 No developer/test-signing workaround is a production substitute.
 
-## P9 — macOS production distribution — DEFERRED
+## P9 — macOS production distribution — TEST LANE EXISTS / PRODUCTION DEFERRED
 
-APL-MAC engineering/acceptance baseline exists. Remaining production-specific work:
+APL-MAC engineering/acceptance baseline exists. Separate arm64 prerelease `v0.2.10-macos-test.1` has been published for dogfood with checksum/mirror evidence; this is not the stable production macOS channel.
 
-- Apple production identity signing/notarization;
+Remaining production-specific work:
+- Apple Developer ID production identity signing/notarization;
 - Apple-specific hardened build-input path where needed;
-- promoted distribution policy.
+- promoted stable distribution policy.
 
 This remains deferred under the Russia-first priority model.
 
@@ -189,9 +213,9 @@ Under the official baseline rechecked 2026-09-17, the two-trusted-OS condition f
 
 ## P11 — later mobile stages
 
-### APL-MOB-002 Android — ACTIVE
+### APL-MOB-004 Android monetization/distribution — PLANNED
 
-Current active implementation/physical gate is tracked in P4 / draft PR #105. After the current 0.1.7 UX/branding regression gate, continue only admitted APL-MOB-002 scope such as continuous failover/health behavior without degrading the simple one-button UX.
+Tracked after the current APL-MOB-003 physical gate. Implementation requires explicit Owner prioritization and package/update-identity decision; no ad SDK or private release infrastructure has been added yet.
 
 ### iOS — DEFERRED
 
@@ -205,6 +229,10 @@ After Android product semantics are stable and the Apple entitlement/distributio
 
 - PR #80 — release-evidence workflow maintenance; reconcile with current `main` before merge.
 - PR #81 — superseded APL-REL-016 v0.2.6-era review branch; current trust packet is PR #103.
+- PR #113 — redundant AppImage closeout branch overtaken by merged PR #112.
+- PR #117 — redundant Android 0.1.13 closeout overtaken by merged PR #118.
+- PR #120 — superseded continuous-failover development branch overtaken by merged PR #119.
+- PR #124 — stale APL-MOB-002 closeout branch; canonical active Android task is APL-MOB-003 / PR #125.
 - PRs #90/#91/#92 — superseded Windows rollback implementations; merged PR #93/#94 and public `v0.2.9` are authoritative.
 - PRs #70/#74/#82 — superseded RED OS preparation paths; merged PR #83 is authoritative.
 
@@ -212,16 +240,19 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 ## Current execution view
 
-- **DONE:** APL-MOB-001 Android dogfood baseline (#53/#104).
-- **HUMAN IN PROGRESS:** APL-MOB-002 0.1.7 physical UX/branding/network-regression gate (#105).
+- **DESKTOP STABLE:** v0.2.10 is public with Windows Setup/portable, Astra DEB, RED OS RPM and Linux AppImage.
+- **DONE:** APL-MOB-001 and APL-MOB-002; public Android baseline is 0.1.17.
+- **HUMAN BLOCKED / CURRENT:** APL-MOB-003 site exclusions, PR #125 / 0.1.18 physical acceptance.
+- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after MOB-003.
 - **DONE FOR CURRENT FILING EVIDENCE:** APL-IP-001 v0.2.9 provenance/right-chain packet; optional legal hardening remains non-blocking.
-- **OWNER REVIEW:** APL-REL-016 current v0.2.9 trust packet (#103); PR #81 is superseded.
+- **REVIEW PREP READY:** APL-REL-016 PR #103 must be refreshed to current v0.2.10 / first eligible v0.2.11+.
 - **HUMAN BLOCKED:** sovereign lifecycle physical proof (#55).
-- **OWNER READY / SAFE PREP AVAILABLE:** per-app routing architecture decision (#68); automation may refresh the decision material against v0.2.9 but must not choose the architecture.
+- **OWNER READY:** per-app routing architecture decision (#68); refresh against v0.2.10 if needed, but do not choose the architecture automatically.
 - **HUMAN HOLD:** registry private evidence + external submission.
-- **DEFERRED:** macOS production distribution and iOS.
+- **MAC:** test prerelease exists; production Apple signing/notarization remains deferred.
+- **DEFERRED:** iOS.
 
-The hourly watchdog should not recreate completed APL-REL-016 preparation. With the higher-priority mobile/registry tracks human-gated, the next useful safe repository-preparation lane is refreshing PR #68 against the current v0.2.9 ownership/recovery baseline, stopping at the Owner architecture gate.
+With APL-MOB-003 waiting on physical Android evidence, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
 
 ## Completion discipline
 
