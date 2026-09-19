@@ -1,0 +1,16 @@
+version: 1
+task_id: APL-MOB-002-CONTINUOUS-FAILOVER
+status: in_progress
+issue: 51
+branch: agent/apl-mob-002-continuous-failover
+base_commit: b21359501e34a40ebdfe11638047ab8469eca281
+last_verified_commit: b21359501e34a40ebdfe11638047ab8469eca281
+evidence:
+  - "Canonical queue order 100 leaves later APL-MOB-002 continuous background health/failover scope ready after completed Android 0.1.13 slice."
+  - "Issue #51 remains open and acceptance requires automatic reserve transition, anti-flapping, no-working-proxy clarity, sleep/wake and network-transition behavior, and credential-safe health/logging."
+  - "ProxyVpnService already performs bounded connect-time Auto selection using ProxyProtocolProbe and lastAutoProfileId; onEngineExit currently publishes error/disconnected and terminates the VPN process, so connected-session failover is not yet implemented."
+verified_stages:
+  - "0.1.13 physical acceptance/release/branding/hot-switch/connect-time Auto are historical completed evidence and must not be repeated."
+  - "No iOS work is included in this slice."
+tests: []
+next_instruction: "Inventory Android tests and SecureProfileStore APIs, then implement a deterministic unit-testable failover policy before modifying ProxyVpnService lifecycle. Preserve credential boundaries and one-button UX."
