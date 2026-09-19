@@ -52,7 +52,7 @@ Astra acceptance remains a trusted-OS compatibility evidence record; an exact-`v
 
 Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and are not active roadmap tracks.
 
-## P4 — Android mobile track — MOB-001/MOB-002 DONE, MOB-003 HUMAN GATE, MOB-004 PLANNED
+## P4 — Android mobile track — MOB-001/MOB-002/MOB-003 DONE, MOB-004 PLANNED
 
 ### APL-MOB-001 — DONE
 
@@ -66,30 +66,22 @@ Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and
 - **PASS** — physical acceptance covers Wi-Fi → hotspot → Wi-Fi handoff and automatic proxy failover without manual OFF/ON.
 - **MIRRORED** — GitVerse parity is recorded by the completed release track.
 
-### APL-MOB-003 — BLOCKED / HUMAN PHYSICAL ACCEPTANCE
+### APL-MOB-003 — DONE / PHYSICAL PASS, PR #125 OPEN
 
-Current PR: `#125`, Android dogfood `0.1.18`.
+Current candidate: Android dogfood `0.1.19`, PR `#125`.
 
-Repository/CI implementation is ready:
-- site/domain/URL/IP exclusions in the existing proxy popup;
-- no per-application chooser;
-- Android 13+ `excludeRoute`, Android 8–12 deterministic route complements;
-- physical-network DNS when exclusions are active;
-- controlled reconnect when saving while connected;
-- empty-list behavior preserves the accepted 0.1.17 full-tunnel baseline.
+Completed evidence:
+- site/domain/URL/IP exclusions are implemented in the existing proxy popup; no per-application chooser was added;
+- Owner reported the myip.com exclusion working on device;
+- clarified explicit input + **Add** button + per-entry row/remove UX was accepted;
+- Android CI run `35435184809` succeeded after the compile fix and mobile-branch workflow trigger update;
+- accepted 0.1.19 APK SHA-256: `c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71`.
 
-Remaining physical gate:
-1. install the current 0.1.18 artifact;
-2. add a concrete IP-check site to exclusions and verify direct egress;
-3. verify a non-excluded site remains proxied;
-4. save exclusions while connected and verify reconnect applies them without a second VPN permission grant;
-5. clear exclusions and confirm the accepted full-tunnel baseline returns.
+The implementation/physical task is complete. PR #125 remains open; merge and any public Android release are separate explicit decisions. Do not represent the 0.1.19 candidate as public until those actions occur.
 
-Do not merge/release #125 as physically accepted until this evidence exists.
+### APL-MOB-004 — PLANNED / AFTER MOB-003 INTEGRATION + OWNER PRIORITY
 
-### APL-MOB-004 — PLANNED / AFTER MOB-003
-
-Roadmap only; no ad SDK/private distribution implementation exists yet.
+Roadmap only; no ad SDK/private distribution implementation exists yet. MOB-003 physical acceptance is complete, but implementation should start only after PR #125 is integrated into main and the Owner explicitly prioritizes the monetization/package-update design.
 
 - public channel: ads-enabled Android artifacts for GitHub, GitVerse, Arvectum site and RuStore;
 - initial target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation;
@@ -242,8 +234,8 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 - **DESKTOP STABLE:** v0.2.10 is public with Windows Setup/portable, Astra DEB, RED OS RPM and Linux AppImage.
 - **DONE:** APL-MOB-001 and APL-MOB-002; public Android baseline is 0.1.17.
-- **HUMAN BLOCKED / CURRENT:** APL-MOB-003 site exclusions, PR #125 / 0.1.18 physical acceptance.
-- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after MOB-003.
+- **DONE / PR OPEN:** APL-MOB-003 site exclusions physically accepted on Android 0.1.19; PR #125 awaits explicit merge/release decision.
+- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after #125 integration + explicit Owner priority.
 - **DONE FOR CURRENT FILING EVIDENCE:** APL-IP-001 v0.2.9 provenance/right-chain packet; optional legal hardening remains non-blocking.
 - **REVIEW PREP READY:** APL-REL-016 PR #103 must be refreshed to current v0.2.10 / first eligible v0.2.11+.
 - **HUMAN BLOCKED:** sovereign lifecycle physical proof (#55).
@@ -252,7 +244,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **MAC:** test prerelease exists; production Apple signing/notarization remains deferred.
 - **DEFERRED:** iOS.
 
-With APL-MOB-003 waiting on physical Android evidence, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
+With APL-MOB-003 physical work complete and #125 merge/release held for explicit action, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
 
 ## Completion discipline
 
