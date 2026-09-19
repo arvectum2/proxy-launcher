@@ -1,7 +1,7 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
@@ -41,8 +41,13 @@ test_results:
   - 0.1.16 network-migration repair committed as 7dfa8f40dd4aacfdd26a9adf1fd07c30f9a4abfd and synced with current main in exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e.
   - Android workflow 35425798518 and all observed repository workflows on 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e PASS.
   - 0.1.16 APK SHA-256 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; issue #51 comment 5739853051 records the evidence.
+  - HUMAN 0.1.16 Wi-Fi -> hotspot retest FAILED: traffic stops while UI remains Подключено, no смена сети Journal event appears, and manual OFF -> ON recovers immediately.
+  - Implemented 0.1.17 INTERNET+NOT_VPN physical-network observation and reconciliation.
+  - On actual carrier identity change, record смена сети and sticky-restart only :vpn so fresh tun2proxy sockets use the replacement network; do not mark proxy failed or advance failover cooldown.
+  - Removed 0.1.16 process-binding strategy; preserved 0.1.15 UI fixes and normal Auto proxy-failure failover; versionCode 18.
+  - git diff --check PASS and old registerDefaultNetworkCallback/bindProcessToNetwork calls are absent.
 pending:
-  - HUMAN recheck: connected + Новый saves without changing live tunnel; Журнал visible and records смена сети.
-  - HUMAN network transition: Wi-Fi A -> hotspot B -> Wi-Fi A while VPN stays enabled; connectivity recovers without manual OFF/ON, repeated VPN permission, or flapping.
+  - Commit/push 0.1.17, validate exact-head CI, issue APK.
+  - HUMAN Wi-Fi -> hotspot -> Wi-Fi retest without manual OFF/ON.
   - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Wait for HUMAN physical 0.1.16 recheck. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect.
+resume_instruction: Commit/push implemented 0.1.17, validate exact-head CI, issue APK, then wait for HUMAN physical network-transition retest.

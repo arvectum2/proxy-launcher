@@ -269,3 +269,15 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Manual-profile VPN sessions also register the default-network callback so the migration behavior is not limited to pool Auto.
 - Auto health checks keep the existing settle grace after a real network identity transition before counting failures.
 - Android version is `0.1.16` / versionCode 17 for an in-place update over 0.1.15 and earlier stable-signed dogfood builds.
+
+## 0.1.17 physical-network handoff fix
+
+0.1.17 replaces the 0.1.16 default-network-only callback after physical testing on a Realme/Oppo device showed that Wi-Fi → hotspot was not reported there: traffic stopped, UI stayed Connected, and no network-change Journal event was emitted.
+
+- Network observation now subscribes to all physical `INTERNET + NOT_VPN` networks instead of relying only on `registerDefaultNetworkCallback`.
+- The service reconciles the app-visible active physical network first, then validated non-VPN candidates, while avoiding a switch just because multiple physical networks coexist.
+- When the physical carrier identity actually changes, the app records credential-free `смена сети`, reports a reconnecting state, closes the old TUN/native engine, and sticky-restarts only the isolated `:vpn` process.
+- Network handoff does **not** mark the proxy unavailable, does not set `recentlyFailed`, and does not advance the proxy failover cooldown. It is transport recovery, not proxy failover.
+- The fresh `:vpn` process runs normal preflight and recreates tun2proxy sockets on the replacement Wi-Fi/hotspot/cellular carrier while reusing the already-granted Android VPN permission.
+- Existing Auto proxy-failure failover, anti-flapping, connected `+ Новый`, and `Журнал` behavior remain unchanged.
+- Android version is `0.1.17` / versionCode 18.
