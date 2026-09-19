@@ -242,6 +242,23 @@ class WindowsDiagnosticsTests(unittest.TestCase):
         self.assertTrue(result["listening"])
         sock.connect_ex.assert_called_once_with(("127.0.0.1", 8080))
 
+    def test_macos_listener_probe_reports_owner_process(self):
+        sock = Mock()
+        sock.connect_ex.return_value = 0
+        completed = Mock(
+            returncode=0,
+            stdout="p1139\ncPython\n",
+            stderr="",
+        )
+        with patch.object(diag.socket, "socket", return_value=sock), \
+             patch.object(diag.sys, "platform", "darwin"), \
+             patch.object(diag.os.path, "isfile", return_value=True), \
+             patch.object(diag.subprocess, "run", return_value=completed) as run:
+            result = diag._probe_listener(8080)
+        self.assertTrue(result["listening"])
+        self.assertEqual(result["owners"], [{"pid": 1139, "command": "Python"}])
+        self.assertIn("-iTCP:8080", run.call_args.args[0])
+
     def test_crash_recovery_state_is_collectible_without_engine_running(self):
         with tempfile.TemporaryDirectory() as td:
             fake = self._fake(td)

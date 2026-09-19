@@ -15,6 +15,55 @@ class _BoolVar:
         self.value = value
 
 
+class _Entry:
+    def __init__(self, value=""):
+        self.value = str(value)
+
+    def get(self):
+        return self.value
+
+    def delete(self, *_args):
+        self.value = ""
+
+    def insert(self, _index, value):
+        self.value = str(value)
+
+
+class SettingsLocalPortsTests(unittest.TestCase):
+    def dialog(self, http=8080, socks=1080, pac=8082):
+        dlg = gui.SettingsDialog.__new__(gui.SettingsDialog)
+        dlg._local_port_fields = {
+            "local_http_port": _Entry(http),
+            "local_socks_port": _Entry(socks),
+            "local_pac_port": _Entry(pac),
+        }
+        return dlg
+
+    def test_local_ports_accept_three_distinct_valid_values(self):
+        values, error = self.dialog(18080, 11080, 18082)._local_ports_values()
+        self.assertEqual(error, "")
+        self.assertEqual(values, {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        })
+
+    def test_local_ports_reject_collision_and_invalid_values(self):
+        values, error = self.dialog(8080, 8080, 8082)._local_ports_values()
+        self.assertIsNone(values)
+        self.assertIn("три разных", error)
+        values, error = self.dialog("bad", 1080, 8082)._local_ports_values()
+        self.assertIsNone(values)
+        self.assertIn("1 до 65535", error)
+
+    def test_macos_recommended_ports_can_be_applied_without_network_change(self):
+        dlg = self.dialog()
+        dlg._set_recommended_local_ports()
+        self.assertEqual(dlg._local_port_fields["local_http_port"].get(), "18080")
+        self.assertEqual(dlg._local_port_fields["local_socks_port"].get(), "11080")
+        self.assertEqual(dlg._local_port_fields["local_pac_port"].get(), "18082")
+
+
 class AutostartOwnershipTests(unittest.TestCase):
     def test_portable_fallback_detects_noncanonical_frozen_executable(self):
         with mock.patch.object(gui.os, "name", "nt"), \

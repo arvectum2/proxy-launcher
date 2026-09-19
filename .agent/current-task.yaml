@@ -1,38 +1,54 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-POST-MOB003-20260919
-status: completed
-goal: "Reconcile canonical roadmap/executor metadata after APL-MOB-003 integration and APL-REL-016 v0.2.10 refresh preparation."
-authority: REVIEW
+task_id: APL-MAC-DIAGNOSTICS-20260919
+status: in_progress
+goal: "Fix macOS diagnostics so Windows-only checks do not fail and listener conflicts are reported against the actual Arvectum local ports/process ownership."
+authority: HUMAN
 definition_of_done:
-  - "APL-MOB-003 is recorded DONE and integrated via PR #130 / main."
-  - "APL-MOB-004 no longer depends on an open MOB-003 integration PR; it remains Owner-gated and unimplemented."
-  - "APL-REL-016 points to current PR #132, records green exact-head preparation and stops at Owner review."
-  - "Superseded PR #103/#125 are classified as historical/superseded rather than active."
-  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
-  - "Required exact-head CI passes before metadata merge."
+  - "platform.windows is not a FAIL on macOS; platform-specific diagnostics are skipped/not-applicable correctly."
+  - "listeners.health on macOS checks the configured Arvectum local ports and distinguishes owned Launcher listeners from unrelated processes."
+  - "Diagnostic UX gives actionable macOS-specific text without English-only Windows guidance."
+  - "Regression tests cover macOS platform and listener scenarios on both macOS and cross-platform CI."
+  - "Fresh macOS app build passes and installed test build reproduces correct diagnostics without changing network state."
+  - "Fix is merged through CI and a new macOS test distribution is published if the user-facing binary changes."
 completed:
-  - "Verified APL-MOB-003 physical/UX acceptance and merged integration PR #130 at c645825ec8b3fd142e0b6b7eca3c1fc8f6261550."
-  - "Updated .agent/execution-queue.yaml: MOB-003 integrated, MOB-004 Owner-gated, REL-016 current PR #132/Owner review, next safe prep #68."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
-  - "Verified PR #132 exact head 0830e2a3c7157f802052ccc2ed8330639264b9b7 with all observed checks SUCCESS; left it open at the REVIEW/Owner gate."
-  - "PR #133 exact head 925a0c6c97c43b365fd6930fe1c3a9eac19fd379: 13/13 reported checks SUCCESS, including required build and full Windows installer E2E."
-  - "PR #133 merged to main as c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c."
-current: "Roadmap synchronization complete. Canonical next state: APL-REL-016 waits on Owner review in PR #132; APL-MOB-004 waits on explicit Owner priority/package identity; next safe autonomous preparation lane is per-app routing PR #68 against v0.2.10."
-pending: []
-last_verified_commit: "c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c"
-merged_commit: "c5d0a4e2fedfeec27cbd1453c0094c1e35dcb72c"
+  - "Observed user screenshot: FAIL platform.windows + WARN listeners.health on macOS 0.2.10."
+  - "Preserved active iOS work separately; desktop diagnostics worktree created from current origin/main."
+  - "Root cause confirmed: Doctor unconditionally evaluated platform.windows even on Darwin."
+  - "Fixed supported platform evaluation: Windows/macOS/Linux each receive a platform-specific PASS; unknown desktop platforms fail."
+  - "General engine/PAC diagnostics wording made platform-neutral."
+  - "macOS listener probing now performs best-effort read-only lsof owner lookup and reports occupied port, process and PID."
+  - "macOS listeners.health warning now gives Russian actionable guidance and recommends 18080/11080/18082 as an example."
+  - "Proxy settings UI now exposes validated local HTTP/SOCKS5/PAC ports and a macOS one-click recommended-port preset."
+  - "Doctor modal now displays each failing/warning check summary, not only the check id."
+  - "Real Mac read-only validation: current 18080/11080/18082 configuration yields PASS 11/WARN 0/FAIL 0."
+  - "Real Mac simulated legacy 8080/1080/8082 conflict yields PASS 10/WARN 1/FAIL 0 and correctly identifies Python PID 1139 on all three ports."
+  - "Aqua Settings render probe passed at 719x657 with local-port controls and recommended-port preset."
+  - "Targeted doctor/windows-diagnostics/proxy-gui/macOS visual tests passed 49/49."
+  - "Full repository regression passed 879/879; git diff --check passed."
+  - "Implementation commit 04a60d1afeadf2590458b5bdd3fc544a403a880d built as native arm64 macOS app version 0.2.10; strict deep codesign PASS."
+  - "Packaged --doctor-json from the installed app returned PASS 11/WARN 0/FAIL 0 with platform.macos PASS."
+  - "Installed fixed app executable SHA256 b38ccebac981bf20d9828a0771f78a2a206739fcdc104b76a12dce0919f417f2."
+  - "Installed GUI is alive; Launcher remains STOPPED; recovery state is clear; baseline tunnel/PAC 8082 remained unchanged."
+  - "One intermediate PID assertion used an over-escaped pgrep pattern; direct process inspection confirmed GUI PID 11947 and no product/network failure."
+current: "Exact implementation is built and installed safely with packaged Doctor PASS. Open PR, merge after green CI, then publish macOS test build 2."
+pending:
+  - "Build/install fresh macOS app safely and verify diagnostics."
+  - "Merge via PR after exact-head CI and publish replacement macOS test prerelease under v0.2.10-macos-test.2."
+last_verified_commit: "04a60d1afeadf2590458b5bdd3fc544a403a880d"
 test_results:
-  - "PR #133 exact head 925a0c6c97c43b365fd6930fe1c3a9eac19fd379: 13/13 reported checks SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "SAST, dependency audit, secret scan, SBOM, provenance, clean-IP gates, sovereign lifecycle, Windows signing checks and mirror: SUCCESS."
-resume_instruction: "No continuation is required for this roadmap-sync task. On the next watchdog run, read the canonical queue from main. Do not merge REVIEW PR #132 or begin APL-MOB-004 without the Owner gate. The next safe independent preparation lane is per-app routing PR #68 against v0.2.10, stopping before architecture selection."
-updated_at: "2026-09-19T13:02:00+03:00"
+  - "Targeted doctor/windows-diagnostics/proxy-gui/macOS visual suite: 49/49 PASS."
+  - "Real macOS Doctor current-port scenario: PASS 11/WARN 0/FAIL 0."
+  - "Real macOS legacy-port conflict simulation: PASS 10/WARN 1/FAIL 0 with lsof owner attribution."
+  - "Aqua Settings render probe: PASS."
+  - "Full repository regression: 879/879 PASS."
+  - "Exact packaged macOS Doctor: PASS 11/WARN 0/FAIL 0; platform.macos PASS."
+  - "Post-install network safety/codesign/GUI launch: PASS."
+resume_instruction: "Open PR fix/macos-diagnostics-20260919 -> main. Wait for exact-head CI and merge only when green/allowed. Build DMG from the merged exact commit, publish separate non-notarized v0.2.10-macos-test.2 on GitHub, verify public download, wait for GitVerse mirror parity, then mark checkpoint completed."
+updated_at: "2026-09-19T17:36:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
-  lease_until: null
-  manual_override: false
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-DIAGNOSTICS-20260919"
+  branch: "fix/macos-diagnostics-20260919"
+  base_commit: "952438b23c875b875dd39acfc3da384622e9e8d8"
+  manual_override: true

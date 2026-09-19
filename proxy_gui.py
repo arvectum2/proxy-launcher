@@ -497,8 +497,57 @@ class SettingsDialog(tk.Toplevel):
             self._fields[key] = e
             _bind_clipboard_paste(e)
 
+        ttk.Separator(frm, orient="horizontal").grid(
+            row=7, column=0, columnspan=4, sticky="ew", pady=(14, 10))
+
+        local_head = tk.Frame(frm, bg=_window_bg())
+        local_head.grid(row=8, column=0, columnspan=4, sticky="ew")
+        tk.Label(
+            local_head,
+            text="Локальные порты приложения",
+            bg=_window_bg(), fg=_text_color(), font=B["font_bold"],
+        ).pack(side="left")
+        if _is_macos():
+            ttk.Button(
+                local_head,
+                text="Рекомендуемые 18080 / 11080 / 18082",
+                style=_button_style(compact=True),
+                command=self._set_recommended_local_ports,
+            ).pack(side="right")
+
+        ports = tk.Frame(frm, bg=_window_bg())
+        ports.grid(row=9, column=0, columnspan=4, sticky="w", pady=(8, 0))
+        self._local_port_fields = {}
+        for col, (label, key) in enumerate((
+                ("HTTP", "local_http_port"),
+                ("SOCKS5", "local_socks_port"),
+                ("PAC", "local_pac_port"))):
+            tk.Label(
+                ports, text=label, bg=_window_bg(), fg=_secondary_text_color(),
+                font=B["font_small"],
+            ).grid(row=0, column=col * 2, sticky="e", padx=(0 if col == 0 else 12, 5))
+            if _is_macos():
+                entry = ttk.Entry(ports, width=7, font=B["font_mono"])
+            else:
+                entry = tk.Entry(
+                    ports, width=7, bg=WHITE, fg=NAVY, relief="solid", bd=1,
+                    insertbackground=GRAPHITE, font=B["font_mono"])
+            entry.grid(row=0, column=col * 2 + 1, sticky="w")
+            entry.insert(0, str(self.settings.get(key) or {
+                "local_http_port": 8080,
+                "local_socks_port": 1080,
+                "local_pac_port": 8082,
+            }[key]))
+            self._local_port_fields[key] = entry
+
+        tk.Label(
+            frm,
+            text="Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.",
+            bg=_window_bg(), fg=_secondary_text_color(), font=B["font_small"],
+        ).grid(row=10, column=0, columnspan=4, sticky="w", pady=(5, 0))
+
         foot = tk.Frame(frm, bg=_window_bg())
-        foot.grid(row=9, column=0, columnspan=4, sticky="e", pady=(10, 0))
+        foot.grid(row=11, column=0, columnspan=4, sticky="e", pady=(12, 0))
         ttk.Button(
             foot, text="Сохранить", style=_button_style(primary=True), command=self._ok
         ).grid(row=0, column=0, padx=4)
@@ -582,6 +631,32 @@ class SettingsDialog(tk.Toplevel):
             ups.pop(idx)
         self._refresh_list()
 
+    def _set_recommended_local_ports(self):
+        values = {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        }
+        for key, value in values.items():
+            entry = self._local_port_fields[key]
+            entry.delete(0, tk.END)
+            entry.insert(0, str(value))
+
+    def _local_ports_values(self):
+        values = {}
+        for key in ("local_http_port", "local_socks_port", "local_pac_port"):
+            raw = self._local_port_fields[key].get().strip()
+            try:
+                value = int(raw)
+            except (TypeError, ValueError):
+                value = None
+            if value is None or not (1 <= value <= 65535):
+                return None, "Локальные порты должны быть числами от 1 до 65535."
+            values[key] = value
+        if len(set(values.values())) != 3:
+            return None, "HTTP, SOCKS5 и PAC должны использовать три разных локальных порта."
+        return values, ""
+
     def _ok(self):
         ups = self.settings.setdefault("upstream", [])
 
@@ -599,7 +674,13 @@ class SettingsDialog(tk.Toplevel):
                 ups.append(v)
             else:
                 ups[empty_idx] = v
+        local_ports, port_error = self._local_ports_values()
+        if local_ports is None:
+            messagebox.showwarning("Настройки", port_error, parent=self)
+            return
+
         self.settings["upstream"] = [u for u in ups if u.get("host")]
+        self.settings.update(local_ports)
         self.result = self.settings
         self.destroy()
 
@@ -1510,7 +1591,12 @@ class Launcher:
                 lines.append("")
                 lines.append("Проверки, требующие внимания:")
                 for item in problem_checks[:8]:
-                    lines.append("[%s] %s" % (item.get("status"), item.get("id")))
+                    summary = str(item.get("summary") or "").strip()
+                    if summary:
+                        lines.append("[%s] %s — %s" % (
+                            item.get("status"), item.get("id"), summary))
+                    else:
+                        lines.append("[%s] %s" % (item.get("status"), item.get("id")))
             actions = report.get("recommended_actions") or []
             if actions:
                 lines.append("")
