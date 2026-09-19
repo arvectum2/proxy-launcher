@@ -16,6 +16,7 @@ verified_stages:
   - "0.1.13 physical acceptance/release/branding/hot-switch/connect-time Auto are historical completed evidence and must not be repeated."
   - "No iOS work is included in this slice."
   - "Policy implementation is isolated from credentials, Android lifecycle and network I/O."
+  - "Added optional protected-socket seam to ProxyProtocolProbe so connected-session health checks can call VpnService.protect before connect and avoid recursively routing monitor traffic through the tunnel."
 tests:
-  - "PENDING: :app:testDebugUnitTest --tests ru.arvectum.proxylauncher.tunnel.FailoverPolicyTest"
-next_instruction: "Run FailoverPolicy JVM tests first. If green, add credential-safe health/event store APIs and a VpnService.protect-compatible probe socket seam before wiring active-session failover."
+  - "LOCAL BLOCKER: repository has no Gradle wrapper and Mac host has no gradle executable; exact Android CI will validate the JVM policy test and protected-probe compile."
+next_instruction: "CI-validate FailoverPolicy plus protected-probe compilation, then add credential-safe health/event store APIs and wire active-session monitoring/failover without changing manual mode."

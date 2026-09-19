@@ -1,43 +1,22 @@
-version: 2
-repository: arvectum2/proxy-launcher
+version: 1
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER
 status: in_progress
-goal: "Complete the remaining admitted Android APL-MOB-002 continuous background health/failover slice after the physically accepted and released 0.1.13 baseline, without conflating iOS or release publication."
-authority: REVIEW
-definition_of_done:
-  - "Preserve the physically accepted Android 0.1.13 baseline and simple one-button UX."
-  - "Health-check saved proxies with bounded timeouts and credential-safe status/latency reporting."
-  - "When Auto mode is connected and the active upstream is confirmed unavailable, automatically switch to a working saved reserve without another VPN permission prompt."
-  - "Protect against flapping with deterministic debounce/cooldown/hysteresis behavior."
-  - "Define and implement deterministic behavior when a preferred/primary proxy recovers."
-  - "Record a minimal credential-free event history for unavailable/switched/restored transitions."
-  - "Handle no-working-proxy state fail-closed with an unambiguous user-visible status."
-  - "Cover sleep/wake and network-transition restart/revalidation semantics without destructive device actions."
-  - "Focused Android tests and exact-head CI pass; implementation is review-ready."
-  - "Stop before physical-device acceptance, release publication, or any REVIEW/HUMAN final gate."
-completed:
-  - "Reconciled canonical queue/current task: Android 0.1.13 slice is completed; issue #51 remains open specifically for continuous failover."
-  - "Created isolated branch agent/apl-mob-002-continuous-failover from canonical main b21359501e34a40ebdfe11638047ab8469eca281."
-  - "Inspected current ProxyVpnService: connect-time Auto probing and last-success preference already exist; engine exit currently terminates the VPN process instead of attempting failover."
-  - "Inventoried SecureProfileStore: saved-profile metadata, encrypted credentials, pool Auto flag and last successful Auto profile are reusable; no credential-safe health/event persistence exists yet."
-  - "Android module had no local JVM test source/dependency; added JUnit 4.13.2 only for deterministic pure-policy tests."
-  - "Added pure FailoverPolicy with consecutive-failure debounce, switch cooldown, explicit STAY_ON_CURRENT vs RETURN_TO_PREFERRED recovery semantics, and state reset/recordSwitch hooks."
-  - "Added six deterministic policy tests covering transient failure, confirmed active failure, cooldown, inactive-profile failure, stay-current recovery and stable return-to-preferred recovery."
-current: "Policy layer is implemented but not yet wired to Android service/store lifecycle. Validate it, then add credential-safe health/event state and service wiring."
-pending:
-  - "Run focused JVM policy tests and inspect exact failure output before service wiring."
-  - "Add credential-safe health/latency/event persistence with bounded history."
-  - "Make connected-session health probes bypass the VPN safely via VpnService.protect; do not route monitor probes into the tunnel."
-  - "Wire Auto connected-session confirmed unavailability to bounded reserve selection without a new VPN permission prompt."
-  - "Add no-working-proxy, recovery and network-transition regressions."
-  - "Run focused Android tests and exact-head CI; open REVIEW-ready PR and stop before physical/release gates."
+issue: 51
+branch: agent/apl-mob-002-continuous-failover
+base_commit: b21359501e34a40ebdfe11638047ab8469eca281
 last_verified_commit: 769f47387fb8941f069dfe5dfd493d03b67f8f36
-resume_instruction: "Run the new FailoverPolicy JVM tests first. If green, preserve the pure policy and next add credential-safe health/event store APIs plus a protected-socket probe seam before touching active-session failover. Do not repeat 0.1.13 UI/branding/hot-switch work."
-execution:
-  claimed_by: proxy-launcher-watchdog
-  execution_id: apl-mob-002-continuous-failover-20260919T0302+0300
-  branch: agent/apl-mob-002-continuous-failover
-  base_commit: b21359501e34a40ebdfe11638047ab8469eca281
-  issue: 51
-  manual_override: false
-  lease_until: '2026-09-19T06:52:00+03:00'
+evidence:
+  - "Canonical queue leaves later APL-MOB-002 continuous background health/failover scope ready after completed Android 0.1.13 slice."
+  - "Issue #51 remains open and acceptance requires automatic reserve transition, anti-flapping, no-working-proxy clarity, sleep/wake and network-transition behavior, and credential-safe health/logging."
+  - "ProxyVpnService already performs bounded connect-time Auto selection using ProxyProtocolProbe and lastAutoProfileId; onEngineExit currently terminates the VPN process instead of attempting failover."
+  - "SecureProfileStore already provides encrypted per-profile credential loading, pool Auto state and last-success Auto profile; it does not yet persist health/latency or event history."
+  - "FailoverPolicy added as a pure deterministic component: two-failure debounce by default, 30s switch cooldown, explicit recovery mode and three-success preferred recovery threshold."
+  - "Six JVM policy tests added; Android module now declares JUnit 4.13.2 for local unit tests. Tests are not yet executed in this checkpoint."
+verified_stages:
+  - "0.1.13 physical acceptance/release/branding/hot-switch/connect-time Auto are historical completed evidence and must not be repeated."
+  - "No iOS work is included in this slice."
+  - "Policy implementation is isolated from credentials, Android lifecycle and network I/O."
+  - "Added optional protected-socket seam to ProxyProtocolProbe so connected-session health checks can call VpnService.protect before connect and avoid recursively routing monitor traffic through the tunnel."
+tests:
+  - "LOCAL BLOCKER: repository has no Gradle wrapper and Mac host has no gradle executable; exact Android CI will validate the JVM policy test and protected-probe compile."
+next_instruction: "CI-validate FailoverPolicy plus protected-probe compilation, then add credential-safe health/event store APIs and wire active-session monitoring/failover without changing manual mode."
