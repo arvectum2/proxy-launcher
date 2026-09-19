@@ -19,9 +19,9 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "PR #135 is open and exact-head Mobile iOS personal CI is green. Apple Developer Terms are accepted. The prior xcodes cache was diagnosed as an 81 KB Unauthorized HTML response masquerading as Xcode.xip; it was removed, aria2 was installed, and a clean non-experimental xcodes install command is prepared in the visible Terminal."
+current: "Xcode 26.6 (17F113) is installed at /Applications/Xcode-26.6.0.app and the iOS worktree is restored. Local validation is blocked only by the unaccepted Xcode/Apple SDK license."
 pending:
-  - "Run the prepared clean xcodes install for Xcode 26.6 in the visible Terminal, complete Apple ID/2FA if prompted, then run local Xcode validation."
+  - "Owner must accept the Xcode/Apple SDK license once, then run local Xcode validation."
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
 last_verified_commit: "3e7aaac9aea7899ca6dac38833a3d61dc8b4820c"
 test_results:
@@ -34,9 +34,9 @@ test_results:
   - "PASS: swiftc -parse for every tracked iOS Swift source"
   - "EXPECTED LOCAL INFRA FAILURE: swift test reached the test target but Command Line Tools do not include the XCTest framework; full Xcode is absent."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Owner must run the prepared clean xcodes command once in visible Terminal and complete Apple ID/2FA if prompted. Local signing still has 0 valid identities and Packet Tunnel signing requires an eligible Apple Developer team."
-resume_instruction: "Continue on feat/ios-personal-0.1.19 after Owner runs /opt/homebrew/bin/xcodes install 26.6 --no-superuser --select in visible Terminal and completes Apple ID/2FA if prompted. Verify a real multi-GB Xcode download and /Applications/Xcode.app, run local XcodeGen/core tests/unsigned iPhone build, then proceed to the physical iPhone signing/install/acceptance gate. Do not start per-app routing or public distribution."
-updated_at: "2026-09-19T18:14:00+03:00"
+blocker: "Owner must accept the Xcode/Apple SDK license with sudo once. Local signing still has 0 valid identities and Packet Tunnel signing requires an eligible Apple Developer team."
+resume_instruction: "After Owner accepts the Xcode/Apple SDK license, validate /Applications/Xcode-26.6.0.app directly via DEVELOPER_DIR, run XcodeGen/core tests/unsigned iPhone build in the dedicated iOS worktree, then proceed to the physical iPhone signing/install/acceptance gate. Do not start per-app routing or public distribution."
+updated_at: "2026-09-19T19:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
