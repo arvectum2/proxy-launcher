@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.ConnectivityManager
+import android.net.IpPrefix
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
@@ -18,11 +19,13 @@ import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.os.SystemClock
+import java.net.InetAddress
 import ru.arvectum.proxylauncher.MainActivity
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.ResolvedProxyProfile
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
 
@@ -97,7 +100,7 @@ class ProxyVpnService : VpnService() {
         publishState(STATE_CONNECTING, "Проверяем прокси…")
 
         val thread = Thread({
-            val prepared = try {
+            val proxyPrepared = try {
                 resolveProxySelection(generation)
             } catch (e: ProxyProbeException) {
                 failStartFromWorker(generation, e.message ?: "Прокси недоступен")
@@ -107,6 +110,16 @@ class ProxyVpnService : VpnService() {
                 return@Thread
             } catch (_: Exception) {
                 failStartFromWorker(generation, "Не удалось проверить сохранённые прокси")
+                return@Thread
+            }
+
+            val prepared = try {
+                proxyPrepared.copy(siteExclusions = resolveSiteExclusions())
+            } catch (e: Exception) {
+                failStartFromWorker(
+                    generation,
+                    e.message ?: "Не удалось применить исключения сайтов",
+                )
                 return@Thread
             }
 
@@ -120,6 +133,77 @@ class ProxyVpnService : VpnService() {
             preflightWorker = thread
         }
         thread.start()
+    }
+
+    private fun resolveSiteExclusions(): SiteExclusionPlan {
+        val entries = store.getSiteExclusions()
+        if (entries.isEmpty()) return SiteExclusionPlan.EMPTY
+
+        val connectivity = getSystemService(ConnectivityManager::class.java)
+        val network = connectivity.activeNetwork
+            ?: throw IllegalStateException("Нет активной сети для применения исключений")
+        val capabilities = connectivity.getNetworkCapabilities(network)
+        if (capabilities == null ||
+            !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ||
+            !capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+        ) {
+            throw IllegalStateException("Не удалось определить физическую сеть для исключений")
+        }
+
+        val dnsServers = connectivity.getLinkProperties(network)
+            ?.dnsServers
+            .orEmpty()
+            .distinctBy { it.hostAddress }
+        if (dnsServers.isEmpty()) {
+            throw IllegalStateException("Не удалось определить системный DNS для исключений")
+        }
+
+        val resolved = linkedMapOf<String, InetAddress>()
+        entries.forEach { entry ->
+            val addresses = runCatching { network.getAllByName(entry).toList() }
+                .getOrElse { throw IllegalStateException("Не удалось разрешить исключение: $entry") }
+            if (addresses.isEmpty()) {
+                throw IllegalStateException("Исключение не имеет IP-адресов: $entry")
+            }
+            addresses.forEach { address -> resolved[address.hostAddress] = address }
+        }
+        if (resolved.size > SiteExclusionPolicy.MAX_RESOLVED_ADDRESSES) {
+            throw IllegalStateException("Слишком много IP-адресов в исключениях")
+        }
+
+        val bypass = (resolved.values + dnsServers)
+            .distinctBy { it.hostAddress }
+        return SiteExclusionPlan(
+            enabled = true,
+            bypassAddresses = bypass,
+            dnsServers = dnsServers,
+            dnsMode = TunnelDnsMode.DIRECT,
+        )
+    }
+
+    private fun applySiteExclusionRoutes(builder: Builder, plan: SiteExclusionPlan) {
+        if (!plan.enabled) {
+            builder.addRoute("0.0.0.0", 0)
+            builder.addRoute("::", 0)
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            builder.addRoute("0.0.0.0", 0)
+            builder.addRoute("::", 0)
+            plan.bypassAddresses.forEach { address ->
+                val prefix = if (address.address.size == 4) 32 else 128
+                builder.excludeRoute(IpPrefix(address, prefix))
+            }
+            return
+        }
+
+        SiteExclusionPolicy.complementRoutes(plan.bypassAddresses, 4).forEach { route ->
+            builder.addRoute(route.address, route.prefixLength)
+        }
+        SiteExclusionPolicy.complementRoutes(plan.bypassAddresses, 16).forEach { route ->
+            builder.addRoute(route.address, route.prefixLength)
+        }
     }
 
     private fun continueStartAfterPreflight(
@@ -150,11 +234,14 @@ class ProxyVpnService : VpnService() {
                 .setBlocking(false)
                 .setMtu(Tun2ProxyEngineAdapter.TUN_MTU)
                 .addAddress("10.111.0.1", 32)
-                .addRoute("0.0.0.0", 0)
                 .addAddress("fd00:111::1", 128)
-                .addRoute("::", 0)
-                .addDnsServer("198.18.0.1")
 
+            applySiteExclusionRoutes(builder, prepared.siteExclusions)
+            if (prepared.siteExclusions.enabled) {
+                prepared.siteExclusions.dnsServers.forEach { builder.addDnsServer(it) }
+            } else {
+                builder.addDnsServer("198.18.0.1")
+            }
             builder.addDisallowedApplication(packageName)
             builder.establish() ?: error("VpnService.Builder.establish() returned null")
         } catch (_: Exception) {
@@ -172,7 +259,12 @@ class ProxyVpnService : VpnService() {
 
         val thread = Thread({
             val result = try {
-                engine.run(tun, selectedProfile, resolved.password)
+                engine.run(
+                    tun,
+                    selectedProfile,
+                    resolved.password,
+                    prepared.siteExclusions.dnsMode,
+                )
             } catch (_: Throwable) {
                 ENGINE_START_FAILURE
             }
@@ -876,11 +968,28 @@ class ProxyVpnService : VpnService() {
         }
     }
 
+    private data class SiteExclusionPlan(
+        val enabled: Boolean,
+        val bypassAddresses: List<InetAddress>,
+        val dnsServers: List<InetAddress>,
+        val dnsMode: TunnelDnsMode,
+    ) {
+        companion object {
+            val EMPTY = SiteExclusionPlan(
+                enabled = false,
+                bypassAddresses = emptyList(),
+                dnsServers = emptyList(),
+                dnsMode = TunnelDnsMode.VIRTUAL,
+            )
+        }
+    }
+
     private data class PreparedProxy(
         val resolved: ResolvedProxyProfile,
         val selectedProfile: ProxyProfile,
         val autoSelection: Boolean,
         val latencyMs: Long,
+        val siteExclusions: SiteExclusionPlan = SiteExclusionPlan.EMPTY,
     )
 
     companion object {

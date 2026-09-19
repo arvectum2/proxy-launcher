@@ -12,6 +12,7 @@ import javax.crypto.spec.GCMParameterSpec
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 
 data class ResolvedProxyProfile(
     val profile: ProxyProfile,
@@ -228,6 +229,19 @@ class SecureProfileStore(context: Context) {
 
     fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
 
+    fun getSiteExclusions(): List<String> =
+        prefs.getStringSet(KEY_SITE_EXCLUSIONS, emptySet())
+            ?.toList()
+            .orEmpty()
+            .sorted()
+
+    fun setSiteExclusions(entries: Collection<String>) {
+        val normalized = SiteExclusionPolicy.normalizeAll(entries)
+        check(prefs.edit().putStringSet(KEY_SITE_EXCLUSIONS, normalized.toSet()).commit()) {
+            "Failed to persist site exclusions"
+        }
+    }
+
     private fun ensureLegacyProfileIndexed() {
         if (prefs.contains(KEY_PROFILE_IDS)) return
 
@@ -333,6 +347,7 @@ class SecureProfileStore(context: Context) {
         private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"
         private const val KEY_RECENTLY_FAILED_AT = "pool_recently_failed_at"
         private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
+        private const val KEY_SITE_EXCLUSIONS = "site_exclusions"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
     }

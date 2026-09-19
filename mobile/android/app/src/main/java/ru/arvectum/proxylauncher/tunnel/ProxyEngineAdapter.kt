@@ -6,15 +6,30 @@ import java.net.URI
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
 
+enum class TunnelDnsMode(val cliValue: String) {
+    VIRTUAL("virtual"),
+    DIRECT("direct"),
+}
+
 interface ProxyEngineAdapter {
-    fun run(tun: ParcelFileDescriptor, profile: ProxyProfile, password: String?): Int
+    fun run(
+        tun: ParcelFileDescriptor,
+        profile: ProxyProfile,
+        password: String?,
+        dnsMode: TunnelDnsMode = TunnelDnsMode.VIRTUAL,
+    ): Int
     fun stop(): Int
 }
 
 class Tun2ProxyEngineAdapter : ProxyEngineAdapter {
     @Volatile private var activeRelay: HttpsProxyRelay? = null
 
-    override fun run(tun: ParcelFileDescriptor, profile: ProxyProfile, password: String?): Int {
+    override fun run(
+        tun: ParcelFileDescriptor,
+        profile: ProxyProfile,
+        password: String?,
+        dnsMode: TunnelDnsMode,
+    ): Int {
         require(profile.type != ProxyType.AUTO) { "AUTO proxy type must be resolved before engine start" }
 
         val relay = if (profile.type == ProxyType.HTTPS) {
@@ -38,7 +53,7 @@ class Tun2ProxyEngineAdapter : ProxyEngineAdapter {
             append(" --tun-fd ").append(tun.fd)
             append(" --close-fd-on-drop false")
             append(" --proxy ").append(proxyUrl)
-            append(" --dns virtual")
+            append(" --dns ").append(dnsMode.cliValue)
             append(" --ipv6-enabled")
             append(" --verbosity warn")
         }
