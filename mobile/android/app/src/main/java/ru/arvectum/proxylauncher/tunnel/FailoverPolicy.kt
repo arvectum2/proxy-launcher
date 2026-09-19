@@ -35,6 +35,10 @@ class FailoverPolicy(
     ): Boolean =
         failedAtMs > 0L && nowMs - failedAtMs < tuning.recentlyFailedSuppressionMs
 
+    fun networkSettled(nowElapsedMs: Long, lastTransitionElapsedMs: Long): Boolean =
+        lastTransitionElapsedMs <= 0L ||
+            nowElapsedMs - lastTransitionElapsedMs >= tuning.networkSettleMs
+
     /**
      * Auto policy:
      * 1. explicit primary;

@@ -210,8 +210,7 @@ class ProxyVpnService : VpnService() {
         if (!store.isAutoProfileSelection()) {
             val resolved = store.loadActive()
                 ?: throw ProxyProbeException("Сначала добавьте прокси")
-            store.setHealth(resolved.profile.id, ProxyHealthStatus.CHECKING, null)
-            publishPoolUpdate()
+            publishHealth(resolved.profile.id, ProxyHealthStatus.CHECKING, null)
             val measured = try {
                 probe.resolveMeasured(resolved.profile, resolved.password) { candidate ->
                     mainHandler.post {
@@ -224,12 +223,10 @@ class ProxyVpnService : VpnService() {
                     }
                 }
             } catch (e: Exception) {
-                store.setHealth(resolved.profile.id, ProxyHealthStatus.UNAVAILABLE, null)
-                publishPoolUpdate()
+                publishHealth(resolved.profile.id, ProxyHealthStatus.UNAVAILABLE, null)
                 throw e
             }
-            store.setHealth(resolved.profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
-            publishPoolUpdate()
+            publishHealth(resolved.profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
             return PreparedProxy(resolved, measured.profile, autoSelection = false, measured.latencyMs)
         }
 
@@ -257,8 +254,7 @@ class ProxyVpnService : VpnService() {
                 continue
             }
 
-            store.setHealth(profile.id, ProxyHealthStatus.CHECKING, null)
-            publishPoolUpdate()
+            publishHealth(profile.id, ProxyHealthStatus.CHECKING, null)
             try {
                 val measured = probe.resolveMeasured(resolved.profile, resolved.password) { candidate ->
                     mainHandler.post {
@@ -270,23 +266,20 @@ class ProxyVpnService : VpnService() {
                         )
                     }
                 }
-                store.setHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
+                publishHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
                 runCatching { store.setLastAutoProfileId(profile.id) }
                 val failedId = store.getRecentlyFailedProfileId()
                 if (failedId != null && failedId != profile.id &&
                     now - store.getLastFailoverAtMs() <= SWITCH_EVENT_WINDOW_MS
                 ) {
-                    store.appendPoolEvent("switched", profile.id, profile.name, "Auto fallback")
+                    publishPoolEvent("switched", profile.id, profile.name, "Auto fallback")
                 }
-                publishPoolUpdate()
                 return PreparedProxy(resolved, measured.profile, autoSelection = true, measured.latencyMs)
             } catch (e: ProxyProbeException) {
-                store.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
-                publishPoolUpdate()
+                publishHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
                 failures += "${profile.name}: ${e.message ?: "недоступен"}"
             } catch (e: Exception) {
-                store.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
-                publishPoolUpdate()
+                publishHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
                 failures += "${profile.name}: ${e.message?.take(80) ?: "ошибка проверки"}"
             }
         }
@@ -336,15 +329,15 @@ class ProxyVpnService : VpnService() {
                 }
                 if (!isSessionActive(generation)) return@Thread
 
-                val sinceNetworkChange = SystemClock.elapsedRealtime() - lastNetworkTransitionElapsedMs
-                if (lastNetworkTransitionElapsedMs > 0L &&
-                    sinceNetworkChange < failoverPolicy.tuning.networkSettleMs
+                if (!failoverPolicy.networkSettled(
+                        SystemClock.elapsedRealtime(),
+                        lastNetworkTransitionElapsedMs,
+                    )
                 ) continue
 
                 val current = synchronized(lock) { activePrepared } ?: prepared
                 val profileId = current.resolved.profile.id
-                store.setHealth(profileId, ProxyHealthStatus.CHECKING, null)
-                publishPoolUpdate()
+                publishHealth(profileId, ProxyHealthStatus.CHECKING, null)
 
                 val measured = try {
                     probe.resolveMeasured(current.selectedProfile, current.resolved.password)
@@ -354,8 +347,7 @@ class ProxyVpnService : VpnService() {
 
                 if (measured == null) {
                     consecutiveFailures += 1
-                    store.setHealth(profileId, ProxyHealthStatus.UNAVAILABLE, null)
-                    publishPoolUpdate()
+                    publishHealth(profileId, ProxyHealthStatus.UNAVAILABLE, null)
                     if (failoverPolicy.failureConfirmed(consecutiveFailures) &&
                         failoverPolicy.cooldownElapsed(
                             System.currentTimeMillis(),
@@ -371,8 +363,7 @@ class ProxyVpnService : VpnService() {
                 }
 
                 consecutiveFailures = 0
-                store.setHealth(profileId, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
-                publishPoolUpdate()
+                publishHealth(profileId, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
 
                 val elapsed = SystemClock.elapsedRealtime()
                 if (elapsed - lastSecondaryScanElapsed < failoverPolicy.tuning.backupScanIntervalMs) {
@@ -405,17 +396,14 @@ class ProxyVpnService : VpnService() {
         if (primaryId == current.resolved.profile.id) return false
         val primary = runCatching { store.loadProfile(primaryId) }.getOrNull() ?: return false
 
-        store.setHealth(primaryId, ProxyHealthStatus.CHECKING, null)
-        publishPoolUpdate()
+        publishHealth(primaryId, ProxyHealthStatus.CHECKING, null)
         val measured = runCatching { probe.resolveMeasured(primary.profile, primary.password) }.getOrNull()
         if (measured == null) {
-            store.setHealth(primaryId, ProxyHealthStatus.UNAVAILABLE, null)
-            publishPoolUpdate()
+            publishHealth(primaryId, ProxyHealthStatus.UNAVAILABLE, null)
             return false
         }
 
-        store.setHealth(primaryId, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
-        publishPoolUpdate()
+        publishHealth(primaryId, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
         val now = System.currentTimeMillis()
         if (!failoverPolicy.shouldRestorePrimary(
                 policy = store.getRestorePolicy(),
@@ -445,12 +433,10 @@ class ProxyVpnService : VpnService() {
         val resolved = runCatching { store.loadProfile(profile.id) }.getOrNull()
             ?: return (index + 1) % candidates.size
 
-        store.setHealth(profile.id, ProxyHealthStatus.CHECKING, null)
-        publishPoolUpdate()
+        publishHealth(profile.id, ProxyHealthStatus.CHECKING, null)
         val measured = runCatching { probe.resolveMeasured(resolved.profile, resolved.password) }.getOrNull()
-        if (measured == null) store.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
-        else store.setHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
-        publishPoolUpdate()
+        if (measured == null) publishHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
+        else publishHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
         return (index + 1) % candidates.size
     }
 
@@ -509,16 +495,14 @@ class ProxyVpnService : VpnService() {
         val now = System.currentTimeMillis()
         if (restorationProfile == null) {
             val profile = current.resolved.profile
-            store.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
+            publishHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
             store.markRecentlyFailedProfile(profile.id, now)
-            store.appendPoolEvent("proxy unavailable", profile.id, profile.name, "confirmed health failure")
+            publishPoolEvent("proxy unavailable", profile.id, profile.name, "confirmed health failure")
         } else {
             store.clearRecentlyFailedProfile()
-            store.appendPoolEvent("restored", restorationProfile.id, restorationProfile.name, "primary recovered")
+            publishPoolEvent("restored", restorationProfile.id, restorationProfile.name, "primary recovered")
         }
         store.setLastFailoverAtMs(now)
-        store.markFailoverRestartPending()
-        publishPoolUpdate()
         publishState(
             STATE_CONNECTING,
             if (restorationProfile == null) "Авто: переключаемся на резервный прокси…"
@@ -533,17 +517,41 @@ class ProxyVpnService : VpnService() {
             worker = null
         }
 
-        sendBroadcast(
-            Intent(this, FailoverRestartReceiver::class.java)
-                .setAction(ACTION_FAILOVER_RESTART),
-        )
-        stopForegroundCompat()
-        stopSelf()
+        // Do not call stopSelf(): START_STICKY keeps this VpnService in the
+        // started state. Android recreates a killed sticky foreground service
+        // even when a fresh background start would otherwise be restricted.
+        // The new :vpn process re-runs preflight and selects the next Auto candidate.
         mainHandler.postDelayed({ Process.killProcess(Process.myPid()) }, PROCESS_HANDOFF_KILL_DELAY_MS)
     }
 
-    private fun publishPoolUpdate() {
-        sendBroadcast(Intent(ACTION_POOL_UPDATE).setPackage(packageName))
+    private fun publishHealth(
+        profileId: String,
+        status: ProxyHealthStatus,
+        latencyMs: Long?,
+    ) {
+        val intent = Intent(this, PoolStateRelayReceiver::class.java)
+            .setAction(ACTION_POOL_HEALTH)
+            .putExtra(EXTRA_PROFILE_ID, profileId)
+            .putExtra(EXTRA_HEALTH_STATUS, status.name)
+            .putExtra(EXTRA_TIMESTAMP_MS, System.currentTimeMillis())
+        if (latencyMs != null) intent.putExtra(EXTRA_LATENCY_MS, latencyMs)
+        sendBroadcast(intent)
+    }
+
+    private fun publishPoolEvent(
+        type: String,
+        profileId: String?,
+        profileName: String?,
+        detail: String?,
+    ) {
+        val intent = Intent(this, PoolStateRelayReceiver::class.java)
+            .setAction(ACTION_POOL_EVENT)
+            .putExtra(EXTRA_EVENT_TYPE, type)
+            .putExtra(EXTRA_TIMESTAMP_MS, System.currentTimeMillis())
+        if (profileId != null) intent.putExtra(EXTRA_PROFILE_ID, profileId)
+        if (profileName != null) intent.putExtra(EXTRA_PROFILE_NAME, profileName)
+        if (detail != null) intent.putExtra(EXTRA_EVENT_DETAIL, detail)
+        sendBroadcast(intent)
     }
 
     private fun failStartFromWorker(generation: Long, message: String) {
@@ -727,9 +735,17 @@ class ProxyVpnService : VpnService() {
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
         const val ACTION_STATE = "ru.arvectum.proxylauncher.STATE"
         const val ACTION_POOL_UPDATE = "ru.arvectum.proxylauncher.POOL_UPDATE"
-        const val ACTION_FAILOVER_RESTART = "ru.arvectum.proxylauncher.FAILOVER_RESTART"
+        const val ACTION_POOL_HEALTH = "ru.arvectum.proxylauncher.POOL_HEALTH"
+        const val ACTION_POOL_EVENT = "ru.arvectum.proxylauncher.POOL_EVENT"
         const val EXTRA_STATE = "state"
         const val EXTRA_DETAIL = "detail"
+        const val EXTRA_PROFILE_ID = "profile_id"
+        const val EXTRA_PROFILE_NAME = "profile_name"
+        const val EXTRA_HEALTH_STATUS = "health_status"
+        const val EXTRA_LATENCY_MS = "latency_ms"
+        const val EXTRA_EVENT_TYPE = "event_type"
+        const val EXTRA_EVENT_DETAIL = "event_detail"
+        const val EXTRA_TIMESTAMP_MS = "timestamp_ms"
 
         const val STATE_DISCONNECTED = "DISCONNECTED"
         const val STATE_CONNECTING = "CONNECTING"

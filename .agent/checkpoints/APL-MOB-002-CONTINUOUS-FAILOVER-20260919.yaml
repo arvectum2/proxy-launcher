@@ -15,12 +15,17 @@ completed:
   - First exact-head Android run 35406964755 compiled production Kotlin successfully but failed one deterministic unit assertion: recentlyFailedCandidateMovesBehindBackups.
   - Reconciled the failure against FailoverPolicy's documented stable-storage-order contract: implementation correctly produced backup-b, backup-a, primary; the test incorrectly expected backup-a, backup-b, primary.
   - Corrected only the stale assertion in commit 3ad383875db49902dec4f0985d31e3aedfe3a05c; no product behavior changed.
+  - Subsequent static lifecycle review found cross-process SharedPreferences telemetry coherence risk and Android 12+ background foreground-service restart restrictions before physical handoff.
+  - Current local review moves health/events to a default-process-only telemetry store via explicit non-exported relay and changes failover handoff to START_STICKY :vpn process recreation, avoiding an app-initiated background foreground-service restart.
+  - Added deterministic coverage for network settle grace, empty candidate sets and recently-failed suppression expiry.
 test_results:
   - Previous PR head 9e80f0da641aef0aa50b2f079967dce62eed4938: all observed non-Android workflows SUCCESS; Android compile SUCCESS; 4/5 FailoverPolicy tests passed, 1 assertion failed.
-  - Current head 3ad383875db49902dec4f0985d31e3aedfe3a05c: CI not yet visible on first post-push inspection.
+  - Stale ordering assertion corrected at 3ad383875db49902dec4f0985d31e3aedfe3a05c.
+  - Current process-safety review: git diff --check PASS; compile/unit validation pending next exact-head CI because no local Gradle executable/wrapper is available.
 pending:
-  - Inspect exact-head CI once; if Android or required repository checks fail, fix only task-caused failures.
+  - Commit/push current process-safety review changes.
+  - Inspect exact-head Android and required repository checks; repair only task-caused failures.
   - After exact-head Android CI passes, record APK signer/SHA-256 evidence and prepare physical dogfood instructions.
   - HUMAN physical gate remains mandatory: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake and network-transition behavior.
   - Do not merge, publish/release, or close issue #51 before physical PASS and reserved human/review gates.
-resume_instruction: Inspect exact-head workflows for 3ad383875db49902dec4f0985d31e3aedfe3a05c once. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; if failed, inspect only failing job and repair task-caused defects. Do not repeat baseline implementation or 0.1.13 acceptance.
+resume_instruction: Commit/push the current process-safety review on PR #119, inspect the new exact-head CI once, and fix only task-caused failures. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; do not repeat baseline implementation or 0.1.13 acceptance.

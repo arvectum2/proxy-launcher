@@ -90,4 +90,30 @@ class FailoverPolicyTest {
             ),
         )
     }
+
+    @Test
+    fun networkTransitionRequiresSettleGrace() {
+        assertFalse(policy.networkSettled(nowElapsedMs = 12_000, lastTransitionElapsedMs = 10_000))
+        assertTrue(policy.networkSettled(nowElapsedMs = 14_000, lastTransitionElapsedMs = 10_000))
+        assertTrue(policy.networkSettled(nowElapsedMs = 10_000, lastTransitionElapsedMs = 0))
+    }
+
+    @Test
+    fun noSavedProfilesProducesNoCandidates() {
+        assertEquals(
+            emptyList<String>(),
+            policy.orderCandidates(
+                profileIds = emptyList(),
+                primaryId = null,
+                lastSuccessfulId = null,
+                recentlyFailedId = null,
+            ),
+        )
+    }
+
+    @Test
+    fun recentlyFailedSuppressionExpiresAtBoundary() {
+        assertTrue(policy.recentlyFailedStillSuppressed(nowMs = 69_999, failedAtMs = 10_000))
+        assertFalse(policy.recentlyFailedStillSuppressed(nowMs = 70_000, failedAtMs = 10_000))
+    }
 }

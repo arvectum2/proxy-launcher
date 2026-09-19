@@ -19,7 +19,7 @@
         </activity>
 
         <receiver
-            android:name=".tunnel.FailoverRestartReceiver"
+            android:name=".tunnel.PoolStateRelayReceiver"
             android:exported="false" />
 
         <service

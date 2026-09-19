@@ -47,6 +47,7 @@ import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
@@ -59,6 +60,7 @@ class MainActivity : Activity() {
     private lateinit var connectButton: Button
     private lateinit var connectionDetail: TextView
     private lateinit var store: SecureProfileStore
+    private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var currentState = ProxyVpnService.STATE_DISCONNECTED
@@ -95,6 +97,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = SecureProfileStore(this)
+        poolUiStore = PoolUiStateStore(this)
 
         window.statusBarColor = NAVY
         window.navigationBarColor = NAVY
@@ -457,6 +460,8 @@ class MainActivity : Activity() {
                 intArrayOf(MINT, SOFT_GRAY),
             )
             isChecked = store.getRestorePolicy() == PrimaryRestorePolicy.RETURN_TO_PRIMARY
+            isEnabled = currentState in editableStates && !switchInProgress
+            alpha = if (isEnabled) 1f else 0.55f
             setPadding(dp(8), 0, dp(8), 0)
             setOnCheckedChangeListener { _, checked ->
                 runCatching {
@@ -503,7 +508,7 @@ class MainActivity : Activity() {
         profileChoices = buildList {
             add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, "Авто", "Авто"))
             profiles.forEach { profile ->
-                val health = runCatching { store.getHealth(profile.id) }.getOrNull()
+                val health = runCatching { poolUiStore.getHealth(profile.id) }.getOrNull()
                 val fresh = health?.takeIf { now - it.checkedAtMs <= HEALTH_STALE_AFTER_MS }
                 val prefix = if (profile.id == primaryId) "★ " else ""
                 val suffix = when (fresh?.status) {
@@ -550,16 +555,16 @@ class MainActivity : Activity() {
             try {
                 val probe = ProxyProtocolProbe()
                 profiles.forEach { profile ->
-                    store.setHealth(profile.id, ProxyHealthStatus.CHECKING, null)
+                    poolUiStore.setHealth(profile.id, ProxyHealthStatus.CHECKING, null)
                     mainHandler.post { refreshProfileChoices(currentSelectionKey()) }
                     val resolved = runCatching { store.loadProfile(profile.id) }.getOrNull()
                     val measured = resolved?.let {
                         runCatching { probe.resolveMeasured(it.profile, it.password) }.getOrNull()
                     }
                     if (measured == null) {
-                        store.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
+                        poolUiStore.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
                     } else {
-                        store.setHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
+                        poolUiStore.setHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
                     }
                     mainHandler.post { refreshProfileChoices(currentSelectionKey()) }
                 }
@@ -570,7 +575,7 @@ class MainActivity : Activity() {
     }
 
     private fun showPoolEventsDialog() {
-        val events = runCatching { store.listPoolEvents(20) }.getOrDefault(emptyList())
+        val events = runCatching { poolUiStore.listEvents(20) }.getOrDefault(emptyList())
         val formatter = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
         val message = if (events.isEmpty()) {
             "Событий Auto пока нет"
@@ -937,6 +942,7 @@ class MainActivity : Activity() {
     private fun deleteProfile(id: String) {
         try {
             store.deleteProfile(id)
+            poolUiStore.removeHealth(id)
         } catch (_: Exception) {
             renderState(ProxyVpnService.STATE_ERROR, "Не удалось удалить профиль")
             return
