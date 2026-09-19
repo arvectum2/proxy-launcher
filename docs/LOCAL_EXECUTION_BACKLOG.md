@@ -66,9 +66,9 @@ Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and
 - **PASS** — physical acceptance covers Wi-Fi → hotspot → Wi-Fi handoff and automatic proxy failover without manual OFF/ON.
 - **MIRRORED** — GitVerse parity is recorded by the completed release track.
 
-### APL-MOB-003 — DONE / PHYSICAL PASS, PR #125 OPEN
+### APL-MOB-003 — DONE / PHYSICAL PASS / INTEGRATED
 
-Current candidate: Android dogfood `0.1.19`, PR `#125`.
+Accepted implementation: Android dogfood `0.1.19`; original PR `#125` is superseded and integration PR `#130` is merged.
 
 Completed evidence:
 - site/domain/URL/IP exclusions are implemented in the existing proxy popup; no per-application chooser was added;
@@ -77,11 +77,11 @@ Completed evidence:
 - Android CI run `35435184809` succeeded after the compile fix and mobile-branch workflow trigger update;
 - accepted 0.1.19 APK SHA-256: `c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71`.
 
-The implementation/physical task is complete. Original PR #125 is closed as superseded. Current rebased integration candidate PR #130 remains open; merge and any public Android release are separate explicit decisions. Do not represent the 0.1.19 candidate as public until those actions occur.
+The implementation/physical task is complete and rebased integration PR #130 merged to `main` as `c645825ec8b3fd142e0b6b7eca3c1fc8f6261550`. A public Android 0.1.19 release is still a separate action; do not represent 0.1.19 as publicly released unless that release exists.
 
-### APL-MOB-004 — PLANNED / AFTER MOB-003 INTEGRATION + OWNER PRIORITY
+### APL-MOB-004 — PLANNED / OWNER PRIORITY + PACKAGE-IDENTITY GATE
 
-Roadmap only; no ad SDK/private distribution implementation exists yet. MOB-003 physical acceptance is complete, but implementation should start only after PR #130 is integrated into main and the Owner explicitly prioritizes the monetization/package-update design.
+Roadmap only; no ad SDK/private distribution implementation exists yet. MOB-003 is complete and integrated. Implementation should start only after the Owner explicitly prioritizes monetization and decides the private package/update identity.
 
 - public channel: ads-enabled Android artifacts for GitHub, GitVerse, Arvectum site and RuStore;
 - initial target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation;
@@ -123,20 +123,16 @@ Do not claim GitVerse or another provider is compliant merely because it is Russ
 
 Issue: `#55`.
 
-## P7 — Windows public trust / APL-REL-016 — READY FOR REVIEW REFRESH
+## P7 — Windows public trust / APL-REL-016 — READY FOR OWNER REVIEW
 
-Issue: `#30`. Current review PR: `#103`.
+Issue: `#30`. Current review PR: `#132`.
 
-PR #103 contains the substantive APL-REL-016 packet and supersedes #81, but its version boundary is now stale because public `v0.2.10` has shipped without native Authenticode.
+- **DONE / REVIEW PREPARATION** — PR #132 supersedes #103 and refreshes the packet to current immutable `v0.2.10`; the first eligible future embedded-signing/public-trust release is `v0.2.11+`.
+- **DONE / RECHECK** — current Microsoft public-trust geography, CA/B Forum code-signing requirements and trust-layer boundaries were rechecked for the packet.
+- **DONE / EXACT-HEAD CI** — all observed checks are green, including REL-016 contract tests, PowerShell syntax, signed-app → portable → installer smoke, controlled-offline-build, required build and installer.
+- **OWNER GATE** — review/merge of #132 and any provider/certificate spend, key-custody commitment, production signing or release decision remain Owner-reserved.
 
-Current action:
-1. reconcile PR #103 to immutable/current `v0.2.10`;
-2. change the first eligible future embedded-signing release from `0.2.10+` to `0.2.11+`;
-3. re-verify current SmartScreen/App Reputation, Smart App Control/Application Control and managed-enterprise trust requirements;
-4. keep Russian detached CryptoPro/Rutoken release evidence separate from Microsoft native publisher trust;
-5. stop at Owner review before provider/certificate purchase, key-custody commitment, production signing or release.
-
-Final provider/distribution/signing architecture remains an Owner gate.
+Automation may maintain factual freshness, but must not infer approval or merge the REVIEW packet automatically.
 
 ## P8 — per-application routing — READY FOR OWNER DECISION
 
@@ -234,17 +230,17 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 - **DESKTOP STABLE:** v0.2.10 is public with Windows Setup/portable, Astra DEB, RED OS RPM and Linux AppImage.
 - **DONE:** APL-MOB-001 and APL-MOB-002; public Android baseline is 0.1.17.
-- **DONE / PR OPEN:** APL-MOB-003 site exclusions physically accepted on Android 0.1.19; PR #130 awaits explicit merge/release decision.
-- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution after #130 integration + explicit Owner priority.
+- **DONE / INTEGRATED:** APL-MOB-003 Android site exclusions, accepted 0.1.19 implementation merged via PR #130; public 0.1.19 release remains separate.
+- **PLANNED / OWNER-GATED:** APL-MOB-004 Android public-ads + private-no-ads dual distribution; waiting on explicit priority and package/update identity.
 - **DONE FOR CURRENT FILING EVIDENCE:** APL-IP-001 v0.2.9 provenance/right-chain packet; optional legal hardening remains non-blocking.
-- **REVIEW PREP READY:** APL-REL-016 PR #103 must be refreshed to current v0.2.10 / first eligible v0.2.11+.
+- **OWNER REVIEW:** APL-REL-016 PR #132 is current, exact-head CI is green, and no provider/signing/release action is implied.
 - **HUMAN BLOCKED:** sovereign lifecycle physical proof (#55).
 - **OWNER READY:** per-app routing architecture decision (#68); refresh against v0.2.10 if needed, but do not choose the architecture automatically.
 - **HUMAN HOLD:** registry private evidence + external submission.
 - **MAC:** test prerelease exists; production Apple signing/notarization remains deferred.
 - **DEFERRED:** iOS.
 
-With APL-MOB-003 physical work complete and #130 merge/release held for explicit action, the hourly watchdog should use APL-REL-016 as the first useful independent REVIEW-preparation lane. After that packet is current and stopped at Owner review, the next safe preparation lane is PR #68 against v0.2.10.
+APL-MOB-003 is complete/integrated and APL-MOB-004 is Owner-gated. APL-REL-016 is already at the Owner-review boundary in PR #132. The next useful safe autonomous preparation lane is therefore PR #68 against v0.2.10, stopping before the Owner architecture decision.
 
 ## Completion discipline
 
