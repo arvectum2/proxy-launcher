@@ -65,7 +65,8 @@ class ProductionSafeAutostartTests(unittest.TestCase):
         launcher._autostart_task_is_ours = mock.Mock(return_value=False)
         launcher._write_autostart_run_value = mock.Mock()
 
-        with mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "proxy.invalid"}]}), \
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "proxy.invalid"}]}), \
              mock.patch.object(gui, "_portable_fallback_active", return_value=False), \
              mock.patch.object(gui, "_autostart_target", return_value='"C:\\canonical.exe" --start'), \
              mock.patch.object(gui.messagebox, "showerror") as error:
@@ -84,7 +85,8 @@ class ProductionSafeAutostartTests(unittest.TestCase):
         launcher._write_autostart_run_value = mock.Mock()
         launcher._delete_owned_autostart_run_value = mock.Mock(return_value=True)
 
-        with mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "proxy.invalid"}]}), \
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "proxy.invalid"}]}), \
              mock.patch.object(gui, "_portable_fallback_active", return_value=False), \
              mock.patch.object(gui, "_autostart_target", return_value=target), \
              mock.patch.object(gui.subprocess, "run", return_value=_Completed(returncode=1)), \
@@ -101,7 +103,8 @@ class ProductionSafeAutostartTests(unittest.TestCase):
         launcher._autostart_task_xml = mock.Mock(side_effect=["owned xml", None])
         launcher._autostart_task_is_ours = mock.Mock(side_effect=lambda xml=None: xml == "owned xml")
 
-        with mock.patch.object(gui.subprocess, "run", return_value=_Completed(returncode=0)) as run, \
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.subprocess, "run", return_value=_Completed(returncode=0)) as run, \
              mock.patch.object(gui.messagebox, "showerror") as error:
             self.assertTrue(launcher._disable_autostart())
 
@@ -121,7 +124,8 @@ class ProductionSafeAutostartTests(unittest.TestCase):
         launcher._autostart_task_xml = mock.Mock(side_effect=["owned xml", "owned xml"])
         launcher._autostart_task_is_ours = mock.Mock(side_effect=lambda xml=None: xml == "owned xml")
 
-        with mock.patch.object(gui.subprocess, "run", return_value=_Completed(returncode=0)), \
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.subprocess, "run", return_value=_Completed(returncode=0)), \
              mock.patch.object(gui.messagebox, "showerror") as error:
             self.assertFalse(launcher._disable_autostart())
 

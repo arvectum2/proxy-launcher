@@ -2,6 +2,7 @@ import os
 import plistlib
 import tempfile
 import unittest
+from pathlib import Path
 
 from macos_autostart import LABEL, DEFAULT_EXECUTABLE, enable_autostart, disable_autostart, is_autostart_enabled
 
@@ -21,6 +22,16 @@ class MacOSAutostartTests(unittest.TestCase):
             self.assertEqual(payload["ProgramArguments"], [DEFAULT_EXECUTABLE])
             self.assertTrue(payload["RunAtLoad"])
             self.assertFalse(payload["KeepAlive"])
+
+    def test_foreign_launchagent_is_neither_overwritten_nor_deleted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = os.path.join(temp, LABEL + ".plist")
+            original = b"<?xml version='1.0'?><plist><dict><key>Label</key><string>foreign</string></dict></plist>"
+            Path(path).write_bytes(original)
+            with self.assertRaises(RuntimeError):
+                enable_autostart(path)
+            self.assertFalse(disable_autostart(path))
+            self.assertEqual(Path(path).read_bytes(), original)
 
     def test_disable_removes_only_owned_file(self):
         with tempfile.TemporaryDirectory() as temp:

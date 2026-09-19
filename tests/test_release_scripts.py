@@ -163,7 +163,8 @@ class ReleaseScriptTests(unittest.TestCase):
         self.assertIn(f'APP_VERSION = "{product_version}"', core_text)
         self.assertIn('ENGINEERING_MILESTONE = "P0.2"', core_text)
         self.assertIn('APP_VERSION = core.APP_VERSION', gui_text)
-        self.assertIn('ARVECTUM · %s · arvectum.com', gui_text)
+        self.assertIn('Arvectum · %s · arvectum.com', gui_text)
+        self.assertIn('ARVECTUM  ·  %s  ·  arvectum.com', gui_text)
 
     def test_default_connection_check_uses_arvectum_site(self):
         gui_text = self.read("proxy_gui.py")
@@ -465,12 +466,15 @@ class ReleaseScriptTests(unittest.TestCase):
         self.assertIn("ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM", text)
         self.assertIn("Удалить старый PAC и продолжить", text)
         self.assertIn("clear_orphaned_arvectum_pac", text)
-        self.assertIn("Остальные настройки Windows не изменялись", text)
+        self.assertIn("Остальные настройки системы не изменялись", text)
 
     def test_main_header_is_text_based_and_has_no_banner_or_separator(self):
         text = self.read("proxy_gui.py")
         launcher = text[text.index("class Launcher:"):]
-        self.assertIn('text=APP_NAME, bg=NAVY, fg=MINT', launcher)
+        self.assertIn("def _build_macos_main(self):", launcher)
+        self.assertIn('text="Proxy Launcher", style="MacTitle.TLabel"', launcher)
+        self.assertIn("def _build_classic_main(self):", launcher)
+        self.assertIn('text="ARVECTUM", bg=NAVY, fg=MINT', launcher)
         self.assertIn('font=B["font_brand"]', launcher)
         self.assertNotIn('_load_photo("arvectum-banner.png"', launcher)
         self.assertNotIn('tk.Frame(root, bg=MINT, height=3)', launcher)
@@ -478,9 +482,11 @@ class ReleaseScriptTests(unittest.TestCase):
     def test_main_controls_have_clear_visual_hierarchy(self):
         text = self.read("proxy_gui.py")
         self.assertIn('style.configure("Navy.TButton"', text)
-        self.assertIn('text="Проверить соединение"', text)
+        self.assertIn('style.configure("MacPrimary.TButton"', text)
+        self.assertIn('style="MacStatus.TLabel"', text)
+        self.assertIn('text="Проверка соединения"', text)
+        self.assertIn('text="Настройки"', text)
         self.assertIn('text="Настройки и сервис"', text)
-        self.assertIn('text="Состояние"', text)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,55 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-VISUAL-POLISH-20260919
+status: completed
+goal: "Refine the private macOS visual design and Dock icon optical scale without changing the verified proxy/recovery behavior."
+authority: OWNER_DIRECTIVE
+definition_of_done:
+  - "Dock icon optical size matches normal macOS app icons more closely while retaining the Arvectum squircle."
+  - "macOS main window uses a lighter, more native Aqua presentation with clearer hierarchy and less Windows/admin-panel visual weight."
+  - "macOS Settings/Exceptions dialogs use Aqua/system Light-Dark colors rather than hard-coded white/Windows styling."
+  - "No proxy/recovery/autostart behavior changes."
+  - "Relevant GUI/macOS/full repository tests pass."
+  - "Private arm64 app is rebuilt, installed, launch-checked and baseline PAC remains unchanged."
+completed:
+  - "Recovered completed recovery checkpoint and verified Launcher was STOPPED before visual work."
+  - "Measured native macOS System Settings/Calendar/Notes/Mail icon optical occupancy at approximately 80.5% of the icon canvas."
+  - "Rebuilt the transparent Arvectum squircle at approximately 80.5% optical occupancy on a 1024x1024 canvas and regenerated .icns."
+  - "Installed icon bundle is 1024x1024, hasAlpha=yes, transparent at all four corners; artwork fill ratio is approximately 0.8057 x 0.8008."
+  - "Split macOS and classic presentation while preserving shared proxy/recovery/action logic."
+  - "macOS main window now uses native Aqua, system Light/Dark semantic colors, Helvetica Neue, native ttk controls, quieter status hierarchy and compact 630x750 layout."
+  - "Settings and Exceptions dialogs now use Aqua controls and system semantic colors on macOS."
+  - "Render-only validation passed on the real Mac mini in Dark Mode: main 630x750, Settings 511x521, Exceptions 689x577."
+  - "Added macOS visual contracts and strengthened .icns metadata checks."
+  - "Improved Windows test isolation so autostart/PAC tests no longer depend on host platform or the live user proxy configuration."
+  - "Targeted visual/recovery suite passed 51/51; macOS discovery passed 48/48; full repository discovery passed 870/870."
+  - "Implementation committed and pushed as 241c85fadb11b794f63623d30fdde81b7890a61c."
+  - "Built exact implementation commit as native arm64 private .app; governed license bundle verified and strict deep codesign passed."
+  - "Built/installed executable SHA256 is a4657f629abfc63fbac708e9afa5c76130c1e4de21f8e141943eb06877b60a26."
+  - "Safely replaced only the GUI app while Launcher was STOPPED; baseline tunnel-proxy.py PID 1139 was not interrupted."
+  - "Refreshed Quick Look/Finder/Dock icon caches and preserved the Desktop shortcut to /Applications/Arvectum Proxy Launcher.app."
+  - "Post-install launch health passed with GUI PID 93379."
+  - "Final read-only safety verification passed: Launcher STOPPED; Arvectum ports 18080/11080/18082 free; baseline engine alive on 8080/1080/8082."
+  - "Final network verification passed: Ethernet/Wi-Fi remain on baseline PAC http://127.0.0.1:8082/proxy.pac; Thunderbolt Bridge/Tailscale remain PAC disabled."
+  - "Recovery evidence remains clear and the owned LaunchAgent remains valid/enabled."
+current: "Completed. Native Aqua private macOS app is installed and open in safe STOPPED state; baseline proxy and autostart remain intact."
+pending: []
+last_verified_commit: "241c85fadb11b794f63623d30fdde81b7890a61c"
+test_results:
+  - "Targeted visual/recovery suite: 51/51 PASS."
+  - "macOS test discovery: 48/48 PASS."
+  - "Full repository test discovery: 870/870 PASS."
+  - "Real-host render probes: main 630x750, Settings 511x521, Exceptions 689x577, Aqua theme, Dark Mode semantic colors."
+  - "Private arm64 build: license bundle verification PASS; strict deep codesign PASS; bundle id ru.arvectum.proxylauncher."
+  - "Icon verification: 1024x1024, hasAlpha=yes, fill ratio ~0.8057 x 0.8008, transparent corners."
+  - "Installed executable hash matches validated build: a4657f629abfc63fbac708e9afa5c76130c1e4de21f8e141943eb06877b60a26."
+  - "Post-install safety: GUI alive, Launcher STOPPED, baseline PAC unchanged, recovery clear, autostart plist lint PASS."
+resume_instruction: "Task is complete. Visually inspect the currently open macOS window and Dock icon. Any further visual tweaks should start a new task and must preserve the verified recovery behavior and port separation: baseline 8080/1080/8082, Arvectum 18080/11080/18082."
+updated_at: "2026-09-19T03:32:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-VISUAL-POLISH-20260919"
+  branch: "agent/macos-visual-polish-20260919"
+  base_commit: "5a5dd59"
+  implementation_commit: "241c85fadb11b794f63623d30fdde81b7890a61c"
+  manual_override: true

@@ -1,0 +1,43 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-PERSONAL-DOGFOOD-20260918
+status: completed
+goal: "Produce and locally validate a private macOS arm64 build for Owner personal use without mutating the immutable public v0.2.9 release."
+authority: OWNER_DIRECTIVE
+definition_of_done:
+  - "Build the canonical macOS .app and DMG from the immutable v0.2.9 product source on the Owner Mac mini."
+  - "Verify bundle identity, architecture, hdiutil integrity and bundled license notices."
+  - "Install the private build into /Applications without publishing or retagging v0.2.9."
+  - "Launch the app in the logged-in macOS session and verify it stays running without immediate crash."
+  - "Run the relevant macOS automated tests."
+  - "Record exact source/tag, artifact hashes, local validation evidence and final state."
+completed:
+  - "Synced canonical repository main to b1639da17cda13af975acbff37936a7f6818e9ff and isolated immutable v0.2.9 product source at d13d9dac2ae2439c2fe70d32e1b168df320a9bd2."
+  - "Installed a dedicated Homebrew Python 3.12.14 + Tk 9.0 build toolchain; existing Python 3.13/3.14 lacked _tkinter."
+  - "Supplied the exact upstream CPython 3.12.14 LICENSE to the local build environment; SHA256 3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf."
+  - "Discovered that post-PyInstaller license injection invalidated the macOS ad-hoc bundle signature."
+  - "Fixed tools/build_macos_app.sh to re-seal the final resource-complete bundle and require strict codesign verification; added deterministic regression coverage and documentation."
+  - "Built private Arvectum_Proxy_Launcher-0.2.9-arm64.dmg from v0.2.9 runtime source with the packaging-only reseal fix."
+  - "Final DMG SHA256 ffbc28b687a80993569516ceccfc5cf4f885f8c707646eced1bab8489587b936; embedded launcher executable SHA256 be2bdf045d51a68997d315e2abbad1cea361dc84ccd75a455adc023becc9484f."
+  - "Verified bundle id ru.arvectum.proxylauncher, native arm64 Mach-O, ad-hoc signature, strict deep codesign PASS, hdiutil verify PASS and governed third-party license bundle."
+  - "Installed /Applications/Arvectum Proxy Launcher.app and verified the exact application process remained running after launch."
+  - "Ran read-only real-host preflight on macOS 27.0 arm64: networksetup available and four enabled network services readable; no network mutation was performed."
+  - "Canonical packaging fix committed as d91acd1b76052ffb660f36a9502117fe2451dd04."
+current: "Completed. Private macOS arm64 app is installed and running; public Apple signing/notarization remains deferred and no release/tag was changed."
+pending: []
+last_verified_commit: "d91acd1b76052ffb660f36a9502117fe2451dd04"
+test_results:
+  - "Exact v0.2.9 source before packaging fix: macOS suite 40/40 PASS; shared backend/gui suite 29/29 PASS."
+  - "Canonical branch after packaging fix: macOS suite 41/41 PASS; shared backend/gui suite 29/29 PASS; license compliance 9/9 PASS; git diff --check PASS."
+  - "Private final app: codesign --verify --deep --strict PASS; hdiutil verify PASS; launch health PASS."
+  - "Read-only real-host preflight on Mac mini macOS 27.0 arm64 exited successfully."
+resume_instruction: "Task is complete. For personal use, launch /Applications/Arvectum Proxy Launcher.app. Do not publish this private v0.2.9 macOS artifact or mutate v0.2.9. Future public macOS distribution is a separate REVIEW task requiring Apple Developer ID signing/notarization."
+updated_at: "2026-09-18T20:05:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-PERSONAL-DOGFOOD-20260918"
+  branch: "agent/macos-personal-dogfood-20260918"
+  base_commit: "b1639da17cda13af975acbff37936a7f6818e9ff"
+  implementation_commit: "d91acd1b76052ffb660f36a9502117fe2451dd04"
+  lease_until: null
+  manual_override: true
