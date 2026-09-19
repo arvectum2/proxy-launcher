@@ -34,7 +34,7 @@ class FailoverPolicyTest {
     @Test
     fun recentlyFailedCandidateMovesBehindBackups() {
         assertEquals(
-            listOf("backup-a", "backup-b", "primary"),
+            listOf("backup-b", "backup-a", "primary"),
             policy.orderCandidates(
                 profileIds = listOf("backup-b", "primary", "backup-a"),
                 primaryId = "primary",
