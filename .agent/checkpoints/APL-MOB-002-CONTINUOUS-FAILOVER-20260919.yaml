@@ -1,13 +1,13 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: a5a84850133efbb516780163c8dcbbf75cc38fa8
+last_verified_commit: 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -38,8 +38,11 @@ test_results:
   - Implemented 0.1.16 migration: bind :vpn process sockets/DNS to replacement default Network, set VpnService underlying network consistently, reset health failure accumulation on real transitions, and keep capability churn from extending settle grace.
   - Added Журнал event смена сети and preserved 0.1.15 connected + Новый/Журнал fixes; versionCode 17.
   - git diff --check PASS. Local Android build not available because Mac mini has no system gradle and repository has no Gradle Wrapper.
+  - 0.1.16 network-migration repair committed as 7dfa8f40dd4aacfdd26a9adf1fd07c30f9a4abfd and synced with current main in exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e.
+  - Android workflow 35425798518 and all observed repository workflows on 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e PASS.
+  - 0.1.16 APK SHA-256 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; issue #51 comment 5739853051 records the evidence.
 pending:
-  - Commit/push 0.1.16 and validate exact-head CI.
-  - Issue replacement APK; then HUMAN recheck Wi-Fi A -> hotspot B -> Wi-Fi A without manual restart.
+  - HUMAN recheck: connected + Новый saves without changing live tunnel; Журнал visible and records смена сети.
+  - HUMAN network transition: Wi-Fi A -> hotspot B -> Wi-Fi A while VPN stays enabled; connectivity recovers without manual OFF/ON, repeated VPN permission, or flapping.
   - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Commit/push the implemented 0.1.16 network-migration fix, validate exact-head CI, issue the APK, then wait for HUMAN physical Wi-Fi/hotspot retest.
+resume_instruction: Wait for HUMAN physical 0.1.16 recheck. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect.

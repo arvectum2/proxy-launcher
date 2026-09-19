@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -54,13 +54,16 @@ completed:
   - "Added credential-free Журнал event смена сети and enabled the same default-network migration callback for manual-profile sessions."
   - "Bumped Android to 0.1.16 / versionCode 17 while preserving the 0.1.15 + Новый/Журнал fixes."
   - "Local git diff --check PASS. Local Gradle execution is unavailable because the Mac mini has no system gradle and this repo has no Gradle Wrapper; CI remains the canonical Android build."
-current: "Commit/push the 0.1.16 network-migration repair, then validate exact-head Android/repository CI and issue a replacement APK."
+  - "0.1.16 network-migration repair committed as 7dfa8f40dd4aacfdd26a9adf1fd07c30f9a4abfd and synced with current main in exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e."
+  - "Exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e passed Android workflow 35425798518 plus SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations."
+  - "0.1.16 APK SHA-256: 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; stable signer unchanged."
+  - "Issue #51 updated with 0.1.16 physical-network repair evidence in comment 5739853051."
+current: "Blocked on HUMAN physical 0.1.16 recheck: connected + Новый/Журнал and Wi-Fi A -> hotspot B -> Wi-Fi A without manual VPN restart."
 pending:
-  - "Commit/push 0.1.16 and run exact-head Android/repository CI."
-  - "Issue replacement 0.1.16 APK with signer/SHA evidence."
-  - "HUMAN physical recheck: connected + Новый/Журнал plus Wi-Fi A -> hotspot B -> Wi-Fi A without manual VPN restart."
+  - "HUMAN physical recheck: while VPN is CONNECTED, create/save a new profile and confirm the existing tunnel remains connected/unchanged; confirm Журнал label and смена сети event."
+  - "HUMAN physical network-transition recheck: Wi-Fi A -> hotspot B -> Wi-Fi A with VPN left enabled, confirming Internet recovers automatically, no manual OFF/ON, no repeated VPN permission prompt, and no failover flapping."
   - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release only with explicit release authority, close issue #51, and set checkpoint completed."
-last_verified_commit: "a5a84850133efbb516780163c8dcbbf75cc38fa8"
+last_verified_commit: "774c01fc74a813ed6e1e7c66becc8d4c2b099f4e"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android workflow 35422996797 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
@@ -70,4 +73,7 @@ test_results:
   - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: Android workflow 35424959015 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
   - "0.1.15 APK SHA-256: 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Commit/push the implemented 0.1.16 default-network migration repair, validate exact-head Android/repository CI, and issue a replacement APK. Then wait for HUMAN Wi-Fi A -> hotspot B -> Wi-Fi A retest; do not merge/release before PASS."
+  - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: Android workflow 35425798518 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
+  - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
+  - "0.1.16 APK SHA-256: 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
+resume_instruction: "Do not repeat the 0.1.16 repair or CI. Wait for HUMAN physical 0.1.16 retest: connected + Новый/Журнал and Wi-Fi A -> hotspot B -> Wi-Fi A without manual restart. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect."
