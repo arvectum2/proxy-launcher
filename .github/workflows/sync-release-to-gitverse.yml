@@ -131,7 +131,7 @@ jobs:
               print('\t'.join(row))
           PY
 
-      - name: Create or verify immutable GitVerse release
+      - name: Create or synchronize GitVerse release metadata
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
@@ -181,12 +181,42 @@ jobs:
               "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json
           fi
 
+          desired_tag="$(jq -r '.tag_name' .gitverse-release-body.json)"
+          actual_tag="$(jq -r '.tag_name' .gitverse-release.json)"
+          if [ "$actual_tag" != "$desired_tag" ]; then
+            echo "::error::GitVerse release tag mismatch: $actual_tag != $desired_tag"
+            exit 1
+          fi
+
+          metadata_needs_update="$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+          desired=json.loads(Path('.gitverse-release-body.json').read_text())
+          actual=json.loads(Path('.gitverse-release.json').read_text())
+          keys=('name','body','draft','prerelease','is_authorized_only')
+          print('true' if any(actual.get(k) != desired.get(k) for k in keys) else 'false')
+          PY
+          )"
+
+          if [ "$metadata_needs_update" = true ]; then
+            release_id="$(jq -r '.id' .gitverse-release.json)"
+            jq '{name,body,draft,prerelease,is_authorized_only}'               .gitverse-release-body.json > .gitverse-release-metadata-update.json
+            patch_status="$(curl -sS -o .gitverse-patch.json -w '%{http_code}' -X PATCH               -H "$AUTH" -H "Accept: $ACCEPT" -H 'Content-Type: application/json'               "$API/repos/$OWNER/$REPO/releases/$release_id"               --data-raw "$(cat .gitverse-release-metadata-update.json)")"
+            if [ "$patch_status" != 200 ]; then
+              echo "::error::GitVerse release metadata update failed HTTP=$patch_status"
+              cat .gitverse-patch.json || true
+              exit 1
+            fi
+            curl -fsS -H "$AUTH" -H "Accept: $ACCEPT"               "$API/repos/$OWNER/$REPO/releases/tags/$TAG" > .gitverse-release.json
+            echo "UPDATED GitVerse release metadata"
+          fi
+
           python3 - <<'PY'
           import json
           from pathlib import Path
           desired=json.loads(Path('.gitverse-release-body.json').read_text())
           actual=json.loads(Path('.gitverse-release.json').read_text())
-          for key in ('tag_name','name','body','draft','prerelease'):
+          for key in ('tag_name','name','body','draft','prerelease','is_authorized_only'):
               if actual.get(key) != desired.get(key):
                   raise SystemExit(f'GitVerse release metadata mismatch for {key}: {actual.get(key)!r} != {desired.get(key)!r}')
           print('PASS GitVerse release metadata')
