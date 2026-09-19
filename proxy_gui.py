@@ -28,13 +28,14 @@ import doctor as doctor_module
 import connection_test as connection_test_module
 import windows_single_instance as single_instance_module
 
+macos_autostart_module = None
 if os.name == "nt":
     import winreg
 else:
     try:
         import macos_autostart as macos_autostart_module
     except ImportError:
-        macos_autostart_module = None
+        pass
 
 # ---------------------------------------------------------------------------
 # Бренд Arvectum
@@ -64,7 +65,7 @@ B = {}  # бренд-конфиг: шрифты и стили, заполняе�
 
 
 def _is_macos():
-    return sys.platform == "darwin" and os.name != "nt"
+    return sys.platform == "darwin"
 
 
 def _platform_label():

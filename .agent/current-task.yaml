@@ -30,9 +30,12 @@ completed:
   - "Corrected candidate commit b872010fe73bf725b1fd8788bb803506c3d4ca0f was pushed to release/v0.2.10."
   - "Exact corrected candidate macOS arm64 build passed: bundle short/build version 0.2.10, bundle id ru.arvectum.proxylauncher, strict codesign PASS, executable SHA256 8481c70b692523c1c6862e8c03b3e28ab6109596cfcf1b28b11aa0631ae33508."
   - "Corrected exact candidate was installed and launch-checked on Mac mini in STOPPED state with baseline PAC/tunnel unchanged."
-current: "Corrected 0.2.10 candidate is locally validated. Open integration PR to main and wait for exact-head CI."
+  - "Opened PR #121: Release 0.2.10: macOS hardening and AppImage publication."
+  - "First PR CI found one Windows full-suite failure caused by macOS simulation relying on real os.name and an undefined macos_autostart_module attribute; product macOS runtime was unaffected."
+  - "Fixed cross-platform simulation seam: macos_autostart_module is always declared and _is_macos uses sys.platform==darwin; targeted 22/22 and full repository 873/873 PASS locally."
+current: "PR #121 is open. First exact-head CI exposed a Windows-only macOS-simulation test seam; fixed locally and pushing final PR head for CI rerun."
 pending:
-  - "Open/merge integration PR after exact-head CI is green."
+  - "Wait for refreshed PR #121 exact-head CI; merge after green checks."
   - "Wait for required exact-main build/evidence workflows to succeed."
   - "Create immutable v0.2.10 tag with explicit Owner release authorization."
   - "Verify canonical GitHub release and GitVerse mirror outcome; record assets/checksums."
@@ -45,7 +48,7 @@ test_results:
   - "0.2.10 full repository discovery before bundle metadata fix: 872/872 PASS."
   - "Post-fix focused packaging/version/release suite: 65/65 PASS."
   - "Post-fix full repository discovery: 873/873 PASS."
-resume_instruction: "Open release/v0.2.10 -> main PR. Wait for exact-head required CI and resolve only real failures. Merge under the explicit Owner release directive once branch protection allows. Then wait for exact-main Windows portable/installer, DEB, RPM, AppImage and Release Evidence gates before creating immutable v0.2.10 tag."
+resume_instruction: "Push the final cross-platform test-seam fix to PR #121 and wait for refreshed exact-head CI. Resolve only real failures. Merge under the explicit Owner release directive once green/allowed, then wait for exact-main Windows portable/installer, DEB, RPM, AppImage and Release Evidence gates before immutable v0.2.10 tag."
 updated_at: "2026-09-19T08:03:00+03:00"
 execution:
   claimed_by: "ChatGPT"
