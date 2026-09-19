@@ -19,13 +19,13 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "PR #135 is open. Core tests are green; exact-head ee6ac4f fixes the Xcode 26 CheckedContinuation inference failure and Mobile iOS personal run #6 is queued. Full Xcode 26.6 installation is running on the Mac mini."
+current: "PR #135 is open. Core tests are green. Xcode 26 compile fixes are at f4182bb; Mobile iOS personal run #9 is queued. Xcode 26.6 install on Mac mini is blocked at Apple Developer authentication callback."
 pending:
   - "Reach green exact-head Mobile iOS personal core-tests and unsigned-device-build jobs."
   - "Resolve any CI-only iOS compiler/linker issues and record final unsigned build evidence."
   - "Install full Xcode on the authorized Mac mini and provide Owner Apple Developer signing context."
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "ee6ac4fc3cd6a458e362d2f208f14d0128876ddf"
+last_verified_commit: "f4182bb4d520e6d7d2ce68b9df2c287c08c5e5a3"
 test_results:
   - "PASS: Apple-hosted CI core-tests on PR #135 / run 35439697779."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -36,8 +36,8 @@ test_results:
   - "PASS: swiftc -parse for every tracked iOS Swift source"
   - "EXPECTED LOCAL INFRA FAILURE: swift test reached the test target but Command Line Tools do not include the XCTest framework; full Xcode is absent."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Local signed/device build requires full Xcode plus the Owner Apple Developer team/signing identity. Unsigned Apple-hosted CI remains executable now."
-resume_instruction: "Continue on feat/ios-personal-0.1.19 from ee6ac4fc3cd6a458e362d2f208f14d0128876ddf. Inspect Mobile iOS personal run #6 for PR #135 and fix any remaining unsigned-device-build failures. Check the ongoing Xcode 26.6 installation on Mac mini; after install run local Xcode validation. Do not start per-app routing or public distribution. Stop only at the Apple Developer signing/device-install gate if no signing identity is available."
+blocker: "Full Xcode download via xcodes is waiting for Owner Apple Developer authentication; local signing also has 0 valid identities. Unsigned Apple-hosted CI remains executable now."
+resume_instruction: "Continue on feat/ios-personal-0.1.19 from f4182bb4d520e6d7d2ce68b9df2c287c08c5e5a3. Inspect Mobile iOS personal run #9 for PR #135 and fix any remaining unsigned-device-build failures. For Mac mini Xcode installation, resume only after Owner completes Apple Developer authentication; then run local Xcode validation. Do not start per-app routing or public distribution."
 updated_at: "2026-09-19T14:44:00+03:00"
 execution:
   claimed_by: "ChatGPT"
