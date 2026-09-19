@@ -1,16 +1,17 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-19T02:24:00+03:00"
+updated_at: "2026-09-19T13:02:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "75696eb257664a9f3cc5ce7139a31ff68e985827"
-  stable_release: "v0.2.9"
-  stable_release_published_at: "2026-09-17"
+  main_sha_verified: "eff09f7ee25e26991909dedc0918109a7b90a609"
+  stable_release: "v0.2.10"
+  stable_release_published_at: "2026-09-19"
   platforms:
     - Windows x64 setup
     - Windows x64 portable
     - Astra Linux 1.8 x86-64 DEB
     - RED OS 8.0.3 x86-64 RPM
+    - Generic Linux x86-64 AppImage
 
 # Ordered execution view over the accepted active backlog. The executor may update
 # status/evidence only; it must not silently reorder or reclassify items.
@@ -41,16 +42,15 @@ items:
 
   - order: 30
     task_id: APL-IP-001-HUMAN-LEGAL-SIGNOFF
-    title: "Final v0.2.9 IP provenance / human-legal sign-off"
-    status: blocked
+    title: "v0.2.9 IP provenance / filing-evidence disposition"
+    status: done
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; issue #57; docs/APL_IP_001_V0_2_9_SIGNOFF.md"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P5; docs/APL_IP_001_V0_2_9_SIGNOFF.md; merged PR #107/#108"
     dependencies: []
-    blocker: "Exact v0.2.9 source/tag tree, package digests and provenance/SBOM evidence are reconciled. Owner/human must inspect the executed 2026-09-14 base instrument, establish the rights basis for post-2026-09-14 creative contributions, confirm Rospatent/corporate/Russian-control facts, and explicitly approve or remediate the exact v0.2.9 scope."
-    executor_scope: "Keep exact-object evidence coherent; preserve v0.2.5 as historical anchor; never manufacture future-results coverage, APPROVED status, legal conclusion or clean-IP tag."
-    evidence: "v0.2.9 reconciliation/sign-off packet prepared; base private instrument remains recorded without requiring duplicate version-specific execution solely because the version changed."
+    executor_scope: "Preserve exact-object evidence and the v0.2.5 historical anchor. Optional future-rights hardening is not a filing blocker and must not be reintroduced without new Owner/legal input."
+    evidence: "DONE for the current v0.2.9 filing-evidence object: exact source/tag/package identity, provenance/SBOM, executed 2026-09-14 rights instrument review and Owner factual confirmations are recorded. Optional external legal hardening remains non-blocking."
 
   - order: 40
     task_id: APL-REL-016
@@ -59,12 +59,12 @@ items:
     authority: REVIEW
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30; PR #81"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30; PR #103"
     dependencies: []
     owner_gate: "Final production trust/distribution path, paid provider/certificate commitment and key-custody decision require Owner approval."
-    executor_scope: "Refresh the review packet from its v0.2.6 baseline to current v0.2.9, verify current trust requirements, maintain tests/contracts and stop at review-ready state."
-    active_pr: 81
-    evidence: "PR #81 contains the current trust decision packet but explicitly targets the older v0.2.6 baseline; it requires reconciliation to v0.2.9 before final review."
+    executor_scope: "Refresh PR #103 from its immutable v0.2.9 / '0.2.10+' assumption to the now-published immutable v0.2.10 baseline. Re-verify current trust requirements, keep tests/contracts current and stop at review-ready state."
+    active_pr: 103
+    evidence: "PR #103 superseded PR #81 and prepared the v0.2.9 packet. Since v0.2.10 is now publicly released without this trust change, reconcile the packet so the first eligible future embedded-signing release is v0.2.11+ before Owner review."
 
   - order: 50
     task_id: APL-REG-001B-PHYSICAL-PROOF
@@ -88,7 +88,7 @@ items:
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #68"
     dependencies: []
     owner_gate: "Production enforcement architecture is an explicit Owner/Product Owner stop-gate."
-    executor_scope: "May refresh options/trade-offs and reversible prototypes against v0.2.9; do not select or implement the production architecture as if approved."
+    executor_scope: "May refresh options/trade-offs and reversible prototypes against the current v0.2.10 ownership/recovery baseline; do not select or implement the production architecture as if approved."
     active_pr: 68
     evidence: "PR #68 contains an owner-decision packet recommending, but not approving, an Arvectum-owned WFP ALE callout/service path."
 
@@ -144,27 +144,73 @@ items:
     dependencies: []
 
   - order: 100
+    task_id: APL-MOB-002-ANDROID-FAILOVER
+    title: "Android proxy pool / continuous Auto failover"
+    status: done
+    authority: HUMAN
+    independent: false
+    auto_merge: false
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; issue #51; merged PR #119; release android-v0.1.17"
+    dependencies:
+      - APL-MOB-001-ANDROID-DOGFOOD
+    evidence: "DONE: continuous Auto health/failover and physical network handoff were physically accepted; PR #119 merged as 8b07165a2f8404ed711399c6e65ec76a22b46a72; android-v0.1.17 is public and mirrored to GitVerse."
+
+  - order: 110
+    task_id: APL-MOB-003-SITE-EXCLUSIONS-20260919
+    title: "Android site/domain exclusions"
+    status: blocked
+    authority: HUMAN
+    independent: false
+    auto_merge: false
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; PR #125"
+    dependencies:
+      - APL-MOB-002-ANDROID-FAILOVER
+    blocker: "Implementation/CI are ready, but physical Android direct-vs-proxied egress, connected-save reconnect and clear-list regression evidence are required before merge/release."
+    owner_gate: "Install the 0.1.18 dogfood candidate on a real Android device and record physical PASS/FAIL."
+    executor_scope: "May fix observed defects and maintain tests/CI/evidence after physical feedback; must not claim physical acceptance or auto-release."
+    active_pr: 125
+    evidence: "PR #125 adds exact-host/domain/URL/IP exclusions without starting per-application routing. Exact-head Android CI has passed; current physical gate remains open."
+
+  - order: 120
+    task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
+    title: "Android advertising and dual public/private distribution"
+    status: blocked
+    authority: OWNER
+    independent: false
+    auto_merge: false
+    source: "docs/ROADMAP.md#8-mobile-applications; checkpoint APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919"
+    dependencies:
+      - APL-MOB-003-SITE-EXCLUSIONS-20260919
+    blocker: "Roadmap plan only. Implementation starts after MOB-003 physical acceptance and explicit Owner prioritization."
+    owner_gate: "Choose/confirm private package identity/update semantics and authorize implementation/provider configuration before the public ads/private no-ads release lane is built."
+    executor_scope: "May preserve the approved design constraints; do not add ad SDKs, create private distribution infrastructure, publish monetized APKs or make paid/provider commitments without the required gate."
+    evidence: "Plan is recorded: public ads-enabled channel for GitHub/GitVerse/site/RuStore, private no-ads build from the same codebase, Yandex Mobile Ads/App Open initial target, fail-open/frequency/privacy constraints."
+
+  - order: 130
     task_id: APL-IOS-LATER-STAGE
-    title: "iOS mobile stage and later APL-MOB-002"
-    status: ready
+    title: "iOS mobile stage"
+    status: deferred
     authority: REVIEW
     independent: false
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issues #50/#51; merged PR #105; release android-v0.1.13"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issue #50"
     dependencies:
-      - APL-MOB-001-ANDROID-DOGFOOD
-    merged_pr: 105
-    evidence: "First Android APL-MOB-002 slice is DONE and released: owner physically accepted 0.1.13; PR #105 merged as 9e81d8e5d65a6fe0554131c4ad031018ce40d326; GitHub release android-v0.1.13 published with APK SHA-256 c3395dde459e8e5752d8ea9e46f735794df6558daa146def7d090deb239296d1; GitVerse mirror run 35389823401 PASS with public payload parity verified. Remaining scope is continuous background health monitoring/failover after an already-connected upstream dies, plus the separate later iOS stage."
+      - APL-MOB-002-ANDROID-FAILOVER
 
 repository_hygiene:
   superseded_open_prs:
+    - 81
     - 90
     - 91
     - 92
     - 70
     - 74
     - 82
-  note: "These open PRs represent superseded implementation/preparation paths whose substantive work was overtaken by merged PR #83 or merged v0.2.9 recovery work (#93/#94). Reconcile before any reuse; they are not active roadmap tracks."
+    - 113
+    - 117
+    - 120
+    - 124
+  note: "PR #81 is superseded by current APL-REL-016 PR #103. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is an obsolete closeout now that MOB-003 is the canonical active Android task. Reconcile before any reuse."
   maintenance_prs:
     - 80
   maintenance_note: "PR #80 is a release-evidence workflow maintenance fix, not a product-priority track; reconcile it independently with current main before merge."
