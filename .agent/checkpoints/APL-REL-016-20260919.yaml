@@ -1,0 +1,39 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: in_progress
+goal: "Refresh the Windows public-trust / Authenticode / SmartScreen review packet to the immutable public v0.2.10 baseline and first eligible v0.2.11+ release, preserving REVIEW and Owner gates."
+authority: REVIEW
+definition_of_done:
+  - "Substantive PR #103 trust implementation is ported onto current main without stale roadmap/checkpoint state."
+  - "Current Microsoft SmartScreen, Smart App Control and Artifact Signing eligibility are rechecked."
+  - "Current CA/B Forum Code Signing Baseline Requirements are rechecked."
+  - "v0.2.10 is explicitly immutable/unsigned at native Authenticode layer and v0.2.11+ is the first eligible future signed release."
+  - "Russian CryptoPro/Rutoken detached evidence remains separate from Microsoft native publisher trust."
+  - "Exact-head substantive CI is green."
+  - "A review-ready PR is produced and work stops before provider/certificate/key-custody/production-signing/release/merge Owner decisions."
+completed:
+  - "Read canonical queue from main; APL-REL-016 is the earliest independent READY REVIEW track."
+  - "Rechecked Microsoft SmartScreen: signed OV/EV files can still show reputation warnings and EV does not automatically bypass SmartScreen."
+  - "Rechecked Smart App Control: RSA-based trusted-provider signing remains required; ECC is not accepted by its signature check."
+  - "Rechecked Microsoft Artifact Signing Public Trust geography: Russia remains absent from the published organization eligibility list."
+  - "Rechecked CA/B Forum Code Signing BR v3.11.0: 460-day maximum for certificates issued on/after 2026-03-01 and exactly one reserved subscriber policy OID effective 2026-09-15."
+  - "Created agent/apl-rel-016-v0210-refresh from current main and ported the substantive PR #103 workflow, decision packet, runbook, contract, tests and public-trust gate."
+  - "Updated release boundary and tests to immutable v0.2.10 / first eligible v0.2.11+ and review date 2026-09-19."
+current: "Open the refreshed REVIEW PR, run exact-head CI, fix task-caused regressions only, then stop at Owner review."
+pending:
+  - "Open refreshed REVIEW PR."
+  - "Verify exact-head REL-016 and repository CI."
+  - "Persist review-ready checkpoint on main without merging the substantive REVIEW PR."
+last_verified_commit: "54ecd0085d54c481dbfd165ef6511d039933d1db"
+test_results:
+  - "Pre-PR content consistency check: no stale 0.2.10+ release boundary or 0.2.6 current baseline remains in refreshed packet/tests."
+resume_instruction: "Continue on agent/apl-rel-016-v0210-refresh. Open/inspect the refreshed PR, require exact-head substantive CI green, then stop at Owner review. Do not purchase/enroll/sign/publish or merge the substantive REVIEW item."
+updated_at: "2026-09-19T13:02:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "APL-REL-016-20260919"
+  branch: "agent/apl-rel-016-v0210-refresh"
+  base_commit: "54ecd0085d54c481dbfd165ef6511d039933d1db"
+  lease_until: null
+  manual_override: false
