@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -43,17 +43,23 @@ completed:
   - "Implemented physical-feedback fix: + Новый is enabled in CONNECTED state; saving a new profile while connected uses makeActive=false, preserves current selection/tunnel/status, and leaves primary changes disabled until disconnect."
   - "Existing-profile edit/delete remains restricted to DISCONNECTED/ERROR."
   - "Renamed События Auto / empty-state copy to Журнал and bumped Android to 0.1.15 / versionCode 16 for reliable in-place update from the installed 0.1.14 candidate."
-current: "Static-check, commit/push the 0.1.15 physical-feedback fix, then validate exact-head Android/repository CI and issue the replacement APK."
+  - "0.1.15 physical-feedback fix committed as 232a7284fb6336516f94ce7d62c2f5a7787a5033 and synced with current main 0.2.10 in merge head a5a84850133efbb516780163c8dcbbf75cc38fa8."
+  - "Exact product head a5a84850133efbb516780163c8dcbbf75cc38fa8 passed Android workflow 35424959015 plus SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations."
+  - "0.1.15 APK SHA-256: 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; stable signer unchanged."
+  - "Issue #51 updated with 0.1.15 physical-feedback candidate evidence in comment 5739764135."
+current: "Blocked on HUMAN recheck: connected + Новый and a real default-network transition without SIM."
 pending:
-  - "Run static checks, commit/push 0.1.15, and verify exact-head Android/repository checks."
-  - "Issue a replacement 0.1.15 APK with signer/SHA evidence."
-  - "HUMAN physical recheck of connected + Новый and real network transition without SIM."
+  - "HUMAN physical recheck: while VPN is CONNECTED, create/save a new profile and confirm the existing tunnel remains connected/unchanged; confirm Журнал label."
+  - "HUMAN physical network-transition recheck without SIM: Wi-Fi A -> Wi-Fi B -> Wi-Fi A with VPN left enabled, confirming connectivity recovers, no repeated VPN permission prompt, and no failover flapping."
   - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release only with explicit release authority, close issue #51, and set checkpoint completed."
-last_verified_commit: "f58e481eb5c588057714ea9e8f98fa16a9d1907c"
+last_verified_commit: "a5a84850133efbb516780163c8dcbbf75cc38fa8"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android workflow 35422996797 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: SAST, secret scan, SBOM, dependency vulnerability scan, Windows installer, Windows portable, provenance, sovereign lifecycle and both IP reconciliation workflows SUCCESS."
   - "Final candidate APK SHA-256: de2e0885119ac1017494a29a99890db586bf5370f5494d6198c0ee9cca133ec8."
-  - "Final candidate signer SHA-256: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Commit/push the implemented 0.1.15 physical-feedback fix on PR #119, inspect exact-head Android/repository CI, and issue a replacement APK. Then wait for HUMAN recheck of connected + Новый and real network transition without SIM."
+  - "Final 0.1.14 candidate signer SHA-256: FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
+  - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: Android workflow 35424959015 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
+  - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
+  - "0.1.15 APK SHA-256: 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
+resume_instruction: "Do not repeat the 0.1.15 repair or CI. Wait for HUMAN recheck of connected + Новый and Wi-Fi A -> Wi-Fi B network transition. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect."

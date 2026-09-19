@@ -1,13 +1,13 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: f58e481eb5c588057714ea9e8f98fa16a9d1907c
+last_verified_commit: a5a84850133efbb516780163c8dcbbf75cc38fa8
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -31,8 +31,11 @@ test_results:
   - Implemented + Новый in CONNECTED state with makeActive=false and no live selection/tunnel/status mutation; primary checkbox is disabled while creating connected.
   - Existing-profile edit/delete remains disconnected-only.
   - Renamed Auto event UI to Журнал and bumped candidate to 0.1.15 / versionCode 16 for in-place update.
+  - 0.1.15 fix committed as 232a7284fb6336516f94ce7d62c2f5a7787a5033 and merged with current main in a5a84850133efbb516780163c8dcbbf75cc38fa8.
+  - Android workflow 35424959015 and all observed repository workflows on a5a84850133efbb516780163c8dcbbf75cc38fa8 PASS.
+  - 0.1.15 APK SHA-256 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; issue #51 comment 5739764135 records the evidence.
 pending:
-  - Commit/push and validate exact-head Android/repository CI.
-  - Issue replacement 0.1.15 APK and return to HUMAN recheck for + Новый and no-SIM network transition.
+  - HUMAN recheck: connected + Новый must save a profile without changing the live tunnel/status; Журнал label visible.
+  - HUMAN no-SIM network transition: Wi-Fi A -> Wi-Fi B -> Wi-Fi A while VPN stays enabled; connectivity recovers, no repeated VPN permission prompt, no flapping.
   - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Commit/push the implemented 0.1.15 fix, run exact-head CI, issue the replacement APK, then wait for HUMAN recheck of connected + Новый and real network transition without SIM.
+resume_instruction: Wait for HUMAN recheck of connected + Новый and Wi-Fi A -> Wi-Fi B. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect.
