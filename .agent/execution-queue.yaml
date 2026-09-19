@@ -186,15 +186,17 @@ items:
     evidence: "Plan is recorded: public ads-enabled channel for GitHub/GitVerse/site/RuStore, private no-ads build from the same codebase, Yandex Mobile Ads/App Open initial target, fail-open/frequency/privacy constraints."
 
   - order: 130
-    task_id: APL-IOS-LATER-STAGE
-    title: "iOS mobile stage"
-    status: deferred
-    authority: REVIEW
-    independent: false
+    task_id: APL-IOS-PERSONAL-0.1.19-20260919
+    title: "iOS personal-use parity build from Android 0.1.19"
+    status: in_progress
+    authority: HUMAN
+    independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issue #50"
+    source: "Owner directive 2026-09-19; docs/LOCAL_EXECUTION_BACKLOG.md#P11; issue #50"
     dependencies:
-      - APL-MOB-002-ANDROID-FAILOVER
+      - APL-MOB-003-SITE-EXCLUSIONS-20260919
+    owner_gate: "Physical iPhone signing/install/acceptance requires the Owner Apple Developer team and full Xcode on the authorized Mac."
+    executor_scope: "Implement and validate native iOS app + Packet Tunnel parity for the accepted Android 0.1.19 scope. Do not add per-app routing, public App Store distribution, paid Apple commitments or production release actions."
 
 repository_hygiene:
   superseded_open_prs:

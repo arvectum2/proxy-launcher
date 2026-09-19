@@ -21,3 +21,9 @@ qa/
 mobile/android/.gradle/
 mobile/android/app/build/
 mobile/android/app/src/main/jniLibs/
+
+# iOS generated state and fetched native dependency
+mobile/ios/.build/
+mobile/ios/DerivedData/
+mobile/ios/Frameworks/tun2proxy.xcframework/
+mobile/ios/Frameworks/.tun2proxy-version

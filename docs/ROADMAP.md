@@ -114,10 +114,12 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
   - Before implementation, choose private package identity/update semantics explicitly so RuStore/public auto-updates cannot unexpectedly replace the no-ads build with the ad-enabled build.
   - Historical public releases remain immutable; advertising is introduced only by a new Android product version.
 
-### iOS
+### iOS — APL-IOS-PERSONAL-0.1.19-20260919
 
-- **DEFERRED** — start after Android dogfood establishes stable mobile semantics and the required Apple entitlement/distribution path is clear.
-- **CAPABILITY-DEPENDENT** — per-app routing is promised only where platform APIs and distribution model actually allow it.
+- **IN PROGRESS / OWNER-PRIORITIZED — personal iPhone build.** On 2026-09-19 the Owner explicitly moved iOS ahead as a personal-use target based on the accepted Android 0.1.19 semantics.
+- The implementation target is native SwiftUI + NetworkExtension Packet Tunnel with the same multiprofile/Auto/failover/site-exclusion scope as Android 0.1.19 where public iOS APIs permit it.
+- **Per-app routing remains out of scope.** This task must not advance the separate per-application routing architecture decision.
+- Repository/CI work may proceed unsigned. Physical iPhone installation remains a HUMAN gate requiring full Xcode and the Owner Apple Developer signing/provisioning context; no certificates or profiles are stored in the repository.
 ## 9. Currently available workstreams
 
 1. **[Android / OWNER] APL-MOB-001/002/003 — DONE; APL-MOB-004 — PLANNED/OWNER-GATED.** Site exclusions are integrated via PR #130; monetization/dual distribution starts only after explicit Owner priority and package/update-identity decision, and must not start per-application routing.
@@ -128,7 +130,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 6. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 7. **[Windows/release maintenance] — AVAILABLE AS NEEDED.** PR #80 is a release-evidence workflow maintenance fix and must be reconciled with current main before use.
 8. **[macOS production distribution] — DEFERRED.** Engineering baseline exists; Apple production signing/notarization remains non-primary.
-9. **[iOS] — DEFERRED.** Start after the Android product semantics are stable and the Apple entitlement/distribution path is explicit.
+9. **[iOS / HUMAN] APL-IOS-PERSONAL-0.1.19 — IN PROGRESS.** Native personal-use parity implementation is active; unsigned CI may proceed autonomously, while physical signing/install/acceptance stays with the Owner.
 
 ### Repository-hygiene note
 
@@ -137,6 +139,7 @@ Open PRs #81/#103 are superseded Windows-trust preparation paths; PR #132 is the
 ### Execution order
 
 - APL-MOB-003 is complete/integrated; APL-MOB-004 is waiting on explicit Owner prioritization/package identity, so automation must not start ad-provider implementation by itself.
+- APL-IOS-PERSONAL-0.1.19 is the active Owner-prioritized mobile lane; proceed through unsigned implementation/CI, then stop at the physical Apple signing/install gate.
 - APL-REL-016 has reached the Owner-review boundary in PR #132; the watchdog should not recreate the packet or merge it automatically.
 - After REL-016 reaches the Owner-review boundary again, the next safe repository-preparation lane is refreshing per-app-routing decision material in PR #68 against v0.2.10; architecture selection itself remains an Owner stop-gate.
 - External Ministry submission remains outside automation.
@@ -151,7 +154,7 @@ Open PRs #81/#103 are superseded Windows-trust preparation paths; PR #132 is the
 | Linux AppImage | **PUBLISHED v0.2.10** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **TEST PRERELEASE v0.2.10-macos-test.1 / PRODUCTION DEFERRED** | Apple Developer ID signing/notarization when prioritized |
 | Android | **0.1.17 PUBLIC / APL-MOB-003 0.1.19 DONE+MERGED / APL-MOB-004 PLANNED** | Owner prioritization/package identity for ads-enabled public + private no-ads distribution; public 0.1.19 release is separate |
-| iOS | **DEFERRED** | Start after Android product semantics / entitlement path |
+| iOS | **PERSONAL 0.1.19 BASELINE IN DEVELOPMENT** | Green unsigned iOS CI, then Owner Apple signing + physical iPhone acceptance |
 
 ## Completion discipline
 
