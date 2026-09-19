@@ -47,6 +47,7 @@ import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
@@ -67,6 +68,7 @@ class MainActivity : Activity() {
     private var currentProfileId: String? = null
     private var profileChoices: List<ProfileChoice> = emptyList()
     private var pendingSwitchChoice: ProfileChoice? = null
+    private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
     @Volatile private var healthScanInProgress = false
 
@@ -480,6 +482,25 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)),
         )
 
+        val exclusionCount = runCatching { store.getSiteExclusions().size }.getOrDefault(0)
+        rows.addView(
+            TextView(this).apply {
+                text = if (exclusionCount == 0) "Исключения" else "Исключения · $exclusionCount"
+                textSize = 14f
+                setTextColor(MINT_LIGHT)
+                setTypeface(typeface, Typeface.BOLD)
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(12), 0, dp(12), 0)
+                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
+                isClickable = true
+                setOnClickListener {
+                    popup.dismiss()
+                    showSiteExclusionsDialog()
+                }
+            },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)),
+        )
+
         rows.addView(
             TextView(this).apply {
                 text = "Журнал"
@@ -577,6 +598,141 @@ class MainActivity : Activity() {
         }, "APL-profile-health").start()
     }
 
+    private fun showSiteExclusionsDialog() {
+        val entries = runCatching { store.getSiteExclusions() }.getOrDefault(emptyList()).toMutableList()
+        val input = EditText(this).apply {
+            hint = "example.com"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            setSingleLine(true)
+            textSize = 15f
+            setTextColor(NAVY)
+            setHintTextColor(DISABLED_FG)
+            setPadding(dp(13), dp(10), dp(13), dp(10))
+            background = roundedSurface(WHITE, SOFT_GRAY, 11f)
+        }
+        val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+
+        fun renderEntries() {
+            list.removeAllViews()
+            if (entries.isEmpty()) {
+                list.addView(TextView(this).apply {
+                    text = "Список пока пуст"
+                    textSize = 13f
+                    setTextColor(DISABLED_FG)
+                    setPadding(dp(4), dp(8), dp(4), dp(4))
+                })
+                return
+            }
+            entries.forEach { host ->
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, dp(3), 0, dp(3))
+                }
+                row.addView(TextView(this).apply {
+                    text = host
+                    textSize = 14f
+                    setTextColor(NAVY)
+                }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                row.addView(Button(this).apply {
+                    text = "Удалить"
+                    isAllCaps = false
+                    setOnClickListener {
+                        entries.remove(host)
+                        renderEntries()
+                    }
+                })
+                list.addView(row)
+            }
+        }
+
+        fun addEntry() {
+            val raw = input.text.toString()
+            if (raw.isBlank()) return
+            val normalized = try {
+                SiteExclusionPolicy.normalize(raw)
+            } catch (e: IllegalArgumentException) {
+                input.error = e.message ?: "Проверьте адрес сайта"
+                return
+            }
+            if (normalized == null) {
+                input.error = "Введите адрес сайта"
+                return
+            }
+            if (normalized !in entries) {
+                entries.add(normalized)
+                entries.sort()
+            }
+            input.setText("")
+            input.error = null
+            renderEntries()
+        }
+
+        val addButton = Button(this).apply {
+            text = "Добавить"
+            isAllCaps = false
+            setOnClickListener { addEntry() }
+        }
+        val inputRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(input, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(addButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                marginStart = dp(8)
+            })
+        }
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(4), dp(4), dp(4), 0)
+            addView(TextView(this@MainActivity).apply {
+                text = "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP."
+                textSize = 13f
+                setTextColor(GRAPHITE)
+                setPadding(0, 0, 0, dp(10))
+            })
+            addView(inputRow)
+            addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(8)
+            })
+        }
+        renderEntries()
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Исключения")
+            .setView(content)
+            .setNegativeButton("Отмена", null)
+            .setPositiveButton("Сохранить", null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                if (input.text.toString().isNotBlank()) addEntry()
+                val normalized = try {
+                    SiteExclusionPolicy.normalizeAll(entries)
+                } catch (e: IllegalArgumentException) {
+                    input.error = e.message ?: "Проверьте список исключений"
+                    return@setOnClickListener
+                }
+                try {
+                    store.setSiteExclusions(normalized)
+                } catch (_: Exception) {
+                    input.error = "Не удалось сохранить исключения"
+                    return@setOnClickListener
+                }
+                dialog.dismiss()
+                if (currentState == ProxyVpnService.STATE_CONNECTED ||
+                    currentState == ProxyVpnService.STATE_CONNECTING
+                ) {
+                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения…") }
+                } else {
+                    val detail = if (normalized.isEmpty()) "Исключения очищены"
+                    else "Сохранено исключений: ${normalized.size}"
+                    renderState(currentState, detail)
+                }
+            }
+        }
+        dialog.show()
+    }
+
     private fun showPoolEventsDialog() {
         val events = runCatching { poolUiStore.listEvents(20) }.getOrDefault(emptyList())
         val formatter = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
@@ -631,12 +787,16 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun requestLiveSwitch(choice: ProfileChoice) {
+    private fun requestLiveSwitch(
+        choice: ProfileChoice,
+        detail: String = "Переключаемся на ${choice.label}…",
+    ) {
         pendingSwitchChoice = choice
+        pendingSwitchDetail = detail
         switchInProgress = true
         profileSelectionText.text = choice.label
-        renderState(ProxyVpnService.STATE_DISCONNECTING, "Переключаемся на ${choice.label}…")
-        disconnectVpn("Переключаемся на ${choice.label}…")
+        renderState(ProxyVpnService.STATE_DISCONNECTING, detail)
+        disconnectVpn(detail)
     }
 
     private fun handlePendingSwitchState(state: String, detail: String?) {
@@ -644,23 +804,28 @@ class MainActivity : Activity() {
 
         if (state == ProxyVpnService.STATE_DISCONNECTED) {
             val choice = pendingSwitchChoice ?: run {
+                pendingSwitchDetail = null
                 switchInProgress = false
                 updateProfileControls()
                 return
             }
+            val reconnectDetail = pendingSwitchDetail ?: "Переключаемся на ${choice.label}…"
             mainHandler.postDelayed({
                 if (!switchInProgress || pendingSwitchChoice?.key != choice.key) return@postDelayed
                 if (applySelection(choice)) {
                     pendingSwitchChoice = null
-                    connectVpn("Переключаемся на ${choice.label}…")
+                    pendingSwitchDetail = null
+                    connectVpn(reconnectDetail)
                 } else {
                     pendingSwitchChoice = null
+                    pendingSwitchDetail = null
                     switchInProgress = false
                     updateProfileControls()
                 }
             }, SWITCH_RECONNECT_DELAY_MS)
         } else if (state == ProxyVpnService.STATE_CONNECTED || state == ProxyVpnService.STATE_ERROR) {
             pendingSwitchChoice = null
+            pendingSwitchDetail = null
             switchInProgress = false
             refreshProfileChoices(currentSelectionKey())
             renderState(state, detail)
