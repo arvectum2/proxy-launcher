@@ -224,7 +224,7 @@ struct ProfileEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section("Прокси") {
                     TextField("Название", text: $name)
@@ -284,7 +284,7 @@ struct ExclusionsView: View {
     @State private var localError: String?
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             List {
                 Section {
                     Text("Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP.")
@@ -343,7 +343,7 @@ struct JournalView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             List {
                 if model.events.isEmpty {
                     Text("Событий пока нет").foregroundStyle(.secondary)
