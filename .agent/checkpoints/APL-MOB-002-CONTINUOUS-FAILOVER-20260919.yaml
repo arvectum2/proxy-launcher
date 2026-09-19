@@ -1,0 +1,26 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
+status: in_progress
+authority: HUMAN
+branch: agent/apl-mob-002-continuous-failover-20260919
+pr: 119
+issue: 51
+baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
+last_verified_commit: 3ad383875db49902dec4f0985d31e3aedfe3a05c
+completed:
+  - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
+  - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
+  - PR #119 opened and is mergeable.
+  - First exact-head Android run 35406964755 compiled production Kotlin successfully but failed one deterministic unit assertion: recentlyFailedCandidateMovesBehindBackups.
+  - Reconciled the failure against FailoverPolicy's documented stable-storage-order contract: implementation correctly produced backup-b, backup-a, primary; the test incorrectly expected backup-a, backup-b, primary.
+  - Corrected only the stale assertion in commit 3ad383875db49902dec4f0985d31e3aedfe3a05c; no product behavior changed.
+test_results:
+  - Previous PR head 9e80f0da641aef0aa50b2f079967dce62eed4938: all observed non-Android workflows SUCCESS; Android compile SUCCESS; 4/5 FailoverPolicy tests passed, 1 assertion failed.
+  - Current head 3ad383875db49902dec4f0985d31e3aedfe3a05c: CI not yet visible on first post-push inspection.
+pending:
+  - Inspect exact-head CI once; if Android or required repository checks fail, fix only task-caused failures.
+  - After exact-head Android CI passes, record APK signer/SHA-256 evidence and prepare physical dogfood instructions.
+  - HUMAN physical gate remains mandatory: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake and network-transition behavior.
+  - Do not merge, publish/release, or close issue #51 before physical PASS and reserved human/review gates.
+resume_instruction: Inspect exact-head workflows for 3ad383875db49902dec4f0985d31e3aedfe3a05c once. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; if failed, inspect only failing job and repair task-caused defects. Do not repeat baseline implementation or 0.1.13 acceptance.
