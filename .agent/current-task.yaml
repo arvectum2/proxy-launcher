@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: completed
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -76,13 +76,16 @@ completed:
   - "Issue #51 updated with HUMAN physical PASS and governance gate in comment 5739970341."
   - "Owner explicitly authorized merge of PR #119 and publication of Android 0.1.17 on GitHub and GitVerse on 2026-09-19."
   - "Re-resolved PR #119 exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e: mergeable=true and all observed exact-head workflows PASS."
-current: "Execute the explicitly authorized merge of PR #119, then publish Android 0.1.17 on GitHub and GitVerse using the governed Android release path and verify public hashes/parity."
-pending:
-  - "Merge PR #119 against exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e."
-  - "Resolve resulting main merge commit; create/publish immutable android-v0.1.17 release under existing Android release policy."
-  - "Mirror Android 0.1.17 to GitVerse and verify byte/hash parity."
-  - "Close issue #51, record final identities/evidence, and set checkpoint completed."
-last_verified_commit: "2cab7b8f14e52f80d75820efe19a7fabb45acc85"
+  - "Final exact PR head a58f18726a0a20b1385919dc0e336034ea64a07d passed all observed required workflows, including Mobile Android spike 35427392885 and Windows installer 35427392795."
+  - "PR #119 merged to main as 8b07165a2f8404ed711399c6e65ec76a22b46a72."
+  - "Published immutable GitHub release android-v0.1.17 targeting merge commit 8b07165a2f8404ed711399c6e65ec76a22b46a72."
+  - "GitHub APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; checksum manifest asset SHA-256 c3de09849bbce2104b5e4239cbc7d93f23dee56a9a46be9ff6ae0cc2bbe07638."
+  - "GitVerse mirror run 35427636174 SUCCESS; public post-download payload parity PASS for APK and checksum manifest."
+  - "GitVerse public release page verified HTTP 200 at https://gitverse.ru/arvectum/proxy-launcher/releases/tag/android-v0.1.17."
+  - "Issue #51 final release evidence comment 5740046899 added and issue closed as completed."
+current: "Completed. Android 0.1.17 continuous failover/network-handoff scope is physically accepted, merged, released on GitHub, mirrored to GitVerse, publicly hash-verified, and issue #51 is closed."
+pending: []
+last_verified_commit: "8b07165a2f8404ed711399c6e65ec76a22b46a72"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android workflow 35422996797 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
@@ -95,4 +98,4 @@ test_results:
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: Android workflow 35425798518 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
   - "0.1.16 APK SHA-256: 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Explicit merge+release authorization is granted. Continue with exact-head merge of PR #119, then governed Android 0.1.17 GitHub release + GitVerse mirror, verify public hashes/parity, close issue #51, and mark completed. Do not repeat implementation or physical testing."
+resume_instruction: "Task complete. Do not resume APL-MOB-002 continuous-failover unless a new defect is reported. Preserve immutable tag/release android-v0.1.17 and APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2."

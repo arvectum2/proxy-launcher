@@ -1,13 +1,13 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: completed
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: 2cab7b8f14e52f80d75820efe19a7fabb45acc85
+last_verified_commit: 8b07165a2f8404ed711399c6e65ec76a22b46a72
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -53,7 +53,10 @@ test_results:
   - Exact PR head 2cab7b8f14e52f80d75820efe19a7fabb45acc85 is mergeable and all observed exact-head workflows PASS; issue #51 comment 5739970341 records acceptance and the remaining governance gate.
   - Owner explicitly authorized merge PR #119 and Android 0.1.17 release publication to GitHub and GitVerse on 2026-09-19.
   - Re-resolved exact PR head 59bce0be0ecb8a8448e2b870589b24cbea908a7e: mergeable and all observed exact-head workflows PASS.
-pending:
-  - Merge PR #119 at exact head 59bce0be0ecb8a8448e2b870589b24cbea908a7e.
-  - Publish immutable android-v0.1.17 release from resulting main commit, mirror to GitVerse, verify public payload parity, close issue #51, and mark task completed.
-resume_instruction: Explicit merge+release authorization is granted. Merge PR #119 at the revalidated exact head, then execute governed Android 0.1.17 GitHub/GitVerse release and final closeout.
+  - Final PR head a58f18726a0a20b1385919dc0e336034ea64a07d exact-head CI PASS.
+  - PR #119 merged as 8b07165a2f8404ed711399c6e65ec76a22b46a72.
+  - GitHub release android-v0.1.17 published from the merge commit with APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2 and checksum-manifest asset SHA-256 c3de09849bbce2104b5e4239cbc7d93f23dee56a9a46be9ff6ae0cc2bbe07638.
+  - GitVerse mirror run 35427636174 PASS; public canonical payload parity verified for both assets.
+  - Issue #51 final evidence comment 5740046899 added; issue closed completed.
+pending: []
+resume_instruction: Task complete. Preserve immutable android-v0.1.17 release. Reopen only for a newly reported defect.
