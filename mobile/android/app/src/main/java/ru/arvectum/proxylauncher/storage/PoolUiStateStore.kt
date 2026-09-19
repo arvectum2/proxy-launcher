@@ -55,6 +55,19 @@ class PoolUiStateStore(context: Context) {
             .remove(healthKey(profileId, "checked_at"))
             .apply()
     }
+
+    fun setTunnelState(state: String, detail: String?) {
+        prefs.edit()
+            .putString(KEY_TUNNEL_STATE, state)
+            .putString(KEY_TUNNEL_DETAIL, detail)
+            .apply()
+    }
+
+    fun getTunnelState(defaultState: String): String =
+        prefs.getString(KEY_TUNNEL_STATE, defaultState) ?: defaultState
+
+    fun getTunnelDetail(): String? = prefs.getString(KEY_TUNNEL_DETAIL, null)
+
     fun appendEvent(
         type: String,
         profileId: String?,
@@ -104,6 +117,8 @@ class PoolUiStateStore(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "apl_mobile_pool_ui_v1"
+        private const val KEY_TUNNEL_STATE = "tunnel_state"
+        private const val KEY_TUNNEL_DETAIL = "tunnel_detail"
         private const val KEY_EVENTS = "events_v1"
         private const val MAX_EVENTS = 40
     }

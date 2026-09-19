@@ -16,6 +16,14 @@ class PoolStateRelayReceiver : BroadcastReceiver() {
         val store = PoolUiStateStore(context)
 
         when (action) {
+            ProxyVpnService.ACTION_POOL_STATE -> {
+                val state = intent.getStringExtra(ProxyVpnService.EXTRA_STATE) ?: return
+                store.setTunnelState(
+                    state = state,
+                    detail = intent.getStringExtra(ProxyVpnService.EXTRA_DETAIL),
+                )
+                return
+            }
             ProxyVpnService.ACTION_POOL_HEALTH -> {
                 val profileId = intent.getStringExtra(ProxyVpnService.EXTRA_PROFILE_ID) ?: return
                 val status = runCatching {

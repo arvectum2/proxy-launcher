@@ -666,7 +666,12 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun publishState(state: String, detail: String?) {
-        store.setLastState(state, detail)
+        sendBroadcast(
+            Intent(this, PoolStateRelayReceiver::class.java)
+                .setAction(ACTION_POOL_STATE)
+                .putExtra(EXTRA_STATE, state)
+                .putExtra(EXTRA_DETAIL, detail),
+        )
         sendBroadcast(
             Intent(ACTION_STATE)
                 .setPackage(packageName)
@@ -735,6 +740,7 @@ class ProxyVpnService : VpnService() {
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
         const val ACTION_STATE = "ru.arvectum.proxylauncher.STATE"
         const val ACTION_POOL_UPDATE = "ru.arvectum.proxylauncher.POOL_UPDATE"
+        const val ACTION_POOL_STATE = "ru.arvectum.proxylauncher.POOL_STATE"
         const val ACTION_POOL_HEALTH = "ru.arvectum.proxylauncher.POOL_HEALTH"
         const val ACTION_POOL_EVENT = "ru.arvectum.proxylauncher.POOL_EVENT"
         const val EXTRA_STATE = "state"

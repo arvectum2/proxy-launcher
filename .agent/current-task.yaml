@@ -30,7 +30,7 @@ completed:
   - "First exact-head PR #119 Android run 35406964755 compiled production Kotlin successfully; all observed non-Android workflows passed, and one FailoverPolicy test assertion was found stale."
   - "Remote continuation corrected the stale ordering assertion in commit 3ad383875db49902dec4f0985d31e3aedfe3a05c and persisted history checkpoint b0249e2ae9430ef3d10aa07ea124848749679924."
   - "Static lifecycle review found two Android-specific risks before physical handoff: cross-process SharedPreferences telemetry coherence and Android 12+ background foreground-service restart restrictions."
-  - "Reworked live health/event telemetry into a default-process-only PoolUiStateStore fed by an explicit non-exported relay receiver; failover-critical state remains committed in the :vpn process."
+  - "Reworked live health/event telemetry and persisted tunnel UI state into a default-process-only PoolUiStateStore fed by an explicit non-exported relay receiver; UI no longer depends on cross-process SharedPreferences cache coherence for CONNECTED/ERROR/health/event display, while failover-critical pool state remains synchronously committed in :vpn."
   - "Reworked failover handoff to keep the existing START_STICKY VpnService started, close the old TUN/native engine, persist failure state, and terminate only :vpn so Android recreates the service in a fresh process without a new foreground-service start request."
   - "Expanded pure FailoverPolicy coverage for network settle grace, empty candidate sets and suppression expiry."
 current: "Commit/push the process-safety review fixes and validate the new exact-head with Android unit/build/signer gates plus repository checks."

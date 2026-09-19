@@ -12,7 +12,6 @@ import javax.crypto.spec.GCMParameterSpec
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
-import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 
 data class ResolvedProxyProfile(
     val profile: ProxyProfile,
@@ -179,15 +178,6 @@ class SecureProfileStore(context: Context) {
         check(editor.commit()) { "Failed to delete proxy profile" }
     }
 
-    fun setLastState(state: String, detail: String? = null) {
-        prefs.edit().putString(KEY_LAST_STATE, state).putString(KEY_LAST_DETAIL, detail).commit()
-    }
-
-    fun getLastState(): String = prefs.getString(KEY_LAST_STATE, ProxyVpnService.STATE_DISCONNECTED)
-        ?: ProxyVpnService.STATE_DISCONNECTED
-
-    fun getLastDetail(): String? = prefs.getString(KEY_LAST_DETAIL, null)
-
     fun getPrimaryProfileId(): String? {
         ensureLegacyProfileIndexed()
         val stored = prefs.getString(KEY_PRIMARY_ID, null)
@@ -338,8 +328,6 @@ class SecureProfileStore(context: Context) {
         private const val KEY_ACTIVE_ID = "active_profile_id"
         private const val KEY_AUTO_SELECTION = "auto_profile_selection"
         private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
-        private const val KEY_LAST_STATE = "tunnel_state"
-        private const val KEY_LAST_DETAIL = "tunnel_detail"
         private const val KEY_PRIMARY_ID = "pool_primary_profile_id"
         private const val KEY_RESTORE_POLICY = "pool_restore_policy"
         private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"

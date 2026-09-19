@@ -88,7 +88,7 @@ class MainActivity : Activity() {
                         ?: ProxyVpnService.STATE_DISCONNECTED
                     val detail = intent.getStringExtra(ProxyVpnService.EXTRA_DETAIL)
                     renderState(state, detail)
-                    handlePendingSwitchState(state)
+                    handlePendingSwitchState(state, detail)
                 }
             }
         }
@@ -152,7 +152,10 @@ class MainActivity : Activity() {
         setContentView(root)
 
         refreshProfileChoices(currentSelectionKey())
-        renderState(store.getLastState(), store.getLastDetail())
+        renderState(
+            poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED),
+            poolUiStore.getTunnelDetail(),
+        )
     }
 
     override fun onStart() {
@@ -635,7 +638,7 @@ class MainActivity : Activity() {
         disconnectVpn("Переключаемся на ${choice.label}…")
     }
 
-    private fun handlePendingSwitchState(state: String) {
+    private fun handlePendingSwitchState(state: String, detail: String?) {
         if (!switchInProgress) return
 
         if (state == ProxyVpnService.STATE_DISCONNECTED) {
@@ -659,7 +662,7 @@ class MainActivity : Activity() {
             pendingSwitchChoice = null
             switchInProgress = false
             refreshProfileChoices(currentSelectionKey())
-            renderState(store.getLastState(), store.getLastDetail())
+            renderState(state, detail)
         }
     }
 

@@ -16,7 +16,7 @@ completed:
   - Reconciled the failure against FailoverPolicy's documented stable-storage-order contract: implementation correctly produced backup-b, backup-a, primary; the test incorrectly expected backup-a, backup-b, primary.
   - Corrected only the stale assertion in commit 3ad383875db49902dec4f0985d31e3aedfe3a05c; no product behavior changed.
   - Subsequent static lifecycle review found cross-process SharedPreferences telemetry coherence risk and Android 12+ background foreground-service restart restrictions before physical handoff.
-  - Current local review moves health/events to a default-process-only telemetry store via explicit non-exported relay and changes failover handoff to START_STICKY :vpn process recreation, avoiding an app-initiated background foreground-service restart.
+  - Current local review moves health/events plus persisted tunnel UI state to a default-process-only telemetry store via explicit non-exported relay and changes failover handoff to START_STICKY :vpn process recreation, avoiding both cross-process UI-state cache dependence and an app-initiated background foreground-service restart.
   - Added deterministic coverage for network settle grace, empty candidate sets and recently-failed suppression expiry.
 test_results:
   - Previous PR head 9e80f0da641aef0aa50b2f079967dce62eed4938: all observed non-Android workflows SUCCESS; Android compile SUCCESS; 4/5 FailoverPolicy tests passed, 1 assertion failed.
