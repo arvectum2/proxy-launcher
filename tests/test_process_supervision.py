@@ -52,6 +52,43 @@ class ProcessSupervisionTests(unittest.TestCase):
              mock.patch.object(core, "_windows_process_executable_path", return_value="C:/foreign.exe"):
             self.assertFalse(core.is_running())
 
+    def test_is_running_rejects_foreign_macos_listener_without_owned_pid(self):
+        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
+             mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "_read_pid", return_value=None), \
+             mock.patch.object(core, "_macos_process_executable_path") as path:
+            self.assertFalse(core.is_running())
+        path.assert_not_called()
+
+    def test_is_running_accepts_owned_macos_pid_and_executable(self):
+        record = {
+            "pid": 42,
+            "created": None,
+            "exe_path": "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/Arvectum Proxy Launcher",
+        }
+        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
+             mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "_read_pid", return_value=record), \
+             mock.patch.object(
+                 core,
+                 "_macos_process_executable_path",
+                 return_value=record["exe_path"],
+             ):
+            self.assertTrue(core.is_running())
+
+    def test_macos_kill_refuses_pid_with_foreign_executable(self):
+        record = {"pid": 77, "created": None, "exe_path": "/Applications/owned"}
+        with mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(
+                 core, "_macos_process_executable_path", return_value="/Applications/foreign"
+             ), \
+             mock.patch.object(process_supervision.os, "kill") as kill:
+            self.assertFalse(core._kill_pid(record))
+        kill.assert_not_called()
+
     def test_windows_kill_requires_matching_creation_time(self):
         completed = mock.Mock(returncode=0, stderr="", stdout="")
         with mock.patch.object(core, "is_windows", return_value=True), \
@@ -63,6 +100,7 @@ class ProcessSupervisionTests(unittest.TestCase):
 
     def test_nonwindows_kill_preserves_sigkill_contract(self):
         with mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(process_supervision.sys, "platform", "linux"), \
              mock.patch.object(process_supervision.os, "kill") as kill:
             self.assertTrue(core._kill_pid({"pid": 77, "created": None}))
         kill.assert_called_once_with(77, 9)

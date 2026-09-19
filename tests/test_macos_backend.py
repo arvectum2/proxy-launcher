@@ -141,13 +141,48 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertTrue(self.backend.disable())
         self.assertFalse(self.backend.restore_pending())
         self.assertFalse(os.path.exists(self.backup_path))
-        for name in ("Wi-Fi", "Ethernet"):
-            self.assertEqual(self.client.services[name]["auto"], original[name][0])
-            self.assertEqual(self.client.services[name]["bypass"], original[name][1])
+        # networksetup cannot clear an empty disabled PAC URL after another URL
+        # has been written. Functional restoration therefore requires Enabled:
+        # No plus the exact original bypass set; non-empty saved URLs stay exact.
+        self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original["Wi-Fi"][1])
+        self.assertEqual(self.client.services["Ethernet"]["auto"], original["Ethernet"][0])
+        self.assertEqual(self.client.services["Ethernet"]["bypass"], original["Ethernet"][1])
 
         calls_before = len(self.client.calls)
         self.assertTrue(self.backend.disable())
         self.assertEqual(len(self.client.calls), calls_before)
+
+    def test_disable_skips_invalid_empty_setautoproxyurl_for_disabled_snapshot(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.calls.clear()
+
+        self.assertTrue(self.backend.disable())
+
+        self.assertNotIn(("set_auto_proxy_url", "Wi-Fi", ""), self.client.calls)
+        self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], ("corp.example",))
+
+    def test_disable_retry_completes_partial_restore(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.fail_once("set_auto_proxy_state", "Wi-Fi")
+
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+        # Ethernet was already restored while Wi-Fi remains Arvectum-owned.
+        self.assertEqual(
+            self.client.services["Ethernet"]["auto"],
+            AutoProxyState(True, "http://old.example/proxy.pac"),
+        )
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["auto"],
+            AutoProxyState(True, CONFIG.pac_url),
+        )
+
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], ("corp.example",))
 
     def test_foreign_change_prevents_destructive_disable(self):
         self.assertTrue(self.backend.enable(CONFIG))
@@ -177,10 +212,8 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertFalse(self.backend.enable(CONFIG))
         self.assertFalse(self.backend.restore_pending())
-        self.assertEqual(
-            (self.client.services["Wi-Fi"]["auto"], self.client.services["Wi-Fi"]["bypass"]),
-            original_wifi,
-        )
+        self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original_wifi[1])
         self.assertEqual(
             (self.client.services["Ethernet"]["auto"], self.client.services["Ethernet"]["bypass"]),
             original_ethernet,

@@ -1,0 +1,47 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-UI-POLISH-20260918
+status: completed
+goal: "Polish the private macOS desktop experience: correct platform-specific copy/layout and replace the square app icon with a proper transparent macOS squircle."
+authority: OWNER_DIRECTIVE
+definition_of_done:
+  - "Main launcher no longer presents Windows-specific identity/copy on macOS."
+  - "macOS layout is visually cleaner and compact while preserving existing proxy actions and safety states."
+  - "Canonical macOS icon has transparent squircle corners and is used by the .app bundle, Finder/Desktop and Dock."
+  - "Relevant GUI/macOS packaging tests pass."
+  - "Private arm64 app is rebuilt, reinstalled and launch-checked on the Mac mini without publishing a release."
+completed:
+  - "Recovered prior completed dogfood checkpoint and verified Mac mini/repository state."
+  - "Identified and fixed hard-coded Windows platform/status copy and dense Windows-oriented macOS layout."
+  - "Implemented platform-aware copy, macOS typography, two-line branded header, compact card/grid layout, Command-V support and centered window."
+  - "Regenerated canonical macOS icon from the existing high-resolution transparent Arvectum source and added dedicated macOS window icon asset."
+  - "Added macOS status/platform regression coverage and a macOS .icns alpha contract test."
+  - "Render-only Tk probe on Mac mini produced a centered 736x874 window with macOS copy."
+  - "Full macOS discovery suite passed 42/42; broader GUI/backend/runtime/license suite passed 58/58."
+  - "Built native arm64 private .app with governed licenses and strict deep ad-hoc codesign."
+  - "Safely replaced only the GUI in /Applications while the active proxy engine PID 1139 continued serving ports 1080/8082/8080."
+  - "Verified system PAC stayed enabled at http://127.0.0.1:8082/proxy.pac; no network setting was changed during GUI replacement."
+  - "Refreshed Quick Look, Finder and Dock caches; Desktop shortcut continues to resolve to /Applications/Arvectum Proxy Launcher.app."
+  - "Installed .icns verified as 1024x1024, hasAlpha=yes and transparent at all four corners."
+  - "Installed executable SHA256 41a3f66d7413e80e58a78696c5bfc2aa1ac70a82d118403a791d85677277607f exactly matches the validated build artifact."
+  - "Implementation committed and pushed as df1442f2671f72df382d0588070e083893d3e5e4."
+current: "Completed. Polished private macOS app is installed and running with the squircle icon; active proxy routing was preserved."
+pending: []
+last_verified_commit: "df1442f2671f72df382d0588070e083893d3e5e4"
+test_results:
+  - "Focused GUI/macOS suite: 40/40 PASS."
+  - "Full test_macos*.py discovery: 42/42 PASS."
+  - "Broader GUI/backend/runtime/license suite: 58/58 PASS."
+  - "Render-only Tk probe: macOS, requested 736x874, centered geometry 736x874+592+79."
+  - "Built/installed app: ru.arvectum.proxylauncher; native arm64; strict deep codesign PASS; governed license bundle verified."
+  - "Installed icon: 1024x1024 hasAlpha=yes; all four corner alpha values are 0."
+  - "Post-install launch health PASS; GUI PID 73256; proxy engine/listeners remained alive and installed executable hash matched build artifact."
+resume_instruction: "Task is complete. Use /Applications/Arvectum Proxy Launcher.app or the Desktop shortcut. Do not alter the currently active proxy solely for UI validation. Any further macOS visual changes should start a new task from this completed checkpoint."
+updated_at: "2026-09-18T22:40:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-UI-POLISH-20260918"
+  branch: "agent/macos-ui-polish-20260918"
+  base_commit: "b82755a231042f55d568b8fb962715b414d0b9c9"
+  implementation_commit: "df1442f2671f72df382d0588070e083893d3e5e4"
+  manual_override: true

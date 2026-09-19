@@ -35,13 +35,38 @@ class AutostartOwnershipTests(unittest.TestCase):
     def test_autostart_enable_is_refused_in_portable_fallback(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.auto_var = _BoolVar(True)
-        with mock.patch.object(gui.core, "load_settings",
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.core, "load_settings",
                                return_value={"upstream": [{"host": "test.invalid"}]}), \
              mock.patch.object(gui, "_portable_fallback_active", return_value=True), \
              mock.patch.object(gui.messagebox, "showwarning") as warning:
             self.assertFalse(launcher._enable_autostart())
         self.assertFalse(launcher.auto_var.get())
         warning.assert_called_once()
+
+    def test_macos_autostart_enable_uses_launchagent_not_windows_copy(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.auto_var = _BoolVar(True)
+        module = mock.Mock()
+        module.enable_autostart.return_value = "/tmp/ru.arvectum.proxylauncher.plist"
+        module.is_autostart_enabled.return_value = True
+        with mock.patch.object(gui, "_is_macos", return_value=True), \
+             mock.patch.object(gui, "macos_autostart_module", module), \
+             mock.patch.object(gui, "_portable_fallback_active") as portable, \
+             mock.patch.object(gui.messagebox, "showinfo") as info:
+            self.assertTrue(launcher._enable_autostart())
+        module.enable_autostart.assert_called_once_with()
+        portable.assert_not_called()
+        info.assert_called_once()
+
+    def test_macos_autostart_state_reads_launchagent(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        module = mock.Mock()
+        module.is_autostart_enabled.return_value = True
+        with mock.patch.object(gui, "_is_macos", return_value=True), \
+             mock.patch.object(gui, "macos_autostart_module", module):
+            self.assertTrue(launcher._autostart_enabled())
+        module.is_autostart_enabled.assert_called_once_with()
 
     def test_foreign_task_conflict_resets_checkbox(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
@@ -51,7 +76,8 @@ class AutostartOwnershipTests(unittest.TestCase):
         launcher._autostart_task_xml = mock.Mock(return_value="foreign task xml")
         launcher._autostart_task_is_ours = mock.Mock(return_value=False)
 
-        with mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "test.invalid"}]}), \
+        with mock.patch.object(gui, "_is_macos", return_value=False), \
+             mock.patch.object(gui.core, "load_settings", return_value={"upstream": [{"host": "test.invalid"}]}), \
              mock.patch.object(gui.messagebox, "showerror"):
             launcher._toggle_autostart()
 
@@ -62,7 +88,8 @@ class AutostartOwnershipTests(unittest.TestCase):
         launcher._autostart_run_is_ours = mock.Mock(return_value=True)
         launcher._autostart_task_is_ours = mock.Mock(return_value=False)
 
-        self.assertTrue(launcher._autostart_enabled())
+        with mock.patch.object(gui, "_is_macos", return_value=False):
+            self.assertTrue(launcher._autostart_enabled())
         launcher._autostart_task_is_ours.assert_not_called()
 
 
@@ -129,6 +156,23 @@ class FinalStatusUxTests(unittest.TestCase):
     def test_running_state_keeps_precedence_over_recovery_evidence(self):
         view = self.status(running=True, enabled=True, pending=True)
         self.assertEqual(view["key"], "active")
+
+    def test_status_copy_can_target_macos_without_windows_leakage(self):
+        view = gui._final_status_view(
+            running=True,
+            enabled=True,
+            pending=False,
+            orphaned_pac=False,
+            stale_proxy=False,
+            platform_label="macOS",
+        )
+        self.assertIn("macOS", view["hint"])
+        self.assertNotIn("Windows", view["hint"])
+
+    def test_platform_label_reports_macos_for_darwin(self):
+        with mock.patch.object(gui.sys, "platform", "darwin"):
+            self.assertEqual(gui._platform_label(), "macOS")
+            self.assertIn("macOS", gui._autostart_label())
 
 
 if __name__ == "__main__":
