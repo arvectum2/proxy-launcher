@@ -42,6 +42,17 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
         self.assertIn("pixelHeight: 1024", result.stdout)
         self.assertIn("hasAlpha: yes", result.stdout)
 
+    def test_bundle_version_is_bound_to_canonical_version_before_final_seal(self):
+        self.assertIn('product_version="$(tr -d \'[:space:]\' < "$repo_root/VERSION")"', SCRIPT)
+        self.assertIn('bundle_version="${product_version%%[-+]*}"', SCRIPT)
+        self.assertIn('set_plist_string CFBundleShortVersionString "$bundle_version"', SCRIPT)
+        self.assertIn('set_plist_string CFBundleVersion "$bundle_version"', SCRIPT)
+        short_verify = SCRIPT.index("Print :CFBundleShortVersionString")
+        build_verify = SCRIPT.index("Print :CFBundleVersion")
+        resign = SCRIPT.index('codesign --force --deep --sign - "$app"')
+        self.assertLess(short_verify, resign)
+        self.assertLess(build_verify, resign)
+
     def test_app_bundle_contains_product_and_third_party_notices(self):
         self.assertIn('Contents/Resources', SCRIPT)
         self.assertIn('install -m644 LICENSE "$resources/LICENSE.txt"', SCRIPT)
