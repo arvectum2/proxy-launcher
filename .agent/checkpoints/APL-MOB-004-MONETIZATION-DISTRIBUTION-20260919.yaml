@@ -1,0 +1,24 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
+status: completed
+goal: "Record the future Android advertising and dual public/private distribution model in the canonical roadmap without implementing advertising yet."
+definition_of_done:
+  - "ROADMAP identifies a future Android monetization workstream after the current site-exclusions gate."
+  - "Public distribution is explicitly ads-enabled across GitHub, GitVerse, website and RuStore only after a new monetized Android release."
+  - "Private no-ads distribution is explicitly separated from the public repository and keeps a current APK on the Mac mini."
+  - "The plan preserves one product codebase and avoids maintaining two divergent applications."
+  - "ROADMAP notes that private branches/releases cannot be private inside the existing public GitHub repository."
+completed:
+  - "Added APL-MOB-004 Android monetization + dual distribution to docs/ROADMAP.md."
+  - "Recorded Yandex Mobile Ads / App Open as the initial target, with fail-open, frequency and privacy/consent gates."
+  - "Recorded public ads-enabled delivery via GitHub, GitVerse, website and RuStore."
+  - "Recorded private no-ads delivery via a separate private remote/repository or Mac-only private branch until that remote exists."
+  - "Recorded stable latest private APK plus immutable versioned APK/hash retention on the Mac mini."
+  - "Updated stale Android roadmap status from the old 0.1.7 gate to released 0.1.17 / current APL-MOB-003 PR #125 physical gate."
+current: "Roadmap update complete; no ad SDK, private repository, release automation or APK flavor has been implemented yet."
+pending: []
+last_verified_commit: "3638440016918fb81d8b8918bdc68b76edc80748"
+test_results:
+  - "Documentation/governance-only change; repository CI is the merge gate."
+resume_instruction: "When APL-MOB-003 is accepted and Owner prioritizes monetization, start APL-MOB-004 from current main. Design Android build flavors and private update identity first; then integrate production ads only into the public flavor and add private release/APK automation."
