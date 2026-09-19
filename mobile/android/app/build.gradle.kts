@@ -145,8 +145,8 @@ android {
         applicationId = "ru.arvectum.proxylauncher"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.1.13"
+        versionCode = 18
+        versionName = "0.1.17"
     }
 
     signingConfigs {
@@ -171,6 +171,10 @@ android {
 
 tasks.named("preBuild").configure {
     dependsOn(generateBrandingResources)
+}
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
 }
 
 kotlin {

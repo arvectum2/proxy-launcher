@@ -40,8 +40,12 @@ No Clash/sing-box profiles, YAML/JSON, subscriptions, GeoIP or routing terminolo
 - multiple named proxy profiles with persisted manual or pool-level Auto selection;
 - automatic migration of the pre-0.1.5 single active profile into the profile index;
 - saved-profile selector remains active while connected and orchestrates disconnect → selection → reconnect;
-- profile create/edit/save/delete controls remain locked while the tunnel is active;
-- pool-level Auto probes saved profiles with bounded timeouts, prefers the last successful Auto profile, and connects through the first working candidate;
+- while connected, a new saved profile can be added to the pool without changing the live tunnel; editing/deleting existing profiles remains locked until disconnect;
+- pool-level Auto probes saved profiles with bounded timeouts and connects through the first working candidate according to the documented primary/last-success/fallback policy;
+- connected Auto continuously checks the active upstream, confirms failures with debounce, and hands off to a fresh isolated VPN process for automatic fallback without requesting VPN permission again;
+- saved profiles expose bounded health state and probe latency in the existing profile chooser; latency is a connection-health signal, not a throughput guarantee;
+- Auto can either stay on the working fallback or return to the designated primary after recovery, with cooldown/hysteresis to avoid flapping;
+- a bounded credential-free Auto event log records unavailable/switch/restored decisions;
 - Auto status names the saved profile and resolved transport selected for the tunnel;
 - Android Keystore AES-GCM protection for each persisted proxy password;
 - no plaintext credentials in config files or logs.
@@ -225,3 +229,55 @@ The design review explicitly recommends adding no further controls to the home s
 - header is one bottom-aligned row: AV mark · Arvectum Proxy Launcher · 0.1.13 at the far right.
 
 Networking and profile behavior are unchanged.
+
+## 0.1.14 continuous Auto failover
+
+0.1.14 completes the remaining Android APL-MOB-002 pool behavior while preserving the accepted 0.1.13 home screen.
+
+- **Primary and backups:** one saved profile is designated primary; every other saved profile is an eligible backup.
+- **Auto order:** primary first, then the last successful Auto profile, then the remaining saved profiles. A recently failed profile is temporarily pushed to the end of the list.
+- **Health:** while Auto is connected, the active upstream is probed on a bounded interval. Saved-profile health and successful probe latency are shown only inside the existing profile chooser. The latency value is not a bandwidth or throughput estimate.
+- **Failure confirmation:** three consecutive health failures are required before automatic failover. A switch cooldown and recently-failed suppression window prevent rapid oscillation.
+- **Process-safe switching:** tun2proxy is not restarted inside the same `:vpn` process. The failing process closes its TUN, persists failover state, remains a started `START_STICKY` VPN service, and terminates only the isolated process. Android then recreates the sticky service in a fresh `:vpn` process; the existing VPN grant is reused rather than requested again.
+- **Primary recovery:** the user can keep the current working fallback (default) or automatically return to primary after it is healthy again and cooldown has elapsed.
+- **Network transitions:** default-network changes add a settle grace before health failures count, reducing false switches during Wi-Fi/cellular transitions. The periodic monitor naturally resumes after sleep/wake.
+- **No working proxy:** the old tunnel is closed before fallback probing; if every candidate fails, the app reports an explicit error and leaves no ambiguous active TUN.
+- **Process boundary:** live health/event telemetry is relayed into a separate default-process preference store so the UI never relies on unsupported cross-process `SharedPreferences` cache coherence. Failover-critical state is committed before the old `:vpn` process terminates and is read by the fresh sticky-restarted `:vpn` process.
+- **Events:** Auto records only timestamp, event type, profile id/name and fixed non-secret detail. Host, username, password and proxy authorization are never written to the event log.
+
+Physical acceptance for this slice must kill the active Auto-selected test proxy and confirm automatic fallback plus Internet recovery without another VPN permission prompt. A short transient outage must not create repeated switching.
+
+## 0.1.15 connected profile-create fix
+
+0.1.15 is a dogfood follow-up to the 0.1.14 physical pass.
+
+- `+ Новый` stays available while VPN state is `CONNECTED`.
+- Saving a new profile while connected adds it to storage only; it does not change the active profile, live tunnel, primary designation, or visible connection state. The new profile becomes eligible for the next reconnect/fresh VPN process.
+- Editing/deleting an existing profile remains locked while connected.
+- The Auto event entry/dialog is renamed from `События Auto` to `Журнал`.
+- `versionCode` advances to 16 so the physical test device can update in place from the already-installed 0.1.14 candidate.
+
+## 0.1.16 default-network migration fix
+
+0.1.16 follows the physical Wi-Fi → hotspot failure found on 0.1.14 while preserving the 0.1.15 connected-profile-create and Journal fixes.
+
+- The dedicated `:vpn` process explicitly binds its future Java/native sockets and DNS to Android's newly active default `Network` with `ConnectivityManager.bindProcessToNetwork(...)`; `VpnService.setUnderlyingNetworks(...)` reports the same physical carrier to Android.
+- Losing the current underlying network clears both bindings; the next `onAvailable` adopts the replacement network.
+- `onCapabilitiesChanged` re-asserts the current binding when Internet capability is present, but no longer resets the network-settle timer. This prevents validation/capability churn from extending failover suppression indefinitely.
+- A real default-network identity change resets accumulated Auto health failures so failures observed on the old Wi-Fi do not count against the replacement hotspot.
+- The credential-free Journal records a `смена сети` event when a replacement default network is adopted.
+- Manual-profile VPN sessions also register the default-network callback so the migration behavior is not limited to pool Auto.
+- Auto health checks keep the existing settle grace after a real network identity transition before counting failures.
+- Android version is `0.1.16` / versionCode 17 for an in-place update over 0.1.15 and earlier stable-signed dogfood builds.
+
+## 0.1.17 physical-network handoff fix
+
+0.1.17 replaces the 0.1.16 default-network-only callback after physical testing on a Realme/Oppo device showed that Wi-Fi → hotspot was not reported there: traffic stopped, UI stayed Connected, and no network-change Journal event was emitted.
+
+- Network observation now subscribes to all physical `INTERNET + NOT_VPN` networks instead of relying only on `registerDefaultNetworkCallback`.
+- The service reconciles the app-visible active physical network first, then validated non-VPN candidates, while avoiding a switch just because multiple physical networks coexist.
+- When the physical carrier identity actually changes, the app records credential-free `смена сети`, reports a reconnecting state, closes the old TUN/native engine, and sticky-restarts only the isolated `:vpn` process.
+- Network handoff does **not** mark the proxy unavailable, does not set `recentlyFailed`, and does not advance the proxy failover cooldown. It is transport recovery, not proxy failover.
+- The fresh `:vpn` process runs normal preflight and recreates tun2proxy sockets on the replacement Wi-Fi/hotspot/cellular carrier while reusing the already-granted Android VPN permission.
+- Existing Auto proxy-failure failover, anti-flapping, connected `+ Новый`, and `Журнал` behavior remain unchanged.
+- Android version is `0.1.17` / versionCode 18.

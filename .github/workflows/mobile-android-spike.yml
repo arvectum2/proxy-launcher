@@ -35,8 +35,8 @@ jobs:
             echo "Dogfood signer mismatch: $actual" >&2
             exit 1
           }
-      - name: Assemble debug APK
-        run: gradle -p mobile/android assembleDebug --stacktrace
+      - name: Test and assemble debug APK
+        run: gradle -p mobile/android testDebugUnitTest assembleDebug --stacktrace
       - name: Verify assembled APK signer and branding
         shell: bash
         run: |

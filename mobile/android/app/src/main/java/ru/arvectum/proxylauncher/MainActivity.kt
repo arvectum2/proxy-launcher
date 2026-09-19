@@ -30,6 +30,7 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -38,10 +39,17 @@ import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
+import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
+import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
+import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 
 class MainActivity : Activity() {
@@ -52,6 +60,7 @@ class MainActivity : Activity() {
     private lateinit var connectButton: Button
     private lateinit var connectionDetail: TextView
     private lateinit var store: SecureProfileStore
+    private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var currentState = ProxyVpnService.STATE_DISCONNECTED
@@ -59,6 +68,7 @@ class MainActivity : Activity() {
     private var profileChoices: List<ProfileChoice> = emptyList()
     private var pendingSwitchChoice: ProfileChoice? = null
     private var switchInProgress = false
+    @Volatile private var healthScanInProgress = false
 
     private val proxyTypes = listOf(
         ProxyType.AUTO,
@@ -69,18 +79,25 @@ class MainActivity : Activity() {
 
     private val stateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action != ProxyVpnService.ACTION_STATE) return
-            val state = intent.getStringExtra(ProxyVpnService.EXTRA_STATE)
-                ?: ProxyVpnService.STATE_DISCONNECTED
-            val detail = intent.getStringExtra(ProxyVpnService.EXTRA_DETAIL)
-            renderState(state, detail)
-            handlePendingSwitchState(state)
+            when (intent?.action) {
+                ProxyVpnService.ACTION_POOL_UPDATE -> {
+                    refreshProfileChoices(currentSelectionKey())
+                }
+                ProxyVpnService.ACTION_STATE -> {
+                    val state = intent.getStringExtra(ProxyVpnService.EXTRA_STATE)
+                        ?: ProxyVpnService.STATE_DISCONNECTED
+                    val detail = intent.getStringExtra(ProxyVpnService.EXTRA_DETAIL)
+                    renderState(state, detail)
+                    handlePendingSwitchState(state, detail)
+                }
+            }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = SecureProfileStore(this)
+        poolUiStore = PoolUiStateStore(this)
 
         window.statusBarColor = NAVY
         window.navigationBarColor = NAVY
@@ -135,18 +152,24 @@ class MainActivity : Activity() {
         setContentView(root)
 
         refreshProfileChoices(currentSelectionKey())
-        renderState(store.getLastState(), store.getLastDetail())
+        renderState(
+            poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED),
+            poolUiStore.getTunnelDetail(),
+        )
     }
 
     override fun onStart() {
         super.onStart()
-        val filter = IntentFilter(ProxyVpnService.ACTION_STATE)
+        val filter = IntentFilter(ProxyVpnService.ACTION_STATE).apply {
+            addAction(ProxyVpnService.ACTION_POOL_UPDATE)
+        }
         if (Build.VERSION.SDK_INT >= 33) {
             registerReceiver(stateReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             @Suppress("DEPRECATION")
             registerReceiver(stateReceiver, filter)
         }
+        startProfileHealthScan()
     }
 
     override fun onStop() {
@@ -364,7 +387,7 @@ class MainActivity : Activity() {
             isFillViewport = true
             addView(rows)
         }
-        val popupHeight = minOf(dp(286), dp(12) + profileChoices.size * dp(52))
+        val popupHeight = minOf(dp(390), dp(118) + profileChoices.size * dp(52))
         val popup = PopupWindow(
             scroll,
             profileSelectorShell.width,
@@ -389,8 +412,8 @@ class MainActivity : Activity() {
         profileChoices.forEach { choice ->
             rows.addView(
                 RadioButton(this).apply {
-                    text = choice.label
-                    textSize = 17f
+                    text = choice.menuLabel
+                    textSize = 16f
                     setTextColor(WHITE)
                     gravity = Gravity.CENTER_VERTICAL
                     isChecked = choice.key == selectedKey
@@ -421,6 +444,60 @@ class MainActivity : Activity() {
             )
         }
 
+        rows.addView(View(this).apply {
+            setBackgroundColor(Color.argb(70, 200, 210, 220))
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)).apply {
+            topMargin = dp(4)
+            bottomMargin = dp(4)
+        })
+
+        val restoreToggle = CheckBox(this).apply {
+            text = "Возвращать основной после восстановления"
+            textSize = 13.5f
+            setTextColor(WHITE)
+            buttonTintList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked),
+                ),
+                intArrayOf(MINT, SOFT_GRAY),
+            )
+            isChecked = store.getRestorePolicy() == PrimaryRestorePolicy.RETURN_TO_PRIMARY
+            isEnabled = currentState in editableStates && !switchInProgress
+            alpha = if (isEnabled) 1f else 0.55f
+            setPadding(dp(8), 0, dp(8), 0)
+            setOnCheckedChangeListener { _, checked ->
+                runCatching {
+                    store.setRestorePolicy(
+                        if (checked) PrimaryRestorePolicy.RETURN_TO_PRIMARY
+                        else PrimaryRestorePolicy.STAY_ON_CURRENT,
+                    )
+                }
+            }
+        }
+        rows.addView(
+            restoreToggle,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)),
+        )
+
+        rows.addView(
+            TextView(this).apply {
+                text = "Журнал"
+                textSize = 14f
+                setTextColor(MINT_LIGHT)
+                setTypeface(typeface, Typeface.BOLD)
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(12), 0, dp(12), 0)
+                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
+                isClickable = true
+                setOnClickListener {
+                    popup.dismiss()
+                    showPoolEventsDialog()
+                }
+            },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)),
+        )
+
         popup.showAsDropDown(profileSelectorShell, 0, dp(6))
     }
 
@@ -429,10 +506,29 @@ class MainActivity : Activity() {
             renderState(ProxyVpnService.STATE_ERROR, "Не удалось прочитать сохранённые профили")
             emptyList()
         }
+        val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
+        val now = System.currentTimeMillis()
         profileChoices = buildList {
-            add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, "Авто"))
-            profiles.forEach {
-                add(ProfileChoice(it.id, ChoiceKind.PROFILE, it.id, it.name))
+            add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, "Авто", "Авто"))
+            profiles.forEach { profile ->
+                val health = runCatching { poolUiStore.getHealth(profile.id) }.getOrNull()
+                val fresh = health?.takeIf { now - it.checkedAtMs <= HEALTH_STALE_AFTER_MS }
+                val prefix = if (profile.id == primaryId) "★ " else ""
+                val suffix = when (fresh?.status) {
+                    ProxyHealthStatus.CHECKING -> " · проверяется"
+                    ProxyHealthStatus.AVAILABLE -> fresh.latencyMs?.let { " · ${it} мс" } ?: " · доступен"
+                    ProxyHealthStatus.UNAVAILABLE -> " · недоступен"
+                    else -> ""
+                }
+                add(
+                    ProfileChoice(
+                        key = profile.id,
+                        kind = ChoiceKind.PROFILE,
+                        profileId = profile.id,
+                        label = profile.name,
+                        menuLabel = "$prefix${profile.name}$suffix",
+                    ),
+                )
             }
         }
 
@@ -446,6 +542,66 @@ class MainActivity : Activity() {
             currentProfileId = choice.profileId
         }
         updateProfileControls()
+    }
+
+    private fun startProfileHealthScan() {
+        if (healthScanInProgress) return
+        if (currentState == ProxyVpnService.STATE_CONNECTED ||
+            currentState == ProxyVpnService.STATE_CONNECTING ||
+            currentState == ProxyVpnService.STATE_DISCONNECTING
+        ) return
+
+        val profiles = runCatching { store.listProfiles() }.getOrDefault(emptyList())
+        if (profiles.isEmpty()) return
+        healthScanInProgress = true
+        Thread({
+            try {
+                val probe = ProxyProtocolProbe()
+                profiles.forEach { profile ->
+                    poolUiStore.setHealth(profile.id, ProxyHealthStatus.CHECKING, null)
+                    mainHandler.post { refreshProfileChoices(currentSelectionKey()) }
+                    val resolved = runCatching { store.loadProfile(profile.id) }.getOrNull()
+                    val measured = resolved?.let {
+                        runCatching { probe.resolveMeasured(it.profile, it.password) }.getOrNull()
+                    }
+                    if (measured == null) {
+                        poolUiStore.setHealth(profile.id, ProxyHealthStatus.UNAVAILABLE, null)
+                    } else {
+                        poolUiStore.setHealth(profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
+                    }
+                    mainHandler.post { refreshProfileChoices(currentSelectionKey()) }
+                }
+            } finally {
+                healthScanInProgress = false
+            }
+        }, "APL-profile-health").start()
+    }
+
+    private fun showPoolEventsDialog() {
+        val events = runCatching { poolUiStore.listEvents(20) }.getOrDefault(emptyList())
+        val formatter = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
+        val message = if (events.isEmpty()) {
+            "Журнал пока пуст"
+        } else {
+            events.joinToString("\n") { event ->
+                val time = formatter.format(Date(event.timestampMs))
+                val name = event.profileName?.let { " · $it" }.orEmpty()
+                "$time · ${poolEventLabel(event.type)}$name"
+            }
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Журнал")
+            .setMessage(message)
+            .setPositiveButton("Закрыть", null)
+            .show()
+    }
+
+    private fun poolEventLabel(type: String): String = when (type) {
+        "proxy unavailable" -> "прокси недоступен"
+        "switched" -> "переключено"
+        "restored" -> "основной восстановлен"
+        "network changed" -> "смена сети"
+        else -> type
     }
 
     private fun applySelection(choice: ProfileChoice): Boolean {
@@ -483,7 +639,7 @@ class MainActivity : Activity() {
         disconnectVpn("Переключаемся на ${choice.label}…")
     }
 
-    private fun handlePendingSwitchState(state: String) {
+    private fun handlePendingSwitchState(state: String, detail: String?) {
         if (!switchInProgress) return
 
         if (state == ProxyVpnService.STATE_DISCONNECTED) {
@@ -507,7 +663,7 @@ class MainActivity : Activity() {
             pendingSwitchChoice = null
             switchInProgress = false
             refreshProfileChoices(currentSelectionKey())
-            renderState(store.getLastState(), store.getLastDetail())
+            renderState(state, detail)
         }
     }
 
@@ -522,7 +678,14 @@ class MainActivity : Activity() {
         profileChoices.firstOrNull { it.key == currentSelectionKey() }
 
     private fun showProfileEditor(profileId: String?) {
-        if (currentState !in editableStates || switchInProgress) return
+        if (switchInProgress) return
+        val creating = profileId == null
+        val creatingWhileConnected = creating && currentState == ProxyVpnService.STATE_CONNECTED
+        if (creating) {
+            if (currentState !in creatableStates) return
+        } else if (currentState !in editableStates) {
+            return
+        }
 
         val existing = if (profileId == null) {
             null
@@ -589,6 +752,28 @@ class MainActivity : Activity() {
             ).apply {
                 topMargin = dp(3)
             },
+        )
+
+        val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
+        val primaryCheck = CheckBox(this).apply {
+            text = "Основной в Авто"
+            textSize = 13.5f
+            setTextColor(NAVY)
+            buttonTintList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked),
+                ),
+                intArrayOf(MINT, SOFT_GRAY),
+            )
+            isChecked = existing?.profile?.id?.let { it == primaryId } ?: (primaryId == null)
+            isEnabled = !creatingWhileConnected
+            alpha = if (isEnabled) 1f else 0.55f
+            setPadding(dp(3), 0, 0, 0)
+        }
+        fields.addView(
+            primaryCheck,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(38)),
         )
 
         existing?.let {
@@ -684,7 +869,21 @@ class MainActivity : Activity() {
                     )
 
                     try {
-                        store.saveProfile(profile, password, makeActive = true)
+                        store.saveProfile(
+                            profile,
+                            password,
+                            makeActive = !creatingWhileConnected,
+                        )
+                        if (!creatingWhileConnected) {
+                            val currentPrimary = store.getPrimaryProfileId()
+                            if (primaryCheck.isChecked || currentPrimary == null) {
+                                store.setPrimaryProfileId(id)
+                            } else if (currentPrimary == id) {
+                                store.listProfiles()
+                                    .firstOrNull { it.id != id }
+                                    ?.let { store.setPrimaryProfileId(it.id) }
+                            }
+                        }
                     } catch (_: Exception) {
                         hostField.error = "Не удалось безопасно сохранить профиль"
                         return@setOnClickListener
@@ -692,9 +891,13 @@ class MainActivity : Activity() {
                         password?.fill('\u0000')
                     }
 
-                    currentProfileId = id
-                    refreshProfileChoices(id)
-                    renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                    if (creatingWhileConnected) {
+                        refreshProfileChoices(currentSelectionKey())
+                    } else {
+                        currentProfileId = id
+                        refreshProfileChoices(id)
+                        renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                    }
                     dialog.dismiss()
                 }
             },
@@ -762,6 +965,7 @@ class MainActivity : Activity() {
     private fun deleteProfile(id: String) {
         try {
             store.deleteProfile(id)
+            poolUiStore.removeHealth(id)
         } catch (_: Exception) {
             renderState(ProxyVpnService.STATE_ERROR, "Не удалось удалить профиль")
             return
@@ -921,14 +1125,15 @@ class MainActivity : Activity() {
 
     private fun updateProfileControls() {
         val editable = currentState in editableStates && !switchInProgress
+        val creatable = currentState in creatableStates && !switchInProgress
         val namedSelected = currentSelectionKey() != AUTO_KEY && currentProfileId != null
 
         profileSelectorShell.isEnabled =
             currentState != ProxyVpnService.STATE_DISCONNECTING && !switchInProgress
         profileSelectorShell.alpha = if (profileSelectorShell.isEnabled) 1f else 0.58f
 
-        newProfileButton.isEnabled = editable
-        newProfileButton.alpha = if (editable) 1f else 0.5f
+        newProfileButton.isEnabled = creatable
+        newProfileButton.alpha = if (creatable) 1f else 0.5f
 
         editProfileButton.visibility = if (namedSelected) View.VISIBLE else View.GONE
         editProfileButton.isEnabled = editable && namedSelected
@@ -1013,6 +1218,7 @@ class MainActivity : Activity() {
         val kind: ChoiceKind,
         val profileId: String?,
         val label: String,
+        val menuLabel: String,
     )
 
     private enum class ChoiceKind {
@@ -1030,6 +1236,7 @@ class MainActivity : Activity() {
         private const val VPN_REQUEST = 1001
         private const val AUTO_KEY = "__auto_profile_selection__"
         private const val SWITCH_RECONNECT_DELAY_MS = 700L
+        private const val HEALTH_STALE_AFTER_MS = 5 * 60 * 1000L
 
         private val NAVY = Color.parseColor("#001432")
         private val MINT = Color.parseColor("#00C8A0")
@@ -1047,5 +1254,6 @@ class MainActivity : Activity() {
             ProxyVpnService.STATE_DISCONNECTED,
             ProxyVpnService.STATE_ERROR,
         )
+        private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED
     }
 }

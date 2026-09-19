@@ -9,9 +9,9 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
-import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 
 data class ResolvedProxyProfile(
     val profile: ProxyProfile,
@@ -163,18 +163,70 @@ class SecureProfileStore(context: Context) {
         if (prefs.getString(KEY_LAST_AUTO_ID, null) == id) {
             editor.remove(KEY_LAST_AUTO_ID)
         }
-
+        if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
+            val nextPrimary = remainingIds
+                .mapNotNull(::loadProfileMetadata)
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .firstOrNull()
+                ?.id
+            if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
+            else editor.putString(KEY_PRIMARY_ID, nextPrimary)
+        }
+        if (prefs.getString(KEY_RECENTLY_FAILED_ID, null) == id) {
+            editor.remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT)
+        }
         check(editor.commit()) { "Failed to delete proxy profile" }
     }
 
-    fun setLastState(state: String, detail: String? = null) {
-        prefs.edit().putString(KEY_LAST_STATE, state).putString(KEY_LAST_DETAIL, detail).commit()
+    fun getPrimaryProfileId(): String? {
+        ensureLegacyProfileIndexed()
+        val stored = prefs.getString(KEY_PRIMARY_ID, null)
+        if (stored != null && loadProfileMetadata(stored) != null) return stored
+        return listProfiles().firstOrNull()?.id
     }
 
-    fun getLastState(): String = prefs.getString(KEY_LAST_STATE, ProxyVpnService.STATE_DISCONNECTED)
-        ?: ProxyVpnService.STATE_DISCONNECTED
+    fun setPrimaryProfileId(id: String) {
+        ensureLegacyProfileIndexed()
+        require(loadProfileMetadata(id) != null) { "Unknown proxy profile" }
+        check(prefs.edit().putString(KEY_PRIMARY_ID, id).commit()) {
+            "Failed to persist primary proxy"
+        }
+    }
 
-    fun getLastDetail(): String? = prefs.getString(KEY_LAST_DETAIL, null)
+    fun getRestorePolicy(): PrimaryRestorePolicy = runCatching {
+        PrimaryRestorePolicy.valueOf(
+            prefs.getString(KEY_RESTORE_POLICY, PrimaryRestorePolicy.STAY_ON_CURRENT.name)!!,
+        )
+    }.getOrDefault(PrimaryRestorePolicy.STAY_ON_CURRENT)
+
+    fun setRestorePolicy(policy: PrimaryRestorePolicy) {
+        check(prefs.edit().putString(KEY_RESTORE_POLICY, policy.name).commit()) {
+            "Failed to persist primary restore policy"
+        }
+    }
+
+    fun markRecentlyFailedProfile(id: String, atMs: Long = System.currentTimeMillis()) {
+        check(
+            prefs.edit()
+                .putString(KEY_RECENTLY_FAILED_ID, id)
+                .putLong(KEY_RECENTLY_FAILED_AT, atMs)
+                .commit(),
+        ) { "Failed to persist failed proxy state" }
+    }
+
+    fun getRecentlyFailedProfileId(): String? = prefs.getString(KEY_RECENTLY_FAILED_ID, null)
+
+    fun getRecentlyFailedAtMs(): Long = prefs.getLong(KEY_RECENTLY_FAILED_AT, 0L)
+
+    fun clearRecentlyFailedProfile() {
+        prefs.edit().remove(KEY_RECENTLY_FAILED_ID).remove(KEY_RECENTLY_FAILED_AT).commit()
+    }
+
+    fun setLastFailoverAtMs(value: Long) {
+        prefs.edit().putLong(KEY_LAST_FAILOVER_AT, value).commit()
+    }
+
+    fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
 
     private fun ensureLegacyProfileIndexed() {
         if (prefs.contains(KEY_PROFILE_IDS)) return
@@ -276,8 +328,11 @@ class SecureProfileStore(context: Context) {
         private const val KEY_ACTIVE_ID = "active_profile_id"
         private const val KEY_AUTO_SELECTION = "auto_profile_selection"
         private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
-        private const val KEY_LAST_STATE = "tunnel_state"
-        private const val KEY_LAST_DETAIL = "tunnel_detail"
+        private const val KEY_PRIMARY_ID = "pool_primary_profile_id"
+        private const val KEY_RESTORE_POLICY = "pool_restore_policy"
+        private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"
+        private const val KEY_RECENTLY_FAILED_AT = "pool_recently_failed_at"
+        private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
     }

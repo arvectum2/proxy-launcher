@@ -17,6 +17,11 @@ import ru.arvectum.proxylauncher.model.ProxyType
 
 class ProxyProbeException(message: String) : Exception(message)
 
+data class ProxyProbeResult(
+    val profile: ProxyProfile,
+    val latencyMs: Long,
+)
+
 /**
  * Reuses one host/port/credential set. AUTO prefers the system-proxy-compatible
  * HTTP CONNECT path, then SOCKS5, and only then TLS-to-proxy HTTPS transport.
@@ -26,7 +31,13 @@ class ProxyProtocolProbe {
         profile: ProxyProfile,
         password: String?,
         onCandidate: ((ProxyType) -> Unit)? = null,
-    ): ProxyProfile {
+    ): ProxyProfile = resolveMeasured(profile, password, onCandidate).profile
+
+    fun resolveMeasured(
+        profile: ProxyProfile,
+        password: String?,
+        onCandidate: ((ProxyType) -> Unit)? = null,
+    ): ProxyProbeResult {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Внутренняя ошибка: проверка прокси запущена в главном потоке"
         }
@@ -39,6 +50,7 @@ class ProxyProtocolProbe {
 
         for (candidate in candidates) {
             onCandidate?.invoke(candidate)
+            val startedNs = System.nanoTime()
             try {
                 when (candidate) {
                     ProxyType.HTTPS -> probeHttp(profile, password, tls = true)
@@ -46,7 +58,8 @@ class ProxyProtocolProbe {
                     ProxyType.SOCKS5 -> probeSocks5(profile, password)
                     ProxyType.AUTO -> error("AUTO must be resolved before probing")
                 }
-                return profile.copy(type = candidate)
+                val latencyMs = ((System.nanoTime() - startedNs) / 1_000_000L).coerceAtLeast(1L)
+                return ProxyProbeResult(profile.copy(type = candidate), latencyMs)
             } catch (e: ProxyProbeException) {
                 failures += "${label(candidate)}: ${e.message}"
             } catch (e: Exception) {
