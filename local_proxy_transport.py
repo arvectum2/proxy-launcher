@@ -60,6 +60,55 @@ class ProxyCore:
         return out
 
     @staticmethod
+    def _read_proxy_response(stream):
+        response = b""
+        marker = b"\r\n\r\n"
+        limit = 65536
+        while marker not in response:
+            if len(response) >= limit:
+                raise OSError("upstream proxy response headers are too large")
+            chunk = stream.recv(min(4096, limit - len(response)))
+            if not chunk:
+                raise OSError("upstream proxy closed before CONNECT response")
+            response += chunk
+        status_line = response.split(b"\r\n", 1)[0].split()
+        if len(status_line) < 2:
+            raise OSError("invalid upstream proxy response")
+        try:
+            status = int(status_line[1])
+        except (TypeError, ValueError):
+            raise OSError("invalid upstream proxy status")
+        return status, response
+
+    def _open_upstream_tunnel(self, host, port):
+        target = ("%s:%d" % (host, port)).encode("idna")
+        for host_u, proxy_port, token in self._upstreams:
+            stream = None
+            try:
+                stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                stream.settimeout(15)
+                stream.connect((host_u, proxy_port))
+                request = (
+                    b"CONNECT " + target + b" HTTP/1.1\r\n"
+                    b"Host: " + target + b"\r\n"
+                    b"Proxy-Authorization: Basic " + token.encode("ascii")
+                    + b"\r\n\r\n"
+                )
+                stream.sendall(request)
+                status, response = self._read_proxy_response(stream)
+                if 200 <= status < 300:
+                    stream.settimeout(300)
+                    return stream, response
+            except Exception:
+                pass
+            if stream is not None:
+                try:
+                    stream.close()
+                except Exception:
+                    pass
+        return None, b""
+
+    @staticmethod
     def _send_error(client, code, text):
         reason = {400: "Bad Request", 502: "Bad Gateway"}.get(code, "Error")
         body = (text or reason).encode("utf-8")
@@ -159,36 +208,41 @@ class ProxyCore:
                     direct.sendall(data)
                 self._relay(direct, client, self._stop)
             else:
-                upstream = None
-                for host_u, proxy_port, token in self._upstreams:
-                    try:
-                        stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        stream.settimeout(15)
-                        stream.connect((host_u, proxy_port))
-                        if is_connect:
-                            target = ("%s:%d" % (host, port)).encode("idna")
-                            request = (
-                                b"CONNECT " + target + b" HTTP/1.1\r\n"
-                                b"Host: " + target + b"\r\n"
-                                b"Proxy-Authorization: Basic " + token.encode("ascii") +
-                                b"\r\n\r\n"
-                            )
-                        else:
-                            header = b"Proxy-Authorization: Basic " + token.encode("ascii") + b"\r\n"
-                            request = data.replace(b"\r\n", b"\r\n" + header, 1)
-                        stream.sendall(request)
-                        upstream = stream
-                        break
-                    except Exception:
+                if is_connect:
+                    upstream, response = self._open_upstream_tunnel(host, port)
+                    if upstream is None:
+                        self._send_error(client, 502, "All external proxies unreachable")
+                        return
+                    client.sendall(response)
+                    self._relay(upstream, client, self._stop)
+                else:
+                    upstream = None
+                    for host_u, proxy_port, token in self._upstreams:
+                        stream = None
                         try:
-                            stream.close()
+                            stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            stream.settimeout(15)
+                            stream.connect((host_u, proxy_port))
+                            header = (
+                                b"Proxy-Authorization: Basic "
+                                + token.encode("ascii")
+                                + b"\r\n"
+                            )
+                            request = data.replace(b"\r\n", b"\r\n" + header, 1)
+                            stream.sendall(request)
+                            upstream = stream
+                            break
                         except Exception:
-                            pass
-                        continue
-                if upstream is None:
-                    self._send_error(client, 502, "All external proxies unreachable")
-                    return
-                self._relay(upstream, client, self._stop)
+                            if stream is not None:
+                                try:
+                                    stream.close()
+                                except Exception:
+                                    pass
+                            continue
+                    if upstream is None:
+                        self._send_error(client, 502, "All external proxies unreachable")
+                        return
+                    self._relay(upstream, client, self._stop)
         except OSError:
             try:
                 self._send_error(client, 502, "Proxy error")
@@ -232,41 +286,12 @@ class ProxyCore:
                 except Exception:
                     upstream = None
             else:
-                for host_u, proxy_port, token in self._upstreams:
-                    try:
-                        stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        stream.settimeout(15)
-                        stream.connect((host_u, proxy_port))
-                        request = (
-                            "CONNECT %s:%d HTTP/1.1\r\n"
-                            "Proxy-Authorization: Basic %s\r\n"
-                            "Host: %s:%d\r\n\r\n" % (host, port, token, host, port)
-                        ).encode()
-                        stream.sendall(request)
-                        upstream = stream
-                        break
-                    except Exception:
-                        try:
-                            stream.close()
-                        except Exception:
-                            pass
-                        continue
+                upstream, _response = self._open_upstream_tunnel(host, port)
 
             bind_addr = core._SOCKS5_REPLY_BIND_ADDR
             if upstream is None:
                 client.sendall(b"\x05\x03\x00\x01" + bind_addr + struct.pack(">H", 0))
                 return
-            if not core.host_bypasses_proxy(host):
-                response = b""
-                while b"\r\n\r\n" not in response:
-                    chunk = upstream.recv(4096)
-                    if not chunk:
-                        break
-                    response += chunk
-                if b"200" not in response:
-                    upstream.close()
-                    client.sendall(b"\x05\x03\x00\x01" + bind_addr + struct.pack(">H", 0))
-                    return
             client.sendall(b"\x05\x00\x00\x01" + bind_addr + struct.pack(">H", 0))
             self._relay(upstream, client, self._stop)
         except Exception:

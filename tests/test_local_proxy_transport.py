@@ -82,5 +82,83 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         self.assertIn(b"404 Not Found", client.sendall.call_args.args[0])
 
 
+    def test_http_connect_fails_over_after_rejected_upstream(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy-one.test", "port": 8000, "username": "one", "password": "bad"},
+                {"host": "proxy-two.test", "port": 8001, "username": "two", "password": "good"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT chatgpt.com:443 HTTP/1.1\r\n"
+            b"Host: chatgpt.com:443\r\n\r\n"
+        )
+        rejected = mock.Mock()
+        rejected.recv.return_value = (
+            b"HTTP/1.1 407 Proxy Authentication Required\r\n"
+            b"Content-Length: 0\r\n\r\n"
+        )
+        accepted = mock.Mock()
+        accepted.recv.return_value = (
+            b"HTTP/1.1 200 Connection Established\r\n\r\n"
+        )
+
+        with mock.patch.object(core, "_normalize_host", return_value="chatgpt.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", side_effect=[rejected, accepted]), \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_http(client)
+
+        rejected.close.assert_called()
+        accepted.connect.assert_called_once_with(("proxy-two.test", 8001))
+        self.assertIn(
+            b"HTTP/1.1 200 Connection Established",
+            b"".join(call.args[0] for call in client.sendall.call_args_list),
+        )
+        relay.assert_called_once_with(accepted, client, engine._stop)
+
+    def test_socks_connect_fails_over_after_rejected_upstream(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy-one.test", "port": 8000, "username": "one", "password": "bad"},
+                {"host": "proxy-two.test", "port": 8001, "username": "two", "password": "good"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        client.recv.side_effect = [
+            b"\x05",
+            b"\x01",
+            b"\x00",
+            b"\x05\x01\x00\x03",
+            b"\x0b",
+            b"example.com",
+            b"\x01\xbb",
+        ]
+        rejected = mock.Mock()
+        rejected.recv.return_value = (
+            b"HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\n\r\n"
+        )
+        accepted = mock.Mock()
+        accepted.recv.return_value = (
+            b"HTTP/1.1 200 Connection Established\r\n\r\n"
+        )
+
+        with mock.patch.object(core, "_normalize_host", return_value="example.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", side_effect=[rejected, accepted]), \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_socks(client)
+
+        rejected.close.assert_called()
+        accepted.connect.assert_called_once_with(("proxy-two.test", 8001))
+        self.assertTrue(
+            any(call.args[0].startswith(b"\x05\x00") for call in client.sendall.call_args_list)
+        )
+        relay.assert_called_once_with(accepted, client, engine._stop)
+
+
 if __name__ == "__main__":
     unittest.main()

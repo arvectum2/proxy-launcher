@@ -1575,7 +1575,7 @@ class Launcher:
                 if item.get("status") != doctor_module.PASS
             ]
             title = {
-                doctor_module.PASS: "Диагностика: проблем не обнаружено.",
+                doctor_module.PASS: "Диагностика: локальных проблем не обнаружено.",
                 doctor_module.WARN: "Диагностика: есть предупреждения.",
                 doctor_module.FAIL: "Диагностика: требуется действие.",
             }.get(overall, "Диагностика завершена.")
@@ -1587,6 +1587,12 @@ class Launcher:
                     counts.get(doctor_module.FAIL, 0),
                 ),
             ]
+            if overall == doctor_module.PASS:
+                lines.extend([
+                    "",
+                    "Доступность внешнего proxy и целевого сайта здесь не проверяется.",
+                    "Для end-to-end проверки используйте «Проверка соединения».",
+                ])
             if problem_checks:
                 lines.append("")
                 lines.append("Проверки, требующие внимания:")
