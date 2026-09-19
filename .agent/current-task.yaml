@@ -19,15 +19,20 @@ completed:
   - "Reconciled canonical queue/current task: Android 0.1.13 slice is completed; issue #51 remains open specifically for continuous failover."
   - "Created isolated branch agent/apl-mob-002-continuous-failover from canonical main b21359501e34a40ebdfe11638047ab8469eca281."
   - "Inspected current ProxyVpnService: connect-time Auto probing and last-success preference already exist; engine exit currently terminates the VPN process instead of attempting failover."
-current: "Design the smallest deterministic failover controller around existing ProxyProtocolProbe/SecureProfileStore/ProxyVpnService seams, then add unit-testable policy before wiring service lifecycle."
+  - "Inventoried SecureProfileStore: saved-profile metadata, encrypted credentials, pool Auto flag and last successful Auto profile are reusable; no credential-safe health/event persistence exists yet."
+  - "Android module had no local JVM test source/dependency; added JUnit 4.13.2 only for deterministic pure-policy tests."
+  - "Added pure FailoverPolicy with consecutive-failure debounce, switch cooldown, explicit STAY_ON_CURRENT vs RETURN_TO_PREFERRED recovery semantics, and state reset/recordSwitch hooks."
+  - "Added six deterministic policy tests covering transient failure, confirmed active failure, cooldown, inactive-profile failure, stay-current recovery and stable return-to-preferred recovery."
+current: "Policy layer is implemented but not yet wired to Android service/store lifecycle. Validate it, then add credential-safe health/event state and service wiring."
 pending:
-  - "Inventory existing Android tests and state-store APIs relevant to health/failover."
-  - "Add deterministic health/failover policy with debounce/cooldown/hysteresis and credential-free events."
-  - "Wire Auto connected-session engine failure/confirmed unavailability to bounded reserve selection without a new VPN permission prompt."
+  - "Run focused JVM policy tests and inspect exact failure output before service wiring."
+  - "Add credential-safe health/latency/event persistence with bounded history."
+  - "Make connected-session health probes bypass the VPN safely via VpnService.protect; do not route monitor probes into the tunnel."
+  - "Wire Auto connected-session confirmed unavailability to bounded reserve selection without a new VPN permission prompt."
   - "Add no-working-proxy, recovery and network-transition regressions."
   - "Run focused Android tests and exact-head CI; open REVIEW-ready PR and stop before physical/release gates."
-last_verified_commit: b21359501e34a40ebdfe11638047ab8469eca281
-resume_instruction: "Continue from the existing Android service/store/probe seams. First inventory current Android tests and SecureProfileStore APIs; do not repeat 0.1.13 UI/branding/hot-switch work. Implement policy as a deterministic testable component before service wiring."
+last_verified_commit: 769f47387fb8941f069dfe5dfd493d03b67f8f36
+resume_instruction: "Run the new FailoverPolicy JVM tests first. If green, preserve the pure policy and next add credential-safe health/event store APIs plus a protected-socket probe seam before touching active-session failover. Do not repeat 0.1.13 UI/branding/hot-switch work."
 execution:
   claimed_by: proxy-launcher-watchdog
   execution_id: apl-mob-002-continuous-failover-20260919T0302+0300
@@ -35,4 +40,4 @@ execution:
   base_commit: b21359501e34a40ebdfe11638047ab8469eca281
   issue: 51
   manual_override: false
-  lease_until: '2026-09-19T04:52:00+03:00'
+  lease_until: '2026-09-19T06:52:00+03:00'
