@@ -80,19 +80,38 @@ class ProxyCore:
             raise OSError("invalid upstream proxy status")
         return status, response
 
-    def _open_upstream_tunnel(self, host, port):
+    @staticmethod
+    def _connect_request_with_auth(host, port, token, client_request=None):
         target = ("%s:%d" % (host, port)).encode("idna")
+        if client_request is None:
+            return (
+                b"CONNECT " + target + b" HTTP/1.1\r\n"
+                b"Host: " + target + b"\r\n"
+                b"Proxy-Authorization: Basic " + token.encode("ascii")
+                + b"\r\n\r\n"
+            )
+
+        headers = client_request.split(b"\r\n\r\n", 1)[0].split(b"\r\n")
+        if not headers or not headers[0].startswith(b"CONNECT "):
+            raise OSError("invalid client CONNECT request")
+        preserved = [
+            line for line in headers[1:]
+            if line and not line.lower().startswith(b"proxy-authorization:")
+        ]
+        return b"\r\n".join(
+            [headers[0], b"Proxy-Authorization: Basic " + token.encode("ascii")]
+            + preserved
+        ) + b"\r\n\r\n"
+
+    def _open_upstream_tunnel(self, host, port, client_request=None):
         for host_u, proxy_port, token in self._upstreams:
             stream = None
             try:
                 stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 stream.settimeout(15)
                 stream.connect((host_u, proxy_port))
-                request = (
-                    b"CONNECT " + target + b" HTTP/1.1\r\n"
-                    b"Host: " + target + b"\r\n"
-                    b"Proxy-Authorization: Basic " + token.encode("ascii")
-                    + b"\r\n\r\n"
+                request = self._connect_request_with_auth(
+                    host, port, token, client_request=client_request
                 )
                 stream.sendall(request)
                 status, response = self._read_proxy_response(stream)
@@ -130,7 +149,9 @@ class ProxyCore:
                 except (OSError, ValueError):
                     return
                 if not ready:
-                    continue
+                    # Match the proven legacy transport: retire fully idle
+                    # tunnels so browsers cannot keep reusing a stale CONNECT.
+                    break
                 for stream in ready:
                     try:
                         data = stream.recv(65536)
@@ -209,7 +230,9 @@ class ProxyCore:
                 self._relay(direct, client, self._stop)
             else:
                 if is_connect:
-                    upstream, response = self._open_upstream_tunnel(host, port)
+                    upstream, response = self._open_upstream_tunnel(
+                        host, port, client_request=data
+                    )
                     if upstream is None:
                         self._send_error(client, 502, "All external proxies unreachable")
                         return
