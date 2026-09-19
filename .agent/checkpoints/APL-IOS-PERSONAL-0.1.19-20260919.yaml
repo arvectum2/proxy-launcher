@@ -19,11 +19,11 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "Xcode 26.6 (17F113) is installed/licensed and runFirstLaunch is complete. Local Swift tests are green (6/6), tun2proxy fetch and XcodeGen generation pass. The iOS 26.5 runtime download reached 52.3%, reset to 0% once without an explicit logged error, and is progressing again (36.1%, 3.08 GB of 8.52 GB at the latest check). Local unsigned device build remains gated on this platform install."
+current: "Xcode 26.6 (17F113) is installed/licensed and runFirstLaunch is complete. Local Swift tests are green (6/6), tun2proxy fetch and XcodeGen generation pass. The iOS 26.5 runtime download reached 52.3%, reset to 0% once without an explicit logged error, and is progressing again (57.1%, 4.87 GB of 8.52 GB at the latest check), now beyond the previous 52.3% reset point without a second reset. Local unsigned device build remains gated on this platform install."
 pending:
   - "Let the restarted iOS 26.5 runtime download finish; if it resets again, diagnose/download via an alternate supported Xcode path instead of waiting indefinitely. Then rerun the local unsigned generic iPhone build."
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "d466c1a5d7c3899e7726978f02b89e0ecdb65665"
+last_verified_commit: "d7dd0e91809d110b7f824af98da6dbdfa1fd16e2"
 test_results:
   - "PASS: exact-head Apple-hosted Mobile iOS personal run 35443212271 at 3e7aaac: core-tests + unsigned-device-build."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -35,11 +35,11 @@ test_results:
   - "PASS: local full-Xcode swift test: 6 tests, 0 failures."
   - "PASS: Xcode 26.6 license accepted and xcodebuild -runFirstLaunch completed (Install Succeeded)."
   - "PASS: pinned tun2proxy fetch and XcodeGen generation under Xcode 26.6."
-  - "WAITING: unsigned generic iPhone build reaches Xcode but iOS 26.5 platform is not installed. Runtime download is 8.52 GB; first attempt reached 52.3% (4.45 GB), reset to 0% without a logged explicit error, and the same process is now progressing again (36.1%, 3.08 GB of 8.52 GB)."
+  - "WAITING: unsigned generic iPhone build reaches Xcode but iOS 26.5 platform is not installed. Runtime download is 8.52 GB; first attempt reached 52.3% (4.45 GB), reset to 0% without a logged explicit error, and the same process is now progressing again (57.1%, 4.87 GB of 8.52 GB) and has passed the prior 52.3% reset point without a second reset."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
 blocker: "No human action is needed yet: iOS 26.5 runtime is downloading again after one unexplained reset at 52.3%. If a second reset occurs, treat this as an infrastructure download failure and switch installation method. After platform install, local signing remains blocked by 0 valid code-signing identities and the Packet Tunnel entitlement requires an eligible Apple Developer team."
 resume_instruction: "In the dedicated iOS worktree, first inspect /tmp/apl-ios-platform-download.log and the live xcodebuild -downloadPlatform iOS process. The first download reset once at 52.3%; if the current attempt completes, rerun the exact unsigned generic iPhone build from .github/workflows/mobile-ios-personal.yml. If it resets a second time, stop passive waiting and diagnose/use an alternate supported Xcode platform-install path. Do not repeat the already-passed 6/6 Swift tests unless code changed. Then proceed to signing/install; security find-identity currently reports 0 valid identities. Do not start per-app routing or public distribution."
-updated_at: "2026-09-19T22:12:00+03:00"
+updated_at: "2026-09-19T22:31:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
