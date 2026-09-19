@@ -22,6 +22,11 @@ class MacOSVisualContractTests(unittest.TestCase):
         self.assertIn('"systemSelectedContentBackgroundColor" if _is_macos()', GUI)
         self.assertIn("def _button_style(", GUI)
 
+    def test_doctor_pass_does_not_claim_external_connectivity(self):
+        self.assertIn("Диагностика: локальных проблем не обнаружено.", GUI)
+        self.assertIn("Доступность внешнего proxy и целевого сайта здесь не проверяется.", GUI)
+        self.assertIn("Для end-to-end проверки используйте «Проверка соединения».", GUI)
+
 
 if __name__ == "__main__":
     unittest.main()
