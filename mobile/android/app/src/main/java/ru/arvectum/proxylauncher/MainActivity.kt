@@ -600,6 +600,7 @@ class MainActivity : Activity() {
         "proxy unavailable" -> "прокси недоступен"
         "switched" -> "переключено"
         "restored" -> "основной восстановлен"
+        "network changed" -> "смена сети"
         else -> type
     }
 

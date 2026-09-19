@@ -256,3 +256,16 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Editing/deleting an existing profile remains locked while connected.
 - The Auto event entry/dialog is renamed from `События Auto` to `Журнал`.
 - `versionCode` advances to 16 so the physical test device can update in place from the already-installed 0.1.14 candidate.
+
+## 0.1.16 default-network migration fix
+
+0.1.16 follows the physical Wi-Fi → hotspot failure found on 0.1.14 while preserving the 0.1.15 connected-profile-create and Journal fixes.
+
+- The dedicated `:vpn` process explicitly binds its future Java/native sockets and DNS to Android's newly active default `Network` with `ConnectivityManager.bindProcessToNetwork(...)`; `VpnService.setUnderlyingNetworks(...)` reports the same physical carrier to Android.
+- Losing the current underlying network clears both bindings; the next `onAvailable` adopts the replacement network.
+- `onCapabilitiesChanged` re-asserts the current binding when Internet capability is present, but no longer resets the network-settle timer. This prevents validation/capability churn from extending failover suppression indefinitely.
+- A real default-network identity change resets accumulated Auto health failures so failures observed on the old Wi-Fi do not count against the replacement hotspot.
+- The credential-free Journal records a `смена сети` event when a replacement default network is adopted.
+- Manual-profile VPN sessions also register the default-network callback so the migration behavior is not limited to pool Auto.
+- Auto health checks keep the existing settle grace after a real network identity transition before counting failures.
+- Android version is `0.1.16` / versionCode 17 for an in-place update over 0.1.15 and earlier stable-signed dogfood builds.

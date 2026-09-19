@@ -51,6 +51,8 @@ class ProxyVpnService : VpnService() {
     @Volatile private var stopping = false
     @Volatile private var failoverHandoff = false
     @Volatile private var lastNetworkTransitionElapsedMs = 0L
+    @Volatile private var networkTransitionSerial = 0L
+    @Volatile private var underlyingNetwork: Network? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -201,6 +203,8 @@ class ProxyVpnService : VpnService() {
                 )
                 if (prepared.autoSelection) {
                     startAutoMonitor(generation, prepared)
+                } else {
+                    registerNetworkCallback()
                 }
             }
         }, CONNECT_CONFIRM_DELAY_MS)
@@ -320,6 +324,7 @@ class ProxyVpnService : VpnService() {
             var consecutiveFailures = 0
             var lastSecondaryScanElapsed = 0L
             var backupCursor = 0
+            var observedNetworkTransitionSerial = networkTransitionSerial
 
             while (isSessionActive(generation)) {
                 try {
@@ -328,6 +333,12 @@ class ProxyVpnService : VpnService() {
                     return@Thread
                 }
                 if (!isSessionActive(generation)) return@Thread
+
+                val transitionSerial = networkTransitionSerial
+                if (transitionSerial != observedNetworkTransitionSerial) {
+                    observedNetworkTransitionSerial = transitionSerial
+                    consecutiveFailures = 0
+                }
 
                 if (!failoverPolicy.networkSettled(
                         SystemClock.elapsedRealtime(),
@@ -444,19 +455,58 @@ class ProxyVpnService : VpnService() {
         if (networkCallback != null) return
         val manager = getSystemService(ConnectivityManager::class.java)
         val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = noteNetworkTransition()
-            override fun onLost(network: Network) = noteNetworkTransition()
-            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+            override fun onAvailable(network: Network) {
+                adoptUnderlyingNetwork(network, markTransition = true)
+            }
+
+            override fun onLost(network: Network) {
+                if (underlyingNetwork != network) return
+                underlyingNetwork = null
                 noteNetworkTransition()
+                val manager = getSystemService(ConnectivityManager::class.java)
+                runCatching { manager.bindProcessToNetwork(null) }
+                runCatching { setUnderlyingNetworks(null) }
+            }
+
+            override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                if (underlyingNetwork != network) return
+                if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) return
+                // Capability churn is common during Wi-Fi validation. Re-assert
+                // the explicit process/VPN route without extending the settle
+                // timer indefinitely.
+                val manager = getSystemService(ConnectivityManager::class.java)
+                runCatching { manager.bindProcessToNetwork(network) }
+                runCatching { setUnderlyingNetworks(arrayOf(network)) }
             }
         }
         if (runCatching { manager.registerDefaultNetworkCallback(callback) }.isSuccess) {
             networkCallback = callback
+            manager.activeNetwork?.let {
+                adoptUnderlyingNetwork(it, markTransition = false)
+            }
+        }
+    }
+
+    private fun adoptUnderlyingNetwork(network: Network, markTransition: Boolean) {
+        val changed = underlyingNetwork != network
+        val manager = getSystemService(ConnectivityManager::class.java)
+        val bound = runCatching { manager.bindProcessToNetwork(network) }.getOrDefault(false)
+        if (!bound) return
+
+        underlyingNetwork = network
+        // Process binding makes all future Java/native sockets and DNS in :vpn
+        // use this physical network. Tell Android which network actually carries
+        // VPN traffic as well.
+        runCatching { setUnderlyingNetworks(arrayOf(network)) }
+        if (changed && markTransition) {
+            noteNetworkTransition()
+            publishPoolEvent("network changed", null, null, "default network changed")
         }
     }
 
     private fun noteNetworkTransition() {
         lastNetworkTransitionElapsedMs = SystemClock.elapsedRealtime()
+        networkTransitionSerial += 1
     }
 
     private fun stopAutoMonitor() {
@@ -468,6 +518,10 @@ class ProxyVpnService : VpnService() {
         if (thread != null && thread !== Thread.currentThread()) thread.interrupt()
         val callback = networkCallback
         networkCallback = null
+        underlyingNetwork = null
+        val manager = getSystemService(ConnectivityManager::class.java)
+        runCatching { manager.bindProcessToNetwork(null) }
+        runCatching { setUnderlyingNetworks(null) }
         if (callback != null) {
             runCatching { getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(callback) }
         }

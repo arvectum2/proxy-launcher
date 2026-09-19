@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: blocked
+status: in_progress
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -47,10 +47,18 @@ completed:
   - "Exact product head a5a84850133efbb516780163c8dcbbf75cc38fa8 passed Android workflow 35424959015 plus SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations."
   - "0.1.15 APK SHA-256: 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; stable signer unchanged."
   - "Issue #51 updated with 0.1.15 physical-feedback candidate evidence in comment 5739764135."
-current: "Blocked on HUMAN recheck: connected + Новый and a real default-network transition without SIM."
+  - "HUMAN physical Wi-Fi A -> hotspot B on installed 0.1.14 FAILED: app marked primary unavailable, entered Авто: переключаемся на резервный прокси…, and did not recover until manual OFF -> ON. Screenshots confirm the tested build was 0.1.14."
+  - "Physical evidence indicates the replacement network and proxy are viable because manual reconnect succeeds immediately on the hotspot."
+  - "Implemented 0.1.16 default-network migration: :vpn explicitly binds future Java/native sockets and DNS to the replacement Network via bindProcessToNetwork and reports the same carrier through setUnderlyingNetworks."
+  - "A real default-network identity change now resets accumulated Auto health failures; capabilities churn no longer extends the settle timer."
+  - "Added credential-free Журнал event смена сети and enabled the same default-network migration callback for manual-profile sessions."
+  - "Bumped Android to 0.1.16 / versionCode 17 while preserving the 0.1.15 + Новый/Журнал fixes."
+  - "Local git diff --check PASS. Local Gradle execution is unavailable because the Mac mini has no system gradle and this repo has no Gradle Wrapper; CI remains the canonical Android build."
+current: "Commit/push the 0.1.16 network-migration repair, then validate exact-head Android/repository CI and issue a replacement APK."
 pending:
-  - "HUMAN physical recheck: while VPN is CONNECTED, create/save a new profile and confirm the existing tunnel remains connected/unchanged; confirm Журнал label."
-  - "HUMAN physical network-transition recheck without SIM: Wi-Fi A -> Wi-Fi B -> Wi-Fi A with VPN left enabled, confirming connectivity recovers, no repeated VPN permission prompt, and no failover flapping."
+  - "Commit/push 0.1.16 and run exact-head Android/repository CI."
+  - "Issue replacement 0.1.16 APK with signer/SHA evidence."
+  - "HUMAN physical recheck: connected + Новый/Журнал plus Wi-Fi A -> hotspot B -> Wi-Fi A without manual VPN restart."
   - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release only with explicit release authority, close issue #51, and set checkpoint completed."
 last_verified_commit: "a5a84850133efbb516780163c8dcbbf75cc38fa8"
 test_results:
@@ -62,4 +70,4 @@ test_results:
   - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: Android workflow 35424959015 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "0.1.15 product head a5a84850133efbb516780163c8dcbbf75cc38fa8: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
   - "0.1.15 APK SHA-256: 39dff052a05fc3dafa833497d71a3e73f45dbba3dcc725b9d761c8e8993cfb86; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Do not repeat the 0.1.15 repair or CI. Wait for HUMAN recheck of connected + Новый and Wi-Fi A -> Wi-Fi B network transition. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect."
+resume_instruction: "Commit/push the implemented 0.1.16 default-network migration repair, validate exact-head Android/repository CI, and issue a replacement APK. Then wait for HUMAN Wi-Fi A -> hotspot B -> Wi-Fi A retest; do not merge/release before PASS."
