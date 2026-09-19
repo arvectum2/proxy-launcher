@@ -33,10 +33,9 @@ completed:
   - "Reworked live health/event telemetry and persisted tunnel UI state into a default-process-only PoolUiStateStore fed by an explicit non-exported relay receiver; UI no longer depends on cross-process SharedPreferences cache coherence for CONNECTED/ERROR/health/event display, while failover-critical pool state remains synchronously committed in :vpn."
   - "Reworked failover handoff to keep the existing START_STICKY VpnService started, close the old TUN/native engine, persist failure state, and terminate only :vpn so Android recreates the service in a fresh process without a new foreground-service start request."
   - "Expanded pure FailoverPolicy coverage for network settle grace, empty candidate sets and suppression expiry."
-current: "Commit/push the process-safety review fixes and validate the new exact-head with Android unit/build/signer gates plus repository checks."
+current: "Validate exact-head 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 with Android unit/build/signer gates plus repository checks."
 pending:
-  - "Commit and push current process-safety/restart/telemetry changes."
-  - "Verify exact-head Android CI and repository required checks; fix only task-caused failures."
+  - "Verify exact-head Android CI and repository required checks for 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975; fix only task-caused failures."
   - "Capture dogfood APK artifact signer/SHA-256 evidence from the final green exact head."
   - "Perform owner physical dogfood gate: active Auto upstream kill -> automatic fallback -> Internet recovery with no repeated VPN permission prompt, plus transient-loss anti-flapping check."
   - "After physical PASS, merge/release/close issue #51 and mark checkpoint completed."
@@ -47,4 +46,4 @@ test_results:
   - "PR #119 head 9e80f0da641aef0aa50b2f079967dce62eed4938: production Kotlin compile PASS; 4/5 FailoverPolicy tests PASS; one stale ordering assertion FAIL; all observed non-Android workflows PASS."
   - "git diff --check after process-safety review: PASS."
   - "Local Gradle gate: unavailable because no gradle executable/wrapper exists on the Mac mini PATH; exact-head GitHub CI remains the compile/test authority."
-resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-mob-002-continuous-failover on branch agent/apl-mob-002-continuous-failover-20260919. Commit/push the current process-safety changes, inspect the exact-head Android workflow once, and repair only task-caused failures. If green, record APK SHA/signing evidence and stop at the HUMAN physical acceptance gate; do not merge/release/close issue #51 before physical PASS."
+resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-mob-002-continuous-failover on branch agent/apl-mob-002-continuous-failover-20260919. Inspect exact-head workflows for 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 once visible; repair only task-caused failures. If green, record APK SHA/signing evidence and stop at the HUMAN physical acceptance gate; do not merge/release/close issue #51 before physical PASS."

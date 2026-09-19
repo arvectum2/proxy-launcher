@@ -23,9 +23,8 @@ test_results:
   - Stale ordering assertion corrected at 3ad383875db49902dec4f0985d31e3aedfe3a05c.
   - Current process-safety review: git diff --check PASS; compile/unit validation pending next exact-head CI because no local Gradle executable/wrapper is available.
 pending:
-  - Commit/push current process-safety review changes.
-  - Inspect exact-head Android and required repository checks; repair only task-caused failures.
+  - Inspect exact-head Android and required repository checks for 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 once visible; repair only task-caused failures.
   - After exact-head Android CI passes, record APK signer/SHA-256 evidence and prepare physical dogfood instructions.
   - HUMAN physical gate remains mandatory: active Auto upstream kill -> automatic fallback -> Internet recovery without another VPN permission prompt; transient-loss anti-flapping; sleep/wake and network-transition behavior.
   - Do not merge, publish/release, or close issue #51 before physical PASS and reserved human/review gates.
-resume_instruction: Commit/push the current process-safety review on PR #119, inspect the new exact-head CI once, and fix only task-caused failures. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; do not repeat baseline implementation or 0.1.13 acceptance.
+resume_instruction: Inspect exact-head workflows for 7ca87a30ed27c5ae2c6edd480ba3638faaa3b975 once visible. If green, capture Android artifact SHA/signing evidence and move to HUMAN physical acceptance blocker; if failed, repair only task-caused failures. Do not repeat baseline implementation or 0.1.13 acceptance.
