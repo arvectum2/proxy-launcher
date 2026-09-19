@@ -128,6 +128,20 @@ class ProxyCore:
         return None, b""
 
     @staticmethod
+    def _read_client_request(client):
+        data = b""
+        marker = b"\r\n\r\n"
+        limit = 65536
+        while marker not in data:
+            if len(data) >= limit:
+                raise OSError("client proxy request headers are too large")
+            chunk = client.recv(min(8192, limit - len(data)))
+            if not chunk:
+                raise OSError("client proxy closed before request headers completed")
+            data += chunk
+        return data
+
+    @staticmethod
     def _send_error(client, code, text):
         reason = {400: "Bad Request", 502: "Bad Gateway"}.get(code, "Error")
         body = (text or reason).encode("utf-8")
@@ -173,10 +187,12 @@ class ProxyCore:
         core = _core()
         try:
             client.settimeout(30)
-            data = client.recv(8192)
-            if not data:
-                return
-            first = data.split(b"\r\n", 1)[0]
+            data = self._read_client_request(client)
+            marker = b"\r\n\r\n"
+            header_end = data.index(marker) + len(marker)
+            request_headers = data[:header_end]
+            buffered_after_headers = data[header_end:]
+            first = request_headers.split(b"\r\n", 1)[0]
             is_connect = first.startswith(b"CONNECT")
 
             if is_connect:
@@ -223,6 +239,8 @@ class ProxyCore:
                 direct.settimeout(300)
                 if is_connect:
                     client.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                    if buffered_after_headers:
+                        direct.sendall(buffered_after_headers)
                 else:
                     rest = data.split(b"\r\n", 1)[1]
                     data = method + b" " + path.encode() + b" HTTP/1.1\r\n" + rest
@@ -231,12 +249,14 @@ class ProxyCore:
             else:
                 if is_connect:
                     upstream, response = self._open_upstream_tunnel(
-                        host, port, client_request=data
+                        host, port, client_request=request_headers
                     )
                     if upstream is None:
                         self._send_error(client, 502, "All external proxies unreachable")
                         return
                     client.sendall(response)
+                    if buffered_after_headers:
+                        upstream.sendall(buffered_after_headers)
                     self._relay(upstream, client, self._stop)
                 else:
                     upstream = None
