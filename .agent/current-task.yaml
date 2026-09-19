@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-003-SITE-EXCLUSIONS-20260919
-status: in_progress
+status: blocked
 goal: "Add Android site/domain exclusions with the same user-facing purpose as desktop no_proxy, without starting per-application routing."
 authority: HUMAN
 definition_of_done:
@@ -17,22 +17,30 @@ definition_of_done:
   - "Checkpoint records final commit, verification and any physical-test requirement before completion."
 completed:
   - "Synced local canonical checkout to origin/main at 8b07165a2f8404ed711399c6e65ec76a22b46a72."
-  - "Verified desktop no_proxy normalization/matching/UI contract and current Android VpnService/tun2proxy architecture."
-  - "Verified current Android uses tun2proxy --dns virtual, which returns synthetic destination IPs and therefore requires a DNS-mode change when IP route exclusions are active."
-  - "Created isolated worktree/branch agent/apl-mob-003-site-exclusions-20260919 from current origin/main."
-current: "Implement storage/normalization, Android split-route policy, tunnel DNS/reconfigure behavior, and the Exceptions editor."
+  - "Verified desktop no_proxy contract and the pinned tun2proxy/Android VpnService routing constraints."
+  - "Implemented concrete site exclusion normalization, synchronous storage and bounded IPv4/IPv6 CIDR-complement routing tests."
+  - "Integrated Android 13+ excludeRoute and Android 8-12 route complements; empty exclusions retain 0.1.17 virtual-DNS/full-route behavior."
+  - "Integrated physical-network A/AAAA resolution and physical DNS bypass with tun2proxy direct DNS only when exclusions are enabled."
+  - "Added the Exceptions editor inside the existing proxy popup and controlled reconnect on connected-save; no per-app chooser was added."
+  - "Bumped dogfood to Android 0.1.18/versionCode 19 and documented the exact-host/wildcard boundary."
+  - "Committed and pushed d38c27ae29bef91df45e4363f54a0a00ed7d7d2d; opened PR #125."
+  - "Re-read executor policy/queue: this user-directed implementation is HUMAN/manual override; no automatic merge/release is authorized by the queue."
+current: "Implementation and CI are complete in PR #125; waiting for physical Android acceptance before merge/release."
 pending:
-  - "Implement and unit-test site-exclusion normalization/storage and bounded route generation."
-  - "Integrate resolved exclusions into VpnService.Builder and tun2proxy DNS strategy."
-  - "Add Exceptions entry/editor to the existing profile popup without changing the home layout."
-  - "Add connected-save tunnel refresh, version 0.1.18 documentation and regression checks."
-  - "Run local deterministic checks, push branch, open/update PR, and verify exact-head Android CI."
-last_verified_commit: "8b07165a2f8404ed711399c6e65ec76a22b46a72"
+  - "HUMAN GATE: install the 0.1.18 dogfood artifact on a real Android device."
+  - "Verify a concrete excluded site uses direct egress while a non-excluded site remains proxied."
+  - "While connected, edit/save exclusions and verify controlled reconnect reuses VPN permission and applies the new list."
+  - "Clear exclusions and verify the accepted 0.1.17 full-tunnel/virtual-DNS baseline is restored."
+  - "After physical PASS, record evidence and decide merge; do not auto-release without an explicit release instruction."
+last_verified_commit: "d38c27ae29bef91df45e4363f54a0a00ed7d7d2d"
 test_results:
-  - "Repository sync/worktree creation: PASS."
-  - "Architecture review against Android VpnService and pinned tun2proxy v0.8.3: PASS."
-resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mobile-exclusions. Start with SiteExclusionPolicy + SecureProfileStore persistence and unit tests, then integrate VpnService route/DNS behavior and UI. Do not add per-app routing and do not alter empty-exclusion 0.1.17 network behavior."
-updated_at: "2026-09-19T11:20:00+03:00"
+  - "git diff --check: PASS before commit."
+  - "Architecture review against Android VpnService excludeRoute and pinned tun2proxy v0.8.3: PASS."
+  - "GitHub Android CI run 35431805810: SUCCESS; testDebugUnitTest + assembleDebug PASS; dogfood signer/branding verification PASS."
+  - "Artifact proxy-launcher-android-debug id 10580893480; workflow artifact digest sha256:ef620c22eb72e4a14e771db0ed812cdee1b9aa7251fa2cad7882a02e8e4e9172."
+blocker: "Physical Android network acceptance is required before representing site-exclusion routing as physically accepted or merging/releasing the candidate."
+resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mobile-exclusions after the Owner provides physical Android results for PR #125 / 0.1.18. Record direct-vs-proxied egress, connected-save reconnect and clear-list regression evidence. Fix any observed defect, rerun exact-head Android CI, and only then proceed to the permitted merge gate. Do not auto-release."
+updated_at: "2026-09-19T11:30:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MOB-003-SITE-EXCLUSIONS-20260919"
