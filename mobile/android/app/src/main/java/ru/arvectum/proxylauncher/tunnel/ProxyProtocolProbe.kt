@@ -26,6 +26,7 @@ class ProxyProtocolProbe {
         profile: ProxyProfile,
         password: String?,
         onCandidate: ((ProxyType) -> Unit)? = null,
+        protectSocket: ((Socket) -> Boolean)? = null,
     ): ProxyProfile {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Внутренняя ошибка: проверка прокси запущена в главном потоке"
@@ -41,9 +42,9 @@ class ProxyProtocolProbe {
             onCandidate?.invoke(candidate)
             try {
                 when (candidate) {
-                    ProxyType.HTTPS -> probeHttp(profile, password, tls = true)
-                    ProxyType.HTTP -> probeHttp(profile, password, tls = false)
-                    ProxyType.SOCKS5 -> probeSocks5(profile, password)
+                    ProxyType.HTTPS -> probeHttp(profile, password, tls = true, protectSocket = protectSocket)
+                    ProxyType.HTTP -> probeHttp(profile, password, tls = false, protectSocket = protectSocket)
+                    ProxyType.SOCKS5 -> probeSocks5(profile, password, protectSocket)
                     ProxyType.AUTO -> error("AUTO must be resolved before probing")
                 }
                 return profile.copy(type = candidate)
@@ -61,8 +62,17 @@ class ProxyProtocolProbe {
         )
     }
 
-    private fun probeHttp(profile: ProxyProfile, password: String?, tls: Boolean) {
-        val socket = if (tls) openTlsSocket(profile.host, profile.port) else openTcpSocket(profile.host, profile.port)
+    private fun probeHttp(
+        profile: ProxyProfile,
+        password: String?,
+        tls: Boolean,
+        protectSocket: ((Socket) -> Boolean)?,
+    ) {
+        val socket = if (tls) {
+            openTlsSocket(profile.host, profile.port, protectSocket)
+        } else {
+            openTcpSocket(profile.host, profile.port, protectSocket)
+        }
         socket.use { connection ->
             connection.soTimeout = IO_TIMEOUT_MS
             val writer = BufferedWriter(OutputStreamWriter(connection.getOutputStream(), Charsets.ISO_8859_1))
@@ -104,8 +114,12 @@ class ProxyProtocolProbe {
         }
     }
 
-    private fun probeSocks5(profile: ProxyProfile, password: String?) {
-        openTcpSocket(profile.host, profile.port).use { socket ->
+    private fun probeSocks5(
+        profile: ProxyProfile,
+        password: String?,
+        protectSocket: ((Socket) -> Boolean)?,
+    ) {
+        openTcpSocket(profile.host, profile.port, protectSocket).use { socket ->
             socket.soTimeout = IO_TIMEOUT_MS
             val input = BufferedInputStream(socket.getInputStream())
             val output = socket.getOutputStream()
@@ -176,20 +190,36 @@ class ProxyProtocolProbe {
         if ((response[1].toInt() and 0xff) != 0x00) throw ProxyProbeException("логин/пароль отклонены")
     }
 
-    private fun openTcpSocket(host: String, port: Int): Socket =
-        Socket().apply {
-            connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
-            soTimeout = IO_TIMEOUT_MS
-        }
+    private fun openTcpSocket(
+        host: String,
+        port: Int,
+        protectSocket: ((Socket) -> Boolean)?,
+    ): Socket = Socket().apply {
+        protectBeforeConnect(this, protectSocket)
+        connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
+        soTimeout = IO_TIMEOUT_MS
+    }
 
-    private fun openTlsSocket(host: String, port: Int): SSLSocket {
+    private fun openTlsSocket(
+        host: String,
+        port: Int,
+        protectSocket: ((Socket) -> Boolean)?,
+    ): SSLSocket {
         val socket = SSLSocketFactory.getDefault().createSocket() as SSLSocket
+        protectBeforeConnect(socket, protectSocket)
         socket.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
         socket.soTimeout = TLS_HANDSHAKE_TIMEOUT_MS
         socket.sslParameters = socket.sslParameters.apply { endpointIdentificationAlgorithm = "HTTPS" }
         socket.startHandshake()
         socket.soTimeout = IO_TIMEOUT_MS
         return socket
+    }
+
+    private fun protectBeforeConnect(socket: Socket, protectSocket: ((Socket) -> Boolean)?) {
+        if (protectSocket != null && !protectSocket(socket)) {
+            socket.close()
+            throw ProxyProbeException("не удалось исключить health-check из VPN-туннеля")
+        }
     }
 
     private fun readExactly(input: BufferedInputStream, count: Int): ByteArray {
