@@ -1,52 +1,39 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MOB-003-SITE-EXCLUSIONS-20260919
-status: completed
-goal: "Add Android site/domain exclusions with the same user-facing purpose as desktop no_proxy, without starting per-application routing."
-authority: HUMAN
+task_id: APL-REL-016
+status: in_progress
+goal: "Refresh the Windows public-trust / Authenticode / SmartScreen review packet to the immutable public v0.2.10 baseline and first eligible v0.2.11+ release, preserving REVIEW and Owner gates."
+authority: REVIEW
 definition_of_done:
-  - "Android exposes an Exceptions editor without adding controls to the accepted one-screen home or adding per-app selection."
-  - "Entries accept domain, URL, host:port and IP forms, are normalized, de-duplicated and synchronously persisted for the :vpn process."
-  - "Configured supported exclusions bypass the Android VPN/proxy path while all other traffic remains tunneled."
-  - "Empty exclusions preserve the accepted Android 0.1.17 networking path and tun2proxy virtual DNS behavior."
-  - "Android 13+ uses VpnService excludeRoute; Android 8-12 uses a deterministic compatible route-complement implementation."
-  - "When exclusions are active, DNS mode exposes real destination addresses required for IP route bypass instead of tun2proxy virtual addresses."
-  - "Saving exclusions while connected reconfigures the tunnel automatically without requiring a second VPN permission grant."
-  - "Unsupported patterns are rejected explicitly rather than silently providing incorrect bypass semantics."
-  - "Version/docs/tests are updated; relevant local checks and exact-head Android CI pass."
-  - "Checkpoint records final commit, verification and any physical-test requirement before completion."
+  - "Substantive PR #103 trust implementation is ported onto current main without stale roadmap/checkpoint state."
+  - "Current Microsoft SmartScreen, Smart App Control and Artifact Signing eligibility are rechecked."
+  - "Current CA/B Forum Code Signing Baseline Requirements are rechecked."
+  - "v0.2.10 is explicitly immutable/unsigned at native Authenticode layer and v0.2.11+ is the first eligible future signed release."
+  - "Russian CryptoPro/Rutoken detached evidence remains separate from Microsoft native publisher trust."
+  - "Exact-head substantive CI is green."
+  - "A review-ready PR is produced and work stops before provider/certificate/key-custody/production-signing/release/merge Owner decisions."
 completed:
-  - "Synced local canonical checkout to origin/main at 8b07165a2f8404ed711399c6e65ec76a22b46a72."
-  - "Verified desktop no_proxy contract and the pinned tun2proxy/Android VpnService routing constraints."
-  - "Implemented concrete site exclusion normalization, synchronous storage and bounded IPv4/IPv6 CIDR-complement routing tests."
-  - "Integrated Android 13+ excludeRoute and Android 8-12 route complements; empty exclusions retain 0.1.17 virtual-DNS/full-route behavior."
-  - "Integrated physical-network A/AAAA resolution and physical DNS bypass with tun2proxy direct DNS only when exclusions are enabled."
-  - "Added the Exceptions editor inside the existing proxy popup and controlled reconnect on connected-save; no per-app chooser was added."
-  - "Bumped dogfood to Android 0.1.18/versionCode 19 and documented the exact-host/wildcard boundary."
-  - "Committed and pushed d38c27ae29bef91df45e4363f54a0a00ed7d7d2d; opened PR #125."
-  - "Re-read executor policy/queue: this user-directed implementation is HUMAN/manual override; no automatic merge/release is authorized by the queue."
-current: "Completed: Android 0.1.19 site exclusions and clarified Add/list/remove UX accepted by Owner; PR #125 remains open for an explicit merge/release decision."
-pending: []
-last_verified_commit: "473b0938550eb72bd812d135be9e4955f794624a"
+  - "Read canonical queue from main; APL-REL-016 is the earliest independent READY REVIEW track."
+  - "Rechecked Microsoft SmartScreen: signed OV/EV files can still show reputation warnings and EV does not automatically bypass SmartScreen."
+  - "Rechecked Smart App Control: RSA-based trusted-provider signing remains required; ECC is not accepted by its signature check."
+  - "Rechecked Microsoft Artifact Signing Public Trust geography: Russia remains absent from the published organization eligibility list."
+  - "Rechecked CA/B Forum Code Signing BR v3.11.0: 460-day maximum for certificates issued on/after 2026-03-01 and exactly one reserved subscriber policy OID effective 2026-09-15."
+  - "Created agent/apl-rel-016-v0210-refresh from current main and ported the substantive PR #103 workflow, decision packet, runbook, contract, tests and public-trust gate."
+  - "Updated release boundary and tests to immutable v0.2.10 / first eligible v0.2.11+ and review date 2026-09-19."
+current: "Open the refreshed REVIEW PR, run exact-head CI, fix task-caused regressions only, then stop at Owner review."
+pending:
+  - "Open refreshed REVIEW PR."
+  - "Verify exact-head REL-016 and repository CI."
+  - "Persist review-ready checkpoint on main without merging the substantive REVIEW PR."
+last_verified_commit: "54ecd0085d54c481dbfd165ef6511d039933d1db"
 test_results:
-  - "git diff --check: PASS before commit."
-  - "Architecture review against Android VpnService excludeRoute and pinned tun2proxy v0.8.3: PASS."
-  - "GitHub Android CI run 35431805810: SUCCESS; testDebugUnitTest + assembleDebug PASS; dogfood signer/branding verification PASS."
-  - "Artifact proxy-launcher-android-debug id 10580893480; workflow artifact digest sha256:ef620c22eb72e4a14e771db0ed812cdee1b9aa7251fa2cad7882a02e8e4e9172."
-  - "Physical Android: myip.com exclusion reported working by Owner on 0.1.18."
-  - "0.1.19 UX commit 79067df: explicit site input + Add button + per-entry rows/remove; git diff --check PASS."
-  - "Fixed Kotlin nullable normalization compile defect in 473b093 and generalized Android workflow push trigger for mobile branches."
-  - "GitHub Android CI run 35435184809 on 473b093: SUCCESS; tests, assemble, signer/branding, SHA-256 and artifact upload PASS."
-  - "0.1.19 APK SHA-256: c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71."
-  - "Fresh CI rebuild attempt 2 of run 35435184809: SUCCESS; artifact 10581924654 produced."
-  - "Owner accepted task closure after delivery of fresh Android 0.1.19 APK."
-blocker: null
-resume_instruction: "Task completed. No continuation required. Do not reopen unless a new defect or follow-up requirement is reported."
-updated_at: "2026-09-19T12:15:00+03:00"
+  - "Pre-PR content consistency check: no stale 0.2.10+ release boundary or 0.2.6 current baseline remains in refreshed packet/tests."
+resume_instruction: "Continue on agent/apl-rel-016-v0210-refresh. Open/inspect the refreshed PR, require exact-head substantive CI green, then stop at Owner review. Do not purchase/enroll/sign/publish or merge the substantive REVIEW item."
+updated_at: "2026-09-19T13:02:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "chatgpt"
+  execution_id: "APL-REL-016-20260919"
+  branch: "agent/apl-rel-016-v0210-refresh"
+  base_commit: "54ecd0085d54c481dbfd165ef6511d039933d1db"
   lease_until: null
   manual_override: false
