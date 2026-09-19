@@ -3,7 +3,7 @@ repository: arvectum2/proxy-launcher
 updated_at: "2026-09-19T13:02:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "eff09f7ee25e26991909dedc0918109a7b90a609"
+  main_sha_verified: "31e912fd6109cd14f4fb7e3a271d32af4f92d991"
   stable_release: "v0.2.10"
   stable_release_published_at: "2026-09-19"
   platforms:
@@ -158,18 +158,17 @@ items:
   - order: 110
     task_id: APL-MOB-003-SITE-EXCLUSIONS-20260919
     title: "Android site/domain exclusions"
-    status: blocked
+    status: done
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; PR #125"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P4; acceptance PR #125; integration PR #130; checkpoint APL-MOB-003-SITE-EXCLUSIONS-20260919"
     dependencies:
       - APL-MOB-002-ANDROID-FAILOVER
-    blocker: "Implementation/CI are ready, but physical Android direct-vs-proxied egress, connected-save reconnect and clear-list regression evidence are required before merge/release."
-    owner_gate: "Install the 0.1.18 dogfood candidate on a real Android device and record physical PASS/FAIL."
-    executor_scope: "May fix observed defects and maintain tests/CI/evidence after physical feedback; must not claim physical acceptance or auto-release."
-    active_pr: 125
-    evidence: "PR #125 adds exact-host/domain/URL/IP exclusions without starting per-application routing. Exact-head Android CI has passed; current physical gate remains open."
+    owner_gate: "PR #130 is the current rebased integration candidate; merge/release is a separate explicit decision and must not be inferred from physical acceptance."
+    executor_scope: "Preserve completed physical/CI evidence. Do not reopen implementation unless a new defect is reported and do not auto-release."
+    active_pr: 130
+    evidence: "DONE for implementation/physical acceptance: Owner reported myip.com exclusion working; 0.1.19 clarified Add/list/remove UX was accepted; Android CI run 35435184809 SUCCESS; APK SHA-256 c5940b1e494df5de82d84493182f83fcbe75182fe261f372a1269a94ba880c71. Original PR #125 is closed as superseded; rebased integration PR #130 is open."
 
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
@@ -181,7 +180,7 @@ items:
     source: "docs/ROADMAP.md#8-mobile-applications; checkpoint APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919"
     dependencies:
       - APL-MOB-003-SITE-EXCLUSIONS-20260919
-    blocker: "Roadmap plan only. Implementation starts after MOB-003 physical acceptance and explicit Owner prioritization."
+    blocker: "Roadmap plan only. MOB-003 physical acceptance is complete, but implementation starts only after integration PR #130 is merged into main and the Owner explicitly prioritizes monetization/package identity."
     owner_gate: "Choose/confirm private package identity/update semantics and authorize implementation/provider configuration before the public ads/private no-ads release lane is built."
     executor_scope: "May preserve the approved design constraints; do not add ad SDKs, create private distribution infrastructure, publish monetized APKs or make paid/provider commitments without the required gate."
     evidence: "Plan is recorded: public ads-enabled channel for GitHub/GitVerse/site/RuStore, private no-ads build from the same codebase, Yandex Mobile Ads/App Open initial target, fail-open/frequency/privacy constraints."
