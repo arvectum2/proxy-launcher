@@ -22,17 +22,17 @@ completed:
   - "Verified current APL-MOB-003 site-exclusions PR #125 and its HUMAN physical acceptance gate."
   - "Verified APL-MOB-004 planning checkpoint exists; no ad SDK/private distribution implementation is claimed."
   - "Preserved the blocked APL-MOB-003 current task in .agent/checkpoints/APL-MOB-003-SITE-EXCLUSIONS-20260919.yaml."
-current: "Update execution queue, canonical roadmap and local backlog to verified facts only."
+current: "Canonical files are synchronized; open roadmap-sync PR and verify exact-head CI."
 pending:
-  - "Update .agent/execution-queue.yaml."
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
   - "Open roadmap-sync PR and verify exact-head CI."
   - "Merge metadata/docs sync when required gate is green."
   - "Restore APL-MOB-003 as canonical blocked current task and record this sync as completed checkpoint."
 last_verified_commit: "eff09f7ee25e26991909dedc0918109a7b90a609"
 test_results:
   - "Repository/release/PR inspection complete; no product bytes changed by this sync task."
+  - "Executor queue synchronized to stable v0.2.10, completed APL-MOB-002, current APL-MOB-003 gate, planned APL-MOB-004 and current REL-016 refresh requirement."
+  - "Canonical ROADMAP synchronized to v0.2.10 desktop/AppImage/macOS-test/mobile state."
+  - "LOCAL_EXECUTION_BACKLOG synchronized to current release/mobile/trust state."
 resume_instruction: "Continue metadata-only roadmap synchronization on agent/roadmap-sync-20260919. Do not merge/release PR #125, do not implement APL-MOB-004, and do not cross REL-016/per-app/registry Owner or HUMAN gates."
 updated_at: "2026-09-19T13:02:00+03:00"
 execution:
