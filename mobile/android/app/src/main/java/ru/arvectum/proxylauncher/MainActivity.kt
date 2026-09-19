@@ -655,6 +655,10 @@ class MainActivity : Activity() {
                 input.error = e.message ?: "Проверьте адрес сайта"
                 return
             }
+            if (normalized == null) {
+                input.error = "Введите адрес сайта"
+                return
+            }
             if (normalized !in entries) {
                 entries.add(normalized)
                 entries.sort()
