@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 goal: "Finish the remaining APL-MOB-002 Android proxy-pool scope after the accepted 0.1.13 release: continuous health monitoring of the active upstream, automatic failover with anti-flapping protection, health/latency visibility, primary/backup policy and restore behavior, credential-safe event logging, and resilient recovery across connectivity transitions."
 authority: HUMAN
 definition_of_done:
@@ -66,12 +66,16 @@ completed:
   - "0.1.16 process-binding approach removed; fresh tun2proxy sockets are instead created in the recreated :vpn process on the replacement carrier."
   - "Bumped Android to 0.1.17 / versionCode 18; 0.1.15 + Новый/Журнал and existing Auto proxy-failure failover are preserved."
   - "git diff --check PASS; no registerDefaultNetworkCallback or bindProcessToNetwork remains in Android source."
-current: "Commit/push the 0.1.17 physical-network handoff repair, validate exact-head Android/repository CI, and issue a replacement APK."
+  - "0.1.17 repair committed as fd7214922aee61a969bdcf4a9018bcf7579a4f3d."
+  - "Exact product head fd7214922aee61a969bdcf4a9018bcf7579a4f3d passed Android workflow 35426368514 plus SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations."
+  - "0.1.17 APK SHA-256: e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; stable signer unchanged."
+  - "Issue #51 updated with 0.1.17 physical-network handoff evidence in comment 5739916204."
+current: "Blocked on HUMAN physical 0.1.17 retest: Wi-Fi A -> hotspot B -> Wi-Fi A with VPN left enabled; confirm automatic reconnect and Журнал event смена сети."
 pending:
-  - "Commit/push 0.1.17 and run exact-head CI."
-  - "Issue replacement 0.1.17 APK with SHA/signer evidence for HUMAN Wi-Fi -> hotspot retest."
+  - "HUMAN physical recheck: Wi-Fi A -> hotspot B -> Wi-Fi A without manual OFF/ON; Internet recovers automatically, no repeated VPN permission prompt, no proxy-failure marking solely due carrier change, no flapping."
+  - "HUMAN regression recheck: connected + Новый saves without changing live tunnel and Журнал remains present."
   - "After HUMAN PASS, re-resolve current PR head/checks, merge PR #119 only under then-applicable authority, publish/release only with explicit release authority, close issue #51, and set checkpoint completed."
-last_verified_commit: "774c01fc74a813ed6e1e7c66becc8d4c2b099f4e"
+last_verified_commit: "fd7214922aee61a969bdcf4a9018bcf7579a4f3d"
 test_results:
   - "Baseline Android 0.1.13 physical acceptance: PASS."
   - "Exact PR head f58e481eb5c588057714ea9e8f98fa16a9d1907c: Android workflow 35422996797 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
@@ -84,4 +88,4 @@ test_results:
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: Android workflow 35425798518 SUCCESS; testDebugUnitTest + assembleDebug + signer/branding + artifact gates PASS."
   - "0.1.16 exact product head 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e: SAST, secret scan, SBOM, dependency scan, Windows installer/portable, provenance, sovereign lifecycle and both IP reconciliations PASS."
   - "0.1.16 APK SHA-256: 8e7510e7d5e5ad33d8d9707856fea190b2b590ed36bfb160b7907d1bc4499e33; signer remains FD:57:CD:46:AD:1E:54:A1:53:AA:9E:D5:6B:4B:BB:63:0B:33:01:5E:23:D4:C6:A8:60:77:A6:7C:F0:E2:83:13."
-resume_instruction: "Commit/push the implemented 0.1.17 INTERNET+NOT_VPN physical-network handoff repair, validate exact-head Android/repository CI, and issue the APK. Then wait for HUMAN Wi-Fi -> hotspot -> Wi-Fi retest; do not merge/release before PASS."
+resume_instruction: "Do not repeat the 0.1.17 repair or CI. Wait for HUMAN physical 0.1.17 retest: Wi-Fi A -> hotspot B -> Wi-Fi A with VPN left enabled, plus connected + Новый/Журнал regression check. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect."

@@ -1,13 +1,13 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-MOB-002-CONTINUOUS-FAILOVER-20260919
-status: in_progress
+status: blocked
 authority: HUMAN
 branch: agent/apl-mob-002-continuous-failover-20260919
 pr: 119
 issue: 51
 baseline_main: b21359501e34a40ebdfe11638047ab8469eca281
-last_verified_commit: 774c01fc74a813ed6e1e7c66becc8d4c2b099f4e
+last_verified_commit: fd7214922aee61a969bdcf4a9018bcf7579a4f3d
 completed:
   - Recovered remaining APL-MOB-002 continuous-failover scope from issue #51 after completed Android 0.1.13 slice.
   - Continuous Auto health monitoring, primary/backups, restore policy, anti-flapping, credential-free events, network-transition handling and process-safe failover handoff are implemented in PR #119.
@@ -46,8 +46,11 @@ test_results:
   - On actual carrier identity change, record смена сети and sticky-restart only :vpn so fresh tun2proxy sockets use the replacement network; do not mark proxy failed or advance failover cooldown.
   - Removed 0.1.16 process-binding strategy; preserved 0.1.15 UI fixes and normal Auto proxy-failure failover; versionCode 18.
   - git diff --check PASS and old registerDefaultNetworkCallback/bindProcessToNetwork calls are absent.
+  - 0.1.17 repair committed as fd7214922aee61a969bdcf4a9018bcf7579a4f3d.
+  - Android workflow 35426368514 and all observed repository workflows on fd7214922aee61a969bdcf4a9018bcf7579a4f3d PASS.
+  - 0.1.17 APK SHA-256 e7e8c2b456020a45614340324866631df844c8f70555d838d8f180c88b65f1a2; issue #51 comment 5739916204 records the evidence.
 pending:
-  - Commit/push 0.1.17, validate exact-head CI, issue APK.
-  - HUMAN Wi-Fi -> hotspot -> Wi-Fi retest without manual OFF/ON.
+  - HUMAN Wi-Fi -> hotspot -> Wi-Fi retest without manual OFF/ON; expect automatic reconnect and Journal event смена сети.
+  - HUMAN regression check: connected + Новый and Журнал still work.
   - Do not merge, publish/release, or close issue #51 before physical PASS and then-current authority/checks are revalidated.
-resume_instruction: Commit/push implemented 0.1.17, validate exact-head CI, issue APK, then wait for HUMAN physical network-transition retest.
+resume_instruction: Wait for HUMAN physical 0.1.17 retest. On PASS, re-resolve current PR #119 head/authority/checks before merge/release/close; on FAIL, reproduce only the reported defect.
