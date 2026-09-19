@@ -153,6 +153,35 @@ class DoctorEvaluationTests(unittest.TestCase):
         self.assertEqual(report["overall"], doctor.WARN)
         self.assertEqual(report["exit_code"], 1)
 
+    def test_macos_occupied_listener_reports_port_owner_and_action(self):
+        snapshot = healthy_snapshot()
+        snapshot["sections"]["system"]["data"] = {"platform": "Darwin", "windows": False}
+        snapshot["sections"]["proxy_state"]["data"]["engine_running"] = False
+        snapshot["sections"]["proxy_state"]["data"]["system_proxy_enabled"] = False
+        snapshot["sections"]["proxy_state"]["data"]["network_restore_pending"] = False
+        snapshot["sections"]["recovery"]["data"]["network_restore_pending"] = False
+        snapshot["sections"]["recovery"]["data"]["internet_backup"]["exists"] = False
+        snapshot["sections"]["recovery"]["data"]["environment_backup"]["exists"] = False
+        snapshot["sections"]["listeners"]["data"] = {
+            "http": {
+                "listening": True,
+                "port": 8080,
+                "owners": [{"pid": 1139, "command": "Python"}],
+            },
+            "socks5": {"listening": False, "port": 1080},
+            "pac": {"listening": False, "port": 8082},
+            "pac_protocol_compatible": False,
+        }
+        report = doctor.evaluate_snapshot(snapshot)
+        listener = check_map(report)["listeners.health"]
+        self.assertEqual(listener["status"], doctor.WARN)
+        self.assertIn("8080", listener["remediation"])
+        self.assertIn("Python", listener["remediation"])
+        self.assertIn("PID 1139", listener["remediation"])
+        self.assertIn("18080 / 11080 / 18082", listener["remediation"])
+        self.assertEqual(check_map(report)["platform.macos"]["status"], doctor.PASS)
+        self.assertEqual(report["overall"], doctor.WARN)
+
     def test_invalid_or_colliding_ports_are_fail(self):
         snapshot = healthy_snapshot()
         settings = snapshot["sections"]["application"]["data"]["settings"]
@@ -198,11 +227,23 @@ class DoctorEvaluationTests(unittest.TestCase):
         self.assertNotIn(secret, raw)
         self.assertIn("[REDACTED]", raw)
 
-    def test_non_windows_snapshot_is_fail(self):
+    def test_supported_non_windows_platforms_are_pass(self):
+        for platform_name, check_id in (("Darwin", "platform.macos"), ("Linux", "platform.linux")):
+            with self.subTest(platform_name=platform_name):
+                snapshot = healthy_snapshot()
+                snapshot["sections"]["system"]["data"] = {
+                    "platform": platform_name,
+                    "windows": False,
+                }
+                report = doctor.evaluate_snapshot(snapshot)
+                self.assertEqual(check_map(report)[check_id]["status"], doctor.PASS)
+                self.assertEqual(report["overall"], doctor.PASS)
+
+    def test_unknown_platform_is_fail(self):
         snapshot = healthy_snapshot()
-        snapshot["sections"]["system"]["data"] = {"platform": "Linux", "windows": False}
+        snapshot["sections"]["system"]["data"] = {"platform": "Plan9", "windows": False}
         report = doctor.evaluate_snapshot(snapshot)
-        self.assertEqual(check_map(report)["platform.windows"]["status"], doctor.FAIL)
+        self.assertEqual(check_map(report)["platform.supported"]["status"], doctor.FAIL)
         self.assertEqual(report["overall"], doctor.FAIL)
 
     def test_source_schema_mismatch_is_fail(self):

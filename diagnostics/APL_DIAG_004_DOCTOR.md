@@ -47,15 +47,15 @@ Doctor v1 evaluates:
 
 1. `collector.integrity` — the input schema must match APL-DIAG-003 and all expected sections must exist; schema mismatch or failure of an essential state source is FAIL, optional evidence loss is WARN.
 2. `redaction.self_test` — synthetic credentials must be removed while the proxy endpoint remains diagnostically useful.
-3. `platform.windows` — production Doctor requires Windows.
+3. `platform.windows` / `platform.macos` / `platform.linux` — the current supported desktop platform must be identified without treating another supported OS as a failure.
 4. `configuration.ports` — HTTP/SOCKS5/PAC ports must be valid and distinct.
 5. `configuration.upstream` — at least one usable upstream host/port should be configured; absence is WARN, malformed port is FAIL.
 6. `state.migration` — blocked runtime-state migration is FAIL.
 7. `state.recovery` — rollback backups are normal while the engine is running; the same pending-backup state with the engine stopped means interrupted recovery and is FAIL.
-8. `state.engine_proxy` — engine and Windows PAC state must be consistent.
+8. `state.engine_proxy` — engine and system proxy/PAC state must be consistent.
 9. `state.pac_ownership` — stale/unowned or orphaned Arvectum PAC state is FAIL; Doctor never deletes it automatically.
-10. `listeners.health` — when the engine is running, all localhost listeners and PAC protocol must be healthy; when stopped, occupied configured ports are WARN.
-11. `recovery.autostart` — unreadable/stale/unowned recovery Run state is surfaced as a warning where safe; foreign entries are never deleted or overwritten.
+10. `listeners.health` — when the engine is running, all localhost listeners and PAC protocol must be healthy; when stopped, occupied configured ports are WARN. On macOS, Doctor performs a best-effort read-only `lsof` lookup so the warning can name the conflicting port/process and point to editable local listener ports.
+11. `recovery.autostart` — unreadable/stale/unowned recovery-autostart state is surfaced as a warning where safe; foreign entries are never deleted or overwritten.
 
 ## CLI
 

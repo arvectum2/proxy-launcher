@@ -163,6 +163,57 @@ def _collect_environment_proxy():
     return result
 
 
+def _macos_listener_owners(port):
+    """Best-effort read-only owner lookup for a listening localhost TCP port."""
+    if sys.platform != "darwin":
+        return []
+    lsof = "/usr/sbin/lsof"
+    if not os.path.isfile(lsof):
+        return []
+    try:
+        result = subprocess.run(
+            [lsof, "-nP", "-iTCP:%d" % int(port), "-sTCP:LISTEN", "-Fpc"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=3,
+            check=False,
+        )
+    except Exception:
+        return []
+    if result.returncode not in (0, 1):
+        return []
+
+    owners = []
+    current = None
+    for raw in (result.stdout or "").splitlines():
+        if not raw:
+            continue
+        tag, value = raw[:1], raw[1:]
+        if tag == "p":
+            if current and current.get("pid") is not None:
+                owners.append(current)
+            try:
+                pid = int(value)
+            except (TypeError, ValueError):
+                pid = None
+            current = {"pid": pid}
+        elif tag == "c" and current is not None:
+            current["command"] = redact_text(value, limit=256)
+    if current and current.get("pid") is not None:
+        owners.append(current)
+
+    deduped = []
+    seen = set()
+    for item in owners:
+        key = (item.get("pid"), item.get("command"))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped[:8]
+
+
 def _probe_listener(port, timeout=0.25):
     try:
         port = int(port)
@@ -171,11 +222,17 @@ def _probe_listener(port, timeout=0.25):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         sock.settimeout(timeout)
-        return {
+        listening = sock.connect_ex(("127.0.0.1", port)) == 0
+        result = {
             "host": "127.0.0.1",
             "port": port,
-            "listening": sock.connect_ex(("127.0.0.1", port)) == 0,
+            "listening": listening,
         }
+        if listening:
+            owners = _macos_listener_owners(port)
+            if owners:
+                result["owners"] = owners
+        return result
     except OSError as exc:
         return {
             "host": "127.0.0.1",
