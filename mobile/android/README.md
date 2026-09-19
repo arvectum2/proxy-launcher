@@ -281,3 +281,17 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - The fresh `:vpn` process runs normal preflight and recreates tun2proxy sockets on the replacement Wi-Fi/hotspot/cellular carrier while reusing the already-granted Android VPN permission.
 - Existing Auto proxy-failure failover, anti-flapping, connected `+ Новый`, and `Журнал` behavior remain unchanged.
 - Android version is `0.1.17` / versionCode 18.
+
+## 0.1.18 site exclusions
+
+0.1.18 adds the Android counterpart of desktop site exclusions without starting per-application routing.
+
+- The existing proxy popup contains an `Исключения` editor; the accepted one-screen home layout is unchanged.
+- One entry per line is accepted. Domain, full URL, `host:port` and literal IP input is normalized and de-duplicated before synchronous persistence.
+- When the list is empty, the accepted 0.1.17 tunnel path is unchanged: full IPv4/IPv6 VPN routes plus tun2proxy virtual DNS.
+- When exclusions are present, their current A/AAAA addresses are resolved on the physical network before VPN establishment and routed outside the VPN together with the physical DNS servers.
+- Android 13+ uses `VpnService.Builder.excludeRoute(...)`; Android 8-12 uses a deterministic CIDR complement so the same exact IP destinations bypass the VPN without requiring per-app routing.
+- Active exclusions use tun2proxy `direct` DNS semantics and Android's physical DNS servers, avoiding fake `198.18.0.0/15` destinations that would make IP route exclusions ineffective.
+- Saving the list while connected performs the existing controlled disconnect/reconnect cycle and reuses the already granted Android VPN permission.
+- Wildcard/suffix entries such as `*.example.com` are rejected explicitly. Android's current IP-route implementation cannot guarantee desktop wildcard semantics without a DNS-aware domain router; concrete subdomains must be listed separately.
+- Android version is `0.1.18` / versionCode 19.
