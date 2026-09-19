@@ -599,38 +599,99 @@ class MainActivity : Activity() {
     }
 
     private fun showSiteExclusionsDialog() {
-        val existing = runCatching { store.getSiteExclusions() }.getOrDefault(emptyList())
-        val field = EditText(this).apply {
-            setText(existing.joinToString("\n"))
-            hint = "example.com\nhttps://service.example.org/path"
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            gravity = Gravity.TOP or Gravity.START
-            minLines = 6
-            maxLines = 12
+        val entries = runCatching { store.getSiteExclusions() }.getOrDefault(emptyList()).toMutableList()
+        val input = EditText(this).apply {
+            hint = "example.com"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            setSingleLine(true)
             textSize = 15f
             setTextColor(NAVY)
             setHintTextColor(DISABLED_FG)
             setPadding(dp(13), dp(10), dp(13), dp(10))
             background = roundedSurface(WHITE, SOFT_GRAY, 11f)
         }
+        val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+
+        fun renderEntries() {
+            list.removeAllViews()
+            if (entries.isEmpty()) {
+                list.addView(TextView(this).apply {
+                    text = "Список пока пуст"
+                    textSize = 13f
+                    setTextColor(DISABLED_FG)
+                    setPadding(dp(4), dp(8), dp(4), dp(4))
+                })
+                return
+            }
+            entries.forEach { host ->
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, dp(3), 0, dp(3))
+                }
+                row.addView(TextView(this).apply {
+                    text = host
+                    textSize = 14f
+                    setTextColor(NAVY)
+                }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                row.addView(Button(this).apply {
+                    text = "Удалить"
+                    isAllCaps = false
+                    setOnClickListener {
+                        entries.remove(host)
+                        renderEntries()
+                    }
+                })
+                list.addView(row)
+            }
+        }
+
+        fun addEntry() {
+            val raw = input.text.toString()
+            if (raw.isBlank()) return
+            val normalized = try {
+                SiteExclusionPolicy.normalize(raw)
+            } catch (e: IllegalArgumentException) {
+                input.error = e.message ?: "Проверьте адрес сайта"
+                return
+            }
+            if (normalized !in entries) {
+                entries.add(normalized)
+                entries.sort()
+            }
+            input.setText("")
+            input.error = null
+            renderEntries()
+        }
+
+        val addButton = Button(this).apply {
+            text = "Добавить"
+            isAllCaps = false
+            setOnClickListener { addEntry() }
+        }
+        val inputRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(input, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(addButton, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                marginStart = dp(8)
+            })
+        }
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(4), dp(4), dp(4), 0)
             addView(TextView(this@MainActivity).apply {
-                text = "По одному сайту на строку. Можно вставлять URL, host:port или IP — адрес будет очищен автоматически. " +
-                    "Сайты из списка открываются напрямую, минуя прокси. Для поддоменов добавляйте конкретные хосты отдельно."
+                text = "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP."
                 textSize = 13f
                 setTextColor(GRAPHITE)
                 setPadding(0, 0, 0, dp(10))
             })
-            addView(
-                field,
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                ),
-            )
+            addView(inputRow)
+            addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(8)
+            })
         }
+        renderEntries()
 
         val dialog = AlertDialog.Builder(this)
             .setTitle("Исключения")
@@ -640,32 +701,27 @@ class MainActivity : Activity() {
             .create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                if (input.text.toString().isNotBlank()) addEntry()
                 val normalized = try {
-                    SiteExclusionPolicy.normalizeAll(field.text.toString().lineSequence().toList())
+                    SiteExclusionPolicy.normalizeAll(entries)
                 } catch (e: IllegalArgumentException) {
-                    field.error = e.message ?: "Проверьте список исключений"
+                    input.error = e.message ?: "Проверьте список исключений"
                     return@setOnClickListener
                 }
                 try {
                     store.setSiteExclusions(normalized)
                 } catch (_: Exception) {
-                    field.error = "Не удалось сохранить исключения"
+                    input.error = "Не удалось сохранить исключения"
                     return@setOnClickListener
                 }
                 dialog.dismiss()
-
                 if (currentState == ProxyVpnService.STATE_CONNECTED ||
                     currentState == ProxyVpnService.STATE_CONNECTING
                 ) {
-                    selectedChoice()?.let {
-                        requestLiveSwitch(it, "Применяем исключения…")
-                    }
+                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения…") }
                 } else {
-                    val detail = if (normalized.isEmpty()) {
-                        "Исключения очищены"
-                    } else {
-                        "Сохранено исключений: ${normalized.size}"
-                    }
+                    val detail = if (normalized.isEmpty()) "Исключения очищены"
+                    else "Сохранено исключений: ${normalized.size}"
                     renderState(currentState, detail)
                 }
             }
