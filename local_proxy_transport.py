@@ -82,27 +82,6 @@ class ProxyCore:
         return status, response
 
     @staticmethod
-    def _peek_proxy_response_status(stream):
-        """Inspect a CONNECT response header without consuming successful bytes."""
-        response = stream.recv(65536, socket.MSG_PEEK)
-        if not response:
-            raise OSError("upstream proxy closed before CONNECT response")
-        marker = b"\r\n\r\n"
-        if marker not in response:
-            # Preserve wire transparency for fragmented responses; the relay
-            # will forward the bytes exactly as the upstream emitted them.
-            return None, len(response)
-        header = response.split(marker, 1)[0] + marker
-        status_line = header.split(b"\r\n", 1)[0].split()
-        if len(status_line) < 2:
-            raise OSError("invalid upstream proxy response")
-        try:
-            status = int(status_line[1])
-        except (TypeError, ValueError):
-            raise OSError("invalid upstream proxy status")
-        return status, len(header)
-
-    @staticmethod
     def _connect_request_with_auth(host, port, token, client_request=None):
         target = ("%s:%d" % (host, port)).encode("idna")
         if client_request is None:
@@ -125,7 +104,7 @@ class ProxyCore:
             + preserved
         ) + b"\r\n\r\n"
 
-    def _open_upstream_tunnel(self, host, port, client_request=None, transparent_success=False):
+    def _open_upstream_tunnel(self, host, port, client_request=None):
         core = _core()
         for host_u, proxy_port, token in self._upstreams:
             stream = None
@@ -138,27 +117,19 @@ class ProxyCore:
                     host, port, token, client_request=client_request
                 )
                 stream.sendall(request)
-                if transparent_success:
-                    status, header_bytes = self._peek_proxy_response_status(stream)
-                    response = b""
-                    response_consumed = False
-                else:
-                    status, response = self._read_proxy_response(stream)
-                    header_bytes = len(response)
-                    response_consumed = True
+                status, response = self._read_proxy_response(stream)
                 elapsed_ms = int((time.monotonic() - started) * 1000)
                 core.structured_log(
-                    "upstream CONNECT response observed",
+                    "upstream CONNECT response received",
                     event="proxy.connect.upstream_response",
                     proxy_host=host_u,
                     proxy_port=proxy_port,
                     target_port=port,
                     status=status,
-                    header_bytes=header_bytes,
+                    header_bytes=len(response),
                     elapsed_ms=elapsed_ms,
-                    response_consumed=response_consumed,
                 )
-                if status is None or 200 <= status < 300:
+                if 200 <= status < 300:
                     stream.settimeout(300)
                     return stream, response
             except Exception as exc:
@@ -331,21 +302,18 @@ class ProxyCore:
             else:
                 if is_connect:
                     upstream, response = self._open_upstream_tunnel(
-                        host,
-                        port,
-                        client_request=request_headers,
-                        transparent_success=True,
+                        host, port, client_request=request_headers
                     )
                     if upstream is None:
                         self._send_error(client, 502, "All external proxies unreachable")
                         return
+                    client.sendall(response)
                     core.structured_log(
-                        "CONNECT tunnel handed to transparent relay",
+                        "CONNECT response forwarded to client",
                         event="proxy.connect.client_ready",
                         target_port=port,
-                        response_bytes=0,
+                        response_bytes=len(response),
                         buffered_client_bytes=len(buffered_after_headers),
-                        transparent_response=True,
                     )
                     if buffered_after_headers:
                         upstream.sendall(buffered_after_headers)
