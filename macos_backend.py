@@ -427,11 +427,16 @@ class MacOSBackend(ProxyBackend):
             for service_name, snapshot in snapshots.items():
                 touched.append(service_name)
                 self._client.set_auto_proxy_url(service_name, canonical["pac_url"])
-                self._client.set_auto_proxy_state(service_name, True)
                 self._client.set_bypass_domains(
                     service_name,
                     self._expected_bypass(snapshot, canonical),
                 )
+                # Re-assert a real disabled->enabled transition after the complete
+                # PAC configuration is in place. On macOS, changing the URL while
+                # PAC is already enabled can update networksetup's visible value
+                # without forcing CFNetwork/Safari to invalidate the active PAC.
+                self._client.set_auto_proxy_state(service_name, False)
+                self._client.set_auto_proxy_state(service_name, True)
             return True
         except Exception as exc:
             self._log("macOS enable failed; restoring snapshots: %s" % exc)
@@ -456,8 +461,18 @@ class MacOSBackend(ProxyBackend):
         # URL was saved, restore it first because setautoproxyurl may enable PAC.
         if url:
             self._client.set_auto_proxy_url(service_name, url)
-        self._client.set_auto_proxy_state(service_name, enabled)
-        self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
+        if enabled:
+            self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
+            # Mirror enable(): an explicit OFF->ON edge guarantees that CFNetwork
+            # observes the restored PAC URL rather than retaining the APL PAC cache.
+            self._client.set_auto_proxy_state(service_name, False)
+            self._client.set_auto_proxy_state(service_name, True)
+        else:
+            # Keep the historic retry-safe order for disabled snapshots: if the
+            # state transition fails, bypass domains are still Arvectum-owned and
+            # the next disable attempt can safely retry from the owned state.
+            self._client.set_auto_proxy_state(service_name, False)
+            self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
 
     def _restore_touched_services(
         self,
