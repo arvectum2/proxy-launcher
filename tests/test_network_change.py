@@ -168,17 +168,17 @@ class NetworkChangeTests(unittest.TestCase):
             with open(backup, "r", encoding="utf-8") as stream:
                 self.assertEqual(json.load(stream), original)
 
-    def test_unrelated_wininet_changes_do_not_change_exact_pac_ownership(self):
+    def test_inactive_manual_fields_do_not_change_exclusive_pac_ownership(self):
         settings = {"local_pac_port": 8082, "pac_path": "/proxy.pac"}
         values = {
             "AutoConfigURL": {
                 "exists": True,
                 "value": "http://127.0.0.1:8082/proxy.pac",
             },
-            "ProxyEnable": {"exists": True, "value": 1},
+            "ProxyEnable": {"exists": True, "value": 0},
             "ProxyServer": {"exists": True, "value": "new-network-proxy:8888"},
             "ProxyOverride": {"exists": True, "value": "*.intranet"},
-            "AutoDetect": {"exists": True, "value": 1},
+            "AutoDetect": {"exists": True, "value": 0},
         }
         with mock.patch.object(proxy_core, "is_windows", return_value=True), \
              mock.patch.object(proxy_core, "load_settings", return_value=settings), \

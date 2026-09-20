@@ -17,21 +17,20 @@ PT Sans / JetBrains Mono, фирменный знак и горизонталь�
 
 import atexit
 import os
-import sys
 import subprocess
+import sys
 import threading
 import tkinter as tk
-from tkinter import ttk, font as tkfont, messagebox
+from tkinter import font as tkfont
+from tkinter import messagebox, ttk
 
-import proxy_core as core
-import doctor as doctor_module
 import connection_test as connection_test_module
+import doctor as doctor_module
+import proxy_core as core
 import windows_single_instance as single_instance_module
 
 macos_autostart_module = None
-if os.name == "nt":
-    import winreg
-else:
+if os.name != "nt":
     try:
         import macos_autostart as macos_autostart_module
     except ImportError:
@@ -2023,7 +2022,7 @@ def main():
             "Текущая portable-версия продолжит работать в этом сеансе. "
             "Автозапуск временно отключён: запускайте этот EXE вручную."
         )
-    app = Launcher(root)
+    _app = Launcher(root)
     _poll_single_instance_activation(root, instance)
     root.mainloop()
     instance.close()

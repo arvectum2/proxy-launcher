@@ -22,7 +22,7 @@ MAJOR.MINOR.PATCH
 While product versions are below `1.0.0` (e.g. `0.2.3`), minor releases may contain non-backward-compatible improvements, accompanied by mandatory release notes.
 
 ### Current Version Status
-* **Canonical Product Version:** `0.2.10`
+* **Canonical Product Version:** `0.2.11`
 * The presence of a version number in code or documentation indicates the software version baseline, **not** that a public release has already been published.
 
 ## 3. Engineering Milestones vs. Product Versions
@@ -129,8 +129,8 @@ The installer is built from the same portable application binary and `VERSION` u
 
 ## 9. Platform Release Maturity
 
-* **Windows (0.2.10):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
+* **Windows (0.2.11):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
 * **macOS:** Engineering, packaging and real-host functional acceptance are complete on Apple Silicon, including recovery/autostart and native Aqua UI. Public production distribution remains deferred until Apple Developer ID signing/notarization is deliberately activated; local ad-hoc builds are not canonical public release assets.
-* **Astra Linux (0.2.10):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
-* **RED OS (0.2.10):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
-* **Generic Linux AppImage (0.2.10+):** public portable x86_64 distribution lane built from the same canonical Linux frozen application, with hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and checksum publication. Historical v0.2.9 remains immutable and does not gain this asset retroactively.
+* **Astra Linux (0.2.11):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
+* **RED OS (0.2.11):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
+* **Generic Linux AppImage (0.2.11+):** public portable x86_64 distribution lane built from the same canonical Linux frozen application, with hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and checksum publication. Historical v0.2.9 remains immutable and does not gain this asset retroactively.

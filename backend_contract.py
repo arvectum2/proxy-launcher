@@ -9,11 +9,10 @@ governed backend must satisfy before release.
 
 from dataclasses import asdict, dataclass
 from inspect import Parameter, signature
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Tuple
 
 from capability_model import Feature, capabilities_for_backend, declared_backend_ids
 from proxy_backend import ProxyBackend
-
 
 BACKEND_CONTRACT_VERSION = "1"
 
