@@ -326,14 +326,32 @@ class WindowsSystemProxyOwnershipTests(unittest.TestCase):
         base["ProxyEnable"] = {"exists": True, "value": 0}
         base["AutoDetect"] = {"exists": True, "value": 0}
 
-        with mock.patch.object(core, "is_windows", return_value=True),              mock.patch.object(core, "load_settings", return_value=settings),              mock.patch.object(core, "_read_internet_settings", return_value=base):
+        with mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "_read_internet_settings", return_value=base):
             self.assertTrue(windows_system_proxy.system_proxy_enabled())
 
         for name, value in (("ProxyEnable", 1), ("AutoDetect", 1)):
             variant = {key: dict(item) for key, item in base.items()}
             variant[name] = {"exists": True, "value": value}
-            with self.subTest(name=name),                  mock.patch.object(core, "is_windows", return_value=True),                  mock.patch.object(core, "load_settings", return_value=settings),                  mock.patch.object(core, "_read_internet_settings", return_value=variant):
+            with self.subTest(name=name), \
+                 mock.patch.object(core, "is_windows", return_value=True), \
+                 mock.patch.object(core, "load_settings", return_value=settings), \
+                 mock.patch.object(core, "_read_internet_settings", return_value=variant):
                 self.assertFalse(windows_system_proxy.system_proxy_enabled())
+
+    def test_system_proxy_enabled_fails_closed_for_malformed_dword_state(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        apl_url = windows_system_proxy.pac_url(settings)
+        values = self._internet_snapshot()
+        values["AutoConfigURL"] = {"exists": True, "value": apl_url}
+        values["ProxyEnable"] = {"exists": True, "value": "not-a-dword"}
+        values["AutoDetect"] = {"exists": True, "value": 0}
+
+        with mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "_read_internet_settings", return_value=values):
+            self.assertFalse(windows_system_proxy.system_proxy_enabled())
 
     def test_enable_aborts_before_registry_mutation_when_backup_cannot_be_proven(self):
         settings = dict(core.DEFAULT_SETTINGS)

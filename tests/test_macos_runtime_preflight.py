@@ -1,8 +1,10 @@
-import types
 import unittest
 
-from macos_runtime import detect_macos_runtime, MacOSRuntimeDetectionError
-from macos_networksetup_preflight import detect_macos_network_preflight, MacOSPreflightStatus
+from macos_networksetup_preflight import (
+    MacOSPreflightStatus,
+    detect_macos_network_preflight,
+)
+from macos_runtime import MacOSRuntimeDetectionError, detect_macos_runtime
 
 
 class Result:

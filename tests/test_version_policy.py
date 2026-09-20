@@ -1,10 +1,9 @@
 import re
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 import proxy_core as core
 import proxy_gui as gui
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SEMVER_REGEX = r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
@@ -93,7 +92,6 @@ class VersionPolicyTests(unittest.TestCase):
             self.assertNotIn("ArvectumProxyLauncherSetup.iss", self.read(path))
 
     def test_canonical_artifact_naming_uses_canonical_version(self):
-        version = self.get_version()
         policy_text = self.read("RELEASE_POLICY.md")
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe", policy_text)

@@ -11,7 +11,6 @@ import os
 from types import ModuleType
 from urllib.parse import urlsplit
 
-
 _INTERNET_BACKUP_PATH = "proxy_internet_backup.json"
 _PROXY_ENV_NAMES = ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY")
 _INTERNET_SETTINGS_NAMES = (
@@ -137,16 +136,23 @@ def _state_item_matches(actual, expected) -> bool:
     return actual.get("value") == expected.get("value")
 
 
+def _applied_internet_state(saved, settings):
+    """Return the exact WinINET state Arvectum owns while its PAC is active."""
+    core = _core()
+    applied = {name: dict(saved[name]) for name in _INTERNET_SETTINGS_NAMES}
+    applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(settings)}
+    applied["ProxyEnable"] = {"exists": True, "value": 0}
+    applied["AutoDetect"] = {"exists": True, "value": 0}
+    return applied
+
+
 def _internet_state_is_owned_or_saved(saved, current, settings=None) -> bool:
     """Accept only fields still equal to the saved state or Arvectum-applied state."""
     core = _core()
     if not core._valid_internet_backup(saved) or not core._valid_internet_backup(current):
         return False
     settings = settings or core.load_settings()
-    applied = {name: dict(saved[name]) for name in _INTERNET_SETTINGS_NAMES}
-    applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(settings)}
-    applied["ProxyEnable"] = {"exists": True, "value": 0}
-    applied["AutoDetect"] = {"exists": True, "value": 0}
+    applied = _applied_internet_state(saved, settings)
     return all(
         _state_item_matches(current[name], saved[name])
         or _state_item_matches(current[name], applied[name])
@@ -653,22 +659,29 @@ def disable_system_proxy() -> bool:
     )
 
 
+def _registry_dword_equals(item, expected: int) -> bool:
+    """Return false for absent or malformed registry DWORD state."""
+    item = item or {}
+    if not item.get("exists"):
+        return False
+    try:
+        return int(item.get("value")) == expected
+    except (TypeError, ValueError):
+        return False
+
+
 def system_proxy_enabled() -> bool:
-    """Return true only for the exact Arvectum loopback PAC configuration."""
+    """Return true only while the Arvectum PAC is the exclusive WinINET route."""
     core = _core()
     if not core.is_windows():
         return False
     values = core._read_internet_settings() or {}
     pac = values.get("AutoConfigURL") or {}
-    manual = values.get("ProxyEnable") or {}
-    autodetect = values.get("AutoDetect") or {}
     return bool(
         pac.get("exists")
         and core._exact_arvectum_pac_url(pac.get("value"))
-        and manual.get("exists")
-        and int(manual.get("value", 1)) == 0
-        and autodetect.get("exists")
-        and int(autodetect.get("value", 1)) == 0
+        and _registry_dword_equals(values.get("ProxyEnable"), 0)
+        and _registry_dword_equals(values.get("AutoDetect"), 0)
     )
 
 

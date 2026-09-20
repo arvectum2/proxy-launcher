@@ -3,9 +3,9 @@ import ntpath
 import os
 import socket
 import tempfile
-from pathlib import Path
 import threading
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import application_filesystem
@@ -156,9 +156,6 @@ class ProxyCoreTests(unittest.TestCase):
             self.assertTrue(core.orphaned_arvectum_pac())
 
     def test_healthy_listener_or_canonical_instance_is_not_orphaned(self):
-        common = {
-            "is_windows": mock.DEFAULT,
-        }
         with mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.object(core, "state_migration_blocked", return_value=False), \
              mock.patch.object(core, "_read_internet_settings", return_value=self._orphan_settings()), \
@@ -608,7 +605,6 @@ class ProxyCoreTests(unittest.TestCase):
         self.assertIn(b"Proxy-Authorization: Basic dXNlcjpwYXNz", received[0])
 
     def test_pac_server_health_check_identifies_our_process(self):
-        listeners = []
         ports = []
         for _ in range(3):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
