@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-CHATGPT-INTERMITTENT-20260919
-status: in_progress
+status: blocked
 goal: "Find and fix the remaining macOS browser regression where ChatGPT intermittently becomes unusable while APL is enabled, despite basic HTTP connectivity tests passing."
 authority: HUMAN
 definition_of_done:
@@ -119,7 +119,12 @@ completed:
   - "After restart, new WebKit Networking PID 41250 had no legacy 8080 session; APL remained listening on 18080 awaiting the user reload."
   - "User reported two acceptance-harness side effects after the latest attempts: ChatGPT still drops out, and Safari sometimes opens multiple new ChatGPT tabs. The duplicate tabs were caused by automated acceptance commands that invoked Safari with chatgpt.com, not by normal product behavior."
   - "Acceptance policy tightened: no further tests may launch/open Safari URLs, create tabs/windows, or restart browser UI. Future diagnosis must observe the user's existing Safari session only, with APL OFF by default and legacy proxy preserved."
-current: "User reports ChatGPT still drops and automated Safari acceptance created duplicate ChatGPT tabs. Stop all browser-driving acceptance. Keep APL OFF by default and preserve legacy proxy; next diagnosis must be passive against the existing Safari session only."
+  - "Repository search confirms product source contains no chatgpt.com, Safari open command, or browser-opening path; duplicate ChatGPT tabs were acceptance-harness side effects only."
+  - "Apple CFNetwork/system proxy review shows PAC and manual HTTP/HTTPS proxy settings are distinct inputs to system proxy resolution; current MacBook has both configured. This matches observed route nondeterminism where Safari sometimes reaches APL 18080 and sometimes bypasses it."
+  - "Potential next product slice: while APL owns ON state, snapshot manual HTTP/HTTPS proxy enable flags and temporarily disable those manual modes without altering their server/auth configuration; restore exact enable flags on OFF. Do not implement/install until device state can be safely inspected and regression/rollback tests are in place."
+  - "Remote MacBook control became unavailable during cleanup; device mutation is objectively blocked. APL must remain OFF and legacy proxy preserved until remote inspection is restored."
+  - "Proxy Launcher Watchdog was updated in place (no duplicate created) with a browser/UI safety rule forbidding automated Safari URL launches, tab/window creation, or WebKit restarts for acceptance."
+current: "Blocked on safe MacBook inspection: user reports APL still drops connectivity; duplicate ChatGPT tabs are confirmed acceptance-harness side effects and browser-driving is now prohibited. Strong next hypothesis is nondeterministic CFNetwork routing because manual HTTP/HTTPS proxy and PAC are simultaneously enabled."
 pending:
   - "Commit/synchronize transparent HTTP CONNECT fix and regression to PR #143."
   - "Build/install unpublished candidate while APL remains OFF."
@@ -153,8 +158,8 @@ test_results:
   - "macOS backend after PAC refresh fix: 14 pass + 2 subtests."
   - "Focused suite after PAC refresh fix: 88 pass + 9 subtests."
   - "Full suite after PAC refresh fix: 1054 pass / same 3 pre-existing fail / 93 subtests."
-resume_instruction: "Do not open Safari URLs, create tabs/windows, or restart Safari/WebKit as part of acceptance. First verify APL is OFF and legacy 8082/8080 is healthy; terminate only known test harness processes if any remain. Then continue diagnosis using passive network/log observation of the user's existing Safari tab. Preserve foreign tunnel-proxy PID 911. Do not publish a release."
-updated_at: "2026-09-20T08:50:00+03:00"
+resume_instruction: "When MacBook remote inspection is available again, first verify APL OFF, PAC 8082, legacy PID 911 and no test harness processes/listeners. Do not open/drive/restart Safari. Passively inspect current manual HTTP/HTTPS proxy enable state plus CFNetwork proxy ordering for the existing Safari tab. If simultaneous manual+PAC routing is confirmed as causal, implement a tested ownership-safe backend slice that temporarily disables only manual HTTP/HTTPS proxy enable flags during APL ON and restores them exactly on OFF without changing server/auth data. Do not publish a release."
+updated_at: "2026-09-20T09:05:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MAC-CHATGPT-INTERMITTENT-20260919"
