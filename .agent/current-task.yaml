@@ -117,7 +117,9 @@ completed:
   - "Exact-head PR #143 CI on remote head c869a2f4ed2b5f664d0f381733da32bd70e0e8af completed fully green before the relay diagnostic acceptance."
   - "Relay diagnostic acceptance armed at 2026-09-20 07:56 MSK: fresh 10-minute persistent capture started, proxy_core.log baseline recorded at line 266, APL enabled with PAC 18082, listeners healthy, and only WebKit Networking was restarted."
   - "After restart, new WebKit Networking PID 41250 had no legacy 8080 session; APL remained listening on 18080 awaiting the user reload."
-current: "Transparent HTTP CONNECT fix is implemented and fully tested after decisive Safari A/B: APL mediation produced 403 while legacy-transparent relay produced 200. Next build/install candidate and run automated Safari acceptance with rollback."
+  - "User reported two acceptance-harness side effects after the latest attempts: ChatGPT still drops out, and Safari sometimes opens multiple new ChatGPT tabs. The duplicate tabs were caused by automated acceptance commands that invoked Safari with chatgpt.com, not by normal product behavior."
+  - "Acceptance policy tightened: no further tests may launch/open Safari URLs, create tabs/windows, or restart browser UI. Future diagnosis must observe the user's existing Safari session only, with APL OFF by default and legacy proxy preserved."
+current: "User reports ChatGPT still drops and automated Safari acceptance created duplicate ChatGPT tabs. Stop all browser-driving acceptance. Keep APL OFF by default and preserve legacy proxy; next diagnosis must be passive against the existing Safari session only."
 pending:
   - "Commit/synchronize transparent HTTP CONNECT fix and regression to PR #143."
   - "Build/install unpublished candidate while APL remains OFF."
@@ -151,8 +153,8 @@ test_results:
   - "macOS backend after PAC refresh fix: 14 pass + 2 subtests."
   - "Focused suite after PAC refresh fix: 88 pass + 9 subtests."
   - "Full suite after PAC refresh fix: 1054 pass / same 3 pre-existing fail / 93 subtests."
-resume_instruction: "APL is OFF on legacy 8082/8080. Transparent HTTP CONNECT fix is implemented: HTTP success response is MSG_PEEK-inspected but left unread for relay; SOCKS retains consumed response path. Tests: transport 13/13, focused 89+9, full 1055 + same 3 baseline. Commit/sync/build/install, then run automated Safari main-document acceptance under fresh capture with guaranteed rollback. Do not publish release."
-updated_at: "2026-09-20T08:41:59+03:00"
+resume_instruction: "Do not open Safari URLs, create tabs/windows, or restart Safari/WebKit as part of acceptance. First verify APL is OFF and legacy 8082/8080 is healthy; terminate only known test harness processes if any remain. Then continue diagnosis using passive network/log observation of the user's existing Safari tab. Preserve foreign tunnel-proxy PID 911. Do not publish a release."
+updated_at: "2026-09-20T08:50:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MAC-CHATGPT-INTERMITTENT-20260919"
