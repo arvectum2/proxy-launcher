@@ -1,0 +1,48 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MACOS-SLEEP-ROUTE-REGRESSION-20260920
+status: completed
+goal: "Prevent stale APL relay tunnels from surviving macOS sleep/wake and breaking ChatGPT until route/browser state changes."
+definition_of_done:
+  - "Root cause supported by live MacBook wake/process/proxy evidence."
+  - "Relay detects suspend gaps and retires pre-sleep tunnels promptly after wake."
+  - "Existing exact macOS proxy rollback semantics remain unchanged."
+  - "Focused transport/network/macOS tests and relevant full suite pass."
+  - "Fix is committed and pushed; review/CI state is recorded."
+completed:
+  - "Confirmed real MacBook wake at 2026-09-20 22:10:27 MSK."
+  - "Root cause proven from live logs: a relay surviving multi-hour sleep reported elapsed_ms=60374 because macOS monotonic time excludes system sleep."
+  - "Confirmed PAC/upstream were healthy after wake: external proxy returned CONNECT 200 and controlled post-wake routes succeeded."
+  - "Implemented suspend-gap detection in local_proxy_transport.py; pre-sleep relay closes with resume_after_sleep before post-wake bytes are forwarded."
+  - "Preserved the existing 300-second awake-idle timeout and exact macOS proxy ownership/rollback semantics."
+  - "Focused tests: 38 passed plus 2 subtests; focused unittest rerun 38/38 OK."
+  - "Full Python 3.12/Tk suite: 898/898 OK."
+  - "Frozen macOS 0.2.11 build with locked PyInstaller 6.22.0 passed license-bundle verification and codesign --verify --deep --strict."
+  - "Fix committed and pushed as 7a7623a9912e19d3f547a7c9a12eec531e10fd20; PR #146 opened."
+  - "PR #146 exact code head 7a7623a and checkpoint head fe0d5b9 both completed all returned CI successfully."
+  - "Installed exact-source 0.2.11 on MacBook-Air-Nikita.local; previous 0.2.10 app backed up under Application Support."
+  - "Installed smoke PASS: exclusive PAC 127.0.0.1:18082, manual HTTP/HTTPS disabled while ON, listeners 18080/18082/11080 active, PAC fetch OK, ChatGPT route reachable through local core and CFNetwork."
+  - "Installed OFF rollback exact-match PASS (ROLLBACK_EXACT=YES); GUI relaunched on 0.2.11."
+  - "Existing single hourly Proxy Launcher Watchdog is enabled; no duplicate task was created."
+  - "Owner explicitly requested merge on 2026-09-20 after confirming preference to integrate the fix into main."
+last_verified_commit: "fe0d5b98eb7e736372b9b9561f287e0723ab4fc9"
+test_results:
+  - "focused pytest: 38 passed, 2 subtests passed"
+  - "focused unittest: 38/38 OK"
+  - "full unittest: 898/898 OK"
+  - "macOS 0.2.11 frozen build/license bundle/codesign: PASS"
+  - "MacBook installed route smoke and exact rollback: PASS"
+  - "GitHub Actions on fe0d5b9: 12/12 workflow runs SUCCESS"
+integration:
+  pr: 146
+  mergeable: true
+  automatic_merge: false
+  merge_authority: "Explicit Owner instruction in project conversation on 2026-09-20 to integrate the fix."
+resume_instruction: "Historical checkpoint only. The task is complete. If post-merge regression appears, open a new task; do not overwrite the active canonical current-task for cross-platform v0.2.11 release preparation."
+updated_at: "2026-09-20T23:30:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MACOS-SLEEP-ROUTE-REGRESSION-20260920"
+  branch: "fix/macos-sleep-route-regression-20260920"
+  base_commit: "351a0350e287cc5746d6cc69bf3268f316120b5c"
+  manual_override: true
