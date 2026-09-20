@@ -81,6 +81,45 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         build_pac.assert_not_called()
         self.assertIn(b"404 Not Found", client.sendall.call_args.args[0])
 
+    def test_relay_closes_idle_tunnel_after_select_timeout(self):
+        src = mock.Mock()
+        dst = mock.Mock()
+        stop = mock.Mock()
+        stop.is_set.return_value = False
+
+        with mock.patch.object(
+            local_proxy_transport.select,
+            "select",
+            side_effect=[([], [], []), OSError("second poll should not happen")],
+        ) as select_call:
+            core.ProxyCore._relay(src, dst, stop)
+
+        select_call.assert_called_once_with([src, dst], [], [], 300)
+        src.close.assert_called_once_with()
+        dst.close.assert_called_once_with()
+
+    def test_relay_logs_byte_counts_and_client_eof(self):
+        src = mock.Mock()
+        dst = mock.Mock()
+        stop = mock.Mock()
+        stop.is_set.return_value = False
+        src.recv.return_value = b"abc"
+        dst.recv.side_effect = [b"xy", b""]
+
+        with mock.patch.object(
+            local_proxy_transport.select,
+            "select",
+            side_effect=[([src], [], []), ([dst], [], []), ([dst], [], [])],
+        ), mock.patch.object(core, "structured_log") as log:
+            core.ProxyCore._relay(src, dst, stop)
+
+        dst.sendall.assert_called_once_with(b"abc")
+        src.sendall.assert_called_once_with(b"xy")
+        close_call = log.call_args
+        self.assertEqual(close_call.kwargs["event"], "proxy.relay.closed")
+        self.assertEqual(close_call.kwargs["upstream_to_client_bytes"], 3)
+        self.assertEqual(close_call.kwargs["client_to_upstream_bytes"], 2)
+        self.assertEqual(close_call.kwargs["termination_reason"], "eof:client")
 
     def test_http_connect_fails_over_after_rejected_upstream(self):
         settings = {
@@ -118,6 +157,93 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
             b"".join(call.args[0] for call in client.sendall.call_args_list),
         )
         relay.assert_called_once_with(accepted, client, engine._stop)
+
+    def test_http_connect_preserves_client_headers_for_upstream_proxy(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "user", "password": "pass"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT chatgpt.com:443 HTTP/1.1\r\n"
+            b"Host: chatgpt.com:443\r\n"
+            b"Proxy-Connection: keep-alive\r\n"
+            b"User-Agent: Safari-Test\r\n"
+            b"Proxy-Authorization: Basic stale-client-token\r\n\r\n"
+        )
+        accepted = mock.Mock()
+        accepted.recv.return_value = b"HTTP/1.1 200 Connection Established\r\n\r\n"
+
+        with mock.patch.object(core, "_normalize_host", return_value="chatgpt.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", return_value=accepted), \
+             mock.patch.object(engine, "_relay"):
+            engine._handle_http(client)
+
+        sent = b"".join(call.args[0] for call in accepted.sendall.call_args_list)
+        self.assertIn(b"CONNECT chatgpt.com:443 HTTP/1.1\r\n", sent)
+        self.assertIn(b"Host: chatgpt.com:443\r\n", sent)
+        self.assertIn(b"Proxy-Connection: keep-alive\r\n", sent)
+        self.assertIn(b"User-Agent: Safari-Test\r\n", sent)
+        self.assertNotIn(b"stale-client-token", sent)
+        token = base64.b64encode(b"user:pass")
+        self.assertIn(b"Proxy-Authorization: Basic " + token + b"\r\n", sent)
+
+    def test_http_connect_reads_split_headers_before_opening_tunnel(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "user", "password": "pass"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        client.recv.side_effect = [
+            b"CONNECT chatgpt.com:443 HTTP/1.1\r\nHost: chatgpt.com:443\r\n",
+            b"Proxy-Connection: keep-alive\r\nUser-Agent: Safari-Split\r\n\r\n",
+        ]
+        accepted = mock.Mock()
+        accepted.recv.return_value = b"HTTP/1.1 200 Connection Established\r\n\r\n"
+
+        with mock.patch.object(core, "_normalize_host", return_value="chatgpt.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", return_value=accepted), \
+             mock.patch.object(engine, "_relay"):
+            engine._handle_http(client)
+
+        sent = b"".join(call.args[0] for call in accepted.sendall.call_args_list)
+        self.assertIn(b"Proxy-Connection: keep-alive\r\n", sent)
+        self.assertIn(b"User-Agent: Safari-Split\r\n", sent)
+        self.assertEqual(client.recv.call_count, 2)
+
+    def test_http_connect_forwards_bytes_buffered_after_headers(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "user", "password": "pass"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        early_tls = b"\x16\x03\x01\x00\x04test"
+        client.recv.return_value = (
+            b"CONNECT chatgpt.com:443 HTTP/1.1\r\n"
+            b"Host: chatgpt.com:443\r\n\r\n"
+            + early_tls
+        )
+        accepted = mock.Mock()
+        accepted.recv.return_value = b"HTTP/1.1 200 Connection Established\r\n\r\n"
+
+        with mock.patch.object(core, "_normalize_host", return_value="chatgpt.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", return_value=accepted), \
+             mock.patch.object(engine, "_relay"):
+            engine._handle_http(client)
+
+        sent_calls = [call.args[0] for call in accepted.sendall.call_args_list]
+        self.assertGreaterEqual(len(sent_calls), 2)
+        self.assertTrue(sent_calls[0].startswith(b"CONNECT chatgpt.com:443 HTTP/1.1\r\n"))
+        self.assertEqual(sent_calls[-1], early_tls)
 
     def test_socks_connect_fails_over_after_rejected_upstream(self):
         settings = {
