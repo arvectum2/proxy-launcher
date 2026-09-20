@@ -1,0 +1,21 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
+status: blocked
+authority: OWNER
+base_commit: 14db1ea56f94d13b0664f5230ff6b18af21c87d7
+branch: agent/apl-route-decision-refresh-20260920
+prepared_commit: fc3a5ce9daa897202db032456330f05fc49fd410
+source_pr: 68
+reconciliation:
+  - "Legacy PR #68 remains open but is not mergeable against current main."
+  - "Legacy head d188e82f21dda4f10898a40165b8924655229267 diverged from main by 142 main commits / 7 legacy-branch commits; merge base 6c2ef0b83b2cce68c465556d94a60262d64d20e2."
+  - "The old PR also edits .agent/current-task.yaml and .agent/execution-queue.yaml, which have materially evolved and must not be replayed from the stale branch."
+  - "A fresh branch from current main carries only the decision packet, preserving current canonical queue/current-task state."
+evidence:
+  - "Canonical stable release remains v0.2.10."
+  - "Queue order 60 permits refresh of options/trade-offs and reversible prototypes but reserves production architecture selection to Owner/Product Owner."
+  - "Refreshed packet preserves saved-or-Arvectum/fail-closed recovery, separate WFP ownership, foreign-resource non-ownership, APL-REL-016 signing dependency, immutable v0.2.10 boundary, and v0.2.11+ future-release boundary."
+  - "Recommendation remains Option A without representing it as approved."
+blocker: "Owner/Product Owner must select/reject the production architecture. No privileged enforcement implementation or production host mutation is authorized before that decision."
+resume_instruction: "Review the fresh decision-packet PR. If Owner explicitly selects an architecture, create the smallest approved implementation slice from current main and require real Windows recovery/security acceptance. Otherwise preserve this stop-gate."
