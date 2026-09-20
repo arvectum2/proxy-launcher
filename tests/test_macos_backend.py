@@ -8,6 +8,7 @@ from proxy_backend import ProxyBackend, ProxyBackendConfig
 from macos_backend import (
     AutoProxyState,
     MacOSBackend,
+    ManualProxyState,
     NetworkService,
     NetworkSetupClient,
     NetworkSetupError,
@@ -27,16 +28,22 @@ class _FakeNetworkSetup:
             "Wi-Fi": {
                 "service_enabled": True,
                 "auto": AutoProxyState(False, ""),
+                "web": {"enabled": True, "server": "proxy.example", "port": 8000},
+                "secure_web": {"enabled": True, "server": "proxy.example", "port": 8000},
                 "bypass": ("corp.example",),
             },
             "Ethernet": {
                 "service_enabled": True,
                 "auto": AutoProxyState(True, "http://old.example/proxy.pac"),
+                "web": {"enabled": False, "server": "old-web.example", "port": 3128},
+                "secure_web": {"enabled": False, "server": "old-secure.example", "port": 3129},
                 "bypass": (),
             },
             "Disabled VPN": {
                 "service_enabled": False,
                 "auto": AutoProxyState(False, ""),
+                "web": {"enabled": False, "server": "", "port": 0},
+                "secure_web": {"enabled": False, "server": "", "port": 0},
                 "bypass": ("vpn.internal",),
             },
         }
@@ -74,6 +81,28 @@ class _FakeNetworkSetup:
         self.calls.append(("set_auto_proxy_state", service, enabled))
         current = self.services[service]["auto"]
         self.services[service]["auto"] = AutoProxyState(enabled, current.url)
+
+    def get_web_proxy(self, service):
+        self._maybe_fail("get_web_proxy", service)
+        self.calls.append(("get_web_proxy", service))
+        state = self.services[service]["web"]
+        return ManualProxyState(state["enabled"], state["server"], state["port"])
+
+    def set_web_proxy_state(self, service, enabled):
+        self._maybe_fail("set_web_proxy_state", service)
+        self.calls.append(("set_web_proxy_state", service, enabled))
+        self.services[service]["web"]["enabled"] = bool(enabled)
+
+    def get_secure_web_proxy(self, service):
+        self._maybe_fail("get_secure_web_proxy", service)
+        self.calls.append(("get_secure_web_proxy", service))
+        state = self.services[service]["secure_web"]
+        return ManualProxyState(state["enabled"], state["server"], state["port"])
+
+    def set_secure_web_proxy_state(self, service, enabled):
+        self._maybe_fail("set_secure_web_proxy_state", service)
+        self.calls.append(("set_secure_web_proxy_state", service, enabled))
+        self.services[service]["secure_web"]["enabled"] = bool(enabled)
 
     def get_bypass_domains(self, service):
         self._maybe_fail("get_bypass_domains", service)
@@ -117,6 +146,12 @@ class MacOSBackendTests(unittest.TestCase):
             payload = json.load(stream)
         self.assertEqual(payload["backend"], "macos")
         self.assertFalse(payload["services"]["Wi-Fi"]["auto_proxy"]["enabled"])
+        self.assertTrue(payload["services"]["Wi-Fi"]["web_proxy"]["enabled"])
+        self.assertEqual(
+            payload["services"]["Wi-Fi"]["web_proxy"]["server"],
+            "proxy.example",
+        )
+        self.assertTrue(payload["services"]["Wi-Fi"]["secure_web_proxy"]["enabled"])
         self.assertEqual(
             payload["services"]["Ethernet"]["auto_proxy"]["url"],
             "http://old.example/proxy.pac",
@@ -131,6 +166,33 @@ class MacOSBackendTests(unittest.TestCase):
         )
         self.assertNotIn("Disabled VPN", payload["services"])
         self.assertEqual(self.client.services["Disabled VPN"]["bypass"], ("vpn.internal",))
+
+    def test_enable_temporarily_disables_manual_http_https_and_disable_restores_them(self):
+        original_web = dict(self.client.services["Wi-Fi"]["web"])
+        original_secure = dict(self.client.services["Wi-Fi"]["secure_web"])
+
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        self.assertFalse(self.client.services["Wi-Fi"]["web"]["enabled"])
+        self.assertFalse(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
+        self.assertEqual(
+            {
+                "server": self.client.services["Wi-Fi"]["web"]["server"],
+                "port": self.client.services["Wi-Fi"]["web"]["port"],
+            },
+            {"server": original_web["server"], "port": original_web["port"]},
+        )
+        self.assertEqual(
+            {
+                "server": self.client.services["Wi-Fi"]["secure_web"]["server"],
+                "port": self.client.services["Wi-Fi"]["secure_web"]["port"],
+            },
+            {"server": original_secure["server"], "port": original_secure["port"]},
+        )
+
+        self.assertTrue(self.backend.disable())
+        self.assertEqual(self.client.services["Wi-Fi"]["web"], original_web)
+        self.assertEqual(self.client.services["Wi-Fi"]["secure_web"], original_secure)
 
     def test_enable_forces_pac_state_transition_after_replacing_active_url(self):
         self.assertTrue(self.client.services["Ethernet"]["auto"].enabled)
@@ -244,13 +306,41 @@ class MacOSBackendTests(unittest.TestCase):
         )
         self.assertEqual(self.client.services["Ethernet"]["auto"], ethernet_before)
 
+    def test_foreign_manual_proxy_endpoint_change_prevents_destructive_disable(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["web"]["server"] = "foreign.example"
+
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["auto"],
+            AutoProxyState(True, CONFIG.pac_url),
+        )
+        self.assertFalse(self.client.services["Wi-Fi"]["web"]["enabled"])
+
+    def test_disable_retry_completes_partial_manual_proxy_restore(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.fail_once("set_web_proxy_state", "Wi-Fi")
+
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertTrue(self.client.services["Wi-Fi"]["web"]["enabled"])
+        self.assertTrue(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
+
     def test_partial_enable_failure_rolls_back_touched_services(self):
         original_wifi = (
             self.client.services["Wi-Fi"]["auto"],
+            dict(self.client.services["Wi-Fi"]["web"]),
+            dict(self.client.services["Wi-Fi"]["secure_web"]),
             self.client.services["Wi-Fi"]["bypass"],
         )
         original_ethernet = (
             self.client.services["Ethernet"]["auto"],
+            dict(self.client.services["Ethernet"]["web"]),
+            dict(self.client.services["Ethernet"]["secure_web"]),
             self.client.services["Ethernet"]["bypass"],
         )
         self.client.fail_once("set_auto_proxy_state", "Ethernet")
@@ -258,11 +348,25 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertFalse(self.backend.enable(CONFIG))
         self.assertFalse(self.backend.restore_pending())
         self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
-        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original_wifi[1])
+        self.assertEqual(self.client.services["Wi-Fi"]["web"], original_wifi[1])
+        self.assertEqual(self.client.services["Wi-Fi"]["secure_web"], original_wifi[2])
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original_wifi[3])
+        self.assertEqual(self.client.services["Ethernet"]["auto"], original_ethernet[0])
+        self.assertEqual(self.client.services["Ethernet"]["web"], original_ethernet[1])
         self.assertEqual(
-            (self.client.services["Ethernet"]["auto"], self.client.services["Ethernet"]["bypass"]),
-            original_ethernet,
+            self.client.services["Ethernet"]["secure_web"],
+            original_ethernet[2],
         )
+        self.assertEqual(
+            self.client.services["Ethernet"]["bypass"],
+            original_ethernet[3],
+        )
+
+    def test_is_enabled_fails_closed_when_manual_proxy_state_is_unreadable(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.fail_once("get_web_proxy", "Wi-Fi")
+
+        self.assertFalse(self.backend.is_enabled(CONFIG))
 
     def test_sync_no_proxy_preserves_preexisting_entries_and_updates_ownership(self):
         self.assertTrue(self.backend.enable(CONFIG))
@@ -328,6 +432,14 @@ class NetworkSetupClientParsingTests(unittest.TestCase):
                 0,
                 "There aren't any bypass domains set on Wi-Fi.\n",
             ),
+            "-getwebproxy": (
+                0,
+                "Enabled: Yes\nServer: proxy.example\nPort: 8000\nAuthenticated Proxy Enabled: 0\n",
+            ),
+            "-getsecurewebproxy": (
+                0,
+                "Enabled: No\nServer: secure.example\nPort: 8443\nAuthenticated Proxy Enabled: 0\n",
+            ),
         }
 
         def runner(argv, **kwargs):
@@ -348,6 +460,14 @@ class NetworkSetupClientParsingTests(unittest.TestCase):
             AutoProxyState(True, "http://127.0.0.1:8082/proxy.pac"),
         )
         self.assertEqual(client.get_bypass_domains("Wi-Fi"), ())
+        self.assertEqual(
+            client.get_web_proxy("Wi-Fi"),
+            ManualProxyState(True, "proxy.example", 8000),
+        )
+        self.assertEqual(
+            client.get_secure_web_proxy("Wi-Fi"),
+            ManualProxyState(False, "secure.example", 8443),
+        )
 
     def test_networksetup_errors_are_fail_closed(self):
         def runner(argv, **kwargs):
