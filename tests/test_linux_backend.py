@@ -170,6 +170,19 @@ class LinuxBackendTests(unittest.TestCase):
             self.client.proxy["33333333-3333-3333-3333-333333333333"], vpn_before
         )
 
+    def test_manual_desktop_route_is_replaced_by_apl_auto_and_restored(self):
+        self.desktop.state = DesktopProxyState("manual", "http://saved.example/manual.pac")
+        original = self.desktop.state
+
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.assertEqual(
+            self.desktop.state,
+            DesktopProxyState("auto", CONFIG.pac_url),
+        )
+
+        self.assertTrue(self.backend.disable())
+        self.assertEqual(self.desktop.state, original)
+
     def test_disable_restores_exact_profiles_and_is_idempotent(self):
         original = dict(self.client.proxy)
         original_desktop = self.desktop.state
