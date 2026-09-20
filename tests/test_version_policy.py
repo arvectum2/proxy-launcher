@@ -61,6 +61,37 @@ class VersionPolicyTests(unittest.TestCase):
         self.assertIn(f"filevers={expected_tuple_str}", compact_info)
         self.assertIn(f"prodvers={expected_tuple_str}", compact_info)
 
+    def test_active_platform_builders_use_canonical_version_source(self):
+        version = self.get_version()
+        self.assertEqual(version, "0.2.11")
+
+        live_paths = {
+            "macOS app": "tools/build_macos_app.sh",
+            "macOS DMG": "tools/build_macos_dmg.sh",
+            "Windows portable": "tools/clean_build_windows.ps1",
+            "Windows installer": "tools/build_windows_installer.ps1",
+            "Linux DEB": "tools/build_linux_deb.sh",
+            "Linux RPM": "tools/build_linux_rpm.sh",
+            "Linux AppImage": "tools/build_linux_appimage.sh",
+        }
+        for label, path in live_paths.items():
+            with self.subTest(platform_builder=label):
+                text = self.read(path)
+                self.assertIn("VERSION", text)
+
+        installer = self.read("installer/ArvectumProxyLauncher.iss")
+        self.assertIn("#ifndef AppVersion", installer)
+        self.assertIn("#error AppVersion must be supplied", installer)
+        self.assertNotIn('#define AppVersion "0.2.', installer)
+
+        # The root-level 0.2.2 installer is retained as legacy/history and
+        # must never become a canonical build input again.
+        for path in (
+            ".github/workflows/windows-installer.yml",
+            "tools/build_windows_installer.ps1",
+        ):
+            self.assertNotIn("ArvectumProxyLauncherSetup.iss", self.read(path))
+
     def test_canonical_artifact_naming_uses_canonical_version(self):
         version = self.get_version()
         policy_text = self.read("RELEASE_POLICY.md")
