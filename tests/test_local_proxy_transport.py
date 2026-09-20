@@ -152,10 +152,40 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
 
         rejected.close.assert_called()
         accepted.connect.assert_called_once_with(("proxy-two.test", 8001))
-        self.assertIn(
+        self.assertNotIn(
             b"HTTP/1.1 200 Connection Established",
             b"".join(call.args[0] for call in client.sendall.call_args_list),
         )
+        accepted.recv.assert_called_with(65536, local_proxy_transport.socket.MSG_PEEK)
+        relay.assert_called_once_with(accepted, client, engine._stop)
+
+    def test_http_connect_success_response_is_not_consumed_before_relay(self):
+        settings = {
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "user", "password": "pass"},
+            ]
+        }
+        engine = core.ProxyCore(settings)
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT chatgpt.com:443 HTTP/1.1\r\n"
+            b"Host: chatgpt.com:443\r\n\r\n"
+        )
+        accepted = mock.Mock()
+        accepted.recv.return_value = (
+            b"HTTP/1.1 200 Connection Established\r\n"
+            b"Proxy-Agent: upstream\r\n\r\n"
+        )
+
+        with mock.patch.object(core, "_normalize_host", return_value="chatgpt.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False), \
+             mock.patch.object(local_proxy_transport.socket, "socket", return_value=accepted), \
+             mock.patch.object(local_proxy_transport.select, "select", return_value=([accepted], [], [])), \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_http(client)
+
+        accepted.recv.assert_called_once_with(65536, local_proxy_transport.socket.MSG_PEEK)
+        self.assertFalse(client.sendall.called)
         relay.assert_called_once_with(accepted, client, engine._stop)
 
     def test_http_connect_preserves_client_headers_for_upstream_proxy(self):
