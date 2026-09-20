@@ -132,6 +132,28 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertNotIn("Disabled VPN", payload["services"])
         self.assertEqual(self.client.services["Disabled VPN"]["bypass"], ("vpn.internal",))
 
+    def test_enable_forces_pac_state_transition_after_replacing_active_url(self):
+        self.assertTrue(self.client.services["Ethernet"]["auto"].enabled)
+        self.assertEqual(
+            self.client.services["Ethernet"]["auto"].url,
+            "http://old.example/proxy.pac",
+        )
+
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        calls = self.client.calls
+        url_i = calls.index(("set_auto_proxy_url", "Ethernet", CONFIG.pac_url))
+        bypass_call = next(
+            call for call in calls[url_i + 1:]
+            if call[0:2] == ("set_bypass_domains", "Ethernet")
+        )
+        bypass_i = calls.index(bypass_call, url_i + 1)
+        off_i = calls.index(("set_auto_proxy_state", "Ethernet", False), bypass_i + 1)
+        on_i = calls.index(("set_auto_proxy_state", "Ethernet", True), off_i + 1)
+        self.assertLess(url_i, bypass_i)
+        self.assertLess(bypass_i, off_i)
+        self.assertLess(off_i, on_i)
+
     def test_disable_restores_exact_snapshots_and_clears_ownership_evidence(self):
         original = {
             name: (state["auto"], state["bypass"])
@@ -152,6 +174,29 @@ class MacOSBackendTests(unittest.TestCase):
         calls_before = len(self.client.calls)
         self.assertTrue(self.backend.disable())
         self.assertEqual(len(self.client.calls), calls_before)
+
+    def test_disable_refreshes_enabled_snapshot_after_restoring_url(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.calls.clear()
+
+        self.assertTrue(self.backend.disable())
+
+        calls = self.client.calls
+        url_i = calls.index((
+            "set_auto_proxy_url",
+            "Ethernet",
+            "http://old.example/proxy.pac",
+        ))
+        bypass_call = next(
+            call for call in calls[url_i + 1:]
+            if call[0:2] == ("set_bypass_domains", "Ethernet")
+        )
+        bypass_i = calls.index(bypass_call, url_i + 1)
+        off_i = calls.index(("set_auto_proxy_state", "Ethernet", False), bypass_i + 1)
+        on_i = calls.index(("set_auto_proxy_state", "Ethernet", True), off_i + 1)
+        self.assertLess(url_i, bypass_i)
+        self.assertLess(bypass_i, off_i)
+        self.assertLess(off_i, on_i)
 
     def test_disable_skips_invalid_empty_setautoproxyurl_for_disabled_snapshot(self):
         self.assertTrue(self.backend.enable(CONFIG))
