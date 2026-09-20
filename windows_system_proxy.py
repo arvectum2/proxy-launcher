@@ -146,6 +146,7 @@ def _internet_state_is_owned_or_saved(saved, current, settings=None) -> bool:
     applied = {name: dict(saved[name]) for name in _INTERNET_SETTINGS_NAMES}
     applied["AutoConfigURL"] = {"exists": True, "value": core.pac_url(settings)}
     applied["ProxyEnable"] = {"exists": True, "value": 0}
+    applied["AutoDetect"] = {"exists": True, "value": 0}
     return all(
         _state_item_matches(current[name], saved[name])
         or _state_item_matches(current[name], applied[name])
@@ -587,9 +588,12 @@ def enable_system_proxy() -> bool:
         core._log("system proxy enable aborted: cannot create safe backup")
         return False
 
-    # PAC and the previous manual ProxyServer must not be active in parallel.
+    # Make the explicit Arvectum PAC the only WinINET autoproxy route while
+    # this session owns system proxy state. A saved manual ProxyServer remains
+    # configured but disabled, and WPAD/AutoDetect is temporarily disabled.
     ok = core._reg_set("AutoConfigURL", url, "REG_SZ")
     ok = core._reg_set("ProxyEnable", "0", "REG_DWORD") and ok
+    ok = core._reg_set("AutoDetect", "0", "REG_DWORD") and ok
     ok = core._enable_client_proxy_env(
         int(settings.get("local_http_port", 8080))
     ) and ok
@@ -655,9 +659,16 @@ def system_proxy_enabled() -> bool:
     if not core.is_windows():
         return False
     values = core._read_internet_settings() or {}
-    item = values.get("AutoConfigURL") or {}
+    pac = values.get("AutoConfigURL") or {}
+    manual = values.get("ProxyEnable") or {}
+    autodetect = values.get("AutoDetect") or {}
     return bool(
-        item.get("exists") and core._exact_arvectum_pac_url(item.get("value"))
+        pac.get("exists")
+        and core._exact_arvectum_pac_url(pac.get("value"))
+        and manual.get("exists")
+        and int(manual.get("value", 1)) == 0
+        and autodetect.get("exists")
+        and int(autodetect.get("value", 1)) == 0
     )
 
 
