@@ -295,3 +295,14 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Saving the list while connected performs the existing controlled disconnect/reconnect cycle and reuses the already granted Android VPN permission.
 - Wildcard/suffix entries such as `*.example.com` are rejected explicitly. Android's current IP-route implementation cannot guarantee desktop wildcard semantics without a DNS-aware domain router; concrete subdomains must be listed separately.
 - Android version is `0.1.18` / versionCode 19.
+
+## 0.1.20 long-sleep foreground reconciliation
+
+0.1.20 fixes the field-reported case where APL was left ON, Android remained unused for more than a day, and the foreground UI later stayed indefinitely on `Подключение` until the app process was restarted.
+
+- `MainActivity.onResume()` now reconciles only persisted `CONNECTED` / `CONNECTING` intent with the isolated `:vpn` service.
+- A healthy running tunnel is not torn down: `:vpn` republishes its live `CONNECTED` state and existing endpoint detail.
+- A live preflight/network handoff republishes `CONNECTING`; a reclaimed/dead `:vpn` process starts the normal sticky tunnel path again.
+- The existing Android VPN grant is reused. If Android revoked the grant, APL does not open a permission dialog by itself on wake; the UI returns to an explicit reconnect-required state.
+- Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
+- Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
