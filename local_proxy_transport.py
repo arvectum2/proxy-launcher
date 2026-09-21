@@ -10,7 +10,6 @@ import re
 import select
 import socket
 import struct
-import sys
 import threading
 import time
 from types import ModuleType
@@ -23,7 +22,6 @@ SOCKS5_REPLY_BIND_ADDR = socket.inet_aton("0.0.0.0")  # nosec B104
 RELAY_IDLE_TIMEOUT_SECONDS = 300.0
 RELAY_RESUME_POLL_SECONDS = 5.0
 RELAY_SLEEP_GAP_SECONDS = 5.0
-RESUME_REBIND_COOLDOWN_SECONDS = 10.0
 
 _CORE: ModuleType | None = None
 
@@ -49,10 +47,6 @@ class ProxyCore:
         self._stop = threading.Event()
         self._socks = []
         self._threads = []
-        self._resume_lock = threading.Lock()
-        self._resume_requested = threading.Event()
-        self._resume_detected_at = None
-        self._last_resume_rebind_wall = None
         self._upstreams = self._build_upstreams()
 
     def _build_upstreams(self):
@@ -69,39 +63,6 @@ class ProxyCore:
                 port = 8000
             out.append((host, port, token))
         return out
-
-    def _request_resume_rebind(self, detected_at=None):
-        """Coalesce a macOS wake burst into one worker-owned transport rebind."""
-        core = _core()
-        now = time.time() if detected_at is None else float(detected_at)
-        with self._resume_lock:
-            previous = self._last_resume_rebind_wall
-            if (
-                previous is not None
-                and now - previous < RESUME_REBIND_COOLDOWN_SECONDS
-            ):
-                return False
-            if self._resume_requested.is_set():
-                return False
-            self._last_resume_rebind_wall = now
-            self._resume_detected_at = now
-            self._resume_requested.set()
-        core.structured_log(
-            "wake transport rebind requested",
-            event="proxy.resume.transport_rebind_requested",
-            detected_at=now,
-        )
-        return True
-
-    def consume_resume_rebind_request(self):
-        """Return and clear the pending wake request, if any."""
-        with self._resume_lock:
-            if not self._resume_requested.is_set():
-                return None
-            detected_at = self._resume_detected_at
-            self._resume_detected_at = None
-            self._resume_requested.clear()
-            return detected_at
 
     @staticmethod
     def _read_proxy_response(stream):
@@ -301,8 +262,6 @@ class ProxyCore:
                     stream.close()
                 except Exception:
                     pass
-            if reason == "resume_after_sleep" and sys.platform == "darwin":
-                self._request_resume_rebind(detected_at=now_wall)
             core.structured_log(
                 "proxy relay closed",
                 event="proxy.relay.closed",

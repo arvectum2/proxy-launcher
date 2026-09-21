@@ -111,88 +111,9 @@ class ApplicationRuntimeTests(unittest.TestCase):
              mock.patch("builtins.print"):
             self.assertEqual(core._cmd_start(), 0)
         write_pid.assert_called_once_with()
-        stop_event.wait.assert_called_once_with(
-            application_runtime.RESUME_REBIND_POLL_SECONDS
-        )
+        stop_event.wait.assert_called_once_with(3600)
         proxy.stop.assert_called_once_with()
         remove_pid.assert_called_once_with()
-
-    def test_resume_rebind_restarts_transport_without_system_proxy_mutation(self):
-        settings = dict(core.DEFAULT_SETTINGS)
-        old_proxy = mock.Mock()
-        replacement = mock.Mock()
-        replacement.start.return_value = (True, "OK")
-
-        with mock.patch.object(core, "ProxyCore", return_value=replacement) as proxy_core, \
-             mock.patch.object(core, "structured_log") as log, \
-             mock.patch.object(core, "enable_system_proxy") as enable, \
-             mock.patch.object(core, "disable_system_proxy") as disable, \
-             mock.patch.object(application_runtime.time, "sleep") as sleep:
-            result = application_runtime._restart_transport_after_resume(
-                old_proxy, settings, 1234.5
-            )
-
-        self.assertIs(result, replacement)
-        old_proxy.stop.assert_called_once_with()
-        proxy_core.assert_called_once_with(settings)
-        replacement.start.assert_called_once_with()
-        enable.assert_not_called()
-        disable.assert_not_called()
-        sleep.assert_not_called()
-        self.assertEqual(log.call_args.kwargs["phase"], "completed")
-
-    def test_resume_rebind_retries_listener_bind_then_recovers(self):
-        settings = dict(core.DEFAULT_SETTINGS)
-        old_proxy = mock.Mock()
-        first = mock.Mock()
-        second = mock.Mock()
-        first.start.return_value = (False, "port busy")
-        second.start.return_value = (True, "OK")
-
-        with mock.patch.object(
-            core, "ProxyCore", side_effect=[first, second]
-        ) as proxy_core, mock.patch.object(
-            application_runtime.time, "sleep"
-        ) as sleep, mock.patch.object(core, "structured_log"):
-            result = application_runtime._restart_transport_after_resume(
-                old_proxy, settings, 1234.5
-            )
-
-        self.assertIs(result, second)
-        self.assertEqual(proxy_core.call_count, 2)
-        sleep.assert_called_once_with(
-            application_runtime.RESUME_REBIND_RETRY_DELAYS[1]
-        )
-
-    def test_resume_rebind_failure_rolls_back_system_proxy(self):
-        settings = dict(core.DEFAULT_SETTINGS)
-        settings["upstream"] = [
-            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
-        ]
-        stop_event = mock.Mock()
-        stop_event.wait.return_value = False
-        proxy = mock.Mock(_stop=stop_event)
-        proxy.start.return_value = (True, "OK")
-        proxy.consume_resume_rebind_request.return_value = 1234.5
-
-        with mock.patch.object(core, "load_settings", return_value=settings), \
-             mock.patch.object(core, "is_running", return_value=False), \
-             mock.patch.object(core, "ProxyCore", return_value=proxy), \
-             mock.patch.object(core, "_write_pid"), \
-             mock.patch.object(core, "enable_system_proxy", return_value=True), \
-             mock.patch.object(core, "disable_system_proxy", return_value=True) as disable, \
-             mock.patch.object(core, "_remove_pid"), \
-             mock.patch.object(
-                 application_runtime,
-                 "_restart_transport_after_resume",
-                 return_value=None,
-             ) as restart, \
-             mock.patch("builtins.print"):
-            self.assertEqual(core._cmd_start(), 1)
-
-        restart.assert_called_once_with(proxy, settings, 1234.5)
-        disable.assert_called_once_with()
-        proxy.stop.assert_called_once_with()
 
     def test_stop_reports_incomplete_network_restore(self):
         with mock.patch.object(core, "_read_pid", return_value=None), \

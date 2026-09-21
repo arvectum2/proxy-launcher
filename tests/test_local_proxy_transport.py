@@ -127,15 +127,10 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
             local_proxy_transport.time,
             "time",
             side_effect=[1000.0, 1101.0],
-        ), mock.patch.object(
-            local_proxy_transport.sys,
-            "platform",
-            "darwin",
         ), mock.patch.object(core, "structured_log") as log:
             engine._relay(src, dst, stop)
 
         select_call.assert_called_once_with([src, dst], [], [], 5.0)
-        self.assertEqual(engine.consume_resume_rebind_request(), 1101.0)
         dst.recv.assert_not_called()
         src.sendall.assert_not_called()
         self.assertEqual(
@@ -144,54 +139,6 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         )
         src.close.assert_called_once_with()
         dst.close.assert_called_once_with()
-
-    def test_resume_rebind_request_is_coalesced_for_one_wake_burst(self):
-        engine = core.ProxyCore({"upstream": []})
-        with mock.patch.object(core, "structured_log") as log:
-            first = engine._request_resume_rebind(detected_at=100.0)
-            second = engine._request_resume_rebind(detected_at=101.0)
-            first_detected = engine.consume_resume_rebind_request()
-            third = engine._request_resume_rebind(detected_at=111.0)
-            third_detected = engine.consume_resume_rebind_request()
-
-        self.assertTrue(first)
-        self.assertFalse(second)
-        self.assertEqual(first_detected, 100.0)
-        self.assertTrue(third)
-        self.assertEqual(third_detected, 111.0)
-        self.assertEqual(log.call_count, 2)
-        self.assertEqual(
-            log.call_args.kwargs["event"],
-            "proxy.resume.transport_rebind_requested",
-        )
-
-    def test_non_macos_sleep_retires_tunnel_without_requesting_rebind(self):
-        src = mock.Mock()
-        dst = mock.Mock()
-        stop = mock.Mock()
-        stop.is_set.return_value = False
-        engine = core.ProxyCore({"upstream": []})
-
-        with mock.patch.object(
-            local_proxy_transport.select,
-            "select",
-            return_value=([dst], [], []),
-        ), mock.patch.object(
-            local_proxy_transport.time,
-            "monotonic",
-            side_effect=[100.0, 101.0, 101.0],
-        ), mock.patch.object(
-            local_proxy_transport.time,
-            "time",
-            side_effect=[1000.0, 1101.0],
-        ), mock.patch.object(
-            local_proxy_transport.sys,
-            "platform",
-            "linux",
-        ), mock.patch.object(core, "structured_log"):
-            engine._relay(src, dst, stop)
-
-        self.assertIsNone(engine.consume_resume_rebind_request())
 
     def test_relay_logs_byte_counts_and_client_eof(self):
         src = mock.Mock()
