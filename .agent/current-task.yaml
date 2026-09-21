@@ -32,7 +32,7 @@ pending:
   - "Obtain exact-head CI including macOS packaging/security gates."
   - "Install new unpublished ARM candidate with exact rollback smoke."
   - "HUMAN physical sleep/wake retest without disabling APL or restarting browser."
-last_verified_commit: "96e498220dfaea2f650f699ddcbad19c0c454ad1"
+last_verified_commit: "8d4d04d71d5f3525f80475224432e6ddf022d485"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
   - "proxy_core.log: resume_after_sleep fired on pre-wake relays, while new upstream CONNECT responses returned status=200 immediately after wake; transport/upstream health was not the remaining blocker."
