@@ -1,0 +1,33 @@
+name: Free proxy gateway
+
+on:
+  pull_request:
+    paths:
+      - "free_gateway/**"
+      - "tests/test_free_gateway.py"
+      - ".github/workflows/free-proxy-gateway.yml"
+  push:
+    branches: [main]
+    paths:
+      - "free_gateway/**"
+      - "tests/test_free_gateway.py"
+      - ".github/workflows/free-proxy-gateway.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile
+        run: python -m py_compile free_gateway/*.py tests/test_free_gateway.py
+      - name: Test
+        run: python -m unittest -v tests.test_free_gateway
+      - name: Secret hygiene
+        run: |
+          ! grep -R -nE 'supplier-password|supplier-user|secret\.supplier\.test' free_gateway --exclude='.env.example' --exclude='README.md'
