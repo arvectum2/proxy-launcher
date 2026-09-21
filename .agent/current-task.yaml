@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-SYNC-20260921
-status: in_progress
+status: completed
 goal: "Synchronize canonical Proxy Launcher roadmap/executor metadata to the verified 2026-09-21 repository, release, mobile, gateway and review-track state without changing Owner-controlled product decisions."
 authority: REVIEW
 definition_of_done:
@@ -17,31 +17,28 @@ definition_of_done:
   - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
   - "Required exact-head CI passes before metadata merge."
 completed:
-  - "Updated .agent/execution-queue.yaml to v0.2.12/current-main, live free-gateway/Android 0.1.31, stale REL-016 refresh, current route PR #144 and active iOS draft #135."
+  - "Archived completed v0.2.12 release task to .agent/checkpoints/APL-RELEASE-0.2.12-20260921.yaml."
+  - "Verified public desktop v0.2.12 exact release SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and current main ahead via PR #148."
+  - "Updated executor queue to stable v0.2.12, live free gateway, Android 0.1.31 friend-test baseline, stale REL-016 refresh, current route PR #144 and active iOS draft #135."
   - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
-  - "Verified current main df4478a70729e20f33b7a0d17476183423955576."
-  - "Verified public desktop releases v0.2.11 and v0.2.12; v0.2.12 exact release SHA is 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and GitHub/GitVerse parity is recorded."
-  - "Verified current main is ahead of v0.2.12 via merged PR #148 free proxy gateway/Android integration."
-  - "Verified Android public release android-v0.1.19 and current source version 0.1.31/versionCode 32."
-  - "Verified free gateway RU/US public TLS ingress, server-side secret boundary, real RU/US egress checks and 0.1.31 exact-head friend-test candidate evidence."
-  - "Verified PR #132 remains open but its v0.2.10/v0.2.11+ boundary is stale after v0.2.11 and v0.2.12 publication."
-  - "Verified PR #144 is current per-app architecture review packet and its exact-head checks are green, but its packet still names the v0.2.10 baseline."
-  - "Verified draft PR #135 provides personal-use iOS 0.1.19 parity engineering baseline; physical signing/install remains HUMAN."
-current: "Canonical queue, ROADMAP and local backlog are synchronized to verified 2026-09-21 facts. Open metadata/docs PR and verify exact-head CI."
-pending:
-  - "Open metadata/docs PR and verify exact-head CI."
-  - "Before merge, re-read current Company POS-004/AI-ENG-001 AM-4 authority chain."
-  - "Merge only the metadata/docs sync if governance permits and close this checkpoint."
-last_verified_commit: "df4478a70729e20f33b7a0d17476183423955576"
+  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b passed all reported checks, including required build and full Windows installer E2E."
+  - "Company POS-004 / AI-ENG-001 AM-4 authority chain and 2026-09-16 renewal were re-read before merge; this user-directed sync merge was not represented as an AM-4 auto-merge."
+  - "PR #153 merged to main as 350712382f61e98687ecb9f20dea11db736a69bf."
+current: "Roadmap synchronization complete. Canonical next safe autonomous preparation lane is APL-REL-016 refresh from v0.2.12 to first eligible v0.2.13+, followed by PR #144 per-app baseline reconciliation; Owner/HUMAN gates remain intact."
+pending: []
+last_verified_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
+merged_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
 test_results:
-  - "Cross-file consistency inspection: stable v0.2.12, main df4478a, public Android 0.1.19, current 0.1.31 friend-test, PR #132/#144/#135 references aligned."
-  - "Repository/release/PR/checkpoint inspection complete; no product bytes changed by this sync task."
-resume_instruction: "Continue metadata-only 2026-09-21 roadmap synchronization on agent/roadmap-sync-20260921. Do not merge REVIEW PR #132/#144, do not implement APL-MOB-004, do not publish Android 0.1.31, and do not cross iOS signing/App Store or registry submission gates."
+  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b: all reported checks SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
+  - "SAST, dependency audit, secret scan, SBOM, provenance, clean-IP gates, sovereign lifecycle, Windows signing checks and mirror: SUCCESS."
+resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260921. On the next watchdog run read the canonical queue from main. First refresh APL-REL-016 to immutable v0.2.12 / first eligible v0.2.13+ and stop at Owner review; then refresh PR #144 to v0.2.12/current-main semantics and stop before architecture selection. Do not publish Android 0.1.31, broaden gateway rollout, start MOB-004, sign/install iOS, or submit registry filings without the required gate."
 updated_at: "2026-09-21T21:08:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-SYNC-20260921"
-  branch: "agent/roadmap-sync-20260921"
-  base_commit: "df4478a70729e20f33b7a0d17476183423955576"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
