@@ -18,8 +18,8 @@ completed:
   - "Implemented authenticated HTTP CONNECT relay with optional TLS to supplier proxy; supplier Basic auth is constructed only server-side."
   - "Added .gitignore secret patterns, safe .env.example and deployment instructions using /etc/arvectum-proxy-gateway/gateway.env."
   - "Added six deterministic gateway tests and dedicated GitHub Actions workflow."
-  - "Opened PR #148; exact head d0d2b7a72fc2ee9b2ba68d7dddfb60733631688b."
-current: "Implementation complete on PR #148; merge intentionally left for explicit owner authorization."
+  - "Opened PR #148; gateway CI/Secret Scan/SAST passed on verified implementation head.\n  - "Deployed runtime on Mac-mini-master as launchd service ru.arvectum.proxy-gateway using Homebrew Python 3.14."\n  - "Created server-only secret file /Users/master/.arvectum-private/proxy-gateway/gateway.env mode 600 with generated token secret and inert placeholder upstream."\n  - "Verified live listeners on TCP 8787/8788 and GET /v1/free/locations response; service error log empty."
+current: "Implementation and Mac mini local deployment complete; PR #148 remains unmerged pending explicit owner authorization."
 pending: []
 last_verified_commit: "d0d2b7a72fc2ee9b2ba68d7dddfb60733631688b"
 test_results:
@@ -27,7 +27,7 @@ test_results:
   - "Secret scan workflow run 35578607252 SUCCESS on exact head."
   - "SAST workflow run 35578607203 SUCCESS on exact head."
   - "APL-REG-001B, APL-IP provenance and reconciliation checks also SUCCESS on exact head."
-resume_instruction: "Task implementation is complete. If owner authorizes merge, re-resolve PR #148 exact head/checks and merge. Deployment still requires owner-provided real shared-proxy credentials in the server-only gateway.env; never commit them or place them in APK build inputs."
+resume_instruction: "Implementation and local Mac mini service deployment are complete. Next owner action is to obtain real shared proxy credentials. Then replace only APL_FREE_PROXIES_JSON in /Users/master/.arvectum-private/proxy-gateway/gateway.env, restart ru.arvectum.proxy-gateway, verify each location end-to-end, and separately decide public network exposure/domain/TLS. If owner authorizes PR #148 merge, re-resolve exact head/checks before merge."
 updated_at: "2026-09-21T11:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
