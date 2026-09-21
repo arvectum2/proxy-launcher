@@ -5,20 +5,19 @@ status: blocked
 authority: OWNER
 base_commit: 14db1ea56f94d13b0664f5230ff6b18af21c87d7
 branch: agent/apl-route-decision-refresh-20260920
-prepared_commit: fc3a5ce9daa897202db032456330f05fc49fd410
+prepared_commit: 1cb54348560f20e7317607d152d367716c3617a1
 source_pr: 68
 review_pr: 144
 reconciliation:
-  - "Legacy PR #68 remains open but is not mergeable against current main."
-  - "Legacy head d188e82f21dda4f10898a40165b8924655229267 diverged from main by 142 main commits / 7 legacy-branch commits; merge base 6c2ef0b83b2cce68c465556d94a60262d64d20e2."
-  - "The old PR also edits .agent/current-task.yaml and .agent/execution-queue.yaml, which have materially evolved and must not be replayed from the stale branch."
-  - "A fresh branch from current main carries only the decision packet, preserving current canonical queue/current-task state."
+  - "Legacy PR #68 remains open but is stale against current main and must not replay obsolete .agent state."
+  - "Fresh review PR #144 carries only the decision packet plus durable checkpoint evidence and remains the review surface."
+  - "Canonical main advanced through the completed v0.2.12 release task; main is 7c0de27c30fe99b29fcad50859729a171980710e and immutable v0.2.12 was published from exact release SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde."
 evidence:
-  - "Canonical stable release remains v0.2.10."
+  - "Canonical current stable release is now v0.2.12; GitHub release and GitVerse payload parity are recorded complete in current-task and merged PR #152."
   - "Queue order 60 permits refresh of options/trade-offs and reversible prototypes but reserves production architecture selection to Owner/Product Owner."
-  - "Refreshed packet preserves saved-or-Arvectum/fail-closed recovery, separate WFP ownership, foreign-resource non-ownership, APL-REL-016 signing dependency, immutable v0.2.10 boundary, and v0.2.11+ future-release boundary."
+  - "Decision packet refreshed from v0.2.10 to v0.2.12 without changing the architecture recommendation or widening authority."
+  - "Refreshed packet preserves saved-or-Arvectum/fail-closed recovery, separate WFP ownership, foreign-resource non-ownership, APL-REL-016 signing dependency, immutable v0.2.12 boundary, and requires any per-app enforcement to ship only in a later new version."
   - "Recommendation remains Option A without representing it as approved."
-  - "PR #144 head 1cf1c30bc959033d203da584120c63379c4788a6 was mergeable when checked."
-  - "Observed exact-head pull-request workflows for 1cf1c30bc959033d203da584120c63379c4788a6 all completed SUCCESS: Dependency vulnerability scan, APL-IP-001 v0.2.9 reconciliation, Secret scan, APL-IP-001 provenance, APL-IP-001 v0.2.5 reconciliation, SAST, SBOM, APL-REG-001B sovereign lifecycle, Windows P0 portable, Windows installer."
+  - "Previous observed exact-head workflows for PR #144 were SUCCESS; the new v0.2.12 refresh commit requires a fresh exact-head CI observation before any review-ready green claim."
 blocker: "Owner/Product Owner must select/reject the production architecture. No privileged enforcement implementation or production host mutation is authorized before that decision."
-resume_instruction: "Review fresh decision-packet PR #144. If Owner explicitly selects an architecture, create the smallest approved implementation slice from current main and require real Windows recovery/security acceptance. Otherwise preserve this stop-gate."
+resume_instruction: "Check exact-head CI once for refreshed PR #144. If green, leave at Owner decision gate. If Owner explicitly selects an architecture, create the smallest approved implementation slice from current main and require real Windows recovery/security acceptance. Otherwise preserve this stop-gate."
