@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921
-status: completed
+status: in_progress
 goal: "Restore Android baseline VPN reliability first, then continue fixing free RU/US without destabilizing saved profiles or other VPN apps."
 definition_of_done:
   - "Official tun2proxy v0.8.3 baseline is restored for all Android profiles."
@@ -31,8 +31,12 @@ completed:
   - "HUMAN Android 0.1.30 free RU PASS: connected successfully and public IP resolved to Russia; ChatGPT was unavailable as expected for a Russian exit, not because of APL transport failure."
   - "HUMAN Android 0.1.30 free US PASS: switched to US free, ChatGPT opened, and owner sent a live message through that connection."
   - "Gateway logs correlated the physical dogfood: ru-free CONNECT traffic was present before the switch; us-free CONNECT sessions carried bidirectional traffic after the switch, including a ~50s live session."
-current: "Definition of Done satisfied. Android 0.1.30 baseline, foreign-VPN coexistence, Primary, free RU and free US are physically verified."
-pending: []
+current: "New regression after initial free-US PASS: connection worked for a few minutes, then entered disconnect/reconnect behavior; ChatGPT showed geography error even after app restart until switching to Primary."
+pending:
+  - "Correlate the failed US-free period with gateway relay behavior and Android free recovery."
+  - "Determine whether failure is upstream instability, stale location state, or Android reconnect logic."
+  - "Implement an isolated fix that does not replace the global tun2proxy engine."
+  - "Run exact-head Android/gateway CI and repeat physical stability dogfood for several minutes."
 last_verified_commit: "5d0b3bb382703a391b588cab40af10e76e57d623"
 test_results:
   - "Gateway unit tests 9/9 passed."
@@ -44,8 +48,8 @@ test_results:
   - "Live gateway recheck: RU exit PASS and US exit PASS through public TLS ingress."
   - "HUMAN 0.1.30 free RU exit PASS."
   - "HUMAN 0.1.30 free US + ChatGPT live-traffic PASS."
-resume_instruction: "Task completed. Do not resume debugging this incident unless a new regression is reported. PR #148 remains the free-proxy feature branch; before any merge, resolve the current PR head and required checks and follow normal merge authority."
-updated_at: "2026-09-21T17:53:00+03:00"
+resume_instruction: "Continue from the new free-US stability regression. Use gateway logs and Android recovery code to isolate the failure; preserve Primary/Amnezia baseline. Do not use the rejected global tun2proxy patch. Produce a new dogfood build only after exact-head CI passes."
+updated_at: "2026-09-21T18:02:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
