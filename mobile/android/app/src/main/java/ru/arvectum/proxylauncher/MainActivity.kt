@@ -1269,6 +1269,8 @@ class MainActivity : Activity() {
 
     private fun reconcileTunnelAfterResume() {
         val resumeState = currentState
+        if (!TunnelResumePolicy.requiresVpnPermissionCheck(resumeState)) return
+
         val permissionGranted = runCatching { VpnService.prepare(this) == null }
             .getOrDefault(false)
         when (TunnelResumePolicy.decide(resumeState, permissionGranted)) {
