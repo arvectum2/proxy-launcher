@@ -68,11 +68,14 @@ class ProxyVpnService : VpnService() {
     override fun onBind(intent: Intent?): IBinder? = super.onBind(intent)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_DISCONNECT) {
-            stopTunnel()
-            return START_NOT_STICKY
+        when (intent?.action) {
+            ACTION_DISCONNECT -> {
+                stopTunnel()
+                return START_NOT_STICKY
+            }
+            ACTION_RECONCILE -> reconcileTunnelAfterForegroundResume()
+            else -> startTunnel()
         }
-        startTunnel()
         return START_STICKY
     }
 
@@ -84,6 +87,41 @@ class ProxyVpnService : VpnService() {
         stopAutoMonitor()
         if (!stopping) shutdownEngineSilently()
         super.onDestroy()
+    }
+
+    private fun reconcileTunnelAfterForegroundResume() {
+        val snapshot = synchronized(lock) {
+            ReconcileSnapshot(
+                stopping = stopping,
+                failoverHandoff = failoverHandoff,
+                workerAlive = worker?.isAlive == true,
+                preflightAlive = preflightWorker?.isAlive == true,
+                tunPresent = tunFd != null,
+                prepared = activePrepared,
+            )
+        }
+        val action = TunnelServiceReconcilePolicy.decide(
+            stopping = snapshot.stopping,
+            failoverHandoff = snapshot.failoverHandoff,
+            workerAlive = snapshot.workerAlive,
+            preflightAlive = snapshot.preflightAlive,
+            tunPresent = snapshot.tunPresent,
+            hasActivePrepared = snapshot.prepared != null,
+        )
+        when (action) {
+            TunnelServiceReconcileAction.START_TUNNEL -> startTunnel()
+            TunnelServiceReconcileAction.REPORT_CONNECTED -> {
+                snapshot.prepared?.let(::publishConnectedState) ?: startTunnel()
+            }
+            TunnelServiceReconcileAction.REPORT_CONNECTING -> {
+                val detail = if (snapshot.stopping || snapshot.failoverHandoff) {
+                    "Переподключаем VPN…"
+                } else {
+                    "Подключение продолжается…"
+                }
+                publishState(STATE_CONNECTING, detail)
+            }
+        }
     }
 
     private fun startTunnel() {
@@ -289,12 +327,7 @@ class ProxyVpnService : VpnService() {
             }
             if (running) {
                 synchronized(lock) { activePrepared = prepared }
-                val label = protocolLabel(selectedProfile.type)
-                startForegroundCompat("Подключено · $selectionLabel")
-                publishState(
-                    STATE_CONNECTED,
-                    "Подключено · $selectionLabel · $label · ${resolved.profile.host}:${resolved.profile.port}",
-                )
+                publishConnectedState(prepared)
                 if (prepared.autoSelection) {
                     startAutoMonitor(generation, prepared)
                 } else {
@@ -302,6 +335,22 @@ class ProxyVpnService : VpnService() {
                 }
             }
         }, CONNECT_CONFIRM_DELAY_MS)
+    }
+
+    private fun publishConnectedState(prepared: PreparedProxy) {
+        val resolved = prepared.resolved
+        val selectedProfile = prepared.selectedProfile
+        val selectionLabel = if (prepared.autoSelection) {
+            "Авто → ${resolved.profile.name}"
+        } else {
+            resolved.profile.name
+        }
+        val label = protocolLabel(selectedProfile.type)
+        startForegroundCompat("Подключено · $selectionLabel")
+        publishState(
+            STATE_CONNECTED,
+            "Подключено · $selectionLabel · $label · ${resolved.profile.host}:${resolved.profile.port}",
+        )
     }
 
     private fun resolveProxySelection(generation: Long): PreparedProxy {
@@ -984,6 +1033,15 @@ class ProxyVpnService : VpnService() {
         }
     }
 
+    private data class ReconcileSnapshot(
+        val stopping: Boolean,
+        val failoverHandoff: Boolean,
+        val workerAlive: Boolean,
+        val preflightAlive: Boolean,
+        val tunPresent: Boolean,
+        val prepared: PreparedProxy?,
+    )
+
     private data class PreparedProxy(
         val resolved: ResolvedProxyProfile,
         val selectedProfile: ProxyProfile,
@@ -995,6 +1053,7 @@ class ProxyVpnService : VpnService() {
     companion object {
         const val ACTION_CONNECT = "ru.arvectum.proxylauncher.CONNECT"
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
+        const val ACTION_RECONCILE = "ru.arvectum.proxylauncher.RECONCILE"
         const val ACTION_STATE = "ru.arvectum.proxylauncher.STATE"
         const val ACTION_POOL_UPDATE = "ru.arvectum.proxylauncher.POOL_UPDATE"
         const val ACTION_POOL_STATE = "ru.arvectum.proxylauncher.POOL_STATE"

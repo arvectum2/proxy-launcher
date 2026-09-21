@@ -1,0 +1,78 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CROSSPLATFORM-RELEASE-PREP-20260920
+status: completed
+goal: "Audit Windows and Linux for the route-ownership class fixed on macOS, align the next desktop version, and prepare the v0.2.11 cross-platform release candidate."
+definition_of_done:
+  - "Windows and Linux proxy ownership audited with evidence-backed fixes and rollback coverage."
+  - "One canonical desktop version established across runtime/package metadata."
+  - "Focused/full tests, lint/security and exact-head CI completed."
+  - "Release notes/checklist and cross-platform artifacts prepared."
+completed:
+  - "Original in-progress canonical state preserved from main before the Android defect interrupt."
+  - "PR #145 merged to main as 351a0350e287cc5746d6cc69bf3268f316120b5c."
+  - "Repository contains immutable v0.2.11 tag at/after the merged release-prep integration."
+  - "PR #145 records 49/49 exact-head checks with no failures plus Windows/Linux/macOS artifact verification."
+  - "Subsequent macOS sleep regression PR #146 merged to main as 1b77508cadde8655b569606d9ad0e04438142d19."
+current: "Completed and archived before switching canonical current-task to the user-reported Android sleep/wake regression."
+pending: []
+last_verified_commit: "1b77508cadde8655b569606d9ad0e04438142d19"
+test_results:
+  - "PR #145: Ruff/compileall/Bandit PASS; focused 235 + 32 subtests; Windows ownership/network-change 34 + 5 subtests; full suite 1062 + 102 subtests with only the same 3 historical App Control baseline failures."
+  - "PR #145 exact-head CI: 49/49 checks completed without failure."
+resume_instruction: "No continuation required. If desktop v0.2.11 release work is reopened, start from current main rather than repeating PR #145."
+archived_from_main_current_task: true
+archived_original_state: |
+  version: 2
+  repository: arvectum2/proxy-launcher
+  task_id: APL-CROSSPLATFORM-RELEASE-PREP-20260920
+  status: in_progress
+  goal: "Audit Windows and Linux for the same class of competing system-proxy-route bug fixed on macOS, align product/package versions, and prepare an unpublished cross-platform release candidate."
+  authority: HUMAN
+  definition_of_done:
+    - "Audit Windows system proxy ownership/resolution for simultaneous PAC/manual/auto-discovery routes."
+    - "Audit Linux proxy ownership/resolution for simultaneous PAC/manual/environment/desktop routes."
+    - "Implement only evidence-backed ownership-safe fixes with exact rollback and regression coverage."
+    - "Establish one canonical next release version across active macOS/Windows/Linux runtime and package metadata without rewriting historical evidence."
+    - "Run platform-focused tests, full suite, packaging/version checks, and exact-head CI."
+    - "Prepare release notes/checklist and release-ready evidence; do not tag or publish."
+  completed:
+    - "Inherited macOS route-isolation fix is complete: APL PAC owns routing while saved manual HTTP/HTTPS enable flags are OFF, then exact state is restored."
+    - "Windows audit found manual WinINET proxy already isolated by ProxyEnable=0 but AutoDetect/WPAD remained a competing route."
+    - "Windows hardening implemented: APL ON sets explicit AutoConfigURL, ProxyEnable=0 and AutoDetect=0; saved AutoDetect restores exactly on OFF; enabled-state check requires exclusive APL route."
+    - "Linux audit found no analogous governed-store conflict: NetworkManager and GNOME/KDE switch to one APL auto-PAC route and restore saved none/manual/auto state exactly."
+    - "Added Linux regression proving saved desktop manual mode is replaced by APL auto while ON and restored on OFF."
+    - "Added active-builder version-policy regression and canonical-installer guard; legacy root 0.2.2 installer remains historical only."
+    - "GitHub verification proved v0.2.10 was already publicly released on 2026-09-19; published tag/release/bytes and docs/releases/0.2.10.md remain unchanged."
+    - "Canonical next patch baseline is 0.2.11: VERSION, runtime APP_VERSION and generated Windows PE metadata resolve 0.2.11; all active platform builders consume VERSION."
+    - "Created docs/releases/0.2.11.md and docs/releases/0.2.11-release-checklist.md; public macOS DMG remains deferred pending Developer ID/notarization."
+    - "Post-bump 0.2.11 focused/version/package gate: 198 passed + 16 subtests."
+    - "Windows recovery/routing suite: 47 passed + 18 subtests; Windows ownership/network-change suite: 33 passed + 5 subtests."
+    - "Post-bump 0.2.11 full suite: 1061 passed / same 3 known Windows App Control baseline failures / 102 subtests."
+    - "Pre-release refactor centralized the exact Arvectum-applied WinINET state and added fail-closed parsing for malformed DWORD ownership values without changing normal PAC/manual/WPAD semantics."
+    - "Lint cleanup removed proven-unused imports/variables, normalized import order only in touched files, and preserved intentional object lifetime in proxy_gui via _app."
+    - "Ruff 0.16.8 release profile F,E9 passes across live Python code excluding immutable historical APL-REL-015 evidence; touched files pass F,E9,I; compileall passes; Bandit 1.9.4 -ll -ii passes on changed runtime modules."
+    - "Post-refactor focused gate: 235 passed + 32 subtests; Windows ownership/network-change focused gate: 34 passed + 5 subtests; full suite: 1062 passed + 102 subtests with the same 3 known historical Windows App Control failures."
+  current: "Pre-release refactor/lint local gate is complete. Commit the cleanup, synchronize exact head to PR #145, rerun GitHub CI, capture artifact/check evidence, then restore #145 base to the macOS prerequisite branch."
+  pending:
+    - "Commit the pre-release refactor/lint cleanup and updated release checklist/checkpoint."
+    - "Synchronize the exact local content to PR #145 and rerun exact-head Windows/Linux/macOS/release/security CI."
+    - "Record CI/artifact results and return PR #145 to dependent base fix/macos-chatgpt-intermittent-20260919."
+    - "Do not merge, tag or publish."
+  last_verified_commit: "01b35b4a981bc66db4950d6f2b27c4a3d2bd6581"
+  test_results:
+    - "Inherited macOS route-isolation verification: macOS backend 18 pass + 2 subtests; focused 92 pass + 9 subtests; real Safari main/API/SSE HTTP 200 and exact OFF rollback PASS."
+    - "Post-bump 0.2.11 focused/version/package gate: 198 pass + 16 subtests."
+    - "Windows recovery/routing: 47 pass + 18 subtests; Windows ownership/network-change: 33 pass + 5 subtests."
+    - "Post-bump 0.2.11 full suite: 1061 pass, 3 known unrelated Windows App Control failures, 102 subtests."
+    - "Post-refactor release lint: Ruff 0.16.8 F,E9 live PASS; touched F,E9,I PASS; compileall PASS; Bandit 1.9.4 -ll -ii PASS."
+    - "Post-refactor focused gate: 235 pass + 32 subtests; Windows ownership/network-change: 34 pass + 5 subtests."
+    - "Post-refactor full suite: 1062 pass, same 3 known Windows App Control failures, 102 subtests."
+  resume_instruction: "Local v0.2.11 refactor/lint gate is complete: Ruff F,E9 live PASS; touched F,E9,I PASS; compileall PASS; Bandit PASS; focused 235+32 PASS; full 1062 pass + same 3 historical App Control failures. Commit/sync exact content to PR #145, capture exact-head CI/artifacts, then restore #145 base to fix/macos-chatgpt-intermittent-20260919. Do not merge, tag or publish."
+  updated_at: "2026-09-20T11:21:00+03:00"
+  execution:
+    claimed_by: "ChatGPT"
+    execution_id: "APL-CROSSPLATFORM-RELEASE-PREP-20260920"
+    branch: "release/v0.2.11-crossplatform-prep-20260920"
+    base_commit: "c0ea60a6f672b20555edfb26085c494844d582f5"
+    manual_override: true

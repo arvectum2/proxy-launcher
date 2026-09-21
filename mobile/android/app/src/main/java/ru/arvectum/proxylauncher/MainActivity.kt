@@ -52,6 +52,8 @@ import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
+import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
+import ru.arvectum.proxylauncher.tunnel.TunnelResumePolicy
 
 class MainActivity : Activity() {
     private lateinit var profileSelectorShell: LinearLayout
@@ -158,6 +160,11 @@ class MainActivity : Activity() {
             poolUiStore.getTunnelState(ProxyVpnService.STATE_DISCONNECTED),
             poolUiStore.getTunnelDetail(),
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reconcileTunnelAfterResume()
     }
 
     override fun onStart() {
@@ -1156,9 +1163,30 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun reconcileTunnelAfterResume() {
+        val resumeState = currentState
+        val permissionGranted = runCatching { VpnService.prepare(this) == null }
+            .getOrDefault(false)
+        when (TunnelResumePolicy.decide(resumeState, permissionGranted)) {
+            TunnelResumeAction.NONE -> Unit
+            TunnelResumeAction.RECONCILE_SERVICE -> {
+                startVpnService(ProxyVpnService.ACTION_RECONCILE)
+            }
+            TunnelResumeAction.RESET_FOR_PERMISSION -> {
+                val detail = "Android сбросил разрешение VPN. Нажмите «Подключиться»."
+                poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
+                renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
+            }
+        }
+    }
+
     private fun connectVpn(detail: String = "Проверяем прокси…") {
         renderState(ProxyVpnService.STATE_CONNECTING, detail)
-        val intent = Intent(this, ProxyVpnService::class.java).setAction(ProxyVpnService.ACTION_CONNECT)
+        startVpnService(ProxyVpnService.ACTION_CONNECT)
+    }
+
+    private fun startVpnService(action: String) {
+        val intent = Intent(this, ProxyVpnService::class.java).setAction(action)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
