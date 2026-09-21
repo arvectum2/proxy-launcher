@@ -17,17 +17,30 @@ class TunnelLifecyclePolicyTest {
     }
 
     @Test
-    fun intentionallyOffStatesNeverAutoStartOnResume() {
+    fun intentionallyOffStatesNeverTouchVpnPreparationOrAutoStartOnResume() {
         listOf(
             ProxyVpnService.STATE_DISCONNECTED,
             ProxyVpnService.STATE_DISCONNECTING,
             ProxyVpnService.STATE_ERROR,
         ).forEach { state ->
+            assertEquals(false, TunnelResumePolicy.requiresVpnPermissionCheck(state))
             assertEquals(
                 TunnelResumeAction.NONE,
                 TunnelResumePolicy.decide(state, vpnPermissionGranted = true),
             )
         }
+    }
+
+    @Test
+    fun intendedOnStatesAreTheOnlyStatesThatMayInspectVpnPermission() {
+        assertEquals(
+            true,
+            TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_CONNECTED),
+        )
+        assertEquals(
+            true,
+            TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_CONNECTING),
+        )
     }
 
     @Test
