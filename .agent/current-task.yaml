@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-SLEEP-WAKE-RECOVERY-20260921
-status: in_progress
+status: blocked
 goal: "Fix the Android long-sleep/wake regression where APL was left ON, the phone slept for more than a day, and the foreground UI remained indefinitely on Подключение until the app was killed and restarted."
 authority: HUMAN
 definition_of_done:
@@ -23,19 +23,23 @@ completed:
   - "If VpnService.prepare indicates the grant is gone, resume does not launch Android permission UI automatically; APL resets to DISCONNECTED with explicit reconnect guidance."
   - "Added pure TunnelResumePolicy/TunnelServiceReconcilePolicy and six deterministic JVM regression tests covering ON/OFF/grant/dead-service/healthy-worker/handoff decisions."
   - "Bumped Android dogfood candidate to 0.1.20 / versionCode 21 and documented long-sleep foreground reconciliation."
-current: "Implementation/static review is complete. Run final local static gates, commit/push the branch, open PR and validate exact-head Android CI/APK."
+current: "Blocked only on HUMAN physical Android 0.1.20 long-sleep/wake retest. Implementation PR #147 is open; Android compile/unit/signing/artifact gate is green."
 pending:
-  - "Run final local static gates available on Mac mini; commit and push branch."
-  - "Open PR, run exact-head Android/repository CI, and retrieve the signed dogfood APK/hash."
-  - "Request HUMAN long-sleep/wake physical retest; do not merge or publish before explicit authorization and physical evidence."
-last_verified_commit: "1b77508cadde8655b569606d9ad0e04438142d19"
+  - "HUMAN: install Android 0.1.20 over 0.1.19, connect APL, leave it ON through a long device sleep/idle interval, unlock/open APL, and confirm it returns to a working CONNECTED state without killing the app or another VPN permission prompt."
+  - "After physical PASS, re-resolve PR #147 exact head/checks and only then consider merge; do not publish an Android release without explicit authorization."
+  - "On physical FAIL, preserve the observed UI state/Journal/network state and reproduce only that remaining lifecycle defect."
+last_verified_commit: "11acf0a49db6849b17400a5a8a17693fb3277fda"
 test_results:
   - "Field failure 2026-09-21: Android phone slept unused for >24h with APL ON; after unlock UI stayed Подключение and did not connect; killing/restarting the app recovered immediately."
   - "git diff --check PASS after implementation."
   - "Static lifecycle contract PASS: onResume -> ACTION_RECONCILE, permission-revocation branch, service START/REPORT decisions, and 0.1.20/versionCode 21 verified."
   - "Local Android Gradle/JUnit unavailable in RDC shell because no Java runtime/system Gradle and repository has no Gradle Wrapper; canonical compilation/unit/APK gate is GitHub workflow."
-resume_instruction: "Continue on fix/android-sleep-wake-recovery-20260921. Run final diff/static checks, commit/push, open PR, wait for exact-head Android CI and signed APK/hash, then block on HUMAN long-sleep/wake physical retest. Do not merge or publish without explicit authorization."
-updated_at: "2026-09-21T10:52:00+03:00"
+  - "Implementation commit 11acf0a49db6849b17400a5a8a17693fb3277fda pushed; PR #147 opened against main."
+  - "GitHub Android workflow run 35574168940 SUCCESS: testDebugUnitTest + assembleDebug, stable signer/branding verification, SHA manifest and artifact upload all passed."
+  - "APK SHA-256 4d6950bccd0d92473006149b188a5763f4207bf71c06b2a68b00c9bf694e25b6; downloaded CI artifact rehashed locally and matched the manifest exactly."
+  - "APK V2 signer SHA-256 fd57cd46ad1e54a153aa9ed56b4bbb630b33015e23d4c6a86077a67cf0e28313; workflow artifact id 10626838204."
+resume_instruction: "Do not repeat implementation or Android CI. Await HUMAN Android 0.1.20 long-sleep/wake retest. On PASS, re-resolve PR #147 head/checks before any merge and require explicit publication authority; on FAIL, continue only from the observed remaining lifecycle failure."
+updated_at: "2026-09-21T10:58:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-ANDROID-SLEEP-WAKE-RECOVERY-20260921"
