@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: in_progress
+status: blocked
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -25,11 +25,12 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Push verified implementation, open PR, inspect exact-head CI/lint/security, and prepare an unpublished macOS dogfood candidate."
+current: "Blocked only on HUMAN physical sleep/wake of the installed PR #149 ARM candidate. APL is currently ON on the candidate and ordinary proxy traffic is healthy."
 pending:
-  - "Push implementation, open PR, inspect exact-head CI and prepare unpublished dogfood candidate."
-  - "HUMAN physical MacBook sleep/wake retest."
-last_verified_commit: "53ded2f91ec1c03ca91d858d6eef2d8d9f463181"
+  - "HUMAN: allow the MacBook to sleep with APL left ON, wake it, and verify existing browser/ChatGPT connectivity without disabling APL or restarting the browser."
+  - "On physical FAIL, preserve proxy_core.log and inspect proxy.resume.system_proxy_refresh plus post-wake CONNECT/relay evidence before changing code."
+  - "On physical PASS, re-resolve PR #149 exact head/checks and merge only with explicit owner authority; do not publish a release implicitly."
+last_verified_commit: "96e498220dfaea2f650f699ddcbad19c0c454ad1"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
   - "proxy_core.log: resume_after_sleep fired on pre-wake relays, while new upstream CONNECT responses returned status=200 immediately after wake; transport/upstream health was not the remaining blocker."
@@ -39,8 +40,15 @@ test_results:
   - "Full local Python suite: 905/905 passed."
   - "compileall and git diff --check passed on all changed runtime/tests."
   - "Local Ruff/Bandit execution was unavailable because uv could not reach PyPI through the current tunnel; exact-head CI remains the authoritative lint/security gate."
-resume_instruction: "Code commit 53ded2f91ec1c03ca91d858d6eef2d8d9f463181 is locally verified: focused 41/41, macOS 59/59, core/composition 96/96, full 905/905, compileall/diff-check PASS. Push branch, open PR, inspect exact-head CI including lint/security, then prepare an unpublished macOS dogfood candidate. Do not drive or restart the user's browser automatically; physical sleep/wake acceptance remains HUMAN."
-updated_at: "2026-09-21T13:14:00+03:00"
+  - "PR #149 exact head 96e498220dfaea2f650f699ddcbad19c0c454ad1: all 18 returned GitHub workflow runs completed SUCCESS, including SAST, secret scan, dependency scan, core/backend and macOS packaging."
+  - "User-reported 2026-09-21 14:52 MSK sleep-wake FAIL was on the previous installed binary (mtime 2026-09-20 23:22, SHA256 ad39844adf5b80e69d089461638ef28ac2f9ad1bad57bea67aa547f980371f94); zero proxy.resume.system_proxy_refresh events prove it was not a PR #149 candidate failure."
+  - "Downloaded CI ARM artifact apl-mac-package-macos-15 (artifact 10632312515) from macOS packaging run 35586324339; DMG verify and mounted-app codesign --verify --deep --strict PASS."
+  - "Installed PR #149 candidate binary SHA256 8afb81b8e5e08dc880991678f64c0ba7d7a4ee5014d6d17c882227a8008609ba; previous app backed up under candidate-backup-before-wake-refresh-pr149-20260921-1455."
+  - "Install/relaunch while APL OFF changed no system-proxy state: exact pre/post diff empty."
+  - "Installed candidate smoke PASS: listeners 18080/11080/18082, exclusive PAC 18082, manual HTTP/HTTPS disabled while ON, proxied public IP 68.209.60.141, active 443 CONNECT traffic; OFF rollback exact diff empty and PID/listeners cleared."
+  - "Candidate re-enabled for physical dogfood at 2026-09-21 14:58 MSK; worker PID 94584 and live CONNECT/relay traffic are healthy."
+resume_instruction: "Await HUMAN MacBook sleep/wake on installed PR #149 candidate (binary SHA256 8afb81b8...). APL is intentionally ON. On PASS, verify logs/checks and seek explicit merge authority. On FAIL, inspect persistent proxy_core.log for proxy.resume.system_proxy_refresh and post-wake CONNECT/relay behavior before changing code; do not treat older no-refresh failures as candidate evidence."
+updated_at: "2026-09-21T15:00:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
