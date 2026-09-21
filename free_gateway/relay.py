@@ -33,7 +33,9 @@ def upstream_connect_request(upstream, target: str) -> bytes:
 
 
 class UpstreamProxyRejected(ValueError):
-    pass
+    def __init__(self, status_code: int):
+        self.status_code = status_code
+        super().__init__(f"upstream proxy returned HTTP {status_code}")
 
 
 async def open_upstream_tunnel(
@@ -59,15 +61,29 @@ async def open_upstream_tunnel(
             await writer.drain()
             head = await reader.readuntil(b"\r\n\r\n")
             status_line = head.split(b"\r\n", 1)[0]
-            if b" 200 " not in status_line:
-                raise UpstreamProxyRejected(status_line.decode("iso-8859-1", errors="replace"))
+            parts = status_line.split(b" ", 2)
+            status_code = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 0
+            if status_code != 200:
+                raise UpstreamProxyRejected(status_code)
             return reader, writer, attempt
-        except UpstreamProxyRejected:
+        except UpstreamProxyRejected as exc:
             if writer is not None:
                 with contextlib.suppress(Exception):
                     writer.close()
                     await writer.wait_closed()
-            raise
+            if (
+                exc.status_code not in RETRYABLE_UPSTREAM_HTTP_STATUSES
+                or attempt >= UPSTREAM_CONNECT_ATTEMPTS
+            ):
+                raise
+            print(
+                f"relay_upstream_retry id={connection_id if connection_id is not None else '-'} "
+                f"location={location_id or '-'} attempt={attempt} "
+                f"status={exc.status_code}",
+                file=sys.stderr,
+                flush=True,
+            )
+            await asyncio.sleep(UPSTREAM_CONNECT_RETRY_DELAY_SECONDS * attempt)
         except (OSError, asyncio.IncompleteReadError, asyncio.TimeoutError) as exc:
             last_error = exc
             if writer is not None:
@@ -119,6 +135,7 @@ async def _pipe(reader, writer, *, connection_id: int, direction: str):
 
 UPSTREAM_CONNECT_ATTEMPTS = 3
 UPSTREAM_CONNECT_RETRY_DELAY_SECONDS = 0.15
+RETRYABLE_UPSTREAM_HTTP_STATUSES = {408, 429, 500, 502, 503, 504}
 
 
 class ConnectRelay:
