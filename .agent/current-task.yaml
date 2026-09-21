@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-FREE-PROXY-GATEWAY-20260921
-status: in_progress
+status: completed
 goal: "Add a free-location backend gateway so public APL clients can use operator-funded shared proxies without exposing upstream supplier credentials in the APK or client runtime."
 definition_of_done:
   - "Upstream proxy host/port/login/password are loaded only from server-side secret environment/config and never committed."
@@ -18,16 +18,16 @@ completed:
   - "Configured public Tailscale Funnel ingress: HTTPS API on 443 and TLS-terminated TCP relay on 8443."
   - "Session API advertises the external HTTPS relay endpoint rather than internal ports."
   - "Exact-head CI passed gateway, secret scan, SAST, SBOM, dependency and platform checks on 0edf2d8431270749484f099fadf983f15a4aff05."
-current: "Owner has entered real RU and US upstream credentials; validating them end-to-end."
-pending:
-  - "Restart gateway with real secret configuration and verify both locations load without exposing supplier credentials."
-  - "Run end-to-end CONNECT through public HTTPS relay for RU and US and verify exit IP/country."
-  - "Record final verification and restore completed status."
+current: "Gateway implementation, public TLS ingress, and real RU/US upstream validation complete."
+pending: []
 last_verified_commit: "0edf2d8431270749484f099fadf983f15a4aff05"
 test_results:
   - "Gateway unit tests 6/6 passed after ingress hardening."
   - "Public HTTPS API and TLS certificate verified before real upstream credentials were added."
-resume_instruction: "Restart ru.arvectum.proxy-gateway, verify RU and US locations from the public API, obtain short-lived sessions and test each through mac-mini-master.tail786c4b.ts.net:8443 without printing secrets. Verify exit IP/country, then update checkpoint."
+  - "Real RU upstream verified through public HTTPS relay: exit country RU."
+  - "Real US upstream verified through public HTTPS relay: exit country US."
+  - "Public locations API exposes only id/label/country_code; supplier credentials remain server-side."
+resume_instruction: "Gateway task is complete. Real RU and US upstreams are live behind the public TLS ingress. Continue with Android free-location integration in a new task; PR #148 remains unmerged pending explicit owner authorization."
 updated_at: "2026-09-21T12:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
