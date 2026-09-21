@@ -21,10 +21,11 @@ class HttpsProxyRelay(
     private val upstreamHost: String,
     private val upstreamPort: Int,
 ) {
-    private val server = ServerSocket(0, 50, InetAddress.getLoopbackAddress())
+    private val server = ServerSocket(0, 50, InetAddress.getByName(LOOPBACK_HOST))
     private val sockets = ConcurrentHashMap.newKeySet<Socket>()
     @Volatile private var running = false
 
+    val localHost: String get() = LOOPBACK_HOST
     val localPort: Int get() = server.localPort
 
     fun start() {
@@ -93,6 +94,7 @@ class HttpsProxyRelay(
     }
 
     companion object {
+        internal const val LOOPBACK_HOST = "127.0.0.1"
         private const val CONNECT_TIMEOUT_MS = 5000
         private const val BUFFER_SIZE = 32 * 1024
     }
