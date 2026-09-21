@@ -39,6 +39,7 @@ import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -181,23 +182,14 @@ class MainActivity : Activity() {
         val filter = IntentFilter(ProxyVpnService.ACTION_STATE).apply {
             addAction(ProxyVpnService.ACTION_POOL_UPDATE)
         }
-        if (Build.VERSION.SDK_INT >= 33) {
-            registerReceiver(
-                stateReceiver,
-                filter,
-                ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
-                null,
-                Context.RECEIVER_NOT_EXPORTED,
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(
-                stateReceiver,
-                filter,
-                ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
-                null,
-            )
-        }
+        ContextCompat.registerReceiver(
+            this,
+            stateReceiver,
+            filter,
+            ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
+            null,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         refreshFreeLocations(force = true)
         startProfileHealthScan()
     }
