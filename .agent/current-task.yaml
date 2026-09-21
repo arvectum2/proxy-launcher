@@ -1,30 +1,32 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-FREE-PROXY-ANDROID-INTEGRATION-20260921
-status: completed
-goal: "Integrate server-backed free RU/US proxy locations into Android APL without embedding upstream supplier credentials."
+task_id: APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921
+status: in_progress
+goal: "Fix Android free RU/US connections that appear selectable/connectable but pass no user traffic."
 definition_of_done:
-  - "Android fetches free locations from the public gateway API."
-  - "Selecting a free location obtains a short-lived gateway session and builds a temporary HTTPS proxy profile."
-  - "Gateway session credentials are not persisted longer than required and supplier credentials never enter the app."
-  - "Reconnect/expiry path can refresh the session instead of relying on stale credentials."
-  - "Existing manual proxy profiles continue to work."
-  - "Relevant Android tests/build checks pass."
+  - "Root cause is identified with evidence from Android/gateway path."
+  - "Free RU and US connections pass real web traffic on Android."
+  - "Supplier credentials remain server-side only; gateway session credentials remain ephemeral."
+  - "Sleep/wake and session refresh behavior is not regressed."
+  - "Android unit/build CI passes on the fix."
 completed:
-  - "Gateway and real RU/US upstreams validated end-to-end through public TLS ingress."
-current: "Android free-location integration complete and verified on implementation commit 443e60c."
+  - "User dogfood confirmed free RU/US entries appear in Android UI."
+  - "Gateway service is healthy and origins listen on 127.0.0.1:8787/8788."
+  - "Real RU and US upstreams previously passed server-side end-to-end checks."
+  - "At initial diagnosis there was no active relay connection on 8788, pointing to the Android-to-TLS-relay segment."
+current: "Instrumenting relay stages and reproducing Android HTTPS proxy path."
 pending:
-  - "Identify profile storage, connection command path, VPN engine HTTPS proxy support, and UI entry point."
-  - "Implement gateway API client and ephemeral free-session model."
-  - "Wire free locations into Android UI/connection flow."
-  - "Add tests for API parsing, temporary credentials, refresh/error behavior, and regression safety."
-  - "Run Android unit/build checks and update checkpoint."
-last_verified_commit: "443e60cf6d1df8b7eb5bd63897f684a5aea6fdae"
+  - "Add credential-safe gateway relay diagnostics and redeploy."
+  - "Determine whether Android reaches public 8443 and whether CONNECT auth reaches gateway."
+  - "Patch Android TLS relay/tun2proxy integration based on evidence."
+  - "Build and test corrected APK; verify exact-head CI."
+  - "Have owner dogfood RU and US traffic; record result."
+last_verified_commit: "21e9b1b981d29e5e4e6e8722c7041ffb63f953f1"
 test_results:
-  - "Gateway unit tests 6/6 passed."
-  - "Real RU and US public end-to-end proxy checks passed."\n  - "Android implementation commit 443e60c adds free-location API/session client, persistent location-only selection, in-memory credentials, HTTPS relay profile, and pre-expiry session refresh."\n  - "Server session TTL set to 3600 seconds; RU and US reverified end-to-end after restart."\n  - "Mobile Android spike run 35586152257 SUCCESS: unit tests, assembleDebug, signer/branding verification, SHA-256 and artifact upload."\n  - "Exact implementation commit 443e60cf6d1df8b7eb5bd63897f684a5aea6fdae also passed gateway, Secret scan, SAST, SBOM, dependency scan and platform workflows."
-resume_instruction: "Task complete. Free RU/US locations are integrated into Android using gateway-issued ephemeral HTTPS proxy sessions with pre-expiry refresh. PR #148 remains unmerged; if owner authorizes merge, re-resolve current PR head and required checks before merging."
-updated_at: "2026-09-21T12:40:00+03:00"
+  - "Prior Mobile Android spike SUCCESS on implementation commit 443e60c."
+  - "Server-side RU and US upstream E2E succeeded before owner dogfood."
+resume_instruction: "Instrument free_gateway relay without logging credentials, redeploy to Mac mini, observe a dogfood connection attempt, then patch Android path and produce corrected APK."
+updated_at: "2026-09-21T13:46:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
