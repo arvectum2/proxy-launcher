@@ -21,3 +21,8 @@ qa/
 mobile/android/.gradle/
 mobile/android/app/build/
 mobile/android/app/src/main/jniLibs/
+
+# Server-side gateway secrets (never commit real upstream credentials)
+free_gateway/.env
+free_gateway/gateway.env
+free_gateway/*.secrets.env

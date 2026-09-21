@@ -1,0 +1,296 @@
+import asyncio
+import base64
+import json
+import unittest
+from unittest.mock import AsyncMock, patch
+
+from free_gateway.api import GatewayApi
+from free_gateway.config import GatewayConfig
+from free_gateway.relay import (
+    ConnectRelay,
+    UpstreamProxyRejected,
+    open_upstream_tunnel,
+    parse_basic_auth,
+    upstream_connect_request,
+)
+from free_gateway.tokens import SessionTokenManager
+
+
+SECRET = "s" * 64
+PROXIES = json.dumps([{
+    "id": "de-free", "label": "Germany", "country_code": "de",
+    "host": "secret.supplier.test", "port": 8443,
+    "username": "supplier-user", "password": "supplier-password", "tls": True,
+}])
+
+
+def config():
+    return GatewayConfig.from_env({
+        "APL_GATEWAY_PUBLIC_HOST": "gateway.arvectum.test",
+        "APL_GATEWAY_TOKEN_SECRET": SECRET,
+        "APL_FREE_PROXIES_JSON": PROXIES,
+        "APL_GATEWAY_SESSION_TTL": "600",
+    })
+
+
+
+
+class FakeHealth:
+    def snapshot(self, location_id):
+        return {"available": True, "latency_ms": 123}
+
+
+class FakeWriter:
+    def __init__(self):
+        self.data = bytearray()
+        self.closed = False
+    def write(self, data):
+        self.data.extend(data)
+    async def drain(self):
+        pass
+    def close(self):
+        self.closed = True
+    async def wait_closed(self):
+        pass
+
+
+class TimeoutReader:
+    async def read(self, _count):
+        raise TimeoutError("simulated established-tunnel timeout")
+
+
+async def call_api(request: bytes):
+    reader = asyncio.StreamReader()
+    reader.feed_data(request)
+    reader.feed_eof()
+    writer = FakeWriter()
+    await GatewayApi(config()).handle(reader, writer)
+    return bytes(writer.data)
+
+
+async def call_relay(request: bytes):
+    reader = asyncio.StreamReader()
+    reader.feed_data(request)
+    reader.feed_eof()
+    writer = FakeWriter()
+    await ConnectRelay(config()).handle(reader, writer)
+    return bytes(writer.data)
+
+
+class FreeGatewayTests(unittest.TestCase):
+    def test_config_requires_server_secret_and_redacts_public_locations(self):
+        cfg = config()
+        self.assertEqual(cfg.public_locations(), [
+            {"id": "de-free", "label": "Germany", "country_code": "DE"}
+        ])
+        rendered = json.dumps(cfg.public_locations())
+        self.assertNotIn("secret.supplier.test", rendered)
+        self.assertNotIn("supplier-user", rendered)
+        self.assertNotIn("supplier-password", rendered)
+
+    def test_token_is_location_bound_tamper_evident_and_expires(self):
+        now = [1_000]
+        manager = SessionTokenManager(SECRET, 10, clock=lambda: now[0])
+        token, expires = manager.issue("de-free")
+        self.assertEqual(expires, 1_010)
+        self.assertTrue(manager.verify("de-free", token))
+        self.assertFalse(manager.verify("us-free", token))
+        self.assertFalse(manager.verify("de-free", token + "x"))
+        now[0] = 1_011
+        self.assertFalse(manager.verify("de-free", token))
+
+    def test_upstream_connect_adds_supplier_auth_only_on_server_side(self):
+        upstream = config().upstreams["de-free"]
+        request = upstream_connect_request(upstream, "example.com:443").decode("iso-8859-1")
+        expected = base64.b64encode(b"supplier-user:supplier-password").decode("ascii")
+        self.assertIn("CONNECT example.com:443 HTTP/1.1", request)
+        self.assertIn("Proxy-Authorization: Basic " + expected, request)
+
+    def test_basic_gateway_auth_parser(self):
+        encoded = base64.b64encode(b"de-free:token").decode("ascii")
+        self.assertEqual(parse_basic_auth("Basic " + encoded), ("de-free", "token"))
+        self.assertIsNone(parse_basic_auth("Bearer nope"))
+
+    def test_upstream_connect_retries_transient_response_reset(self):
+        upstream = config().upstreams["de-free"]
+
+        async def exercise():
+            first_reader = asyncio.StreamReader()
+            first_reader.feed_eof()
+            second_reader = asyncio.StreamReader()
+            second_reader.feed_data(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+            second_reader.feed_eof()
+            first_writer = FakeWriter()
+            second_writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.asyncio.open_connection",
+                new=AsyncMock(side_effect=[
+                    (first_reader, first_writer),
+                    (second_reader, second_writer),
+                ]),
+            ) as connector, patch(
+                "free_gateway.relay.asyncio.sleep",
+                new=AsyncMock(),
+            ):
+                reader, writer, attempt = await open_upstream_tunnel(
+                    upstream,
+                    "example.com:443",
+                    connection_id=77,
+                    location_id="de-free",
+                )
+                return (
+                    connector.await_count,
+                    reader is second_reader,
+                    writer is second_writer,
+                    attempt,
+                    first_writer.closed,
+                    bytes(second_writer.data),
+                )
+
+        calls, used_second_reader, used_second_writer, attempt, first_closed, sent = asyncio.run(exercise())
+        self.assertEqual(calls, 2)
+        self.assertEqual(attempt, 2)
+        self.assertTrue(used_second_reader)
+        self.assertTrue(used_second_writer)
+        self.assertTrue(first_closed)
+        self.assertIn(b"CONNECT example.com:443 HTTP/1.1", sent)
+
+    def test_upstream_connect_retries_transient_503_response(self):
+        upstream = config().upstreams["de-free"]
+
+        async def exercise():
+            first_reader = asyncio.StreamReader()
+            first_reader.feed_data(b"HTTP/1.1 503 Service Unavailable\r\n\r\n")
+            first_reader.feed_eof()
+            second_reader = asyncio.StreamReader()
+            second_reader.feed_data(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+            second_reader.feed_eof()
+            first_writer = FakeWriter()
+            second_writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.asyncio.open_connection",
+                new=AsyncMock(side_effect=[
+                    (first_reader, first_writer),
+                    (second_reader, second_writer),
+                ]),
+            ) as connector, patch(
+                "free_gateway.relay.asyncio.sleep",
+                new=AsyncMock(),
+            ):
+                reader, writer, attempt = await open_upstream_tunnel(
+                    upstream,
+                    "example.com:443",
+                    connection_id=88,
+                    location_id="de-free",
+                )
+                return connector.await_count, reader is second_reader, writer is second_writer, attempt
+
+        calls, used_second_reader, used_second_writer, attempt = asyncio.run(exercise())
+        self.assertEqual(calls, 2)
+        self.assertEqual(attempt, 2)
+        self.assertTrue(used_second_reader)
+        self.assertTrue(used_second_writer)
+
+    def test_upstream_connect_does_not_retry_explicit_proxy_rejection(self):
+        upstream = config().upstreams["de-free"]
+
+        async def exercise():
+            reader = asyncio.StreamReader()
+            reader.feed_data(b"HTTP/1.1 407 Proxy Authentication Required\r\n\r\n")
+            reader.feed_eof()
+            writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.asyncio.open_connection",
+                new=AsyncMock(return_value=(reader, writer)),
+            ) as connector:
+                with self.assertRaises(UpstreamProxyRejected) as raised:
+                    await open_upstream_tunnel(upstream, "example.com:443")
+                return connector.await_count, writer.closed, raised.exception.status_code
+
+        calls, closed, status_code = asyncio.run(exercise())
+        self.assertEqual(calls, 1)
+        self.assertTrue(closed)
+        self.assertEqual(status_code, 407)
+
+    def test_established_tunnel_timeout_never_injects_http_502(self):
+        cfg = config()
+        relay = ConnectRelay(cfg)
+        token, _ = relay.tokens.issue("de-free")
+        encoded = base64.b64encode(f"de-free:{token}".encode("utf-8")).decode("ascii")
+        request = (
+            "CONNECT example.com:443 HTTP/1.1\r\n"
+            "Host: example.com:443\r\n"
+            f"Proxy-Authorization: Basic {encoded}\r\n"
+            "\r\n"
+        ).encode("ascii")
+
+        async def exercise():
+            reader = asyncio.StreamReader()
+            reader.feed_data(request)
+            reader.feed_eof()
+            client_writer = FakeWriter()
+            upstream_writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.open_upstream_tunnel",
+                new=AsyncMock(return_value=(TimeoutReader(), upstream_writer, 1)),
+            ):
+                await relay.handle(reader, client_writer)
+            return bytes(client_writer.data)
+
+        raw = asyncio.run(exercise())
+        self.assertTrue(raw.startswith(b"HTTP/1.1 200 Connection Established"))
+        self.assertNotIn(b"502 Bad Gateway", raw)
+
+    def test_locations_api_can_include_health_without_secrets(self):
+        api = GatewayApi(config(), FakeHealth())
+        locations = api.public_locations()
+        self.assertEqual(locations[0]["available"], True)
+        self.assertEqual(locations[0]["latency_ms"], 123)
+        rendered = json.dumps(locations)
+        self.assertNotIn("supplier-password", rendered)
+
+    def test_locations_api_never_returns_supplier_credentials(self):
+        raw = asyncio.run(call_api(
+            b"GET /v1/free/locations HTTP/1.1\r\nHost: test\r\n\r\n"
+        ))
+        self.assertIn(b"200 OK", raw)
+        self.assertIn(b"Germany", raw)
+        self.assertNotIn(b"secret.supplier.test", raw)
+        self.assertNotIn(b"supplier-user", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+
+    def test_combined_relay_listener_serves_public_locations_api(self):
+        raw = asyncio.run(call_relay(
+            b"GET /v1/free/locations HTTP/1.1\r\nHost: test\r\n\r\n"
+        ))
+        self.assertIn(b"200 OK", raw)
+        self.assertIn(b"Germany", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+    def test_combined_relay_listener_serves_session_api(self):
+        body = b'{"location_id":"de-free"}'
+        request = (
+            b"POST /v1/free/session HTTP/1.1\r\nHost: test\r\nContent-Length: "
+            + str(len(body)).encode("ascii") + b"\r\n\r\n" + body
+        )
+        raw = asyncio.run(call_relay(request))
+        self.assertIn(b"201 Created", raw)
+        self.assertIn(b"gateway.arvectum.test", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+    def test_session_api_returns_gateway_not_supplier(self):
+        body = b'{"location_id":"de-free"}'
+        request = (
+            b"POST /v1/free/session HTTP/1.1\r\nHost: test\r\nContent-Length: "
+            + str(len(body)).encode("ascii") + b"\r\n\r\n" + body
+        )
+        raw = asyncio.run(call_api(request))
+        self.assertIn(b"201 Created", raw)
+        self.assertIn(b"gateway.arvectum.test", raw)
+        self.assertNotIn(b"secret.supplier.test", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+
+if __name__ == "__main__":
+    unittest.main()

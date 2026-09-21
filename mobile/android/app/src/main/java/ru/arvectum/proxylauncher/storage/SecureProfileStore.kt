@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import java.security.KeyStore
+import java.util.Locale
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -55,6 +56,8 @@ class SecureProfileStore(context: Context) {
         if (makeActive) {
             editor.putString(KEY_ACTIVE_ID, profile.id)
                 .putBoolean(KEY_AUTO_SELECTION, false)
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
         }
         check(editor.commit()) { "Failed to persist proxy profile" }
     }
@@ -63,12 +66,39 @@ class SecureProfileStore(context: Context) {
         ensureLegacyProfileIndexed()
         return profileIds()
             .mapNotNull(::loadProfileMetadata)
-            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
     }
 
     fun getActiveProfileId(): String? {
         ensureLegacyProfileIndexed()
         return prefs.getString(KEY_ACTIVE_ID, null)
+    }
+
+    fun getActiveFreeLocationId(): String? =
+        prefs.getString(KEY_ACTIVE_FREE_LOCATION_ID, null)
+
+    fun getActiveFreeLocationLabel(): String? =
+        prefs.getString(KEY_ACTIVE_FREE_LOCATION_LABEL, null)
+
+    fun setActiveFreeLocation(id: String, label: String) {
+        require(id.isNotBlank()) { "Free proxy location id must not be blank" }
+        require(label.isNotBlank()) { "Free proxy location label must not be blank" }
+        check(
+            prefs.edit()
+                .putString(KEY_ACTIVE_FREE_LOCATION_ID, id)
+                .putString(KEY_ACTIVE_FREE_LOCATION_LABEL, label)
+                .putBoolean(KEY_AUTO_SELECTION, false)
+                .commit(),
+        ) { "Failed to persist free proxy selection" }
+    }
+
+    fun clearActiveFreeLocation() {
+        check(
+            prefs.edit()
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
+                .commit(),
+        ) { "Failed to clear free proxy selection" }
     }
 
     fun isAutoProfileSelection(): Boolean {
@@ -78,9 +108,12 @@ class SecureProfileStore(context: Context) {
 
     fun setAutoProfileSelection(enabled: Boolean) {
         ensureLegacyProfileIndexed()
-        check(prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled).commit()) {
-            "Failed to persist Auto proxy selection"
+        val editor = prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled)
+        if (enabled) {
+            editor.remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
         }
+        check(editor.commit()) { "Failed to persist Auto proxy selection" }
     }
 
     fun getLastAutoProfileId(): String? {
@@ -107,6 +140,8 @@ class SecureProfileStore(context: Context) {
             prefs.edit()
                 .putString(KEY_ACTIVE_ID, id)
                 .putBoolean(KEY_AUTO_SELECTION, false)
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
                 .commit(),
         ) {
             "Failed to persist active proxy profile"
@@ -139,7 +174,7 @@ class SecureProfileStore(context: Context) {
         val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
             remainingIds
                 .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
                 .firstOrNull()
                 ?.id
         } else {
@@ -167,7 +202,7 @@ class SecureProfileStore(context: Context) {
         if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
             val nextPrimary = remainingIds
                 .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
                 .firstOrNull()
                 ?.id
             if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
@@ -228,6 +263,47 @@ class SecureProfileStore(context: Context) {
     }
 
     fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
+
+    fun getFreeRecoveryWindowStartedAtMs(): Long =
+        prefs.getLong(KEY_FREE_RECOVERY_WINDOW_STARTED_AT, 0L)
+
+    fun getFreeRecoveryAttemptCount(): Int =
+        prefs.getInt(KEY_FREE_RECOVERY_ATTEMPT_COUNT, 0)
+
+    fun setFreeRecoveryState(windowStartedAtMs: Long, attemptCount: Int) {
+        check(
+            prefs.edit()
+                .putLong(KEY_FREE_RECOVERY_WINDOW_STARTED_AT, windowStartedAtMs)
+                .putInt(KEY_FREE_RECOVERY_ATTEMPT_COUNT, attemptCount)
+                .commit(),
+        ) { "Failed to persist free tunnel recovery state" }
+    }
+
+    fun clearFreeRecoveryState() {
+        prefs.edit()
+            .remove(KEY_FREE_RECOVERY_WINDOW_STARTED_AT)
+            .remove(KEY_FREE_RECOVERY_ATTEMPT_COUNT)
+            .commit()
+    }
+
+    fun markVpnProcessRestartPending() {
+        check(prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, true).commit()) {
+            "Failed to persist VPN restart handoff state"
+        }
+    }
+
+    @Synchronized
+    fun consumeVpnProcessRestartPending(): Boolean {
+        val pending = prefs.getBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false)
+        if (pending) {
+            prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+        }
+        return pending
+    }
+
+    fun clearVpnProcessRestartPending() {
+        prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+    }
 
     fun getSiteExclusions(): List<String> =
         prefs.getStringSet(KEY_SITE_EXCLUSIONS, emptySet())
@@ -340,6 +416,8 @@ class SecureProfileStore(context: Context) {
         private const val PREFS_NAME = "apl_mobile_profiles_v1"
         private const val KEY_PROFILE_IDS = "profile_ids"
         private const val KEY_ACTIVE_ID = "active_profile_id"
+        private const val KEY_ACTIVE_FREE_LOCATION_ID = "active_free_location_id"
+        private const val KEY_ACTIVE_FREE_LOCATION_LABEL = "active_free_location_label"
         private const val KEY_AUTO_SELECTION = "auto_profile_selection"
         private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
         private const val KEY_PRIMARY_ID = "pool_primary_profile_id"
@@ -347,6 +425,9 @@ class SecureProfileStore(context: Context) {
         private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"
         private const val KEY_RECENTLY_FAILED_AT = "pool_recently_failed_at"
         private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
+        private const val KEY_FREE_RECOVERY_WINDOW_STARTED_AT = "free_recovery_window_started_at"
+        private const val KEY_FREE_RECOVERY_ATTEMPT_COUNT = "free_recovery_attempt_count"
+        private const val KEY_VPN_PROCESS_RESTART_PENDING = "vpn_process_restart_pending"
         private const val KEY_SITE_EXCLUSIONS = "site_exclusions"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"

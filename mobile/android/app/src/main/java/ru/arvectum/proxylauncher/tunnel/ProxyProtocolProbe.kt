@@ -236,9 +236,9 @@ class ProxyProtocolProbe {
     companion object {
         private const val PROBE_HOST = "example.com"
         private const val PROBE_PORT = 443
-        private const val CONNECT_TIMEOUT_MS = 2500
-        private const val TLS_HANDSHAKE_TIMEOUT_MS = 3000
-        private const val IO_TIMEOUT_MS = 3000
+        private const val CONNECT_TIMEOUT_MS = 8000
+        private const val TLS_HANDSHAKE_TIMEOUT_MS = 10000
+        private const val IO_TIMEOUT_MS = 10000
         private const val MAX_ERROR_LENGTH = 420
     }
 }

@@ -7,10 +7,12 @@ enum class TunnelResumeAction {
 }
 
 object TunnelResumePolicy {
-    fun decide(state: String, vpnPermissionGranted: Boolean): TunnelResumeAction {
-        val intendedOn = state == ProxyVpnService.STATE_CONNECTED ||
+    fun requiresVpnPermissionCheck(state: String): Boolean =
+        state == ProxyVpnService.STATE_CONNECTED ||
             state == ProxyVpnService.STATE_CONNECTING
-        if (!intendedOn) return TunnelResumeAction.NONE
+
+    fun decide(state: String, vpnPermissionGranted: Boolean): TunnelResumeAction {
+        if (!requiresVpnPermissionCheck(state)) return TunnelResumeAction.NONE
         return if (vpnPermissionGranted) {
             TunnelResumeAction.RECONCILE_SERVICE
         } else {

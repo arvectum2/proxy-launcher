@@ -1,5 +1,6 @@
 package ru.arvectum.proxylauncher.tunnel
 
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
@@ -21,10 +22,11 @@ class HttpsProxyRelay(
     private val upstreamHost: String,
     private val upstreamPort: Int,
 ) {
-    private val server = ServerSocket(0, 50, InetAddress.getLoopbackAddress())
+    private val server = ServerSocket(0, 50, InetAddress.getByName(LOOPBACK_HOST))
     private val sockets = ConcurrentHashMap.newKeySet<Socket>()
     @Volatile private var running = false
 
+    val localHost: String get() = LOOPBACK_HOST
     val localPort: Int get() = server.localPort
 
     fun start() {
@@ -63,15 +65,12 @@ class HttpsProxyRelay(
             sockets += upstream
 
             thread(name = "APL-https-proxy-up", isDaemon = true) {
-                try {
-                    pump(local.getInputStream(), upstream.getOutputStream())
-                } finally {
-                    runCatching { upstream.shutdownOutput() }
-                }
+                relayPumpSafely(local.getInputStream(), upstream.getOutputStream())
+                runCatching { upstream.shutdownOutput() }
             }
-            pump(upstream.getInputStream(), local.getOutputStream())
+            relayPumpSafely(upstream.getInputStream(), local.getOutputStream())
         } catch (_: Exception) {
-            // tun2proxy observes a closed local connection and reports the session failure.
+            // A failure establishing this one CONNECT must never crash the :vpn process.
         } finally {
             upstreamForCleanup?.let {
                 sockets -= it
@@ -82,18 +81,34 @@ class HttpsProxyRelay(
         }
     }
 
-    private fun pump(input: InputStream, output: OutputStream) {
-        val buffer = ByteArray(BUFFER_SIZE)
-        while (true) {
-            val count = input.read(buffer)
-            if (count < 0) return
-            output.write(buffer, 0, count)
-            output.flush()
+    internal fun relayPumpSafely(
+        input: InputStream,
+        output: OutputStream,
+    ): RelayPumpOutcome {
+        return try {
+            val buffer = ByteArray(BUFFER_SIZE)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                if (count == 0) continue
+                output.write(buffer, 0, count)
+                output.flush()
+            }
+            RelayPumpOutcome.EOF
+        } catch (_: IOException) {
+            // Socket close/reset/broken-pipe is a per-CONNECT lifecycle event.
+            RelayPumpOutcome.IO_CLOSED
         }
     }
 
     companion object {
+        internal const val LOOPBACK_HOST = "127.0.0.1"
         private const val CONNECT_TIMEOUT_MS = 5000
         private const val BUFFER_SIZE = 32 * 1024
     }
+}
+
+internal enum class RelayPumpOutcome {
+    EOF,
+    IO_CLOSED,
 }

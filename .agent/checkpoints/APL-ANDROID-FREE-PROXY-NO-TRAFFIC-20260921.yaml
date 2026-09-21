@@ -1,0 +1,50 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921
+status: completed
+goal: "Ship Android 0.1.31 as a friend-test candidate with stable free RU/US, preserved Primary/foreign-VPN behavior, lint/static checks, safe refactoring, and reproducible signed APK evidence."
+definition_of_done:
+  - "Official tun2proxy v0.8.3 baseline remains in use for Android profiles."
+  - "Unexpected :vpn process death cannot sticky-restart APL without an explicit one-shot handoff token."
+  - "Saved/Primary profiles remain functional."
+  - "Passive foregrounding of explicitly-OFF APL does not revoke another VPN such as Amnezia."
+  - "Free RU/US remain server-backed without exposing supplier credentials."
+  - "Gateway retries transient upstream transport failures and HTTP 408/429/5xx, but does not retry 407/auth failures."
+  - "Established CONNECT tunnels never receive an injected HTTP 502 after the 200 response."
+  - "Android lintDebug passes on the exact 0.1.31 code head."
+  - "Gateway compile/tests/security checks pass on the exact 0.1.31 code head."
+  - "0.1.31 signed dogfood APK is built, signer/branding/version are verified, SHA-256 is recorded, and the artifact is ready for external friend testing."
+  - "Post-deploy RU->RU and US->US checks plus a short US soak pass before handoff."
+completed:
+  - "0.1.31 exact code head: bb7be3b0cac4cdf7ce0f5a44ce28747303a10ae5."
+  - "Android exact-head workflow 35622445417 SUCCESS: lint, unit tests, assemble, signer, branding, version identity, SHA manifest and artifact upload."
+  - "Final Android lint: 0 errors / 8 intentional warnings."
+  - "Gateway tests 13/13 PASS."
+  - "Gateway retry hardening covers transport resets and HTTP 408/429/500/502/503/504; HTTP 407 is not retried."
+  - "Established CONNECT framing regression fixed: no HTTP 502 injection after HTTP 200 Connection Established."
+  - "Internal Android state broadcasts protected by signature permission plus RECEIVER_NOT_EXPORTED."
+  - "Backup/device transfer explicitly disabled."
+  - "Post-deploy ru-free -> RU PASS."
+  - "Post-deploy us-free -> US PASS."
+  - "Post-deploy US soak 15/15 PASS with stable US exit."
+  - "Exact-head APK SHA-256: edf2026ec05405031924e2893efe2d422a7c3aeeeda89c22f3c50d871aa24b99."
+current: "Completed release baseline for Android 0.1.31 friend testing."
+pending: []
+last_verified_commit: "bb7be3b0cac4cdf7ce0f5a44ce28747303a10ae5"
+test_results:
+  - "Gateway unit tests: 13/13 PASS."
+  - "Android lint: PASS, 0 errors / 8 intentional warnings."
+  - "Android exact-head workflow 35622445417: SUCCESS."
+  - "Free proxy gateway workflow 35622445458: SUCCESS."
+  - "Secret scan 35622445442: SUCCESS."
+  - "SAST 35622445549: SUCCESS."
+  - "SBOM 35622445478: SUCCESS."
+  - "Dependency vulnerability scan 35622445422: SUCCESS."
+  - "Provenance 35622445514: SUCCESS."
+  - "Post-deploy RU/US checks and US soak: PASS."
+resume_instruction: "Completed baseline. For any new tester regression, open a new incident task from this release baseline. Do not reintroduce the rejected global tun2proxy patch. PR #148 remains unmerged unless separately authorized."
+updated_at: "2026-09-21T19:16:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  branch: "feat/free-proxy-gateway-20260921"
+  base_commit: "1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0"

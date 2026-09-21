@@ -42,7 +42,7 @@ class Tun2ProxyEngineAdapter : ProxyEngineAdapter {
         }
 
         val effectiveProfile = if (relay != null) {
-            profile.copy(host = "127.0.0.1", port = relay.localPort, type = ProxyType.HTTP)
+            profile.copy(host = relay.localHost, port = relay.localPort, type = ProxyType.HTTP)
         } else {
             profile
         }
