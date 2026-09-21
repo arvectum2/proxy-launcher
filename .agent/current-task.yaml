@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: in_progress
+status: blocked
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -26,13 +26,12 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Worker-owned transport rebind implementation is locally green; commit/push exact head, obtain CI packaging, then install a new ARM dogfood candidate."
+current: "Blocked only on HUMAN physical sleep/wake of the installed transport-rebind candidate. APL is ON and the verified implementation/checkpoint head 46a805f completed 19/19 workflow runs SUCCESS."
 pending:
-  - "Commit/push transport-rebind + GUI reconciliation implementation and update PR #149."
-  - "Obtain exact-head CI including macOS packaging/security gates."
-  - "Install new unpublished ARM candidate with exact rollback smoke."
-  - "HUMAN physical sleep/wake retest without disabling APL or restarting browser."
-last_verified_commit: "8d4d04d71d5f3525f80475224432e6ddf022d485"
+  - "HUMAN physical sleep/wake retest of installed binary SHA256 44a9a2ad5f54f04a314f0c9f3bc1cf8e9f4e420baf1e755712273ab2a9f32041 without disabling APL or restarting browser."
+  - "On PASS, verify rebind logs/checks and seek explicit merge authority; do not publish implicitly."
+  - "On FAIL, inspect proxy.resume.transport_rebind requested/starting/completed plus post-rebind traffic before further changes."
+last_verified_commit: "46a805fc6abae398d69b1d6bff84c3e091c6b316"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
   - "proxy_core.log: resume_after_sleep fired on pre-wake relays, while new upstream CONNECT responses returned status=200 immediately after wake; transport/upstream health was not the remaining blocker."
@@ -55,8 +54,14 @@ test_results:
   - "Transport rebind retries listener binding with bounded delays; if all retries fail, worker rolls system proxy back rather than leave PAC pointing at dead localhost."
   - "GUI now refreshes status/actions on FocusIn so external/self lifecycle transitions cannot leave ON/OFF buttons stale."
   - "Focused transport/runtime/GUI suite: 48/48 PASS; full Python suite: 909/909 PASS; compileall and git diff --check PASS."
-resume_instruction: "Commit/push the locally green transport-rebind implementation to PR #149, obtain exact-head CI/macOS artifact, install the new ARM candidate with rollback smoke, then await HUMAN sleep/wake. On next FAIL, inspect proxy.resume.transport_rebind requested/starting/completed and post-rebind traffic before further changes."
-updated_at: "2026-09-21T15:36:00+03:00"
+  - "Implementation commit 8d4d04d71d5f3525f80475224432e6ddf022d485 and checkpoint head 46a805fc6abae398d69b1d6bff84c3e091c6b316 pushed to PR #149."
+  - "Exact-head CI at 46a805fc6abae398d69b1d6bff84c3e091c6b316: all 19/19 returned workflow runs completed SUCCESS, including macOS packaging, SAST, Secret scan, Dependency vulnerability, canonical source, backend contract and Windows installer E2E/Gate R6."
+  - "Exact-head ARM artifact apl-mac-package-macos-15 id 10638941832 from run 35600950329 downloaded; DMG checksum VALID and mounted app codesign --verify --deep --strict PASS."
+  - "Installed candidate binary SHA256 44a9a2ad5f54f04a314f0c9f3bc1cf8e9f4e420baf1e755712273ab2a9f32041; prior PR #149 app backed up under candidate-backup-before-wake-rebind-pr149-20260921."
+  - "Installed candidate smoke PASS: listeners 18080/11080/18082, PAC 18082, proxied public IP 68.209.60.141; OFF rollback diff against preinstall legacy baseline empty and PID/listeners cleared."
+  - "Candidate re-enabled for physical dogfood with worker PID 96140; GUI app relaunched/focused so FocusIn status reconciliation executes."
+resume_instruction: "Await HUMAN sleep/wake on installed transport-rebind candidate SHA256 44a9a2ad... with APL left ON. On PASS, capture rebind evidence, re-resolve PR #149 exact head/checks and require explicit merge authority. On FAIL, immediately capture proxy.resume.transport_rebind requested/starting/completed plus post-rebind CONNECT/relay evidence before changing state or code."
+updated_at: "2026-09-21T15:47:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
