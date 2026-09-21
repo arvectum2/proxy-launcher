@@ -142,6 +142,14 @@ class AutostartOwnershipTests(unittest.TestCase):
         launcher._autostart_task_is_ours.assert_not_called()
 
 
+class FocusStatusReconciliationTests(unittest.TestCase):
+    def test_focus_reconciles_external_worker_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.refresh_status = mock.Mock()
+        launcher._refresh_status_on_focus()
+        launcher.refresh_status.assert_called_once_with()
+
+
 class FinalStatusUxTests(unittest.TestCase):
     def status(self, **overrides):
         values = {

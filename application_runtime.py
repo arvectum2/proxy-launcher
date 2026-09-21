@@ -12,7 +12,6 @@ from types import ModuleType
 
 _CORE: ModuleType | None = None
 
-
 def configure(core: ModuleType) -> None:
     """Bind the canonical composition module used for runtime collaborators."""
     global _CORE
