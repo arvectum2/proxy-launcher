@@ -26,10 +26,10 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Blocked only on HUMAN explicit macOS system Sleep/wake of the installed manual-route-refresh candidate. APL is intentionally ON; HTTP/HTTPS -> 127.0.0.1:18080 and PAC is disabled as a system route."
+current: "SHORT explicit system Sleep PASS at 17:43:21-17:43:26 MSK: browser/APl connectivity survived and fresh CONNECT traffic flowed, but sleep duration was ~3s so the >=5s resume detector did not execute transport_rebind/manual refresh. Blocked on one longer explicit Sleep/wake to exercise the recovery path."
 pending:
-  - "HUMAN: invoke explicit macOS Sleep, wake the MacBook, and test the already-open browser without disabling APL or restarting the browser."
-  - "On PASS, capture proxy.resume.transport_rebind completed with system_proxy_refreshed=true plus post-wake traffic, then re-resolve PR #149 current head/checks before merge authority."
+  - "HUMAN: invoke explicit macOS Sleep and leave it asleep at least 10-15 seconds, then wake and test the already-open browser without disabling APL or restarting the browser."
+  - "On PASS, require proxy.resume.transport_rebind completed with system_proxy_refreshed=true plus fresh post-wake CONNECT/relay traffic, then re-resolve PR #149 current head/checks before merge authority."
   - "On FAIL, immediately capture networksetup/scutil route, refresh/rebind events, worker/listeners and post-wake relay evidence before changing state or code."
 last_verified_commit: "617b582c0c30f396ec9e6a404237996d5c15b33c"
 test_results:
@@ -83,8 +83,11 @@ test_results:
   - "Installed exact candidate binary SHA256 34d6a7dbce6d7abf4d00c80ac9ad00becf913fb51986add03eb8cad3fea12f39; previous app backed up under candidate-backup-before-manual-refresh-pr149-20260921."
   - "Live manual refresh smoke PASS: refresh_system_proxy returned True, HTTP/HTTPS stayed 127.0.0.1:18080, PAC stayed disabled, and proxied public IP remained 68.209.60.141."
   - "Installed candidate OFF rollback smoke PASS: captured Wi-Fi baseline restored exactly (ROLLBACK_MATCH True), PID/listeners cleared; candidate then re-enabled with worker PID 99186."
-resume_instruction: "Await HUMAN explicit macOS system Sleep/wake on installed candidate SHA256 34d6a7db.... APL is intentionally ON. On PASS, capture proxy.resume.transport_rebind completed with system_proxy_refreshed=true plus post-wake traffic, then re-resolve PR #149 current head/checks and require explicit merge authority. On FAIL, immediately capture networksetup/scutil manual route, refresh/rebind events, worker/listeners and post-wake relay evidence before changing state or code. Do not use ordinary idle/lid assumptions while RDC caffeinate is active; validate that pmset recorded an actual Sleep/Wake."
-updated_at: "2026-09-21T17:34:00+03:00"
+  - "HUMAN short explicit system Sleep PASS: pmset records Software Sleep at 17:43:21 MSK, DarkWake at 17:43:24 and FullWake at 17:43:26; browser remained usable without APL/browser restart."
+  - "Post-wake APL evidence: same worker PID 99186/listeners remained healthy; manual HTTP/HTTPS route stayed 127.0.0.1:18080 with PAC disabled; fresh 5228/443 CONNECT responses returned 200 and explicit local smoke returned 68.209.60.141."
+  - "No proxy.resume.transport_rebind events occurred for this test because actual sleep gap was only ~3 seconds, below RELAY_SLEEP_GAP_SECONDS=5. Therefore recovery-path acceptance is not yet satisfied."
+resume_instruction: "Await one HUMAN explicit macOS system Sleep lasting at least 10-15 seconds on installed candidate SHA256 34d6a7db.... APL is intentionally ON. On PASS, verify pmset actual Sleep/Wake plus proxy.resume.transport_rebind phase=completed with system_proxy_refreshed=true and fresh post-wake traffic, then re-resolve PR #149 current head/checks and require explicit merge authority. On FAIL, capture live route/rebind/worker/traffic before code changes."
+updated_at: "2026-09-21T17:47:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
