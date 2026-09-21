@@ -2,6 +2,7 @@ package ru.arvectum.proxylauncher.tunnel
 
 import android.os.ParcelFileDescriptor
 import com.github.shadowsocks.bg.Tun2proxy
+import java.net.Socket
 import java.net.URI
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
@@ -21,7 +22,9 @@ interface ProxyEngineAdapter {
     fun stop(): Int
 }
 
-class Tun2ProxyEngineAdapter : ProxyEngineAdapter {
+class Tun2ProxyEngineAdapter(
+    private val protectSocket: ((Socket) -> Boolean)? = null,
+) : ProxyEngineAdapter {
     @Volatile private var activeRelay: HttpsProxyRelay? = null
 
     override fun run(
@@ -33,7 +36,7 @@ class Tun2ProxyEngineAdapter : ProxyEngineAdapter {
         require(profile.type != ProxyType.AUTO) { "AUTO proxy type must be resolved before engine start" }
 
         val relay = if (profile.type == ProxyType.HTTPS) {
-            HttpsProxyRelay(profile.host, profile.port).also {
+            HttpsProxyRelay(profile.host, profile.port, protectSocket).also {
                 it.start()
                 activeRelay = it
             }

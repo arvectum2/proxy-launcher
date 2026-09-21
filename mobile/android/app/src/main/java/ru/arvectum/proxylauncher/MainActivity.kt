@@ -75,7 +75,10 @@ class MainActivity : Activity() {
     private var pendingSwitchChoice: ProfileChoice? = null
     private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
+    private var profilePopup: PopupWindow? = null
     private var freeLocations: List<FreeProxyLocation> = emptyList()
+    private var freeLocationsLastFetchedAtMs = 0L
+    private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
     @Volatile private var freeLocationRefreshInProgress = false
     @Volatile private var healthScanInProgress = false
 
@@ -183,12 +186,15 @@ class MainActivity : Activity() {
             @Suppress("DEPRECATION")
             registerReceiver(stateReceiver, filter)
         }
-        refreshFreeLocations()
+        refreshFreeLocations(force = true)
         startProfileHealthScan()
     }
 
     override fun onStop() {
         runCatching { unregisterReceiver(stateReceiver) }
+        mainHandler.removeCallbacks(freeLocationRetryRunnable)
+        profilePopup?.dismiss()
+        profilePopup = null
         super.onStop()
     }
 
@@ -391,6 +397,7 @@ class MainActivity : Activity() {
     }
 
     private fun showProfileMenu() {
+        refreshFreeLocations()
         if (profileChoices.isEmpty()) return
 
         val rows = LinearLayout(this).apply {
@@ -403,6 +410,7 @@ class MainActivity : Activity() {
             addView(rows)
         }
         val popupHeight = minOf(dp(390), dp(118) + profileChoices.size * dp(52))
+        profilePopup?.dismiss()
         val popup = PopupWindow(
             scroll,
             profileSelectorShell.width,
@@ -413,6 +421,10 @@ class MainActivity : Activity() {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             elevation = dp(12).toFloat()
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+        }
+        profilePopup = popup
+        popup.setOnDismissListener {
+            if (profilePopup === popup) profilePopup = null
         }
 
         val selectedKey = currentSelectionKey()
@@ -535,15 +547,34 @@ class MainActivity : Activity() {
         popup.showAsDropDown(profileSelectorShell, 0, dp(6))
     }
 
-    private fun refreshFreeLocations() {
+    private fun refreshFreeLocations(force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        if (!force &&
+            freeLocations.isNotEmpty() &&
+            now - freeLocationsLastFetchedAtMs < FREE_LOCATION_REFRESH_MS
+        ) return
         if (freeLocationRefreshInProgress) return
+
         freeLocationRefreshInProgress = true
         Thread({
             val result = runCatching { freeGatewayClient.listLocations() }
             mainHandler.post {
+                val reopenMenu = profilePopup?.isShowing == true
                 result.onSuccess { locations ->
                     freeLocations = locations
+                    freeLocationsLastFetchedAtMs = System.currentTimeMillis()
+                    mainHandler.removeCallbacks(freeLocationRetryRunnable)
+                    if (reopenMenu) profilePopup?.dismiss()
                     refreshProfileChoices(currentSelectionKey())
+                    if (reopenMenu) mainHandler.post { showProfileMenu() }
+                }.onFailure {
+                    if (freeLocations.isEmpty()) {
+                        mainHandler.removeCallbacks(freeLocationRetryRunnable)
+                        mainHandler.postDelayed(
+                            freeLocationRetryRunnable,
+                            FREE_LOCATION_RETRY_MS,
+                        )
+                    }
                 }
                 freeLocationRefreshInProgress = false
             }
@@ -1488,6 +1519,8 @@ class MainActivity : Activity() {
         private const val AUTO_KEY = "__auto_profile_selection__"
         private const val FREE_KEY_PREFIX = "__free_proxy__:"
         private const val SWITCH_RECONNECT_DELAY_MS = 700L
+        private const val FREE_LOCATION_RETRY_MS = 5_000L
+        private const val FREE_LOCATION_REFRESH_MS = 60_000L
         private const val HEALTH_STALE_AFTER_MS = 5 * 60 * 1000L
 
         private val NAVY = Color.parseColor("#001432")

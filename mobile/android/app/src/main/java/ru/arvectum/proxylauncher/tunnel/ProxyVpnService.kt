@@ -42,7 +42,7 @@ import ru.arvectum.proxylauncher.storage.SecureProfileStore
  */
 class ProxyVpnService : VpnService() {
     private val lock = Any()
-    private val engine: ProxyEngineAdapter = Tun2ProxyEngineAdapter()
+    private lateinit var engine: ProxyEngineAdapter
     private val probe = ProxyProtocolProbe()
     private val failoverPolicy = FailoverPolicy()
     private val freeGatewayClient = FreeGatewayClient()
@@ -53,6 +53,7 @@ class ProxyVpnService : VpnService() {
     private var preflightWorker: Thread? = null
     private var monitorWorker: Thread? = null
     private var freeSessionRefreshWorker: Thread? = null
+    private var freeRecoveryResetRunnable: Runnable? = null
     private var activePrepared: PreparedProxy? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private val physicalNetworks = linkedSetOf<Network>()
@@ -66,6 +67,7 @@ class ProxyVpnService : VpnService() {
     override fun onCreate() {
         super.onCreate()
         store = SecureProfileStore(this)
+        engine = Tun2ProxyEngineAdapter { socket -> protect(socket) }
         ensureNotificationChannel()
     }
 
@@ -88,6 +90,7 @@ class ProxyVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         if (!stopping) shutdownEngineSilently()
@@ -340,6 +343,7 @@ class ProxyVpnService : VpnService() {
                 }
                 prepared.freeSessionExpiresAtEpochSeconds?.let { expiresAt ->
                     startFreeSessionRefresh(generation, expiresAt)
+                    scheduleFreeRecoveryReset(generation)
                 }
             }
         }, CONNECT_CONFIRM_DELAY_MS)
@@ -771,6 +775,28 @@ class ProxyVpnService : VpnService() {
         }
     }
 
+    private fun scheduleFreeRecoveryReset(generation: Long) {
+        cancelFreeRecoveryReset()
+        val runnable = Runnable {
+            val stable = synchronized(lock) {
+                generation == sessionGeneration &&
+                    !stopping &&
+                    activePrepared?.freeSessionExpiresAtEpochSeconds != null &&
+                    worker?.isAlive == true
+            }
+            if (stable) {
+                runCatching { store.clearFreeRecoveryState() }
+            }
+        }
+        freeRecoveryResetRunnable = runnable
+        mainHandler.postDelayed(runnable, FreeTunnelRecoveryPolicy.STABLE_RESET_MS)
+    }
+
+    private fun cancelFreeRecoveryReset() {
+        freeRecoveryResetRunnable?.let(mainHandler::removeCallbacks)
+        freeRecoveryResetRunnable = null
+    }
+
     private fun startFreeSessionRefresh(generation: Long, expiresAtEpochSeconds: Long) {
         stopFreeSessionRefresh()
         val delayMs = FreeSessionRefreshPolicy.delayMillis(
@@ -818,6 +844,7 @@ class ProxyVpnService : VpnService() {
 
         startForegroundCompat("Обновляем бесплатную прокси-сессию…")
         publishState(STATE_CONNECTING, "Обновляем бесплатную прокси-сессию…")
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         runCatching { engine.stop() }
@@ -848,6 +875,7 @@ class ProxyVpnService : VpnService() {
         startForegroundCompat("Сеть изменилась · переподключаем VPN…")
         publishState(STATE_CONNECTING, "Сеть изменилась · переподключаем VPN…")
 
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         runCatching { engine.stop() }
@@ -900,6 +928,7 @@ class ProxyVpnService : VpnService() {
             else "Авто: возвращаем основной прокси…",
         )
 
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         runCatching { engine.stop() }
@@ -968,6 +997,7 @@ class ProxyVpnService : VpnService() {
     private fun onEngineExit(generation: Long, result: Int) {
         var reportExit = false
         var autoPrepared: PreparedProxy? = null
+        var freePrepared: PreparedProxy? = null
         synchronized(lock) {
             if (generation == sessionGeneration && worker === Thread.currentThread()) {
                 worker = null
@@ -975,6 +1005,9 @@ class ProxyVpnService : VpnService() {
                 tunFd = null
                 reportExit = !stopping
                 autoPrepared = activePrepared?.takeIf { it.autoSelection }
+                freePrepared = activePrepared?.takeIf {
+                    it.freeSessionExpiresAtEpochSeconds != null
+                }
             }
         }
         if (!reportExit) return
@@ -984,6 +1017,11 @@ class ProxyVpnService : VpnService() {
             mainHandler.post {
                 requestAutoHandoff(generation, failedAuto, restorationProfile = null)
             }
+            return
+        }
+
+        if (freePrepared != null) {
+            mainHandler.post { requestFreeEngineRecovery(generation, result) }
             return
         }
 
@@ -997,7 +1035,77 @@ class ProxyVpnService : VpnService() {
         terminateVpnProcess()
     }
 
+    private fun requestFreeEngineRecovery(generation: Long, result: Int) {
+        val proceed = synchronized(lock) {
+            if (generation != sessionGeneration || stopping || failoverHandoff) {
+                false
+            } else {
+                failoverHandoff = true
+                stopping = true
+                sessionGeneration += 1
+                preflightWorker = null
+                activePrepared = null
+                true
+            }
+        }
+        if (!proceed) return
+
+        val now = System.currentTimeMillis()
+        val decision = FreeTunnelRecoveryPolicy.decide(
+            nowMs = now,
+            windowStartedAtMs = store.getFreeRecoveryWindowStartedAtMs(),
+            attemptCount = store.getFreeRecoveryAttemptCount(),
+        )
+        if (!decision.shouldRetry) {
+            runCatching { store.clearFreeRecoveryState() }
+            publishState(
+                STATE_ERROR,
+                "Бесплатный прокси нестабилен. Повторите подключение через несколько секунд.",
+            )
+            stopForegroundCompat()
+            stopSelf()
+            terminateVpnProcess()
+            return
+        }
+
+        runCatching {
+            store.setFreeRecoveryState(
+                decision.windowStartedAtMs,
+                decision.attemptCount,
+            )
+        }
+        publishPoolEvent(
+            "free reconnect",
+            store.getActiveFreeLocationId()?.let { "free:$it" },
+            store.getActiveFreeLocationLabel(),
+            "engine exit " + result + " · retry " + decision.attemptCount,
+        )
+        startForegroundCompat("Связь прервалась · переподключаем бесплатный прокси…")
+        publishState(
+            STATE_CONNECTING,
+            "Связь прервалась · переподключаем бесплатный прокси…",
+        )
+
+        cancelFreeRecoveryReset()
+        stopFreeSessionRefresh()
+        stopAutoMonitor()
+        synchronized(lock) {
+            tunFd?.runCatching { close() }
+            tunFd = null
+            worker = null
+        }
+
+        // tun2proxy must not be restarted inside the same :vpn process.
+        // Keep the sticky foreground service started and recreate only this
+        // isolated process; the new process gets a fresh gateway session.
+        mainHandler.postDelayed(
+            { Process.killProcess(Process.myPid()) },
+            PROCESS_HANDOFF_KILL_DELAY_MS,
+        )
+    }
+
     private fun stopTunnel() {
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         val probeThread = synchronized(lock) {
@@ -1024,6 +1132,7 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun shutdownEngineSilently() {
+        cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
         val probeThread = synchronized(lock) {

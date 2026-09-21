@@ -4,6 +4,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
@@ -20,6 +21,7 @@ import kotlin.concurrent.thread
 class HttpsProxyRelay(
     private val upstreamHost: String,
     private val upstreamPort: Int,
+    private val protectSocket: ((Socket) -> Boolean)? = null,
 ) {
     private val server = ServerSocket(0, 50, InetAddress.getByName(LOOPBACK_HOST))
     private val sockets = ConcurrentHashMap.newKeySet<Socket>()
@@ -57,6 +59,9 @@ class HttpsProxyRelay(
             local.tcpNoDelay = true
             val upstream = SSLSocketFactory.getDefault().createSocket() as SSLSocket
             upstreamForCleanup = upstream
+            if (protectSocket != null && !protectSocket.invoke(upstream)) {
+                throw IOException("Unable to protect HTTPS relay socket from VPN routing")
+            }
             upstream.connect(InetSocketAddress(upstreamHost, upstreamPort), CONNECT_TIMEOUT_MS)
             upstream.sslParameters = upstream.sslParameters.apply { endpointIdentificationAlgorithm = "HTTPS" }
             upstream.startHandshake()

@@ -263,6 +263,28 @@ class SecureProfileStore(context: Context) {
 
     fun getLastFailoverAtMs(): Long = prefs.getLong(KEY_LAST_FAILOVER_AT, 0L)
 
+    fun getFreeRecoveryWindowStartedAtMs(): Long =
+        prefs.getLong(KEY_FREE_RECOVERY_WINDOW_STARTED_AT, 0L)
+
+    fun getFreeRecoveryAttemptCount(): Int =
+        prefs.getInt(KEY_FREE_RECOVERY_ATTEMPT_COUNT, 0)
+
+    fun setFreeRecoveryState(windowStartedAtMs: Long, attemptCount: Int) {
+        check(
+            prefs.edit()
+                .putLong(KEY_FREE_RECOVERY_WINDOW_STARTED_AT, windowStartedAtMs)
+                .putInt(KEY_FREE_RECOVERY_ATTEMPT_COUNT, attemptCount)
+                .commit(),
+        ) { "Failed to persist free tunnel recovery state" }
+    }
+
+    fun clearFreeRecoveryState() {
+        prefs.edit()
+            .remove(KEY_FREE_RECOVERY_WINDOW_STARTED_AT)
+            .remove(KEY_FREE_RECOVERY_ATTEMPT_COUNT)
+            .commit()
+    }
+
     fun getSiteExclusions(): List<String> =
         prefs.getStringSet(KEY_SITE_EXCLUSIONS, emptySet())
             ?.toList()
@@ -383,6 +405,8 @@ class SecureProfileStore(context: Context) {
         private const val KEY_RECENTLY_FAILED_ID = "pool_recently_failed_profile_id"
         private const val KEY_RECENTLY_FAILED_AT = "pool_recently_failed_at"
         private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
+        private const val KEY_FREE_RECOVERY_WINDOW_STARTED_AT = "free_recovery_window_started_at"
+        private const val KEY_FREE_RECOVERY_ATTEMPT_COUNT = "free_recovery_attempt_count"
         private const val KEY_SITE_EXCLUSIONS = "site_exclusions"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
