@@ -1,47 +1,47 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-RELEASE-0.2.12-20260921
-status: completed
-goal: "Publish immutable Arvectum Proxy Launcher v0.2.12 releases on GitHub and GitVerse from an exact green main commit."
-authority: HUMAN
+task_id: APL-ROADMAP-SYNC-20260921
+status: in_progress
+goal: "Synchronize canonical Proxy Launcher roadmap/executor metadata to the verified 2026-09-21 repository, release, mobile, gateway and review-track state without changing Owner-controlled product decisions."
+authority: REVIEW
 definition_of_done:
-  - "Archive the completed macOS wake task before replacing current-task."
-  - "Bump canonical desktop version identity from 0.2.11 to 0.2.12 without mutating v0.2.11."
-  - "Add bilingual 0.2.12 release notes describing the verified macOS long-sleep fix and Android sleep recovery."
-  - "Run version/release tests and full relevant regression suite."
-  - "Merge a release-prep PR through branch protection."
-  - "Require exact-main green Windows portable, Windows installer, Linux DEB/RPM/AppImage and Release Evidence Package."
-  - "Create v0.2.12 only on the exact green main SHA."
-  - "Verify GitHub Release v0.2.12 assets against SHA256SUMS.txt."
-  - "Verify GitVerse v0.2.12 mirror metadata and canonical payload parity."
-  - "Record final tag/main/release evidence and set status completed."
+  - "Completed v0.2.12 release task is archived before replacing current-task."
+  - "Stable desktop baseline is recorded as immutable v0.2.12 with exact release SHA and current main distinguished from release SHA."
+  - "v0.2.11/v0.2.12 cross-platform sleep/wake and routing fixes are reflected factually."
+  - "Android public release 0.1.19 and current merged 0.1.31 friend-test/free-gateway candidate are distinguished."
+  - "Free RU/US gateway and Android integration are represented as completed/live friend-test infrastructure, with anti-abuse/public-scale gate preserved."
+  - "APL-REL-016 is marked stale again because v0.2.11 and v0.2.12 shipped unsigned; next eligible future signing release is v0.2.13+."
+  - "Per-app routing current preparation is represented by PR #144 and refreshed against current stable v0.2.12 before Owner architecture decision."
+  - "iOS draft PR #135 is represented as an active personal-use engineering lane with HUMAN signing/device gate, not public App Store distribution."
+  - "Registry filing evidence remains explicitly tied to its exact v0.2.9 filing object unless separately re-scoped."
+  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
+  - "Required exact-head CI passes before metadata merge."
 completed:
-  - "Confirmed existing v0.2.11 GitHub release/tag/assets are published and immutable under release policy."
-  - "Confirmed canonical tag workflow publishes GitHub Release then invokes the GitVerse parity mirror workflow."
-  - "Confirmed current main f1ce3e609980e20b4483435172958a856c9ef532 contains the verified macOS long-sleep fix and Android sleep/wake recovery."
-  - "Archived completed macOS wake task to .agent/checkpoints/APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921.yaml."
-  - "Prepared canonical 0.2.12 version identity and bilingual release notes without runtime behavior changes."
-  - "Local release/version suite 85/85 PASS; full Python suite 905/905 PASS; compileall and git diff --check PASS."
-  - "Release-prep PR #151 exact head 49ea4c420559ba20f02a5637ffad457d7841e95d completed 31/31 workflow runs successfully and was merged."
-  - "Release main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde passed exact-main Windows portable, Windows installer, Astra/Linux DEB, RED OS RPM, Linux AppImage, and Release Evidence Package gates."
-  - "Annotated tag v0.2.12 was created only after duplicate guards passed and points to exact release main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde."
-  - "GitHub Release v0.2.12 was published by canonical release run 35632771656 with Windows portable/setup, Astra DEB, RED OS RPM, AppImage, and SHA256SUMS.txt."
-  - "Downloaded all GitHub v0.2.12 assets independently; sha256sum -c SHA256SUMS.txt PASS for the complete payload set."
-  - "GitVerse mirror in release run 35632771656 completed SUCCESS: metadata synchronization, immutable asset upload, and Verify public GitVerse payload parity all passed."
-current: "Completed: immutable v0.2.12 published on GitHub and mirrored to GitVerse from exact green main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde; GitHub assets and GitVerse canonical payload parity verified."
-pending: []
-last_verified_commit: "8d9a4e5913fa92b39f0f926004df6f1fd57f3bde"
+  - "Verified current main df4478a70729e20f33b7a0d17476183423955576."
+  - "Verified public desktop releases v0.2.11 and v0.2.12; v0.2.12 exact release SHA is 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and GitHub/GitVerse parity is recorded."
+  - "Verified current main is ahead of v0.2.12 via merged PR #148 free proxy gateway/Android integration."
+  - "Verified Android public release android-v0.1.19 and current source version 0.1.31/versionCode 32."
+  - "Verified free gateway RU/US public TLS ingress, server-side secret boundary, real RU/US egress checks and 0.1.31 exact-head friend-test candidate evidence."
+  - "Verified PR #132 remains open but its v0.2.10/v0.2.11+ boundary is stale after v0.2.11 and v0.2.12 publication."
+  - "Verified PR #144 is current per-app architecture review packet and its exact-head checks are green, but its packet still names the v0.2.10 baseline."
+  - "Verified draft PR #135 provides personal-use iOS 0.1.19 parity engineering baseline; physical signing/install remains HUMAN."
+current: "Update canonical executor queue, ROADMAP and local backlog from verified facts only."
+pending:
+  - "Update .agent/execution-queue.yaml."
+  - "Update docs/ROADMAP.md."
+  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
+  - "Open metadata/docs PR and verify exact-head CI."
+  - "Before merge, re-read current Company POS-004/AI-ENG-001 AM-4 authority chain."
+  - "Merge only the metadata/docs sync if governance permits and close this checkpoint."
+last_verified_commit: "df4478a70729e20f33b7a0d17476183423955576"
 test_results:
-  - "Release workflow inspected: duplicate releases fail closed and tag must match VERSION and be an ancestor of main."
-  - "GitVerse workflow inspected: release metadata, immutable assets and post-download canonical SHA-256 parity are verified."
-  - "Local release/version suite: 85/85 PASS."
-  - "Full local Python suite: 905/905 PASS."
-  - "compileall and git diff --check PASS; VERSION=0.2.12 and APP_VERSION=0.2.12."
-resume_instruction: "Task complete. v0.2.12 is published and verified on GitHub and GitVerse. No further release action is required unless a new regression or publication issue is reported."
-updated_at: "2026-09-21T20:50:24+03:00"
+  - "Repository/release/PR/checkpoint inspection complete; no product bytes changed by this sync task."
+resume_instruction: "Continue metadata-only 2026-09-21 roadmap synchronization on agent/roadmap-sync-20260921. Do not merge REVIEW PR #132/#144, do not implement APL-MOB-004, do not publish Android 0.1.31, and do not cross iOS signing/App Store or registry submission gates."
+updated_at: "2026-09-21T21:08:00+03:00"
 execution:
-  claimed_by: "ChatGPT"
-  execution_id: "APL-RELEASE-0.2.12-20260921"
-  branch: "release/v0.2.12"
-  base_commit: "f1ce3e609980e20b4483435172958a856c9ef532"
+  claimed_by: "chatgpt"
+  execution_id: "APL-ROADMAP-SYNC-20260921"
+  branch: "agent/roadmap-sync-20260921"
+  base_commit: "df4478a70729e20f33b7a0d17476183423955576"
+  lease_until: null
   manual_override: true
