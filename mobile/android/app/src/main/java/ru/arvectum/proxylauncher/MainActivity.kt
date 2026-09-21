@@ -116,9 +116,7 @@ class MainActivity : Activity() {
 
         window.statusBarColor = NAVY
         window.navigationBarColor = NAVY
-        if (Build.VERSION.SDK_INT >= 26) {
-            window.decorView.systemUiVisibility = 0
-        }
+        window.decorView.systemUiVisibility = 0
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -234,7 +232,7 @@ class MainActivity : Activity() {
 
             titleRow.addView(
                 TextView(this@MainActivity).apply {
-                    text = "Arvectum Proxy Launcher"
+                    text = getString(R.string.app_title)
                     textSize = 18f
                     setTextColor(MINT)
                     typeface = Typeface.create("sans-serif", Typeface.BOLD)
@@ -314,7 +312,14 @@ class MainActivity : Activity() {
                             .setDuration(70L)
                             .start()
                     }
-                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_UP -> {
+                        view.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(120L)
+                            .start()
+                        view.performClick()
+                    }
                     MotionEvent.ACTION_CANCEL -> {
                         view.animate()
                             .scaleX(1f)
@@ -323,7 +328,7 @@ class MainActivity : Activity() {
                             .start()
                     }
                 }
-                false
+                true
             }
         }
 
@@ -799,7 +804,7 @@ class MainActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(4), dp(4), dp(4), 0)
             addView(TextView(this@MainActivity).apply {
-                text = "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP."
+                text = getString(R.string.site_exclusions_help)
                 textSize = 13f
                 setTextColor(GRAPHITE)
                 setPadding(0, 0, 0, dp(10))
@@ -1066,7 +1071,7 @@ class MainActivity : Activity() {
         existing?.let {
             nameField.setText(it.profile.name)
             hostField.setText(it.profile.host)
-            portField.setText(it.profile.port.toString())
+            portField.setText(String.format(Locale.ROOT, "%d", it.profile.port))
             usernameField.setText(it.profile.username.orEmpty())
             passwordField.setText(it.password.orEmpty())
             typeSpinner.setSelection(proxyTypes.indexOf(it.profile.type).coerceAtLeast(0))
@@ -1304,11 +1309,7 @@ class MainActivity : Activity() {
 
     private fun startVpnService(action: String) {
         val intent = Intent(this, ProxyVpnService::class.java).setAction(action)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        startForegroundService(intent)
     }
 
     private fun disconnectVpn(detail: String = "Отключение…") {
