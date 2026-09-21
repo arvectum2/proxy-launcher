@@ -88,6 +88,8 @@ def _cmd_start():
 def _cmd_stop():
     core = _core()
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:
@@ -109,6 +111,8 @@ def _cmd_rollback():
     """Emergency rollback independent of a running GUI or proxy process."""
     core = _core()
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:

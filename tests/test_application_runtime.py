@@ -118,7 +118,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
     def test_stop_reports_incomplete_network_restore(self):
         with mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
-             mock.patch.object(core, "is_running", side_effect=[False, False]), \
+             mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
              mock.patch.object(core, "disable_system_proxy", return_value=False), \
              mock.patch.object(core, "network_restore_pending", return_value=True), \
@@ -126,10 +126,24 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_stop(), 1)
         remove_pid.assert_called_once_with()
 
+    def test_stop_refreshes_recovered_pid_before_kill(self):
+        recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
+        with mock.patch.object(
+                 core, "_read_pid", side_effect=[None, recovered]
+             ), \
+             mock.patch.object(core, "_kill_pid", return_value=True) as kill, \
+             mock.patch.object(core, "is_running", side_effect=[True, False, False]), \
+             mock.patch.object(core, "_remove_pid"), \
+             mock.patch.object(core, "disable_system_proxy", return_value=True), \
+             mock.patch.object(core, "network_restore_pending", return_value=False), \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_stop(), 0)
+        kill.assert_called_once_with(recovered)
+
     def test_rollback_reaches_network_restore_even_without_pid(self):
         with mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
-             mock.patch.object(core, "is_running", side_effect=[False, False]), \
+             mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
              mock.patch.object(core, "disable_system_proxy", return_value=True) as disable, \
              mock.patch.object(core, "network_restore_pending", return_value=False), \
@@ -137,6 +151,20 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_rollback(), 0)
         remove_pid.assert_called_once_with()
         disable.assert_called_once_with()
+
+    def test_rollback_refreshes_recovered_pid_before_kill(self):
+        recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
+        with mock.patch.object(
+                 core, "_read_pid", side_effect=[None, recovered]
+             ), \
+             mock.patch.object(core, "_kill_pid", return_value=True) as kill, \
+             mock.patch.object(core, "is_running", side_effect=[True, False, False]), \
+             mock.patch.object(core, "_remove_pid"), \
+             mock.patch.object(core, "disable_system_proxy", return_value=True), \
+             mock.patch.object(core, "network_restore_pending", return_value=False), \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_rollback(), 0)
+        kill.assert_called_once_with(recovered)
 
     def test_status_uses_canonical_runtime_seams(self):
         settings = dict(core.DEFAULT_SETTINGS)
