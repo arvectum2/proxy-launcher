@@ -31,12 +31,12 @@ completed:
   - "HUMAN Android 0.1.30 free RU PASS: connected successfully and public IP resolved to Russia; ChatGPT was unavailable as expected for a Russian exit, not because of APL transport failure."
   - "HUMAN Android 0.1.30 free US PASS: switched to US free, ChatGPT opened, and owner sent a live message through that connection."
   - "Gateway logs correlated the physical dogfood: ru-free CONNECT traffic was present before the switch; us-free CONNECT sessions carried bidirectional traffic after the switch, including a ~50s live session."
-current: "HUMAN post-hotfix US-free PASS for geo continuity: reconnect occurred but ChatGPT remained usable without geo error. Reconnect itself remains under hardening; direct upstream probe returned 40/40 HTTP 200 CONNECT responses."
+current: "Second gateway hardening is deployed live: transient transport failures plus HTTP 408/429/5xx are retried server-side, 407/auth failures are not. Awaiting sustained Android 0.1.30 free-US dogfood to see whether reconnect frequency is reduced while preserving geo continuity."
 pending:
-  - "Harden gateway against transient upstream HTTP rejection codes (408/429/5xx) while never retrying 407/auth failures."
-  - "If another disconnect/reconnect occurs, correlate the exact attempt with relay_upstream_retry/recovered and Android recovery evidence before changing implementation."
-  - "Only mark completed after sustained physical free-US stability is confirmed."
-last_verified_commit: "fd2898b0733fd1fefca3783490d0f6796d56ec0d"
+  - "Owner performs sustained Android 0.1.30 US-free dogfood against the second deployed gateway hardening."
+  - "If reconnect occurs, correlate exact time with status-coded relay_upstream_retry/recovered or relay_error markers."
+  - "Only mark completed after physical stability is credible; geo continuity is already physically PASS."
+last_verified_commit: "51c86afd79bb7b0d67ef985338d60576feda0f2a"
 test_results:
   - "Gateway unit tests 9/9 passed."
   - "0.1.28 CI green but physical dogfood rejected the global native experiment."
@@ -47,8 +47,8 @@ test_results:
   - "Live gateway recheck: RU exit PASS and US exit PASS through public TLS ingress."
   - "HUMAN 0.1.30 free RU exit PASS."
   - "HUMAN 0.1.30 free US + ChatGPT live-traffic PASS."
-resume_instruction: "Geo-continuity defect is physically PASS, but reconnect remains. Harden gateway to retry only transient upstream HTTP codes (408/429/5xx), preserve no-retry for 407/auth, add status-safe logging/tests, run exact-head CI, deploy, then repeat sustained Android US-free dogfood. Do not modify global tun2proxy."
-updated_at: "2026-09-21T18:27:00+03:00"
+resume_instruction: "Await sustained HUMAN Android 0.1.30 US-free test against the second deployed gateway hardening. If PASS with no reconnect, record physical stability and complete. If reconnect occurs but geo remains healthy, inspect Mac mini logs for status-coded relay_upstream_retry/recovered and relay_error before deciding whether remaining reconnect is upstream tunnel-idle behavior or Android recovery. Do not modify global tun2proxy."
+updated_at: "2026-09-21T18:34:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
