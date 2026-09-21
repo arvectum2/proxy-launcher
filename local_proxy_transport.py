@@ -19,10 +19,6 @@ from types import ModuleType
 # data here, not a socket bind to all interfaces; Bandit B104 does not apply.
 SOCKS5_REPLY_BIND_ADDR = socket.inet_aton("0.0.0.0")  # nosec B104
 
-RELAY_IDLE_TIMEOUT_SECONDS = 300.0
-RELAY_RESUME_POLL_SECONDS = 5.0
-RELAY_SLEEP_GAP_SECONDS = 5.0
-
 _CORE: ModuleType | None = None
 
 
@@ -181,55 +177,25 @@ class ProxyCore:
         except Exception:
             pass
 
-    def _relay(self, src, dst, stop):
+    @staticmethod
+    def _relay(src, dst, stop):
         core = _core()
         src_to_dst = 0
         dst_to_src = 0
         reason = "stop_requested"
         started = time.monotonic()
-        last_activity = started
-        checkpoint_mono = started
-        checkpoint_wall = time.time()
         try:
             while not stop.is_set():
-                awake_idle = max(0.0, checkpoint_mono - last_activity)
-                if awake_idle >= RELAY_IDLE_TIMEOUT_SECONDS:
-                    reason = "idle_timeout"
-                    break
-                poll_timeout = min(
-                    RELAY_RESUME_POLL_SECONDS,
-                    max(0.0, RELAY_IDLE_TIMEOUT_SECONDS - awake_idle),
-                )
                 try:
-                    ready, _, _ = select.select([src, dst], [], [], poll_timeout)
+                    ready, _, _ = select.select([src, dst], [], [], 300)
                 except (OSError, ValueError) as exc:
                     reason = "select_error:%s" % type(exc).__name__
                     return
-
-                now_mono = time.monotonic()
-                now_wall = time.time()
-                suspend_gap = (now_wall - checkpoint_wall) - (
-                    now_mono - checkpoint_mono
-                )
-                checkpoint_mono = now_mono
-                checkpoint_wall = now_wall
-
-                # CPython uses mach_absolute_time() for monotonic() on macOS.
-                # That clock stops while the machine sleeps, while wall time
-                # continues. Retire every pre-sleep CONNECT before forwarding
-                # post-wake bytes through an upstream TCP session that may have
-                # expired while the laptop was suspended.
-                if suspend_gap >= RELAY_SLEEP_GAP_SECONDS:
-                    reason = "resume_after_sleep"
-                    break
-
                 if not ready:
-                    if now_mono - last_activity >= RELAY_IDLE_TIMEOUT_SECONDS:
-                        reason = "idle_timeout"
-                        break
-                    continue
-
-                last_activity = now_mono
+                    # Match the proven legacy transport: retire fully idle
+                    # tunnels so browsers cannot keep reusing a stale CONNECT.
+                    reason = "idle_timeout"
+                    break
                 for stream in ready:
                     side = "upstream" if stream is src else "client"
                     try:
@@ -256,20 +222,19 @@ class ProxyCore:
         except Exception as exc:
             reason = "relay_error:%s" % type(exc).__name__
         finally:
-            elapsed_ms = int((time.monotonic() - started) * 1000)
-            for stream in (src, dst):
-                try:
-                    stream.close()
-                except Exception:
-                    pass
             core.structured_log(
                 "proxy relay closed",
                 event="proxy.relay.closed",
                 upstream_to_client_bytes=src_to_dst,
                 client_to_upstream_bytes=dst_to_src,
-                elapsed_ms=elapsed_ms,
+                elapsed_ms=int((time.monotonic() - started) * 1000),
                 termination_reason=reason,
             )
+            for stream in (src, dst):
+                try:
+                    stream.close()
+                except Exception:
+                    pass
 
     def _handle_http(self, client):
         core = _core()
