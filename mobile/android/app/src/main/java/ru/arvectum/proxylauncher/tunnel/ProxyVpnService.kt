@@ -1305,6 +1305,8 @@ class ProxyVpnService : VpnService() {
         const val ACTION_CONNECT = "ru.arvectum.proxylauncher.CONNECT"
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
         const val ACTION_RECONCILE = "ru.arvectum.proxylauncher.RECONCILE"
+        const val INTERNAL_BROADCAST_PERMISSION =
+            "ru.arvectum.proxylauncher.permission.INTERNAL_STATE"
         const val ACTION_STATE = "ru.arvectum.proxylauncher.STATE"
         const val ACTION_POOL_UPDATE = "ru.arvectum.proxylauncher.POOL_UPDATE"
         const val ACTION_POOL_STATE = "ru.arvectum.proxylauncher.POOL_STATE"
