@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-FREE-PROXY-GATEWAY-20260921
-status: in_progress
+status: completed
 goal: "Add a free-location backend gateway so public APL clients can use operator-funded shared proxies without exposing upstream supplier credentials in the APK or client runtime."
 definition_of_done:
   - "Upstream proxy host/port/login/password are loaded only from server-side secret environment/config and never committed."
@@ -11,17 +11,24 @@ definition_of_done:
   - "Tests cover secret loading, token tampering/expiry, API redaction, auth and upstream CONNECT construction."
   - "Deployment docs state exactly where the owner enters proxy credentials."
 completed:
-  - "Recovered main at 1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0; prior Android PR #147 is merged and its remaining physical dogfood check was archived."
-  - "Selected gateway architecture: APL receives only short-lived Arvectum gateway credentials; supplier credentials remain server-side."
-current: "Implement gateway service, tests and deployment documentation."
-pending:
-  - "Implement service and tests."
-  - "Run focused and repository regression tests."
-  - "Open PR and verify CI."
-last_verified_commit: "1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0"
-test_results: []
-resume_instruction: "Continue on feat/free-proxy-gateway-20260921. Implement server-side free proxy gateway without committing any real proxy credentials; then run tests, update checkpoint, and open PR."
-updated_at: "2026-09-21T11:25:00+03:00"
+  - "Recovered main at 1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0 and archived prior Android sleep/wake checkpoint."
+  - "Implemented free_gateway environment-only configuration and public location redaction."
+  - "Implemented HMAC-SHA256 short-lived location-bound gateway credentials with max one-hour acceptance horizon."
+  - "Implemented public locations/session API that returns only Arvectum gateway connection data."
+  - "Implemented authenticated HTTP CONNECT relay with optional TLS to supplier proxy; supplier Basic auth is constructed only server-side."
+  - "Added .gitignore secret patterns, safe .env.example and deployment instructions using /etc/arvectum-proxy-gateway/gateway.env."
+  - "Added six deterministic gateway tests and dedicated GitHub Actions workflow."
+  - "Opened PR #148; exact head d0d2b7a72fc2ee9b2ba68d7dddfb60733631688b."
+current: "Implementation complete on PR #148; merge intentionally left for explicit owner authorization."
+pending: []
+last_verified_commit: "d0d2b7a72fc2ee9b2ba68d7dddfb60733631688b"
+test_results:
+  - "Free proxy gateway workflow run 35578607368 SUCCESS on exact head."
+  - "Secret scan workflow run 35578607252 SUCCESS on exact head."
+  - "SAST workflow run 35578607203 SUCCESS on exact head."
+  - "APL-REG-001B, APL-IP provenance and reconciliation checks also SUCCESS on exact head."
+resume_instruction: "Task implementation is complete. If owner authorizes merge, re-resolve PR #148 exact head/checks and merge. Deployment still requires owner-provided real shared-proxy credentials in the server-only gateway.env; never commit them or place them in APK build inputs."
+updated_at: "2026-09-21T11:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
