@@ -285,6 +285,25 @@ class SecureProfileStore(context: Context) {
             .commit()
     }
 
+    fun markVpnProcessRestartPending() {
+        check(prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, true).commit()) {
+            "Failed to persist VPN restart handoff state"
+        }
+    }
+
+    @Synchronized
+    fun consumeVpnProcessRestartPending(): Boolean {
+        val pending = prefs.getBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false)
+        if (pending) {
+            prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+        }
+        return pending
+    }
+
+    fun clearVpnProcessRestartPending() {
+        prefs.edit().putBoolean(KEY_VPN_PROCESS_RESTART_PENDING, false).commit()
+    }
+
     fun getSiteExclusions(): List<String> =
         prefs.getStringSet(KEY_SITE_EXCLUSIONS, emptySet())
             ?.toList()
@@ -407,6 +426,7 @@ class SecureProfileStore(context: Context) {
         private const val KEY_LAST_FAILOVER_AT = "pool_last_failover_at"
         private const val KEY_FREE_RECOVERY_WINDOW_STARTED_AT = "free_recovery_window_started_at"
         private const val KEY_FREE_RECOVERY_ATTEMPT_COUNT = "free_recovery_attempt_count"
+        private const val KEY_VPN_PROCESS_RESTART_PENDING = "vpn_process_restart_pending"
         private const val KEY_SITE_EXCLUSIONS = "site_exclusions"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"

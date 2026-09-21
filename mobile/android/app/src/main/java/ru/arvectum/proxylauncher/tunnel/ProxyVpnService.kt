@@ -76,16 +76,31 @@ class ProxyVpnService : VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_DISCONNECT -> {
+                store.clearVpnProcessRestartPending()
                 stopTunnel()
                 return START_NOT_STICKY
             }
             ACTION_RECONCILE -> reconcileTunnelAfterForegroundResume()
-            else -> startTunnel()
+            ACTION_CONNECT -> {
+                store.clearVpnProcessRestartPending()
+                startTunnel()
+            }
+            null -> {
+                if (store.consumeVpnProcessRestartPending()) {
+                    startTunnel()
+                } else {
+                    stopForegroundCompat()
+                    stopSelf()
+                    return START_NOT_STICKY
+                }
+            }
+            else -> return START_NOT_STICKY
         }
         return START_STICKY
     }
 
     override fun onRevoke() {
+        store.clearVpnProcessRestartPending()
         stopTunnel()
     }
 
@@ -868,6 +883,7 @@ class ProxyVpnService : VpnService() {
             tunFd = null
             worker = null
         }
+        store.markVpnProcessRestartPending()
         mainHandler.postDelayed({ Process.killProcess(Process.myPid()) }, PROCESS_HANDOFF_KILL_DELAY_MS)
     }
 
@@ -904,6 +920,7 @@ class ProxyVpnService : VpnService() {
         // replacement Wi-Fi/cellular network. Recreate only the isolated :vpn
         // process so fresh sockets are opened on the new physical carrier while
         // preserving Android's existing VPN permission grant.
+        store.markVpnProcessRestartPending()
         mainHandler.postDelayed({ Process.killProcess(Process.myPid()) }, PROCESS_HANDOFF_KILL_DELAY_MS)
     }
 
@@ -957,6 +974,7 @@ class ProxyVpnService : VpnService() {
         // started state. Android recreates a killed sticky foreground service
         // even when a fresh background start would otherwise be restricted.
         // The new :vpn process re-runs preflight and selects the next Auto candidate.
+        store.markVpnProcessRestartPending()
         mainHandler.postDelayed({ Process.killProcess(Process.myPid()) }, PROCESS_HANDOFF_KILL_DELAY_MS)
     }
 
@@ -1113,6 +1131,7 @@ class ProxyVpnService : VpnService() {
         // tun2proxy must not be restarted inside the same :vpn process.
         // Keep the sticky foreground service started and recreate only this
         // isolated process; the new process gets a fresh gateway session.
+        store.markVpnProcessRestartPending()
         mainHandler.postDelayed(
             { Process.killProcess(Process.myPid()) },
             PROCESS_HANDOFF_KILL_DELAY_MS,
@@ -1120,6 +1139,7 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun stopTunnel() {
+        store.clearVpnProcessRestartPending()
         cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
         stopAutoMonitor()
@@ -1168,6 +1188,7 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun failStart(message: String) {
+        store.clearVpnProcessRestartPending()
         publishState(STATE_ERROR, message)
         stopForegroundCompat()
         stopSelf()

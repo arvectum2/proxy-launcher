@@ -19,14 +19,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: dtolnay/rust-toolchain@stable
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
       - name: Fetch pinned tun2proxy native libraries
         run: python3 mobile/android/tools/fetch_tun2proxy.py
-      - name: Build patched arm64 tun2proxy
-        run: mobile/android/tools/build_patched_tun2proxy_arm64.sh
       - name: Verify stable dogfood signing key
         shell: bash
         run: |
