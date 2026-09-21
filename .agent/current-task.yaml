@@ -14,7 +14,7 @@ completed:
   - "Gateway service is healthy and origins listen on 127.0.0.1:8787/8788."
   - "Real RU and US upstreams previously passed server-side end-to-end checks."
   - "At initial diagnosis there was no active relay connection on 8788, pointing to the Android-to-TLS-relay segment."
-current: "Instrumenting relay stages and reproducing Android HTTPS proxy path."
+current: "Root cause identified: Android loopback mismatch (::1 listener vs 127.0.0.1 tun2proxy target); patch prepared and awaiting CI."
 pending:
   - "Add credential-safe gateway relay diagnostics and redeploy."
   - "Determine whether Android reaches public 8443 and whether CONNECT auth reaches gateway."
@@ -25,7 +25,7 @@ last_verified_commit: "21e9b1b981d29e5e4e6e8722c7041ffb63f953f1"
 test_results:
   - "Prior Mobile Android spike SUCCESS on implementation commit 443e60c."
   - "Server-side RU and US upstream E2E succeeded before owner dogfood."
-resume_instruction: "Instrument free_gateway relay without logging credentials, redeploy to Mac mini, observe a dogfood connection attempt, then patch Android path and produce corrected APK."
+resume_instruction: "Commit/push the explicit IPv4 loopback fix and regression test, run Mobile Android CI on the exact head, then provide the 0.1.21 APK for owner dogfood. If dogfood passes RU/US web traffic, mark task completed."
 updated_at: "2026-09-21T13:46:00+03:00"
 execution:
   claimed_by: "ChatGPT"
