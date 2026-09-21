@@ -14,18 +14,18 @@ completed:
   - "Gateway service is healthy and origins listen on 127.0.0.1:8787/8788."
   - "Real RU and US upstreams previously passed server-side end-to-end checks."
   - "At initial diagnosis there was no active relay connection on 8788, pointing to the Android-to-TLS-relay segment."
-current: "Root cause identified: Android loopback mismatch (::1 listener vs 127.0.0.1 tun2proxy target); patch prepared and awaiting CI."
+current: "Fix built and CI-verified as Android 0.1.21; awaiting owner dogfood on physical device."
 pending:
   - "Add credential-safe gateway relay diagnostics and redeploy."
   - "Determine whether Android reaches public 8443 and whether CONNECT auth reaches gateway."
   - "Patch Android TLS relay/tun2proxy integration based on evidence."
   - "Build and test corrected APK; verify exact-head CI."
   - "Have owner dogfood RU and US traffic; record result."
-last_verified_commit: "21e9b1b981d29e5e4e6e8722c7041ffb63f953f1"
+last_verified_commit: "c84ea42a3c5b81aa0f7232653e70747339c4b8dd"
 test_results:
   - "Prior Mobile Android spike SUCCESS on implementation commit 443e60c."
-  - "Server-side RU and US upstream E2E succeeded before owner dogfood."
-resume_instruction: "Commit/push the explicit IPv4 loopback fix and regression test, run Mobile Android CI on the exact head, then provide the 0.1.21 APK for owner dogfood. If dogfood passes RU/US web traffic, mark task completed."
+  - "Server-side RU and US upstream E2E succeeded before owner dogfood."\n  - "Mobile Android spike run 35590677287 SUCCESS on fix commit c84ea42: unit tests, assembleDebug, signer/branding verification, SHA-256 and artifact upload."\n  - "Regression test asserts HTTPS relay advertises the same explicit IPv4 loopback address it binds."
+resume_instruction: "Await owner physical-device dogfood of Android 0.1.21 APK. Verify both РФ and США free locations can open normal web traffic and switch correctly. If successful, mark task completed; if not, capture the next failing segment and continue diagnosis."
 updated_at: "2026-09-21T13:46:00+03:00"
 execution:
   claimed_by: "ChatGPT"
