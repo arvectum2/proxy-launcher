@@ -48,7 +48,7 @@ test_results:
   - "HUMAN 0.1.30 free RU exit PASS."
   - "HUMAN 0.1.30 free US + ChatGPT live-traffic PASS."
 resume_instruction: "Await sustained HUMAN US-free test on existing Android 0.1.30 against the deployed gateway retry hotfix. If PASS, record duration/real ChatGPT traffic and complete only after stability is credible. If FAIL, immediately inspect Mac mini relay logs for relay_upstream_retry/recovered, relay_error stage, and connection lifetimes; preserve Primary/Amnezia baseline and do not reintroduce the rejected global tun2proxy patch."
-updated_at: "2026-09-21T18:12:00+03:00"
+updated_at: "2026-09-21T18:17:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
