@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-FREE-PROXY-ANDROID-INTEGRATION-20260921
-status: in_progress
+status: completed
 goal: "Integrate server-backed free RU/US proxy locations into Android APL without embedding upstream supplier credentials."
 definition_of_done:
   - "Android fetches free locations from the public gateway API."
@@ -12,7 +12,7 @@ definition_of_done:
   - "Relevant Android tests/build checks pass."
 completed:
   - "Gateway and real RU/US upstreams validated end-to-end through public TLS ingress."
-current: "Android free-location integration implemented at 443e60c; exact-head Mobile Android CI is running."
+current: "Android free-location integration complete and verified on implementation commit 443e60c."
 pending:
   - "Identify profile storage, connection command path, VPN engine HTTPS proxy support, and UI entry point."
   - "Implement gateway API client and ephemeral free-session model."
@@ -22,8 +22,8 @@ pending:
 last_verified_commit: "443e60cf6d1df8b7eb5bd63897f684a5aea6fdae"
 test_results:
   - "Gateway unit tests 6/6 passed."
-  - "Real RU and US public end-to-end proxy checks passed."\n  - "Android implementation commit 443e60c adds free-location API/session client, persistent location-only selection, in-memory credentials, HTTPS relay profile, and pre-expiry session refresh."\n  - "Server session TTL set to 3600 seconds; RU and US reverified end-to-end after restart."
-resume_instruction: "Check Mobile Android spike run 35586152257 for exact head 443e60cf6d1df8b7eb5bd63897f684a5aea6fdae. If it fails, inspect the failed Gradle step, patch and rerun. If green, verify remaining exact-head checks, mark task completed, and keep PR #148 unmerged unless owner explicitly authorizes merge."
+  - "Real RU and US public end-to-end proxy checks passed."\n  - "Android implementation commit 443e60c adds free-location API/session client, persistent location-only selection, in-memory credentials, HTTPS relay profile, and pre-expiry session refresh."\n  - "Server session TTL set to 3600 seconds; RU and US reverified end-to-end after restart."\n  - "Mobile Android spike run 35586152257 SUCCESS: unit tests, assembleDebug, signer/branding verification, SHA-256 and artifact upload."\n  - "Exact implementation commit 443e60cf6d1df8b7eb5bd63897f684a5aea6fdae also passed gateway, Secret scan, SAST, SBOM, dependency scan and platform workflows."
+resume_instruction: "Task complete. Free RU/US locations are integrated into Android using gateway-issued ephemeral HTTPS proxy sessions with pre-expiry refresh. PR #148 remains unmerged; if owner authorizes merge, re-resolve current PR head and required checks before merging."
 updated_at: "2026-09-21T12:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
