@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import java.security.KeyStore
+import java.util.Locale
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -65,7 +66,7 @@ class SecureProfileStore(context: Context) {
         ensureLegacyProfileIndexed()
         return profileIds()
             .mapNotNull(::loadProfileMetadata)
-            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+            .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
     }
 
     fun getActiveProfileId(): String? {
@@ -173,7 +174,7 @@ class SecureProfileStore(context: Context) {
         val nextActiveId = if (prefs.getString(KEY_ACTIVE_ID, null) == id) {
             remainingIds
                 .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
                 .firstOrNull()
                 ?.id
         } else {
@@ -201,7 +202,7 @@ class SecureProfileStore(context: Context) {
         if (prefs.getString(KEY_PRIMARY_ID, null) == id) {
             val nextPrimary = remainingIds
                 .mapNotNull(::loadProfileMetadata)
-                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase() }.thenBy { it.id })
+                .sortedWith(compareBy<ProxyProfile> { it.name.lowercase(Locale.ROOT) }.thenBy { it.id })
                 .firstOrNull()
                 ?.id
             if (nextPrimary == null) editor.remove(KEY_PRIMARY_ID)
