@@ -33,8 +33,19 @@ jobs:
             echo "Dogfood signer mismatch: $actual" >&2
             exit 1
           }
-      - name: Lint, test and assemble debug APK
-        run: gradle -p mobile/android lintDebug testDebugUnitTest assembleDebug --stacktrace
+      - name: Android lint
+        run: gradle -p mobile/android lintDebug --stacktrace
+      - name: Upload Android lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-launcher-android-lint
+          path: |
+            mobile/android/app/build/reports/lint-results-debug.html
+            mobile/android/app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+          if-no-files-found: warn
+      - name: Test and assemble debug APK
+        run: gradle -p mobile/android testDebugUnitTest assembleDebug --stacktrace
       - name: Verify assembled APK signer and branding
         shell: bash
         run: |
