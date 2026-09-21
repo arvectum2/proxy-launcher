@@ -118,9 +118,26 @@ class ConnectRelay:
 
             writer.write(b"HTTP/1.1 200 Connection Established\r\n\r\n")
             await writer.drain()
+            stage = "tunnel"
+            print(
+                f"relay_open id={connection_id} location={location_id} "
+                f"elapsed_ms={int((time.monotonic() - started) * 1000)}",
+                file=sys.stderr,
+                flush=True,
+            )
             await asyncio.gather(
-                _pipe(reader, upstream_writer),
-                _pipe(upstream_reader, writer),
+                _pipe(
+                    reader,
+                    upstream_writer,
+                    connection_id=connection_id,
+                    direction="client_to_upstream",
+                ),
+                _pipe(
+                    upstream_reader,
+                    writer,
+                    connection_id=connection_id,
+                    direction="upstream_to_client",
+                ),
             )
         except (ValueError, UnicodeDecodeError, asyncio.IncompleteReadError, OSError) as exc:
             print(
