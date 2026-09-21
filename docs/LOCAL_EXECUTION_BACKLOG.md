@@ -273,7 +273,7 @@ Remaining:
 
 Boundary: personal-use lane only unless a separate Owner decision admits App Store/public distribution. Do not commit certificates or provisioning profiles.
 
-## Maintenance / repository hygiene## Maintenance / repository hygiene
+## Maintenance / repository hygiene
 
 - PR #80 — release-evidence workflow maintenance; reconcile with current `main` before merge.
 - PR #81/#103 — superseded older APL-REL-016 preparations; PR #132 is the current but version-stale trust packet to refresh.
