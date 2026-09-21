@@ -32,6 +32,64 @@ def upstream_connect_request(upstream, target: str) -> bytes:
     return ("\r\n".join(lines) + "\r\n\r\n").encode("iso-8859-1")
 
 
+class UpstreamProxyRejected(ValueError):
+    pass
+
+
+async def open_upstream_tunnel(
+    upstream,
+    target: str,
+    *,
+    connection_id: int | None = None,
+    location_id: str | None = None,
+):
+    """Open one supplier CONNECT, retrying only transient transport failures."""
+    last_error = None
+    for attempt in range(1, UPSTREAM_CONNECT_ATTEMPTS + 1):
+        writer = None
+        try:
+            context = ssl.create_default_context() if upstream.tls else None
+            reader, writer = await asyncio.open_connection(
+                upstream.host,
+                upstream.port,
+                ssl=context,
+                server_hostname=upstream.host if context else None,
+            )
+            writer.write(upstream_connect_request(upstream, target))
+            await writer.drain()
+            head = await reader.readuntil(b"\r\n\r\n")
+            status_line = head.split(b"\r\n", 1)[0]
+            if b" 200 " not in status_line:
+                raise UpstreamProxyRejected(status_line.decode("iso-8859-1", errors="replace"))
+            return reader, writer, attempt
+        except UpstreamProxyRejected:
+            if writer is not None:
+                with contextlib.suppress(Exception):
+                    writer.close()
+                    await writer.wait_closed()
+            raise
+        except (OSError, asyncio.IncompleteReadError, asyncio.TimeoutError) as exc:
+            last_error = exc
+            if writer is not None:
+                with contextlib.suppress(Exception):
+                    writer.close()
+                    await writer.wait_closed()
+            if attempt >= UPSTREAM_CONNECT_ATTEMPTS:
+                raise
+            print(
+                f"relay_upstream_retry id={connection_id if connection_id is not None else '-'} "
+                f"location={location_id or '-'} attempt={attempt} "
+                f"error={type(exc).__name__}",
+                file=sys.stderr,
+                flush=True,
+            )
+            await asyncio.sleep(UPSTREAM_CONNECT_RETRY_DELAY_SECONDS * attempt)
+
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("upstream retry loop exited unexpectedly")
+
+
 async def _pipe(reader, writer, *, connection_id: int, direction: str):
     total = 0
     started = time.monotonic()
@@ -57,6 +115,10 @@ async def _pipe(reader, writer, *, connection_id: int, direction: str):
         )
         with contextlib.suppress(Exception):
             writer.close()
+
+
+UPSTREAM_CONNECT_ATTEMPTS = 3
+UPSTREAM_CONNECT_RETRY_DELAY_SECONDS = 0.15
 
 
 class ConnectRelay:
@@ -98,23 +160,20 @@ class ConnectRelay:
                 return
 
             stage = "upstream_connect"
-            context = ssl.create_default_context() if upstream.tls else None
-            upstream_reader, upstream_writer = await asyncio.open_connection(
-                upstream.host,
-                upstream.port,
-                ssl=context,
-                server_hostname=upstream.host if context else None,
+            upstream_reader, upstream_writer, upstream_attempt = await open_upstream_tunnel(
+                upstream,
+                target,
+                connection_id=connection_id,
+                location_id=location_id,
             )
             stage = "upstream_connect_response"
-            upstream_writer.write(upstream_connect_request(upstream, target))
-            await upstream_writer.drain()
-
-            upstream_head = await upstream_reader.readuntil(b"\r\n\r\n")
-            status_line = upstream_head.split(b"\r\n", 1)[0]
-            if b" 200 " not in status_line:
-                writer.write(b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\n\r\n")
-                await writer.drain()
-                return
+            if upstream_attempt > 1:
+                print(
+                    f"relay_upstream_recovered id={connection_id} location={location_id} "
+                    f"attempt={upstream_attempt}",
+                    file=sys.stderr,
+                    flush=True,
+                )
 
             writer.write(b"HTTP/1.1 200 Connection Established\r\n\r\n")
             await writer.drain()
@@ -173,3 +232,4 @@ class ConnectRelay:
         ).encode("ascii")
         writer.write(raw)
         await writer.drain()
+
