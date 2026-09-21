@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921
-status: in_progress
+status: completed
 goal: "Restore Android baseline VPN reliability first, then continue fixing free RU/US without destabilizing saved profiles or other VPN apps."
 definition_of_done:
   - "Official tun2proxy v0.8.3 baseline is restored for all Android profiles."
@@ -20,22 +20,20 @@ completed:
   - "HUMAN Android 0.1.29 Primary PASS: live ChatGPT traffic worked through Primary."
   - "HUMAN Android 0.1.29 coexistence FAIL: foregrounding explicitly-OFF APL killed active Amnezia."
   - "Root cause confirmed: MainActivity.onResume invoked VpnService.prepare() before checking intended APL state; Android prepare() revokes another app's prepared VPN."
-  - "0.1.30 now returns before VpnService.prepare() for DISCONNECTED/DISCONNECTING/ERROR; intended-ON resume reconciliation is preserved."
+  - "0.1.30 returns before VpnService.prepare() for DISCONNECTED/DISCONNECTING/ERROR; intended-ON resume reconciliation is preserved."
   - "Lifecycle regression tests prove only CONNECTED/CONNECTING may inspect VPN permission on resume."
   - "Android implementation run 35612516850 SUCCESS: unit tests, assembleDebug, signer/branding verification, SHA manifest and artifact upload."
   - "0.1.30 APK SHA-256: c4be648501dad0cf397ac5c34ffac073176fa5d658a622f67f89d07b212e3077."
   - "HUMAN Android 0.1.30 coexistence PASS: Amnezia stayed connected and usable after foregrounding OFF APL without pressing Connect."
   - "HUMAN Android 0.1.30 Primary PASS: Primary connected and live traffic worked."
-  - "Gateway process is currently running on Mac mini behind Tailscale Funnel TLS ingress."
-  - "Gateway journal shows successful us-free CONNECT sessions with bidirectional traffic, including connections lasting 60-140 seconds."
-  - "Live server-side end-to-end recheck on 2026-09-21: ru-free PASS with RU exit; us-free PASS with US exit."
-current: "Android baseline recovery and live RU/US gateway validation are complete; awaiting physical Android 0.1.30 free-location dogfood."
-pending:
-  - "Owner tests free RU on Android 0.1.30 and verifies stable browser/ChatGPT traffic, not just CONNECTED UI."
-  - "Owner tests free US on Android 0.1.30 and verifies stable browser/ChatGPT traffic, not just CONNECTED UI."
-  - "On any FAIL, preserve state and correlate exact attempt with Mac mini gateway relay logs before changing implementation."
-  - "On both PASS, mark task completed and only then consider PR #148 merge under normal authority."
-last_verified_commit: "a145206291dc9eed476e543266925dd0d2a7155e"
+  - "Gateway process is running on Mac mini behind Tailscale Funnel TLS ingress."
+  - "Live server-side end-to-end recheck: ru-free returned RU exit and us-free returned US exit."
+  - "HUMAN Android 0.1.30 free RU PASS: connected successfully and public IP resolved to Russia; ChatGPT was unavailable as expected for a Russian exit, not because of APL transport failure."
+  - "HUMAN Android 0.1.30 free US PASS: switched to US free, ChatGPT opened, and owner sent a live message through that connection."
+  - "Gateway logs correlated the physical dogfood: ru-free CONNECT traffic was present before the switch; us-free CONNECT sessions carried bidirectional traffic after the switch, including a ~50s live session."
+current: "Definition of Done satisfied. Android 0.1.30 baseline, foreign-VPN coexistence, Primary, free RU and free US are physically verified."
+pending: []
+last_verified_commit: "5d0b3bb382703a391b588cab40af10e76e57d623"
 test_results:
   - "Gateway unit tests 9/9 passed."
   - "0.1.28 CI green but physical dogfood rejected the global native experiment."
@@ -44,8 +42,10 @@ test_results:
   - "HUMAN 0.1.30 foreign-VPN coexistence PASS."
   - "HUMAN 0.1.30 Primary live-traffic PASS."
   - "Live gateway recheck: RU exit PASS and US exit PASS through public TLS ingress."
-resume_instruction: "Await HUMAN free dogfood on installed Android 0.1.30. Test RU first for real traffic and stability, then US. If either fails, do not change VPN state before correlating the attempt with gateway logs. If both pass, record free RU/US physical PASS and complete this task."
-updated_at: "2026-09-21T17:46:00+03:00"
+  - "HUMAN 0.1.30 free RU exit PASS."
+  - "HUMAN 0.1.30 free US + ChatGPT live-traffic PASS."
+resume_instruction: "Task completed. Do not resume debugging this incident unless a new regression is reported. PR #148 remains the free-proxy feature branch; before any merge, resolve the current PR head and required checks and follow normal merge authority."
+updated_at: "2026-09-21T17:53:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
