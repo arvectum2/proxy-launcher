@@ -150,6 +150,42 @@ class FreeGatewayTests(unittest.TestCase):
         self.assertTrue(first_closed)
         self.assertIn(b"CONNECT example.com:443 HTTP/1.1", sent)
 
+    def test_upstream_connect_retries_transient_503_response(self):
+        upstream = config().upstreams["de-free"]
+
+        async def exercise():
+            first_reader = asyncio.StreamReader()
+            first_reader.feed_data(b"HTTP/1.1 503 Service Unavailable\r\n\r\n")
+            first_reader.feed_eof()
+            second_reader = asyncio.StreamReader()
+            second_reader.feed_data(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+            second_reader.feed_eof()
+            first_writer = FakeWriter()
+            second_writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.asyncio.open_connection",
+                new=AsyncMock(side_effect=[
+                    (first_reader, first_writer),
+                    (second_reader, second_writer),
+                ]),
+            ) as connector, patch(
+                "free_gateway.relay.asyncio.sleep",
+                new=AsyncMock(),
+            ):
+                reader, writer, attempt = await open_upstream_tunnel(
+                    upstream,
+                    "example.com:443",
+                    connection_id=88,
+                    location_id="de-free",
+                )
+                return connector.await_count, reader is second_reader, writer is second_writer, attempt
+
+        calls, used_second_reader, used_second_writer, attempt = asyncio.run(exercise())
+        self.assertEqual(calls, 2)
+        self.assertEqual(attempt, 2)
+        self.assertTrue(used_second_reader)
+        self.assertTrue(used_second_writer)
+
     def test_upstream_connect_does_not_retry_explicit_proxy_rejection(self):
         upstream = config().upstreams["de-free"]
 
@@ -162,13 +198,14 @@ class FreeGatewayTests(unittest.TestCase):
                 "free_gateway.relay.asyncio.open_connection",
                 new=AsyncMock(return_value=(reader, writer)),
             ) as connector:
-                with self.assertRaises(UpstreamProxyRejected):
+                with self.assertRaises(UpstreamProxyRejected) as raised:
                     await open_upstream_tunnel(upstream, "example.com:443")
-                return connector.await_count, writer.closed
+                return connector.await_count, writer.closed, raised.exception.status_code
 
-        calls, closed = asyncio.run(exercise())
+        calls, closed, status_code = asyncio.run(exercise())
         self.assertEqual(calls, 1)
         self.assertTrue(closed)
+        self.assertEqual(status_code, 407)
 
     def test_locations_api_can_include_health_without_secrets(self):
         api = GatewayApi(config(), FakeHealth())
