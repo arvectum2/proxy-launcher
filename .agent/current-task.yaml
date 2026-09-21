@@ -17,6 +17,8 @@ definition_of_done:
   - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
   - "Required exact-head CI passes before metadata merge."
 completed:
+  - "Updated .agent/execution-queue.yaml to v0.2.12/current-main, live free-gateway/Android 0.1.31, stale REL-016 refresh, current route PR #144 and active iOS draft #135."
+  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
   - "Verified current main df4478a70729e20f33b7a0d17476183423955576."
   - "Verified public desktop releases v0.2.11 and v0.2.12; v0.2.12 exact release SHA is 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and GitHub/GitVerse parity is recorded."
   - "Verified current main is ahead of v0.2.12 via merged PR #148 free proxy gateway/Android integration."
@@ -25,16 +27,14 @@ completed:
   - "Verified PR #132 remains open but its v0.2.10/v0.2.11+ boundary is stale after v0.2.11 and v0.2.12 publication."
   - "Verified PR #144 is current per-app architecture review packet and its exact-head checks are green, but its packet still names the v0.2.10 baseline."
   - "Verified draft PR #135 provides personal-use iOS 0.1.19 parity engineering baseline; physical signing/install remains HUMAN."
-current: "Update canonical executor queue, ROADMAP and local backlog from verified facts only."
+current: "Canonical queue, ROADMAP and local backlog are synchronized to verified 2026-09-21 facts. Open metadata/docs PR and verify exact-head CI."
 pending:
-  - "Update .agent/execution-queue.yaml."
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
   - "Open metadata/docs PR and verify exact-head CI."
   - "Before merge, re-read current Company POS-004/AI-ENG-001 AM-4 authority chain."
   - "Merge only the metadata/docs sync if governance permits and close this checkpoint."
 last_verified_commit: "df4478a70729e20f33b7a0d17476183423955576"
 test_results:
+  - "Cross-file consistency inspection: stable v0.2.12, main df4478a, public Android 0.1.19, current 0.1.31 friend-test, PR #132/#144/#135 references aligned."
   - "Repository/release/PR/checkpoint inspection complete; no product bytes changed by this sync task."
 resume_instruction: "Continue metadata-only 2026-09-21 roadmap synchronization on agent/roadmap-sync-20260921. Do not merge REVIEW PR #132/#144, do not implement APL-MOB-004, do not publish Android 0.1.31, and do not cross iOS signing/App Store or registry submission gates."
 updated_at: "2026-09-21T21:08:00+03:00"
