@@ -66,12 +66,25 @@ def _restart_transport_after_resume(proxy, settings, detected_at):
         replacement = core.ProxyCore(settings)
         ok, message = replacement.start()
         if ok:
+            refreshed = core.refresh_system_proxy()
+            if refreshed is False:
+                replacement.stop()
+                core.structured_log(
+                    "wake transport rebind system-proxy refresh failed",
+                    level="ERROR",
+                    event="proxy.resume.transport_rebind",
+                    phase="proxy_refresh_failed",
+                    attempt=attempt,
+                    detected_at=detected_at,
+                )
+                return None
             core.structured_log(
                 "wake transport rebind completed",
                 event="proxy.resume.transport_rebind",
                 phase="completed",
                 attempt=attempt,
                 detected_at=detected_at,
+                system_proxy_refreshed=refreshed,
             )
             return replacement
         last_message = message

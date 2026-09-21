@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: blocked
+status: in_progress
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -26,11 +26,12 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Blocked only on HUMAN physical sleep/wake of the installed manual-local candidate. APL is intentionally ON via native HTTP/HTTPS 127.0.0.1:18080 routing; PAC is disabled as a system route."
+current: "Ownership-safe manual-route wake refresh is locally verified: after transport rebind macOS HTTP/HTTPS are reasserted OFF->ON only after owned-state proof. Commit/push and obtain exact-head CI/artifact."
 pending:
-  - "HUMAN physical sleep/wake retest of installed binary SHA256 164445da4da288f9ece00cc6f2630002250ea516fb698822dac5b47b23778328 without disabling APL or restarting browser."
-  - "On PASS, capture manual-route/rebind evidence and re-resolve PR #149 exact head/checks before merge authority."
-  - "On FAIL, immediately capture networksetup/scutil manual proxy state, proxy.resume.transport_rebind, and post-wake relay traffic before further code changes."
+  - "Commit and push manual-route wake refresh to PR #149."
+  - "Obtain exact-head CI including macOS packaging/security gates."
+  - "Install unpublished ARM candidate and validate ON/OFF rollback."
+  - "HUMAN explicit macOS system Sleep/wake retest (not merely an idle wait) without browser restart."
 last_verified_commit: "752ae4c9b85907951cd6fb855023ab4aedab98d6"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
@@ -70,8 +71,15 @@ test_results:
   - "Exact-head ARM artifact apl-mac-package-macos-15 id 10641667110 from macOS packaging run 35604860043; DMG checksum VALID and mounted app codesign --verify --deep --strict PASS."
   - "Installed manual-local candidate binary SHA256 164445da4da288f9ece00cc6f2630002250ea516fb698822dac5b47b23778328; previous candidate backed up under candidate-backup-before-manual-local-pr149-20260921."
   - "Installed candidate smoke PASS: PAC system route disabled; HTTP/HTTPS -> 127.0.0.1:18080; system-discovered request returned 68.209.60.141; OFF rollback matched captured baseline exactly; candidate re-enabled with worker PID 97733."
-resume_instruction: "Await HUMAN sleep/wake on installed manual-local candidate SHA256 164445da4... with APL left ON. On PASS, capture manual-route/rebind evidence, verify PR #149 current head/checks and require explicit merge authority. On FAIL, immediately capture networksetup/scutil manual proxy state, proxy.resume.transport_rebind, and post-wake relay evidence before changing state or code."
-updated_at: "2026-09-21T16:26:00+03:00"
+  - "Latest user-reported FAIL around 17:01 MSK was not a real system sleep/wake: pmset shows no Sleep/Wake after 16:01; the Mac remained awake throughout the test window."
+  - "APL session PID 97733 ran ~35 minutes with 45 upstream CONNECT 200 responses, 44 clean relay closures and zero WARNING/ERROR events; immediately before user recovery upstream latency remained ~120-300 ms."
+  - "Legacy tunnel remains a separate process and baseline PAC uses it, but no APL upstream errors were observed; second legacy upstream currently returns 407 and does not explain recovery."
+  - "RDC itself owns caffeinate -w for its remote process; do not kill it during autonomous work. Use explicit system Sleep for the next human validation."
+  - "Implemented manual-route wake refresh: after successful transport rebind, MacOSBackend.refresh ownership-checks the saved config/live route then toggles only owned HTTP/HTTPS states OFF->ON; PAC URL, endpoints, bypass and rollback bytes stay unchanged."
+  - "Refresh failure best-effort restores both manual routes ON and forces runtime recovery failure/rollback instead of leaving localhost routing half-disabled."
+  - "Focused wake/backend/transport/GUI suite 73/73 PASS; full Python suite 913/913 PASS; compileall and git diff --check PASS."
+resume_instruction: "Commit/push the locally verified manual-route wake refresh, obtain exact-head CI/macOS ARM artifact, install with rollback smoke, then require an explicit macOS system Sleep/wake test. On FAIL, immediately capture manual route, refresh/rebind events and post-wake relay traffic before changing state."
+updated_at: "2026-09-21T17:18:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
