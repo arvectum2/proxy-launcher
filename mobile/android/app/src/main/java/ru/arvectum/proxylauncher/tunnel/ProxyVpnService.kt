@@ -21,6 +21,8 @@ import android.os.Process
 import android.os.SystemClock
 import java.net.InetAddress
 import ru.arvectum.proxylauncher.MainActivity
+import ru.arvectum.proxylauncher.gateway.FreeGatewayClient
+import ru.arvectum.proxylauncher.gateway.FreeSessionRefreshPolicy
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
@@ -43,12 +45,14 @@ class ProxyVpnService : VpnService() {
     private val engine: ProxyEngineAdapter = Tun2ProxyEngineAdapter()
     private val probe = ProxyProtocolProbe()
     private val failoverPolicy = FailoverPolicy()
+    private val freeGatewayClient = FreeGatewayClient()
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var store: SecureProfileStore
     private var tunFd: ParcelFileDescriptor? = null
     private var worker: Thread? = null
     private var preflightWorker: Thread? = null
     private var monitorWorker: Thread? = null
+    private var freeSessionRefreshWorker: Thread? = null
     private var activePrepared: PreparedProxy? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private val physicalNetworks = linkedSetOf<Network>()
@@ -84,6 +88,7 @@ class ProxyVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+        stopFreeSessionRefresh()
         stopAutoMonitor()
         if (!stopping) shutdownEngineSilently()
         super.onDestroy()
@@ -333,6 +338,9 @@ class ProxyVpnService : VpnService() {
                 } else {
                     registerNetworkCallback()
                 }
+                prepared.freeSessionExpiresAtEpochSeconds?.let { expiresAt ->
+                    startFreeSessionRefresh(generation, expiresAt)
+                }
             }
         }, CONNECT_CONFIRM_DELAY_MS)
     }
@@ -354,6 +362,41 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun resolveProxySelection(generation: Long): PreparedProxy {
+        val freeLocationId = store.getActiveFreeLocationId()
+        if (freeLocationId != null) {
+            val label = store.getActiveFreeLocationLabel()?.ifBlank { null } ?: freeLocationId
+            val displayName = "$label · бесплатно"
+            val session = try {
+                freeGatewayClient.createSession(freeLocationId, displayName)
+            } catch (e: Exception) {
+                throw ProxyProbeException(
+                    "Не удалось получить бесплатный прокси: ${e.message ?: "gateway недоступен"}",
+                )
+            }
+            val resolved = ResolvedProxyProfile(session.profile, session.password)
+            val measured = try {
+                probe.resolveMeasured(resolved.profile, resolved.password) { candidate ->
+                    mainHandler.post {
+                        publishPreflightProgress(
+                            generation = generation,
+                            profileName = displayName,
+                            type = candidate,
+                            autoSelection = false,
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                throw e
+            }
+            return PreparedProxy(
+                resolved = resolved,
+                selectedProfile = measured.profile,
+                autoSelection = false,
+                latencyMs = measured.latencyMs,
+                freeSessionExpiresAtEpochSeconds = session.expiresAtEpochSeconds,
+            )
+        }
+
         if (!store.isAutoProfileSelection()) {
             val resolved = store.loadActive()
                 ?: throw ProxyProbeException("Сначала добавьте прокси")
@@ -728,6 +771,64 @@ class ProxyVpnService : VpnService() {
         }
     }
 
+    private fun startFreeSessionRefresh(generation: Long, expiresAtEpochSeconds: Long) {
+        stopFreeSessionRefresh()
+        val delayMs = FreeSessionRefreshPolicy.delayMillis(
+            nowEpochSeconds = System.currentTimeMillis() / 1_000L,
+            expiresAtEpochSeconds = expiresAtEpochSeconds,
+        )
+        val thread = Thread({
+            try {
+                Thread.sleep(delayMs)
+            } catch (_: InterruptedException) {
+                return@Thread
+            }
+            mainHandler.post { requestFreeSessionRefresh(generation) }
+        }, "APL-free-session-refresh")
+        synchronized(lock) {
+            if (generation != sessionGeneration || stopping) return
+            freeSessionRefreshWorker = thread
+        }
+        thread.start()
+    }
+
+    private fun stopFreeSessionRefresh() {
+        val thread = synchronized(lock) {
+            val current = freeSessionRefreshWorker
+            freeSessionRefreshWorker = null
+            current
+        }
+        if (thread != null && thread !== Thread.currentThread()) thread.interrupt()
+    }
+
+    private fun requestFreeSessionRefresh(generation: Long) {
+        val proceed = synchronized(lock) {
+            if (generation != sessionGeneration || stopping || failoverHandoff || worker?.isAlive != true) {
+                false
+            } else {
+                failoverHandoff = true
+                stopping = true
+                sessionGeneration += 1
+                preflightWorker = null
+                activePrepared = null
+                true
+            }
+        }
+        if (!proceed) return
+
+        startForegroundCompat("Обновляем бесплатную прокси-сессию…")
+        publishState(STATE_CONNECTING, "Обновляем бесплатную прокси-сессию…")
+        stopFreeSessionRefresh()
+        stopAutoMonitor()
+        runCatching { engine.stop() }
+        synchronized(lock) {
+            tunFd?.runCatching { close() }
+            tunFd = null
+            worker = null
+        }
+        mainHandler.postDelayed({ Process.killProcess(Process.myPid()) }, PROCESS_HANDOFF_KILL_DELAY_MS)
+    }
+
     private fun requestNetworkHandoff(generation: Long) {
         val proceed = synchronized(lock) {
             if (generation != sessionGeneration || stopping || failoverHandoff || worker?.isAlive != true) {
@@ -747,6 +848,7 @@ class ProxyVpnService : VpnService() {
         startForegroundCompat("Сеть изменилась · переподключаем VPN…")
         publishState(STATE_CONNECTING, "Сеть изменилась · переподключаем VPN…")
 
+        stopFreeSessionRefresh()
         stopAutoMonitor()
         runCatching { engine.stop() }
         synchronized(lock) {
@@ -798,6 +900,7 @@ class ProxyVpnService : VpnService() {
             else "Авто: возвращаем основной прокси…",
         )
 
+        stopFreeSessionRefresh()
         stopAutoMonitor()
         runCatching { engine.stop() }
         synchronized(lock) {
@@ -895,6 +998,7 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun stopTunnel() {
+        stopFreeSessionRefresh()
         stopAutoMonitor()
         val probeThread = synchronized(lock) {
             stopping = true
@@ -920,6 +1024,7 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun shutdownEngineSilently() {
+        stopFreeSessionRefresh()
         stopAutoMonitor()
         val probeThread = synchronized(lock) {
             stopping = true
@@ -1047,6 +1152,7 @@ class ProxyVpnService : VpnService() {
         val selectedProfile: ProxyProfile,
         val autoSelection: Boolean,
         val latencyMs: Long,
+        val freeSessionExpiresAtEpochSeconds: Long? = null,
         val siteExclusions: SiteExclusionPlan = SiteExclusionPlan.EMPTY,
     )
 

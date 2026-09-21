@@ -55,6 +55,8 @@ class SecureProfileStore(context: Context) {
         if (makeActive) {
             editor.putString(KEY_ACTIVE_ID, profile.id)
                 .putBoolean(KEY_AUTO_SELECTION, false)
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
         }
         check(editor.commit()) { "Failed to persist proxy profile" }
     }
@@ -71,6 +73,33 @@ class SecureProfileStore(context: Context) {
         return prefs.getString(KEY_ACTIVE_ID, null)
     }
 
+    fun getActiveFreeLocationId(): String? =
+        prefs.getString(KEY_ACTIVE_FREE_LOCATION_ID, null)
+
+    fun getActiveFreeLocationLabel(): String? =
+        prefs.getString(KEY_ACTIVE_FREE_LOCATION_LABEL, null)
+
+    fun setActiveFreeLocation(id: String, label: String) {
+        require(id.isNotBlank()) { "Free proxy location id must not be blank" }
+        require(label.isNotBlank()) { "Free proxy location label must not be blank" }
+        check(
+            prefs.edit()
+                .putString(KEY_ACTIVE_FREE_LOCATION_ID, id)
+                .putString(KEY_ACTIVE_FREE_LOCATION_LABEL, label)
+                .putBoolean(KEY_AUTO_SELECTION, false)
+                .commit(),
+        ) { "Failed to persist free proxy selection" }
+    }
+
+    fun clearActiveFreeLocation() {
+        check(
+            prefs.edit()
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
+                .commit(),
+        ) { "Failed to clear free proxy selection" }
+    }
+
     fun isAutoProfileSelection(): Boolean {
         ensureLegacyProfileIndexed()
         return prefs.getBoolean(KEY_AUTO_SELECTION, false)
@@ -78,9 +107,12 @@ class SecureProfileStore(context: Context) {
 
     fun setAutoProfileSelection(enabled: Boolean) {
         ensureLegacyProfileIndexed()
-        check(prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled).commit()) {
-            "Failed to persist Auto proxy selection"
+        val editor = prefs.edit().putBoolean(KEY_AUTO_SELECTION, enabled)
+        if (enabled) {
+            editor.remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
         }
+        check(editor.commit()) { "Failed to persist Auto proxy selection" }
     }
 
     fun getLastAutoProfileId(): String? {
@@ -107,6 +139,8 @@ class SecureProfileStore(context: Context) {
             prefs.edit()
                 .putString(KEY_ACTIVE_ID, id)
                 .putBoolean(KEY_AUTO_SELECTION, false)
+                .remove(KEY_ACTIVE_FREE_LOCATION_ID)
+                .remove(KEY_ACTIVE_FREE_LOCATION_LABEL)
                 .commit(),
         ) {
             "Failed to persist active proxy profile"
@@ -340,6 +374,8 @@ class SecureProfileStore(context: Context) {
         private const val PREFS_NAME = "apl_mobile_profiles_v1"
         private const val KEY_PROFILE_IDS = "profile_ids"
         private const val KEY_ACTIVE_ID = "active_profile_id"
+        private const val KEY_ACTIVE_FREE_LOCATION_ID = "active_free_location_id"
+        private const val KEY_ACTIVE_FREE_LOCATION_LABEL = "active_free_location_label"
         private const val KEY_AUTO_SELECTION = "auto_profile_selection"
         private const val KEY_LAST_AUTO_ID = "last_auto_profile_id"
         private const val KEY_PRIMARY_ID = "pool_primary_profile_id"
