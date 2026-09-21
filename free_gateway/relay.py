@@ -38,6 +38,42 @@ class UpstreamProxyRejected(ValueError):
         super().__init__(f"upstream proxy returned HTTP {status_code}")
 
 
+async def _close_stream_writer(writer) -> None:
+    if writer is None:
+        return
+    with contextlib.suppress(Exception):
+        writer.close()
+        await writer.wait_closed()
+
+
+def _connect_status_code(head: bytes) -> int:
+    status_line = head.split(b"\r\n", 1)[0]
+    parts = status_line.split(b" ", 2)
+    return int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 0
+
+
+async def _open_upstream_once(upstream, target: str):
+    writer = None
+    try:
+        context = ssl.create_default_context() if upstream.tls else None
+        reader, writer = await asyncio.open_connection(
+            upstream.host,
+            upstream.port,
+            ssl=context,
+            server_hostname=upstream.host if context else None,
+        )
+        writer.write(upstream_connect_request(upstream, target))
+        await writer.drain()
+        head = await reader.readuntil(b"\r\n\r\n")
+        status_code = _connect_status_code(head)
+        if status_code != 200:
+            raise UpstreamProxyRejected(status_code)
+        return reader, writer
+    except BaseException:
+        await _close_stream_writer(writer)
+        raise
+
+
 async def open_upstream_tunnel(
     upstream,
     target: str,
@@ -45,64 +81,31 @@ async def open_upstream_tunnel(
     connection_id: int | None = None,
     location_id: str | None = None,
 ):
-    """Open one supplier CONNECT, retrying only transient transport failures."""
-    last_error = None
+    """Open one supplier CONNECT, retrying only failures known to be transient."""
     for attempt in range(1, UPSTREAM_CONNECT_ATTEMPTS + 1):
-        writer = None
         try:
-            context = ssl.create_default_context() if upstream.tls else None
-            reader, writer = await asyncio.open_connection(
-                upstream.host,
-                upstream.port,
-                ssl=context,
-                server_hostname=upstream.host if context else None,
-            )
-            writer.write(upstream_connect_request(upstream, target))
-            await writer.drain()
-            head = await reader.readuntil(b"\r\n\r\n")
-            status_line = head.split(b"\r\n", 1)[0]
-            parts = status_line.split(b" ", 2)
-            status_code = int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else 0
-            if status_code != 200:
-                raise UpstreamProxyRejected(status_code)
+            reader, writer = await _open_upstream_once(upstream, target)
             return reader, writer, attempt
         except UpstreamProxyRejected as exc:
-            if writer is not None:
-                with contextlib.suppress(Exception):
-                    writer.close()
-                    await writer.wait_closed()
             if (
                 exc.status_code not in RETRYABLE_UPSTREAM_HTTP_STATUSES
                 or attempt >= UPSTREAM_CONNECT_ATTEMPTS
             ):
                 raise
-            print(
-                f"relay_upstream_retry id={connection_id if connection_id is not None else '-'} "
-                f"location={location_id or '-'} attempt={attempt} "
-                f"status={exc.status_code}",
-                file=sys.stderr,
-                flush=True,
-            )
-            await asyncio.sleep(UPSTREAM_CONNECT_RETRY_DELAY_SECONDS * attempt)
+            retry_detail = f"status={exc.status_code}"
         except (OSError, asyncio.IncompleteReadError, asyncio.TimeoutError) as exc:
-            last_error = exc
-            if writer is not None:
-                with contextlib.suppress(Exception):
-                    writer.close()
-                    await writer.wait_closed()
             if attempt >= UPSTREAM_CONNECT_ATTEMPTS:
                 raise
-            print(
-                f"relay_upstream_retry id={connection_id if connection_id is not None else '-'} "
-                f"location={location_id or '-'} attempt={attempt} "
-                f"error={type(exc).__name__}",
-                file=sys.stderr,
-                flush=True,
-            )
-            await asyncio.sleep(UPSTREAM_CONNECT_RETRY_DELAY_SECONDS * attempt)
+            retry_detail = f"error={type(exc).__name__}"
 
-    if last_error is not None:
-        raise last_error
+        print(
+            f"relay_upstream_retry id={connection_id if connection_id is not None else '-'} "
+            f"location={location_id or '-'} attempt={attempt} {retry_detail}",
+            file=sys.stderr,
+            flush=True,
+        )
+        await asyncio.sleep(UPSTREAM_CONNECT_RETRY_DELAY_SECONDS * attempt)
+
     raise RuntimeError("upstream retry loop exited unexpectedly")
 
 
@@ -223,9 +226,10 @@ class ConnectRelay:
                 file=sys.stderr,
                 flush=True,
             )
-            with contextlib.suppress(Exception):
-                writer.write(b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\n\r\n")
-                await writer.drain()
+            if stage != "tunnel":
+                with contextlib.suppress(Exception):
+                    writer.write(b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\n\r\n")
+                    await writer.drain()
         finally:
             if stage == "tunnel":
                 print(
@@ -234,11 +238,8 @@ class ConnectRelay:
                     file=sys.stderr,
                     flush=True,
                 )
-            for stream in (upstream_writer, writer):
-                if stream is not None:
-                    with contextlib.suppress(Exception):
-                        stream.close()
-                        await stream.wait_closed()
+            await _close_stream_writer(upstream_writer)
+            await _close_stream_writer(writer)
 
     @staticmethod
     async def _reject(writer, status, reason):
