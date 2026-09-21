@@ -108,15 +108,15 @@ class FreeGatewayTests(unittest.TestCase):
 
     def test_upstream_connect_retries_transient_response_reset(self):
         upstream = config().upstreams["de-free"]
-        first_reader = asyncio.StreamReader()
-        first_reader.feed_eof()
-        second_reader = asyncio.StreamReader()
-        second_reader.feed_data(b"HTTP/1.1 200 Connection Established\r\n\r\n")
-        second_reader.feed_eof()
-        first_writer = FakeWriter()
-        second_writer = FakeWriter()
 
         async def exercise():
+            first_reader = asyncio.StreamReader()
+            first_reader.feed_eof()
+            second_reader = asyncio.StreamReader()
+            second_reader.feed_data(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+            second_reader.feed_eof()
+            first_writer = FakeWriter()
+            second_writer = FakeWriter()
             with patch(
                 "free_gateway.relay.asyncio.open_connection",
                 new=AsyncMock(side_effect=[
@@ -133,34 +133,42 @@ class FreeGatewayTests(unittest.TestCase):
                     connection_id=77,
                     location_id="de-free",
                 )
-                return connector.await_count, reader, writer, attempt
+                return (
+                    connector.await_count,
+                    reader is second_reader,
+                    writer is second_writer,
+                    attempt,
+                    first_writer.closed,
+                    bytes(second_writer.data),
+                )
 
-        calls, reader, writer, attempt = asyncio.run(exercise())
+        calls, used_second_reader, used_second_writer, attempt, first_closed, sent = asyncio.run(exercise())
         self.assertEqual(calls, 2)
         self.assertEqual(attempt, 2)
-        self.assertIs(reader, second_reader)
-        self.assertIs(writer, second_writer)
-        self.assertTrue(first_writer.closed)
-        self.assertIn(b"CONNECT example.com:443 HTTP/1.1", second_writer.data)
+        self.assertTrue(used_second_reader)
+        self.assertTrue(used_second_writer)
+        self.assertTrue(first_closed)
+        self.assertIn(b"CONNECT example.com:443 HTTP/1.1", sent)
 
     def test_upstream_connect_does_not_retry_explicit_proxy_rejection(self):
         upstream = config().upstreams["de-free"]
-        reader = asyncio.StreamReader()
-        reader.feed_data(b"HTTP/1.1 407 Proxy Authentication Required\r\n\r\n")
-        reader.feed_eof()
-        writer = FakeWriter()
 
         async def exercise():
+            reader = asyncio.StreamReader()
+            reader.feed_data(b"HTTP/1.1 407 Proxy Authentication Required\r\n\r\n")
+            reader.feed_eof()
+            writer = FakeWriter()
             with patch(
                 "free_gateway.relay.asyncio.open_connection",
                 new=AsyncMock(return_value=(reader, writer)),
             ) as connector:
                 with self.assertRaises(UpstreamProxyRejected):
                     await open_upstream_tunnel(upstream, "example.com:443")
-                return connector.await_count
+                return connector.await_count, writer.closed
 
-        self.assertEqual(asyncio.run(exercise()), 1)
-        self.assertTrue(writer.closed)
+        calls, closed = asyncio.run(exercise())
+        self.assertEqual(calls, 1)
+        self.assertTrue(closed)
 
     def test_locations_api_can_include_health_without_secrets(self):
         api = GatewayApi(config(), FakeHealth())
