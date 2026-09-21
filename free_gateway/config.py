@@ -22,6 +22,8 @@ class GatewayConfig:
     public_host: str
     api_port: int
     proxy_port: int
+    public_proxy_port: int
+    public_proxy_type: str
     token_secret: str
     session_ttl_seconds: int
     upstreams: dict[str, UpstreamProxy]
@@ -59,6 +61,8 @@ class GatewayConfig:
             public_host=env.get("APL_GATEWAY_PUBLIC_HOST", "127.0.0.1"),
             api_port=int(env.get("APL_GATEWAY_API_PORT", "8787")),
             proxy_port=int(env.get("APL_GATEWAY_PROXY_PORT", "8788")),
+            public_proxy_port=int(env.get("APL_GATEWAY_PUBLIC_PROXY_PORT", env.get("APL_GATEWAY_PROXY_PORT", "8788"))),
+            public_proxy_type=env.get("APL_GATEWAY_PUBLIC_PROXY_TYPE", "HTTP").upper(),
             token_secret=secret,
             session_ttl_seconds=min(int(env.get("APL_GATEWAY_SESSION_TTL", "600")), 3600),
             upstreams=upstreams,

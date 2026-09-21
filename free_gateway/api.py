@@ -28,8 +28,8 @@ class GatewayApi:
                     raw = response(201, {
                         "proxy": {
                             "host": self.config.public_host,
-                            "port": self.config.proxy_port,
-                            "type": "HTTP",
+                            "port": self.config.public_proxy_port,
+                            "type": self.config.public_proxy_type,
                             "username": location_id,
                             "password": token,
                         },
