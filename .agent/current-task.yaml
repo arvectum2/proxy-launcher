@@ -1,44 +1,42 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260921
-status: completed
-goal: "Synchronize canonical Proxy Launcher roadmap/executor metadata to the verified 2026-09-21 repository, release, mobile, gateway and review-track state without changing Owner-controlled product decisions."
-authority: REVIEW
+task_id: APL-MACOS-NET-RECOVERY-20260921
+status: in_progress
+goal: "Diagnose the Mac-mini-master network/proxy regression observed after a sleep-wake-like event, restore the intended resilient configuration, and verify it survives the relevant interface/wake transition."
+authority: OPERATOR
 definition_of_done:
-  - "Completed v0.2.12 release task is archived before replacing current-task."
-  - "Stable desktop baseline is recorded as immutable v0.2.12 with exact release SHA and current main distinguished from release SHA."
-  - "v0.2.11/v0.2.12 cross-platform sleep/wake and routing fixes are reflected factually."
-  - "Android public release 0.1.19 and current merged 0.1.31 friend-test/free-gateway candidate are distinguished."
-  - "Free RU/US gateway and Android integration are represented as completed/live friend-test infrastructure, with anti-abuse/public-scale gate preserved."
-  - "APL-REL-016 is marked stale again because v0.2.11 and v0.2.12 shipped unsigned; next eligible future signing release is v0.2.13+."
-  - "Per-app routing current preparation is represented by PR #144 and refreshed against current stable v0.2.12 before Owner architecture decision."
-  - "iOS draft PR #135 is represented as an active personal-use engineering lane with HUMAN signing/device gate, not public App Store distribution."
-  - "Registry filing evidence remains explicitly tied to its exact v0.2.9 filing object unless separately re-scoped."
-  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
-  - "Required exact-head CI passes before metadata merge."
+  - "Current macOS Ethernet/Wi-Fi/service-order, PAC and local tunnel state is captured."
+  - "Relevant sleep/wake/interface/network logs and launchd state are inspected."
+  - "The current state is compared with the last known-good proxy/PAC configuration."
+  - "Root cause or the narrowest evidence-backed failure mode is identified."
+  - "A minimal safe remediation is applied without breaking the local tunnel, Tailscale, localhost/private-network bypasses, or direct exceptions."
+  - "HTTP/PAC path and direct/proxied connectivity are verified after remediation."
+  - "Recovery behavior is verified across the closest safe reproducible network transition."
 completed:
-  - "Archived completed v0.2.12 release task to .agent/checkpoints/APL-RELEASE-0.2.12-20260921.yaml."
-  - "Verified public desktop v0.2.12 exact release SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and current main ahead via PR #148."
-  - "Updated executor queue to stable v0.2.12, live free gateway, Android 0.1.31 friend-test baseline, stale REL-016 refresh, current route PR #144 and active iOS draft #135."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
-  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b passed all reported checks, including required build and full Windows installer E2E."
-  - "Company POS-004 / AI-ENG-001 AM-4 authority chain and 2026-09-16 renewal were re-read before merge; this user-directed sync merge was not represented as an AM-4 auto-merge."
-  - "PR #153 merged to main as 350712382f61e98687ecb9f20dea11db736a69bf."
-current: "Roadmap synchronization complete. Canonical next safe autonomous preparation lane is APL-REL-016 refresh from v0.2.12 to first eligible v0.2.13+, followed by PR #144 per-app baseline reconciliation; Owner/HUMAN gates remain intact."
-pending: []
+  - "Connected to Mac-mini-master.local via Remote Desktop Commander."
+  - "Confirmed Ethernet en0 192.168.1.80 is current default route; Wi-Fi en1 192.168.1.77 is also active."
+  - "Confirmed PAC is enabled for Ethernet and Wi-Fi at http://127.0.0.1:8082/proxy.pac."
+  - "Confirmed tunnel-proxy.py is running and listening on 127.0.0.1:1080, :8080 and :8082."
+  - "Observed current SystemConfiguration ExceptionsList contains only *.local and 169.254/16."
+  - "Observed current proxy.pac is dated 2026-07-09 and tunnel-proxy.py is dated 2026-07-29; neither was rewritten by the current event."
+  - "pmset reports zero full system sleep/wake cycles since boot on 2026-09-16, so the user-visible event is not yet evidenced as a full macOS system sleep."
+current: "Inspect launchd ownership, old PAC backup, shell/config history and unified network logs; compare with the previous known-good localhost/private-network bypass configuration."
+pending:
+  - "Inspect launch agent/daemon that owns tunnel-proxy.py and any recovery hook."
+  - "Compare current proxy.pac with backup/known-good PAC and determine intended exceptions."
+  - "Inspect recent network/configuration events around the reported regression."
+  - "Apply minimal remediation if evidence supports a drifted or incomplete network/PAC state."
+  - "Run connectivity and recovery verification."
 last_verified_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
-merged_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
 test_results:
-  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b: all reported checks SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "SAST, dependency audit, secret scan, SBOM, provenance, clean-IP gates, sovereign lifecycle, Windows signing checks and mirror: SUCCESS."
-resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260921. On the next watchdog run read the canonical queue from main. First refresh APL-REL-016 to immutable v0.2.12 / first eligible v0.2.13+ and stop at Owner review; then refresh PR #144 to v0.2.12/current-main semantics and stop before architecture selection. Do not publish Android 0.1.31, broaden gateway rollout, start MOB-004, sign/install iOS, or submit registry filings without the required gate."
-updated_at: "2026-09-21T21:08:00+03:00"
+  - "PAC endpoint responds on 127.0.0.1:8082/proxy.pac."
+  - "Local tunnel process is live with established upstream connections."
+resume_instruction: "Continue from launchd/PAC comparison and recent network configuration evidence on Mac-mini-master. Do not repeat basic interface/PAC discovery. If intended bypass entries are confirmed, restore them minimally, then verify PAC/direct/proxied paths and simulate the safest relevant interface transition before marking completed."
+updated_at: "2026-09-21T22:16:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260921-macos-net-recovery"
+  branch: "agent/apl-macos-net-recovery-20260921"
+  base_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
   lease_until: null
-  manual_override: false
+  manual_override: true
