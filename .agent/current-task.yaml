@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-FREE-PROXY-GATEWAY-20260921
-status: completed
+status: in_progress
 goal: "Add a free-location backend gateway so public APL clients can use operator-funded shared proxies without exposing upstream supplier credentials in the APK or client runtime."
 definition_of_done:
   - "Upstream proxy host/port/login/password are loaded only from server-side secret environment/config and never committed."
@@ -19,15 +19,15 @@ completed:
   - "Added .gitignore secret patterns, safe .env.example and deployment instructions using /etc/arvectum-proxy-gateway/gateway.env."
   - "Added six deterministic gateway tests and dedicated GitHub Actions workflow."
   - "Opened PR #148; gateway CI/Secret Scan/SAST passed on verified implementation head.\n  - "Deployed runtime on Mac-mini-master as launchd service ru.arvectum.proxy-gateway using Homebrew Python 3.14."\n  - "Created server-only secret file /Users/master/.arvectum-private/proxy-gateway/gateway.env mode 600 with generated token secret and inert placeholder upstream."\n  - "Verified live listeners on TCP 8787/8788 and GET /v1/free/locations response; service error log empty."
-current: "Implementation and Mac mini local deployment complete; PR #148 remains unmerged pending explicit owner authorization."
-pending: []
+current: "Hardening Mac mini deployment for public ingress without router port-forwarding."
+pending:\n  - "Bind gateway origins to loopback only."\n  - "Expose API over HTTPS and relay over TLS-terminated TCP using existing Tailscale Funnel capability."\n  - "Verify external ingress and leave inert placeholder upstream until owner supplies proxy credentials."
 last_verified_commit: "d0d2b7a72fc2ee9b2ba68d7dddfb60733631688b"
 test_results:
   - "Free proxy gateway workflow run 35578607368 SUCCESS on exact head."
   - "Secret scan workflow run 35578607252 SUCCESS on exact head."
   - "SAST workflow run 35578607203 SUCCESS on exact head."
   - "APL-REG-001B, APL-IP provenance and reconciliation checks also SUCCESS on exact head."
-resume_instruction: "Implementation and local Mac mini service deployment are complete. Next owner action is to obtain real shared proxy credentials. Then replace only APL_FREE_PROXIES_JSON in /Users/master/.arvectum-private/proxy-gateway/gateway.env, restart ru.arvectum.proxy-gateway, verify each location end-to-end, and separately decide public network exposure/domain/TLS. If owner authorizes PR #148 merge, re-resolve exact head/checks before merge."
+resume_instruction: "Continue public-ingress hardening: make gateway loopback-only, redeploy exact branch head, configure Tailscale Funnel HTTPS API and TLS-terminated TCP relay, verify from outside path, keep placeholder upstream inert."
 updated_at: "2026-09-21T11:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
