@@ -1,34 +1,30 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-FREE-PROXY-GATEWAY-20260921
-status: completed
-goal: "Add a free-location backend gateway so public APL clients can use operator-funded shared proxies without exposing upstream supplier credentials in the APK or client runtime."
+task_id: APL-FREE-PROXY-ANDROID-INTEGRATION-20260921
+status: in_progress
+goal: "Integrate server-backed free RU/US proxy locations into Android APL without embedding upstream supplier credentials."
 definition_of_done:
-  - "Upstream proxy host/port/login/password are loaded only from server-side secret environment/config and never committed."
-  - "Public API lists free locations without upstream credentials."
-  - "Session API issues short-lived gateway credentials bound to one location."
-  - "Gateway validates expiring credentials and relays CONNECT traffic through the configured upstream HTTP/HTTPS proxy."
-  - "Tests cover secret loading, token tampering/expiry, API redaction, auth and upstream CONNECT construction."
-  - "Deployment docs state exactly where the owner enters proxy credentials."
-  - "Real RU and US upstreams pass end-to-end CONNECT checks through the public TLS ingress."
+  - "Android fetches free locations from the public gateway API."
+  - "Selecting a free location obtains a short-lived gateway session and builds a temporary HTTPS proxy profile."
+  - "Gateway session credentials are not persisted longer than required and supplier credentials never enter the app."
+  - "Reconnect/expiry path can refresh the session instead of relying on stale credentials."
+  - "Existing manual proxy profiles continue to work."
+  - "Relevant Android tests/build checks pass."
 completed:
-  - "Implemented server-side gateway, short-lived location-bound credentials, API redaction and CONNECT relay."
-  - "Deployed launchd service ru.arvectum.proxy-gateway on Mac mini with secret env mode 600."
-  - "Hardened origins to 127.0.0.1 only."
-  - "Configured public Tailscale Funnel ingress: HTTPS API on 443 and TLS-terminated TCP relay on 8443."
-  - "Session API advertises the external HTTPS relay endpoint rather than internal ports."
-  - "Exact-head CI passed gateway, secret scan, SAST, SBOM, dependency and platform checks on 0edf2d8431270749484f099fadf983f15a4aff05."
-current: "Gateway implementation, public TLS ingress, and real RU/US upstream validation complete."
-pending: []
+  - "Gateway and real RU/US upstreams validated end-to-end through public TLS ingress."
+current: "Inspecting Android connection/profile architecture to integrate free locations with minimal disruption."
+pending:
+  - "Identify profile storage, connection command path, VPN engine HTTPS proxy support, and UI entry point."
+  - "Implement gateway API client and ephemeral free-session model."
+  - "Wire free locations into Android UI/connection flow."
+  - "Add tests for API parsing, temporary credentials, refresh/error behavior, and regression safety."
+  - "Run Android unit/build checks and update checkpoint."
 last_verified_commit: "0edf2d8431270749484f099fadf983f15a4aff05"
 test_results:
-  - "Gateway unit tests 6/6 passed after ingress hardening."
-  - "Public HTTPS API and TLS certificate verified before real upstream credentials were added."
-  - "Real RU upstream verified through public HTTPS relay: exit country RU."
-  - "Real US upstream verified through public HTTPS relay: exit country US."
-  - "Public locations API exposes only id/label/country_code; supplier credentials remain server-side."
-resume_instruction: "Gateway task is complete. Real RU and US upstreams are live behind the public TLS ingress. Continue with Android free-location integration in a new task; PR #148 remains unmerged pending explicit owner authorization."
-updated_at: "2026-09-21T12:36:00+03:00"
+  - "Gateway unit tests 6/6 passed."
+  - "Real RU and US public end-to-end proxy checks passed."
+resume_instruction: "Inspect Android code for ProxyProfile, SecureProfileStore, ViewModel/repository and VPN service/engine connection path. Implement free-location API/session integration without persisting short-lived session passwords."
+updated_at: "2026-09-21T12:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
