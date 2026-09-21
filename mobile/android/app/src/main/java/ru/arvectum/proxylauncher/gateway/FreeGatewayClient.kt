@@ -2,6 +2,7 @@ package ru.arvectum.proxylauncher.gateway
 
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 import org.json.JSONObject
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
@@ -110,7 +111,7 @@ internal object FreeGatewayJson {
         val username = proxy.getString("username")
         val password = proxy.getString("password")
         val type = runCatching {
-            ProxyType.valueOf(proxy.getString("type").uppercase())
+            ProxyType.valueOf(proxy.getString("type").uppercase(Locale.ROOT))
         }.getOrElse {
             throw IllegalArgumentException("Gateway returned an unsupported proxy type")
         }
