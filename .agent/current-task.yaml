@@ -20,7 +20,7 @@ completed:
   - "Stress test passed 20 sequential plus 10 concurrent CONNECT requests for RU and the same for US: 60/60 successful."
   - "Sustained 60-second transfer tests through both RU and US stayed connected for the full test window and transferred about 4 MB each; curl stopped only at the imposed 60-second limit."
   - "Prepared Android 0.1.23 changes: VpnService.protect() for outbound HTTPS relay sockets, bounded automatic free-tunnel engine recovery, and selector refresh/retry/reopen behavior."
-current: "Android 0.1.24 passed CI; gateway health monitor is live; APK is ready and awaiting owner physical-device dogfood."
+current: "Owner installed Android 0.1.24; free RU/US entries now appear immediately with live latency. Awaiting free-US data-path/connectivity result."
 pending:
   - "Owner installs Android 0.1.24 and verifies РФ/США are visible immediately with latency/availability."
   - "Owner verifies free mode reaches STATE_CONNECTED only when browser traffic actually works."
@@ -36,11 +36,11 @@ test_results:
   - "Exact fix commit b7237d989a5a5b0d28cd3d672e1d47a0fb4eb03f passed Free proxy gateway, Secret scan, SAST, SBOM, dependency scan, provenance, reconciliation, and Android workflows."
   - "0.1.23 physical dogfood: free locations appeared after a delay; США could be selected and showed CONNECTED, but browser returned ERR_CONNECTION_CLOSED."
   - "Prepared 0.1.24: bootstrap RU/US entries, server upstream CONNECT health latency, selector latency/unavailable state, free preflight telemetry, and a post-connect HTTPS payload check before STATE_CONNECTED."
-  - "Gateway health monitor deployed live; /v1/free/locations reports available=true with measured CONNECT latency for RU/US and no secrets."
+  - "Gateway health monitor deployed live; /v1/free/locations reports available=true with measured CONNECT latency for RU/US and no secrets."\n  - "Physical-device 0.1.24 UI verified: РФ бесплатно ~96 ms, США бесплатно ~287 ms, manual US ~375 ms; free entries visible immediately."
   - "Android 0.1.24 Mobile Android spike run 35597693253 SUCCESS: unit tests, assembleDebug, signer/branding verification, SHA-256, artifact upload."
   - "Exact implementation commit df787139628ad04e6b0b517bfc44a846a62fc651 passed gateway, Secret scan, SAST, SBOM, dependency scan, provenance, reconciliation, and Android workflows."
   - "CI APK SHA-256: 857d5e9a8175bf23154fde2a8b27dfb7887dc8a325bf25d2bd5b6155484c5fc8."
-resume_instruction: "Await owner dogfood of Android 0.1.24. Verify free entries are visible immediately with ping, STATE_CONNECTED is gated by the post-connect HTTPS data-path probe, and РФ/США sustain real browser traffic. If successful, mark completed and archive; otherwise continue from the exact displayed state/error."
+resume_instruction: "Free-entry visibility and ping are verified on physical Android 0.1.24. Next verify США бесплатно connection: observe whether the post-connect data-path check appears, whether STATE_CONNECTED is reached, and whether myip.com loads. If it fails, continue diagnosis from the exact displayed state/error."
 updated_at: "2026-09-21T14:30:00+03:00"
 execution:
   claimed_by: "ChatGPT"
