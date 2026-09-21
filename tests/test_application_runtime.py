@@ -125,7 +125,6 @@ class ApplicationRuntimeTests(unittest.TestCase):
 
         with mock.patch.object(core, "ProxyCore", return_value=replacement) as proxy_core, \
              mock.patch.object(core, "structured_log") as log, \
-             mock.patch.object(core, "refresh_system_proxy", return_value=True) as refresh, \
              mock.patch.object(core, "enable_system_proxy") as enable, \
              mock.patch.object(core, "disable_system_proxy") as disable, \
              mock.patch.object(application_runtime.time, "sleep") as sleep:
@@ -137,7 +136,6 @@ class ApplicationRuntimeTests(unittest.TestCase):
         old_proxy.stop.assert_called_once_with()
         proxy_core.assert_called_once_with(settings)
         replacement.start.assert_called_once_with()
-        refresh.assert_called_once_with()
         enable.assert_not_called()
         disable.assert_not_called()
         sleep.assert_not_called()
@@ -154,8 +152,6 @@ class ApplicationRuntimeTests(unittest.TestCase):
         with mock.patch.object(
             core, "ProxyCore", side_effect=[first, second]
         ) as proxy_core, mock.patch.object(
-            core, "refresh_system_proxy", return_value=True
-        ) as refresh, mock.patch.object(
             application_runtime.time, "sleep"
         ) as sleep, mock.patch.object(core, "structured_log"):
             result = application_runtime._restart_transport_after_resume(
@@ -164,28 +160,9 @@ class ApplicationRuntimeTests(unittest.TestCase):
 
         self.assertIs(result, second)
         self.assertEqual(proxy_core.call_count, 2)
-        refresh.assert_called_once_with()
         sleep.assert_called_once_with(
             application_runtime.RESUME_REBIND_RETRY_DELAYS[1]
         )
-
-    def test_resume_rebind_proxy_refresh_failure_stops_replacement(self):
-        settings = dict(core.DEFAULT_SETTINGS)
-        old_proxy = mock.Mock()
-        replacement = mock.Mock()
-        replacement.start.return_value = (True, "OK")
-
-        with mock.patch.object(core, "ProxyCore", return_value=replacement), \
-             mock.patch.object(core, "refresh_system_proxy", return_value=False) as refresh, \
-             mock.patch.object(core, "structured_log") as log:
-            result = application_runtime._restart_transport_after_resume(
-                old_proxy, settings, 1234.5
-            )
-
-        self.assertIsNone(result)
-        refresh.assert_called_once_with()
-        replacement.stop.assert_called_once_with()
-        self.assertEqual(log.call_args.kwargs["phase"], "proxy_refresh_failed")
 
     def test_resume_rebind_failure_rolls_back_system_proxy(self):
         settings = dict(core.DEFAULT_SETTINGS)

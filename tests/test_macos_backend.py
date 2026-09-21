@@ -217,7 +217,7 @@ class MacOSBackendTests(unittest.TestCase):
             self.client.calls,
         )
 
-    def test_refresh_reasserts_only_owned_manual_route_and_preserves_backup(self):
+    def test_refresh_verifies_owned_manual_route_without_mutation(self):
         self.assertTrue(self.backend.enable(CONFIG))
         with open(self.backup_path, "rb") as stream:
             backup_before = stream.read()
@@ -225,20 +225,7 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertTrue(self.backend.refresh(CONFIG))
 
-        mutations = [call for call in self.client.calls if call[0].startswith("set_")]
-        self.assertCountEqual(
-            mutations,
-            [
-                ("set_web_proxy_state", "Wi-Fi", False),
-                ("set_secure_web_proxy_state", "Wi-Fi", False),
-                ("set_web_proxy_state", "Wi-Fi", True),
-                ("set_secure_web_proxy_state", "Wi-Fi", True),
-                ("set_web_proxy_state", "Ethernet", False),
-                ("set_secure_web_proxy_state", "Ethernet", False),
-                ("set_web_proxy_state", "Ethernet", True),
-                ("set_secure_web_proxy_state", "Ethernet", True),
-            ],
-        )
+        self.assertFalse(any(call[0].startswith("set_") for call in self.client.calls))
         with open(self.backup_path, "rb") as stream:
             self.assertEqual(stream.read(), backup_before)
         self.assertTrue(self.backend.is_enabled(CONFIG))
@@ -270,26 +257,6 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertFalse(any(call[0].startswith("set_") for call in self.client.calls))
         self.assertTrue(self.backend.restore_pending())
-
-    def test_refresh_recovers_owned_manual_route_if_reenable_fails_once(self):
-        self.assertTrue(self.backend.enable(CONFIG))
-        original = self.client.set_secure_web_proxy_state
-        failed = {"done": False}
-
-        def flaky(service, enabled):
-            if service == "Wi-Fi" and enabled and not failed["done"]:
-                failed["done"] = True
-                raise NetworkSetupError("injected manual refresh failure")
-            return original(service, enabled)
-
-        self.client.set_secure_web_proxy_state = flaky
-
-        self.assertFalse(self.backend.refresh(CONFIG))
-
-        self.assertTrue(self.client.services["Wi-Fi"]["web"]["enabled"])
-        self.assertTrue(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
-        self.assertTrue(self.backend.restore_pending())
-        self.assertTrue(self.backend.is_enabled(CONFIG))
 
     def test_disable_restores_exact_snapshots_and_clears_ownership_evidence(self):
         original = {
