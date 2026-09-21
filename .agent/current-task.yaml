@@ -12,18 +12,18 @@ definition_of_done:
   - "Relevant Android tests/build checks pass."
 completed:
   - "Gateway and real RU/US upstreams validated end-to-end through public TLS ingress."
-current: "Inspecting Android connection/profile architecture to integrate free locations with minimal disruption."
+current: "Android free-location integration implemented at 443e60c; exact-head Mobile Android CI is running."
 pending:
   - "Identify profile storage, connection command path, VPN engine HTTPS proxy support, and UI entry point."
   - "Implement gateway API client and ephemeral free-session model."
   - "Wire free locations into Android UI/connection flow."
   - "Add tests for API parsing, temporary credentials, refresh/error behavior, and regression safety."
   - "Run Android unit/build checks and update checkpoint."
-last_verified_commit: "0edf2d8431270749484f099fadf983f15a4aff05"
+last_verified_commit: "443e60cf6d1df8b7eb5bd63897f684a5aea6fdae"
 test_results:
   - "Gateway unit tests 6/6 passed."
-  - "Real RU and US public end-to-end proxy checks passed."
-resume_instruction: "Inspect Android code for ProxyProfile, SecureProfileStore, ViewModel/repository and VPN service/engine connection path. Implement free-location API/session integration without persisting short-lived session passwords."
+  - "Real RU and US public end-to-end proxy checks passed."\n  - "Android implementation commit 443e60c adds free-location API/session client, persistent location-only selection, in-memory credentials, HTTPS relay profile, and pre-expiry session refresh."\n  - "Server session TTL set to 3600 seconds; RU and US reverified end-to-end after restart."
+resume_instruction: "Check Mobile Android spike run 35586152257 for exact head 443e60cf6d1df8b7eb5bd63897f684a5aea6fdae. If it fails, inspect the failed Gradle step, patch and rerun. If green, verify remaining exact-head checks, mark task completed, and keep PR #148 unmerged unless owner explicitly authorizes merge."
 updated_at: "2026-09-21T12:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
