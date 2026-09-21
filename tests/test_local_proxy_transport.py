@@ -87,6 +87,7 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         stop = mock.Mock()
         stop.is_set.return_value = False
 
+        engine = core.ProxyCore({"upstream": []})
         with mock.patch.object(
             local_proxy_transport.select,
             "select",
@@ -100,7 +101,7 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
             "time",
             side_effect=[1000.0, 1300.0],
         ), mock.patch.object(core, "structured_log") as log:
-            core.ProxyCore._relay(src, dst, stop)
+            engine._relay(src, dst, stop)
 
         select_call.assert_called_once_with([src, dst], [], [], 5.0)
         self.assertEqual(log.call_args.kwargs["termination_reason"], "idle_timeout")
@@ -113,6 +114,7 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         stop = mock.Mock()
         stop.is_set.return_value = False
 
+        engine = core.ProxyCore({"upstream": []})
         with mock.patch.object(
             local_proxy_transport.select,
             "select",
@@ -126,13 +128,14 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
             "time",
             side_effect=[1000.0, 1101.0],
         ), mock.patch.object(
-            local_proxy_transport,
-            "_refresh_system_proxy_after_sleep",
-        ) as refresh, mock.patch.object(core, "structured_log") as log:
-            core.ProxyCore._relay(src, dst, stop)
+            local_proxy_transport.sys,
+            "platform",
+            "darwin",
+        ), mock.patch.object(core, "structured_log") as log:
+            engine._relay(src, dst, stop)
 
         select_call.assert_called_once_with([src, dst], [], [], 5.0)
-        refresh.assert_called_once_with(detected_at=1101.0)
+        self.assertEqual(engine.consume_resume_rebind_request(), 1101.0)
         dst.recv.assert_not_called()
         src.sendall.assert_not_called()
         self.assertEqual(
@@ -142,45 +145,53 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         src.close.assert_called_once_with()
         dst.close.assert_called_once_with()
 
-    def test_resume_refresh_is_coalesced_for_one_wake_burst(self):
-        local_proxy_transport._reset_resume_refresh_for_tests()
-        with mock.patch.object(
-            core, "refresh_system_proxy", return_value=True
-        ) as refresh, mock.patch.object(core, "structured_log") as log:
-            first = local_proxy_transport._refresh_system_proxy_after_sleep(
-                detected_at=100.0
-            )
-            second = local_proxy_transport._refresh_system_proxy_after_sleep(
-                detected_at=101.0
-            )
-            third = local_proxy_transport._refresh_system_proxy_after_sleep(
-                detected_at=111.0
-            )
+    def test_resume_rebind_request_is_coalesced_for_one_wake_burst(self):
+        engine = core.ProxyCore({"upstream": []})
+        with mock.patch.object(core, "structured_log") as log:
+            first = engine._request_resume_rebind(detected_at=100.0)
+            second = engine._request_resume_rebind(detected_at=101.0)
+            first_detected = engine.consume_resume_rebind_request()
+            third = engine._request_resume_rebind(detected_at=111.0)
+            third_detected = engine.consume_resume_rebind_request()
 
         self.assertTrue(first)
-        self.assertIsNone(second)
+        self.assertFalse(second)
+        self.assertEqual(first_detected, 100.0)
         self.assertTrue(third)
-        self.assertEqual(refresh.call_count, 2)
+        self.assertEqual(third_detected, 111.0)
+        self.assertEqual(log.call_count, 2)
         self.assertEqual(
             log.call_args.kwargs["event"],
-            "proxy.resume.system_proxy_refresh",
+            "proxy.resume.transport_rebind_requested",
         )
-        self.assertTrue(log.call_args.kwargs["refreshed"])
-        local_proxy_transport._reset_resume_refresh_for_tests()
 
-    def test_resume_refresh_is_noop_when_runtime_has_no_platform_refresh(self):
-        local_proxy_transport._reset_resume_refresh_for_tests()
+    def test_non_macos_sleep_retires_tunnel_without_requesting_rebind(self):
+        src = mock.Mock()
+        dst = mock.Mock()
+        stop = mock.Mock()
+        stop.is_set.return_value = False
+        engine = core.ProxyCore({"upstream": []})
+
         with mock.patch.object(
-            core, "refresh_system_proxy", return_value=None
-        ) as refresh, mock.patch.object(core, "structured_log") as log:
-            result = local_proxy_transport._refresh_system_proxy_after_sleep(
-                detected_at=200.0
-            )
+            local_proxy_transport.select,
+            "select",
+            return_value=([dst], [], []),
+        ), mock.patch.object(
+            local_proxy_transport.time,
+            "monotonic",
+            side_effect=[100.0, 101.0, 101.0],
+        ), mock.patch.object(
+            local_proxy_transport.time,
+            "time",
+            side_effect=[1000.0, 1101.0],
+        ), mock.patch.object(
+            local_proxy_transport.sys,
+            "platform",
+            "linux",
+        ), mock.patch.object(core, "structured_log"):
+            engine._relay(src, dst, stop)
 
-        self.assertIsNone(result)
-        refresh.assert_called_once_with()
-        log.assert_not_called()
-        local_proxy_transport._reset_resume_refresh_for_tests()
+        self.assertIsNone(engine.consume_resume_rebind_request())
 
     def test_relay_logs_byte_counts_and_client_eof(self):
         src = mock.Mock()
@@ -190,12 +201,13 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         src.recv.return_value = b"abc"
         dst.recv.side_effect = [b"xy", b""]
 
+        engine = core.ProxyCore({"upstream": []})
         with mock.patch.object(
             local_proxy_transport.select,
             "select",
             side_effect=[([src], [], []), ([dst], [], []), ([dst], [], [])],
         ), mock.patch.object(core, "structured_log") as log:
-            core.ProxyCore._relay(src, dst, stop)
+            engine._relay(src, dst, stop)
 
         dst.sendall.assert_called_once_with(b"abc")
         src.sendall.assert_called_once_with(b"xy")

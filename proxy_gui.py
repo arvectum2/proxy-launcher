@@ -935,6 +935,7 @@ class Launcher:
             self._build_classic_main()
 
         self.refresh_status()
+        self.root.bind("<FocusIn>", self._refresh_status_on_focus, add="+")
         _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
@@ -1243,6 +1244,13 @@ class Launcher:
             pass
 
     # -- статус -------------------------------------------------------------
+
+    def _refresh_status_on_focus(self, _event=None):
+        """Reconcile GUI actions after lifecycle changes outside this window."""
+        try:
+            self.refresh_status()
+        except tk.TclError:
+            pass
 
     def refresh_status(self):
         running = core.is_running()

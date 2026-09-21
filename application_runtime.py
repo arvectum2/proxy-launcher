@@ -8,9 +8,13 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import time
 from types import ModuleType
 
 _CORE: ModuleType | None = None
+
+RESUME_REBIND_POLL_SECONDS = 0.5
+RESUME_REBIND_RETRY_DELAYS = (0.0, 0.25, 0.75)
 
 
 def configure(core: ModuleType) -> None:
@@ -45,6 +49,53 @@ def _ensure_local_files():
     return True
 
 
+def _restart_transport_after_resume(proxy, settings, detected_at):
+    """Rebind local listeners/relays without mutating the owned system proxy."""
+    core = _core()
+    core.structured_log(
+        "wake transport rebind starting",
+        event="proxy.resume.transport_rebind",
+        phase="starting",
+        detected_at=detected_at,
+    )
+    proxy.stop()
+    last_message = "unknown transport start failure"
+    for attempt, delay in enumerate(RESUME_REBIND_RETRY_DELAYS, start=1):
+        if delay:
+            time.sleep(delay)
+        replacement = core.ProxyCore(settings)
+        ok, message = replacement.start()
+        if ok:
+            core.structured_log(
+                "wake transport rebind completed",
+                event="proxy.resume.transport_rebind",
+                phase="completed",
+                attempt=attempt,
+                detected_at=detected_at,
+            )
+            return replacement
+        last_message = message
+        core.structured_log(
+            "wake transport rebind attempt failed",
+            level="WARNING",
+            event="proxy.resume.transport_rebind",
+            phase="retry",
+            attempt=attempt,
+            error=message,
+            detected_at=detected_at,
+        )
+
+    core.structured_log(
+        "wake transport rebind failed",
+        level="ERROR",
+        event="proxy.resume.transport_rebind",
+        phase="failed",
+        error=last_message,
+        detected_at=detected_at,
+    )
+    return None
+
+
 def _cmd_start():
     core = _core()
     settings = core.load_settings()
@@ -75,15 +126,34 @@ def _cmd_start():
         return 1
 
     print("proxy started")
+    exit_code = 0
     try:
-        while not proxy._stop.wait(3600):
-            pass
+        while not proxy._stop.wait(RESUME_REBIND_POLL_SECONDS):
+            detected_at = proxy.consume_resume_rebind_request()
+            if detected_at is None:
+                continue
+            replacement = _restart_transport_after_resume(
+                proxy, settings, detected_at
+            )
+            if replacement is None:
+                rollback_ok = core.disable_system_proxy()
+                if not rollback_ok:
+                    core.structured_log(
+                        "wake transport failure rollback incomplete",
+                        level="ERROR",
+                        event="proxy.resume.transport_rebind",
+                        phase="rollback_failed",
+                    )
+                print("wake transport recovery failed; network settings rolled back")
+                exit_code = 1
+                break
+            proxy = replacement
     except KeyboardInterrupt:
         pass
     finally:
         proxy.stop()
         core._remove_pid()
-    return 0
+    return exit_code
 
 
 def _cmd_stop():
