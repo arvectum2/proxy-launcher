@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-RELEASE-0.2.12-20260921
-status: in_progress
+status: completed
 goal: "Publish immutable Arvectum Proxy Launcher v0.2.12 releases on GitHub and GitVerse from an exact green main commit."
 authority: HUMAN
 definition_of_done:
@@ -22,21 +22,23 @@ completed:
   - "Archived completed macOS wake task to .agent/checkpoints/APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921.yaml."
   - "Prepared canonical 0.2.12 version identity and bilingual release notes without runtime behavior changes."
   - "Local release/version suite 85/85 PASS; full Python suite 905/905 PASS; compileall and git diff --check PASS."
-current: "Commit/push release/v0.2.12 and open release-prep PR."
-pending:
-  - "Open and merge release prep PR after exact-head checks."
-  - "Wait for exact-main release prerequisites."
-  - "Tag exact green main as v0.2.12."
-  - "Verify GitHub Release and GitVerse mirror end to end."
-last_verified_commit: "f1ce3e609980e20b4483435172958a856c9ef532"
+  - "Release-prep PR #151 exact head 49ea4c420559ba20f02a5637ffad457d7841e95d completed 31/31 workflow runs successfully and was merged."
+  - "Release main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde passed exact-main Windows portable, Windows installer, Astra/Linux DEB, RED OS RPM, Linux AppImage, and Release Evidence Package gates."
+  - "Annotated tag v0.2.12 was created only after duplicate guards passed and points to exact release main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde."
+  - "GitHub Release v0.2.12 was published by canonical release run 35632771656 with Windows portable/setup, Astra DEB, RED OS RPM, AppImage, and SHA256SUMS.txt."
+  - "Downloaded all GitHub v0.2.12 assets independently; sha256sum -c SHA256SUMS.txt PASS for the complete payload set."
+  - "GitVerse mirror in release run 35632771656 completed SUCCESS: metadata synchronization, immutable asset upload, and Verify public GitVerse payload parity all passed."
+current: "Completed: immutable v0.2.12 published on GitHub and mirrored to GitVerse from exact green main SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde; GitHub assets and GitVerse canonical payload parity verified."
+pending: []
+last_verified_commit: "8d9a4e5913fa92b39f0f926004df6f1fd57f3bde"
 test_results:
   - "Release workflow inspected: duplicate releases fail closed and tag must match VERSION and be an ancestor of main."
   - "GitVerse workflow inspected: release metadata, immutable assets and post-download canonical SHA-256 parity are verified."
   - "Local release/version suite: 85/85 PASS."
   - "Full local Python suite: 905/905 PASS."
   - "compileall and git diff --check PASS; VERSION=0.2.12 and APP_VERSION=0.2.12."
-resume_instruction: "Push release/v0.2.12, open PR, require exact-head green checks, merge through branch protection, then wait for exact-main release prerequisites. Do not overwrite v0.2.11. Only tag exact green main after Release Evidence Package is green."
-updated_at: "2026-09-21T20:28:00+03:00"
+resume_instruction: "Task complete. v0.2.12 is published and verified on GitHub and GitVerse. No further release action is required unless a new regression or publication issue is reported."
+updated_at: "2026-09-21T20:50:24+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-RELEASE-0.2.12-20260921"
