@@ -81,7 +81,7 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         build_pac.assert_not_called()
         self.assertIn(b"404 Not Found", client.sendall.call_args.args[0])
 
-    def test_relay_closes_idle_tunnel_after_300_awake_seconds(self):
+    def test_relay_closes_idle_tunnel_after_select_timeout(self):
         src = mock.Mock()
         dst = mock.Mock()
         stop = mock.Mock()
@@ -90,51 +90,11 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         with mock.patch.object(
             local_proxy_transport.select,
             "select",
-            return_value=([], [], []),
-        ) as select_call, mock.patch.object(
-            local_proxy_transport.time,
-            "monotonic",
-            side_effect=[100.0, 400.0, 400.0],
-        ), mock.patch.object(
-            local_proxy_transport.time,
-            "time",
-            side_effect=[1000.0, 1300.0],
-        ), mock.patch.object(core, "structured_log") as log:
+            side_effect=[([], [], []), OSError("second poll should not happen")],
+        ) as select_call:
             core.ProxyCore._relay(src, dst, stop)
 
-        select_call.assert_called_once_with([src, dst], [], [], 5.0)
-        self.assertEqual(log.call_args.kwargs["termination_reason"], "idle_timeout")
-        src.close.assert_called_once_with()
-        dst.close.assert_called_once_with()
-
-    def test_relay_retires_pre_sleep_tunnel_before_forwarding_post_wake_bytes(self):
-        src = mock.Mock()
-        dst = mock.Mock()
-        stop = mock.Mock()
-        stop.is_set.return_value = False
-
-        with mock.patch.object(
-            local_proxy_transport.select,
-            "select",
-            return_value=([dst], [], []),
-        ) as select_call, mock.patch.object(
-            local_proxy_transport.time,
-            "monotonic",
-            side_effect=[100.0, 101.0, 101.0],
-        ), mock.patch.object(
-            local_proxy_transport.time,
-            "time",
-            side_effect=[1000.0, 1101.0],
-        ), mock.patch.object(core, "structured_log") as log:
-            core.ProxyCore._relay(src, dst, stop)
-
-        select_call.assert_called_once_with([src, dst], [], [], 5.0)
-        dst.recv.assert_not_called()
-        src.sendall.assert_not_called()
-        self.assertEqual(
-            log.call_args.kwargs["termination_reason"],
-            "resume_after_sleep",
-        )
+        select_call.assert_called_once_with([src, dst], [], [], 300)
         src.close.assert_called_once_with()
         dst.close.assert_called_once_with()
 

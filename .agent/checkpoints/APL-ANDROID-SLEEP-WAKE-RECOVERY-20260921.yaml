@@ -1,0 +1,38 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-SLEEP-WAKE-RECOVERY-20260921
+status: blocked
+goal: "Fix the Android long-sleep/wake regression where APL was left ON, the phone slept for more than a day, and the foreground UI remained indefinitely on Подключение until the app was killed and restarted."
+authority: HUMAN
+definition_of_done:
+  - "Preserve the user-reported physical failure as field evidence and identify the stale lifecycle/state path."
+  - "When APL was logically ON before sleep, foreground resume reconciles UI with the isolated :vpn service without forcing a disconnect/reconnect of a healthy tunnel."
+  - "If Android reclaimed the :vpn process, foreground resume restarts the sticky VPN service and reuses an existing VPN grant without prompting again."
+  - "If the VPN grant was revoked, foreground resume does not auto-open a permission dialog and returns UI to a clear reconnect-required state."
+  - "APL left OFF does not auto-connect on foreground resume."
+  - "Add deterministic regression coverage for resume-action selection and service reconciliation behavior."
+  - "Android build/unit/signing and exact-head CI pass."
+  - "Physical Android long-sleep/wake retest passes."
+completed:
+  - "Implemented MainActivity.onResume reconciliation and ACTION_RECONCILE in ProxyVpnService."
+  - "Added deterministic JVM policy tests for ON/OFF/grant/dead-service/healthy-worker/handoff decisions."
+  - "Bumped Android dogfood candidate to 0.1.20 / versionCode 21."
+  - "GitHub Android workflow run 35574168940 passed testDebugUnitTest + assembleDebug, signer/branding verification and artifact checks."
+  - "Implementation PR #147 was explicitly owner-authorized and merged to main as commit 1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0 on 2026-09-21."
+current: "Implementation is merged; task is blocked only on HUMAN physical Android 0.1.20 long-sleep/wake dogfood verification."
+pending:
+  - "HUMAN: install/use Android 0.1.20, leave APL ON through a long sleep/idle interval, unlock/open APL, and confirm working CONNECTED state without killing the app or a new VPN permission prompt."
+  - "On physical FAIL, preserve the observed UI state/Journal/network state and reopen only the remaining lifecycle defect."
+last_verified_commit: "1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0"
+test_results:
+  - "Field failure before fix: Android phone slept unused >24h with APL ON; after unlock UI stayed Подключение until app kill/restart."
+  - "Implementation exact-head Android CI PASS at 11acf0a49db6849b17400a5a8a17693fb3277fda."
+  - "Merged implementation main commit: 1bbc6aee9683c0cdcbd3ec4d703c01f9cba5e5f0."
+resume_instruction: "Await HUMAN Android 0.1.20 long-sleep/wake retest. On PASS mark completed; on FAIL continue only from the observed remaining lifecycle failure. Do not publish an Android release without explicit authorization."
+updated_at: "2026-09-21T12:40:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-ANDROID-SLEEP-WAKE-RECOVERY-20260921"
+  branch: "fix/android-sleep-wake-recovery-20260921"
+  base_commit: "1b77508cadde8655b569606d9ad0e04438142d19"
+  manual_override: true
