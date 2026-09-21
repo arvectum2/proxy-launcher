@@ -31,9 +31,9 @@ completed:
   - "HUMAN Android 0.1.30 free RU PASS: connected successfully and public IP resolved to Russia; ChatGPT was unavailable as expected for a Russian exit, not because of APL transport failure."
   - "HUMAN Android 0.1.30 free US PASS: switched to US free, ChatGPT opened, and owner sent a live message through that connection."
   - "Gateway logs correlated the physical dogfood: ru-free CONNECT traffic was present before the switch; us-free CONNECT sessions carried bidirectional traffic after the switch, including a ~50s live session."
-current: "Gateway transient-upstream CONNECT retry hotfix is deployed live; awaiting sustained Android 0.1.30 US-free dogfood against the updated gateway."
+current: "HUMAN post-hotfix US-free PASS for geo continuity: reconnect occurred but ChatGPT remained usable without geo error. Reconnect itself remains under hardening; direct upstream probe returned 40/40 HTTP 200 CONNECT responses."
 pending:
-  - "Owner repeats sustained US-free Android 0.1.30 dogfood against the deployed gateway hotfix and verifies ChatGPT remains usable through any transient upstream reset."
+  - "Harden gateway against transient upstream HTTP rejection codes (408/429/5xx) while never retrying 407/auth failures."
   - "If another disconnect/reconnect occurs, correlate the exact attempt with relay_upstream_retry/recovered and Android recovery evidence before changing implementation."
   - "Only mark completed after sustained physical free-US stability is confirmed."
 last_verified_commit: "fd2898b0733fd1fefca3783490d0f6796d56ec0d"
@@ -47,8 +47,8 @@ test_results:
   - "Live gateway recheck: RU exit PASS and US exit PASS through public TLS ingress."
   - "HUMAN 0.1.30 free RU exit PASS."
   - "HUMAN 0.1.30 free US + ChatGPT live-traffic PASS."
-resume_instruction: "Await sustained HUMAN US-free test on existing Android 0.1.30 against the deployed gateway retry hotfix. If PASS, record duration/real ChatGPT traffic and complete only after stability is credible. If FAIL, immediately inspect Mac mini relay logs for relay_upstream_retry/recovered, relay_error stage, and connection lifetimes; preserve Primary/Amnezia baseline and do not reintroduce the rejected global tun2proxy patch."
-updated_at: "2026-09-21T18:17:00+03:00"
+resume_instruction: "Geo-continuity defect is physically PASS, but reconnect remains. Harden gateway to retry only transient upstream HTTP codes (408/429/5xx), preserve no-retry for 407/auth, add status-safe logging/tests, run exact-head CI, deploy, then repeat sustained Android US-free dogfood. Do not modify global tun2proxy."
+updated_at: "2026-09-21T18:27:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "feat/free-proxy-gateway-20260921"
