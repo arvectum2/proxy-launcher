@@ -250,4 +250,3 @@ class ConnectRelay:
         ).encode("ascii")
         writer.write(raw)
         await writer.drain()
-
