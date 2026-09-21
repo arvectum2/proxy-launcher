@@ -3,7 +3,10 @@
 import asyncio
 import base64
 import contextlib
+import itertools
 import ssl
+import sys
+import time
 
 from .api import GatewayApi
 from .http import read_request
@@ -29,21 +32,37 @@ def upstream_connect_request(upstream, target: str) -> bytes:
     return ("\r\n".join(lines) + "\r\n\r\n").encode("iso-8859-1")
 
 
-async def _pipe(reader, writer):
+async def _pipe(reader, writer, *, connection_id: int, direction: str):
+    total = 0
+    started = time.monotonic()
+    outcome = "eof"
     try:
         while True:
             chunk = await reader.read(65536)
             if not chunk:
                 break
+            total += len(chunk)
             writer.write(chunk)
             await writer.drain()
+    except Exception as exc:
+        outcome = type(exc).__name__
+        raise
     finally:
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        print(
+            f"relay_pipe id={connection_id} dir={direction} outcome={outcome} "
+            f"bytes={total} elapsed_ms={elapsed_ms}",
+            file=sys.stderr,
+            flush=True,
+        )
         with contextlib.suppress(Exception):
             writer.close()
 
 
 class ConnectRelay:
     """One plain-HTTP origin for both public API requests and authenticated CONNECT."""
+
+    _connection_ids = itertools.count(1)
 
     def __init__(self, config, health_monitor=None):
         self.config = config
@@ -52,6 +71,10 @@ class ConnectRelay:
 
     async def handle(self, reader, writer):
         upstream_writer = None
+        connection_id = next(self._connection_ids)
+        location_id = None
+        stage = "request"
+        started = time.monotonic()
         try:
             method, target, _, headers, body = await read_request(reader)
 
@@ -62,6 +85,7 @@ class ConnectRelay:
                 await writer.drain()
                 return
 
+            stage = "auth"
             auth = parse_basic_auth(headers.get("proxy-authorization"))
             if not auth:
                 await self._reject(writer, 407, "Proxy Authentication Required")
@@ -73,6 +97,7 @@ class ConnectRelay:
                 await self._reject(writer, 407, "Proxy Authentication Required")
                 return
 
+            stage = "upstream_connect"
             context = ssl.create_default_context() if upstream.tls else None
             upstream_reader, upstream_writer = await asyncio.open_connection(
                 upstream.host,
@@ -80,6 +105,7 @@ class ConnectRelay:
                 ssl=context,
                 server_hostname=upstream.host if context else None,
             )
+            stage = "upstream_connect_response"
             upstream_writer.write(upstream_connect_request(upstream, target))
             await upstream_writer.drain()
 
@@ -96,11 +122,25 @@ class ConnectRelay:
                 _pipe(reader, upstream_writer),
                 _pipe(upstream_reader, writer),
             )
-        except (ValueError, UnicodeDecodeError, asyncio.IncompleteReadError, OSError):
+        except (ValueError, UnicodeDecodeError, asyncio.IncompleteReadError, OSError) as exc:
+            print(
+                f"relay_error id={connection_id} location={location_id or '-'} "
+                f"stage={stage} error={type(exc).__name__} "
+                f"elapsed_ms={int((time.monotonic() - started) * 1000)}",
+                file=sys.stderr,
+                flush=True,
+            )
             with contextlib.suppress(Exception):
                 writer.write(b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\n\r\n")
                 await writer.drain()
         finally:
+            if stage == "tunnel":
+                print(
+                    f"relay_close id={connection_id} location={location_id or '-'} "
+                    f"elapsed_ms={int((time.monotonic() - started) * 1000)}",
+                    file=sys.stderr,
+                    flush=True,
+                )
             for stream in (upstream_writer, writer):
                 if stream is not None:
                     with contextlib.suppress(Exception):
