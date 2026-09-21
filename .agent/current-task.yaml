@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-NET-RECOVERY-20260921
-status: in_progress
+status: completed
 goal: "Fix the macOS Proxy Launcher network ownership loss observed after wake/recovery on MacBook-Air-Nikita, preserve safe rollback, and verify repeat ON/OFF recovery physically."
 authority: OPERATOR
 definition_of_done:
@@ -12,39 +12,34 @@ definition_of_done:
   - "Final 0.2.12 candidate is built with governed license bundle and strict codesign."
   - "Physical PID-loss -> ON and PID-loss -> OFF scenarios pass on MacBook-Air-Nikita."
   - "Final installed state is healthy and connectivity is verified."
-  - "Branch/checkpoint is pushed and a review-ready PR is opened; task is marked completed when exact-head CI is green or otherwise records the precise CI blocker."
+  - "Branch/checkpoint is pushed and a review-ready PR is opened with exact-head CI green or an explicitly recorded governance blocker."
 completed:
-  - "Diagnosed the failing host as MacBook-Air-Nikita; Mac mini state matched its legacy baseline."
-  - "Evidenced lost proxy_core.pid/macos ownership state while the live APL worker continued to own 18080/11080/18082, causing false STOPPED classification and duplicate --start port collisions."
-  - "Implemented safe macOS live-worker ownership recovery from all three listeners plus executable identity in commit 0a2051e."
-  - "Made PID persistence atomic and prevented an exiting predecessor from deleting a successor PID record."
-  - "Fixed OFF/rollback to refresh recovered PID ownership before kill/restore in commit 11b05a7."
-  - "Focused macOS/runtime/process/GUI suite PASS: 70 passed; Ruff F,E9,I PASS; git diff --check PASS."
-  - "Full suite: 1089 passed, 3 known historical Windows App Control failures unrelated to this macOS change."
-  - "Built governed macOS 0.2.12 candidate; license bundle verification and strict deep codesign PASS; executable SHA-256 010f2cd3189c8be1f068662c839826fbd5c6572d93b5d0f1768050214c9bf9c0."
-  - "Installed exact candidate on MacBook-Air-Nikita; installed hash matched the built candidate."
-  - "Physical lost-PID -> repeat ON PASS: worker PID 14054 recovered and retained; no duplicate/listener conflict; system HTTP/HTTPS stayed on 127.0.0.1:18080 with system PAC disabled."
-  - "Physical lost-PID -> OFF PASS: worker terminated, 18080/11080/18082 closed, PID/rollback markers removed, exact saved baseline restored for Tailscale, Thunderbolt Bridge, USB 10/100 LAN and Wi-Fi."
-  - "Final candidate restarted and left ON with one worker PID 14375; local PAC health PASS and external HTTPS through local proxy PASS (upstream IP 68.209.60.141)."
-  - "Branch pushed and review-ready PR #155 opened against main."
-  - "PR #155 head d9fa50035b6904084d751e2bcaf0c086135e323d had 14 checks discovered: Gitleaks and Mirror repository success; 12 checks in_progress; PR mergeable=true and mergeable_state=blocked only while checks are incomplete."
-current: "Await exact-head CI completion for PR #155; no further code or physical-host work is pending."
-pending:
-  - "Existing hourly Proxy Launcher Watchdog must inspect PR #155 exact-head required CI when it next runs."
-  - "If exact-head required CI is green, record completion and proceed only within canonical merge authority/policy; otherwise persist the exact failed check and remediate if within task scope."
-last_verified_commit: "11b05a73964982f047b5f67a365b0c61513cd2a8"
+  - "Diagnosed lost proxy_core.pid/rollback ownership while a live APL worker retained all three listeners, causing false STOPPED state and duplicate-start port collisions."
+  - "Implemented live-worker recovery from all three macOS listeners plus packaged executable identity, atomic PID persistence, and successor-safe PID cleanup."
+  - "Fixed OFF/rollback to recover and terminate the owned worker before restoring saved network state."
+  - "Focused suite PASS 70/70; Ruff F,E9,I PASS; git diff --check PASS."
+  - "Full suite 1089 passed with 3 known historical Windows App Control failures unrelated to this macOS change."
+  - "Governed macOS 0.2.12 build PASS with license verification and strict deep codesign; executable SHA-256 010f2cd3189c8be1f068662c839826fbd5c6572d93b5d0f1768050214c9bf9c0."
+  - "Physical lost-PID -> repeat ON PASS: same worker PID recovered; no duplicate worker and no Address already in use."
+  - "Physical lost-PID -> OFF PASS: worker terminated, APL ports closed, ownership markers removed, exact saved baseline restored for Wi-Fi/Tailscale/Thunderbolt Bridge/USB LAN."
+  - "Final installed candidate left ON and healthy; system HTTP/HTTPS route points to 127.0.0.1:18080, system PAC disabled, local PAC healthy, external HTTPS via proxy PASS."
+  - "PR #155 opened and code-bearing exact head 0b70f67e343e9f9e6391610483de33857ddaad61 reached 14/14 GitHub checks SUCCESS and mergeable_state=clean."
+  - "Automatic merge intentionally not performed: canonical execution queue has no item for APL-MACOS-NET-RECOVERY-20260921 with auto_merge:true, while Company AM-4 requires that exact condition."
+current: "Engineering task complete; PR #155 is review-ready and awaits an explicit canonical merge gate or human merge."
+pending: []
+last_verified_commit: "0b70f67e343e9f9e6391610483de33857ddaad61"
 test_results:
   - "70 focused tests passed."
   - "Full suite: 1089 passed, 3 known historical Windows App Control failures."
   - "Ruff F,E9,I PASS."
   - "git diff --check PASS."
-  - "Governed build + license bundle verify + codesign --deep --strict PASS."
+  - "Governed build + license verify + codesign --deep --strict PASS."
   - "Physical lost-PID repeat-ON PASS."
   - "Physical lost-PID OFF/rollback exact-baseline PASS across 4 saved network services."
   - "Final installed system route/PAC/proxy-connectivity PASS."
-  - "Initial PR #155 CI snapshot on d9fa500: 2 success, 12 in_progress, 0 failed."
-resume_instruction: "Read PR #155 and the current branch head first. Do not repeat physical testing or local suites. Inspect exact-head CI once. If checks are green, satisfy canonical completion/merge gates; if pending, persist truthful waiting state without duplicate work; if failed, inspect only the failed job and remediate within this task scope."
-updated_at: "2026-09-21T22:40:00+03:00"
+  - "PR #155 code-bearing head 0b70f67: 14/14 GitHub checks SUCCESS."
+resume_instruction: "No engineering work remains. Do not repeat tests or host diagnostics. If Owner explicitly admits this task to the canonical queue with auto_merge:true or explicitly performs/authorizes a human merge outside AM-4 auto-merge, re-check PR #155 current head/base/ruleset and merge safety before integration."
+updated_at: "2026-09-21T22:49:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260921-macos-net-recovery"
