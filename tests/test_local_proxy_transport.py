@@ -125,10 +125,14 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
             local_proxy_transport.time,
             "time",
             side_effect=[1000.0, 1101.0],
-        ), mock.patch.object(core, "structured_log") as log:
+        ), mock.patch.object(
+            local_proxy_transport,
+            "_refresh_system_proxy_after_sleep",
+        ) as refresh, mock.patch.object(core, "structured_log") as log:
             core.ProxyCore._relay(src, dst, stop)
 
         select_call.assert_called_once_with([src, dst], [], [], 5.0)
+        refresh.assert_called_once_with(detected_at=1101.0)
         dst.recv.assert_not_called()
         src.sendall.assert_not_called()
         self.assertEqual(
@@ -137,6 +141,46 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         )
         src.close.assert_called_once_with()
         dst.close.assert_called_once_with()
+
+    def test_resume_refresh_is_coalesced_for_one_wake_burst(self):
+        local_proxy_transport._reset_resume_refresh_for_tests()
+        with mock.patch.object(
+            core, "refresh_system_proxy", return_value=True
+        ) as refresh, mock.patch.object(core, "structured_log") as log:
+            first = local_proxy_transport._refresh_system_proxy_after_sleep(
+                detected_at=100.0
+            )
+            second = local_proxy_transport._refresh_system_proxy_after_sleep(
+                detected_at=101.0
+            )
+            third = local_proxy_transport._refresh_system_proxy_after_sleep(
+                detected_at=111.0
+            )
+
+        self.assertTrue(first)
+        self.assertIsNone(second)
+        self.assertTrue(third)
+        self.assertEqual(refresh.call_count, 2)
+        self.assertEqual(
+            log.call_args.kwargs["event"],
+            "proxy.resume.system_proxy_refresh",
+        )
+        self.assertTrue(log.call_args.kwargs["refreshed"])
+        local_proxy_transport._reset_resume_refresh_for_tests()
+
+    def test_resume_refresh_is_noop_when_runtime_has_no_platform_refresh(self):
+        local_proxy_transport._reset_resume_refresh_for_tests()
+        with mock.patch.object(
+            core, "refresh_system_proxy", return_value=None
+        ) as refresh, mock.patch.object(core, "structured_log") as log:
+            result = local_proxy_transport._refresh_system_proxy_after_sleep(
+                detected_at=200.0
+            )
+
+        self.assertIsNone(result)
+        refresh.assert_called_once_with()
+        log.assert_not_called()
+        local_proxy_transport._reset_resume_refresh_for_tests()
 
     def test_relay_logs_byte_counts_and_client_eof(self):
         src = mock.Mock()

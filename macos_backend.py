@@ -631,6 +631,56 @@ class MacOSBackend(ProxyBackend):
                     self._log("rollback succeeded but backup cleanup failed: %s" % clear_exc)
             return False
 
+    def refresh(self, config: ProxyBackendConfig) -> bool:
+        """Invalidate macOS PAC/CFNetwork state without changing ownership."""
+        canonical = _canonical_config(config)
+        if canonical is None or not self._store.exists():
+            return False
+        try:
+            payload = self._load_backup()
+        except Exception as exc:
+            self._log("macOS refresh refused: rollback state is unreadable: %s" % exc)
+            return False
+        if not self._payload_matches_config(payload, config):
+            self._log("macOS refresh refused: requested config is not the owned config")
+            return False
+        if not self._payload_is_owned(payload):
+            self._log("macOS refresh refused: live proxy state is not fully APL-owned")
+            return False
+
+        applied = payload["applied_config"]
+        for service_name, snapshot in payload["services"].items():
+            if not self._service_matches_owned_state(
+                service_name, snapshot, applied
+            ):
+                self._log(
+                    "macOS refresh refused: %s stopped matching APL-owned state"
+                    % service_name
+                )
+                return False
+            self._client.set_auto_proxy_state(service_name, False)
+            try:
+                self._client.set_auto_proxy_state(service_name, True)
+            except Exception as exc:
+                # Best effort: restore the exact APL-owned state proven before
+                # this refresh edge. Refresh never relinquishes ownership.
+                try:
+                    self._client.set_auto_proxy_state(service_name, True)
+                except Exception as restore_exc:
+                    self._log(
+                        "macOS refresh recovery failed for %s: %s"
+                        % (service_name, restore_exc)
+                    )
+                self._log("macOS refresh failed for %s: %s" % (service_name, exc))
+                return False
+
+        owned = self._payload_is_owned(payload)
+        if not owned:
+            self._log(
+                "macOS refresh incomplete: refreshed services failed ownership verification"
+            )
+        return bool(owned)
+
     def _restore_service(self, service_name: str, snapshot: Mapping[str, Any]) -> None:
         auto = snapshot["auto_proxy"]
         enabled = bool(auto["enabled"])

@@ -170,6 +170,26 @@ def enable_system_proxy() -> bool:
         return False
 
 
+def refresh_system_proxy():
+    """Refresh an already-owned macOS proxy route after wake.
+
+    ``None`` means the current platform intentionally has no wake-refresh
+    mutation. ``False`` means macOS refresh was attempted/refused/failed.
+    """
+    try:
+        if _effective_runtime_platform() != "darwin":
+            return None
+        _require_new_mutation_operational()
+        backend = get_proxy_backend()
+        refresh = getattr(backend, "refresh", None)
+        if not callable(refresh):
+            return False
+        return bool(refresh(resolved_backend_config()))
+    except Exception as error:
+        _backend_failure("refresh", error)
+        return False
+
+
 def disable_system_proxy() -> bool:
     try:
         # Rollback must remain reachable even if readiness later degrades.
@@ -215,6 +235,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core._interactive_policykit_context = _interactive_policykit_context
     core._require_new_mutation_operational = _require_new_mutation_operational
     core.enable_system_proxy = enable_system_proxy
+    core.refresh_system_proxy = refresh_system_proxy
     core.disable_system_proxy = disable_system_proxy
     core.system_proxy_enabled = system_proxy_enabled
     core.network_restore_pending = network_restore_pending

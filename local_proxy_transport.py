@@ -22,6 +22,10 @@ SOCKS5_REPLY_BIND_ADDR = socket.inet_aton("0.0.0.0")  # nosec B104
 RELAY_IDLE_TIMEOUT_SECONDS = 300.0
 RELAY_RESUME_POLL_SECONDS = 5.0
 RELAY_SLEEP_GAP_SECONDS = 5.0
+RESUME_PROXY_REFRESH_COOLDOWN_SECONDS = 10.0
+
+_RESUME_REFRESH_LOCK = threading.Lock()
+_LAST_RESUME_REFRESH_WALL: float | None = None
 
 _CORE: ModuleType | None = None
 
@@ -36,6 +40,55 @@ def _core() -> ModuleType:
     if _CORE is None:
         raise RuntimeError("local proxy transport is not configured")
     return _CORE
+
+
+def _reset_resume_refresh_for_tests() -> None:
+    global _LAST_RESUME_REFRESH_WALL
+    with _RESUME_REFRESH_LOCK:
+        _LAST_RESUME_REFRESH_WALL = None
+
+
+def _refresh_system_proxy_after_sleep(detected_at=None):
+    """Request at most one system-proxy refresh for a burst of wake relays."""
+    global _LAST_RESUME_REFRESH_WALL
+    core = _core()
+    now = time.time() if detected_at is None else float(detected_at)
+    with _RESUME_REFRESH_LOCK:
+        previous = _LAST_RESUME_REFRESH_WALL
+        if (
+            previous is not None
+            and now - previous < RESUME_PROXY_REFRESH_COOLDOWN_SECONDS
+        ):
+            return None
+        # Claim this wake before the relatively slow networksetup operation so
+        # concurrent relay threads cannot create a PAC toggle storm.
+        _LAST_RESUME_REFRESH_WALL = now
+
+    try:
+        refreshed = core.refresh_system_proxy()
+    except Exception as exc:
+        core.structured_log(
+            "wake system proxy refresh raised",
+            level="WARNING",
+            event="proxy.resume.system_proxy_refresh",
+            refreshed=False,
+            error_type=type(exc).__name__,
+        )
+        return False
+
+    # Windows/Linux intentionally return None: no wake-time proxy mutation and
+    # no platform-specific log noise on those systems.
+    if refreshed is None:
+        return None
+    core.structured_log(
+        "wake system proxy refresh completed"
+        if refreshed
+        else "wake system proxy refresh was refused or failed",
+        level="INFO" if refreshed else "WARNING",
+        event="proxy.resume.system_proxy_refresh",
+        refreshed=bool(refreshed),
+    )
+    return bool(refreshed)
 
 
 class ProxyCore:
@@ -257,19 +310,22 @@ class ProxyCore:
         except Exception as exc:
             reason = "relay_error:%s" % type(exc).__name__
         finally:
-            core.structured_log(
-                "proxy relay closed",
-                event="proxy.relay.closed",
-                upstream_to_client_bytes=src_to_dst,
-                client_to_upstream_bytes=dst_to_src,
-                elapsed_ms=int((time.monotonic() - started) * 1000),
-                termination_reason=reason,
-            )
+            elapsed_ms = int((time.monotonic() - started) * 1000)
             for stream in (src, dst):
                 try:
                     stream.close()
                 except Exception:
                     pass
+            if reason == "resume_after_sleep":
+                _refresh_system_proxy_after_sleep(detected_at=now_wall)
+            core.structured_log(
+                "proxy relay closed",
+                event="proxy.relay.closed",
+                upstream_to_client_bytes=src_to_dst,
+                client_to_upstream_bytes=dst_to_src,
+                elapsed_ms=elapsed_ms,
+                termination_reason=reason,
+            )
 
     def _handle_http(self, client):
         core = _core()

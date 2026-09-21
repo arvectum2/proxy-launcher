@@ -216,6 +216,80 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertLess(bypass_i, off_i)
         self.assertLess(off_i, on_i)
 
+    def test_refresh_reasserts_only_owned_pac_edge_and_preserves_backup(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        with open(self.backup_path, "rb") as stream:
+            backup_before = stream.read()
+        self.client.calls.clear()
+
+        self.assertTrue(self.backend.refresh(CONFIG))
+
+        mutations = [
+            call for call in self.client.calls
+            if call[0].startswith("set_")
+        ]
+        self.assertCountEqual(
+            mutations,
+            [
+                ("set_auto_proxy_state", "Wi-Fi", False),
+                ("set_auto_proxy_state", "Wi-Fi", True),
+                ("set_auto_proxy_state", "Ethernet", False),
+                ("set_auto_proxy_state", "Ethernet", True),
+            ],
+        )
+        for service_name in ("Wi-Fi", "Ethernet"):
+            off_i = mutations.index(
+                ("set_auto_proxy_state", service_name, False)
+            )
+            on_i = mutations.index(
+                ("set_auto_proxy_state", service_name, True)
+            )
+            self.assertLess(off_i, on_i)
+        with open(self.backup_path, "rb") as stream:
+            self.assertEqual(stream.read(), backup_before)
+        self.assertTrue(self.backend.is_enabled(CONFIG))
+
+    def test_refresh_refuses_foreign_live_state_without_mutation(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["auto"] = AutoProxyState(
+            True, "http://foreign.example/proxy.pac"
+        )
+        self.client.calls.clear()
+
+        self.assertFalse(self.backend.refresh(CONFIG))
+
+        self.assertFalse(
+            any(call[0] == "set_auto_proxy_state" for call in self.client.calls)
+        )
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["auto"],
+            AutoProxyState(True, "http://foreign.example/proxy.pac"),
+        )
+        self.assertTrue(self.backend.restore_pending())
+
+    def test_refresh_recovers_owned_pac_if_reenable_fails_once(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        original = self.client.set_auto_proxy_state
+        failed = {"done": False}
+
+        def flaky(service, enabled):
+            if service == "Wi-Fi" and enabled and not failed["done"]:
+                failed["done"] = True
+                raise NetworkSetupError("injected wake refresh re-enable failure")
+            return original(service, enabled)
+
+        self.client.set_auto_proxy_state = flaky
+
+        self.assertFalse(self.backend.refresh(CONFIG))
+
+        self.assertTrue(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["auto"].url,
+            CONFIG.pac_url,
+        )
+        self.assertTrue(self.backend.restore_pending())
+        self.assertTrue(self.backend.is_enabled(CONFIG))
+
     def test_disable_restores_exact_snapshots_and_clears_ownership_evidence(self):
         original = {
             name: (state["auto"], state["bypass"])

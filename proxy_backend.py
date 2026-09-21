@@ -40,6 +40,8 @@ class ProxyBackend(ABC):
       must never silently clear it.
     * ``sync_no_proxy`` updates active bypass state without taking ownership of
       pre-existing user bypass entries.
+    * ``refresh`` may reassert only state already proven to belong to this
+      backend; the default implementation performs no mutation.
 
     Backends do not start/stop ProxyCore, persist product settings, generate
     PAC content, or implement GUI policy.  Those responsibilities remain in
@@ -56,6 +58,10 @@ class ProxyBackend(ABC):
     def enable(self, config: ProxyBackendConfig) -> bool:
         """Enable this launcher's system proxy configuration safely."""
         raise NotImplementedError
+
+    def refresh(self, config: ProxyBackendConfig):
+        """Reassert already-owned live state without acquiring ownership."""
+        return False
 
     @abstractmethod
     def disable(self) -> bool:
