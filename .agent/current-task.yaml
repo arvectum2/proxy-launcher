@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: blocked
+status: in_progress
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -26,11 +26,12 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Blocked only on HUMAN physical sleep/wake of the installed transport-rebind candidate. APL is ON and the verified implementation/checkpoint head 46a805f completed 19/19 workflow runs SUCCESS."
+current: "macOS manual-local HTTP/HTTPS route implementation is locally verified, including live system smoke and exact rollback. Commit/push PR #149 and obtain exact-head CI/macOS artifact."
 pending:
-  - "HUMAN physical sleep/wake retest of installed binary SHA256 44a9a2ad5f54f04a314f0c9f3bc1cf8e9f4e420baf1e755712273ab2a9f32041 without disabling APL or restarting browser."
-  - "On PASS, verify rebind logs/checks and seek explicit merge authority; do not publish implicitly."
-  - "On FAIL, inspect proxy.resume.transport_rebind requested/starting/completed plus post-rebind traffic before further changes."
+  - "Commit and push manual-local macOS routing implementation to PR #149."
+  - "Obtain exact-head CI including macOS packaging/security gates."
+  - "Install new unpublished ARM candidate and run ON/OFF rollback smoke."
+  - "HUMAN physical sleep/wake retest without disabling APL or restarting browser."
 last_verified_commit: "46a805fc6abae398d69b1d6bff84c3e091c6b316"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
@@ -60,8 +61,14 @@ test_results:
   - "Installed candidate binary SHA256 44a9a2ad5f54f04a314f0c9f3bc1cf8e9f4e420baf1e755712273ab2a9f32041; prior PR #149 app backed up under candidate-backup-before-wake-rebind-pr149-20260921."
   - "Installed candidate smoke PASS: listeners 18080/11080/18082, PAC 18082, proxied public IP 68.209.60.141; OFF rollback diff against preinstall legacy baseline empty and PID/listeners cleared."
   - "Candidate re-enabled for physical dogfood with worker PID 96140; GUI app relaunched/focused so FocusIn status reconciliation executes."
-resume_instruction: "Await HUMAN sleep/wake on installed transport-rebind candidate SHA256 44a9a2ad... with APL left ON. On PASS, capture rebind evidence, re-resolve PR #149 exact head/checks and require explicit merge authority. On FAIL, immediately capture proxy.resume.transport_rebind requested/starting/completed plus post-rebind CONNECT/relay evidence before changing state or code."
-updated_at: "2026-09-21T15:47:00+03:00"
+  - "VALID transport-rebind candidate FAIL at real lid wake 2026-09-21 16:01:19 MSK: rebind requested/started/completed on attempt 1 within milliseconds; fresh 443/5228 CONNECT 200 responses and bidirectional relay bytes followed, yet browser remained unusable."
+  - "This disproves PAC refresh and full local transport rebind as sufficient; failure is isolated to the client/macOS proxy-session layer while PAC routing remains selected."
+  - "Implemented macOS manual-local route: system PAC disabled while APL owns the session; HTTP/HTTPS point to the local APL http_proxy_url; bypass domains remain ownership-managed."
+  - "Pre-existing authenticated manual HTTP/HTTPS proxies are refused before any mutation because networksetup cannot disclose credentials for exact rollback."
+  - "Focused backend/runtime/transport/GUI suite 80/80 PASS; full Python suite 911/911 PASS; compileall and git diff --check PASS."
+  - "Live source smoke on MacBook PASS: PAC disabled, HTTP/HTTPS discovered as http://127.0.0.1:18080, system-discovered request returned public IP 68.209.60.141, and disable restored the captured Wi-Fi proxy baseline exactly (MATCH True)."
+resume_instruction: "Commit/push the locally verified macOS manual-local HTTP/HTTPS route, obtain exact-head CI/macOS ARM artifact, install with rollback smoke, then await HUMAN sleep/wake. On physical FAIL, capture manual proxy/PAC state plus post-wake relay traffic before changing code."
+updated_at: "2026-09-21T16:13:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
