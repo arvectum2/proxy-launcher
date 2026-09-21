@@ -77,6 +77,81 @@ class ProcessSupervisionTests(unittest.TestCase):
              ):
             self.assertTrue(core.is_running())
 
+    def test_is_running_recovers_owned_frozen_macos_worker_without_pid_file(self):
+        expected = (
+            "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/"
+            "Arvectum Proxy Launcher"
+        )
+        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
+             mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(process_supervision.sys, "frozen", True, create=True), \
+             mock.patch.object(core, "_read_pid", return_value=None), \
+             mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
+             mock.patch.object(
+                 core, "_macos_process_executable_path", return_value=expected
+             ), \
+             mock.patch.object(
+                 core, "_write_pid_record", return_value=True
+             ) as write:
+            self.assertTrue(core.is_running())
+        write.assert_called_once_with(42, expected)
+
+    def test_macos_listener_recovery_requires_same_owned_pid_on_all_ports(self):
+        settings = {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        }
+        expected = "/Applications/Arvectum Proxy Launcher"
+        results = [
+            mock.Mock(returncode=0, stdout="42\n"),
+            mock.Mock(returncode=0, stdout="42\n"),
+            mock.Mock(returncode=0, stdout="42\n"),
+        ]
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(process_supervision.sys, "frozen", True, create=True), \
+             mock.patch.object(process_supervision.sys, "executable", expected), \
+             mock.patch.object(
+                 core, "_macos_process_executable_path", return_value=expected
+             ), \
+             mock.patch.object(
+                 process_supervision.subprocess, "run", side_effect=results
+             ):
+            self.assertEqual(core._macos_listener_owner_pid(settings), 42)
+
+    def test_macos_listener_recovery_rejects_mixed_listener_owners(self):
+        settings = {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        }
+        results = [
+            mock.Mock(returncode=0, stdout="42\n"),
+            mock.Mock(returncode=0, stdout="43\n"),
+        ]
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(process_supervision.sys, "frozen", True, create=True), \
+             mock.patch.object(
+                 process_supervision.subprocess, "run", side_effect=results
+             ), \
+             mock.patch.object(core, "_macos_process_executable_path") as executable:
+            self.assertIsNone(core._macos_listener_owner_pid(settings))
+        executable.assert_not_called()
+
+    def test_remove_pid_does_not_delete_successor_record(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "proxy_core.pid"
+            path.write_text(
+                json.dumps({"pid": 99, "created": None, "exe_path": "/owned"}),
+                encoding="utf-8",
+            )
+            with mock.patch.object(core, "pid_path", return_value=str(path)):
+                self.assertFalse(core._remove_pid(expected_pid=42))
+                self.assertTrue(path.exists())
+                self.assertTrue(core._remove_pid(expected_pid=99))
+                self.assertFalse(path.exists())
+
     def test_macos_kill_refuses_pid_with_foreign_executable(self):
         record = {"pid": 77, "created": None, "exe_path": "/Applications/owned"}
         with mock.patch.object(core, "is_windows", return_value=False), \

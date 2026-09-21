@@ -93,7 +93,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_start(), 1)
         write_pid.assert_called_once_with()
         proxy.stop.assert_called_once_with()
-        remove_pid.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
 
     def test_successful_start_always_stops_and_removes_pid_on_interrupt(self):
         settings = dict(core.DEFAULT_SETTINGS)
@@ -113,7 +113,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
         write_pid.assert_called_once_with()
         stop_event.wait.assert_called_once_with(3600)
         proxy.stop.assert_called_once_with()
-        remove_pid.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
 
     def test_stop_reports_incomplete_network_restore(self):
         with mock.patch.object(core, "_read_pid", return_value=None), \

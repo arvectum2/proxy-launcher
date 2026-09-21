@@ -69,7 +69,7 @@ def _cmd_start():
     core._write_pid()
     if not core.enable_system_proxy():
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
         print("failed to enable system proxy; network settings rolled back")
         return 1
 
@@ -81,7 +81,7 @@ def _cmd_start():
         pass
     finally:
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
     return 0
 
 
