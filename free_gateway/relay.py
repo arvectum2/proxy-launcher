@@ -45,10 +45,10 @@ async def _pipe(reader, writer):
 class ConnectRelay:
     """One plain-HTTP origin for both public API requests and authenticated CONNECT."""
 
-    def __init__(self, config):
+    def __init__(self, config, health_monitor=None):
         self.config = config
         self.tokens = SessionTokenManager(config.token_secret, config.session_ttl_seconds)
-        self.api = GatewayApi(config)
+        self.api = GatewayApi(config, health_monitor)
 
     async def handle(self, reader, writer):
         upstream_writer = None

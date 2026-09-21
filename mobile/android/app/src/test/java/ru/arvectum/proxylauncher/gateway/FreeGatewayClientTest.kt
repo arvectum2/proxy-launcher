@@ -16,6 +16,17 @@ class FreeGatewayClientTest {
     }
 
     @Test
+    fun parsesGatewayHealthForFreeLocations() {
+        val locations = FreeGatewayJson.parseLocations(
+            """{"locations":[{"id":"us-free","label":"США","country_code":"US","available":true,"latency_ms":731},{"id":"ru-free","label":"РФ","country_code":"RU","available":false,"latency_ms":null}]}""",
+        )
+        assertEquals(true, locations[0].available)
+        assertEquals(731L, locations[0].latencyMs)
+        assertEquals(false, locations[1].available)
+        assertEquals(null, locations[1].latencyMs)
+    }
+
+    @Test
     fun buildsEphemeralHttpsProfileFromSession() {
         val session = FreeGatewayJson.parseSession(
             """{"proxy":{"host":"gateway.example","port":8443,"type":"HTTPS","username":"ru-free","password":"short-lived"},"expires_at":2000}""",

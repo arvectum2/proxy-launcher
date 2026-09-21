@@ -26,6 +26,13 @@ def config():
     })
 
 
+
+
+class FakeHealth:
+    def snapshot(self, location_id):
+        return {"available": True, "latency_ms": 123}
+
+
 class FakeWriter:
     def __init__(self):
         self.data = bytearray()
@@ -90,6 +97,14 @@ class FreeGatewayTests(unittest.TestCase):
         encoded = base64.b64encode(b"de-free:token").decode("ascii")
         self.assertEqual(parse_basic_auth("Basic " + encoded), ("de-free", "token"))
         self.assertIsNone(parse_basic_auth("Bearer nope"))
+
+    def test_locations_api_can_include_health_without_secrets(self):
+        api = GatewayApi(config(), FakeHealth())
+        locations = api.public_locations()
+        self.assertEqual(locations[0]["available"], True)
+        self.assertEqual(locations[0]["latency_ms"], 123)
+        rendered = json.dumps(locations)
+        self.assertNotIn("supplier-password", rendered)
 
     def test_locations_api_never_returns_supplier_credentials(self):
         raw = asyncio.run(call_api(

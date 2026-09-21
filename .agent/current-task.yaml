@@ -20,10 +20,12 @@ completed:
   - "Stress test passed 20 sequential plus 10 concurrent CONNECT requests for RU and the same for US: 60/60 successful."
   - "Sustained 60-second transfer tests through both RU and US stayed connected for the full test window and transferred about 4 MB each; curl stopped only at the imposed 60-second limit."
   - "Prepared Android 0.1.23 changes: VpnService.protect() for outbound HTTPS relay sockets, bounded automatic free-tunnel engine recovery, and selector refresh/retry/reopen behavior."
-current: "Android 0.1.23 stability fix passed CI and APK is ready; awaiting owner physical-device dogfood."
+current: "0.1.23 dogfood still showed false CONNECTED with ERR_CONNECTION_CLOSED; 0.1.24 adds free ping and post-connect data-path verification before declaring CONNECTED."
 pending:
-  - "Verify РФ and США sustain browsing and switching on the owner phone using Android 0.1.23."
-  - "If physical-device dogfood passes, mark task completed and archive checkpoint."
+  - "Commit/deploy gateway upstream health monitor and Android 0.1.24 data-path verification/ping UI."
+  - "Run exact-head gateway + Android CI and fix failures."
+  - "Provide Android 0.1.24 APK for physical-device dogfood."
+  - "Verify free locations appear immediately with health/latency and CONNECTED only appears when browser traffic works."
 last_verified_commit: "b7237d989a5a5b0d28cd3d672e1d47a0fb4eb03f"
 test_results:
   - "Gateway unit tests 8/8 passed for unified API+CONNECT listener."
@@ -32,7 +34,9 @@ test_results:
   - "Prior Android 0.1.22 Mobile Android spike run 35591619973 succeeded."
   - "Android 0.1.23 Mobile Android spike run 35594787113 succeeded: unit tests, assembleDebug, signer/branding verification, SHA-256, artifact upload."
   - "Exact fix commit b7237d989a5a5b0d28cd3d672e1d47a0fb4eb03f passed Free proxy gateway, Secret scan, SAST, SBOM, dependency scan, provenance, reconciliation, and Android workflows."
-resume_instruction: "Await owner dogfood of Android 0.1.23. Verify РФ and США appear without toggling Auto, sustain normal browsing for several minutes, and switch correctly. If successful, mark task completed and archive checkpoint; if not, capture the exact error text/timing and continue diagnosis."
+  - "0.1.23 physical dogfood: free locations appeared after a delay; США could be selected and showed CONNECTED, but browser returned ERR_CONNECTION_CLOSED."
+  - "Prepared 0.1.24: bootstrap RU/US entries, server upstream CONNECT health latency, selector latency/unavailable state, free preflight telemetry, and a post-connect HTTPS payload check before STATE_CONNECTED."
+resume_instruction: "Run tests, commit the 0.1.24 gateway health + Android post-connect verification changes, deploy gateway, confirm /v1/free/locations exposes availability/latency without secrets, run exact-head Android CI, then provide the CI APK. Keep task in_progress until physical dogfood proves browsing works."
 updated_at: "2026-09-21T14:30:00+03:00"
 execution:
   claimed_by: "ChatGPT"

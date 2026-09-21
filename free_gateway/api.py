@@ -8,13 +8,23 @@ from .tokens import SessionTokenManager
 
 
 class GatewayApi:
-    def __init__(self, config):
+    def __init__(self, config, health_monitor=None):
         self.config = config
+        self.health_monitor = health_monitor
         self.tokens = SessionTokenManager(config.token_secret, config.session_ttl_seconds)
+
+    def public_locations(self):
+        locations = []
+        for item in self.config.public_locations():
+            rendered = dict(item)
+            if self.health_monitor is not None:
+                rendered.update(self.health_monitor.snapshot(item["id"]))
+            locations.append(rendered)
+        return locations
 
     def response_for(self, method: str, target: str, body: bytes) -> bytes:
         if method == "GET" and target == "/v1/free/locations":
-            return response(200, {"locations": self.config.public_locations()})
+            return response(200, {"locations": self.public_locations()})
         if method == "POST" and target == "/v1/free/session":
             request = json.loads(body.decode("utf-8") or "{}")
             location_id = str(request.get("location_id", ""))

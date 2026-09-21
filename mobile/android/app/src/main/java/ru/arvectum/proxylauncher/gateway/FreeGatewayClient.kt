@@ -10,6 +10,8 @@ data class FreeProxyLocation(
     val id: String,
     val label: String,
     val countryCode: String,
+    val available: Boolean? = null,
+    val latencyMs: Long? = null,
 )
 
 data class FreeProxySession(
@@ -61,6 +63,11 @@ class FreeGatewayClient(
 
     companion object {
         const val DEFAULT_BASE_URL = "https://mac-mini-master.tail786c4b.ts.net"
+
+        val BOOTSTRAP_LOCATIONS = listOf(
+            FreeProxyLocation("ru-free", "РФ", "RU"),
+            FreeProxyLocation("us-free", "США", "US"),
+        )
         private const val CONNECT_TIMEOUT_MS = 8_000
         private const val READ_TIMEOUT_MS = 8_000
     }
@@ -76,6 +83,12 @@ internal object FreeGatewayJson {
                     id = item.getString("id"),
                     label = item.getString("label"),
                     countryCode = item.getString("country_code"),
+                    available = if (item.has("available")) item.getBoolean("available") else null,
+                    latencyMs = if (item.has("latency_ms") && !item.isNull("latency_ms")) {
+                        item.getLong("latency_ms")
+                    } else {
+                        null
+                    },
                 )
                 require(location.id.isNotBlank() && location.label.isNotBlank()) {
                     "Gateway returned an invalid free proxy location"

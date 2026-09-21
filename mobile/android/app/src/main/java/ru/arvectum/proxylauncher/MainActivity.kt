@@ -76,7 +76,7 @@ class MainActivity : Activity() {
     private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
     private var profilePopup: PopupWindow? = null
-    private var freeLocations: List<FreeProxyLocation> = emptyList()
+    private var freeLocations: List<FreeProxyLocation> = FreeGatewayClient.BOOTSTRAP_LOCATIONS
     private var freeLocationsLastFetchedAtMs = 0L
     private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
     @Volatile private var freeLocationRefreshInProgress = false
@@ -93,7 +93,10 @@ class MainActivity : Activity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 ProxyVpnService.ACTION_POOL_UPDATE -> {
+                    val reopenMenu = profilePopup?.isShowing == true
+                    if (reopenMenu) profilePopup?.dismiss()
                     refreshProfileChoices(currentSelectionKey())
+                    if (reopenMenu) mainHandler.post { showProfileMenu() }
                 }
                 ProxyVpnService.ACTION_STATE -> {
                     val state = intent.getStringExtra(ProxyVpnService.EXTRA_STATE)
@@ -604,14 +607,28 @@ class MainActivity : Activity() {
         val now = System.currentTimeMillis()
         profileChoices = buildList {
             displayedFreeLocations.forEach { location ->
-                val label = "${location.label} · бесплатно"
+                val profileId = "free:" + location.id
+                val localHealth = runCatching { poolUiStore.getHealth(profileId) }.getOrNull()
+                    ?.takeIf { now - it.checkedAtMs <= HEALTH_STALE_AFTER_MS }
+                val suffix = when (localHealth?.status) {
+                    ProxyHealthStatus.CHECKING -> " · проверяется"
+                    ProxyHealthStatus.AVAILABLE ->
+                        localHealth.latencyMs?.let { " · " + it + " мс" } ?: " · доступен"
+                    ProxyHealthStatus.UNAVAILABLE -> " · недоступен"
+                    else -> when (location.available) {
+                        true -> location.latencyMs?.let { " · " + it + " мс" } ?: " · доступен"
+                        false -> " · недоступен"
+                        null -> ""
+                    }
+                }
+                val label = location.label + " · бесплатно"
                 add(
                     ProfileChoice(
                         key = FREE_KEY_PREFIX + location.id,
                         kind = ChoiceKind.FREE,
                         profileId = null,
                         label = label,
-                        menuLabel = label,
+                        menuLabel = label + suffix,
                         freeLocationId = location.id,
                     ),
                 )

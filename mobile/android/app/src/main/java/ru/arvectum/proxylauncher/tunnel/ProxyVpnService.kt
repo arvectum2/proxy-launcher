@@ -335,18 +335,69 @@ class ProxyVpnService : VpnService() {
             }
             if (running) {
                 synchronized(lock) { activePrepared = prepared }
-                publishConnectedState(prepared)
-                if (prepared.autoSelection) {
-                    startAutoMonitor(generation, prepared)
+                if (prepared.freeSessionExpiresAtEpochSeconds != null) {
+                    publishState(
+                        STATE_CONNECTING,
+                        "Проверяем трафик через бесплатный прокси…",
+                    )
+                    verifyFreeDataPath(generation, prepared)
                 } else {
-                    registerNetworkCallback()
-                }
-                prepared.freeSessionExpiresAtEpochSeconds?.let { expiresAt ->
-                    startFreeSessionRefresh(generation, expiresAt)
-                    scheduleFreeRecoveryReset(generation)
+                    completeConnectedSession(generation, prepared)
                 }
             }
         }, CONNECT_CONFIRM_DELAY_MS)
+    }
+
+    private fun verifyFreeDataPath(generation: Long, prepared: PreparedProxy) {
+        val profileId = prepared.resolved.profile.id
+        publishHealth(profileId, ProxyHealthStatus.CHECKING, null)
+        Thread({
+            val result = runCatching { FreeTunnelDataPathProbe().measureLatencyMs() }
+            mainHandler.post {
+                val stillActive = synchronized(lock) {
+                    generation == sessionGeneration &&
+                        !stopping &&
+                        worker?.isAlive == true &&
+                        activePrepared === prepared
+                }
+                if (!stillActive) return@post
+
+                result.onSuccess { latencyMs ->
+                    publishHealth(profileId, ProxyHealthStatus.AVAILABLE, latencyMs)
+                    completeConnectedSession(generation, prepared)
+                }.onFailure {
+                    publishHealth(profileId, ProxyHealthStatus.UNAVAILABLE, null)
+                    publishPoolEvent(
+                        "free data path failed",
+                        profileId,
+                        prepared.resolved.profile.name,
+                        it.javaClass.simpleName,
+                    )
+                    requestFreeEngineRecovery(generation, DATA_PATH_PROBE_FAILURE)
+                }
+            }
+        }, "APL-free-data-path").start()
+    }
+
+    private fun completeConnectedSession(generation: Long, prepared: PreparedProxy) {
+        val active = synchronized(lock) {
+            generation == sessionGeneration &&
+                !stopping &&
+                worker?.isAlive == true &&
+                activePrepared === prepared
+        }
+        if (!active) return
+
+        publishConnectedState(prepared)
+        if (prepared.autoSelection) {
+            startAutoMonitor(generation, prepared)
+        } else {
+            registerNetworkCallback()
+        }
+        prepared.freeSessionExpiresAtEpochSeconds?.let { expiresAt ->
+            startFreeSessionRefresh(generation, expiresAt)
+            scheduleFreeRecoveryReset(generation)
+        }
     }
 
     private fun publishConnectedState(prepared: PreparedProxy) {
@@ -378,6 +429,7 @@ class ProxyVpnService : VpnService() {
                 )
             }
             val resolved = ResolvedProxyProfile(session.profile, session.password)
+            publishHealth(resolved.profile.id, ProxyHealthStatus.CHECKING, null)
             val measured = try {
                 probe.resolveMeasured(resolved.profile, resolved.password) { candidate ->
                     mainHandler.post {
@@ -390,8 +442,10 @@ class ProxyVpnService : VpnService() {
                     }
                 }
             } catch (e: Exception) {
+                publishHealth(resolved.profile.id, ProxyHealthStatus.UNAVAILABLE, null)
                 throw e
             }
+            publishHealth(resolved.profile.id, ProxyHealthStatus.AVAILABLE, measured.latencyMs)
             return PreparedProxy(
                 resolved = resolved,
                 selectedProfile = measured.profile,
@@ -1298,5 +1352,6 @@ class ProxyVpnService : VpnService() {
         private const val SWITCH_EVENT_WINDOW_MS = 30_000L
         private const val MAX_AUTO_ERROR_LENGTH = 520
         private const val ENGINE_START_FAILURE = -1000
+        private const val DATA_PATH_PROBE_FAILURE = -1001
     }
 }
