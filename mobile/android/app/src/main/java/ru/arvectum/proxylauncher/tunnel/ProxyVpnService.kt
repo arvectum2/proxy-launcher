@@ -352,7 +352,7 @@ class ProxyVpnService : VpnService() {
         publishConnectedState(prepared)
         if (prepared.autoSelection) {
             startAutoMonitor(generation, prepared)
-        } else if (FreeTunnelNetworkPolicy.requiresPhysicalNetworkHandoff(prepared.isFreeSession)) {
+        } else {
             registerNetworkCallback()
         }
         prepared.freeSessionExpiresAtEpochSeconds?.let { expiresAt ->
@@ -1278,10 +1278,7 @@ class ProxyVpnService : VpnService() {
         val latencyMs: Long,
         val freeSessionExpiresAtEpochSeconds: Long? = null,
         val siteExclusions: SiteExclusionPlan = SiteExclusionPlan.EMPTY,
-    ) {
-        val isFreeSession: Boolean
-            get() = freeSessionExpiresAtEpochSeconds != null
-    }
+    )
 
     companion object {
         const val ACTION_CONNECT = "ru.arvectum.proxylauncher.CONNECT"
