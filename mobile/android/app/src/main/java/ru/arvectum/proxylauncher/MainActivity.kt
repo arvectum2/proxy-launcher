@@ -184,10 +184,21 @@ class MainActivity : Activity() {
             addAction(ProxyVpnService.ACTION_POOL_UPDATE)
         }
         if (Build.VERSION.SDK_INT >= 33) {
-            registerReceiver(stateReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            registerReceiver(
+                stateReceiver,
+                filter,
+                ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
+                null,
+                Context.RECEIVER_NOT_EXPORTED,
+            )
         } else {
             @Suppress("DEPRECATION")
-            registerReceiver(stateReceiver, filter)
+            registerReceiver(
+                stateReceiver,
+                filter,
+                ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
+                null,
+            )
         }
         refreshFreeLocations(force = true)
         startProfileHealthScan()
