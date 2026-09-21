@@ -5,7 +5,7 @@ import unittest
 
 from free_gateway.api import GatewayApi
 from free_gateway.config import GatewayConfig
-from free_gateway.relay import parse_basic_auth, upstream_connect_request
+from free_gateway.relay import ConnectRelay, parse_basic_auth, upstream_connect_request
 from free_gateway.tokens import SessionTokenManager
 
 
@@ -45,6 +45,15 @@ async def call_api(request: bytes):
     reader.feed_eof()
     writer = FakeWriter()
     await GatewayApi(config()).handle(reader, writer)
+    return bytes(writer.data)
+
+
+async def call_relay(request: bytes):
+    reader = asyncio.StreamReader()
+    reader.feed_data(request)
+    reader.feed_eof()
+    writer = FakeWriter()
+    await ConnectRelay(config()).handle(reader, writer)
     return bytes(writer.data)
 
 
@@ -90,6 +99,26 @@ class FreeGatewayTests(unittest.TestCase):
         self.assertIn(b"Germany", raw)
         self.assertNotIn(b"secret.supplier.test", raw)
         self.assertNotIn(b"supplier-user", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+
+    def test_combined_relay_listener_serves_public_locations_api(self):
+        raw = asyncio.run(call_relay(
+            b"GET /v1/free/locations HTTP/1.1\r\nHost: test\r\n\r\n"
+        ))
+        self.assertIn(b"200 OK", raw)
+        self.assertIn(b"Germany", raw)
+        self.assertNotIn(b"supplier-password", raw)
+
+    def test_combined_relay_listener_serves_session_api(self):
+        body = b'{"location_id":"de-free"}'
+        request = (
+            b"POST /v1/free/session HTTP/1.1\r\nHost: test\r\nContent-Length: "
+            + str(len(body)).encode("ascii") + b"\r\n\r\n" + body
+        )
+        raw = asyncio.run(call_relay(request))
+        self.assertIn(b"201 Created", raw)
+        self.assertIn(b"gateway.arvectum.test", raw)
         self.assertNotIn(b"supplier-password", raw)
 
     def test_session_api_returns_gateway_not_supplier(self):
