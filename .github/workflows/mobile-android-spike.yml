@@ -33,8 +33,8 @@ jobs:
             echo "Dogfood signer mismatch: $actual" >&2
             exit 1
           }
-      - name: Test and assemble debug APK
-        run: gradle -p mobile/android testDebugUnitTest assembleDebug --stacktrace
+      - name: Lint, test and assemble debug APK
+        run: gradle -p mobile/android lintDebug testDebugUnitTest assembleDebug --stacktrace
       - name: Verify assembled APK signer and branding
         shell: bash
         run: |
@@ -43,6 +43,11 @@ jobs:
           test -n "$apksigner"
           "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-signing.txt
           grep -Fqi "certificate SHA-256 digest: fd57cd46ad1e54a153aa9ed56b4bbb630b33015e23d4c6a86077a67cf0e28313" /tmp/apk-signing.txt
+          aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          test -n "$aapt"
+          "$aapt" dump badging "$apk" | tee /tmp/apk-badging.txt
+          grep -F "versionCode='32'" /tmp/apk-badging.txt
+          grep -F "versionName='0.1.31'" /tmp/apk-badging.txt
           unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_launcher_foreground.png"
           unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_mark.png"
           unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher.xml"
