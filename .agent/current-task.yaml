@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: in_progress
+status: blocked
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -26,13 +26,12 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "VALID FAIL on no-wake-system-proxy-mutation candidate: long sleep still broke browser; transport rebind occurred at 19:13:05 and fresh upstream CONNECT 200 followed. Next isolation removes listener rebind entirely while preserving stale relay retirement and stable manual-local route."
+current: "Blocked only on HUMAN long Sleep/wake retest of installed stable-listener candidate. APL is intentionally ON via manual HTTP/HTTPS 127.0.0.1:18080. On wake stale pre-sleep relays retire, but the worker/listeners and system proxy remain untouched."
 pending:
-  - "Remove macOS resume transport rebind request/orchestration so local HTTP/SOCKS/PAC listeners remain continuously bound across wake."
-  - "Preserve resume_after_sleep retirement for each stale pre-sleep relay."
-  - "Run focused/full tests and exact-head CI, install ARM candidate, validate rollback."
-  - "HUMAN long Sleep/wake retest without APL/browser restart."
-last_verified_commit: "6de73cb0b4b6de2a3030bbf979b53da5840d9185"
+  - "HUMAN: explicit macOS Sleep for at least 20-30 seconds, then wake and test the already-open browser without disabling APL or restarting browser."
+  - "On PASS, capture actual Sleep/Wake, resume_after_sleep relay retirement, unchanged worker PID/listeners, no proxy.resume.transport_rebind events, and fresh post-wake traffic; then re-resolve PR #149 before merge authority."
+  - "On FAIL, immediately capture route/worker/listeners, fresh APL traffic and Chrome NetworkService state before any recovery; then evaluate targeted Chromium NetworkService recovery as the next bounded experiment."
+last_verified_commit: "6b57d3173705d5b710e7359f417dad36297c17c6"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
   - "proxy_core.log: resume_after_sleep fired on pre-wake relays, while new upstream CONNECT responses returned status=200 immediately after wake; transport/upstream health was not the remaining blocker."
@@ -101,8 +100,14 @@ test_results:
   - "VALID no-wake-mutation FAIL around 19:13 MSK: transport rebind still fired at 19:13:05, completed attempt 1 without system-proxy mutation, fresh 5228 upstream CONNECT returned 200, yet browser remained unusable until APL was disabled/recovery performed."
   - "After recovery Chrome main PID 88161 and network.mojom.NetworkService PID 88170 were still the same long-lived processes from 2026-09-20; a fresh proxy_resolver helper PID 1894 appeared at 19:13:14. This narrows failure to browser proxy/network session behavior but does not yet justify browser-process mutation."
   - "New isolation removes the wake transport-rebind request/orchestration entirely while preserving per-relay resume_after_sleep retirement and continuous listener binding. Focused 66/66 PASS; full Python suite 906/906 PASS; compileall and git diff --check PASS."
-resume_instruction: "Commit/push the stable-listener wake isolation, obtain exact-head CI/macOS ARM artifact, install with rollback smoke, then HUMAN long Sleep/wake retest. Expected wake behavior: stale pre-sleep relays close with resume_after_sleep, but worker PID/listeners remain continuously bound and there are no proxy.resume.transport_rebind events. On FAIL, capture browser/network-service state before any recovery and only then consider a targeted Chromium NetworkService recovery experiment."
-updated_at: "2026-09-21T19:24:00+03:00"
+  - "Stable-listener implementation commit 6b57d3173705d5b710e7359f417dad36297c17c6 pushed to PR #149."
+  - "Exact-head CI for 6b57d31 completed successfully after rerunning one transient Windows installer artifact-upload failure; the failed first attempt had all build/E2E steps PASS and only upload-artifact finalize failed with intermediary HTTP 403, while the rerun completed SUCCESS."
+  - "Exact-head ARM artifact apl-mac-package-macos-15 id 10651601793 from macOS packaging run 35624860388; artifact digest sha256:7d8de0721834b3b4a526c6d310159238df6ba268f39e26e05253ad49090f2c2a; DMG checksum VALID and codesign --verify --deep --strict PASS."
+  - "Installed stable-listener candidate binary SHA256 839e5bcd2e61d736c108ade54c19bdec6dac7cff167ec45c15e598577ee71af0; previous app backed up under candidate-backup-before-stable-listener-pr149-20260921."
+  - "Installed candidate ON smoke PASS: manual HTTP/HTTPS -> 127.0.0.1:18080, PAC disabled, system-discovered and explicit local-proxy requests returned 68.209.60.141."
+  - "Installed candidate OFF rollback smoke PASS: captured Wi-Fi baseline restored exactly (ROLLBACK_MATCH True), PID/listeners cleared; candidate then re-enabled with worker PID 2686."
+resume_instruction: "Await HUMAN explicit macOS long Sleep (at least 20-30 seconds) on installed stable-listener candidate SHA256 839e5bcd.... APL is intentionally ON. On PASS, verify actual Sleep/Wake, resume_after_sleep stale-relay retirement, unchanged worker PID/listeners, absence of proxy.resume.transport_rebind, and fresh post-wake traffic. On FAIL, capture live route/worker/listeners/APL traffic and Chrome NetworkService state before user recovery; only then evaluate a targeted Chromium NetworkService restart experiment."
+updated_at: "2026-09-21T19:29:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
