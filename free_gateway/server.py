@@ -11,8 +11,8 @@ from .relay import ConnectRelay
 async def serve(config):
     api = GatewayApi(config)
     relay = ConnectRelay(config)
-    api_server = await asyncio.start_server(api.handle, "0.0.0.0", config.api_port)
-    proxy_server = await asyncio.start_server(relay.handle, "0.0.0.0", config.proxy_port)
+    api_server = await asyncio.start_server(api.handle, "127.0.0.1", config.api_port)
+    proxy_server = await asyncio.start_server(relay.handle, "127.0.0.1", config.proxy_port)
     async with api_server, proxy_server:
         await asyncio.gather(api_server.serve_forever(), proxy_server.serve_forever())
 
