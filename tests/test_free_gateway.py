@@ -54,6 +54,11 @@ class FakeWriter:
         pass
 
 
+class TimeoutReader:
+    async def read(self, _count):
+        raise TimeoutError("simulated established-tunnel timeout")
+
+
 async def call_api(request: bytes):
     reader = asyncio.StreamReader()
     reader.feed_data(request)
@@ -206,6 +211,35 @@ class FreeGatewayTests(unittest.TestCase):
         self.assertEqual(calls, 1)
         self.assertTrue(closed)
         self.assertEqual(status_code, 407)
+
+    def test_established_tunnel_timeout_never_injects_http_502(self):
+        cfg = config()
+        relay = ConnectRelay(cfg)
+        token, _ = relay.tokens.issue("de-free")
+        encoded = base64.b64encode(f"de-free:{token}".encode("utf-8")).decode("ascii")
+        request = (
+            "CONNECT example.com:443 HTTP/1.1\r\n"
+            "Host: example.com:443\r\n"
+            f"Proxy-Authorization: Basic {encoded}\r\n"
+            "\r\n"
+        ).encode("ascii")
+
+        async def exercise():
+            reader = asyncio.StreamReader()
+            reader.feed_data(request)
+            reader.feed_eof()
+            client_writer = FakeWriter()
+            upstream_writer = FakeWriter()
+            with patch(
+                "free_gateway.relay.open_upstream_tunnel",
+                new=AsyncMock(return_value=(TimeoutReader(), upstream_writer, 1)),
+            ):
+                await relay.handle(reader, client_writer)
+            return bytes(client_writer.data)
+
+        raw = asyncio.run(exercise())
+        self.assertTrue(raw.startswith(b"HTTP/1.1 200 Connection Established"))
+        self.assertNotIn(b"502 Bad Gateway", raw)
 
     def test_locations_api_can_include_health_without_secrets(self):
         api = GatewayApi(config(), FakeHealth())
