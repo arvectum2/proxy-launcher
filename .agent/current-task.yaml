@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921
-status: blocked
+status: completed
 goal: "Fix the remaining macOS sleep/wake failure where APL stays ON and its local/upstream proxy path is healthy, but ChatGPT/browser traffic remains unusable until APL is disabled and the browser is restarted."
 authority: HUMAN
 definition_of_done:
@@ -26,12 +26,9 @@ completed:
   - "Exposed refresh_system_proxy only for darwin; Windows/Linux return no-op without selecting or mutating a backend."
   - "Wired suspend-gap retirement to one wall-clock-coalesced wake refresh; concurrent relay detections within 10 seconds cannot create a PAC toggle storm."
   - "Focused regression suite passes: 41/41 (macOS backend, local transport, backend runtime wiring)."
-current: "Technical macOS sleep/wake DoD satisfied on installed no-wake-logic candidate: ~96s Maintenance Sleep PASS, browser remained usable without APL/browser restart, worker/listeners/system route stayed unchanged, no resume_* events occurred, and fresh post-wake CONNECT traffic succeeded. Blocked only on HUMAN merge authority for PR #149."
-pending:
-  - "Re-resolve PR #149 exact current head/checks after checkpoint-only commit."
-  - "If exact-head checks are green and mergeability is clean, await explicit HUMAN merge authority."
-  - "Do not publish a release unless separately authorized."
-last_verified_commit: "e04b8bbe474eb4aeaab38db21ce3532969cd38c0"
+current: "Completed: PR #149 merged to main after verified physical long-sleep PASS; post-merge CI is fully green. No release was published."
+pending: []
+last_verified_commit: "8cbef6d1435fa31c60aab1a89ded6f6bee98b45f"
 test_results:
   - "Field failure 2026-09-21 ~12:34 MSK: APL remained ON but ChatGPT/browser had no usable connection; disabling APL and restarting browser restored connectivity."
   - "proxy_core.log: resume_after_sleep fired on pre-wake relays, while new upstream CONNECT responses returned status=200 immediately after wake; transport/upstream health was not the remaining blocker."
@@ -119,8 +116,11 @@ test_results:
   - "Fresh post-wake traffic succeeded at 19:55:24 MSK with upstream CONNECT 200 on 443, followed by additional 443 CONNECT 200; explicit local smoke returned 68.209.60.141."
   - "Chrome main PID 88161 and network.mojom.NetworkService PID 88170 remained the same long-lived processes across the successful wake, proving no browser-process recovery was required."
   - "PR #149 checkpoint-only head e1a50af initially had one transient macOS ARM packaging failure: hdiutil verify returned Resource temporarily unavailable after successful app build/sign; Intel packaging and all other checks passed. Failed macOS job rerun requested."
-resume_instruction: "Re-resolve PR #149 exact current head/checks after this checkpoint-only commit. Technical DoD is satisfied by the ~96s physical long-sleep PASS on runtime e04b8bb. If checks are green and mergeability is clean, await explicit HUMAN merge authority; do not merge or publish a release without that authority."
-updated_at: "2026-09-21T20:00:00+03:00"
+  - "PR #149 exact head 023f6c9747efcbf65198f9b0e87a1d60e7d8ed55 completed all 26 checks successfully with active=0 and bad=0; mergeStateStatus=CLEAN."
+  - "PR #149 merged to main with merge commit 8cbef6d1435fa31c60aab1a89ded6f6bee98b45f."
+  - "Post-merge main CI for 8cbef6d1435fa31c60aab1a89ded6f6bee98b45f completed successfully, including macOS packaging, Windows installer, Release Evidence Package, SAST, secrets, dependency scan, SBOM, backend, Linux packages and sovereignty checks."
+resume_instruction: "Task complete. No further action is required for APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921 unless a new regression is reported. Do not publish a release from this checkpoint without separate HUMAN authorization."
+updated_at: "2026-09-21T20:07:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-MACOS-WAKE-NETWORK-STACK-REFRESH-20260921"
