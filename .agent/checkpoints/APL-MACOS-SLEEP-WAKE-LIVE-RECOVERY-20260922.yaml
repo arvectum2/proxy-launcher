@@ -1,27 +1,27 @@
-version: 1
+version: 2
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Prevent post-wake false STOPPED classification and destructive rollback of a still-live macOS APL worker."
+goal: "Keep APL alive across real macOS clamshell sleep/wake and prevent wake-generated destructive GUI actions."
 definition_of_done:
-  - "Strict listener/executable ownership replaces PAC-first running-state gating on macOS."
-  - "Recovery prompt is debounced after wake."
-  - "Tests/build/install pass."
-  - "Long human clamshell acceptance passes."
+  - "Long clamshell PASS on guard build."
+  - "No synthetic/delayed wake HID can spawn --stop/--rollback within guard."
+  - "Exact-head CI has no new failures."
 completed_stages:
-  - "Incident capture and pmset/log correlation."
-  - "Root-cause narrowing to transient PAC health false negative plus rollback UI path."
-  - "Ownership-semantics code fix and recovery-prompt debounce."
-  - "130 focused PASS; 1093 full-suite PASS plus 3 historical unrelated failures."
-  - "Governed macOS build/install and physical PAC-false fault injection."
-  - "Two short real software sleep/wake PASS; long remote sleep blocked by network UserActivity."
-  - "Windows CI test-emulation fix; Canonical source windows SUCCESS on ac3236a."
-current_stage: "Waiting only for long physical clamshell acceptance."
+  - "PAC-first false STOPPED path removed."
+  - "PID/listener ownership recovery implemented."
+  - "Long clamshell reproduced and proved worker survives sleep."
+  - "Lifecycle instrumentation identified GUI --stop at 15:55:21.789."
+  - "Unified log correlated stop with GUI frontmost transition and slow HID response."
+  - "Wake destructive-action guard implemented and installed."
+  - "134 focused PASS; 1097 full-suite PASS plus 3 historical failures."
+  - "Live 7.594 s event-loop-gap guard-arm PASS."
+current_stage: "Await exact-head CI and final human clamshell acceptance."
 remaining_stages:
-  - "Human close/open lid acceptance and immediate evidence capture."
-  - "Final checkpoint/PR closeout if PASS."
-last_verified_commit: "ac3236ae2679a6facc1121938e158f83a001f400"
+  - "PR/CI verification."
+  - "One long human clamshell test on installed af86c94c... build."
+  - "Close checkpoint on PASS."
+last_verified_commit: "200f5d2cd77b5754c259a76e93b02502c30326ca"
 test_results:
-  - "Installed runtime code commit: 488e22bf77df5e40ce062c711864e862c85acebd."
-  - "Installed executable SHA-256: f8c2b1e174e2fea37e55f8b0a4912f1dd8132773b56310532d606635d7c03864."
-  - "Worker at checkpoint: PID 24328, system proxy ENABLED, external proxy traffic PASS."
-resume_instruction: "After the user's long clamshell sleep, inspect before mutating. Use structured proxy_gui.lifecycle.spawn mode logs to attribute any rollback/stop if failure recurs."
+  - "Installed SHA-256: af86c94c46bfb266753df06eb3729446b9d93a4f0f35fdbd9befa759fe269feb."
+  - "Worker at checkpoint: PID 29274; GUI PID 29323; system proxy ENABLED; external proxy traffic PASS."
+resume_instruction: "After the user's next long clamshell wake, inspect logs/status before mutation. Look specifically for proxy_gui.wake_guard.armed, proxy_gui.wake_guard.blocked and proxy_gui.lifecycle.spawn."
