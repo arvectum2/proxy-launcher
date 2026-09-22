@@ -1,4 +1,4 @@
-version: 3
+version: 4
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
 goal: "Keep APL alive across macOS wake and prevent synthetic/queued destructive GUI actions."
@@ -8,13 +8,14 @@ completed_stages:
   - "Lifecycle instrumentation identified GUI --stop after long clamshell wake."
   - "Timer-based wake guard implemented and physically shown to arm."
   - "Second FAIL proved destructive HID can outrun Tk timer callback."
-  - "Synchronous handler-side gap detection added."
+  - "Synchronous handler-side gap detection added before any destructive spawn."
   - "macOS Off now requires explicit default-no confirmation."
   - "136 focused PASS; 1099 full-suite PASS plus 3 historical unrelated failures."
-current_stage: "Build/install/push exact synchronous-guard candidate, then final human clamshell acceptance."
+  - "Governed build from 0ae9a48 installed with SHA-256 6e9206c0b5254b2f430b35a90fd905ba6f2b05e302e411b41a521929451921c0."
+current_stage: "Push/CI, then final human clamshell acceptance."
 remaining_stages:
-  - "Governed build/install and exact-head CI."
-  - "Final long clamshell physical acceptance."
+  - "Exact-head PR CI."
+  - "One final long human clamshell test on installed 6e9206c0... build."
   - "Close checkpoint on PASS."
-last_verified_commit: "037a05903c33f70ebd845f4606c0a5e8a5879602"
-resume_instruction: "Build/install current code. After next human clamshell, inspect proxy_gui.wake_guard.armed/blocked and proxy_gui.lifecycle.spawn before changing state."
+last_verified_commit: "0ae9a48cb48a63c0943af6bd819ee78db4665bda"
+resume_instruction: "Do not repeat build/tests. After next clamshell, inspect wake_guard.armed/blocked and lifecycle.spawn before changing state."
