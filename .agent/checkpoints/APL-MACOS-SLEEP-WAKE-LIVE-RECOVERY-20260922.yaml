@@ -1,21 +1,19 @@
-version: 4
+version: 5
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Keep APL alive across macOS wake and prevent synthetic/queued destructive GUI actions."
+goal: "Keep APL alive across macOS wake/use and prevent a single GUI input sequence from stopping the proxy."
 completed_stages:
-  - "PID/listener ownership recovery."
-  - "PAC-health false STOPPED path removed."
-  - "Lifecycle instrumentation identified GUI --stop after long clamshell wake."
-  - "Timer-based wake guard implemented and physically shown to arm."
-  - "Second FAIL proved destructive HID can outrun Tk timer callback."
-  - "Synchronous handler-side gap detection added before any destructive spawn."
-  - "macOS Off now requires explicit default-no confirmation."
-  - "136 focused PASS; 1099 full-suite PASS plus 3 historical unrelated failures."
-  - "Governed build from 0ae9a48 installed with SHA-256 6e9206c0b5254b2f430b35a90fd905ba6f2b05e302e411b41a521929451921c0."
-current_stage: "Push/CI, then final human clamshell acceptance."
+  - "PID/listener ownership and PAC-health false STOPPED paths fixed."
+  - "Lifecycle instrumentation identified GUI --stop after wake."
+  - "Timer guard and synchronous handler-side guard added."
+  - "20:53 reproduction proved synchronous modal confirmation could be accepted by the same trackpad input event."
+  - "macOS Off confirmation deferred by 500 ms; duplicate pending requests suppressed; request/confirm/cancel events instrumented."
+  - "138 focused PASS; 1101 full-suite PASS plus 3 historical unrelated failures."
+  - "Governed build from 0bb375e installed; SHA-256 d6f28bfc2dfeb2e0e5e9de75da2681df48bd7f7ba167797ea28493f0fa8eb5a8."
+current_stage: "Push/CI, then physical wake/use acceptance."
 remaining_stages:
   - "Exact-head PR CI."
-  - "One final long human clamshell test on installed 6e9206c0... build."
+  - "One physical wake/use acceptance on installed deferred-confirmation build."
   - "Close checkpoint on PASS."
-last_verified_commit: "0ae9a48cb48a63c0943af6bd819ee78db4665bda"
-resume_instruction: "Do not repeat build/tests. After next clamshell, inspect wake_guard.armed/blocked and lifecycle.spawn before changing state."
+last_verified_commit: "0bb375e8171be7535d7c9e5c0a1102c1ab1afb6f"
+resume_instruction: "After the next user wake/use cycle, inspect off confirmation and lifecycle events before mutating state."
