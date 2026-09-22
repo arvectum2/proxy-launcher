@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
 """macOS implementation of the ProxyBackend contract.
 
-The backend uses macOS' built-in ``networksetup`` command. It owns only
-Automatic Proxy Configuration (PAC) and proxy-bypass domains for network
-services that were enabled when ``enable`` was called. Existing manual
-HTTP/HTTPS proxies are temporarily disabled but their endpoints are never
-rewritten, so exact rollback remains possible. Every pre-mutation value is
-durably snapshotted before the first system setting is changed.
+The backend uses macOS' built-in ``networksetup`` command. It routes HTTP
+and HTTPS through APL's local manual proxy while the app is active, disables
+PAC for the owned session, and preserves proxy-bypass domains. Every
+pre-mutation value is durably snapshotted before the first system setting is
+changed. Pre-existing authenticated manual proxies are refused before mutation
+because ``networksetup`` cannot safely disclose credentials for exact rollback.
 
 the macOS backend adapter intentionally does not wire backend selection into ProxyCore/GUI;
 it establishes the concrete macOS safety boundary only.
 """
 
+from dataclasses import dataclass
 import json
 import os
 import subprocess
-from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 from urllib.parse import urlsplit
 
 from proxy_backend import ProxyBackend, ProxyBackendConfig
+
 
 _BACKUP_SCHEMA_VERSION = 1
 _BACKEND_ID = "macos"
@@ -443,22 +444,15 @@ class MacOSBackend(ProxyBackend):
     def _manual_proxies_match_owned_state(
         self,
         service_name: str,
-        snapshot: Mapping[str, Any],
+        applied: Mapping[str, Any],
     ) -> bool:
-        web_expected = snapshot.get("web_proxy")
-        secure_expected = snapshot.get("secure_web_proxy")
-        if web_expected is None and secure_expected is None:
-            return True
         try:
             web, secure_web = self._manual_proxy_states(service_name)
         except Exception:
             return False
         return bool(
-            (web_expected is None or self._manual_proxy_matches(web, web_expected, enabled=False))
-            and (
-                secure_expected is None
-                or self._manual_proxy_matches(secure_web, secure_expected, enabled=False)
-            )
+            self._owned_manual_proxy_matches(web, applied)
+            and self._owned_manual_proxy_matches(secure_web, applied)
         )
 
     def _manual_proxies_match_snapshot(
@@ -486,23 +480,23 @@ class MacOSBackend(ProxyBackend):
         self,
         service_name: str,
         snapshot: Mapping[str, Any],
+        applied: Mapping[str, Any],
     ) -> bool:
-        web_expected = snapshot.get("web_proxy")
-        secure_expected = snapshot.get("secure_web_proxy")
-        if web_expected is None and secure_expected is None:
-            return True
-        web, secure_web = self._manual_proxy_states(service_name)
+        try:
+            web, secure_web = self._manual_proxy_states(service_name)
+        except Exception:
+            return False
 
         def recoverable(current, expected):
-            if expected is None:
-                return True
-            if current.server != str(expected.get("server", "")):
-                return False
-            if current.port != int(expected.get("port", 0)):
-                return False
-            return current.enabled in {False, bool(expected.get("enabled"))}
+            return bool(
+                self._owned_manual_proxy_matches(current, applied)
+                or (expected is not None and self._manual_proxy_matches(current, expected))
+            )
 
-        return recoverable(web, web_expected) and recoverable(secure_web, secure_expected)
+        return bool(
+            recoverable(web, snapshot.get("web_proxy"))
+            and recoverable(secure_web, snapshot.get("secure_web_proxy"))
+        )
 
     def _service_matches_owned_state(
         self,
@@ -515,11 +509,12 @@ class MacOSBackend(ProxyBackend):
             bypass = self._client.get_bypass_domains(service_name)
         except Exception:
             return False
+        saved_auto = snapshot["auto_proxy"]
         return bool(
-            auto.enabled
-            and auto.url == str(applied.get("pac_url", ""))
+            not auto.enabled
+            and auto.url == str(saved_auto.get("url", ""))
             and _domains_equal(bypass, self._expected_bypass(snapshot, applied))
-            and self._manual_proxies_match_owned_state(service_name, snapshot)
+            and self._manual_proxies_match_owned_state(service_name, applied)
         )
 
     def _service_matches_snapshot(
@@ -561,22 +556,24 @@ class MacOSBackend(ProxyBackend):
         expected = snapshot["auto_proxy"]
         expected_enabled = bool(expected["enabled"])
         expected_url = str(expected["url"] or "").strip()
-        pac_owned = bool(
-            auto.enabled
-            and auto.url == str(applied.get("pac_url", ""))
-            and _domains_equal(bypass, self._expected_bypass(snapshot, applied))
-        )
-        pac_snapshot = bool(
+        auto_owned = bool(not auto.enabled and auto.url == expected_url)
+        auto_snapshot = bool(
             auto.enabled == expected_enabled
             and (not expected_url or auto.url == expected_url)
-            and _domains_equal(bypass, snapshot.get("bypass_domains", ()))
         )
-        if not (pac_owned or pac_snapshot):
+        bypass_owned = _domains_equal(
+            bypass, self._expected_bypass(snapshot, applied)
+        )
+        bypass_snapshot = _domains_equal(
+            bypass, snapshot.get("bypass_domains", ())
+        )
+        if not (auto_owned or auto_snapshot):
             return False
-        try:
-            return self._manual_proxies_recoverable(service_name, snapshot)
-        except Exception:
+        if not (bypass_owned or bypass_snapshot):
             return False
+        return self._manual_proxies_recoverable(
+            service_name, snapshot, applied
+        )
 
     def _payload_matches_config(
         self,
@@ -643,19 +640,25 @@ class MacOSBackend(ProxyBackend):
         try:
             for service_name, snapshot in snapshots.items():
                 touched.append(service_name)
-                self._client.set_web_proxy_state(service_name, False)
-                self._client.set_secure_web_proxy_state(service_name, False)
-                self._client.set_auto_proxy_url(service_name, canonical["pac_url"])
+                # PAC proved unreliable across real macOS sleep/wake even after
+                # explicit refresh and full local transport rebind. Keep the PAC
+                # listener for process health, but route clients through the
+                # native manual HTTP/HTTPS settings to the local APL proxy.
+                self._client.set_auto_proxy_state(service_name, False)
+                self._client.set_web_proxy(
+                    service_name,
+                    canonical["http_proxy_host"],
+                    canonical["http_proxy_port"],
+                )
+                self._client.set_secure_web_proxy(
+                    service_name,
+                    canonical["http_proxy_host"],
+                    canonical["http_proxy_port"],
+                )
                 self._client.set_bypass_domains(
                     service_name,
                     self._expected_bypass(snapshot, canonical),
                 )
-                # Re-assert a real disabled->enabled transition after the complete
-                # PAC configuration is in place. On macOS, changing the URL while
-                # PAC is already enabled can update networksetup's visible value
-                # without forcing CFNetwork/Safari to invalidate the active PAC.
-                self._client.set_auto_proxy_state(service_name, False)
-                self._client.set_auto_proxy_state(service_name, True)
             return True
         except Exception as exc:
             self._log("macOS enable failed; restoring snapshots: %s" % exc)
@@ -667,7 +670,45 @@ class MacOSBackend(ProxyBackend):
                     self._log("rollback succeeded but backup cleanup failed: %s" % clear_exc)
             return False
 
+    def refresh(self, config: ProxyBackendConfig) -> bool:
+        """Verify the already-owned manual route without mutating system state."""
+        canonical = _canonical_config(config)
+        if canonical is None or not self._store.exists():
+            return False
+        try:
+            payload = self._load_backup()
+        except Exception as exc:
+            self._log("macOS refresh refused: rollback state is unreadable: %s" % exc)
+            return False
+        return bool(
+            self._payload_matches_config(payload, config)
+            and self._payload_is_owned(payload)
+        )
+
     def _restore_service(self, service_name: str, snapshot: Mapping[str, Any]) -> None:
+        web = snapshot.get("web_proxy")
+        secure_web = snapshot.get("secure_web_proxy")
+
+        if web is not None:
+            server = str(web.get("server", ""))
+            port = int(web.get("port", 0))
+            if server and port > 0:
+                self._client.set_web_proxy(service_name, server, port)
+            self._client.set_web_proxy_state(
+                service_name, bool(web.get("enabled"))
+            )
+
+        if secure_web is not None:
+            server = str(secure_web.get("server", ""))
+            port = int(secure_web.get("port", 0))
+            if server and port > 0:
+                self._client.set_secure_web_proxy(service_name, server, port)
+            self._client.set_secure_web_proxy_state(
+                service_name, bool(secure_web.get("enabled"))
+            )
+
+        self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
+
         auto = snapshot["auto_proxy"]
         enabled = bool(auto["enabled"])
         url = str(auto["url"] or "").strip()
@@ -675,48 +716,15 @@ class MacOSBackend(ProxyBackend):
             raise RollbackStateError(
                 "cannot restore enabled automatic proxy without a saved URL"
             )
-        # networksetup rejects -setautoproxyurl <service> "" on current macOS.
-        # A disabled+empty original state is restored by switching PAC off; if a
-        # URL was saved, restore it first because setautoproxyurl may enable PAC.
+        # networksetup cannot clear a remembered PAC URL. A disabled+empty
+        # original state is functionally restored by leaving PAC disabled.
         if url:
             self._client.set_auto_proxy_url(service_name, url)
         if enabled:
-            self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
-            # Mirror enable(): an explicit OFF->ON edge guarantees that CFNetwork
-            # observes the restored PAC URL rather than retaining the APL PAC cache.
             self._client.set_auto_proxy_state(service_name, False)
             self._client.set_auto_proxy_state(service_name, True)
         else:
-            # Keep the historic retry-safe order for disabled snapshots: if the
-            # state transition fails, bypass domains are still Arvectum-owned and
-            # the next disable attempt can safely retry from the owned state.
             self._client.set_auto_proxy_state(service_name, False)
-            self._client.set_bypass_domains(service_name, snapshot["bypass_domains"])
-
-        web = snapshot.get("web_proxy")
-        secure_web = snapshot.get("secure_web_proxy")
-        if web is not None:
-            current = self._client.get_web_proxy(service_name)
-            if (
-                current.server != str(web.get("server", ""))
-                or current.port != int(web.get("port", 0))
-            ):
-                raise RollbackStateError(
-                    "manual HTTP proxy changed while Arvectum owned the service"
-                )
-            self._client.set_web_proxy_state(service_name, bool(web.get("enabled")))
-        if secure_web is not None:
-            current = self._client.get_secure_web_proxy(service_name)
-            if (
-                current.server != str(secure_web.get("server", ""))
-                or current.port != int(secure_web.get("port", 0))
-            ):
-                raise RollbackStateError(
-                    "manual HTTPS proxy changed while Arvectum owned the service"
-                )
-            self._client.set_secure_web_proxy_state(
-                service_name, bool(secure_web.get("enabled"))
-            )
 
     def _restore_touched_services(
         self,
