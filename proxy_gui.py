@@ -1260,39 +1260,60 @@ class Launcher:
 
     # -- статус -------------------------------------------------------------
 
-    def _ui_heartbeat(self):
-        """Arm a short destructive-action guard after a long GUI event-loop gap."""
-        now = time.time()
+    def _arm_wake_guard_from_gap(self, now, source):
+        """Arm the macOS wake guard from any observed GUI event-loop gap."""
+        if not self._mac_ui:
+            self._ui_heartbeat_wall = now
+            return False
         previous = self._ui_heartbeat_wall
         gap = max(0.0, now - previous)
         self._ui_heartbeat_wall = now
-        if self._mac_ui and gap >= MAC_WAKE_GUARD_GAP_SECONDS:
-            self._mac_wake_guard_until = max(
-                self._mac_wake_guard_until,
-                now + MAC_WAKE_GUARD_WINDOW_SECONDS,
+        if gap < MAC_WAKE_GUARD_GAP_SECONDS:
+            return False
+        self._mac_wake_guard_until = max(
+            self._mac_wake_guard_until,
+            now + MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        try:
+            core.structured_log(
+                "macOS wake UI guard armed after event-loop gap",
+                event="proxy_gui.wake_guard.armed",
+                gap_seconds=round(gap, 3),
+                guard_seconds=MAC_WAKE_GUARD_WINDOW_SECONDS,
+                source=str(source),
             )
-            try:
-                core.structured_log(
-                    "macOS wake UI guard armed after event-loop gap",
-                    event="proxy_gui.wake_guard.armed",
-                    gap_seconds=round(gap, 3),
-                    guard_seconds=MAC_WAKE_GUARD_WINDOW_SECONDS,
-                )
-            except Exception:
-                pass
+        except Exception:
+            pass
+        return True
+
+    def _ui_heartbeat(self):
+        """Arm a short destructive-action guard after a long GUI event-loop gap."""
+        now = time.time()
+        armed = self._arm_wake_guard_from_gap(now, "heartbeat")
+        if armed:
             try:
                 self.refresh_status()
             except tk.TclError:
                 pass
         self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
 
-    def _wake_destructive_guard_active(self):
-        return bool(self._mac_ui and time.time() < self._mac_wake_guard_until)
+    def _wake_destructive_guard_active(self, now=None):
+        if not self._mac_ui:
+            return False
+        if now is None:
+            now = time.time()
+        return bool(now < self._mac_wake_guard_until)
 
     def _block_destructive_wake_action(self, action):
-        if not self._wake_destructive_guard_active():
+        now = time.time()
+        # Tk/AppKit may deliver a queued HID/button action before the first
+        # root.after() heartbeat callback after wake. Detect the stale event
+        # loop synchronously inside the destructive handler so a wake-generated
+        # action cannot outrun the timer-based guard.
+        self._arm_wake_guard_from_gap(now, "destructive_action")
+        if not self._wake_destructive_guard_active(now):
             return False
-        remaining = max(0.0, self._mac_wake_guard_until - time.time())
+        remaining = max(0.0, self._mac_wake_guard_until - now)
         try:
             core.structured_log(
                 "blocked destructive GUI action during macOS wake guard",
@@ -1444,6 +1465,12 @@ class Launcher:
 
     def off(self):
         if self._block_destructive_wake_action("off"):
+            return
+        if self._mac_ui and not messagebox.askyesno(
+                APP_NAME,
+                "Выключить прокси и восстановить исходные настройки сети?",
+                icon="warning",
+                default="no"):
             return
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")

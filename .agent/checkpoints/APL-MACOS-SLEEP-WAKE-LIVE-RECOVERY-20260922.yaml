@@ -1,27 +1,20 @@
-version: 2
+version: 3
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Keep APL alive across real macOS clamshell sleep/wake and prevent wake-generated destructive GUI actions."
-definition_of_done:
-  - "Long clamshell PASS on guard build."
-  - "No synthetic/delayed wake HID can spawn --stop/--rollback within guard."
-  - "Exact-head CI has no new failures."
+goal: "Keep APL alive across macOS wake and prevent synthetic/queued destructive GUI actions."
 completed_stages:
-  - "PAC-first false STOPPED path removed."
-  - "PID/listener ownership recovery implemented."
-  - "Long clamshell reproduced and proved worker survives sleep."
-  - "Lifecycle instrumentation identified GUI --stop at 15:55:21.789."
-  - "Unified log correlated stop with GUI frontmost transition and slow HID response."
-  - "Wake destructive-action guard implemented and installed."
-  - "134 focused PASS; 1097 full-suite PASS plus 3 historical failures."
-  - "Live 7.594 s event-loop-gap guard-arm PASS."
-current_stage: "Await exact-head CI and final human clamshell acceptance."
+  - "PID/listener ownership recovery."
+  - "PAC-health false STOPPED path removed."
+  - "Lifecycle instrumentation identified GUI --stop after long clamshell wake."
+  - "Timer-based wake guard implemented and physically shown to arm."
+  - "Second FAIL proved destructive HID can outrun Tk timer callback."
+  - "Synchronous handler-side gap detection added."
+  - "macOS Off now requires explicit default-no confirmation."
+  - "136 focused PASS; 1099 full-suite PASS plus 3 historical unrelated failures."
+current_stage: "Build/install/push exact synchronous-guard candidate, then final human clamshell acceptance."
 remaining_stages:
-  - "PR/CI verification."
-  - "One long human clamshell test on installed af86c94c... build."
+  - "Governed build/install and exact-head CI."
+  - "Final long clamshell physical acceptance."
   - "Close checkpoint on PASS."
-last_verified_commit: "200f5d2cd77b5754c259a76e93b02502c30326ca"
-test_results:
-  - "Installed SHA-256: af86c94c46bfb266753df06eb3729446b9d93a4f0f35fdbd9befa759fe269feb."
-  - "Worker at checkpoint: PID 29274; GUI PID 29323; system proxy ENABLED; external proxy traffic PASS."
-resume_instruction: "After the user's next long clamshell wake, inspect logs/status before mutation. Look specifically for proxy_gui.wake_guard.armed, proxy_gui.wake_guard.blocked and proxy_gui.lifecycle.spawn."
+last_verified_commit: "037a05903c33f70ebd845f4606c0a5e8a5879602"
+resume_instruction: "Build/install current code. After next human clamshell, inspect proxy_gui.wake_guard.armed/blocked and proxy_gui.lifecycle.spawn before changing state."

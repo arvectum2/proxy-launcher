@@ -213,10 +213,35 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
             launcher._ui_heartbeat,
         )
 
+    def test_off_self_arms_guard_from_stale_heartbeat_before_spawning_stop(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=200.0),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        run.assert_not_called()
+        events = [call.kwargs["event"] for call in log.call_args_list]
+        self.assertEqual(
+            events,
+            ["proxy_gui.wake_guard.armed", "proxy_gui.wake_guard.blocked"],
+        )
+        self.assertEqual(log.call_args_list[0].kwargs["source"], "destructive_action")
+        self.assertEqual(log.call_args_list[1].kwargs["action"], "off")
+        self.assertEqual(
+            launcher._mac_wake_guard_until,
+            200.0 + gui.MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+
     def test_off_is_blocked_during_wake_guard_without_spawning_stop(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
         launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 104.5
         launcher._mac_wake_guard_until = 115.0
         launcher.refresh_status = mock.Mock()
 
@@ -233,20 +258,40 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
         launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
         launcher._mac_wake_guard_until = 100.0
         launcher._set_busy = mock.Mock()
 
-        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui, "_run_headless") as run:
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno", return_value=True) as ask,              mock.patch.object(gui, "_run_headless") as run:
             launcher.off()
 
+        ask.assert_called_once()
+        self.assertEqual(ask.call_args.kwargs["default"], "no")
         launcher._set_busy.assert_called_once()
         run.assert_called_once_with("--stop")
         launcher.root.after.assert_called_once_with(250, launcher._after_stop)
+
+    def test_macos_off_requires_explicit_confirmation_before_stop(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
+        launcher._mac_wake_guard_until = 100.0
+        launcher._set_busy = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno", return_value=False) as ask,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        ask.assert_called_once()
+        self.assertEqual(ask.call_args.kwargs["default"], "no")
+        launcher._set_busy.assert_not_called()
+        run.assert_not_called()
 
     def test_rollback_is_blocked_during_wake_guard(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
         launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 104.5
         launcher._mac_wake_guard_until = 115.0
         launcher.refresh_status = mock.Mock()
 
