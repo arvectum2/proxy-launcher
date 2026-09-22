@@ -1,20 +1,19 @@
-version: 11
+version: 12
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: blocked
-goal: "Keep macOS browsing usable through APL, with Safari compatibility on macOS 27."
+status: in_progress
+goal: "Restore proven PAC-exclusive Safari routing while retaining newer sleep/recovery fixes."
 completed_stages:
-  - "Ownership, rollback, wake guard, Off confirmation and false recovery UI races fixed."
-  - "No-sleep failures proved; worker/upstream remain healthy."
-  - "Safari-specific proxy mismatch observed while Chrome adopts APL correctly."
-  - "Unsafe browser NetworkProcess SIGKILL recovery removed."
-  - "173 focused PASS; 1108 full-suite PASS + 3 historical Windows failures."
-  - "Safe candidate installed while APL OFF; SHA-256 b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a."
-  - "Install preserved exact legacy baseline; APL ports stayed closed."
-  - "PR #155 head 018c036 has 22/22 checks SUCCESS and is mergeable/clean."
-current_stage: "Controlled Limit IP Address Tracking A/B requires user action."
+  - "Sleep/wake false-stop, PID ownership, HID/modal and lifecycle UI bugs fixed."
+  - "Private Relay, legacy proxy coexistence, PAC-only manual A/B and SOCKS-only hypotheses isolated; none explains the product regression alone."
+  - "Git history identified 752ae4c as the macOS routing regression from v0.2.11 PAC-exclusive mode to manual HTTP/HTTPS."
+  - "PAC-exclusive backend semantics restored from 2181825 without wake-time mutation."
+  - "160 focused PASS; 1104 full-suite PASS plus 3 historical Windows failures."
+current_stage: "Build/install/physical Safari smoke/rollback verification."
 remaining_stages:
-  - "User disables Limit IP Address Tracking for current Wi-Fi."
-  - "Start safe APL candidate and test Safari with no WebKit process manipulation."
-  - "Implement compatibility preflight or reject hypothesis and continue with atomic SCPreferences."
-last_verified_commit: "018c036f43608ebd850cd0819b7e617df23d48c4"
-resume_instruction: "After Limit IP Address Tracking is OFF, start safe APL candidate hash b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a and test Safari normally before any Off."
+  - "Governed build/install."
+  - "Existing Safari ChatGPT smoke."
+  - "Exact OFF rollback."
+  - "Long clamshell acceptance if smoke passes."
+  - "PR/CI closure."
+last_verified_commit: "952f705bc95918d84218407e23fb8f08c24bc32e"
+resume_instruction: "Build/install current PAC-exclusive tree; do not restart Safari. Verify PAC 18082 ON/manual proxies OFF, ChatGPT traffic reaches APL, then exact rollback."
