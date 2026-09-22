@@ -1,19 +1,19 @@
-version: 5
+version: 6
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Keep APL alive across macOS wake/use and prevent a single GUI input sequence from stopping the proxy."
+goal: "Keep browser traffic usable through APL after macOS resume without APL OFF or full browser restart."
 completed_stages:
-  - "PID/listener ownership and PAC-health false STOPPED paths fixed."
-  - "Lifecycle instrumentation identified GUI --stop after wake."
-  - "Timer guard and synchronous handler-side guard added."
-  - "20:53 reproduction proved synchronous modal confirmation could be accepted by the same trackpad input event."
-  - "macOS Off confirmation deferred by 500 ms; duplicate pending requests suppressed; request/confirm/cancel events instrumented."
-  - "138 focused PASS; 1101 full-suite PASS plus 3 historical unrelated failures."
-  - "Governed build from 0bb375e installed; SHA-256 d6f28bfc2dfeb2e0e5e9de75da2681df48bd7f7ba167797ea28493f0fa8eb5a8."
-current_stage: "Push/CI, then physical wake/use acceptance."
+  - "Worker ownership/PAC false-stop/UI HID stop/modal races fixed."
+  - "Fresh CONNECT 200 during browser-dead state reconfirmed client-session failure."
+  - "Historical PAC/transport/system-route wake mutations confirmed disproven."
+  - "Narrow Safari WebKit.Networking and Chrome NetworkService recycle validated live without closing browser main processes."
+  - "Fail-closed browser network recovery helper implemented; Telegram WebKit and Chromium-Gost --no-proxy-server excluded."
+  - "macOS worker suspend-gap detector now dispatches only browser network-service recovery."
+  - "158 focused PASS; 1108 full-suite PASS plus 3 historical unrelated failures."
+current_stage: "Build/install/push exact browser-network resume candidate, then human physical sleep/wake acceptance."
 remaining_stages:
-  - "Exact-head PR CI."
-  - "One physical wake/use acceptance on installed deferred-confirmation build."
-  - "Close checkpoint on PASS."
-last_verified_commit: "0bb375e8171be7535d7c9e5c0a1102c1ab1afb6f"
-resume_instruction: "After the next user wake/use cycle, inspect off confirmation and lifecycle events before mutating state."
+  - "Governed build/install."
+  - "Exact-head CI."
+  - "Physical browser usability test after real sleep/wake."
+last_verified_commit: "e3b1fad88b5d6fc26dacd4b1f871751df897bec6"
+resume_instruction: "After install, do not manually recover on first failure. Capture browser_network_recovery logs and browser network PIDs before any APL OFF/browser relaunch."

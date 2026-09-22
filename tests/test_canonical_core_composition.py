@@ -5,7 +5,6 @@ import unittest
 
 import proxy_core as core
 
-
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CORE_PATH = ROOT / "proxy_core.py"
 THIS_TEST = pathlib.Path(__file__).resolve()
@@ -16,6 +15,7 @@ CANONICAL_RUNTIME_OWNERS = {
     "configuration_storage",
     "local_proxy_transport",
     "logging_bridge",
+    "macos_browser_network_recovery",
     "portable_lifecycle",
     "process_supervision",
     "recovery_autostart",
@@ -220,6 +220,7 @@ class CanonicalCoreCompositionTests(unittest.TestCase):
             "install_dir": "application_filesystem",
             "ensure_stable_app_copy": "portable_lifecycle",
             "structured_log": "logging_bridge",
+            "recover_browser_network_services": "macos_browser_network_recovery",
             "load_settings": "configuration_storage",
             "build_pac": "routing_policy",
             "ProxyCore": "local_proxy_transport",

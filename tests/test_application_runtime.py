@@ -102,7 +102,8 @@ class ApplicationRuntimeTests(unittest.TestCase):
         stop_event.wait.side_effect = KeyboardInterrupt
         proxy = mock.Mock(_stop=stop_event)
         proxy.start.return_value = (True, "OK")
-        with mock.patch.object(core, "load_settings", return_value=settings), \
+        with mock.patch.object(application_runtime.sys, "platform", "linux"), \
+             mock.patch.object(core, "load_settings", return_value=settings), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "ProxyCore", return_value=proxy), \
              mock.patch.object(core, "_write_pid") as write_pid, \
@@ -114,6 +115,50 @@ class ApplicationRuntimeTests(unittest.TestCase):
         stop_event.wait.assert_called_once_with(3600)
         proxy.stop.assert_called_once_with()
         remove_pid.assert_called_once_with(application_runtime.os.getpid())
+
+    def test_macos_resume_loop_recycles_browser_network_services(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, KeyboardInterrupt]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "monotonic",
+                 side_effect=[100.0, 101.0],
+             ),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1101.0],
+             ),              mock.patch.object(
+                 core,
+                 "recover_browser_network_services",
+                 return_value=[("safari", 42)],
+             ) as recover,              mock.patch.object(core, "structured_log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        recover.assert_called_once_with()
+        self.assertEqual(
+            stop_event.wait.call_args_list[0].args,
+            (application_runtime.MACOS_RESUME_POLL_SECONDS,),
+        )
+        phases = [
+            call.kwargs.get("phase")
+            for call in log.call_args_list
+            if call.kwargs.get("event") == "proxy.resume.browser_network_recovery"
+        ]
+        self.assertEqual(phases, ["resume_detected", "resume_completed"])
+
+    def test_non_macos_proxy_loop_keeps_historical_wait_contract(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = KeyboardInterrupt
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "linux"):
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        stop_event.wait.assert_called_once_with(3600)
 
     def test_stop_reports_incomplete_network_restore(self):
         with mock.patch.object(core, "_read_pid", return_value=None), \
