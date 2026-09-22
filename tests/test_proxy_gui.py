@@ -150,6 +150,45 @@ class FocusStatusReconciliationTests(unittest.TestCase):
         launcher.refresh_status.assert_called_once_with()
 
 
+class MacOSRecoveryDebounceTests(unittest.TestCase):
+    def test_macos_recovery_prompt_rechecks_before_offering_rollback(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._recovery_prompt_shown = False
+        launcher.root = mock.Mock()
+
+        with mock.patch.object(gui, "_is_macos", return_value=True),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True),              mock.patch.object(gui.messagebox, "askyesno") as ask:
+            launcher._maybe_prompt_recovery()
+
+        ask.assert_not_called()
+        launcher.root.after.assert_called_once()
+        delay, callback = launcher.root.after.call_args.args
+        self.assertEqual(delay, 750)
+        self.assertTrue(callable(callback))
+
+    def test_macos_recovery_prompt_still_available_after_stable_rechecks(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._recovery_prompt_shown = False
+        launcher.root = mock.Mock()
+
+        with mock.patch.object(gui, "_is_macos", return_value=True),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True),              mock.patch.object(gui.messagebox, "askyesno", return_value=False) as ask:
+            launcher._maybe_prompt_recovery(attempt=3)
+
+        ask.assert_called_once()
+        self.assertTrue(launcher._recovery_prompt_shown)
+
+    def test_headless_lifecycle_spawn_is_structured_logged(self):
+        process = mock.Mock()
+        with mock.patch.object(gui.sys, "frozen", True, create=True),              mock.patch.object(gui.sys, "executable", "/Applications/Arvectum Proxy Launcher"),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui.subprocess, "Popen", return_value=process) as popen:
+            gui._run_headless("--rollback")
+
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.lifecycle.spawn")
+        self.assertEqual(log.call_args.kwargs["mode"], "--rollback")
+        self.assertEqual(popen.call_args.args[0], [
+            "/Applications/Arvectum Proxy Launcher",
+            "--rollback",
+        ])
+
+
 class FinalStatusUxTests(unittest.TestCase):
     def status(self, **overrides):
         values = {

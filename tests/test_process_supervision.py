@@ -37,7 +37,8 @@ class ProcessSupervisionTests(unittest.TestCase):
                 self.assertEqual(core._read_pid(), {"pid": 4242, "created": None})
 
     def test_is_running_requires_listener_before_process_identity(self):
-        with mock.patch.object(core, "proxy_listener_active", return_value=False), \
+        with mock.patch.object(process_supervision.sys, "platform", "linux"), \
+             mock.patch.object(core, "proxy_listener_active", return_value=False), \
              mock.patch.object(core, "_read_pid") as read_pid:
             self.assertFalse(core.is_running())
         read_pid.assert_not_called()
@@ -52,13 +53,14 @@ class ProcessSupervisionTests(unittest.TestCase):
             self.assertFalse(core.is_running())
 
     def test_is_running_rejects_foreign_macos_listener_without_owned_pid(self):
-        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
-             mock.patch.object(core, "is_windows", return_value=False), \
-             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
-             mock.patch.object(core, "_read_pid", return_value=None), \
-             mock.patch.object(core, "_macos_process_executable_path") as path:
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "load_settings", return_value={}), \
+             mock.patch.object(core, "_macos_listener_owner_pid", return_value=None), \
+             mock.patch.object(core, "_read_pid") as read_pid, \
+             mock.patch.object(core, "proxy_listener_active") as pac_probe:
             self.assertFalse(core.is_running())
-        path.assert_not_called()
+        read_pid.assert_not_called()
+        pac_probe.assert_not_called()
 
     def test_is_running_accepts_owned_macos_pid_and_executable(self):
         record = {
@@ -66,26 +68,26 @@ class ProcessSupervisionTests(unittest.TestCase):
             "created": None,
             "exe_path": "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/Arvectum Proxy Launcher",
         }
-        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
-             mock.patch.object(core, "is_windows", return_value=False), \
-             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "load_settings", return_value={}), \
+             mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
              mock.patch.object(core, "_read_pid", return_value=record), \
              mock.patch.object(
                  core,
                  "_macos_process_executable_path",
                  return_value=record["exe_path"],
-             ):
+             ), \
+             mock.patch.object(core, "proxy_listener_active") as pac_probe:
             self.assertTrue(core.is_running())
+        pac_probe.assert_not_called()
 
     def test_is_running_recovers_owned_frozen_macos_worker_without_pid_file(self):
         expected = (
             "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/"
             "Arvectum Proxy Launcher"
         )
-        with mock.patch.object(core, "proxy_listener_active", return_value=True), \
-             mock.patch.object(core, "is_windows", return_value=False), \
-             mock.patch.object(process_supervision.sys, "platform", "darwin"), \
-             mock.patch.object(process_supervision.sys, "frozen", True, create=True), \
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "load_settings", return_value={}), \
              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
              mock.patch.object(
@@ -93,9 +95,31 @@ class ProcessSupervisionTests(unittest.TestCase):
              ), \
              mock.patch.object(
                  core, "_write_pid_record", return_value=True
-             ) as write:
+             ) as write, \
+             mock.patch.object(core, "proxy_listener_active") as pac_probe:
             self.assertTrue(core.is_running())
         write.assert_called_once_with(42, expected)
+        pac_probe.assert_not_called()
+
+    def test_macos_running_ignores_transient_pac_http_probe_failure(self):
+        expected = (
+            "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/"
+            "Arvectum Proxy Launcher"
+        )
+        record = {"pid": 42, "created": None, "exe_path": expected}
+        settings = {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        }
+        with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
+             mock.patch.object(core, "_macos_process_executable_path", return_value=expected), \
+             mock.patch.object(core, "_read_pid", return_value=record), \
+             mock.patch.object(core, "proxy_listener_active", return_value=False) as pac_probe:
+            self.assertTrue(core.is_running())
+        pac_probe.assert_not_called()
 
     def test_macos_listener_recovery_requires_same_owned_pid_on_all_ports(self):
         settings = {

@@ -337,6 +337,14 @@ def _run_headless(mode):
         cmd = [sys.executable, mode]
     else:
         cmd = [sys.executable, os.path.join(core.app_dir(), "proxy_core.py"), mode]
+    try:
+        core.structured_log(
+            "launching headless lifecycle command",
+            event="proxy_gui.lifecycle.spawn",
+            mode=str(mode),
+        )
+    except Exception:
+        pass
     flags = 0
     if os.name == "nt":
         flags = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
@@ -1317,10 +1325,18 @@ class Launcher:
 
     # -- действия ------------------------------------------------------------
 
-    def _maybe_prompt_recovery(self):
+    def _maybe_prompt_recovery(self, attempt=0):
         if self._recovery_prompt_shown:
             return
         if core.is_running() or not core.network_restore_pending():
+            return
+        if _is_macos() and attempt < 3:
+            # Immediately after wake/unlock, localhost protocol probes and
+            # SystemConfiguration reads can be briefly unsettled. Do not offer
+            # a destructive rollback from one transient observation.
+            self.root.after(
+                750, lambda: self._maybe_prompt_recovery(attempt + 1)
+            )
             return
         self._recovery_prompt_shown = True
         if messagebox.askyesno(

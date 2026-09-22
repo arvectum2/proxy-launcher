@@ -285,10 +285,13 @@ def _read_pid():
 def is_running():
     """Return True only for the proxy process owned by this app instance."""
     core = _core()
-    if not core.proxy_listener_active():
-        return False
-    record = core._read_pid()
+
+    # Preserve the Windows identity contract even when tests execute on a
+    # non-Windows host with the canonical platform seam mocked.
     if core.is_windows():
+        if not core.proxy_listener_active():
+            return False
+        record = core._read_pid()
         if (
             not isinstance(record, dict)
             or not record.get("pid")
@@ -306,31 +309,45 @@ def is_running():
             and os.path.normcase(os.path.realpath(recorded_path))
             == os.path.normcase(os.path.realpath(actual_path))
         )
-    if sys.platform == "darwin":
-        if isinstance(record, dict) and record.get("pid"):
-            recorded_path = record.get("exe_path")
-            actual_path = core._macos_process_executable_path(int(record["pid"]))
-            if (
-                recorded_path
-                and actual_path
-                and os.path.realpath(recorded_path) == os.path.realpath(actual_path)
-            ):
-                return True
 
-        recovered_pid = core._macos_listener_owner_pid()
-        if recovered_pid is None:
+    # On macOS, process/listener ownership is stronger evidence than an HTTP
+    # health probe. A PAC request can transiently time out while the machine is
+    # resuming even though the packaged worker still owns all three listeners.
+    # Treating that brief protocol stall as STOPPED can expose rollback UI for
+    # a live session. Require the exact packaged executable to own HTTP, SOCKS
+    # and PAC listener ports instead; this remains fail-closed for foreign or
+    # partially rebound processes and does not mutate network state.
+    if sys.platform == "darwin":
+        settings = core.load_settings()
+        owner_pid = core._macos_listener_owner_pid(settings)
+        if owner_pid is None:
             return False
-        actual_path = core._macos_process_executable_path(recovered_pid)
-        if not actual_path or not core._write_pid_record(recovered_pid, actual_path):
+        actual_path = core._macos_process_executable_path(owner_pid)
+        if not actual_path:
+            return False
+
+        record = core._read_pid()
+        if (
+            isinstance(record, dict)
+            and record.get("pid")
+            and int(record["pid"]) == int(owner_pid)
+            and record.get("exe_path")
+            and os.path.realpath(record["exe_path"]) == os.path.realpath(actual_path)
+        ):
+            return True
+
+        if not core._write_pid_record(owner_pid, actual_path):
             return False
         core._log(
-            "recovered macOS worker ownership from listeners: pid=%s" % recovered_pid
+            "recovered macOS worker ownership from listeners: pid=%s" % owner_pid
         )
         return True
+
+    if not core.proxy_listener_active():
+        return False
     # Historical Linux behavior remains listener-health based until Linux PID
     # ownership receives its own platform-specific identity primitive.
     return True
-
 
 def _write_pid():
     return _write_pid_record(os.getpid(), sys.executable)
