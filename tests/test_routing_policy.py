@@ -81,6 +81,17 @@ class RoutingPolicyExtractionTests(unittest.TestCase):
             self.assertTrue(core.host_bypasses_proxy("localhost"))
             self.assertTrue(core.host_bypasses_proxy("[::1]"))
 
+    def test_critical_apple_connectivity_bypasses_survive_user_file_damage(self):
+        with mock.patch.object(
+            core,
+            "load_no_proxy",
+            return_value=["gsp1.apple.comapl-mac-008.invalid"],
+        ):
+            self.assertTrue(core.host_bypasses_proxy("gsp1.apple.com"))
+            self.assertTrue(core.host_bypasses_proxy("captive.apple.com"))
+            self.assertIn("gsp1.apple.com", core.DEFAULT_NO_PROXY)
+            self.assertIn("captive.apple.com", core.DEFAULT_NO_PROXY)
+
     def test_bypass_evaluator_resolves_load_no_proxy_through_core_seam(self):
         with mock.patch.object(core, "load_no_proxy", return_value=["dynamic.invalid"]) as loader:
             self.assertTrue(core.host_bypasses_proxy("sub.dynamic.invalid"))

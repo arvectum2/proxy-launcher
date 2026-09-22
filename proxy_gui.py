@@ -943,6 +943,7 @@ class Launcher:
         self._ui_heartbeat_wall = time.time()
         self._mac_wake_guard_until = 0.0
         self._off_confirmation_pending = False
+        self._lifecycle_action_pending = None
         self._set_window_icon()
 
         if self._mac_ui:
@@ -1217,6 +1218,14 @@ class Launcher:
         self.btn_doctor = ttk.Button(
             service, text="Диагностика", style="Ghost.TButton", command=self.doctor)
         self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
+        self.btn_browser_repair = ttk.Button(
+            service,
+            text="Восстановить связь браузера",
+            style="Ghost.TButton",
+            command=self.repair_browser_connection,
+        )
+        self.btn_browser_repair.grid(
+            row=2, column=0, columnspan=2, sticky="ew", pady=(6, 0))
         self.btn_restore = ttk.Button(
             body, text="Восстановить настройки сети", style="Ghost.TButton",
             command=self.restore_network)
@@ -1333,6 +1342,8 @@ class Launcher:
 
     def _refresh_status_on_focus(self, _event=None):
         """Reconcile GUI actions after lifecycle changes outside this window."""
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         try:
             self.refresh_status()
         except tk.TclError:
@@ -1397,6 +1408,13 @@ class Launcher:
         can_off = view["can_off"] and not self._wake_destructive_guard_active()
         self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
+        browser_repair = getattr(self, "btn_browser_repair", None)
+        if browser_repair is not None:
+            browser_repair.state(
+                ["!disabled"]
+                if running and not getattr(self, "_lifecycle_action_pending", None)
+                else ["disabled"]
+            )
         if self._wake_destructive_guard_active():
             self.btn_restore.state(["disabled"])
 
@@ -1430,6 +1448,8 @@ class Launcher:
             self.restore_network(confirm=False)
 
     def on(self):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         s = core.load_settings()
         ok = any((u.get("host") or "").strip() for u in s.get("upstream") or [])
         if not ok:
@@ -1440,10 +1460,12 @@ class Launcher:
             if core.system_proxy_enabled():
                 self.refresh_status()
                 return
+            self._lifecycle_action_pending = "start"
             self._set_busy("Включение PAC…", MINT_LIGHT)
             _run_headless("--start")
             self.root.after(250, self._after_start)
             return
+        self._lifecycle_action_pending = "start"
         self._set_busy("Запуск…", MINT_LIGHT)
         _run_headless("--start")
         # Фоновому процессу нужно время на запуск и открытие трёх сокетов.
@@ -1451,6 +1473,10 @@ class Launcher:
 
     def _after_start(self, attempt=0):
         ok = core.is_running() and core.system_proxy_enabled()
+        if not ok and attempt < 40:
+            self.root.after(250, lambda: self._after_start(attempt + 1))
+            return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if ok:
             messagebox.showinfo(
@@ -1458,10 +1484,6 @@ class Launcher:
                 "Прокси подключён.\nСистемные настройки прокси применены.\n\n"
                 "Если отдельное приложение не подхватило новые настройки, "
                 "полностью закройте его и запустите заново.")
-        elif attempt < 40:
-            # One-file PyInstaller + антивирус на первом запуске могут
-            # стартовать заметно дольше нескольких секунд.
-            self.root.after(250, lambda: self._after_start(attempt + 1))
         else:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
@@ -1518,6 +1540,7 @@ class Launcher:
         self._execute_stop()
 
     def _execute_stop(self):
+        self._lifecycle_action_pending = "stop"
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
@@ -1527,6 +1550,7 @@ class Launcher:
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_stop(attempt + 1))
             return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Прокси-процесс не удалось остановить. Подробности в «Журнал».")
@@ -1539,6 +1563,8 @@ class Launcher:
             messagebox.showinfo(APP_NAME, "Прокси выключен, исходные настройки сети восстановлены.")
 
     def restore_network(self, confirm=True):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         if self._block_destructive_wake_action("rollback"):
             return
         msg = "Восстановить исходные настройки сети и остановить proxy?" if os.name != "nt" else "Восстановить исходные настройки сети Windows и остановить proxy?"
@@ -1547,9 +1573,43 @@ class Launcher:
                 msg,
                 icon="warning"):
             return
+        self._lifecycle_action_pending = "rollback"
         self._set_busy("Восстановление сети…", MINT_LIGHT)
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
+
+    def repair_browser_connection(self):
+        """Recycle only proven macOS browser network subprocesses."""
+        if not self._mac_ui:
+            return
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
+        if not core.is_running():
+            messagebox.showwarning(
+                APP_NAME,
+                "Сначала включите прокси.",
+            )
+            return
+        self._set_busy("Восстановление связи браузера…", MINT_LIGHT)
+        recovered = core.recover_browser_network_services()
+        self.refresh_status()
+        if recovered:
+            browsers = []
+            for browser, _pid in recovered:
+                label = "Safari" if browser == "safari" else "Google Chrome"
+                if label not in browsers:
+                    browsers.append(label)
+            messagebox.showinfo(
+                APP_NAME,
+                "Сетевой сеанс браузера перезапущен: %s.\n"
+                "Вкладки и сам браузер не закрывались." % ", ".join(browsers),
+            )
+        else:
+            messagebox.showwarning(
+                APP_NAME,
+                "Активные сетевые процессы Safari/Google Chrome не найдены. "
+                "Настройки APL и сети не изменялись.",
+            )
 
     def clear_orphaned_pac(self):
         self._set_busy("Удаление старого PAC…", MINT_LIGHT)
@@ -1571,6 +1631,7 @@ class Launcher:
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_restore_network(attempt + 1))
             return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Proxy-процесс всё ещё работает. См. «Журнал».")
@@ -1589,9 +1650,14 @@ class Launcher:
                 self._status_dot.configure(fg=MINT)
         else:
             self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
-        for b in (
-                self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
-                self.btn_restore, self.btn_orphan_pac):
+        buttons = [
+            self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
+            self.btn_restore, self.btn_orphan_pac,
+        ]
+        browser_repair = getattr(self, "btn_browser_repair", None)
+        if browser_repair is not None:
+            buttons.append(browser_repair)
+        for b in buttons:
             b.state(["disabled"])
 
     # -- проверка -------------------------------------------------------------

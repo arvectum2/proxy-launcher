@@ -10,7 +10,6 @@ import os
 import re
 from types import ModuleType
 
-
 DEFAULT_NO_PROXY = [
     "localhost",
     "127.0.0.1",
@@ -22,6 +21,8 @@ DEFAULT_NO_PROXY = [
     "172.24.*", "172.25.*", "172.26.*", "172.27.*",
     "172.28.*", "172.29.*", "172.30.*", "172.31.*",
     "192.168.*",
+    "captive.apple.com",
+    "gsp1.apple.com",
 ]
 
 _CORE: ModuleType | None = None

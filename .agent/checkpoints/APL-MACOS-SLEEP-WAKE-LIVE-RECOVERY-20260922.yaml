@@ -1,21 +1,21 @@
-version: 7
+version: 8
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Keep browser traffic usable through APL after macOS resume without APL OFF or full browser restart."
+goal: "Keep macOS browsing usable through APL during normal operation and across transitions."
 completed_stages:
   - "Worker ownership/PAC false-stop/UI HID stop/modal races fixed."
-  - "Fresh CONNECT 200 during browser-dead state reconfirmed client-session failure."
-  - "Historical PAC/transport/system-route wake mutations confirmed disproven."
-  - "Narrow Safari WebKit.Networking and Chrome NetworkService recycle validated live without closing browser main processes."
-  - "Fail-closed browser network recovery helper implemented; Telegram WebKit and Chromium-Gost --no-proxy-server excluded."
-  - "macOS worker suspend-gap detector dispatches only browser network-service recovery."
-  - "158 focused PASS; 1108 full-suite PASS plus 3 historical unrelated failures."
-  - "Governed build c9f9ca2 installed; SHA-256 8eb47e762b339bd9e043cee14474e938652d58e64ccb215d5ce942b41b9fe280."
-  - "Live APL-ON helper smoke PASS with worker PID 42930 and route/listeners unchanged."
-current_stage: "Push/CI, then human physical sleep/wake browser acceptance."
+  - "Browser network-service recovery implemented and scoped."
+  - "Latest FAIL proved issue can occur without a full Sleep/Wake."
+  - "Safari identified as affected foreground browser while APL transport remained healthy."
+  - "False 'Восстановить настройки сети' during normal Off traced to FocusIn during async rollback; lifecycle pending suppression implemented."
+  - "Historical malformed no_proxy 'gsp1.apple.comapl-mac-008.invalid' repaired; captive.apple.com/gsp1.apple.com promoted to mandatory bypass."
+  - "Manual 'Восстановить связь браузера' action added for controlled next-failure isolation."
+  - "181 focused PASS; 1116 full-suite PASS plus 3 historical unrelated failures."
+current_stage: "Build/install/push new candidate, then controlled Safari failure test using browser repair before Off."
 remaining_stages:
+  - "Governed build/install."
   - "Exact-head PR CI."
-  - "Physical browser usability test after real sleep/wake."
-  - "Close checkpoint on PASS."
-last_verified_commit: "c9f9ca2e17a12a33b9685346081b2086bce53cbf"
-resume_instruction: "After next real sleep/wake, inspect browser_network_recovery logs/PIDs before any manual recovery. Do not disable APL or relaunch browser until evidence is captured."
+  - "Physical controlled test."
+  - "Close only after stable browsing acceptance."
+last_verified_commit: "7aceea41aefccb4c62bd0fb202b356b7aa49a3b7"
+resume_instruction: "On next Safari failure, keep APL ON and click 'Восстановить связь браузера'. Capture result before Off/browser relaunch."

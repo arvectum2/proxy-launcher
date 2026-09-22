@@ -150,6 +150,64 @@ class FocusStatusReconciliationTests(unittest.TestCase):
         launcher.refresh_status.assert_called_once_with()
 
 
+class LifecycleStatusRaceTests(unittest.TestCase):
+    def test_focus_does_not_render_recovery_state_while_stop_is_pending(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        launcher._refresh_status_on_focus()
+
+        launcher.refresh_status.assert_not_called()
+
+    def test_focus_reconciles_again_after_lifecycle_finishes(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = None
+        launcher.refresh_status = mock.Mock()
+
+        launcher._refresh_status_on_focus()
+
+        launcher.refresh_status.assert_called_once_with()
+
+    def test_execute_stop_marks_lifecycle_pending_before_spawn(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._set_busy = mock.Mock()
+        launcher._lifecycle_action_pending = None
+
+        with mock.patch.object(gui, "_run_headless") as run:
+            launcher._execute_stop()
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        run.assert_called_once_with("--stop")
+        launcher.root.after.assert_called_once_with(250, launcher._after_stop)
+
+    def test_after_stop_keeps_pending_while_restore_evidence_exists(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True):
+            launcher._after_stop(attempt=0)
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        launcher.refresh_status.assert_not_called()
+        launcher.root.after.assert_called_once()
+
+    def test_after_stop_clears_pending_only_after_clean_terminal_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.messagebox, "showinfo"):
+            launcher._after_stop(attempt=1)
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        launcher.refresh_status.assert_called_once_with()
+
+
 class MacOSRecoveryDebounceTests(unittest.TestCase):
     def test_macos_recovery_prompt_rechecks_before_offering_rollback(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
@@ -341,6 +399,39 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
 
         run.assert_not_called()
         ask.assert_not_called()
+
+
+class MacOSBrowserRepairActionTests(unittest.TestCase):
+    def test_browser_repair_does_not_mutate_apl_lifecycle(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher._lifecycle_action_pending = None
+        launcher._set_busy = mock.Mock()
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running", return_value=True),              mock.patch.object(
+                 gui.core,
+                 "recover_browser_network_services",
+                 return_value=[("safari", 42), ("google_chrome", 43)],
+             ) as recover,              mock.patch.object(gui, "_run_headless") as lifecycle,              mock.patch.object(gui.messagebox, "showinfo") as info:
+            launcher.repair_browser_connection()
+
+        recover.assert_called_once_with()
+        lifecycle.assert_not_called()
+        launcher.refresh_status.assert_called_once_with()
+        self.assertIn("Safari", info.call_args.args[1])
+        self.assertIn("Google Chrome", info.call_args.args[1])
+
+    def test_browser_repair_requires_running_apl(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher._lifecycle_action_pending = None
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "recover_browser_network_services") as recover,              mock.patch.object(gui.messagebox, "showwarning") as warning:
+            launcher.repair_browser_connection()
+
+        recover.assert_not_called()
+        warning.assert_called_once()
 
 
 class FinalStatusUxTests(unittest.TestCase):
