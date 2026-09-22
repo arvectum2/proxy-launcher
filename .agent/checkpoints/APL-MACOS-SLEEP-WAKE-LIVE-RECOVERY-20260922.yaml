@@ -1,21 +1,20 @@
-version: 10
+version: 11
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: blocked
 goal: "Keep macOS browsing usable through APL, with Safari compatibility on macOS 27."
 completed_stages:
-  - "User clarified that the 22:42:20-22:42:22 Off was intentional: after opening the notebook and seeing ChatGPT/Safari not refresh, they used their habitual recovery workflow of turning proxy off and restarting the browser. This confirms the worker did not spontaneously stop."
   - "Ownership, rollback, wake guard, Off confirmation and false recovery UI races fixed."
   - "No-sleep failures proved; worker/upstream remain healthy."
   - "Safari-specific proxy mismatch observed while Chrome adopts APL correctly."
-  - "Fresh Safari on macOS 27 uses QUIC/networkserviceproxy path instead of APL TCP 18080 under current privacy settings."
-  - "Unsafe browser NetworkProcess SIGKILL recovery removed from working tree."
-  - "System returned to clean APL-OFF baseline."
+  - "Unsafe browser NetworkProcess SIGKILL recovery removed."
   - "173 focused PASS; 1108 full-suite PASS + 3 historical Windows failures."
+  - "Safe candidate installed while APL OFF; SHA-256 b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a."
+  - "Install preserved exact legacy baseline; APL ports stayed closed."
+  - "PR #155 head 018c036 has 22/22 checks SUCCESS and is mergeable/clean."
 current_stage: "Controlled Limit IP Address Tracking A/B requires user action."
 remaining_stages:
-  - "Commit/push and install safe candidate."
   - "User disables Limit IP Address Tracking for current Wi-Fi."
-  - "Physical Safari test without process killing."
+  - "Start safe APL candidate and test Safari with no WebKit process manipulation."
   - "Implement compatibility preflight or reject hypothesis and continue with atomic SCPreferences."
-last_verified_commit: "797d429d82d4ae23349f4ddc924c55cdbdc0c5ac"
-resume_instruction: "After Limit IP Address Tracking is OFF, start safe APL candidate and test Safari normally before any Off."
+last_verified_commit: "018c036f43608ebd850cd0819b7e617df23d48c4"
+resume_instruction: "After Limit IP Address Tracking is OFF, start safe APL candidate hash b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a and test Safari normally before any Off."
