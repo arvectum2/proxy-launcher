@@ -189,6 +189,74 @@ class MacOSRecoveryDebounceTests(unittest.TestCase):
         ])
 
 
+class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
+    def test_long_event_loop_gap_arms_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=200.0),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertEqual(launcher._ui_heartbeat_wall, 200.0)
+        self.assertEqual(
+            launcher._mac_wake_guard_until,
+            200.0 + gui.MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.armed")
+        launcher.refresh_status.assert_called_once_with()
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_WAKE_GUARD_HEARTBEAT_MS,
+            launcher._ui_heartbeat,
+        )
+
+    def test_off_is_blocked_during_wake_guard_without_spawning_stop(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._mac_wake_guard_until = 115.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        run.assert_not_called()
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.blocked")
+        self.assertEqual(log.call_args.kwargs["action"], "off")
+        launcher.refresh_status.assert_called_once_with()
+        launcher.root.after.assert_called_once()
+
+    def test_off_after_guard_expiry_preserves_normal_stop_path(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._mac_wake_guard_until = 100.0
+        launcher._set_busy = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        launcher._set_busy.assert_called_once()
+        run.assert_called_once_with("--stop")
+        launcher.root.after.assert_called_once_with(250, launcher._after_stop)
+
+    def test_rollback_is_blocked_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._mac_wake_guard_until = 115.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.core, "structured_log"),              mock.patch.object(gui, "_run_headless") as run,              mock.patch.object(gui.messagebox, "askyesno") as ask:
+            launcher.restore_network(confirm=True)
+
+        run.assert_not_called()
+        ask.assert_not_called()
+
+
 class FinalStatusUxTests(unittest.TestCase):
     def status(self, **overrides):
         values = {

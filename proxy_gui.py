@@ -20,6 +20,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 import tkinter as tk
 from tkinter import font as tkfont
 from tkinter import messagebox, ttk
@@ -42,6 +43,9 @@ if os.name != "nt":
 
 APP_NAME = "Arvectum Proxy Launcher"
 APP_VERSION = core.APP_VERSION
+MAC_WAKE_GUARD_HEARTBEAT_MS = 1000
+MAC_WAKE_GUARD_GAP_SECONDS = 5.0
+MAC_WAKE_GUARD_WINDOW_SECONDS = 15.0
 TASK_NAME = "ArvectumProxyLauncher"  # legacy scheduled-task name
 AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 AUTOSTART_RUN_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -935,6 +939,8 @@ class Launcher:
         self._images = []
         self._recovery_prompt_shown = False
         self._status_dot = None
+        self._ui_heartbeat_wall = time.time()
+        self._mac_wake_guard_until = 0.0
         self._set_window_icon()
 
         if self._mac_ui:
@@ -944,6 +950,7 @@ class Launcher:
 
         self.refresh_status()
         self.root.bind("<FocusIn>", self._refresh_status_on_focus, add="+")
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
         _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
@@ -1253,6 +1260,54 @@ class Launcher:
 
     # -- статус -------------------------------------------------------------
 
+    def _ui_heartbeat(self):
+        """Arm a short destructive-action guard after a long GUI event-loop gap."""
+        now = time.time()
+        previous = self._ui_heartbeat_wall
+        gap = max(0.0, now - previous)
+        self._ui_heartbeat_wall = now
+        if self._mac_ui and gap >= MAC_WAKE_GUARD_GAP_SECONDS:
+            self._mac_wake_guard_until = max(
+                self._mac_wake_guard_until,
+                now + MAC_WAKE_GUARD_WINDOW_SECONDS,
+            )
+            try:
+                core.structured_log(
+                    "macOS wake UI guard armed after event-loop gap",
+                    event="proxy_gui.wake_guard.armed",
+                    gap_seconds=round(gap, 3),
+                    guard_seconds=MAC_WAKE_GUARD_WINDOW_SECONDS,
+                )
+            except Exception:
+                pass
+            try:
+                self.refresh_status()
+            except tk.TclError:
+                pass
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
+
+    def _wake_destructive_guard_active(self):
+        return bool(self._mac_ui and time.time() < self._mac_wake_guard_until)
+
+    def _block_destructive_wake_action(self, action):
+        if not self._wake_destructive_guard_active():
+            return False
+        remaining = max(0.0, self._mac_wake_guard_until - time.time())
+        try:
+            core.structured_log(
+                "blocked destructive GUI action during macOS wake guard",
+                level="WARNING",
+                event="proxy_gui.wake_guard.blocked",
+                action=str(action),
+                remaining_seconds=round(remaining, 3),
+            )
+        except Exception:
+            pass
+        self.refresh_status()
+        delay_ms = max(250, int(remaining * 1000) + 100)
+        self.root.after(delay_ms, self.refresh_status)
+        return True
+
     def _refresh_status_on_focus(self, _event=None):
         """Reconcile GUI actions after lifecycle changes outside this window."""
         try:
@@ -1316,8 +1371,11 @@ class Launcher:
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        self.btn_off.state(["!disabled"] if view["can_off"] else ["disabled"])
+        can_off = view["can_off"] and not self._wake_destructive_guard_active()
+        self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
+        if self._wake_destructive_guard_active():
+            self.btn_restore.state(["disabled"])
 
         if view["show_orphan_action"]:
             self.btn_orphan_pac.state(["!disabled"])
@@ -1385,6 +1443,8 @@ class Launcher:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
     def off(self):
+        if self._block_destructive_wake_action("off"):
+            return
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
@@ -1406,6 +1466,8 @@ class Launcher:
             messagebox.showinfo(APP_NAME, "Прокси выключен, исходные настройки сети восстановлены.")
 
     def restore_network(self, confirm=True):
+        if self._block_destructive_wake_action("rollback"):
+            return
         msg = "Восстановить исходные настройки сети и остановить proxy?" if os.name != "nt" else "Восстановить исходные настройки сети Windows и остановить proxy?"
         if confirm and not messagebox.askyesno(
                 APP_NAME,
@@ -1526,6 +1588,8 @@ class Launcher:
 
     def _maybe_restart_after_settings(self):
         if not core.is_running():
+            return
+        if self._block_destructive_wake_action("settings_restart"):
             return
         if messagebox.askyesno(
                 APP_NAME,
