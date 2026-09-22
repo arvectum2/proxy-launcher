@@ -401,39 +401,6 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         ask.assert_not_called()
 
 
-class MacOSBrowserRepairActionTests(unittest.TestCase):
-    def test_browser_repair_does_not_mutate_apl_lifecycle(self):
-        launcher = gui.Launcher.__new__(gui.Launcher)
-        launcher._mac_ui = True
-        launcher._lifecycle_action_pending = None
-        launcher._set_busy = mock.Mock()
-        launcher.refresh_status = mock.Mock()
-
-        with mock.patch.object(gui.core, "is_running", return_value=True),              mock.patch.object(
-                 gui.core,
-                 "recover_browser_network_services",
-                 return_value=[("safari", 42), ("google_chrome", 43)],
-             ) as recover,              mock.patch.object(gui, "_run_headless") as lifecycle,              mock.patch.object(gui.messagebox, "showinfo") as info:
-            launcher.repair_browser_connection()
-
-        recover.assert_called_once_with()
-        lifecycle.assert_not_called()
-        launcher.refresh_status.assert_called_once_with()
-        self.assertIn("Safari", info.call_args.args[1])
-        self.assertIn("Google Chrome", info.call_args.args[1])
-
-    def test_browser_repair_requires_running_apl(self):
-        launcher = gui.Launcher.__new__(gui.Launcher)
-        launcher._mac_ui = True
-        launcher._lifecycle_action_pending = None
-
-        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "recover_browser_network_services") as recover,              mock.patch.object(gui.messagebox, "showwarning") as warning:
-            launcher.repair_browser_connection()
-
-        recover.assert_not_called()
-        warning.assert_called_once()
-
-
 class FinalStatusUxTests(unittest.TestCase):
     def status(self, **overrides):
         values = {

@@ -1218,14 +1218,6 @@ class Launcher:
         self.btn_doctor = ttk.Button(
             service, text="Диагностика", style="Ghost.TButton", command=self.doctor)
         self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
-        self.btn_browser_repair = ttk.Button(
-            service,
-            text="Восстановить связь браузера",
-            style="Ghost.TButton",
-            command=self.repair_browser_connection,
-        )
-        self.btn_browser_repair.grid(
-            row=2, column=0, columnspan=2, sticky="ew", pady=(6, 0))
         self.btn_restore = ttk.Button(
             body, text="Восстановить настройки сети", style="Ghost.TButton",
             command=self.restore_network)
@@ -1408,13 +1400,6 @@ class Launcher:
         can_off = view["can_off"] and not self._wake_destructive_guard_active()
         self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
-        browser_repair = getattr(self, "btn_browser_repair", None)
-        if browser_repair is not None:
-            browser_repair.state(
-                ["!disabled"]
-                if running and not getattr(self, "_lifecycle_action_pending", None)
-                else ["disabled"]
-            )
         if self._wake_destructive_guard_active():
             self.btn_restore.state(["disabled"])
 
@@ -1578,39 +1563,6 @@ class Launcher:
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
 
-    def repair_browser_connection(self):
-        """Recycle only proven macOS browser network subprocesses."""
-        if not self._mac_ui:
-            return
-        if getattr(self, "_lifecycle_action_pending", None):
-            return
-        if not core.is_running():
-            messagebox.showwarning(
-                APP_NAME,
-                "Сначала включите прокси.",
-            )
-            return
-        self._set_busy("Восстановление связи браузера…", MINT_LIGHT)
-        recovered = core.recover_browser_network_services()
-        self.refresh_status()
-        if recovered:
-            browsers = []
-            for browser, _pid in recovered:
-                label = "Safari" if browser == "safari" else "Google Chrome"
-                if label not in browsers:
-                    browsers.append(label)
-            messagebox.showinfo(
-                APP_NAME,
-                "Сетевой сеанс браузера перезапущен: %s.\n"
-                "Вкладки и сам браузер не закрывались." % ", ".join(browsers),
-            )
-        else:
-            messagebox.showwarning(
-                APP_NAME,
-                "Активные сетевые процессы Safari/Google Chrome не найдены. "
-                "Настройки APL и сети не изменялись.",
-            )
-
     def clear_orphaned_pac(self):
         self._set_busy("Удаление старого PAC…", MINT_LIGHT)
         if core.clear_orphaned_arvectum_pac():
@@ -1654,9 +1606,6 @@ class Launcher:
             self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
             self.btn_restore, self.btn_orphan_pac,
         ]
-        browser_repair = getattr(self, "btn_browser_repair", None)
-        if browser_repair is not None:
-            buttons.append(browser_repair)
         for b in buttons:
             b.state(["disabled"])
 

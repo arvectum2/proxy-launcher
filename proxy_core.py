@@ -35,7 +35,6 @@ import application_runtime as _application_runtime
 import configuration_storage as _configuration_storage
 import local_proxy_transport as _local_proxy_transport
 import logging_bridge as _logging_bridge
-import macos_browser_network_recovery as _macos_browser_network_recovery
 import portable_lifecycle as _portable_lifecycle
 import process_supervision as _process_supervision
 import recovery_autostart as _recovery_autostart
@@ -62,8 +61,6 @@ _application_filesystem.configure(_core)
 _application_filesystem.install_into_core(_core)
 _logging_bridge.configure(_core)
 _logging_bridge.install_into_core(_core)
-_macos_browser_network_recovery.configure(_core)
-_macos_browser_network_recovery.install_into_core(_core)
 
 # Lower-level owners preserve their established collaborators through core.
 _portable_lifecycle.configure(_core)

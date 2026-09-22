@@ -1,21 +1,20 @@
-version: 9
+version: 10
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: in_progress
-goal: "Keep macOS browsing usable through APL during normal operation and transitions."
+status: blocked
+goal: "Keep macOS browsing usable through APL, with Safari compatibility on macOS 27."
 completed_stages:
-  - "Worker ownership/PAC false-stop/UI HID/modal races fixed."
-  - "Browser network-service recovery implemented."
-  - "Latest FAIL proved no-sleep Safari failure while APL transport remained healthy."
-  - "False recovery-required UI during normal Off fixed via lifecycle pending suppression."
-  - "Historical malformed gsp1.apple.com no_proxy entry repaired and protected by mandatory defaults."
-  - "Manual browser connection repair action added."
-  - "181 focused PASS; 1116 full-suite PASS plus 3 historical unrelated failures."
-  - "Governed build e86310a installed; SHA-256 e2179afc4dd300e7118ceaedabc06b1d7b4f77958ab99d8c3b2f2859ec276f68."
-  - "Installed worker PID 45554; route/listeners/curl PASS; Apple connectivity bypass physically present."
-current_stage: "Push/CI, then controlled Safari failure test using browser repair before Off."
+  - "Ownership, rollback, wake guard, Off confirmation and false recovery UI races fixed."
+  - "No-sleep failures proved; worker/upstream remain healthy."
+  - "Safari-specific proxy mismatch observed while Chrome adopts APL correctly."
+  - "Fresh Safari on macOS 27 uses QUIC/networkserviceproxy path instead of APL TCP 18080 under current privacy settings."
+  - "Unsafe browser NetworkProcess SIGKILL recovery removed from working tree."
+  - "System returned to clean APL-OFF baseline."
+  - "173 focused PASS; 1108 full-suite PASS + 3 historical Windows failures."
+current_stage: "Controlled Limit IP Address Tracking A/B requires user action."
 remaining_stages:
-  - "Exact-head PR CI."
-  - "Physical controlled Safari test."
-  - "Close only after stable browsing acceptance."
-last_verified_commit: "e86310a48939ec37331c2b93c6d74f57fbb115a4"
-resume_instruction: "On next Safari failure, keep APL ON and use 'Восстановить связь браузера'. Capture result before Off/browser relaunch."
+  - "Commit/push and install safe candidate."
+  - "User disables Limit IP Address Tracking for current Wi-Fi."
+  - "Physical Safari test without process killing."
+  - "Implement compatibility preflight or reject hypothesis and continue with atomic SCPreferences."
+last_verified_commit: "797d429d82d4ae23349f4ddc924c55cdbdc0c5ac"
+resume_instruction: "After Limit IP Address Tracking is OFF, start safe APL candidate and test Safari normally before any Off."

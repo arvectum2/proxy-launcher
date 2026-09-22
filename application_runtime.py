@@ -8,14 +8,10 @@ from __future__ import annotations
 import os
 import shutil
 import sys
-import time
 from types import ModuleType
 
 _CORE: ModuleType | None = None
 
-MACOS_RESUME_POLL_SECONDS = 1.0
-MACOS_RESUME_GAP_SECONDS = 5.0
-MACOS_BROWSER_RECOVERY_COOLDOWN_SECONDS = 60.0
 
 def configure(core: ModuleType) -> None:
     """Bind the canonical composition module used for runtime collaborators."""
@@ -51,55 +47,9 @@ def _ensure_local_files():
 
 
 def _run_proxy_loop(proxy):
-    """Wait for shutdown and recycle stale browser network sessions after resume."""
-    core = _core()
-    if sys.platform != "darwin":
-        while not proxy._stop.wait(3600):
-            pass
-        return
-
-    checkpoint_mono = time.monotonic()
-    checkpoint_wall = time.time()
-    last_recovery_wall = 0.0
-
-    while not proxy._stop.wait(MACOS_RESUME_POLL_SECONDS):
-        now_mono = time.monotonic()
-        now_wall = time.time()
-        suspend_gap = (now_wall - checkpoint_wall) - (
-            now_mono - checkpoint_mono
-        )
-        checkpoint_mono = now_mono
-        checkpoint_wall = now_wall
-
-        if suspend_gap < MACOS_RESUME_GAP_SECONDS:
-            continue
-        if (
-            last_recovery_wall
-            and now_wall - last_recovery_wall
-            < MACOS_BROWSER_RECOVERY_COOLDOWN_SECONDS
-        ):
-            core.structured_log(
-                "macOS resume browser recovery coalesced",
-                event="proxy.resume.browser_network_recovery",
-                phase="coalesced",
-                suspend_gap_seconds=round(suspend_gap, 3),
-            )
-            continue
-
-        last_recovery_wall = now_wall
-        core.structured_log(
-            "macOS resume detected for browser network recovery",
-            event="proxy.resume.browser_network_recovery",
-            phase="resume_detected",
-            suspend_gap_seconds=round(suspend_gap, 3),
-        )
-        recovered = core.recover_browser_network_services()
-        core.structured_log(
-            "macOS resume browser network recovery dispatched",
-            event="proxy.resume.browser_network_recovery",
-            phase="resume_completed",
-            recycled_count=len(recovered),
-        )
+    """Wait until the proxy worker is asked to stop."""
+    while not proxy._stop.wait(3600):
+        pass
 
 def _cmd_start():
     core = _core()
