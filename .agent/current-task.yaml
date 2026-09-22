@@ -12,6 +12,7 @@ definition_of_done:
   - "Focused/full/static/build/CI checks show no new regressions."
   - "Physical user acceptance confirms stable browsing through APL."
 completed:
+  - "User clarified that the 22:42:20-22:42:22 Off was intentional: after opening the notebook and seeing ChatGPT/Safari not refresh, they used their habitual recovery workflow of turning proxy off and restarting the browser. This confirms the worker did not spontaneously stop."
   - "Worker ownership recovery, stop/rollback recovered-PID fix, PAC-health false STOPPED fix, wake/HID destructive-action guard, deferred Off confirmation, and lifecycle pending UI suppression implemented."
   - "False 'Восстановить настройки сети' after normal Off was traced to FocusIn during async rollback and fixed."
   - "Historical malformed no_proxy entry gsp1.apple.comapl-mac-008.invalid repaired; captive.apple.com and gsp1.apple.com are mandatory built-in bypasses."
