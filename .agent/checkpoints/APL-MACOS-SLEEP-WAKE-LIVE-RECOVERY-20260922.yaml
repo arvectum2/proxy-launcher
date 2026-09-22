@@ -1,0 +1,27 @@
+version: 1
+task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
+status: in_progress
+goal: "Prevent post-wake false STOPPED classification and destructive rollback of a still-live macOS APL worker."
+definition_of_done:
+  - "Strict listener/executable ownership replaces PAC-first running-state gating on macOS."
+  - "Recovery prompt is debounced after wake."
+  - "Tests/build/install pass."
+  - "Long human clamshell acceptance passes."
+completed_stages:
+  - "Incident capture and pmset/log correlation."
+  - "Root-cause narrowing to transient PAC health false negative plus rollback UI path."
+  - "Ownership-semantics code fix and recovery-prompt debounce."
+  - "130 focused PASS; 1093 full-suite PASS plus 3 historical unrelated failures."
+  - "Governed macOS build/install and physical PAC-false fault injection."
+  - "Two short real software sleep/wake PASS; long remote sleep blocked by network UserActivity."
+  - "Windows CI test-emulation fix; Canonical source windows SUCCESS on ac3236a."
+current_stage: "Waiting only for long physical clamshell acceptance."
+remaining_stages:
+  - "Human close/open lid acceptance and immediate evidence capture."
+  - "Final checkpoint/PR closeout if PASS."
+last_verified_commit: "ac3236ae2679a6facc1121938e158f83a001f400"
+test_results:
+  - "Installed runtime code commit: 488e22bf77df5e40ce062c711864e862c85acebd."
+  - "Installed executable SHA-256: f8c2b1e174e2fea37e55f8b0a4912f1dd8132773b56310532d606635d7c03864."
+  - "Worker at checkpoint: PID 24328, system proxy ENABLED, external proxy traffic PASS."
+resume_instruction: "After the user's long clamshell sleep, inspect before mutating. Use structured proxy_gui.lifecycle.spawn mode logs to attribute any rollback/stop if failure recurs."
