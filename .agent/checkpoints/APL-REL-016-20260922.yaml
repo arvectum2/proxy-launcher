@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REL-016
-status: in_progress
+status: blocked
 goal: "Refresh the Windows public-trust / Authenticode / SmartScreen REVIEW packet to immutable v0.2.12 with v0.2.13+ as the first eligible future embedded-signing release."
 authority: REVIEW
 definition_of_done:
@@ -17,20 +17,22 @@ completed:
   - "Updated immutable baseline/version boundary to v0.2.12 / v0.2.13+ and review date to 2026-09-22."
   - "Focused tests PASS: tests/test_windows_public_trust.py 13/13; git diff --check PASS."
   - "Opened REVIEW PR #157."
-current: "Exact-head CI for PR #157 is pending/not yet reported; check once next run and fix task-caused failures only."
+  - "Exact-head PR #157 CI on 3e2eb69f44bb6f34e5888f5217fae45757fa05b5 completed green: 16/16 check runs successful, including required build, installer and REL-016 signed app -> portable -> installer smoke."
+  - "PR #157 has no submitted reviews/change requests; preparation is review-ready."
+current: "REVIEW preparation complete. Await Owner review/decision; do not merge, purchase/enroll a certificate, use signing keys, sign production binaries or publish a release."
 pending:
-  - "Require exact-head repository CI green."
-  - "Persist final review-ready evidence and stop at Owner review without merging."
-last_verified_commit: "0fa3c4c05958bcaf69e96a8bb432f0dd3a6cba21"
+  - "Owner review/decision on provider/certificate/key-custody/signing strategy and whether to merge the REVIEW packet."
+last_verified_commit: "3e2eb69f44bb6f34e5888f5217fae45757fa05b5"
 test_results:
   - "python3 -m pytest -q tests/test_windows_public_trust.py: 13 passed."
   - "git diff --check: PASS."
-  - "Immediate GitHub exact-head workflow query after opening PR #157 returned no runs yet; no green CI claim made."
-resume_instruction: "Inspect PR #157 exact-head CI once. If task-caused failures exist, repair only the admitted REVIEW slice. When exact-head CI is green, mark this checkpoint review-ready and stop before Owner decision/merge. Do not purchase, enroll, sign, publish or merge APL-REL-016."
-updated_at: "2026-09-22T04:05:00+03:00"
+  - "GitHub exact-head 3e2eb69f44bb6f34e5888f5217fae45757fa05b5: 16/16 check runs completed SUCCESS."
+  - "Required build: SUCCESS; Windows installer: SUCCESS; REL-016 signed app -> portable -> installer smoke: SUCCESS."
+resume_instruction: "Owner gate only for APL-REL-016. Do not merge PR #157 or perform provider/certificate/key-custody/signing/release actions without the reserved decision. The watchdog may continue later independent queue items."
+updated_at: "2026-09-22T06:02:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-REL-016-20260922"
+  claimed_by: null
+  execution_id: null
   branch: "agent/apl-rel-016-v0212-refresh"
   base_commit: "a148e20bb82bd41dc87d47d14afea8027db6c3cb"
   lease_until: null
