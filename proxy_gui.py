@@ -46,6 +46,7 @@ APP_VERSION = core.APP_VERSION
 MAC_WAKE_GUARD_HEARTBEAT_MS = 1000
 MAC_WAKE_GUARD_GAP_SECONDS = 5.0
 MAC_WAKE_GUARD_WINDOW_SECONDS = 15.0
+MAC_OFF_CONFIRM_DELAY_MS = 500
 TASK_NAME = "ArvectumProxyLauncher"  # legacy scheduled-task name
 AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 AUTOSTART_RUN_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -941,6 +942,7 @@ class Launcher:
         self._status_dot = None
         self._ui_heartbeat_wall = time.time()
         self._mac_wake_guard_until = 0.0
+        self._off_confirmation_pending = False
         self._set_window_icon()
 
         if self._mac_ui:
@@ -1466,12 +1468,56 @@ class Launcher:
     def off(self):
         if self._block_destructive_wake_action("off"):
             return
-        if self._mac_ui and not messagebox.askyesno(
-                APP_NAME,
-                "Выключить прокси и восстановить исходные настройки сети?",
-                icon="warning",
-                default="no"):
+        if self._mac_ui:
+            if self._off_confirmation_pending:
+                return
+            self._off_confirmation_pending = True
+            try:
+                core.structured_log(
+                    "macOS Off confirmation requested",
+                    event="proxy_gui.off.confirmation_requested",
+                    delay_ms=MAC_OFF_CONFIRM_DELAY_MS,
+                )
+            except Exception:
+                pass
+            self.btn_off.state(["disabled"])
+            # Never create a modal confirmation from inside the same AppKit
+            # mouseUp callback that activated the Off button. On macOS the
+            # originating trackpad event can otherwise be delivered into the
+            # newly-created modal and accept it before the user can see it.
+            self.root.after(MAC_OFF_CONFIRM_DELAY_MS, self._confirm_macos_off)
             return
+        self._execute_stop()
+
+    def _confirm_macos_off(self):
+        if not self._off_confirmation_pending:
+            return
+        self._off_confirmation_pending = False
+        if self._block_destructive_wake_action("off_confirm"):
+            return
+        confirmed = messagebox.askyesno(
+            APP_NAME,
+            "Выключить прокси и восстановить исходные настройки сети?",
+            icon="warning",
+            default="no",
+        )
+        try:
+            core.structured_log(
+                "macOS Off confirmation resolved",
+                event=(
+                    "proxy_gui.off.confirmed"
+                    if confirmed
+                    else "proxy_gui.off.cancelled"
+                ),
+            )
+        except Exception:
+            pass
+        if not confirmed:
+            self.refresh_status()
+            return
+        self._execute_stop()
+
+    def _execute_stop(self):
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
