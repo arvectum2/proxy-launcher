@@ -1,21 +1,21 @@
-version: 8
+version: 9
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
-goal: "Keep macOS browsing usable through APL during normal operation and across transitions."
+goal: "Keep macOS browsing usable through APL during normal operation and transitions."
 completed_stages:
-  - "Worker ownership/PAC false-stop/UI HID stop/modal races fixed."
-  - "Browser network-service recovery implemented and scoped."
-  - "Latest FAIL proved issue can occur without a full Sleep/Wake."
-  - "Safari identified as affected foreground browser while APL transport remained healthy."
-  - "False 'Восстановить настройки сети' during normal Off traced to FocusIn during async rollback; lifecycle pending suppression implemented."
-  - "Historical malformed no_proxy 'gsp1.apple.comapl-mac-008.invalid' repaired; captive.apple.com/gsp1.apple.com promoted to mandatory bypass."
-  - "Manual 'Восстановить связь браузера' action added for controlled next-failure isolation."
+  - "Worker ownership/PAC false-stop/UI HID/modal races fixed."
+  - "Browser network-service recovery implemented."
+  - "Latest FAIL proved no-sleep Safari failure while APL transport remained healthy."
+  - "False recovery-required UI during normal Off fixed via lifecycle pending suppression."
+  - "Historical malformed gsp1.apple.com no_proxy entry repaired and protected by mandatory defaults."
+  - "Manual browser connection repair action added."
   - "181 focused PASS; 1116 full-suite PASS plus 3 historical unrelated failures."
-current_stage: "Build/install/push new candidate, then controlled Safari failure test using browser repair before Off."
+  - "Governed build e86310a installed; SHA-256 e2179afc4dd300e7118ceaedabc06b1d7b4f77958ab99d8c3b2f2859ec276f68."
+  - "Installed worker PID 45554; route/listeners/curl PASS; Apple connectivity bypass physically present."
+current_stage: "Push/CI, then controlled Safari failure test using browser repair before Off."
 remaining_stages:
-  - "Governed build/install."
   - "Exact-head PR CI."
-  - "Physical controlled test."
+  - "Physical controlled Safari test."
   - "Close only after stable browsing acceptance."
-last_verified_commit: "7aceea41aefccb4c62bd0fb202b356b7aa49a3b7"
-resume_instruction: "On next Safari failure, keep APL ON and click 'Восстановить связь браузера'. Capture result before Off/browser relaunch."
+last_verified_commit: "e86310a48939ec37331c2b93c6d74f57fbb115a4"
+resume_instruction: "On next Safari failure, keep APL ON and use 'Восстановить связь браузера'. Capture result before Off/browser relaunch."
