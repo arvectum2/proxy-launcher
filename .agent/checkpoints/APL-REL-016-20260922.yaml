@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: in_progress
+authority: REVIEW
+base_commit: "a148e20bb82bd41dc87d47d14afea8027db6c3cb"
+branch: "agent/apl-rel-016-v0212-coherent-refresh"
+immutable_public_baseline: "v0.2.12"
+first_eligible_future_embedded_signing_release: "v0.2.13+"
+historical_source_pr: 132
+failed_partial_refresh_pr: 156
+completed:
+  - "Canonical main sources re-read before selection."
+  - "PR #156 failure reconciled as an incomplete port rather than a product regression; branch was already reset to main and PR closed without merge."
+  - "Historical PR #132 inspected as the substantive source; stale current-task/checkpoint wording is excluded from the new slice."
+  - "Fresh isolated branch created from exact main a148e20bb82bd41dc87d47d14afea8027db6c3cb."
+next:
+  - "Port contract, runbook, decision packet, workflow and matching tests/tooling together."
+  - "Replace stale v0.2.10/v0.2.11+ assumptions with immutable v0.2.12/v0.2.13+ consistently."
+  - "Run exact-head CI and stop at Owner review."
+hard_stops_preserved:
+  - "No provider/certificate spend or enrollment."
+  - "No production key use or signing."
+  - "No release publication or immutable asset/tag mutation."
+  - "No substantive REVIEW merge without Owner review."
+updated_at: "2026-09-22T05:06:00+03:00"
