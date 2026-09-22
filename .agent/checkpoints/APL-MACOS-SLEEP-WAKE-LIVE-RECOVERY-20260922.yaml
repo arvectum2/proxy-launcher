@@ -1,4 +1,4 @@
-version: 6
+version: 7
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
 status: in_progress
 goal: "Keep browser traffic usable through APL after macOS resume without APL OFF or full browser restart."
@@ -8,12 +8,14 @@ completed_stages:
   - "Historical PAC/transport/system-route wake mutations confirmed disproven."
   - "Narrow Safari WebKit.Networking and Chrome NetworkService recycle validated live without closing browser main processes."
   - "Fail-closed browser network recovery helper implemented; Telegram WebKit and Chromium-Gost --no-proxy-server excluded."
-  - "macOS worker suspend-gap detector now dispatches only browser network-service recovery."
+  - "macOS worker suspend-gap detector dispatches only browser network-service recovery."
   - "158 focused PASS; 1108 full-suite PASS plus 3 historical unrelated failures."
-current_stage: "Build/install/push exact browser-network resume candidate, then human physical sleep/wake acceptance."
+  - "Governed build c9f9ca2 installed; SHA-256 8eb47e762b339bd9e043cee14474e938652d58e64ccb215d5ce942b41b9fe280."
+  - "Live APL-ON helper smoke PASS with worker PID 42930 and route/listeners unchanged."
+current_stage: "Push/CI, then human physical sleep/wake browser acceptance."
 remaining_stages:
-  - "Governed build/install."
-  - "Exact-head CI."
+  - "Exact-head PR CI."
   - "Physical browser usability test after real sleep/wake."
-last_verified_commit: "e3b1fad88b5d6fc26dacd4b1f871751df897bec6"
-resume_instruction: "After install, do not manually recover on first failure. Capture browser_network_recovery logs and browser network PIDs before any APL OFF/browser relaunch."
+  - "Close checkpoint on PASS."
+last_verified_commit: "c9f9ca2e17a12a33b9685346081b2086bce53cbf"
+resume_instruction: "After next real sleep/wake, inspect browser_network_recovery logs/PIDs before any manual recovery. Do not disable APL or relaunch browser until evidence is captured."
