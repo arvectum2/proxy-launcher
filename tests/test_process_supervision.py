@@ -54,6 +54,7 @@ class ProcessSupervisionTests(unittest.TestCase):
 
     def test_is_running_rejects_foreign_macos_listener_without_owned_pid(self):
         with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "is_windows", return_value=False), \
              mock.patch.object(core, "load_settings", return_value={}), \
              mock.patch.object(core, "_macos_listener_owner_pid", return_value=None), \
              mock.patch.object(core, "_read_pid") as read_pid, \
@@ -69,6 +70,7 @@ class ProcessSupervisionTests(unittest.TestCase):
             "exe_path": "/Applications/Arvectum Proxy Launcher.app/Contents/MacOS/Arvectum Proxy Launcher",
         }
         with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "is_windows", return_value=False), \
              mock.patch.object(core, "load_settings", return_value={}), \
              mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
              mock.patch.object(core, "_read_pid", return_value=record), \
@@ -87,6 +89,7 @@ class ProcessSupervisionTests(unittest.TestCase):
             "Arvectum Proxy Launcher"
         )
         with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "is_windows", return_value=False), \
              mock.patch.object(core, "load_settings", return_value={}), \
              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
@@ -113,6 +116,7 @@ class ProcessSupervisionTests(unittest.TestCase):
             "local_pac_port": 18082,
         }
         with mock.patch.object(process_supervision.sys, "platform", "darwin"), \
+             mock.patch.object(core, "is_windows", return_value=False), \
              mock.patch.object(core, "load_settings", return_value=settings), \
              mock.patch.object(core, "_macos_listener_owner_pid", return_value=42), \
              mock.patch.object(core, "_macos_process_executable_path", return_value=expected), \
