@@ -1,126 +1,37 @@
 {
   "schema": "arvectum.proxy.apl-rel-016.windows-public-trust.v1",
   "task": "APL-REL-016",
-  "decision_date": "2026-09-13",
+  "decision_date": "2026-09-23",
   "product": "Arvectum Proxy Launcher",
   "owner": "ООО «Арвектум»",
-  "immutable_predecessor": {
-    "version": "0.2.5",
-    "tag": "v0.2.5",
-    "mutation_allowed": false
-  },
-  "first_eligible_release": "0.2.6",
+  "immutable_predecessor": {"version":"0.2.5","tag":"v0.2.5","mutation_allowed":false},
+  "first_eligible_release": "0.2.14",
   "trust_layers": {
     "public_consumer_windows": {
       "purpose": "Native Windows publisher identity and public download/launch trust for direct Win32 distribution.",
       "required_for_direct_public_win32": true,
       "certificate_profile": {
-        "key_algorithm": "RSA",
-        "minimum_key_bits": 3072,
-        "code_signing_eku_oid": "1.3.6.1.5.5.7.3.3",
-        "digest": "SHA256",
-        "chain_requirement": "Certificate chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for the relevant code-signing use and meeting the CA/Browser Forum Code Signing Baseline Requirements.",
-        "self_signed_allowed": false
+        "key_algorithm":"RSA","minimum_key_bits":3072,"code_signing_eku_oid":"1.3.6.1.5.5.7.3.3","digest":"SHA256",
+        "chain_requirement":"Certificate chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for the relevant code-signing use and meeting the CA/Browser Forum Code Signing Baseline Requirements.",
+        "self_signed_allowed":false,
+        "cabf_code_signing_requirements":{"version":"3.11.0","reviewed_on":"2026-09-23","subscriber_reserved_policy_oids":{"non_ev":"2.23.140.1.4.1","ev":"2.23.140.1.3","required_exact_count":1,"effective_from":"2026-09-15"},"subscriber_certificate_max_validity_days":460,"max_validity_effective_from":"2026-03-01","subscriber_private_key_protection":"Hardware-protected or compliant signing-service custody per CA/B Forum Code Signing BR 6.2.7; exportable private keys in repository or ordinary CI are forbidden."}
       },
-      "timestamp": {
-        "required": true,
-        "protocol": "RFC3161",
-        "digest": "SHA256"
-      },
-      "smartscreen": {
-        "signature_is_not_reputation": true,
-        "new_validly_signed_binary_may_require_reputation": true,
-        "no_warning_is_physical_acceptance_outcome_not_guaranteed_by_signature_alone": true
-      },
-      "smart_app_control": {
-        "distinct_from_smartscreen": true,
-        "rsa_required": true,
-        "unknown_unsigned_code_is_not_an_acceptable_release_baseline": true
-      }
+      "timestamp":{"required":true,"protocol":"RFC3161","digest":"SHA256","timestamp_certificate_policy_oid":"2.23.140.1.4.2"},
+      "smartscreen":{"signature_is_not_reputation":true,"new_validly_signed_binary_may_require_reputation":true,"no_warning_is_physical_acceptance_outcome_not_guaranteed_by_signature_alone":true},
+      "smart_app_control":{"distinct_from_smartscreen":true,"rsa_required":true,"unknown_unsigned_code_is_not_an_acceptable_release_baseline":true}
     },
-    "managed_enterprise_windows": {
-      "purpose": "Managed customer-fleet trust using App Control for Business/WDAC, catalog signing or organization-controlled trust policy.",
-      "valid_for_managed_fleet": true,
-      "equivalent_to_public_consumer_trust": false,
-      "may_use_internal_ca_or_managed_policy": true
-    },
-    "russian_release_evidence": {
-      "purpose": "Qualified detached integrity/authenticity evidence for the complete release set using the governed CryptoPro/Rutoken path.",
-      "mandatory_for_russia_first_release": true,
-      "embedded_authenticode_equivalent": false,
-      "smartscreen_reputation_equivalent": false,
-      "current_governed_signer_thumbprint": "EE1CFA955BA22F03C39C76B183D94CD37494582E",
-      "current_certificate_classification": "RELEASE-EVIDENCE-ONLY"
-    }
+    "managed_enterprise_windows":{"purpose":"Managed customer-fleet trust using App Control for Business/WDAC, catalog signing or organization-controlled trust policy.","valid_for_managed_fleet":true,"equivalent_to_public_consumer_trust":false,"may_use_internal_ca_or_managed_policy":true},
+    "russian_release_evidence":{"purpose":"Qualified detached integrity/authenticity evidence for the complete release set using the governed CryptoPro/Rutoken path.","mandatory_for_russia_first_release":true,"embedded_authenticode_equivalent":false,"smartscreen_reputation_equivalent":false,"current_governed_signer_thumbprint":"EE1CFA955BA22F03C39C76B183D94CD37494582E","current_certificate_classification":"RELEASE-EVIDENCE-ONLY"}
   },
-  "direct_win32_byte_order": [
-    "build_application",
-    "authenticode_sign_application",
-    "verify_application_signature",
-    "package_signed_application_into_portable",
-    "compile_installer_from_exact_signed_application",
-    "authenticode_sign_installer",
-    "verify_installer_signature",
-    "generate_final_checksums",
-    "add_rel_012_verification_ux_before_detached_signing",
-    "cryptopro_rutoken_sign_final_release_manifest",
-    "run_rel_012_and_rel_013_final_gates",
-    "publish_exact_verified_set"
-  ],
+  "direct_win32_byte_order":["build_application","authenticode_sign_application","verify_application_signature","package_signed_application_into_portable","compile_installer_from_exact_signed_application","authenticode_sign_installer","verify_installer_signature","generate_final_checksums","add_rel_012_verification_ux_before_detached_signing","cryptopro_rutoken_sign_final_release_manifest","run_rel_012_and_rel_013_final_gates","publish_exact_verified_set"],
   "provider_policy": {
-    "vendor_neutral": true,
-    "russian_native_path_investigated_first": true,
-    "gost_qualified_signature_must_not_be_assumed_authenticode": true,
-    "foreign_provider_is_fallback_not_primary_policy": true,
-    "provider_must_be_legally_operationally_able_to_issue_to_owner": true,
-    "provider_must_satisfy_windows_public_chain_requirement": true,
-    "microsoft_artifact_signing_geography_must_be_checked_before_selection": true,
-    "russian_national_ca_candidate": {
-      "observed_regulatory_source_date": "2026-08-28",
-      "observed_capability": "Draft MinDigital requirements define a separate RSA code-signing certificate using international cryptographic algorithms, codeSigning EKU and CAB Forum code-signing policy OID 2.23.140.1.4.1.",
-      "status": "DRAFT_REGULATORY_CANDIDATE_NOT_PRODUCTION_PROVEN",
-      "priority": "FIRST_RUSSIAN_NATIVE_PATH_TO_RECHECK",
-      "must_not_be_treated_as_public_windows_trust_until": [
-        "final_rules_and_production_service_are_available",
-        "owner_is_eligible_and_certificate_can_be_issued",
-        "code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation",
-        "microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified",
-        "rsa_3072_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"
-      ],
-      "manual_installation_of_russian_trusted_root_is_not_public_consumer_trust": true
-    }
+    "vendor_neutral":true,"russian_native_path_investigated_first":true,"gost_qualified_signature_must_not_be_assumed_authenticode":true,"foreign_provider_is_fallback_not_primary_policy":true,"provider_must_be_legally_operationally_able_to_issue_to_owner":true,"provider_must_satisfy_windows_public_chain_requirement":true,"microsoft_artifact_signing_geography_must_be_checked_before_selection":true,
+    "russian_national_ca_candidate":{"observed_regulatory_source_date":"2026-08-28","observed_capability":"Draft MinDigital requirements define a separate RSA code-signing certificate using international cryptographic algorithms, codeSigning EKU and CAB Forum code-signing policy OID 2.23.140.1.4.1.","status":"DRAFT_REGULATORY_CANDIDATE_NOT_PRODUCTION_PROVEN","priority":"FIRST_RUSSIAN_NATIVE_PATH_TO_RECHECK","must_not_be_treated_as_public_windows_trust_until":["final_rules_and_production_service_are_available","owner_is_eligible_and_certificate_can_be_issued","code_signing_chain_is_accepted_on_clean_supported_windows_without_manual_root_installation","microsoft_trusted_root_program_status_for_relevant_chain_is_authoritatively_verified","rsa_3072_authenticode_and_rfc3161_timestamp_profile_passes_rel_016_gate"],"manual_installation_of_russian_trusted_root_is_not_public_consumer_trust":true,"last_rechecked_date":"2026-09-23","cabf_policy_oid_compatibility_observed":true,"microsoft_public_root_program_proof_observed":false},
+    "microsoft_artifact_signing_public_trust":{"reviewed_on":"2026-09-23","status":"RUSSIAN_ORGANIZATION_NOT_ELIGIBLE_UNDER_CURRENT_PUBLISHED_GEOGRAPHY","owner_currently_eligible":false,"published_organization_geographies":["United States","Canada","European Union","United Kingdom","Australia","New Zealand","Japan","South Korea","Singapore","Switzerland","Norway","Israel"],"russia_listed":false,"reference":"https://learn.microsoft.com/azure/artifact-signing/quickstart","recheck_condition":"Microsoft changes Public Trust geography or Owner explicitly approves a separately eligible legal-entity path after legal review."}
   },
-  "release_classifications": [
-    "BLOCKED_NO_WINDOWS_PUBLIC_SIGNATURE",
-    "BLOCKED_USER_FACING_TRUST",
-    "PUBLIC_SIGNATURE_READY_PHYSICAL_ACCEPTANCE_PENDING",
-    "PUBLIC_SIGNATURE_READY_REPUTATION_PENDING",
-    "PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST"
-  ],
-  "physical_acceptance": {
-    "clean_or_reset_windows_host": true,
-    "browser_downloaded_release_asset": true,
-    "mark_of_the_web_zone_id": 3,
-    "defender_enabled": true,
-    "no_product_specific_defender_detection": true,
-    "application_authenticode_valid": true,
-    "installer_authenticode_valid": true,
-    "expected_publisher_verified": true,
-    "expected_certificate_thumbprint_verified": true,
-    "microsoft_trusted_root_program_chain_evidence_required": true,
-    "smartscreen_outcome_recorded": true,
-    "smart_app_control_outcome_recorded_when_enforced": true
-  },
-  "forbidden_shortcuts": [
-    "mutate_v0.2.5",
-    "disable_defender",
-    "disable_smartscreen",
-    "disable_smart_app_control",
-    "disable_controlled_folder_access",
-    "developer_mode_as_production_requirement",
-    "test_signing_as_production_requirement",
-    "self_signed_certificate_as_public_trust",
-    "pfx_or_private_key_material_in_repository_or_cloud_ci",
-    "claim_windows_public_trust_from_russian_detached_signature_only"
-  ]
+  "release_classifications":["BLOCKED_NO_WINDOWS_PUBLIC_SIGNATURE","BLOCKED_USER_FACING_TRUST","PUBLIC_SIGNATURE_READY_PHYSICAL_ACCEPTANCE_PENDING","PUBLIC_SIGNATURE_READY_REPUTATION_PENDING","PUBLIC_TRUST_ESTABLISHED_ON_TEST_HOST"],
+  "physical_acceptance":{"clean_or_reset_windows_host":true,"browser_downloaded_release_asset":true,"mark_of_the_web_zone_id":3,"defender_enabled":true,"no_product_specific_defender_detection":true,"application_authenticode_valid":true,"installer_authenticode_valid":true,"expected_publisher_verified":true,"expected_certificate_thumbprint_verified":true,"microsoft_trusted_root_program_chain_evidence_required":true,"smartscreen_outcome_recorded":true,"smart_app_control_outcome_recorded_when_enforced":true,"cabf_reserved_code_signing_policy_oid_count":1,"subscriber_certificate_validity_window_compliant":true,"rfc3161_timestamp_present":true},
+  "forbidden_shortcuts":["mutate_v0.2.5","disable_defender","disable_smartscreen","disable_smart_app_control","disable_controlled_folder_access","developer_mode_as_production_requirement","test_signing_as_production_requirement","self_signed_certificate_as_public_trust","pfx_or_private_key_material_in_repository_or_cloud_ci","claim_windows_public_trust_from_russian_detached_signature_only","mutate_v0.2.9","claim_artifact_signing_public_trust_is_available_to_russian_owner_without_current_microsoft_eligibility","mutate_v0.2.12","mutate_v0.2.13"],
+  "reviewed_through":"2026-09-23",
+  "current_public_baseline":{"version":"0.2.13","tag":"v0.2.13","mutation_allowed":false,"windows_public_authenticode_active":false,"note":"v0.2.13 is already published and immutable; APL-REL-016 production signing must start in v0.2.14 or later."}
 }
