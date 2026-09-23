@@ -1,44 +1,28 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260921
-status: completed
-goal: "Synchronize canonical Proxy Launcher roadmap/executor metadata to the verified 2026-09-21 repository, release, mobile, gateway and review-track state without changing Owner-controlled product decisions."
-authority: REVIEW
+task_id: APL-ANDROID-FINAL-20260923
+status: in_progress
+goal: "Deliver the current final Android APK from canonical main to the owner."
 definition_of_done:
-  - "Completed v0.2.12 release task is archived before replacing current-task."
-  - "Stable desktop baseline is recorded as immutable v0.2.12 with exact release SHA and current main distinguished from release SHA."
-  - "v0.2.11/v0.2.12 cross-platform sleep/wake and routing fixes are reflected factually."
-  - "Android public release 0.1.19 and current merged 0.1.31 friend-test/free-gateway candidate are distinguished."
-  - "Free RU/US gateway and Android integration are represented as completed/live friend-test infrastructure, with anti-abuse/public-scale gate preserved."
-  - "APL-REL-016 is marked stale again because v0.2.11 and v0.2.12 shipped unsigned; next eligible future signing release is v0.2.13+."
-  - "Per-app routing current preparation is represented by PR #144 and refreshed against current stable v0.2.12 before Owner architecture decision."
-  - "iOS draft PR #135 is represented as an active personal-use engineering lane with HUMAN signing/device gate, not public App Store distribution."
-  - "Registry filing evidence remains explicitly tied to its exact v0.2.9 filing object unless separately re-scoped."
-  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
-  - "Required exact-head CI passes before metadata merge."
+  - "Use Android 0.1.31 from canonical main."
+  - "Use the successful exact Android CI artifact built from merged commit df4478a70729e20f33b7a0d17476183423955576."
+  - "Verify APK SHA-256 and Android package/version metadata."
+  - "Publish a distinct Android v0.1.31 release for owner installation."
+  - "Record final release URL, hash, verified commit and checks; mark checkpoint completed."
 completed:
-  - "Archived completed v0.2.12 release task to .agent/checkpoints/APL-RELEASE-0.2.12-20260921.yaml."
-  - "Verified public desktop v0.2.12 exact release SHA 8d9a4e5913fa92b39f0f926004df6f1fd57f3bde and current main ahead via PR #148."
-  - "Updated executor queue to stable v0.2.12, live free gateway, Android 0.1.31 friend-test baseline, stale REL-016 refresh, current route PR #144 and active iOS draft #135."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same state."
-  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b passed all reported checks, including required build and full Windows installer E2E."
-  - "Company POS-004 / AI-ENG-001 AM-4 authority chain and 2026-09-16 renewal were re-read before merge; this user-directed sync merge was not represented as an AM-4 auto-merge."
-  - "PR #153 merged to main as 350712382f61e98687ecb9f20dea11db736a69bf."
-current: "Roadmap synchronization complete. Canonical next safe autonomous preparation lane is APL-REL-016 refresh from v0.2.12 to first eligible v0.2.13+, followed by PR #144 per-app baseline reconciliation; Owner/HUMAN gates remain intact."
-pending: []
-last_verified_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
-merged_commit: "350712382f61e98687ecb9f20dea11db736a69bf"
+  - "Canonical main identifies Android 0.1.31 as the merged friend-test/free-gateway candidate."
+current: "Retrieve and verify the successful Android 0.1.31 CI artifact."
+pending:
+  - "Download CI artifact."
+  - "Verify APK metadata and SHA-256."
+  - "Publish Android v0.1.31 release."
+  - "Record completion."
+last_verified_commit: "df4478a70729e20f33b7a0d17476183423955576"
 test_results:
-  - "PR #153 exact head 84bcf8f8dc370bc73653a920944a280528d6852b: all reported checks SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E and Gate R6 matrix: SUCCESS."
-  - "SAST, dependency audit, secret scan, SBOM, provenance, clean-IP gates, sovereign lifecycle, Windows signing checks and mirror: SUCCESS."
-resume_instruction: "No continuation is required for APL-ROADMAP-SYNC-20260921. On the next watchdog run read the canonical queue from main. First refresh APL-REL-016 to immutable v0.2.12 / first eligible v0.2.13+ and stop at Owner review; then refresh PR #144 to v0.2.12/current-main semantics and stop before architecture selection. Do not publish Android 0.1.31, broaden gateway rollout, start MOB-004, sign/install iOS, or submit registry filings without the required gate."
-updated_at: "2026-09-21T21:08:00+03:00"
+  - "Mobile Android spike run 35636001327: success."
+resume_instruction: "Download proxy-launcher-android-debug from run 35636001327, verify versionName 0.1.31/versionCode 32 and signer/hash, then publish android-v0.1.31 and complete checkpoint."
+updated_at: "2026-09-23T15:00:00+03:00"
 execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
-  lease_until: null
-  manual_override: false
+  claimed_by: "ChatGPT"
+  branch: "agent/android-final-20260923"
+  base_commit: "a148e20bb82bd41dc87d47d14afea8027db6c3cb"
