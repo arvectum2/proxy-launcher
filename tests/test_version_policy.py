@@ -62,7 +62,7 @@ class VersionPolicyTests(unittest.TestCase):
 
     def test_active_platform_builders_use_canonical_version_source(self):
         version = self.get_version()
-        self.assertEqual(version, "0.2.12")
+        self.assertEqual(version, "0.2.13")
 
         live_paths = {
             "macOS app": "tools/build_macos_app.sh",
@@ -96,6 +96,7 @@ class VersionPolicyTests(unittest.TestCase):
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-macos-arm64.dmg", policy_text)
+        self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm", policy_text)
         self.assertIn("Arvectum-Proxy-Launcher-X.Y.Z-linux-x86_64.tar.gz", policy_text)

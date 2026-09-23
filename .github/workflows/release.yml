@@ -15,6 +15,7 @@ on:
       - '.github/workflows/linux-deb.yml'
       - '.github/workflows/linux-rpm.yml'
       - '.github/workflows/linux-appimage.yml'
+      - '.github/workflows/macos-packaging.yml'
       - '.github/workflows/sync-release-to-gitverse.yml'
       - 'build_linux.sh'
       - 'tools/build_linux_deb.sh'
@@ -55,6 +56,9 @@ jobs:
       linux_rpm_run_id: ${{ steps.parse.outputs.linux_rpm_run_id }}
       linux_appimage_name: ${{ steps.parse.outputs.linux_appimage_name }}
       linux_appimage_run_id: ${{ steps.parse.outputs.linux_appimage_run_id }}
+      macos_arm_name: ${{ steps.parse.outputs.macos_arm_name }}
+      macos_x64_name: ${{ steps.parse.outputs.macos_x64_name }}
+      macos_run_id: ${{ steps.parse.outputs.macos_run_id }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
       owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
@@ -90,6 +94,8 @@ jobs:
           LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"
           LINUX_RPM_NAME="Arvectum-Proxy-Launcher-${VERSION}-redos-linux-x86_64.rpm"
           LINUX_APPIMAGE_NAME="Arvectum_Proxy_Launcher-${VERSION}-x86_64.AppImage"
+          MACOS_ARM_NAME="Arvectum-Proxy-Launcher-${VERSION}-macos-arm64.dmg"
+          MACOS_X64_NAME="Arvectum-Proxy-Launcher-${VERSION}-macos-x64.dmg"
 
           PRERELEASE="false"
           if [[ "$VERSION" =~ - ]]; then
@@ -118,6 +124,8 @@ jobs:
           echo "linux_deb_name=${LINUX_DEB_NAME}" >> "$GITHUB_OUTPUT"
           echo "linux_rpm_name=${LINUX_RPM_NAME}" >> "$GITHUB_OUTPUT"
           echo "linux_appimage_name=${LINUX_APPIMAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "macos_arm_name=${MACOS_ARM_NAME}" >> "$GITHUB_OUTPUT"
+          echo "macos_x64_name=${MACOS_X64_NAME}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
           echo "owner_signed_release=${OWNER_SIGNED_RELEASE}" >> "$GITHUB_OUTPUT"
 
@@ -149,13 +157,17 @@ jobs:
             APPIMAGE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-appimage.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_APPIMAGE_RUN="$(echo "$APPIMAGE_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
             LINUX_APPIMAGE_RUN_ID="$(echo "$APPIMAGE_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
-            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ] || [ -z "$SUCCESSFUL_APPIMAGE_RUN" ] || [ -z "$LINUX_APPIMAGE_RUN_ID" ]; then
-              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, RED OS RPM, and Linux AppImage push CI"
+            MACOS_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/macos-packaging.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
+            SUCCESSFUL_MACOS_RUN="$(echo "$MACOS_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
+            MACOS_RUN_ID="$(echo "$MACOS_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ] || [ -z "$SUCCESSFUL_APPIMAGE_RUN" ] || [ -z "$LINUX_APPIMAGE_RUN_ID" ] || [ -z "$SUCCESSFUL_MACOS_RUN" ] || [ -z "$MACOS_RUN_ID" ]; then
+              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, RED OS RPM, and Linux AppImage push CI, plus macOS packaging push CI"
               exit 1
             fi
             echo "linux_run_id=${LINUX_RUN_ID}" >> "$GITHUB_OUTPUT"
             echo "linux_rpm_run_id=${LINUX_RPM_RUN_ID}" >> "$GITHUB_OUTPUT"
             echo "linux_appimage_run_id=${LINUX_APPIMAGE_RUN_ID}" >> "$GITHUB_OUTPUT"
+            echo "macos_run_id=${MACOS_RUN_ID}" >> "$GITHUB_OUTPUT"
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
@@ -285,6 +297,29 @@ jobs:
           test "$(basename "$source_appimage")" = "${{ needs.validate.outputs.linux_appimage_name }}"
           cp "$source_appimage" "release-stage/${{ needs.validate.outputs.linux_appimage_name }}"
 
+      - name: Download exact-main macOS beta DMGs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-macos-arm64 release-macos-x64
+          gh run download "${{ needs.validate.outputs.macos_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name apl-mac-package-macos-15 \
+            --dir release-macos-arm64
+          gh run download "${{ needs.validate.outputs.macos_run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name apl-mac-package-macos-15-intel \
+            --dir release-macos-x64
+          source_arm="$(find release-macos-arm64 -type f -name '*-arm64.dmg' -print -quit)"
+          source_x64="$(find release-macos-x64 -type f -name '*-x86_64.dmg' -print -quit)"
+          test -n "$source_arm"
+          test -n "$source_x64"
+          test -s "$source_arm"
+          test -s "$source_x64"
+          cp "$source_arm" "release-stage/${{ needs.validate.outputs.macos_arm_name }}"
+          cp "$source_x64" "release-stage/${{ needs.validate.outputs.macos_x64_name }}"
+
       - name: Verify artifact package and calculate public SHA256SUMS
         run: |
           set -euo pipefail
@@ -293,6 +328,8 @@ jobs:
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
           LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
           LINUX_APPIMAGE_NAME="${{ needs.validate.outputs.linux_appimage_name }}"
+          MACOS_ARM_NAME="${{ needs.validate.outputs.macos_arm_name }}"
+          MACOS_X64_NAME="${{ needs.validate.outputs.macos_x64_name }}"
           if [ ! -f "release-stage/${ZIP_NAME}" ]; then
             echo "::error::Expected release package 'release-stage/${ZIP_NAME}' not found"
             ls -la release-stage/
@@ -319,6 +356,14 @@ jobs:
             echo "::error::Expected Linux AppImage 'release-stage/${LINUX_APPIMAGE_NAME}' not found"
             exit 1
           fi
+          if [ ! -s "release-stage/${MACOS_ARM_NAME}" ]; then
+            echo "::error::Expected macOS Apple Silicon beta DMG 'release-stage/${MACOS_ARM_NAME}' not found"
+            exit 1
+          fi
+          if [ ! -s "release-stage/${MACOS_X64_NAME}" ]; then
+            echo "::error::Expected macOS Intel beta DMG 'release-stage/${MACOS_X64_NAME}' not found"
+            exit 1
+          fi
 
           cd release-stage
           sha256sum "$ZIP_NAME" > SHA256SUMS.txt
@@ -326,6 +371,8 @@ jobs:
           sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt
           sha256sum "$LINUX_RPM_NAME" >> SHA256SUMS.txt
           sha256sum "$LINUX_APPIMAGE_NAME" >> SHA256SUMS.txt
+          sha256sum "$MACOS_ARM_NAME" >> SHA256SUMS.txt
+          sha256sum "$MACOS_X64_NAME" >> SHA256SUMS.txt
           cat SHA256SUMS.txt
           sha256sum -c SHA256SUMS.txt
 
@@ -353,6 +400,8 @@ jobs:
           LINUX_DEB_NAME="${{ needs.validate.outputs.linux_deb_name }}"
           LINUX_RPM_NAME="${{ needs.validate.outputs.linux_rpm_name }}"
           LINUX_APPIMAGE_NAME="${{ needs.validate.outputs.linux_appimage_name }}"
+          MACOS_ARM_NAME="${{ needs.validate.outputs.macos_arm_name }}"
+          MACOS_X64_NAME="${{ needs.validate.outputs.macos_x64_name }}"
 
           EXTRA_FLAGS=()
           if [ "$PRERELEASE" = "true" ]; then
@@ -370,6 +419,8 @@ jobs:
             "release-stage/${LINUX_DEB_NAME}" \
             "release-stage/${LINUX_RPM_NAME}" \
             "release-stage/${LINUX_APPIMAGE_NAME}" \
+            "release-stage/${MACOS_ARM_NAME}" \
+            "release-stage/${MACOS_X64_NAME}" \
             "release-stage/SHA256SUMS.txt" \
             --title "Arvectum Proxy Launcher ${VERSION}" \
             --verify-tag \
