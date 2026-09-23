@@ -19,6 +19,9 @@ CONFIG = ProxyBackendConfig(
     http_proxy_url="http://127.0.0.1:8080",
     no_proxy=("localhost", "127.0.0.1", "*.LOCAL"),
     socks_proxy_url="socks5://127.0.0.1:1080",
+    upstream_http_proxy_url="http://upstream.example:9000",
+    upstream_username="alice",
+    upstream_password="secret",
 )
 
 
@@ -94,11 +97,16 @@ class _FakeNetworkSetup:
             bool(state.get("authenticated", False)),
         )
 
-    def set_web_proxy(self, service, server, port):
+    def set_web_proxy(self, service, server, port, username="", password=""):
         self._maybe_fail("set_web_proxy", service)
-        self.calls.append(("set_web_proxy", service, server, int(port)))
+        self.calls.append(
+            ("set_web_proxy", service, server, int(port), username, password)
+        )
         self.services[service]["web"].update(
-            enabled=True, server=server, port=int(port), authenticated=False
+            enabled=True,
+            server=server,
+            port=int(port),
+            authenticated=bool(username and password),
         )
 
     def set_web_proxy_state(self, service, enabled):
@@ -115,11 +123,18 @@ class _FakeNetworkSetup:
             bool(state.get("authenticated", False)),
         )
 
-    def set_secure_web_proxy(self, service, server, port):
+    def set_secure_web_proxy(
+        self, service, server, port, username="", password=""
+    ):
         self._maybe_fail("set_secure_web_proxy", service)
-        self.calls.append(("set_secure_web_proxy", service, server, int(port)))
+        self.calls.append(
+            ("set_secure_web_proxy", service, server, int(port), username, password)
+        )
         self.services[service]["secure_web"].update(
-            enabled=True, server=server, port=int(port), authenticated=False
+            enabled=True,
+            server=server,
+            port=int(port),
+            authenticated=bool(username and password),
         )
 
     def set_secure_web_proxy_state(self, service, enabled):
@@ -197,22 +212,38 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertEqual(wifi["socks_proxy"]["server"], "old-socks.example")
 
         self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
-        self.assertFalse(self.client.services["Wi-Fi"]["web"]["enabled"])
-        self.assertFalse(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
         self.assertEqual(
-            self.client.services["Wi-Fi"]["socks"],
+            self.client.services["Wi-Fi"]["web"],
             {
                 "enabled": True,
-                "server": "127.0.0.1",
-                "port": 1080,
-                "authenticated": False,
+                "server": "upstream.example",
+                "port": 9000,
+                "authenticated": True,
             },
         )
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["secure_web"],
+            {
+                "enabled": True,
+                "server": "upstream.example",
+                "port": 9000,
+                "authenticated": True,
+            },
+        )
+        self.assertFalse(self.client.services["Wi-Fi"]["socks"]["enabled"])
         self.assertEqual(
             set(value.lower() for value in self.client.services["Wi-Fi"]["bypass"]),
             {"corp.example", "localhost", "127.0.0.1", "*.local"},
         )
         self.assertNotIn("Disabled VPN", payload["services"])
+
+    def test_direct_upstream_ownership_does_not_depend_on_networksetup_auth_flag(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["web"]["authenticated"] = False
+        self.client.services["Wi-Fi"]["secure_web"]["authenticated"] = False
+
+        self.assertTrue(self.backend.is_enabled(CONFIG))
+        self.assertTrue(self.backend.disable_preflight())
 
     def test_enable_refuses_conflicting_live_localhost_pac_before_mutation(self):
         self.client.services["Wi-Fi"]["auto"] = AutoProxyState(
@@ -294,7 +325,7 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertFalse(self.backend.disable_preflight())
         self.assertTrue(self.backend.restore_pending())
-        self.assertTrue(self.client.services["Wi-Fi"]["socks"]["enabled"])
+        self.assertTrue(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
         self.assertIn("disable preflight refused", self.logs[-1])
 
     def test_disable_preflight_accepts_reachable_saved_localhost_pac(self):
@@ -310,7 +341,7 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertTrue(backend.disable_preflight())
 
-    def test_enable_routes_via_socks_and_disable_restores_all_proxy_states(self):
+    def test_enable_routes_directly_via_upstream_and_disable_restores_all_proxy_states(self):
         original_web = dict(self.client.services["Wi-Fi"]["web"])
         original_secure = dict(self.client.services["Wi-Fi"]["secure_web"])
         original_socks = dict(self.client.services["Wi-Fi"]["socks"])
@@ -319,21 +350,23 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertEqual(
             self.client.services["Wi-Fi"]["web"],
-            {**original_web, "enabled": False},
+            {
+                "enabled": True,
+                "server": "upstream.example",
+                "port": 9000,
+                "authenticated": True,
+            },
         )
         self.assertEqual(
             self.client.services["Wi-Fi"]["secure_web"],
-            {**original_secure, "enabled": False},
-        )
-        self.assertEqual(
-            self.client.services["Wi-Fi"]["socks"],
             {
                 "enabled": True,
-                "server": "127.0.0.1",
-                "port": 1080,
-                "authenticated": False,
+                "server": "upstream.example",
+                "port": 9000,
+                "authenticated": True,
             },
         )
+        self.assertFalse(self.client.services["Wi-Fi"]["socks"]["enabled"])
         self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
 
         self.assertTrue(self.backend.disable())
@@ -542,6 +575,9 @@ class MacOSBackendTests(unittest.TestCase):
             http_proxy_url=CONFIG.http_proxy_url,
             no_proxy=("localhost", "new.internal"),
             socks_proxy_url=CONFIG.socks_proxy_url,
+            upstream_http_proxy_url=CONFIG.upstream_http_proxy_url,
+            upstream_username=CONFIG.upstream_username,
+            upstream_password=CONFIG.upstream_password,
         )
         self.assertTrue(self.backend.sync_no_proxy(updated))
         self.assertTrue(self.backend.is_enabled(updated))

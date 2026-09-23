@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """macOS implementation of the ProxyBackend contract.
 
-The backend uses macOS' built-in ``networksetup`` command. It routes macOS traffic through APL's local SOCKS5 proxy while the app is active, disables
-manual HTTP/HTTPS and PAC for the owned session, and preserves proxy-bypass domains. Every
+The backend uses macOS' built-in ``networksetup`` command. It routes macOS traffic directly through the configured upstream HTTP proxy while the app
+is active, disables SOCKS and PAC for the owned session, and preserves proxy-bypass domains. Every
 pre-mutation value is durably snapshotted before the first system setting is
 changed. Pre-existing authenticated manual proxies are refused before mutation
 because ``networksetup`` cannot safely disclose credentials for exact rollback.
@@ -113,6 +113,19 @@ def _canonical_config(config: ProxyBackendConfig) -> Optional[Dict[str, Any]]:
     ):
         return None
 
+    upstream_proxy_url = str(config.upstream_http_proxy_url or "").strip()
+    upstream_parsed = urlsplit(upstream_proxy_url)
+    if (
+        upstream_parsed.scheme != "http"
+        or not upstream_parsed.hostname
+        or upstream_parsed.port is None
+    ):
+        return None
+    username = str(config.upstream_username or "")
+    password = str(config.upstream_password or "")
+    if bool(username) != bool(password):
+        return None
+
     return {
         "pac_url": pac_url,
         "http_proxy_url": http_proxy_url,
@@ -121,6 +134,10 @@ def _canonical_config(config: ProxyBackendConfig) -> Optional[Dict[str, Any]]:
         "socks_proxy_url": socks_proxy_url,
         "socks_proxy_host": socks_parsed.hostname,
         "socks_proxy_port": int(socks_parsed.port),
+        "direct_proxy_url": upstream_proxy_url,
+        "direct_proxy_host": upstream_parsed.hostname,
+        "direct_proxy_port": int(upstream_parsed.port),
+        "direct_proxy_authenticated": bool(username and password),
         "no_proxy": list(_normalize_domains(config.no_proxy)),
     }
 
@@ -290,8 +307,22 @@ class NetworkSetupClient:
     def get_web_proxy(self, service: str) -> ManualProxyState:
         return self._get_manual_proxy("-getwebproxy", service)
 
-    def set_web_proxy(self, service: str, server: str, port: int) -> None:
-        self._run("-setwebproxy", service, str(server), str(int(port)), "off")
+    def set_web_proxy(
+        self,
+        service: str,
+        server: str,
+        port: int,
+        username: str = "",
+        password: str = "",
+    ) -> None:
+        auth = bool(username and password)
+        args = [
+            "-setwebproxy", service, str(server), str(int(port)),
+            "on" if auth else "off",
+        ]
+        if auth:
+            args.extend([str(username), str(password)])
+        self._run(*args)
 
     def set_web_proxy_state(self, service: str, enabled: bool) -> None:
         self._run("-setwebproxystate", service, "on" if enabled else "off")
@@ -299,8 +330,22 @@ class NetworkSetupClient:
     def get_secure_web_proxy(self, service: str) -> ManualProxyState:
         return self._get_manual_proxy("-getsecurewebproxy", service)
 
-    def set_secure_web_proxy(self, service: str, server: str, port: int) -> None:
-        self._run("-setsecurewebproxy", service, str(server), str(int(port)), "off")
+    def set_secure_web_proxy(
+        self,
+        service: str,
+        server: str,
+        port: int,
+        username: str = "",
+        password: str = "",
+    ) -> None:
+        auth = bool(username and password)
+        args = [
+            "-setsecurewebproxy", service, str(server), str(int(port)),
+            "on" if auth else "off",
+        ]
+        if auth:
+            args.extend([str(username), str(password)])
+        self._run(*args)
 
     def set_secure_web_proxy_state(self, service: str, enabled: bool) -> None:
         self._run("-setsecurewebproxystate", service, "on" if enabled else "off")
@@ -582,15 +627,14 @@ class MacOSBackend(ProxyBackend):
         )
 
     @staticmethod
-    def _owned_socks_proxy_matches(
+    def _owned_direct_proxy_matches(
         current: ManualProxyState,
         applied: Mapping[str, Any],
     ) -> bool:
         return bool(
             current.enabled
-            and current.server == str(applied.get("socks_proxy_host", ""))
-            and current.port == int(applied.get("socks_proxy_port", 0))
-            and not current.authenticated
+            and current.server == str(applied.get("direct_proxy_host", ""))
+            and current.port == int(applied.get("direct_proxy_port", 0))
         )
 
     def _manual_proxy_states(self, service_name: str):
@@ -610,22 +654,10 @@ class MacOSBackend(ProxyBackend):
             web, secure_web, socks = self._manual_proxy_states(service_name)
         except Exception:
             return False
-        web_expected = snapshot.get("web_proxy")
-        secure_expected = snapshot.get("secure_web_proxy")
         return bool(
-            (
-                web_expected is None
-                or self._manual_proxy_matches(web, web_expected, enabled=False)
-            )
-            and (
-                secure_expected is None
-                or self._manual_proxy_matches(
-                    secure_web,
-                    secure_expected,
-                    enabled=False,
-                )
-            )
-            and self._owned_socks_proxy_matches(socks, applied)
+            self._owned_direct_proxy_matches(web, applied)
+            and self._owned_direct_proxy_matches(secure_web, applied)
+            and not socks.enabled
         )
 
     def _manual_proxies_match_snapshot(
@@ -668,21 +700,21 @@ class MacOSBackend(ProxyBackend):
         socks_expected = snapshot.get("socks_proxy")
 
         web_ok = bool(
-            web_expected is None
-            or self._manual_proxy_matches(web, web_expected)
-            or self._manual_proxy_matches(web, web_expected, enabled=False)
+            self._owned_direct_proxy_matches(web, applied)
+            or (
+                web_expected is not None
+                and self._manual_proxy_matches(web, web_expected)
+            )
         )
         secure_ok = bool(
-            secure_expected is None
-            or self._manual_proxy_matches(secure_web, secure_expected)
-            or self._manual_proxy_matches(
-                secure_web,
-                secure_expected,
-                enabled=False,
+            self._owned_direct_proxy_matches(secure_web, applied)
+            or (
+                secure_expected is not None
+                and self._manual_proxy_matches(secure_web, secure_expected)
             )
         )
         socks_ok = bool(
-            self._owned_socks_proxy_matches(socks, applied)
+            not socks.enabled
             or (
                 socks_expected is not None
                 and self._manual_proxy_matches(socks, socks_expected)
@@ -787,6 +819,8 @@ class MacOSBackend(ProxyBackend):
             return False
         if str(applied.get("socks_proxy_url", "")) != canonical["socks_proxy_url"]:
             return False
+        if str(applied.get("direct_proxy_url", "")) != canonical["direct_proxy_url"]:
+            return False
         return bool(
             allow_no_proxy_change
             or _domains_equal(applied.get("no_proxy", ()), canonical["no_proxy"])
@@ -850,18 +884,24 @@ class MacOSBackend(ProxyBackend):
         try:
             for service_name, snapshot in snapshots.items():
                 touched.append(service_name)
-                # Safari 27 reliably uses macOS' SOCKS proxy setting while
-                # its manual HTTP/HTTPS proxy path can bypass or stall despite
-                # CFNetwork resolving the manual proxy correctly.
                 self._client.set_auto_proxy_state(service_name, False)
-                self._client.set_web_proxy_state(service_name, False)
-                self._client.set_secure_web_proxy_state(service_name, False)
-                self._client.set_socks_proxy(
+                self._client.set_socks_proxy_state(service_name, False)
+                self._client.set_web_proxy(
                     service_name,
-                    canonical["socks_proxy_host"],
-                    canonical["socks_proxy_port"],
+                    canonical["direct_proxy_host"],
+                    canonical["direct_proxy_port"],
+                    str(config.upstream_username or ""),
+                    str(config.upstream_password or ""),
                 )
-                self._client.set_socks_proxy_state(service_name, True)
+                self._client.set_secure_web_proxy(
+                    service_name,
+                    canonical["direct_proxy_host"],
+                    canonical["direct_proxy_port"],
+                    str(config.upstream_username or ""),
+                    str(config.upstream_password or ""),
+                )
+                self._client.set_web_proxy_state(service_name, True)
+                self._client.set_secure_web_proxy_state(service_name, True)
                 self._client.set_bypass_domains(
                     service_name,
                     self._expected_bypass(snapshot, canonical),

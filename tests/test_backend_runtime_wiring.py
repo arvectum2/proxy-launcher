@@ -50,6 +50,14 @@ class BackendRuntimeWiringTests(unittest.TestCase):
             "local_socks_port": 1080,
             "local_pac_port": 8082,
             "pac_path": "/proxy.pac",
+            "upstream": [
+                {
+                    "host": "proxy.example",
+                    "port": 9000,
+                    "username": "user",
+                    "password": "pass",
+                }
+            ],
         }
 
     def tearDown(self):
@@ -68,6 +76,9 @@ class BackendRuntimeWiringTests(unittest.TestCase):
                 http_proxy_url="http://127.0.0.1:8080",
                 no_proxy=("localhost", "127.0.0.1", "example.internal"),
                 socks_proxy_url="socks5://127.0.0.1:1080",
+                upstream_http_proxy_url="http://proxy.example:9000",
+                upstream_username="user",
+                upstream_password="pass",
             ),
         )
 

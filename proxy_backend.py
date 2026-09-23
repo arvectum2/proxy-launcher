@@ -24,6 +24,9 @@ class ProxyBackendConfig:
     http_proxy_url: str
     no_proxy: Tuple[str, ...] = ()
     socks_proxy_url: str = ""
+    upstream_http_proxy_url: str = ""
+    upstream_username: str = ""
+    upstream_password: str = ""
 
 
 class ProxyBackend(ABC):

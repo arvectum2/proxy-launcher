@@ -97,12 +97,27 @@ def resolved_backend_config(settings=None) -> ProxyBackendConfig:
             continue
         seen.add(value)
         normalized.append(value)
+    configured_upstreams = [
+        item for item in (settings.get("upstream") or [])
+        if str(item.get("host") or "").strip()
+    ]
+    primary = configured_upstreams[0] if configured_upstreams else {}
+    upstream_host = str(primary.get("host") or "").strip()
+    upstream_port = int(primary.get("port") or 0)
+    upstream_url = (
+        "http://%s:%d" % (upstream_host, upstream_port)
+        if upstream_host and upstream_port > 0
+        else ""
+    )
     return ProxyBackendConfig(
         pac_url=str(core.pac_url(settings)),
         http_proxy_url="http://127.0.0.1:%d" % int(settings.get("local_http_port", 8080)),
         no_proxy=tuple(normalized),
         socks_proxy_url="socks5://127.0.0.1:%d"
         % int(settings.get("local_socks_port", 1080)),
+        upstream_http_proxy_url=upstream_url,
+        upstream_username=str(primary.get("username") or ""),
+        upstream_password=str(primary.get("password") or ""),
     )
 
 
