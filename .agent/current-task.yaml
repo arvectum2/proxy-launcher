@@ -1,7 +1,9 @@
+[Reading 62 lines from start (total: 62 lines, 0 remaining)]
+
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: blocked
+status: in_progress
 goal: "Make macOS APL reliable during ordinary runtime and transitions, including Safari on macOS 27, with exact rollback."
 authority: OPERATOR
 definition_of_done:
@@ -34,7 +36,7 @@ completed:
   - "System CFNetwork through active SOCKS-first APL PASS: nscurl returned 68.209.60.141."
   - "Clean Off/rollback PASS: APL ports closed, legacy agent remained disabled, manual baseline 68.209.60.141:8000 restored, PAC/SOCKS disabled, state files removed, post-rollback nscurl returned 68.209.60.141."
   - "Final candidate was started again and left RUNNING for user acceptance; installed hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55; system SOCKS 127.0.0.1:11080 enabled; legacy daemon remains disabled."
-current: "Await ordinary user acceptance on the final SOCKS-first build: browse normally in Safari/Chrome and verify the prior spontaneous connectivity loss no longer occurs."
+current: "Latest FAIL was contaminated by two diagnostic Safari instances created with open -n. They have been removed; original Safari PID 66594 successfully completed a fresh request through SOCKS-first APL. Await clean user acceptance with one Safari instance."
 pending:
   - "User performs ordinary browsing in Safari/Chrome with APL left ON."
   - "If stable, mark task completed, record acceptance, and close checkpoint."
@@ -50,9 +52,9 @@ test_results:
   - "SOCKS-first CFNetwork PASS."
   - "Clean Off/rollback + post-rollback CFNetwork PASS."
   - "Installed final SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
-blocker: "Only real user acceptance remains: the prior failure was intermittent during ordinary browser use, so a short synthetic test cannot prove the absence of recurrence."
-resume_instruction: "APL is left ON on final SOCKS-first build hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55 with legacy tunnel-proxy disabled. If user reports stable browsing, mark completed. If user reports FAIL, immediately capture worker/listeners/system SOCKS/Safari-Chrome sockets/logs before any Off; do not re-enable legacy agent unless rollback baseline itself fails."
-updated_at: "2026-09-23T09:31:00+03:00"
+blocker: "Only clean real-user acceptance remains after removing diagnostic Safari process pollution."
+resume_instruction: "APL remains ON on SOCKS-first hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55. Diagnostic Safari instances are removed; only original Safari remains. Ask user to test normally. If FAIL recurs, capture live state before any browser/Off action. If stable, mark completed."
+updated_at: "2026-09-23T09:47:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260922-macos-sleep-wake-live-recovery"
@@ -60,3 +62,5 @@ execution:
   base_commit: "a148e20bb82bd41dc87d47d14afea8027db6c3cb"
   lease_until: null
   manual_override: true
+
+[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
