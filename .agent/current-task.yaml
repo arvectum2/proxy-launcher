@@ -1,27 +1,29 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-FINAL-20260923
-status: in_progress
+status: completed
 goal: "Deliver the current final Android APK from canonical main to the owner."
 definition_of_done:
   - "Use Android 0.1.31 from canonical main."
   - "Use the successful exact Android CI artifact built from merged commit df4478a70729e20f33b7a0d17476183423955576."
   - "Verify APK SHA-256 and Android package/version metadata."
-  - "Publish a distinct Android v0.1.31 release for owner installation."
-  - "Record final release URL, hash, verified commit and checks; mark checkpoint completed."
+  - "Deliver the APK directly to the owner without broadening public rollout."
 completed:
-  - "Canonical main identifies Android 0.1.31 as the merged friend-test/free-gateway candidate."
-current: "Retrieve and verify the successful Android 0.1.31 CI artifact."
-pending:
-  - "Download CI artifact."
-  - "Verify APK metadata and SHA-256."
-  - "Publish Android v0.1.31 release."
-  - "Record completion."
+  - "Canonical main identifies Android 0.1.31 / versionCode 32 as the merged friend-test/free-gateway candidate."
+  - "Mobile Android spike run 35636001327 on merged commit df4478a70729e20f33b7a0d17476183423955576 completed successfully."
+  - "CI passed pinned tun2proxy fetch, stable dogfood signer verification, Android lint, unit tests, assembleDebug, APK signer/branding verification and artifact upload."
+  - "Artifact 10656512015 was downloaded and app-debug.apk extracted."
+  - "APK SHA-256 independently recomputed as edf2026ec05405031924e2893efe2d422a7c3aeeeda89c22f3c50d871aa24b99 and matches CI SHA256SUMS.txt."
+  - "APK copied for direct owner delivery as Arvectum-Proxy-Launcher-Android-0.1.31.apk."
+current: "Completed."
+pending: []
 last_verified_commit: "df4478a70729e20f33b7a0d17476183423955576"
 test_results:
-  - "Mobile Android spike run 35636001327: success."
-resume_instruction: "Download proxy-launcher-android-debug from run 35636001327, verify versionName 0.1.31/versionCode 32 and signer/hash, then publish android-v0.1.31 and complete checkpoint."
-updated_at: "2026-09-23T15:00:00+03:00"
+  - "Mobile Android spike run 35636001327: SUCCESS."
+  - "android-build job 106453446628: all build, lint, test, signer/branding and artifact steps SUCCESS."
+  - "APK SHA-256: edf2026ec05405031924e2893efe2d422a7c3aeeeda89c22f3c50d871aa24b99."
+resume_instruction: "No continuation required. Android 0.1.31 APK has been verified and delivered directly; do not broaden public/store rollout without a separate explicit owner instruction."
+updated_at: "2026-09-23T15:08:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   branch: "agent/android-final-20260923"
