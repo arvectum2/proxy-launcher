@@ -1,5 +1,3 @@
-[Reading 74 lines from start (total: 74 lines, 0 remaining)]
-
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-SAFARI-HYBRID-PROXY-20260923
@@ -29,6 +27,7 @@ completed:
   - "Latest candidate started again and left RUNNING with bypass count exactly 47, CFNetwork egress 68.209.60.141, Telegram healthy."
   - "User-visible acceptance PASS: with APL ON in Safari, a test message was sent successfully and the page was then reloaded successfully; user confirmed \"работает\"."
   - "Final live verification after user PASS: APL RUNNING, installed SHA-256 36c312a3a04cbf81ec1f27b975842679d438bccef4366b8238a6b0fbc885f6dd, bypass count 47, HTTP/HTTPS upstream 68.209.60.141:8000 enabled, SOCKS/PAC disabled, CFNetwork egress PASS, Telegram ESTABLISHED on legacy 1080, Safari conversation loaded with correct title."
+  - "User explicitly authorized merge of PR #155 after completion and green exact-head CI."
   - "Baseline direct system HTTP/HTTPS 68.209.60.141:8000 works in Safari: ChatGPT main document 200, APIs 200/202, event-stream 200."
   - "SOCKS-first APL reproduced Safari ChatGPT WebSocket NSURLErrorDomain -1011."
   - "Hybrid local HTTP 18080 + SOCKS 11080 still selected SOCKS in Safari and WebSocket failed."
@@ -54,8 +53,7 @@ completed:
   - "GUI restarted from the new installed bundle."
   - "Final candidate started again and left RUNNING. After a 12-second stability check the ChatGPT conversation title remained correct, system route stayed direct-upstream, CFNetwork PASS, Telegram ESTABLISHED."
 current: "Completed. Safari send + reload works with APL ON on the 47-entry bypass-ceiling direct-upstream build."
-pending:
-  - "Do not merge PR #155 without explicit authorization."
+pending: []
 last_verified_commit: "af4391b188d1a623d851c58e6db47335753b6b44"
 test_results:
   - "56 direct backend/runtime tests PASS."
@@ -78,5 +76,3 @@ execution:
   base_commit: "8e0aee5ea5e91b5f314570385e7b949da02b3a3a"
   lease_until: null
   manual_override: true
-
-[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
