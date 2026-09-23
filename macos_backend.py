@@ -423,8 +423,44 @@ class MacOSBackend(ProxyBackend):
                 urls.append((service_name, url))
         return tuple(urls)
 
+    def _restore_plan(self, payload: Mapping[str, Any], phase: str = "disable"):
+        try:
+            current_names = {service.name for service in self._client.list_services()}
+        except Exception as exc:
+            self._log("macOS %s refused: network services unavailable: %s" % (phase, exc))
+            return None
+
+        applied = payload["applied_config"]
+        snapshots = dict(payload["services"])
+        missing_names = set(snapshots) - current_names
+        if missing_names:
+            self._log(
+                "macOS %s refused: saved network services are unavailable: %s"
+                % (phase, ", ".join(sorted(missing_names)))
+            )
+            return None
+
+        to_restore = []
+        for service_name, snapshot in snapshots.items():
+            if self._service_matches_owned_state(service_name, snapshot, applied):
+                to_restore.append(service_name)
+                continue
+            if self._service_matches_snapshot(service_name, snapshot):
+                continue
+            if self._service_matches_recoverable_state(
+                service_name, snapshot, applied
+            ):
+                to_restore.append(service_name)
+                continue
+            self._log(
+                "macOS %s refused: %s matches neither Arvectum-owned nor saved state"
+                % (phase, service_name)
+            )
+            return None
+        return snapshots, tuple(to_restore)
+
     def disable_preflight(self) -> bool:
-        """Refuse rollback before worker stop if a saved localhost PAC is absent."""
+        """Prove rollback is safe before the worker can be stopped."""
         if not self._store.exists():
             return True
         try:
@@ -439,7 +475,7 @@ class MacOSBackend(ProxyBackend):
                     "for %s: %s" % (service_name, url)
                 )
                 return False
-        return True
+        return self._restore_plan(payload, phase="disable preflight") is not None
 
     def restore_pending(self) -> bool:
         # Existence alone is durable evidence. Corrupt evidence is never hidden.
@@ -665,10 +701,8 @@ class MacOSBackend(ProxyBackend):
             bypass = self._client.get_bypass_domains(service_name)
         except Exception:
             return False
-        saved_auto = snapshot["auto_proxy"]
         return bool(
             not auto.enabled
-            and auto.url == str(saved_auto.get("url", ""))
             and _domains_equal(bypass, self._expected_bypass(snapshot, applied))
             and self._manual_proxies_match_owned_state(
                 service_name, snapshot, applied
@@ -691,10 +725,9 @@ class MacOSBackend(ProxyBackend):
         expected_url = str(expected["url"] or "").strip()
         if auto.enabled != expected_enabled:
             return False
-        if expected_url and auto.url != expected_url:
-            return False
-        if expected_enabled and not expected_url:
-            return False
+        if expected_enabled:
+            if not expected_url or auto.url != expected_url:
+                return False
         return bool(
             _domains_equal(bypass, snapshot.get("bypass_domains", ()))
             and self._manual_proxies_match_snapshot(service_name, snapshot)
@@ -714,10 +747,15 @@ class MacOSBackend(ProxyBackend):
         expected = snapshot["auto_proxy"]
         expected_enabled = bool(expected["enabled"])
         expected_url = str(expected["url"] or "").strip()
-        auto_owned = bool(not auto.enabled and auto.url == expected_url)
+        auto_owned = bool(not auto.enabled)
         auto_snapshot = bool(
-            auto.enabled == expected_enabled
-            and (not expected_url or auto.url == expected_url)
+            (not expected_enabled and not auto.enabled)
+            or (
+                expected_enabled
+                and bool(expected_url)
+                and auto.enabled
+                and auto.url == expected_url
+            )
         )
         bypass_owned = _domains_equal(
             bypass, self._expected_bypass(snapshot, applied)
@@ -937,42 +975,16 @@ class MacOSBackend(ProxyBackend):
             return True
         try:
             payload = self._load_backup()
-            current_names = {service.name for service in self._client.list_services()}
         except Exception as exc:
             self._log("macOS disable refused: state unavailable: %s" % exc)
             return False
 
-        applied = payload["applied_config"]
-        saved_names = set(payload["services"])
-        missing_names = saved_names - current_names
-        if missing_names:
-            self._log(
-                "macOS disable refused: saved network services are unavailable: %s"
-                % ", ".join(sorted(missing_names))
-            )
+        plan = self._restore_plan(payload, phase="disable")
+        if plan is None:
             return False
+        snapshots, to_restore = plan
 
-        snapshots = dict(payload["services"])
-        to_restore = []
-        # Recovery is retry-safe: a service may still be in Arvectum-owned state,
-        # or it may already equal its saved snapshot after a previous partial
-        # rollback. Anything else is treated as a newer foreign/admin change.
-        for service_name, snapshot in snapshots.items():
-            if self._service_matches_owned_state(service_name, snapshot, applied):
-                to_restore.append(service_name)
-                continue
-            if self._service_matches_snapshot(service_name, snapshot):
-                continue
-            if self._service_matches_recoverable_state(service_name, snapshot, applied):
-                to_restore.append(service_name)
-                continue
-            self._log(
-                "macOS disable refused: %s matches neither Arvectum-owned nor saved state"
-                % service_name
-            )
-            return False
-
-        if not self._restore_touched_services(snapshots, tuple(to_restore)):
+        if not self._restore_touched_services(snapshots, to_restore):
             return False
 
         if not all(

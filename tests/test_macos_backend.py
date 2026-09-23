@@ -273,6 +273,30 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertTrue(backend.is_enabled(CONFIG))
         self.assertIn("saved localhost PAC is unavailable", self.logs[-1])
 
+    def test_disable_preflight_accepts_dropped_url_for_disabled_pac(self):
+        saved_url = "http://127.0.0.1:8082/proxy.pac"
+        self.client.services["Wi-Fi"]["auto"] = AutoProxyState(False, saved_url)
+
+        self.assertTrue(self.backend.enable(CONFIG))
+        # macOS may normalize a disabled remembered PAC URL to (null) after a
+        # network/wake transition. That is not a foreign active route.
+        self.client.services["Wi-Fi"]["auto"] = AutoProxyState(False, "")
+
+        self.assertTrue(self.backend.disable_preflight())
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertFalse(self.client.services["Wi-Fi"]["auto"].enabled)
+        self.assertEqual(self.client.services["Wi-Fi"]["auto"].url, saved_url)
+
+    def test_disable_preflight_refuses_foreign_manual_route_before_stop(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["web"]["server"] = "foreign.example"
+
+        self.assertFalse(self.backend.disable_preflight())
+        self.assertTrue(self.backend.restore_pending())
+        self.assertTrue(self.client.services["Wi-Fi"]["socks"]["enabled"])
+        self.assertIn("disable preflight refused", self.logs[-1])
+
     def test_disable_preflight_accepts_reachable_saved_localhost_pac(self):
         self.client.services["Wi-Fi"]["auto"] = AutoProxyState(
             True, CONFIG.pac_url
