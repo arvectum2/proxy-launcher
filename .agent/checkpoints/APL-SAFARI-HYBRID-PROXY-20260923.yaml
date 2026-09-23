@@ -27,7 +27,7 @@ completed:
   - "Exact installed af4391b candidate physical reload at 20:34 PASS: ChatGPT main resource HTTP 200 through 68.209.60.141:8000; API 200/202; event-stream 200; no main-resource 403/direct-IPv6 bypass."
   - "Latest physical Off rollback PASS: RC=0, bypass list restored 47->29, backup cleared, direct baseline restored, Telegram stayed ESTABLISHED on legacy 1080."
   - "Latest candidate started again and left RUNNING with bypass count exactly 47, CFNetwork egress 68.209.60.141, Telegram healthy."
-  - "User-visible acceptance PASS: with APL ON in Safari, a test message was sent successfully and the page was then reloaded successfully; user confirmed "работает"."
+  - "User-visible acceptance PASS: with APL ON in Safari, a test message was sent successfully and the page was then reloaded successfully; user confirmed \"работает\"."
   - "Final live verification after user PASS: APL RUNNING, installed SHA-256 36c312a3a04cbf81ec1f27b975842679d438bccef4366b8238a6b0fbc885f6dd, bypass count 47, HTTP/HTTPS upstream 68.209.60.141:8000 enabled, SOCKS/PAC disabled, CFNetwork egress PASS, Telegram ESTABLISHED on legacy 1080, Safari conversation loaded with correct title."
   - "Baseline direct system HTTP/HTTPS 68.209.60.141:8000 works in Safari: ChatGPT main document 200, APIs 200/202, event-stream 200."
   - "SOCKS-first APL reproduced Safari ChatGPT WebSocket NSURLErrorDomain -1011."
