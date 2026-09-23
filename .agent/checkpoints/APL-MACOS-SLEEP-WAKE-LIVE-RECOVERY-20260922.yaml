@@ -1,29 +1,20 @@
-version: 12
+version: 13
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: blocked
-goal: "Keep macOS browsing reliably usable through APL, including Safari 27, without a concurrent legacy localhost proxy stack."
+status: completed
+goal: "Keep macOS APL networking reliable across ordinary runtime and transitions."
 completed_stages:
-  - "Ownership/PID, PAC false-stop, wake/HID, Off confirmation, lifecycle UI and no_proxy corruption fixes retained."
-  - "Private Relay / Limit IP Address Tracking A/B rejected as primary cause."
-  - "Legacy localhost tunnel coexistence identified as stale-session risk and disabled."
-  - "Safari system SOCKS A/B previously proved Safari -> 127.0.0.1:11080 -> APL -> upstream."
-  - "SOCKS-first macOS backend committed at 2d534d66a2c17c23cf43e8a2556724ae1bb0e488."
-  - "Schema-v2 exact rollback and localhost PAC preflight implemented."
-  - "121 focused PASS; full suite 1115 PASS plus 3 historical unrelated Windows failures."
-  - "Legacy-free baseline viability PASS via CFNetwork nscurl with 8080/1080/8082 closed."
-  - "Governed build/license/codesign PASS; installed SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
-  - "SOCKS-first active CFNetwork PASS."
-  - "Clean Off rollback PASS back to manual 68.209.60.141:8000 with legacy agent still disabled; post-rollback CFNetwork PASS."
-  - "Final SOCKS-first candidate started again and left ON for user acceptance."
-current_stage: "Await ordinary user browsing acceptance; intermittent prior failure cannot be disproven by a short synthetic check."
+  - "Ownership/PID, rollback, wake guard, GUI race, no_proxy and localhost PAC preflight fixes completed."
+  - "SOCKS-first macOS backend implemented and installed."
+  - "Legacy localhost tunnel daemon disabled."
+  - "121 focused PASS; full suite 1115 PASS plus 3 historical Windows failures."
+  - "Installed SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
+  - "Clean Off/rollback and CFNetwork acceptance PASS."
+  - "Definitive target-specific A/B: ChatGPT returned 403 with APL ON and the same 403 after APL OFF on exact baseline."
+  - "Safari restart alone restored ChatGPT to 200/202 on baseline."
+  - "Re-enabling APL without restarting fresh Safari preserved 200/202."
+current_stage: "Completed; observed remaining failure belongs to Safari/WebKit/Cloudflare session state, not APL transport."
 remaining_stages:
-  - "Push current branch/checkpoint and update PR #155."
-  - "User browses normally in Safari/Chrome."
-  - "On stable acceptance, mark completed; on FAIL capture live state before Off."
+  - "Optional user action: restore Limit IP Address Tracking."
+  - "PR merge only on explicit authorization."
 last_verified_commit: "2d534d66a2c17c23cf43e8a2556724ae1bb0e488"
-test_results:
-  - "121 focused PASS."
-  - "Full suite: 1115 passed, 3 historical unrelated Windows failures."
-  - "Ruff F,E9,I and diff-check PASS."
-  - "Installed final hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
-resume_instruction: "APL is ON in SOCKS-first mode and legacy tunnel-proxy is disabled. If user reports stable normal browsing, mark task completed. If FAIL, capture live state before any Off; do not re-enable legacy daemon unless rollback baseline fails."
+resume_instruction: "Completed. On future reports, capture WebKit HTTP status plus APL controls before treating as network failure."

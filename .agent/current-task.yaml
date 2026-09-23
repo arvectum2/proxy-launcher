@@ -1,11 +1,7 @@
-[Reading 66 lines from start (total: 66 lines, 0 remaining)]
-
-[Reading 62 lines from start (total: 62 lines, 0 remaining)]
-
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: in_progress
+status: completed
 goal: "Make macOS APL reliable during ordinary runtime and transitions, including Safari on macOS 27, with exact rollback."
 authority: OPERATOR
 definition_of_done:
@@ -15,48 +11,45 @@ definition_of_done:
   - "Stop/rollback preflights exact saved localhost PAC backing before worker termination."
   - "HTTP/HTTPS/SOCKS/PAC and bypass state are snapshotted/restored exactly."
   - "Focused/full/static/build/CI checks show no new regressions."
-  - "Physical user acceptance confirms stable browsing and clean Off rollback."
+  - "Physical acceptance proves APL path remains healthy; browser-specific failures are isolated from APL transport."
 completed:
-  - "Worker ownership/PID, PAC-health false STOPPED, wake/HID, deferred Off confirmation, lifecycle UI race and no_proxy corruption fixes retained."
-  - "Limit IP Address Tracking A/B completed and rejected Private Relay as primary root cause."
-  - "System CFNetwork resolver independently proved APL HTTP proxy config valid; Safari 27 nevertheless retained/used stale legacy proxy state while Chrome behaved differently."
-  - "Legacy com.user.tunnel-proxy coexistence was proven harmful: Safari retained established 127.0.0.1:8080 sessions after APL switched system settings."
-  - "Decisive earlier A/B proved macOS system SOCKS 127.0.0.1:11080 works with Safari 27; fresh Safari PID established TCP to APL 11080 and APL relayed upstream successfully."
-  - "Implemented SOCKS-first macOS backend in commit 2d534d66a2c17c23cf43e8a2556724ae1bb0e488: manual HTTP/HTTPS and PAC disabled while active, system SOCKS points to APL, bypass policy preserved."
-  - "ProxyBackendConfig carries socks_proxy_url; runtime resolves local_socks_port."
-  - "macOS rollback schema v2 snapshots/restores web, secure web, SOCKS, PAC and bypass state."
-  - "Implemented localhost PAC conflict/start guard and disable_preflight; stop/rollback preflight before worker termination."
-  - "SOCKS-first focused backend/transport/runtime suite: 121 PASS."
+  - "Worker ownership/PID, PAC false-STOPPED, wake/HID destructive-action guard, deferred Off confirmation, lifecycle UI race and no_proxy corruption fixes retained."
+  - "Unsafe browser NetworkProcess SIGKILL recovery removed."
+  - "Private Relay / Limit IP Address Tracking A/B rejected as root cause."
+  - "Legacy com.user.tunnel-proxy coexistence identified as stale-session risk and disabled; legacy ports 8080/1080/8082 remain closed."
+  - "Implemented SOCKS-first macOS backend in code commit 2d534d66a2c17c23cf43e8a2556724ae1bb0e488: system SOCKS 127.0.0.1:11080 while active; HTTP/HTTPS/PAC disabled; bypass policy preserved."
+  - "Rollback schema v2 snapshots/restores HTTP, HTTPS, SOCKS, PAC and bypass state."
+  - "Localhost PAC start/stop preflight added."
+  - "Focused backend/transport/runtime suite: 121 PASS."
   - "Full suite: 1115 passed plus 3 historical unrelated Windows App Control failures."
   - "Ruff F,E9,I and git diff --check PASS."
-  - "Legacy LaunchAgent com.user.tunnel-proxy was re-bootstrapped and verified healthy on 8080/1080/8082 before migration; HTTP/SOCKS health both returned upstream IP 68.209.60.141."
-  - "Current APL was stopped cleanly and exact saved baseline restored."
-  - "Legacy-free baseline viability PASS: com.user.tunnel-proxy booted out; 8080/1080/8082 closed; manual HTTP/HTTPS 68.209.60.141:8000 remained; /usr/bin/nscurl (CFNetwork) returned 68.209.60.141 with RC=0."
-  - "Governed macOS 0.2.12 build from exact code commit 2d534d66a2c17c23cf43e8a2556724ae1bb0e488 PASS with APL-IP-004 license bundle verification and strict codesign."
-  - "Installed final executable SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
-  - "SOCKS-first start PASS: HTTP/HTTPS disabled, SOCKS enabled at 127.0.0.1:11080, PAC disabled, APL listeners 18080/11080/18082 owned by worker, legacy ports 8080/1080/8082 closed."
-  - "System CFNetwork through active SOCKS-first APL PASS: nscurl returned 68.209.60.141."
-  - "Clean Off/rollback PASS: APL ports closed, legacy agent remained disabled, manual baseline 68.209.60.141:8000 restored, PAC/SOCKS disabled, state files removed, post-rollback nscurl returned 68.209.60.141."
-  - "Final candidate was started again and left RUNNING for user acceptance; installed hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55; system SOCKS 127.0.0.1:11080 enabled; legacy daemon remains disabled."
-current: "Run same-Safari A/B: stop APL to exact legacy manual-upstream baseline without restarting Safari, then reload the same ChatGPT tab and compare HTTP result."
+  - "Governed macOS 0.2.12 build from code commit 2d534d66a2c17c23cf43e8a2556724ae1bb0e488 passed license-bundle verification and strict codesign."
+  - "Installed executable SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
+  - "Legacy-free baseline viability PASS: old daemon disabled, manual upstream 68.209.60.141:8000 works via CFNetwork."
+  - "SOCKS-first active-state CFNetwork PASS."
+  - "Clean Off/rollback PASS back to manual upstream with old daemon still disabled."
+  - "Clean single-Safari FAIL captured at 10:04: user reload reached WebKit network path and received HTTP 403 from ChatGPT; example.com loaded successfully through the same APL state."
+  - "Same-Safari A/B with APL fully stopped and exact legacy manual proxy restored still produced the same ChatGPT HTTP 403. Therefore APL transport and SOCKS-first routing were not causal."
+  - "Full Safari restart on the same APL-OFF baseline restored ChatGPT immediately; fresh WebKit produced sustained HTTP 200/202 responses."
+  - "APL was then re-enabled without restarting fresh Safari. The same ChatGPT session continued receiving HTTP 200/202 under SOCKS-first APL, proving APL does not reproduce the failure."
+  - "Final APL state left RUNNING on installed hash b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
+current: "Completed. The macOS APL network path is stable and exactly reversible. Remaining observed 403 issue is Safari/WebKit/Cloudflare session state outside APL transport."
 pending:
-  - "User performs ordinary browsing in Safari/Chrome with APL left ON."
-  - "If stable, mark task completed, record acceptance, and close checkpoint."
-  - "If FAIL recurs, capture state before Off; do not restart legacy tunnel-proxy."
-  - "Push current SOCKS-first branch/update PR #155 and verify exact-head CI."
+  - "User may restore Limit IP Address Tracking for current Wi-Fi; it was disabled only for a rejected A/B hypothesis."
+  - "Do not merge PR #155 without explicit authorization."
 last_verified_commit: "2d534d66a2c17c23cf43e8a2556724ae1bb0e488"
 test_results:
-  - "121 SOCKS/backend/transport/runtime focused tests PASS."
-  - "Full suite: 1115 passed, 3 historical unrelated Windows App Control failures."
+  - "121 focused PASS."
+  - "Full suite: 1115 passed, 3 historical unrelated Windows failures."
   - "Ruff F,E9,I PASS; git diff --check PASS."
-  - "Physical earlier Safari SOCKS A/B PASS."
-  - "Legacy-free baseline CFNetwork PASS."
+  - "Baseline CFNetwork PASS."
   - "SOCKS-first CFNetwork PASS."
-  - "Clean Off/rollback + post-rollback CFNetwork PASS."
-  - "Installed final SHA-256 b4941dd864070630cef66ae0f487c3aa36e552652695284bc7bbeef5f0344d55."
-blocker: "Only clean real-user acceptance remains after removing diagnostic Safari process pollution."
-resume_instruction: "Clean FAIL is ChatGPT-specific: WebKit got HTTP 403 while example.com works through APL. Next perform same-Safari baseline A/B without browser restart: stop APL, reload same ChatGPT tab, compare result/logs. Do not infer general network failure."
-updated_at: "2026-09-23T10:10:00+03:00"
+  - "Clean Off/rollback PASS."
+  - "ChatGPT same-Safari APL-OFF reload: HTTP 403."
+  - "Safari restart on same baseline: sustained ChatGPT HTTP 200/202."
+  - "APL re-enable with same fresh Safari: sustained ChatGPT HTTP 200/202."
+resume_instruction: "Task is completed. If a future FAIL is reported, first distinguish HTTP target rejection from transport failure: capture WebKit HTTP status and APL/system controls before any Off. Do not reopen sleep/PAC/transport hypotheses unless APL controls actually fail."
+updated_at: "2026-09-23T11:26:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260922-macos-sleep-wake-live-recovery"
@@ -64,7 +57,3 @@ execution:
   base_commit: "a148e20bb82bd41dc87d47d14afea8027db6c3cb"
   lease_until: null
   manual_override: true
-
-[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
-
-[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
