@@ -66,11 +66,11 @@ Canonical distribution flow:
 source change
   -> Pull Request
   -> main
-  -> green CI (exact-main Windows + Astra DEB + RED OS RPM + AppImage)
+  -> green CI (exact-main Windows + Astra DEB + RED OS RPM + AppImage + macOS packaging)
   -> version consistency and release-evidence validation
   -> Git tag (vX.Y.Z)
   -> GitHub Release workflow (.github/workflows/release.yml)
-  -> canonical Windows tag builds + reuse of exact-main Astra/Linux DEB, RED OS RPM and AppImage
+  -> canonical Windows tag builds + reuse of exact-main Astra/Linux DEB, RED OS RPM, AppImage and macOS beta DMGs
   -> public SHA256SUMS.txt generation and verification
   -> GitHub Release publication
   -> verified independent GitVerse mirror
@@ -80,12 +80,12 @@ source change
 * **Real publication triggers:** Only pushes of matching SemVer tags (`v*.*.*`) can trigger publication.
 * **Tag consistency:** Pushed tag must strictly equal `v${VERSION}` (where `${VERSION}` is read from `VERSION`).
 * **Main ancestry:** Tagged commit must be an ancestor of `origin/main`.
-* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, the RED OS RPM workflow, and the Linux AppImage workflow, plus a successful exact-SHA Release Evidence Package.
+* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, the RED OS RPM workflow, the Linux AppImage workflow, and macOS packaging (Apple Silicon + Intel matrix), plus a successful exact-SHA Release Evidence Package.
 * **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation/reusable build checks in safe dry-run mode and **never** publish releases.
-* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), RED OS x86_64 RPM (`Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`), portable Linux x86_64 AppImage (`Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
+* **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), macOS Apple Silicon beta DMG (`Arvectum-Proxy-Launcher-X.Y.Z-macos-arm64.dmg`), macOS Intel beta DMG (`Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), RED OS x86_64 RPM (`Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`), portable Linux x86_64 AppImage (`Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
 * **Prerelease handling:** SemVer prerelease identifiers (e.g. `0.2.4-rc.1`) are automatically flagged as GitHub prereleases.
 * **Immutability:** Existing GitHub Releases cannot be overwritten or clobbered (`--clobber` is prohibited). Duplicate release attempts fail.
-* **Developer workstation builds:** Binaries built on developer workstations are strictly for local testing and debugging. They are not canonical release artifacts.
+* **Developer workstation builds:** Binaries built on developer workstations are strictly for local testing and debugging. They are not canonical release artifacts. Public macOS beta DMGs must come only from the exact-main `macos-packaging` GitHub Actions run promoted by the release workflow.
 * **CI Artifacts vs. GitHub Releases:** GitHub Actions artifacts are temporary QA and pre-release test builds. GitHub Releases is the canonical public binary distribution channel.
 
 ### 6.1 Russian production signing policy
@@ -130,7 +130,7 @@ The installer is built from the same portable application binary and `VERSION` u
 ## 9. Platform Release Maturity
 
 * **Windows (0.2.11):** Verified stable release track with LocalAppData isolation, DPAPI credential protection, rollback/recovery, process-ownership enforcement, installer lifecycle gates, and explicit WinINET system-proxy regression coverage.
-* **macOS:** Engineering, packaging and real-host functional acceptance are complete on Apple Silicon, including recovery/autostart and native Aqua UI. Public production distribution remains deferred until Apple Developer ID signing/notarization is deliberately activated; local ad-hoc builds are not canonical public release assets.
+* **macOS (0.2.13 beta distribution):** Engineering, packaging and real-host functional acceptance are complete on Apple Silicon, including recovery/autostart, Safari/CFNetwork routing hardening and native Aqua UI. Exact-main CI-built Apple Silicon and Intel DMGs may be published as **beta** assets before Apple Developer ID signing/notarization is activated. These DMGs are ad-hoc signed/not notarized and must be labeled accordingly; users may need **System Settings → Privacy & Security → Open Anyway** on first launch. They must never be represented as production-signed/notarized. Developer-workstation DMGs remain non-canonical.
 * **Astra Linux (0.2.11):** Verified stable amd64 release track on physical Astra Linux 1.8/Fly, with Debian packaging CI on Ubuntu 22.04/24.04, NetworkManager + GSettings PAC integration, exact rollback/recovery, autostart, and Firefox system-proxy acceptance.
 * **RED OS (0.2.11):** Verified stable x86_64 RPM track on physical RED OS 8.0.3 Standard Desktop/KDE Plasma X11, with NetworkManager + KDE system-PAC integration, exact rollback/recovery, GUI Chromium system-proxy acceptance, clean remove/reinstall proof, and a dedicated `Linux / RED OS` product signature.
 * **Generic Linux AppImage (0.2.11+):** public portable x86_64 distribution lane built from the same canonical Linux frozen application, with hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and checksum publication. Historical v0.2.9 remains immutable and does not gain this asset retroactively.
