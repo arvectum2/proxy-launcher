@@ -237,6 +237,86 @@ class MacOSBackendTests(unittest.TestCase):
         )
         self.assertNotIn("Disabled VPN", payload["services"])
 
+    def test_bypass_additions_are_capped_at_47_without_truncating_snapshot(self):
+        original = tuple("base-%02d.example" % i for i in range(29))
+        additions = tuple("extra-%02d.example" % i for i in range(30))
+        self.client.services["Wi-Fi"]["bypass"] = original
+        config = ProxyBackendConfig(
+            pac_url=CONFIG.pac_url,
+            http_proxy_url=CONFIG.http_proxy_url,
+            no_proxy=additions,
+            socks_proxy_url=CONFIG.socks_proxy_url,
+            upstream_http_proxy_url=CONFIG.upstream_http_proxy_url,
+            upstream_username=CONFIG.upstream_username,
+            upstream_password=CONFIG.upstream_password,
+        )
+
+        self.assertTrue(self.backend.enable(config))
+
+        applied = self.client.services["Wi-Fi"]["bypass"]
+        self.assertEqual(len(applied), 47)
+        self.assertEqual(applied[:29], original)
+        self.assertEqual(applied[29:], additions[:18])
+        self.assertNotIn(additions[18], applied)
+        self.assertTrue(
+            any("bypass additions limited by 47-entry safety ceiling for Wi-Fi" in line
+                for line in self.logs)
+        )
+
+    def test_large_existing_bypass_is_preserved_without_rewrite(self):
+        original = tuple("base-%02d.example" % i for i in range(48))
+        self.client.services["Wi-Fi"]["bypass"] = original
+        self.client.calls.clear()
+
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original)
+        self.assertNotIn(
+            ("set_bypass_domains", "Wi-Fi", original),
+            self.client.calls,
+        )
+        self.assertTrue(
+            any("bypass additions limited by 47-entry safety ceiling for Wi-Fi" in line
+                for line in self.logs)
+        )
+
+    def test_sync_no_proxy_does_not_rewrite_when_only_overflow_changes(self):
+        original = tuple("base-%02d.example" % i for i in range(29))
+        additions = tuple("extra-%02d.example" % i for i in range(18))
+        self.client.services["Wi-Fi"]["bypass"] = original
+        initial = ProxyBackendConfig(
+            pac_url=CONFIG.pac_url,
+            http_proxy_url=CONFIG.http_proxy_url,
+            no_proxy=additions,
+            socks_proxy_url=CONFIG.socks_proxy_url,
+            upstream_http_proxy_url=CONFIG.upstream_http_proxy_url,
+            upstream_username=CONFIG.upstream_username,
+            upstream_password=CONFIG.upstream_password,
+        )
+        self.assertTrue(self.backend.enable(initial))
+        self.assertEqual(len(self.client.services["Wi-Fi"]["bypass"]), 47)
+
+        updated = ProxyBackendConfig(
+            pac_url=CONFIG.pac_url,
+            http_proxy_url=CONFIG.http_proxy_url,
+            no_proxy=additions + ("overflow-a.example", "overflow-b.example"),
+            socks_proxy_url=CONFIG.socks_proxy_url,
+            upstream_http_proxy_url=CONFIG.upstream_http_proxy_url,
+            upstream_username=CONFIG.upstream_username,
+            upstream_password=CONFIG.upstream_password,
+        )
+        self.client.calls.clear()
+
+        self.assertTrue(self.backend.sync_no_proxy(updated))
+
+        wifi_mutations = [
+            call for call in self.client.calls
+            if call[0] == "set_bypass_domains" and call[1] == "Wi-Fi"
+        ]
+        self.assertEqual(wifi_mutations, [])
+        self.assertEqual(len(self.client.services["Wi-Fi"]["bypass"]), 47)
+        self.assertTrue(self.backend.is_enabled(updated))
+
     def test_direct_upstream_ownership_does_not_depend_on_networksetup_auth_flag(self):
         self.assertTrue(self.backend.enable(CONFIG))
         self.client.services["Wi-Fi"]["web"]["authenticated"] = False

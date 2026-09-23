@@ -24,6 +24,11 @@ from proxy_backend import ProxyBackend, ProxyBackendConfig
 _BACKUP_SCHEMA_VERSION = 2
 _BACKEND_ID = "macos"
 _BACKUP_FILENAME = "macos_proxy_backup.json"
+# Safari 27 / macOS 27 CFNetwork physically bypassed an otherwise valid
+# manual HTTP/HTTPS proxy once ExceptionsList reached 48 entries. Keep the
+# known-good ceiling at 47. Existing user baselines at or above the ceiling
+# are preserved verbatim and never expanded by APL.
+_MAX_SAFE_BYPASS_DOMAINS = 47
 
 
 class MacOSBackendError(RuntimeError):
@@ -602,11 +607,45 @@ class MacOSBackend(ProxyBackend):
         return snapshots
 
     @staticmethod
-    def _expected_bypass(snapshot: Mapping[str, Any], applied: Mapping[str, Any]) -> Tuple[str, ...]:
-        return _merge_domains(
+    def _expected_bypass(
+        snapshot: Mapping[str, Any],
+        applied: Mapping[str, Any],
+    ) -> Tuple[str, ...]:
+        original = tuple(
+            str(raw).strip()
+            for raw in snapshot.get("bypass_domains", ())
+            if str(raw).strip()
+        )
+        # Never rewrite or shrink an already-large user baseline. We only
+        # constrain APL additions, because the baseline was working before
+        # APL took ownership and must remain exactly restorable.
+        if len(original) >= _MAX_SAFE_BYPASS_DOMAINS:
+            return original
+
+        merged = list(original)
+        seen = {value.lower() for value in original}
+        for raw in applied.get("no_proxy", ()):
+            value = str(raw or "").strip()
+            key = value.lower()
+            if not value or key in seen:
+                continue
+            if len(merged) >= _MAX_SAFE_BYPASS_DOMAINS:
+                break
+            seen.add(key)
+            merged.append(value)
+        return tuple(merged)
+
+    @staticmethod
+    def _bypass_additions_were_limited(
+        snapshot: Mapping[str, Any],
+        applied: Mapping[str, Any],
+    ) -> bool:
+        full = _merge_domains(
             snapshot.get("bypass_domains", ()),
             applied.get("no_proxy", ()),
         )
+        expected = MacOSBackend._expected_bypass(snapshot, applied)
+        return not _domains_equal(full, expected)
 
     @staticmethod
     def _manual_proxy_matches(current: ManualProxyState, expected: Mapping[str, Any], enabled: Optional[bool] = None) -> bool:
@@ -902,10 +941,21 @@ class MacOSBackend(ProxyBackend):
                 )
                 self._client.set_web_proxy_state(service_name, True)
                 self._client.set_secure_web_proxy_state(service_name, True)
-                self._client.set_bypass_domains(
-                    service_name,
-                    self._expected_bypass(snapshot, canonical),
-                )
+                expected_bypass = self._expected_bypass(snapshot, canonical)
+                if self._bypass_additions_were_limited(snapshot, canonical):
+                    self._log(
+                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
+                        "to preserve CFNetwork proxy routing"
+                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                    )
+                if not _domains_equal(
+                    snapshot.get("bypass_domains", ()),
+                    expected_bypass,
+                ):
+                    self._client.set_bypass_domains(
+                        service_name,
+                        expected_bypass,
+                    )
             return True
         except Exception as exc:
             self._log("macOS enable failed; restoring snapshots: %s" % exc)
@@ -1058,10 +1108,20 @@ class MacOSBackend(ProxyBackend):
         touched = []
         try:
             for service_name, snapshot in payload["services"].items():
+                old_expected = self._expected_bypass(snapshot, old_applied)
+                new_expected = self._expected_bypass(snapshot, canonical)
+                if self._bypass_additions_were_limited(snapshot, canonical):
+                    self._log(
+                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
+                        "to preserve CFNetwork proxy routing"
+                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                    )
+                if _domains_equal(old_expected, new_expected):
+                    continue
                 touched.append(service_name)
                 self._client.set_bypass_domains(
                     service_name,
-                    self._expected_bypass(snapshot, canonical),
+                    new_expected,
                 )
         except Exception as exc:
             self._log("macOS bypass sync failed; rolling back: %s" % exc)
