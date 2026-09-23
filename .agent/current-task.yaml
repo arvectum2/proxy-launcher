@@ -1,7 +1,9 @@
+[Reading 74 lines from start (total: 74 lines, 0 remaining)]
+
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-SAFARI-HYBRID-PROXY-20260923
-status: in_progress
+status: blocked
 goal: "Make Safari reliably load ChatGPT while APL is enabled, without breaking Chrome, Telegram, or rollback."
 authority: OPERATOR
 definition_of_done:
@@ -22,6 +24,9 @@ completed:
   - "44 macOS backend/runtime contract tests PASS; Ruff F,E9,I and diff-check PASS."
   - "Expanded macOS/runtime/GUI/transport suite after bypass fix: 196 PASS."
   - "Full suite after bypass fix: 1121 passed plus the same 3 historical unrelated Windows App Control failures."
+  - "Exact installed af4391b candidate physical reload at 20:34 PASS: ChatGPT main resource HTTP 200 through 68.209.60.141:8000; API 200/202; event-stream 200; no main-resource 403/direct-IPv6 bypass."
+  - "Latest physical Off rollback PASS: RC=0, bypass list restored 47->29, backup cleared, direct baseline restored, Telegram stayed ESTABLISHED on legacy 1080."
+  - "Latest candidate started again and left RUNNING with bypass count exactly 47, CFNetwork egress 68.209.60.141, Telegram healthy."
   - "Baseline direct system HTTP/HTTPS 68.209.60.141:8000 works in Safari: ChatGPT main document 200, APIs 200/202, event-stream 200."
   - "SOCKS-first APL reproduced Safari ChatGPT WebSocket NSURLErrorDomain -1011."
   - "Hybrid local HTTP 18080 + SOCKS 11080 still selected SOCKS in Safari and WebSocket failed."
@@ -46,7 +51,7 @@ completed:
   - "Physical Off/rollback PASS: --stop RC=0, exact direct baseline restored, rollback backup cleared, APL listeners closed, CFNetwork PASS, Telegram stayed ESTABLISHED on legacy 1080."
   - "GUI restarted from the new installed bundle."
   - "Final candidate started again and left RUNNING. After a 12-second stability check the ChatGPT conversation title remained correct, system route stayed direct-upstream, CFNetwork PASS, Telegram ESTABLISHED."
-current: "Implement and verify macOS CFNetwork bypass-list safety ceiling after proving 48 ExceptionsList entries break proxy routing while 47 remain safe."
+current: "Latest 47-entry bypass-ceiling build is installed and ON; awaiting user-visible Safari send/refresh confirmation."
 pending:
   - "User sends/refreshes normally in Safari and confirms it works."
   - "If PASS, mark completed, commit/push final checkpoint and update PR exact-head status."
@@ -62,9 +67,9 @@ test_results:
   - "APL-ON same-Safari main 200, APIs 200/202, event-stream 200, correct conversation title."
   - "Physical Off/rollback PASS."
   - "Final active CFNetwork PASS; Telegram legacy 1080 PASS."
-blocker: ""
-resume_instruction: "Do not repeat root-cause A/B. Run expanded/full tests for the 47-entry bypass ceiling, commit/build/install exact candidate with APL OFF, then physical APL ON test. PASS requires ExceptionsList <=47, Safari ChatGPT main/API traffic through 68.209.60.141:8000, no direct user IPv6/403, Telegram still on legacy 1080, and clean Off rollback."
-updated_at: "2026-09-23T20:16:00+03:00"
+blocker: "Automated physical reload now passes under APL ON; final gate is user-visible interaction in Safari after the fix."
+resume_instruction: "APL af4391b candidate is ON with ExceptionsList=47. Ask user to retry the exact Safari flow: send a message, then reload. If PASS, mark completed and update PR. If FAIL, capture live WebKit logs before any Off; distinguish main/API direct IPv6 or 403 from the known optional direct WebSocket attempts."
+updated_at: "2026-09-23T20:36:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260923-safari-direct-upstream"
@@ -72,3 +77,5 @@ execution:
   base_commit: "8e0aee5ea5e91b5f314570385e7b949da02b3a3a"
   lease_until: null
   manual_override: true
+
+[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
