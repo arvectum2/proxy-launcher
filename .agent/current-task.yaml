@@ -1,5 +1,3 @@
-[Reading 42 lines from start (total: 42 lines, 0 remaining)]
-
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-WAKE-GUI-STATE-20260924
@@ -38,7 +36,7 @@ pending:
   - "Start APL; verify direct-upstream routing, Safari ChatGPT, Telegram legacy 1080, and GUI state."
   - "Physical sleep/wake acceptance: guard arms, expires, logs proxy_gui.wake_guard.expired, GUI matches backend, buttons recover automatically, Safari remains usable."
   - "If physical FAIL persists, capture live state before any Off and continue from the exact failing layer."
-last_verified_commit: "58f24b9aab568f63d9807819c5d453f807244f6b"
+last_verified_commit: "e66e6658bf345cf58aafd7519e4cfeb479361489"
 test_results:
   - "38 proxy_gui tests PASS."
   - "196 expanded macOS/runtime/GUI/transport tests PASS."
@@ -53,5 +51,3 @@ execution:
   base_commit: "58f24b9aab568f63d9807819c5d453f807244f6b"
   lease_until: null
   manual_override: true
-
-[executed on device: MacBook-Air-Nikita.local (bf0014af-e3d4-4ac0-91cd-290a62a11cea)]
