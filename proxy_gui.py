@@ -1289,6 +1289,46 @@ class Launcher:
             pass
         return True
 
+    def _schedule_wake_guard_expiry_refresh(self, now=None):
+        """Reconcile controls after the wake guard expires.
+
+        A plain delayed status refresh is unsafe here: if the machine sleeps
+        again before that callback runs, the stale callback could execute before
+        the normal heartbeat and briefly re-enable destructive controls. Route
+        every expiry through the guarded callback so another observed event-loop
+        gap re-arms the guard first.
+        """
+        if not self._mac_ui:
+            return
+        if now is None:
+            now = time.time()
+        remaining = max(0.0, self._mac_wake_guard_until - now)
+        delay_ms = max(250, int(remaining * 1000) + 100)
+        self.root.after(delay_ms, self._refresh_after_wake_guard)
+
+    def _refresh_after_wake_guard(self):
+        now = time.time()
+        armed = self._arm_wake_guard_from_gap(now, "guard_expiry")
+        if self._wake_destructive_guard_active(now):
+            if armed:
+                try:
+                    self.refresh_status()
+                except tk.TclError:
+                    pass
+            self._schedule_wake_guard_expiry_refresh(now)
+            return
+        try:
+            core.structured_log(
+                "macOS wake UI guard expired; reconciling controls",
+                event="proxy_gui.wake_guard.expired",
+            )
+        except Exception:
+            pass
+        try:
+            self.refresh_status()
+        except tk.TclError:
+            pass
+
     def _ui_heartbeat(self):
         """Arm a short destructive-action guard after a long GUI event-loop gap."""
         now = time.time()
@@ -1298,6 +1338,7 @@ class Launcher:
                 self.refresh_status()
             except tk.TclError:
                 pass
+            self._schedule_wake_guard_expiry_refresh(now)
         self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
 
     def _wake_destructive_guard_active(self, now=None):
@@ -1328,8 +1369,7 @@ class Launcher:
         except Exception:
             pass
         self.refresh_status()
-        delay_ms = max(250, int(remaining * 1000) + 100)
-        self.root.after(delay_ms, self.refresh_status)
+        self._schedule_wake_guard_expiry_refresh(now)
         return True
 
     def _refresh_status_on_focus(self, _event=None):

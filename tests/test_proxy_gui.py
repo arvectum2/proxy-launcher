@@ -266,10 +266,61 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         )
         self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.armed")
         launcher.refresh_status.assert_called_once_with()
-        launcher.root.after.assert_called_once_with(
+        self.assertEqual(launcher.root.after.call_count, 2)
+        expiry_delay, expiry_callback = launcher.root.after.call_args_list[0].args
+        self.assertEqual(
+            expiry_delay,
+            int(gui.MAC_WAKE_GUARD_WINDOW_SECONDS * 1000) + 100,
+        )
+        self.assertEqual(expiry_callback, launcher._refresh_after_wake_guard)
+        launcher.root.after.assert_any_call(
             gui.MAC_WAKE_GUARD_HEARTBEAT_MS,
             launcher._ui_heartbeat,
         )
+
+    def test_wake_guard_expiry_reconciles_controls_without_focus_event(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 214.0
+        launcher._mac_wake_guard_until = 215.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=215.2),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._refresh_after_wake_guard()
+
+        launcher.refresh_status.assert_called_once_with()
+        launcher.root.after.assert_not_called()
+        self.assertEqual(
+            log.call_args.kwargs["event"],
+            "proxy_gui.wake_guard.expired",
+        )
+
+    def test_wake_guard_expiry_rearms_after_another_event_loop_gap(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 200.0
+        launcher._mac_wake_guard_until = 215.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=300.0),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._refresh_after_wake_guard()
+
+        self.assertEqual(
+            launcher._mac_wake_guard_until,
+            300.0 + gui.MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        launcher.refresh_status.assert_called_once_with()
+        launcher.root.after.assert_called_once()
+        delay, callback = launcher.root.after.call_args.args
+        self.assertEqual(
+            delay,
+            int(gui.MAC_WAKE_GUARD_WINDOW_SECONDS * 1000) + 100,
+        )
+        self.assertEqual(callback, launcher._refresh_after_wake_guard)
+        events = [call.kwargs["event"] for call in log.call_args_list]
+        self.assertEqual(events, ["proxy_gui.wake_guard.armed"])
 
     def test_off_self_arms_guard_from_stale_heartbeat_before_spawning_stop(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
@@ -302,6 +353,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         launcher._ui_heartbeat_wall = 104.5
         launcher._mac_wake_guard_until = 115.0
         launcher.refresh_status = mock.Mock()
+        launcher._schedule_wake_guard_expiry_refresh = mock.Mock()
 
         with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
             launcher.off()
@@ -310,7 +362,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.blocked")
         self.assertEqual(log.call_args.kwargs["action"], "off")
         launcher.refresh_status.assert_called_once_with()
-        launcher.root.after.assert_called_once()
+        launcher._schedule_wake_guard_expiry_refresh.assert_called_once_with(105.0)
 
     def test_macos_off_defers_confirmation_until_original_click_finishes(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
