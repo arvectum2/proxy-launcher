@@ -93,6 +93,12 @@ def _cmd_start():
 
 def _cmd_stop():
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "proxy stop refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
     if core.is_running():
         record = core._read_pid() or record
@@ -116,6 +122,12 @@ def _cmd_stop():
 def _cmd_rollback():
     """Emergency rollback independent of a running GUI or proxy process."""
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "rollback refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
     if core.is_running():
         record = core._read_pid() or record

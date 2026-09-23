@@ -127,8 +127,32 @@ class ApplicationRuntimeTests(unittest.TestCase):
 
         stop_event.wait.assert_called_once_with(3600)
 
+    def test_stop_preflight_refusal_preserves_worker_and_network(self):
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=False
+             ) as preflight,              mock.patch.object(core, "_read_pid") as read_pid,              mock.patch.object(core, "_kill_pid") as kill,              mock.patch.object(core, "disable_system_proxy") as disable,              mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_stop(), 1)
+
+        preflight.assert_called_once_with()
+        read_pid.assert_not_called()
+        kill.assert_not_called()
+        disable.assert_not_called()
+
+    def test_rollback_preflight_refusal_preserves_worker_and_network(self):
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=False
+             ) as preflight,              mock.patch.object(core, "_read_pid") as read_pid,              mock.patch.object(core, "_kill_pid") as kill,              mock.patch.object(core, "disable_system_proxy") as disable,              mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_rollback(), 1)
+
+        preflight.assert_called_once_with()
+        read_pid.assert_not_called()
+        kill.assert_not_called()
+        disable.assert_not_called()
+
     def test_stop_reports_incomplete_network_restore(self):
-        with mock.patch.object(core, "_read_pid", return_value=None), \
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
@@ -141,6 +165,8 @@ class ApplicationRuntimeTests(unittest.TestCase):
     def test_stop_refreshes_recovered_pid_before_kill(self):
         recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
         with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(
                  core, "_read_pid", side_effect=[None, recovered]
              ), \
              mock.patch.object(core, "_kill_pid", return_value=True) as kill, \
@@ -153,7 +179,9 @@ class ApplicationRuntimeTests(unittest.TestCase):
         kill.assert_called_once_with(recovered)
 
     def test_rollback_reaches_network_restore_even_without_pid(self):
-        with mock.patch.object(core, "_read_pid", return_value=None), \
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
@@ -167,6 +195,8 @@ class ApplicationRuntimeTests(unittest.TestCase):
     def test_rollback_refreshes_recovered_pid_before_kill(self):
         recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
         with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(
                  core, "_read_pid", side_effect=[None, recovered]
              ), \
              mock.patch.object(core, "_kill_pid", return_value=True) as kill, \

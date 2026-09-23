@@ -56,6 +56,7 @@ class ProxyBackendContractTests(unittest.TestCase):
         self.assertEqual(config.pac_url, "http://127.0.0.1:8082/proxy.pac")
         self.assertEqual(config.http_proxy_url, "http://127.0.0.1:8080")
         self.assertEqual(config.no_proxy[-1], "example.internal")
+        self.assertEqual(config.socks_proxy_url, "")
         with self.assertRaises(Exception):
             config.pac_url = "http://foreign.example/proxy.pac"
 

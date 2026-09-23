@@ -1,20 +1,20 @@
-version: 11
+version: 12
 task_id: APL-MACOS-SLEEP-WAKE-LIVE-RECOVERY-20260922
-status: blocked
-goal: "Keep macOS browsing usable through APL, with Safari compatibility on macOS 27."
+status: in_progress
+goal: "Use macOS system SOCKS for reliable Safari 27 routing with exact rollback."
 completed_stages:
-  - "Ownership, rollback, wake guard, Off confirmation and false recovery UI races fixed."
-  - "No-sleep failures proved; worker/upstream remain healthy."
-  - "Safari-specific proxy mismatch observed while Chrome adopts APL correctly."
-  - "Unsafe browser NetworkProcess SIGKILL recovery removed."
-  - "173 focused PASS; 1108 full-suite PASS + 3 historical Windows failures."
-  - "Safe candidate installed while APL OFF; SHA-256 b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a."
-  - "Install preserved exact legacy baseline; APL ports stayed closed."
-  - "PR #155 head 018c036 has 22/22 checks SUCCESS and is mergeable/clean."
-current_stage: "Controlled Limit IP Address Tracking A/B requires user action."
+  - "All earlier ownership/wake/UI fixes retained."
+  - "Private Relay, PAC syntax, and manual HTTP config validity hypotheses rejected by controlled A/B."
+  - "Legacy 8080 coexistence identified as stale-session hazard."
+  - "Safari 27 system SOCKS A/B PASS on APL 11080."
+  - "SOCKS-first backend + schema-v2 exact SOCKS rollback implemented."
+  - "Start conflict guard and pre-stop localhost PAC backing preflight implemented."
+  - "121 focused PASS; full 1115 PASS + 3 historical Windows failures."
+current_stage: "Reversible legacy baseline migration, then build/install/physical acceptance."
 remaining_stages:
-  - "User disables Limit IP Address Tracking for current Wi-Fi."
-  - "Start safe APL candidate and test Safari with no WebKit process manipulation."
-  - "Implement compatibility preflight or reject hypothesis and continue with atomic SCPreferences."
-last_verified_commit: "018c036f43608ebd850cd0819b7e617df23d48c4"
-resume_instruction: "After Limit IP Address Tracking is OFF, start safe APL candidate hash b05a3e0448814eacca8466c02695aad132650d3c0e3cb3f49632fb3cf13fa14a and test Safari normally before any Off."
+  - "Baseline viability test without legacy listener."
+  - "Build/install SOCKS-first candidate."
+  - "Safari/Chrome/system physical test and clean rollback."
+  - "PR/CI closeout."
+last_verified_commit: "952f705bc95918d84218407e23fb8f08c24bc32e"
+resume_instruction: "Re-bootstrap legacy agent before stopping old schema-v1 APL. Never restore enabled localhost PAC 8082 while its listener is absent."

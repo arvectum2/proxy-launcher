@@ -47,6 +47,7 @@ class BackendRuntimeWiringTests(unittest.TestCase):
         core._reset_proxy_backend_for_tests()
         self.settings = {
             "local_http_port": 8080,
+            "local_socks_port": 1080,
             "local_pac_port": 8082,
             "pac_path": "/proxy.pac",
         }
@@ -66,6 +67,7 @@ class BackendRuntimeWiringTests(unittest.TestCase):
                 pac_url="http://127.0.0.1:8082/proxy.pac",
                 http_proxy_url="http://127.0.0.1:8080",
                 no_proxy=("localhost", "127.0.0.1", "example.internal"),
+                socks_proxy_url="socks5://127.0.0.1:1080",
             ),
         )
 
