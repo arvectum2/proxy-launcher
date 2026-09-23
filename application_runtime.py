@@ -12,6 +12,7 @@ from types import ModuleType
 
 _CORE: ModuleType | None = None
 
+
 def configure(core: ModuleType) -> None:
     """Bind the canonical composition module used for runtime collaborators."""
     global _CORE
@@ -44,6 +45,12 @@ def _ensure_local_files():
     return True
 
 
+
+def _run_proxy_loop(proxy):
+    """Wait until the proxy worker is asked to stop."""
+    while not proxy._stop.wait(3600):
+        pass
+
 def _cmd_start():
     core = _core()
     settings = core.load_settings()
@@ -69,25 +76,32 @@ def _cmd_start():
     core._write_pid()
     if not core.enable_system_proxy():
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
         print("failed to enable system proxy; network settings rolled back")
         return 1
 
     print("proxy started")
     try:
-        while not proxy._stop.wait(3600):
-            pass
+        _run_proxy_loop(proxy)
     except KeyboardInterrupt:
         pass
     finally:
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
     return 0
 
 
 def _cmd_stop():
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "proxy stop refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:
@@ -108,7 +122,15 @@ def _cmd_stop():
 def _cmd_rollback():
     """Emergency rollback independent of a running GUI or proxy process."""
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "rollback refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:
@@ -184,6 +206,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     configure(core)
     for name in (
         "_ensure_local_files",
+        "_run_proxy_loop",
         "_cmd_start",
         "_cmd_stop",
         "_cmd_rollback",

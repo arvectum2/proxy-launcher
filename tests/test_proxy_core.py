@@ -38,6 +38,12 @@ def _recv_all(sock, timeout=3):
 
 
 class ProxyCoreTests(unittest.TestCase):
+    def setUp(self):
+        core._reset_proxy_backend_for_tests()
+
+    def tearDown(self):
+        core._reset_proxy_backend_for_tests()
+
     def test_state_paths_are_independent_of_executable_directory(self):
         with mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.dict(application_filesystem.os.environ, {"LOCALAPPDATA": r"C:\State"}, clear=False), \

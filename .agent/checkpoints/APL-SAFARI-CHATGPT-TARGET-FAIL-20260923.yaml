@@ -1,0 +1,38 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-SAFARI-CHATGPT-TARGET-FAIL-20260923
+status: completed
+goal: "Determine whether the remaining ChatGPT failure is an APL transport problem or a Safari-specific client problem."
+authority: OPERATOR
+definition_of_done:
+  - "Compare Safari and Chrome against the same ChatGPT URL on the same Mac/network state."
+  - "Capture Safari/WebKit HTTP status without changing proxy state."
+  - "Determine whether the failure occurs with APL removed from the network path."
+  - "Avoid transport changes if the failure is browser-specific."
+completed:
+  - "At capture time APL was STOPPED, system SOCKS was disabled, and CFNetwork through the saved manual upstream 68.209.60.141 worked."
+  - "Safari opened the target ChatGPT conversation and WebKit NetworkProcess received repeated HTTP 200 responses plus normal 304 cache validations; no current 403 transport rejection was observed."
+  - "Safari UI was still reported by user as FAIL despite successful HTTP traffic."
+  - "Opened the exact same ChatGPT conversation URL in Chrome on the same Mac/network state."
+  - "Chrome finished loading with the correct conversation title and loading=false."
+  - "Chrome NetworkService maintained multiple ESTABLISHED connections to the same upstream proxy 68.209.60.141:8000."
+  - "Therefore the current failure reproduces with APL absent and is specific to Safari/WebKit page/client state, not APL networking."
+current: "Completed. Do not modify APL transport for this symptom."
+pending:
+  - "User can use Chrome for ChatGPT immediately."
+  - "Safari recovery, if desired, should be treated as a separate browser-level action (restart Safari / clear site state), not an APL fix."
+last_verified_commit: "a7113b675a43404ecc1c84396b53b62be1668522"
+test_results:
+  - "APL absent from active route during comparison."
+  - "CFNetwork PASS through manual upstream."
+  - "Safari WebKit HTTP 200/304 while UI remained failed."
+  - "Chrome exact same URL loaded successfully."
+resume_instruction: "Completed. If Safari-only ChatGPT failure recurs, do not reopen APL transport hypotheses unless Chrome/CFNetwork/APL controls fail too. Treat as Safari/WebKit client/session state."
+updated_at: "2026-09-23T14:13:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260923-safari-chatgpt-target-fail"
+  branch: "agent/apl-macos-net-recovery-20260921"
+  base_commit: "a7113b675a43404ecc1c84396b53b62be1668522"
+  lease_until: null
+  manual_override: true

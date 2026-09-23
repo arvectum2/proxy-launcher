@@ -97,10 +97,27 @@ def resolved_backend_config(settings=None) -> ProxyBackendConfig:
             continue
         seen.add(value)
         normalized.append(value)
+    configured_upstreams = [
+        item for item in (settings.get("upstream") or [])
+        if str(item.get("host") or "").strip()
+    ]
+    primary = configured_upstreams[0] if configured_upstreams else {}
+    upstream_host = str(primary.get("host") or "").strip()
+    upstream_port = int(primary.get("port") or 0)
+    upstream_url = (
+        "http://%s:%d" % (upstream_host, upstream_port)
+        if upstream_host and upstream_port > 0
+        else ""
+    )
     return ProxyBackendConfig(
         pac_url=str(core.pac_url(settings)),
         http_proxy_url="http://127.0.0.1:%d" % int(settings.get("local_http_port", 8080)),
         no_proxy=tuple(normalized),
+        socks_proxy_url="socks5://127.0.0.1:%d"
+        % int(settings.get("local_socks_port", 1080)),
+        upstream_http_proxy_url=upstream_url,
+        upstream_username=str(primary.get("username") or ""),
+        upstream_password=str(primary.get("password") or ""),
     )
 
 
@@ -190,6 +207,16 @@ def refresh_system_proxy():
         return False
 
 
+def system_proxy_disable_preflight() -> bool:
+    try:
+        backend = get_proxy_backend()
+        preflight = getattr(backend, "disable_preflight", None)
+        return True if not callable(preflight) else bool(preflight())
+    except Exception as error:
+        _backend_failure("disable-preflight", error)
+        return False
+
+
 def disable_system_proxy() -> bool:
     try:
         # Rollback must remain reachable even if readiness later degrades.
@@ -236,6 +263,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core._require_new_mutation_operational = _require_new_mutation_operational
     core.enable_system_proxy = enable_system_proxy
     core.refresh_system_proxy = refresh_system_proxy
+    core.system_proxy_disable_preflight = system_proxy_disable_preflight
     core.disable_system_proxy = disable_system_proxy
     core.system_proxy_enabled = system_proxy_enabled
     core.network_restore_pending = network_restore_pending

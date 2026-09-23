@@ -20,6 +20,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 import tkinter as tk
 from tkinter import font as tkfont
 from tkinter import messagebox, ttk
@@ -42,6 +43,10 @@ if os.name != "nt":
 
 APP_NAME = "Arvectum Proxy Launcher"
 APP_VERSION = core.APP_VERSION
+MAC_WAKE_GUARD_HEARTBEAT_MS = 1000
+MAC_WAKE_GUARD_GAP_SECONDS = 5.0
+MAC_WAKE_GUARD_WINDOW_SECONDS = 15.0
+MAC_OFF_CONFIRM_DELAY_MS = 500
 TASK_NAME = "ArvectumProxyLauncher"  # legacy scheduled-task name
 AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 AUTOSTART_RUN_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -337,6 +342,14 @@ def _run_headless(mode):
         cmd = [sys.executable, mode]
     else:
         cmd = [sys.executable, os.path.join(core.app_dir(), "proxy_core.py"), mode]
+    try:
+        core.structured_log(
+            "launching headless lifecycle command",
+            event="proxy_gui.lifecycle.spawn",
+            mode=str(mode),
+        )
+    except Exception:
+        pass
     flags = 0
     if os.name == "nt":
         flags = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
@@ -927,6 +940,10 @@ class Launcher:
         self._images = []
         self._recovery_prompt_shown = False
         self._status_dot = None
+        self._ui_heartbeat_wall = time.time()
+        self._mac_wake_guard_until = 0.0
+        self._off_confirmation_pending = False
+        self._lifecycle_action_pending = None
         self._set_window_icon()
 
         if self._mac_ui:
@@ -936,6 +953,7 @@ class Launcher:
 
         self.refresh_status()
         self.root.bind("<FocusIn>", self._refresh_status_on_focus, add="+")
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
         _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
@@ -1245,8 +1263,79 @@ class Launcher:
 
     # -- статус -------------------------------------------------------------
 
+    def _arm_wake_guard_from_gap(self, now, source):
+        """Arm the macOS wake guard from any observed GUI event-loop gap."""
+        if not self._mac_ui:
+            self._ui_heartbeat_wall = now
+            return False
+        previous = self._ui_heartbeat_wall
+        gap = max(0.0, now - previous)
+        self._ui_heartbeat_wall = now
+        if gap < MAC_WAKE_GUARD_GAP_SECONDS:
+            return False
+        self._mac_wake_guard_until = max(
+            self._mac_wake_guard_until,
+            now + MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        try:
+            core.structured_log(
+                "macOS wake UI guard armed after event-loop gap",
+                event="proxy_gui.wake_guard.armed",
+                gap_seconds=round(gap, 3),
+                guard_seconds=MAC_WAKE_GUARD_WINDOW_SECONDS,
+                source=str(source),
+            )
+        except Exception:
+            pass
+        return True
+
+    def _ui_heartbeat(self):
+        """Arm a short destructive-action guard after a long GUI event-loop gap."""
+        now = time.time()
+        armed = self._arm_wake_guard_from_gap(now, "heartbeat")
+        if armed:
+            try:
+                self.refresh_status()
+            except tk.TclError:
+                pass
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
+
+    def _wake_destructive_guard_active(self, now=None):
+        if not self._mac_ui:
+            return False
+        if now is None:
+            now = time.time()
+        return bool(now < self._mac_wake_guard_until)
+
+    def _block_destructive_wake_action(self, action):
+        now = time.time()
+        # Tk/AppKit may deliver a queued HID/button action before the first
+        # root.after() heartbeat callback after wake. Detect the stale event
+        # loop synchronously inside the destructive handler so a wake-generated
+        # action cannot outrun the timer-based guard.
+        self._arm_wake_guard_from_gap(now, "destructive_action")
+        if not self._wake_destructive_guard_active(now):
+            return False
+        remaining = max(0.0, self._mac_wake_guard_until - now)
+        try:
+            core.structured_log(
+                "blocked destructive GUI action during macOS wake guard",
+                level="WARNING",
+                event="proxy_gui.wake_guard.blocked",
+                action=str(action),
+                remaining_seconds=round(remaining, 3),
+            )
+        except Exception:
+            pass
+        self.refresh_status()
+        delay_ms = max(250, int(remaining * 1000) + 100)
+        self.root.after(delay_ms, self.refresh_status)
+        return True
+
     def _refresh_status_on_focus(self, _event=None):
         """Reconcile GUI actions after lifecycle changes outside this window."""
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         try:
             self.refresh_status()
         except tk.TclError:
@@ -1308,8 +1397,11 @@ class Launcher:
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        self.btn_off.state(["!disabled"] if view["can_off"] else ["disabled"])
+        can_off = view["can_off"] and not self._wake_destructive_guard_active()
+        self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
+        if self._wake_destructive_guard_active():
+            self.btn_restore.state(["disabled"])
 
         if view["show_orphan_action"]:
             self.btn_orphan_pac.state(["!disabled"])
@@ -1317,10 +1409,18 @@ class Launcher:
 
     # -- действия ------------------------------------------------------------
 
-    def _maybe_prompt_recovery(self):
+    def _maybe_prompt_recovery(self, attempt=0):
         if self._recovery_prompt_shown:
             return
         if core.is_running() or not core.network_restore_pending():
+            return
+        if _is_macos() and attempt < 3:
+            # Immediately after wake/unlock, localhost protocol probes and
+            # SystemConfiguration reads can be briefly unsettled. Do not offer
+            # a destructive rollback from one transient observation.
+            self.root.after(
+                750, lambda: self._maybe_prompt_recovery(attempt + 1)
+            )
             return
         self._recovery_prompt_shown = True
         if messagebox.askyesno(
@@ -1333,6 +1433,8 @@ class Launcher:
             self.restore_network(confirm=False)
 
     def on(self):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         s = core.load_settings()
         ok = any((u.get("host") or "").strip() for u in s.get("upstream") or [])
         if not ok:
@@ -1343,10 +1445,12 @@ class Launcher:
             if core.system_proxy_enabled():
                 self.refresh_status()
                 return
+            self._lifecycle_action_pending = "start"
             self._set_busy("Включение PAC…", MINT_LIGHT)
             _run_headless("--start")
             self.root.after(250, self._after_start)
             return
+        self._lifecycle_action_pending = "start"
         self._set_busy("Запуск…", MINT_LIGHT)
         _run_headless("--start")
         # Фоновому процессу нужно время на запуск и открытие трёх сокетов.
@@ -1354,6 +1458,10 @@ class Launcher:
 
     def _after_start(self, attempt=0):
         ok = core.is_running() and core.system_proxy_enabled()
+        if not ok and attempt < 40:
+            self.root.after(250, lambda: self._after_start(attempt + 1))
+            return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if ok:
             messagebox.showinfo(
@@ -1361,14 +1469,63 @@ class Launcher:
                 "Прокси подключён.\nСистемные настройки прокси применены.\n\n"
                 "Если отдельное приложение не подхватило новые настройки, "
                 "полностью закройте его и запустите заново.")
-        elif attempt < 40:
-            # One-file PyInstaller + антивирус на первом запуске могут
-            # стартовать заметно дольше нескольких секунд.
-            self.root.after(250, lambda: self._after_start(attempt + 1))
         else:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
     def off(self):
+        if self._block_destructive_wake_action("off"):
+            return
+        if self._mac_ui:
+            if self._off_confirmation_pending:
+                return
+            self._off_confirmation_pending = True
+            try:
+                core.structured_log(
+                    "macOS Off confirmation requested",
+                    event="proxy_gui.off.confirmation_requested",
+                    delay_ms=MAC_OFF_CONFIRM_DELAY_MS,
+                )
+            except Exception:
+                pass
+            self.btn_off.state(["disabled"])
+            # Never create a modal confirmation from inside the same AppKit
+            # mouseUp callback that activated the Off button. On macOS the
+            # originating trackpad event can otherwise be delivered into the
+            # newly-created modal and accept it before the user can see it.
+            self.root.after(MAC_OFF_CONFIRM_DELAY_MS, self._confirm_macos_off)
+            return
+        self._execute_stop()
+
+    def _confirm_macos_off(self):
+        if not self._off_confirmation_pending:
+            return
+        self._off_confirmation_pending = False
+        if self._block_destructive_wake_action("off_confirm"):
+            return
+        confirmed = messagebox.askyesno(
+            APP_NAME,
+            "Выключить прокси и восстановить исходные настройки сети?",
+            icon="warning",
+            default="no",
+        )
+        try:
+            core.structured_log(
+                "macOS Off confirmation resolved",
+                event=(
+                    "proxy_gui.off.confirmed"
+                    if confirmed
+                    else "proxy_gui.off.cancelled"
+                ),
+            )
+        except Exception:
+            pass
+        if not confirmed:
+            self.refresh_status()
+            return
+        self._execute_stop()
+
+    def _execute_stop(self):
+        self._lifecycle_action_pending = "stop"
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
@@ -1378,6 +1535,7 @@ class Launcher:
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_stop(attempt + 1))
             return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Прокси-процесс не удалось остановить. Подробности в «Журнал».")
@@ -1390,12 +1548,17 @@ class Launcher:
             messagebox.showinfo(APP_NAME, "Прокси выключен, исходные настройки сети восстановлены.")
 
     def restore_network(self, confirm=True):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
+        if self._block_destructive_wake_action("rollback"):
+            return
         msg = "Восстановить исходные настройки сети и остановить proxy?" if os.name != "nt" else "Восстановить исходные настройки сети Windows и остановить proxy?"
         if confirm and not messagebox.askyesno(
                 APP_NAME,
                 msg,
                 icon="warning"):
             return
+        self._lifecycle_action_pending = "rollback"
         self._set_busy("Восстановление сети…", MINT_LIGHT)
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
@@ -1420,6 +1583,7 @@ class Launcher:
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_restore_network(attempt + 1))
             return
+        self._lifecycle_action_pending = None
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Proxy-процесс всё ещё работает. См. «Журнал».")
@@ -1438,9 +1602,11 @@ class Launcher:
                 self._status_dot.configure(fg=MINT)
         else:
             self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
-        for b in (
-                self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
-                self.btn_restore, self.btn_orphan_pac):
+        buttons = [
+            self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
+            self.btn_restore, self.btn_orphan_pac,
+        ]
+        for b in buttons:
             b.state(["disabled"])
 
     # -- проверка -------------------------------------------------------------
@@ -1510,6 +1676,8 @@ class Launcher:
 
     def _maybe_restart_after_settings(self):
         if not core.is_running():
+            return
+        if self._block_destructive_wake_action("settings_restart"):
             return
         if messagebox.askyesno(
                 APP_NAME,

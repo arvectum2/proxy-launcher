@@ -23,6 +23,10 @@ class ProxyBackendConfig:
     pac_url: str
     http_proxy_url: str
     no_proxy: Tuple[str, ...] = ()
+    socks_proxy_url: str = ""
+    upstream_http_proxy_url: str = ""
+    upstream_username: str = ""
+    upstream_password: str = ""
 
 
 class ProxyBackend(ABC):
@@ -62,6 +66,10 @@ class ProxyBackend(ABC):
     def refresh(self, config: ProxyBackendConfig):
         """Reassert already-owned live state without acquiring ownership."""
         return False
+
+    def disable_preflight(self) -> bool:
+        """Return False when rollback is currently unsafe before process stop."""
+        return True
 
     @abstractmethod
     def disable(self) -> bool:
