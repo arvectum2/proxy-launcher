@@ -19,10 +19,10 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "Local iOS validation is complete and green. Owner has received the organization D-U-N-S number; Apple may take up to 2 business days to receive new/updated D&B data. Remaining DoD gate is paid Apple Developer organization enrollment, signing identity/provisioning, signed install, and physical-iPhone acceptance."
+current: "Local iOS validation is complete and green. Owner reports Apple Developer Program payment succeeded and is signed in on the Mac mini with the corporate Apple Account. Local Xcode has not yet surfaced a Development Team, signing identity, or provisioning profile; project DEVELOPMENT_TEAM remains empty. Next gate is verifying that paid Organization membership is active in the developer account/Xcode, then configuring automatic signing and App Store Connect distribution."
 pending:
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "1cca8bb5ecbf334e387d3b00f77e86c44be4f908"
+last_verified_commit: "4726192718ce18b9327467efcde3b60818e2d33d"
 test_results:
   - "PASS: exact-head Apple-hosted Mobile iOS personal run 35443212271 at 3e7aaac: core-tests + unsigned-device-build."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -37,9 +37,9 @@ test_results:
   - "PASS: iOS 26.5 runtime installed successfully after one earlier reset; Xcode now lists iOS 26.5 runtime and Any iOS Device."
   - "PASS: exact local unsigned generic iPhone build under Xcode 26.6/iOS 26.5 finished with BUILD SUCCEEDED; output app bundle is ~11 MB and embeds Arvectum Packet Tunnel.appex."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Owner has the D-U-N-S number but Apple organization enrollment is not yet accepting the organization data; wait up to 2 business days for D&B-to-Apple propagation. Until paid team enrollment completes, security find-identity remains 0 valid identities and Packet Tunnel signing/install cannot proceed."
-resume_instruction: "Do not repeat local tests/build unless code changes. After D-U-N-S propagation, complete Apple Developer Program enrollment as Organization with the Arvectum corporate Apple Account. Once the paid team is active, add/select that team in Xcode, enable Network Extensions/Packet Tunnel for app identifiers as needed, create/download development signing assets or use automatic signing, then sign/install on the physical iPhone and perform connect/failover/exclusions acceptance. Do not start per-app routing or public distribution."
-updated_at: "2026-09-20T00:20:00+03:00"
+blocker: "Membership payment is reported complete, but activation as a paid Organization team is not yet independently verified from Xcode. Current local evidence: DEVELOPMENT_TEAM is empty, security find-identity reports 0 valid identities, and there are 0 provisioning profiles. Do not create/sign/upload until the paid organization team is visible and selected."
+resume_instruction: "Do not repeat local tests/build unless code changes. First verify the Apple Developer Program membership is Active and enrolled as Organization, and that the organization team appears in Xcode Settings > Accounts. Once verified, select the team for both app and PacketTunnel, keep automatic signing, let Xcode register explicit App IDs/App Group/Network Extensions profiles, then archive/upload through App Store Connect only after App Store metadata/privacy/review requirements are prepared. Separately sign/install on a physical iPhone for connect/failover/exclusions acceptance. Do not start per-app routing."
+updated_at: "2026-09-24T20:24:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
