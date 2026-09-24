@@ -1,0 +1,30 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: blocked
+goal: "Refresh the Windows public-trust REVIEW packet after immutable v0.2.15 publication."
+authority: REVIEW
+definition_of_done:
+  - "Immutable public baseline is v0.2.15 and first eligible future embedded-signing release is v0.2.16+."
+  - "Substantive trust packet is current and internally consistent."
+  - "Exact-head CI is green."
+  - "Review-ready PR exists and stops before Owner provider/certificate/key-custody/signing/release/merge decisions."
+completed:
+  - "Verified canonical current-task records immutable v0.2.15 published from exact product commit 3ed433633a71977410da4f20c34883c91a39453c."
+  - "Verified prior PR #161 is stale and non-mergeable; it still targets the older v0.2.13 -> v0.2.14+ boundary."
+  - "Created isolated refresh branch agent/apl-rel-016-v0215-refresh from current main."
+current: "Preparation blocked by execution-environment safety gate while carrying forward the substantive REVIEW packet. No unsafe fallback used."
+pending:
+  - "Carry forward the substantive packet and reconcile all version boundaries to immutable v0.2.15 / first eligible v0.2.16+."
+  - "Run focused tests and exact-head CI; open a review-ready PR."
+  - "Stop at Owner review; do not perform provider/certificate/key-custody/signing/release/merge actions."
+last_verified_commit: "3ed433633a71977410da4f20c34883c91a39453c"
+resume_instruction: "Resume safe REVIEW preparation on agent/apl-rel-016-v0215-refresh. Do not mutate v0.2.15 and do not cross Owner-reserved signing or merge gates."
+updated_at: "2026-09-25T01:00:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: "agent/apl-rel-016-v0215-refresh"
+  base_commit: "main"
+  lease_until: null
+  manual_override: false
