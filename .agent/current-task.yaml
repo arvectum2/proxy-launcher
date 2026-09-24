@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-WAKE-GUI-20260924
-status: blocked
+status: completed
 goal: "Fix macOS post-sleep usability: keep Off available after wake and restore Safari/CFNetwork connectivity while APL remains ON."
 authority: HUMAN
 definition_of_done:
@@ -119,11 +119,11 @@ completed:
   - "Published macOS ARM64 asset SHA-256: 70bd2ec6d56ea8c4c8c8e869b76d69932ffb492664bf60eee7439cd976f1fcfc."
   - "v0.2.13 immutability verified post-release: release updated_at remains 2026-09-23T19:16:12Z, all asset updated_at values remain 2026-09-23, tag commit remains 9645c006f601092e758593ce79a6871a4a68b7c7."
   - "GitVerse mirror run is the only remaining external verification: upload step PASS; public payload parity step still in_progress in release workflow run 36013380941, job 107680873983. No local/user action is required."
-current: "GitHub v0.2.14 release is published; blocked only on external GitVerse public payload parity verification already running."
-pending:
-  - "Check GitHub Actions release run 36013380941 / job 107680873983 once."
-  - "If GitVerse parity completes success, record it and set status completed; do not repeat CI, merge, tagging, release publication, or physical testing."
-  - "If that job fails/times out, inspect its completed logs and rerun only the GitVerse mirror/re-verification path for existing immutable v0.2.14; do not recreate or mutate the GitHub release."
+  - "GitVerse mirror attempt 1 uploaded all v0.2.14 assets successfully and verified six canonical payloads, then failed only on public re-download with curl error 56 connection timeout; no GitHub release/tag/assets were mutated."
+  - "Retried only the failed mirror path. Release workflow run 36013380941 attempt 2 completed SUCCESS; GitVerse upload/reuse, public payload parity, and Summary all PASS."
+  - "Post-retry GitHub v0.2.14 immutability verified: release publication timestamp and all eight asset IDs/sizes/digests remain unchanged."
+current: "Completed: macOS sleep/wake fix merged and v0.2.14 published on GitHub with GitVerse payload parity verified."
+pending: []
 last_verified_commit: "5810adee22e7b6422842d0a43647e3383ffd6de2"
 test_results:
   - "tests.test_proxy_gui: 40/40 PASS on /opt/homebrew/bin/python3.12."
@@ -141,8 +141,8 @@ test_results:
   - "77d1a3c physical FAIL: wall-gap refresh detected/completed refreshed=true before Safari direct-IPv6 failure."
   - "order-pulse focused: runtime/backend/GUI 100/100 PASS; macOS 75/75 PASS; full 1133 passed + 103 subtests, same 3 historical Windows failures."
   - "synthetic order-pulse PASS on physical MacBook: gap 7.887s, refresh completed=true, ordered route snapshot unchanged, exact Off rollback."
-resume_instruction: "Do not repeat the macOS fix, CI, merge, tag or GitHub release: all are complete and v0.2.14 is public. Check only release workflow run 36013380941 job 107680873983. Upload already passed; if public GitVerse payload parity succeeds, update both checkpoint files to status completed with that evidence. If it fails or times out, inspect logs and rerun only the existing v0.2.14 GitVerse mirror verification without mutating GitHub release/tag/assets."
-updated_at: "2026-09-24T17:58:00+03:00"
+resume_instruction: "Task completed. Do not repeat physical testing, CI, merge, tagging, release publication, or GitVerse mirroring for v0.2.14. Start future work only from a newly admitted canonical roadmap item."
+updated_at: "2026-09-24T18:05:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260924-macos-wake-gui"
