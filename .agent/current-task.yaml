@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-SAFARI-REGRESSION-20260924
-status: in_progress
+status: completed
 goal: "Fix the post-release macOS Safari connectivity regression where Safari can again bypass or lose the active APL proxy after sleep/wake despite v0.2.14 policy-pulse recovery reporting refreshed=true."
 authority: HUMAN
 definition_of_done:
@@ -61,18 +61,18 @@ completed:
   - "Post-cycle 2 live state: APL RUNNING, system proxy ENABLED, HTTP/HTTPS 68.209.60.141:8000, PAC/SOCKS disabled, bypass exactly 29, installed executable SHA exact 2b35dffbf5c962abfc68847b7c7d14c23df1118f2ac2d56fb37422ee57194811."
   - "Post-cycle 2 WebKit direct :443 inspection is empty; Safari reloaded successfully without APL Off or browser restart."
   - "Physical acceptance DoD satisfied: sustained-awake PASS including WebKit.Networking respawn, then two independent real sleep/wake PASS cycles on the exact same baseline-only 0.2.15 candidate."
-current: "Physical acceptance DoD PASS; wait for exact-head CI on the final checkpoint commit, then ready/merge PR #164 and verify main."
-pending:
-  - "Wait for all required PR #164 checks on the final exact head to complete green."
-  - "When green, mark PR #164 ready and merge; verify origin/main contains code commit 92eda8f and version 0.2.15."
-  - "After merge, update canonical checkpoint to status completed via the normal protected-main PR path if needed."
-  - "Do not create/publish v0.2.15 release unless the user separately requests it."
-last_verified_commit: "92eda8f93ec6df986339744592ab3a5f85ffded5"
+  - "Final PR #164 exact-head CI PASS on 80fb5a8a7d47bb778a7dc75ecc183831f885df59; all reported checks completed green or expected skipped release-only jobs."
+  - "PR #164 marked ready and merged into main as 3ed433633a71977410da4f20c34883c91a39453c."
+  - "Post-merge main verification PASS: main is 3ed433633a71977410da4f20c34883c91a39453c and VERSION is 0.2.15."
+  - "No v0.2.15 release was created; release publication remains a separate user decision."
+current: "Completed: baseline-only macOS direct-upstream routing plus fail-closed wake rebind passed sustained-awake and repeated physical sleep/wake acceptance and is merged in main."
+pending: []
+last_verified_commit: "3ed433633a71977410da4f20c34883c91a39453c"
 test_results:
   - "v0.2.14 prior order-pulse focused suite: runtime/backend/GUI 100/100 PASS; macOS 75/75 PASS; full 1133 passed + 103 subtests with 3 historical unrelated Windows failures."
   - "v0.2.14 prior single physical PASS at 17:12 was not sufficient; regression reproduced after 19:07 wake."
-resume_instruction: "Physical acceptance is complete: awake PASS + two real sleep/wake PASS cycles on exact baseline-only 0.2.15. Do not repeat physical testing. Check PR #164 exact-head CI on the final checkpoint commit; if green, ready and merge PR #164, verify main contains 92eda8f/0.2.15, then close the canonical checkpoint through protected main. Do not publish a release without a separate user request."
-updated_at: "2026-09-24T22:42:00+03:00"
+resume_instruction: "Task completed. Do not repeat Safari sleep/wake debugging or physical acceptance for this task. Main contains the 0.2.15 fix at merge commit 3ed433633a71977410da4f20c34883c91a39453c. A future v0.2.15 release requires a separate explicit user request."
+updated_at: "2026-09-24T22:47:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260924-safari-regression"
