@@ -140,6 +140,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let exclusions = try resolveExclusions(for: prepared)
         let settings = networkSettings(excludedAddresses: exclusions)
         try await setSettings(settings)
+        #if DEBUG
+        telemetry.append(TunnelEvent(
+            type: "debug exclusions applied",
+            profileName: prepared.storedProfile.name,
+            detail: "entries=\(store?.siteExclusions.count ?? 0) routes=\(exclusions.count)"
+        ))
+        #endif
 
         guard let tunFD = tunnelFileDescriptor(forAddress: "192.0.2.1"), tunFD >= 0 else {
             throw tunnelError("Не удалось получить файловый дескриптор Packet Tunnel")
