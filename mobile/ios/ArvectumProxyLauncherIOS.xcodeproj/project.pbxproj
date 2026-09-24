@@ -207,11 +207,9 @@
 				TargetAttributes = {
 					E61DDAFAF71112FF83DBA198 = {
 						DevelopmentTeam = VML75VY94V;
-						ProvisioningStyle = Automatic;
 					};
 					E8AD32270232FC1E1DF6E09B = {
 						DevelopmentTeam = VML75VY94V;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -346,7 +344,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Config/App.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = "Config/App-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -354,6 +353,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios;
 				PRODUCT_NAME = "Arvectum Proxy Launcher";
+				PROVISIONING_PROFILE_SPECIFIER = "APL App Store";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -469,6 +469,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Config/PacketTunnel.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"Frameworks\"",
@@ -481,6 +483,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios.PacketTunnel;
 				PRODUCT_NAME = "Arvectum Packet Tunnel";
+				PROVISIONING_PROFILE_SPECIFIER = "APL Packet Tunnel App Store";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

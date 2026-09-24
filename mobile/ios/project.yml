@@ -31,6 +31,11 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Config/App.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1"
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "APL App Store"
   PacketTunnel:
     type: app-extension
     platform: iOS
@@ -47,6 +52,11 @@ targets:
         INFOPLIST_FILE: Config/PacketTunnel-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/PacketTunnel.entitlements
         TARGETED_DEVICE_FAMILY: "1"
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "APL Packet Tunnel App Store"
 schemes:
   ArvectumProxyLauncher:
     build:
