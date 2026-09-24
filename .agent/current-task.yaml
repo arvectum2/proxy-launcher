@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-WAKE-GUI-20260924
-status: in_progress
+status: blocked
 goal: "Fix macOS post-sleep usability: keep Off available after wake and restore Safari/CFNetwork connectivity while APL remains ON."
 authority: HUMAN
 definition_of_done:
@@ -111,12 +111,20 @@ completed:
   - "Post-PASS live state: APL RUNNING, system proxy ENABLED, Wi-Fi HTTP/HTTPS 68.209.60.141:8000 enabled, PAC disabled, SOCKS disabled, bypass count 47."
   - "Installed executable SHA-256 remains exact a4c40b4 artifact: 30ec5c3f2d558a8ed9611492112e0dc7180cacefce10790852090ac3bef2daf0."
   - "PR #162 exact-head CI on checkpoint head 91cc350 is green except three macOS jobs still queued/pending for runner capacity: Backend contract (macos-latest), Canonical source (macos-latest), Linux diagnostics contract (macos-latest). All completed checks, including ARM/Intel macOS packaging, pass."
-current: "Physical acceptance PASS; wait for the three queued exact-head macOS CI jobs on PR #162, then complete merge/verification."
+  - "Final PR head 83a9aa6411a7e1e8643e6abe45ffc7a0bbbb8638 exact-head CI PASS, including Windows installer, controlled offline build, ARM/Intel macOS packaging, Linux packages, security and release-context validation."
+  - "PR #162 merged with merge commit 5810adee22e7b6422842d0a43647e3383ffd6de2 on 2026-09-24T14:27:09Z; exact physically tested code commit a4c40b4 remains an ancestor of main."
+  - "Exact-main release gates PASS on 5810adee: Windows portable/installer, Debian, RPM, AppImage, macOS packaging and Release Evidence Package all succeeded."
+  - "Immutable annotated tag v0.2.14 created on 5810adee22e7b6422842d0a43647e3383ffd6de2."
+  - "GitHub Release 'Arvectum Proxy Launcher 0.2.14' published successfully at 2026-09-24T14:34:29Z with 8 assets including SHA256SUMS.txt."
+  - "Published macOS ARM64 asset SHA-256: 70bd2ec6d56ea8c4c8c8e869b76d69932ffb492664bf60eee7439cd976f1fcfc."
+  - "v0.2.13 immutability verified post-release: release updated_at remains 2026-09-23T19:16:12Z, all asset updated_at values remain 2026-09-23, tag commit remains 9645c006f601092e758593ce79a6871a4a68b7c7."
+  - "GitVerse mirror run is the only remaining external verification: upload step PASS; public payload parity step still in_progress in release workflow run 36013380941, job 107680873983. No local/user action is required."
+current: "GitHub v0.2.14 release is published; blocked only on external GitVerse public payload parity verification already running."
 pending:
-  - "Wait for Backend contract (macos-latest), Canonical source (macos-latest), and Linux diagnostics contract (macos-latest) to leave queue and pass on exact PR head."
-  - "When all required PR checks are green, record final exact-head CI evidence, mark checkpoint completed, make PR ready, and merge without publishing a release."
-  - "After merge, verify main contains the a4c40b4 code changes and no release/tag/assets were mutated."
-last_verified_commit: "a4c40b4e443e3eb611eb183b4b11dcc41e8faa7f"
+  - "Check GitHub Actions release run 36013380941 / job 107680873983 once."
+  - "If GitVerse parity completes success, record it and set status completed; do not repeat CI, merge, tagging, release publication, or physical testing."
+  - "If that job fails/times out, inspect its completed logs and rerun only the GitVerse mirror/re-verification path for existing immutable v0.2.14; do not recreate or mutate the GitHub release."
+last_verified_commit: "5810adee22e7b6422842d0a43647e3383ffd6de2"
 test_results:
   - "tests.test_proxy_gui: 40/40 PASS on /opt/homebrew/bin/python3.12."
   - "test_macos*.py: 72/72 PASS on /opt/homebrew/bin/python3.12."
@@ -133,8 +141,8 @@ test_results:
   - "77d1a3c physical FAIL: wall-gap refresh detected/completed refreshed=true before Safari direct-IPv6 failure."
   - "order-pulse focused: runtime/backend/GUI 100/100 PASS; macOS 75/75 PASS; full 1133 passed + 103 subtests, same 3 historical Windows failures."
   - "synthetic order-pulse PASS on physical MacBook: gap 7.887s, refresh completed=true, ordered route snapshot unchanged, exact Off rollback."
-resume_instruction: "Physical macOS acceptance is PASS on exact code commit a4c40b4: real sleep/wake triggered gap 64.699s, policy pulse refreshed=true, Safari reloaded successfully with APL still ON. Check PR #162 exact-head CI once. If the three queued macOS jobs are green and no required check/review blocks remain, record final CI evidence, set status completed, make PR ready and merge; then verify main contains the fix and v0.2.13 release/tag/assets remain untouched. Do not repeat physical testing."
-updated_at: "2026-09-24T17:18:00+03:00"
+resume_instruction: "Do not repeat the macOS fix, CI, merge, tag or GitHub release: all are complete and v0.2.14 is public. Check only release workflow run 36013380941 job 107680873983. Upload already passed; if public GitVerse payload parity succeeds, update both checkpoint files to status completed with that evidence. If it fails or times out, inspect logs and rerun only the existing v0.2.14 GitVerse mirror verification without mutating GitHub release/tag/assets."
+updated_at: "2026-09-24T17:58:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260924-macos-wake-gui"
