@@ -208,6 +208,85 @@ class LifecycleStatusRaceTests(unittest.TestCase):
         launcher.refresh_status.assert_called_once_with()
 
 
+    def test_macos_heartbeat_recovers_completed_stop_when_timer_callback_is_lost(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "stop"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=103.0),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        self.assertIsNone(launcher._lifecycle_action_started_wall)
+        launcher.refresh_status.assert_called_once_with()
+        events = [call.kwargs.get("event") for call in log.call_args_list]
+        self.assertIn("proxy_gui.lifecycle.watchdog_reconciled", events)
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_WAKE_GUARD_HEARTBEAT_MS,
+            launcher._ui_heartbeat,
+        )
+
+    def test_macos_heartbeat_keeps_recent_lifecycle_busy_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "stop"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.core, "is_running") as running,              mock.patch.object(gui.core, "network_restore_pending") as pending:
+            launcher._ui_heartbeat()
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        running.assert_not_called()
+        pending.assert_not_called()
+        launcher.refresh_status.assert_not_called()
+
+    def test_macos_heartbeat_releases_expired_failed_start_busy_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 110.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "start"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        now = 100.0 + gui.MAC_LIFECYCLE_PENDING_MAX_SECONDS + 1.0
+        with mock.patch.object(gui.time, "time", return_value=now),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        launcher.refresh_status.assert_called_once_with()
+        reconciled = [
+            call for call in log.call_args_list
+            if call.kwargs.get("event") == "proxy_gui.lifecycle.watchdog_reconciled"
+        ]
+        self.assertEqual(len(reconciled), 1)
+        self.assertTrue(reconciled[0].kwargs["expired"])
+        self.assertFalse(reconciled[0].kwargs["terminal"])
+
+    def test_late_stop_callback_is_ignored_after_watchdog_reconciliation(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = None
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running") as running,              mock.patch.object(gui.core, "network_restore_pending") as pending,              mock.patch.object(gui.messagebox, "showinfo") as info:
+            launcher._after_stop()
+
+        running.assert_not_called()
+        pending.assert_not_called()
+        launcher.refresh_status.assert_not_called()
+        info.assert_not_called()
+
+
 class MacOSRecoveryDebounceTests(unittest.TestCase):
     def test_macos_recovery_prompt_rechecks_before_offering_rollback(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
