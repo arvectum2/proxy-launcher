@@ -62,7 +62,7 @@ class VersionPolicyTests(unittest.TestCase):
 
     def test_active_platform_builders_use_canonical_version_source(self):
         version = self.get_version()
-        self.assertEqual(version, "0.2.14")
+        self.assertEqual(version, "0.2.15")
 
         live_paths = {
             "macOS app": "tools/build_macos_app.sh",

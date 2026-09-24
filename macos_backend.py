@@ -15,6 +15,7 @@ import json
 import os
 import socket
 import subprocess
+import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 from urllib.parse import urlsplit
@@ -24,11 +25,15 @@ from proxy_backend import ProxyBackend, ProxyBackendConfig
 _BACKUP_SCHEMA_VERSION = 2
 _BACKEND_ID = "macos"
 _BACKUP_FILENAME = "macos_proxy_backup.json"
-# Safari 27 / macOS 27 CFNetwork physically bypassed an otherwise valid
-# manual HTTP/HTTPS proxy once ExceptionsList reached 48 entries. Keep the
-# physically verified immediate-routing ceiling at 47. Existing user baselines
-# at or above the ceiling are preserved verbatim and never expanded by APL.
-_MAX_SAFE_BYPASS_DOMAINS = 47
+# In direct-upstream mode, preserve each network service's pre-existing
+# ExceptionsList verbatim. Physical macOS/Safari testing showed that merely
+# expanding ExceptionsList can make CFNetwork bypass an otherwise valid manual
+# HTTP/HTTPS proxy nondeterministically, including while the machine stays awake.
+# no_proxy metadata is still tracked for cross-platform/config consistency, but
+# it is not projected into macOS SystemConfiguration in this mode.
+_REFRESH_FAIL_CLOSED_HOST = "127.0.0.1"
+_REFRESH_FAIL_CLOSED_PORT = 1
+_REFRESH_FAIL_CLOSED_SECONDS = 0.35
 
 
 class MacOSBackendError(RuntimeError):
@@ -611,41 +616,28 @@ class MacOSBackend(ProxyBackend):
         snapshot: Mapping[str, Any],
         applied: Mapping[str, Any],
     ) -> Tuple[str, ...]:
-        original = tuple(
+        # Direct-upstream macOS routing intentionally keeps the user's/system
+        # baseline ExceptionsList unchanged. Applying no_proxy additions here
+        # is unsafe: Safari/CFNetwork has physically demonstrated direct IPv6
+        # bypass with expanded lists even when the manual proxy stays enabled.
+        del applied
+        return tuple(
             str(raw).strip()
             for raw in snapshot.get("bypass_domains", ())
             if str(raw).strip()
         )
-        # Never rewrite or shrink an already-large user baseline. We only
-        # constrain APL additions, because the baseline was working before
-        # APL took ownership and must remain exactly restorable.
-        if len(original) >= _MAX_SAFE_BYPASS_DOMAINS:
-            return original
-
-        merged = list(original)
-        seen = {value.lower() for value in original}
-        for raw in applied.get("no_proxy", ()):
-            value = str(raw or "").strip()
-            key = value.lower()
-            if not value or key in seen:
-                continue
-            if len(merged) >= _MAX_SAFE_BYPASS_DOMAINS:
-                break
-            seen.add(key)
-            merged.append(value)
-        return tuple(merged)
 
     @staticmethod
-    def _bypass_additions_were_limited(
+    def _bypass_additions_are_suppressed(
         snapshot: Mapping[str, Any],
         applied: Mapping[str, Any],
     ) -> bool:
-        full = _merge_domains(
+        baseline = MacOSBackend._expected_bypass(snapshot, applied)
+        requested = _merge_domains(
             snapshot.get("bypass_domains", ()),
             applied.get("no_proxy", ()),
         )
-        expected = MacOSBackend._expected_bypass(snapshot, applied)
-        return not _domains_equal(full, expected)
+        return not _domains_equal(baseline, requested)
 
     @staticmethod
     def _manual_proxy_matches(current: ManualProxyState, expected: Mapping[str, Any], enabled: Optional[bool] = None) -> bool:
@@ -942,11 +934,11 @@ class MacOSBackend(ProxyBackend):
                 self._client.set_web_proxy_state(service_name, True)
                 self._client.set_secure_web_proxy_state(service_name, True)
                 expected_bypass = self._expected_bypass(snapshot, canonical)
-                if self._bypass_additions_were_limited(snapshot, canonical):
+                if self._bypass_additions_are_suppressed(snapshot, canonical):
                     self._log(
-                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
-                        "to preserve CFNetwork proxy routing"
-                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                        "macOS direct-upstream bypass additions suppressed for %s "
+                        "to preserve the pre-APL ExceptionsList and CFNetwork routing"
+                        % service_name
                     )
                 if not _domains_equal(
                     snapshot.get("bypass_domains", ()),
@@ -968,13 +960,21 @@ class MacOSBackend(ProxyBackend):
             return False
 
     def refresh(self, config: ProxyBackendConfig) -> bool:
-        """Idempotently reassert an already-owned direct HTTP/HTTPS route.
+        """Force CFNetwork to rebind an already-owned direct proxy route safely.
 
-        This is intentionally narrower than enable(): it requires the durable
-        rollback state and every live service to still match APL ownership
-        before any write. It then writes the same direct endpoint and keeps
-        HTTP/HTTPS enabled, without toggling them OFF, touching PAC/SOCKS,
-        changing bypass domains, or mutating rollback evidence.
+        Re-writing identical proxy values or only changing ExceptionsList order
+        proved insufficient after some real macOS sleep/wake cycles. This
+        refresh therefore creates a real endpoint transition while keeping the
+        manual proxy enabled at all times:
+
+        1. every owned HTTP/HTTPS proxy is pointed at a closed loopback port;
+        2. the state remains enabled and we hold that fail-closed endpoint
+           briefly so CFNetwork can observe the change;
+        3. the exact owned upstream endpoint/authentication is restored.
+
+        During the pulse new traffic can fail, but it cannot fall through to a
+        direct IPv4/IPv6 route. PAC, SOCKS, bypass domains and rollback evidence
+        are untouched.
         """
         canonical = _canonical_config(config)
         if canonical is None or not self._store.exists():
@@ -995,46 +995,67 @@ class MacOSBackend(ProxyBackend):
         port = canonical["direct_proxy_port"]
         username = str(config.upstream_username or "")
         password = str(config.upstream_password or "")
+        services = tuple(payload["services"].keys())
+
+        def restore_owned_endpoint() -> bool:
+            ok = True
+            for service_name in services:
+                try:
+                    self._client.set_web_proxy(
+                        service_name, host, port, username, password
+                    )
+                    self._client.set_secure_web_proxy(
+                        service_name, host, port, username, password
+                    )
+                    self._client.set_web_proxy_state(service_name, True)
+                    self._client.set_secure_web_proxy_state(service_name, True)
+                except Exception as exc:
+                    ok = False
+                    self._log(
+                        "macOS refresh recovery failed for %s: %s"
+                        % (service_name, exc)
+                    )
+            return ok
+
         try:
-            for service_name, snapshot in payload["services"].items():
+            for service_name in services:
                 self._client.set_web_proxy(
                     service_name,
-                    host,
-                    port,
-                    username,
-                    password,
+                    _REFRESH_FAIL_CLOSED_HOST,
+                    _REFRESH_FAIL_CLOSED_PORT,
                 )
                 self._client.set_secure_web_proxy(
                     service_name,
-                    host,
-                    port,
-                    username,
-                    password,
+                    _REFRESH_FAIL_CLOSED_HOST,
+                    _REFRESH_FAIL_CLOSED_PORT,
                 )
                 self._client.set_web_proxy_state(service_name, True)
                 self._client.set_secure_web_proxy_state(service_name, True)
 
-                # CFNetwork can keep using a stale proxy-policy session after a
-                # long process/network pause even when the owned HTTP/HTTPS
-                # values are re-written unchanged. Force a real
-                # SystemConfiguration change without changing routing
-                # semantics: write the exact same bypass set in a rotated
-                # order, then restore the canonical order. The set and count
-                # never change, so no destination gains or loses bypass.
-                expected_bypass = tuple(
-                    self._expected_bypass(snapshot, payload["applied_config"])
-                )
-                if len(expected_bypass) >= 2:
-                    rotated = expected_bypass[1:] + expected_bypass[:1]
-                    self._client.set_bypass_domains(service_name, rotated)
-                    self._client.set_bypass_domains(service_name, expected_bypass)
+            self._log(
+                "macOS refresh pulse armed fail-closed manual proxy endpoints"
+            )
+            time.sleep(_REFRESH_FAIL_CLOSED_SECONDS)
+
+            if not restore_owned_endpoint():
+                return False
         except Exception as exc:
-            self._log("macOS refresh failed while reasserting owned route: %s" % exc)
+            restored = restore_owned_endpoint()
+            self._log(
+                "macOS refresh failed during fail-closed endpoint pulse: %s"
+                % exc
+            )
+            if not restored:
+                self._log(
+                    "macOS refresh remained fail-closed because owned endpoint "
+                    "recovery was incomplete"
+                )
             return False
 
         if not self._payload_is_owned(payload):
             self._log("macOS refresh incomplete: owned route verification failed")
             return False
+        self._log("macOS refresh pulse restored exact owned direct proxy endpoints")
         return True
 
     def _restore_service(self, service_name: str, snapshot: Mapping[str, Any]) -> None:
@@ -1165,11 +1186,11 @@ class MacOSBackend(ProxyBackend):
             for service_name, snapshot in payload["services"].items():
                 old_expected = self._expected_bypass(snapshot, old_applied)
                 new_expected = self._expected_bypass(snapshot, canonical)
-                if self._bypass_additions_were_limited(snapshot, canonical):
+                if self._bypass_additions_are_suppressed(snapshot, canonical):
                     self._log(
-                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
-                        "to preserve CFNetwork proxy routing"
-                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                        "macOS direct-upstream bypass additions suppressed for %s "
+                        "to preserve the pre-APL ExceptionsList and CFNetwork routing"
+                        % service_name
                     )
                 if _domains_equal(old_expected, new_expected):
                     continue
