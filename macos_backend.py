@@ -25,11 +25,12 @@ from proxy_backend import ProxyBackend, ProxyBackendConfig
 _BACKUP_SCHEMA_VERSION = 2
 _BACKEND_ID = "macos"
 _BACKUP_FILENAME = "macos_proxy_backup.json"
-# Safari 27 / macOS 27 CFNetwork physically bypassed an otherwise valid
-# manual HTTP/HTTPS proxy once ExceptionsList reached 48 entries. Keep the
-# physically verified immediate-routing ceiling at 47. Existing user baselines
-# at or above the ceiling are preserved verbatim and never expanded by APL.
-_MAX_SAFE_BYPASS_DOMAINS = 47
+# In direct-upstream mode, preserve each network service's pre-existing
+# ExceptionsList verbatim. Physical macOS/Safari testing showed that merely
+# expanding ExceptionsList can make CFNetwork bypass an otherwise valid manual
+# HTTP/HTTPS proxy nondeterministically, including while the machine stays awake.
+# no_proxy metadata is still tracked for cross-platform/config consistency, but
+# it is not projected into macOS SystemConfiguration in this mode.
 _REFRESH_FAIL_CLOSED_HOST = "127.0.0.1"
 _REFRESH_FAIL_CLOSED_PORT = 1
 _REFRESH_FAIL_CLOSED_SECONDS = 0.35
@@ -615,41 +616,28 @@ class MacOSBackend(ProxyBackend):
         snapshot: Mapping[str, Any],
         applied: Mapping[str, Any],
     ) -> Tuple[str, ...]:
-        original = tuple(
+        # Direct-upstream macOS routing intentionally keeps the user's/system
+        # baseline ExceptionsList unchanged. Applying no_proxy additions here
+        # is unsafe: Safari/CFNetwork has physically demonstrated direct IPv6
+        # bypass with expanded lists even when the manual proxy stays enabled.
+        del applied
+        return tuple(
             str(raw).strip()
             for raw in snapshot.get("bypass_domains", ())
             if str(raw).strip()
         )
-        # Never rewrite or shrink an already-large user baseline. We only
-        # constrain APL additions, because the baseline was working before
-        # APL took ownership and must remain exactly restorable.
-        if len(original) >= _MAX_SAFE_BYPASS_DOMAINS:
-            return original
-
-        merged = list(original)
-        seen = {value.lower() for value in original}
-        for raw in applied.get("no_proxy", ()):
-            value = str(raw or "").strip()
-            key = value.lower()
-            if not value or key in seen:
-                continue
-            if len(merged) >= _MAX_SAFE_BYPASS_DOMAINS:
-                break
-            seen.add(key)
-            merged.append(value)
-        return tuple(merged)
 
     @staticmethod
-    def _bypass_additions_were_limited(
+    def _bypass_additions_are_suppressed(
         snapshot: Mapping[str, Any],
         applied: Mapping[str, Any],
     ) -> bool:
-        full = _merge_domains(
+        baseline = MacOSBackend._expected_bypass(snapshot, applied)
+        requested = _merge_domains(
             snapshot.get("bypass_domains", ()),
             applied.get("no_proxy", ()),
         )
-        expected = MacOSBackend._expected_bypass(snapshot, applied)
-        return not _domains_equal(full, expected)
+        return not _domains_equal(baseline, requested)
 
     @staticmethod
     def _manual_proxy_matches(current: ManualProxyState, expected: Mapping[str, Any], enabled: Optional[bool] = None) -> bool:
@@ -946,11 +934,11 @@ class MacOSBackend(ProxyBackend):
                 self._client.set_web_proxy_state(service_name, True)
                 self._client.set_secure_web_proxy_state(service_name, True)
                 expected_bypass = self._expected_bypass(snapshot, canonical)
-                if self._bypass_additions_were_limited(snapshot, canonical):
+                if self._bypass_additions_are_suppressed(snapshot, canonical):
                     self._log(
-                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
-                        "to preserve CFNetwork proxy routing"
-                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                        "macOS direct-upstream bypass additions suppressed for %s "
+                        "to preserve the pre-APL ExceptionsList and CFNetwork routing"
+                        % service_name
                     )
                 if not _domains_equal(
                     snapshot.get("bypass_domains", ()),
@@ -1198,11 +1186,11 @@ class MacOSBackend(ProxyBackend):
             for service_name, snapshot in payload["services"].items():
                 old_expected = self._expected_bypass(snapshot, old_applied)
                 new_expected = self._expected_bypass(snapshot, canonical)
-                if self._bypass_additions_were_limited(snapshot, canonical):
+                if self._bypass_additions_are_suppressed(snapshot, canonical):
                     self._log(
-                        "macOS bypass additions limited by %d-entry safety ceiling for %s "
-                        "to preserve CFNetwork proxy routing"
-                        % (_MAX_SAFE_BYPASS_DOMAINS, service_name)
+                        "macOS direct-upstream bypass additions suppressed for %s "
+                        "to preserve the pre-APL ExceptionsList and CFNetwork routing"
+                        % service_name
                     )
                 if _domains_equal(old_expected, new_expected):
                     continue

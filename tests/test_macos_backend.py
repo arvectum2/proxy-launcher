@@ -233,12 +233,18 @@ class MacOSBackendTests(unittest.TestCase):
         )
         self.assertFalse(self.client.services["Wi-Fi"]["socks"]["enabled"])
         self.assertEqual(
-            set(value.lower() for value in self.client.services["Wi-Fi"]["bypass"]),
-            {"corp.example", "localhost", "127.0.0.1", "*.local"},
+            self.client.services["Wi-Fi"]["bypass"],
+            ("corp.example",),
+        )
+        self.assertTrue(
+            any(
+                "direct-upstream bypass additions suppressed for Wi-Fi" in line
+                for line in self.logs
+            )
         )
         self.assertNotIn("Disabled VPN", payload["services"])
 
-    def test_bypass_additions_are_capped_at_47_without_truncating_snapshot(self):
+    def test_direct_upstream_preserves_baseline_bypass_with_many_additions(self):
         original = tuple("base-%02d.example" % i for i in range(29))
         additions = tuple("extra-%02d.example" % i for i in range(30))
         self.client.services["Wi-Fi"]["bypass"] = original
@@ -251,17 +257,22 @@ class MacOSBackendTests(unittest.TestCase):
             upstream_username=CONFIG.upstream_username,
             upstream_password=CONFIG.upstream_password,
         )
+        self.client.calls.clear()
 
         self.assertTrue(self.backend.enable(config))
 
-        applied = self.client.services["Wi-Fi"]["bypass"]
-        self.assertEqual(len(applied), 47)
-        self.assertEqual(applied[:29], original)
-        self.assertEqual(applied[29:], additions[:18])
-        self.assertNotIn(additions[18], applied)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original)
+        self.assertFalse(
+            any(
+                call[0] == "set_bypass_domains" and call[1] == "Wi-Fi"
+                for call in self.client.calls
+            )
+        )
         self.assertTrue(
-            any("bypass additions limited by 47-entry safety ceiling for Wi-Fi" in line
-                for line in self.logs)
+            any(
+                "direct-upstream bypass additions suppressed for Wi-Fi" in line
+                for line in self.logs
+            )
         )
 
     def test_large_existing_bypass_is_preserved_without_rewrite(self):
@@ -272,16 +283,20 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertTrue(self.backend.enable(CONFIG))
 
         self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original)
-        self.assertNotIn(
-            ("set_bypass_domains", "Wi-Fi", original),
-            self.client.calls,
+        self.assertFalse(
+            any(
+                call[0] == "set_bypass_domains" and call[1] == "Wi-Fi"
+                for call in self.client.calls
+            )
         )
         self.assertTrue(
-            any("bypass additions limited by 47-entry safety ceiling for Wi-Fi" in line
-                for line in self.logs)
+            any(
+                "direct-upstream bypass additions suppressed for Wi-Fi" in line
+                for line in self.logs
+            )
         )
 
-    def test_sync_no_proxy_does_not_rewrite_when_only_overflow_changes(self):
+    def test_sync_no_proxy_updates_metadata_without_system_bypass_mutation(self):
         original = tuple("base-%02d.example" % i for i in range(29))
         additions = tuple("extra-%02d.example" % i for i in range(18))
         self.client.services["Wi-Fi"]["bypass"] = original
@@ -295,7 +310,7 @@ class MacOSBackendTests(unittest.TestCase):
             upstream_password=CONFIG.upstream_password,
         )
         self.assertTrue(self.backend.enable(initial))
-        self.assertEqual(len(self.client.services["Wi-Fi"]["bypass"]), 47)
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original)
 
         updated = ProxyBackendConfig(
             pac_url=CONFIG.pac_url,
@@ -310,13 +325,12 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertTrue(self.backend.sync_no_proxy(updated))
 
-        wifi_mutations = [
-            call for call in self.client.calls
-            if call[0] == "set_bypass_domains" and call[1] == "Wi-Fi"
-        ]
-        self.assertEqual(wifi_mutations, [])
-        self.assertEqual(len(self.client.services["Wi-Fi"]["bypass"]), 47)
+        self.assertFalse(
+            any(call[0] == "set_bypass_domains" for call in self.client.calls)
+        )
+        self.assertEqual(self.client.services["Wi-Fi"]["bypass"], original)
         self.assertTrue(self.backend.is_enabled(updated))
+        self.assertFalse(self.backend.is_enabled(initial))
 
     def test_direct_upstream_ownership_does_not_depend_on_networksetup_auth_flag(self):
         self.assertTrue(self.backend.enable(CONFIG))
@@ -762,8 +776,8 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertTrue(self.backend.is_enabled(updated))
         self.assertFalse(self.backend.is_enabled(CONFIG))
         self.assertEqual(
-            set(value.lower() for value in self.client.services["Wi-Fi"]["bypass"]),
-            {"corp.example", "localhost", "new.internal"},
+            self.client.services["Wi-Fi"]["bypass"],
+            ("corp.example",),
         )
         self.assertTrue(self.backend.disable())
         self.assertEqual(self.client.services["Wi-Fi"]["bypass"], ("corp.example",))
