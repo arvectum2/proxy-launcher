@@ -1,0 +1,15 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: in_progress
+authority: REVIEW
+current: "Refresh REVIEW packet to immutable v0.2.14; first eligible future signing release v0.2.15+."
+pending:
+  - "Carry forward substantive trust packet and tests on current main."
+  - "Run exact-head CI and stop at Owner review."
+resume_instruction: "Continue REVIEW preparation only; do not merge, purchase, sign, or release."
+updated_at: "2026-09-24T22:01:55+03:00"
+execution:
+  claimed_by: "chatgpt"
+  branch: "agent/apl-rel-016-v0214-refresh"
+  manual_override: false
