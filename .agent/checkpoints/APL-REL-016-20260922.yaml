@@ -1,0 +1,34 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-REL-016
+status: blocked
+goal: "Refresh the Windows public-trust / Authenticode / SmartScreen REVIEW packet to immutable v0.2.14 with v0.2.15+ as the first eligible future embedded-signing release."
+authority: REVIEW
+definition_of_done:
+  - "Substantive trust packet is carried forward without stale agent state."
+  - "Immutable public baseline is v0.2.14 and first eligible future embedded-signing release is v0.2.15+."
+  - "Contract, tests, workflow/runbook and decision packet remain internally consistent."
+  - "Exact-head substantive CI is green."
+  - "Review-ready PR exists and stops before Owner provider/certificate/key-custody/signing/release/merge decisions."
+completed:
+  - "Reconciled immutable public baseline to v0.2.14 release commit 5810adee22e7b6422842d0a43647e3383ffd6de2; v0.2.14 shipped without native Authenticode and must not be retrofitted."
+  - "Created isolated refresh branch agent/apl-rel-016-v0214-refresh from current main and refreshed the trust contract/tests to v0.2.14 / v0.2.15+."
+  - "Carried forward the substantive decision packet, workflow trigger coverage, CA/B Forum public-profile gate and runbook without stale current-task state."
+  - "Updated packet/runbook/checkpoint boundary to immutable v0.2.14 / first eligible v0.2.15+ and review date 2026-09-24."
+  - "Focused local tests PASS: tests/test_windows_public_trust.py 10/10; git diff --check PASS."
+current: "REVIEW packet is Owner-ready in PR #161 after v0.2.14 canonical roadmap/queue/backlog reconciliation; exact-head CI is green. Final decision/merge and all provider/certificate/key-custody/signing/release actions remain Owner-reserved."
+pending:
+  - "Owner review/decision on provider/certificate/key-custody/signing strategy and whether to merge the REVIEW packet."
+last_verified_commit: "6dcca69d94c8f65c7abd9f9f07e5235b9088441f"
+test_results:
+  - "python3 -m pytest -q tests/test_windows_public_trust.py: 10 passed."
+  - "git diff --check: PASS."
+resume_instruction: "Stop at Owner review for PR #161. Do not merge or perform provider/certificate/key-custody/signing/release actions without the reserved Owner decision."
+updated_at: "2026-09-24T11:00:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  branch: "agent/apl-rel-016-v0214-refresh"
+  base_commit: "5b205cb4059d112d7ad0ee3fb14980de32c107c7"
+  lease_until: null
+  manual_override: false
