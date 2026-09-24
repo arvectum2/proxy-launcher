@@ -127,6 +127,70 @@ class ApplicationRuntimeTests(unittest.TestCase):
 
         stop_event.wait.assert_called_once_with(3600)
 
+
+    def test_macos_proxy_loop_refreshes_after_plain_wall_clock_gap(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, False, KeyboardInterrupt]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1045.0, 1047.0],
+             ),              mock.patch.object(core, "refresh_system_proxy", return_value=True) as refresh,              mock.patch.object(core, "structured_log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        self.assertEqual(
+            stop_event.wait.call_args_list[:2],
+            [
+                mock.call(application_runtime.MACOS_RESUME_POLL_SECONDS),
+                mock.call(application_runtime.MACOS_RESUME_SETTLE_SECONDS),
+            ],
+        )
+        refresh.assert_called_once_with()
+        self.assertEqual(
+            [call.kwargs["phase"] for call in log.call_args_list],
+            ["detected", "completed"],
+        )
+        self.assertEqual(
+            log.call_args.kwargs["event"],
+            "proxy.resume.wall_gap_refresh",
+        )
+        self.assertTrue(log.call_args.kwargs["refreshed"])
+
+    def test_macos_proxy_loop_does_not_refresh_during_normal_awake_heartbeat(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, KeyboardInterrupt]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1001.1],
+             ),              mock.patch.object(core, "refresh_system_proxy") as refresh,              mock.patch.object(core, "structured_log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        refresh.assert_not_called()
+        log.assert_not_called()
+
+    def test_macos_proxy_loop_stop_during_settle_skips_refresh(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, True]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1045.0],
+             ),              mock.patch.object(core, "refresh_system_proxy") as refresh,              mock.patch.object(core, "structured_log") as log:
+            core._run_proxy_loop(proxy)
+
+        refresh.assert_not_called()
+        self.assertEqual(len(log.call_args_list), 1)
+        self.assertEqual(log.call_args.kwargs["phase"], "detected")
+
     def test_stop_preflight_refusal_preserves_worker_and_network(self):
         with mock.patch.object(
                  core, "system_proxy_disable_preflight", return_value=False

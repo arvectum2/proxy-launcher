@@ -8,9 +8,14 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import time
 from types import ModuleType
 
 _CORE: ModuleType | None = None
+
+MACOS_RESUME_POLL_SECONDS = 1.0
+MACOS_RESUME_GAP_SECONDS = 5.0
+MACOS_RESUME_SETTLE_SECONDS = 2.0
 
 
 def configure(core: ModuleType) -> None:
@@ -47,9 +52,45 @@ def _ensure_local_files():
 
 
 def _run_proxy_loop(proxy):
-    """Wait until the proxy worker is asked to stop."""
-    while not proxy._stop.wait(3600):
-        pass
+    """Wait for shutdown and refresh an owned macOS route after long suspension gaps."""
+    if sys.platform != "darwin":
+        while not proxy._stop.wait(3600):
+            pass
+        return
+
+    core = _core()
+    last_wall = time.time()
+    while not proxy._stop.wait(MACOS_RESUME_POLL_SECONDS):
+        now_wall = time.time()
+        gap = max(0.0, now_wall - last_wall)
+        last_wall = now_wall
+        if gap < MACOS_RESUME_GAP_SECONDS:
+            continue
+
+        core.structured_log(
+            "macOS worker heartbeat gap detected",
+            event="proxy.resume.wall_gap_refresh",
+            phase="detected",
+            gap_seconds=round(gap, 3),
+            settle_seconds=MACOS_RESUME_SETTLE_SECONDS,
+        )
+        if proxy._stop.wait(MACOS_RESUME_SETTLE_SECONDS):
+            return
+
+        refreshed = core.refresh_system_proxy()
+        core.structured_log(
+            (
+                "macOS owned direct proxy route reasserted after heartbeat gap"
+                if refreshed
+                else "macOS owned direct proxy route refresh failed after heartbeat gap"
+            ),
+            level="INFO" if refreshed else "WARNING",
+            event="proxy.resume.wall_gap_refresh",
+            phase="completed",
+            gap_seconds=round(gap, 3),
+            refreshed=bool(refreshed),
+        )
+        last_wall = time.time()
 
 def _cmd_start():
     core = _core()

@@ -47,6 +47,8 @@ MAC_WAKE_GUARD_HEARTBEAT_MS = 1000
 MAC_WAKE_GUARD_GAP_SECONDS = 5.0
 MAC_WAKE_GUARD_WINDOW_SECONDS = 15.0
 MAC_OFF_CONFIRM_DELAY_MS = 500
+MAC_LIFECYCLE_RECONCILE_GRACE_SECONDS = 2.0
+MAC_LIFECYCLE_PENDING_MAX_SECONDS = 15.0
 TASK_NAME = "ArvectumProxyLauncher"  # legacy scheduled-task name
 AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 AUTOSTART_RUN_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -944,6 +946,7 @@ class Launcher:
         self._mac_wake_guard_until = 0.0
         self._off_confirmation_pending = False
         self._lifecycle_action_pending = None
+        self._lifecycle_action_started_wall = None
         self._set_window_icon()
 
         if self._mac_ui:
@@ -1289,11 +1292,85 @@ class Launcher:
             pass
         return True
 
+    def _begin_lifecycle_action(self, action):
+        self._lifecycle_action_pending = str(action)
+        self._lifecycle_action_started_wall = time.time()
+
+    def _clear_lifecycle_action(self, action=None):
+        pending = getattr(self, "_lifecycle_action_pending", None)
+        if action is not None and pending != action:
+            return False
+        self._lifecycle_action_pending = None
+        self._lifecycle_action_started_wall = None
+        return True
+
+    def _reconcile_pending_lifecycle(self, source, now=None):
+        """Recover the GUI if a lifecycle timer callback was lost across sleep/wake."""
+        if not getattr(self, "_mac_ui", False):
+            return False
+        action = getattr(self, "_lifecycle_action_pending", None)
+        if not action:
+            return False
+        if now is None:
+            now = time.time()
+        started = getattr(self, "_lifecycle_action_started_wall", None)
+        if started is None:
+            self._lifecycle_action_started_wall = now
+            return False
+        age = max(0.0, now - started)
+        if age < MAC_LIFECYCLE_RECONCILE_GRACE_SECONDS:
+            return False
+
+        terminal = False
+        try:
+            running = core.is_running()
+            restore_pending = core.network_restore_pending()
+            if action == "start":
+                terminal = bool(running and core.system_proxy_enabled())
+            elif action in ("stop", "rollback"):
+                terminal = bool(not running and not restore_pending)
+        except Exception as exc:
+            try:
+                core.structured_log(
+                    "macOS lifecycle watchdog state probe failed",
+                    level="WARNING",
+                    event="proxy_gui.lifecycle.watchdog_probe_failed",
+                    action=str(action),
+                    source=str(source),
+                    age_seconds=round(age, 3),
+                    error=repr(exc),
+                )
+            except Exception:
+                pass
+            return False
+
+        expired = age >= MAC_LIFECYCLE_PENDING_MAX_SECONDS
+        if not terminal and not expired:
+            return False
+
+        self._clear_lifecycle_action(action)
+        try:
+            core.structured_log(
+                "macOS lifecycle watchdog reconciled stale GUI busy state",
+                level="WARNING" if expired and not terminal else "INFO",
+                event="proxy_gui.lifecycle.watchdog_reconciled",
+                action=str(action),
+                source=str(source),
+                age_seconds=round(age, 3),
+                terminal=bool(terminal),
+                expired=bool(expired),
+            )
+        except Exception:
+            pass
+        self.refresh_status()
+        return True
+
     def _ui_heartbeat(self):
-        """Arm a short destructive-action guard after a long GUI event-loop gap."""
+        """Arm a short wake guard and recover stale lifecycle UI state."""
         now = time.time()
         armed = self._arm_wake_guard_from_gap(now, "heartbeat")
-        if armed:
+        reconciled = self._reconcile_pending_lifecycle("heartbeat", now=now)
+        if armed and not reconciled and not getattr(self, "_lifecycle_action_pending", None):
             try:
                 self.refresh_status()
             except tk.TclError:
@@ -1335,6 +1412,7 @@ class Launcher:
     def _refresh_status_on_focus(self, _event=None):
         """Reconcile GUI actions after lifecycle changes outside this window."""
         if getattr(self, "_lifecycle_action_pending", None):
+            self._reconcile_pending_lifecycle("focus")
             return
         try:
             self.refresh_status()
@@ -1397,7 +1475,9 @@ class Launcher:
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        can_off = view["can_off"] and not self._wake_destructive_guard_active()
+        # Off is the safe escape hatch after wake. Its macOS confirmation is
+        # already deferred beyond the originating mouse event and defaults to No.
+        can_off = view["can_off"]
         self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
         if self._wake_destructive_guard_active():
@@ -1445,23 +1525,25 @@ class Launcher:
             if core.system_proxy_enabled():
                 self.refresh_status()
                 return
-            self._lifecycle_action_pending = "start"
+            self._begin_lifecycle_action("start")
             self._set_busy("Включение PAC…", MINT_LIGHT)
             _run_headless("--start")
             self.root.after(250, self._after_start)
             return
-        self._lifecycle_action_pending = "start"
+        self._begin_lifecycle_action("start")
         self._set_busy("Запуск…", MINT_LIGHT)
         _run_headless("--start")
         # Фоновому процессу нужно время на запуск и открытие трёх сокетов.
         self.root.after(250, self._after_start)
 
     def _after_start(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "start":
+            return
         ok = core.is_running() and core.system_proxy_enabled()
         if not ok and attempt < 40:
             self.root.after(250, lambda: self._after_start(attempt + 1))
             return
-        self._lifecycle_action_pending = None
+        self._clear_lifecycle_action("start")
         self.refresh_status()
         if ok:
             messagebox.showinfo(
@@ -1473,8 +1555,6 @@ class Launcher:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
     def off(self):
-        if self._block_destructive_wake_action("off"):
-            return
         if self._mac_ui:
             if self._off_confirmation_pending:
                 return
@@ -1500,8 +1580,6 @@ class Launcher:
         if not self._off_confirmation_pending:
             return
         self._off_confirmation_pending = False
-        if self._block_destructive_wake_action("off_confirm"):
-            return
         confirmed = messagebox.askyesno(
             APP_NAME,
             "Выключить прокси и восстановить исходные настройки сети?",
@@ -1525,17 +1603,19 @@ class Launcher:
         self._execute_stop()
 
     def _execute_stop(self):
-        self._lifecycle_action_pending = "stop"
+        self._begin_lifecycle_action("stop")
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
 
     def _after_stop(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "stop":
+            return
         still_active = core.is_running() or core.network_restore_pending()
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_stop(attempt + 1))
             return
-        self._lifecycle_action_pending = None
+        self._clear_lifecycle_action("stop")
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Прокси-процесс не удалось остановить. Подробности в «Журнал».")
@@ -1558,7 +1638,7 @@ class Launcher:
                 msg,
                 icon="warning"):
             return
-        self._lifecycle_action_pending = "rollback"
+        self._begin_lifecycle_action("rollback")
         self._set_busy("Восстановление сети…", MINT_LIGHT)
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
@@ -1579,11 +1659,13 @@ class Launcher:
                 "не удалось подтвердить. См. «Журнал».")
 
     def _after_restore_network(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "rollback":
+            return
         still_active = core.is_running() or core.network_restore_pending()
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_restore_network(attempt + 1))
             return
-        self._lifecycle_action_pending = None
+        self._clear_lifecycle_action("rollback")
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Proxy-процесс всё ещё работает. См. «Журнал».")
