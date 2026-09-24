@@ -968,7 +968,13 @@ class MacOSBackend(ProxyBackend):
             return False
 
     def refresh(self, config: ProxyBackendConfig) -> bool:
-        """Verify the already-owned manual route without mutating system state."""
+        """Reassert an already-owned direct HTTP/HTTPS route after macOS resume.
+
+        This intentionally does not toggle the proxy OFF, touch PAC/SOCKS, change
+        bypass domains, restart local listeners, or alter rollback evidence. The
+        idempotent networksetup writes provide CFNetwork a fresh configuration
+        notification while preserving the same owned route continuously.
+        """
         canonical = _canonical_config(config)
         if canonical is None or not self._store.exists():
             return False
@@ -977,10 +983,45 @@ class MacOSBackend(ProxyBackend):
         except Exception as exc:
             self._log("macOS refresh refused: rollback state is unreadable: %s" % exc)
             return False
-        return bool(
-            self._payload_matches_config(payload, config)
-            and self._payload_is_owned(payload)
-        )
+        if not self._payload_matches_config(payload, config):
+            self._log("macOS refresh refused: requested config is not the owned config")
+            return False
+        if not self._payload_is_owned(payload):
+            self._log("macOS refresh refused: live proxy state is not fully APL-owned")
+            return False
+
+        host = canonical["direct_proxy_host"]
+        port = canonical["direct_proxy_port"]
+        username = str(config.upstream_username or "")
+        password = str(config.upstream_password or "")
+        for service_name, snapshot in payload["services"].items():
+            if not self._service_matches_owned_state(
+                service_name, snapshot, payload["applied_config"]
+            ):
+                self._log(
+                    "macOS refresh refused: %s stopped matching APL-owned state"
+                    % service_name
+                )
+                return False
+            try:
+                self._client.set_web_proxy(
+                    service_name, host, port, username, password
+                )
+                self._client.set_secure_web_proxy(
+                    service_name, host, port, username, password
+                )
+                self._client.set_web_proxy_state(service_name, True)
+                self._client.set_secure_web_proxy_state(service_name, True)
+            except Exception as exc:
+                self._log("macOS refresh failed for %s: %s" % (service_name, exc))
+                return False
+
+        owned = self._payload_is_owned(payload)
+        if not owned:
+            self._log(
+                "macOS refresh incomplete: refreshed services failed ownership verification"
+            )
+        return bool(owned)
 
     def _restore_service(self, service_name: str, snapshot: Mapping[str, Any]) -> None:
         web = snapshot.get("web_proxy")

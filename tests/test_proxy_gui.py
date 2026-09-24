@@ -350,46 +350,47 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
             launcher._ui_heartbeat,
         )
 
-    def test_off_self_arms_guard_from_stale_heartbeat_before_spawning_stop(self):
+    def test_off_remains_actionable_during_wake_guard(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
-        launcher._mac_ui = True
-        launcher._ui_heartbeat_wall = 100.0
-        launcher._mac_wake_guard_until = 0.0
-        launcher.refresh_status = mock.Mock()
-
-        with mock.patch.object(gui.time, "time", return_value=200.0),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
-            launcher.off()
-
-        run.assert_not_called()
-        events = [call.kwargs["event"] for call in log.call_args_list]
-        self.assertEqual(
-            events,
-            ["proxy_gui.wake_guard.armed", "proxy_gui.wake_guard.blocked"],
-        )
-        self.assertEqual(log.call_args_list[0].kwargs["source"], "destructive_action")
-        self.assertEqual(log.call_args_list[1].kwargs["action"], "off")
-        self.assertEqual(
-            launcher._mac_wake_guard_until,
-            200.0 + gui.MAC_WAKE_GUARD_WINDOW_SECONDS,
-        )
-
-    def test_off_is_blocked_during_wake_guard_without_spawning_stop(self):
-        launcher = gui.Launcher.__new__(gui.Launcher)
-        launcher.root = mock.Mock()
+        launcher.btn_off = mock.Mock()
         launcher._mac_ui = True
         launcher._ui_heartbeat_wall = 104.5
         launcher._mac_wake_guard_until = 115.0
-        launcher.refresh_status = mock.Mock()
+        launcher._off_confirmation_pending = False
 
-        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
+        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.messagebox, "askyesno") as ask,              mock.patch.object(gui, "_run_headless") as run:
             launcher.off()
 
+        ask.assert_not_called()
         run.assert_not_called()
-        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.blocked")
-        self.assertEqual(log.call_args.kwargs["action"], "off")
-        launcher.refresh_status.assert_called_once_with()
-        launcher.root.after.assert_called_once()
+        self.assertTrue(launcher._off_confirmation_pending)
+        launcher.btn_off.state.assert_called_once_with(["disabled"])
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_OFF_CONFIRM_DELAY_MS,
+            launcher._confirm_macos_off,
+        )
+
+    def test_refresh_status_keeps_off_enabled_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher._status_dot = mock.Mock()
+        launcher.chip = mock.Mock()
+        launcher.status_hint = mock.Mock()
+        launcher.btn_doctor = mock.Mock()
+        launcher.btn_restore = mock.Mock()
+        launcher.btn_orphan_pac = mock.Mock()
+        launcher.btn_on = mock.Mock()
+        launcher.btn_off = mock.Mock()
+        launcher.btn_check = mock.Mock()
+        launcher._wake_destructive_guard_active = mock.Mock(return_value=True)
+
+        with mock.patch.object(gui.core, "is_running", return_value=True),              mock.patch.object(gui.core, "system_proxy_enabled", return_value=True),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "orphaned_arvectum_pac", return_value=False):
+            launcher.refresh_status()
+
+        launcher.btn_on.state.assert_called_with(["disabled"])
+        launcher.btn_off.state.assert_called_with(["!disabled"])
+        launcher.btn_restore.state.assert_called_with(["disabled"])
 
     def test_macos_off_defers_confirmation_until_original_click_finishes(self):
         launcher = gui.Launcher.__new__(gui.Launcher)

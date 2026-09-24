@@ -1475,7 +1475,9 @@ class Launcher:
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        can_off = view["can_off"] and not self._wake_destructive_guard_active()
+        # Off is the safe escape hatch after wake. Its macOS confirmation is
+        # already deferred beyond the originating mouse event and defaults to No.
+        can_off = view["can_off"]
         self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
         if self._wake_destructive_guard_active():
@@ -1553,8 +1555,6 @@ class Launcher:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
     def off(self):
-        if self._block_destructive_wake_action("off"):
-            return
         if self._mac_ui:
             if self._off_confirmation_pending:
                 return
@@ -1580,8 +1580,6 @@ class Launcher:
         if not self._off_confirmation_pending:
             return
         self._off_confirmation_pending = False
-        if self._block_destructive_wake_action("off_confirm"):
-            return
         confirmed = messagebox.askyesno(
             APP_NAME,
             "Выключить прокси и восстановить исходные настройки сети?",

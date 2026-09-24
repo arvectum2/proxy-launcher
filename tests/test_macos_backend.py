@@ -465,7 +465,7 @@ class MacOSBackendTests(unittest.TestCase):
             self.client.calls,
         )
 
-    def test_refresh_verifies_owned_manual_route_without_mutation(self):
+    def test_refresh_reasserts_only_owned_direct_route_and_preserves_backup(self):
         self.assertTrue(self.backend.enable(CONFIG))
         with open(self.backup_path, "rb") as stream:
             backup_before = stream.read()
@@ -473,7 +473,32 @@ class MacOSBackendTests(unittest.TestCase):
 
         self.assertTrue(self.backend.refresh(CONFIG))
 
-        self.assertFalse(any(call[0].startswith("set_") for call in self.client.calls))
+        mutations = [
+            call for call in self.client.calls if call[0].startswith("set_")
+        ]
+        self.assertCountEqual(
+            mutations,
+            [
+                ("set_web_proxy", "Wi-Fi", "upstream.example", 9000, "alice", "secret"),
+                ("set_secure_web_proxy", "Wi-Fi", "upstream.example", 9000, "alice", "secret"),
+                ("set_web_proxy_state", "Wi-Fi", True),
+                ("set_secure_web_proxy_state", "Wi-Fi", True),
+                ("set_web_proxy", "Ethernet", "upstream.example", 9000, "alice", "secret"),
+                ("set_secure_web_proxy", "Ethernet", "upstream.example", 9000, "alice", "secret"),
+                ("set_web_proxy_state", "Ethernet", True),
+                ("set_secure_web_proxy_state", "Ethernet", True),
+            ],
+        )
+        self.assertFalse(
+            any(
+                call[0] in {
+                    "set_auto_proxy_state",
+                    "set_socks_proxy_state",
+                    "set_bypass_domains",
+                }
+                for call in mutations
+            )
+        )
         with open(self.backup_path, "rb") as stream:
             self.assertEqual(stream.read(), backup_before)
         self.assertTrue(self.backend.is_enabled(CONFIG))
@@ -488,7 +513,7 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertFalse(self.backend.refresh(CONFIG))
 
         self.assertFalse(
-            any(call[0] == "set_auto_proxy_state" for call in self.client.calls)
+            any(call[0].startswith("set_") for call in self.client.calls)
         )
         self.assertEqual(
             self.client.services["Wi-Fi"]["auto"],
@@ -504,6 +529,25 @@ class MacOSBackendTests(unittest.TestCase):
         self.assertFalse(self.backend.refresh(CONFIG))
 
         self.assertFalse(any(call[0].startswith("set_") for call in self.client.calls))
+        self.assertTrue(self.backend.restore_pending())
+
+
+    def test_refresh_failure_never_disables_owned_direct_route(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.calls.clear()
+        self.client.fail_once("set_secure_web_proxy", "Wi-Fi")
+
+        self.assertFalse(self.backend.refresh(CONFIG))
+
+        self.assertFalse(
+            any(
+                call[0] in {"set_web_proxy_state", "set_secure_web_proxy_state"}
+                and call[2] is False
+                for call in self.client.calls
+            )
+        )
+        self.assertTrue(self.client.services["Wi-Fi"]["web"]["enabled"])
+        self.assertTrue(self.client.services["Wi-Fi"]["secure_web"]["enabled"])
         self.assertTrue(self.backend.restore_pending())
 
     def test_disable_restores_exact_snapshots_and_clears_ownership_evidence(self):

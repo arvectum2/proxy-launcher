@@ -2,10 +2,12 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-WAKE-GUI-20260924
 status: in_progress
-goal: "Fix the macOS post-sleep GUI dead/busy state where both On/Off buttons remain disabled after a successful backend stop/recovery."
+goal: "Fix macOS post-sleep usability: keep Off available after wake and restore Safari/CFNetwork connectivity while APL remains ON."
 authority: HUMAN
 definition_of_done:
-  - "Correlate the latest physical sleep/wake FAIL logs with GUI/backend lifecycle events."
+  - "Correlate the latest physical sleep/wake FAIL logs with GUI/backend lifecycle and macOS proxy-session evidence."
+  - "After wake, an active APL session must not present both On and Off disabled solely because of the wake guard."
+  - "After wake, Safari/CFNetwork must recover without requiring APL Off or browser restart."
   - "Identify the concrete code path that leaves the GUI busy after backend STOPPED."
   - "Implement the smallest safe fix without weakening network rollback/recovery semantics."
   - "Add deterministic regression coverage for the failed callback/post-wake path."
@@ -34,11 +36,24 @@ completed:
   - "Installed 0.2.14 GUI launches cleanly and reflects external RUNNING state after a real FocusIn event."
   - "Automated HID click is blocked by macOS/Tk accessibility boundaries; no security/privacy settings were weakened to bypass that boundary."
   - "MacBook was returned to safe STOPPED state with listeners closed and exact Wi-Fi baseline restored."
-current: "Run exact-head PR CI while waiting for one human physical sleep/wake interaction on the installed 0.2.14 MacBook candidate."
+  - "Physical 0.2.14 FAIL on 2026-09-24: full user wake at 09:20:04 MSK; wake_guard armed at 09:20:03.879, user observed both On/Off disabled, Safari request stalled, and Off became available only after the guard window elapsed."
+  - "Off requested at 09:20:53 and confirmed at 09:20:55; rollback then restored baseline and browser reload recovered."
+  - "The double-disabled controls are explained by design: active state already disables On, while wake_guard additionally disabled Off for 15 seconds."
+  - "Current macOS routing is direct-upstream HTTP/HTTPS (68.209.60.141:8000 on the test host), so Safari traffic does not traverse APL local relay; absence of post-wake local CONNECT events is expected and does not indicate a dead listener."
+  - "Historical evidence rules out reintroducing wake-time listener rebind, stale-relay retirement, PAC refresh, or browser-process killing; those approaches were previously disproven or removed as unsafe."
+  - "New repair direction: keep delayed/default-No Off confirmation but stop wake_guard from blocking Off; on resume reassert only the already-owned direct HTTP/HTTPS endpoint/state to generate a CFNetwork config refresh without disabling proxy, changing bypass, or restarting browser/listeners."
+  - "Implemented Off escape-hatch behavior: wake_guard still protects rollback/settings restart, but no longer disables or blocks Off; delayed 500 ms default-No confirmation remains."
+  - "Implemented direct-upstream MacOSBackend.refresh(): after config+ownership proof it idempotently rewrites the same owned HTTP/HTTPS host/port/credentials and keeps both states enabled; it does not toggle OFF, touch PAC/SOCKS/bypass, restart listeners, or alter rollback evidence."
+  - "Implemented worker resume-gap detection using wall-minus-monotonic time on macOS; after a suspend gap >=5s it invokes the owned direct-route refresh and emits proxy.resume.direct_proxy_refresh evidence."
+  - "Focused implementation tests PASS: application runtime + macOS backend + GUI 92/92."
+  - "macOS suite PASS: 73/73; runtime/backend/GUI integration 62/62."
+  - "Full regression: 1130 passed, 103 subtests passed, same 3 historical unrelated Windows App Control failures."
+current: "Build exact-commit 0.2.14 ARM64 dogfood, install on MacBook, run safe awake smoke, then perform physical long sleep/wake Safari acceptance."
 pending:
-  - "Open PR and verify exact-head CI, including macOS packaging triggered by proxy_gui.py path."
-  - "Human: with proxy ON, put MacBook to sleep and wake it, then use Off/On normally."
-  - "Inspect post-wake logs/UI; confirm no permanent dual-disabled button state."
+  - "Commit/push exact repair head and verify PR checks."
+  - "Build/install updated 0.2.14 ARM64 candidate and verify exact hash/codesign."
+  - "Run awake On/refresh/Off smoke and exact rollback check."
+  - "Perform another real long sleep/wake Safari acceptance and inspect proxy.resume.direct_proxy_refresh evidence."
   - "Merge only after physical PASS and exact-head CI."
 last_verified_commit: "fc216fb8c7b6a10dd09b57ef082a88af006f54a1"
 test_results:
@@ -48,8 +63,10 @@ test_results:
   - "Full suite: 1127 passed, 103 subtests passed, 3 historical unrelated Windows App Control failures."
   - "0.2.14 ARM64 local app/DMG build PASS; strict codesign PASS; hdiutil verify PASS."
   - "MacBook install + pre-sleep smoke PASS: proxy request PASS, stop RC=0, listeners closed, exact Wi-Fi baseline restored."
-resume_instruction: "Verify exact-head PR CI for fc216fb8c7b6a10dd09b57ef082a88af006f54a1. Then, after the user performs one real MacBook sleep/wake cycle with the installed 0.2.14 candidate, inspect proxy_core.log and GUI state. If On/Off recover normally and network rollback remains exact, mark physical PASS, merge, rerun post-merge checks, and complete the checkpoint; otherwise continue debugging from the new evidence."
-updated_at: "2026-09-24T08:39:00+03:00"
+  - "New focused fix tests: 92/92 PASS; macOS: 73/73 PASS; runtime/backend/GUI: 62/62 PASS."
+  - "New full suite: 1130 passed, 103 subtests passed, same 3 historical unrelated Windows failures."
+resume_instruction: "Build and install the exact committed direct-upstream resume-refresh candidate. Verify awake refresh is ownership-safe and rollback-exact, then run a real long MacBook sleep/wake with Safari open. PASS requires Safari reload/send without APL Off/browser restart, Off immediately actionable after wake, proxy.resume.direct_proxy_refresh completed=true, and exact rollback still intact."
+updated_at: "2026-09-24T09:44:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260924-macos-wake-gui"

@@ -8,9 +8,13 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import time
 from types import ModuleType
 
 _CORE: ModuleType | None = None
+
+MACOS_RESUME_POLL_SECONDS = 1.0
+MACOS_RESUME_GAP_SECONDS = 5.0
 
 
 def configure(core: ModuleType) -> None:
@@ -47,9 +51,46 @@ def _ensure_local_files():
 
 
 def _run_proxy_loop(proxy):
-    """Wait until the proxy worker is asked to stop."""
-    while not proxy._stop.wait(3600):
-        pass
+    """Wait for shutdown and reassert the owned macOS direct proxy after resume."""
+    if sys.platform != "darwin":
+        while not proxy._stop.wait(3600):
+            pass
+        return
+
+    core = _core()
+    checkpoint_mono = time.monotonic()
+    checkpoint_wall = time.time()
+    while not proxy._stop.wait(MACOS_RESUME_POLL_SECONDS):
+        now_mono = time.monotonic()
+        now_wall = time.time()
+        suspend_gap = max(
+            0.0,
+            (now_wall - checkpoint_wall) - (now_mono - checkpoint_mono),
+        )
+        checkpoint_mono = now_mono
+        checkpoint_wall = now_wall
+        if suspend_gap < MACOS_RESUME_GAP_SECONDS:
+            continue
+
+        core.structured_log(
+            "macOS resume detected; reasserting owned direct proxy route",
+            event="proxy.resume.direct_proxy_refresh",
+            phase="detected",
+            suspend_gap_seconds=round(suspend_gap, 3),
+        )
+        refreshed = core.refresh_system_proxy()
+        core.structured_log(
+            (
+                "macOS resume direct proxy route reasserted"
+                if refreshed
+                else "macOS resume direct proxy route reassertion failed"
+            ),
+            level="INFO" if refreshed else "WARNING",
+            event="proxy.resume.direct_proxy_refresh",
+            phase="completed",
+            suspend_gap_seconds=round(suspend_gap, 3),
+            refreshed=bool(refreshed),
+        )
 
 def _cmd_start():
     core = _core()
