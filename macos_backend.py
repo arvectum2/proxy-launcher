@@ -996,7 +996,7 @@ class MacOSBackend(ProxyBackend):
         username = str(config.upstream_username or "")
         password = str(config.upstream_password or "")
         try:
-            for service_name in payload["services"]:
+            for service_name, snapshot in payload["services"].items():
                 self._client.set_web_proxy(
                     service_name,
                     host,
@@ -1013,6 +1013,21 @@ class MacOSBackend(ProxyBackend):
                 )
                 self._client.set_web_proxy_state(service_name, True)
                 self._client.set_secure_web_proxy_state(service_name, True)
+
+                # CFNetwork can keep using a stale proxy-policy session after a
+                # long process/network pause even when the owned HTTP/HTTPS
+                # values are re-written unchanged. Force a real
+                # SystemConfiguration change without changing routing
+                # semantics: write the exact same bypass set in a rotated
+                # order, then restore the canonical order. The set and count
+                # never change, so no destination gains or loses bypass.
+                expected_bypass = tuple(
+                    self._expected_bypass(snapshot, payload["applied_config"])
+                )
+                if len(expected_bypass) >= 2:
+                    rotated = expected_bypass[1:] + expected_bypass[:1]
+                    self._client.set_bypass_domains(service_name, rotated)
+                    self._client.set_bypass_domains(service_name, expected_bypass)
         except Exception as exc:
             self._log("macOS refresh failed while reasserting owned route: %s" % exc)
             return False
