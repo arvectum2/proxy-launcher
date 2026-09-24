@@ -19,10 +19,10 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "Apple Developer Program membership is verified active as Organization (LLC ARVECTUM); Owner is Account Holder; Team ID VML75VY94V. Team ID is set in mobile/ios/project.yml and unsigned build remains green. Xcode account login is blocked by 2FA/SMS throttling, but the existing Safari session is authenticated on developer.apple.com and successfully opens Certificates, Identifiers & Profiles. Manual signing through the Developer Portal is therefore the active fallback path."
+current: "Apple Development certificate is successfully installed and linked to its private key; security find-identity now reports one valid identity: Apple Development: Nikita Arutyunov (B28LL3M9N4). Team ID VML75VY94V is set and unsigned build remains green. Next step is registering App IDs/App Group/Network Extensions and provisioning profiles through the already-authenticated Developer Portal session."
 pending:
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "1c4f303"
+last_verified_commit: "fe12a580344559a6d6fc0a65c979c2b404af1339"
 test_results:
   - "PASS: exact-head Apple-hosted Mobile iOS personal run 35443212271 at 3e7aaac: core-tests + unsigned-device-build."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -36,10 +36,10 @@ test_results:
   - "PASS: pinned tun2proxy fetch and XcodeGen generation under Xcode 26.6."
   - "PASS: iOS 26.5 runtime installed successfully after one earlier reset; Xcode now lists iOS 26.5 runtime and Any iOS Device."
   - "PASS: exact local unsigned generic iPhone build under Xcode 26.6/iOS 26.5 finished with BUILD SUCCEEDED; output app bundle is ~11 MB and embeds Arvectum Packet Tunnel.appex."
-  - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Xcode account sign-in is temporarily blocked by Apple 2FA/SMS rate limiting. Safari is authenticated only on developer.apple.com, not account.apple.com; there is no supported session-token handoff to Xcode. This no longer blocks signing because Certificates, Identifiers & Profiles is confirmed accessible in the existing Developer Portal session, so manual signing can proceed."
-resume_instruction: "Proceed with manual signing through the already-authenticated developer.apple.com session; do not wait on Xcode 2FA and do not extract/reuse Safari cookies or web tokens. Create a CSR in Keychain Access, create/install Apple Development certificate, register explicit App IDs ru.arvectum.proxylauncher.ios and ru.arvectum.proxylauncher.ios.PacketTunnel, register/assign group.ru.arvectum.proxylauncher.ios, enable Network Extensions packet-tunnel-provider, register the physical iPhone, create/download development profiles for both targets, install them locally, then build/sign without Xcode account login. Later create Apple Distribution certificate + App Store Connect profiles for release. Do not start per-app routing."
-updated_at: "2026-09-24T20:48:00+03:00"
+  - "PASS: Apple Development certificate installed; security find-identity reports 1 valid identity: Apple Development: Nikita Arutyunov (B28LL3M9N4)."
+blocker: "Certificate signing is no longer blocked: one valid Apple Development identity exists. Remaining blocker is portal provisioning. Safari is authenticated on developer.apple.com, but Safari currently has Allow JavaScript from Apple Events disabled, so automated portal interaction cannot proceed without either enabling that setting or manual portal clicks."
+resume_instruction: "Do not recreate the certificate: Apple Development identity B28LL3M9N4 is valid. Next, through the authenticated Developer Portal, register explicit App IDs ru.arvectum.proxylauncher.ios and ru.arvectum.proxylauncher.ios.PacketTunnel, register/assign group.ru.arvectum.proxylauncher.ios, enable Network Extensions packet-tunnel-provider, register the physical iPhone, create/download development profiles for both targets, install them locally, then build/sign without Xcode account login. If Owner enables Safari Settings > Developer > Allow JavaScript from Apple Events, automate the portal via the existing Safari session without extracting cookies/tokens. Later create Apple Distribution certificate + App Store Connect profiles for release. Do not start per-app routing."
+updated_at: "2026-09-24T21:23:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
