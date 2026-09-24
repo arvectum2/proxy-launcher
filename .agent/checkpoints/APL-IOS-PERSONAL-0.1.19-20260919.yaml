@@ -19,10 +19,10 @@ completed:
   - "Added reproducible XcodeGen project, iOS entitlements/plists, branded app icons, pinned tun2proxy fetch/verification tool and unsigned GitHub Actions workflow."
   - "Updated execution queue and roadmap to record explicit Owner prioritization of the personal iOS lane."
   - "Local validation passed: plutil entitlements/plists, XcodeGen generation, swift build for SharedCore, swiftc parse for all Swift sources, Python fetch-tool compilation."
-current: "Local iOS validation is complete and green. Owner reports Apple Developer Program payment succeeded and is signed in on the Mac mini with the corporate Apple Account. Local Xcode has not yet surfaced a Development Team, signing identity, or provisioning profile; project DEVELOPMENT_TEAM remains empty. Next gate is verifying that paid Organization membership is active in the developer account/Xcode, then configuring automatic signing and App Store Connect distribution."
+current: "Apple Developer Program membership is verified active as Organization (LLC ARVECTUM); Owner is Account Holder; Team ID VML75VY94V. Team ID is now set in mobile/ios/project.yml and the unsigned iPhone build remains green. Signed build with -allowProvisioningUpdates fails only because Xcode itself has no Apple Account configured (No Accounts); no signing identities/provisioning profiles exist locally yet."
 pending:
   - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "4726192718ce18b9327467efcde3b60818e2d33d"
+last_verified_commit: "1c4f303"
 test_results:
   - "PASS: exact-head Apple-hosted Mobile iOS personal run 35443212271 at 3e7aaac: core-tests + unsigned-device-build."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -37,9 +37,9 @@ test_results:
   - "PASS: iOS 26.5 runtime installed successfully after one earlier reset; Xcode now lists iOS 26.5 runtime and Any iOS Device."
   - "PASS: exact local unsigned generic iPhone build under Xcode 26.6/iOS 26.5 finished with BUILD SUCCEEDED; output app bundle is ~11 MB and embeds Arvectum Packet Tunnel.appex."
   - "LOCAL SIGNING BLOCKER: security find-identity reports 0 valid code-signing identities."
-blocker: "Membership payment is reported complete, but activation as a paid Organization team is not yet independently verified from Xcode. Current local evidence: DEVELOPMENT_TEAM is empty, security find-identity reports 0 valid identities, and there are 0 provisioning profiles. Do not create/sign/upload until the paid organization team is visible and selected."
-resume_instruction: "Do not repeat local tests/build unless code changes. First verify the Apple Developer Program membership is Active and enrolled as Organization, and that the organization team appears in Xcode Settings > Accounts. Once verified, select the team for both app and PacketTunnel, keep automatic signing, let Xcode register explicit App IDs/App Group/Network Extensions profiles, then archive/upload through App Store Connect only after App Store metadata/privacy/review requirements are prepared. Separately sign/install on a physical iPhone for connect/failover/exclusions acceptance. Do not start per-app routing."
-updated_at: "2026-09-24T20:24:00+03:00"
+blocker: "Paid Organization membership is active and verified. Remaining immediate blocker: add arutyunov@arvectum.com to Xcode Settings > Accounts on the Mac mini. Until then xcodebuild reports No Accounts and cannot create automatic signing certificates/profiles; security find-identity remains 0 valid identities and provisioning profiles remain 0."
+resume_instruction: "After Owner adds arutyunov@arvectum.com in Xcode Settings > Accounts, rerun signed build with -allowProvisioningUpdates in the dedicated iOS worktree. Verify development certificate, profiles, explicit App IDs, App Group and Network Extensions entitlements for both app and PacketTunnel. Then sign/install on the physical iPhone for acceptance. For App Store release, prepare privacy/data-use disclosure, privacy policy, App Store metadata/screenshots, and App Review Notes before archive/upload. Do not start per-app routing."
+updated_at: "2026-09-24T20:32:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"

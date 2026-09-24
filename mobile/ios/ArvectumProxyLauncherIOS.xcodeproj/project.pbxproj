@@ -206,11 +206,11 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					E61DDAFAF71112FF83DBA198 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = VML75VY94V;
 						ProvisioningStyle = Automatic;
 					};
 					E8AD32270232FC1E1DF6E09B = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = VML75VY94V;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -318,7 +318,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 20;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = VML75VY94V;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -435,7 +435,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 20;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = VML75VY94V;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
