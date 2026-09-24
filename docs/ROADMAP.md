@@ -1,9 +1,9 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-21
+Updated: 2026-09-24
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
-Current stable product line: 0.2.12 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64 and generic Linux x86-64 AppImage
+Current stable product line: 0.2.13 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage, plus macOS ARM64/x64 beta DMGs
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
@@ -21,9 +21,9 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 
 ## 1. Current stable product line
 
-- **CURRENT / PUBLISHED — v0.2.12** (published 2026-09-21): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, plus SHA256SUMS.txt.
-- **EXACT RELEASE OBJECT** — immutable v0.2.12 tag/release points to `8d9a4e5913fa92b39f0f926004df6f1fd57f3bde`; GitHub asset checksums and GitVerse canonical payload parity were independently verified.
-- **CURRENT MAIN IS AHEAD OF THE RELEASE** — canonical `main` is `df4478a70729e20f33b7a0d17476183423955576` after merged PR #148. The free-proxy gateway/Android 0.1.31 work is therefore **not** part of immutable desktop v0.2.12.
+- **CURRENT / PUBLISHED — v0.2.13** (published 2026-09-23): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, macOS ARM64/x64 beta DMGs, plus SHA256SUMS.txt.
+- **EXACT RELEASE OBJECT** — immutable v0.2.13 tag/release points to `9645c006f601092e758593ce79a6871a4a68b7c7`; GitHub asset checksums and GitVerse canonical payload parity were independently verified.
+- **CURRENT MAIN** — canonical `main` is `58f24b9aab568f63d9807819c5d453f807244f6b`, after the v0.2.13 release checkpoint merge; immutable release bytes remain bound to `9645c006f601092e758593ce79a6871a4a68b7c7`.
 - **v0.2.11** (published 2026-09-20) carried the Windows PAC/WPAD isolation fix and macOS Safari/CONNECT routing hardening.
 - **v0.2.12** publishes the verified macOS long-sleep recovery and Android long-sleep/foreground VPN reconciliation while preserving immutable v0.2.11.
 - **CURRENT SAFETY CONTRACT** — Windows rollback/recovery retains saved-or-Arvectum ownership/fail-closed semantics; Astra/Fly and RED OS/KDE real-host acceptance remain valid unless a material platform/recovery change requires rerun.
@@ -32,14 +32,14 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified for this roadmap refresh: df4478a70729e20f33b7a0d17476183423955576.
+Current canonical main verified for this roadmap refresh: 58f24b9aab568f63d9807819c5d453f807244f6b.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
 - **DONE / HISTORICAL EVIDENCE** — company УКЭП/CryptoPro remains RELEASE-EVIDENCE-ONLY; it is not Microsoft Authenticode/SmartScreen publisher trust.
 - **DONE** — APL-REL-011/012/013 release manifest, verification UX and fail-closed Russian production release gate.
-- **CURRENT PUBLIC RELEASE** — v0.2.12 is published without native Authenticode.
-- **READY FOR REVIEW REFRESH — issue #30, PR #132** — PR #132's substantive research remains useful, but its immutable baseline/version boundary is stale: it targets v0.2.10 with v0.2.11+ as first eligible. Because v0.2.11 and v0.2.12 are now public and unsigned, refresh/rebase the packet to v0.2.12 and make **v0.2.13+** the first eligible future embedded-signing release.
+- **CURRENT PUBLIC RELEASE** — v0.2.13 is published without native Authenticode.
+- **READY FOR OWNER REVIEW — issue #30, PR #161** — PR #161 supersedes stale PR #157/#132 preparation and refreshes the trust contract to immutable unsigned v0.2.13, with **v0.2.14+** as the first eligible future embedded-signing release. Exact-head CI is green; no provider/certificate/key-custody decision is implied.
 - **OWNER GATE** — after refresh, provider/certificate selection, spend, key custody, packet merge as an approved decision, production signing and release remain Owner-reserved.
 - **RULE** — never retrofit embedded signing into an immutable published release; every trust change belongs to a new version.
 

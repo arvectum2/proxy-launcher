@@ -1,17 +1,19 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-21T21:08:00+03:00"
+updated_at: "2026-09-24T11:00:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "df4478a70729e20f33b7a0d17476183423955576"
-  stable_release: "v0.2.12"
-  stable_release_published_at: "2026-09-21"
+  main_sha_verified: "58f24b9aab568f63d9807819c5d453f807244f6b"
+  stable_release: "v0.2.13"
+  stable_release_published_at: "2026-09-23"
   platforms:
     - Windows x64 setup
     - Windows x64 portable
     - Astra Linux 1.8 x86-64 DEB
     - RED OS 8.0.3 x86-64 RPM
     - Generic Linux x86-64 AppImage
+    - macOS ARM64 beta DMG
+    - macOS x64 beta DMG
 
 # Ordered execution view over the accepted active backlog. The executor may update
 # status/evidence only; it must not silently reorder or reclassify items.
@@ -59,13 +61,13 @@ items:
     authority: REVIEW
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30; PR #132"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P7; issue #30; PR #161"
     dependencies: []
-    blocker: "PR #132 is now version-stale/non-mergeable after unsigned v0.2.11 and v0.2.12 publication. It must be refreshed/replaced before Owner review."
+    blocker: "PR #161 refreshes the REVIEW packet to immutable unsigned v0.2.13 and v0.2.14+ as the first eligible future embedded-signing release; final Owner review remains required."
     owner_gate: "After the packet is current, Owner review remains required for merge and for any provider/certificate spend, key-custody commitment, production signing or release."
-    executor_scope: "Refresh/rebase the REVIEW packet to immutable v0.2.12, make v0.2.13+ the first eligible future embedded-signing release, re-verify current trust requirements, and stop at review-ready state."
-    active_pr: 132
-    evidence: "PR #132 was green for the v0.2.10/v0.2.11+ boundary, but v0.2.11 and v0.2.12 were subsequently published without native Authenticode. Preserve its substantive research while updating the immutable baseline/version boundary."
+    executor_scope: "Preserve immutable v0.2.13, keep v0.2.14+ as the first eligible future embedded-signing release, maintain current trust evidence, and stop at review-ready state."
+    active_pr: 161
+    evidence: "PR #161 supersedes stale PR #157/#132 preparation and carries the refreshed v0.2.13/v0.2.14+ REVIEW packet; exact-head CI is green. No provider, certificate, key custody, production signing or release decision is approved by this evidence."
 
   - order: 50
     task_id: APL-REG-001B-PHYSICAL-PROOF

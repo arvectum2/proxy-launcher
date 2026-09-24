@@ -16,17 +16,15 @@ completed:
   - "Carried forward the substantive decision packet, workflow trigger coverage, CA/B Forum public-profile gate and runbook without stale current-task state."
   - "Updated packet/runbook/checkpoint boundary to immutable v0.2.13 / first eligible v0.2.14+ and review date 2026-09-24."
   - "Focused local tests PASS: tests/test_windows_public_trust.py 10/10; git diff --check PASS."
-current: "REVIEW refresh implementation is prepared locally on agent/apl-rel-016-v0213-refresh; exact-head CI/PR evidence must be obtained before Owner-ready status is claimed."
+current: "REVIEW packet is Owner-ready in PR #161 after v0.2.13 canonical roadmap/queue/backlog reconciliation; exact-head CI is green. Final decision/merge and all provider/certificate/key-custody/signing/release actions remain Owner-reserved."
 pending:
-  - "Push refreshed branch and open/update a REVIEW PR against current main."
-  - "Check exact-head CI once; if green, stop at Owner review/decision gate."
   - "Owner review/decision on provider/certificate/key-custody/signing strategy and whether to merge the REVIEW packet."
-last_verified_commit: null
+last_verified_commit: "6dcca69d94c8f65c7abd9f9f07e5235b9088441f"
 test_results:
   - "python3 -m pytest -q tests/test_windows_public_trust.py: 10 passed."
   - "git diff --check: PASS."
-resume_instruction: "Finish REVIEW preparation only: obtain exact-head CI and a current PR. Do not merge or perform provider/certificate/key-custody/signing/release actions without the reserved Owner decision."
-updated_at: "2026-09-24T08:57:00+03:00"
+resume_instruction: "Stop at Owner review for PR #161. Do not merge or perform provider/certificate/key-custody/signing/release actions without the reserved Owner decision."
+updated_at: "2026-09-24T11:00:00+03:00"
 execution:
   claimed_by: null
   execution_id: null
