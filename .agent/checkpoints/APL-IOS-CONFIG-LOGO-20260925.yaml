@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: in_progress
+status: blocked
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -40,16 +40,19 @@ completed:
   - "PASS: clean core tests 6/6, 0 failures after virtual-DNS production fix."
   - "PASS: clean unsigned generic iphoneos build BUILD SUCCEEDED."
   - "PASS: clean signed Debug build BUILD SUCCEEDED with APL Development + APL Packet Tunnel Development profiles; codesign --verify --deep --strict passed."
-current: "Production virtual-DNS fix is locally verified: core tests 6/6 pass, unsigned generic iPhone build succeeds, signed Debug build succeeds with valid Apple Development signatures/profiles and codesign verification. Temporary diagnostics are absent. Next: commit/push exact production state, install clean signed build, verify exact-head CI, then wait only for Owner user-level ChatGPT/Telegram and VPN-indicator confirmation."
+  - "PASS: production commit f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a pushed."
+  - "PASS: clean signed production Debug artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-virtual-dns-fix/ and installed/launched on iPhone."
+  - "CI partial: exact-head run 36110301163 core-tests SUCCESS; unsigned-device-build still in progress at checkpoint update."
+current: "Production fix committed/pushed at f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a and clean signed build is installed/launched on iPhone. Root cause is virtual-DNS hostname preservation: physical diagnostic on the same device/profile changed only over-tcp -> virtual and converted both HTTPS probes from NSURLError -1200 to HTTP 200. Local tests/build/signing are green. Exact-head GitHub Mobile iOS personal run 36110301163 has core-tests SUCCESS; unsigned-device-build is still running. Remaining external confirmation: Owner taps connect in the clean build and confirms ChatGPT/Telegram plus Control Center VPN indicator behavior."
 pending:
-  - "Commit/push exact production virtual-DNS fix and verify exact-head CI."
-  - "Install clean signed production build on iPhone."
-  - "Owner confirms ChatGPT/Telegram work and checks system VPN indicator/Control Center after clean build; if traffic is good but icon expectation differs, document iOS UI behavior rather than adding a nonexistent separate VPN-app registration layer."
-last_verified_commit: "acaec9680463e709798b047d497fcb9505486463"
+  - "Wait for exact-head GitHub run 36110301163 unsigned-device-build to complete successfully."
+  - "Owner connects in the clean installed build and confirms ChatGPT/Telegram work; check VPN icon in Control Center (Face ID iPhone may show additional status icons there rather than persistently beside LTE)."
+  - "If user-level traffic is green, mark task completed; if traffic regresses, capture fresh telemetry before changing code."
+last_verified_commit: "f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a"
 test_results: []
-blocker: "None. Root cause is confirmed and production fix is implemented; verification is in progress."
-resume_instruction: "Continue from clean virtual-DNS production verification. Do not reintroduce smoke/debug instrumentation or revisit credentials. Run tests/builds, install clean signed app, verify physical traffic, push exact production commit and check CI. Then complete the task if Owner confirms ChatGPT/Telegram work."
-updated_at: "2026-09-25T10:57:00+03:00"
+blocker: "Waiting only for exact-head CI unsigned-device-build completion and Owner user-level confirmation on the clean installed build. No known implementation blocker remains."
+resume_instruction: "First check GitHub run 36110301163. If green and Owner confirms ChatGPT/Telegram work, update checkpoint to completed without rebuilding. If Owner reports traffic failure, read fresh App Group telemetry and PacketTunnel process state before changing code. For VPN icon expectations, rely on NETunnelProviderManager system configuration and Control Center status; do not invent a separate VPN-app registration mechanism."
+updated_at: "2026-09-25T11:00:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
