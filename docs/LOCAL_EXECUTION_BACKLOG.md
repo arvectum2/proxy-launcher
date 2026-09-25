@@ -1,8 +1,8 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-21  
+Updated: 2026-09-24
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
-Current stable release: `v0.2.12`
+Current stable release: `v0.2.13`
 
 This file contains the remaining work that cannot be truthfully completed by hosted repository automation alone, plus active review/owner gates after the Windows/Astra/RED OS desktop baseline and registry dossier work.
 
@@ -12,20 +12,22 @@ This file contains the remaining work that cannot be truthfully completed by hos
 - **DONE** — the single hourly `Proxy Launcher Watchdog` is enabled and reads `.agent/executor-policy.yaml`, `.agent/execution-queue.yaml`, `.agent/current-task.yaml`, this backlog and the canonical roadmap.
 - **RULE** — watchdog may skip blocked HUMAN/OWNER gates to do later independent admitted preparation, but may not reorder the queue or invent scope/approval.
 
-## P1 — current stable release `v0.2.12` — PUBLISHED
+## P1 — current stable release `v0.2.13` — PUBLISHED
 
-Published 2026-09-21 from exact release SHA `8d9a4e5913fa92b39f0f926004df6f1fd57f3bde`:
+Published 2026-09-23 from exact release SHA `9645c006f601092e758593ce79a6871a4a68b7c7`:
 
 - Windows x64 Setup;
 - Windows x64 portable ZIP;
 - Astra Linux x86-64 DEB;
 - RED OS 8.0.3 x86-64 RPM;
 - generic Linux x86-64 AppImage;
+- macOS ARM64 beta DMG;
+- macOS x64 beta DMG;
 - `SHA256SUMS.txt`.
 
 GitHub release assets independently pass `sha256sum -c`; GitVerse metadata/assets/canonical-payload parity is recorded PASS.
 
-Important boundary: current `main` is `df4478a70729e20f33b7a0d17476183423955576`, ahead of the immutable v0.2.12 release because PR #148 later merged free-proxy gateway/Android 0.1.31 work. Do not describe those post-release bytes as part of v0.2.12.
+Important boundary: immutable v0.2.13 release bytes are bound to `9645c006f601092e758593ce79a6871a4a68b7c7`; canonical `main` is `58f24b9aab568f63d9807819c5d453f807244f6b` after the release checkpoint merge. Do not mutate the published tag/assets.
 
 Historical progression:
 - `v0.2.5` — Windows CFA-safe physically accepted baseline;
@@ -157,18 +159,15 @@ Do not claim GitVerse or another provider is compliant merely because it is Russ
 
 Issue: `#55`.
 
-## P7 — Windows public trust / APL-REL-016 — READY FOR REVIEW REFRESH
+## P7 — Windows public trust / APL-REL-016 — READY FOR OWNER REVIEW
 
-Issue: `#30`. Existing review PR: `#132`.
+Issue: `#30`. Current review PR: `#161`.
 
-PR #132's substantive research/tests are useful, but its version boundary is stale:
-- it treats `v0.2.10` as current;
-- it names `v0.2.11+` as the first eligible embedded-signing release;
-- public `v0.2.11` and `v0.2.12` have since shipped unsigned.
+PR #161 supersedes stale PR #157/#132 preparation and is based on canonical main after immutable `v0.2.13`; `v0.2.13` remains unsigned and immutable, so `v0.2.14+` is the first eligible future embedded-signing release.
 
 Current action:
-1. refresh/rebase or replace PR #132 against immutable `v0.2.12`;
-2. make `v0.2.13+` the first eligible future native Authenticode/public-trust release;
+1. preserve immutable unsigned `v0.2.13` as the current trust baseline;
+2. keep `v0.2.14+` as the first eligible future native Authenticode/public-trust release;
 3. re-verify SmartScreen/App Reputation, Smart App Control/Application Control, managed-enterprise trust, CA/B Forum and provider geography requirements;
 4. keep Russian detached CryptoPro/Rutoken evidence separate from Microsoft-native publisher trust;
 5. stop at Owner review.

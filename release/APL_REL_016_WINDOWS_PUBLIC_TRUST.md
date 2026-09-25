@@ -1,8 +1,8 @@
 # APL-REL-016 — Windows public trust for direct distribution
 
 **Status:** REPOSITORY/ENGINEERING IMPLEMENTED; PRODUCTION CERTIFICATE + PHYSICAL MOTW ACCEPTANCE PENDING  
-**Decision date:** 2026-09-13  
-**First eligible release:** `0.2.6+`  
+**Decision date / current-requirements review:** 2026-09-24
+**First eligible release:** `0.2.14+`
 **Immutable predecessor:** `v0.2.5`  
 **Owner:** ООО «Арвектум»
 
@@ -10,7 +10,7 @@
 
 APL-REL-016 closes the gap between governed Arvectum release evidence and a Windows executable that an ordinary unmanaged Windows machine can identify as coming from a trusted software publisher.
 
-`v0.2.5` remains immutable. Its current CryptoPro/Rutoken evidence is valid, but the PE files are not Authenticode-signed. Every embedded-signature byte change belongs to `0.2.6+`.
+`v0.2.5`, `v0.2.9`, and the now-published `v0.2.13` remain immutable. Their governed release evidence is valid, but production Windows public Authenticode signing is not active on those published releases. Every embedded-signature byte change under APL-REL-016 therefore belongs to `0.2.14+`.
 
 Canonical machine contract:
 
@@ -32,10 +32,13 @@ Production profile:
 - RFC 3161 timestamp with SHA-256;
 - chain accepted by Windows through a CA participating in the Microsoft Trusted Root Program for code signing;
 - public certificate/provider must meet the CA/Browser Forum Code Signing Baseline Requirements;
+- for certificates procured under the current profile, the subscriber certificate must contain exactly one reserved CAB Forum code-signing policy OID: `2.23.140.1.4.1` (Non-EV) or `2.23.140.1.3` (EV); this requirement is effective from 2026-09-15;
+- certificates issued on or after 2026-03-01 must have a validity period no longer than 460 days;
 - stable verified publisher identity for ООО «Арвектум»;
+- subscriber private-key custody must remain hardware/signing-service protected under the current CA/B Forum requirements;
 - no PFX/P12/private-key material in Git or ordinary cloud-CI secrets.
 
-The RSA-3072 floor is deliberate: current public Code Signing Baseline Requirements require at least RSA-3072 for subscriber code-signing certificates. Smart App Control additionally requires an RSA-compatible signing path; ECC is not the production baseline here.
+The RSA-3072 floor is deliberate: current public Code Signing Baseline Requirements require at least RSA-3072 for subscriber code-signing certificates. Smart App Control additionally requires an RSA-compatible signing path; ECC is not the production baseline here. The REL-016 public gate also checks the post-2026-09-15 certificate-policy profile and the 460-day validity ceiling rather than assuming that a syntactically valid Authenticode signature is current-policy compliant.
 
 ### 2.2 Managed enterprise Windows trust
 
@@ -86,7 +89,7 @@ Procurement order:
 
 ### 4.1 Russian National Certification Authority watch-path
 
-The MinDigital draft dated **2026-08-28** is important: it defines a separate **RSA code-signing certificate using international cryptographic algorithms**, requires `codeSigning` EKU, and references the CAB Forum code-signing policy OID `2.23.140.1.4.1`.
+The MinDigital draft dated **2026-08-28**, re-checked on **2026-09-24**, is important: it defines a separate **RSA code-signing certificate using international cryptographic algorithms**, requires `codeSigning` EKU, and references the CAB Forum code-signing policy OID `2.23.140.1.4.1`.
 
 This is now the **first Russian-native candidate to re-check** before any international certificate purchase.
 
@@ -108,7 +111,7 @@ It must not be promoted to public Windows trust until all of the following are t
 
 The fact that the current Russian Trusted Root can be manually installed into Windows does **not** satisfy public consumer trust.
 
-Microsoft Artifact Signing can be re-evaluated if geographic eligibility changes. It is not assumed available to a Russian legal entity. Microsoft Store/MSIX remains a separate future distribution channel.
+Microsoft Artifact Signing Public Trust is **not currently available to a Russian organization under Microsoft’s published geography list**. As checked on 2026-09-24, Microsoft lists organizations in the United States, Canada, the European Union, the United Kingdom, Australia, New Zealand, Japan, South Korea, Singapore, Switzerland, Norway and Israel; Russia is not listed. Re-evaluate only if Microsoft changes eligibility or the Owner explicitly approves a separately eligible legal-entity path after legal review. Microsoft Store/MSIX remains a separate future distribution channel.
 
 ## 5. Exact byte order
 
@@ -200,10 +203,13 @@ For `-RequirePublicReady`, require:
 6. expected publisher + thumbprint;
 7. Code Signing EKU + RSA >= 3072;
 8. successful Windows chain build;
-9. retained authoritative Microsoft Trusted Root Program reference; local root-store presence alone is insufficient proof;
-10. Defender enabled with no candidate-specific detection;
-11. actual SmartScreen outcome recorded;
-12. Smart App Control outcome recorded when enforced.
+9. exactly one current CAB Forum reserved subscriber code-signing policy OID (`2.23.140.1.4.1` Non-EV or `2.23.140.1.3` EV);
+10. subscriber certificate validity window compliant with the current 460-day ceiling where applicable;
+11. an RFC 3161 timestamp is present;
+12. retained authoritative Microsoft Trusted Root Program reference; local root-store presence alone is insufficient proof;
+13. Defender enabled with no candidate-specific detection;
+14. actual SmartScreen outcome recorded;
+15. Smart App Control outcome recorded when enforced.
 
 The gate emits JSON evidence rather than relying on screenshots alone.
 
@@ -274,20 +280,21 @@ Those remain external gates instead of fabricated PASS results.
 
 REL-016 fails policy if production requires or recommends:
 
-- mutating `v0.2.5` or replacing its assets;
+- mutating `v0.2.5`, `v0.2.9`, or `v0.2.13` or replacing their assets;
 - disabling Defender, SmartScreen, Smart App Control or Controlled Folder Access;
 - Windows test-signing/developer mode;
 - asking ordinary users to install a self-signed/Arvectum/Russian root merely to make a public download appear trusted;
 - treating the current ФНС УКЭП as native Authenticode without a separately proven public code-signing chain;
 - calculating final hashes before final embedded signing;
 - storing PFX/P12/private keys/PINs/passwords in Git or ordinary cloud CI;
-- claiming "SmartScreen trusted" merely because `Get-AuthenticodeSignature` is `Valid`.
+- claiming "SmartScreen trusted" merely because `Get-AuthenticodeSignature` is `Valid`;
+- treating Artifact Signing Public Trust as currently available to ООО «Арвектум» while Russia remains outside Microsoft’s published organization geography.
 
 ## 13. Completion state
 
 Repository implementation is complete when this contract, the RSA-3072 signing primitive, signed-portable packager, physical public-trust gate, regression tests and CI are merged.
 
-Production public trust remains pending until a `0.2.6+` candidate has an eligible production identity and physical evidence equivalent to:
+Production public trust remains pending until a `0.2.14+` candidate has an eligible production identity and physical evidence equivalent to:
 
 ```text
 Application Authenticode: VALID

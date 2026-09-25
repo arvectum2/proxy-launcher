@@ -16,7 +16,10 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertEqual(contract["task"], "APL-REL-016")
         self.assertEqual(contract["immutable_predecessor"]["version"], "0.2.5")
         self.assertFalse(contract["immutable_predecessor"]["mutation_allowed"])
-        self.assertEqual(contract["first_eligible_release"], "0.2.6")
+        self.assertEqual(contract["first_eligible_release"], "0.2.14")
+        self.assertEqual(contract["current_public_baseline"]["version"], "0.2.13")
+        self.assertFalse(contract["current_public_baseline"]["mutation_allowed"])
+        self.assertFalse(contract["current_public_baseline"]["windows_public_authenticode_active"])
         self.assertEqual(
             set(contract["trust_layers"]),
             {"public_consumer_windows", "managed_enterprise_windows", "russian_release_evidence"},
@@ -129,6 +132,7 @@ class WindowsPublicTrustTests(unittest.TestCase):
         forbidden = set(contract["forbidden_shortcuts"])
         for item in {
             "mutate_v0.2.5",
+            "mutate_v0.2.13",
             "disable_defender",
             "disable_smartscreen",
             "disable_smart_app_control",
