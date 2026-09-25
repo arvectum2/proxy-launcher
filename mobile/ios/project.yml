@@ -18,8 +18,8 @@ targets:
       - App
       - Shared
       - SharedCore
-    resources:
-      - Resources
+      - path: Resources
+        buildPhase: resources
     dependencies:
       - target: PacketTunnel
         embed: true

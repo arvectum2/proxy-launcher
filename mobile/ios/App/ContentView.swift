@@ -53,15 +53,17 @@ struct ContentView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .lastTextBaseline, spacing: 7) {
-            Text("AV")
-                .font(.system(size: 20, weight: .black, design: .rounded))
-                .foregroundStyle(Brand.mint)
-            Text("Arvectum Proxy Launcher")
+        HStack(alignment: .center, spacing: 8) {
+            Image("ArvectumWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 112, height: 24)
+                .accessibilityLabel("Arvectum")
+            Text("Proxy Launcher")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Brand.mint)
                 .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .minimumScaleFactor(0.82)
             Spacer(minLength: 4)
             Text(AppShared.version)
                 .font(.caption2)

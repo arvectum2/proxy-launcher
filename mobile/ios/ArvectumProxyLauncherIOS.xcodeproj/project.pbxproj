@@ -28,6 +28,8 @@
 		A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
+		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
 		FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A9D0427123A9620FB1C3DE /* VPNController.swift */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +59,7 @@
 
 /* Begin PBXFileReference section */
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSProxyRelay.swift; sourceTree = "<group>"; };
 		597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tun2proxy.xcframework; path = Frameworks/tun2proxy.xcframework; sourceTree = "<group>"; };
@@ -70,6 +73,7 @@
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		BEA603A59EEC8463F7514A12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -105,6 +109,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		393ED22990C8B81CA7BF7036 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */,
+				CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		7993D6249BA5ED912325B875 /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
@@ -119,6 +132,7 @@
 			children = (
 				B36CC5CE120606BD58EA5D89 /* App */,
 				7993D6249BA5ED912325B875 /* PacketTunnel */,
+				393ED22990C8B81CA7BF7036 /* Resources */,
 				06BA12DAD2EBF082199884CA /* Shared */,
 				AD4D647FF2618816DB99E52D /* SharedCore */,
 				1F094A6FB7414A605DE1CF10 /* Frameworks */,
@@ -164,6 +178,7 @@
 			buildConfigurationList = 776726B3194055A397811972 /* Build configuration list for PBXNativeTarget "ArvectumProxyLauncher" */;
 			buildPhases = (
 				9D6E75C14E16823EE2CFB35A /* Sources */,
+				EC376EA4F229E146F744F80A /* Resources */,
 				A71EF1F191128AEE468E1E46 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -234,6 +249,18 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EC376EA4F229E146F744F80A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */,
+				E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4C608DF927072F2BF5DC1505 /* Sources */ = {
