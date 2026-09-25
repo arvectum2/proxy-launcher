@@ -207,6 +207,36 @@ Current production-specific work:
 
 This is an active distribution gate, not a functional-runtime dependency.
 
+## P9A — macOS App Store 0.2.17 + Help UX — READY / OWNER-DIRECTED
+
+Owner direction on 2026-09-25: execute the Mac App Store release work in a separate chat/task. The repository must expose this workstream canonically so it can be resumed without chat-memory dependence.
+
+Release boundary:
+- target first Mac App Store release: **0.2.17**;
+- keep the public v0.2.16 Developer ID/notarized DMG release immutable and keep direct distribution as a separate supported channel;
+- do not assume the direct `networksetup` packaging/runtime model is Store-compatible: validate sandbox/networking/signing/package architecture explicitly in the Mac App Store task;
+- final App Store submission/release remains a HUMAN action against Apple/App Store Connect.
+
+Mandatory pre-submission Help UX:
+1. The normal macOS **Help** menu opens a bundled offline help surface; the current system response “No help is available for Arvectum Proxy Launcher” is not acceptable for the Store candidate.
+2. Offline help contains at minimum:
+   - **Getting Started** — add/select proxy, validate it, turn APL on/off;
+   - **Status meanings** — RUNNING/STOPPED, System Proxy Enabled and related user-facing state;
+   - **Proxy formats** — supported HTTP/HTTPS CONNECT/SOCKS forms and authentication examples;
+   - **Troubleshooting** — no internet, Safari/sites unavailable, wake/sleep recovery, restoring network settings;
+   - **About & Privacy** — what APL changes locally, privacy boundary and where to get support.
+3. Help footer/about area shows the running app version, **© Arvectum LLC**, and actions for:
+   - **View on GitHub** → `https://github.com/arvectum2/proxy-launcher`;
+   - **Release Notes** → `https://github.com/arvectum2/proxy-launcher/releases/latest`;
+   - **Report a Problem** → canonical GitHub issue flow.
+4. Offline help remains readable when the proxy or internet connection is unavailable; online links are additive only.
+5. **Check for Updates** is designed per distribution channel:
+   - direct Developer ID build may use a GitHub/direct-update mechanism when separately implemented;
+   - Mac App Store build must rely on the App Store update mechanism and must not ship a competing self-updater that bypasses it.
+6. Acceptance includes an actual macOS menu/UI check that Help opens successfully and no “no help available” system alert remains.
+
+Canonical execution item: `APL-MAC-APPSTORE-PUBLISH-20260925`.
+
 ## P10 — Russian Software Register dossier / external filing — DOSSIER DONE, SUBMISSION HOLD
 
 ### Repository dossier — DONE

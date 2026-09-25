@@ -32,7 +32,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified for this roadmap refresh: df4478a70729e20f33b7a0d17476183423955576.
+Current canonical main verified before this roadmap update: e843ab54b596eea622494fb3283af881e71826a8.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
@@ -91,7 +91,15 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / ROUTING HARDENING** — PRs #141/#143 hardened upstream failover and Safari CONNECT behavior before v0.2.11.
 - **DONE / LONG-SLEEP RECOVERY** — PRs #146/#149 resolved the macOS sleep/wake regression; the final v0.2.12 behavior was physically accepted on a MacBook and is part of the desktop source release.
 - **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel cloud packages were promoted through an ephemeral Arvectum Mac mini runner, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published, and mirrored with payload parity. Immutable v0.2.15 DMGs remain the historical ad-hoc baseline.
-- **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit without weakening recovery/update semantics.
+- **MAC APP STORE — READY / OWNER-DIRECTED FOR v0.2.17.** Build a separate Mac App Store distribution lane without replacing or mutating the direct Developer ID/notarized DMG lane. Store-specific sandbox/networking/signing/package architecture must be validated in its own task before submission.
+- **MANDATORY HELP UX BEFORE FIRST MAC APP STORE SUBMISSION.** The standard macOS **Help** menu must no longer produce the system “No help is available for Arvectum Proxy Launcher” response. It must open an offline help surface bundled with the app.
+  - Offline sections: **Getting Started**, **status meanings**, **proxy formats**, **Troubleshooting**, and **About & Privacy**.
+  - Footer/about content: current APL version, **© Arvectum LLC**, **View on GitHub**, **Release Notes**, and **Report a Problem**.
+  - **Release Notes** must target the canonical latest-release URL `https://github.com/arvectum2/proxy-launcher/releases/latest`, not a hard-coded version.
+  - **Report a Problem** must open the canonical GitHub issue flow; **View on GitHub** opens the canonical repository.
+  - Help must remain useful with no working proxy/internet connection; online links are secondary actions, not the only documentation.
+  - **Check for Updates** is a channel-aware follow-up: direct Developer ID builds may later use a GitHub/direct-update path, while the Mac App Store build must not bypass the App Store update mechanism with a parallel self-updater.
+- **OPTIONAL FUTURE** — keep `.app`/DMG as the normal direct macOS distribution lane; add a separate portable form only if it provides a real operational benefit without weakening recovery/update semantics.
 
 ## 7. Per-application routing — next desktop product capability
 
@@ -140,6 +148,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.** Free-proxy work does not authorize the ad SDK/provider/private-package lane.
 9. **[macOS production distribution] — DONE / PUBLISHED v0.2.16.** Developer ID signing, notarization, stapling, Gatekeeper verification, exact-main promotion and GitVerse parity are complete.
 10. **[iOS / HUMAN] PR #135 — APP STORE PUBLICATION ACTIVE.** Physical acceptance and Apple signing are complete; privacy/review metadata, merge, upload and App Review submission are now the active Owner-authorized lane.
+11. **[macOS App Store / HUMAN] APL-MAC-APPSTORE-PUBLISH-20260925 — READY FOR NEW-CHAT EXECUTION.** Target first Store release is **0.2.17**. Preserve the direct v0.2.16 Developer ID/notarized lane; implement/validate Store-specific packaging plus the mandatory offline Help UX, Release Notes, GitHub/report links and channel-aware update behavior before App Store submission.
 
 ### Repository-hygiene note
 
@@ -151,6 +160,7 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 - **First safe autonomous REVIEW lane:** refresh APL-REL-016 from PR #132 to current immutable v0.2.12 / first eligible v0.2.13+, then stop at Owner review.
 - **Next safe preparation lane:** reconcile per-app routing PR #144 from v0.2.10 wording to v0.2.12/current-main recovery semantics, then stop before Owner architecture selection.
 - Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates. iOS App Store publication is separately Owner-authorized and active.
+- **Mac App Store 0.2.17 is now an explicit Owner-directed next-chat workstream.** Before submission, complete the Store-compatible build path and the Help UX contract recorded in §6/P9A; do not remove or replace the direct Developer ID DMG channel.
 - External Ministry/registry submission remains outside automation.
 
 ## 10. Platform / distribution matrix
@@ -162,7 +172,8 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 | Astra Linux .deb | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
-| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future macOS releases |
+| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
+| macOS Mac App Store | **READY / OWNER-DIRECTED FOR v0.2.17** | Store-compatible sandbox/networking/package validation + mandatory offline Help UX + App Store submission |
 | Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
 | iOS | **0.1.19 PHYSICAL PASS / APP STORE PREPARATION ACTIVE** | Merge PR #135, publish privacy/support pages, upload build 21 and submit App Store metadata/review package |
 

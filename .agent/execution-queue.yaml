@@ -1,17 +1,19 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-21T21:08:00+03:00"
+updated_at: "2026-09-25T21:08:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "df4478a70729e20f33b7a0d17476183423955576"
-  stable_release: "v0.2.12"
-  stable_release_published_at: "2026-09-21"
+  main_sha_verified: "e843ab54b596eea622494fb3283af881e71826a8"
+  stable_release: "v0.2.16"
+  stable_release_published_at: "2026-09-25"
   platforms:
     - Windows x64 setup
     - Windows x64 portable
     - Astra Linux 1.8 x86-64 DEB
     - RED OS 8.0.3 x86-64 RPM
     - Generic Linux x86-64 AppImage
+    - macOS Apple Silicon DMG — Developer ID + notarized
+    - macOS Intel DMG — Developer ID + notarized
 
 # Ordered execution view over the accepted active backlog. The executor may update
 # status/evidence only; it must not silently reorder or reclassify items.
@@ -137,12 +139,13 @@ items:
   - order: 90
     task_id: APL-MAC-PRODUCTION-DISTRIBUTION
     title: "macOS production signing/notarization"
-    status: deferred
+    status: done
     authority: REVIEW
     independent: true
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P9"
     dependencies: []
+    evidence: "DONE / PUBLISHED v0.2.16: ARM64 + Intel public DMGs are Developer ID-signed, Apple-notarized/stapled, Gatekeeper-accepted, promoted from exact main through an ephemeral trusted Mac mini runner, and mirrored with payload parity."
 
   - order: 100
     task_id: APL-MOB-002-ANDROID-FAILOVER
@@ -240,6 +243,20 @@ items:
     executor_scope: "Prepare and submit the physically accepted iOS 0.1.19 build through LLC ARVECTUM. Preserve no-data-collection privacy truth, no ads/analytics in this release, and no per-app routing."
     active_pr: 135
     evidence: "Physical iPhone acceptance PASS; Apple Organization team VML75VY94V active; distribution certificate/profiles ready; App Store privacy/review preparation and build 21 are in progress."
+
+  - order: 135
+    task_id: APL-MAC-APPSTORE-PUBLISH-20260925
+    title: "macOS App Store 0.2.17 publication + mandatory Help UX"
+    status: ready
+    authority: HUMAN
+    independent: true
+    auto_merge: false
+    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A"
+    dependencies:
+      - APL-MAC-PRODUCTION-DISTRIBUTION
+    owner_gate: "Owner explicitly directed this work to continue in a separate Mac App Store chat/task. Final App Store submission/release and any new Apple legal agreements remain HUMAN actions."
+    executor_scope: "Create the separate Mac App Store 0.2.17 lane without mutating or replacing the direct v0.2.16 Developer ID/notarized DMG channel. Before submission, validate Store-compatible sandbox/networking/signing/package architecture and implement the mandatory offline Help contract: functional Help menu, Getting Started/status/proxy formats/troubleshooting/About & Privacy, version + © Arvectum LLC footer, View on GitHub, latest Release Notes, Report a Problem, and channel-aware Check for Updates behavior. The Store build must not ship a self-updater that bypasses App Store updates."
+    evidence: "Owner direction 2026-09-25: add these Help functions to the canonical roadmap so they are automatically picked up in the separate Mac App Store release chat."
 
 repository_hygiene:
   superseded_open_prs:
