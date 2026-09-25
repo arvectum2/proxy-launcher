@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-MAC-APPSTORE-HELP-20260925
-status: in_progress
+status: completed
 goal: "Record the Owner-directed macOS App Store 0.2.17 workstream and mandatory Help UX requirements in the canonical roadmap/backlog/execution queue so a new chat can resume them from repository state."
 authority: HUMAN
 definition_of_done:
@@ -20,19 +20,18 @@ completed:
   - ".agent/execution-queue.yaml baseline reconciled to v0.2.16 and APL-MAC-PRODUCTION-DISTRIBUTION marked done."
   - "Ready execution item APL-MAC-APPSTORE-PUBLISH-20260925 added at order 135 for the separate Mac App Store chat."
   - "execution-queue YAML parse PASS; git diff --check PASS."
+  - "PR #177 merged as 89657957f96cd7a39e48a3c20e81495d3742c101; roadmap/backlog/execution queue are now canonical on main."
+  - "Main execution queue exposes APL-MAC-APPSTORE-PUBLISH-20260925 as status ready with mandatory Help UX scope."
 
-current: "Roadmap/backlog/execution-queue changes are validated; commit and PR/merge remain."
-pending:
-  - "Commit and push the canonical planning changes."
-  - "Open PR, wait for required CI, merge to main."
-  - "After merge, mark this roadmap-update checkpoint completed on main."
-last_verified_commit: "e843ab54b596eea622494fb3283af881e71826a8"
+current: "Completed: Mac App Store 0.2.17 + Help UX workstream is canonical on main and selectable by the separate release chat."
+pending: []
+last_verified_commit: "89657957f96cd7a39e48a3c20e81495d3742c101"
 test_results:
   - "execution-queue YAML parse PASS."
   - "git diff --check PASS."
 
-resume_instruction: "Planning content is complete and validated. Commit/push roadmap + P9A backlog + execution queue, open/merge PR after green CI, then close this roadmap-update checkpoint. The future task to be selected by the Mac App Store chat is APL-MAC-APPSTORE-PUBLISH-20260925."
-updated_at: "2026-09-25T21:12:00+03:00"
+resume_instruction: "Task completed. Do not redo this roadmap update. In the separate Mac App Store chat, select APL-MAC-APPSTORE-PUBLISH-20260925 from .agent/execution-queue.yaml and execute its 0.2.17 Store lane plus mandatory Help UX from docs/ROADMAP.md §6 and docs/LOCAL_EXECUTION_BACKLOG.md P9A."
+updated_at: "2026-09-25T21:16:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-roadmap-mac-appstore-help"
