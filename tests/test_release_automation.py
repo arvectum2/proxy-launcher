@@ -115,7 +115,7 @@ class ReleaseAutomationTests(unittest.TestCase):
         release = self.read(".github/workflows/release.yml")
         self.assertIn('LINUX_DEB_NAME="Arvectum-Proxy-Launcher-${VERSION}-astra-linux-amd64.deb"', release)
         self.assertIn("linux-deb.yml/runs?head_sha=${{ github.sha }}", release)
-        self.assertIn("Linux Debian package, RED OS RPM, and Linux AppImage push CI", release)
+        self.assertIn("exact-SHA Linux Debian/RPM/AppImage packaging via push or workflow_dispatch", release)
         self.assertIn("apl-lnx-007-deb-ubuntu-22.04", release)
         self.assertIn('sha256sum "$LINUX_DEB_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('"release-stage/${LINUX_DEB_NAME}"', release)
@@ -125,7 +125,7 @@ class ReleaseAutomationTests(unittest.TestCase):
         rpm_workflow = self.read(".github/workflows/linux-rpm.yml")
         self.assertIn('LINUX_RPM_NAME="Arvectum-Proxy-Launcher-${VERSION}-redos-linux-x86_64.rpm"', release)
         self.assertIn("linux-rpm.yml/runs?head_sha=${{ github.sha }}", release)
-        self.assertIn("RED OS RPM, and Linux AppImage push CI", release)
+        self.assertIn("exact-SHA Linux Debian/RPM/AppImage packaging via push or workflow_dispatch", release)
         self.assertIn("apl-redos-rpm-ubuntu-22.04", release)
         self.assertIn('sha256sum "$LINUX_RPM_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('"release-stage/${LINUX_RPM_NAME}"', release)
@@ -137,7 +137,7 @@ class ReleaseAutomationTests(unittest.TestCase):
         appimage_workflow = self.read(".github/workflows/linux-appimage.yml")
         self.assertIn('LINUX_APPIMAGE_NAME="Arvectum_Proxy_Launcher-${VERSION}-x86_64.AppImage"', release)
         self.assertIn("linux-appimage.yml/runs?head_sha=${{ github.sha }}", release)
-        self.assertIn("Linux AppImage push CI", release)
+        self.assertIn("exact-SHA Linux Debian/RPM/AppImage packaging via push or workflow_dispatch", release)
         self.assertIn("apl-lnx-008-appimage", release)
         self.assertIn('sha256sum "$LINUX_APPIMAGE_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('"release-stage/${LINUX_APPIMAGE_NAME}"', release)
@@ -181,7 +181,7 @@ class ReleaseAutomationTests(unittest.TestCase):
     def test_release_evidence_requires_macos_packaging_and_production_signing(self):
         evidence = self.read(".github/workflows/release-evidence.yml")
         self.assertIn(
-            '"macos-packaging.yml|macOS packaging|required|push"',
+            '"macos-packaging.yml|macOS packaging|required|push_or_dispatch"',
             evidence,
         )
         self.assertIn(
