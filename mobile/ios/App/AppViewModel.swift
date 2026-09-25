@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import NetworkExtension
 
 enum ProfileHealth: Equatable {
@@ -30,10 +31,22 @@ final class AppViewModel: ObservableObject {
     let vpn = VPNController()
     private let store: ProfileStore
     private let telemetry = TelemetryStore()
+    private var cancellables: Set<AnyCancellable> = []
 
     init() {
         do {
             store = try ProfileStore()
+
+            // VPNController is its own ObservableObject. Forward its changes
+            // through AppViewModel so SwiftUI refreshes controls that read
+            // model.vpn.status/detail instead of showing the previous state.
+            vpn.objectWillChange
+                .receive(on: RunLoop.main)
+                .sink { [weak self] _ in
+                    self?.objectWillChange.send()
+                }
+                .store(in: &cancellables)
+
             refresh()
         } catch {
             fatalError("App Group storage is unavailable: \(error.localizedDescription)")
