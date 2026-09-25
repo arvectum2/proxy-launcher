@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-PERSONAL-0.1.19-20260919
-status: in_progress
+status: completed
 goal: "Build a personal-use iOS client at functional parity with accepted Android 0.1.19, without starting per-app routing."
 authority: HUMAN
 definition_of_done:
@@ -22,10 +22,9 @@ completed:
   - "Configured LLC ARVECTUM Apple Developer identifiers/signing: App Group, explicit app/PacketTunnel IDs with Network Extensions, Apple Development and Apple Distribution identities, and App Store Connect provisioning profiles."
   - "Built and validated a signed App Store xcarchive for iOS 0.1.19 (build 20); app and PacketTunnel are both signed by Apple Distribution: LLC ARVECTUM and pass codesign --verify --deep --strict."
   - "Exported a local App Store Connect IPA without upload and persisted it under /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/ with SHA-256 4dfdf7b8660ff16d9a06875180a1b620f4f4ba55b6f08bda50776d2a9fa887be."
-current: "Full physical iPhone acceptance has PASSED with patched tun2proxy v0.8.3: connect, tunneled HTTP 200, direct site exclusion HTTP 200, Auto failover to secondary, secondary traffic HTTP 200, automatic return to restored primary, restored traffic HTTP 200, disconnect, and cleanup all passed. Acceptance harness is now being removed; remaining work is final clean tests/CI and rebuilding the signed App Store archive/IPA with the production DNS fix and patched tun2proxy."
-pending:
-  - "Sign/install on the physical iPhone and perform connect/failover/exclusions acceptance before completion."
-last_verified_commit: "dd99ec798ed40b870eafb6893a3973362515711b"
+current: "COMPLETED. Personal-use iOS 0.1.19 (build 20) is implemented, physically accepted on iPhone 13, cleanly installable/launchable, and has a verified Apple Distribution App Store Connect IPA. Production fixes include tunnel DNS settings and a reproducibly built patched tun2proxy v0.8.3 that supports live failover/restore without terminating the Packet Tunnel process."
+pending: []
+last_verified_commit: "14c39e00f19b72118ce0ed058a12bc9e8380391e"
 test_results:
   - "PASS: exact-head Apple-hosted Mobile iOS personal run 35443212271 at 3e7aaac: core-tests + unsigned-device-build."
   - "FIXED: Xcode 26 unsigned-device-build generic CheckedContinuation inference error in Shared/ProxyProbe.swift; rerun queued at ee6ac4f."
@@ -63,9 +62,18 @@ test_results:
   - "ROOT CAUSE: return-to-primary failure traced to tun2proxy v0.8.3 general_api.rs: each tun2proxy_stop shutdown spawns a thread that sleeps FORCE_EXIT_TIMEOUT then std::process::exit(-1); lib.rs defines timeout as 2 seconds. Live engine restart therefore kills the Packet Tunnel process."
   - "PASS: reproducible patched tun2proxy v0.8.3 built from source commit e271de19683937f23d3f8f0eb4df0a61fc4a6e50 with Rust 1.98.1; forced API exit disabled; clean patched library SHA-256 8eee114408c44441ed7b5e9132b9a7abe4ed65b62a7b5d626ba50e79cff10298."
   - "PASS: full physical iPhone acceptance with patched tun2proxy: CONNECT, PRIMARY_TUNNEL 200, EXCLUDED_DIRECT 200, FAILOVER, SECONDARY_TUNNEL 200, RESTORE, RESTORED_TUNNEL 200, DISCONNECT, OVERALL PASS, CLEANUP PASS."
-blocker: "No external blocker. Physical functional acceptance is complete. Remaining work is release hygiene: remove DEBUG acceptance-only code, run clean local/CI verification, commit/push production fixes, and regenerate/verify the signed App Store artifact."
-resume_instruction: "Continue release hygiene. Ensure AcceptanceRunner/APL_ACCEPTANCE/debug acceptance telemetry are absent while retaining production DNS settings and patched tun2proxy fetch workflow + pinned Cargo.lock. Run py_compile/plutil/XcodeGen/core tests/unsigned or signed clean build, install/launch clean Debug on iPhone, then build/verify/export signed Release App Store IPA and replace the persisted artifact/checksum. Commit/push, verify CI at exact final head, mark status completed only when all pass. Do not start per-app routing or upload to App Store."
-updated_at: "2026-09-25T08:47:00+03:00"
+  - "PASS: DEBUG acceptance harness removed; no AcceptanceRunner/APL_ACCEPTANCE/debug acceptance telemetry remains in production sources."
+  - "PASS: final clean Xcode 26.6 core test run: 6 tests, 0 failures."
+  - "PASS: final clean unsigned generic iPhone build: BUILD SUCCEEDED."
+  - "PASS: final clean signed Debug build installed on physical iPhone and normal app launch succeeded without acceptance harness."
+  - "PASS: exact production source commit 14c39e00f19b72118ce0ed058a12bc9e8380391e archived with Apple Distribution; ARCHIVE SUCCEEDED and codesign --verify --deep --strict passed."
+  - "PASS: final archive/IPA contain correct app and PacketTunnel bundle IDs, App Store profiles, Network Extension/App Group/keychain entitlements, get-task-allow=false, and no upstream forced-exit sentinel."
+  - "PASS: final xcodebuild -exportArchive completed with EXPORT SUCCEEDED; App Store Connect IPA 0.1.19 (20) SHA-256 850de5461aabc67868ac3c2daef7144f72e3d2cfb120a7b280750cf6a51106de."
+  - "PASS: final artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/ with manifest, ExportOptions, DistributionSummary and SHA256SUMS; upload status NOT UPLOADED."
+  - "PASS: exact-head GitHub Actions Mobile iOS personal run 36100446908 at 14c39e0 completed SUCCESS: core-tests SUCCESS and unsigned-device-build SUCCESS, including reproducible patched tun2proxy build."
+blocker: "None. Task Definition of Done is complete. App Store listing metadata/privacy/review submission and upload are a separate follow-up phase and were intentionally not performed."
+resume_instruction: "Task complete. Do not redo iOS 0.1.19 implementation/signing/physical acceptance. If the Owner starts the public App Store submission phase, begin from the verified artifact and source commit 14c39e00f19b72118ce0ed058a12bc9e8380391e; prepare store metadata/privacy/review materials and upload only when explicitly requested. Do not start per-app routing unless separately prioritized."
+updated_at: "2026-09-25T08:58:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-PERSONAL-0.1.19-20260919"
