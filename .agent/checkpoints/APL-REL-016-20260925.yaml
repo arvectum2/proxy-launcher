@@ -1,0 +1,24 @@
+task_id: APL-REL-016
+status: blocked
+authority: REVIEW
+observed_at: "2026-09-25T18:03:05+03:00"
+canonical_observation:
+  current_task: "APL-APPSTORE-PERSISTENT-API-AUTH-20260925 is completed; queue scan therefore resumes at first executable item"
+  queue_order: 40
+  immutable_baseline: "v0.2.15"
+  first_eligible_future_authenticode_release: "v0.2.16+"
+  stale_pr: 161
+  stale_pr_state: "open, non-mergeable, explicitly STALE / NOT OWNER-READY"
+recovery:
+  branch: "agent/apl-rel-016-v0215-refresh-3"
+  base_ref: main
+  attempted_scope:
+    - ".github/workflows/windows-public-trust.yml"
+    - "docs/windows/APL-REL-016-WINDOWS-TRUST-DECISION-PACKET.md"
+    - "release/APL_REL_016_WINDOWS_PUBLIC_TRUST.md"
+    - "release/APL_REL_016_WINDOWS_PUBLIC_TRUST_CONTRACT.json"
+    - "tests/test_windows_public_trust.py"
+    - "tools/windows_public_trust_gate.ps1"
+  blocker: "Repository write of the substantive REVIEW packet was blocked by the execution environment safety gate before any substantive file mutation."
+owner_gate: "No provider/certificate spend, key custody, production signing, release, or REVIEW merge is authorized."
+resume_instruction: "From current main, refresh the substantive PR #161 packet to immutable v0.2.15 / first eligible v0.2.16+, run focused tests and exact-head CI, then stop at Owner review."
