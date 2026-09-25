@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: blocked
+status: in_progress
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -27,14 +27,14 @@ completed:
   - "PASS: signed Debug generic iPhone build succeeded with Apple Development / APL Development profiles; codesign --verify --deep --strict passed and branding resources are bundled."
   - "PASS: exact-code GitHub Actions Mobile iOS personal run 36104984986 at acaec96: core-tests SUCCESS and unsigned-device-build SUCCESS."
   - "PASS: exact signed Debug app persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/ for immediate install when the registered iPhone reconnects."
-current: "Implementation/local/signing/CI verification are complete for production commit acaec9680463e709798b047d497fcb9505486463. GitHub Mobile iOS personal run 36104984986 passed core-tests and unsigned-device-build. Exact signed Debug app is persisted under /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/. Only physical installation and confirmation with the Owner’s real proxy remain."
+current: "iPhone Nikita is reconnected, paired over wired transport with Developer Mode/DDI available. Installing the persisted signed Debug app over the existing build, then verifying the saved Основной profile against the real proxy."
 pending:
   - "When the iPhone is reconnected to the Mac mini, install the persisted signed Debug app over the current build and verify the Owner’s real proxy connects without NEVPNErrorDomain error 2; inspect device/extension logs if it does not."
 last_verified_commit: "acaec9680463e709798b047d497fcb9505486463"
 test_results: []
-blocker: "Physical confirmation is blocked only because the Owner reports the iPhone is not currently connected to the Mac mini. No implementation, build, signing, or CI blocker remains."
+blocker: "None. Physical verification resumed."
 resume_instruction: "When the Owner says the iPhone is connected/ready, first read this checkpoint and verify repo state. Install /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/Arvectum Proxy Launcher.app with devicectl on the registered iPhone, launch it, and have the Owner retry the existing real proxy. Confirm no NEVPNErrorDomain error 2 and verify actual tunneled traffic; if successful, mark task completed. If it fails, capture app + PacketTunnel logs before changing code. Do not redo branding/build/CI and do not start per-app routing."
-updated_at: "2026-09-25T10:01:00+03:00"
+updated_at: "2026-09-25T10:10:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
