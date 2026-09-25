@@ -1,8 +1,10 @@
 # Persistent App Store Connect release authentication
 
-APL release uploads use one persistent App Store Connect **Team API key**
-stored only on the Mac mini. Routine build validation/upload must not depend
-on Apple Account SMS 2FA or an app-specific password.
+Arvectum release uploads use one persistent App Store Connect **Team API key**
+stored only on the Mac mini. The Team key is account-wide, so the same release
+identity can be used for all current and future Arvectum apps allowed by its
+App Manager role. Routine build validation/upload must not depend on Apple
+Account SMS 2FA or an app-specific password.
 
 ## Local-only files
 
@@ -22,7 +24,7 @@ Never commit, print, paste, or transmit the contents of the `.p8` file.
 ## One-time bootstrap
 
 1. In App Store Connect open Users and Access > Integrations > App Store Connect API.
-2. Generate a Team key named `APL Release Bot` with **App Manager** access.
+2. Generate a Team key named `Arvectum Release Bot` with **App Manager** access.
 3. Download the `.p8` exactly once.
 4. Move it to the private-key directory and apply the permissions above.
 5. Create the local config with:

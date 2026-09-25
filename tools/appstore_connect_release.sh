@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 
-CONFIG="${APL_ASC_CONFIG:-$HOME/.config/arvectum/appstore-connect.env}"
+CONFIG="${ARVECTUM_ASC_CONFIG:-${APL_ASC_CONFIG:-$HOME/.config/arvectum/appstore-connect.env}}"
 if [[ ! -r "$CONFIG" ]]; then
   echo "Missing App Store Connect config: $CONFIG" >&2
   exit 2
@@ -32,7 +32,34 @@ usage() {
 }
 
 run_auth() {
-  "$ALTOOL" --list-providers     --api-key "$ASC_KEY_ID"     --api-issuer "$ASC_ISSUER_ID"
+  local jwt_file body token code
+  jwt_file=$(mktemp)
+  body=$(mktemp)
+  chmod 600 "$jwt_file" "$body"
+  trap "rm -f '$jwt_file' '$body'" EXIT
+
+  "$ALTOOL" --generate-jwt \
+    --apiKey "$ASC_KEY_ID" \
+    --apiIssuer "$ASC_ISSUER_ID" >/dev/null 2>"$jwt_file"
+
+  token=$(python3 - "$jwt_file" <<'PYJWT'
+import re, sys
+s = open(sys.argv[1]).read()
+m = re.search(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', s)
+if not m:
+    raise SystemExit(2)
+print(m.group(0), end='')
+PYJWT
+  )
+
+  code=$(curl -sS -o "$body" -w '%{http_code}' \
+    -H "Authorization: Bearer $token" \
+    'https://api.appstoreconnect.apple.com/v1/apps?limit=1')
+  if [[ "$code" != "200" ]]; then
+    echo "App Store Connect API auth failed (HTTP $code)" >&2
+    exit 1
+  fi
+  echo "AUTH PASS: App Store Connect API HTTP 200"
 }
 
 run_file_action() {
