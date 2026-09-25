@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: blocked
+status: completed
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -44,19 +44,20 @@ completed:
   - "FIX: AppViewModel now forwards VPNController.objectWillChange through its own objectWillChange on the main run loop."
   - "BRANDING: regenerated all iOS AppIcon sizes with canonical AV+globe mark enlarged from 60% to 74% while keeping #001432 background and no alpha."
   - "PASS: status/icon fix local verification — XcodeGen, core tests 6/6, unsigned generic iphoneos BUILD SUCCEEDED, signed Debug BUILD SUCCEEDED, valid APL Development profiles and codesign verification."
+  - "PHYSICAL PASS: Owner confirmed final UI state is correct — connected shows Отключить / Подключено and disconnected shows Подключиться / Отключено."
+  - "PHYSICAL PASS: Owner accepted the enlarged 74% canonical Arvectum launcher icon."
+  - "CI PASS: exact-head GitHub Actions Mobile iOS personal run 36111899870 for cd2cf6d completed successfully: core-tests SUCCESS and unsigned-device-build SUCCESS."
+  - "TASK COMPLETE: final production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4."
   - "PASS: production commit f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a pushed."
   - "PASS: clean signed production Debug artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-virtual-dns-fix/ and installed/launched on iPhone."
   - "CI partial: exact-head run 36110301163 core-tests SUCCESS; unsigned-device-build still in progress at checkpoint update."
-current: "Status/icon production fix committed and pushed at cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4. Exact signed Debug artifact with VPNController change propagation and 74% AppIcon mark is installed/launched on the iPhone. Local XcodeGen, core tests 6/6, unsigned build, signed build, profiles and codesign verification are green. GitHub exact-head run 36111899870 is in progress. Remaining acceptance is visual: Owner must confirm the on-screen state now tracks one real connect/disconnect cycle and the enlarged icon looks right."
-pending:
-  - "Owner verifies: actual connected state shows Отключить / Подключено; actual disconnected state shows Подключиться / Отключено."
-  - "Owner visually confirms enlarged 74% canonical Arvectum home-screen icon."
-  - "Wait for exact-head GitHub Mobile iOS personal run 36111899870 to finish successfully; then mark task completed if visual acceptance passes."
+current: "COMPLETED. Owner physically accepted the final iOS 0.1.19 build: real proxy traffic works, the on-screen VPN state now matches actual connect/disconnect state, and the enlarged canonical Arvectum app icon is accepted. Production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4 passed local tests/build/signing and exact-head GitHub CI run 36111899870 (core-tests SUCCESS, unsigned-device-build SUCCESS). Virtual-DNS hostname preservation, VPN configuration self-healing, SwiftUI VPN status propagation, patched tun2proxy live switching, and canonical branding are all verified."
+pending: []
 last_verified_commit: "cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4"
 test_results: []
-blocker: "Only Owner-visible UI/icon acceptance and exact-head CI completion remain; no implementation/build/signing blocker."
-resume_instruction: "First check GitHub run 36111899870. Do not rebuild unless CI or Owner acceptance fails. If Owner confirms UI state tracks actual VPN and icon size is good, mark completed and record CI result. If UI is still stale, inspect SwiftUI propagation before touching VPN/tunnel logic."
-updated_at: "2026-09-25T11:16:00+03:00"
+blocker: "None. Definition of Done and final physical acceptance are complete."
+resume_instruction: "Task complete. Do not redo iOS 0.1.19 tunnel/config/status/icon fixes. For future App Store submission or a new iOS feature, start a new task from production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4 (or later main after merge). Do not start per-app routing unless separately prioritized."
+updated_at: "2026-09-25T11:18:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
