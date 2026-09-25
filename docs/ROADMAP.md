@@ -121,12 +121,12 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
   - Initial ad target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation.
   - Private no-ads artifact should come from the same codebase via build configuration/flavor and remain outside the public GitHub release surface.
 
-### iOS — personal-use engineering lane
+### iOS — 0.1.19 App Store publication
 
-- **IN PROGRESS / DRAFT PR #135** — a SwiftUI + NetworkExtension Packet Tunnel personal-use parity baseline exists, based on accepted Android 0.1.19 semantics: Auto/manual selection, health/failover, Keychain/App Group storage, HTTP/SOCKS5/HTTPS relay and site exclusions.
-- **ENGINEERING CHECKS** — plutil, XcodeGen project generation, Swift core build and Swift source parsing are recorded PASS on the branch.
-- **HUMAN GATE** — full Xcode/XCTest/device build, Apple signing/provisioning and physical iPhone installation are not complete.
-- **BOUNDARY** — this is personal-use only. No App Store/public distribution, no committed certificates/provisioning profiles and no per-app-routing promise beyond platform capabilities.
+- **PHYSICAL PASS / OWNER-PUBLICATION AUTHORIZED — PR #135.** Native SwiftUI + NetworkExtension Packet Tunnel parity is implemented and physically accepted on iPhone: manual/Auto selection, health/failover, primary restoration, Keychain/App Group storage, HTTP/HTTPS CONNECT/SOCKS5 transport, virtual-DNS compatibility, site exclusions and correct live UI state.
+- **APPLE SIGNING READY.** LLC ARVECTUM is enrolled as an Apple Developer Program Organization (Team VML75VY94V); development/distribution certificates and explicit App/PacketTunnel provisioning profiles are validated without committing private signing material.
+- **APP STORE PREPARATION ACTIVE.** Build 21 adds first-use VPN privacy disclosure, privacy manifests for app and Packet Tunnel, public privacy/support pages and App Store metadata/review notes. Final archive/upload/App Store Connect submission is the active task.
+- **BOUNDARY.** No ads, analytics, Arvectum cloud backend or per-app routing are included in this release.
 
 ## 9. Currently available workstreams
 
@@ -139,7 +139,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 7. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.** Free-proxy work does not authorize the ad SDK/provider/private-package lane.
 9. **[macOS production distribution] — CURRENT / v0.2.16 GATE.** Developer ID signing/notarization is implemented; finish Apple acceptance, exact-main promotion and first immutable production-signed release.
-10. **[iOS / HUMAN] draft PR #135 — ACTIVE PERSONAL-USE ENGINEERING.** Physical signing/install/Xcode device validation remains open; App Store distribution is not in scope.
+10. **[iOS / HUMAN] PR #135 — APP STORE PUBLICATION ACTIVE.** Physical acceptance and Apple signing are complete; privacy/review metadata, merge, upload and App Review submission are now the active Owner-authorized lane.
 
 ### Repository-hygiene note
 
@@ -150,7 +150,7 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 - The canonical current task is completed v0.2.12 release work; do not reopen it.
 - **First safe autonomous REVIEW lane:** refresh APL-REL-016 from PR #132 to current immutable v0.2.12 / first eligible v0.2.13+, then stop at Owner review.
 - **Next safe preparation lane:** reconcile per-app routing PR #144 from v0.2.10 wording to v0.2.12/current-main recovery semantics, then stop before Owner architecture selection.
-- Android 0.1.31 public release, gateway public-scale anti-abuse, APL-MOB-004 advertising/private distribution and iOS signing/device work remain explicit Owner/HUMAN gates.
+- Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates. iOS App Store publication is separately Owner-authorized and active.
 - External Ministry/registry submission remains outside automation.
 
 ## 10. Platform / distribution matrix
@@ -164,7 +164,7 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 | Linux AppImage | **PUBLISHED v0.2.12** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **PUBLISHED v0.2.15 AD-HOC / v0.2.16 PRODUCTION SIGNING ACTIVE** | Exact-main Developer ID + Apple notarization promotion, then immutable v0.2.16 release |
 | Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
-| iOS | **DEFERRED** | Start after Android product semantics / entitlement path |
+| iOS | **0.1.19 PHYSICAL PASS / APP STORE PREPARATION ACTIVE** | Merge PR #135, publish privacy/support pages, upload build 21 and submit App Store metadata/review package |
 
 ## Completion discipline
 

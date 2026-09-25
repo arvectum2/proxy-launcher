@@ -1,0 +1,67 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-CONFIG-LOGO-20260925
+status: completed
+goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
+authority: HUMAN
+definition_of_done:
+  - "Existing Arvectum NETunnelProviderManager configurations are selected deterministically and repaired/re-enabled before startTunnel, including a safe one-time retry for configurationDisabled."
+  - "The app no longer exposes the raw NEVPNErrorDomain error 2 for the recoverable disabled-configuration case."
+  - "iOS header uses the canonical Arvectum wordmark/mark already used by Android instead of the generated AV text monogram."
+  - "iOS launcher icon is regenerated from the same canonical Arvectum artwork/visual treatment as Android."
+  - "No acceptance/debug-only harness is reintroduced and no per-app routing work is started."
+  - "Relevant local tests, XcodeGen, and unsigned generic iPhone build pass; exact-head CI is green after push."
+  - "After the iPhone is reconnected, install the signed Debug build and confirm the Owner’s real working proxy connects without NEVPNErrorDomain error 2."
+completed:
+  - "Recovered previous completed iOS task and verified clean branch feat/ios-personal-0.1.19 at f374a5e3bedf51613fbd4caf2c5aa6eb21fd6926."
+  - "Confirmed from Apple documentation that NEVPNErrorDomain error 2 is configurationDisabled: the VPN manager configuration is not enabled."
+  - "Inspected VPNController: existing managers are returned after reload without repairing manager.isEnabled, so an iOS-disabled configuration can reach startTunnel unchanged."
+  - "Confirmed canonical Android branding sources are assets/arvectum-icon-0.2.2-transparent.png and assets/arvectum-wordmark.png; iOS already bundles an identical ArvectumWordmark.png but does not use it in the header."
+  - "Implemented VPNController reconciliation: deterministic Arvectum manager selection, reload, provider bundle/server/version repair, isEnabled restoration, save/reload, and one safe retry for disabled/invalid/stale configuration."
+  - "Replaced the header text AV monogram with the bundled canonical Arvectum wordmark plus Proxy Launcher title."
+  - "Regenerated the complete iOS AppIcon set from the same canonical Android cleaned foreground geometry (60% AV+globe) over #001432; 1024 marketing icon has no alpha."
+  - "Fixed XcodeGen resource wiring: Resources is now an explicit resources build phase; previous resources key had been ignored, so neither loose wordmark nor Assets.xcassets were bundled."
+  - "PASS: Xcode 26.6 core tests 6/6, 0 failures."
+  - "PASS: unsigned generic iphoneos build completed with BUILD SUCCEEDED after resource wiring."
+  - "PASS: built app contains ArvectumWordmark.png and Assets.car; Info.plist CFBundlePrimaryIcon resolves AppIcon."
+  - "PASS: signed Debug generic iPhone build succeeded with Apple Development / APL Development profiles; codesign --verify --deep --strict passed and branding resources are bundled."
+  - "PASS: exact-code GitHub Actions Mobile iOS personal run 36104984986 at acaec96: core-tests SUCCESS and unsigned-device-build SUCCESS."
+  - "PASS: exact signed Debug app persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/ for immediate install when the registered iPhone reconnects."
+  - "PASS: iPhone reconnected; production signed Debug installed over existing app and saved profile metadata survived."
+  - "PASS: saved profile Основной exists, is selected, type AUTO; username/host metadata are trimmed."
+  - "PASS: real-proxy smoke: VPNController.prepare status disconnected, startTunnel returned successfully; prior NEVPNErrorDomain error 2 no longer occurs."
+  - "FAIL (external/auth): PacketTunnel AUTO probe cannot authenticate real proxy. Latest error: HTTP CONNECT Basic credentials rejected (407); SOCKS5 CONNECT rejected; HTTPS-proxy TLS timed out."
+  - "PASS: app and PacketTunnel both read a saved password (length 6) from the shared Keychain; shared access-group entitlements and expanded APLKeychainAccessGroup match exactly."
+  - "PASS: Mac desktop config host/port/login exactly match the iPhone profile; desktop password length is also 6; desktop Basic CONNECT to the same endpoint returns HTTP 200."
+  - "CLEANUP PASS: temporary local smoke runner and debug credential telemetry were removed; git worktree restored clean; clean persisted production app reinstalled and launched on iPhone."
+  - "DIAG PASS: physical routing smoke with old over-tcp mode reached NEVPNStatus.connected, found utun fd=5, and tun2proxy traffic counters increased, proving PacketTunnel/TUN engine traffic flow; HTTPS domain and IP probes both failed with NSURLErrorDomain -1200."
+  - "ROOT CAUSE PASS: on the same iPhone/profile/credentials, changing only tun2proxy DNS mode from over-tcp to virtual made https://example.org and https://1.1.1.1 both return HTTP 200 while tun2proxy tx/rx counters continued to rise."
+  - "Production cleanup: local smoke runner and debug traffic telemetry removed; retained change is Android-parity --dns virtual with documentation."
+  - "PASS: clean core tests 6/6, 0 failures after virtual-DNS production fix."
+  - "PASS: clean unsigned generic iphoneos build BUILD SUCCEEDED."
+  - "PASS: clean signed Debug build BUILD SUCCEEDED with APL Development + APL Packet Tunnel Development profiles; codesign --verify --deep --strict passed."
+  - "ROOT CAUSE: SwiftUI observed AppViewModel but not nested VPNController; vpn.status/detail changes were not propagated, so the power UI displayed the previous VPN state."
+  - "FIX: AppViewModel now forwards VPNController.objectWillChange through its own objectWillChange on the main run loop."
+  - "BRANDING: regenerated all iOS AppIcon sizes with canonical AV+globe mark enlarged from 60% to 74% while keeping #001432 background and no alpha."
+  - "PASS: status/icon fix local verification — XcodeGen, core tests 6/6, unsigned generic iphoneos BUILD SUCCEEDED, signed Debug BUILD SUCCEEDED, valid APL Development profiles and codesign verification."
+  - "PHYSICAL PASS: Owner confirmed final UI state is correct — connected shows Отключить / Подключено and disconnected shows Подключиться / Отключено."
+  - "PHYSICAL PASS: Owner accepted the enlarged 74% canonical Arvectum launcher icon."
+  - "CI PASS: exact-head GitHub Actions Mobile iOS personal run 36111899870 for cd2cf6d completed successfully: core-tests SUCCESS and unsigned-device-build SUCCESS."
+  - "TASK COMPLETE: final production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4."
+  - "PASS: production commit f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a pushed."
+  - "PASS: clean signed production Debug artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-virtual-dns-fix/ and installed/launched on iPhone."
+  - "CI partial: exact-head run 36110301163 core-tests SUCCESS; unsigned-device-build still in progress at checkpoint update."
+current: "COMPLETED. Owner physically accepted the final iOS 0.1.19 build: real proxy traffic works, the on-screen VPN state now matches actual connect/disconnect state, and the enlarged canonical Arvectum app icon is accepted. Production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4 passed local tests/build/signing and exact-head GitHub CI run 36111899870 (core-tests SUCCESS, unsigned-device-build SUCCESS). Virtual-DNS hostname preservation, VPN configuration self-healing, SwiftUI VPN status propagation, patched tun2proxy live switching, and canonical branding are all verified."
+pending: []
+last_verified_commit: "cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4"
+test_results: []
+blocker: "None. Definition of Done and final physical acceptance are complete."
+resume_instruction: "Task complete. Do not redo iOS 0.1.19 tunnel/config/status/icon fixes. For future App Store submission or a new iOS feature, start a new task from production code commit cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4 (or later main after merge). Do not start per-app routing unless separately prioritized."
+updated_at: "2026-09-25T11:18:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-IOS-CONFIG-LOGO-20260925"
+  branch: "feat/ios-personal-0.1.19"
+  base_commit: "f374a5e3bedf51613fbd4caf2c5aa6eb21fd6926"
+  lease_until: null
+  manual_override: true
