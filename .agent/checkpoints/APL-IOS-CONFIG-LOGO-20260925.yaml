@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: blocked
+status: in_progress
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -34,15 +34,16 @@ completed:
   - "PASS: app and PacketTunnel both read a saved password (length 6) from the shared Keychain; shared access-group entitlements and expanded APLKeychainAccessGroup match exactly."
   - "PASS: Mac desktop config host/port/login exactly match the iPhone profile; desktop password length is also 6; desktop Basic CONNECT to the same endpoint returns HTTP 200."
   - "CLEANUP PASS: temporary local smoke runner and debug credential telemetry were removed; git worktree restored clean; clean persisted production app reinstalled and launched on iPhone."
-current: "Physical verification resumed and the production VPN configuration fix is confirmed: on iPhone, startTunnel now succeeds without NEVPNErrorDomain error 2. The saved Основной profile is present and selected. PacketTunnel starts but AUTO probing fails at proxy authentication: HTTP CONNECT returns 407 Basic authentication rejected; SOCKS5 CONNECT is rejected; HTTPS-to-proxy times out. App and extension both see a saved password of length 6. Desktop settings on Mac mini have the same host/port/login and a 6-character password; the desktop endpoint answers CONNECT 200 with its stored credentials. Temporary smoke/debug instrumentation was removed and the clean production Debug app was reinstalled/launched."
+current: "Owner re-entered the known-good password. Fresh telemetry now shows repeated successful connected events for Основной using HTTP CONNECT, and the Arvectum Packet Tunnel extension process is alive. However real user traffic (ChatGPT/Telegram) does not pass and the Owner does not observe the expected system VPN indicator. Investigating a false-positive tunnel readiness/routing issue: production currently declares connected shortly after starting tun2proxy without proving traffic actually crosses the TUN."
 pending:
-  - "Owner must re-enter the known-good proxy password in profile Основной (and save). Then retry connect on the clean production build; if 407 persists, check whether the proxy provider restricts source IP / requires whitelist, especially when the iPhone is on cellular/LTE."
-  - "After credentials/source-IP are confirmed, verify real tunneled HTTPS traffic and mark the task completed."
+  - "Reproduce real traffic failure from the iPhone with local-only diagnostics: confirm NEVPN status, TUN fd/interface, tun2proxy liveness, and URLSession behavior."
+  - "Fix tunnel readiness/routing so connected is emitted only after real traffic is proven; ensure failure tears down the session instead of presenting false connected UI."
+  - "Run physical acceptance with the saved Основной proxy: browser/HTTPS traffic through tunnel, ChatGPT/Telegram user confirmation, disconnect, clean production build, CI."
 last_verified_commit: "acaec9680463e709798b047d497fcb9505486463"
 test_results: []
-blocker: "The remaining blocker is outside the verified iOS configuration lifecycle: the proxy server returns HTTP 407 to the saved iPhone credential while the Mac desktop credential succeeds. Exact secret comparison/automatic credential transfer is intentionally not performed. Owner input is required to re-enter the known-good password; if that still returns 407, source-IP/whitelist policy must be checked."
-resume_instruction: "When the Owner reports the password was re-entered/saved, do not rebuild or reinstall. Use the clean app already on iPhone and have the Owner tap Подключиться (or, if direct automation is needed, use a temporary local-only smoke runner and remove it afterward). Read App Group telemetry. Success criteria: no NEVPNErrorDomain error 2, connected event for Основной, and real HTTPS traffic through tunnel. If HTTP 407 persists with known-good password, investigate provider source-IP whitelist/cellular-vs-Wi-Fi policy before changing proxy protocol code. Keep secrets out of logs."
-updated_at: "2026-09-25T10:25:00+03:00"
+blocker: "None. Device is connected and the real proxy now authenticates; active issue is packet routing/readiness after PacketTunnel start."
+resume_instruction: "Continue from false-positive connected routing investigation. Do not revisit credential or NEVPNErrorDomain error 2 work unless new evidence points back there. First reproduce traffic from iPhone with local-only instrumentation, then fix TUN/tun2proxy readiness/routing in production, physically validate real traffic, remove all debug instrumentation, run tests/build/CI, and update checkpoint."
+updated_at: "2026-09-25T10:40:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
