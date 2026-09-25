@@ -83,7 +83,7 @@ for item in payload.get("data", []):
         print(item.get("id"))
 PY
   ); do
-    api_get "/v1/bundleIds/$bundle_id/bundleIdCapabilities?limit=200" >"$tmp"
+    api_get "/v1/bundleIds/$bundle_id/bundleIdCapabilities" >"$tmp"
     python3 - "$tmp" <<'PY'
 import json, sys
 payload=json.load(open(sys.argv[1]))
