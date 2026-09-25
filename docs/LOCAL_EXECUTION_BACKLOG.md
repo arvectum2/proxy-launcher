@@ -159,83 +159,79 @@ Issue: `#55`.
 
 ## P7 — Windows public trust / APL-REL-016 — READY FOR REVIEW REFRESH
 
-Issue: `#30`. Existing review PR: `#132`.
+Issue: `#30`. Latest substantive review PR: `#161`.
 
-PR #132's substantive research/tests are useful, but its version boundary is stale:
-- it treats `v0.2.10` as current;
-- it names `v0.2.11+` as the first eligible embedded-signing release;
-- public `v0.2.11` and `v0.2.12` have since shipped unsigned.
+Historical preparation PRs #132 and #157 are superseded. PR #161 contains the latest substantive Windows public-trust packet, but it too is version-stale:
+- its branch was prepared before immutable v0.2.16 became current;
+- public v0.2.16 ships without native Windows Authenticode;
+- therefore the first eligible future native Authenticode/public-trust release is now **v0.2.17+**.
 
 Current action:
-1. refresh/rebase or replace PR #132 against immutable `v0.2.12`;
-2. make `v0.2.13+` the first eligible future native Authenticode/public-trust release;
+1. refresh/rebase #161 from current main against immutable `v0.2.16`;
+2. set `v0.2.17+` as the first eligible future Windows native-signing release;
 3. re-verify SmartScreen/App Reputation, Smart App Control/Application Control, managed-enterprise trust, CA/B Forum and provider geography requirements;
 4. keep Russian detached CryptoPro/Rutoken evidence separate from Microsoft-native publisher trust;
 5. stop at Owner review.
 
-Provider/certificate spend, key custody, production signing, packet merge as an approved decision and release remain Owner-reserved.
+Provider/certificate spend, key custody, production signing, approval/merge of the decision packet and release remain Owner-reserved.
 
 ## P8 — per-application routing — CURRENT PREPARATION / OWNER DECISION
 
 Current decision PR: `#144`. Stale predecessor PR #68 is superseded.
 
-PR #144 carries only the refreshed decision packet/checkpoint and does not replay obsolete agent metadata. It recommends, without approving, an Arvectum-owned WFP ALE callout + privileged service + local proxy path.
+PR #144 carries the Owner decision packet and recommends, without approving, an Arvectum-owned WFP ALE callout + privileged service + local proxy path. Its current exact-head repository checks are green.
 
 Current gate:
-1. reconcile PR #144 wording/assumptions from the v0.2.10 saved-or-Arvectum baseline to immutable `v0.2.12` plus current-main recovery semantics;
-2. preserve separate WFP ownership/foreign-resource non-ownership and the APL-REL-016 signing dependency;
+1. reconcile #144 wording/assumptions from immutable `v0.2.12` to **v0.2.16/current-main** recovery semantics;
+2. preserve separate WFP ownership, foreign-resource non-ownership and the current APL-REL-016 signing dependency;
 3. Owner/Product Owner selects or rejects the production architecture;
 4. only after approval implement the privileged enforcement slice;
 5. require real Windows host recovery/security acceptance;
 6. release only as a new version.
 
-Exact-head repository checks on #144 are green. No architecture is approved by that fact.
+No architecture is approved merely because the packet/tests are green.
 
-## P9 — macOS production distribution — ACTIVE / DEVELOPER ID + NOTARIZATION
+## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
-- APL-MAC engineering/acceptance baseline exists.
-- `v0.2.10-macos-test.1` and `v0.2.10-macos-test.2` arm64 prereleases exist for dogfood.
-- PRs #141/#143 hardened upstream/Safari CONNECT routing.
-- PRs #146/#149 resolved the long-sleep regression; final v0.2.12 behavior has physical MacBook acceptance evidence.
-- Public desktop v0.2.15 includes Apple Silicon and Intel macOS DMGs, but those immutable assets remain ad-hoc/non-notarized.
+- Developer ID Application signing is operational on the Arvectum-controlled Mac mini.
+- ARM64 and Intel production DMGs were promoted from exact main, signed, Apple-notarized/stapled and Gatekeeper-verified.
+- v0.2.16 publishes both notarized macOS DMGs alongside Windows/Linux artifacts.
+- GitHub/GitVerse payload parity and release evidence are complete.
+- Direct v0.2.16 is immutable and remains a separate supported distribution channel from the Mac App Store lane.
 
-Current production-specific work:
-- Developer ID Application signing is operational on the Arvectum-controlled Mac mini;
-- canonical Arvectum Release Bot notarization credentials remain local to the trusted Mac;
-- exact-main ARM64/Intel cloud artifacts are promoted through an explicit one-shot signing/notarization workflow;
-- first immutable production-signed public macOS release is v0.2.16; exact-main ARM64/Intel Gatekeeper/notarization evidence and mirror parity are complete.
+Do not reopen this task unless a later material direct-distribution signing/package change requires fresh acceptance.
 
-This is an active distribution gate, not a functional-runtime dependency.
+## P9A — macOS App Store 0.2.17 + Help UX — IN PROGRESS / PR #175
 
-## P9A — macOS App Store 0.2.17 + Help UX — READY / OWNER-DIRECTED
+Owner direction on 2026-09-25: execute the Mac App Store release as a separate distribution lane without replacing direct Developer ID v0.2.16.
 
-Owner direction on 2026-09-25: execute the Mac App Store release work in a separate chat/task. The repository must expose this workstream canonically so it can be resumed without chat-memory dependence.
+Verified current implementation state:
+- direct `networksetup` backend is not App Sandbox-compatible: physical smoke showed unsandboxed read PASS and sandboxed read exit 133;
+- canonical Store architecture is a separate Mac Catalyst app `ru.arvectum.proxylauncher.macos` + PacketTunnel extension `ru.arvectum.proxylauncher.macos.PacketTunnel` + App Group `group.ru.arvectum.proxylauncher.macos`;
+- PR #175 implements an isolated `mobile/macos-appstore` lane reusing proven Swift/NetworkExtension transport and does not alter the direct PyInstaller/Developer ID channel;
+- required App Sandbox/network/PacketTunnel/App Group/Keychain entitlements are defined;
+- pinned tun2proxy v0.8.3 Catalyst library is built with the existing NetworkExtension live-restart patch;
+- Mac App Store contract tests **6/6 PASS**;
+- unsigned ARM64 Mac Catalyst Debug build **PASS**;
+- signed automatic-provisioning reached the Apple signing stage and failed only because development profiles/Apple Account provisioning do not yet exist for the two new bundle IDs.
 
-Release boundary:
-- target first Mac App Store release: **0.2.17**;
-- keep the public v0.2.16 Developer ID/notarized DMG release immutable and keep direct distribution as a separate supported channel;
-- do not assume the direct `networksetup` packaging/runtime model is Store-compatible: validate sandbox/networking/signing/package architecture explicitly in the Mac App Store task;
-- final App Store submission/release remains a HUMAN action against Apple/App Store Connect.
+Current stage:
+1. register/create the Catalyst app and PacketTunnel identifiers with required capabilities;
+2. create development + Mac App Store distribution provisioning profiles;
+3. run signed ARM64 build and physical launch/tunnel smoke on Mac mini;
+4. reconcile PR #175 with current main and the **later mandatory Help UX amendment** below;
+5. archive/export, validate/upload, complete App Store Connect metadata/privacy/compliance/screenshots;
+6. submit only when no unresolved HUMAN/legal/product gate remains.
 
 Mandatory pre-submission Help UX:
-1. The normal macOS **Help** menu opens a bundled offline help surface; the current system response “No help is available for Arvectum Proxy Launcher” is not acceptable for the Store candidate.
-2. Offline help contains at minimum:
-   - **Getting Started** — add/select proxy, validate it, turn APL on/off;
-   - **Status meanings** — RUNNING/STOPPED, System Proxy Enabled and related user-facing state;
-   - **Proxy formats** — supported HTTP/HTTPS CONNECT/SOCKS forms and authentication examples;
-   - **Troubleshooting** — no internet, Safari/sites unavailable, wake/sleep recovery, restoring network settings;
-   - **About & Privacy** — what APL changes locally, privacy boundary and where to get support.
-3. Help footer/about area shows the running app version, **© Arvectum LLC**, and actions for:
-   - **View on GitHub** → `https://github.com/arvectum2/proxy-launcher`;
-   - **Release Notes** → `https://github.com/arvectum2/proxy-launcher/releases/latest`;
-   - **Report a Problem** → canonical GitHub issue flow.
-4. Offline help remains readable when the proxy or internet connection is unavailable; online links are additive only.
-5. **Check for Updates** is designed per distribution channel:
-   - direct Developer ID build may use a GitHub/direct-update mechanism when separately implemented;
-   - Mac App Store build must rely on the App Store update mechanism and must not ship a competing self-updater that bypasses it.
-6. Acceptance includes an actual macOS menu/UI check that Help opens successfully and no “no help available” system alert remains.
+- the standard macOS **Help** menu opens bundled offline help and no longer shows “No help is available for Arvectum Proxy Launcher”;
+- offline sections: Getting Started, status meanings, proxy formats, Troubleshooting, About & Privacy;
+- footer/about: running version, **© Arvectum LLC**, View on GitHub, latest Release Notes, Report a Problem;
+- Release Notes → `https://github.com/arvectum2/proxy-launcher/releases/latest`;
+- Help remains readable without proxy/internet;
+- Mac App Store build relies on App Store updates and must not ship a competing self-updater.
 
-Canonical execution item: `APL-MAC-APPSTORE-PUBLISH-20260925`.
+Important continuity note: PR #175's branch checkpoint was created **before** this Help requirement became canonical. The branch must not be submitted using only its older Definition of Done; it must reconcile the later main-roadmap requirement first.
 
 ## P10 — Russian Software Register dossier / external filing — DOSSIER DONE, SUBMISSION HOLD
 
@@ -275,39 +271,40 @@ Automation must never sign or submit the application.
 
 Under the official baseline rechecked 2026-09-17, the two-trusted-OS condition for class 02.02 starts on **2027-01-01**. Existing Astra + RED OS physical acceptance is retained as future-proof compatibility evidence; exact-`v0.2.9` reruns remain preferred but are not represented as a current 2026 filing blocker.
 
-## P11 — later mobile stages
+## P11 — mobile store stages
 
 ### APL-MOB-004 Android monetization/distribution — PLANNED / OWNER-GATED
 
-Free RU/US proxy functionality is already implemented separately. Ads/private distribution still require explicit Owner priority and package/update-identity decision; no ad SDK/private-release infrastructure is authorized by the gateway work.
+Free RU/US proxy functionality is implemented separately. Ads/private distribution still require explicit Owner priority and package/update-identity decision; no ad SDK/private-release infrastructure is authorized by the gateway work.
 
-### iOS — ACTIVE PERSONAL-USE ENGINEERING / HUMAN GATE
+### iOS 0.1.19 — SUBMITTED / WAITING FOR REVIEW
 
-Draft PR: `#135`.
+Merged implementation PR: `#135`. Canonical checkpoint: `.agent/checkpoints/APL-IOS-APPSTORE-PUBLISH-20260925.yaml`.
 
-Implemented engineering baseline:
-- SwiftUI client;
-- NetworkExtension Packet Tunnel + pinned tun2proxy;
-- Auto/manual proxy selection, health/failover and optional primary restoration;
-- shared Keychain/App Group state;
-- HTTP/SOCKS5 and local TLS relay;
-- site exclusions;
-- branded icon/XcodeGen/reproducible dependency fetch.
+Completed:
+- physical iPhone acceptance PASS;
+- LLC ARVECTUM organization signing/provisioning complete;
+- first-use VPN privacy disclosure + app/PacketTunnel privacy manifests;
+- public privacy/support pages;
+- final Apple Distribution IPA 0.1.19 build 21 validation PASS;
+- upload PASS and processing complete;
+- build 21 attached to App Store version 0.1.19;
+- required metadata, screenshots, age rating, App Privacy (Data Not Collected), pricing/territories and review information saved;
+- DSA trader status recorded Active;
+- version submitted to App Review;
+- temporary upload/publish API keys revoked and local temporary key material removed.
 
-Recorded local checks: plutil, XcodeGen, Swift core build and Swift source parsing PASS.
+Current external state: **Waiting for Review / 1 Item Submitted**.
 
-Remaining:
-- rebase/reconcile the draft against current main as needed;
-- full Xcode/XCTest/device build;
-- Apple signing/provisioning;
-- physical iPhone install/acceptance.
-
-Boundary: personal-use lane only unless a separate Owner decision admits App Store/public distribution. Do not commit certificates or provisioning profiles.
+Boundary:
+- do not claim the app is publicly live until Apple approves/releases it;
+- do not rebuild, re-upload, withdraw or resubmit while review is pending unless Apple returns a concrete issue or the Owner requests a change;
+- 0.1.19 contains no ads, analytics, Arvectum cloud backend or per-app routing.
 
 ## Maintenance / repository hygiene
 
 - PR #80 — release-evidence workflow maintenance; reconcile with current `main` before merge.
-- PR #81/#103 — superseded older APL-REL-016 preparations; PR #132 is the current but version-stale trust packet to refresh.
+- PR #81/#103/#132/#157 — superseded older APL-REL-016 preparations; PR #161 is the latest substantive but version-stale trust packet to refresh against v0.2.16.
 - PR #113 — redundant AppImage closeout branch overtaken by merged PR #112.
 - PR #117 — redundant Android 0.1.13 closeout overtaken by merged PR #118.
 - PR #120 — superseded continuous-failover development branch overtaken by merged PR #119.
@@ -321,20 +318,20 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 ## Current execution view
 
 - **DESKTOP STABLE:** v0.2.16 is public and immutable; exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`.
-- **CURRENT MAIN:** after v0.2.16 publication, main may be ahead of the immutable release only by post-release metadata/checkpoint reconciliation until the next admitted product change.
+- **DIRECT macOS:** ARM64 + Intel DMGs are Developer ID-signed, notarized/stapled, Gatekeeper-verified and publicly released.
+- **MAC APP STORE:** **IN PROGRESS / draft PR #175 / target v0.2.17**. Catalyst + PacketTunnel architecture is implemented; current stage is Apple identifiers/provisioning then signed physical smoke. Mandatory offline Help UX must be reconciled before submission.
 - **ANDROID PUBLIC:** `android-v0.1.19`.
-- **ANDROID CURRENT FRIEND-TEST:** 0.1.31 merged in #148, free RU/US live, exact-head checks/soak PASS, but no public 0.1.31 release.
-- **FREE GATEWAY:** live controlled/friend-test infrastructure with server-side supplier secrets; anti-abuse/quota hardening is still required before broad anonymous rollout.
-- **APL-MOB-004:** PLANNED / OWNER-GATED; advertising/private no-ads distribution is separate from free-proxy functionality.
-- **APL-IP-001:** DONE for the exact v0.2.9 filing-evidence object; do not silently re-scope registry evidence to v0.2.12.
-- **APL-REL-016:** READY FOR REVIEW REFRESH; PR #132 must move to v0.2.12 / first eligible v0.2.13+ before Owner review.
-- **PER-APP ROUTING:** PR #144 is the current decision packet; refresh baseline wording to v0.2.12/current-main, then stop at Owner architecture decision.
+- **ANDROID FRIEND-TEST:** 0.1.31 merged with live server-backed RU/US locations; no public 0.1.31 release.
+- **FREE GATEWAY:** live controlled-test infrastructure with supplier secrets server-side; anti-abuse/quota hardening remains before broad anonymous rollout.
+- **APL-MOB-004:** PLANNED / OWNER-GATED.
+- **iOS:** **0.1.19 build 21 submitted / Waiting for Review**; no repo action while Apple review is pending absent a concrete review issue.
+- **APL-IP-001:** DONE for the exact v0.2.9 filing-evidence object; do not silently re-scope registry evidence to v0.2.16.
+- **APL-REL-016:** READY FOR REVIEW REFRESH; latest substantive PR #161 must move to v0.2.16 / first eligible v0.2.17+.
+- **PER-APP ROUTING:** PR #144 remains the Owner decision packet; refresh baseline wording to v0.2.16/current-main, then stop at architecture decision.
 - **REGISTRY INFRA:** HUMAN BLOCKED on physical Russian sovereign lifecycle proof (#55).
 - **REGISTRY FILING:** HUMAN HOLD; private/accounting/support/signature/live-portal evidence remains.
-- **MAC:** long-sleep recovery is fixed/physically accepted; v0.2.16 stable Developer ID-signed/notarized distribution is published.
-- **iOS:** draft PR #135 active as personal-use engineering; signing/device acceptance remains HUMAN.
 
-Work-conserving order for watchdog: first refresh APL-REL-016, then refresh PR #144 to the current v0.2.12 baseline. Do not start MOB-004, public Android 0.1.31 release, broad gateway rollout, iOS signing/App Store work, or external registry submission without the required Owner/HUMAN gate.
+Work-conserving order: preserve active Mac App Store PR #175; independent safe REVIEW work may refresh APL-REL-016, followed by PR #144. Do not churn iOS while Apple review is pending. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
 
 ## Completion discipline
 
