@@ -15,6 +15,55 @@ class _BoolVar:
         self.value = value
 
 
+class _Entry:
+    def __init__(self, value=""):
+        self.value = str(value)
+
+    def get(self):
+        return self.value
+
+    def delete(self, *_args):
+        self.value = ""
+
+    def insert(self, _index, value):
+        self.value = str(value)
+
+
+class SettingsLocalPortsTests(unittest.TestCase):
+    def dialog(self, http=8080, socks=1080, pac=8082):
+        dlg = gui.SettingsDialog.__new__(gui.SettingsDialog)
+        dlg._local_port_fields = {
+            "local_http_port": _Entry(http),
+            "local_socks_port": _Entry(socks),
+            "local_pac_port": _Entry(pac),
+        }
+        return dlg
+
+    def test_local_ports_accept_three_distinct_valid_values(self):
+        values, error = self.dialog(18080, 11080, 18082)._local_ports_values()
+        self.assertEqual(error, "")
+        self.assertEqual(values, {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        })
+
+    def test_local_ports_reject_collision_and_invalid_values(self):
+        values, error = self.dialog(8080, 8080, 8082)._local_ports_values()
+        self.assertIsNone(values)
+        self.assertIn("три разных", error)
+        values, error = self.dialog("bad", 1080, 8082)._local_ports_values()
+        self.assertIsNone(values)
+        self.assertIn("1 до 65535", error)
+
+    def test_macos_recommended_ports_can_be_applied_without_network_change(self):
+        dlg = self.dialog()
+        dlg._set_recommended_local_ports()
+        self.assertEqual(dlg._local_port_fields["local_http_port"].get(), "18080")
+        self.assertEqual(dlg._local_port_fields["local_socks_port"].get(), "11080")
+        self.assertEqual(dlg._local_port_fields["local_pac_port"].get(), "18082")
+
+
 class AutostartOwnershipTests(unittest.TestCase):
     def test_portable_fallback_detects_noncanonical_frozen_executable(self):
         with mock.patch.object(gui.os, "name", "nt"), \
@@ -91,6 +140,345 @@ class AutostartOwnershipTests(unittest.TestCase):
         with mock.patch.object(gui, "_is_macos", return_value=False):
             self.assertTrue(launcher._autostart_enabled())
         launcher._autostart_task_is_ours.assert_not_called()
+
+
+class FocusStatusReconciliationTests(unittest.TestCase):
+    def test_focus_reconciles_external_worker_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.refresh_status = mock.Mock()
+        launcher._refresh_status_on_focus()
+        launcher.refresh_status.assert_called_once_with()
+
+
+class LifecycleStatusRaceTests(unittest.TestCase):
+    def test_focus_does_not_render_recovery_state_while_stop_is_pending(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        launcher._refresh_status_on_focus()
+
+        launcher.refresh_status.assert_not_called()
+
+    def test_focus_reconciles_again_after_lifecycle_finishes(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = None
+        launcher.refresh_status = mock.Mock()
+
+        launcher._refresh_status_on_focus()
+
+        launcher.refresh_status.assert_called_once_with()
+
+    def test_execute_stop_marks_lifecycle_pending_before_spawn(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._set_busy = mock.Mock()
+        launcher._lifecycle_action_pending = None
+
+        with mock.patch.object(gui, "_run_headless") as run:
+            launcher._execute_stop()
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        run.assert_called_once_with("--stop")
+        launcher.root.after.assert_called_once_with(250, launcher._after_stop)
+
+    def test_after_stop_keeps_pending_while_restore_evidence_exists(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True):
+            launcher._after_stop(attempt=0)
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        launcher.refresh_status.assert_not_called()
+        launcher.root.after.assert_called_once()
+
+    def test_after_stop_clears_pending_only_after_clean_terminal_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._lifecycle_action_pending = "stop"
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.messagebox, "showinfo"):
+            launcher._after_stop(attempt=1)
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        launcher.refresh_status.assert_called_once_with()
+
+
+    def test_macos_heartbeat_recovers_completed_stop_when_timer_callback_is_lost(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "stop"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=103.0),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        self.assertIsNone(launcher._lifecycle_action_started_wall)
+        launcher.refresh_status.assert_called_once_with()
+        events = [call.kwargs.get("event") for call in log.call_args_list]
+        self.assertIn("proxy_gui.lifecycle.watchdog_reconciled", events)
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_WAKE_GUARD_HEARTBEAT_MS,
+            launcher._ui_heartbeat,
+        )
+
+    def test_macos_heartbeat_keeps_recent_lifecycle_busy_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "stop"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.core, "is_running") as running,              mock.patch.object(gui.core, "network_restore_pending") as pending:
+            launcher._ui_heartbeat()
+
+        self.assertEqual(launcher._lifecycle_action_pending, "stop")
+        running.assert_not_called()
+        pending.assert_not_called()
+        launcher.refresh_status.assert_not_called()
+
+    def test_macos_heartbeat_releases_expired_failed_start_busy_state(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 110.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher._lifecycle_action_pending = "start"
+        launcher._lifecycle_action_started_wall = 100.0
+        launcher.refresh_status = mock.Mock()
+
+        now = 100.0 + gui.MAC_LIFECYCLE_PENDING_MAX_SECONDS + 1.0
+        with mock.patch.object(gui.time, "time", return_value=now),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertIsNone(launcher._lifecycle_action_pending)
+        launcher.refresh_status.assert_called_once_with()
+        reconciled = [
+            call for call in log.call_args_list
+            if call.kwargs.get("event") == "proxy_gui.lifecycle.watchdog_reconciled"
+        ]
+        self.assertEqual(len(reconciled), 1)
+        self.assertTrue(reconciled[0].kwargs["expired"])
+        self.assertFalse(reconciled[0].kwargs["terminal"])
+
+    def test_late_stop_callback_is_ignored_after_watchdog_reconciliation(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._lifecycle_action_pending = None
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.core, "is_running") as running,              mock.patch.object(gui.core, "network_restore_pending") as pending,              mock.patch.object(gui.messagebox, "showinfo") as info:
+            launcher._after_stop()
+
+        running.assert_not_called()
+        pending.assert_not_called()
+        launcher.refresh_status.assert_not_called()
+        info.assert_not_called()
+
+
+class MacOSRecoveryDebounceTests(unittest.TestCase):
+    def test_macos_recovery_prompt_rechecks_before_offering_rollback(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._recovery_prompt_shown = False
+        launcher.root = mock.Mock()
+
+        with mock.patch.object(gui, "_is_macos", return_value=True),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True),              mock.patch.object(gui.messagebox, "askyesno") as ask:
+            launcher._maybe_prompt_recovery()
+
+        ask.assert_not_called()
+        launcher.root.after.assert_called_once()
+        delay, callback = launcher.root.after.call_args.args
+        self.assertEqual(delay, 750)
+        self.assertTrue(callable(callback))
+
+    def test_macos_recovery_prompt_still_available_after_stable_rechecks(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._recovery_prompt_shown = False
+        launcher.root = mock.Mock()
+
+        with mock.patch.object(gui, "_is_macos", return_value=True),              mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True),              mock.patch.object(gui.messagebox, "askyesno", return_value=False) as ask:
+            launcher._maybe_prompt_recovery(attempt=3)
+
+        ask.assert_called_once()
+        self.assertTrue(launcher._recovery_prompt_shown)
+
+    def test_headless_lifecycle_spawn_is_structured_logged(self):
+        process = mock.Mock()
+        with mock.patch.object(gui.sys, "frozen", True, create=True),              mock.patch.object(gui.sys, "executable", "/Applications/Arvectum Proxy Launcher"),              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui.subprocess, "Popen", return_value=process) as popen:
+            gui._run_headless("--rollback")
+
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.lifecycle.spawn")
+        self.assertEqual(log.call_args.kwargs["mode"], "--rollback")
+        self.assertEqual(popen.call_args.args[0], [
+            "/Applications/Arvectum Proxy Launcher",
+            "--rollback",
+        ])
+
+
+class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
+    def test_long_event_loop_gap_arms_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.0
+        launcher._mac_wake_guard_until = 0.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=200.0),              mock.patch.object(gui.core, "structured_log") as log:
+            launcher._ui_heartbeat()
+
+        self.assertEqual(launcher._ui_heartbeat_wall, 200.0)
+        self.assertEqual(
+            launcher._mac_wake_guard_until,
+            200.0 + gui.MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.wake_guard.armed")
+        launcher.refresh_status.assert_called_once_with()
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_WAKE_GUARD_HEARTBEAT_MS,
+            launcher._ui_heartbeat,
+        )
+
+    def test_off_remains_actionable_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher.btn_off = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 104.5
+        launcher._mac_wake_guard_until = 115.0
+        launcher._off_confirmation_pending = False
+
+        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.messagebox, "askyesno") as ask,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        ask.assert_not_called()
+        run.assert_not_called()
+        self.assertTrue(launcher._off_confirmation_pending)
+        launcher.btn_off.state.assert_called_once_with(["disabled"])
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_OFF_CONFIRM_DELAY_MS,
+            launcher._confirm_macos_off,
+        )
+
+    def test_refresh_status_keeps_off_enabled_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher._status_dot = mock.Mock()
+        launcher.chip = mock.Mock()
+        launcher.status_hint = mock.Mock()
+        launcher.btn_doctor = mock.Mock()
+        launcher.btn_restore = mock.Mock()
+        launcher.btn_orphan_pac = mock.Mock()
+        launcher.btn_on = mock.Mock()
+        launcher.btn_off = mock.Mock()
+        launcher.btn_check = mock.Mock()
+        launcher._wake_destructive_guard_active = mock.Mock(return_value=True)
+
+        with mock.patch.object(gui.core, "is_running", return_value=True),              mock.patch.object(gui.core, "system_proxy_enabled", return_value=True),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "orphaned_arvectum_pac", return_value=False):
+            launcher.refresh_status()
+
+        launcher.btn_on.state.assert_called_with(["disabled"])
+        launcher.btn_off.state.assert_called_with(["!disabled"])
+        launcher.btn_restore.state.assert_called_with(["disabled"])
+
+    def test_macos_off_defers_confirmation_until_original_click_finishes(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher.btn_off = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
+        launcher._mac_wake_guard_until = 100.0
+        launcher._off_confirmation_pending = False
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno") as ask,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        ask.assert_not_called()
+        run.assert_not_called()
+        self.assertTrue(launcher._off_confirmation_pending)
+        launcher.btn_off.state.assert_called_once_with(["disabled"])
+        launcher.root.after.assert_called_once_with(
+            gui.MAC_OFF_CONFIRM_DELAY_MS,
+            launcher._confirm_macos_off,
+        )
+
+    def test_macos_off_cancel_after_delay_never_spawns_stop(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
+        launcher._mac_wake_guard_until = 100.0
+        launcher._off_confirmation_pending = True
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno", return_value=False) as ask,              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
+            launcher._confirm_macos_off()
+
+        ask.assert_called_once()
+        self.assertEqual(ask.call_args.kwargs["default"], "no")
+        run.assert_not_called()
+        launcher.refresh_status.assert_called_once_with()
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.off.cancelled")
+
+    def test_macos_off_confirm_after_delay_spawns_stop(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
+        launcher._mac_wake_guard_until = 100.0
+        launcher._off_confirmation_pending = True
+        launcher._set_busy = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno", return_value=True) as ask,              mock.patch.object(gui.core, "structured_log") as log,              mock.patch.object(gui, "_run_headless") as run:
+            launcher._confirm_macos_off()
+
+        ask.assert_called_once()
+        self.assertEqual(ask.call_args.kwargs["default"], "no")
+        launcher._set_busy.assert_called_once()
+        run.assert_called_once_with("--stop")
+        launcher.root.after.assert_called_once_with(250, launcher._after_stop)
+        self.assertEqual(log.call_args.kwargs["event"], "proxy_gui.off.confirmed")
+
+    def test_duplicate_macos_off_request_is_ignored_while_confirmation_pending(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher.btn_off = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 100.5
+        launcher._mac_wake_guard_until = 100.0
+        launcher._off_confirmation_pending = True
+
+        with mock.patch.object(gui.time, "time", return_value=101.0),              mock.patch.object(gui.messagebox, "askyesno") as ask,              mock.patch.object(gui, "_run_headless") as run:
+            launcher.off()
+
+        ask.assert_not_called()
+        run.assert_not_called()
+        launcher.root.after.assert_not_called()
+
+    def test_rollback_is_blocked_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher.root = mock.Mock()
+        launcher._mac_ui = True
+        launcher._ui_heartbeat_wall = 104.5
+        launcher._mac_wake_guard_until = 115.0
+        launcher.refresh_status = mock.Mock()
+
+        with mock.patch.object(gui.time, "time", return_value=105.0),              mock.patch.object(gui.core, "structured_log"),              mock.patch.object(gui, "_run_headless") as run,              mock.patch.object(gui.messagebox, "askyesno") as ask:
+            launcher.restore_network(confirm=True)
+
+        run.assert_not_called()
+        ask.assert_not_called()
 
 
 class FinalStatusUxTests(unittest.TestCase):

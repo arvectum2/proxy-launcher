@@ -5,7 +5,6 @@ import unittest
 
 import proxy_core as core
 
-
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CORE_PATH = ROOT / "proxy_core.py"
 THIS_TEST = pathlib.Path(__file__).resolve()

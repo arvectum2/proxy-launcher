@@ -1,7 +1,6 @@
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -145,6 +144,37 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("APPIMAGE_RUNTIME_LICENSE.txt", appimage_workflow)
         self.assertIn("tools/build_linux_appimage.sh", appimage_workflow)
 
+    def test_cross_platform_release_includes_exact_main_macos_beta_dmgs(self):
+        release = self.read(".github/workflows/release.yml")
+        macos = self.read(".github/workflows/macos-packaging.yml")
+        policy = self.read("RELEASE_POLICY.md")
+
+        self.assertIn(
+            'MACOS_ARM_NAME="Arvectum-Proxy-Launcher-${VERSION}-macos-arm64.dmg"',
+            release,
+        )
+        self.assertIn(
+            'MACOS_X64_NAME="Arvectum-Proxy-Launcher-${VERSION}-macos-x64.dmg"',
+            release,
+        )
+        self.assertIn("macos-packaging.yml/runs?head_sha=${{ github.sha }}", release)
+        self.assertIn("apl-mac-package-macos-15", release)
+        self.assertIn("apl-mac-package-macos-15-intel", release)
+        self.assertIn('sha256sum "$MACOS_ARM_NAME" >> SHA256SUMS.txt', release)
+        self.assertIn('sha256sum "$MACOS_X64_NAME" >> SHA256SUMS.txt', release)
+        self.assertIn('"release-stage/${MACOS_ARM_NAME}"', release)
+        self.assertIn('"release-stage/${MACOS_X64_NAME}"', release)
+        self.assertIn("macos-15-intel", macos)
+        self.assertIn("beta", policy.lower())
+        self.assertIn("Open Anyway", policy)
+
+    def test_release_evidence_requires_macos_packaging(self):
+        evidence = self.read(".github/workflows/release-evidence.yml")
+        self.assertIn(
+            '"macos-packaging.yml|macOS packaging|required"',
+            evidence,
+        )
+
     def test_pull_request_release_validation_does_not_duplicate_windows_builds(self):
         release = self.read(".github/workflows/release.yml")
         guard = "github.event_name != 'pull_request' && needs.validate.outputs.owner_signed_release != 'true'"
@@ -173,6 +203,9 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("SHA256SUMS.txt", mirror)
         self.assertIn("single-file ZIP wrapper", mirror)
         self.assertIn("Immutable GitVerse asset differs", mirror)
+        self.assertIn("-X PATCH", mirror)
+        self.assertIn("UPDATED GitVerse release metadata", mirror)
+        self.assertIn("gitverse-release-metadata-update.json", mirror)
         self.assertNotIn("DELETE", mirror)
 
 

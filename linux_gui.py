@@ -13,14 +13,12 @@ import sys
 import tkinter as tk
 from tkinter import messagebox
 
-import connection_test as connection_test_module
 import doctor as doctor_module
 import linux_autostart
 import linux_policykit_ux as policykit_ux
-from linux_runtime import detect_linux_runtime
 import proxy_core as core
 import proxy_gui as shared_gui
-
+from linux_runtime import detect_linux_runtime
 
 APP_NAME = shared_gui.APP_NAME
 MINT = shared_gui.MINT

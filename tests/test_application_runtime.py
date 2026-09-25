@@ -1,4 +1,3 @@
-import os
 import pathlib
 import tempfile
 import unittest
@@ -94,7 +93,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_start(), 1)
         write_pid.assert_called_once_with()
         proxy.stop.assert_called_once_with()
-        remove_pid.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
 
     def test_successful_start_always_stops_and_removes_pid_on_interrupt(self):
         settings = dict(core.DEFAULT_SETTINGS)
@@ -103,7 +102,8 @@ class ApplicationRuntimeTests(unittest.TestCase):
         stop_event.wait.side_effect = KeyboardInterrupt
         proxy = mock.Mock(_stop=stop_event)
         proxy.start.return_value = (True, "OK")
-        with mock.patch.object(core, "load_settings", return_value=settings), \
+        with mock.patch.object(application_runtime.sys, "platform", "linux"), \
+             mock.patch.object(core, "load_settings", return_value=settings), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "ProxyCore", return_value=proxy), \
              mock.patch.object(core, "_write_pid") as write_pid, \
@@ -114,12 +114,111 @@ class ApplicationRuntimeTests(unittest.TestCase):
         write_pid.assert_called_once_with()
         stop_event.wait.assert_called_once_with(3600)
         proxy.stop.assert_called_once_with()
-        remove_pid.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
+
+    def test_non_macos_proxy_loop_keeps_historical_wait_contract(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = KeyboardInterrupt
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "linux"):
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        stop_event.wait.assert_called_once_with(3600)
+
+
+    def test_macos_proxy_loop_refreshes_after_plain_wall_clock_gap(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, False, KeyboardInterrupt]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1045.0, 1047.0],
+             ),              mock.patch.object(core, "refresh_system_proxy", return_value=True) as refresh,              mock.patch.object(core, "structured_log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        self.assertEqual(
+            stop_event.wait.call_args_list[:2],
+            [
+                mock.call(application_runtime.MACOS_RESUME_POLL_SECONDS),
+                mock.call(application_runtime.MACOS_RESUME_SETTLE_SECONDS),
+            ],
+        )
+        refresh.assert_called_once_with()
+        self.assertEqual(
+            [call.kwargs["phase"] for call in log.call_args_list],
+            ["detected", "completed"],
+        )
+        self.assertEqual(
+            log.call_args.kwargs["event"],
+            "proxy.resume.wall_gap_refresh",
+        )
+        self.assertTrue(log.call_args.kwargs["refreshed"])
+
+    def test_macos_proxy_loop_does_not_refresh_during_normal_awake_heartbeat(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, KeyboardInterrupt]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1001.1],
+             ),              mock.patch.object(core, "refresh_system_proxy") as refresh,              mock.patch.object(core, "structured_log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                core._run_proxy_loop(proxy)
+
+        refresh.assert_not_called()
+        log.assert_not_called()
+
+    def test_macos_proxy_loop_stop_during_settle_skips_refresh(self):
+        stop_event = mock.Mock()
+        stop_event.wait.side_effect = [False, True]
+        proxy = mock.Mock(_stop=stop_event)
+
+        with mock.patch.object(application_runtime.sys, "platform", "darwin"),              mock.patch.object(
+                 application_runtime.time,
+                 "time",
+                 side_effect=[1000.0, 1045.0],
+             ),              mock.patch.object(core, "refresh_system_proxy") as refresh,              mock.patch.object(core, "structured_log") as log:
+            core._run_proxy_loop(proxy)
+
+        refresh.assert_not_called()
+        self.assertEqual(len(log.call_args_list), 1)
+        self.assertEqual(log.call_args.kwargs["phase"], "detected")
+
+    def test_stop_preflight_refusal_preserves_worker_and_network(self):
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=False
+             ) as preflight,              mock.patch.object(core, "_read_pid") as read_pid,              mock.patch.object(core, "_kill_pid") as kill,              mock.patch.object(core, "disable_system_proxy") as disable,              mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_stop(), 1)
+
+        preflight.assert_called_once_with()
+        read_pid.assert_not_called()
+        kill.assert_not_called()
+        disable.assert_not_called()
+
+    def test_rollback_preflight_refusal_preserves_worker_and_network(self):
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=False
+             ) as preflight,              mock.patch.object(core, "_read_pid") as read_pid,              mock.patch.object(core, "_kill_pid") as kill,              mock.patch.object(core, "disable_system_proxy") as disable,              mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_rollback(), 1)
+
+        preflight.assert_called_once_with()
+        read_pid.assert_not_called()
+        kill.assert_not_called()
+        disable.assert_not_called()
 
     def test_stop_reports_incomplete_network_restore(self):
-        with mock.patch.object(core, "_read_pid", return_value=None), \
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
-             mock.patch.object(core, "is_running", side_effect=[False, False]), \
+             mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
              mock.patch.object(core, "disable_system_proxy", return_value=False), \
              mock.patch.object(core, "network_restore_pending", return_value=True), \
@@ -127,10 +226,28 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_stop(), 1)
         remove_pid.assert_called_once_with()
 
+    def test_stop_refreshes_recovered_pid_before_kill(self):
+        recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(
+                 core, "_read_pid", side_effect=[None, recovered]
+             ), \
+             mock.patch.object(core, "_kill_pid", return_value=True) as kill, \
+             mock.patch.object(core, "is_running", side_effect=[True, False, False]), \
+             mock.patch.object(core, "_remove_pid"), \
+             mock.patch.object(core, "disable_system_proxy", return_value=True), \
+             mock.patch.object(core, "network_restore_pending", return_value=False), \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_stop(), 0)
+        kill.assert_called_once_with(recovered)
+
     def test_rollback_reaches_network_restore_even_without_pid(self):
-        with mock.patch.object(core, "_read_pid", return_value=None), \
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(core, "_read_pid", return_value=None), \
              mock.patch.object(core, "_kill_pid", return_value=False), \
-             mock.patch.object(core, "is_running", side_effect=[False, False]), \
+             mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "_remove_pid") as remove_pid, \
              mock.patch.object(core, "disable_system_proxy", return_value=True) as disable, \
              mock.patch.object(core, "network_restore_pending", return_value=False), \
@@ -138,6 +255,22 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_rollback(), 0)
         remove_pid.assert_called_once_with()
         disable.assert_called_once_with()
+
+    def test_rollback_refreshes_recovered_pid_before_kill(self):
+        recovered = {"pid": 42, "created": None, "exe_path": "/owned"}
+        with mock.patch.object(
+                 core, "system_proxy_disable_preflight", return_value=True
+             ),              mock.patch.object(
+                 core, "_read_pid", side_effect=[None, recovered]
+             ), \
+             mock.patch.object(core, "_kill_pid", return_value=True) as kill, \
+             mock.patch.object(core, "is_running", side_effect=[True, False, False]), \
+             mock.patch.object(core, "_remove_pid"), \
+             mock.patch.object(core, "disable_system_proxy", return_value=True), \
+             mock.patch.object(core, "network_restore_pending", return_value=False), \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_rollback(), 0)
+        kill.assert_called_once_with(recovered)
 
     def test_status_uses_canonical_runtime_seams(self):
         settings = dict(core.DEFAULT_SETTINGS)

@@ -118,15 +118,30 @@ def _redaction_self_test():
     )
 
 
+def _snapshot_platform(snapshot):
+    ok, system, _error = _section(snapshot, "system")
+    if not ok:
+        return ""
+    return str(system.get("platform") or "").strip()
+
+
 def _platform_check(snapshot):
     ok, system, error = _section(snapshot, "system")
     if not ok:
-        return _check("platform.windows", FAIL, "Windows platform state is unavailable", error)
-    if system.get("windows") is True:
+        return _check("platform.supported", FAIL, "Platform state is unavailable", error)
+
+    platform_name = str(system.get("platform") or "").strip()
+    lowered = platform_name.lower()
+    if system.get("windows") is True or lowered == "windows":
         return _check("platform.windows", PASS, "Windows platform detected")
+    if lowered in ("darwin", "macos", "mac"):
+        return _check("platform.macos", PASS, "macOS platform detected")
+    if lowered == "linux":
+        return _check("platform.linux", PASS, "Linux platform detected")
     return _check(
-        "platform.windows", FAIL, "Doctor production checks require Windows",
-        {"platform": system.get("platform"), "windows": system.get("windows")},
+        "platform.supported", FAIL, "Unsupported desktop platform",
+        {"platform": platform_name or None},
+        "Use a supported Windows, macOS or Linux build of Arvectum Proxy Launcher.",
     )
 
 
@@ -246,16 +261,16 @@ def _engine_proxy_check(snapshot):
     if enabled and not running:
         return _check(
             "state.engine_proxy", FAIL,
-            "Windows proxy is enabled but the Proxy Launcher engine is not running",
+            "System proxy is enabled but the Proxy Launcher engine is not running",
             details, "Restore network settings before attempting a new start.",
         )
     if running and not enabled:
         return _check(
             "state.engine_proxy", WARN,
-            "Proxy engine is running but the Windows PAC is not enabled",
+            "Proxy engine is running but the system PAC is not enabled",
             details, "Re-enable the proxy or stop the engine cleanly if this state is not intentional.",
         )
-    return _check("state.engine_proxy", PASS, "Engine and Windows proxy state are consistent", details)
+    return _check("state.engine_proxy", PASS, "Engine and system proxy state are consistent", details)
 
 
 def _pac_ownership_check(snapshot):
@@ -267,9 +282,9 @@ def _pac_ownership_check(snapshot):
     if stale:
         return _check(
             "state.pac_ownership", FAIL,
-            "Windows still references an Arvectum PAC whose ownership cannot be proven",
+            "The system still references an Arvectum PAC whose ownership cannot be proven",
             {"stale_system_proxy": stale, "orphaned_arvectum_pac": orphaned},
-            "Do not reset unrelated Windows proxy settings automatically; inspect the support bundle or open the installed Launcher.",
+            "Do not reset unrelated system proxy settings automatically; inspect the support bundle or open the installed Launcher.",
         )
     if orphaned:
         return _check(
@@ -291,8 +306,15 @@ def _listeners_check(snapshot):
         )
     running = bool(proxy_state.get("engine_running"))
     observed = {}
+    listener_details = {}
     for name in ("http", "socks5", "pac"):
-        observed[name] = bool(_safe_dict(listeners.get(name)).get("listening"))
+        raw = _safe_dict(listeners.get(name))
+        observed[name] = bool(raw.get("listening"))
+        listener_details[name] = {
+            "listening": observed[name],
+            "port": _valid_port(raw.get("port")),
+            "owners": _safe_list(raw.get("owners")),
+        }
     if running:
         missing = sorted(name for name, listening in observed.items() if not listening)
         protocol_ok = listeners.get("pac_protocol_compatible")
@@ -300,19 +322,72 @@ def _listeners_check(snapshot):
             return _check(
                 "listeners.health", FAIL,
                 "Proxy engine is running but required localhost listeners are unhealthy",
-                {"listeners": observed, "missing": missing, "pac_protocol_compatible": protocol_ok},
+                {
+                    "listeners": observed,
+                    "listener_details": listener_details,
+                    "missing": missing,
+                    "pac_protocol_compatible": protocol_ok,
+                },
                 "Restart Proxy Launcher; if listeners remain unhealthy, create a support bundle.",
             )
-        return _check("listeners.health", PASS, "All required localhost listeners are reachable", observed)
+        return _check(
+            "listeners.health", PASS, "All required localhost listeners are reachable",
+            {"listeners": observed, "listener_details": listener_details},
+        )
+
     occupied = sorted(name for name, listening in observed.items() if listening)
     if occupied:
+        occupied_details = {name: listener_details[name] for name in occupied}
+        occupied_ports = [
+            item["port"] for item in occupied_details.values() if item.get("port") is not None
+        ]
+        platform_name = _snapshot_platform(snapshot).lower()
+        if platform_name in ("darwin", "macos", "mac"):
+            owner_labels = []
+            for name in occupied:
+                item = occupied_details[name]
+                port = item.get("port")
+                owners = item.get("owners") or []
+                if owners:
+                    owner = _safe_dict(owners[0])
+                    process = str(owner.get("command") or "процесс")
+                    pid = owner.get("pid")
+                    label = "%s %s — %s%s" % (
+                        name.upper(), port or "?", process,
+                        " (PID %s)" % pid if pid is not None else "",
+                    )
+                else:
+                    label = "%s %s" % (name.upper(), port or "?")
+                owner_labels.append(label)
+            remediation = (
+                "На macOS локальные порты уже заняты: %s. Закройте конфликтующий процесс "
+                "или в «Прокси…» → «Локальные порты» укажите свободные порты "
+                "(например 18080 / 11080 / 18082), затем повторите диагностику."
+            ) % "; ".join(owner_labels)
+        else:
+            remediation = (
+                "Free the occupied local ports %s or choose different local listener ports "
+                "before starting Proxy Launcher."
+            ) % ", ".join(str(p) for p in occupied_ports)
+        summary = (
+            "Локальные порты заняты, пока Proxy Launcher выключен"
+            if platform_name in ("darwin", "macos", "mac")
+            else "Configured localhost ports are already listening while the engine is stopped"
+        )
         return _check(
             "listeners.health", WARN,
-            "Configured localhost ports are already listening while the engine is stopped",
-            {"listeners": observed, "occupied": occupied},
-            "Identify the local process using these ports before starting Proxy Launcher.",
+            summary,
+            {
+                "listeners": observed,
+                "occupied": occupied,
+                "occupied_details": occupied_details,
+            },
+            remediation,
         )
-    return _check("listeners.health", PASS, "Configured localhost ports are free while the engine is stopped", observed)
+    return _check(
+        "listeners.health", PASS, "Configured localhost ports are free while the engine is stopped",
+        {"listeners": observed, "listener_details": listener_details},
+    )
 
 
 def _recovery_autostart_check(snapshot):

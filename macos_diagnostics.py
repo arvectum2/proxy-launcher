@@ -2,15 +2,14 @@
 """Privacy-bounded macOS diagnostics/support bundle for macOS diagnostics."""
 import json
 import os
-import platform
 import subprocess
 import tempfile
 import zipfile
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Sequence
 
-from macos_runtime import detect_macos_runtime
 from macos_networksetup_preflight import detect_macos_network_preflight
+from macos_runtime import detect_macos_runtime
 
 
 def _run_readonly(args: Sequence[str]) -> Dict[str, Any]:

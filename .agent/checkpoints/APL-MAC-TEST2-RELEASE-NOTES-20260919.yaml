@@ -1,0 +1,51 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-TEST2-RELEASE-NOTES-20260919
+status: completed
+goal: "Update the existing v0.2.10-macos-test.2 release metadata with verified MacBook installation/diagnostic results without changing the published DMG bytes or canonical stable v0.2.10."
+authority: HUMAN
+definition_of_done:
+  - "v0.2.10-macos-test.2 DMG and SHA256SUMS asset digests remain unchanged."
+  - "GitHub prerelease notes include verified real-MacBook installation from /Applications, Doctor PASS 11/WARN 0/FAIL 0, and coexistence guidance for existing PAC proxy on 8080/1080/8082."
+  - "GitVerse mirrored release metadata is synchronized without replacing existing assets."
+  - "Canonical stable v0.2.10 tag/release/assets remain unchanged."
+  - "Checkpoint is marked completed and archived."
+completed:
+  - "Confirmed no product-code commits followed test2 source a6e47597d5d12d55f439939b42fd409afa73c2cb; only checkpoint metadata commits followed."
+  - "Updated GitHub v0.2.10-macos-test.2 release notes with verified real MacBook installation, /Applications launch path, Doctor PASS 11/WARN 0/FAIL 0 and PAC coexistence guidance."
+  - "Verified GitHub test2 DMG asset stayed byte-identical: sha256:6509307f8410b73c882f8bbe176ab04594d9dc9291c996b6c575cbbd6b171cae."
+  - "Verified GitHub test2 SHA256SUMS.txt stayed byte-identical: sha256:4285faafcb5d12de03a53033399359762213cfb8211f86b7f980a1d9bd4aa735."
+  - "Extended GitVerse mirror workflow to support metadata-only PATCH synchronization while preserving immutable existing asset-byte checks."
+  - "Focused release/mirror/canonical-branch contract suite passed 30/30."
+  - "PR #139 exact-head checks completed with no failures and merged as dbe686148c32ff30132131e500985ad9a68ad1a1."
+  - "Workflow-dispatch GitVerse re-sync run 35455979972 completed successfully."
+  - "GitVerse workflow logged UPDATED GitVerse release metadata."
+  - "GitVerse workflow re-verified existing immutable DMG and SHA256SUMS assets without replacement."
+  - "GitVerse public payload parity re-check passed for DMG canonical SHA256 6509307f8410b73c882f8bbe176ab04594d9dc9291c996b6c575cbbd6b171cae and SHA256SUMS canonical SHA256 4285faafcb5d12de03a53033399359762213cfb8211f86b7f980a1d9bd4aa735."
+  - "Canonical stable v0.2.10 remained unchanged: six stable assets retain their original digests and stable tag still resolves to 1c5d7aaf37e19b6c1fbfc06f945f606d6206a695."
+current: "Completed. macOS test2 release notes now include real MacBook acceptance results on GitHub and GitVerse; published files and stable v0.2.10 remain unchanged."
+pending: []
+last_verified_commit: "dbe686148c32ff30132131e500985ad9a68ad1a1"
+test_results:
+  - "MacBook test2 Doctor: PASS 11/WARN 0/FAIL 0."
+  - "Focused release/mirror/canonical-branch contracts: 30/30 PASS."
+  - "PR #139 exact-head checks: no failures."
+  - "GitVerse metadata re-sync run 35455979972: success."
+  - "GitVerse existing immutable asset verification: PASS."
+  - "GitVerse public canonical payload parity: PASS."
+release:
+  tag: "v0.2.10-macos-test.2"
+  github_release_url: "https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.10-macos-test.2"
+  gitverse_releases_url: "https://gitverse.ru/arvectum/proxy-launcher/releases"
+  source_commit: "a6e47597d5d12d55f439939b42fd409afa73c2cb"
+  dmg_sha256: "6509307f8410b73c882f8bbe176ab04594d9dc9291c996b6c575cbbd6b171cae"
+  checksum_manifest_sha256: "4285faafcb5d12de03a53033399359762213cfb8211f86b7f980a1d9bd4aa735"
+  gitverse_resync_run: 35455979972
+resume_instruction: "Task complete. Do not replace v0.2.10-macos-test.2 assets or mutate stable v0.2.10. Future macOS binary changes require a new test tag or a new SemVer release."
+updated_at: "2026-09-19T19:47:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MAC-TEST2-RELEASE-NOTES-20260919"
+  branch: "chore/complete-macos-test2-release-notes"
+  base_commit: "dbe686148c32ff30132131e500985ad9a68ad1a1"
+  manual_override: true

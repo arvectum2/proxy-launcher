@@ -4,7 +4,6 @@ import tempfile
 import unittest
 from types import SimpleNamespace
 
-from proxy_backend import ProxyBackend, ProxyBackendConfig
 from linux_backend import (
     ActiveConnection,
     LinuxBackend,
@@ -13,7 +12,7 @@ from linux_backend import (
     NetworkManagerProxyState,
 )
 from linux_desktop_proxy import DesktopProxyState
-
+from proxy_backend import ProxyBackend, ProxyBackendConfig
 
 CONFIG = ProxyBackendConfig(
     pac_url="http://127.0.0.1:8082/proxy.pac",
@@ -169,6 +168,19 @@ class LinuxBackendTests(unittest.TestCase):
         self.assertEqual(
             self.client.proxy["33333333-3333-3333-3333-333333333333"], vpn_before
         )
+
+    def test_manual_desktop_route_is_replaced_by_apl_auto_and_restored(self):
+        self.desktop.state = DesktopProxyState("manual", "http://saved.example/manual.pac")
+        original = self.desktop.state
+
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.assertEqual(
+            self.desktop.state,
+            DesktopProxyState("auto", CONFIG.pac_url),
+        )
+
+        self.assertTrue(self.backend.disable())
+        self.assertEqual(self.desktop.state, original)
 
     def test_disable_restores_exact_profiles_and_is_idempotent(self):
         original = dict(self.client.proxy)
@@ -364,8 +376,6 @@ class LinuxBackendTests(unittest.TestCase):
 
     def test_disable_retry_accepts_already_restored_desktop_state(self):
         self.assertTrue(self.backend.enable(CONFIG))
-        with open(self.backup_path, "r", encoding="utf-8") as stream:
-            payload = json.load(stream)
         self.desktop.state = DesktopProxyState("none", "")
 
         self.assertTrue(self.backend.disable())

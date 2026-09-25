@@ -169,6 +169,96 @@ def _macos_process_executable_path(pid):
         return None
 
 
+def _macos_listener_owner_pid(settings=None):
+    """Recover the packaged macOS worker PID from all three owned listeners."""
+    core = _core()
+    if sys.platform != "darwin" or not getattr(sys, "frozen", False):
+        return None
+    settings = settings or core.load_settings()
+    ports = []
+    for key, default in (
+        ("local_http_port", 8080),
+        ("local_socks_port", 1080),
+        ("local_pac_port", 8082),
+    ):
+        try:
+            port = int(settings.get(key, default))
+        except (TypeError, ValueError):
+            return None
+        if port <= 0 or port > 65535:
+            return None
+        ports.append(port)
+
+    owner_pid = None
+    for port in ports:
+        try:
+            result = subprocess.run(
+                [
+                    "/usr/sbin/lsof",
+                    "-nP",
+                    "-t",
+                    "-iTCP:%d" % port,
+                    "-sTCP:LISTEN",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
+            )
+        except Exception:
+            return None
+        if result.returncode != 0:
+            return None
+        pids = {
+            int(line.strip())
+            for line in result.stdout.splitlines()
+            if line.strip().isdigit()
+        }
+        if len(pids) != 1:
+            return None
+        current = next(iter(pids))
+        if owner_pid is None:
+            owner_pid = current
+        elif current != owner_pid:
+            return None
+
+    if owner_pid is None:
+        return None
+    actual_path = core._macos_process_executable_path(owner_pid)
+    expected_path = os.path.realpath(sys.executable)
+    if not actual_path or os.path.realpath(actual_path) != expected_path:
+        return None
+    return owner_pid
+
+
+def _write_pid_record(pid, exe_path):
+    """Atomically persist an owned process identity."""
+    core = _core()
+    path = core.pid_path()
+    temp_path = "%s.tmp.%s" % (path, os.getpid())
+    record = {
+        "pid": int(pid),
+        "created": core._windows_process_creation_time(int(pid)),
+        "exe_path": os.path.realpath(str(exe_path)),
+        "identity": os.path.normcase(os.path.realpath(core.install_dir())),
+    }
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with io.open(temp_path, "w", encoding="utf-8") as stream:
+            json.dump(record, stream)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp_path, path)
+        return True
+    except Exception as exc:
+        core._log("pid write error: %r" % exc)
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+        return False
+
+
 def _read_pid():
     core = _core()
     try:
@@ -195,10 +285,13 @@ def _read_pid():
 def is_running():
     """Return True only for the proxy process owned by this app instance."""
     core = _core()
-    if not core.proxy_listener_active():
-        return False
-    record = core._read_pid()
+
+    # Preserve the Windows identity contract even when tests execute on a
+    # non-Windows host with the canonical platform seam mocked.
     if core.is_windows():
+        if not core.proxy_listener_active():
+            return False
+        record = core._read_pid()
         if (
             not isinstance(record, dict)
             or not record.get("pid")
@@ -216,43 +309,67 @@ def is_running():
             and os.path.normcase(os.path.realpath(recorded_path))
             == os.path.normcase(os.path.realpath(actual_path))
         )
+
+    # On macOS, process/listener ownership is stronger evidence than an HTTP
+    # health probe. A PAC request can transiently time out while the machine is
+    # resuming even though the packaged worker still owns all three listeners.
+    # Treating that brief protocol stall as STOPPED can expose rollback UI for
+    # a live session. Require the exact packaged executable to own HTTP, SOCKS
+    # and PAC listener ports instead; this remains fail-closed for foreign or
+    # partially rebound processes and does not mutate network state.
     if sys.platform == "darwin":
-        if not isinstance(record, dict) or not record.get("pid"):
+        settings = core.load_settings()
+        owner_pid = core._macos_listener_owner_pid(settings)
+        if owner_pid is None:
             return False
-        recorded_path = record.get("exe_path")
-        actual_path = core._macos_process_executable_path(int(record["pid"]))
-        return bool(
-            recorded_path
-            and actual_path
-            and os.path.realpath(recorded_path) == os.path.realpath(actual_path)
+        actual_path = core._macos_process_executable_path(owner_pid)
+        if not actual_path:
+            return False
+
+        record = core._read_pid()
+        if (
+            isinstance(record, dict)
+            and record.get("pid")
+            and int(record["pid"]) == int(owner_pid)
+            and record.get("exe_path")
+            and os.path.realpath(record["exe_path"]) == os.path.realpath(actual_path)
+        ):
+            return True
+
+        if not core._write_pid_record(owner_pid, actual_path):
+            return False
+        core._log(
+            "recovered macOS worker ownership from listeners: pid=%s" % owner_pid
         )
+        return True
+
+    if not core.proxy_listener_active():
+        return False
     # Historical Linux behavior remains listener-health based until Linux PID
     # ownership receives its own platform-specific identity primitive.
     return True
 
-
 def _write_pid():
-    core = _core()
-    try:
-        pid = os.getpid()
-        record = {
-            "pid": pid,
-            "created": core._windows_process_creation_time(pid),
-            "exe_path": os.path.realpath(sys.executable),
-            "identity": os.path.normcase(os.path.realpath(core.install_dir())),
-        }
-        with io.open(core.pid_path(), "w", encoding="utf-8") as stream:
-            json.dump(record, stream)
-    except Exception as exc:
-        core._log("pid write error: %r" % exc)
+    return _write_pid_record(os.getpid(), sys.executable)
 
 
-def _remove_pid():
+def _remove_pid(expected_pid=None):
     core = _core()
+    if expected_pid is not None:
+        record = core._read_pid()
+        if (
+            not isinstance(record, dict)
+            or not record.get("pid")
+            or int(record["pid"]) != int(expected_pid)
+        ):
+            return False
     try:
         os.remove(core.pid_path())
+        return True
+    except FileNotFoundError:
+        return True
     except Exception:
-        pass
+        return False
 
 
 def _kill_pid(record):
@@ -322,6 +439,8 @@ def install_into_core(core: ModuleType) -> None:
         "_windows_process_creation_time",
         "_windows_process_executable_path",
         "_macos_process_executable_path",
+        "_macos_listener_owner_pid",
+        "_write_pid_record",
         "_read_pid",
         "is_running",
         "_write_pid",

@@ -329,7 +329,7 @@ def _check_system_configuration(running, enabled, pending, orphaned, stale):
     if pending:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             FAIL,
             "есть незавершённое восстановление сети",
             action="Нажмите «Восстановить настройки сети» и повторите проверку.",
@@ -337,7 +337,7 @@ def _check_system_configuration(running, enabled, pending, orphaned, stale):
     if orphaned:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             FAIL,
             "обнаружен старый PAC Arvectum без подтверждённого активного сеанса",
             action="Используйте безопасное удаление старого PAC в Launcher.",
@@ -345,39 +345,39 @@ def _check_system_configuration(running, enabled, pending, orphaned, stale):
     if stale:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             FAIL,
-            "Windows использует настройки Arvectum, но ownership активного сеанса не подтверждён",
+            "Система использует настройки Arvectum, но ownership активного сеанса не подтверждён",
             action="Откройте «Диагностика»; автоматический сброс намеренно не выполняется.",
         )
     if running and enabled:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             PASS,
-            "системный proxy Windows включён и связан с активным сеансом Launcher",
+            "системный proxy включён и связан с активным сеансом Launcher",
         )
     if running and not enabled:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             WARN,
-            "proxy engine работает, но системный proxy Windows не включён",
+            "proxy engine работает, но системный proxy не включён",
             action="Нажмите «Включить прокси», чтобы подключить системную маршрутизацию.",
         )
     if not running and enabled:
         return _result(
             "windows.system_proxy",
-            "Системные настройки Windows",
+            "Системные настройки прокси",
             FAIL,
             "системный proxy включён, но активный proxy engine не найден",
             action="Откройте «Диагностика» и не сбрасывайте чужие настройки автоматически.",
         )
     return _result(
         "windows.system_proxy",
-        "Системные настройки Windows",
+        "Системные настройки прокси",
         PASS,
-        "Launcher выключен; Windows не направляет трафик через активный сеанс Arvectum",
+        "Launcher выключен; система не направляет трафик через активный сеанс Arvectum",
     )
 
 
@@ -413,7 +413,7 @@ def _recommended_actions(checks):
 
 
 def run_connection_test(target_url="https://arvectum.com", timeout=6.0, core_module=core):
-    """Run the read-only Windows connection diagnostics health check and return a structured report."""
+    """Run the read-only connection diagnostics health check and return a structured report."""
     target_url = _normalize_url(target_url)
     timeout = max(1.0, min(float(timeout), 20.0))
     settings = core_module.load_settings()

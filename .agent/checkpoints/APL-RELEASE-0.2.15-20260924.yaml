@@ -1,0 +1,45 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-RELEASE-0.2.15-20260924
+status: completed
+goal: "Publish a full immutable v0.2.15 release from the already-merged and physically accepted macOS Safari fix, including canonical CI gates, GitHub assets/checksums, GitVerse mirror parity, and final verification."
+authority: HUMAN
+definition_of_done:
+  - "Choose the correct immutable release commit containing the 0.2.15 product code and verify exact-SHA release evidence."
+  - "Create immutable tag v0.2.15 only after all required exact-SHA release gates are green."
+  - "Canonical release workflow publishes Windows portable/installer, macOS ARM64/x64 DMGs, DEB, RPM, AppImage, and SHA256SUMS.txt."
+  - "GitHub Release v0.2.15 is public and assets/checksums are verified."
+  - "GitVerse mirror upload and public payload parity complete successfully."
+  - "v0.2.14 tag/release/assets remain unchanged."
+  - "Canonical checkpoint is marked completed with final tag/release/run evidence."
+completed:
+  - "0.2.15 product code is merged in main via PR #164; product merge commit 3ed433633a71977410da4f20c34883c91a39453c."
+  - "Physical acceptance completed before merge: sustained-awake PASS including WebKit.Networking respawn plus two independent sleep/wake PASS cycles."
+  - "Current main 2790c578887e60510b12671a2172a4fecf832000 differs from product merge 3ed4336 only in .agent checkpoint files."
+  - "Release commit selected: 3ed433633a71977410da4f20c34883c91a39453c because it contains the complete 0.2.15 product code, is an ancestor of main, and has successful exact-SHA Windows/Linux/macOS push CI plus Release Evidence Package run 36050203184."
+  - "Current main 2790c57 exact-SHA Release Evidence Package is unsuitable for tagging because that merge changed only .agent metadata and packaging workflows were path-filtered; no product bytes differ from 3ed4336."
+  - "Immutable annotated tag v0.2.15 pushed on 3ed433633a71977410da4f20c34883c91a39453c; tag object 78e99a73090bd651c7ec43a68447a3846c2f1e5a."
+  - "Canonical release workflow run 36058526006 validated release context and completed Windows portable + installer successfully."
+  - "GitHub Release v0.2.15 published successfully at 2026-09-24T21:02:50Z with eight assets (7 packages + SHA256SUMS.txt)."
+  - "Published macOS ARM64 DMG SHA-256 e61739722c6442cc72f9640b1093f01c855e8c9ea86c28c93cabcbc9f66fcb42; macOS x64 DMG SHA-256 337cf5dd0a931cfa006196727b2ab28c83d51781a774eab8485910dd23d9ce53."
+  - "Public SHA256SUMS.txt downloaded and matches all seven package digests reported by GitHub Release."
+  - "GitVerse mirror metadata created; release workflow mirror job 107832736547 is currently uploading assets, then must complete public payload parity."
+  - "GitVerse asset upload completed SUCCESS and public payload parity completed SUCCESS in mirror job 107832736547."
+  - "Canonical GitHub Release workflow run 36058526006 completed SUCCESS on first attempt; head/tag commit is 3ed433633a71977410da4f20c34883c91a39453c."
+  - "v0.2.14 immutability re-verified after v0.2.15 publication: tag remains 5810adee22e7b6422842d0a43647e3383ffd6de2, release published/updated timestamp remains 2026-09-24T14:34:29Z, and all eight asset IDs/sizes/digests retain their original 0.2.14 values."
+  - "v0.2.15 public assets: Windows portable d159be2267ee36c5107f4a191bfabe9f800c846639492cbade337587721ee718; Windows setup 75813027953ba1e5920e368457c64693233d2346e6cbb23be8a2b220cdd7065a; DEB f14e69ab45b41e0b48409f272622d0f039dd8affe41b8f7731ca37f035378fc5; RPM 19e364664222493715b9bcac307268feb20049d647d65e3170238768989d990c; AppImage aae4db1be8ce0819755246fc91d583e17a91ff1d4569e08642595ba7366848bb; macOS ARM64 e61739722c6442cc72f9640b1093f01c855e8c9ea86c28c93cabcbc9f66fcb42; macOS x64 337cf5dd0a931cfa006196727b2ab28c83d51781a774eab8485910dd23d9ce53."
+current: "Completed: immutable v0.2.15 published from exact product commit 3ed4336 with canonical GitHub assets/checksums and GitVerse public parity verified."
+pending: []
+last_verified_commit: "3ed433633a71977410da4f20c34883c91a39453c"
+test_results:
+  - "0.2.15 PR #164 exact-head CI PASS."
+  - "Physical acceptance PASS: sustained awake + two independent sleep/wake cycles on exact ARM64 candidate."
+resume_instruction: "Task completed. Do not recreate, retag, overwrite, or mutate v0.2.15. GitHub Release and GitVerse mirror parity are complete from immutable tag v0.2.15 -> 3ed433633a71977410da4f20c34883c91a39453c. Start future work as a new canonical task."
+updated_at: "2026-09-25T00:12:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260924-release-0.2.15"
+  branch: "agent/apl-release-0.2.15-20260924"
+  base_commit: "2790c578887e60510b12671a2172a4fecf832000"
+  lease_until: null
+  manual_override: true

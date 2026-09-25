@@ -3,6 +3,7 @@ from unittest import mock
 
 import backend_runtime
 import proxy_core as core
+import system_proxy_runtime
 from proxy_backend import ProxyBackendConfig
 
 
@@ -15,9 +16,14 @@ class _FakeBackend:
         self.checked = None
         self.pending = False
         self.synced = None
+        self.refreshed = None
 
     def enable(self, config):
         self.enabled = config
+        return True
+
+    def refresh(self, config):
+        self.refreshed = config
         return True
 
     def disable(self):
@@ -41,8 +47,17 @@ class BackendRuntimeWiringTests(unittest.TestCase):
         core._reset_proxy_backend_for_tests()
         self.settings = {
             "local_http_port": 8080,
+            "local_socks_port": 1080,
             "local_pac_port": 8082,
             "pac_path": "/proxy.pac",
+            "upstream": [
+                {
+                    "host": "proxy.example",
+                    "port": 9000,
+                    "username": "user",
+                    "password": "pass",
+                }
+            ],
         }
 
     def tearDown(self):
@@ -60,6 +75,10 @@ class BackendRuntimeWiringTests(unittest.TestCase):
                 pac_url="http://127.0.0.1:8082/proxy.pac",
                 http_proxy_url="http://127.0.0.1:8080",
                 no_proxy=("localhost", "127.0.0.1", "example.internal"),
+                socks_proxy_url="socks5://127.0.0.1:1080",
+                upstream_http_proxy_url="http://proxy.example:9000",
+                upstream_username="user",
+                upstream_password="pass",
             ),
         )
 
@@ -89,6 +108,43 @@ class BackendRuntimeWiringTests(unittest.TestCase):
         self.assertEqual(backend.checked, backend.enabled)
         self.assertEqual(backend.synced, backend.enabled)
         self.assertEqual(backend.disabled, 1)
+
+    def test_refresh_delegates_only_on_darwin(self):
+        backend = _FakeBackend()
+        ready = backend_runtime.BackendOperationalStatus(
+            backend_id="fake",
+            platform_label="macOS",
+            state=backend_runtime.OperationalState.READY,
+            can_enable=True,
+            title="ready",
+            message="ready",
+            reasons=(),
+        )
+        with mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(
+                 system_proxy_runtime, "_RUNTIME_PLATFORM", lambda: "darwin"
+             ), \
+             mock.patch.object(core, "load_settings", return_value=dict(self.settings)), \
+             mock.patch.object(core, "load_no_proxy", return_value=[]), \
+             mock.patch.object(
+                 backend_runtime, "require_enable_operational", return_value=ready
+             ), \
+             mock.patch.object(
+                 backend_runtime, "create_backend", return_value=backend
+             ):
+            self.assertTrue(core.refresh_system_proxy())
+
+        self.assertIsInstance(backend.refreshed, ProxyBackendConfig)
+
+    def test_refresh_is_noop_on_non_macos_without_backend_selection(self):
+        with mock.patch.object(core, "is_windows", return_value=False), \
+             mock.patch.object(
+                 system_proxy_runtime, "_RUNTIME_PLATFORM", lambda: "linux"
+             ), \
+             mock.patch.object(backend_runtime, "create_backend") as create:
+            self.assertIsNone(core.refresh_system_proxy())
+
+        create.assert_not_called()
 
     def test_backend_selection_failure_is_fail_closed(self):
         error = backend_runtime.UnsupportedPlatformError("unsupported")

@@ -8,9 +8,14 @@ from __future__ import annotations
 import os
 import shutil
 import sys
+import time
 from types import ModuleType
 
 _CORE: ModuleType | None = None
+
+MACOS_RESUME_POLL_SECONDS = 1.0
+MACOS_RESUME_GAP_SECONDS = 5.0
+MACOS_RESUME_SETTLE_SECONDS = 2.0
 
 
 def configure(core: ModuleType) -> None:
@@ -45,6 +50,48 @@ def _ensure_local_files():
     return True
 
 
+
+def _run_proxy_loop(proxy):
+    """Wait for shutdown and refresh an owned macOS route after long suspension gaps."""
+    if sys.platform != "darwin":
+        while not proxy._stop.wait(3600):
+            pass
+        return
+
+    core = _core()
+    last_wall = time.time()
+    while not proxy._stop.wait(MACOS_RESUME_POLL_SECONDS):
+        now_wall = time.time()
+        gap = max(0.0, now_wall - last_wall)
+        last_wall = now_wall
+        if gap < MACOS_RESUME_GAP_SECONDS:
+            continue
+
+        core.structured_log(
+            "macOS worker heartbeat gap detected",
+            event="proxy.resume.wall_gap_refresh",
+            phase="detected",
+            gap_seconds=round(gap, 3),
+            settle_seconds=MACOS_RESUME_SETTLE_SECONDS,
+        )
+        if proxy._stop.wait(MACOS_RESUME_SETTLE_SECONDS):
+            return
+
+        refreshed = core.refresh_system_proxy()
+        core.structured_log(
+            (
+                "macOS owned direct proxy route reasserted after heartbeat gap"
+                if refreshed
+                else "macOS owned direct proxy route refresh failed after heartbeat gap"
+            ),
+            level="INFO" if refreshed else "WARNING",
+            event="proxy.resume.wall_gap_refresh",
+            phase="completed",
+            gap_seconds=round(gap, 3),
+            refreshed=bool(refreshed),
+        )
+        last_wall = time.time()
+
 def _cmd_start():
     core = _core()
     settings = core.load_settings()
@@ -70,25 +117,32 @@ def _cmd_start():
     core._write_pid()
     if not core.enable_system_proxy():
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
         print("failed to enable system proxy; network settings rolled back")
         return 1
 
     print("proxy started")
     try:
-        while not proxy._stop.wait(3600):
-            pass
+        _run_proxy_loop(proxy)
     except KeyboardInterrupt:
         pass
     finally:
         proxy.stop()
-        core._remove_pid()
+        core._remove_pid(os.getpid())
     return 0
 
 
 def _cmd_stop():
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "proxy stop refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:
@@ -109,7 +163,15 @@ def _cmd_stop():
 def _cmd_rollback():
     """Emergency rollback independent of a running GUI or proxy process."""
     core = _core()
+    if not core.system_proxy_disable_preflight():
+        print(
+            "rollback refused: saved network state depends on an unavailable "
+            "local PAC service; restore that service and retry"
+        )
+        return 1
     record = core._read_pid()
+    if core.is_running():
+        record = core._read_pid() or record
     killed = core._kill_pid(record)
     still_running = core.is_running()
     if killed or not still_running:
@@ -185,6 +247,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     configure(core)
     for name in (
         "_ensure_local_files",
+        "_run_proxy_loop",
         "_cmd_start",
         "_cmd_stop",
         "_cmd_rollback",

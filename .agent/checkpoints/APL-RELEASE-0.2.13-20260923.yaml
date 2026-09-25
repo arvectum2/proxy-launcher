@@ -1,0 +1,63 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-RELEASE-0.2.13-20260923
+status: completed
+goal: "Publish immutable Arvectum Proxy Launcher v0.2.13 on GitHub and GitVerse, including downloadable macOS ARM64 and Intel DMGs as explicitly labeled beta/manual-Gatekeeper assets."
+authority: HUMAN
+definition_of_done:
+  - "Preserve the unfinished native NetworkExtension prototype outside main in a dedicated experiment branch."
+  - "Prepare canonical v0.2.13 version identity and bilingual release notes covering all verified macOS fixes."
+  - "Update release policy to explicitly allow ad-hoc/notarization-pending macOS beta DMGs without presenting them as production-signed."
+  - "Extend canonical release workflow to require exact-main macOS packaging CI and publish ARM64/x64 DMGs in GitHub Release and GitVerse mirror."
+  - "Include both DMGs in SHA256SUMS.txt and release asset verification."
+  - "Document manual Gatekeeper approval for macOS beta installation."
+  - "Run version/release/macOS packaging tests and full regression suite."
+  - "Merge release-prep PR through branch protection."
+  - "Require exact-main green Windows/Linux/macOS packaging and release-evidence gates before tagging."
+  - "Create immutable tag v0.2.13 only on exact green main SHA."
+  - "Verify GitHub Release assets/checksums and GitVerse mirror parity."
+completed:
+  - "GitVerse mirror completed with Upload missing assets PASS and Verify public GitVerse payload parity PASS; canonical payload hashes were re-verified after public GitVerse download."
+  - "Published macOS Intel DMG SHA-256: 80237d3b1ba3ba363db91c45493faf4a329d605ae3609445b444829d51d69478."
+  - "Published macOS ARM64 DMG SHA-256: 0687487cd5f9e86b25972f9747b1043dffd74bc8686ab20f20b6ff043a835ed1."
+  - "Published SHA256SUMS.txt was downloaded and matched all GitHub asset digests; manifest SHA-256 is 844db20e02a0719de0e9f46ed1866ab73a155df327e447e9265e9168b33d957f."
+  - "GitHub Release v0.2.13 published with 7 product packages plus SHA256SUMS.txt, including macOS ARM64 and x64 beta DMGs."
+  - "GitHub Release workflow run 35907767465 completed successfully: validation, Windows portable, Windows installer, Publish GitHub Release, and GitVerse mirror all PASS."
+  - "Immutable annotated tag v0.2.13 pushed; tag resolves to release commit 9645c006f601092e758593ce79a6871a4a68b7c7."
+  - "Exact-main release gate on 9645c006f601092e758593ce79a6871a4a68b7c7: 37/37 checks success, 0 failed, 0 pending before tagging."
+  - "Release-prep PR #158 merged to main as 9645c006f601092e758593ce79a6871a4a68b7c7."
+  - "Preserved native NetworkExtension prototype on remote branch experiment/macos-transparent-proxy-extension at f67fff34334b78b19fd303a23e07e7531b222489; byte-identical untracked duplicate removed from engineering worktree."
+  - "Created isolated release worktree /Users/master/proxy-launcher-release-0.2.13 from main 2ee23459a747325d64030c1c81befb690a053438."
+  - "Bumped canonical VERSION, proxy_core APP_VERSION and Windows version_info metadata to 0.2.13."
+  - "Added bilingual docs/releases/0.2.13.md with macOS stabilization summary, ARM64/x64 beta DMG asset names and manual Gatekeeper/Open Anyway instructions."
+  - "Updated RELEASE_POLICY.md to permit exact-main CI-built ad-hoc/non-notarized macOS beta DMGs while prohibiting production-signing claims and developer-workstation release bytes."
+  - "Extended release.yml exact-main gate to require successful macos-packaging push CI and capture its run id."
+  - "Extended release.yml to download both macOS matrix artifacts, normalize public names, include both DMGs in SHA256SUMS.txt and publish them via gh release create."
+  - "Added macos-packaging as a required Release Evidence Package gate."
+  - "Added release automation/version policy tests enforcing both public macOS DMG names, exact-main artifact promotion, checksums and evidence gate."
+  - "Release/version/macOS-focused suite: 57 passed."
+  - "Full suite: 1123 passed, 3 historical unrelated Windows App Control failures."
+  - "Workflow YAML parse PASS for release.yml, release-evidence.yml and macos-packaging.yml; git diff --check PASS."
+  - "Ruff F,E9,I PASS after import formatting fix."
+  - "Local Apple Silicon 0.2.13 smoke build PASS: APL-IP-004 license bundle verify, strict codesign verify, hdiutil DMG verify, mounted app version 0.2.13 and third-party licenses present."
+  - "Local smoke app executable SHA-256 1773221cbe8e08ccac695745a7f4760699bdfbc39c797d6f46b94359d5dfb9d7; DMG SHA-256 9fbd4ea45d0ae4fbcc1c7950ff6e1a6ddc8d5c28aaedd241280cbceb497d030f. These are local smoke bytes only, not public canonical release assets."
+current: "Completed: v0.2.13 is published on GitHub and independently mirrored to GitVerse with both macOS beta DMGs and verified checksum parity."
+pending: []
+last_verified_commit: "9645c006f601092e758593ce79a6871a4a68b7c7"
+test_results:
+  - "57 release/version/macOS-focused tests PASS."
+  - "Full suite: 1123 passed, 3 historical unrelated Windows App Control failures."
+  - "YAML parse PASS; Ruff F,E9,I PASS; git diff --check PASS."
+  - "Local ARM64 app/DMG build, codesign, license bundle, hdiutil verify and mounted bundle version PASS."
+resume_instruction: "Task completed. v0.2.13 is immutable and published. Do not mutate the tag/release; any future fixes must ship as a new version. The native NetworkExtension prototype remains isolated on experiment/macos-transparent-proxy-extension."
+updated_at: "2026-09-23T22:30:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260923-release-0.2.13"
+  branch: "release/0.2.13"
+  base_commit: "2ee23459a747325d64030c1c81befb690a053438"
+  lease_until: null
+  manual_override: true
+release_tag: "v0.2.13"
+release_commit: "9645c006f601092e758593ce79a6871a4a68b7c7"
+release_workflow_run_id: 35907767465

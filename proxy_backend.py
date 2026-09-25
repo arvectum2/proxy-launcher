@@ -23,6 +23,10 @@ class ProxyBackendConfig:
     pac_url: str
     http_proxy_url: str
     no_proxy: Tuple[str, ...] = ()
+    socks_proxy_url: str = ""
+    upstream_http_proxy_url: str = ""
+    upstream_username: str = ""
+    upstream_password: str = ""
 
 
 class ProxyBackend(ABC):
@@ -40,6 +44,8 @@ class ProxyBackend(ABC):
       must never silently clear it.
     * ``sync_no_proxy`` updates active bypass state without taking ownership of
       pre-existing user bypass entries.
+    * ``refresh`` may reassert only state already proven to belong to this
+      backend; the default implementation performs no mutation.
 
     Backends do not start/stop ProxyCore, persist product settings, generate
     PAC content, or implement GUI policy.  Those responsibilities remain in
@@ -56,6 +62,14 @@ class ProxyBackend(ABC):
     def enable(self, config: ProxyBackendConfig) -> bool:
         """Enable this launcher's system proxy configuration safely."""
         raise NotImplementedError
+
+    def refresh(self, config: ProxyBackendConfig):
+        """Reassert already-owned live state without acquiring ownership."""
+        return False
+
+    def disable_preflight(self) -> bool:
+        """Return False when rollback is currently unsafe before process stop."""
+        return True
 
     @abstractmethod
     def disable(self) -> bool:

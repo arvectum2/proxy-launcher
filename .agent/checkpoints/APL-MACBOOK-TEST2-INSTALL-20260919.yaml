@@ -1,0 +1,50 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MACBOOK-TEST2-INSTALL-20260919
+status: completed
+goal: "Replace the stale MacBook /Applications copy with v0.2.10-macos-test.2 and move only Arvectum local listener ports to 18080/11080/18082 without interrupting the existing launchd PAC proxy on 8080/1080/8082."
+authority: HUMAN
+definition_of_done:
+  - "Existing com.user.tunnel-proxy PID/listeners and Wi-Fi PAC baseline are recorded before changes."
+  - "Only the running Arvectum GUI/translocated copy is stopped; tunnel-proxy is not stopped."
+  - "Published v0.2.10-macos-test.2 DMG is transferred/downloaded and SHA256 verified."
+  - "Old /Applications Arvectum app is backed up and replaced with the test2 app."
+  - "Arvectum settings preserve upstream configuration and change only local_http_port/local_socks_port/local_pac_port to 18080/11080/18082."
+  - "Installed app reports version 0.2.10, native arm64, strict codesign PASS, Doctor platform.macos PASS."
+  - "Installed GUI launches from /Applications, not AppTranslocation."
+  - "Existing launchd PAC proxy remains PID/listener healthy and Wi-Fi PAC remains http://127.0.0.1:8082/proxy.pac Enabled Yes."
+  - "Checkpoint is marked completed with verification results."
+completed:
+  - "Pre-change MacBook baseline: com.user.tunnel-proxy PID 911 owned 127.0.0.1:8080/1080/8082; Wi-Fi PAC was http://127.0.0.1:8082/proxy.pac Enabled Yes."
+  - "Old /Applications Arvectum app was version 0.0.0; current test1 process was running through AppTranslocation."
+  - "Stopped only the Arvectum AppTranslocation GUI process; com.user.tunnel-proxy was not stopped."
+  - "Transferred canonical v0.2.10-macos-test.2 DMG from Mac mini over authenticated LAN SSH because GitHub-through-PAC download was unnecessarily slow."
+  - "Verified DMG SHA256 6509307f8410b73c882f8bbe176ab04594d9dc9291c996b6c575cbbd6b171cae and hdiutil image integrity on MacBook."
+  - "Backed up old /Applications app and pre-change proxy_settings.json under ~/Library/Application Support/Arvectum/ProxyLauncher/macbook-test2-install-backup-20260919."
+  - "Replaced /Applications/Arvectum Proxy Launcher.app with test2 app; bundle id ru.arvectum.proxylauncher; CFBundleShortVersionString/CFBundleVersion 0.2.10; native arm64; strict deep codesign PASS."
+  - "Changed only Arvectum local ports to HTTP 18080 / SOCKS5 11080 / PAC 18082 using atomic settings replacement."
+  - "Upstream configuration fingerprint remained 0efbef12caba5485147ac486209565b2d19c149978cae045d26e1bb7aa29e082 across the port edit."
+  - "Installed app --status returned STOPPED before GUI launch, with no proxy_core.pid."
+  - "Installed app Doctor returned PASS 11 / WARN 0 / FAIL 0; platform.macos PASS; configuration.ports 18080/11080/18082; listeners.health PASS."
+  - "Installed GUI launched from /Applications as PID 13950, not AppTranslocation."
+  - "Post-install com.user.tunnel-proxy remained PID 911 and continued listening on 8080/1080/8082."
+  - "Post-install Wi-Fi PAC remained http://127.0.0.1:8082/proxy.pac Enabled Yes."
+  - "Arvectum local ports 18080/11080/18082 remained free while Launcher was STOPPED."
+current: "Completed. MacBook now runs the fixed test2 GUI from /Applications with separate Arvectum local ports, while the existing launchd PAC proxy remains untouched."
+pending: []
+last_verified_commit: "3eb47c0dd2ff2ef6ccd481904c2a819d894c83f3"
+test_results:
+  - "MacBook DMG SHA256 + hdiutil verify: PASS."
+  - "Installed app version/arm64/strict codesign: PASS."
+  - "Installed Doctor: PASS 11/WARN 0/FAIL 0."
+  - "Installed GUI path: /Applications, PASS."
+  - "Existing tunnel-proxy PID/listeners unchanged: PASS."
+  - "Wi-Fi PAC URL/enabled state unchanged: PASS."
+resume_instruction: "Task complete. Do not stop com.user.tunnel-proxy or alter the existing 8082 PAC unless explicitly requested. Arvectum is installed from test2 and configured on 18080/11080/18082; when enabled later, it may temporarily switch system PAC to 18082 and must restore the 8082 baseline on stop."
+updated_at: "2026-09-19T19:17:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MACBOOK-TEST2-INSTALL-20260919"
+  branch: "ops/macbook-test2-install-20260919"
+  base_commit: "3eb47c0dd2ff2ef6ccd481904c2a819d894c83f3"
+  manual_override: true

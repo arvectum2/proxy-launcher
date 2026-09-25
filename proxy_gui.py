@@ -17,21 +17,21 @@ PT Sans / JetBrains Mono, фирменный знак и горизонталь�
 
 import atexit
 import os
-import sys
 import subprocess
+import sys
 import threading
+import time
 import tkinter as tk
-from tkinter import ttk, font as tkfont, messagebox
+from tkinter import font as tkfont
+from tkinter import messagebox, ttk
 
-import proxy_core as core
-import doctor as doctor_module
 import connection_test as connection_test_module
+import doctor as doctor_module
+import proxy_core as core
 import windows_single_instance as single_instance_module
 
 macos_autostart_module = None
-if os.name == "nt":
-    import winreg
-else:
+if os.name != "nt":
     try:
         import macos_autostart as macos_autostart_module
     except ImportError:
@@ -43,6 +43,12 @@ else:
 
 APP_NAME = "Arvectum Proxy Launcher"
 APP_VERSION = core.APP_VERSION
+MAC_WAKE_GUARD_HEARTBEAT_MS = 1000
+MAC_WAKE_GUARD_GAP_SECONDS = 5.0
+MAC_WAKE_GUARD_WINDOW_SECONDS = 15.0
+MAC_OFF_CONFIRM_DELAY_MS = 500
+MAC_LIFECYCLE_RECONCILE_GRACE_SECONDS = 2.0
+MAC_LIFECYCLE_PENDING_MAX_SECONDS = 15.0
 TASK_NAME = "ArvectumProxyLauncher"  # legacy scheduled-task name
 AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 AUTOSTART_RUN_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -338,6 +344,14 @@ def _run_headless(mode):
         cmd = [sys.executable, mode]
     else:
         cmd = [sys.executable, os.path.join(core.app_dir(), "proxy_core.py"), mode]
+    try:
+        core.structured_log(
+            "launching headless lifecycle command",
+            event="proxy_gui.lifecycle.spawn",
+            mode=str(mode),
+        )
+    except Exception:
+        pass
     flags = 0
     if os.name == "nt":
         flags = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
@@ -497,8 +511,57 @@ class SettingsDialog(tk.Toplevel):
             self._fields[key] = e
             _bind_clipboard_paste(e)
 
+        ttk.Separator(frm, orient="horizontal").grid(
+            row=7, column=0, columnspan=4, sticky="ew", pady=(14, 10))
+
+        local_head = tk.Frame(frm, bg=_window_bg())
+        local_head.grid(row=8, column=0, columnspan=4, sticky="ew")
+        tk.Label(
+            local_head,
+            text="Локальные порты приложения",
+            bg=_window_bg(), fg=_text_color(), font=B["font_bold"],
+        ).pack(side="left")
+        if _is_macos():
+            ttk.Button(
+                local_head,
+                text="Рекомендуемые 18080 / 11080 / 18082",
+                style=_button_style(compact=True),
+                command=self._set_recommended_local_ports,
+            ).pack(side="right")
+
+        ports = tk.Frame(frm, bg=_window_bg())
+        ports.grid(row=9, column=0, columnspan=4, sticky="w", pady=(8, 0))
+        self._local_port_fields = {}
+        for col, (label, key) in enumerate((
+                ("HTTP", "local_http_port"),
+                ("SOCKS5", "local_socks_port"),
+                ("PAC", "local_pac_port"))):
+            tk.Label(
+                ports, text=label, bg=_window_bg(), fg=_secondary_text_color(),
+                font=B["font_small"],
+            ).grid(row=0, column=col * 2, sticky="e", padx=(0 if col == 0 else 12, 5))
+            if _is_macos():
+                entry = ttk.Entry(ports, width=7, font=B["font_mono"])
+            else:
+                entry = tk.Entry(
+                    ports, width=7, bg=WHITE, fg=NAVY, relief="solid", bd=1,
+                    insertbackground=GRAPHITE, font=B["font_mono"])
+            entry.grid(row=0, column=col * 2 + 1, sticky="w")
+            entry.insert(0, str(self.settings.get(key) or {
+                "local_http_port": 8080,
+                "local_socks_port": 1080,
+                "local_pac_port": 8082,
+            }[key]))
+            self._local_port_fields[key] = entry
+
+        tk.Label(
+            frm,
+            text="Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.",
+            bg=_window_bg(), fg=_secondary_text_color(), font=B["font_small"],
+        ).grid(row=10, column=0, columnspan=4, sticky="w", pady=(5, 0))
+
         foot = tk.Frame(frm, bg=_window_bg())
-        foot.grid(row=9, column=0, columnspan=4, sticky="e", pady=(10, 0))
+        foot.grid(row=11, column=0, columnspan=4, sticky="e", pady=(12, 0))
         ttk.Button(
             foot, text="Сохранить", style=_button_style(primary=True), command=self._ok
         ).grid(row=0, column=0, padx=4)
@@ -582,6 +645,32 @@ class SettingsDialog(tk.Toplevel):
             ups.pop(idx)
         self._refresh_list()
 
+    def _set_recommended_local_ports(self):
+        values = {
+            "local_http_port": 18080,
+            "local_socks_port": 11080,
+            "local_pac_port": 18082,
+        }
+        for key, value in values.items():
+            entry = self._local_port_fields[key]
+            entry.delete(0, tk.END)
+            entry.insert(0, str(value))
+
+    def _local_ports_values(self):
+        values = {}
+        for key in ("local_http_port", "local_socks_port", "local_pac_port"):
+            raw = self._local_port_fields[key].get().strip()
+            try:
+                value = int(raw)
+            except (TypeError, ValueError):
+                value = None
+            if value is None or not (1 <= value <= 65535):
+                return None, "Локальные порты должны быть числами от 1 до 65535."
+            values[key] = value
+        if len(set(values.values())) != 3:
+            return None, "HTTP, SOCKS5 и PAC должны использовать три разных локальных порта."
+        return values, ""
+
     def _ok(self):
         ups = self.settings.setdefault("upstream", [])
 
@@ -599,7 +688,13 @@ class SettingsDialog(tk.Toplevel):
                 ups.append(v)
             else:
                 ups[empty_idx] = v
+        local_ports, port_error = self._local_ports_values()
+        if local_ports is None:
+            messagebox.showwarning("Настройки", port_error, parent=self)
+            return
+
         self.settings["upstream"] = [u for u in ups if u.get("host")]
+        self.settings.update(local_ports)
         self.result = self.settings
         self.destroy()
 
@@ -847,6 +942,11 @@ class Launcher:
         self._images = []
         self._recovery_prompt_shown = False
         self._status_dot = None
+        self._ui_heartbeat_wall = time.time()
+        self._mac_wake_guard_until = 0.0
+        self._off_confirmation_pending = False
+        self._lifecycle_action_pending = None
+        self._lifecycle_action_started_wall = None
         self._set_window_icon()
 
         if self._mac_ui:
@@ -855,6 +955,8 @@ class Launcher:
             self._build_classic_main()
 
         self.refresh_status()
+        self.root.bind("<FocusIn>", self._refresh_status_on_focus, add="+")
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
         _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
@@ -1164,6 +1266,159 @@ class Launcher:
 
     # -- статус -------------------------------------------------------------
 
+    def _arm_wake_guard_from_gap(self, now, source):
+        """Arm the macOS wake guard from any observed GUI event-loop gap."""
+        if not self._mac_ui:
+            self._ui_heartbeat_wall = now
+            return False
+        previous = self._ui_heartbeat_wall
+        gap = max(0.0, now - previous)
+        self._ui_heartbeat_wall = now
+        if gap < MAC_WAKE_GUARD_GAP_SECONDS:
+            return False
+        self._mac_wake_guard_until = max(
+            self._mac_wake_guard_until,
+            now + MAC_WAKE_GUARD_WINDOW_SECONDS,
+        )
+        try:
+            core.structured_log(
+                "macOS wake UI guard armed after event-loop gap",
+                event="proxy_gui.wake_guard.armed",
+                gap_seconds=round(gap, 3),
+                guard_seconds=MAC_WAKE_GUARD_WINDOW_SECONDS,
+                source=str(source),
+            )
+        except Exception:
+            pass
+        return True
+
+    def _begin_lifecycle_action(self, action):
+        self._lifecycle_action_pending = str(action)
+        self._lifecycle_action_started_wall = time.time()
+
+    def _clear_lifecycle_action(self, action=None):
+        pending = getattr(self, "_lifecycle_action_pending", None)
+        if action is not None and pending != action:
+            return False
+        self._lifecycle_action_pending = None
+        self._lifecycle_action_started_wall = None
+        return True
+
+    def _reconcile_pending_lifecycle(self, source, now=None):
+        """Recover the GUI if a lifecycle timer callback was lost across sleep/wake."""
+        if not getattr(self, "_mac_ui", False):
+            return False
+        action = getattr(self, "_lifecycle_action_pending", None)
+        if not action:
+            return False
+        if now is None:
+            now = time.time()
+        started = getattr(self, "_lifecycle_action_started_wall", None)
+        if started is None:
+            self._lifecycle_action_started_wall = now
+            return False
+        age = max(0.0, now - started)
+        if age < MAC_LIFECYCLE_RECONCILE_GRACE_SECONDS:
+            return False
+
+        terminal = False
+        try:
+            running = core.is_running()
+            restore_pending = core.network_restore_pending()
+            if action == "start":
+                terminal = bool(running and core.system_proxy_enabled())
+            elif action in ("stop", "rollback"):
+                terminal = bool(not running and not restore_pending)
+        except Exception as exc:
+            try:
+                core.structured_log(
+                    "macOS lifecycle watchdog state probe failed",
+                    level="WARNING",
+                    event="proxy_gui.lifecycle.watchdog_probe_failed",
+                    action=str(action),
+                    source=str(source),
+                    age_seconds=round(age, 3),
+                    error=repr(exc),
+                )
+            except Exception:
+                pass
+            return False
+
+        expired = age >= MAC_LIFECYCLE_PENDING_MAX_SECONDS
+        if not terminal and not expired:
+            return False
+
+        self._clear_lifecycle_action(action)
+        try:
+            core.structured_log(
+                "macOS lifecycle watchdog reconciled stale GUI busy state",
+                level="WARNING" if expired and not terminal else "INFO",
+                event="proxy_gui.lifecycle.watchdog_reconciled",
+                action=str(action),
+                source=str(source),
+                age_seconds=round(age, 3),
+                terminal=bool(terminal),
+                expired=bool(expired),
+            )
+        except Exception:
+            pass
+        self.refresh_status()
+        return True
+
+    def _ui_heartbeat(self):
+        """Arm a short wake guard and recover stale lifecycle UI state."""
+        now = time.time()
+        armed = self._arm_wake_guard_from_gap(now, "heartbeat")
+        reconciled = self._reconcile_pending_lifecycle("heartbeat", now=now)
+        if armed and not reconciled and not getattr(self, "_lifecycle_action_pending", None):
+            try:
+                self.refresh_status()
+            except tk.TclError:
+                pass
+        self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
+
+    def _wake_destructive_guard_active(self, now=None):
+        if not self._mac_ui:
+            return False
+        if now is None:
+            now = time.time()
+        return bool(now < self._mac_wake_guard_until)
+
+    def _block_destructive_wake_action(self, action):
+        now = time.time()
+        # Tk/AppKit may deliver a queued HID/button action before the first
+        # root.after() heartbeat callback after wake. Detect the stale event
+        # loop synchronously inside the destructive handler so a wake-generated
+        # action cannot outrun the timer-based guard.
+        self._arm_wake_guard_from_gap(now, "destructive_action")
+        if not self._wake_destructive_guard_active(now):
+            return False
+        remaining = max(0.0, self._mac_wake_guard_until - now)
+        try:
+            core.structured_log(
+                "blocked destructive GUI action during macOS wake guard",
+                level="WARNING",
+                event="proxy_gui.wake_guard.blocked",
+                action=str(action),
+                remaining_seconds=round(remaining, 3),
+            )
+        except Exception:
+            pass
+        self.refresh_status()
+        delay_ms = max(250, int(remaining * 1000) + 100)
+        self.root.after(delay_ms, self.refresh_status)
+        return True
+
+    def _refresh_status_on_focus(self, _event=None):
+        """Reconcile GUI actions after lifecycle changes outside this window."""
+        if getattr(self, "_lifecycle_action_pending", None):
+            self._reconcile_pending_lifecycle("focus")
+            return
+        try:
+            self.refresh_status()
+        except tk.TclError:
+            pass
+
     def refresh_status(self):
         running = core.is_running()
         enabled = core.system_proxy_enabled()
@@ -1220,8 +1475,13 @@ class Launcher:
         self.status_hint.grid()
 
         self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        self.btn_off.state(["!disabled"] if view["can_off"] else ["disabled"])
+        # Off is the safe escape hatch after wake. Its macOS confirmation is
+        # already deferred beyond the originating mouse event and defaults to No.
+        can_off = view["can_off"]
+        self.btn_off.state(["!disabled"] if can_off else ["disabled"])
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
+        if self._wake_destructive_guard_active():
+            self.btn_restore.state(["disabled"])
 
         if view["show_orphan_action"]:
             self.btn_orphan_pac.state(["!disabled"])
@@ -1229,10 +1489,18 @@ class Launcher:
 
     # -- действия ------------------------------------------------------------
 
-    def _maybe_prompt_recovery(self):
+    def _maybe_prompt_recovery(self, attempt=0):
         if self._recovery_prompt_shown:
             return
         if core.is_running() or not core.network_restore_pending():
+            return
+        if _is_macos() and attempt < 3:
+            # Immediately after wake/unlock, localhost protocol probes and
+            # SystemConfiguration reads can be briefly unsettled. Do not offer
+            # a destructive rollback from one transient observation.
+            self.root.after(
+                750, lambda: self._maybe_prompt_recovery(attempt + 1)
+            )
             return
         self._recovery_prompt_shown = True
         if messagebox.askyesno(
@@ -1245,6 +1513,8 @@ class Launcher:
             self.restore_network(confirm=False)
 
     def on(self):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
         s = core.load_settings()
         ok = any((u.get("host") or "").strip() for u in s.get("upstream") or [])
         if not ok:
@@ -1255,17 +1525,25 @@ class Launcher:
             if core.system_proxy_enabled():
                 self.refresh_status()
                 return
+            self._begin_lifecycle_action("start")
             self._set_busy("Включение PAC…", MINT_LIGHT)
             _run_headless("--start")
             self.root.after(250, self._after_start)
             return
+        self._begin_lifecycle_action("start")
         self._set_busy("Запуск…", MINT_LIGHT)
         _run_headless("--start")
         # Фоновому процессу нужно время на запуск и открытие трёх сокетов.
         self.root.after(250, self._after_start)
 
     def _after_start(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "start":
+            return
         ok = core.is_running() and core.system_proxy_enabled()
+        if not ok and attempt < 40:
+            self.root.after(250, lambda: self._after_start(attempt + 1))
+            return
+        self._clear_lifecycle_action("start")
         self.refresh_status()
         if ok:
             messagebox.showinfo(
@@ -1273,23 +1551,71 @@ class Launcher:
                 "Прокси подключён.\nСистемные настройки прокси применены.\n\n"
                 "Если отдельное приложение не подхватило новые настройки, "
                 "полностью закройте его и запустите заново.")
-        elif attempt < 40:
-            # One-file PyInstaller + антивирус на первом запуске могут
-            # стартовать заметно дольше нескольких секунд.
-            self.root.after(250, lambda: self._after_start(attempt + 1))
         else:
             messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
 
     def off(self):
+        if self._mac_ui:
+            if self._off_confirmation_pending:
+                return
+            self._off_confirmation_pending = True
+            try:
+                core.structured_log(
+                    "macOS Off confirmation requested",
+                    event="proxy_gui.off.confirmation_requested",
+                    delay_ms=MAC_OFF_CONFIRM_DELAY_MS,
+                )
+            except Exception:
+                pass
+            self.btn_off.state(["disabled"])
+            # Never create a modal confirmation from inside the same AppKit
+            # mouseUp callback that activated the Off button. On macOS the
+            # originating trackpad event can otherwise be delivered into the
+            # newly-created modal and accept it before the user can see it.
+            self.root.after(MAC_OFF_CONFIRM_DELAY_MS, self._confirm_macos_off)
+            return
+        self._execute_stop()
+
+    def _confirm_macos_off(self):
+        if not self._off_confirmation_pending:
+            return
+        self._off_confirmation_pending = False
+        confirmed = messagebox.askyesno(
+            APP_NAME,
+            "Выключить прокси и восстановить исходные настройки сети?",
+            icon="warning",
+            default="no",
+        )
+        try:
+            core.structured_log(
+                "macOS Off confirmation resolved",
+                event=(
+                    "proxy_gui.off.confirmed"
+                    if confirmed
+                    else "proxy_gui.off.cancelled"
+                ),
+            )
+        except Exception:
+            pass
+        if not confirmed:
+            self.refresh_status()
+            return
+        self._execute_stop()
+
+    def _execute_stop(self):
+        self._begin_lifecycle_action("stop")
         self._set_busy("Остановка…", SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
 
     def _after_stop(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "stop":
+            return
         still_active = core.is_running() or core.network_restore_pending()
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_stop(attempt + 1))
             return
+        self._clear_lifecycle_action("stop")
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Прокси-процесс не удалось остановить. Подробности в «Журнал».")
@@ -1302,12 +1628,17 @@ class Launcher:
             messagebox.showinfo(APP_NAME, "Прокси выключен, исходные настройки сети восстановлены.")
 
     def restore_network(self, confirm=True):
+        if getattr(self, "_lifecycle_action_pending", None):
+            return
+        if self._block_destructive_wake_action("rollback"):
+            return
         msg = "Восстановить исходные настройки сети и остановить proxy?" if os.name != "nt" else "Восстановить исходные настройки сети Windows и остановить proxy?"
         if confirm and not messagebox.askyesno(
                 APP_NAME,
                 msg,
                 icon="warning"):
             return
+        self._begin_lifecycle_action("rollback")
         self._set_busy("Восстановление сети…", MINT_LIGHT)
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
@@ -1328,10 +1659,13 @@ class Launcher:
                 "не удалось подтвердить. См. «Журнал».")
 
     def _after_restore_network(self, attempt=0):
+        if getattr(self, "_lifecycle_action_pending", None) != "rollback":
+            return
         still_active = core.is_running() or core.network_restore_pending()
         if still_active and attempt < 32:
             self.root.after(250, lambda: self._after_restore_network(attempt + 1))
             return
+        self._clear_lifecycle_action("rollback")
         self.refresh_status()
         if core.is_running():
             messagebox.showerror(APP_NAME, "Proxy-процесс всё ещё работает. См. «Журнал».")
@@ -1350,9 +1684,11 @@ class Launcher:
                 self._status_dot.configure(fg=MINT)
         else:
             self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
-        for b in (
-                self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
-                self.btn_restore, self.btn_orphan_pac):
+        buttons = [
+            self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
+            self.btn_restore, self.btn_orphan_pac,
+        ]
+        for b in buttons:
             b.state(["disabled"])
 
     # -- проверка -------------------------------------------------------------
@@ -1422,6 +1758,8 @@ class Launcher:
 
     def _maybe_restart_after_settings(self):
         if not core.is_running():
+            return
+        if self._block_destructive_wake_action("settings_restart"):
             return
         if messagebox.askyesno(
                 APP_NAME,
@@ -1494,7 +1832,7 @@ class Launcher:
                 if item.get("status") != doctor_module.PASS
             ]
             title = {
-                doctor_module.PASS: "Диагностика: проблем не обнаружено.",
+                doctor_module.PASS: "Диагностика: локальных проблем не обнаружено.",
                 doctor_module.WARN: "Диагностика: есть предупреждения.",
                 doctor_module.FAIL: "Диагностика: требуется действие.",
             }.get(overall, "Диагностика завершена.")
@@ -1506,11 +1844,22 @@ class Launcher:
                     counts.get(doctor_module.FAIL, 0),
                 ),
             ]
+            if overall == doctor_module.PASS:
+                lines.extend([
+                    "",
+                    "Доступность внешнего proxy и целевого сайта здесь не проверяется.",
+                    "Для end-to-end проверки используйте «Проверка соединения».",
+                ])
             if problem_checks:
                 lines.append("")
                 lines.append("Проверки, требующие внимания:")
                 for item in problem_checks[:8]:
-                    lines.append("[%s] %s" % (item.get("status"), item.get("id")))
+                    summary = str(item.get("summary") or "").strip()
+                    if summary:
+                        lines.append("[%s] %s — %s" % (
+                            item.get("status"), item.get("id"), summary))
+                    else:
+                        lines.append("[%s] %s" % (item.get("status"), item.get("id")))
             actions = report.get("recommended_actions") or []
             if actions:
                 lines.append("")
@@ -1931,7 +2280,7 @@ def main():
             "Текущая portable-версия продолжит работать в этом сеансе. "
             "Автозапуск временно отключён: запускайте этот EXE вручную."
         )
-    app = Launcher(root)
+    _app = Launcher(root)
     _poll_single_instance_activation(root, instance)
     root.mainloop()
     instance.close()

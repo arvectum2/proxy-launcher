@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest import mock
 
 import proxy_core as core
-import windows_pac_recovery
 
 
 class WindowsPacRecoveryOwnershipTests(unittest.TestCase):

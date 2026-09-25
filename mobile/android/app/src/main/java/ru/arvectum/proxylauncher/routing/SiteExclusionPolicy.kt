@@ -1,6 +1,7 @@
 package ru.arvectum.proxylauncher.routing
 
 import java.net.InetAddress
+import java.util.Locale
 
 data class IpRoute(
     val address: InetAddress,
@@ -13,7 +14,7 @@ object SiteExclusionPolicy {
     const val MAX_ROUTES = 4096
 
     fun normalize(raw: String): String? {
-        var value = raw.trim().lowercase()
+        var value = raw.trim().lowercase(Locale.ROOT)
         if (value.isBlank()) return null
 
         value = value.substringBefore('#').trim()

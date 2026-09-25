@@ -39,10 +39,13 @@ import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import ru.arvectum.proxylauncher.gateway.FreeGatewayClient
+import ru.arvectum.proxylauncher.gateway.FreeProxyLocation
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyHealthStatus
 import ru.arvectum.proxylauncher.model.ProxyProfile
@@ -52,6 +55,8 @@ import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
+import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
+import ru.arvectum.proxylauncher.tunnel.TunnelResumePolicy
 
 class MainActivity : Activity() {
     private lateinit var profileSelectorShell: LinearLayout
@@ -64,12 +69,18 @@ class MainActivity : Activity() {
     private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
+    private val freeGatewayClient = FreeGatewayClient()
     private var currentState = ProxyVpnService.STATE_DISCONNECTED
     private var currentProfileId: String? = null
     private var profileChoices: List<ProfileChoice> = emptyList()
     private var pendingSwitchChoice: ProfileChoice? = null
     private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
+    private var profilePopup: PopupWindow? = null
+    private var freeLocations: List<FreeProxyLocation> = FreeGatewayClient.BOOTSTRAP_LOCATIONS
+    private var freeLocationsLastFetchedAtMs = 0L
+    private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
+    @Volatile private var freeLocationRefreshInProgress = false
     @Volatile private var healthScanInProgress = false
 
     private val proxyTypes = listOf(
@@ -83,7 +94,10 @@ class MainActivity : Activity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 ProxyVpnService.ACTION_POOL_UPDATE -> {
+                    val reopenMenu = profilePopup?.isShowing == true
+                    if (reopenMenu) profilePopup?.dismiss()
                     refreshProfileChoices(currentSelectionKey())
+                    if (reopenMenu) mainHandler.post { showProfileMenu() }
                 }
                 ProxyVpnService.ACTION_STATE -> {
                     val state = intent.getStringExtra(ProxyVpnService.EXTRA_STATE)
@@ -103,9 +117,7 @@ class MainActivity : Activity() {
 
         window.statusBarColor = NAVY
         window.navigationBarColor = NAVY
-        if (Build.VERSION.SDK_INT >= 26) {
-            window.decorView.systemUiVisibility = 0
-        }
+        window.decorView.systemUiVisibility = 0
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -160,22 +172,33 @@ class MainActivity : Activity() {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        reconcileTunnelAfterResume()
+    }
+
     override fun onStart() {
         super.onStart()
         val filter = IntentFilter(ProxyVpnService.ACTION_STATE).apply {
             addAction(ProxyVpnService.ACTION_POOL_UPDATE)
         }
-        if (Build.VERSION.SDK_INT >= 33) {
-            registerReceiver(stateReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(stateReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            stateReceiver,
+            filter,
+            ProxyVpnService.INTERNAL_BROADCAST_PERMISSION,
+            null,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        refreshFreeLocations(force = true)
         startProfileHealthScan()
     }
 
     override fun onStop() {
         runCatching { unregisterReceiver(stateReceiver) }
+        mainHandler.removeCallbacks(freeLocationRetryRunnable)
+        profilePopup?.dismiss()
+        profilePopup = null
         super.onStop()
     }
 
@@ -201,7 +224,7 @@ class MainActivity : Activity() {
 
             titleRow.addView(
                 TextView(this@MainActivity).apply {
-                    text = "Arvectum Proxy Launcher"
+                    text = getString(R.string.app_title)
                     textSize = 18f
                     setTextColor(MINT)
                     typeface = Typeface.create("sans-serif", Typeface.BOLD)
@@ -281,7 +304,14 @@ class MainActivity : Activity() {
                             .setDuration(70L)
                             .start()
                     }
-                    MotionEvent.ACTION_UP,
+                    MotionEvent.ACTION_UP -> {
+                        view.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(120L)
+                            .start()
+                        view.performClick()
+                    }
                     MotionEvent.ACTION_CANCEL -> {
                         view.animate()
                             .scaleX(1f)
@@ -290,7 +320,7 @@ class MainActivity : Activity() {
                             .start()
                     }
                 }
-                false
+                true
             }
         }
 
@@ -378,6 +408,7 @@ class MainActivity : Activity() {
     }
 
     private fun showProfileMenu() {
+        refreshFreeLocations()
         if (profileChoices.isEmpty()) return
 
         val rows = LinearLayout(this).apply {
@@ -390,6 +421,7 @@ class MainActivity : Activity() {
             addView(rows)
         }
         val popupHeight = minOf(dp(390), dp(118) + profileChoices.size * dp(52))
+        profilePopup?.dismiss()
         val popup = PopupWindow(
             scroll,
             profileSelectorShell.width,
@@ -400,6 +432,10 @@ class MainActivity : Activity() {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             elevation = dp(12).toFloat()
             inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
+        }
+        profilePopup = popup
+        popup.setOnDismissListener {
+            if (profilePopup === popup) profilePopup = null
         }
 
         val selectedKey = currentSelectionKey()
@@ -522,14 +558,89 @@ class MainActivity : Activity() {
         popup.showAsDropDown(profileSelectorShell, 0, dp(6))
     }
 
+    private fun refreshFreeLocations(force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        if (!force &&
+            freeLocations.isNotEmpty() &&
+            now - freeLocationsLastFetchedAtMs < FREE_LOCATION_REFRESH_MS
+        ) return
+        if (freeLocationRefreshInProgress) return
+
+        freeLocationRefreshInProgress = true
+        Thread({
+            val result = runCatching { freeGatewayClient.listLocations() }
+            mainHandler.post {
+                val reopenMenu = profilePopup?.isShowing == true
+                result.onSuccess { locations ->
+                    freeLocations = locations
+                    freeLocationsLastFetchedAtMs = System.currentTimeMillis()
+                    mainHandler.removeCallbacks(freeLocationRetryRunnable)
+                    if (reopenMenu) profilePopup?.dismiss()
+                    refreshProfileChoices(currentSelectionKey())
+                    if (reopenMenu) mainHandler.post { showProfileMenu() }
+                }.onFailure {
+                    if (freeLocations.isEmpty()) {
+                        mainHandler.removeCallbacks(freeLocationRetryRunnable)
+                        mainHandler.postDelayed(
+                            freeLocationRetryRunnable,
+                            FREE_LOCATION_RETRY_MS,
+                        )
+                    }
+                }
+                freeLocationRefreshInProgress = false
+            }
+        }, "APL-free-locations").start()
+    }
+
     private fun refreshProfileChoices(selectedKey: String?) {
         val profiles = runCatching { store.listProfiles() }.getOrElse {
             renderState(ProxyVpnService.STATE_ERROR, "Не удалось прочитать сохранённые профили")
             emptyList()
         }
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
+        val selectedFreeId = runCatching { store.getActiveFreeLocationId() }.getOrNull()
+        val selectedFreeLabel = runCatching { store.getActiveFreeLocationLabel() }.getOrNull()
+        val displayedFreeLocations = buildList {
+            if (selectedFreeId != null && freeLocations.none { it.id == selectedFreeId }) {
+                add(
+                    FreeProxyLocation(
+                        id = selectedFreeId,
+                        label = selectedFreeLabel ?: "Бесплатный прокси",
+                        countryCode = "",
+                    ),
+                )
+            }
+            addAll(freeLocations)
+        }.distinctBy { it.id }
         val now = System.currentTimeMillis()
         profileChoices = buildList {
+            displayedFreeLocations.forEach { location ->
+                val profileId = "free:" + location.id
+                val localHealth = runCatching { poolUiStore.getHealth(profileId) }.getOrNull()
+                    ?.takeIf { now - it.checkedAtMs <= HEALTH_STALE_AFTER_MS }
+                val suffix = when (localHealth?.status) {
+                    ProxyHealthStatus.CHECKING -> " · проверяется"
+                    ProxyHealthStatus.AVAILABLE ->
+                        localHealth.latencyMs?.let { " · " + it + " мс" } ?: " · доступен"
+                    ProxyHealthStatus.UNAVAILABLE -> " · недоступен"
+                    else -> when (location.available) {
+                        true -> location.latencyMs?.let { " · " + it + " мс" } ?: " · доступен"
+                        false -> " · недоступен"
+                        null -> ""
+                    }
+                }
+                val label = location.label + " · бесплатно"
+                add(
+                    ProfileChoice(
+                        key = FREE_KEY_PREFIX + location.id,
+                        kind = ChoiceKind.FREE,
+                        profileId = null,
+                        label = label,
+                        menuLabel = label + suffix,
+                        freeLocationId = location.id,
+                    ),
+                )
+            }
             add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, "Авто", "Авто"))
             profiles.forEach { profile ->
                 val health = runCatching { poolUiStore.getHealth(profile.id) }.getOrNull()
@@ -556,7 +667,7 @@ class MainActivity : Activity() {
         val choice = profileChoices.firstOrNull { it.key == selectedKey }
             ?: profileChoices.firstOrNull()
         if (choice == null) {
-            profileSelectionText.text = "Нет сохранённых прокси"
+            profileSelectionText.text = "Нет доступных прокси"
             currentProfileId = null
         } else {
             profileSelectionText.text = choice.label
@@ -685,7 +796,7 @@ class MainActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(4), dp(4), dp(4), 0)
             addView(TextView(this@MainActivity).apply {
-                text = "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP."
+                text = getString(R.string.site_exclusions_help)
                 textSize = 13f
                 setTextColor(GRAPHITE)
                 setPadding(0, 0, 0, dp(10))
@@ -776,6 +887,11 @@ class MainActivity : Activity() {
                     store.setActiveProfile(id)
                     currentProfileId = id
                 }
+                ChoiceKind.FREE -> {
+                    val id = choice.freeLocationId ?: return false
+                    store.setActiveFreeLocation(id, choice.label.removeSuffix(" · бесплатно"))
+                    currentProfileId = null
+                }
             }
             profileSelectionText.text = choice.label
             updateProfileControls()
@@ -832,12 +948,15 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun currentSelectionKey(): String =
-        if (runCatching { store.isAutoProfileSelection() }.getOrDefault(false)) {
+    private fun currentSelectionKey(): String {
+        val freeId = runCatching { store.getActiveFreeLocationId() }.getOrNull()
+        if (freeId != null) return FREE_KEY_PREFIX + freeId
+        return if (runCatching { store.isAutoProfileSelection() }.getOrDefault(false)) {
             AUTO_KEY
         } else {
             store.getActiveProfileId() ?: AUTO_KEY
         }
+    }
 
     private fun selectedChoice(): ProfileChoice? =
         profileChoices.firstOrNull { it.key == currentSelectionKey() }
@@ -944,7 +1063,7 @@ class MainActivity : Activity() {
         existing?.let {
             nameField.setText(it.profile.name)
             hostField.setText(it.profile.host)
-            portField.setText(it.profile.port.toString())
+            portField.setText(String.format(Locale.ROOT, "%d", it.profile.port))
             usernameField.setText(it.profile.username.orEmpty())
             passwordField.setText(it.password.orEmpty())
             typeSpinner.setSelection(proxyTypes.indexOf(it.profile.type).coerceAtLeast(0))
@@ -1156,14 +1275,33 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun reconcileTunnelAfterResume() {
+        val resumeState = currentState
+        if (!TunnelResumePolicy.requiresVpnPermissionCheck(resumeState)) return
+
+        val permissionGranted = runCatching { VpnService.prepare(this) == null }
+            .getOrDefault(false)
+        when (TunnelResumePolicy.decide(resumeState, permissionGranted)) {
+            TunnelResumeAction.NONE -> Unit
+            TunnelResumeAction.RECONCILE_SERVICE -> {
+                startVpnService(ProxyVpnService.ACTION_RECONCILE)
+            }
+            TunnelResumeAction.RESET_FOR_PERMISSION -> {
+                val detail = "Android сбросил разрешение VPN. Нажмите «Подключиться»."
+                poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
+                renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
+            }
+        }
+    }
+
     private fun connectVpn(detail: String = "Проверяем прокси…") {
         renderState(ProxyVpnService.STATE_CONNECTING, detail)
-        val intent = Intent(this, ProxyVpnService::class.java).setAction(ProxyVpnService.ACTION_CONNECT)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        startVpnService(ProxyVpnService.ACTION_CONNECT)
+    }
+
+    private fun startVpnService(action: String) {
+        val intent = Intent(this, ProxyVpnService::class.java).setAction(action)
+        startForegroundService(intent)
     }
 
     private fun disconnectVpn(detail: String = "Отключение…") {
@@ -1384,11 +1522,13 @@ class MainActivity : Activity() {
         val profileId: String?,
         val label: String,
         val menuLabel: String,
+        val freeLocationId: String? = null,
     )
 
     private enum class ChoiceKind {
         AUTO,
         PROFILE,
+        FREE,
     }
 
     private enum class ButtonTone {
@@ -1400,7 +1540,10 @@ class MainActivity : Activity() {
     companion object {
         private const val VPN_REQUEST = 1001
         private const val AUTO_KEY = "__auto_profile_selection__"
+        private const val FREE_KEY_PREFIX = "__free_proxy__:"
         private const val SWITCH_RECONNECT_DELAY_MS = 700L
+        private const val FREE_LOCATION_RETRY_MS = 5_000L
+        private const val FREE_LOCATION_REFRESH_MS = 60_000L
         private const val HEALTH_STALE_AFTER_MS = 5 * 60 * 1000L
 
         private val NAVY = Color.parseColor("#001432")

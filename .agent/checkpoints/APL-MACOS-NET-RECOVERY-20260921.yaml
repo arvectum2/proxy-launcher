@@ -1,0 +1,35 @@
+version: 1
+task_id: APL-MACOS-NET-RECOVERY-20260921
+status: completed
+goal: "Recover macOS Proxy Launcher ownership safely after wake/runtime state loss and prevent duplicate workers/network rollback corruption."
+definition_of_done:
+  - "Ownership-loss failure mode evidenced."
+  - "Recovery fix implemented and regression-tested."
+  - "Physical repeat-ON and OFF/rollback acceptance passed."
+  - "Final candidate installed and healthy."
+  - "Review-ready PR opened with green CI; governance disposition recorded."
+completed_stages:
+  - "Incident diagnosis and log correlation."
+  - "Live-worker ownership recovery implementation."
+  - "Successor-safe PID cleanup and stop/rollback recovery."
+  - "70 focused tests plus full-suite/static/build verification."
+  - "Physical PID-loss -> ON acceptance."
+  - "Physical PID-loss -> OFF exact-baseline acceptance."
+  - "Final install/connectivity verification."
+  - "PR #155 opened; 14/14 checks green on code-bearing head 0b70f67."
+current_stage: "Completed engineering work; integration is a separate governance action."
+remaining_stages: []
+last_verified_commit: "0b70f67e343e9f9e6391610483de33857ddaad61"
+test_results:
+  - "70/70 focused PASS."
+  - "1089 full-suite PASS; 3 pre-existing unrelated Windows App Control failures."
+  - "Ruff F,E9,I PASS; git diff --check PASS."
+  - "Governed macOS build/license/codesign PASS."
+  - "Physical lost-PID ON/OFF PASS."
+  - "PR #155 14/14 checks SUCCESS on code-bearing head 0b70f67."
+integration:
+  pr: 155
+  state: "open_review_ready"
+  automatic_merge: "not_authorized"
+  reason: "No canonical execution-queue item for this incident declares auto_merge:true; Company AM-4 requires that condition."
+resume_instruction: "No implementation work remains. Only act if a valid merge gate is supplied; then re-check current PR head/base/checks/ruleset before integrating."
