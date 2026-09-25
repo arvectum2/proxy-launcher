@@ -47,19 +47,19 @@ completed:
   - "PASS: DSA compliance shows Active for 27 EU countries/regions and App Information identifies the developer as a trader; no legal classification was changed by the agent after activation."
   - "PASS: App Review contact information is persisted, Sign-in required is disabled, and review notes are present."
   - "PASS: Version 0.1.19 build 21 was submitted to App Review; App Store Connect state is Waiting for Review and shows 1 Item Submitted."
-  - "PASS: Temporary upload API key R83YXU6LAH was revoked after successful delivery; its local .p8 and temporary upload helper files were deleted. A separate pre-existing/independent active key was left untouched."
+  - "PASS: Both temporary App Store Connect API keys used for this publication (Developer upload key R83YXU6LAH and App Manager publish key XUX5835W59) were revoked after submission; App Store Connect shows Active (0), and both local .p8 files plus temporary API helper scripts were deleted."
   - "PASS: authenticated App Store Connect session verified; created iOS app record for ru.arvectum.proxylauncher.ios with Apple ID 6816013574, SKU APL-IOS-001, primary language Russian and Full Access."
   - "PASS: App Store version changed from default 1.0 to 0.1.19; Russian promotional text, description, keywords, support/marketing URLs, copyright and English App Review notes saved; review sign-in requirement disabled."
   - "PASS: App Information subtitle set to Прокси одним нажатием, primary category Utilities, secondary category Productivity, and Content Rights set to no third-party content."
-current: "COMPLETED: Arvectum Proxy Launcher iOS 0.1.19 build 21 has been submitted to Apple App Review. App Store Connect status is Waiting for Review; build validation/upload succeeded, DSA is Active, required metadata is saved, and the temporary upload API key has been revoked."
+current: "COMPLETED: Arvectum Proxy Launcher iOS 0.1.19 build 21 has been submitted to Apple App Review. App Store Connect status is Waiting for Review; build validation/upload succeeded, DSA is Active, required metadata is saved, and all temporary App Store Connect API keys created for this publication have been revoked and removed locally."
 pending: []
 last_verified_commit: "2a743a4aa25f26d5e9a01868d1a557b0ecafd3a1"
 test_results:
   - "Prior final iOS acceptance: physical PASS; exact-head CI run 36111899870 core-tests SUCCESS and unsigned-device-build SUCCESS."
-  - "2026-09-25 Apple altool --validate-app on exact IPA: VERIFY SUCCEEDED with no errors; exit code 0."
+  - "2026-09-25 Apple altool --validate-app on exact IPA: VERIFY SUCCEEDED with no errors; exit code 0."\n  - "2026-09-25 Apple altool --upload-package on exact IPA: UPLOAD SUCCEEDED with no errors; Delivery UUID 905f0b6a-e10e-42c7-a106-e9529d2438c4."\n  - "App Store Connect processed build 21 as VALID; export compliance was resolved with usesNonExemptEncryption=false; final version state verified Waiting for Review."
 blocker: "None. Submission is now with Apple App Review."
 resume_instruction: "Task is complete. Do not rebuild, re-upload, or resubmit. On a future user request or Apple review notification, first read this checkpoint and inspect the current App Store Connect review result; only act if Apple reports a concrete issue or the owner asks for a change."
-updated_at: "2026-09-25T16:44:00+03:00"
+updated_at: "2026-09-25T16:52:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-PUBLISH-20260925"
