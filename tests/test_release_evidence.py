@@ -41,8 +41,10 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         for required in (
             "windows-p0.yml|Windows P0 portable|required|push",
             "windows-installer.yml|Windows installer|required|push",
-            "linux-deb.yml|APL-LNX-007 Debian package|required|push",
-            "macos-packaging.yml|macOS packaging|required|push",
+            "linux-deb.yml|APL-LNX-007 Debian package|required|push_or_dispatch",
+            "linux-rpm.yml|APL-REG-001C RED OS RPM|required|push_or_dispatch",
+            "linux-appimage.yml|Linux AppImage|required|push_or_dispatch",
+            "macos-packaging.yml|macOS packaging|required|push_or_dispatch",
             "macos-production-signing.yml|macOS production signing|required|workflow_dispatch",
             "secret-scan.yml|Secret scan|optional|push",
             "dependency-scan.yml|Dependency vulnerability scan|optional|push",
@@ -50,6 +52,8 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
             "sast.yml|SAST|required|push",
         ):
             self.assertIn(required, workflow)
+        self.assertIn('if [ "$workflow_event" = "push_or_dispatch" ]', workflow)
+        self.assertIn('.event == "push" or .event == "workflow_dispatch"', workflow)
         self.assertIn("head_sha=${SOURCE_SHA}&event=${workflow_event}", workflow)
         self.assertIn('--arg event "$workflow_event"', workflow)
         self.assertIn(".event == $event", workflow)
