@@ -38,11 +38,13 @@ jobs:
             echo "::error::source_sha must be a full 40-character commit SHA"
             exit 1
           fi
-          if [ "${SOURCE_SHA,,}" != "${GITHUB_SHA,,}" ]; then
+          SOURCE_SHA_LOWER="$(printf '%s' "$SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+          GITHUB_SHA_LOWER="$(printf '%s' "$GITHUB_SHA" | tr '[:upper:]' '[:lower:]')"
+          if [ "$SOURCE_SHA_LOWER" != "$GITHUB_SHA_LOWER" ]; then
             echo "::error::source_sha must exactly equal the main SHA used by this workflow run"
             exit 1
           fi
-          echo "sha=${SOURCE_SHA,,}" >> "$GITHUB_OUTPUT"
+          echo "sha=$SOURCE_SHA_LOWER" >> "$GITHUB_OUTPUT"
 
       - name: Checkout exact source
         uses: actions/checkout@v4

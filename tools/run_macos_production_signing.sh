@@ -12,7 +12,7 @@ fi
   echo "source SHA must be a full 40-character commit SHA" >&2
   exit 2
 }
-source_sha="${source_sha,,}"
+source_sha="$(printf '%s' "$source_sha" | tr '[:upper:]' '[:lower:]')"
 main_sha="$(gh api "repos/$repo/git/ref/heads/main" --jq '.object.sha' | tr '[:upper:]' '[:lower:]')"
 [[ "$source_sha" == "$main_sha" ]] || {
   echo "refusing non-current-main source: $source_sha (main=$main_sha)" >&2
