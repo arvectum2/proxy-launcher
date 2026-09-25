@@ -1,0 +1,40 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-APPSTORE-20260925
+status: in_progress
+goal: "Prepare and publish Arvectum Proxy Launcher for the Mac App Store using the existing LLC ARVECTUM Apple Developer/App Store Connect organization, without regressing the already published Developer ID distribution."
+authority: HUMAN
+definition_of_done:
+  - "Verify current main/release state and Mac App Store technical requirements against the actual macOS architecture."
+  - "Determine App Sandbox / entitlement compatibility of the existing system-proxy implementation and document any required architecture change."
+  - "Create or reuse the correct Mac App Store App ID, certificates/provisioning profile, and App Store Connect application record."
+  - "Implement the smallest Mac App Store-specific build/signing path while preserving Developer ID distribution unchanged."
+  - "Build an ARM64 Mac App Store candidate on the Mac mini and validate signing, entitlements, package structure, and local smoke tests."
+  - "Upload the candidate to App Store Connect and resolve deterministic validation failures where possible."
+  - "Prepare required Mac App Store metadata/privacy/compliance information from repository facts and App Store Connect requirements."
+  - "Submit for App Review when the binary and required metadata are valid and no unresolved owner/legal/product decision remains."
+  - "Run relevant regression tests, record exact commit/build/upload evidence, and mark this checkpoint completed or blocked with an exact resume instruction."
+completed:
+  - "Prior Developer ID/notarized macOS distribution task APL-MAC-PROD-SIGNING-20260925 is completed; v0.2.16 is immutable and must not be modified."
+  - "Exactly one Proxy Launcher Watchdog exists and is enabled hourly."
+  - "Mac mini is online; code-signing identities currently include Apple Distribution, Apple Development, and Developer ID Application for team VML75VY94V."
+  - "Canonical App Store Connect release API credential already exists locally and must be reused; no new API key should be created unless objectively required."
+current: "Inspecting the actual macOS backend/build entitlements against current Mac App Store sandbox and distribution requirements."
+pending:
+  - "Audit current proxy/network mutation mechanisms and app bundle entitlements."
+  - "Verify current Apple Mac App Store sandbox/signing/upload requirements."
+  - "Choose and implement the minimal compatible Mac App Store architecture/build lane."
+  - "Provision/sign/package/upload candidate."
+  - "Complete App Store Connect record/metadata/compliance and submit if unblocked."
+last_verified_commit: "39fa28a2bd0ffffc654060651e5f1441ac2b5e4a"
+test_results:
+  - "No new Mac App Store tests run yet; prior v0.2.16 Developer ID production chain is green."
+resume_instruction: "Read this checkpoint, inspect macos_backend.py plus tools/build_macos_app.sh and tools/sign_macos_app.sh, then verify current Apple Mac App Store sandbox/signing requirements. Do not alter or retag v0.2.16."
+updated_at: "2026-09-25T20:34:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260925-mac-appstore"
+  branch: "task/apl-mac-appstore-20260925"
+  base_commit: "39fa28a2bd0ffffc654060651e5f1441ac2b5e4a"
+  lease_until: null
+  manual_override: true
