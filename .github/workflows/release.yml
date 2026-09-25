@@ -16,7 +16,10 @@ on:
       - '.github/workflows/linux-rpm.yml'
       - '.github/workflows/linux-appimage.yml'
       - '.github/workflows/macos-packaging.yml'
+      - '.github/workflows/macos-production-signing.yml'
       - '.github/workflows/sync-release-to-gitverse.yml'
+      - 'tools/sign_macos_*.sh'
+      - 'tools/notarize_macos_*.sh'
       - 'build_linux.sh'
       - 'tools/build_linux_deb.sh'
       - 'tools/build_linux_rpm.sh'
@@ -58,7 +61,7 @@ jobs:
       linux_appimage_run_id: ${{ steps.parse.outputs.linux_appimage_run_id }}
       macos_arm_name: ${{ steps.parse.outputs.macos_arm_name }}
       macos_x64_name: ${{ steps.parse.outputs.macos_x64_name }}
-      macos_run_id: ${{ steps.parse.outputs.macos_run_id }}
+      macos_production_run_id: ${{ steps.parse.outputs.macos_production_run_id }}
       prerelease: ${{ steps.parse.outputs.prerelease }}
       should_publish: ${{ steps.parse.outputs.should_publish }}
       owner_signed_release: ${{ steps.parse.outputs.owner_signed_release }}
@@ -157,17 +160,17 @@ jobs:
             APPIMAGE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/linux-appimage.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_APPIMAGE_RUN="$(echo "$APPIMAGE_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
             LINUX_APPIMAGE_RUN_ID="$(echo "$APPIMAGE_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
-            MACOS_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/macos-packaging.yml/runs?head_sha=${{ github.sha }}&branch=main&event=push&per_page=20" --jq '.workflow_runs')"
-            SUCCESSFUL_MACOS_RUN="$(echo "$MACOS_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
-            MACOS_RUN_ID="$(echo "$MACOS_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
-            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ] || [ -z "$SUCCESSFUL_APPIMAGE_RUN" ] || [ -z "$LINUX_APPIMAGE_RUN_ID" ] || [ -z "$SUCCESSFUL_MACOS_RUN" ] || [ -z "$MACOS_RUN_ID" ]; then
-              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, RED OS RPM, and Linux AppImage push CI, plus macOS packaging push CI"
+            MACOS_PROD_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/macos-production-signing.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_dispatch&per_page=20" --jq '.workflow_runs')"
+            SUCCESSFUL_MACOS_PROD_RUN="$(echo "$MACOS_PROD_RUNS_JSON" | jq -e '.[] | select(.conclusion == "success")' || true)"
+            MACOS_PROD_RUN_ID="$(echo "$MACOS_PROD_RUNS_JSON" | jq -r '[.[] | select(.conclusion == "success")] | sort_by(.id) | last | .id // empty')"
+            if [ -z "$SUCCESSFUL_PORTABLE_RUN" ] || [ -z "$SUCCESSFUL_INSTALLER_RUN" ] || [ -z "$SUCCESSFUL_LINUX_RUN" ] || [ -z "$LINUX_RUN_ID" ] || [ -z "$SUCCESSFUL_RPM_RUN" ] || [ -z "$LINUX_RPM_RUN_ID" ] || [ -z "$SUCCESSFUL_APPIMAGE_RUN" ] || [ -z "$LINUX_APPIMAGE_RUN_ID" ] || [ -z "$SUCCESSFUL_MACOS_PROD_RUN" ] || [ -z "$MACOS_PROD_RUN_ID" ]; then
+              echo "::error::Commit ${{ github.sha }} requires successful Windows P0 portable, Windows installer, Linux Debian package, RED OS RPM, and Linux AppImage push CI, plus manually dispatched exact-SHA macOS production signing"
               exit 1
             fi
             echo "linux_run_id=${LINUX_RUN_ID}" >> "$GITHUB_OUTPUT"
             echo "linux_rpm_run_id=${LINUX_RPM_RUN_ID}" >> "$GITHUB_OUTPUT"
             echo "linux_appimage_run_id=${LINUX_APPIMAGE_RUN_ID}" >> "$GITHUB_OUTPUT"
-            echo "macos_run_id=${MACOS_RUN_ID}" >> "$GITHUB_OUTPUT"
+            echo "macos_production_run_id=${MACOS_PROD_RUN_ID}" >> "$GITHUB_OUTPUT"
 
             EVIDENCE_RUNS_JSON="$(gh api "repos/${{ github.repository }}/actions/workflows/release-evidence.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_run&per_page=20" --jq '.workflow_runs')"
             SUCCESSFUL_EVIDENCE_RUN="$(echo "$EVIDENCE_RUNS_JSON" | jq -e '.[] | select(.name == "Release Evidence Package" and .conclusion == "success")' || true)"
@@ -297,19 +300,19 @@ jobs:
           test "$(basename "$source_appimage")" = "${{ needs.validate.outputs.linux_appimage_name }}"
           cp "$source_appimage" "release-stage/${{ needs.validate.outputs.linux_appimage_name }}"
 
-      - name: Download exact-main macOS beta DMGs
+      - name: Download exact-main notarized macOS DMGs
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p release-macos-arm64 release-macos-x64
-          gh run download "${{ needs.validate.outputs.macos_run_id }}" \
+          gh run download "${{ needs.validate.outputs.macos_production_run_id }}" \
             --repo "$GITHUB_REPOSITORY" \
-            --name apl-mac-package-macos-15 \
+            --name apl-mac-production-arm64 \
             --dir release-macos-arm64
-          gh run download "${{ needs.validate.outputs.macos_run_id }}" \
+          gh run download "${{ needs.validate.outputs.macos_production_run_id }}" \
             --repo "$GITHUB_REPOSITORY" \
-            --name apl-mac-package-macos-15-intel \
+            --name apl-mac-production-x86_64 \
             --dir release-macos-x64
           source_arm="$(find release-macos-arm64 -type f -name '*-arm64.dmg' -print -quit)"
           source_x64="$(find release-macos-x64 -type f -name '*-x86_64.dmg' -print -quit)"
@@ -317,6 +320,10 @@ jobs:
           test -n "$source_x64"
           test -s "$source_arm"
           test -s "$source_x64"
+          test -f release-macos-arm64/SIGNING_EVIDENCE.txt
+          test -f release-macos-x64/SIGNING_EVIDENCE.txt
+          grep -F "source_sha=${{ github.sha }}" release-macos-arm64/SIGNING_EVIDENCE.txt
+          grep -F "source_sha=${{ github.sha }}" release-macos-x64/SIGNING_EVIDENCE.txt
           cp "$source_arm" "release-stage/${{ needs.validate.outputs.macos_arm_name }}"
           cp "$source_x64" "release-stage/${{ needs.validate.outputs.macos_x64_name }}"
 
@@ -357,11 +364,11 @@ jobs:
             exit 1
           fi
           if [ ! -s "release-stage/${MACOS_ARM_NAME}" ]; then
-            echo "::error::Expected macOS Apple Silicon beta DMG 'release-stage/${MACOS_ARM_NAME}' not found"
+            echo "::error::Expected notarized macOS Apple Silicon DMG 'release-stage/${MACOS_ARM_NAME}' not found"
             exit 1
           fi
           if [ ! -s "release-stage/${MACOS_X64_NAME}" ]; then
-            echo "::error::Expected macOS Intel beta DMG 'release-stage/${MACOS_X64_NAME}' not found"
+            echo "::error::Expected notarized macOS Intel DMG 'release-stage/${MACOS_X64_NAME}' not found"
             exit 1
           fi
 

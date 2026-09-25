@@ -6,7 +6,11 @@ cd "$repo_root"
 app="${1:-dist/Arvectum Proxy Launcher.app}"
 [[ -d "$app" ]] || { echo "Missing .app bundle: $app" >&2; exit 2; }
 version="$(tr -d '[:space:]' < VERSION)"
-arch="$(uname -m)"
+arch="${APL_MACOS_PACKAGE_ARCH:-$(uname -m)}"
+[[ "$arch" == "arm64" || "$arch" == "x86_64" ]] || {
+  echo "APL-MAC-013: unsupported package architecture label: $arch" >&2
+  exit 4
+}
 out_dir="${2:-dist/dmg}"
 mkdir -p "$out_dir"
 stage="$(mktemp -d)"; trap 'rm -rf "$stage"' EXIT
@@ -21,4 +25,13 @@ out="$out_dir/Arvectum_Proxy_Launcher-${version}-${arch}.dmg"
 rm -f "$out"
 /usr/bin/hdiutil create -quiet -volname "Arvectum Proxy Launcher" -srcfolder "$stage" -ov -format UDZO "$out"
 /usr/bin/hdiutil verify "$out" >/dev/null
+sign_identity="${APL_MACOS_SIGN_IDENTITY:-}"
+if [[ -n "$sign_identity" ]]; then
+  [[ "$sign_identity" == Developer\ ID\ Application:* ]] || {
+    echo "APL-MAC-006: production DMG signing requires Developer ID Application identity" >&2
+    exit 4
+  }
+  codesign --force --timestamp --sign "$sign_identity" "$out"
+  codesign --verify --strict "$out"
+fi
 echo "$out"

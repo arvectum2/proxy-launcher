@@ -53,6 +53,15 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
         self.assertLess(short_verify, resign)
         self.assertLess(build_verify, resign)
 
+    def test_production_signing_is_explicit_and_hardened(self):
+        self.assertIn('APL_MACOS_SIGN_IDENTITY', SCRIPT)
+        self.assertIn('Developer ID Application:', SCRIPT)
+        self.assertIn('--timestamp --options runtime --sign "$sign_identity"', SCRIPT)
+        self.assertIn("TeamIdentifier=VML75VY94V", SCRIPT)
+
+    def test_default_path_still_supports_ad_hoc_ci_builds(self):
+        self.assertIn('codesign --force --deep --sign - "$app"', SCRIPT)
+
     def test_app_bundle_contains_product_and_third_party_notices(self):
         self.assertIn('Contents/Resources', SCRIPT)
         self.assertIn('install -m644 LICENSE "$resources/LICENSE.txt"', SCRIPT)
@@ -60,10 +69,12 @@ class MacOSAppPackagingContractTests(unittest.TestCase):
 
     def test_final_bundle_is_resealed_after_license_resources_are_added(self):
         license_verify = SCRIPT.index('third_party_license_bundle.py --verify')
-        resign = SCRIPT.index('codesign --force --deep --sign - "$app"')
-        signature_verify = SCRIPT.index('codesign --verify --deep --strict "$app"')
-        self.assertLess(license_verify, resign)
-        self.assertLess(resign, signature_verify)
+        production_seal = SCRIPT.index('sign_identity="${APL_MACOS_SIGN_IDENTITY:-}"')
+        production_verify = SCRIPT.index('codesign --verify --deep --strict "$app"', production_seal)
+        ad_hoc_seal = SCRIPT.index('codesign --force --deep --sign - "$app"')
+        self.assertLess(license_verify, production_seal)
+        self.assertLess(production_seal, production_verify)
+        self.assertLess(production_seal, ad_hoc_seal)
 
 
 if __name__ == '__main__':

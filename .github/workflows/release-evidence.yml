@@ -3,7 +3,7 @@ name: Release Evidence Package
 on:
   workflow_run:
     workflows:
-      - SAST
+      - macOS production signing
     types:
       - completed
     branches:
@@ -24,7 +24,7 @@ jobs:
     name: Package exact-SHA release evidence
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.event == 'push' &&
+      (github.event.workflow_run.event == 'workflow_dispatch' &&
        github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -75,26 +75,27 @@ jobs:
           mkdir -p evidence/gates
 
           workflows=(
-            "windows-p0.yml|Windows P0 portable|required"
-            "windows-installer.yml|Windows installer|required"
-            "linux-deb.yml|APL-LNX-007 Debian package|required"
-            "linux-rpm.yml|APL-REG-001C RED OS RPM|required"
-            "macos-packaging.yml|macOS packaging|required"
-            "secret-scan.yml|Secret scan|optional"
-            "dependency-scan.yml|Dependency vulnerability scan|optional"
-            "sbom.yml|SBOM|required"
-            "sast.yml|SAST|required"
+            "windows-p0.yml|Windows P0 portable|required|push"
+            "windows-installer.yml|Windows installer|required|push"
+            "linux-deb.yml|APL-LNX-007 Debian package|required|push"
+            "linux-rpm.yml|APL-REG-001C RED OS RPM|required|push"
+            "macos-packaging.yml|macOS packaging|required|push"
+            "macos-production-signing.yml|macOS production signing|required|workflow_dispatch"
+            "secret-scan.yml|Secret scan|optional|push"
+            "dependency-scan.yml|Dependency vulnerability scan|optional|push"
+            "sbom.yml|SBOM|required|push"
+            "sast.yml|SAST|required|push"
           )
 
           for item in "${workflows[@]}"; do
-            IFS='|' read -r workflow_file workflow_name artifact_policy <<< "$item"
+            IFS='|' read -r workflow_file workflow_name artifact_policy workflow_event <<< "$item"
             selected=""
 
             for attempt in $(seq 1 120); do
-              response="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_file}/runs?head_sha=${SOURCE_SHA}&event=push&per_page=20")"
-              selected="$(jq -c --arg sha "$SOURCE_SHA" '
+              response="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${workflow_file}/runs?head_sha=${SOURCE_SHA}&event=${workflow_event}&per_page=20")"
+              selected="$(jq -c --arg sha "$SOURCE_SHA" --arg event "$workflow_event" '
                 .workflow_runs
-                | map(select(.head_sha == $sha and .event == "push"))
+                | map(select(.head_sha == $sha and .event == $event))
                 | sort_by(.id)
                 | reverse
                 | .[0] // empty
@@ -119,7 +120,7 @@ jobs:
             done
 
             if [ -z "$selected" ] || [ "$(jq -r '.status' <<< "$selected")" != "completed" ]; then
-              echo "::error::Timed out waiting for ${workflow_name} exact-SHA push evidence"
+              echo "::error::Timed out waiting for ${workflow_name} exact-SHA ${workflow_event} evidence"
               exit 1
             fi
 

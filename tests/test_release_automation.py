@@ -144,9 +144,10 @@ class ReleaseAutomationTests(unittest.TestCase):
         self.assertIn("APPIMAGE_RUNTIME_LICENSE.txt", appimage_workflow)
         self.assertIn("tools/build_linux_appimage.sh", appimage_workflow)
 
-    def test_cross_platform_release_includes_exact_main_macos_beta_dmgs(self):
+    def test_cross_platform_release_includes_exact_main_macos_notarized_dmgs(self):
         release = self.read(".github/workflows/release.yml")
         macos = self.read(".github/workflows/macos-packaging.yml")
+        production = self.read(".github/workflows/macos-production-signing.yml")
         policy = self.read("RELEASE_POLICY.md")
 
         self.assertIn(
@@ -157,21 +158,38 @@ class ReleaseAutomationTests(unittest.TestCase):
             'MACOS_X64_NAME="Arvectum-Proxy-Launcher-${VERSION}-macos-x64.dmg"',
             release,
         )
-        self.assertIn("macos-packaging.yml/runs?head_sha=${{ github.sha }}", release)
-        self.assertIn("apl-mac-package-macos-15", release)
-        self.assertIn("apl-mac-package-macos-15-intel", release)
+        self.assertIn(
+            "macos-production-signing.yml/runs?head_sha=${{ github.sha }}",
+            release,
+        )
+        self.assertIn(
+            "macos-production-signing.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_dispatch",
+            release,
+        )
+        self.assertIn("apl-mac-production-arm64", release)
+        self.assertIn("apl-mac-production-x86_64", release)
         self.assertIn('sha256sum "$MACOS_ARM_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('sha256sum "$MACOS_X64_NAME" >> SHA256SUMS.txt', release)
         self.assertIn('"release-stage/${MACOS_ARM_NAME}"', release)
         self.assertIn('"release-stage/${MACOS_X64_NAME}"', release)
         self.assertIn("macos-15-intel", macos)
-        self.assertIn("beta", policy.lower())
-        self.assertIn("Open Anyway", policy)
+        self.assertIn("Developer ID Application: LLC ARVECTUM", production)
+        self.assertIn("ArvectumReleaseBot", production)
+        self.assertIn("notarized", policy.lower())
+        self.assertNotIn("Open Anyway", policy)
 
-    def test_release_evidence_requires_macos_packaging(self):
+    def test_release_evidence_requires_macos_packaging_and_production_signing(self):
         evidence = self.read(".github/workflows/release-evidence.yml")
         self.assertIn(
-            '"macos-packaging.yml|macOS packaging|required"',
+            '"macos-packaging.yml|macOS packaging|required|push"',
+            evidence,
+        )
+        self.assertIn(
+            '"macos-production-signing.yml|macOS production signing|required|workflow_dispatch"',
+            evidence,
+        )
+        self.assertIn(
+            "github.event.workflow_run.event == 'workflow_dispatch'",
             evidence,
         )
 

@@ -52,8 +52,24 @@ install -m644 THIRD_PARTY_NOTICES.txt "$resources/THIRD_PARTY_NOTICES.txt"
 "$python_bin" tools/third_party_license_bundle.py --verify --output "$licenses"
 
 # PyInstaller signs the bundle before these governed license resources are added.
-# Re-seal the final artifact so macOS sees a valid ad-hoc signature for personal/CI builds.
-codesign --force --deep --sign - "$app"
-codesign --verify --deep --strict "$app"
+# Re-seal after the final resource mutation. Default CI/private builds remain
+# ad-hoc; production builds opt in explicitly with a Developer ID identity.
+sign_identity="${APL_MACOS_SIGN_IDENTITY:-}"
+if [[ -n "$sign_identity" ]]; then
+  [[ "$sign_identity" == Developer\ ID\ Application:* ]] || {
+    echo "APL-MAC-006: production signing requires Developer ID Application identity" >&2
+    exit 4
+  }
+  codesign --force --deep --timestamp --options runtime --sign "$sign_identity" "$app"
+  codesign --verify --deep --strict "$app"
+  signature_details="$(codesign -dv --verbose=4 "$app" 2>&1)"
+  grep -q 'Runtime Version=' <<<"$signature_details"
+  grep -q 'Authority=Developer ID Application:' <<<"$signature_details"
+  grep -q 'TeamIdentifier=VML75VY94V' <<<"$signature_details"
+  grep -q 'Timestamp=' <<<"$signature_details"
+else
+  codesign --force --deep --sign - "$app"
+  codesign --verify --deep --strict "$app"
+fi
 
 echo "$app"
