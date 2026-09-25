@@ -35,7 +35,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
                 ["packet-tunnel-provider"],
             )
             self.assertIn(
-                "group.ru.arvectum.proxylauncher.macos",
+                "VML75VY94V.ru.arvectum.proxylauncher.macos",
                 entitlements["com.apple.security.application-groups"],
             )
         self.assertIs(app["com.apple.security.network.client"], True)
@@ -43,7 +43,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIs(tunnel["com.apple.security.network.server"], True)
 
     def test_store_app_uses_mac_specific_shared_identity(self):
-        self.assertIn("group.ru.arvectum.proxylauncher.macos", APP_SHARED)
+        self.assertIn("VML75VY94V.ru.arvectum.proxylauncher.macos", APP_SHARED)
         self.assertIn("ru.arvectum.proxylauncher.macos.PacketTunnel", APP_SHARED)
         self.assertIn("ru.arvectum.proxylauncher.macos.credentials", APP_SHARED)
         self.assertNotIn('group.ru.arvectum.proxylauncher.ios"', APP_SHARED)

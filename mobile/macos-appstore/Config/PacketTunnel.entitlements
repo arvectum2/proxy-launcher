@@ -4,7 +4,7 @@
 <key>com.apple.security.app-sandbox</key><true/>
 <key>com.apple.security.network.client</key><true/>
 <key>com.apple.security.network.server</key><true/>
-<key>com.apple.security.application-groups</key><array><string>group.ru.arvectum.proxylauncher.macos</string></array>
+<key>com.apple.security.application-groups</key><array><string>VML75VY94V.ru.arvectum.proxylauncher.macos</string></array>
 <key>keychain-access-groups</key><array><string>$(AppIdentifierPrefix)ru.arvectum.proxylauncher.macos.shared</string></array>
 <key>com.apple.developer.networking.networkextension</key><array><string>packet-tunnel-provider</string></array>
 </dict></plist>

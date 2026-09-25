@@ -27,7 +27,7 @@ Initial Mac App Store product version: `0.2.16`, build `1`.
 Planned identifiers:
 - app: `ru.arvectum.proxylauncher.macos`
 - extension: `ru.arvectum.proxylauncher.macos.PacketTunnel`
-- App Group: `group.ru.arvectum.proxylauncher.macos`
+- App Group: `VML75VY94V.ru.arvectum.proxylauncher.macos`
 - shared Keychain suffix: `ru.arvectum.proxylauncher.macos.shared`
 
 Mac App Store validation/upload uses the canonical local `Arvectum Release Bot` App Store Connect API credential. Private signing keys and provisioning profiles remain local and are never committed.
