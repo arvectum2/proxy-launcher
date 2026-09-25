@@ -17,7 +17,12 @@ completed:
   - "Confirmed repo arvectum2/proxy-launcher is public; a project-hosted public privacy policy can be used."
   - "Confirmed existing App Store IPA on SSD is stale (source commit 14c39e0) and must not be uploaded because later production fixes exist."
   - "Reviewed current Apple requirements: an App Store Connect app record is required before upload; iOS apps require a privacy policy URL and App Privacy declaration; Apple App Review Guideline 5.4 requires VPN apps to use NEVPNManager, be from an organization, disclose data practices in-app before use, and commit in the privacy policy not to sell/use/disclose user data."
-current: "Checking App Store Connect session/agreements and preparing the missing privacy/review requirements before rebuilding the release candidate."
+  - "Implemented first-use in-app privacy disclosure before ContentView/VPN use, with explicit no-collection/no-sale/no-disclosure statements and privacy-policy link."
+  - "Added docs/privacy.html and docs/support.html for GitHub Pages, plus canonical App Store metadata/review-notes draft."
+  - "Added PrivacyInfo.xcprivacy to app and PacketTunnel bundles: no tracking/data collection; UserDefaults reasons CA92.1 + 1C8F.1 for app and 1C8F.1 for extension."
+  - "Bumped iOS App Store build number from 20 to 21."
+  - "PASS: local core tests 6/6; unsigned generic iphoneos BUILD SUCCEEDED; signed Debug BUILD SUCCEEDED; codesign verification PASS; both app and extension bundles contain valid PrivacyInfo.xcprivacy."
+current: "App Store privacy/review prerequisites implemented and locally verified. Added first-use VPN privacy disclosure, bilingual public privacy/support pages, App/PacketTunnel PrivacyInfo.xcprivacy manifests with correct UserDefaults reasons, canonical App Store metadata draft, and bumped iOS build to 21. Local core tests 6/6, unsigned build, signed Debug build and codesign verification are green; both executable bundles contain their privacy manifests. Next: commit these changes, reconcile PR #135 with current main, then merge/publish pages and rebuild final distribution archive."
 pending:
   - "Verify App Store Connect access, latest agreement status, existing/new app record, and whether build 20 was ever uploaded."
   - "Add first-use VPN privacy disclosure and public privacy policy/support pages; verify actual data collection remains none."
@@ -29,7 +34,7 @@ test_results:
   - "Prior final iOS acceptance: physical PASS; exact-head CI run 36111899870 core-tests SUCCESS and unsigned-device-build SUCCESS."
 blocker: "None at task start. App Store Connect authentication/agreements and review metadata are being checked."
 resume_instruction: "First verify App Store Connect session and agreement/app-record state. Do not upload the stale 14c39e0 IPA. Add required VPN privacy disclosure/policy, rebuild a fresh distribution artifact from final production code, then create/fill the App Store record and upload. Preserve no-data-collection truth; do not add analytics/ads in this release. Do not submit to review until all required metadata/privacy fields and binary processing are green."
-updated_at: "2026-09-25T11:25:00+03:00"
+updated_at: "2026-09-25T11:31:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-PUBLISH-20260925"

@@ -7,7 +7,7 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     MARKETING_VERSION: "0.1.19"
-    CURRENT_PROJECT_VERSION: "20"
+    CURRENT_PROJECT_VERSION: "21"
     DEVELOPMENT_TEAM: "VML75VY94V"
     CODE_SIGN_STYLE: Automatic
 targets:
@@ -19,6 +19,8 @@ targets:
       - Shared
       - SharedCore
       - path: Resources
+        buildPhase: resources
+      - path: Config/AppPrivacy/PrivacyInfo.xcprivacy
         buildPhase: resources
     dependencies:
       - target: PacketTunnel
@@ -47,6 +49,8 @@ targets:
       - PacketTunnel
       - Shared
       - SharedCore
+      - path: Config/PacketTunnelPrivacy/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - framework: Frameworks/tun2proxy.xcframework
     settings:
