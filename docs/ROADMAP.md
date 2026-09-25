@@ -1,9 +1,9 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-21
+Updated: 2026-09-25
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
-Current stable product line: 0.2.12 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64 and generic Linux x86-64 AppImage
+Current stable product line: 0.2.15 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and macOS Apple Silicon/Intel DMGs
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
@@ -21,9 +21,9 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 
 ## 1. Current stable product line
 
-- **CURRENT / PUBLISHED — v0.2.12** (published 2026-09-21): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, plus SHA256SUMS.txt.
-- **EXACT RELEASE OBJECT** — immutable v0.2.12 tag/release points to `8d9a4e5913fa92b39f0f926004df6f1fd57f3bde`; GitHub asset checksums and GitVerse canonical payload parity were independently verified.
-- **CURRENT MAIN IS AHEAD OF THE RELEASE** — canonical `main` is `df4478a70729e20f33b7a0d17476183423955576` after merged PR #148. The free-proxy gateway/Android 0.1.31 work is therefore **not** part of immutable desktop v0.2.12.
+- **CURRENT / PUBLISHED — v0.2.15** (published 2026-09-25): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, macOS Apple Silicon/Intel DMGs, plus SHA256SUMS.txt.
+- **EXACT RELEASE OBJECT** — immutable v0.2.15 tag/release points to product commit `3ed433633a71977410da4f20c34883c91a39453c`; GitHub asset checksums and GitVerse canonical payload parity were independently verified.
+- **CURRENT MAIN IS AHEAD OF THE RELEASE** — canonical `main` contains only post-v0.2.15 checkpoint metadata beyond the product release; Developer ID/notarization work is developed separately for the next immutable version.
 - **v0.2.11** (published 2026-09-20) carried the Windows PAC/WPAD isolation fix and macOS Safari/CONNECT routing hardening.
 - **v0.2.12** publishes the verified macOS long-sleep recovery and Android long-sleep/foreground VPN reconciliation while preserving immutable v0.2.11.
 - **CURRENT SAFETY CONTRACT** — Windows rollback/recovery retains saved-or-Arvectum ownership/fail-closed semantics; Astra/Fly and RED OS/KDE real-host acceptance remain valid unless a material platform/recovery change requires rerun.
@@ -90,7 +90,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / TEST DISTRIBUTION** — arm64 prereleases `v0.2.10-macos-test.1` and `v0.2.10-macos-test.2` were published for dogfood and mirrored with checksum parity.
 - **DONE / ROUTING HARDENING** — PRs #141/#143 hardened upstream failover and Safari CONNECT behavior before v0.2.11.
 - **DONE / LONG-SLEEP RECOVERY** — PRs #146/#149 resolved the macOS sleep/wake regression; the final v0.2.12 behavior was physically accepted on a MacBook and is part of the desktop source release.
-- **PRODUCTION DISTRIBUTION DEFERRED** — stable public macOS DMG remains outside the desktop release set until Apple Developer ID signing/notarization is deliberately activated.
+- **PRODUCTION DISTRIBUTION — ACTIVATING FOR v0.2.16** — Developer ID Application identity and canonical Arvectum Release Bot notarization credential are operational on the Arvectum-controlled Mac mini. Exact-main ARM64/Intel cloud packages are promoted only through an explicit one-shot trusted signing/notarization gate; immutable v0.2.15 DMGs remain ad-hoc.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit without weakening recovery/update semantics.
 
 ## 7. Per-application routing — next desktop product capability
@@ -138,7 +138,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 6. **[Per-app routing / OWNER] production architecture — CURRENT PR #144.** Refresh its v0.2.10 baseline wording to v0.2.12/current-main semantics; final architecture choice remains an Owner stop-gate.
 7. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.** Free-proxy work does not authorize the ad SDK/provider/private-package lane.
-9. **[macOS production distribution] — DEFERRED.** Long-sleep behavior is fixed/accepted, but Apple Developer ID signing/notarization remains non-primary.
+9. **[macOS production distribution] — CURRENT / v0.2.16 GATE.** Developer ID signing/notarization is implemented; finish Apple acceptance, exact-main promotion and first immutable production-signed release.
 10. **[iOS / HUMAN] draft PR #135 — ACTIVE PERSONAL-USE ENGINEERING.** Physical signing/install/Xcode device validation remains open; App Store distribution is not in scope.
 
 ### Repository-hygiene note
@@ -162,7 +162,7 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 | Astra Linux .deb | **PUBLISHED v0.2.12 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | RED OS .rpm | **PUBLISHED v0.2.12 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.12** | Maintain governed runtime/license/release parity |
-| macOS .app / DMG | **TEST PRERELEASES test.1/test.2 / v0.2.12 SOURCE FIXES / PROD DEFERRED** | Apple Developer ID signing/notarization when prioritized |
+| macOS .app / DMG | **PUBLISHED v0.2.15 AD-HOC / v0.2.16 PRODUCTION SIGNING ACTIVE** | Exact-main Developer ID + Apple notarization promotion, then immutable v0.2.16 release |
 | Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
 | iOS | **DEFERRED** | Start after Android product semantics / entitlement path |
 

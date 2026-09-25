@@ -1,6 +1,6 @@
 # APL-IP-002-MAC — macOS stack & dependency sovereignty audit
 
-Status: **CONDITIONAL PASS** for source/CI/product architecture. APL-MAC-008 real-host acceptance remains mandatory before Gate R9.
+Status: **PASS / RELEASE-TRUST DEPENDENCY RECORDED**. APL-MAC-008 real-host functional acceptance and Gate R9 are closed; Apple Developer ID/notarization is now an explicit release-only external dependency.
 
 ## Inventory
 
@@ -10,9 +10,9 @@ Status: **CONDITIONAL PASS** for source/CI/product architecture. APL-MAC-008 rea
 | `/usr/sbin/networksetup` | host runtime | Apple/macOS | no | no | critical system-proxy control plane; cannot be replaced without changing platform architecture |
 | LaunchAgents / plist format | host runtime interface | Apple/macOS | no | no | autostart only; per-user and non-privileged |
 | `/usr/bin/hdiutil` | build/package | Apple/macOS | no | no | DMG build-only tool |
-| `codesign` inspection | CI evidence | Apple/macOS | no | no | inspection only; no production identity is assumed |
-| GitHub macOS 15 arm64/x64 runners | CI/build | GitHub + Apple-hosted image ecosystem | no | no end-user dependency | external build service; replaceable by Arvectum-controlled Mac builders |
-| Apple production signing/notarization services | optional future release | Apple | no | yes when used | not required by current Russian-first roadmap; keep separate from functional runtime acceptance |
+| `codesign` / Developer ID | release signing | Apple/macOS | no | no runtime dependency | production identity is held on an Arvectum-controlled Mac; public release promotion verifies Developer ID authority, team id and timestamp |
+| GitHub macOS 15 arm64/x64 runners | CI/build | GitHub + Apple-hosted image ecosystem | no | no end-user dependency | cloud runners create unsigned/ad-hoc QA inputs; production trust is added only on the Arvectum-controlled signing Mac |
+| Apple production notarization service | release promotion | Apple | no | yes during release only | active for macOS public production distribution; canonical Arvectum Release Bot credential stays local to the trusted signing Mac and is not a runtime dependency |
 
 ## Runtime autonomy
 
@@ -25,8 +25,8 @@ The current CI path depends on GitHub-hosted macOS runners and PyPI acquisition 
 ## Findings
 
 - **MAC-SOV-01 — P1:** macOS/Apple system tooling is intrinsically foreign platform infrastructure. This is accepted as a platform constraint, not hidden as an Arvectum-owned dependency.
-- **MAC-SOV-02 — P1 build:** GitHub/PyPI are current build channels; controlled mirrors + self-hosted Mac runner are the replacement path.
-- **MAC-SOV-03 — P2 optional distribution:** Apple production code signing/notarization can introduce online Apple-service dependency. It stays outside the Russian-first functional release gate unless distribution policy later requires it.
+- **MAC-SOV-02 — P1 build:** GitHub/PyPI remain build channels, but production trust is promoted on an Arvectum-controlled ephemeral self-hosted Mac runner; controlled mirrors remain the restricted-build fallback.
+- **MAC-SOV-03 — ACTIVE RELEASE DEPENDENCY:** Apple production code signing/notarization introduces an online Apple-service dependency only at macOS release-promotion time. Ordinary installed runtime remains independent of Apple web APIs.
 - **MAC-SOV-04 — PASS runtime autonomy:** no mandatory vendor SaaS is needed for ordinary proxy operation after installation.
 
 ## Acceptance
@@ -35,6 +35,6 @@ The current CI path depends on GitHub-hosted macOS runners and PyPI acquisition 
 - [x] bundled vs host-owned components separated;
 - [x] external runtime/build network dependencies identified;
 - [x] self-hosted build replacement path recorded;
-- [x] optional Apple signing/notarization kept outside functional correctness claims;
-- [ ] self-hosted/mirrored macOS production build perimeter — infrastructure debt;
-- [ ] real macOS acceptance — APL-MAC-008.
+- [x] Apple signing/notarization kept outside functional correctness claims while activated for release trust;
+- [x] Arvectum-controlled ephemeral macOS production-signing perimeter implemented;
+- [x] real macOS acceptance — APL-MAC-008.

@@ -37,7 +37,7 @@ Historical progression:
 - `v0.2.11` — Windows PAC/WPAD isolation + macOS Safari CONNECT hardening;
 - `v0.2.12` — verified macOS long-sleep recovery + Android long-sleep/foreground reconciliation.
 
-Stable macOS DMG is still excluded pending deliberate Developer ID signing/notarization.
+v0.2.15 publishes macOS DMGs as the immutable ad-hoc baseline. Developer ID signing/notarization is now an active v0.2.16 production-promotion gate; v0.2.15 is not modified.
 
 ## P2 — Astra Linux / Gate R8 — DONE / PHYSICAL PASS
 
@@ -191,20 +191,21 @@ Current gate:
 
 Exact-head repository checks on #144 are green. No architecture is approved by that fact.
 
-## P9 — macOS production distribution — RECOVERY FIXED / TEST LANE EXISTS / PROD DEFERRED
+## P9 — macOS production distribution — ACTIVE / DEVELOPER ID + NOTARIZATION
 
 - APL-MAC engineering/acceptance baseline exists.
 - `v0.2.10-macos-test.1` and `v0.2.10-macos-test.2` arm64 prereleases exist for dogfood.
 - PRs #141/#143 hardened upstream/Safari CONNECT routing.
 - PRs #146/#149 resolved the long-sleep regression; final v0.2.12 behavior has physical MacBook acceptance evidence.
-- Public desktop v0.2.12 includes the source fix but **does not** publish a macOS DMG.
+- Public desktop v0.2.15 includes Apple Silicon and Intel macOS DMGs, but those immutable assets remain ad-hoc/non-notarized.
 
-Remaining production-specific work:
-- Apple Developer ID signing/notarization;
-- any Apple-specific hardened build-input path still required;
-- stable promoted distribution policy.
+Current production-specific work:
+- Developer ID Application signing is operational on the Arvectum-controlled Mac mini;
+- canonical Arvectum Release Bot notarization credentials remain local to the trusted Mac;
+- exact-main ARM64/Intel cloud artifacts are promoted through an explicit one-shot signing/notarization workflow;
+- first eligible immutable production-signed public release is v0.2.16, after Gatekeeper/notarization evidence is green.
 
-This remains deferred under the Russia-first priority model.
+This is an active distribution gate, not a functional-runtime dependency.
 
 ## P10 — Russian Software Register dossier / external filing — DOSSIER DONE, SUBMISSION HOLD
 

@@ -9,14 +9,18 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
     def read(self, name: str) -> str:
         return (ROOT / name).read_text(encoding="utf-8-sig")
 
-    def test_workflow_exists_and_runs_after_main_sast(self):
+    def test_workflow_exists_and_runs_after_macos_production_signing(self):
         workflow = self.read(".github/workflows/release-evidence.yml")
         self.assertIn("name: Release Evidence Package", workflow)
         self.assertIn("workflow_run:", workflow)
-        self.assertIn("- SAST", workflow)
+        self.assertIn("- macOS production signing", workflow)
         self.assertIn("- completed", workflow)
         self.assertIn("- main", workflow)
         self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn(
+            "github.event.workflow_run.event == 'workflow_dispatch'",
+            workflow,
+        )
 
     def test_permissions_are_read_only(self):
         workflow = self.read(".github/workflows/release-evidence.yml")
@@ -32,19 +36,23 @@ class ReleaseEvidenceWorkflowTests(unittest.TestCase):
         self.assertIn('git merge-base --is-ancestor "$SOURCE_SHA" origin/main', workflow)
         self.assertIn('test "$(git rev-parse HEAD)" = "$SOURCE_SHA"', workflow)
 
-    def test_all_release_gates_are_collected_for_exact_push_sha(self):
+    def test_all_release_gates_are_collected_for_exact_sha_with_explicit_events(self):
         workflow = self.read(".github/workflows/release-evidence.yml")
         for required in (
-            "windows-p0.yml|Windows P0 portable|required",
-            "windows-installer.yml|Windows installer|required",
-            "linux-deb.yml|APL-LNX-007 Debian package|required",
-            "secret-scan.yml|Secret scan|optional",
-            "dependency-scan.yml|Dependency vulnerability scan|optional",
-            "sbom.yml|SBOM|required",
-            "sast.yml|SAST|required",
+            "windows-p0.yml|Windows P0 portable|required|push",
+            "windows-installer.yml|Windows installer|required|push",
+            "linux-deb.yml|APL-LNX-007 Debian package|required|push",
+            "macos-packaging.yml|macOS packaging|required|push",
+            "macos-production-signing.yml|macOS production signing|required|workflow_dispatch",
+            "secret-scan.yml|Secret scan|optional|push",
+            "dependency-scan.yml|Dependency vulnerability scan|optional|push",
+            "sbom.yml|SBOM|required|push",
+            "sast.yml|SAST|required|push",
         ):
             self.assertIn(required, workflow)
-        self.assertIn("head_sha=${SOURCE_SHA}&event=push", workflow)
+        self.assertIn("head_sha=${SOURCE_SHA}&event=${workflow_event}", workflow)
+        self.assertIn('--arg event "$workflow_event"', workflow)
+        self.assertIn(".event == $event", workflow)
         self.assertIn('.conclusion // ""', workflow)
         self.assertIn('"success"', workflow)
 

@@ -22,7 +22,7 @@ MAJOR.MINOR.PATCH
 While product versions are below `1.0.0` (e.g. `0.2.3`), minor releases may contain non-backward-compatible improvements, accompanied by mandatory release notes.
 
 ### Current Version Status
-* **Canonical Product Version:** `0.2.15`
+* **Canonical Product Version:** `0.2.16`
 * The presence of a version number in code or documentation indicates the software version baseline, **not** that a public release has already been published.
 
 ## 3. Engineering Milestones vs. Product Versions
@@ -81,12 +81,12 @@ source change
 * **Real publication triggers:** Only pushes of matching SemVer tags (`v*.*.*`) can trigger publication.
 * **Tag consistency:** Pushed tag must strictly equal `v${VERSION}` (where `${VERSION}` is read from `VERSION`).
 * **Main ancestry:** Tagged commit must be an ancestor of `origin/main`.
-* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, the RED OS RPM workflow, the Linux AppImage workflow, macOS cloud packaging (Apple Silicon + Intel matrix), and macOS production signing/notarization on the trusted `apl-signing` Mac mini runner, plus a successful exact-SHA Release Evidence Package.
+* **Prior green main CI:** Tagged commit must have preceding successful push runs on `main` for Windows P0 portable, Windows installer, the Linux Debian package workflow, the RED OS RPM workflow, the Linux AppImage workflow and macOS cloud packaging (Apple Silicon + Intel matrix), plus a successful exact-SHA manually dispatched macOS production signing/notarization run on the trusted Arvectum Mac mini and a successful exact-SHA Release Evidence Package.
 * **Manual runs & PRs:** `workflow_dispatch` and `pull_request` triggers run validation/reusable build checks in safe dry-run mode and **never** publish releases.
 * **Assets published:** Canonical Windows portable ZIP (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-portable.zip`), Windows Installer (`Arvectum-Proxy-Launcher-X.Y.Z-windows-x64-setup.exe`), Developer-ID-signed and Apple-notarized macOS Apple Silicon DMG (`Arvectum-Proxy-Launcher-X.Y.Z-macos-arm64.dmg`), Developer-ID-signed and Apple-notarized macOS Intel DMG (`Arvectum-Proxy-Launcher-X.Y.Z-macos-x64.dmg`), Astra Linux amd64 Debian package (`Arvectum-Proxy-Launcher-X.Y.Z-astra-linux-amd64.deb`), RED OS x86_64 RPM (`Arvectum-Proxy-Launcher-X.Y.Z-redos-linux-x86_64.rpm`), portable Linux x86_64 AppImage (`Arvectum_Proxy_Launcher-X.Y.Z-x86_64.AppImage`), and one external checksum manifest (`SHA256SUMS.txt`) covering all public packages.
 * **Prerelease handling:** SemVer prerelease identifiers (e.g. `0.2.4-rc.1`) are automatically flagged as GitHub prereleases.
 * **Immutability:** Existing GitHub Releases cannot be overwritten or clobbered (`--clobber` is prohibited). Duplicate release attempts fail.
-* **Developer workstation builds:** Ad-hoc binaries built manually on developer workstations remain local test/debug artifacts. Canonical public macOS DMGs must originate from the exact-main `macos-packaging` cloud build and then be promoted by the exact-main `macos-production-signing` workflow on the registered `apl-signing` Mac mini runner. The production gate signs the app with `Developer ID Application: LLC ARVECTUM (VML75VY94V)`, notarizes and staples the app, rebuilds/signs the architecture-specific DMG, notarizes/staples the DMG, and requires Gatekeeper acceptance before upload.
+* **Developer workstation builds:** Ad-hoc binaries built manually on developer workstations remain local test/debug artifacts. Canonical public macOS DMGs must originate from the exact-main `macos-packaging` cloud build and then be promoted by an explicit exact-main `macos-production-signing` dispatch on the trusted Arvectum Mac mini. The local helper registers a one-job ephemeral GitHub runner with a one-time label, waits for the promotion run, then removes the registration. The production gate signs with `Developer ID Application: LLC ARVECTUM (VML75VY94V)`, notarizes with the canonical Arvectum Release Bot, staples the ticket and requires Gatekeeper acceptance before upload.
 * **CI Artifacts vs. GitHub Releases:** GitHub Actions artifacts are temporary QA and pre-release test builds. GitHub Releases is the canonical public binary distribution channel.
 
 ### 6.1 Russian production signing policy

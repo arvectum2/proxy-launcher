@@ -1,33 +1,15 @@
 name: macOS production signing
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'proxy_core.py'
-      - 'proxy_gui.py'
-      - 'proxy_core_legacy.py'
-      - 'system_proxy_runtime.py'
-      - 'application_filesystem.py'
-      - 'configuration_storage.py'
-      - 'portable_lifecycle.py'
-      - 'macos_*.py'
-      - 'tools/build_macos_*.sh'
-      - 'tools/sign_macos_*.sh'
-      - 'tools/notarize_macos_*.sh'
-      - 'tests/test_macos*.py'
-      - 'tests/test_proxy_gui.py'
-      - 'docs/APL_MAC_*.md'
-      - '.github/workflows/macos-packaging.yml'
-      - '.github/workflows/macos-production-signing.yml'
-      - 'assets/**'
-      - 'VERSION'
   workflow_dispatch:
     inputs:
       source_sha:
-        description: Exact main commit SHA to promote; defaults to current main ref
-        required: false
+        description: Exact current main SHA to promote
+        required: true
+        type: string
+      runner_label:
+        description: One-time label of the ephemeral trusted Mac signing runner
+        required: true
         type: string
 
 permissions:
@@ -41,9 +23,9 @@ concurrency:
 jobs:
   promote:
     name: Developer ID sign and notarize macOS
-    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, macOS, ARM64, apl-signing]
-    timeout-minutes: 90
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, "${{ inputs.runner_label }}"]
+    timeout-minutes: 120
 
     steps:
       - name: Resolve exact source SHA
@@ -51,12 +33,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SOURCE_SHA="${{ github.sha }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.source_sha }}" ]; then
-            SOURCE_SHA="${{ inputs.source_sha }}"
-          fi
+          SOURCE_SHA="${{ inputs.source_sha }}"
           if [[ ! "$SOURCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
             echo "::error::source_sha must be a full 40-character commit SHA"
+            exit 1
+          fi
+          if [ "${SOURCE_SHA,,}" != "${GITHUB_SHA,,}" ]; then
+            echo "::error::source_sha must exactly equal the main SHA used by this workflow run"
             exit 1
           fi
           echo "sha=${SOURCE_SHA,,}" >> "$GITHUB_OUTPUT"
@@ -134,17 +117,17 @@ jobs:
           gh run download "${{ steps.package.outputs.run_id }}"             --repo "$GITHUB_REPOSITORY"             --name apl-mac-package-macos-15             --dir "$RUNNER_TEMP/apl-macos-cloud/arm64"
           gh run download "${{ steps.package.outputs.run_id }}"             --repo "$GITHUB_REPOSITORY"             --name apl-mac-package-macos-15-intel             --dir "$RUNNER_TEMP/apl-macos-cloud/x86_64"
 
-      - name: Promote ARM64 and Intel to production trust
+      - name: Prepare Developer ID signed DMGs
         shell: bash
         env:
           APL_MACOS_SIGN_IDENTITY: 'Developer ID Application: LLC ARVECTUM (VML75VY94V)'
-          APL_NOTARY_KEYCHAIN_PROFILE: ArvectumReleaseBot
           DEVELOPER_DIR: /Applications/Xcode-26.6.0.app/Contents/Developer
         run: |
           set -euo pipefail
           rm -rf production-macos
           mkdir -p production-macos/arm64 production-macos/x86_64
-          promote() {
+
+          prepare() {
             local arch="$1" source_root="$2" out_dir="$3"
             local cloud_dmg mount app_root app
             cloud_dmg="$(find "$source_root" -type f -name '*.dmg' -print -quit)"
@@ -155,28 +138,67 @@ jobs:
             rm -rf "$mount" "$app_root"
             mkdir -p "$mount" "$app_root"
             hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$cloud_dmg"
-            trap 'hdiutil detach "$mount" >/dev/null 2>&1 || true' RETURN
             test -d "$mount/Arvectum Proxy Launcher.app"
-            /usr/bin/ditto "$mount/Arvectum Proxy Launcher.app" "$app_root/Arvectum Proxy Launcher.app"
+            /usr/bin/ditto               "$mount/Arvectum Proxy Launcher.app"               "$app_root/Arvectum Proxy Launcher.app"
             hdiutil detach "$mount"
-            trap - RETURN
             app="$app_root/Arvectum Proxy Launcher.app"
             file "$app/Contents/MacOS/Arvectum Proxy Launcher" | grep -q "$arch"
             ./tools/sign_macos_app.sh "$app"
-            ./tools/notarize_macos_app.sh "$app"
-            APL_MACOS_PACKAGE_ARCH="$arch" ./tools/build_macos_dmg.sh "$app" "$out_dir"
-            local dmg
-            dmg="$(find "$out_dir" -maxdepth 1 -type f -name '*.dmg' -print -quit)"
-            test -n "$dmg"
-            ./tools/notarize_macos_dmg.sh "$dmg"
-            codesign --verify --deep --strict "$app"
-            spctl -a -vv -t exec "$app"
-            spctl -a -vv -t open --context context:primary-signature "$dmg"
-            xcrun stapler validate "$app"
-            xcrun stapler validate "$dmg"
+            APL_MACOS_PACKAGE_ARCH="$arch"               ./tools/build_macos_dmg.sh "$app" "$out_dir"
           }
-          promote arm64 "$RUNNER_TEMP/apl-macos-cloud/arm64" production-macos/arm64
-          promote x86_64 "$RUNNER_TEMP/apl-macos-cloud/x86_64" production-macos/x86_64
+
+          prepare arm64 "$RUNNER_TEMP/apl-macos-cloud/arm64" production-macos/arm64
+          prepare x86_64 "$RUNNER_TEMP/apl-macos-cloud/x86_64" production-macos/x86_64
+
+      - name: Apple notarize and staple both DMGs
+        shell: bash
+        env:
+          APL_NOTARY_KEYCHAIN_PROFILE: ArvectumReleaseBot
+          DEVELOPER_DIR: /Applications/Xcode-26.6.0.app/Contents/Developer
+        run: |
+          set -euo pipefail
+          arm="$(find production-macos/arm64 -maxdepth 1 -type f -name '*.dmg' -print -quit)"
+          x64="$(find production-macos/x86_64 -maxdepth 1 -type f -name '*.dmg' -print -quit)"
+          test -n "$arm"
+          test -n "$x64"
+
+          set +e
+          ./tools/notarize_macos_dmg.sh "$arm" > production-macos/notary-arm64.log 2>&1 &
+          p_arm=$!
+          ./tools/notarize_macos_dmg.sh "$x64" > production-macos/notary-x86_64.log 2>&1 &
+          p_x64=$!
+          wait "$p_arm"; rc_arm=$?
+          wait "$p_x64"; rc_x64=$?
+          set -e
+
+          cat production-macos/notary-arm64.log
+          cat production-macos/notary-x86_64.log
+          test "$rc_arm" -eq 0
+          test "$rc_x64" -eq 0
+
+      - name: Verify final Gatekeeper trust
+        shell: bash
+        env:
+          DEVELOPER_DIR: /Applications/Xcode-26.6.0.app/Contents/Developer
+        run: |
+          set -euo pipefail
+          verify_dmg() {
+            local arch="$1" dmg="$2"
+            local mount="$RUNNER_TEMP/apl-final-mount-$arch"
+            codesign --verify --strict "$dmg"
+            spctl -a -vv -t open --context context:primary-signature "$dmg"
+            xcrun stapler validate "$dmg"
+            rm -rf "$mount"
+            mkdir -p "$mount"
+            hdiutil attach -nobrowse -readonly -mountpoint "$mount" "$dmg"
+            codesign --verify --deep --strict "$mount/Arvectum Proxy Launcher.app"
+            spctl -a -vv -t exec "$mount/Arvectum Proxy Launcher.app"
+            hdiutil detach "$mount"
+          }
+          arm="$(find production-macos/arm64 -maxdepth 1 -type f -name '*.dmg' -print -quit)"
+          x64="$(find production-macos/x86_64 -maxdepth 1 -type f -name '*.dmg' -print -quit)"
+          verify_dmg arm64 "$arm"
+          verify_dmg x86_64 "$x64"
 
       - name: Record production signing evidence
         shell: bash
@@ -185,8 +207,10 @@ jobs:
           {
             echo "source_sha=${{ steps.source.outputs.sha }}"
             echo "packaging_run_id=${{ steps.package.outputs.run_id }}"
-            echo "runner=arvectum-macmini-signing"
+            echo "runner_mode=ephemeral"
             echo "identity=Developer ID Application: LLC ARVECTUM (VML75VY94V)"
+            grep -h '^notary_submission_id=' production-macos/notary-*.log
+            grep -h '^notary_status=' production-macos/notary-*.log
             find production-macos -type f -name '*.dmg' -print0 | sort -z | xargs -0 shasum -a 256
           } > production-macos/SIGNING_EVIDENCE.txt
           cat production-macos/SIGNING_EVIDENCE.txt
@@ -210,4 +234,5 @@ jobs:
       - name: Remove downloaded cloud payloads
         if: always()
         shell: bash
-        run: rm -rf "$RUNNER_TEMP/apl-macos-cloud"
+        run: |
+          rm -rf "$RUNNER_TEMP/apl-macos-cloud"                  "$RUNNER_TEMP"/apl-cloud-mount-*                  "$RUNNER_TEMP"/apl-promote-*                  "$RUNNER_TEMP"/apl-final-mount-*

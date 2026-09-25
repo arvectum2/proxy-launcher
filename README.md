@@ -6,37 +6,39 @@ Arvectum Proxy Launcher is a cross-platform local client for safe system proxy/P
 
 ## Текущий релиз / Current release
 
-**0.2.10** — стабильный релиз для **Windows x64**, **Astra Linux 1.8 x86-64**, **RED OS 8.0.3 x86-64** и portable **Linux AppImage x86-64**.
+**0.2.15** — текущий опубликованный релиз для **Windows x64**, **Astra Linux 1.8 x86-64**, **RED OS 8.0.3 x86-64**, portable **Linux AppImage x86-64** и публичных macOS DMG (**Apple Silicon + Intel**).
 
-- Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.10
+- Canonical GitHub release: https://github.com/arvectum2/proxy-launcher/releases/tag/v0.2.15
 - Independent GitVerse mirror: https://gitverse.ru/arvectum/proxy-launcher/releases
-- Tag: `v0.2.10`
-- Full bilingual release notes: [docs/releases/0.2.10.md](docs/releases/0.2.10.md)
+- Tag: `v0.2.15`
+- Historical release page and immutable assets are on the canonical GitHub release.
 
 ### Release assets
 
 GitHub publishes the canonical package bytes under their original names:
 
-- `Arvectum-Proxy-Launcher-0.2.10-windows-x64-setup.exe`
-- `Arvectum-Proxy-Launcher-0.2.10-windows-x64-portable.zip`
-- `Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb`
-- `Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm`
-- `Arvectum_Proxy_Launcher-0.2.10-x86_64.AppImage`
+- `Arvectum-Proxy-Launcher-0.2.15-windows-x64-setup.exe`
+- `Arvectum-Proxy-Launcher-0.2.15-windows-x64-portable.zip`
+- `Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb`
+- `Arvectum-Proxy-Launcher-0.2.15-redos-linux-x86_64.rpm`
+- `Arvectum_Proxy_Launcher-0.2.15-x86_64.AppImage`
+- `Arvectum-Proxy-Launcher-0.2.15-macos-arm64.dmg`
+- `Arvectum-Proxy-Launcher-0.2.15-macos-x64.dmg`
 - `SHA256SUMS.txt`
 
-Verify all five packages against `SHA256SUMS.txt` before installation when provenance matters.
+Verify all seven packages against `SHA256SUMS.txt` before installation when provenance matters.
 
 ### macOS engineering status
 
-0.2.10 includes the verified macOS recovery/autostart and native Aqua UI changes in source. A public macOS DMG is intentionally not part of this release: the current local build is ad-hoc signed and Apple Developer ID signing/notarization remains a separate production-distribution gate.
+v0.2.15 is the last immutable release whose public macOS DMGs are ad-hoc signed/non-notarized. Starting with v0.2.16, canonical public macOS DMGs are promoted from exact-main Apple Silicon/Intel cloud packages through an Arvectum-controlled ephemeral Mac mini signing run, signed with Developer ID Application, notarized by Apple, stapled, and Gatekeeper-verified. v0.2.15 assets are never retrofitted or overwritten.
 
 ### Linux AppImage
 
 The portable x86_64 AppImage is now part of the canonical release set. Typical use after download:
 
 ```bash
-chmod +x Arvectum_Proxy_Launcher-0.2.10-x86_64.AppImage
-./Arvectum_Proxy_Launcher-0.2.10-x86_64.AppImage
+chmod +x Arvectum_Proxy_Launcher-0.2.15-x86_64.AppImage
+./Arvectum_Proxy_Launcher-0.2.15-x86_64.AppImage
 ```
 
 The AppImage is built from the same canonical Linux frozen executable as DEB/RPM and includes the pinned AppImage runtime notice and product third-party notices.
@@ -47,16 +49,16 @@ The AppImage is built from the same canonical Linux frozen executable as DEB/RPM
 
 ## Windows
 
-Для обычной установки скачайте `Arvectum-Proxy-Launcher-0.2.10-windows-x64-setup.exe` и запустите Setup. Windows может показать SmartScreen для неизвестного издателя: релиз 0.2.10 не заявляет Microsoft Authenticode-подпись. Отключать Defender, SmartScreen или Controlled Folder Access не требуется.
+Для обычной установки скачайте `Arvectum-Proxy-Launcher-0.2.15-windows-x64-setup.exe` и запустите Setup. Windows может показать SmartScreen для неизвестного издателя: релиз 0.2.15 не заявляет Microsoft Authenticode-подпись. Отключать Defender, SmartScreen или Controlled Folder Access не требуется.
 
-Приложение устанавливается для текущего пользователя в `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. Portable-вариант доступен как `Arvectum-Proxy-Launcher-0.2.10-windows-x64-portable.zip`.
+Приложение устанавливается для текущего пользователя в `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. Portable-вариант доступен как `Arvectum-Proxy-Launcher-0.2.15-windows-x64-portable.zip`.
 
 ## Astra Linux
 
-Пакет `Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb` предназначен для Astra Linux 1.8 x86-64 и Debian-совместимых систем с NetworkManager и GSettings (`libglib2.0-bin`). Установка:
+Пакет `Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb` предназначен для Astra Linux 1.8 x86-64 и Debian-совместимых систем с NetworkManager и GSettings (`libglib2.0-bin`). Установка:
 
 ```bash
-sudo apt install ./Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb
+sudo apt install ./Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb
 ```
 
 Запуск после установки:
@@ -65,11 +67,11 @@ sudo apt install ./Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb
 arvectum-proxy-launcher
 ```
 
-В 0.2.10 сохраняется исправленный в 0.2.6 путь **Firefox → «Использовать системные настройки прокси»** на Astra/Fly: Proxy Launcher публикует PAC не только через NetworkManager, но и в desktop GSettings, сохраняя rollback/recovery и защиту от чужих изменений.
+В 0.2.15 сохраняется исправленный в 0.2.6 путь **Firefox → «Использовать системные настройки прокси»** на Astra/Fly: Proxy Launcher публикует PAC не только через NetworkManager, но и в desktop GSettings, сохраняя rollback/recovery и защиту от чужих изменений.
 
 ## RED ОС
 
-Пакет `Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm` предназначен для RED OS 8.0.3 x86-64 / KDE Plasma. Установите его через системный пакетный менеджер с правами администратора.
+Пакет `Arvectum-Proxy-Launcher-0.2.15-redos-linux-x86_64.rpm` предназначен для RED OS 8.0.3 x86-64 / KDE Plasma. Установите его через системный пакетный менеджер с правами администратора.
 
 В интерфейсе RED ОС имеет отдельную подпись `Linux / RED OS`; Astra Linux остаётся `Linux / Astra Linux`.
 
@@ -77,11 +79,11 @@ arvectum-proxy-launcher
 
 GitVerse является независимым российским зеркалом публичного релиза. Из-за ограничений форматов release assets `.exe`, `.deb` и `.rpm` транспортируются там как детерминированные однофайловые `.zip`-обёртки. Внутри лежат исходные канонические файлы без изменения байтов; workflow зеркала повторно проверяет SHA-256 каждого payload после публичного скачивания.
 
-Для Astra Linux скачайте `Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb.zip`. Для RED ОС — `Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm.zip`. Распакуйте соответствующую однофайловую обёртку один раз и установите находящийся внутри пакет.
+Для Astra Linux скачайте `Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb.zip`. Для RED ОС — `Arvectum-Proxy-Launcher-0.2.15-redos-linux-x86_64.rpm.zip`. Распакуйте соответствующую однофайловую обёртку один раз и установите находящийся внутри пакет.
 
 ## Целостность и подпись
 
-`SHA256SUMS.txt` в релизе 0.2.10 покрывает Windows portable, Windows Setup, Astra Linux DEB, RED OS RPM и Linux AppImage. Российская detached CryptoPro/Rutoken-подпись, опубликованная для исторического релиза 0.2.5, не переносится автоматически на 0.2.9; этот релиз не заявляет такую подпись до отдельного owner-operated signing gate.
+`SHA256SUMS.txt` в релизе 0.2.15 покрывает Windows portable, Windows Setup, Astra Linux DEB, RED OS RPM, Linux AppImage и оба macOS DMG. Российская detached CryptoPro/Rutoken-подпись, опубликованная для исторического релиза 0.2.5, не переносится автоматически на 0.2.15; этот релиз не заявляет такую подпись до отдельного owner-operated signing gate.
 
 ---
 
@@ -89,16 +91,16 @@ GitVerse является независимым российским зерка
 
 ## Windows
 
-For a normal installation, download `Arvectum-Proxy-Launcher-0.2.10-windows-x64-setup.exe` and run Setup. Windows may show SmartScreen for an unrecognized publisher; release 0.2.10 does not claim Microsoft Authenticode signing. Defender, SmartScreen, and Controlled Folder Access do not need to be disabled.
+For a normal installation, download `Arvectum-Proxy-Launcher-0.2.15-windows-x64-setup.exe` and run Setup. Windows may show SmartScreen for an unrecognized publisher; release 0.2.15 does not claim Microsoft Authenticode signing. Defender, SmartScreen, and Controlled Folder Access do not need to be disabled.
 
-The application installs per-user under `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. A portable package is available as `Arvectum-Proxy-Launcher-0.2.10-windows-x64-portable.zip`.
+The application installs per-user under `%LOCALAPPDATA%\Programs\ArvectumProxyLauncher`. A portable package is available as `Arvectum-Proxy-Launcher-0.2.15-windows-x64-portable.zip`.
 
 ## Astra Linux
 
-`Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb` targets Astra Linux 1.8 x86-64 and compatible Debian-family systems with NetworkManager and GSettings (`libglib2.0-bin`). Install it with:
+`Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb` targets Astra Linux 1.8 x86-64 and compatible Debian-family systems with NetworkManager and GSettings (`libglib2.0-bin`). Install it with:
 
 ```bash
-sudo apt install ./Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb
+sudo apt install ./Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb
 ```
 
 Then launch:
@@ -107,11 +109,11 @@ Then launch:
 arvectum-proxy-launcher
 ```
 
-Version 0.2.10 retains the **Firefox → Use system proxy settings** fix introduced in 0.2.6 on Astra/Fly: Proxy Launcher publishes the PAC through both NetworkManager and desktop GSettings while preserving rollback/recovery and foreign-change protection.
+Version 0.2.15 retains the **Firefox → Use system proxy settings** fix introduced in 0.2.6 on Astra/Fly: Proxy Launcher publishes the PAC through both NetworkManager and desktop GSettings while preserving rollback/recovery and foreign-change protection.
 
 ## RED OS
 
-`Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm` targets RED OS 8.0.3 x86-64 / KDE Plasma. Install it through the system package manager with administrator rights.
+`Arvectum-Proxy-Launcher-0.2.15-redos-linux-x86_64.rpm` targets RED OS 8.0.3 x86-64 / KDE Plasma. Install it through the system package manager with administrator rights.
 
 RED OS has a distinct `Linux / RED OS` product signature; Astra Linux remains `Linux / Astra Linux`.
 
@@ -119,11 +121,11 @@ RED OS has a distinct `Linux / RED OS` product signature; Astra Linux remains `L
 
 GitVerse is maintained as an independent Russian release mirror. Because GitVerse restricts release-asset extensions, `.exe`, `.deb`, and `.rpm` payloads are transported in deterministic single-file `.zip` wrappers. The original canonical bytes remain unchanged and the mirror workflow re-verifies every canonical payload SHA-256 after public download.
 
-For Astra Linux, download `Arvectum-Proxy-Launcher-0.2.10-astra-linux-amd64.deb.zip`. For RED OS, download `Arvectum-Proxy-Launcher-0.2.10-redos-linux-x86_64.rpm.zip`. Extract the matching single-file wrapper once and install the enclosed package.
+For Astra Linux, download `Arvectum-Proxy-Launcher-0.2.15-astra-linux-amd64.deb.zip`. For RED OS, download `Arvectum-Proxy-Launcher-0.2.15-redos-linux-x86_64.rpm.zip`. Extract the matching single-file wrapper once and install the enclosed package.
 
 ## Integrity and signing
 
-Release 0.2.10 `SHA256SUMS.txt` covers the Windows portable ZIP, Windows Setup, Astra Linux DEB, RED OS RPM, and Linux AppImage. The detached CryptoPro/Rutoken signature published for historical release 0.2.5 is not implicitly carried forward; 0.2.9 does not claim that signature until a separate owner-operated signing gate is completed.
+Release 0.2.15 `SHA256SUMS.txt` covers the Windows portable ZIP, Windows Setup, Astra Linux DEB, RED OS RPM, Linux AppImage, and both macOS DMGs. The detached CryptoPro/Rutoken signature published for historical release 0.2.5 is not implicitly carried forward; 0.2.15 does not claim that signature until a separate owner-operated signing gate is completed.
 
 ## Build and test
 

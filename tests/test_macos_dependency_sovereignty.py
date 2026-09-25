@@ -9,8 +9,9 @@ class MacOSSovereigntyAuditContractTests(unittest.TestCase):
         for token in ('networksetup', 'LaunchAgents', 'hdiutil', 'GitHub macOS 15', 'PyPI', 'PyInstaller'):
             self.assertIn(token, AUDIT)
     def test_foreign_platform_constraint_is_not_hidden(self):
-        self.assertIn('CONDITIONAL PASS', AUDIT)
+        self.assertIn('RELEASE-TRUST DEPENDENCY RECORDED', AUDIT)
         self.assertIn('foreign platform', AUDIT)
+        self.assertIn('release-only external dependency', AUDIT)
         self.assertIn('APL-MAC-008', AUDIT)
     def test_self_hosted_replacement_path_exists(self):
         self.assertIn('self-hosted', AUDIT)

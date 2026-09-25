@@ -6,6 +6,7 @@ DMG_SCRIPT = (ROOT / "tools" / "build_macos_dmg.sh").read_text(encoding="utf-8")
 SIGN_APP_SCRIPT = (ROOT / "tools" / "sign_macos_app.sh").read_text(encoding="utf-8")
 APP_NOTARY_SCRIPT = (ROOT / "tools" / "notarize_macos_app.sh").read_text(encoding="utf-8")
 NOTARY_SCRIPT = (ROOT / "tools" / "notarize_macos_dmg.sh").read_text(encoding="utf-8")
+RUNNER_SCRIPT = (ROOT / "tools" / "run_macos_production_signing.sh").read_text(encoding="utf-8")
 
 
 class MacOSNotarizationContractTests(unittest.TestCase):
@@ -42,6 +43,16 @@ class MacOSNotarizationContractTests(unittest.TestCase):
         self.assertIn("APL_NOTARY_KEY_PATH", NOTARY_SCRIPT)
         self.assertIn("APL_NOTARY_KEY_ID", NOTARY_SCRIPT)
         self.assertIn("APL_NOTARY_ISSUER_ID", NOTARY_SCRIPT)
+
+    def test_ephemeral_runner_is_current_main_only_and_one_job(self):
+        self.assertIn("refusing non-current-main source", RUNNER_SCRIPT)
+        self.assertIn("--ephemeral", RUNNER_SCRIPT)
+        self.assertIn("registration-token", RUNNER_SCRIPT)
+        self.assertIn("remove-token", RUNNER_SCRIPT)
+        self.assertIn("runner_label", RUNNER_SCRIPT)
+        self.assertIn("--event workflow_dispatch", RUNNER_SCRIPT)
+        self.assertIn("gh workflow run macos-production-signing.yml", RUNNER_SCRIPT)
+
     def test_notary_staples_and_gatekeeper_checks_dmg(self):
         self.assertIn("xcrun stapler", NOTARY_SCRIPT)
         self.assertIn('staple "$dmg"', NOTARY_SCRIPT)

@@ -90,7 +90,7 @@ Close the remaining macOS functional acceptance boundary for the current system-
 - update/remove behavior without loss of user state or rollback ownership;
 - one real diagnostics/support bundle privacy review.
 
-Production Apple identity signing/notarization is intentionally outside this functional gate under the current Russian-first release policy.
+Production Apple identity signing/notarization was intentionally outside the historical APL-MAC-008 functional gate. It is now handled by a separate release-trust lane: Developer ID + Apple notarization may change distribution trust, but does not rewrite the already-closed functional acceptance record.
 
 ## Safety invariants
 

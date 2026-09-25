@@ -162,6 +162,10 @@ class ReleaseAutomationTests(unittest.TestCase):
             "macos-production-signing.yml/runs?head_sha=${{ github.sha }}",
             release,
         )
+        self.assertIn(
+            "macos-production-signing.yml/runs?head_sha=${{ github.sha }}&branch=main&event=workflow_dispatch",
+            release,
+        )
         self.assertIn("apl-mac-production-arm64", release)
         self.assertIn("apl-mac-production-x86_64", release)
         self.assertIn('sha256sum "$MACOS_ARM_NAME" >> SHA256SUMS.txt', release)
@@ -177,11 +181,15 @@ class ReleaseAutomationTests(unittest.TestCase):
     def test_release_evidence_requires_macos_packaging_and_production_signing(self):
         evidence = self.read(".github/workflows/release-evidence.yml")
         self.assertIn(
-            '"macos-packaging.yml|macOS packaging|required"',
+            '"macos-packaging.yml|macOS packaging|required|push"',
             evidence,
         )
         self.assertIn(
-            '"macos-production-signing.yml|macOS production signing|required"',
+            '"macos-production-signing.yml|macOS production signing|required|workflow_dispatch"',
+            evidence,
+        )
+        self.assertIn(
+            "github.event.workflow_run.event == 'workflow_dispatch'",
             evidence,
         )
 
