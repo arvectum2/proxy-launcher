@@ -53,6 +53,14 @@ class MacOSNotarizationContractTests(unittest.TestCase):
         self.assertIn("--event workflow_dispatch", RUNNER_SCRIPT)
         self.assertIn("gh workflow run macos-production-signing.yml", RUNNER_SCRIPT)
 
+    def test_macos_production_path_is_compatible_with_system_bash_3(self):
+        workflow = (ROOT / ".github" / "workflows" / "macos-production-signing.yml").read_text(encoding="utf-8")
+        self.assertNotIn("${source_sha,,}", RUNNER_SCRIPT)
+        self.assertNotIn("${SOURCE_SHA,,}", workflow)
+        self.assertNotIn("${GITHUB_SHA,,}", workflow)
+        self.assertIn("tr '[:upper:]' '[:lower:]'", RUNNER_SCRIPT)
+        self.assertIn("SOURCE_SHA_LOWER", workflow)
+
     def test_notary_staples_and_gatekeeper_checks_dmg(self):
         self.assertIn("xcrun stapler", NOTARY_SCRIPT)
         self.assertIn('staple "$dmg"', NOTARY_SCRIPT)
