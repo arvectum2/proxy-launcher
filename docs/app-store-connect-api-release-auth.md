@@ -34,8 +34,8 @@ Never commit, print, paste, or transmit the contents of the `.p8` file.
 6. Run:
    `tools/appstore_connect_release.sh auth`
 
-A successful provider listing proves API authentication without Apple ID,
-password, SMS code, or app-specific password.
+A successful `auth` command returns App Store Connect API HTTP 200 and proves
+authentication without Apple ID, password, SMS code, or app-specific password.
 
 ## Routine release commands
 

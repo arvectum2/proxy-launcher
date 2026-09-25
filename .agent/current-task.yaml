@@ -25,6 +25,7 @@ completed:
   - "PASS: live App Store Connect API auth returned HTTP 200 using Arvectum Release Bot, with no Apple ID password, SMS 2FA, or app-specific password."
   - "PASS: missing-config fail-closed check returns RC=2."
   - "PASS/EXPECTED: validate path reached Apple successfully with the persistent key; Apple returned only the expected duplicate-build 21 error because that exact IPA was already uploaded."
+  - "PASS: Reconciled this completed task with current main 5f1729b754bd8799e07e39c931559e3a5a9a25c4 without losing the prior iOS App Store publication checkpoint; prior task history is preserved under .agent/checkpoints/APL-IOS-APPSTORE-PUBLISH-20260925.yaml."
 current: "COMPLETED: Mac mini now has a persistent account-wide App Store Connect API release identity. Routine iOS/macOS API-supported release operations can use the local arvectum-appstore command without Apple Account SMS 2FA."
 pending: []
 last_verified_commit: "9564f3552407c9fcf6e2741a12fbf97dd08a8c51"
@@ -42,6 +43,6 @@ execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-APPSTORE-PERSISTENT-API-AUTH-20260925"
   branch: "chore/appstore-api-release-auth-20260925"
-  base_commit: "cb04dde158ef92482733827ccb5c56c374059703"
+  base_commit: "5f1729b754bd8799e07e39c931559e3a5a9a25c4"
   lease_until: null
   manual_override: true
