@@ -17,7 +17,11 @@ definition_of_done:
 completed:
   - "Apple Developer organization membership is already active for LLC ARVECTUM; Team ID VML75VY94V; user is Account Holder."
   - "Existing macOS APL bundle id is ru.arvectum.proxylauncher and current public macOS artifacts are ad-hoc signed/non-notarized."
-current: "Inspect Mac mini keychain for Developer ID Application identity/private key and available notarization credentials/tooling."
+  - "Mac mini signing identities verified: Apple Distribution: LLC ARVECTUM (VML75VY94V) and Apple Development: Nikita Arutyunov; no Developer ID Application identity yet."
+  - "Xcode 26.6.0 is installed at /Applications/Xcode-26.6.0.app; active xcode-select still points to CommandLineTools; notarytool 1.1.3 and stapler are available."
+  - "Authorized Safari developer.apple.com session verified and certificate creation page is open for team VML75VY94V."
+  - "Generated local RSA-2048 CSR/private key for Developer ID Application under ~/Library/Application Support/Arvectum/Signing with directory mode 700/key mode 600."
+current: "Developer ID Application identity is absent; CSR/private key generated locally on Mac mini and Apple Developer certificate issuance is in progress through the authorized Safari session."
 pending:
   - "If Developer ID Application identity is missing, create it using the existing authorized Apple Developer session on Mac mini."
   - "Implement production signing/notarization pipeline and entitlements."
