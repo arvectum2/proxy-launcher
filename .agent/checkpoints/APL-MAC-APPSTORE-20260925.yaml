@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-APPSTORE-20260925
-status: in_progress
+status: blocked
 goal: "Prepare and publish Arvectum Proxy Launcher 0.2.17 for the Mac App Store using the existing LLC ARVECTUM Apple Developer/App Store Connect organization, without regressing the published v0.2.16 Developer ID distribution."
 authority: HUMAN
 definition_of_done:
@@ -32,7 +32,7 @@ completed:
   - "Physical app launch on Mac mini PASS; process starts from signed Debug Catalyst bundle."
   - "App Store Connect app record exists for bundle ru.arvectum.proxylauncher.macos: Apple ID 6816223569."
   - "Canonical persistent Arvectum Release Bot credential remains in use; no new API key was created."
-current: "Reconcile with current main, produce exact-commit Release archive/export package, then validate/upload to App Store Connect."
+current: "SUPERSEDED: canonical continuation moved to APL-MAC-APPSTORE-PUBLISH-20260925."
 pending:
   - "Complete physical Help menu interaction check; current System Events UI automation is blocked waiting on macOS Accessibility/Automation permission."
   - "Complete physical Packet Tunnel connection smoke using a safe test profile without altering the direct v0.2.16 networksetup lane."
@@ -45,8 +45,8 @@ test_results:
   - "2026-09-25 signed ARM64 Debug Mac Catalyst xcodebuild: BUILD SUCCEEDED."
   - "2026-09-25 codesign deep/strict verification: PASS for app + embedded PacketTunnel."
   - "2026-09-25 physical app launch: PASS."
-blocker: "No release blocker yet. Full GUI Help click automation currently lacks macOS Accessibility/Automation permission; tunnel smoke still needs a safe profile."
-resume_instruction: "Finish the merge with current main while keeping this task state. Re-run tests/build on the merge commit, archive/export Mac App Store 0.2.17 build 1 with the four existing profiles, validate/upload via Arvectum Release Bot, then complete metadata. Do not modify or retag v0.2.16."
+blocker: "Superseded by .agent/current-task.yaml task APL-MAC-APPSTORE-PUBLISH-20260925; do not resume this historical task ID."
+resume_instruction: "Do not resume this historical task ID. Read .agent/current-task.yaml and continue APL-MAC-APPSTORE-PUBLISH-20260925."
 updated_at: "2026-09-25T22:36:00+03:00"
 execution:
   claimed_by: "chatgpt"
