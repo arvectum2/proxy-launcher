@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
         run: brew install xcodegen
-      - name: Fetch pinned tun2proxy XCFramework
+      - name: Build pinned patched tun2proxy XCFramework
         run: python3 mobile/ios/Tools/fetch_tun2proxy.py
       - name: Generate Xcode project
         run: xcodegen generate --spec mobile/ios/project.yml

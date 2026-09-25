@@ -140,14 +140,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let exclusions = try resolveExclusions(for: prepared)
         let settings = networkSettings(excludedAddresses: exclusions)
         try await setSettings(settings)
-        #if DEBUG
-        telemetry.append(TunnelEvent(
-            type: "debug exclusions applied",
-            profileName: prepared.storedProfile.name,
-            detail: "entries=\(store?.siteExclusions.count ?? 0) routes=\(exclusions.count)"
-        ))
-        #endif
-
         guard let tunFD = tunnelFileDescriptor(forAddress: "192.0.2.1"), tunFD >= 0 else {
             throw tunnelError("Не удалось получить файловый дескриптор Packet Tunnel")
         }
@@ -275,6 +267,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             .filter { $0.contains(":") }
             .map { NEIPv6Route(destinationAddress: $0, networkPrefixLength: 128) }
         settings.ipv6Settings = ipv6
+
+        // Route DNS resolution through the packet tunnel. Without an explicit
+        // tunnel resolver, iOS can mark URLSession paths unsatisfied once the
+        // default route is captured by the VPN.
+        let dns = NEDNSSettings(servers: ["1.1.1.1", "8.8.8.8"])
+        dns.matchDomains = [""]
+        settings.dnsSettings = dns
+
         return settings
     }
 

@@ -8,7 +8,7 @@ This target follows the accepted Android 0.1.19 scope and intentionally does not
 - multiple proxy profiles with Auto, HTTP/HTTPS CONNECT and SOCKS5 transport selection;
 - credentials in the shared Keychain, profile metadata in the App Group;
 - NETunnelProviderManager + NEPacketTunnelProvider;
-- pinned tun2proxy v0.8.3 iOS XCFramework, fetched with SHA-256 verification;
+- pinned tun2proxy v0.8.3 iOS integration: upstream XCFramework layout is SHA-256 verified, while the static library is rebuilt from pinned source/Cargo.lock with the Arvectum iOS live-restart patch (upstream forced process exit disabled);
 - Auto pool ordering, health checks, failover and optional return to the primary proxy;
 - exact host/IP site exclusions, up to 32 entries, using packet-tunnel excluded routes;
 - pool/tunnel journal;
@@ -24,9 +24,11 @@ Run these commands from the repository root:
     xcodegen generate --spec mobile/ios/project.yml
     open mobile/ios/ArvectumProxyLauncherIOS.xcodeproj
 
+The fetch/build tool requires rustup/Cargo and a full Xcode installation. It pins the Rust toolchain and tun2proxy source commit, installs the iOS Rust target, applies exactly one guarded patch to general_api.rs, and records the resulting library SHA-256 in Frameworks/.tun2proxy-version.
+
 ## Personal-device signing
 
-A full Xcode installation and an Apple Developer team with the Network Extensions capability are required for a real-device build. Configure the same team for both ArvectumProxyLauncher and PacketTunnel; keep the existing App Group, Keychain sharing and Network Extension entitlements unchanged. With automatic signing enabled, Xcode can create/update the matching development profiles and install the app on a connected trusted iPhone.
+A full Xcode installation and an Apple Developer team with the Network Extensions capability are required for a real-device build. Configure the same team for both ArvectumProxyLauncher and PacketTunnel; keep the existing App Group, Keychain sharing and Network Extension entitlements unchanged. This repository currently uses manual signing for Debug and Release so builds can use the checked project settings without an Apple Account logged into Xcode; certificates and provisioning profiles remain local and must never be committed.
 
 Bundle IDs:
 
