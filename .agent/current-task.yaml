@@ -1,32 +1,39 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-APPSTORE-PERSISTENT-API-AUTH-20260925
-status: in_progress
+status: blocked
 goal: "Configure a persistent App Store Connect API-key release workflow on the Mac mini so routine iOS/macOS uploads do not depend on Apple Account SMS 2FA."
 authority: HUMAN
 definition_of_done:
-  - "Existing active App Store Connect Team key APL Publish 2026-09-25 (App Manager) is downloaded exactly once and stored only on the Mac mini in a protected local path."
+  - "A persistent App Store Connect Team key named APL Release Bot with App Manager access is created, downloaded exactly once, and stored only on the Mac mini in a protected local path."
   - "Private key file permissions are restrictive and key contents are never printed, committed, or sent through chat."
   - "App Store Connect API authentication succeeds using the persistent key without Apple Account password, SMS 2FA, or app-specific password."
-  - "A reusable local release wrapper supports at least provider/auth check, validate, and upload operations for future iOS/macOS artifacts."
+  - "A reusable release wrapper supports provider/auth check, validate, and upload operations for future iOS/macOS artifacts."
   - "Operational documentation states what API auth can replace and what account/legal actions may still require interactive Apple Account access."
   - "Relevant self-checks pass and the final checkpoint records paths, non-secret identifiers, verification results, and exact resume instructions."
 completed:
   - "Prior iOS 0.1.19 build 21 release proved App Store Connect API-key upload works end-to-end; temporary upload key was revoked after submission."
-current: "Inspect existing APL Publish 2026-09-25 App Manager key, download its .p8 once, secure it locally, and establish reusable release tooling."
+  - "Verified App Store Connect API page: Active (0). Both prior keys, APL Publish 2026-09-25 (App Manager) and APL Upload 2026-09-25 (Developer), are already revoked; the APL Publish .p8 can no longer be downloaded."
+  - "Added tools/appstore_connect_release.sh with auth, validate, upload, and doctor commands; it reads only local config/private-key material and never embeds credentials."
+  - "Added docs/app-store-connect-api-release-auth.md describing persistent Team-key storage, routine release commands, rotation policy, and the boundary where Apple Account 2FA can still be required."
+  - "PASS: zsh syntax check for release wrapper."
+  - "PASS: missing-config fail-closed check returns RC=2 with no secret output."
+  - "PASS: git diff --check for new tooling/documentation."
+current: "Sensitive credential creation is the only blocker. RDC security policy blocks automated generation of a new App Store Connect private API key. Owner must create/download APL Release Bot in the already-open App Store Connect UI; all remaining local setup can then be completed autonomously."
 pending:
-  - "Verify the active key is downloadable and download the .p8 without exposing its contents."
-  - "Move the key into ~/.appstoreconnect/private_keys with mode 600 and create non-secret local release configuration."
-  - "Create reusable local release wrapper for auth/provider check, validate, and upload."
-  - "Run a non-destructive authentication/provider check and wrapper self-check."
-  - "Document the persistent release-auth workflow and security/2FA boundaries in the repository."
-  - "Run final checks, commit/push changes through PR as required by protected main, then mark checkpoint completed."
+  - "Owner creates Team API key APL Release Bot with App Manager access in App Store Connect and downloads its .p8 to the Mac mini Downloads folder. Do not open or paste its contents."
+  - "Move the downloaded key to ~/.appstoreconnect/private_keys with mode 600 and create ~/.config/arvectum/appstore-connect.env with the non-secret Key ID, Issuer ID, and Xcode path."
+  - "Install the release wrapper into a stable local command path and run doctor plus non-destructive auth/provider check."
+  - "Update both canonical/history checkpoints to completed, commit/push, open protected-main PR, wait for required build check, and merge."
 last_verified_commit: "cb04dde158ef92482733827ccb5c56c374059703"
 test_results:
   - "Previous App Store API-key validation/upload: PASS for iOS 0.1.19 build 21."
-blocker: "None. Existing App Store Connect browser session is authenticated and the APL Publish key is active."
-resume_instruction: "Continue by opening App Store Connect Users and Access > Integrations > App Store Connect API, locate APL Publish 2026-09-25, download its .p8 once, secure it locally, then build and test the persistent release wrapper without printing secret material."
-updated_at: "2026-09-25T16:58:00+03:00"
+  - "2026-09-25 wrapper zsh -n: PASS."
+  - "2026-09-25 missing-config fail-closed: PASS (RC=2)."
+  - "2026-09-25 git diff --check: PASS."
+blocker: "HUMAN SECURITY GATE: RDC refuses automated generation of a new private App Store Connect API credential. Existing prior keys are revoked and cannot be downloaded. Owner must perform the one-time Generate API Key + Download action in the authenticated App Store Connect page."
+resume_instruction: "When owner says the new key was downloaded, first locate the newest AuthKey_*.p8 in ~/Downloads without printing its contents. Read the App Store Connect API page to obtain the new key ID and current Issuer ID. Move the file to ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8, chmod directories 700 and file 600, write ~/.config/arvectum/appstore-connect.env (mode 600) with ASC_KEY_ID, ASC_ISSUER_ID, ASC_XCODE=/Applications/Xcode-26.6.0.app, install/copy tools/appstore_connect_release.sh to ~/.local/bin/arvectum-appstore, run doctor and auth, then complete checkpoint and merge the tooling/docs PR after required build passes."
+updated_at: "2026-09-25T17:08:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-APPSTORE-PERSISTENT-API-AUTH-20260925"
