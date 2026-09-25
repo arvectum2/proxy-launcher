@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPSTORE-PUBLISH-20260925
-status: in_progress
+status: blocked
 goal: "Prepare and publish Arvectum Proxy Launcher iOS 0.1.19 to Apple App Store through LLC ARVECTUM."
 authority: HUMAN
 definition_of_done:
@@ -28,7 +28,7 @@ completed:
   - "PASS: final Apple Distribution archive/export 0.1.19 (21) from merged main succeeded; app/appex signatures, entitlements, privacy manifests and forced-exit sentinel checks pass."
   - "PASS: final IPA persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa; SHA-256 dd2c7911a019848782193143d302b59a355d1c31cd566dd5148af6b6cf94db38."
   - "PASS: two real-device App Store screenshots prepared at 1290x2796 under the release artifact screenshots/ directory."\n  - "PASS: authenticated App Store Connect session verified; created iOS app record for ru.arvectum.proxylauncher.ios with Apple ID 6816013574, SKU APL-IOS-001, primary language Russian and Full Access."\n  - "PASS: App Store version changed from default 1.0 to 0.1.19; Russian promotional text, description, keywords, support/marketing URLs, copyright and English App Review notes saved; review sign-in requirement disabled."\n  - "PASS: App Information subtitle set to Прокси одним нажатием, primary category Utilities, secondary category Productivity, and Content Rights set to no third-party content."\n  - "PASS: Age Rating questionnaire answered no/none for all app capabilities/content; App Store Connect calculated 4+ at the final step. Final modal save still needs explicit re-verification because navigation occurred while its Save control was disabled."\n  - "Prepared App Store-compatible 1284x2778 derivatives of both accepted real-device screenshots. Native Safari file-picker automation is not available through current Accessibility permissions, so upload remains pending."\n  - "Confirmed Xcode 26.6 direct altool is available and can upload the final IPA, but Xcode has no signed-in Apple account, no App Store Connect API key is configured, API access is not enabled, and no reusable Transporter session exists; build upload therefore still needs a safe local authentication path."
-current: "App Store Connect record 6816013574 exists and core version/App Information metadata is populated. Remaining executable publication work is App Privacy, final age-rating save verification, pricing/availability, screenshots and build upload. Safari JavaScript-from-Apple-Events control became unreliable after the age-rating workflow; do not restart Safari or rebuild the IPA merely to work around UI automation."
+current: "App Store Connect app 6816013574 is created and core version/App Information metadata is populated. Publication is paused at a HUMAN UI gate because Safari now blocks JavaScript-from-Apple-Events globally; targeted file-picker and WebKit process termination did not restore the channel. Do not force-quit Safari from automation because it also hosts the current ChatGPT session."
 pending:
   - "After login, verify Business agreements and create/configure the iOS app record for ru.arvectum.proxylauncher.ios."
   - "Populate metadata, screenshots, App Privacy=no data collected, category/age rating, review notes, support/privacy URLs and availability."
@@ -36,9 +36,9 @@ pending:
 last_verified_commit: "2a743a4aa25f26d5e9a01868d1a557b0ecafd3a1"
 test_results:
   - "Prior final iOS acceptance: physical PASS; exact-head CI run 36111899870 core-tests SUCCESS and unsigned-device-build SUCCESS."
-blocker: "PARTIAL UI/AUTH GATE: App Store Connect metadata can continue, but native screenshot file selection is not controllable with current macOS Accessibility permissions and binary upload has no authenticated Xcode/altool/API channel yet. Do not request or transmit Apple passwords, 2FA codes, or app-specific passwords in chat."
-resume_instruction: "Resume from App Store Connect app 6816013574. First re-verify App Information saved state and final 4+ age-rating save, then complete App Privacy and Pricing/Availability. Use the prepared 1284x2778 screenshots. For build 21 upload, reuse the verified IPA at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa and establish authentication only locally (prefer Xcode sign-in or Keychain/API key); never ask for credentials in chat. Do not rebuild unless Apple reports a concrete binary issue."
-updated_at: "2026-09-25T12:39:06.792+03:00"
+blocker: "HUMAN UI GATE: manually quit and reopen Safari on the Mac mini, then reopen/confirm the authenticated App Store Connect session. This is required to clear Safari Apple Events without risking the current chat. After that, automation can resume App Privacy/age-rating/pricing/screenshots. A second later gate will be safe local authentication for altool build upload; never send Apple passwords, 2FA codes, or app-specific passwords in chat."
+resume_instruction: "After the owner manually restarts Safari and confirms App Store Connect is open/authenticated, immediately resume app 6816013574. Re-open App Information and confirm/save 4+ age rating, then complete App Privacy=no data collected/no tracking with https://arvectum2.github.io/proxy-launcher/privacy.html, Pricing/Availability and screenshots. Use the prepared 1284x2778 screenshots. Then establish build-upload authentication locally only and upload verified build 21 IPA from /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa. Do not rebuild unless Apple reports a concrete binary issue."
+updated_at: "2026-09-25T12:45:41.880+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-PUBLISH-20260925"
