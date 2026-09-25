@@ -32,3 +32,7 @@ mobile/ios/Frameworks/.tun2proxy-version
 free_gateway/.env
 free_gateway/gateway.env
 free_gateway/*.secrets.env
+mobile/macos-appstore/.build/
+mobile/macos-appstore/DerivedData/
+mobile/macos-appstore/Frameworks/tun2proxy.xcframework/
+mobile/macos-appstore/Frameworks/.tun2proxy-version
