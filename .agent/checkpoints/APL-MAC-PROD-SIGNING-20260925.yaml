@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-PROD-SIGNING-20260925
-status: in_progress
+status: blocked
 goal: "Convert the existing macOS APL packaging from ad-hoc beta signing to production Developer ID signing and Apple notarization, without changing application behavior, then validate a production-signed/notarized macOS build and prepare the release pipeline."
 authority: HUMAN
 definition_of_done:
@@ -21,17 +21,22 @@ completed:
   - "Xcode 26.6.0 is installed at /Applications/Xcode-26.6.0.app; active xcode-select still points to CommandLineTools; notarytool 1.1.3 and stapler are available."
   - "Authorized Safari developer.apple.com session verified and certificate creation page is open for team VML75VY94V."
   - "Generated local RSA-2048 CSR/private key for Developer ID Application under ~/Library/Application Support/Arvectum/Signing with directory mode 700/key mode 600."
-current: "Developer ID Application identity is absent; CSR/private key generated locally on Mac mini and Apple Developer certificate issuance is in progress through the authorized Safari session."
+  - "Apple Developer portal issued Developer ID Application certificate ID 9FLDNH6XLJ for LLC ARVECTUM, G2 Sub-CA, expiration 2031-09-17."
+  - "Downloaded certificate SHA-256 176760f7e320c0680456b453756d3213a17bb5091b8ea4098150ca65db8d035c and imported certificate + matching private key into login keychain."
+  - "security find-identity now reports Developer ID Application: LLC ARVECTUM (VML75VY94V), identity hash 5B38CC439BD64D9E0DFF724B4E08E25E48DB1C51."
+  - "Private-key source PEM removed after import."
+current: "Blocked only on the one-time macOS Keychain authorization dialog for codesign access to the newly imported Developer ID private key."
 pending:
-  - "If Developer ID Application identity is missing, create it using the existing authorized Apple Developer session on Mac mini."
-  - "Implement production signing/notarization pipeline and entitlements."
-  - "Build/notarize/staple/verify ARM64 candidate."
-  - "Run regression/package tests and open PR."
+  - "User clicks Always Allow in the Mac mini Keychain/codesign authorization dialog and enters the login password if requested."
+  - "Verify timestamped Hardened Runtime Developer ID signature smoke test."
+  - "Implement production signing/notarization/stapling pipeline and CI-safe secret handling."
+  - "Build, notarize, staple and Gatekeeper-verify ARM64 production candidate."
+  - "Run package/regression tests and open/merge PR."
 last_verified_commit: "4479103e1a39783fa64e76fce5472de61544ad39"
 test_results:
   - "v0.2.15 release and prior macOS physical acceptance complete; this signing task starts from current main."
-resume_instruction: "Inspect signing identities and notarization tooling on Mac mini first. Do not repeat Apple Developer enrollment. If Developer ID Application with private key exists, proceed directly to pipeline implementation. If missing, use the already-authorized developer.apple.com Safari session to create it, then continue."
-updated_at: "2026-09-25T11:27:00+03:00"
+resume_instruction: "Developer ID Application certificate/private key is installed and visible as a valid codesigning identity. A live codesign --timestamp smoke process is waiting on the first Keychain authorization prompt. After the user clicks Always Allow, read process 68279 output. If it succeeds, proceed directly to production signing/notarization implementation; do not recreate the certificate."
+updated_at: "2026-09-25T11:39:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-macos-prod-signing"
