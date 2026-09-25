@@ -80,6 +80,7 @@ jobs:
             "linux-deb.yml|APL-LNX-007 Debian package|required"
             "linux-rpm.yml|APL-REG-001C RED OS RPM|required"
             "macos-packaging.yml|macOS packaging|required"
+            "macos-production-signing.yml|macOS production signing|required"
             "secret-scan.yml|Secret scan|optional"
             "dependency-scan.yml|Dependency vulnerability scan|optional"
             "sbom.yml|SBOM|required"

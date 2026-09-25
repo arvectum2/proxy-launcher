@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-PROD-SIGNING-20260925
-status: blocked
+status: in_progress
 goal: "Convert the existing macOS APL packaging from ad-hoc beta signing to production Developer ID signing and Apple notarization, without changing application behavior, then validate a production-signed/notarized macOS build and prepare the release pipeline."
 authority: HUMAN
 definition_of_done:
@@ -35,18 +35,29 @@ completed:
   - "App Store Connect session is authenticated but requires first-time App Store Connect Terms of Service acceptance before API-key management; Apple Account site is not separately signed in."
   - "User accepted the first-time App Store Connect Terms of Service; authenticated session now opens Users and Access."
   - "App Store Connect API is not yet enabled for the organization: Request Access presents a separate internal-use-only API agreement checkbox + Submit."
-current: "Blocked only on explicit user approval for the separate App Store Connect API internal-use agreement shown by Request Access."
+  - "User explicitly approved the App Store Connect API internal-use agreement; Request Access was submitted and approved immediately for LLC ARVECTUM."
+  - "Canonical Arvectum Release Bot credential recovered and reused: local p8 under ~/.appstoreconnect/private_keys, 0600 canonical env under ~/.config/arvectum/appstore-connect.env; no new API key created and no secret values exposed."
+  - "notarytool Keychain profile ArvectumReleaseBot created from the canonical release credential and validated successfully by Apple."
+  - "First Developer-ID-signed ARM64 DMG submitted to Apple Notary Service as d59a95a2-9bf0-48d3-a3d1-5b5bd9e42f16; current Apple status In Progress. No duplicate submission started."
+  - "Registered repository self-hosted runner arvectum-macmini-signing (runner id 21) with labels self-hosted, macOS, ARM64, apl-signing; launch agent is online and Listening for Jobs."
+  - "Production signing design keeps Developer ID private key and Arvectum Release Bot credential only on the Mac mini; no signing private key was exported to GitHub/cloud secrets."
+  - "Implemented exact-main macOS production promotion workflow: cloud ARM64/Intel DMGs -> extract app from DMG -> Developer ID sign -> app notarize/staple -> rebuild/sign architecture DMG -> DMG notarize/staple -> Gatekeeper -> production artifacts."
+  - "Release workflow now requires exact-SHA macOS production-signing success and publishes only notarized macOS production artifacts; release-evidence now requires both macOS cloud packaging and production signing."
+  - "RELEASE_POLICY updated from macOS beta/Open Anyway to canonical Developer ID + Apple notarization distribution."
+  - "macOS local discovery PASS 83/83 after app signer/notary additions; signing/release focused contracts PASS 44/44; modified workflow YAML parses successfully."
+current: "Apple Notary Service is processing first signed ARM64 DMG submission d59a95a2-9bf0-48d3-a3d1-5b5bd9e42f16; production signing runner/workflow and release gates are implemented locally."
 pending:
-  - "User explicitly authorizes checking the App Store Connect API internal-use-only agreement and submitting Request Access for LLC ARVECTUM."
-  - "After access is granted, create a least-privilege API key for notarization and store it securely on Mac mini."
-  - "Run notarytool on the production-signed DMG, staple it, and verify Gatekeeper acceptance."
-  - "Add CI secret import/notarization path for release builds while retaining ad-hoc non-secret PR builds."
-  - "Run package/full regression tests and open/merge PR; do not mutate immutable v0.2.15."
-last_verified_commit: "4479103e1a39783fa64e76fce5472de61544ad39"
+  - "Wait for the existing Apple submission to reach Accepted; do not submit a duplicate."
+  - "After Accepted, complete staple + Gatekeeper verification and run local app notarization so both app and DMG trust paths are proven."
+  - "Update stale macOS packaging/roadmap documentation to reflect production signing activation."
+  - "Run full relevant regression, commit/push signing infrastructure, and open PR."
+  - "After merge, verify exact-main cloud packaging plus self-hosted macOS production-signing workflow for both ARM64 and Intel."
+  - "Publish a new immutable v0.2.16 release only after the exact-main production signing/evidence gates are green; never mutate v0.2.15."
+last_verified_commit: "083772e0a513230f48df828ddd20765e703e41bb"
 test_results:
   - "v0.2.15 release and prior macOS physical acceptance complete; this signing task starts from current main."
-resume_instruction: "Production Developer ID signing is complete and macOS tests pass. App Store Connect general Terms were accepted, but Request Access to the App Store Connect API now shows a separate agreement restricting use to internal development/testing/reporting. Wait for explicit user approval before checking that box and submitting. Then create a notarization API key, notarize/staple/Gatekeeper-verify the existing production-signed DMG, and finish CI/PR."
-updated_at: "2026-09-25T12:17:00+03:00"
+resume_instruction: "Continue polling the single Apple notarization submission d59a95a2-9bf0-48d3-a3d1-5b5bd9e42f16 via ArvectumReleaseBot; do not duplicate it. Production signing credentials stay local on the online arvectum-macmini-signing runner. Once Apple returns Accepted, verify staple/Gatekeeper, then notarize/staple the app, finish docs/tests/PR, merge, prove exact-main ARM64+Intel production workflow, and only then create v0.2.16."
+updated_at: "2026-09-25T17:58:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-macos-prod-signing"

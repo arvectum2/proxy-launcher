@@ -6,7 +6,11 @@ cd "$repo_root"
 app="${1:-dist/Arvectum Proxy Launcher.app}"
 [[ -d "$app" ]] || { echo "Missing .app bundle: $app" >&2; exit 2; }
 version="$(tr -d '[:space:]' < VERSION)"
-arch="$(uname -m)"
+arch="${APL_MACOS_PACKAGE_ARCH:-$(uname -m)}"
+[[ "$arch" == "arm64" || "$arch" == "x86_64" ]] || {
+  echo "APL-MAC-013: unsupported package architecture label: $arch" >&2
+  exit 4
+}
 out_dir="${2:-dist/dmg}"
 mkdir -p "$out_dir"
 stage="$(mktemp -d)"; trap 'rm -rf "$stage"' EXIT
