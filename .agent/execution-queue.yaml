@@ -227,22 +227,21 @@ items:
     evidence: "Plan remains: public ads-enabled GitHub/GitVerse/site/RuStore channel plus private no-ads build from one codebase; Yandex Mobile Ads/App Open is the initial target."
 
   - order: 130
-    task_id: APL-IOS-LATER-STAGE
-    title: "iOS personal-use parity baseline"
-    status: blocked
+    task_id: APL-IOS-APPSTORE-PUBLISH-20260925
+    title: "iOS 0.1.19 App Store publication"
+    status: in_progress
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P11; issue #50; draft PR #135"
+    source: ".agent/current-task.yaml; PR #135; Owner directive 2026-09-25"
     dependencies:
-      - APL-MOB-002-ANDROID-FAILOVER
-    blocker: "Draft engineering baseline exists, but full Xcode/XCTest/device build, Apple signing/provisioning and physical iPhone install remain HUMAN gates."
-    owner_gate: "Personal signing/install only unless a separate App Store/public-distribution decision is made. No certificates or provisioning profiles may be committed."
-    executor_scope: "May rebase/maintain the SwiftUI/Packet Tunnel code and unsigned CI. Do not create App Store commitments, use Owner signing identities autonomously, or claim physical iPhone acceptance."
+      - APL-MOB-003-SITE-EXCLUSIONS-20260919
+    owner_gate: "App Store submission is explicitly authorized by the Owner. Apple review/territory/legal responses remain subject to Apple and applicable-law requirements."
+    executor_scope: "Prepare and submit the physically accepted iOS 0.1.19 build through LLC ARVECTUM. Preserve no-data-collection privacy truth, no ads/analytics in this release, and no per-app routing."
     active_pr: 135
-    evidence: "Draft PR #135 implements a personal-use SwiftUI/NetworkExtension parity baseline from Android 0.1.19 semantics. Local plutil/XcodeGen/Swift parse/core checks PASS; branch is stale against current main and physical signing/install is not complete."
+    evidence: "Physical iPhone acceptance PASS; Apple Organization team VML75VY94V active; distribution certificate/profiles ready; App Store privacy/review preparation and build 21 are in progress."
 
-repository_hygiene:repository_hygiene:
+repository_hygiene:
   superseded_open_prs:
     - 81
     - 103
