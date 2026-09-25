@@ -13,17 +13,26 @@ definition_of_done:
   - ".agent/execution-queue.yaml exposes a ready Mac App Store 0.2.17 item that the next chat can select."
   - "Stale macOS production-signing queue status is reconciled to completed v0.2.16 evidence."
   - "Roadmap/backlog/queue YAML/text validate and changes are merged to main."
-completed: []
-current: "Create the canonical roadmap/backlog/queue entry for Mac App Store 0.2.17 and Help UX."
+completed:
+  - "docs/ROADMAP.md now defines Mac App Store 0.2.17 as an Owner-directed separate distribution lane and preserves immutable/direct v0.2.16."
+  - "Roadmap makes offline Help UX mandatory before first Mac App Store submission, including Getting Started, status, proxy formats, troubleshooting, About & Privacy, version/company footer, GitHub/latest Release Notes/report links, and channel-aware update behavior."
+  - "docs/LOCAL_EXECUTION_BACKLOG.md P9A records detailed acceptance criteria including elimination of the macOS no-help system response and offline usability."
+  - ".agent/execution-queue.yaml baseline reconciled to v0.2.16 and APL-MAC-PRODUCTION-DISTRIBUTION marked done."
+  - "Ready execution item APL-MAC-APPSTORE-PUBLISH-20260925 added at order 135 for the separate Mac App Store chat."
+  - "execution-queue YAML parse PASS; git diff --check PASS."
+
+current: "Roadmap/backlog/execution-queue changes are validated; commit and PR/merge remain."
 pending:
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md with detailed Help UX acceptance scope."
-  - "Update .agent/execution-queue.yaml with current v0.2.16 baseline, completed macOS signing item, and ready Mac App Store item."
-  - "Validate, commit, PR, merge, and mark this roadmap-update task completed."
+  - "Commit and push the canonical planning changes."
+  - "Open PR, wait for required CI, merge to main."
+  - "After merge, mark this roadmap-update checkpoint completed on main."
 last_verified_commit: "e843ab54b596eea622494fb3283af881e71826a8"
-test_results: []
-resume_instruction: "Synchronize only the macOS/App Store-related roadmap/backlog/queue state. Add a ready APL-MAC-APPSTORE-PUBLISH-20260925 workstream for 0.2.17 with mandatory offline Help UX and channel-aware updates; preserve immutable v0.2.16 and current iOS work."
-updated_at: "2026-09-25T21:05:00+03:00"
+test_results:
+  - "execution-queue YAML parse PASS."
+  - "git diff --check PASS."
+
+resume_instruction: "Planning content is complete and validated. Commit/push roadmap + P9A backlog + execution queue, open/merge PR after green CI, then close this roadmap-update checkpoint. The future task to be selected by the Mac App Store chat is APL-MAC-APPSTORE-PUBLISH-20260925."
+updated_at: "2026-09-25T21:12:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-roadmap-mac-appstore-help"
