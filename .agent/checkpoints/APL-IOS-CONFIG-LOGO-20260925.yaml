@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: blocked
+status: in_progress
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -43,16 +43,16 @@ completed:
   - "PASS: production commit f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a pushed."
   - "PASS: clean signed production Debug artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-virtual-dns-fix/ and installed/launched on iPhone."
   - "CI partial: exact-head run 36110301163 core-tests SUCCESS; unsigned-device-build still in progress at checkpoint update."
-current: "Production fix committed/pushed at f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a and clean signed build is installed/launched on iPhone. Root cause is virtual-DNS hostname preservation: physical diagnostic on the same device/profile changed only over-tcp -> virtual and converted both HTTPS probes from NSURLError -1200 to HTTP 200. Local tests/build/signing are green. Exact-head GitHub Mobile iOS personal run 36110301163 has core-tests SUCCESS; unsigned-device-build is still running. Remaining external confirmation: Owner taps connect in the clean build and confirms ChatGPT/Telegram plus Control Center VPN indicator behavior."
+current: "Owner confirmed real traffic works with virtual DNS, but UI connection state is inverted relative to actual system VPN state. Investigating duplicate/stale NETunnelProviderManager selection and status tracking. Owner also requests a larger canonical Arvectum mark on the iOS launcher icon."
 pending:
-  - "Wait for exact-head GitHub run 36110301163 unsigned-device-build to complete successfully."
-  - "Owner connects in the clean installed build and confirms ChatGPT/Telegram work; check VPN icon in Control Center (Face ID iPhone may show additional status icons there rather than persistently beside LTE)."
-  - "If user-level traffic is green, mark task completed; if traffic regresses, capture fresh telemetry before changing code."
+  - "Diagnose live manager/session mismatch and fix VPNController to select the active canonical APL manager, reconcile status, and remove stale duplicate APL managers safely."
+  - "Increase canonical Arvectum launcher mark size on the iOS AppIcon while preserving the existing background/artwork."
+  - "Run local tests/builds, install signed build on iPhone, physically verify UI state matches actual tunnel, then push and verify exact-head CI."
 last_verified_commit: "f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a"
 test_results: []
-blocker: "Waiting only for exact-head CI unsigned-device-build completion and Owner user-level confirmation on the clean installed build. No known implementation blocker remains."
-resume_instruction: "First check GitHub run 36110301163. If green and Owner confirms ChatGPT/Telegram work, update checkpoint to completed without rebuilding. If Owner reports traffic failure, read fresh App Group telemetry and PacketTunnel process state before changing code. For VPN icon expectations, rely on NETunnelProviderManager system configuration and Control Center status; do not invent a separate VPN-app registration mechanism."
-updated_at: "2026-09-25T11:00:00+03:00"
+blocker: "None. iPhone is connected and physical verification is available."
+resume_instruction: "Continue from UI/system VPN status mismatch. Inspect live APL Network Extension processes and use a local-only diagnostic if needed to enumerate NETunnelProviderManager instances/statuses without exposing credentials. Fix canonical manager selection/status observation and duplicate cleanup, enlarge AppIcon mark, then physical-test actual on/off state against UI before completing."
+updated_at: "2026-09-25T11:10:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
