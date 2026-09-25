@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-SYNC-20260925-LATE
-status: in_progress
+status: completed
 goal: "Synchronize canonical roadmap/executor metadata to the verified late-2026-09-25 state: v0.2.16 production macOS distribution, submitted iOS App Store build, active Mac App Store PR #175, and current stale review packets."
 authority: REVIEW
 definition_of_done:
@@ -15,31 +15,31 @@ definition_of_done:
   - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
   - "Required exact-head CI passes before the metadata/docs sync is merged."
 completed:
-  - "Updated .agent/execution-queue.yaml: iOS Waiting for Review; APL-REL-016 latest PR #161 stale against v0.2.16; per-app #144 baseline refresh required; Mac App Store #175 active with mandatory Help continuity gate."
-  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same verified state."
-  - "Verified current main b9d0d6bd89e334a1230a393991bc36e9db9a2244."
-  - "Verified public stable v0.2.16 with Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon and Intel macOS DMGs."
-  - "Verified iOS App Store checkpoint completed submission: 0.1.19 build 21 is Waiting for Review, upload/processing succeeded, temporary publication API keys revoked."
-  - "Verified PR #135 merged; iOS public App Store publication is not yet established."
-  - "Verified latest APL-REL-016 preparation PR #161 is itself stale after v0.2.16 publication."
-  - "Verified PR #144 remains the current per-app Owner packet and still encodes v0.2.12 baseline wording."
-  - "Verified Mac App Store draft PR #175 is active: sandbox incompatibility of networksetup proven; separate Catalyst + PacketTunnel architecture implemented; contract tests 6/6 and unsigned ARM64 build PASS; signed build currently needs new Apple identifiers/profiles."
-  - "Verified PR #175 branch current-task predates the later mandatory Help UX roadmap amendment."
-current: "Canonical queue/ROADMAP/backlog are synchronized. Open metadata/docs PR, verify exact-head CI, merge only the sync, then close checkpoint."
-pending:
-  - "Open metadata/docs PR and verify exact-head CI."
-  - "Merge only this synchronization if governance permits."
-  - "Record completed checkpoint and final main SHA."
-last_verified_commit: "b9d0d6bd89e334a1230a393991bc36e9db9a2244"
+  - "Verified current pre-sync main b9d0d6bd89e334a1230a393991bc36e9db9a2244 and immutable v0.2.16 release."
+  - "Verified iOS checkpoint: 0.1.19 build 21 validation/upload/process/submission PASS; App Store Connect Waiting for Review; temporary publication API keys revoked."
+  - "Verified latest APL-REL-016 substantive PR #161 is stale after v0.2.16 and older #132/#157 are superseded preparation history."
+  - "Verified per-app PR #144 is the current Owner packet and still needs v0.2.16/current-main baseline wording."
+  - "Verified active Mac App Store draft PR #175: direct networksetup sandbox incompatibility proven; isolated Catalyst + PacketTunnel lane implemented; contract tests 6/6 PASS; unsigned ARM64 build PASS; current stage Apple identifiers/provisioning then signed physical smoke."
+  - "Recorded continuity gate that PR #175 must reconcile mandatory offline Help UX from main before App Store submission because its branch checkpoint predates that requirement."
+  - "Updated .agent/execution-queue.yaml, docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md consistently."
+  - "PR #179 exact head e85fd48b9f5783a23a8025d8081e70f296a94114 passed all reported checks including Windows P0 build, installer fresh/upgrade/repair/uninstall E2E, Gate R6, signing contracts, SAST, dependency audit, Gitleaks, SBOM, provenance, clean-IP gates, sovereign lifecycle and mirror."
+  - "Re-read current Company authority; latest POS-004/AI-ENG-001 AM-4 renewal is 2026-09-22 with unchanged hard stops."
+  - "PR #179 merged to main as 2c11ae8c98ea4952e19ab7d19672b1dd5c02a277."
+current: "Completed. Canonical state now reflects v0.2.16, iOS Waiting for Review, active Mac App Store PR #175, stale APL-REL-016 PR #161 refresh requirement and per-app PR #144 baseline refresh."
+pending: []
+last_verified_commit: "2c11ae8c98ea4952e19ab7d19672b1dd5c02a277"
+merged_commit: "2c11ae8c98ea4952e19ab7d19672b1dd5c02a277"
 test_results:
-  - "Cross-file consistency inspection PASS for v0.2.16, PR #161/#144/#175, iOS Waiting for Review and mandatory Help UX continuity."
-  - "Repository/release/PR/checkpoint inspection complete; no product files changed by this sync task."
-resume_instruction: "Continue metadata-only late-2026-09-25 synchronization on agent/roadmap-sync-20260925-late. Do not rebuild/resubmit iOS, do not mutate PR #175 product code, do not merge Owner/REVIEW packets, and do not submit/release Mac App Store from this task."
+  - "PR #179 exact head e85fd48b9f5783a23a8025d8081e70f296a94114: all reported checks SUCCESS."
+  - "Windows P0 portable required build: SUCCESS."
+  - "Windows installer fresh/upgrade/repair/uninstall E2E + Gate R6: SUCCESS."
+  - "Windows signing contracts, SAST, dependency audit, Gitleaks, SBOM, provenance, v0.2.5/v0.2.9 clean-IP, sovereign lifecycle and GitVerse mirror: SUCCESS."
+resume_instruction: "No continuation is required for this roadmap-sync task. Preserve active Mac App Store PR #175 and its HUMAN gates; before submission it must reconcile mandatory Help UX from main. iOS 0.1.19 is Waiting for Review and should not be churned. Independent safe REVIEW work may refresh APL-REL-016 PR #161 to v0.2.16/v0.2.17+, then per-app PR #144 to v0.2.16/current-main, stopping at their Owner/REVIEW gates."
 updated_at: "2026-09-25T22:25:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-SYNC-20260925-LATE"
-  branch: "agent/roadmap-sync-20260925-late"
-  base_commit: "b9d0d6bd89e334a1230a393991bc36e9db9a2244"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
