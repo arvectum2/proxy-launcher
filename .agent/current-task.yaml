@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPSTORE-PUBLISH-20260925
-status: blocked
+status: completed
 goal: "Prepare and publish Arvectum Proxy Launcher iOS 0.1.19 to Apple App Store through LLC ARVECTUM."
 authority: HUMAN
 definition_of_done:
@@ -42,24 +42,24 @@ completed:
   - "PASS: Re-verified final IPA SHA-256 dd2c7911a019848782193143d302b59a355d1c31cd566dd5148af6b6cf94db38 immediately before upload preparation."
   - "PASS: Apple altool validation of exact App Store IPA completed 2026-09-25 with VERIFY SUCCEEDED with no errors; validation exit code 0."
   - "PASS: App Store upload succeeded with no errors for exact build 21 IPA; Delivery UUID 905f0b6a-e10e-42c7-a106-e9529d2438c4."
+  - "PASS: App Store Connect build 21 processing completed; build 0.1.19 (21) is attached to version 0.1.19 and Missing Compliance is cleared."
+  - "PASS: App Information Content Rights was explicitly saved as no third-party content; subsequent Add for Review validation passed."
+  - "PASS: DSA compliance shows Active for 27 EU countries/regions and App Information identifies the developer as a trader; no legal classification was changed by the agent after activation."
+  - "PASS: App Review contact information is persisted, Sign-in required is disabled, and review notes are present."
+  - "PASS: Version 0.1.19 build 21 was submitted to App Review; App Store Connect state is Waiting for Review and shows 1 Item Submitted."
+  - "PASS: Temporary upload API key R83YXU6LAH was revoked after successful delivery; its local .p8 and temporary upload helper files were deleted. A separate pre-existing/independent active key was left untouched."
   - "PASS: authenticated App Store Connect session verified; created iOS app record for ru.arvectum.proxylauncher.ios with Apple ID 6816013574, SKU APL-IOS-001, primary language Russian and Full Access."
   - "PASS: App Store version changed from default 1.0 to 0.1.19; Russian promotional text, description, keywords, support/marketing URLs, copyright and English App Review notes saved; review sign-in requirement disabled."
   - "PASS: App Information subtitle set to Прокси одним нажатием, primary category Utilities, secondary category Productivity, and Content Rights set to no third-party content."
-  - "PASS: Age Rating questionnaire answered no/none for all app capabilities/content; App Store Connect calculated 4+ at the final step. Final modal save still needs explicit re-verification because navigation occurred while its Save control was disabled."
-  - "Prepared App Store-compatible 1284x2778 derivatives of both accepted real-device screenshots. Native Safari file-picker automation is not available through current Accessibility permissions, so upload remains pending."
-  - "Confirmed Xcode 26.6 direct altool is available and can upload the final IPA, but Xcode has no signed-in Apple account, no App Store Connect API key is configured, API access is not enabled, and no reusable Transporter session exists; build upload therefore still needs a safe local authentication path."
-current: "Exact build 21 IPA passed Apple validation and uploaded successfully with no errors. Delivery UUID 905f0b6a-e10e-42c7-a106-e9529d2438c4. Next: wait for App Store Connect processing, attach build 21, complete/persist review and DSA details, validate and submit."
-pending:
-  - "Run the already-validated build 21 upload from Mac mini with altool --upload-package using the local App Store Connect API key; do not rebuild or revalidate first unless Apple reports a new issue."
-  - "After upload processing, complete/persist DSA and App Review contact details using the owner-entered phone, restore review notes and disable Sign-in required if necessary."
-  - "Attach build 21, resolve any actual export-compliance/validation prompts, run final submission validation, submit version 0.1.19 to App Review, then revoke the temporary API key."
+current: "COMPLETED: Arvectum Proxy Launcher iOS 0.1.19 build 21 has been submitted to Apple App Review. App Store Connect status is Waiting for Review; build validation/upload succeeded, DSA is Active, required metadata is saved, and the temporary upload API key has been revoked."
+pending: []
 last_verified_commit: "2a743a4aa25f26d5e9a01868d1a557b0ecafd3a1"
 test_results:
   - "Prior final iOS acceptance: physical PASS; exact-head CI run 36111899870 core-tests SUCCESS and unsigned-device-build SUCCESS."
   - "2026-09-25 Apple altool --validate-app on exact IPA: VERIFY SUCCEEDED with no errors; exit code 0."
-blocker: "No current tool blocker. Build upload is complete; waiting only on normal App Store Connect processing and any Apple validation prompts."
-resume_instruction: "As soon as Mac mini command access is available again, DO NOT repeat validation. Confirm key file still exists at ~/.appstoreconnect/private_keys/AuthKey_R83YXU6LAH.p8 (mode 600) and IPA hash still equals dd2c7911a019848782193143d302b59a355d1c31cd566dd5148af6b6cf94db38 only if needed. Then run Xcode 26.6 altool --upload-package on /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa with API key R83YXU6LAH and issuer 38eaf343-c1fb-4ddf-82fd-334bed53b508. Wait for Apple processing, attach build 21, complete DSA/App Review contact persistence, handle export compliance from actual prompt, submit version 0.1.19 to App Review, revoke temporary API key after successful delivery, update checkpoint completed. Do not rebuild unless Apple reports a concrete binary issue."
-updated_at: "2026-09-25T16:13:00+03:00"
+blocker: "None. Submission is now with Apple App Review."
+resume_instruction: "Task is complete. Do not rebuild, re-upload, or resubmit. On a future user request or Apple review notification, first read this checkpoint and inspect the current App Store Connect review result; only act if Apple reports a concrete issue or the owner asks for a change."
+updated_at: "2026-09-25T16:44:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-PUBLISH-20260925"
