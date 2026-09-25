@@ -21,4 +21,13 @@ out="$out_dir/Arvectum_Proxy_Launcher-${version}-${arch}.dmg"
 rm -f "$out"
 /usr/bin/hdiutil create -quiet -volname "Arvectum Proxy Launcher" -srcfolder "$stage" -ov -format UDZO "$out"
 /usr/bin/hdiutil verify "$out" >/dev/null
+sign_identity="${APL_MACOS_SIGN_IDENTITY:-}"
+if [[ -n "$sign_identity" ]]; then
+  [[ "$sign_identity" == Developer\ ID\ Application:* ]] || {
+    echo "APL-MAC-006: production DMG signing requires Developer ID Application identity" >&2
+    exit 4
+  }
+  codesign --force --timestamp --sign "$sign_identity" "$out"
+  codesign --verify --strict "$out"
+fi
 echo "$out"
