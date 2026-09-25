@@ -32,14 +32,15 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified for this roadmap refresh: df4478a70729e20f33b7a0d17476183423955576.
+Current canonical main verified before this roadmap update: e843ab54b596eea622494fb3283af881e71826a8.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
 - **DONE / HISTORICAL EVIDENCE** — company УКЭП/CryptoPro remains RELEASE-EVIDENCE-ONLY; it is not Microsoft Authenticode/SmartScreen publisher trust.
 - **DONE** — APL-REL-011/012/013 release manifest, verification UX and fail-closed Russian production release gate.
 - **CURRENT PUBLIC RELEASE** — v0.2.16 is published without native Windows Authenticode; macOS Developer ID/notarization is a separate platform trust path.
-- **READY FOR REVIEW REFRESH — issue #30, PR #132** — PR #132's substantive research remains useful, but its immutable baseline/version boundary is stale: it targets v0.2.10 with v0.2.11+ as first eligible. Because v0.2.11 and v0.2.12 are now public and unsigned, refresh/rebase the packet to v0.2.12 and make **v0.2.13+** the first eligible future embedded-signing release.
+- **READY FOR REVIEW REFRESH — issue #30, PR #161** — #161 is the latest substantive APL-REL-016 packet, but it became stale after later unsigned releases. With immutable v0.2.16 now public, refresh/rebase from current main and make **v0.2.17+** the first eligible future native Authenticode/public-trust release.
+- **SUPERSEDED REVIEW HISTORY** — PRs #132 and #157 preserve older v0.2.10/v0.2.12-era preparation but are not the current packet.
 - **OWNER GATE** — after refresh, provider/certificate selection, spend, key custody, packet merge as an approved decision, production signing and release remain Owner-reserved.
 - **RULE** — never retrofit embedded signing into an immutable published release; every trust change belongs to a new version.
 
@@ -88,10 +89,22 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 
 - **DONE** — APL-MAC-001..008 engineering/acceptance track and Gate R9 evidence retained.
 - **DONE / TEST DISTRIBUTION** — arm64 prereleases `v0.2.10-macos-test.1` and `v0.2.10-macos-test.2` were published for dogfood and mirrored with checksum parity.
-- **DONE / ROUTING HARDENING** — PRs #141/#143 hardened upstream failover and Safari CONNECT behavior before v0.2.11.
-- **DONE / LONG-SLEEP RECOVERY** — PRs #146/#149 resolved the macOS sleep/wake regression; the final v0.2.12 behavior was physically accepted on a MacBook and is part of the desktop source release.
-- **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel cloud packages were promoted through an ephemeral Arvectum Mac mini runner, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published, and mirrored with payload parity. Immutable v0.2.15 DMGs remain the historical ad-hoc baseline.
-- **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit without weakening recovery/update semantics.
+- **DONE / ROUTING + WAKE HARDENING** — PRs #141/#143/#146/#149 plus later v0.2.14/v0.2.15 recovery work close the current direct-distribution routing/sleep baseline.
+- **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel packages were promoted through the Arvectum Mac mini, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published and mirrored with payload parity.
+- **MAC APP STORE — IN PROGRESS / draft PR #175 / target v0.2.17.** The Store lane is separate and must not mutate or replace the direct v0.2.16 Developer ID/notarized DMG channel.
+  - Physical sandbox smoke proved the direct `/usr/sbin/networksetup` backend is incompatible with App Sandbox: unsandboxed read PASS; sandboxed read exited 133.
+  - Canonical Store architecture is now a separate Mac Catalyst app `ru.arvectum.proxylauncher.macos` + PacketTunnel extension `ru.arvectum.proxylauncher.macos.PacketTunnel` + App Group `group.ru.arvectum.proxylauncher.macos`.
+  - PR #175 implements the isolated Catalyst/PacketTunnel lane using the proven Swift/NetworkExtension transport; Mac App Store contract tests are **6/6 PASS**, and unsigned ARM64 Catalyst Debug build passes.
+  - Current technical stage: create/register Apple identifiers/capabilities and development/App Store provisioning profiles for the new app + extension, then run signed physical Mac mini build/tunnel smoke.
+  - Signed automatic-provisioning already reached Apple signing and failed only because the new identifiers lack development profiles/Apple Account provisioning in Xcode.
+- **MANDATORY HELP UX BEFORE FIRST MAC APP STORE SUBMISSION.** PR #175 started before this later roadmap amendment, so its branch checkpoint is not sufficient by itself: before submission it must reconcile with current main and add this Help contract.
+  - Standard macOS **Help** menu opens a bundled offline help surface; no “No help is available for Arvectum Proxy Launcher” system response.
+  - Offline sections: **Getting Started**, **status meanings**, **proxy formats**, **Troubleshooting**, **About & Privacy**.
+  - Footer/about: running version, **© Arvectum LLC**, **View on GitHub**, **Release Notes**, **Report a Problem**.
+  - **Release Notes** targets `https://github.com/arvectum2/proxy-launcher/releases/latest`, not a hard-coded version.
+  - Help remains useful offline; online links are secondary.
+  - **Check for Updates** is channel-aware: direct Developer ID builds may later use a direct/GitHub path, while Mac App Store builds must rely on App Store updates and not ship a competing self-updater.
+- **OPTIONAL FUTURE** — keep `.app`/DMG as the normal direct macOS distribution lane; add a separate portable form only if it provides real benefit without weakening recovery/update semantics.
 
 ## 7. Per-application routing — next desktop product capability
 
@@ -99,9 +112,9 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE** — APL-ROUTE-002 per-platform feasibility matrix.
 - **AUTONOMOUS COMPLETE / LOCAL-NATIVE PENDING** — APL-ROUTE-003 Windows control-plane prototype.
 - **DONE** — APL-ROUTE-004 durable ownership/recovery/security journal.
-- **CURRENT PREPARATION — PR #144** — PR #144 supersedes stale PR #68 and carries the Owner decision packet without replaying obsolete agent metadata. Exact-head repository checks are green.
-- **REFRESH NEEDED BEFORE FINAL OWNER DECISION** — PR #144 still names the v0.2.10 saved-or-Arvectum baseline. Reconcile it to immutable v0.2.12/current-main recovery semantics, including the now-current APL-REL-016 signing dependency.
-- **STOP-GATE** — the packet may recommend the Arvectum-owned WFP ALE callout + privileged service + local proxy path, but architecture selection remains Owner/Product Owner reserved.
+- **CURRENT OWNER PACKET — PR #144** — supersedes stale PR #68 and carries the production enforcement decision packet; exact-head checks were green for its current content.
+- **REFRESH NEEDED BEFORE FINAL OWNER DECISION** — #144 is written against the immutable v0.2.12 saved-or-Arvectum baseline. Reconcile it to **v0.2.16/current-main** recovery semantics and the current APL-REL-016 dependency before Owner review.
+- **STOP-GATE** — the technical recommendation remains an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy, but architecture selection remains Owner/Product Owner reserved.
 - **AFTER APPROVAL** — implementation requires privileged Windows host work, ownership/recovery/security acceptance and a new product version.
 
 ## 8. Mobile applications
@@ -111,46 +124,46 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE — APL-MOB-001 baseline.** Native VpnService/TUN transport, manual profiles and one-button mobile UX are physically established.
 - **DONE — APL-MOB-002 pool/failover.** Automatic proxy health/failover and physical-network handoff are accepted.
 - **DONE / PUBLIC — APL-MOB-003 site exclusions.** The physically accepted site-exclusion UX/routing was integrated via PR #130 and published as `android-v0.1.19` on 2026-09-19.
-- **DONE / SLEEP RECOVERY IN CURRENT MAIN** — PR #147 added foreground/service reconciliation after long Android sleep; the initial fix bumped the candidate to 0.1.20 and is included in the later 0.1.31 main baseline.
-- **DONE / LIVE FRIEND-TEST INFRA — free RU/US gateway.** PR #148 merged the server-side gateway and Android integration. Supplier proxy credentials remain server-side; clients receive only short-lived location-bound Arvectum gateway credentials.
-- **DONE / LIVE CONNECTIVITY EVIDENCE** — Mac mini launchd gateway + public TLS ingress are live; real RU→RU and US→US checks pass. The gateway public API exposes only location metadata, not supplier credentials.
-- **CURRENT MAIN / FRIEND-TEST CANDIDATE — Android 0.1.31 (versionCode 32).** Exact-head Android/gateway/security checks pass; lint has 0 errors; gateway tests 13/13 pass; RU/US checks and a US 15/15 soak pass. **No public android-v0.1.31 release tag exists.**
-- **PUBLIC-SCALE GATE** — current gateway is suitable for controlled friend testing, not a large anonymous rollout. Add per-install quotas/rate limiting/anti-abuse controls before broad public distribution.
-- **PLANNED / OWNER-GATED — APL-MOB-004 monetization + dual distribution.** Advertising/private-no-ads distribution is a separate track from the already implemented free gateway. Start only after explicit Owner priority and private package/update-identity decision.
-  - Public Android channel: GitHub, GitVerse, Arvectum site and RuStore with ads only after a new monetized release.
-  - Initial ad target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation.
-  - Private no-ads artifact should come from the same codebase via build configuration/flavor and remain outside the public GitHub release surface.
+- **DONE / CURRENT MAIN — sleep recovery + free RU/US gateway.** PRs #147/#148 add long-sleep reconciliation and server-backed free locations. Supplier credentials stay server-side.
+- **CURRENT MAIN / FRIEND-TEST CANDIDATE — Android 0.1.31 (versionCode 32).** Exact-head Android/gateway/security checks pass; gateway tests 13/13 pass; RU/US checks and US 15/15 soak pass. **No public android-v0.1.31 release tag exists.**
+- **PUBLIC-SCALE GATE** — add per-install quotas/rate limiting/anti-abuse controls before broad anonymous rollout.
+- **PLANNED / OWNER-GATED — APL-MOB-004 monetization + dual distribution.** Advertising/private-no-ads distribution remains separate from free-proxy functionality and starts only after explicit Owner priority + package/update-identity decision.
 
-### iOS — 0.1.19 App Store publication
+### iOS — 0.1.19 App Store review wait
 
-- **PHYSICAL PASS / OWNER-PUBLICATION AUTHORIZED — PR #135.** Native SwiftUI + NetworkExtension Packet Tunnel parity is implemented and physically accepted on iPhone: manual/Auto selection, health/failover, primary restoration, Keychain/App Group storage, HTTP/HTTPS CONNECT/SOCKS5 transport, virtual-DNS compatibility, site exclusions and correct live UI state.
-- **APPLE SIGNING READY.** LLC ARVECTUM is enrolled as an Apple Developer Program Organization (Team VML75VY94V); development/distribution certificates and explicit App/PacketTunnel provisioning profiles are validated without committing private signing material.
-- **APP STORE PREPARATION ACTIVE.** Build 21 adds first-use VPN privacy disclosure, privacy manifests for app and Packet Tunnel, public privacy/support pages and App Store metadata/review notes. Final archive/upload/App Store Connect submission is the active task.
-- **BOUNDARY.** No ads, analytics, Arvectum cloud backend or per-app routing are included in this release.
+- **PHYSICAL PASS / CODE MERGED — PR #135.** SwiftUI + NetworkExtension Packet Tunnel parity is implemented, physically accepted on iPhone and merged to main.
+- **APP STORE SUBMISSION COMPLETE.** Final Apple Distribution IPA 0.1.19 build 21 passed Apple validation and upload, processed successfully and is attached to App Store version 0.1.19.
+- **CURRENT APPLE STATE — WAITING FOR REVIEW.** Version 0.1.19 build 21 was submitted to App Review; canonical checkpoint records **1 Item Submitted / Waiting for Review**.
+- **PRIVACY/STORE TRUTH** — Data Not Collected; no ads, analytics, Arvectum cloud backend or per-app routing in this release. Required first-use VPN disclosure, privacy manifests, public privacy/support pages, metadata, screenshots and review notes are complete.
+- **CREDENTIAL HYGIENE DONE** — temporary App Store Connect API keys used for upload/submission were revoked and local temporary key files/helpers removed.
+- **BOUNDARY** — the app is **not yet claimed public/live**. Do not rebuild, re-upload, withdraw or resubmit unless Apple returns a concrete review issue or the Owner requests a change.
 
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`; macOS Apple Silicon/Intel assets are Developer ID-signed and Apple-notarized.
-2. **[Android/free gateway] 0.1.31 — MERGED FRIEND-TEST BASELINE / NOT PUBLIC RELEASE.** RU/US server-backed locations are live and secrets stay server-side; broad-public anti-abuse/quota hardening remains a future gate.
-3. **[IP/legal] APL-IP-001 exact v0.2.9 filing-evidence packet — DONE.** Do not silently re-scope registry evidence to v0.2.12.
-4. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Rebase/replace PR #132 to immutable v0.2.12 and first eligible v0.2.13+, then stop at Owner review.
+2. **[Android/free gateway] 0.1.31 — MERGED FRIEND-TEST BASELINE / NOT PUBLIC RELEASE.** RU/US server-backed locations are live; broad-public anti-abuse/quota hardening remains a future gate.
+3. **[IP/legal] APL-IP-001 exact v0.2.9 filing-evidence packet — DONE.** Do not silently re-scope registry evidence to later releases.
+4. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR is #161; refresh to immutable v0.2.16 / first eligible v0.2.17+, then stop at Owner review.
 5. **[Registry infrastructure / HUMAN] APL-REG-001B — BLOCKED UNTIL PHYSICAL RUSSIAN LIFECYCLE EVIDENCE EXISTS.**
-6. **[Per-app routing / OWNER] production architecture — CURRENT PR #144.** Refresh its v0.2.10 baseline wording to v0.2.12/current-main semantics; final architecture choice remains an Owner stop-gate.
+6. **[Per-app routing / OWNER] production architecture — CURRENT PR #144.** Reconcile its v0.2.12 baseline to v0.2.16/current-main semantics; final architecture choice remains Owner-reserved.
 7. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
-8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.** Free-proxy work does not authorize the ad SDK/provider/private-package lane.
-9. **[macOS production distribution] — DONE / PUBLISHED v0.2.16.** Developer ID signing, notarization, stapling, Gatekeeper verification, exact-main promotion and GitVerse parity are complete.
-10. **[iOS / HUMAN] PR #135 — APP STORE PUBLICATION ACTIVE.** Physical acceptance and Apple signing are complete; privacy/review metadata, merge, upload and App Review submission are now the active Owner-authorized lane.
+8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.**
+9. **[macOS direct production distribution] — DONE / PUBLISHED v0.2.16.**
+10. **[iOS / APPLE] 0.1.19 build 21 — SUBMITTED / WAITING FOR REVIEW.** No repo action unless Apple returns a concrete issue or Owner requests a change.
+11. **[macOS App Store / HUMAN] PR #175 — IN PROGRESS / target v0.2.17.** Catalyst + PacketTunnel architecture is implemented; current stage is Apple identifiers/provisioning then signed physical smoke. Before submission, branch must reconcile the later mandatory offline Help UX amendment.
 
 ### Repository-hygiene note
 
-Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the current but version-stale trust packet to refresh. PR #68 is superseded by current per-app preparation PR #144. Original MOB-003 PR #125 is superseded by merged #130. Historical Windows rollback and RED OS preparation PRs remain non-authoritative where later merged work exists.
+Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; PR #161 is the latest substantive but version-stale packet to refresh. PR #68 is superseded by current per-app PR #144. Original MOB-003 PR #125 is superseded by merged #130. Historical Windows rollback and RED OS preparation PRs remain non-authoritative where later merged work exists.
 
 ### Execution order
 
-- The canonical macOS production-signing task is completed in v0.2.16; do not reopen its signing/notarization acceptance unless a later material macOS packaging/signing change requires it.
-- **First safe autonomous REVIEW lane:** refresh APL-REL-016 from PR #132 to current immutable v0.2.12 / first eligible v0.2.13+, then stop at Owner review.
-- **Next safe preparation lane:** reconcile per-app routing PR #144 from v0.2.10 wording to v0.2.12/current-main recovery semantics, then stop before Owner architecture selection.
-- Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates. iOS App Store publication is separately Owner-authorized and active.
+- Do not reopen completed v0.2.16 direct macOS production-signing/notarization acceptance.
+- **Active HUMAN work already underway:** Mac App Store PR #175. Preserve its separate Catalyst/PacketTunnel architecture and reconcile the later mandatory Help UX before submission.
+- **First independent safe REVIEW lane when not conflicting with active App Store work:** refresh APL-REL-016 PR #161 to immutable v0.2.16 / first eligible v0.2.17+, then stop at Owner review.
+- **Next independent preparation lane:** refresh per-app PR #144 to v0.2.16/current-main semantics, then stop before Owner architecture selection.
+- **External wait:** iOS 0.1.19 build 21 is Waiting for Review; do not churn the binary/metadata while Apple review is pending.
+- Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates.
 - External Ministry/registry submission remains outside automation.
 
 ## 10. Platform / distribution matrix
@@ -162,9 +175,10 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 | Astra Linux .deb | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
-| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future macOS releases |
+| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
+| macOS Mac App Store | **IN PROGRESS / PR #175 / target v0.2.17** | Apple identifiers/profiles → signed physical Catalyst/PacketTunnel smoke → mandatory offline Help UX reconciliation → App Store validation/submission |
 | Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
-| iOS | **0.1.19 PHYSICAL PASS / APP STORE PREPARATION ACTIVE** | Merge PR #135, publish privacy/support pages, upload build 21 and submit App Store metadata/review package |
+| iOS | **0.1.19 build 21 SUBMITTED / WAITING FOR REVIEW** | Wait for Apple; act only on concrete review result or Owner change request |
 
 ## Completion discipline
 
