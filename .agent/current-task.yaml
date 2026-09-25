@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPSTORE-PUBLISH-20260925
-status: blocked
+status: in_progress
 goal: "Prepare and publish Arvectum Proxy Launcher iOS 0.1.19 to Apple App Store through LLC ARVECTUM."
 authority: HUMAN
 definition_of_done:
@@ -28,18 +28,17 @@ completed:
   - "PASS: final Apple Distribution archive/export 0.1.19 (21) from merged main succeeded; app/appex signatures, entitlements, privacy manifests and forced-exit sentinel checks pass."
   - "PASS: final IPA persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa; SHA-256 dd2c7911a019848782193143d302b59a355d1c31cd566dd5148af6b6cf94db38."
   - "PASS: two real-device App Store screenshots prepared at 1290x2796 under the release artifact screenshots/ directory."
-current: "Release candidate remains fully prepared and verified. App Store Connect Safari tab is still at https://appstoreconnect.apple.com/login. Checked Mac mini for non-interactive alternatives: no App Store Connect API AuthKey_*.p8 is configured in standard locations, no ASC environment credentials are set, and Transporter is not installed/configured. Apple Distribution/Development identities are valid but do not provide App Store Connect account authentication. Human sign-in/2FA is therefore the only remaining gate before app-record creation and upload."
+current: "Owner completed App Store Connect sign-in/2FA. Resume publication workflow by inspecting the authenticated Safari session, verifying agreements, then creating/configuring the app record and uploading build 21."
 pending:
-  - "Owner signs into App Store Connect in the already-open Safari tab; do not share password/2FA in chat."
   - "After login, verify Business agreements and create/configure the iOS app record for ru.arvectum.proxylauncher.ios."
   - "Populate metadata, screenshots, App Privacy=no data collected, category/age rating, review notes, support/privacy URLs and availability."
   - "Upload verified build 21, wait for processing, attach build, validate fields and submit to App Review."
 last_verified_commit: "2a743a4aa25f26d5e9a01868d1a557b0ecafd3a1"
 test_results:
   - "Prior final iOS acceptance: physical PASS; exact-head CI run 36111899870 core-tests SUCCESS and unsigned-device-build SUCCESS."
-blocker: "HUMAN LOGIN GATE: Owner must authenticate the corporate Apple Account in the already-open Safari App Store Connect login page and complete any 2FA/trusted-device challenge. No password or verification code should be sent in chat. No API key or saved App Store Connect transport session exists on the Mac mini to bypass this gate."
-resume_instruction: "When Owner says login is complete, immediately inspect the open App Store Connect Safari tab. Verify Business/latest agreements first. Then create/find app record for ru.arvectum.proxylauncher.ios, populate prepared metadata/privacy/screenshots/review/availability fields, upload verified build 21 IPA from /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa, wait for processing, attach build, resolve validation issues, and submit to App Review. Do not rebuild unless Apple reports a concrete binary issue."
-updated_at: "2026-09-25T12:02:00+03:00"
+blocker: "None. Owner confirmed App Store Connect login is complete."
+resume_instruction: "Inspect the authenticated App Store Connect Safari tab. Verify Business/latest agreements first. Then create/find app record for ru.arvectum.proxylauncher.ios, populate prepared metadata/privacy/screenshots/review/availability fields, upload verified build 21 IPA from /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19/Arvectum-Proxy-Launcher-iOS-0.1.19-AppStore.ipa, wait for processing, attach build, resolve validation issues, and submit to App Review. Do not rebuild unless Apple reports a concrete binary issue."
+updated_at: "2026-09-25T12:14:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-PUBLISH-20260925"
