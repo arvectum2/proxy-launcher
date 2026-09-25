@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-PROD-SIGNING-20260925
-status: in_progress
+status: completed
 goal: "Convert the existing macOS APL packaging from ad-hoc beta signing to production Developer ID signing and Apple notarization, without changing application behavior, then validate a production-signed/notarized macOS build and prepare the release pipeline."
 authority: HUMAN
 definition_of_done:
@@ -63,24 +63,36 @@ completed:
   - "Hotfix replaces macOS-executed lowercase expansion with portable tr-based normalization; repository runner inventory remained empty, so no failed signing job or leaked trusted runner existed."
   - "Hotfix focused validation PASS: system /bin/bash 3.2 syntax, 43 signing/release/version tests, macos-production-signing.yml YAML parse, git diff --check."
   - "PR #171 exact head b297f66712e711d93a4c1cf8e207ff2b4f56cae8 completed all observed checks successfully before this checkpoint-only commit; main 391db9becbe55e27fc0fbe1e4d8f34d43c6b713e is an ancestor of the tested branch."
-current: "Post-merge Bash 3.2 portability hotfix is locally verified on a branch from exact main 186133ea; it must merge before the exact-main ephemeral production-signing run can start."
-pending:
-  - "Commit/push the Bash 3.2 hotfix and open a focused PR."
-  - "Require exact-head CI green, then merge the hotfix."
-  - "Run tools/run_macos_production_signing.sh on the new exact current main SHA; verify ephemeral runner registration/removal and ARM64+Intel notarized artifacts."
-  - "Require exact-main macOS production-signing success plus Release Evidence Package before tagging/publishing immutable v0.2.16."
-  - "Publish v0.2.16 and verify GitHub checksums and GitVerse public payload parity; never mutate v0.2.15."
-last_verified_commit: "3b07940c29a8b6d4d334804e3554743def1f396c"
+  - "PR #171 merged as 186133ea: production Developer ID/notarization lane integrated."
+  - "PR #172 merged as b25ff2f: macOS system Bash 3.2 production-signing portability fixed."
+  - "PR #173 merged as 6799297bf1492d352ca9d78a0a49b2adf3345d2a: exact-SHA push_or_dispatch package-evidence fallback integrated without weakening Windows/SAST/SBOM event contracts."
+  - "Exact-main Linux package dispatch PASS on 6799297: DEB run 36163751642, RPM run 36163754635, AppImage run 36163758296."
+  - "Exact-main macOS production signing run 36164000082 PASS on 6799297: ARM64 + Intel Developer ID signing, Apple notarization, stapling, Gatekeeper verification and production artifact uploads all passed."
+  - "Ephemeral trusted Mac runner cleanup PASS after production signing: repository self-hosted runner inventory returned total_count 0."
+  - "Exact-main Release Evidence Package run 36164433733 PASS on 6799297."
+  - "Annotated immutable tag v0.2.16 points to 6799297bf1492d352ca9d78a0a49b2adf3345d2a; tag object ec30d3ece3e013fb3784439bd891eabad185293f."
+  - "GitHub Release workflow run 36164631549 PASS; canonical v0.2.16 release published 2026-09-25T17:06:23Z with eight assets."
+  - "GitVerse mirror job 108170524920 PASS; public payload parity step completed successfully after re-downloading and re-hashing mirrored payloads."
+  - "Published macOS ARM64 DMG SHA-256 5d7f42a11b203d8b5da76e60bee0fe8196631f1331f3974d533cdf00b099c9c9; macOS x64 DMG SHA-256 693a45453aafa115d2f94df3eeeb7eef999800d742652987e81fd8ce9c2d8d46."
+  - "Published Windows portable SHA-256 9fa4d07a1f6d315450a6693fb54a9859192e35a795014918985579a8e0163fa6; Windows setup SHA-256 23c4d64f6cc7e36a42c5f02ae0e9d391ceb09b9b0445f298f4e618f799657056."
+  - "Published Astra DEB SHA-256 15c9db3dc7a23e6f159e81896cde9a4bed1061865cdfb35ca0a016efda3e9358; RED OS RPM SHA-256 4c90aea80fbb326fe5c91b1125cbcf67415a8cde3b519d2466b5a1e2abd67925; AppImage SHA-256 ac35dcbda8fb90369c0ca5be1b0711fecfeb769af9eec099284476b021586d92; SHA256SUMS SHA-256 f8b9f40d7ba2d8ccdc2f40a0068e7f8faafba899faf1ffe01a4e29135deba410."
+  - "Immutable v0.2.15 release/tag/assets were never modified."
+current: "COMPLETED: v0.2.16 is published as the first Developer ID-signed and Apple-notarized macOS stable release; exact-main release evidence and GitVerse parity are green."
+pending: []
+last_verified_commit: "6799297bf1492d352ca9d78a0a49b2adf3345d2a"
 test_results:
-  - "macOS discovery: 84/84 PASS."
-  - "release/evidence/version focused contracts: 34/34 PASS."
-  - "full pytest: 1142 passed, 103 subtests passed; only the same 3 historical unrelated Windows App Control failures remain."
-resume_instruction: "Local Apple trust is already PASS. The first post-merge production helper invocation exited before runner registration because macOS Bash 3.2 does not support ${var,,}. A focused hotfix now uses tr-based lowercase normalization in tools/run_macos_production_signing.sh and the macOS production workflow, with a regression contract. Commit/push/open PR, merge only with exact-head green CI, then run the ephemeral production-signing helper on the new exact main SHA and continue through release evidence and v0.2.16 publication."
-updated_at: "2026-09-25T18:59:00+03:00"
+  - "Local regression before merge: macOS discovery 84/84 PASS; release/evidence/version contracts 34/34 PASS; full pytest 1142 passed + 103 subtests with only the same 3 historical unrelated Windows App Control failures."
+  - "PR #173 exact-head required CI: PASS before merge."
+  - "Exact-main package/signing/evidence/release chain on 6799297: PASS."
+  - "macOS production signing run 36164000082: PASS for ARM64 + Intel Developer ID/notarization/stapling/Gatekeeper."
+  - "Release Evidence Package run 36164433733: PASS."
+  - "GitHub Release workflow run 36164631549: PASS; GitVerse mirror parity job 108170524920: PASS."
+resume_instruction: "Task completed. Do not recreate Developer ID certificates, rerun v0.2.16 notarization, retag v0.2.16, or mutate its published assets. For future macOS releases, reuse the canonical Arvectum Release Bot + local Developer ID identity and the exact-main ephemeral production-signing workflow. Start a new canonical task for any later product/signing change."
+updated_at: "2026-09-25T20:15:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-macos-prod-signing"
-  branch: "agent/apl-macos-sign-notarize-20260925"
+  branch: "chore/apl-0.2.16-release-finalize"
   base_commit: "4479103e1a39783fa64e76fce5472de61544ad39"
   lease_until: null
   manual_override: true

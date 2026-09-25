@@ -37,14 +37,14 @@ Historical progression:
 - `v0.2.11` — Windows PAC/WPAD isolation + macOS Safari CONNECT hardening;
 - `v0.2.12` — verified macOS long-sleep recovery + Android long-sleep/foreground reconciliation.
 
-v0.2.15 publishes macOS DMGs as the immutable ad-hoc baseline. Developer ID signing/notarization is now an active v0.2.16 production-promotion gate; v0.2.15 is not modified.
+v0.2.15 remains the immutable ad-hoc macOS baseline. v0.2.16 is now published with Developer ID signing, Apple notarization/stapling, Gatekeeper verification and GitVerse payload parity; v0.2.15 was not modified.
 
 ## P2 — Astra Linux / Gate R8 — DONE / PHYSICAL PASS
 
 - **DONE** — real Astra Linux Special Edition 1.8/Fly physical-host acceptance.
 - **PASS** — install, GUI/runtime, NetworkManager enable/disable, no-proxy sync, exact rollback, autostart, crash recovery, reboot recovery, package lifecycle, diagnostics/privacy and cleanup.
 - **DONE** — APL-LNX-011 Firefox system-proxy fix closed by PR #71/#72.
-- **CURRENT RELEASE** — `v0.2.9` ships the Astra DEB.
+- **CURRENT RELEASE** — `v0.2.16` ships the Astra DEB; v0.2.9 remains the filing-evidence baseline.
 
 Astra acceptance remains a trusted-OS compatibility evidence record; an exact-`v0.2.9` rerun is future-proof evidence, not a currently represented 2026 filing prerequisite.
 
@@ -53,7 +53,7 @@ Astra acceptance remains a trusted-OS compatibility evidence record; an exact-`v
 - **DONE** — RED OS 8.0.3 Standard Desktop x86_64 physical acceptance, merged by PR #83.
 - **PASS** — clean install and RPM verification, start/stop, byte-exact KDE + NetworkManager rollback, Chromium system-PAC routing, localhost no-proxy, emergency rollback, XDG autostart ownership, diagnostics/no-mutation, full remove/reinstall and final restoration.
 - **PASS** — focused RED OS regression suite `62/62`.
-- **CURRENT RELEASE** — `v0.2.9` ships the RED OS RPM.
+- **CURRENT RELEASE** — `v0.2.16` ships the RED OS RPM; v0.2.9 remains the filing-evidence baseline.
 
 Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and are not active roadmap tracks.
 
@@ -203,7 +203,7 @@ Current production-specific work:
 - Developer ID Application signing is operational on the Arvectum-controlled Mac mini;
 - canonical Arvectum Release Bot notarization credentials remain local to the trusted Mac;
 - exact-main ARM64/Intel cloud artifacts are promoted through an explicit one-shot signing/notarization workflow;
-- first eligible immutable production-signed public release is v0.2.16, after Gatekeeper/notarization evidence is green.
+- first immutable production-signed public macOS release is v0.2.16; exact-main ARM64/Intel Gatekeeper/notarization evidence and mirror parity are complete.
 
 This is an active distribution gate, not a functional-runtime dependency.
 
@@ -290,8 +290,8 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 ## Current execution view
 
-- **DESKTOP STABLE:** v0.2.12 is public and immutable; exact release SHA `8d9a4e5913fa92b39f0f926004df6f1fd57f3bde`.
-- **CURRENT MAIN:** `df4478a70729e20f33b7a0d17476183423955576`, ahead of v0.2.12 because free-gateway/Android 0.1.31 work merged afterward.
+- **DESKTOP STABLE:** v0.2.16 is public and immutable; exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`.
+- **CURRENT MAIN:** after v0.2.16 publication, main may be ahead of the immutable release only by post-release metadata/checkpoint reconciliation until the next admitted product change.
 - **ANDROID PUBLIC:** `android-v0.1.19`.
 - **ANDROID CURRENT FRIEND-TEST:** 0.1.31 merged in #148, free RU/US live, exact-head checks/soak PASS, but no public 0.1.31 release.
 - **FREE GATEWAY:** live controlled/friend-test infrastructure with server-side supplier secrets; anti-abuse/quota hardening is still required before broad anonymous rollout.
@@ -301,7 +301,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **PER-APP ROUTING:** PR #144 is the current decision packet; refresh baseline wording to v0.2.12/current-main, then stop at Owner architecture decision.
 - **REGISTRY INFRA:** HUMAN BLOCKED on physical Russian sovereign lifecycle proof (#55).
 - **REGISTRY FILING:** HUMAN HOLD; private/accounting/support/signature/live-portal evidence remains.
-- **MAC:** long-sleep recovery fixed/physically accepted; stable Apple-signed/notarized distribution remains deferred.
+- **MAC:** long-sleep recovery is fixed/physically accepted; v0.2.16 stable Developer ID-signed/notarized distribution is published.
 - **iOS:** draft PR #135 active as personal-use engineering; signing/device acceptance remains HUMAN.
 
 Work-conserving order for watchdog: first refresh APL-REL-016, then refresh PR #144 to the current v0.2.12 baseline. Do not start MOB-004, public Android 0.1.31 release, broad gateway rollout, iOS signing/App Store work, or external registry submission without the required Owner/HUMAN gate.

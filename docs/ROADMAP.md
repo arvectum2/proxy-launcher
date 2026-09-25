@@ -3,7 +3,7 @@
 Updated: 2026-09-25
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
-Current stable product line: 0.2.15 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and macOS Apple Silicon/Intel DMGs
+Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
@@ -21,9 +21,9 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 
 ## 1. Current stable product line
 
-- **CURRENT / PUBLISHED — v0.2.15** (published 2026-09-25): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, macOS Apple Silicon/Intel DMGs, plus SHA256SUMS.txt.
-- **EXACT RELEASE OBJECT** — immutable v0.2.15 tag/release points to product commit `3ed433633a71977410da4f20c34883c91a39453c`; GitHub asset checksums and GitVerse canonical payload parity were independently verified.
-- **CURRENT MAIN IS AHEAD OF THE RELEASE** — canonical `main` contains only post-v0.2.15 checkpoint metadata beyond the product release; Developer ID/notarization work is developed separately for the next immutable version.
+- **CURRENT / PUBLISHED — v0.2.16** (published 2026-09-25): Windows x64 Setup + portable ZIP, Astra Linux x86-64 DEB, RED OS 8.0.3 x86-64 RPM, generic Linux x86-64 AppImage, Developer ID-signed/notarized macOS Apple Silicon + Intel DMGs, plus SHA256SUMS.txt.
+- **EXACT RELEASE OBJECT** — immutable v0.2.16 annotated tag/release points to `6799297bf1492d352ca9d78a0a49b2adf3345d2a`; GitHub asset digests, exact-SHA Release Evidence Package, Developer ID/notarization evidence and GitVerse public payload parity were verified.
+- **POST-RELEASE METADATA ONLY** — any main commits after the v0.2.16 tag are documentation/checkpoint reconciliation only unless a later product task explicitly changes the product version.
 - **v0.2.11** (published 2026-09-20) carried the Windows PAC/WPAD isolation fix and macOS Safari/CONNECT routing hardening.
 - **v0.2.12** publishes the verified macOS long-sleep recovery and Android long-sleep/foreground VPN reconciliation while preserving immutable v0.2.11.
 - **CURRENT SAFETY CONTRACT** — Windows rollback/recovery retains saved-or-Arvectum ownership/fail-closed semantics; Astra/Fly and RED OS/KDE real-host acceptance remain valid unless a material platform/recovery change requires rerun.
@@ -38,7 +38,7 @@ Current canonical main verified for this roadmap refresh: df4478a70729e20f33b7a0
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
 - **DONE / HISTORICAL EVIDENCE** — company УКЭП/CryptoPro remains RELEASE-EVIDENCE-ONLY; it is not Microsoft Authenticode/SmartScreen publisher trust.
 - **DONE** — APL-REL-011/012/013 release manifest, verification UX and fail-closed Russian production release gate.
-- **CURRENT PUBLIC RELEASE** — v0.2.12 is published without native Authenticode.
+- **CURRENT PUBLIC RELEASE** — v0.2.16 is published without native Windows Authenticode; macOS Developer ID/notarization is a separate platform trust path.
 - **READY FOR REVIEW REFRESH — issue #30, PR #132** — PR #132's substantive research remains useful, but its immutable baseline/version boundary is stale: it targets v0.2.10 with v0.2.11+ as first eligible. Because v0.2.11 and v0.2.12 are now public and unsigned, refresh/rebase the packet to v0.2.12 and make **v0.2.13+** the first eligible future embedded-signing release.
 - **OWNER GATE** — after refresh, provider/certificate selection, spend, key custody, packet merge as an approved decision, production signing and release remain Owner-reserved.
 - **RULE** — never retrofit embedded signing into an immutable published release; every trust change belongs to a new version.
@@ -68,7 +68,7 @@ Canonical current records: `docs/APL_IP_001_V0_2_9_SIGNOFF.md`, `docs/evidence/A
 - **DONE** — APL-LNX-001..009 engineering: environment detection, NetworkManager preflight, capability/PolicyKit UX, autostart, diagnostics, Debian packaging and CI acceptance.
 - **DONE / PHYSICAL PASS** — APL-LNX-010 / Gate R8 on Astra Linux Special Edition 1.8/Fly. Real-host evidence covers install, GUI/runtime, NetworkManager enable/disable, exact rollback, crash/reboot recovery, autostart, package lifecycle, diagnostics/privacy and cleanup.
 - **DONE** — APL-LNX-011 fixed Firefox system-proxy behavior on Astra/Fly and was closed by PR #71/#72.
-- **CURRENT RELEASE** — v0.2.9 publishes Arvectum-Proxy-Launcher-0.2.9-astra-linux-amd64.deb.
+- **CURRENT RELEASE** — v0.2.16 publishes Arvectum-Proxy-Launcher-0.2.16-astra-linux-amd64.deb; v0.2.9 remains the governed registry-filing evidence baseline.
 - **PROMOTED LANE** — Debian .deb remains the preferred Astra/Linux package.
 - **PROMOTED FOR NEXT RELEASE** — the x86_64 AppImage lane uses the same canonical Linux frozen executable, hash-pinned appimagetool/type-2 runtime, embedded runtime/third-party notices, exact-main CI reuse and release checksum coverage. `v0.2.9` remains unchanged.
 ## 5. Russian Software Register / APL-REG-001
@@ -90,7 +90,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / TEST DISTRIBUTION** — arm64 prereleases `v0.2.10-macos-test.1` and `v0.2.10-macos-test.2` were published for dogfood and mirrored with checksum parity.
 - **DONE / ROUTING HARDENING** — PRs #141/#143 hardened upstream failover and Safari CONNECT behavior before v0.2.11.
 - **DONE / LONG-SLEEP RECOVERY** — PRs #146/#149 resolved the macOS sleep/wake regression; the final v0.2.12 behavior was physically accepted on a MacBook and is part of the desktop source release.
-- **PRODUCTION DISTRIBUTION — ACTIVATING FOR v0.2.16** — Developer ID Application identity and canonical Arvectum Release Bot notarization credential are operational on the Arvectum-controlled Mac mini. Exact-main ARM64/Intel cloud packages are promoted only through an explicit one-shot trusted signing/notarization gate; immutable v0.2.15 DMGs remain ad-hoc.
+- **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel cloud packages were promoted through an ephemeral Arvectum Mac mini runner, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published, and mirrored with payload parity. Immutable v0.2.15 DMGs remain the historical ad-hoc baseline.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal macOS distribution lane; add a separate portable form only if it provides a real operational benefit without weakening recovery/update semantics.
 
 ## 7. Per-application routing — next desktop product capability
@@ -130,7 +130,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 
 ## 9. Currently available workstreams
 
-1. **[Desktop release] v0.2.12 — PUBLISHED / IMMUTABLE.** Exact release SHA `8d9a4e5913fa92b39f0f926004df6f1fd57f3bde`; current `main` is ahead via free-gateway/mobile work.
+1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`; macOS Apple Silicon/Intel assets are Developer ID-signed and Apple-notarized.
 2. **[Android/free gateway] 0.1.31 — MERGED FRIEND-TEST BASELINE / NOT PUBLIC RELEASE.** RU/US server-backed locations are live and secrets stay server-side; broad-public anti-abuse/quota hardening remains a future gate.
 3. **[IP/legal] APL-IP-001 exact v0.2.9 filing-evidence packet — DONE.** Do not silently re-scope registry evidence to v0.2.12.
 4. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Rebase/replace PR #132 to immutable v0.2.12 and first eligible v0.2.13+, then stop at Owner review.
@@ -138,7 +138,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 6. **[Per-app routing / OWNER] production architecture — CURRENT PR #144.** Refresh its v0.2.10 baseline wording to v0.2.12/current-main semantics; final architecture choice remains an Owner stop-gate.
 7. **[Registry filing / HUMAN] APL-REG-001E/F — PRE-SUBMISSION HOLD.** Repository dossier is done; private/accounting/infrastructure/support/signature/live-portal evidence remains.
 8. **[APL-MOB-004 / OWNER] advertising + public/private Android distribution — PLANNED.** Free-proxy work does not authorize the ad SDK/provider/private-package lane.
-9. **[macOS production distribution] — CURRENT / v0.2.16 GATE.** Developer ID signing/notarization is implemented; finish Apple acceptance, exact-main promotion and first immutable production-signed release.
+9. **[macOS production distribution] — DONE / PUBLISHED v0.2.16.** Developer ID signing, notarization, stapling, Gatekeeper verification, exact-main promotion and GitVerse parity are complete.
 10. **[iOS / HUMAN] PR #135 — APP STORE PUBLICATION ACTIVE.** Physical acceptance and Apple signing are complete; privacy/review metadata, merge, upload and App Review submission are now the active Owner-authorized lane.
 
 ### Repository-hygiene note
@@ -147,7 +147,7 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 
 ### Execution order
 
-- The canonical current task is completed v0.2.12 release work; do not reopen it.
+- The canonical macOS production-signing task is completed in v0.2.16; do not reopen its signing/notarization acceptance unless a later material macOS packaging/signing change requires it.
 - **First safe autonomous REVIEW lane:** refresh APL-REL-016 from PR #132 to current immutable v0.2.12 / first eligible v0.2.13+, then stop at Owner review.
 - **Next safe preparation lane:** reconcile per-app routing PR #144 from v0.2.10 wording to v0.2.12/current-main recovery semantics, then stop before Owner architecture selection.
 - Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates. iOS App Store publication is separately Owner-authorized and active.
@@ -157,12 +157,12 @@ Open PRs #81/#103 are superseded Windows-trust preparations; PR #132 is the curr
 
 | Platform / form | Current state | Next gate |
 | --- | --- | --- |
-| Windows installer | **PUBLISHED v0.2.12** | Maintenance; APL-REL-016 targets a future v0.2.13+ signed release |
-| Windows portable | **PUBLISHED v0.2.12** | Maintenance / future feature release |
-| Astra Linux .deb | **PUBLISHED v0.2.12 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
-| RED OS .rpm | **PUBLISHED v0.2.12 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
-| Linux AppImage | **PUBLISHED v0.2.12** | Maintain governed runtime/license/release parity |
-| macOS .app / DMG | **PUBLISHED v0.2.15 AD-HOC / v0.2.16 PRODUCTION SIGNING ACTIVE** | Exact-main Developer ID + Apple notarization promotion, then immutable v0.2.16 release |
+| Windows installer | **PUBLISHED v0.2.16** | Maintenance; Windows Authenticode remains a separate trust track |
+| Windows portable | **PUBLISHED v0.2.16** | Maintenance / future feature release |
+| Astra Linux .deb | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
+| RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
+| Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
+| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future macOS releases |
 | Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
 | iOS | **0.1.19 PHYSICAL PASS / APP STORE PREPARATION ACTIVE** | Merge PR #135, publish privacy/support pages, upload build 21 and submit App Store metadata/review package |
 
