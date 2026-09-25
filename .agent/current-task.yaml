@@ -15,6 +15,8 @@ definition_of_done:
   - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
   - "Required exact-head CI passes before the metadata/docs sync is merged."
 completed:
+  - "Updated .agent/execution-queue.yaml: iOS Waiting for Review; APL-REL-016 latest PR #161 stale against v0.2.16; per-app #144 baseline refresh required; Mac App Store #175 active with mandatory Help continuity gate."
+  - "Updated docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md to the same verified state."
   - "Verified current main b9d0d6bd89e334a1230a393991bc36e9db9a2244."
   - "Verified public stable v0.2.16 with Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon and Intel macOS DMGs."
   - "Verified iOS App Store checkpoint completed submission: 0.1.19 build 21 is Waiting for Review, upload/processing succeeded, temporary publication API keys revoked."
@@ -23,16 +25,14 @@ completed:
   - "Verified PR #144 remains the current per-app Owner packet and still encodes v0.2.12 baseline wording."
   - "Verified Mac App Store draft PR #175 is active: sandbox incompatibility of networksetup proven; separate Catalyst + PacketTunnel architecture implemented; contract tests 6/6 and unsigned ARM64 build PASS; signed build currently needs new Apple identifiers/profiles."
   - "Verified PR #175 branch current-task predates the later mandatory Help UX roadmap amendment."
-current: "Update canonical queue, ROADMAP and local backlog without mutating active product/App Store branches."
+current: "Canonical queue/ROADMAP/backlog are synchronized. Open metadata/docs PR, verify exact-head CI, merge only the sync, then close checkpoint."
 pending:
-  - "Update .agent/execution-queue.yaml."
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
   - "Open metadata/docs PR and verify exact-head CI."
   - "Merge only this synchronization if governance permits."
   - "Record completed checkpoint and final main SHA."
 last_verified_commit: "b9d0d6bd89e334a1230a393991bc36e9db9a2244"
 test_results:
+  - "Cross-file consistency inspection PASS for v0.2.16, PR #161/#144/#175, iOS Waiting for Review and mandatory Help UX continuity."
   - "Repository/release/PR/checkpoint inspection complete; no product files changed by this sync task."
 resume_instruction: "Continue metadata-only late-2026-09-25 synchronization on agent/roadmap-sync-20260925-late. Do not rebuild/resubmit iOS, do not mutate PR #175 product code, do not merge Owner/REVIEW packets, and do not submit/release Mac App Store from this task."
 updated_at: "2026-09-25T22:25:00+03:00"
