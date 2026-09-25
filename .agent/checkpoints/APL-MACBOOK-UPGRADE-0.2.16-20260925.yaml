@@ -1,0 +1,41 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MACBOOK-UPGRADE-0.2.16-20260925
+status: completed
+goal: "Upgrade the user's MacBook from installed ad-hoc APL 0.2.15 to the official Developer ID-signed and Apple-notarized v0.2.16 ARM64 release, preserving the pre-upgrade running state and verifying trust on the installed application."
+authority: HUMAN
+definition_of_done:
+  - "Official GitHub v0.2.16 ARM64 DMG is used and SHA-256 matches 5d7f42a11b203d8b5da76e60bee0fe8196631f1331f3974d533cdf00b099c9c9."
+  - "Pre-upgrade 0.2.15 app and proxy/network state are backed up/captured."
+  - "0.2.15 is stopped cleanly before replacement."
+  - "Installed app reports version 0.2.16."
+  - "Installed app passes strict codesign verification with Developer ID Application: LLC ARVECTUM and TeamIdentifier VML75VY94V."
+  - "Installed app has a valid stapled notarization ticket and Gatekeeper accepts it as Notarized Developer ID."
+  - "APL is restored to RUNNING because it was RUNNING before upgrade, with system proxy enabled."
+completed:
+  - "Preflight confirmed installed MacBook version 0.2.15, APL RUNNING/system proxy ENABLED, ad-hoc signature TeamIdentifier=not set, Gatekeeper rejected."
+  - "Official v0.2.16 ARM64 release asset exists with SHA-256 5d7f42a11b203d8b5da76e60bee0fe8196631f1331f3974d533cdf00b099c9c9."
+  - "Official GitHub ARM64 DMG downloaded and independently re-hashed on Mac mini and MacBook: SHA-256 5d7f42a11b203d8b5da76e60bee0fe8196631f1331f3974d533cdf00b099c9c9."
+  - "Official DMG Developer ID signature PASS and stapler validate PASS; Gatekeeper accepted source=Notarized Developer ID, origin=Developer ID Application: LLC ARVECTUM (VML75VY94V)."
+  - "Pre-upgrade MacBook 0.2.15 app backed up with executable SHA-256 2b35dffbf5c962abfc68847b7c7d14c23df1118f2ac2d56fb37422ee57194811; pre-upgrade active and post-stop network snapshots captured."
+  - "0.2.15 stopped cleanly with network settings restored and no APL listeners remaining before replacement."
+  - "Installed official v0.2.16 app passes deep strict codesign with Developer ID Application: LLC ARVECTUM (VML75VY94V), TeamIdentifier VML75VY94V, Hardened Runtime and secure timestamp."
+  - "Installed v0.2.16 Gatekeeper acceptance PASS: source=Notarized Developer ID, origin=Developer ID Application: LLC ARVECTUM (VML75VY94V)."
+  - "Because the official DMG is the notarized/stapled distribution container, the app bundle itself need not carry a separate stapled ticket; installed app Gatekeeper acceptance confirms the notarization trust chain."
+  - "Pre-upgrade RUNNING state restored: v0.2.16 RUNNING, system proxy ENABLED, exceptions 33 domains."
+  - "Active Wi-Fi proxy/networksetup snapshot after v0.2.16 start is exactly equal to the pre-upgrade 0.2.15 active snapshot."
+  - "Installed v0.2.16 executable SHA-256 86bad6ab9bf23e846443a13c8b408b98ea0cc54bd2029023094e2d262ba3e471."
+current: "Completed: MacBook upgraded from ad-hoc 0.2.15 to official Developer ID-signed/notarized 0.2.16 ARM64 release and prior RUNNING network state restored exactly."
+pending: []
+last_verified_commit: "6799297bf1492d352ca9d78a0a49b2adf3345d2a"
+test_results:
+  - "v0.2.16 canonical release production signing/notarization/release chain PASS."
+resume_instruction: "Task completed. MacBook is running official v0.2.16; Developer ID/Team ID/Gatekeeper trust are verified and the active proxy snapshot matches pre-upgrade state. Do not repeat this upgrade unless a later version is explicitly requested."
+updated_at: "2026-09-25T20:40:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260925-macbook-upgrade-0.2.16"
+  branch: "chore/apl-macbook-upgrade-0.2.16-20260925"
+  base_commit: "39fa28a2bd0ffffc654060651e5f1441ac2b5e4a"
+  lease_until: null
+  manual_override: true
