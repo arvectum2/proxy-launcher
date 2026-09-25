@@ -81,6 +81,10 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("не изменяет системный прокси через networksetup", HELP)
         self.assertIn("Встроенного self-updater, обходящего App Store, в этой сборке нет.", HELP)
 
+    def test_store_lane_is_arm64_only(self):
+        self.assertIn("ARCHS: arm64", PROJECT)
+        self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
+
     def test_store_target_reuses_packet_tunnel_not_networksetup(self):
         self.assertIn("../ios/PacketTunnel", PROJECT)
         self.assertNotIn("macos_backend.py", PROJECT)
