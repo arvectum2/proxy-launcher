@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: in_progress
+status: blocked
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -27,14 +27,22 @@ completed:
   - "PASS: signed Debug generic iPhone build succeeded with Apple Development / APL Development profiles; codesign --verify --deep --strict passed and branding resources are bundled."
   - "PASS: exact-code GitHub Actions Mobile iOS personal run 36104984986 at acaec96: core-tests SUCCESS and unsigned-device-build SUCCESS."
   - "PASS: exact signed Debug app persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/ for immediate install when the registered iPhone reconnects."
-current: "iPhone Nikita is reconnected, paired over wired transport with Developer Mode/DDI available. Installing the persisted signed Debug app over the existing build, then verifying the saved Основной profile against the real proxy."
+  - "PASS: iPhone reconnected; production signed Debug installed over existing app and saved profile metadata survived."
+  - "PASS: saved profile Основной exists, is selected, type AUTO; username/host metadata are trimmed."
+  - "PASS: real-proxy smoke: VPNController.prepare status disconnected, startTunnel returned successfully; prior NEVPNErrorDomain error 2 no longer occurs."
+  - "FAIL (external/auth): PacketTunnel AUTO probe cannot authenticate real proxy. Latest error: HTTP CONNECT Basic credentials rejected (407); SOCKS5 CONNECT rejected; HTTPS-proxy TLS timed out."
+  - "PASS: app and PacketTunnel both read a saved password (length 6) from the shared Keychain; shared access-group entitlements and expanded APLKeychainAccessGroup match exactly."
+  - "PASS: Mac desktop config host/port/login exactly match the iPhone profile; desktop password length is also 6; desktop Basic CONNECT to the same endpoint returns HTTP 200."
+  - "CLEANUP PASS: temporary local smoke runner and debug credential telemetry were removed; git worktree restored clean; clean persisted production app reinstalled and launched on iPhone."
+current: "Physical verification resumed and the production VPN configuration fix is confirmed: on iPhone, startTunnel now succeeds without NEVPNErrorDomain error 2. The saved Основной profile is present and selected. PacketTunnel starts but AUTO probing fails at proxy authentication: HTTP CONNECT returns 407 Basic authentication rejected; SOCKS5 CONNECT is rejected; HTTPS-to-proxy times out. App and extension both see a saved password of length 6. Desktop settings on Mac mini have the same host/port/login and a 6-character password; the desktop endpoint answers CONNECT 200 with its stored credentials. Temporary smoke/debug instrumentation was removed and the clean production Debug app was reinstalled/launched."
 pending:
-  - "When the iPhone is reconnected to the Mac mini, install the persisted signed Debug app over the current build and verify the Owner’s real proxy connects without NEVPNErrorDomain error 2; inspect device/extension logs if it does not."
+  - "Owner must re-enter the known-good proxy password in profile Основной (and save). Then retry connect on the clean production build; if 407 persists, check whether the proxy provider restricts source IP / requires whitelist, especially when the iPhone is on cellular/LTE."
+  - "After credentials/source-IP are confirmed, verify real tunneled HTTPS traffic and mark the task completed."
 last_verified_commit: "acaec9680463e709798b047d497fcb9505486463"
 test_results: []
-blocker: "None. Physical verification resumed."
-resume_instruction: "When the Owner says the iPhone is connected/ready, first read this checkpoint and verify repo state. Install /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-config-fix/Arvectum Proxy Launcher.app with devicectl on the registered iPhone, launch it, and have the Owner retry the existing real proxy. Confirm no NEVPNErrorDomain error 2 and verify actual tunneled traffic; if successful, mark task completed. If it fails, capture app + PacketTunnel logs before changing code. Do not redo branding/build/CI and do not start per-app routing."
-updated_at: "2026-09-25T10:10:00+03:00"
+blocker: "The remaining blocker is outside the verified iOS configuration lifecycle: the proxy server returns HTTP 407 to the saved iPhone credential while the Mac desktop credential succeeds. Exact secret comparison/automatic credential transfer is intentionally not performed. Owner input is required to re-enter the known-good password; if that still returns 407, source-IP/whitelist policy must be checked."
+resume_instruction: "When the Owner reports the password was re-entered/saved, do not rebuild or reinstall. Use the clean app already on iPhone and have the Owner tap Подключиться (or, if direct automation is needed, use a temporary local-only smoke runner and remove it afterward). Read App Group telemetry. Success criteria: no NEVPNErrorDomain error 2, connected event for Основной, and real HTTPS traffic through tunnel. If HTTP 407 persists with known-good password, investigate provider source-IP whitelist/cellular-vs-Wi-Fi policy before changing proxy protocol code. Keep secrets out of logs."
+updated_at: "2026-09-25T10:25:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
