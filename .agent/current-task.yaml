@@ -11,6 +11,7 @@ definition_of_done:
   - "iOS launcher icon is regenerated from the same canonical Arvectum artwork/visual treatment as Android."
   - "No acceptance/debug-only harness is reintroduced and no per-app routing work is started."
   - "Relevant local tests, XcodeGen, and unsigned generic iPhone build pass; exact-head CI is green after push."
+  - "After the iPhone is reconnected, install the signed Debug build and confirm the Owner’s real working proxy connects without NEVPNErrorDomain error 2."
 completed:
   - "Recovered previous completed iOS task and verified clean branch feat/ios-personal-0.1.19 at f374a5e3bedf51613fbd4caf2c5aa6eb21fd6926."
   - "Confirmed from Apple documentation that NEVPNErrorDomain error 2 is configurationDisabled: the VPN manager configuration is not enabled."
@@ -23,15 +24,16 @@ completed:
   - "PASS: Xcode 26.6 core tests 6/6, 0 failures."
   - "PASS: unsigned generic iphoneos build completed with BUILD SUCCEEDED after resource wiring."
   - "PASS: built app contains ArvectumWordmark.png and Assets.car; Info.plist CFBundlePrimaryIcon resolves AppIcon."
-current: "Implementation and local verification are green. VPN configuration self-healing compiles; canonical wordmark and Android-parity AppIcon are now in the actual iOS resources build phase. Xcode 26.6 core tests pass 6/6 and unsigned generic iPhone build succeeds with ArvectumWordmark.png + Assets.car bundled. Next: commit/push production changes and verify exact-head CI; physical real-proxy verification remains pending until iPhone reconnects."
+  - "PASS: signed Debug generic iPhone build succeeded with Apple Development / APL Development profiles; codesign --verify --deep --strict passed and branding resources are bundled."
+current: "Code/assets are committed and pushed at acaec9680463e709798b047d497fcb9505486463. Local core tests, unsigned build, and signed Debug build are green; signed app passes codesign and bundles canonical branding resources. GitHub exact-code CI run 36104984986 is in progress. After CI, the only remaining DoD item is physical confirmation with the Owner’s real proxy once the iPhone is reconnected."
 pending:
   - "Commit/push and verify exact-head CI."
   - "Physical real-proxy confirmation remains unavailable until the Owner reconnects the iPhone to the Mac mini."
-last_verified_commit: "f374a5e3bedf51613fbd4caf2c5aa6eb21fd6926"
+last_verified_commit: "acaec9680463e709798b047d497fcb9505486463"
 test_results: []
 blocker: "No blocker for implementation/local/CI verification. Physical iPhone confirmation is objectively unavailable because the Owner reports the iPhone is currently not connected to the Mac mini."
 resume_instruction: "Continue from VPNController reconciliation and canonical branding. Do not redo the completed iOS 0.1.19 acceptance work. After code/assets changes, run local tests and unsigned generic iPhone build, push, verify exact-head CI, then leave only physical real-proxy verification pending until the iPhone is connected."
-updated_at: "2026-09-25T09:55:00+03:00"
+updated_at: "2026-09-25T09:58:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
