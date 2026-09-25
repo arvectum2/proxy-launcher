@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-CONFIG-LOGO-20260925
-status: in_progress
+status: blocked
 goal: "Fix iOS real-proxy connection failure NEVPNErrorDomain error 2 and replace generated AV monogram branding with the canonical Arvectum branding used by Android."
 authority: HUMAN
 definition_of_done:
@@ -47,15 +47,16 @@ completed:
   - "PASS: production commit f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a pushed."
   - "PASS: clean signed production Debug artifact persisted at /Volumes/ArvectumSSD/Arvectum/artifacts/proxy-launcher/ios/0.1.19-virtual-dns-fix/ and installed/launched on iPhone."
   - "CI partial: exact-head run 36110301163 core-tests SUCCESS; unsigned-device-build still in progress at checkpoint update."
-current: "UI inversion root cause confirmed in code: AppViewModel exposed VPNController as a nested ObservableObject without forwarding objectWillChange, so SwiftUI controls reading model.vpn.status/detail stayed one state behind. Fixed by forwarding VPNController.objectWillChange to AppViewModel. iOS AppIcon canonical mark enlarged from 60% to 74%. Local XcodeGen, core tests 6/6, unsigned build, signed Debug build and codesign verification are green."
+current: "Status/icon production fix committed and pushed at cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4. Exact signed Debug artifact with VPNController change propagation and 74% AppIcon mark is installed/launched on the iPhone. Local XcodeGen, core tests 6/6, unsigned build, signed build, profiles and codesign verification are green. GitHub exact-head run 36111899870 is in progress. Remaining acceptance is visual: Owner must confirm the on-screen state now tracks one real connect/disconnect cycle and the enlarged icon looks right."
 pending:
-  - "Install the exact signed status/icon fix build on iPhone and have Owner verify on-screen state matches actual tunnel for one connect and one disconnect cycle; confirm enlarged icon visually."
-  - "Push exact production commit and verify exact-head GitHub CI; then complete if physical UI acceptance is green."
-last_verified_commit: "f0a67fc49ab28290dd8b848eae5c8cc6eb94cf8a"
+  - "Owner verifies: actual connected state shows Отключить / Подключено; actual disconnected state shows Подключиться / Отключено."
+  - "Owner visually confirms enlarged 74% canonical Arvectum home-screen icon."
+  - "Wait for exact-head GitHub Mobile iOS personal run 36111899870 to finish successfully; then mark task completed if visual acceptance passes."
+last_verified_commit: "cd2cf6d280aab6ef105fda65a4e51f6b99ae1ed4"
 test_results: []
-blocker: "None. Ready for physical UI acceptance."
-resume_instruction: "Install/use the signed status/icon build already produced in /tmp/APL-StatusIconSigned. Verify actual connect state shows Отключить/Подключено and actual disconnected state shows Подключиться/Отключено, plus visually check enlarged home-screen icon. Do not redo tunnel/DNS/credential work. Then verify exact-head CI and complete."
-updated_at: "2026-09-25T11:14:00+03:00"
+blocker: "Only Owner-visible UI/icon acceptance and exact-head CI completion remain; no implementation/build/signing blocker."
+resume_instruction: "First check GitHub run 36111899870. Do not rebuild unless CI or Owner acceptance fails. If Owner confirms UI state tracks actual VPN and icon size is good, mark completed and record CI result. If UI is still stale, inspect SwiftUI propagation before touching VPN/tunnel logic."
+updated_at: "2026-09-25T11:16:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-CONFIG-LOGO-20260925"
