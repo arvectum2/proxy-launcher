@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
+status: blocked
+authority: OWNER
+branch: agent/apl-route-v0216-refresh
+prepared_from_main: "2c11ae8c98ea4952e19ab7d19672b1dd5c02a277"
+source_pr: 144
+reconciliation:
+  - "Refreshed the Owner decision packet from immutable v0.2.12 wording to immutable v0.2.16/current-main recovery semantics."
+  - "Preserved separate WFP ownership, foreign-resource non-ownership, fail-closed recovery and the APL-REL-016 signing dependency."
+  - "Recommendation remains Option A only; no production architecture is approved."
+evidence:
+  - "Decision packet refresh commit 20ab98918d05a49b82c73929cdf6a64e0572a49c."
+blocker: "Owner/Product Owner must select or reject the production architecture. No privileged enforcement implementation is authorized before that decision."
+resume_instruction: "Open/update an Owner-review PR for this refresh, run exact-head CI, and stop at the Owner decision gate. Do not implement privileged enforcement or claim architecture approval."
+updated_at: "2026-09-25T23:00:00+03:00"
+execution:
+  claimed_by: null
+  execution_id: null
+  lease_until: null
+  manual_override: false
