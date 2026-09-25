@@ -6,7 +6,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.2.16"
+    MARKETING_VERSION: "0.2.17"
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: "VML75VY94V"
     CODE_SIGN_STYLE: Manual
@@ -19,7 +19,8 @@ targets:
     type: application
     platform: iOS
     sources:
-      - ../ios/App/ArvectumProxyLauncherApp.swift
+      - App/ArvectumProxyLauncherMacApp.swift
+      - App/HelpView.swift
       - ../ios/App/AppViewModel.swift
       - ../ios/App/ContentView.swift
       - App/VPNController.swift

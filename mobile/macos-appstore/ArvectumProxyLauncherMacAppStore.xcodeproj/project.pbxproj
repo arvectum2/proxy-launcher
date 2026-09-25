@@ -14,6 +14,7 @@
 		1ED95C41564B9A881F120E9A /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E434A226EB0089EE96A56F6 /* TelemetryStore.swift */; };
 		46389FE165D0693BEDD372A8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */; };
 		4BDAFB7E915954D62B3F34C2 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */; };
+		4D5F231FB56873A35C0CE967 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820DB97A426DE7C5789F6F4D /* HelpView.swift */; };
 		52516AC62DA238B7D161229E /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7A2BB5AB783EE1CAEC3FC1 /* TLSProxyRelay.swift */; };
 		55934ACA2742B63BBDD05B26 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44089EC10BD39A03A2FF659 /* ProfileStore.swift */; };
 		5C7F0E8415F2FA3CF8FABEC0 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985BFACF62558D9697E50718 /* FailoverPolicy.swift */; };
@@ -27,8 +28,8 @@
 		9DEA37A7AE556CAAC4B0B719 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8721E1A7BB35D248C67BB14E /* ContentView.swift */; };
 		A29A58B5C6F0AEC51AFD4164 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44089EC10BD39A03A2FF659 /* ProfileStore.swift */; };
 		A453C2B4F6FF365368DD151E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC0C5563910637AC4B5E75FF /* PrivacyInfo.xcprivacy */; };
-		A66119834C7E460B1B7A4091 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD4C197F520007FC892355E4 /* ArvectumProxyLauncherApp.swift */; };
 		A87932C49AEB4538E0CF00DB /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A285D4CE0522B39A211728F /* ArvectumWordmark.png */; };
+		B62D62146691DBB42486B851 /* ArvectumProxyLauncherMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */; };
 		D3D01A1A8D233F5D5061D9BD /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5B7E4468C7AE6A73600D6D /* AppShared.swift */; };
 		DB0E9BE19FB28CD9F0AC17C9 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */; };
 		DCAC9FBC09F4B11C0257CE11 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */; };
@@ -70,13 +71,14 @@
 		601B7B7BE66C63A105FC5A31 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6CAE6FE1231A7397DBF24E85 /* tun2proxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tun2proxy.xcframework; path = Frameworks/tun2proxy.xcframework; sourceTree = "<group>"; };
 		792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
+		820DB97A426DE7C5789F6F4D /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		8721E1A7BB35D248C67BB14E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDisclosureView.swift; sourceTree = "<group>"; };
 		985BFACF62558D9697E50718 /* FailoverPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailoverPolicy.swift; sourceTree = "<group>"; };
 		A44089EC10BD39A03A2FF659 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		B68F170D4D28D53A30C2F374 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		BD4C197F520007FC892355E4 /* ArvectumProxyLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherApp.swift; sourceTree = "<group>"; };
+		B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherMacApp.swift; sourceTree = "<group>"; };
 		BE5B7E4468C7AE6A73600D6D /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
 		CA66D25C28E9164DB6A564F5 /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
 		EC0C5563910637AC4B5E75FF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -108,6 +110,8 @@
 		1EB11ED03ADA1A168D78A53B /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */,
+				820DB97A426DE7C5789F6F4D /* HelpView.swift */,
 				920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */,
 				CA66D25C28E9164DB6A564F5 /* VPNController.swift */,
 			);
@@ -150,7 +154,6 @@
 			isa = PBXGroup;
 			children = (
 				FDF8C18F2B0CDE13A4691A3B /* AppViewModel.swift */,
-				BD4C197F520007FC892355E4 /* ArvectumProxyLauncherApp.swift */,
 				8721E1A7BB35D248C67BB14E /* ContentView.swift */,
 			);
 			name = App;
@@ -342,9 +345,10 @@
 			files = (
 				D3D01A1A8D233F5D5061D9BD /* AppShared.swift in Sources */,
 				9274808A167F2FD4668BF099 /* AppViewModel.swift in Sources */,
-				A66119834C7E460B1B7A4091 /* ArvectumProxyLauncherApp.swift in Sources */,
+				B62D62146691DBB42486B851 /* ArvectumProxyLauncherMacApp.swift in Sources */,
 				9DEA37A7AE556CAAC4B0B719 /* ContentView.swift in Sources */,
 				5C7F0E8415F2FA3CF8FABEC0 /* FailoverPolicy.swift in Sources */,
+				4D5F231FB56873A35C0CE967 /* HelpView.swift in Sources */,
 				14C95F5135F84D57E060BF73 /* PrivacyDisclosureView.swift in Sources */,
 				A29A58B5C6F0AEC51AFD4164 /* ProfileStore.swift in Sources */,
 				46389FE165D0693BEDD372A8 /* ProxyModel.swift in Sources */,
@@ -442,7 +446,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACCATALYST_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.2.16;
+				MARKETING_VERSION = 0.2.17;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -549,7 +553,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACCATALYST_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 0.2.16;
+				MARKETING_VERSION = 0.2.17;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

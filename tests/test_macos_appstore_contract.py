@@ -7,6 +7,8 @@ STORE = ROOT / "mobile" / "macos-appstore"
 PROJECT = (STORE / "project.yml").read_text(encoding="utf-8")
 FETCH = (STORE / "Tools" / "fetch_tun2proxy.py").read_text(encoding="utf-8")
 APP_SHARED = (STORE / "Shared" / "AppShared.swift").read_text(encoding="utf-8")
+APP_ENTRY = (STORE / "App" / "ArvectumProxyLauncherMacApp.swift").read_text(encoding="utf-8")
+HELP = (STORE / "App" / "HelpView.swift").read_text(encoding="utf-8")
 
 
 def plist(path):
@@ -54,6 +56,30 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
         self.assertIn("-create-xcframework", FETCH)
         self.assertIn("disable-api-forced-exit-for-network-extension-live-restart", FETCH)
+
+    def test_store_release_is_0_2_17_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.17"', PROJECT)
+        self.assertIn('?? "0.2.17"', APP_SHARED)
+        self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
+        self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
+
+    def test_standard_help_menu_opens_bundled_offline_help(self):
+        self.assertIn("CommandGroup(replacing: .help)", APP_ENTRY)
+        self.assertIn("Справка Arvectum Proxy Launcher", APP_ENTRY)
+        for phrase in (
+            "Начало работы",
+            "Статусы",
+            "Форматы прокси",
+            "Устранение неполадок",
+            "О приложении и конфиденциальность",
+            "© Arvectum LLC",
+        ):
+            self.assertIn(phrase, HELP)
+        self.assertIn("https://github.com/arvectum2/proxy-launcher", HELP)
+        self.assertIn("https://github.com/arvectum2/proxy-launcher/releases/latest", HELP)
+        self.assertIn("https://github.com/arvectum2/proxy-launcher/issues/new", HELP)
+        self.assertIn("не изменяет системный прокси через networksetup", HELP)
+        self.assertIn("Встроенного self-updater, обходящего App Store, в этой сборке нет.", HELP)
 
     def test_store_target_reuses_packet_tunnel_not_networksetup(self):
         self.assertIn("../ios/PacketTunnel", PROJECT)

@@ -4,7 +4,7 @@ enum AppShared {
     static let appGroup = "VML75VY94V.ru.arvectum.proxylauncher.macos"
     static let providerBundleIdentifier = "ru.arvectum.proxylauncher.macos.PacketTunnel"
     static let defaultsSuite = appGroup
-    static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.2.16"
+    static let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.2.17"
     static let keychainService = "ru.arvectum.proxylauncher.macos.credentials"
 
     static var keychainAccessGroup: String? {
