@@ -145,7 +145,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
 
         let proxyURL = try buildProxyURL(profile: effective, password: prepared.password)
-        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns over-tcp --ipv6-enabled --verbosity warn"
+        // Match Android's virtual-DNS mode. Keeping the original hostname lets
+        // HTTP CONNECT proxies receive CONNECT host:port instead of CONNECT IP:port;
+        // some otherwise valid proxies break TLS when the hostname is lost.
+        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn"
         engineQueue.async { [weak self] in
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)

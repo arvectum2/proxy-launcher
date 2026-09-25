@@ -9,6 +9,7 @@ This target follows the accepted Android 0.1.19 scope and intentionally does not
 - credentials in the shared Keychain, profile metadata in the App Group;
 - NETunnelProviderManager + NEPacketTunnelProvider;
 - pinned tun2proxy v0.8.3 iOS integration: upstream XCFramework layout is SHA-256 verified, while the static library is rebuilt from pinned source/Cargo.lock with the Arvectum iOS live-restart patch (upstream forced process exit disabled);
+- tun2proxy uses virtual DNS, matching Android, so HTTP CONNECT preserves destination hostnames instead of degrading TLS compatibility by connecting proxies to resolved IPs;
 - Auto pool ordering, health checks, failover and optional return to the primary proxy;
 - exact host/IP site exclusions, up to 32 entries, using packet-tunnel excluded routes;
 - pool/tunnel journal;
