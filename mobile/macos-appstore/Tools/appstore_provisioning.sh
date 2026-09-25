@@ -65,13 +65,33 @@ doctor() {
   api_get '/v1/bundleIds?limit=200' >"$tmp"
   python3 - "$tmp" <<'PY'
 import json, sys
-wanted={"ru.arvectum.proxylauncher.macos","ru.arvectum.proxylauncher.macos.PacketTunnel"}
+wanted={"ru.arvectum.proxylauncher.macos","ru.arvectum.proxylauncher.macos.PacketTunnel","ru.arvectum.proxylauncher.ios","ru.arvectum.proxylauncher.ios.PacketTunnel"}
 payload=json.load(open(sys.argv[1]))
 for item in payload.get("data", []):
     attrs=item.get("attributes", {})
     if attrs.get("identifier") in wanted:
         print("BUNDLE", item.get("id"), attrs.get("identifier"), attrs.get("platform"))
+        if attrs.get("identifier") in {"ru.arvectum.proxylauncher.ios","ru.arvectum.proxylauncher.ios.PacketTunnel"}:
+            print("CAPABILITY_URL", item.get("id"))
 PY
+  for bundle_id in $(python3 - "$tmp" <<'PY'
+import json, sys
+payload=json.load(open(sys.argv[1]))
+wanted={"ru.arvectum.proxylauncher.ios","ru.arvectum.proxylauncher.ios.PacketTunnel"}
+for item in payload.get("data", []):
+    if item.get("attributes", {}).get("identifier") in wanted:
+        print(item.get("id"))
+PY
+  ); do
+    api_get "/v1/bundleIds/$bundle_id/bundleIdCapabilities?limit=200" >"$tmp"
+    python3 - "$tmp" <<'PY'
+import json, sys
+payload=json.load(open(sys.argv[1]))
+for item in payload.get("data", []):
+    a=item.get("attributes", {})
+    print("CAP", a.get("capabilityType"), json.dumps(a.get("settings") or [], separators=(",",":")))
+PY
+  done
   api_get '/v1/certificates?limit=200' >"$tmp"
   python3 - "$tmp" <<'PY'
 import json, sys
