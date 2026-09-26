@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: in_progress
+status: completed
 goal: "Make the main New/Edit actions genuinely adaptive to device width/height/font scale and eliminate the remaining clipped action frame seen on the owner phone."
 authority: OWNER
 definition_of_done:
@@ -44,11 +44,11 @@ completed:
   - Cross-review 6 popup coexistence: profile panel/action containers disable child clipping and the profile popup remains anchored to the selector.
   - Cross-review 7 regression: NoActionBar/Deep Navy, revised failover copy, async app exclusions, and connected-profile editing remain intact.
   - Cross-review 8 release validation: added ResponsiveUiPolicy unit coverage and bumped candidate to 0.1.36 / versionCode 37 with matching CI guards.
-current: "Adaptive 0.1.36 implementation and 8 cross-review passes complete; run CI and verify APK."
+current: "Completed: Android 0.1.36 responsive New/Edit candidate built, CI-verified, checksum-verified, and ready for owner physical acceptance."
 pending:
-  - Run CI lint/unit/build including ResponsiveUiPolicy tests.
-  - Verify 0.1.36 signer/version/checksum and deliver APK for physical acceptance.
-last_verified_commit: "34af97eb0a4da7c2abe140026c92b6b806bc2d49"
+  - External acceptance gate: owner installs 0.1.36 and verifies complete New/Edit frames and adaptive one-line labels on the physical phone.
+  - If accepted, merge PR #190; if not, resume from the exact remaining physical-device rendering issue.
+last_verified_commit: "58215376163d7bdf9f7c928e26ae6baf07dadde8"
 test_results:
   - "GitHub Actions run 36252064547 android-build: PASS."
   - "Android lint: PASS."
@@ -65,9 +65,15 @@ test_results:
   - "testDebugUnitTest + assembleDebug: PASS."
   - "Signer/branding/version guard: PASS for 0.1.35 / versionCode 36."
   - "Final APK SHA256 matches CI SHA256SUMS: 86ede5336af4cf234d596c802ff085d74f891f3641ab52b703b04c5791882394."
-blocker: null
-resume_instruction: "Continue Android 0.1.36 responsive action fix on PR #190: replace New/Edit framework Buttons with adaptive custom actions, run 8 cross-reviews and CI, then deliver APK."
-updated_at: "2026-09-26T21:08:00+03:00"
+  - "GitHub Actions run 36260385236 android-build: PASS on 5821537."
+  - "ResponsiveUiPolicy unit tests included in testDebugUnitTest: PASS."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "Signer/branding/version guard: PASS for 0.1.36 / versionCode 37."
+  - "Final APK SHA256 matches CI SHA256SUMS: 73981e6c89d33fe7ebd69ebb3199715868c31679b39771827dd1da7c2782352e."
+blocker: "No code/build blocker. PR #190 remains open for owner physical acceptance of 0.1.36."
+resume_instruction: "Wait for owner physical acceptance of Android 0.1.36. If New/Edit render correctly, merge PR #190 and record the merged main commit; otherwise reopen this task and fix only the remaining physical-device rendering issue."
+updated_at: "2026-09-26T21:18:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
