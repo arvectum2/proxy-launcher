@@ -35,6 +35,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
@@ -77,6 +78,7 @@ class MainActivity : Activity() {
     private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
     private var profilePopup: PopupWindow? = null
+    private var appExclusionLoadingDialog: AlertDialog? = null
     private var freeLocations: List<FreeProxyLocation> = FreeGatewayClient.BOOTSTRAP_LOCATIONS
     private var freeLocationsLastFetchedAtMs = 0L
     private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
@@ -199,6 +201,8 @@ class MainActivity : Activity() {
         mainHandler.removeCallbacks(freeLocationRetryRunnable)
         profilePopup?.dismiss()
         profilePopup = null
+        appExclusionLoadingDialog?.dismiss()
+        appExclusionLoadingDialog = null
         super.onStop()
     }
 
@@ -454,13 +458,22 @@ class MainActivity : Activity() {
         fun quickAction(label: String, onClick: () -> Unit): TextView =
             TextView(this).apply {
                 text = label
-                textSize = 12.5f
+                textSize = 12f
                 setTextColor(MINT_LIGHT)
                 setTypeface(typeface, Typeface.BOLD)
                 gravity = Gravity.CENTER
-                setPadding(dp(8), 0, dp(8), 0)
-                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                setAutoSizeTextTypeUniformWithConfiguration(
+                    11,
+                    12,
+                    1,
+                    TypedValue.COMPLEX_UNIT_SP,
+                )
+                setPadding(dp(5), 0, dp(5), 0)
+                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f, MINT)
                 isClickable = true
+                isFocusable = true
                 setOnClickListener {
                     popup.dismiss()
                     onClick()
@@ -468,19 +481,19 @@ class MainActivity : Activity() {
             }
         quickActions.addView(
             quickAction("Сайты") { showSiteExclusionsDialog() },
-            LinearLayout.LayoutParams(0, dp(42), 1f),
+            LinearLayout.LayoutParams(0, dp(48), 0.8f),
         )
         quickActions.addView(
             quickAction("Приложения") { showAppExclusionsDialog() },
-            LinearLayout.LayoutParams(0, dp(42), 1f).apply { leftMargin = dp(6) },
+            LinearLayout.LayoutParams(0, dp(48), 1.4f).apply { leftMargin = dp(6) },
         )
         quickActions.addView(
             quickAction("Журнал") { showPoolEventsDialog() },
-            LinearLayout.LayoutParams(0, dp(42), 1f).apply { leftMargin = dp(6) },
+            LinearLayout.LayoutParams(0, dp(48), 0.8f).apply { leftMargin = dp(6) },
         )
         rows.addView(
             quickActions,
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(42)).apply {
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
                 bottomMargin = dp(6)
             },
         )
@@ -846,27 +859,100 @@ class MainActivity : Activity() {
     }
 
     private fun showAppExclusionsDialog() {
-        val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-        val apps = packageManager.queryIntentActivities(launcherIntent, 0)
-            .mapNotNull { info ->
-                val packageId = info.activityInfo?.packageName ?: return@mapNotNull null
-                if (packageId == packageName) return@mapNotNull null
-                val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
-                InstalledApp(packageId, label.ifEmpty { packageId })
-            }
-            .distinctBy { it.packageId }
-            .sortedWith(compareBy<InstalledApp> { it.label.lowercase(Locale.getDefault()) }.thenBy { it.packageId })
-
-        if (apps.isEmpty()) {
-            AlertDialog.Builder(this)
-                .setTitle("Исключения приложений")
-                .setMessage("Не удалось получить список установленных приложений.")
-                .setPositiveButton("Закрыть", null)
-                .show()
-            return
+        val loadingContent = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(24), dp(18), dp(24), dp(18))
+            addView(
+                ProgressBar(this@MainActivity).apply {
+                    isIndeterminate = true
+                    contentDescription = "Загрузка списка приложений"
+                },
+                LinearLayout.LayoutParams(dp(32), dp(32)),
+            )
+            addView(
+                TextView(this@MainActivity).apply {
+                    text = "Загружаем список приложений…"
+                    textSize = 15f
+                    setTextColor(NAVY)
+                    setPadding(dp(16), 0, 0, 0)
+                },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+            )
         }
+        val loadingDialog = AlertDialog.Builder(this)
+            .setTitle("Исключения приложений")
+            .setView(loadingContent)
+            .setNegativeButton("Отмена", null)
+            .create()
+        appExclusionLoadingDialog?.dismiss()
+        appExclusionLoadingDialog = loadingDialog
+        loadingDialog.setOnDismissListener {
+            if (appExclusionLoadingDialog === loadingDialog) {
+                appExclusionLoadingDialog = null
+            }
+        }
+        loadingDialog.show()
 
-        val selected = runCatching { store.getAppExclusions().toMutableSet() }.getOrDefault(mutableSetOf())
+        val selected = runCatching {
+            store.getAppExclusions().toMutableSet()
+        }.getOrDefault(mutableSetOf())
+
+        Thread({
+            val appsResult = runCatching {
+                val launcherIntent = Intent(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_LAUNCHER)
+                packageManager.queryIntentActivities(launcherIntent, 0)
+                    .mapNotNull { info ->
+                        val packageId = info.activityInfo?.packageName
+                            ?: return@mapNotNull null
+                        if (packageId == packageName) return@mapNotNull null
+                        val label = info.loadLabel(packageManager)
+                            ?.toString()
+                            ?.trim()
+                            .orEmpty()
+                        InstalledApp(packageId, label.ifEmpty { packageId })
+                    }
+                    .distinctBy { it.packageId }
+                    .sortedWith(
+                        compareBy<InstalledApp> {
+                            it.label.lowercase(Locale.getDefault())
+                        }.thenBy { it.packageId },
+                    )
+            }
+
+            mainHandler.post {
+                if (isFinishing || isDestroyed || !loadingDialog.isShowing) {
+                    return@post
+                }
+                loadingDialog.dismiss()
+
+                val apps = appsResult.getOrElse {
+                    showAppExclusionsLoadError()
+                    return@post
+                }
+                if (apps.isEmpty()) {
+                    showAppExclusionsLoadError()
+                    return@post
+                }
+                showAppExclusionsPicker(apps, selected)
+            }
+        }, "apl-app-exclusions-loader").start()
+    }
+
+    private fun showAppExclusionsLoadError() {
+        if (isFinishing || isDestroyed) return
+        AlertDialog.Builder(this)
+            .setTitle("Исключения приложений")
+            .setMessage("Не удалось получить список установленных приложений.")
+            .setPositiveButton("Закрыть", null)
+            .show()
+    }
+
+    private fun showAppExclusionsPicker(
+        apps: List<InstalledApp>,
+        selected: MutableSet<String>,
+    ) {
         val labels = apps.map { it.label }.toTypedArray()
         val checked = BooleanArray(apps.size) { apps[it].packageId in selected }
         val dialog = AlertDialog.Builder(this)
@@ -884,18 +970,26 @@ class MainActivity : Activity() {
                 try {
                     store.setAppExclusions(selected)
                 } catch (_: Exception) {
-                    renderState(ProxyVpnService.STATE_ERROR, "Не удалось сохранить исключения приложений")
+                    renderState(
+                        ProxyVpnService.STATE_ERROR,
+                        "Не удалось сохранить исключения приложений",
+                    )
                     return@setOnClickListener
                 }
                 dialog.dismiss()
                 if (currentState == ProxyVpnService.STATE_CONNECTED ||
                     currentState == ProxyVpnService.STATE_CONNECTING
                 ) {
-                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения приложений…") }
+                    selectedChoice()?.let {
+                        requestLiveSwitch(it, "Применяем исключения приложений…")
+                    }
                 } else {
                     val count = store.getAppExclusions().size
-                    val detail = if (count == 0) "Исключения приложений очищены"
-                    else "Приложений в обход прокси: $count"
+                    val detail = if (count == 0) {
+                        "Исключения приложений очищены"
+                    } else {
+                        "Приложений в обход прокси: $count"
+                    }
                     renderState(currentState, detail)
                 }
             }

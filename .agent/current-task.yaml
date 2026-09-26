@@ -17,12 +17,18 @@ completed:
   - Moved Sites / Apps / Journal into an always-visible quick-action row at the top of the profile menu.
   - Removed the AlertDialog message/list conflict so the installed-app multi-choice list is actually rendered.
   - Bumped Android physical-test candidate to 0.1.33 / versionCode 34 and updated the CI version guard.
-current: "Implement UX polish and asynchronous app-list loading, then run 8 cross-review passes."
+  - Physical acceptance confirmed 0.1.33 functionally works.
+  - Cross-review 1 UX/layout: distinct mint borders, asymmetric 0.8/1.4/0.8 widths, one-line autosizing labels.
+  - Cross-review 2 async state: loading dialog is shown before installed-app discovery and PackageManager work runs off the UI thread.
+  - Cross-review 3 lifecycle: loading dialog is tracked/dismissed onStop; stale background results cannot reopen UI after dismissal.
+  - Cross-review 4 accessibility: 48dp action targets, focusable actions, one-line autosizing text, progress content description.
+  - Cross-review 5 performance: deliberately avoided blur/render effects on old devices; only lightweight dialog dim + indeterminate progress.
+  - Cross-review 6 cancellation/error handling: Cancel dismisses loader; stale result ignored; query failures/empty results show explicit error.
+  - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
+  - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
+current: "8 cross-review passes complete; push Android 0.1.34 candidate and validate CI/APK."
 pending:
-  - Implement compact bordered routing actions.
-  - Implement immediate loading indicator and background app discovery.
-  - Perform and document 8 cross-review passes; fix findings.
-  - Run CI lint/unit/build and verify new APK.
+  - Run CI lint/unit/build and verify Android 0.1.34 APK.
   - Deliver physical-test APK and await acceptance.
 last_verified_commit: "ad287f7bc5ef28f1fdd643258f5fef5aa095f981"
 test_results:
@@ -33,7 +39,7 @@ test_results:
   - "Artifact SHA256 verified locally: 808541e1987d885d36f6e77101fe8bc334931e4b075b26c13a5b48794d01aec8."
 blocker: null
 resume_instruction: "Continue UX polish on PR #190: bordered one-line routing actions plus explicit async application-list loading; complete 8 cross-review passes, CI, and deliver the next physical-test APK."
-updated_at: "2026-09-26T18:47:00+03:00"
+updated_at: "2026-09-26T18:55:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
