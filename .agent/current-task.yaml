@@ -1,83 +1,41 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: in_progress
-goal: "Make the main New/Edit actions genuinely adaptive to device width/height/font scale and eliminate the remaining clipped action frame seen on the owner phone."
+task_id: APL-IOS-ROUTING-POLICY-V2-20260926
+status: completed
+goal: "Minimize iOS application-routing setup so the user chooses one of two APL modes once and then manages the mode from APL."
 authority: OWNER
 definition_of_done:
-  - New/Edit controls render complete rounded shapes/borders on the owner phone in both the normal and profile-menu-open screenshots.
-  - New/Edit sizing and text adapt to screen width/height and font scale without wrapping or clipping.
-  - The adaptive controls preserve at least a 48dp touch target and existing enable/disable behavior.
-  - Previous accepted fixes (NoActionBar/Deep Navy, failover copy, app exclusions loading) remain unchanged.
-  - Complete 8 documented cross-review passes covering rendering, responsive metrics, typography, touch targets, popup overlap, accessibility, regressions, and release validation.
-  - Android lint/tests/build and APK checksum verification pass.
+  - "Exactly two modes: APL normally ON and selected apps temporarily disable it; APL normally OFF and selected apps temporarily enable it."
+  - "Open/Close are implementation details; leaving selected apps restores the baseline state."
+  - "Changing routing mode in APL must not require editing Shortcuts."
+  - "Mode selection/settings immediately enforce the corresponding baseline VPN state."
+  - "Run exact-head CI and physical-device acceptance for both modes."
+  - "Keep APL-UI-001 as mandatory pre-release gate."
 completed:
-  - Captured physical-device feedback and screenshots for all three defects.
-  - Enabled active named-profile editing while connected; saving triggers a live reconnect and delete stays disabled during the active edit.
-  - Moved Sites / Apps / Journal into an always-visible quick-action row at the top of the profile menu.
-  - Removed the AlertDialog message/list conflict so the installed-app multi-choice list is actually rendered.
-  - Bumped Android physical-test candidate to 0.1.33 / versionCode 34 and updated the CI version guard.
-  - Physical acceptance confirmed 0.1.33 functionally works.
-  - Cross-review 1 UX/layout: distinct mint borders, asymmetric 0.8/1.4/0.8 widths, one-line autosizing labels.
-  - Cross-review 2 async state: loading dialog is shown before installed-app discovery and PackageManager work runs off the UI thread.
-  - Cross-review 3 lifecycle: loading dialog is tracked/dismissed onStop; stale background results cannot reopen UI after dismissal.
-  - Cross-review 4 accessibility: 48dp action targets, focusable actions, one-line autosizing text, progress content description.
-  - Cross-review 5 performance: deliberately avoided blur/render effects on old devices; only lightweight dialog dim + indeterminate progress.
-  - Cross-review 6 cancellation/error handling: Cancel dismisses loader; stale result ignored; query failures/empty results show explicit error.
-  - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
-  - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
-  - Physical acceptance confirmed 0.1.34 UX polish works.
-  - Cross-review 1 composition: New/Edit row now has explicit 58dp height with 48dp controls and bottom breathing room, preventing clipped rounded borders.
-  - Cross-review 2 small-screen behavior: profile panel remains wrap-content while the power area flexes with weight, so the control panel retains its full geometry.
-  - Cross-review 3 theme/system bar: Android 27+ AppTheme now explicitly inherits Theme.Material.Light.NoActionBar, sets windowNoTitle, and preserves Deep Navy window/status/navigation backgrounds.
-  - Cross-review 4 visual hierarchy: existing Deep Navy / Graphite / Mint hierarchy remains consistent; no extra separator color or fake overlay introduced.
-  - Cross-review 5 copy/semantics: user-facing "основной" failover terminology replaced with "приоритетный"; restore copy is "Возвращаться к приоритетному прокси после сбоя".
-  - Cross-review 6 accessibility: New/Edit remain 48dp touch targets and no smaller controls were introduced.
-  - Cross-review 7 regression: app exclusions async loader and connected-profile editing paths remain present and unchanged.
-  - Cross-review 8 release validation: candidate bumped to 0.1.35 / versionCode 36 with matching CI version guards.
-  - Physical acceptance confirmed 0.1.35 fixes #2 and #3; New/Edit frame clipping remains on the owner phone.
-  - Cross-review 1 rendering: New/Edit no longer use framework Button widgets; both are custom TextView actions with explicit custom backgrounds.
-  - Cross-review 2 responsive frame: narrow screens reduce panel horizontal padding, inter-button gap, and corner radius to reclaim width.
-  - Cross-review 3 typography: labels use autosize with screen-width/fontScale-aware min/max SP and remain single-line.
-  - Cross-review 4 accessibility: adaptive actions preserve a 48dp minimum touch target and explicit content descriptions.
-  - Cross-review 5 short-screen spacing: only vertical whitespace contracts on short screens; the 48dp action target is preserved.
-  - Cross-review 6 popup coexistence: profile panel/action containers disable child clipping and the profile popup remains anchored to the selector.
-  - Cross-review 7 regression: NoActionBar/Deep Navy, revised failover copy, async app exclusions, and connected-profile editing remain intact.
-  - Cross-review 8 release validation: added ResponsiveUiPolicy unit coverage and bumped candidate to 0.1.36 / versionCode 37 with matching CI guards.
-  - Owner physical acceptance confirmed Android 0.1.36 adaptive New/Edit rendering; merge authorized.
-current: "Owner accepted Android 0.1.36 on physical device; merge PR #190 into main and verify post-merge CI."
+  - "Verified current Apple App trigger semantics and public API limitations."
+  - "Persisted IOSAppRoutingMode with normallyOn and normallyOff modes."
+  - "Neutral SelectedAppOpenedIntent/SelectedAppClosedIntent let APL decide VPN state from saved mode."
+  - "User-created Shortcuts Personal Automations confirmed to fire on physical iPhone."
+  - "Diagnosed and fixed manual-development-build Keychain signing issue (-34018); app and Packet Tunnel share VML75VY94V.ru.arvectum.proxylauncher.ios.shared."
+  - "Added AppRoutingVPNControl.applyBaseline and centralized idempotent VPN state transitions."
+  - "Automation settings enforce the selected baseline immediately on appear and whenever mode changes."
+  - "Exact-head Mobile iOS personal CI on PR head b6b29791: PASS."
+  - "Physical iPhone acceptance PASS for normallyOn: APL connected at baseline; entering Telegram disconnected APL; exiting Telegram reconnected APL."
+  - "Physical iPhone acceptance PASS for normallyOff: APL disconnected at baseline; entering Telegram connected APL; exiting Telegram disconnected APL."
+current: "Completed. Both owner-defined iOS routing scenarios passed physical iPhone acceptance."
 pending:
-  - Merge PR #190 into main.
-  - Verify resulting main commit and post-merge Android CI.
-  - Mark checkpoint completed with merged main commit.
-last_verified_commit: "58215376163d7bdf9f7c928e26ae6baf07dadde8"
+  - "APL-UI-001 remains the mandatory pre-release UI gate before public release."
+last_verified_commit: db7d93fad3ad7bc19369eb575563954bac6a3cd8
 test_results:
-  - "GitHub Actions run 36252064547 android-build: PASS."
-  - "Android lint: PASS."
-  - "testDebugUnitTest + assembleDebug: PASS."
-  - "APK signer/branding/version guard: PASS for 0.1.33 / versionCode 34."
-  - "Artifact SHA256 verified locally: 808541e1987d885d36f6e77101fe8bc334931e4b075b26c13a5b48794d01aec8."
-  - "GitHub Actions run 36253680723 android-build: PASS on ea6051b."
-  - "Android lint: PASS."
-  - "testDebugUnitTest + assembleDebug: PASS."
-  - "Signer/branding/version guard: PASS for 0.1.34 / versionCode 35."
-  - "Final APK SHA256 matches CI SHA256SUMS: 7c07e851a7d39f06c0b0be307f6b90723603fc33e07cccbb3c69e7509f069a1a."
-  - "GitHub Actions run 36259357006 android-build: PASS on 34af97e."
-  - "Android lint: PASS."
-  - "testDebugUnitTest + assembleDebug: PASS."
-  - "Signer/branding/version guard: PASS for 0.1.35 / versionCode 36."
-  - "Final APK SHA256 matches CI SHA256SUMS: 86ede5336af4cf234d596c802ff085d74f891f3641ab52b703b04c5791882394."
-  - "GitHub Actions run 36260385236 android-build: PASS on 5821537."
-  - "ResponsiveUiPolicy unit tests included in testDebugUnitTest: PASS."
-  - "Android lint: PASS."
-  - "testDebugUnitTest + assembleDebug: PASS."
-  - "Signer/branding/version guard: PASS for 0.1.36 / versionCode 37."
-  - "Final APK SHA256 matches CI SHA256SUMS: 73981e6c89d33fe7ebd69ebb3199715868c31679b39771827dd1da7c2782352e."
+  - "All workflow runs on PR head b6b29791: PASS, including Mobile iOS personal, SAST, dependency scan, secret scan, SBOM and platform reconciliation workflows."
+  - "Physical install and launch on iPhone Nikita: PASS."
+  - "Physical normallyOn scenario: PASS."
+  - "Physical normallyOff scenario: PASS."
 blocker: null
-resume_instruction: "Merge PR #190, verify origin/main and post-merge Android CI, then mark this checkpoint completed with the merged main commit."
-updated_at: "2026-09-26T21:23:00+03:00"
+resume_instruction: "Task APL-IOS-ROUTING-POLICY-V2-20260926 is complete. Do not reopen unless a regression is reported. Next product work should proceed to APL-UI-001 or another Owner-selected task; preserve the two baseline modes and the one-time Shortcuts setup model."
+updated_at: "2026-09-26T20:55:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: task/android-0132-ux-fixes-20260926
-  base_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
+  branch: agent/ios-routing-policy-v2-20260926
+  base_commit: ccd6c2e35d3fddecfa209ed4e4e49bdb88bce411
   manual_override: true
