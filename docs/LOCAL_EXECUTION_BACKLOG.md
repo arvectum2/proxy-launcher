@@ -1,8 +1,8 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-21  
+Updated: 2026-09-26  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
-Current stable release: `v0.2.12`
+Current stable release: `v0.2.16`
 
 This file contains the remaining work that cannot be truthfully completed by hosted repository automation alone, plus active review/owner gates after the Windows/Astra/RED OS desktop baseline and registry dossier work.
 
