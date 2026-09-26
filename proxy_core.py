@@ -14,6 +14,7 @@ ENGINEERING_MILESTONE = "P0.2"
 _STATE_FILES = (
     "proxy_settings.json",
     "no_proxy.txt",
+    "app_exclusions.json",
     "proxy_core.pid",
     "proxy_core.log",
     "proxy_internet_backup.json",
@@ -30,6 +31,7 @@ _LAUNCHER_EXE_NAME = "Arvectum Proxy Launcher.exe"
 _USER_AUTOSTART_RUN_VALUE = "ArvectumProxyLauncher"
 _LAST_SELF_HEAL_ERROR = ""
 
+import application_exclusions as _application_exclusions
 import application_filesystem as _application_filesystem
 import application_runtime as _application_runtime
 import configuration_storage as _configuration_storage
@@ -69,6 +71,8 @@ _configuration_storage.configure(_core)
 _configuration_storage.install_into_core(_core)
 _routing_policy.configure(_core)
 _routing_policy.install_into_core(_core)
+_application_exclusions.configure(_core)
+_application_exclusions.install_into_core(_core)
 _local_proxy_transport.configure(_core)
 _local_proxy_transport.install_into_core(_core)
 _process_supervision.configure(_core)

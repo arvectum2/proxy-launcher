@@ -10,6 +10,7 @@ CORE_PATH = ROOT / "proxy_core.py"
 THIS_TEST = pathlib.Path(__file__).resolve()
 
 CANONICAL_RUNTIME_OWNERS = {
+    "application_exclusions",
     "application_filesystem",
     "application_runtime",
     "configuration_storage",

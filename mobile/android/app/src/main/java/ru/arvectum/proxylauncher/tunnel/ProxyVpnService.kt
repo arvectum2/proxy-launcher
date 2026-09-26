@@ -304,6 +304,9 @@ class ProxyVpnService : VpnService() {
                 builder.addDnsServer("198.18.0.1")
             }
             builder.addDisallowedApplication(packageName)
+            store.getAppExclusions().forEach { excludedPackage ->
+                runCatching { builder.addDisallowedApplication(excludedPackage) }
+            }
             builder.establish() ?: error("VpnService.Builder.establish() returned null")
         } catch (_: Exception) {
             failStartForSession(generation, "Android не смог создать VPN-интерфейс")

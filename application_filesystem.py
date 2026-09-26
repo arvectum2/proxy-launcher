@@ -180,6 +180,7 @@ def _valid_state_file(name: str, path: str) -> bool:
         "proxy_settings.json",
         "proxy_internet_backup.json",
         "proxy_env_backup.json",
+        "app_exclusions.json",
         "proxy_core.pid",
     ):
         try:
@@ -270,6 +271,10 @@ def no_proxy_path() -> str:
     return os.path.join(_core().data_dir(), "no_proxy.txt")
 
 
+def app_exclusions_path() -> str:
+    return os.path.join(_core().data_dir(), "app_exclusions.json")
+
+
 def pid_path() -> str:
     return os.path.join(_core().runtime_dir(), "proxy_core.pid")
 
@@ -303,6 +308,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core.config_recovery_path = config_recovery_path
     core.config_quarantine_dir = config_quarantine_dir
     core.no_proxy_path = no_proxy_path
+    core.app_exclusions_path = app_exclusions_path
     core.pid_path = pid_path
     core.log_path = log_path
     return core
