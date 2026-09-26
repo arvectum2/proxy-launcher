@@ -22,7 +22,7 @@ Network Extension provides the store-compatible ownership boundary. The Catalyst
 
 ## Release identity
 
-Initial Mac App Store product version: `0.2.17`, build `2`.
+Initial Mac App Store product version: `0.2.16`, build `1`.
 
 Planned identifiers:
 - app: `ru.arvectum.proxylauncher.macos`
