@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
+		A11E00000000000000000001 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11E00000000000000000002 /* ApplicationExclusionCapability.swift */; };
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
@@ -76,6 +77,7 @@
 		8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
 		8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
+		A11E00000000000000000002 /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		BEA603A59EEC8463F7514A12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -172,6 +174,7 @@
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
 				B266784C8D84E9CAEB06097B /* ProxyModel.swift */,
 				96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */,
+				A11E00000000000000000002 /* ApplicationExclusionCapability.swift */,
 			);
 			path = SharedCore;
 			sourceTree = "<group>";
@@ -330,6 +333,7 @@
 				24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */,
 				D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */,
 				01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */,
+				A11E00000000000000000001 /* ApplicationExclusionCapability.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
 				FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */,
 			);
