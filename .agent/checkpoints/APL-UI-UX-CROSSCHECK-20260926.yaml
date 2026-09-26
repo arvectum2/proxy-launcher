@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-UX-CROSSCHECK-20260926
-status: in_progress
+status: completed
 goal: "Evaluate the mobile-style versus desktop-style APL interfaces, record the Adaptive UI decision, and integrate the release sequencing into the canonical roadmap/backlog."
 authority: REVIEW
 definition_of_done:
@@ -12,23 +12,30 @@ definition_of_done:
   - "Record Owner sequencing: per-application exclusions are the next functional slice; UI unification is a mandatory gate before releasing that new functionality."
   - "Keep the per-app production-architecture stop-gate explicit rather than inventing an architecture approval."
 completed:
-  - "9-pass UI/UX cross-check completed."
-  - "Recommendation recorded in docs/APL_UI_UX_CROSSCHECK_20260926.md: mobile visual/product language + desktop interaction model + native platform shell."
-current: "Integrating the Adaptive UI task and Owner release sequencing into ROADMAP/backlog/execution metadata."
-pending:
-  - "Update docs/ROADMAP.md."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
-  - "Update .agent/execution-queue.yaml consistently."
-  - "Close checkpoint and merge the documentation PR after required checks."
-last_verified_commit: "d7062787b7bc90064559089091e5894c55d9cb7f"
+  - "9-pass UI/UX cross-check completed and recorded in docs/APL_UI_UX_CROSSCHECK_20260926.md."
+  - "APL-UI-001 Adaptive UI added to docs/ROADMAP.md as PLANNED / PRE-RELEASE GATE."
+  - "P8A Adaptive UI added to docs/LOCAL_EXECUTION_BACKLOG.md with the Owner sequencing: per-app exclusions first, UI unification before public release."
+  - "Execution queue item APL-UI-001-ADAPTIVE added as intentionally blocked until the per-app functional slice is stable enough to integrate."
+  - "Roadmap explicitly records that application exclusions/routing are the next product capability while preserving the separate Owner architecture stop-gate in PR #144."
+  - "Design contract: mobile visual/product language + desktop interaction model + native platform shell; consistency is shared mental model/brand rather than pixel-identical geometry."
+  - "YAML validation PASS for execution queue/current task/checkpoint; roadmap/backlog marker validation PASS."
+current: "COMPLETED: Adaptive UI decision and pre-release sequencing are now canonical on PR #182."
+pending: []
+last_verified_commit: "55ad2f6a98a506879a01b1b8a15e27ab90f74e13"
 test_results:
-  - "Analysis-only so far; no product UI code changed."
+  - "PyYAML safe_load PASS: .agent/execution-queue.yaml."
+  - "PyYAML safe_load PASS: .agent/current-task.yaml."
+  - "PyYAML safe_load PASS: .agent/checkpoints/APL-UI-UX-CROSSCHECK-20260926.yaml."
+  - "APL-UI-001-ADAPTIVE queue identity/status/order validation PASS: order 65, status blocked."
+  - "ROADMAP markers PASS: next per-app functional slice + APL-UI-001 pre-release gate."
+  - "Backlog markers PASS: P8 handoff + P8A Adaptive UI gate."
+  - "No product UI/routing code changed."
 blocker: "None."
-resume_instruction: "Record APL-UI-001 Adaptive UI as a pre-release gate after the per-application exclusions functional slice. Preserve the separate Owner architecture decision gate for privileged per-app enforcement. Then validate docs/YAML, close checkpoint, and merge PR #182 when required checks pass."
-updated_at: "2026-09-26T11:25:00+03:00"
+resume_instruction: "Task complete. Next product task is the per-application exclusions/routing slice. Before implementing privileged enforcement, inspect/reconcile PR #144 and resolve its Owner architecture stop-gate. Once the functional slice is stable/accepted, execute APL-UI-001 Adaptive UI and do not publicly release the new per-app functionality until that UI gate is complete."
+updated_at: "2026-09-26T11:31:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "interactive-20260926-uiux-crosscheck"
+  claimed_by: null
+  execution_id: null
   branch: "task/apl-ui-ux-crosscheck-20260926"
   base_commit: "5c3111a1f1d670d381ef15765de83ed24a396e3a"
   lease_until: null
