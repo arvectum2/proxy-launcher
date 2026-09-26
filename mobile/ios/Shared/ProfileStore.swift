@@ -15,6 +15,20 @@ enum ProfileStoreError: LocalizedError {
     }
 }
 
+enum IOSAppRoutingMode: String, CaseIterable, Identifiable {
+    case normallyOn
+    case normallyOff
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .normallyOn: return "APL обычно включён"
+        case .normallyOff: return "APL обычно выключен"
+        }
+    }
+}
+
 final class ProfileStore {
     private enum Key {
         static let profiles = "profiles.v1"
@@ -27,6 +41,7 @@ final class ProfileStore {
         static let recentlyFailedProfileID = "recently_failed_profile_id"
         static let recentlyFailedAt = "recently_failed_at"
         static let lastFailoverAt = "last_failover_at"
+        static let iosAppRoutingMode = "ios_app_routing_mode"
     }
 
     private let defaults: UserDefaults
@@ -114,6 +129,11 @@ final class ProfileStore {
     var siteExclusions: [String] {
         get { defaults.stringArray(forKey: Key.exclusions) ?? [] }
         set { defaults.set(newValue, forKey: Key.exclusions) }
+    }
+
+    var iosAppRoutingMode: IOSAppRoutingMode {
+        get { IOSAppRoutingMode(rawValue: defaults.string(forKey: Key.iosAppRoutingMode) ?? "") ?? .normallyOn }
+        set { defaults.set(newValue.rawValue, forKey: Key.iosAppRoutingMode) }
     }
 
     var lastAutoProfileID: UUID? {

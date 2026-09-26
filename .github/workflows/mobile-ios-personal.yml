@@ -38,4 +38,11 @@ jobs:
             -destination "generic/platform=iOS" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
+            -derivedDataPath "$RUNNER_TEMP/APLDerivedData" \
             build
+      - name: Upload unsigned iPhone app
+        uses: actions/upload-artifact@v4
+        with:
+          name: apl-ios-unsigned
+          path: ${{ runner.temp }}/APLDerivedData/Build/Products/Debug-iphoneos/Arvectum Proxy Launcher.app
+          if-no-files-found: error
