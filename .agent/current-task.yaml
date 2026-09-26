@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-001
-status: blocked
+status: in_progress
 goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
@@ -21,21 +21,25 @@ completed:
   - "Linux capability rendering reuses the shared desktop primary-action controller without changing PolicyKit/runtime behavior."
   - "Added cross-platform UI contract tests and updated macOS/proxy GUI regression tests."
   - "Local desktop/UI verification: 50/50 tests PASS; Python compile PASS; Swift parser PASS; git diff --check PASS."
-  - "Implementation commits 1621a62 and 9b35b76 are pushed to agent/apl-ui-001-adaptive-20260926; review PR #193 is open."
-  - "Exact-head CI for 9b35b7687a83b7481d480023e40741888e7d057a is green across all returned PR workflows, including Mobile Android spike, Mobile iOS personal, Windows portable/installer, Linux package/Ubuntu acceptance, macOS packaging, core backend, SAST, dependency, secret and SBOM checks."
-current: "Implementation and exact-head CI are review-ready on PR #193. Remaining release gate is physical visual/interaction acceptance."
+  - "Implementation commits 1621a62, 9b35b76 and abf87b7 are pushed to agent/apl-ui-001-adaptive-20260926; PR #193 is Ready for review."
+  - "Exact-head CI for abf87b779448d72f2ae83cd0eac823a6c6dd9914 is green across all returned PR workflows, including Android, iOS unsigned device build, Windows, Linux, macOS packaging, core backend, SAST, dependency, secret and SBOM checks."
+  - "Local Mac Catalyst build exposed an iPhone-only AppRoutingVPNControl reference in shared ContentView; fixed by giving Catalyst an honest informational Application Exclusions surface while preserving the existing iPhone Shortcuts behavior."
+  - "After the Catalyst guard fix: 50/50 desktop/UI regression tests PASS, Swift parse PASS, git diff --check PASS, and full Mac Catalyst xcodebuild PASS."
+current: "Commit and push the Catalyst compile fix, then verify exact-head CI on PR #193. Physical visual/interaction acceptance remains the release gate."
 pending:
+  - "Commit/push the Catalyst compile fix and verify new exact-head PR CI."
   - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
   - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
-last_verified_commit: 9b35b7687a83b7481d480023e40741888e7d057a
+last_verified_commit: abf87b779448d72f2ae83cd0eac823a6c6dd9914
 test_results:
   - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 50/50 PASS via /usr/bin/python3 with Tk."
   - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
   - "xcrun swiftc -parse mobile/ios/App/ContentView.swift: PASS."
-  - "GitHub Actions exact head 9b35b76: all 20 returned pull-request workflow runs completed SUCCESS, including Mobile Android spike and Mobile iOS personal."
-blocker: "Physical visual/interaction acceptance is still required by APL-UI-001. Windows/Linux RDC hosts are currently offline; no physical acceptance is claimed for unavailable platforms."
-resume_instruction: "Do not redesign or reopen implementation unless physical acceptance finds a defect. Next run: verify PR #193 still targets exact implementation head, perform/record available physical UI acceptance, then complete checkpoint/roadmap and merge only through the REVIEW/Owner gate."
-updated_at: "2026-09-26T22:38:00+03:00"
+  - "GitHub Actions exact head abf87b7: all returned pull-request checks completed SUCCESS, including Android build and iOS unsigned-device-build."
+  - "Mac Catalyst local build after platform guard fix: BUILD SUCCEEDED."
+blocker: null
+resume_instruction: "Resume in /Users/master/proxy-launcher-ui-001. Commit/push the tested Catalyst platform guard, verify PR #193 exact-head CI, then set blocked only on remaining physical visual/interaction acceptance. Do not merge outside the REVIEW/Owner gate."
+updated_at: "2026-09-26T23:00:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926

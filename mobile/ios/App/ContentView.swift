@@ -679,6 +679,26 @@ struct ExclusionsView: View {
 
 struct ApplicationExclusionsView: View {
     @Environment(\.dismiss) private var dismiss
+
+#if targetEnvironment(macCatalyst)
+    var body: some View {
+        NavigationView {
+            List {
+                Section("Исключения приложений") {
+                    Label("Настройка по открытию и закрытию приложений доступна на iPhone.", systemImage: "iphone")
+                    Text("Mac Catalyst сохраняет общий раздел Настройки, но не имитирует iOS Shortcuts: на macOS применяются только реально поддерживаемые механизмы маршрутизации.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Исключения приложений")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
+            }
+        }
+    }
+#else
     @State private var mode: IOSAppRoutingMode = .normallyOn
     @State private var storageError: String?
 
@@ -777,6 +797,7 @@ struct ApplicationExclusionsView: View {
             storageError = error.localizedDescription
         }
     }
+#endif
 }
 
 struct JournalView: View {

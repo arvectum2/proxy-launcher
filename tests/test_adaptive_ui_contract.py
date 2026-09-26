@@ -67,6 +67,15 @@ class AdaptiveUiContractTests(unittest.TestCase):
         self.assertIn("self.root.minsize(720, 600)", DESKTOP)
         self.assertIn("private fun buildNavigationBar(): View", ANDROID)
 
+    def test_catalyst_does_not_compile_iphone_shortcuts_control(self):
+        view_start = IOS.index("struct ApplicationExclusionsView: View")
+        view_end = IOS.index("struct JournalView: View", view_start)
+        view = IOS[view_start:view_end]
+        self.assertIn("#if targetEnvironment(macCatalyst)", view)
+        self.assertIn("Настройка по открытию и закрытию приложений доступна на iPhone.", view)
+        self.assertIn("#else", view)
+        self.assertIn("AppRoutingVPNControl.applyBaseline", view)
+
     def test_linux_reuses_shared_desktop_primary_action(self):
         self.assertIn("self._apply_primary_action(view)", LINUX)
 
