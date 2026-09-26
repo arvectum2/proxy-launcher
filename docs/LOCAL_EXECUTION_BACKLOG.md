@@ -1,8 +1,8 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-21  
+Updated: 2026-09-26  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
-Current stable release: `v0.2.12`
+Current stable release: `v0.2.16`
 
 This file contains the remaining work that cannot be truthfully completed by hosted repository automation alone, plus active review/owner gates after the Windows/Astra/RED OS desktop baseline and registry dossier work.
 
@@ -188,8 +188,31 @@ Current gate:
 4. only after approval implement the privileged enforcement slice;
 5. require real Windows host recovery/security acceptance;
 6. release only as a new version.
+7. Owner priority recorded 2026-09-26: application exclusions/routing are the next functional slice; after it reaches feature-complete acceptance, hand off to P8A before any public release.
 
 No architecture is approved merely because the packet/tests are green.
+
+## P8A — APL-UI-001 cross-platform Adaptive UI — PLANNED / PRE-RELEASE GATE
+
+Source design review: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
+
+Owner sequencing:
+1. work next on the per-application exclusions/routing capability;
+2. stabilize and accept its functional behavior first;
+3. before publishing a release that contains that new capability, unify the interface across release-target platforms.
+
+Acceptance direction:
+- use the mobile UI as the common Arvectum design-language seed;
+- do **not** ship the current phone/Catalyst geometry unchanged on desktop;
+- use one stateful Connect/Connecting/Disconnect primary action on every platform;
+- keep connection status and active profile in one close visual cluster;
+- establish the same top-level information model: Home, Profiles, Activity/Diagnostics, Settings;
+- move expert/maintenance actions (connection test, diagnostics, network repair, autostart) out of the primary Home hierarchy;
+- preserve touch-first navigation on Android/iOS and desktop-density/keyboard/pointer/native-menu behavior on Windows/Linux/macOS;
+- preserve platform routing/recovery/security semantics; UI parity must not weaken backend guarantees;
+- require physical visual/interaction acceptance on every platform targeted by the release.
+
+Current blocker is intentional sequencing, not missing design research: P8A starts when the per-app functional slice is stable enough to integrate, and it is mandatory before that functionality is publicly released.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 

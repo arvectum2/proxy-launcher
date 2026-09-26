@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-25
+Updated: 2026-09-26
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -117,6 +117,21 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **REFRESH NEEDED BEFORE FINAL OWNER DECISION** — #144 is written against the immutable v0.2.12 saved-or-Arvectum baseline. Reconcile it to **v0.2.16/current-main** recovery semantics and the current APL-REL-016 dependency before Owner review.
 - **STOP-GATE** — the technical recommendation remains an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy, but architecture selection remains Owner/Product Owner reserved.
 - **AFTER APPROVAL** — implementation requires privileged Windows host work, ownership/recovery/security acceptance and a new product version.
+- **OWNER PRIORITY / NEXT FUNCTIONAL SLICE** — exclusions/routing by applications are the next product capability to work on. This prioritization does **not** silently approve the privileged production architecture: refresh/reconcile PR #144 and resolve the existing Owner architecture stop-gate before production enforcement is treated as selected.
+- **RELEASE SEQUENCING** — once the per-application exclusions slice is functionally complete and accepted, do **not** publish it immediately. The first public release containing this new functionality must pass the APL-UI-001 cross-platform interface-unification gate below.
+
+## 7A. Cross-platform Adaptive UI — APL-UI-001 — PLANNED / PRE-RELEASE GATE
+
+Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
+
+- **DESIGN DIRECTION** — use the current mobile UI as the shared Arvectum visual/product-language seed, but do not clone phone geometry onto desktop. Target: **mobile visual language + desktop interaction model + native platform shell**.
+- **SHARED CONTRACT** — common navy/mint tokens, connection-state semantics, profile/Auto/exclusion terminology, icons and one stateful **Connect / Connecting / Disconnect** primary control.
+- **MOBILE COMPOSITION** — preserve the simple touch-first hierarchy: prominent connection action, nearby active profile and progressive disclosure through native navigation/sheets.
+- **DESKTOP COMPOSITION** — compact status + active profile + primary action cluster; use available width efficiently; keep advanced diagnostics, network repair, connection test and autostart out of the Home hierarchy and place them under Diagnostics/Settings.
+- **NATIVE PLATFORM BEHAVIOR** — macOS menu/Settings/keyboard conventions, Windows keyboard/pointer and command-surface conventions, Linux desktop/adaptive conventions. Consistency means the same mental model and brand, not pixel-identical layouts.
+- **TARGET IA** — Home, Profiles, Activity/Diagnostics and Settings; future Marketplace becomes top-level only when it is a real product surface.
+- **RELEASE GATE / OWNER SEQUENCING 2026-09-26** — implement the per-application exclusions functional slice first; before releasing that new functionality, complete and physically accept the unified Adaptive UI on the release-target platforms. Existing already-published/review-waiting binaries are not churned for this cosmetic/product-architecture change.
+- **BOUNDARY** — this task unifies presentation and interaction architecture; it must not alter the proven routing/recovery/security semantics of each platform backend merely for visual parity.
 
 ## 8. Mobile applications
 
@@ -152,6 +167,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 9. **[macOS direct production distribution] — DONE / PUBLISHED v0.2.16.**
 10. **[iOS / APPLE] 0.1.19 build 21 — SUBMITTED / WAITING FOR REVIEW.** No repo action unless Apple returns a concrete issue or Owner requests a change.
 11. **[macOS App Store / APPLE] 0.2.17 build 1 — SUBMITTED / WAITING FOR REVIEW.** PR #175 carries the isolated Catalyst + PacketTunnel implementation; binary/store validation and physical Help/tunnel acceptance are complete.
+12. **[APL-UI-001 / REVIEW] cross-platform Adaptive UI — PLANNED / PRE-RELEASE GATE.** Mobile design language becomes the common product foundation; desktop keeps a desktop-optimized composition. Execute after the per-application exclusions slice is functionally stable and before the first release that contains it.
 
 ### Repository-hygiene note
 
@@ -163,6 +179,8 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; PR
 - **External wait:** macOS App Store 0.2.17 build 1 is Waiting for Review; act only on a concrete Apple review result or Owner request.
 - **First independent safe REVIEW lane when not conflicting with active App Store work:** refresh APL-REL-016 PR #161 to immutable v0.2.16 / first eligible v0.2.17+, then stop at Owner review.
 - **Next independent preparation lane:** refresh per-app PR #144 to v0.2.16/current-main semantics, then stop before Owner architecture selection.
+- **Owner product priority:** after the per-app architecture gate is resolved, build the application-exclusion/routing slice next.
+- **Mandatory release gate:** before publishing any release that contains the new per-application exclusions functionality, complete APL-UI-001 Adaptive UI unification and cross-platform acceptance.
 - **External wait:** iOS 0.1.19 build 21 is Waiting for Review; do not churn the binary/metadata while Apple review is pending.
 - Android 0.1.31 public release, gateway public-scale anti-abuse and APL-MOB-004 advertising/private distribution remain explicit Owner/HUMAN gates.
 - External Ministry/registry submission remains outside automation.

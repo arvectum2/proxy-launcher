@@ -95,6 +95,19 @@ items:
     active_pr: 144
     evidence: "PR #144 is the current Owner decision packet, superseding #68. Exact-head checks were green for its current content; the technical recommendation remains Arvectum-owned WFP ALE callout + narrow privileged service + local proxy, but no architecture is approved."
 
+  - order: 65
+    task_id: APL-UI-001-ADAPTIVE
+    title: "Cross-platform Adaptive UI before per-app exclusions release"
+    status: blocked
+    authority: REVIEW
+    independent: false
+    auto_merge: false
+    source: "docs/ROADMAP.md#7a-cross-platform-adaptive-ui--apl-ui-001--planned--pre-release-gate; docs/LOCAL_EXECUTION_BACKLOG.md#p8a--apl-ui-001-cross-platform-adaptive-ui--planned--pre-release-gate; docs/APL_UI_UX_CROSSCHECK_20260926.md"
+    dependencies: []
+    blocker: "Intentional sequencing: first stabilize/accept the per-application exclusions functional slice. APL-UI-001 then becomes mandatory before the first public release containing that functionality."
+    executor_scope: "When unblocked, implement the shared mobile-derived design language with adaptive desktop/mobile composition, native platform conventions and one stateful connection action. Preserve routing/recovery/security semantics. Do not churn already-published or Apple-review-waiting binaries merely for UI parity."
+    evidence: "Owner directive 2026-09-26: move next to application exclusions, then unify the interface before releasing the new functionality. Nine-pass UX cross-check recommends mobile visual/product language + desktop interaction model + native platform shell."
+
   - order: 70
     task_id: APL-REG-001C-REDOS
     title: "RED OS second trusted-OS real-host acceptance"
