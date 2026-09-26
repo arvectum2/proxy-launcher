@@ -518,10 +518,10 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)),
         )
 
-        val exclusionCount = runCatching { store.getSiteExclusions().size }.getOrDefault(0)
+        val siteExclusionCount = runCatching { store.getSiteExclusions().size }.getOrDefault(0)
         rows.addView(
             TextView(this).apply {
-                text = if (exclusionCount == 0) "Исключения" else "Исключения · $exclusionCount"
+                text = if (siteExclusionCount == 0) "Исключения сайтов" else "Исключения сайтов · $siteExclusionCount"
                 textSize = 14f
                 setTextColor(MINT_LIGHT)
                 setTypeface(typeface, Typeface.BOLD)
@@ -535,6 +535,27 @@ class MainActivity : Activity() {
                 }
             },
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)),
+        )
+
+        val appExclusionCount = runCatching { store.getAppExclusions().size }.getOrDefault(0)
+        rows.addView(
+            TextView(this).apply {
+                text = if (appExclusionCount == 0) "Исключения приложений" else "Исключения приложений · $appExclusionCount"
+                textSize = 14f
+                setTextColor(MINT_LIGHT)
+                setTypeface(typeface, Typeface.BOLD)
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(12), 0, dp(12), 0)
+                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
+                isClickable = true
+                setOnClickListener {
+                    popup.dismiss()
+                    showAppExclusionsDialog()
+                }
+            },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)).apply {
+                topMargin = dp(6)
+            },
         )
 
         rows.addView(
@@ -837,6 +858,65 @@ class MainActivity : Activity() {
                 } else {
                     val detail = if (normalized.isEmpty()) "Исключения очищены"
                     else "Сохранено исключений: ${normalized.size}"
+                    renderState(currentState, detail)
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun showAppExclusionsDialog() {
+        val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        val apps = packageManager.queryIntentActivities(launcherIntent, 0)
+            .mapNotNull { info ->
+                val packageId = info.activityInfo?.packageName ?: return@mapNotNull null
+                if (packageId == packageName) return@mapNotNull null
+                val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
+                InstalledApp(packageId, label.ifEmpty { packageId })
+            }
+            .distinctBy { it.packageId }
+            .sortedWith(compareBy<InstalledApp> { it.label.lowercase(Locale.getDefault()) }.thenBy { it.packageId })
+
+        if (apps.isEmpty()) {
+            AlertDialog.Builder(this)
+                .setTitle("Исключения приложений")
+                .setMessage("Не удалось получить список установленных приложений.")
+                .setPositiveButton("Закрыть", null)
+                .show()
+            return
+        }
+
+        val selected = runCatching { store.getAppExclusions().toMutableSet() }.getOrDefault(mutableSetOf())
+        val labels = apps.map { it.label }.toTypedArray()
+        val checked = BooleanArray(apps.size) { apps[it].packageId in selected }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Исключения приложений")
+            .setMessage("Выбранные приложения будут работать напрямую, в обход прокси.")
+            .setMultiChoiceItems(labels, checked) { _, index, enabled ->
+                val packageId = apps[index].packageId
+                if (enabled) selected.add(packageId) else selected.remove(packageId)
+            }
+            .setNegativeButton("Отмена", null)
+            .setPositiveButton("Сохранить", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                try {
+                    store.setAppExclusions(selected)
+                } catch (_: Exception) {
+                    renderState(ProxyVpnService.STATE_ERROR, "Не удалось сохранить исключения приложений")
+                    return@setOnClickListener
+                }
+                dialog.dismiss()
+                if (currentState == ProxyVpnService.STATE_CONNECTED ||
+                    currentState == ProxyVpnService.STATE_CONNECTING
+                ) {
+                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения приложений…") }
+                } else {
+                    val count = store.getAppExclusions().size
+                    val detail = if (count == 0) "Исключения приложений очищены"
+                    else "Приложений в обход прокси: $count"
                     renderState(currentState, detail)
                 }
             }
@@ -1515,6 +1595,11 @@ class MainActivity : Activity() {
 
     private fun dp(value: Float): Int =
         (value * resources.displayMetrics.density).toInt()
+
+    private data class InstalledApp(
+        val packageId: String,
+        val label: String,
+    )
 
     private data class ProfileChoice(
         val key: String,

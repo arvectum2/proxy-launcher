@@ -13,6 +13,7 @@ import javax.crypto.spec.GCMParameterSpec
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
 import ru.arvectum.proxylauncher.model.ProxyProfile
 import ru.arvectum.proxylauncher.model.ProxyType
+import ru.arvectum.proxylauncher.routing.ApplicationExclusionPolicy
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 
 data class ResolvedProxyProfile(
@@ -318,6 +319,19 @@ class SecureProfileStore(context: Context) {
         }
     }
 
+    fun getAppExclusions(): List<String> =
+        prefs.getStringSet(KEY_APP_EXCLUSIONS, emptySet())
+            ?.toList()
+            .orEmpty()
+            .sorted()
+
+    fun setAppExclusions(packageIds: Collection<String>) {
+        val normalized = ApplicationExclusionPolicy.normalizeAll(packageIds)
+        check(prefs.edit().putStringSet(KEY_APP_EXCLUSIONS, normalized.toSet()).commit()) {
+            "Failed to persist application exclusions"
+        }
+    }
+
     private fun ensureLegacyProfileIndexed() {
         if (prefs.contains(KEY_PROFILE_IDS)) return
 
@@ -429,6 +443,7 @@ class SecureProfileStore(context: Context) {
         private const val KEY_FREE_RECOVERY_ATTEMPT_COUNT = "free_recovery_attempt_count"
         private const val KEY_VPN_PROCESS_RESTART_PENDING = "vpn_process_restart_pending"
         private const val KEY_SITE_EXCLUSIONS = "site_exclusions"
+        private const val KEY_APP_EXCLUSIONS = "app_exclusions"
         private const val KEY_ALIAS = "ru.arvectum.proxylauncher.proxy_credentials.v1"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
     }

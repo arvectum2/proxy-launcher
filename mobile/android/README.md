@@ -306,3 +306,16 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - The existing Android VPN grant is reused. If Android revoked the grant, APL does not open a permission dialog by itself on wake; the UI returns to an explicit reconnect-required state.
 - Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
 - Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
+
+## 0.1.32 application exclusions candidate
+
+0.1.32 adds real Android per-application bypass on top of the existing site exclusions.
+
+- The proxy popup now separates `Исключения сайтов` and `Исключения приложений`.
+- The application editor lists launchable installed apps and stores selected package IDs synchronously.
+- Selected apps are passed to `VpnService.Builder.addDisallowedApplication(...)`, so their traffic stays outside the APL VPN/proxy tunnel.
+- Changing the list while connected triggers the existing controlled reconnect path so the new VPN allow/disallow set takes effect immediately.
+- A removed/unavailable package is ignored safely when a later tunnel is built; it cannot prevent VPN startup.
+- This is an Android implementation. iOS/macOS consumer builds do not expose a fake equivalent where platform policy cannot provide arbitrary third-party per-app bypass.
+
+Physical acceptance before release: select a browser or Telegram as excluded, connect APL, verify that the excluded app keeps the ordinary public IP while a non-excluded app uses the proxy IP, then remove the exclusion and verify both use the proxy after the controlled reconnect.
