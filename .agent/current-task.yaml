@@ -36,13 +36,18 @@ completed:
   - Cross-review 7 regression: app exclusions async loader and connected-profile editing paths remain present and unchanged.
   - Cross-review 8 release validation: candidate bumped to 0.1.35 / versionCode 36 with matching CI version guards.
   - Physical acceptance confirmed 0.1.35 fixes #2 and #3; New/Edit frame clipping remains on the owner phone.
-current: "Replace framework Button-based New/Edit actions with adaptive custom TextView actions and responsive metrics."
+  - Cross-review 1 rendering: New/Edit no longer use framework Button widgets; both are custom TextView actions with explicit custom backgrounds.
+  - Cross-review 2 responsive frame: narrow screens reduce panel horizontal padding, inter-button gap, and corner radius to reclaim width.
+  - Cross-review 3 typography: labels use autosize with screen-width/fontScale-aware min/max SP and remain single-line.
+  - Cross-review 4 accessibility: adaptive actions preserve a 48dp minimum touch target and explicit content descriptions.
+  - Cross-review 5 short-screen spacing: only vertical whitespace contracts on short screens; the 48dp action target is preserved.
+  - Cross-review 6 popup coexistence: profile panel/action containers disable child clipping and the profile popup remains anchored to the selector.
+  - Cross-review 7 regression: NoActionBar/Deep Navy, revised failover copy, async app exclusions, and connected-profile editing remain intact.
+  - Cross-review 8 release validation: added ResponsiveUiPolicy unit coverage and bumped candidate to 0.1.36 / versionCode 37 with matching CI guards.
+current: "Adaptive 0.1.36 implementation and 8 cross-review passes complete; run CI and verify APK."
 pending:
-  - Implement adaptive New/Edit controls using custom-drawn TextView actions instead of framework Button widgets.
-  - Add responsive metrics for width/height/font scale and preserve 48dp touch targets.
-  - Perform/document 8 cross-review passes and fix findings.
-  - Run CI lint/unit/build, verify 0.1.36 APK and checksum.
-  - Deliver APK for physical acceptance.
+  - Run CI lint/unit/build including ResponsiveUiPolicy tests.
+  - Verify 0.1.36 signer/version/checksum and deliver APK for physical acceptance.
 last_verified_commit: "34af97eb0a4da7c2abe140026c92b6b806bc2d49"
 test_results:
   - "GitHub Actions run 36252064547 android-build: PASS."
@@ -62,7 +67,7 @@ test_results:
   - "Final APK SHA256 matches CI SHA256SUMS: 86ede5336af4cf234d596c802ff085d74f891f3641ab52b703b04c5791882394."
 blocker: null
 resume_instruction: "Continue Android 0.1.36 responsive action fix on PR #190: replace New/Edit framework Buttons with adaptive custom actions, run 8 cross-reviews and CI, then deliver APK."
-updated_at: "2026-09-26T20:56:00+03:00"
+updated_at: "2026-09-26T21:08:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926

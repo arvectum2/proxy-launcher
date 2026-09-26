@@ -307,6 +307,10 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
 - Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
 
+## 0.1.36 responsive action candidate
+
+0.1.36 replaces the framework Button widgets used by the main New/Edit actions with custom TextView actions so their rounded frames render consistently. Their panel padding, gap, corner radius, and autosizing typography now adapt to screen width/height and font scale while preserving a 48dp touch target.
+
 ## 0.1.35 Android visual polish candidate
 
 0.1.35 fixes the Android 27+ theme override so the system title strip cannot reappear, gives the New/Edit action row explicit vertical room so rounded borders are not clipped, and renames the failover primary concept in UI copy to the clearer "приоритетный прокси".

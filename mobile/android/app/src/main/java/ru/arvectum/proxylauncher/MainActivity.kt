@@ -54,6 +54,8 @@ import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
+import ru.arvectum.proxylauncher.ui.ProfileActionMetrics
+import ru.arvectum.proxylauncher.ui.ResponsiveUiPolicy
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
@@ -62,8 +64,8 @@ import ru.arvectum.proxylauncher.tunnel.TunnelResumePolicy
 class MainActivity : Activity() {
     private lateinit var profileSelectorShell: LinearLayout
     private lateinit var profileSelectionText: TextView
-    private lateinit var newProfileButton: Button
-    private lateinit var editProfileButton: Button
+    private lateinit var newProfileButton: TextView
+    private lateinit var editProfileButton: TextView
     private lateinit var connectButton: Button
     private lateinit var connectionDetail: TextView
     private lateinit var store: SecureProfileStore
@@ -329,11 +331,23 @@ class MainActivity : Activity() {
         }
 
     private fun buildProfilePanel(): View {
+        val actionMetrics = ResponsiveUiPolicy.profileActionMetrics(
+            screenWidthDp = resources.configuration.screenWidthDp,
+            screenHeightDp = resources.configuration.screenHeightDp,
+            fontScale = resources.configuration.fontScale,
+        )
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(14))
+            setPadding(
+                dp(actionMetrics.panelHorizontalPaddingDp),
+                dp(14),
+                dp(actionMetrics.panelHorizontalPaddingDp),
+                dp(14),
+            )
             background = roundedSurface(GRAPHITE, null, 22f)
             elevation = dp(4).toFloat()
+            clipChildren = false
+            clipToPadding = false
         }
 
         panel.addView(TextView(this).apply {
@@ -384,35 +398,46 @@ class MainActivity : Activity() {
         val actions = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
+            setPadding(
+                0,
+                dp(actionMetrics.rowTopPaddingDp),
+                0,
+                dp(actionMetrics.rowBottomPaddingDp),
+            )
+            clipChildren = false
+            clipToPadding = false
         }
-        newProfileButton = brandSmallButton("＋ Новый", ButtonTone.MINT).apply {
+        newProfileButton = profilePanelAction(
+            text = "＋ Новый",
+            tone = ButtonTone.MINT,
+            metrics = actionMetrics,
+        ).apply {
             setOnClickListener { showProfileEditor(null) }
         }
-        editProfileButton = brandSmallButton("Изменить", ButtonTone.GHOST).apply {
+        editProfileButton = profilePanelAction(
+            text = "Изменить",
+            tone = ButtonTone.GHOST,
+            metrics = actionMetrics,
+        ).apply {
             setOnClickListener {
                 currentProfileId?.let(::showProfileEditor)
             }
         }
         actions.addView(
             newProfileButton,
-            LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                topMargin = dp(8)
-                bottomMargin = dp(2)
-            },
+            LinearLayout.LayoutParams(0, dp(actionMetrics.actionHeightDp), 1f),
         )
         actions.addView(
             editProfileButton,
-            LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                leftMargin = dp(8)
-                topMargin = dp(8)
-                bottomMargin = dp(2)
+            LinearLayout.LayoutParams(0, dp(actionMetrics.actionHeightDp), 1f).apply {
+                leftMargin = dp(actionMetrics.gapDp)
             },
         )
         panel.addView(
             actions,
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(58),
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             ),
         )
 
@@ -1612,6 +1637,57 @@ class MainActivity : Activity() {
         editProfileButton.isEnabled = editable && namedSelected
         editProfileButton.alpha = if (editProfileButton.isEnabled) 1f else 0.5f
     }
+
+    private fun profilePanelAction(
+        text: String,
+        tone: ButtonTone,
+        metrics: ProfileActionMetrics,
+    ): TextView =
+        TextView(this).apply {
+            this.text = text
+            gravity = Gravity.CENTER
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            includeFontPadding = false
+            setTypeface(typeface, Typeface.BOLD)
+            setAutoSizeTextTypeUniformWithConfiguration(
+                metrics.minTextSp,
+                metrics.maxTextSp,
+                1,
+                TypedValue.COMPLEX_UNIT_SP,
+            )
+            setPadding(
+                dp(metrics.horizontalTextPaddingDp),
+                0,
+                dp(metrics.horizontalTextPaddingDp),
+                0,
+            )
+            minHeight = dp(48)
+            minWidth = 0
+            isClickable = true
+            isFocusable = true
+            contentDescription = text.replace("＋", "").trim()
+            when (tone) {
+                ButtonTone.MINT -> {
+                    setTextColor(NAVY)
+                    background = roundedRipple(
+                        MINT,
+                        MINT_LIGHT,
+                        metrics.cornerRadiusDp,
+                    )
+                }
+                ButtonTone.GHOST -> {
+                    setTextColor(WHITE)
+                    background = roundedRipple(
+                        GRAPHITE,
+                        MINT_RIPPLE,
+                        metrics.cornerRadiusDp,
+                        SOFT_GRAY,
+                    )
+                }
+                ButtonTone.DANGER -> error("Unsupported profile action tone")
+            }
+        }
 
     private fun brandSmallButton(text: String, tone: ButtonTone): Button =
         Button(this).apply {
