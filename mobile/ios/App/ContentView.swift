@@ -353,30 +353,74 @@ struct ExclusionsView: View {
 
 struct ApplicationExclusionsView: View {
     @Environment(\.dismiss) private var dismiss
-    private let capability = IOSApplicationExclusionCapability(mode: .consumerPacketTunnel)
+    @State private var mode: AutomationRoutingMode = .proxySelectedApps
+
+    private enum AutomationRoutingMode: String, CaseIterable, Identifiable {
+        case proxySelectedApps
+        case bypassSelectedApps
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .proxySelectedApps: return "Через прокси только выбранные"
+            case .bypassSelectedApps: return "Обход прокси для выбранных"
+            }
+        }
+    }
 
     var body: some View {
         NavigationView {
             List {
-                Section("iOS") {
-                    Label("Требуется управляемое устройство", systemImage: "iphone.gen3.badge.exclamationmark")
-                        .font(.headline)
-                    Text(capability.userFacingSummary)
+                Section("Режим") {
+                    Picker("Автоматизация", selection: $mode) {
+                        ForEach(AutomationRoutingMode.allCases) { item in
+                            Text(item.title).tag(item)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                }
+
+                Section("Как это работает") {
+                    Text(instruction)
+                        .font(.footnote)
+                    if #available(iOS 16.0, *) {
+                        Label("В «Командах» доступны действия «Подключить APL» и «Отключить APL».", systemImage: "bolt.fill")
+                            .font(.footnote)
+                    } else {
+                        Text("Действия APL для «Команд» доступны начиная с iOS 16.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Section("Настроить") {
+                    Link(destination: URL(string: "shortcuts://create-shortcut")!) {
+                        Label("Открыть «Команды»", systemImage: "arrow.up.forward.app")
+                    }
+                    Text("Создайте две личные автоматизации с триггером «Приложение»: одну для «Открыто», вторую для «Закрыто». Выберите нужные приложения и запуск «Немедленно».")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                Section("Что доступно сейчас") {
-                    Text("Исключения сайтов работают в обычной версии APL и настраиваются отдельно.")
-                    Text("Для корпоративной/управляемой установки APL поддержка Per-App VPN будет включаться отдельным managed-профилем без изменения обычного Packet Tunnel режима.")
+
+                Section("Ограничение iOS") {
+                    Text("APL не может создать системный триггер «Приложение открыто/закрыто» без участия пользователя. После однократной настройки автоматизации работают системно и запускают действия APL автоматически.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Исключения приложений")
+            .navigationTitle("Автоматизация приложений")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
             }
+        }
+    }
+
+    private var instruction: String {
+        switch mode {
+        case .proxySelectedApps:
+            return "Для выбранных приложений: «Открыто» → «Подключить APL», «Закрыто» → «Отключить APL». Остальной трафик идёт напрямую, пока APL выключен."
+        case .bypassSelectedApps:
+            return "Если APL обычно включён: для выбранных приложений задайте «Открыто» → «Отключить APL», «Закрыто» → «Подключить APL». Это временно отключает прокси для всего устройства, пока выбранное приложение открыто."
         }
     }
 }

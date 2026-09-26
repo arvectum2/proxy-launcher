@@ -35,6 +35,7 @@
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
 		FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A9D0427123A9620FB1C3DE /* VPNController.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* VPNShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* VPNShortcuts.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,7 @@
 		6B6111701DABA6167BA25D76 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
 		87885BE6123FF783E8126F72 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* VPNShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNShortcuts.swift; sourceTree = "<group>"; };
 		8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
 		8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				89A9D0427123A9620FB1C3DE /* VPNController.swift */,
+				A1B2C3D4E5F60718293A4B5D /* VPNShortcuts.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 				A11E00000000000000000001 /* ApplicationExclusionCapability.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
 				FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* VPNShortcuts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
