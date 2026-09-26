@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-SHORTCUTS-APP-ROUTING-20260926
-status: in_progress
+status: completed
 goal: "Provide a consumer-iOS application-routing workaround using Shortcuts automations and APL App Intents for VPN connect/disconnect."
 authority: OWNER
 definition_of_done:
@@ -16,17 +16,18 @@ completed:
   - Confirmed Apple Shortcuts supports App Opened/Closed personal-automation triggers and immediate execution.
   - Confirmed App Intents can expose APL actions in Shortcuts.
   - Confirmed Apple provides shortcuts://create-shortcut deep link, but no public API for APL to silently create a Personal Automation trigger.
-current: "APL App Intents and Shortcuts onboarding implemented; local parse/diff checks pass. Validate in CI and merge."
+current: "Completed: consumer iOS Shortcuts app-routing automation merged to main with exact-head CI green."
 pending:
-  - Validate full iOS build in GitHub Actions.
-  - Merge PR if green and mark completed.
-last_verified_commit: 8069048
+  - Physical iPhone acceptance: verify APL actions appear in Shortcuts and Opened/Closed automations connect/disconnect as designed.
+  - Keep APL-UI-001 before public release.
+last_verified_commit: aedcc18
 test_results:
   - "git diff --check: PASS"
   - "xcrun swiftc -parse VPNShortcuts.swift VPNController.swift ContentView.swift: PASS"
-  - "Local xcodebuild/swift test invocation stalled without compiler output; CI is authoritative for full build."
-blocker: null
-resume_instruction: "Continue on agent/ios-shortcuts-app-routing-20260926. App Intents and onboarding are implemented; push/validate CI, fix any compile issues, merge if green, then mark checkpoint completed. Do not claim APL can create Personal Automation triggers programmatically."
+  - "Initial CI found invalid App Shortcut utterance escaping; fixed in 013f2b8."
+  - "PR #187 exact-head CI: both unsigned-device-build jobs PASS; build/core/security/installer checks PASS."
+blocker: "No code blocker. Physical iPhone acceptance remains before release; APL-UI-001 remains the pre-release UI gate."
+resume_instruction: "Task completed on main aedcc18. Next, perform physical iPhone acceptance for Shortcuts actions/Opened-Closed automations, then continue APL-UI-001 before public release. Do not claim APL can programmatically create Personal Automation triggers."
 updated_at: "2026-09-26T14:10:00+03:00"
 execution:
   claimed_by: chatgpt
