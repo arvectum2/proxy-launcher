@@ -1,36 +1,34 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SHORTCUTS-APP-ROUTING-20260926
+task_id: APL-ANDROID-FINAL-0132-20260926
 status: completed
-goal: "Provide a consumer-iOS application-routing workaround using Shortcuts automations and APL App Intents for VPN connect/disconnect."
+goal: "Deliver the current Android 0.1.32 friend-test APK directly to the owner from a verified main-branch CI artifact."
 authority: OWNER
 definition_of_done:
-  - Add APL App Intents for connect and disconnect, usable from Shortcuts without foreground UI.
-  - Add App Shortcuts metadata so APL actions are easy to discover.
-  - Replace the dead-end consumer app-exclusions screen with a truthful automation setup UX.
-  - Deep-link users into Shortcuts creation and explain Opened/Closed trigger setup.
-  - Preserve the managed Per-App VPN capability path and existing site exclusions.
-  - Run Swift tests, parse/build validation, CI, and merge if green.
-  - Keep APL-UI-001 as a pre-release gate.
+  - Confirm origin/main declares Android versionName 0.1.32 and versionCode 33.
+  - Identify a successful main-branch Android CI run for the 0.1.32 merge.
+  - Download the exact CI artifact and independently verify its SHA-256 against SHA256SUMS.txt.
+  - Provide the APK directly to the owner without broadening public/store rollout.
 completed:
-  - Confirmed Apple Shortcuts supports App Opened/Closed personal-automation triggers and immediate execution.
-  - Confirmed App Intents can expose APL actions in Shortcuts.
-  - Confirmed Apple provides shortcuts://create-shortcut deep link, but no public API for APL to silently create a Personal Automation trigger.
-current: "Completed: consumer iOS Shortcuts app-routing automation merged to main with exact-head CI green."
+  - "Confirmed origin/main mobile/android/app/build.gradle.kts: versionCode 33, versionName 0.1.32."
+  - "Confirmed 0.1.32 entered main via PR #183 merge line; Android CI run 36236180256 succeeded on main head 1d4877a58409030752ce94c9cb029dab2534dc39."
+  - "Downloaded artifact proxy-launcher-android-debug (artifact 10904172700)."
+  - "Verified APK SHA-256 29aac498c8e0b2968c795d82d34bb3116453732008367533a3dc062cb153b8e9 matches SHA256SUMS.txt."
+  - "Prepared direct-download file Arvectum-Proxy-Launcher-Android-0.1.32.apk."
+current: "Completed: verified Android 0.1.32 APK prepared for direct owner delivery."
 pending:
-  - Physical iPhone acceptance: verify APL actions appear in Shortcuts and Opened/Closed automations connect/disconnect as designed.
-  - Keep APL-UI-001 before public release.
-last_verified_commit: aedcc18
+  - "Physical Android acceptance for application exclusions remains a release-gate item from APL-APP-EXCLUSIONS-20260926."
+  - "Public/store rollout remains a separate explicit owner action."
+last_verified_commit: 1d4877a58409030752ce94c9cb029dab2534dc39
 test_results:
-  - "git diff --check: PASS"
-  - "xcrun swiftc -parse VPNShortcuts.swift VPNController.swift ContentView.swift: PASS"
-  - "Initial CI found invalid App Shortcut utterance escaping; fixed in 013f2b8."
-  - "PR #187 exact-head CI: both unsigned-device-build jobs PASS; build/core/security/installer checks PASS."
-blocker: "No code blocker. Physical iPhone acceptance remains before release; APL-UI-001 remains the pre-release UI gate."
-resume_instruction: "Task completed on main aedcc18. Next, perform physical iPhone acceptance for Shortcuts actions/Opened-Closed automations, then continue APL-UI-001 before public release. Do not claim APL can programmatically create Personal Automation triggers."
-updated_at: "2026-09-26T14:10:00+03:00"
+  - "GitHub Actions Android workflow run 36236180256: SUCCESS."
+  - "Artifact id 10904172700: not expired."
+  - "APK SHA-256: 29aac498c8e0b2968c795d82d34bb3116453732008367533a3dc062cb153b8e9; matches packaged SHA256SUMS.txt."
+blocker: "No blocker for direct owner download. Physical bypass acceptance remains before public/store release."
+resume_instruction: "No continuation required for direct delivery. If asked to publish 0.1.32 publicly or to a store, first complete/record physical Android app-exclusion acceptance and then follow the requested publication path."
+updated_at: "2026-09-26T16:24:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: agent/ios-shortcuts-app-routing-20260926
-  base_commit: 8069048
+  branch: agent/android-final-0132-20260926
+  base_commit: 2fb523d9600cecc7584d5accd79f3cf5f2184ab2
   manual_override: true
