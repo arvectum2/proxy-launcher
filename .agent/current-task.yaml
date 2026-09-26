@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: in_progress
+status: completed
 goal: "Fix Android 0.1.32 UX and application-exclusions flow based on physical-device feedback."
 authority: OWNER
 definition_of_done:
@@ -15,15 +15,19 @@ completed:
   - Moved Sites / Apps / Journal into an always-visible quick-action row at the top of the profile menu.
   - Removed the AlertDialog message/list conflict so the installed-app multi-choice list is actually rendered.
   - Bumped Android physical-test candidate to 0.1.33 / versionCode 34 and updated the CI version guard.
-current: "Implementation complete; run CI and verify Android 0.1.33 APK."
+current: "Completed: Android 0.1.33 physical-test APK built and verified; awaiting owner physical acceptance."
 pending:
-  - Run CI lint/unit/build and verify APK.
-  - Commit, push, and deliver test APK.
-last_verified_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
-test_results: []
-blocker: null
-resume_instruction: "Continue from Android UI inspection in task/android-0132-ux-fixes-20260926; fix the three owner-reported defects, test, build, and deliver APK."
-updated_at: "2026-09-26T18:31:00+03:00"
+  - Physical-device acceptance: verify app list renders/selects/persists, active profile edit reconnects, and quick actions stay visible.
+last_verified_commit: "ad287f7bc5ef28f1fdd643258f5fef5aa095f981"
+test_results:
+  - "GitHub Actions run 36252064547 android-build: PASS."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "APK signer/branding/version guard: PASS for 0.1.33 / versionCode 34."
+  - "Artifact SHA256 verified locally: 808541e1987d885d36f6e77101fe8bc334931e4b075b26c13a5b48794d01aec8."
+blocker: "No code/build blocker. Physical-device acceptance remains before merge/public release."
+resume_instruction: "Install/test Android 0.1.33 APK on the owner device. If the three reported defects are resolved, merge PR #190; otherwise capture the remaining physical-device behavior and continue on this branch."
+updated_at: "2026-09-26T18:38:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
