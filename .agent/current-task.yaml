@@ -36,8 +36,9 @@ completed:
   after reload.
 - Confirmed the same iOS 0.1.19 (21) build can be resubmitted; no code, archive, or replacement upload is required for the
   current Guideline 2.1 information request.
-current: All requested written review information is saved. The only remaining prerequisite is Apple's required physical-iPhone
-  screen recording; then attach it, reply, Update Review, resubmit the same build, and verify status.
+- Physical iPhone Nikita is now connected by USB, paired, Developer Mode enabled, and reports iOS 26.6.2 (23G90).
+- Current Apple release evidence shows iOS 27 is available for iPhone 11 and later, including iPhone 13; therefore iOS 26.6.2 does not satisfy Apple's explicit latest-operating-system wording for the requested recording.
+current: All requested written review information is saved. The physical iPhone is connected, but it must be updated from iOS 26.6.2 to current iOS 27 before recording to satisfy Apple's explicit latest-OS request.
 pending:
 - Capture a short screen recording from the paired physical iPhone Nikita (iPhone 13) on the latest available iOS, beginning
   with app launch and demonstrating the normal connect/verify/disconnect flow.
@@ -53,14 +54,11 @@ test_results:
 - '2026-09-26 temporary App Review test proxy connectivity: PASS; endpoint reached and egress matched the proxy host.'
 - '2026-09-26 App Review Sign-in required flag: PASS (false).'
 - '2026-09-26 App Review Notes Save: PASS; 3161 characters present after reload.'
-blocker: The paired physical iPhone Nikita (iPhone 13) is not currently available to CoreDevice/USB. iPhone Mirroring on both
-  Macs is at first-time setup; enabling that device link requires the owner to explicitly complete/approve it. An honest physical-device
-  recording cannot be created until the phone is available.
-resume_instruction: Use the existing same build 0.1.19 (21); do not rebuild unless Apple reports a separate binary issue.
-  First obtain the required physical-iPhone recording. Then update the saved Notes to say the recording is attached, attach
-  the video in Reply to App Review, send the complete reply, click Update Review, resubmit the item, and verify the resulting
-  App Store Connect state. Remove local temporary files containing review proxy credentials after submission.
-updated_at: '2026-09-26T12:28:00+03:00'
+- '2026-09-26 physical iPhone connection: PASS; iPhone 13, USB paired, Developer Mode enabled, iOS 26.6.2 (23G90).'
+- '2026-09-26 latest-OS gate: BLOCKED; iOS 27 is current for iPhone 13, so recording on 26.6.2 is intentionally not submitted.'
+blocker: Physical iPhone Nikita is connected, but it runs iOS 26.6.2. Apple explicitly requested a recording on the latest operating system; current iOS 27 supports iPhone 13. Owner must complete the OS update before recording.
+resume_instruction: Use only Mac mini. First verify iPhone Nikita has been updated to iOS 27 and is connected/unlocked. Use the existing same build 0.1.19 (21); do not rebuild unless Apple reports a separate binary issue. Capture the required physical-iPhone recording, update the saved Notes to say the recording is attached, attach the video in Reply to App Review, send the complete reply, click Update Review, resubmit the item, verify the resulting App Store Connect state, and remove local temporary files containing review proxy credentials after submission.
+updated_at: '2026-09-26T16:32:00+03:00'
 execution:
   claimed_by: chatgpt
   execution_id: interactive-20260926-ios-appreview-fix
