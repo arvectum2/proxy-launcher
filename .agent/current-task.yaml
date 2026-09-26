@@ -26,13 +26,17 @@ completed:
   - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
   - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
   - Physical acceptance confirmed 0.1.34 UX polish works.
-current: "Inspect main layout, theme/system bars, and restore-policy semantics before implementing 0.1.35 UI polish."
+  - Cross-review 1 composition: New/Edit row now has explicit 58dp height with 48dp controls and bottom breathing room, preventing clipped rounded borders.
+  - Cross-review 2 small-screen behavior: profile panel remains wrap-content while the power area flexes with weight, so the control panel retains its full geometry.
+  - Cross-review 3 theme/system bar: Android 27+ AppTheme now explicitly inherits Theme.Material.Light.NoActionBar, sets windowNoTitle, and preserves Deep Navy window/status/navigation backgrounds.
+  - Cross-review 4 visual hierarchy: existing Deep Navy / Graphite / Mint hierarchy remains consistent; no extra separator color or fake overlay introduced.
+  - Cross-review 5 copy/semantics: user-facing "основной" failover terminology replaced with "приоритетный"; restore copy is "Возвращаться к приоритетному прокси после сбоя".
+  - Cross-review 6 accessibility: New/Edit remain 48dp touch targets and no smaller controls were introduced.
+  - Cross-review 7 regression: app exclusions async loader and connected-profile editing paths remain present and unchanged.
+  - Cross-review 8 release validation: candidate bumped to 0.1.35 / versionCode 36 with matching CI version guards.
+current: "8 UI/UX cross-review passes complete; validate Android 0.1.35 in CI and verify APK."
 pending:
-  - Fix main New/Edit button border clipping.
-  - Remove/neutralize black strip under top app label so Deep Navy continues cleanly.
-  - Rewrite restore-policy copy based on behavior, not profile name.
-  - Perform and document 8 UI/UX cross-review passes; fix findings.
-  - Run CI lint/unit/build and verify the new APK.
+  - Run CI lint/unit/build and verify Android 0.1.35 APK.
   - Deliver physical-test APK and await owner acceptance.
 last_verified_commit: "ea6051b10759ee63d3f2b7642eb8b98d3a56f36a"
 test_results:
@@ -48,7 +52,7 @@ test_results:
   - "Final APK SHA256 matches CI SHA256SUMS: 7c07e851a7d39f06c0b0be307f6b90723603fc33e07cccbb3c69e7509f069a1a."
 blocker: null
 resume_instruction: "Continue the 0.1.35 UI polish on PR #190: fix New/Edit clipping, top black strip, and restore-policy wording; complete 8 cross-review passes, CI, and deliver the APK."
-updated_at: "2026-09-26T20:29:00+03:00"
+updated_at: "2026-09-26T20:39:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926

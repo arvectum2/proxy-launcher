@@ -307,6 +307,10 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
 - Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
 
+## 0.1.35 Android visual polish candidate
+
+0.1.35 fixes the Android 27+ theme override so the system title strip cannot reappear, gives the New/Edit action row explicit vertical room so rounded borders are not clipped, and renames the failover primary concept in UI copy to the clearer "приоритетный прокси".
+
 ## 0.1.34 Android UX polish candidate
 
 0.1.34 keeps Sites / Apps / Journal as distinct bordered one-line actions and moves installed-app discovery off the UI thread. Opening app exclusions now immediately shows a cancellable loading dialog with progress while the application list is prepared.

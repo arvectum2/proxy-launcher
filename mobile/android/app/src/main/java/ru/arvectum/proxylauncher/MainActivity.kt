@@ -396,17 +396,25 @@ class MainActivity : Activity() {
         actions.addView(
             newProfileButton,
             LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                topMargin = dp(10)
+                topMargin = dp(8)
+                bottomMargin = dp(2)
             },
         )
         actions.addView(
             editProfileButton,
             LinearLayout.LayoutParams(0, dp(48), 1f).apply {
                 leftMargin = dp(8)
-                topMargin = dp(10)
+                topMargin = dp(8)
+                bottomMargin = dp(2)
             },
         )
-        panel.addView(actions)
+        panel.addView(
+            actions,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(58),
+            ),
+        )
 
         return panel
     }
@@ -541,7 +549,7 @@ class MainActivity : Activity() {
         })
 
         val restoreToggle = CheckBox(this).apply {
-            text = "Возвращать основной после восстановления"
+            text = "Возвращаться к приоритетному прокси после сбоя"
             textSize = 13.5f
             setTextColor(WHITE)
             buttonTintList = ColorStateList(
@@ -1194,7 +1202,7 @@ class MainActivity : Activity() {
 
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
         val primaryCheck = CheckBox(this).apply {
-            text = "Основной в Авто"
+            text = "Приоритетный для режима «Авто»"
             textSize = 13.5f
             setTextColor(NAVY)
             buttonTintList = ColorStateList(

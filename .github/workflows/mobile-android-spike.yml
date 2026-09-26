@@ -57,8 +57,8 @@ jobs:
           aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           test -n "$aapt"
           "$aapt" dump badging "$apk" | tee /tmp/apk-badging.txt
-          grep -F "versionCode='35'" /tmp/apk-badging.txt
-          grep -F "versionName='0.1.34'" /tmp/apk-badging.txt
+          grep -F "versionCode='36'" /tmp/apk-badging.txt
+          grep -F "versionName='0.1.35'" /tmp/apk-badging.txt
           unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_launcher_foreground.png"
           unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_mark.png"
           unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher.xml"
