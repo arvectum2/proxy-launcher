@@ -1,42 +1,45 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-ROUTING-POLICY-V2-20260926
-status: completed
-goal: "Minimize iOS application-routing setup so the user chooses one of two APL modes once and then manages the mode from APL."
+task_id: APL-UI-001
+status: in_progress
+goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
-  - "Exactly two modes: APL normally ON and selected apps temporarily disable it; APL normally OFF and selected apps temporarily enable it."
-  - "Open/Close are implementation details; leaving selected apps restores the baseline state."
-  - "Changing routing mode in APL must not require editing Shortcuts."
-  - "Mode selection/settings immediately enforce the corresponding baseline VPN state."
-  - "Run exact-head CI and physical-device acceptance for both modes."
-  - "Keep APL-UI-001 as mandatory pre-release gate."
+  - "Shared Arvectum navy/mint design tokens, wording, icons/order, profile and connection-state semantics are aligned across mobile and desktop."
+  - "Every platform exposes one stateful Connect/Connecting/Disconnect primary action rather than competing On/Off controls."
+  - "Top-level information model is Home, Profiles, Activity/Diagnostics, Settings; expert maintenance actions are removed from Home."
+  - "Android/iOS remain touch-first and adaptive; Windows/Linux/macOS use compact desktop composition, keyboard/pointer-friendly controls and available width."
+  - "Application/site exclusions integrate into the same mental model without changing proven routing/recovery/security semantics."
+  - "Focused UI contract/responsive tests pass, platform builds/tests pass where executable, and CI covers release-target platforms."
+  - "Roadmap/backlog/queue and canonical checkpoint reflect completion state and verified commit."
 completed:
-  - "Verified current Apple App trigger semantics and public API limitations."
-  - "Persisted IOSAppRoutingMode with normallyOn and normallyOff modes."
-  - "Neutral SelectedAppOpenedIntent/SelectedAppClosedIntent let APL decide VPN state from saved mode."
-  - "User-created Shortcuts Personal Automations confirmed to fire on physical iPhone."
-  - "Diagnosed and fixed manual-development-build Keychain signing issue (-34018); app and Packet Tunnel share VML75VY94V.ru.arvectum.proxylauncher.ios.shared."
-  - "Added AppRoutingVPNControl.applyBaseline and centralized idempotent VPN state transitions."
-  - "Automation settings enforce the selected baseline immediately on appear and whenever mode changes."
-  - "Exact-head Mobile iOS personal CI on PR head b6b29791: PASS."
-  - "Physical iPhone acceptance PASS for normallyOn: APL connected at baseline; entering Telegram disconnected APL; exiting Telegram reconnected APL."
-  - "Physical iPhone acceptance PASS for normallyOff: APL disconnected at baseline; entering Telegram connected APL; exiting Telegram disconnected APL."
-current: "Completed. Both owner-defined iOS routing scenarios passed physical iPhone acceptance."
+  - "Read prior checkpoint, ROADMAP, local backlog and nine-pass UI/UX cross-check; clean branch starts from main b757a062."
+  - "Added canonical docs/APL_ADAPTIVE_UI_CONTRACT.md for shared tokens, IA, state semantics and non-regression boundary."
+  - "Desktop Windows/Linux/direct-macOS now share adaptive Home/Profiles/Activity/Settings IA and one stateful primary connection action."
+  - "Expert desktop connection test, diagnostics, journal, network restore and autostart moved out of Home."
+  - "Android keeps the accepted touch-first home and adds common destination navigation; connected action now reads Отключить and transitional states use progressive wording."
+  - "iOS now uses common four-destination TabView; Mac Catalyst uses the same model with a desktop sidebar and compact connection hero."
+  - "Added tests/test_adaptive_ui_contract.py and updated macOS/proxy GUI contract tests."
+  - "Local focused checks PASS: adaptive UI contract 6/6; macOS visual contract 4/4; desktop safety/proxy GUI 40/40; git diff --check PASS; Python compile PASS; Swift parser PASS."
+current: "Implementation is locally review-ready. Commit/push the branch, run exact-head Android/iOS/desktop CI, then perform available physical visual/interaction acceptance."
 pending:
-  - "APL-UI-001 remains the mandatory pre-release UI gate before public release."
-last_verified_commit: f3977b4bc7e5773485ef3ea6c8ccd49b59cca20c
-merge_commit: f3977b4bc7e5773485ef3ea6c8ccd49b59cca20c
+  - "Commit and push the exact implementation branch and open/update a review PR."
+  - "Run exact-head CI for Android, iOS and desktop/security workflows; fix any compile/lint regressions."
+  - "Perform physical visual/interaction acceptance on available release-target platforms; do not claim unavailable Windows/Linux physical acceptance."
+  - "After acceptance, synchronize ROADMAP/backlog/queue, final commit hash and status."
+last_verified_commit: b757a062ac19c371c082c5ff5a0ccfee88fb8f40
 test_results:
-  - "All workflow runs on PR head b6b29791: PASS, including Mobile iOS personal, SAST, dependency scan, secret scan, SBOM and platform reconciliation workflows."
-  - "Physical install and launch on iPhone Nikita: PASS."
-  - "Physical normallyOn scenario: PASS."
-  - "Physical normallyOff scenario: PASS."
+  - "tests/test_adaptive_ui_contract.py: 6/6 PASS."
+  - "tests/test_macos_visual_contract.py: 4/4 PASS."
+  - "tests/test_proxy_gui.py with system Python/Tk: 40/40 PASS."
+  - "python3 -m py_compile proxy_gui.py linux_gui.py: PASS."
+  - "swiftc -parse mobile/ios/App/ContentView.swift: PASS."
+  - "Full local iOS xcodebuild reached project build setup but stopped because clean worktree intentionally lacks mobile/ios/Frameworks/tun2proxy.xcframework; CI fetches this dependency before build."
 blocker: null
-resume_instruction: "Task APL-IOS-ROUTING-POLICY-V2-20260926 is complete. Do not reopen unless a regression is reported. Next product work should proceed to APL-UI-001 or another Owner-selected task; preserve the two baseline modes and the one-time Shortcuts setup model."
-updated_at: "2026-09-26T21:12:00+03:00"
+resume_instruction: "From /Users/master/proxy-launcher-ui-001, inspect git diff/status, commit/push APL-UI-001, open/update review PR, then use exact-head CI to resolve platform compile/lint issues. Preserve all backend/routing/recovery/security semantics and stop before merge until REVIEW/physical acceptance is satisfied."
+updated_at: "2026-09-26T22:15:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: agent/ios-routing-policy-v2-20260926
-  base_commit: ccd6c2e35d3fddecfa209ed4e4e49bdb88bce411
+  branch: agent/apl-ui-001-adaptive-20260926
+  base_commit: b757a062ac19c371c082c5ff5a0ccfee88fb8f40
   manual_override: true

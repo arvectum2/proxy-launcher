@@ -353,7 +353,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
     def test_off_remains_actionable_during_wake_guard(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
-        launcher.btn_off = mock.Mock()
+        launcher.btn_primary = mock.Mock()
         launcher._mac_ui = True
         launcher._ui_heartbeat_wall = 104.5
         launcher._mac_wake_guard_until = 115.0
@@ -365,7 +365,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         ask.assert_not_called()
         run.assert_not_called()
         self.assertTrue(launcher._off_confirmation_pending)
-        launcher.btn_off.state.assert_called_once_with(["disabled"])
+        launcher.btn_primary.state.assert_called_once_with(["disabled"])
         launcher.root.after.assert_called_once_with(
             gui.MAC_OFF_CONFIRM_DELAY_MS,
             launcher._confirm_macos_off,
@@ -380,22 +380,21 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         launcher.btn_doctor = mock.Mock()
         launcher.btn_restore = mock.Mock()
         launcher.btn_orphan_pac = mock.Mock()
-        launcher.btn_on = mock.Mock()
-        launcher.btn_off = mock.Mock()
+        launcher.btn_primary = mock.Mock()
         launcher.btn_check = mock.Mock()
         launcher._wake_destructive_guard_active = mock.Mock(return_value=True)
 
         with mock.patch.object(gui.core, "is_running", return_value=True),              mock.patch.object(gui.core, "system_proxy_enabled", return_value=True),              mock.patch.object(gui.core, "network_restore_pending", return_value=False),              mock.patch.object(gui.core, "orphaned_arvectum_pac", return_value=False):
             launcher.refresh_status()
 
-        launcher.btn_on.state.assert_called_with(["disabled"])
-        launcher.btn_off.state.assert_called_with(["!disabled"])
+        launcher.btn_primary.state.assert_called_with(["!disabled"])
+        launcher.btn_primary.configure.assert_called()
         launcher.btn_restore.state.assert_called_with(["disabled"])
 
     def test_macos_off_defers_confirmation_until_original_click_finishes(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
-        launcher.btn_off = mock.Mock()
+        launcher.btn_primary = mock.Mock()
         launcher._mac_ui = True
         launcher._ui_heartbeat_wall = 100.5
         launcher._mac_wake_guard_until = 100.0
@@ -407,7 +406,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         ask.assert_not_called()
         run.assert_not_called()
         self.assertTrue(launcher._off_confirmation_pending)
-        launcher.btn_off.state.assert_called_once_with(["disabled"])
+        launcher.btn_primary.state.assert_called_once_with(["disabled"])
         launcher.root.after.assert_called_once_with(
             gui.MAC_OFF_CONFIRM_DELAY_MS,
             launcher._confirm_macos_off,
@@ -453,7 +452,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
     def test_duplicate_macos_off_request_is_ignored_while_confirmation_pending(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
-        launcher.btn_off = mock.Mock()
+        launcher.btn_primary = mock.Mock()
         launcher._mac_ui = True
         launcher._ui_heartbeat_wall = 100.5
         launcher._mac_wake_guard_until = 100.0

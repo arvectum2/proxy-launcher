@@ -98,7 +98,7 @@ items:
   - order: 65
     task_id: APL-UI-001-ADAPTIVE
     title: "Cross-platform Adaptive UI before per-app exclusions release"
-    status: blocked
+    status: in_progress
     authority: REVIEW
     independent: false
     auto_merge: false

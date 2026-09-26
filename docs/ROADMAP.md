@@ -120,7 +120,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **OWNER PRIORITY / NEXT FUNCTIONAL SLICE** — exclusions/routing by applications are the next product capability to work on. This prioritization does **not** silently approve the privileged production architecture: refresh/reconcile PR #144 and resolve the existing Owner architecture stop-gate before production enforcement is treated as selected.
 - **RELEASE SEQUENCING** — once the per-application exclusions slice is functionally complete and accepted, do **not** publish it immediately. The first public release containing this new functionality must pass the APL-UI-001 cross-platform interface-unification gate below.
 
-## 7A. Cross-platform Adaptive UI — APL-UI-001 — PLANNED / PRE-RELEASE GATE
+## 7A. Cross-platform Adaptive UI — APL-UI-001 — IN PROGRESS / REVIEW GATE
 
 Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
@@ -167,7 +167,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 9. **[macOS direct production distribution] — DONE / PUBLISHED v0.2.16.**
 10. **[iOS / APPLE] 0.1.19 build 21 — SUBMITTED / WAITING FOR REVIEW.** No repo action unless Apple returns a concrete issue or Owner requests a change.
 11. **[macOS App Store / APPLE] 0.2.17 build 1 — SUBMITTED / WAITING FOR REVIEW.** PR #175 carries the isolated Catalyst + PacketTunnel implementation; binary/store validation and physical Help/tunnel acceptance are complete.
-12. **[APL-UI-001 / REVIEW] cross-platform Adaptive UI — PLANNED / PRE-RELEASE GATE.** Mobile design language becomes the common product foundation; desktop keeps a desktop-optimized composition. Execute after the per-application exclusions slice is functionally stable and before the first release that contains it.
+12. **[APL-UI-001 / REVIEW] cross-platform Adaptive UI — IN PROGRESS / REVIEW GATE.** Mobile design language becomes the common product foundation; desktop keeps a desktop-optimized composition. Execute after the per-application exclusions slice is functionally stable and before the first release that contains it.
 
 ### Repository-hygiene note
 
