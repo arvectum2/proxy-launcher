@@ -968,7 +968,7 @@ class Launcher:
         self._build_adaptive_desktop_main(native_macos=False)
 
     def _build_adaptive_desktop_main(self, native_macos=False):
-        """Shared APL-UI-001 information architecture with platform-native styling."""
+        """Shared adaptive information architecture with platform-native styling."""
         self.root.resizable(True, True)
         try:
             self.root.minsize(720, 600)
@@ -1061,7 +1061,7 @@ class Launcher:
         self.btn_primary.grid(row=3, column=0, sticky="ew", pady=(22, 0), ipady=3)
         self.btn_orphan_pac = ttk.Button(
             home,
-            text="Восстановить настройки Arvectum",
+            text="Удалить старый PAC и продолжить",
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.clear_orphaned_pac,
         )
@@ -1123,20 +1123,28 @@ class Launcher:
         settings = tabs["settings"]
         settings.columnconfigure(0, weight=1)
         ttk.Label(
-            settings, text="Маршрутизация и восстановление",
+            settings, text="Настройки",
             style="MacSection.TLabel" if native_macos else "TLabel",
         ).grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            settings, text="Настройки и сервис",
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
+        ).grid(row=1, column=0, sticky="w", pady=(4, 0))
+        ttk.Label(
+            settings, text="Маршрутизация и восстановление",
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
+        ).grid(row=2, column=0, sticky="w", pady=(10, 0))
         ttk.Button(
             settings, text="Исключения сайтов…",
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.exceptions,
-        ).grid(row=1, column=0, sticky="ew", pady=(10, 7))
+        ).grid(row=3, column=0, sticky="ew", pady=(10, 7))
         self.btn_restore = ttk.Button(
             settings, text="Восстановить настройки сети",
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.restore_network,
         )
-        self.btn_restore.grid(row=2, column=0, sticky="ew")
+        self.btn_restore.grid(row=4, column=0, sticky="ew")
 
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
@@ -1149,7 +1157,7 @@ class Launcher:
             command=self._toggle_autostart,
             style="Mac.TCheckbutton" if native_macos else "Brand.TCheckbutton",
         )
-        self.autostart_check.grid(row=3, column=0, sticky="w", pady=(18, 0))
+        self.autostart_check.grid(row=5, column=0, sticky="w", pady=(18, 0))
         if portable_fallback:
             self.autostart_check.state(["disabled"])
         ttk.Label(
@@ -1157,7 +1165,17 @@ class Launcher:
             text="Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.",
             justify="left", wraplength=650,
             style="MacFooter.TLabel" if native_macos else "TLabel",
-        ).grid(row=4, column=0, sticky="w", pady=(9, 0))
+        ).grid(row=6, column=0, sticky="w", pady=(9, 0))
+        footer_text = (
+            "Arvectum · %s · arvectum.com" % APP_VERSION
+            if native_macos
+            else "ARVECTUM  ·  %s  ·  arvectum.com" % APP_VERSION
+        )
+        ttk.Label(
+            settings,
+            text=footer_text,
+            style="MacFooter.TLabel" if native_macos else "TLabel",
+        ).grid(row=7, column=0, sticky="w", pady=(14, 0))
 
     def _desktop_profile_summary(self):
         configured = [
