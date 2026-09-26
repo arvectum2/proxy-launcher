@@ -25,7 +25,8 @@ completed:
 current: "Completed. Both owner-defined iOS routing scenarios passed physical iPhone acceptance."
 pending:
   - "APL-UI-001 remains the mandatory pre-release UI gate before public release."
-last_verified_commit: db7d93fad3ad7bc19369eb575563954bac6a3cd8
+last_verified_commit: f3977b4bc7e5773485ef3ea6c8ccd49b59cca20c
+merge_commit: f3977b4bc7e5773485ef3ea6c8ccd49b59cca20c
 test_results:
   - "All workflow runs on PR head b6b29791: PASS, including Mobile iOS personal, SAST, dependency scan, secret scan, SBOM and platform reconciliation workflows."
   - "Physical install and launch on iPhone Nikita: PASS."
@@ -33,7 +34,7 @@ test_results:
   - "Physical normallyOff scenario: PASS."
 blocker: null
 resume_instruction: "Task APL-IOS-ROUTING-POLICY-V2-20260926 is complete. Do not reopen unless a regression is reported. Next product work should proceed to APL-UI-001 or another Owner-selected task; preserve the two baseline modes and the one-time Shortcuts setup model."
-updated_at: "2026-09-26T20:55:00+03:00"
+updated_at: "2026-09-26T21:12:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/ios-routing-policy-v2-20260926
