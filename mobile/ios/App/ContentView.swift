@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
     @State private var showExclusions = false
+    @State private var showAppExclusions = false
     @State private var showJournal = false
 
     var body: some View {
@@ -38,6 +39,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showExclusions) {
             ExclusionsView().environmentObject(model)
+        }
+        .sheet(isPresented: $showAppExclusions) {
+            ApplicationExclusionsView()
         }
         .sheet(isPresented: $showJournal) {
             JournalView().environmentObject(model)
@@ -143,9 +147,15 @@ struct ContentView: View {
             }
 
             HStack(spacing: 8) {
-                cardButton(model.exclusions.isEmpty ? "Исключения" : "Исключения · \(model.exclusions.count)", filled: false) {
+                cardButton(model.exclusions.isEmpty ? "Исключения сайтов" : "Сайты · \(model.exclusions.count)", filled: false) {
                     showExclusions = true
                 }
+                cardButton("Исключения приложений", filled: false) {
+                    showAppExclusions = true
+                }
+            }
+
+            HStack(spacing: 8) {
                 cardButton("Журнал", filled: false) {
                     model.refreshEvents()
                     showJournal = true
@@ -309,7 +319,7 @@ struct ExclusionsView: View {
                     .onDelete { entries.remove(atOffsets: $0) }
                 }
             }
-            .navigationTitle("Исключения")
+            .navigationTitle("Исключения сайтов")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { entries = model.exclusions }
             .toolbar {
@@ -336,6 +346,37 @@ struct ExclusionsView: View {
             localError = nil
         } catch {
             localError = error.localizedDescription
+        }
+    }
+}
+
+
+struct ApplicationExclusionsView: View {
+    @Environment(\.dismiss) private var dismiss
+    private let capability = IOSApplicationExclusionCapability(mode: .consumerPacketTunnel)
+
+    var body: some View {
+        NavigationView {
+            List {
+                Section("iOS") {
+                    Label("Требуется управляемое устройство", systemImage: "iphone.gen3.badge.exclamationmark")
+                        .font(.headline)
+                    Text(capability.userFacingSummary)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Section("Что доступно сейчас") {
+                    Text("Исключения сайтов работают в обычной версии APL и настраиваются отдельно.")
+                    Text("Для корпоративной/управляемой установки APL поддержка Per-App VPN будет включаться отдельным managed-профилем без изменения обычного Packet Tunnel режима.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Исключения приложений")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
+            }
         }
     }
 }
