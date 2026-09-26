@@ -14,8 +14,13 @@ class MacOSVisualContractTests(unittest.TestCase):
     def test_macos_main_layout_is_separate_from_classic_layout(self):
         self.assertIn("def _build_macos_main(self):", GUI)
         self.assertIn("def _build_classic_main(self):", GUI)
+        self.assertIn("def _build_adaptive_desktop_main(self, native_macos=False):", GUI)
         self.assertIn('style="MacStatus.TLabel"', GUI)
-        self.assertIn('style="MacPorts.TLabel"', GUI)
+        self.assertIn('("home", "Главная")', GUI)
+        self.assertIn('("profiles", "Профили")', GUI)
+        self.assertIn('("activity", "Активность")', GUI)
+        self.assertIn('("settings", "Настройки")', GUI)
+        self.assertIn("self.btn_primary = ttk.Button(", GUI)
 
     def test_secondary_windows_use_semantic_macos_colors(self):
         self.assertIn('"systemControlBackgroundColor" if _is_macos()', GUI)

@@ -32,6 +32,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -68,6 +69,12 @@ class MainActivity : Activity() {
     private lateinit var editProfileButton: TextView
     private lateinit var connectButton: Button
     private lateinit var connectionDetail: TextView
+    private lateinit var homeProfileText: TextView
+    private lateinit var activityStateText: TextView
+    private lateinit var contentHost: FrameLayout
+    private val destinationViews = linkedMapOf<Destination, View>()
+    private val navigationButtons = linkedMapOf<Destination, TextView>()
+    private var currentDestination = Destination.HOME
     private lateinit var store: SecureProfileStore
     private lateinit var poolUiStore: PoolUiStateStore
 
@@ -131,43 +138,32 @@ class MainActivity : Activity() {
 
         root.addView(buildHeader())
 
-        val powerArea = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+        contentHost = FrameLayout(this)
+        destinationViews[Destination.HOME] = buildHomeScreen()
+        destinationViews[Destination.PROFILES] = buildProfilesScreen()
+        destinationViews[Destination.ACTIVITY] = buildActivityScreen()
+        destinationViews[Destination.SETTINGS] = buildSettingsScreen()
+        destinationViews.values.forEach { screen ->
+            contentHost.addView(
+                screen,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                ),
+            )
         }
-        connectButton = buildPowerButton()
-        powerArea.addView(
-            connectButton,
-            LinearLayout.LayoutParams(dp(powerDiameterDp()), dp(powerDiameterDp())),
-        )
-
-        connectionDetail = TextView(this).apply {
-            textSize = 14f
-            setTextColor(SOFT_GRAY)
-            gravity = Gravity.CENTER
-            maxLines = 2
-            ellipsize = TextUtils.TruncateAt.END
-            setPadding(dp(14), dp(16), dp(14), 0)
-        }
-        powerArea.addView(
-            connectionDetail,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-            ),
-        )
         root.addView(
-            powerArea,
+            contentHost,
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 0,
                 1f,
             ),
         )
-
-        root.addView(buildProfilePanel())
+        root.addView(buildNavigationBar())
 
         setContentView(root)
+        showDestination(Destination.HOME)
 
         refreshProfileChoices(currentSelectionKey())
         renderState(
@@ -206,6 +202,263 @@ class MainActivity : Activity() {
         appExclusionLoadingDialog?.dismiss()
         appExclusionLoadingDialog = null
         super.onStop()
+    }
+
+    private fun buildHomeScreen(): View =
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setPadding(dp(2), dp(10), dp(2), dp(12))
+
+            addView(screenTitle("Соединение", "Состояние APL и активный профиль"))
+
+            connectButton = buildPowerButton()
+            addView(
+                connectButton,
+                LinearLayout.LayoutParams(dp(powerDiameterDp()), dp(powerDiameterDp())).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    topMargin = dp(16)
+                },
+            )
+
+            connectionDetail = TextView(this@MainActivity).apply {
+                textSize = 14f
+                setTextColor(SOFT_GRAY)
+                gravity = Gravity.CENTER
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                setPadding(dp(14), dp(14), dp(14), 0)
+            }
+            addView(connectionDetail)
+
+            homeProfileText = TextView(this@MainActivity).apply {
+                text = "Профиль · —"
+                textSize = 15f
+                setTypeface(typeface, Typeface.BOLD)
+                setTextColor(WHITE)
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(dp(14), 0, dp(14), 0)
+                background = roundedSurface(GRAPHITE, MINT, 14f)
+            }
+            addView(
+                homeProfileText,
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(52)).apply {
+                    topMargin = dp(18)
+                },
+            )
+
+            addView(
+                brandSmallButton("Управление профилями", ButtonTone.GHOST).apply {
+                    setOnClickListener { showDestination(Destination.PROFILES) }
+                },
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
+                    topMargin = dp(8)
+                },
+            )
+        }
+
+    private fun buildProfilesScreen(): View =
+        ScrollView(this).apply {
+            isFillViewport = true
+            addView(
+                LinearLayout(this@MainActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(0, dp(10), 0, dp(12))
+                    addView(screenTitle("Профили", "Выбор, добавление и приоритет прокси"))
+                    addView(
+                        buildProfilePanel(),
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ).apply { topMargin = dp(12) },
+                    )
+                },
+            )
+        }
+
+    private fun buildActivityScreen(): View =
+        ScrollView(this).apply {
+            isFillViewport = true
+            addView(
+                LinearLayout(this@MainActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(0, dp(10), 0, dp(12))
+                    addView(screenTitle("Активность", "Состояние соединения и последние события"))
+                    activityStateText = TextView(this@MainActivity).apply {
+                        text = "Отключено"
+                        textSize = 14f
+                        setTextColor(SOFT_GRAY)
+                        setPadding(dp(14), dp(14), dp(14), dp(14))
+                        background = roundedSurface(GRAPHITE, null, 14f)
+                    }
+                    addView(
+                        activityStateText,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ).apply { topMargin = dp(12) },
+                    )
+                    addView(
+                        brandSmallButton("Открыть журнал", ButtonTone.GHOST).apply {
+                            setOnClickListener { showPoolEventsDialog() }
+                        },
+                        LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
+                            topMargin = dp(10)
+                        },
+                    )
+                },
+            )
+        }
+
+    private fun buildSettingsScreen(): View =
+        ScrollView(this).apply {
+            isFillViewport = true
+            addView(
+                LinearLayout(this@MainActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(0, dp(10), 0, dp(12))
+                    addView(screenTitle("Настройки", "Маршрутизация и поведение APL"))
+                    addView(settingsDestinationButton("Исключения сайтов") { showSiteExclusionsDialog() })
+                    addView(settingsDestinationButton("Исключения приложений") { showAppExclusionsDialog() })
+                    addView(settingsDestinationButton("Настройки Auto") { showAutoSettingsDialog() })
+                    addView(
+                        TextView(this@MainActivity).apply {
+                            text = "Расширенные действия отделены от ежедневного подключения."
+                            textSize = 12f
+                            setTextColor(SOFT_GRAY)
+                            setPadding(dp(2), dp(14), dp(2), 0)
+                        },
+                    )
+                },
+            )
+        }
+
+    private fun screenTitle(title: String, subtitle: String): View =
+        LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(
+                TextView(this@MainActivity).apply {
+                    text = title
+                    textSize = 20f
+                    setTypeface(typeface, Typeface.BOLD)
+                    setTextColor(WHITE)
+                },
+            )
+            addView(
+                TextView(this@MainActivity).apply {
+                    text = subtitle
+                    textSize = 13f
+                    setTextColor(SOFT_GRAY)
+                    setPadding(0, dp(3), 0, 0)
+                },
+            )
+        }
+
+    private fun settingsDestinationButton(label: String, action: () -> Unit): View =
+        brandSmallButton(label, ButtonTone.GHOST).apply {
+            setOnClickListener { action() }
+            gravity = Gravity.CENTER_VERTICAL
+        }.also {
+            it.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(50),
+            ).apply { topMargin = dp(10) }
+        }
+
+    private fun showDestination(destination: Destination) {
+        currentDestination = destination
+        destinationViews.forEach { (key, view) ->
+            view.visibility = if (key == destination) View.VISIBLE else View.GONE
+        }
+        navigationButtons.forEach { (key, button) ->
+            val selected = key == destination
+            button.setTypeface(button.typeface, if (selected) Typeface.BOLD else Typeface.NORMAL)
+            button.setTextColor(if (selected) NAVY else MINT_LIGHT)
+            button.background = roundedRipple(
+                if (selected) MINT else GRAPHITE,
+                MINT_RIPPLE,
+                12f,
+                if (selected) null else SOFT_GRAY,
+            )
+        }
+        if (destination == Destination.ACTIVITY && ::activityStateText.isInitialized) {
+            activityStateText.text = compactConnectionDetail(currentState, poolUiStore.getTunnelDetail())
+        }
+    }
+
+    private fun buildNavigationBar(): View {
+        val bar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(0, dp(10), 0, 0)
+        }
+        fun destination(item: Destination, label: String, weight: Float = 1f): TextView =
+            TextView(this).apply {
+                text = label
+                textSize = 12f
+                gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                setAutoSizeTextTypeUniformWithConfiguration(
+                    10, 12, 1, TypedValue.COMPLEX_UNIT_SP,
+                )
+                minWidth = 0
+                minHeight = dp(48)
+                setPadding(dp(4), dp(8), dp(4), dp(8))
+                isClickable = true
+                isFocusable = true
+                contentDescription = label
+                setOnClickListener { showDestination(item) }
+                navigationButtons[item] = this
+            }.also {
+                bar.addView(
+                    it,
+                    LinearLayout.LayoutParams(0, dp(48), weight).apply {
+                        if (bar.childCount > 1) leftMargin = dp(6)
+                    },
+                )
+            }
+
+        destination(Destination.HOME, "Главная")
+        destination(Destination.PROFILES, "Профили")
+        destination(Destination.ACTIVITY, "Активность", 1.15f)
+        destination(Destination.SETTINGS, "Настройки", 1.15f)
+        return bar
+    }
+
+    private fun showSettingsHubDialog() {
+        val labels = arrayOf("Исключения сайтов", "Исключения приложений", "Настройки Auto")
+        AlertDialog.Builder(this)
+            .setTitle("Настройки")
+            .setItems(labels) { _, which ->
+                when (which) {
+                    0 -> showSiteExclusionsDialog()
+                    1 -> showAppExclusionsDialog()
+                    2 -> showAutoSettingsDialog()
+                }
+            }
+            .setNegativeButton("Закрыть", null)
+            .show()
+    }
+
+    private fun showAutoSettingsDialog() {
+        val checked = store.getRestorePolicy() == PrimaryRestorePolicy.RETURN_TO_PRIMARY
+        AlertDialog.Builder(this)
+            .setTitle("Настройки Auto")
+            .setMultiChoiceItems(
+                arrayOf("Возвращаться к приоритетному прокси после сбоя"),
+                booleanArrayOf(checked),
+            ) { dialog, _, enabled ->
+                runCatching {
+                    store.setRestorePolicy(
+                        if (enabled) PrimaryRestorePolicy.RETURN_TO_PRIMARY
+                        else PrimaryRestorePolicy.STAY_ON_CURRENT,
+                    )
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Закрыть", null)
+            .show()
     }
 
     private fun buildHeader(): View =
@@ -524,12 +777,7 @@ class MainActivity : Activity() {
             quickAction("Журнал") { showPoolEventsDialog() },
             LinearLayout.LayoutParams(0, dp(48), 0.8f).apply { leftMargin = dp(6) },
         )
-        rows.addView(
-            quickActions,
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
-                bottomMargin = dp(6)
-            },
-        )
+        quickActions.visibility = View.GONE
 
         profileChoices.forEach { choice ->
             rows.addView(
@@ -719,6 +967,9 @@ class MainActivity : Activity() {
         } else {
             profileSelectionText.text = choice.label
             currentProfileId = choice.profileId
+        }
+        if (::homeProfileText.isInitialized) {
+            homeProfileText.text = "Профиль · " + (choice?.label ?: "не настроен")
         }
         updateProfileControls()
     }
@@ -1532,6 +1783,12 @@ class MainActivity : Activity() {
         val displayDetail = compactConnectionDetail(state, detail)
 
         connectionDetail.text = displayDetail
+        if (::activityStateText.isInitialized) {
+            activityStateText.text = displayDetail
+            activityStateText.setTextColor(
+                if (state == ProxyVpnService.STATE_CONNECTED) MINT_LIGHT else SOFT_GRAY,
+            )
+        }
         connectionDetail.setTextColor(
             when (state) {
                 ProxyVpnService.STATE_CONNECTED -> MINT_LIGHT
@@ -1542,9 +1799,9 @@ class MainActivity : Activity() {
 
         connectButton.text = when {
             switchInProgress -> "Переключение"
-            state == ProxyVpnService.STATE_CONNECTED -> "Подключено"
-            state == ProxyVpnService.STATE_CONNECTING -> "Подключение"
-            state == ProxyVpnService.STATE_DISCONNECTING -> "Отключение"
+            state == ProxyVpnService.STATE_CONNECTED -> "Отключить"
+            state == ProxyVpnService.STATE_CONNECTING -> "Подключение…"
+            state == ProxyVpnService.STATE_DISCONNECTING -> "Отключение…"
             else -> "Подключиться"
         }
 
@@ -1780,6 +2037,13 @@ class MainActivity : Activity() {
         AUTO,
         PROFILE,
         FREE,
+    }
+
+    private enum class Destination {
+        HOME,
+        PROFILES,
+        ACTIVITY,
+        SETTINGS,
     }
 
     private enum class ButtonTone {

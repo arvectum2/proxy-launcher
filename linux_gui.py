@@ -172,24 +172,22 @@ class LinuxLauncher(shared_gui.Launcher):
         enabled = core.system_proxy_enabled()
         pending = core.network_restore_pending()
         if enabled:
-            self.status_hint.config(
+            self.status_hint.configure(
                 text=(
                     "Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через "
                     "Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит "
                     "работать в фоне."
                 ),
-                bg=MINT_SOFT, fg=NAVY,
             )
             self.status_hint.grid()
             return
         if pending:
-            self.status_hint.config(
+            self.status_hint.configure(
                 text=(
                     "Предыдущий сеанс %s завершился некорректно. "
                     "Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, "
                     "затем снова включите прокси."
                 ) % self._platform_label,
-                bg=MINT_SOFT, fg=NAVY,
             )
             self.status_hint.grid()
             return
@@ -216,10 +214,9 @@ class LinuxLauncher(shared_gui.Launcher):
             "linux_unavailable": SOFT_GRAY,
         }.get(view["key"], SOFT_GRAY)
         self.chip.config(text="  %s  " % view["label"], bg=color, fg=NAVY)
-        self.status_hint.config(text=view["hint"], bg=MINT_SOFT, fg=NAVY)
+        self.status_hint.configure(text=view["hint"])
         self.status_hint.grid()
-        self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        self.btn_off.state(["!disabled"] if view["can_off"] else ["disabled"])
+        self._apply_primary_action(view)
         self.btn_check.state(["!disabled"])
 
     def _maybe_prompt_recovery(self):

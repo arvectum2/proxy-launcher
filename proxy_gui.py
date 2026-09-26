@@ -962,291 +962,253 @@ class Launcher:
         self.root.after(200, self._maybe_prompt_recovery)
 
     def _build_macos_main(self):
-        """Build the Aqua-native main window without changing launcher behavior."""
-        outer = ttk.Frame(self.root, padding=(26, 22, 26, 20))
+        self._build_adaptive_desktop_main(native_macos=True)
+
+    def _build_classic_main(self):
+        self._build_adaptive_desktop_main(native_macos=False)
+
+    def _build_adaptive_desktop_main(self, native_macos=False):
+        """Shared adaptive information architecture with platform-native styling."""
+        self.root.resizable(True, True)
+        try:
+            self.root.minsize(720, 600)
+        except Exception:
+            pass
+
+        outer = ttk.Frame(self.root, padding=(24, 20, 24, 18))
         outer.pack(fill="both", expand=True)
-        outer.grid_columnconfigure(0, weight=1)
 
-        # Product identity — quiet, title-bar-like hierarchy instead of a large
-        # custom navy banner.
-        header = ttk.Frame(outer)
-        header.grid(row=0, column=0, sticky="ew")
-        header.grid_columnconfigure(0, weight=1)
-        identity = ttk.Frame(header)
-        identity.grid(row=0, column=0, sticky="w")
-        ttk.Label(identity, text="ARVECTUM", style="MacEyebrow.TLabel").grid(
-            row=0, column=0, sticky="w")
-        ttk.Label(identity, text="Proxy Launcher", style="MacTitle.TLabel").grid(
-            row=1, column=0, sticky="w", pady=(1, 0))
-        ttk.Label(
-            header,
-            text="%s · %s" % (_platform_label(), APP_VERSION),
-            style="MacMeta.TLabel",
-        ).grid(row=0, column=1, sticky="ne", pady=(5, 0))
+        if native_macos:
+            header = ttk.Frame(outer)
+            header.pack(fill="x", pady=(0, 14))
+            identity = ttk.Frame(header)
+            identity.pack(side="left")
+            ttk.Label(identity, text="ARVECTUM", style="MacEyebrow.TLabel").pack(anchor="w")
+            ttk.Label(identity, text="Proxy Launcher", style="MacTitle.TLabel").pack(anchor="w")
+            ttk.Label(
+                header, text="%s · %s" % (_platform_label(), APP_VERSION),
+                style="MacMeta.TLabel",
+            ).pack(side="right", anchor="n", pady=(6, 0))
+        else:
+            header = tk.Frame(outer, bg=NAVY, padx=18, pady=13)
+            header.pack(fill="x", pady=(0, 14))
+            brand = tk.Frame(header, bg=NAVY)
+            brand.pack(side="left")
+            tk.Label(
+                brand, text="ARVECTUM", bg=NAVY, fg=MINT,
+                font=B["font_bold"], anchor="w",
+            ).pack(anchor="w")
+            tk.Label(
+                brand, text="Proxy Launcher", bg=NAVY, fg=WHITE,
+                font=B["font_brand"], anchor="w",
+            ).pack(anchor="w")
+            tk.Label(
+                header, text="%s · %s" % (_platform_label(), APP_VERSION),
+                bg=NAVY_SOFT, fg=MINT_LIGHT, font=B["font_small"],
+                padx=10, pady=5,
+            ).pack(side="right", pady=(7, 0))
 
-        ttk.Separator(outer, orient="horizontal").grid(
-            row=1, column=0, sticky="ew", pady=(17, 18))
-
-        # Status area.
-        status = ttk.Frame(outer)
-        status.grid(row=2, column=0, sticky="ew")
-        status.grid_columnconfigure(1, weight=1)
-
-        self._status_dot = tk.Label(
-            status,
-            text="●",
-            bg="systemWindowBackgroundColor",
-            fg="#8E8E93",
-            font=(B["title"], 14),
-            padx=0,
-            pady=0,
-        )
-        self._status_dot.grid(row=0, column=0, sticky="w", padx=(0, 8))
-
-        self.chip = ttk.Label(status, text="", style="MacStatus.TLabel")
+        notebook = ttk.Notebook(outer)
+        notebook.pack(fill="both", expand=True)
+        tabs = {}
+        for key, title in (
+            ("home", "Главная"),
+            ("profiles", "Профили"),
+            ("activity", "Активность"),
+            ("settings", "Настройки"),
+        ):
+            frame = ttk.Frame(notebook, padding=(18, 18, 18, 16))
+            notebook.add(frame, text=title)
+            tabs[key] = frame
+        self.navigation = notebook
+        home = tabs["home"]
+        home.columnconfigure(0, weight=1)
+        status = ttk.Frame(home)
+        status.grid(row=0, column=0, sticky="ew")
+        status.columnconfigure(1, weight=1)
+        self._status_dot = None
+        if native_macos:
+            self._status_dot = tk.Label(
+                status, text="●", bg="systemWindowBackgroundColor",
+                fg="#8E8E93", font=(B["title"], 14), padx=0, pady=0,
+            )
+            self._status_dot.grid(row=0, column=0, sticky="w", padx=(0, 8))
+            self.chip = ttk.Label(status, text="", style="MacStatus.TLabel")
+        else:
+            self.chip = tk.Label(
+                status, text="", bg=SOFT_GRAY, fg=NAVY,
+                font=B["font_bold"], padx=11, pady=5,
+            )
         self.chip.grid(row=0, column=1, sticky="w")
 
-        current = core.load_settings()
-        ports_text = "HTTP %s   ·   SOCKS5 %s   ·   PAC %s" % (
-            current.get("local_http_port", 8080),
-            current.get("local_socks_port", 1080),
-            current.get("local_pac_port", 8082),
+        self.profile_summary = ttk.Label(
+            home,
+            text=self._desktop_profile_summary(),
+            style="MacSection.TLabel" if native_macos else "TLabel",
         )
-        ttk.Label(status, text=ports_text, style="MacPorts.TLabel").grid(
-            row=1, column=1, sticky="w", pady=(5, 0))
-
+        self.profile_summary.grid(row=1, column=0, sticky="w", pady=(18, 0))
         self.status_hint = ttk.Label(
-            status,
-            text="",
-            style="MacSecondary.TLabel",
-            justify="left",
-            anchor="w",
-            wraplength=570,
+            home, text="", justify="left", anchor="w", wraplength=650,
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
         )
-        self.status_hint.grid(row=2, column=1, sticky="ew", pady=(8, 0))
-
-        actions = ttk.Frame(outer)
-        actions.grid(row=3, column=0, sticky="ew", pady=(18, 0))
-        actions.grid_columnconfigure(0, weight=1, uniform="connection")
-        actions.grid_columnconfigure(1, weight=1, uniform="connection")
-        self.btn_on = ttk.Button(
-            actions, text="Включить прокси", style="MacPrimary.TButton", command=self.on)
-        self.btn_on.grid(row=0, column=0, sticky="ew", padx=(0, 5))
-        self.btn_off = ttk.Button(
-            actions, text="Выключить прокси", style="MacSecondary.TButton", command=self.off)
-        self.btn_off.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+        self.status_hint.grid(row=2, column=0, sticky="ew", pady=(8, 0))
+        self.btn_primary = ttk.Button(
+            home,
+            text="Подключиться",
+            style="MacPrimary.TButton" if native_macos else "Mint.TButton",
+            command=self.on,
+        )
+        self.btn_primary.grid(row=3, column=0, sticky="ew", pady=(22, 0), ipady=3)
         self.btn_orphan_pac = ttk.Button(
-            actions,
-            text="Удалить старые настройки Arvectum",
-            style="MacPrimary.TButton",
+            home,
+            text="Удалить старый PAC и продолжить",
+            style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.clear_orphaned_pac,
         )
-        self.btn_orphan_pac.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(9, 0))
+        self.btn_orphan_pac.grid(row=4, column=0, sticky="ew", pady=(9, 0))
         self.btn_orphan_pac.grid_remove()
 
-        ttk.Separator(outer, orient="horizontal").grid(
-            row=4, column=0, sticky="ew", pady=(20, 17))
-
-        # Connection check.
-        ttk.Label(outer, text="Проверка соединения", style="MacSection.TLabel").grid(
-            row=5, column=0, sticky="w")
-        check_row = ttk.Frame(outer)
-        check_row.grid(row=6, column=0, sticky="ew", pady=(9, 0))
-        check_row.grid_columnconfigure(0, weight=1)
+        profiles = tabs["profiles"]
+        profiles.columnconfigure(0, weight=1)
+        ttk.Label(
+            profiles, text="Профили прокси",
+            style="MacSection.TLabel" if native_macos else "TLabel",
+        ).grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            profiles,
+            text="Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения.",
+            justify="left", wraplength=650,
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
+        ).grid(row=1, column=0, sticky="ew", pady=(7, 14))
+        ttk.Button(
+            profiles, text="Профили прокси…",
+            style="MacPrimary.TButton" if native_macos else "Mint.TButton",
+            command=self.settings,
+        ).grid(row=2, column=0, sticky="ew")
+        activity = tabs["activity"]
+        activity.columnconfigure(0, weight=1)
+        ttk.Label(
+            activity, text="Проверка соединения",
+            style="MacSection.TLabel" if native_macos else "TLabel",
+        ).grid(row=0, column=0, sticky="w")
+        check_row = ttk.Frame(activity)
+        check_row.grid(row=1, column=0, sticky="ew", pady=(9, 0))
+        check_row.columnconfigure(0, weight=1)
         self.check_url_var = tk.StringVar(value="https://arvectum.com")
         check_entry = ttk.Entry(check_row, textvariable=self.check_url_var, font=B["font_mono"])
         check_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
         _bind_clipboard_paste(check_entry)
         self.btn_check = ttk.Button(
-            check_row, text="Проверить", style="MacCompact.TButton", command=self.check)
+            check_row, text="Проверить",
+            style="MacCompact.TButton" if native_macos else "Ghost.TButton",
+            command=self.check,
+        )
         self.btn_check.grid(row=0, column=1)
-
-        # Service controls.
-        ttk.Label(outer, text="Настройки", style="MacSection.TLabel").grid(
-            row=7, column=0, sticky="w", pady=(20, 0))
-        service = ttk.Frame(outer)
-        service.grid(row=8, column=0, sticky="ew", pady=(9, 0))
-        service.grid_columnconfigure(0, weight=1, uniform="service")
-        service.grid_columnconfigure(1, weight=1, uniform="service")
+        activity_actions = ttk.Frame(activity)
+        activity_actions.grid(row=2, column=0, sticky="ew", pady=(18, 0))
+        activity_actions.columnconfigure(0, weight=1)
+        activity_actions.columnconfigure(1, weight=1)
         ttk.Button(
-            service, text="Прокси…", style="MacCompact.TButton",
-            command=self.settings).grid(row=0, column=0, sticky="ew", padx=(0, 5), pady=(0, 7))
-        ttk.Button(
-            service, text="Исключения…", style="MacCompact.TButton",
-            command=self.exceptions).grid(row=0, column=1, sticky="ew", padx=(5, 0), pady=(0, 7))
-        ttk.Button(
-            service, text="Журнал", style="MacCompact.TButton",
-            command=self.show_log).grid(row=1, column=0, sticky="ew", padx=(0, 5))
+            activity_actions, text="Журнал",
+            style="MacCompact.TButton" if native_macos else "Ghost.TButton",
+            command=self.show_log,
+        ).grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.btn_doctor = ttk.Button(
-            service, text="Диагностика", style="MacCompact.TButton",
-            command=self.doctor)
-        self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
+            activity_actions, text="Диагностика",
+            style="MacCompact.TButton" if native_macos else "Ghost.TButton",
+            command=self.doctor,
+        )
+        self.btn_doctor.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
+        settings = tabs["settings"]
+        settings.columnconfigure(0, weight=1)
+        ttk.Label(
+            settings, text="Настройки",
+            style="MacSection.TLabel" if native_macos else "TLabel",
+        ).grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            settings, text="Настройки и сервис",
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
+        ).grid(row=1, column=0, sticky="w", pady=(4, 0))
+        ttk.Label(
+            settings, text="Маршрутизация и восстановление",
+            style="MacSecondary.TLabel" if native_macos else "TLabel",
+        ).grid(row=2, column=0, sticky="w", pady=(10, 0))
+        ttk.Button(
+            settings, text="Исключения сайтов…",
+            style="MacCompact.TButton" if native_macos else "Ghost.TButton",
+            command=self.exceptions,
+        ).grid(row=3, column=0, sticky="ew", pady=(10, 7))
         self.btn_restore = ttk.Button(
-            outer,
-            text="Восстановить настройки сети",
-            style="MacSecondary.TButton",
+            settings, text="Восстановить настройки сети",
+            style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.restore_network,
         )
-        self.btn_restore.grid(row=9, column=0, sticky="e", pady=(12, 0))
-
-        ttk.Separator(outer, orient="horizontal").grid(
-            row=10, column=0, sticky="ew", pady=(19, 14))
+        self.btn_restore.grid(row=4, column=0, sticky="ew")
 
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
-            value=False if portable_fallback else self._autostart_enabled())
+            value=False if portable_fallback else self._autostart_enabled()
+        )
         self.autostart_check = ttk.Checkbutton(
-            outer,
-            text="Запускать Arvectum Proxy Launcher при входе в macOS",
+            settings,
+            text=_autostart_label(),
             variable=self.auto_var,
             command=self._toggle_autostart,
-            style="Mac.TCheckbutton",
+            style="Mac.TCheckbutton" if native_macos else "Brand.TCheckbutton",
         )
-        self.autostart_check.grid(row=11, column=0, sticky="w")
+        self.autostart_check.grid(row=5, column=0, sticky="w", pady=(18, 0))
         if portable_fallback:
             self.autostart_check.state(["disabled"])
-
         ttk.Label(
-            outer,
-            text="Окно можно закрыть — активный прокси продолжит работать в фоне.",
-            style="MacFooter.TLabel",
-        ).grid(row=12, column=0, sticky="w", pady=(6, 0))
+            settings,
+            text="Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.",
+            justify="left", wraplength=650,
+            style="MacFooter.TLabel" if native_macos else "TLabel",
+        ).grid(row=6, column=0, sticky="w", pady=(9, 0))
+        footer_text = (
+            "Arvectum · %s · arvectum.com" % APP_VERSION
+            if native_macos
+            else "ARVECTUM  ·  %s  ·  arvectum.com" % APP_VERSION
+        )
         ttk.Label(
-            outer,
-            text="Arvectum · %s · arvectum.com" % APP_VERSION,
-            style="MacFooter.TLabel",
-        ).grid(row=13, column=0, sticky="w", pady=(13, 0))
+            settings,
+            text=footer_text,
+            style="MacFooter.TLabel" if native_macos else "TLabel",
+        ).grid(row=7, column=0, sticky="w", pady=(14, 0))
 
-    def _build_classic_main(self):
-        """Preserve the established Windows/classic presentation."""
-        header = tk.Frame(self.root, bg=NAVY, padx=20, pady=16)
-        header.pack(fill="x")
-        brand = tk.Frame(header, bg=NAVY)
-        brand.pack(side="left")
-        tk.Label(
-            brand, text="ARVECTUM", bg=NAVY, fg=MINT,
-            font=B["font_bold"], anchor="w").pack(anchor="w")
-        tk.Label(
-            brand, text="Proxy Launcher", bg=NAVY, fg=WHITE,
-            font=B["font_brand"], anchor="w").pack(anchor="w", pady=(1, 0))
-        tk.Label(
-            header, text="%s  ·  %s" % (_platform_label(), APP_VERSION),
-            bg=NAVY_SOFT, fg=MINT_LIGHT, font=B["font_small"],
-            padx=11, pady=6).pack(side="right", pady=(8, 0))
+    def _desktop_profile_summary(self):
+        configured = [
+            item for item in (core.load_settings().get("upstream") or [])
+            if str(item.get("host") or "").strip()
+        ]
+        if not configured:
+            return "Профиль · не настроен"
+        if len(configured) == 1:
+            item = configured[0]
+            return "Профиль · %s:%s" % (item.get("host"), item.get("port"))
+        return "Профиль · Авто · %d прокси" % len(configured)
 
-        body = tk.Frame(self.root, bg=WHITE, padx=20, pady=18)
-        body.pack(fill="both", expand=True)
-        body.grid_columnconfigure(0, weight=1)
-
-        status_card = tk.Frame(
-            body, bg=WHITE, padx=16, pady=14,
-            highlightbackground=SOFT_GRAY, highlightthickness=1)
-        status_card.grid(row=0, column=0, sticky="ew")
-        status_card.grid_columnconfigure(0, weight=1)
-        status_top = tk.Frame(status_card, bg=WHITE)
-        status_top.grid(row=0, column=0, sticky="ew")
-        tk.Label(
-            status_top, text="Состояние подключения", bg=WHITE, fg=NAVY,
-            font=B["font_section"]).pack(side="left")
-        self.chip = tk.Label(
-            status_top, text="", bg=SOFT_GRAY, fg=NAVY,
-            font=B["font_bold"], padx=11, pady=5)
-        self.chip.pack(side="right")
-
-        current = core.load_settings()
-        ports_text = "HTTP 127.0.0.1:%s   ·   SOCKS5 127.0.0.1:%s   ·   PAC 127.0.0.1:%s" % (
-            current.get("local_http_port", 8080), current.get("local_socks_port", 1080),
-            current.get("local_pac_port", 8082))
-        tk.Label(
-            status_card, text=ports_text, bg=WHITE, fg=GRAPHITE,
-            font=B["font_mono"]).grid(row=1, column=0, sticky="w", pady=(9, 0))
-        self.status_hint = tk.Label(
-            status_card, text="", bg=MINT_SOFT, fg=NAVY, font=B["font_small"],
-            justify="left", anchor="w", padx=11, pady=8, wraplength=720)
-        self.status_hint.grid(row=2, column=0, sticky="ew", pady=(11, 0))
-        self.status_hint.grid_remove()
-
-        tk.Label(body, text="Подключение", bg=WHITE, fg=GRAPHITE,
-                 font=B["font_section"]).grid(row=1, column=0, sticky="w", pady=(18, 8))
-        actions = tk.Frame(body, bg=WHITE)
-        actions.grid(row=2, column=0, sticky="ew")
-        actions.grid_columnconfigure(0, weight=1, uniform="connection")
-        actions.grid_columnconfigure(1, weight=1, uniform="connection")
-        self.btn_on = ttk.Button(
-            actions, text="Включить прокси", style="Mint.TButton", command=self.on)
-        self.btn_on.grid(row=0, column=0, sticky="ew", padx=(0, 5))
-        self.btn_off = ttk.Button(
-            actions, text="Выключить прокси", style="Navy.TButton", command=self.off)
-        self.btn_off.grid(row=0, column=1, sticky="ew", padx=(5, 0))
-        self.btn_orphan_pac = ttk.Button(
-            actions, text="Удалить старый PAC и продолжить", style="Mint.TButton",
-            command=self.clear_orphaned_pac)
-        self.btn_orphan_pac.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
-        self.btn_orphan_pac.grid_remove()
-
-        tk.Label(body, text="Проверка соединения", bg=WHITE, fg=GRAPHITE,
-                 font=B["font_section"]).grid(row=3, column=0, sticky="w", pady=(18, 8))
-        check_card = tk.Frame(
-            body, bg=WHITE, padx=14, pady=12,
-            highlightbackground=SOFT_GRAY, highlightthickness=1)
-        check_card.grid(row=4, column=0, sticky="ew")
-        check_card.grid_columnconfigure(0, weight=1)
-        self.check_url_var = tk.StringVar(value="https://arvectum.com")
-        check_entry = tk.Entry(
-            check_card, textvariable=self.check_url_var,
-            bg=WHITE, fg=NAVY, relief="solid", bd=1,
-            insertbackground=GRAPHITE, font=B["font_mono"], highlightthickness=0)
-        check_entry.grid(row=0, column=0, sticky="ew", ipady=5, padx=(0, 10))
-        _bind_clipboard_paste(check_entry)
-        self.btn_check = ttk.Button(
-            check_card, text="Проверить", style="Ghost.TButton", command=self.check)
-        self.btn_check.grid(row=0, column=1, sticky="e")
-
-        tk.Label(body, text="Настройки и сервис", bg=WHITE, fg=GRAPHITE,
-                 font=B["font_section"]).grid(row=5, column=0, sticky="w", pady=(18, 8))
-        service = tk.Frame(body, bg=WHITE)
-        service.grid(row=6, column=0, sticky="ew")
-        service.grid_columnconfigure(0, weight=1, uniform="service")
-        service.grid_columnconfigure(1, weight=1, uniform="service")
-        ttk.Button(
-            service, text="Настройки прокси…", style="Ghost.TButton",
-            command=self.settings).grid(row=0, column=0, sticky="ew", padx=(0, 5), pady=(0, 6))
-        ttk.Button(
-            service, text="Исключения…", style="Ghost.TButton",
-            command=self.exceptions).grid(row=0, column=1, sticky="ew", padx=(5, 0), pady=(0, 6))
-        ttk.Button(
-            service, text="Журнал", style="Ghost.TButton",
-            command=self.show_log).grid(row=1, column=0, sticky="ew", padx=(0, 5))
-        self.btn_doctor = ttk.Button(
-            service, text="Диагностика", style="Ghost.TButton", command=self.doctor)
-        self.btn_doctor.grid(row=1, column=1, sticky="ew", padx=(5, 0))
-        self.btn_restore = ttk.Button(
-            body, text="Восстановить настройки сети", style="Ghost.TButton",
-            command=self.restore_network)
-        self.btn_restore.grid(row=7, column=0, sticky="e", pady=(10, 0))
-
-        portable_fallback = _portable_fallback_active()
-        self.auto_var = tk.BooleanVar(
-            value=False if portable_fallback else self._autostart_enabled())
-        self.autostart_check = ttk.Checkbutton(
-            body, text=_autostart_label(),
-            variable=self.auto_var, command=self._toggle_autostart,
-            style="Brand.TCheckbutton")
-        self.autostart_check.grid(row=8, column=0, sticky="w", pady=(18, 0))
-        if portable_fallback:
-            self.autostart_check.state(["disabled"])
-
-        tk.Label(
-            body, text="Окно можно закрыть — запущенный прокси продолжит работать в фоне.",
-            bg=WHITE, fg=GRAPHITE, font=B["font_small"]).grid(
-                row=9, column=0, sticky="w", pady=(5, 0))
-        tk.Frame(body, bg=SOFT_GRAY, height=1).grid(
-            row=10, column=0, sticky="ew", pady=(18, 10))
-        tk.Label(
-            body, text="ARVECTUM  ·  %s  ·  arvectum.com" % APP_VERSION,
-            bg=WHITE, fg=DISABLED_FG, font=B["font_mono"]).grid(
-                row=11, column=0, sticky="w")
+    def _apply_primary_action(self, view):
+        can_off = bool(view.get("can_off"))
+        can_on = bool(view.get("can_on"))
+        if can_off:
+            text = "Отключить"
+            command = self.off
+            style = "MacSecondary.TButton" if self._mac_ui else "Navy.TButton"
+            enabled = True
+        elif can_on:
+            text = "Подключиться"
+            command = self.on
+            style = "MacPrimary.TButton" if self._mac_ui else "Mint.TButton"
+            enabled = True
+        else:
+            text = "Подключение недоступно"
+            command = self.on
+            style = "MacSecondary.TButton" if self._mac_ui else "Ghost.TButton"
+            enabled = False
+        self.btn_primary.configure(text=text, command=command, style=style)
+        self.btn_primary.state(["!disabled"] if enabled else ["disabled"])
 
     def _set_window_icon(self):
         try:
@@ -1471,14 +1433,12 @@ class Launcher:
             self.status_hint.configure(text=view["hint"])
         else:
             self.chip.config(text="  %s  " % view["label"], bg=view["color"], fg=NAVY)
-            self.status_hint.config(text=view["hint"], bg=MINT_SOFT, fg=NAVY)
+            self.status_hint.configure(text=view["hint"])
         self.status_hint.grid()
 
-        self.btn_on.state(["!disabled"] if view["can_on"] else ["disabled"])
-        # Off is the safe escape hatch after wake. Its macOS confirmation is
-        # already deferred beyond the originating mouse event and defaults to No.
-        can_off = view["can_off"]
-        self.btn_off.state(["!disabled"] if can_off else ["disabled"])
+        if hasattr(self, "profile_summary"):
+            self.profile_summary.configure(text=self._desktop_profile_summary())
+        self._apply_primary_action(view)
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
         if self._wake_destructive_guard_active():
             self.btn_restore.state(["disabled"])
@@ -1567,7 +1527,7 @@ class Launcher:
                 )
             except Exception:
                 pass
-            self.btn_off.state(["disabled"])
+            self.btn_primary.state(["disabled"])
             # Never create a modal confirmation from inside the same AppKit
             # mouseUp callback that activated the Off button. On macOS the
             # originating trackpad event can otherwise be delivered into the
@@ -1684,8 +1644,9 @@ class Launcher:
                 self._status_dot.configure(fg=MINT)
         else:
             self.chip.config(text="  %s  " % text, bg=color, fg=NAVY)
+        self.btn_primary.configure(text=text)
         buttons = [
-            self.btn_on, self.btn_off, self.btn_check, self.btn_doctor,
+            self.btn_primary, self.btn_check, self.btn_doctor,
             self.btn_restore, self.btn_orphan_pac,
         ]
         for b in buttons:

@@ -192,7 +192,7 @@ Current gate:
 
 No architecture is approved merely because the packet/tests are green.
 
-## P8A — APL-UI-001 cross-platform Adaptive UI — PLANNED / PRE-RELEASE GATE
+## P8A — APL-UI-001 cross-platform Adaptive UI — IN PROGRESS / REVIEW GATE
 
 Source design review: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
@@ -212,7 +212,7 @@ Acceptance direction:
 - preserve platform routing/recovery/security semantics; UI parity must not weaken backend guarantees;
 - require physical visual/interaction acceptance on every platform targeted by the release.
 
-Current blocker is intentional sequencing, not missing design research: P8A starts when the per-app functional slice is stable enough to integrate, and it is mandatory before that functionality is publicly released.
+Implementation is now in progress on the Owner-selected APL-UI-001 branch. Exact-head platform CI and physical visual/interaction acceptance remain mandatory before public release.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
