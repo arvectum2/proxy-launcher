@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: in_progress
+status: completed
 goal: "Polish Android 0.1.33 physical-device UX: compact bordered routing actions and explicit application-list loading state."
 authority: OWNER
 definition_of_done:
@@ -26,20 +26,25 @@ completed:
   - Cross-review 6 cancellation/error handling: Cancel dismisses loader; stale result ignored; query failures/empty results show explicit error.
   - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
   - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
-current: "8 cross-review passes complete; push Android 0.1.34 candidate and validate CI/APK."
+current: "Completed: Android 0.1.34 UX-polish candidate built, verified, and ready for owner physical acceptance."
 pending:
-  - Run CI lint/unit/build and verify Android 0.1.34 APK.
-  - Deliver physical-test APK and await acceptance.
-last_verified_commit: "ad287f7bc5ef28f1fdd643258f5fef5aa095f981"
+  - External acceptance gate: owner installs 0.1.34 and verifies one-line bordered actions plus visible app-list loading state.
+  - If accepted, merge PR #190; if not, resume from the reported physical-device behavior.
+last_verified_commit: "ea6051b10759ee63d3f2b7642eb8b98d3a56f36a"
 test_results:
   - "GitHub Actions run 36252064547 android-build: PASS."
   - "Android lint: PASS."
   - "testDebugUnitTest + assembleDebug: PASS."
   - "APK signer/branding/version guard: PASS for 0.1.33 / versionCode 34."
   - "Artifact SHA256 verified locally: 808541e1987d885d36f6e77101fe8bc334931e4b075b26c13a5b48794d01aec8."
-blocker: null
-resume_instruction: "Continue UX polish on PR #190: bordered one-line routing actions plus explicit async application-list loading; complete 8 cross-review passes, CI, and deliver the next physical-test APK."
-updated_at: "2026-09-26T18:55:00+03:00"
+  - "GitHub Actions run 36253680723 android-build: PASS on ea6051b."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "Signer/branding/version guard: PASS for 0.1.34 / versionCode 35."
+  - "Final APK SHA256 matches CI SHA256SUMS: 7c07e851a7d39f06c0b0be307f6b90723603fc33e07cccbb3c69e7509f069a1a."
+blocker: "No code/build blocker. PR #190 intentionally remains open until owner physical acceptance of 0.1.34."
+resume_instruction: "Wait for owner physical acceptance of Android 0.1.34. If accepted, merge PR #190 and mark the merged main commit; if any UX issue remains, reopen this task on the same branch and fix only the reported behavior."
+updated_at: "2026-09-26T19:01:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
