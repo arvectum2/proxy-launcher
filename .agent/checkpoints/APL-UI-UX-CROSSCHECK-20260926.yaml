@@ -1,0 +1,33 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-UI-UX-CROSSCHECK-20260926
+status: in_progress
+goal: "Evaluate the mobile-style versus desktop-style Arvectum Proxy Launcher interfaces through 8 independent professional UI/UX review passes and recommend a cross-platform design direction."
+authority: REVIEW
+definition_of_done:
+  - "Inspect the actual desktop UI implementation used by Windows/Linux/direct macOS."
+  - "Inspect the actual mobile/iOS/Mac App Store UI implementation."
+  - "Compare the approaches through 8 independent UX lenses, not just visual preference."
+  - "Cross-check against current platform design conventions and product ergonomics."
+  - "Identify what should be shared globally versus adapted per platform."
+  - "Produce a concrete recommended target UI architecture for desktop and mobile."
+  - "Record the recommendation and evidence in the canonical task checkpoint."
+completed:
+  - "Task initialized from main 5c3111a1f1d670d381ef15765de83ed24a396e3a."
+current: "Inspecting actual interfaces and platform guidance."
+pending:
+  - "Capture/inspect representative desktop and Catalyst/mobile surfaces."
+  - "Run 8 UX review passes and reconcile conclusions."
+  - "Record final recommendation and close checkpoint."
+last_verified_commit: "5c3111a1f1d670d381ef15765de83ed24a396e3a"
+test_results: []
+blocker: "None."
+resume_instruction: "Continue the UI/UX cross-check from the first unfinished review pass. Do not change product UI code unless the owner explicitly asks; this task is analysis/recommendation only."
+updated_at: "2026-09-26T10:58:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "interactive-20260926-uiux-crosscheck"
+  branch: "task/apl-ui-ux-crosscheck-20260926"
+  base_commit: "5c3111a1f1d670d381ef15765de83ed24a396e3a"
+  lease_until: null
+  manual_override: true
