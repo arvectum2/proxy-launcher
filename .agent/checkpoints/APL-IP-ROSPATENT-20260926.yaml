@@ -1,0 +1,33 @@
+version: 1
+repository: arvectum2/proxy-launcher
+task_id: APL-IP-ROSPATENT-20260926
+status: in_progress
+goal: "Prepare a submission-ready working package for Russian state registration of the computer program Arvectum Proxy Launcher, anchored to the exact stable desktop release v0.2.16."
+definition_of_done:
+  - "Current Rospatent/FIPS requirements, form fields, fee and filing channels are verified against official sources."
+  - "The deposited software instance is fixed to tag v0.2.16 / commit 6799297bf1492d352ca9d78a0a49b2adf3345d2a."
+  - "Applicant/rightsholder data for ООО «АРВЕКТУМ» are populated from verifiable corporate data."
+  - "A draft application worksheet is prepared with every unknown author/personal/right-chain field explicitly marked, without inventing legal facts."
+  - "A publication abstract compliant with the 900-character limit is prepared."
+  - "Deposited identifying source-code materials are planned against the exact v0.2.16 source with a practical expert-review volume."
+  - "The working package is rendered and visually verified before delivery."
+completed:
+  - "Confirmed the filing route: state registration of a computer program."
+  - "Verified official Rospatent requirements and 5000 RUB fee."
+  - "Verified v0.2.16 and exact release commit 6799297bf1492d352ca9d78a0a49b2adf3345d2a."
+  - "Verified exact v0.2.16 desktop Python source: 52 authored runtime .py files, 582439 bytes total under the documented desktop-source scope."
+  - "Verified public applicant identifiers: ООО «АРВЕКТУМ», INN 7716261422, OGRN 1267700213725, KPP 771601001."
+current: "Prepare the working DOCX application dossier and unresolved-input checklist."
+pending:
+  - "Confirm author list and each author's DOB, residence address, creative contribution and publication preference."
+  - "Confirm documentary basis for exclusive rights belonging to ООО «АРВЕКТУМ»."
+  - "Confirm correspondence phone and desired public contact details."
+  - "Confirm first-publication entry and final machine-readable size basis."
+  - "Final signer/date and electronic filing action remain HUMAN."
+last_verified_commit: "9b79811281a9ebac963764b083f2f603278b9e17"
+release_commit: "6799297bf1492d352ca9d78a0a49b2adf3345d2a"
+test_results:
+  - "Repository release/tag facts verified through GitHub connector."
+  - "Official filing requirements verified through Rospatent web sources on 2026-09-26."
+resume_instruction: "Continue from the draft dossier. Do not invent author personal data or rights-chain facts. Once the user supplies those fields, fill the official Rospatent form, prepare author/personal-data consents, finalize deposit fragments from exact v0.2.16, verify PDF/A and stop before final signing/submission unless explicitly asked."
+updated_at: "2026-09-26T09:12:00+03:00"
