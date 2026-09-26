@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-APPSTORE-PUBLISH-20260925
-status: in_progress
+status: blocked
 goal: "Publish the first Mac App Store release of Arvectum Proxy Launcher as 0.2.17 through LLC ARVECTUM, using the sandboxed Mac Catalyst + Packet Tunnel lane while preserving immutable direct-distribution v0.2.16."
 authority: HUMAN
 definition_of_done:
@@ -32,22 +32,21 @@ completed:
   - "Apple altool validation PASS: VERIFY SUCCEEDED with no errors."
   - "Apple upload PASS: UPLOAD SUCCEEDED with no errors; Delivery/build resource UUID c3007b45-e309-42b3-b772-d7ed7684a587."
   - "App Store Connect build 1 processed VALID, APP_STORE_ELIGIBLE, min macOS 12.0; usesNonExemptEncryption=false."
-  - "Mac App Store Connect record Apple ID 6816223569 now uses version 0.2.17, copyright 2026 LLC ARVECTUM, attached VALID build 1."
+  - "Mac App Store Connect record Apple ID 6816223569 uses version 0.2.17, copyright 2026 LLC ARVECTUM, attached VALID build 1."
   - "Russian metadata populated: description, keywords, promotional text, support/marketing URLs, subtitle and privacy-policy URL."
   - "Content Rights set to DOES_NOT_USE_THIRD_PARTY_CONTENT; primary category Utilities; secondary category Productivity."
-  - "Age-rating declaration copied from equivalent accepted iOS product facts; macOS record now resolves to FOUR_PLUS."
-  - "Mac review detail created with existing Arvectum review contact, no demo account, and macOS-specific Network Extension/testing/help notes."
-  - "Free USA base price schedule created successfully for the Mac app."
-  - "Canonical persistent Arvectum Release Bot App Store Connect API credential remains in use; no new API key was created."
+  - "Age-rating declaration resolves to FOUR_PLUS; Mac review detail exists with no demo account and macOS-specific review notes."
+  - "Free USA base price schedule exists."
+  - "Initial public App Availability verified through App Store Connect API: 175 territoryAvailabilities, sampled territories available=true, availableInNewTerritories=true."
+  - "App Privacy verified in authenticated App Store Connect web UI: Published and Data Not Collected; privacy policy URL is present."
+  - "Mac screenshot set APP_DESKTOP exists with three screenshots in assetDeliveryState COMPLETE, including 1440x900 assets."
   - "Physical signed Debug app launch on Mac mini PASS."
-current: "Finish App Store Connect availability/privacy/screenshots and complete physical Help + Packet Tunnel acceptance before final App Review submission."
+  - "Physical Packet Tunnel end-to-end smoke PASS on 2026-09-26: service reached Connected on utun5, HTTPS request through Local smoke returned HTTP 200, BytesIn=39015, BytesOut=31248, ErrorsIn=0, ErrorsOut=0, and service returned to Disconnected."
+  - "Canonical persistent Arvectum Release Bot App Store Connect API credential remains in use; no per-release API key was created."
+current: "Waiting for one human physical Help-menu acceptance, then run final App Store Connect validation and submit 0.2.17 to App Review."
 pending:
-  - "Configure initial App Availability for public App Store distribution; API v2 creation semantics are being verified before mutation."
-  - "Publish App Privacy declaration Data Not Collected for the Mac app; public App Store Connect API does not expose the questionnaire and the authenticated web workflow may be required."
-  - "Capture and upload at least one required Mac screenshot at an Apple-supported 16:10 resolution."
-  - "Complete physical Help-menu click acceptance; System Events automation is gated by macOS Accessibility/Automation permission."
-  - "Complete physical Packet Tunnel smoke with a safe user-owned proxy profile without exposing credentials or touching the direct networksetup lane."
-  - "Run final App Store Connect validation and submit to App Review only when all gates pass."
+  - "Human: with the running 0.2.17 Debug app frontmost, open Help > Справка Arvectum Proxy Launcher and confirm the offline Help sheet opens."
+  - "After Help acceptance, run final App Store Connect readiness validation and submit version 0.2.17 to App Review."
 last_verified_commit: "36edf97e75190a543234cdf7c50b05274d22c06d"
 test_results:
   - "2026-09-25 tests/test_macos_appstore_contract.py: 9 passed."
@@ -57,10 +56,13 @@ test_results:
   - "2026-09-25 Apple package validation: VERIFY SUCCEEDED with no errors."
   - "2026-09-25 Apple upload: UPLOAD SUCCEEDED with no errors; Delivery UUID c3007b45-e309-42b3-b772-d7ed7684a587."
   - "2026-09-25 App Store Connect processing: build 1 VALID / APP_STORE_ELIGIBLE."
-  - "2026-09-25 physical signed Debug app launch: PASS."
-blocker: "No binary/release blocker. Final submission remains gated on App Availability, App Privacy publication, required Mac screenshot(s), Help-menu physical acceptance, and Packet Tunnel physical smoke."
-resume_instruction: "Do not rebuild or re-upload build 1. Continue from App Store Connect completion: configure availability, publish Data Not Collected privacy, capture/upload Mac screenshot(s), then complete Help and Packet Tunnel physical acceptance. Preserve exact package SHA-256 26085c88f7dd3b1287c81f0bf42b2a7550061067ee3e49a5f0d7ec796ce2bb3b and immutable direct v0.2.16."
-updated_at: "2026-09-25T23:58:00+03:00"
+  - "2026-09-26 App Availability API: 175 territories; availableInNewTerritories=true; sampled territories available=true."
+  - "2026-09-26 App Privacy authenticated web check: Published / Data Not Collected."
+  - "2026-09-26 APP_DESKTOP screenshots: 3 assets COMPLETE."
+  - "2026-09-26 physical Packet Tunnel E2E: Connected, HTTPS 200, traffic counters nonzero, zero errors, clean disconnect."
+blocker: "Objective HUMAN/TCC gate only: System Events denies osascript assistive access and LLDB attach is permission-gated, so the actual Help menu item cannot be physically clicked by automation. One manual Help click is required before submission."
+resume_instruction: "Do not rebuild or re-upload build 1. Ask the human to click Help > Справка Arvectum Proxy Launcher in the currently running 0.2.17 Debug app and confirm the offline Help sheet appears. Immediately after confirmation, verify the App Store Connect version is still READY_FOR_REVIEW with build 1 attached, create/submit the App Store version submission, verify submission state, then mark this checkpoint completed."
+updated_at: "2026-09-26T09:14:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-mac-appstore"
