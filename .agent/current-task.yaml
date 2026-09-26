@@ -1,15 +1,16 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: completed
-goal: "Polish Android main-screen framing, top system/header strip, and restore-policy copy after physical acceptance of 0.1.34."
+status: in_progress
+goal: "Make the main New/Edit actions genuinely adaptive to device width/height/font scale and eliminate the remaining clipped action frame seen on the owner phone."
 authority: OWNER
 definition_of_done:
-  - New/Edit buttons are fully visible with complete rounded borders on the tested phone and remain safe on smaller/older screens.
-  - The dark/black strip beneath the top "Proxy Launcher" area is removed so Deep Navy visually continues behind/below the header.
-  - Restore-policy copy no longer assumes a profile literally named "Основной" and clearly explains the behavior.
-  - Complete 8 documented UI/UX cross-review passes covering layout, insets, system bars, hierarchy, copy, accessibility, regressions, and release validation.
-  - Android lint/tests/build and APK verification pass.
+  - New/Edit controls render complete rounded shapes/borders on the owner phone in both the normal and profile-menu-open screenshots.
+  - New/Edit sizing and text adapt to screen width/height and font scale without wrapping or clipping.
+  - The adaptive controls preserve at least a 48dp touch target and existing enable/disable behavior.
+  - Previous accepted fixes (NoActionBar/Deep Navy, failover copy, app exclusions loading) remain unchanged.
+  - Complete 8 documented cross-review passes covering rendering, responsive metrics, typography, touch targets, popup overlap, accessibility, regressions, and release validation.
+  - Android lint/tests/build and APK checksum verification pass.
 completed:
   - Captured physical-device feedback and screenshots for all three defects.
   - Enabled active named-profile editing while connected; saving triggers a live reconnect and delete stays disabled during the active edit.
@@ -34,10 +35,14 @@ completed:
   - Cross-review 6 accessibility: New/Edit remain 48dp touch targets and no smaller controls were introduced.
   - Cross-review 7 regression: app exclusions async loader and connected-profile editing paths remain present and unchanged.
   - Cross-review 8 release validation: candidate bumped to 0.1.35 / versionCode 36 with matching CI version guards.
-current: "Completed: Android 0.1.35 UI-polish candidate built, checksum-verified, and ready for owner physical acceptance."
+  - Physical acceptance confirmed 0.1.35 fixes #2 and #3; New/Edit frame clipping remains on the owner phone.
+current: "Replace framework Button-based New/Edit actions with adaptive custom TextView actions and responsive metrics."
 pending:
-  - External acceptance gate: owner installs 0.1.35 and verifies New/Edit borders, removal of the system title strip, and revised restore-policy copy.
-  - If accepted, merge PR #190; if not, resume from the reported physical-device behavior.
+  - Implement adaptive New/Edit controls using custom-drawn TextView actions instead of framework Button widgets.
+  - Add responsive metrics for width/height/font scale and preserve 48dp touch targets.
+  - Perform/document 8 cross-review passes and fix findings.
+  - Run CI lint/unit/build, verify 0.1.36 APK and checksum.
+  - Deliver APK for physical acceptance.
 last_verified_commit: "34af97eb0a4da7c2abe140026c92b6b806bc2d49"
 test_results:
   - "GitHub Actions run 36252064547 android-build: PASS."
@@ -55,9 +60,9 @@ test_results:
   - "testDebugUnitTest + assembleDebug: PASS."
   - "Signer/branding/version guard: PASS for 0.1.35 / versionCode 36."
   - "Final APK SHA256 matches CI SHA256SUMS: 86ede5336af4cf234d596c802ff085d74f891f3641ab52b703b04c5791882394."
-blocker: "No code/build blocker. PR #190 remains open only for owner physical acceptance of 0.1.35."
-resume_instruction: "Wait for owner physical acceptance of Android 0.1.35. If accepted, merge PR #190 and record the merged main commit; if any visual issue remains, reopen this task on the same branch and fix only the reported behavior."
-updated_at: "2026-09-26T20:47:00+03:00"
+blocker: null
+resume_instruction: "Continue Android 0.1.36 responsive action fix on PR #190: replace New/Edit framework Buttons with adaptive custom actions, run 8 cross-reviews and CI, then deliver APK."
+updated_at: "2026-09-26T20:56:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
