@@ -49,13 +49,13 @@ struct APLShortcutsProvider: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: ConnectAPLIntent(),
-            phrases: ["Подключить \\(.applicationName)", "Включить \\(.applicationName)"],
+            phrases: ["Подключить \(.applicationName)", "Включить \(.applicationName)"],
             shortTitle: "Подключить APL",
             systemImageName: "lock.shield"
         )
         AppShortcut(
             intent: DisconnectAPLIntent(),
-            phrases: ["Отключить \\(.applicationName)", "Выключить \\(.applicationName)"],
+            phrases: ["Отключить \(.applicationName)", "Выключить \(.applicationName)"],
             shortTitle: "Отключить APL",
             systemImageName: "lock.open"
         )
