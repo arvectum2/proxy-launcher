@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APP-EXCLUSIONS-20260926
-status: in_progress
+status: completed
 goal: "Implement truthful iOS application-exclusion capability for APL, preserving consumer App Store behavior and preparing the managed per-app VPN path."
 authority: OWNER
 definition_of_done:
@@ -18,18 +18,19 @@ completed:
   - Added IOSApplicationExclusionCapability with consumer vs managed semantics and deterministic tests.
   - Added separate iOS UI surfaces for site exclusions and application exclusions; consumer mode truthfully reports the MDM requirement.
   - Added the capability source to the iOS application target; swiftc parse and git diff --check PASS.
-current: "iOS capability contract and UX are implemented; validate in authoritative CI and merge."
+current: "Completed: truthful iOS consumer/managed application-exclusion capability is merged and CI-green."
 pending:
-  - Run authoritative CI for the iOS changes.
-  - Merge after CI and record the exact consumer/managed boundary.
   - Keep APL-UI-001 before any public release.
-last_verified_commit: d0583d44dcb1adae7c1c6e2512bb447ee43042e8
+  - Optional future enterprise lane: implement MDM-managed Per-App VPN provisioning if Arvectum chooses to support managed iOS devices.
+last_verified_commit: 8069048
 test_results:
   - "git diff --check: PASS"
   - "xcrun swiftc -parse SharedCore/*.swift and ContentView.swift: PASS"
-  - "Local swift test/xcodebuild are non-authoritative on this host and previously stalled without output; authoritative CI pending."
+  - "PR #185 Mobile iOS personal core-tests: PASS"
+  - "PR #185 unsigned-device-build including generated Xcode project and unsigned iPhone app build: PASS"
+  - "PR #185 all reported checks: PASS"
 blocker: "Consumer iOS cannot enforce arbitrary third-party app exclusions: Apple requires managed-device/MDM Per-App VPN. This is a platform capability boundary, not an implementation defect."
-resume_instruction: "Continue on agent/ios-app-exclusions-20260926: push/open PR, run authoritative CI, fix any failures, merge if green, then mark completed. Preserve the consumer iOS boundary: no fake per-app bypass; real iOS per-app routing requires managed/MDM Per-App VPN."
+resume_instruction: "Task completed on main 8069048. Do not reopen consumer iOS per-app bypass as if it were implementable: Apple requires managed/MDM Per-App VPN. Next product work may proceed to APL-UI-001 or another Owner-selected iOS task; preserve working site exclusions."
 updated_at: "2026-09-26T14:00:00+03:00"
 execution:
   claimed_by: chatgpt
