@@ -1,47 +1,65 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-APP-EXCLUSIONS-20260926
-status: in_progress
-goal: "Advance application-level exclusions as the next product capability: reconcile the Windows production architecture gate to current v0.2.16/main, implement the safe cross-platform control-plane/persistence contract and prepare the smallest Windows enforcement slice without falsely claiming live enforcement before explicit architecture approval and real-host acceptance."
+status: blocked
+goal: 'Advance application-level exclusions as the next product capability: reconcile the Windows production architecture gate to current v0.2.16/main,
+  implement the safe cross-platform control-plane/persistence contract and prepare the smallest Windows enforcement slice without falsely claiming
+  live enforcement before explicit architecture approval and real-host acceptance.'
 authority: OWNER
 definition_of_done:
-  - "Reconcile PR #144 architecture assumptions from v0.2.12 to immutable v0.2.16/current-main and current APL-REL-016 dependency."
-  - "Add deterministic persistence for application exclusions using the existing APL-ROUTE application identity/rule model."
-  - "Define application-exclusion semantics as DIRECT for all destinations for the selected application, with deterministic canonical serialization and migration-safe storage."
-  - "Add platform capability reporting so unsupported/not-yet-enforced platforms cannot silently pretend the exclusion is active."
-  - "On Windows, validate selected executable identities through the existing read-only WFP app-id API and compile the exact non-mutating enforcement plan."
-  - "Add unit/contract tests covering persistence, duplicate handling, canonical rule generation, capability truth and Windows plan compilation."
-  - "Expose application exclusions only on platforms where the adapter truthfully enforces them; Android uses VpnService per-app bypass, desktop capability remains explicit."
-  - "Stop before privileged WFP service/callout host mutation unless the Owner explicitly selects the production architecture; record the exact blocker and resume instruction."
-  - "Once live functionality is eventually accepted, hand off to APL-UI-001 before any public release containing it."
+- 'Reconcile PR #144 architecture assumptions from v0.2.12 to immutable v0.2.16/current-main and current APL-REL-016 dependency.'
+- Add deterministic persistence for application exclusions using the existing APL-ROUTE application identity/rule model.
+- Define application-exclusion semantics as DIRECT for all destinations for the selected application, with deterministic canonical serialization
+  and migration-safe storage.
+- Add platform capability reporting so unsupported/not-yet-enforced platforms cannot silently pretend the exclusion is active.
+- On Windows, validate selected executable identities through the existing read-only WFP app-id API and compile the exact non-mutating enforcement
+  plan.
+- Add unit/contract tests covering persistence, duplicate handling, canonical rule generation, capability truth and Windows plan compilation.
+- Expose application exclusions only on platforms where the adapter truthfully enforces them; Android uses VpnService per-app bypass, desktop
+  capability remains explicit.
+- Stop before privileged WFP service/callout host mutation unless the Owner explicitly selects the production architecture; record the exact blocker
+  and resume instruction.
+- Once live functionality is eventually accepted, hand off to APL-UI-001 before any public release containing it.
 completed:
-  - "Owner priority reconfirmed 2026-09-26: move from site-only exclusions to application exclusions next."
-  - "Canonical main verified at 7aa45183187f6bc685409a9dbf322790c17961f6."
-  - "Existing APL-ROUTE-001..004 control-plane, Windows WFP read-only prototype and PR #144 architecture stop-gate inspected."
-  - "Confirmed PAC/no_proxy cannot provide process-aware routing; real Windows enforcement requires a privileged WFP enforcement plane."
-  - "Android implementation added: installed-app multi-select UI, synchronous package-id persistence, and VpnService.Builder.addDisallowedApplication live bypass with controlled reconnect."
-  - "Android candidate version advanced to 0.1.32 / versionCode 33; release remains gated on CI and physical routing acceptance."
-  - "Cross-platform application-exclusion persistence/capability module implemented; focused Python routing/application suite PASS 22/22."
-current: "Android 0.1.32 application exclusions are merged to main with full exact-head CI green. Next executable work is physical Android bypass acceptance plus the Windows privileged enforcement lane."
+- 'Owner priority reconfirmed 2026-09-26: move from site-only exclusions to application exclusions next.'
+- Canonical main verified at 7aa45183187f6bc685409a9dbf322790c17961f6.
+- 'Existing APL-ROUTE-001..004 control-plane, Windows WFP read-only prototype and PR #144 architecture stop-gate inspected.'
+- Confirmed PAC/no_proxy cannot provide process-aware routing; real Windows enforcement requires a privileged WFP enforcement plane.
+- 'Android implementation added: installed-app multi-select UI, synchronous package-id persistence, and VpnService.Builder.addDisallowedApplication
+  live bypass with controlled reconnect.'
+- Android candidate version advanced to 0.1.32 / versionCode 33; release remains gated on CI and physical routing acceptance.
+- Cross-platform application-exclusion persistence/capability module implemented; focused Python routing/application suite PASS 22/22.
+- 'Android application exclusions implemented on PR #183 and exact-head CI is fully green: 23/23 workflows SUCCESS; Android lint/unit/assemble/signer/branding/version
+  checks PASS.'
+- 'PR #144 refreshed to current main/v0.2.16; exact-head CI is fully green: 10/10 workflows SUCCESS; Windows production recommendation remains
+  Option A but is not approved.'
+- 'Local focused Python application/routing suite PASS: 27 tests + 7 subtests; py_compile and git diff --check PASS.'
+current: 'BLOCKED at the two required acceptance gates: physical Android routing proof and explicit Owner selection/rejection of the Windows production
+  enforcement architecture.'
 pending:
-  - "Run Android lint/unit/build in CI and obtain physical Android routing acceptance."
-  - "Run broader desktop regression tests for the new persistence/control-plane seam."
-  - "Refresh PR #144 packet to v0.2.16/current-main."
-  - "Record exact Windows enforcement blocker unless Owner explicitly selects the production architecture."
-  - "Prepare next smallest privileged slice only after explicit architecture selection."
-last_verified_commit: "1d4877a58409030752ce94c9cb029dab2534dc39"
+- 'Physical Android acceptance for 0.1.32: exclude one app, verify it retains ordinary public IP while a non-excluded app uses the proxy, remove
+  exclusion, verify both use proxy after controlled reconnect.'
+- 'Owner/Product Owner explicitly select or reject the Windows production architecture in PR #144; privileged WFP implementation must not begin
+  before that decision.'
+- After the functional slice is accepted, execute APL-UI-001 Adaptive UI before any public release containing application exclusions.
+last_verified_commit: b69658bf3fcd64f599a400cd683a0f8fdf10a13b
 test_results:
-  - "Focused Python application/routing suite: 22 passed in 11.44s."
-  - "Canonical composition + application/routing focused suite after CI ownership fix: 31 passed in 56.16s."
-  - "Android local Gradle build attempt was non-authoritative on the Mac mini; authoritative GitHub Android workflow PASS: lint, unit tests, assembleDebug, signer/branding verification, SHA-256 and artifact upload."
-  - "PR #183 exact head b69658bf3fcd64f599a400cd683a0f8fdf10a13b: all observed repository checks PASS, including two android-build jobs; merged as main 1d4877a58409030752ce94c9cb029dab2534dc39."
-blocker: "Live Windows per-application enforcement remains blocked by the explicit Owner architecture selection gate in PR #144; this task proceeds with reversible non-privileged work only."
-resume_instruction: "Start from main 1d4877a58409030752ce94c9cb029dab2534dc39. Android 0.1.32 app exclusions are merged and CI-green; do not redo them. Obtain physical Android proof that an excluded app bypasses the proxy while a non-excluded app remains proxied, before any release. In parallel continue the Windows per-app production architecture/enforcement lane from PR #144/current v0.2.16 semantics; never claim Windows live enforcement until privileged implementation and real-host acceptance pass."
-updated_at: "2026-09-26T13:20:00+03:00"
+- 'Local focused Python suite: 27 passed, 7 subtests passed in 5.78s.'
+- 'PR #183 exact-head GitHub Actions: 23/23 workflows SUCCESS; Mobile Android spike includes lintDebug, testDebugUnitTest, assembleDebug, signer/branding
+  and 0.1.32/versionCode 33 guard.'
+- 'PR #144 refreshed exact-head GitHub Actions: 10/10 workflows SUCCESS.'
+- 'Physical Android acceptance not run: adb is unavailable on the connected Mac mini and no Android device is attached through the current tool
+  surface.'
+blocker: 'Two objective gates remain: no physical Android device/ADB path is available for routing acceptance, and Windows privileged enforcement
+  requires an explicit Owner architecture decision in PR #144.'
+resume_instruction: 'If an Android device becomes available, install/test the PR #183 0.1.32 candidate and record physical bypass proof. For Windows,
+  resume only after the Owner explicitly chooses Option A/B/C or rejects the architecture in PR #144; then implement the smallest approved privileged
+  slice. After functional acceptance, run APL-UI-001 before public release.'
+updated_at: '2026-09-26T13:34:53+03:00'
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "interactive-20260926-app-exclusions"
-  branch: "agent/app-exclusions-20260926"
-  base_commit: "7aa45183187f6bc685409a9dbf322790c17961f6"
-  lease_until: "2026-09-26T15:00:00+03:00"
+  claimed_by: null
+  execution_id: null
+  branch: agent/app-exclusions-20260926
+  base_commit: 7aa45183187f6bc685409a9dbf322790c17961f6
+  lease_until: null
   manual_override: true
