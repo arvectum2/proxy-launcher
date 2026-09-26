@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-001
-status: in_progress
+status: blocked
 goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
@@ -25,21 +25,20 @@ completed:
   - "Exact-head CI for abf87b779448d72f2ae83cd0eac823a6c6dd9914 is green across all returned PR workflows, including Android, iOS unsigned device build, Windows, Linux, macOS packaging, core backend, SAST, dependency, secret and SBOM checks."
   - "Local Mac Catalyst build exposed an iPhone-only AppRoutingVPNControl reference in shared ContentView; fixed by giving Catalyst an honest informational Application Exclusions surface while preserving the existing iPhone Shortcuts behavior."
   - "After the Catalyst guard fix: 50/50 desktop/UI regression tests PASS, Swift parse PASS, git diff --check PASS, and full Mac Catalyst xcodebuild PASS."
-current: "Commit and push the Catalyst compile fix, then verify exact-head CI on PR #193. Physical visual/interaction acceptance remains the release gate."
+current: "Implementation is verified and PR #193 is Ready for review. The only remaining Definition-of-Done gate is physical visual/interaction acceptance on release-target platforms."
 pending:
-  - "Commit/push the Catalyst compile fix and verify new exact-head PR CI."
   - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
   - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
-last_verified_commit: abf87b779448d72f2ae83cd0eac823a6c6dd9914
+last_verified_commit: 71c8eccc47ca3f444e3fd4b005cddf4f2e964aa9
 test_results:
   - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 50/50 PASS via /usr/bin/python3 with Tk."
   - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
   - "xcrun swiftc -parse mobile/ios/App/ContentView.swift: PASS."
-  - "GitHub Actions exact head abf87b7: all returned pull-request checks completed SUCCESS, including Android build and iOS unsigned-device-build."
+  - "GitHub Actions exact code head 71c8ecc: every returned PR check completed SUCCESS, including Android build, both iOS unsigned-device-build jobs, Windows installer/signing, Linux packages/acceptance, macOS packaging and security checks."
   - "Mac Catalyst local build after platform guard fix: BUILD SUCCEEDED."
-blocker: null
-resume_instruction: "Resume in /Users/master/proxy-launcher-ui-001. Commit/push the tested Catalyst platform guard, verify PR #193 exact-head CI, then set blocked only on remaining physical visual/interaction acceptance. Do not merge outside the REVIEW/Owner gate."
-updated_at: "2026-09-26T23:00:00+03:00"
+blocker: "Physical visual/interaction acceptance is still required by APL-UI-001 before merge/release. Windows/Linux RDC hosts are currently offline; no acceptance is claimed for unavailable platforms."
+resume_instruction: "Do not reopen implementation unless physical acceptance finds a defect. Resume from PR #193 / code head 71c8ecc, perform and record available physical visual/interaction acceptance, then synchronize the checkpoint and merge only through the REVIEW/Owner gate."
+updated_at: "2026-09-26T23:09:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926
