@@ -201,37 +201,12 @@ No architecture is approved merely because the packet/tests are green.
 
 Do not reopen this task unless a later material direct-distribution signing/package change requires fresh acceptance.
 
-## P9A — macOS App Store 0.2.17 + Help UX — IN PROGRESS / PR #175
+## P9A — macOS App Store 0.2.17 + Help UX — SUBMITTED / WAITING FOR REVIEW / PR #175
 
-Owner direction on 2026-09-25: execute the Mac App Store release as a separate distribution lane without replacing direct Developer ID v0.2.16.
+Completed: isolated sandboxed ARM64 Catalyst + PacketTunnel lane; contract tests 9/9; provisioning/signing/archive/export/Apple validation/upload PASS; build 1 VALID / APP_STORE_ELIGIBLE; metadata, 4+ rating, Data Not Collected privacy, 175 territories and Mac screenshots complete; mandatory offline Help physically accepted; Packet Tunnel E2E physically accepted with HTTPS 200 and zero tunnel errors; version 0.2.17 build 1 submitted on 2026-09-26 and now WAITING FOR REVIEW.
 
-Verified current implementation state:
-- direct `networksetup` backend is not App Sandbox-compatible: physical smoke showed unsandboxed read PASS and sandboxed read exit 133;
-- canonical Store architecture is a separate Mac Catalyst app `ru.arvectum.proxylauncher.macos` + PacketTunnel extension `ru.arvectum.proxylauncher.macos.PacketTunnel` + App Group `group.ru.arvectum.proxylauncher.macos`;
-- PR #175 implements an isolated `mobile/macos-appstore` lane reusing proven Swift/NetworkExtension transport and does not alter the direct PyInstaller/Developer ID channel;
-- required App Sandbox/network/PacketTunnel/App Group/Keychain entitlements are defined;
-- pinned tun2proxy v0.8.3 Catalyst library is built with the existing NetworkExtension live-restart patch;
-- Mac App Store contract tests **6/6 PASS**;
-- unsigned ARM64 Mac Catalyst Debug build **PASS**;
-- signed automatic-provisioning reached the Apple signing stage and failed only because development profiles/Apple Account provisioning do not yet exist for the two new bundle IDs.
+Boundary: direct v0.2.16 remains immutable and separate. Do not rebuild, re-upload, withdraw or resubmit the Mac App Store version while review is pending unless Apple returns a concrete issue or the Owner requests a change.
 
-Current stage:
-1. register/create the Catalyst app and PacketTunnel identifiers with required capabilities;
-2. create development + Mac App Store distribution provisioning profiles;
-3. run signed ARM64 build and physical launch/tunnel smoke on Mac mini;
-4. reconcile PR #175 with current main and the **later mandatory Help UX amendment** below;
-5. archive/export, validate/upload, complete App Store Connect metadata/privacy/compliance/screenshots;
-6. submit only when no unresolved HUMAN/legal/product gate remains.
-
-Mandatory pre-submission Help UX:
-- the standard macOS **Help** menu opens bundled offline help and no longer shows “No help is available for Arvectum Proxy Launcher”;
-- offline sections: Getting Started, status meanings, proxy formats, Troubleshooting, About & Privacy;
-- footer/about: running version, **© Arvectum LLC**, View on GitHub, latest Release Notes, Report a Problem;
-- Release Notes → `https://github.com/arvectum2/proxy-launcher/releases/latest`;
-- Help remains readable without proxy/internet;
-- Mac App Store build relies on App Store updates and must not ship a competing self-updater.
-
-Important continuity note: PR #175's branch checkpoint was created **before** this Help requirement became canonical. The branch must not be submitted using only its older Definition of Done; it must reconcile the later main-roadmap requirement first.
 
 ## P10 — Russian Software Register dossier / external filing — DOSSIER DONE, SUBMISSION HOLD
 
@@ -319,7 +294,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 - **DESKTOP STABLE:** v0.2.16 is public and immutable; exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`.
 - **DIRECT macOS:** ARM64 + Intel DMGs are Developer ID-signed, notarized/stapled, Gatekeeper-verified and publicly released.
-- **MAC APP STORE:** **IN PROGRESS / draft PR #175 / target v0.2.17**. Catalyst + PacketTunnel architecture is implemented; current stage is Apple identifiers/provisioning then signed physical smoke. Mandatory offline Help UX must be reconciled before submission.
+- **MAC APP STORE:** **0.2.17 build 1 submitted / Waiting for Review / PR #175**. Store validation/upload, privacy/screenshots, Help and physical tunnel acceptance are complete.
 - **ANDROID PUBLIC:** `android-v0.1.19`.
 - **ANDROID FRIEND-TEST:** 0.1.31 merged with live server-backed RU/US locations; no public 0.1.31 release.
 - **FREE GATEWAY:** live controlled-test infrastructure with supplier secrets server-side; anti-abuse/quota hardening remains before broad anonymous rollout.
@@ -331,7 +306,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **REGISTRY INFRA:** HUMAN BLOCKED on physical Russian sovereign lifecycle proof (#55).
 - **REGISTRY FILING:** HUMAN HOLD; private/accounting/support/signature/live-portal evidence remains.
 
-Work-conserving order: preserve active Mac App Store PR #175; independent safe REVIEW work may refresh APL-REL-016, followed by PR #144. Do not churn iOS while Apple review is pending. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
+Work-conserving order: do not churn either submitted Apple binary while review is pending; independent safe REVIEW work may refresh APL-REL-016, followed by PR #144. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
 
 ## Completion discipline
 
