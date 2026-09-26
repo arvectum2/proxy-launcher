@@ -35,6 +35,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
@@ -53,6 +54,8 @@ import ru.arvectum.proxylauncher.model.ProxyType
 import ru.arvectum.proxylauncher.routing.SiteExclusionPolicy
 import ru.arvectum.proxylauncher.storage.PoolUiStateStore
 import ru.arvectum.proxylauncher.storage.SecureProfileStore
+import ru.arvectum.proxylauncher.ui.ProfileActionMetrics
+import ru.arvectum.proxylauncher.ui.ResponsiveUiPolicy
 import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
@@ -61,8 +64,8 @@ import ru.arvectum.proxylauncher.tunnel.TunnelResumePolicy
 class MainActivity : Activity() {
     private lateinit var profileSelectorShell: LinearLayout
     private lateinit var profileSelectionText: TextView
-    private lateinit var newProfileButton: Button
-    private lateinit var editProfileButton: Button
+    private lateinit var newProfileButton: TextView
+    private lateinit var editProfileButton: TextView
     private lateinit var connectButton: Button
     private lateinit var connectionDetail: TextView
     private lateinit var store: SecureProfileStore
@@ -77,6 +80,7 @@ class MainActivity : Activity() {
     private var pendingSwitchDetail: String? = null
     private var switchInProgress = false
     private var profilePopup: PopupWindow? = null
+    private var appExclusionLoadingDialog: AlertDialog? = null
     private var freeLocations: List<FreeProxyLocation> = FreeGatewayClient.BOOTSTRAP_LOCATIONS
     private var freeLocationsLastFetchedAtMs = 0L
     private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
@@ -199,6 +203,8 @@ class MainActivity : Activity() {
         mainHandler.removeCallbacks(freeLocationRetryRunnable)
         profilePopup?.dismiss()
         profilePopup = null
+        appExclusionLoadingDialog?.dismiss()
+        appExclusionLoadingDialog = null
         super.onStop()
     }
 
@@ -325,11 +331,23 @@ class MainActivity : Activity() {
         }
 
     private fun buildProfilePanel(): View {
+        val actionMetrics = ResponsiveUiPolicy.profileActionMetrics(
+            screenWidthDp = resources.configuration.screenWidthDp,
+            screenHeightDp = resources.configuration.screenHeightDp,
+            fontScale = resources.configuration.fontScale,
+        )
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(14))
+            setPadding(
+                dp(actionMetrics.panelHorizontalPaddingDp),
+                dp(14),
+                dp(actionMetrics.panelHorizontalPaddingDp),
+                dp(14),
+            )
             background = roundedSurface(GRAPHITE, null, 22f)
             elevation = dp(4).toFloat()
+            clipChildren = false
+            clipToPadding = false
         }
 
         panel.addView(TextView(this).apply {
@@ -380,29 +398,48 @@ class MainActivity : Activity() {
         val actions = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
+            setPadding(
+                0,
+                dp(actionMetrics.rowTopPaddingDp),
+                0,
+                dp(actionMetrics.rowBottomPaddingDp),
+            )
+            clipChildren = false
+            clipToPadding = false
         }
-        newProfileButton = brandSmallButton("＋ Новый", ButtonTone.MINT).apply {
+        newProfileButton = profilePanelAction(
+            text = "＋ Новый",
+            tone = ButtonTone.MINT,
+            metrics = actionMetrics,
+        ).apply {
             setOnClickListener { showProfileEditor(null) }
         }
-        editProfileButton = brandSmallButton("Изменить", ButtonTone.GHOST).apply {
+        editProfileButton = profilePanelAction(
+            text = "Изменить",
+            tone = ButtonTone.GHOST,
+            metrics = actionMetrics,
+        ).apply {
             setOnClickListener {
                 currentProfileId?.let(::showProfileEditor)
             }
         }
         actions.addView(
             newProfileButton,
-            LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                topMargin = dp(10)
-            },
+            LinearLayout.LayoutParams(0, dp(actionMetrics.actionHeightDp), 1f),
         )
         actions.addView(
             editProfileButton,
-            LinearLayout.LayoutParams(0, dp(48), 1f).apply {
-                leftMargin = dp(8)
-                topMargin = dp(10)
+            LinearLayout.LayoutParams(0, dp(actionMetrics.actionHeightDp), 1f).apply {
+                leftMargin = dp(actionMetrics.gapDp)
             },
         )
-        panel.addView(actions)
+        panel.addView(
+            actions,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
+        )
 
         return panel
     }
@@ -445,6 +482,53 @@ class MainActivity : Activity() {
                 intArrayOf(-android.R.attr.state_checked),
             ),
             intArrayOf(MINT, SOFT_GRAY),
+        )
+
+        val quickActions = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+        fun quickAction(label: String, onClick: () -> Unit): TextView =
+            TextView(this).apply {
+                text = label
+                textSize = 12f
+                setTextColor(MINT_LIGHT)
+                setTypeface(typeface, Typeface.BOLD)
+                gravity = Gravity.CENTER
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                setAutoSizeTextTypeUniformWithConfiguration(
+                    11,
+                    12,
+                    1,
+                    TypedValue.COMPLEX_UNIT_SP,
+                )
+                setPadding(dp(5), 0, dp(5), 0)
+                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f, MINT)
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    popup.dismiss()
+                    onClick()
+                }
+            }
+        quickActions.addView(
+            quickAction("Сайты") { showSiteExclusionsDialog() },
+            LinearLayout.LayoutParams(0, dp(48), 0.8f),
+        )
+        quickActions.addView(
+            quickAction("Приложения") { showAppExclusionsDialog() },
+            LinearLayout.LayoutParams(0, dp(48), 1.4f).apply { leftMargin = dp(6) },
+        )
+        quickActions.addView(
+            quickAction("Журнал") { showPoolEventsDialog() },
+            LinearLayout.LayoutParams(0, dp(48), 0.8f).apply { leftMargin = dp(6) },
+        )
+        rows.addView(
+            quickActions,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
+                bottomMargin = dp(6)
+            },
         )
 
         profileChoices.forEach { choice ->
@@ -490,7 +574,7 @@ class MainActivity : Activity() {
         })
 
         val restoreToggle = CheckBox(this).apply {
-            text = "Возвращать основной после восстановления"
+            text = "Возвращаться к приоритетному прокси после сбоя"
             textSize = 13.5f
             setTextColor(WHITE)
             buttonTintList = ColorStateList(
@@ -516,64 +600,6 @@ class MainActivity : Activity() {
         rows.addView(
             restoreToggle,
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46)),
-        )
-
-        val siteExclusionCount = runCatching { store.getSiteExclusions().size }.getOrDefault(0)
-        rows.addView(
-            TextView(this).apply {
-                text = if (siteExclusionCount == 0) "Исключения сайтов" else "Исключения сайтов · $siteExclusionCount"
-                textSize = 14f
-                setTextColor(MINT_LIGHT)
-                setTypeface(typeface, Typeface.BOLD)
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(12), 0, dp(12), 0)
-                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
-                isClickable = true
-                setOnClickListener {
-                    popup.dismiss()
-                    showSiteExclusionsDialog()
-                }
-            },
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)),
-        )
-
-        val appExclusionCount = runCatching { store.getAppExclusions().size }.getOrDefault(0)
-        rows.addView(
-            TextView(this).apply {
-                text = if (appExclusionCount == 0) "Исключения приложений" else "Исключения приложений · $appExclusionCount"
-                textSize = 14f
-                setTextColor(MINT_LIGHT)
-                setTypeface(typeface, Typeface.BOLD)
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(12), 0, dp(12), 0)
-                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
-                isClickable = true
-                setOnClickListener {
-                    popup.dismiss()
-                    showAppExclusionsDialog()
-                }
-            },
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)).apply {
-                topMargin = dp(6)
-            },
-        )
-
-        rows.addView(
-            TextView(this).apply {
-                text = "Журнал"
-                textSize = 14f
-                setTextColor(MINT_LIGHT)
-                setTypeface(typeface, Typeface.BOLD)
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(12), 0, dp(12), 0)
-                background = roundedRipple(GRAPHITE, MINT_RIPPLE, 10f)
-                isClickable = true
-                setOnClickListener {
-                    popup.dismiss()
-                    showPoolEventsDialog()
-                }
-            },
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(44)),
         )
 
         popup.showAsDropDown(profileSelectorShell, 0, dp(6))
@@ -866,32 +892,104 @@ class MainActivity : Activity() {
     }
 
     private fun showAppExclusionsDialog() {
-        val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-        val apps = packageManager.queryIntentActivities(launcherIntent, 0)
-            .mapNotNull { info ->
-                val packageId = info.activityInfo?.packageName ?: return@mapNotNull null
-                if (packageId == packageName) return@mapNotNull null
-                val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
-                InstalledApp(packageId, label.ifEmpty { packageId })
-            }
-            .distinctBy { it.packageId }
-            .sortedWith(compareBy<InstalledApp> { it.label.lowercase(Locale.getDefault()) }.thenBy { it.packageId })
-
-        if (apps.isEmpty()) {
-            AlertDialog.Builder(this)
-                .setTitle("Исключения приложений")
-                .setMessage("Не удалось получить список установленных приложений.")
-                .setPositiveButton("Закрыть", null)
-                .show()
-            return
+        val loadingContent = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(24), dp(18), dp(24), dp(18))
+            addView(
+                ProgressBar(this@MainActivity).apply {
+                    isIndeterminate = true
+                    contentDescription = "Загрузка списка приложений"
+                },
+                LinearLayout.LayoutParams(dp(32), dp(32)),
+            )
+            addView(
+                TextView(this@MainActivity).apply {
+                    text = "Загружаем список приложений…"
+                    textSize = 15f
+                    setTextColor(NAVY)
+                    setPadding(dp(16), 0, 0, 0)
+                },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
+            )
         }
+        val loadingDialog = AlertDialog.Builder(this)
+            .setTitle("Исключения приложений")
+            .setView(loadingContent)
+            .setNegativeButton("Отмена", null)
+            .create()
+        appExclusionLoadingDialog?.dismiss()
+        appExclusionLoadingDialog = loadingDialog
+        loadingDialog.setOnDismissListener {
+            if (appExclusionLoadingDialog === loadingDialog) {
+                appExclusionLoadingDialog = null
+            }
+        }
+        loadingDialog.show()
 
-        val selected = runCatching { store.getAppExclusions().toMutableSet() }.getOrDefault(mutableSetOf())
+        val selected = runCatching {
+            store.getAppExclusions().toMutableSet()
+        }.getOrDefault(mutableSetOf())
+
+        Thread({
+            val appsResult = runCatching {
+                val launcherIntent = Intent(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_LAUNCHER)
+                packageManager.queryIntentActivities(launcherIntent, 0)
+                    .mapNotNull { info ->
+                        val packageId = info.activityInfo?.packageName
+                            ?: return@mapNotNull null
+                        if (packageId == packageName) return@mapNotNull null
+                        val label = info.loadLabel(packageManager)
+                            ?.toString()
+                            ?.trim()
+                            .orEmpty()
+                        InstalledApp(packageId, label.ifEmpty { packageId })
+                    }
+                    .distinctBy { it.packageId }
+                    .sortedWith(
+                        compareBy<InstalledApp> {
+                            it.label.lowercase(Locale.getDefault())
+                        }.thenBy { it.packageId },
+                    )
+            }
+
+            mainHandler.post {
+                if (isFinishing || isDestroyed || !loadingDialog.isShowing) {
+                    return@post
+                }
+                loadingDialog.dismiss()
+
+                val apps = appsResult.getOrElse {
+                    showAppExclusionsLoadError()
+                    return@post
+                }
+                if (apps.isEmpty()) {
+                    showAppExclusionsLoadError()
+                    return@post
+                }
+                showAppExclusionsPicker(apps, selected)
+            }
+        }, "apl-app-exclusions-loader").start()
+    }
+
+    private fun showAppExclusionsLoadError() {
+        if (isFinishing || isDestroyed) return
+        AlertDialog.Builder(this)
+            .setTitle("Исключения приложений")
+            .setMessage("Не удалось получить список установленных приложений.")
+            .setPositiveButton("Закрыть", null)
+            .show()
+    }
+
+    private fun showAppExclusionsPicker(
+        apps: List<InstalledApp>,
+        selected: MutableSet<String>,
+    ) {
         val labels = apps.map { it.label }.toTypedArray()
         val checked = BooleanArray(apps.size) { apps[it].packageId in selected }
         val dialog = AlertDialog.Builder(this)
             .setTitle("Исключения приложений")
-            .setMessage("Выбранные приложения будут работать напрямую, в обход прокси.")
             .setMultiChoiceItems(labels, checked) { _, index, enabled ->
                 val packageId = apps[index].packageId
                 if (enabled) selected.add(packageId) else selected.remove(packageId)
@@ -905,18 +1003,26 @@ class MainActivity : Activity() {
                 try {
                     store.setAppExclusions(selected)
                 } catch (_: Exception) {
-                    renderState(ProxyVpnService.STATE_ERROR, "Не удалось сохранить исключения приложений")
+                    renderState(
+                        ProxyVpnService.STATE_ERROR,
+                        "Не удалось сохранить исключения приложений",
+                    )
                     return@setOnClickListener
                 }
                 dialog.dismiss()
                 if (currentState == ProxyVpnService.STATE_CONNECTED ||
                     currentState == ProxyVpnService.STATE_CONNECTING
                 ) {
-                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения приложений…") }
+                    selectedChoice()?.let {
+                        requestLiveSwitch(it, "Применяем исключения приложений…")
+                    }
                 } else {
                     val count = store.getAppExclusions().size
-                    val detail = if (count == 0) "Исключения приложений очищены"
-                    else "Приложений в обход прокси: $count"
+                    val detail = if (count == 0) {
+                        "Исключения приложений очищены"
+                    } else {
+                        "Приложений в обход прокси: $count"
+                    }
                     renderState(currentState, detail)
                 }
             }
@@ -1045,6 +1151,7 @@ class MainActivity : Activity() {
         if (switchInProgress) return
         val creating = profileId == null
         val creatingWhileConnected = creating && currentState == ProxyVpnService.STATE_CONNECTED
+        val editingWhileConnected = !creating && currentState == ProxyVpnService.STATE_CONNECTED
         if (creating) {
             if (currentState !in creatableStates) return
         } else if (currentState !in editableStates) {
@@ -1120,7 +1227,7 @@ class MainActivity : Activity() {
 
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
         val primaryCheck = CheckBox(this).apply {
-            text = "Основной в Авто"
+            text = "Приоритетный для режима «Авто»"
             textSize = 13.5f
             setTextColor(NAVY)
             buttonTintList = ColorStateList(
@@ -1166,6 +1273,8 @@ class MainActivity : Activity() {
         if (existing != null) {
             actions.addView(
                 brandSmallButton("Удалить", ButtonTone.DANGER).apply {
+                    isEnabled = !editingWhileConnected
+                    alpha = if (isEnabled) 1f else 0.5f
                     setOnClickListener {
                         AlertDialog.Builder(this@MainActivity)
                             .setTitle("Удалить профиль?")
@@ -1260,7 +1369,13 @@ class MainActivity : Activity() {
                     } else {
                         currentProfileId = id
                         refreshProfileChoices(id)
-                        renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                        if (editingWhileConnected) {
+                            profileChoices.firstOrNull { it.key == id }?.let {
+                                requestLiveSwitch(it, "Применяем изменения профиля…")
+                            }
+                        } else {
+                            renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                        }
                     }
                     dialog.dismiss()
                 }
@@ -1523,6 +1638,57 @@ class MainActivity : Activity() {
         editProfileButton.alpha = if (editProfileButton.isEnabled) 1f else 0.5f
     }
 
+    private fun profilePanelAction(
+        text: String,
+        tone: ButtonTone,
+        metrics: ProfileActionMetrics,
+    ): TextView =
+        TextView(this).apply {
+            this.text = text
+            gravity = Gravity.CENTER
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            includeFontPadding = false
+            setTypeface(typeface, Typeface.BOLD)
+            setAutoSizeTextTypeUniformWithConfiguration(
+                metrics.minTextSp,
+                metrics.maxTextSp,
+                1,
+                TypedValue.COMPLEX_UNIT_SP,
+            )
+            setPadding(
+                dp(metrics.horizontalTextPaddingDp),
+                0,
+                dp(metrics.horizontalTextPaddingDp),
+                0,
+            )
+            minHeight = dp(48)
+            minWidth = 0
+            isClickable = true
+            isFocusable = true
+            contentDescription = text.replace("＋", "").trim()
+            when (tone) {
+                ButtonTone.MINT -> {
+                    setTextColor(NAVY)
+                    background = roundedRipple(
+                        MINT,
+                        MINT_LIGHT,
+                        metrics.cornerRadiusDp,
+                    )
+                }
+                ButtonTone.GHOST -> {
+                    setTextColor(WHITE)
+                    background = roundedRipple(
+                        GRAPHITE,
+                        MINT_RIPPLE,
+                        metrics.cornerRadiusDp,
+                        SOFT_GRAY,
+                    )
+                }
+                ButtonTone.DANGER -> error("Unsupported profile action tone")
+            }
+        }
+
     private fun brandSmallButton(text: String, tone: ButtonTone): Button =
         Button(this).apply {
             this.text = text
@@ -1645,6 +1811,7 @@ class MainActivity : Activity() {
 
         private val editableStates = setOf(
             ProxyVpnService.STATE_DISCONNECTED,
+            ProxyVpnService.STATE_CONNECTED,
             ProxyVpnService.STATE_ERROR,
         )
         private val creatableStates = editableStates + ProxyVpnService.STATE_CONNECTED

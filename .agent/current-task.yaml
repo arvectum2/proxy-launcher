@@ -1,36 +1,83 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SHORTCUTS-APP-ROUTING-20260926
-status: completed
-goal: "Provide a consumer-iOS application-routing workaround using Shortcuts automations and APL App Intents for VPN connect/disconnect."
+task_id: APL-ANDROID-0132-UX-FIXES-20260926
+status: in_progress
+goal: "Make the main New/Edit actions genuinely adaptive to device width/height/font scale and eliminate the remaining clipped action frame seen on the owner phone."
 authority: OWNER
 definition_of_done:
-  - Add APL App Intents for connect and disconnect, usable from Shortcuts without foreground UI.
-  - Add App Shortcuts metadata so APL actions are easy to discover.
-  - Replace the dead-end consumer app-exclusions screen with a truthful automation setup UX.
-  - Deep-link users into Shortcuts creation and explain Opened/Closed trigger setup.
-  - Preserve the managed Per-App VPN capability path and existing site exclusions.
-  - Run Swift tests, parse/build validation, CI, and merge if green.
-  - Keep APL-UI-001 as a pre-release gate.
+  - New/Edit controls render complete rounded shapes/borders on the owner phone in both the normal and profile-menu-open screenshots.
+  - New/Edit sizing and text adapt to screen width/height and font scale without wrapping or clipping.
+  - The adaptive controls preserve at least a 48dp touch target and existing enable/disable behavior.
+  - Previous accepted fixes (NoActionBar/Deep Navy, failover copy, app exclusions loading) remain unchanged.
+  - Complete 8 documented cross-review passes covering rendering, responsive metrics, typography, touch targets, popup overlap, accessibility, regressions, and release validation.
+  - Android lint/tests/build and APK checksum verification pass.
 completed:
-  - Confirmed Apple Shortcuts supports App Opened/Closed personal-automation triggers and immediate execution.
-  - Confirmed App Intents can expose APL actions in Shortcuts.
-  - Confirmed Apple provides shortcuts://create-shortcut deep link, but no public API for APL to silently create a Personal Automation trigger.
-current: "Completed: consumer iOS Shortcuts app-routing automation merged to main with exact-head CI green."
+  - Captured physical-device feedback and screenshots for all three defects.
+  - Enabled active named-profile editing while connected; saving triggers a live reconnect and delete stays disabled during the active edit.
+  - Moved Sites / Apps / Journal into an always-visible quick-action row at the top of the profile menu.
+  - Removed the AlertDialog message/list conflict so the installed-app multi-choice list is actually rendered.
+  - Bumped Android physical-test candidate to 0.1.33 / versionCode 34 and updated the CI version guard.
+  - Physical acceptance confirmed 0.1.33 functionally works.
+  - Cross-review 1 UX/layout: distinct mint borders, asymmetric 0.8/1.4/0.8 widths, one-line autosizing labels.
+  - Cross-review 2 async state: loading dialog is shown before installed-app discovery and PackageManager work runs off the UI thread.
+  - Cross-review 3 lifecycle: loading dialog is tracked/dismissed onStop; stale background results cannot reopen UI after dismissal.
+  - Cross-review 4 accessibility: 48dp action targets, focusable actions, one-line autosizing text, progress content description.
+  - Cross-review 5 performance: deliberately avoided blur/render effects on old devices; only lightweight dialog dim + indeterminate progress.
+  - Cross-review 6 cancellation/error handling: Cancel dismisses loader; stale result ignored; query failures/empty results show explicit error.
+  - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
+  - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
+  - Physical acceptance confirmed 0.1.34 UX polish works.
+  - Cross-review 1 composition: New/Edit row now has explicit 58dp height with 48dp controls and bottom breathing room, preventing clipped rounded borders.
+  - Cross-review 2 small-screen behavior: profile panel remains wrap-content while the power area flexes with weight, so the control panel retains its full geometry.
+  - Cross-review 3 theme/system bar: Android 27+ AppTheme now explicitly inherits Theme.Material.Light.NoActionBar, sets windowNoTitle, and preserves Deep Navy window/status/navigation backgrounds.
+  - Cross-review 4 visual hierarchy: existing Deep Navy / Graphite / Mint hierarchy remains consistent; no extra separator color or fake overlay introduced.
+  - Cross-review 5 copy/semantics: user-facing "основной" failover terminology replaced with "приоритетный"; restore copy is "Возвращаться к приоритетному прокси после сбоя".
+  - Cross-review 6 accessibility: New/Edit remain 48dp touch targets and no smaller controls were introduced.
+  - Cross-review 7 regression: app exclusions async loader and connected-profile editing paths remain present and unchanged.
+  - Cross-review 8 release validation: candidate bumped to 0.1.35 / versionCode 36 with matching CI version guards.
+  - Physical acceptance confirmed 0.1.35 fixes #2 and #3; New/Edit frame clipping remains on the owner phone.
+  - Cross-review 1 rendering: New/Edit no longer use framework Button widgets; both are custom TextView actions with explicit custom backgrounds.
+  - Cross-review 2 responsive frame: narrow screens reduce panel horizontal padding, inter-button gap, and corner radius to reclaim width.
+  - Cross-review 3 typography: labels use autosize with screen-width/fontScale-aware min/max SP and remain single-line.
+  - Cross-review 4 accessibility: adaptive actions preserve a 48dp minimum touch target and explicit content descriptions.
+  - Cross-review 5 short-screen spacing: only vertical whitespace contracts on short screens; the 48dp action target is preserved.
+  - Cross-review 6 popup coexistence: profile panel/action containers disable child clipping and the profile popup remains anchored to the selector.
+  - Cross-review 7 regression: NoActionBar/Deep Navy, revised failover copy, async app exclusions, and connected-profile editing remain intact.
+  - Cross-review 8 release validation: added ResponsiveUiPolicy unit coverage and bumped candidate to 0.1.36 / versionCode 37 with matching CI guards.
+  - Owner physical acceptance confirmed Android 0.1.36 adaptive New/Edit rendering; merge authorized.
+current: "Owner accepted Android 0.1.36 on physical device; merge PR #190 into main and verify post-merge CI."
 pending:
-  - Physical iPhone acceptance: verify APL actions appear in Shortcuts and Opened/Closed automations connect/disconnect as designed.
-  - Keep APL-UI-001 before public release.
-last_verified_commit: aedcc18
+  - Merge PR #190 into main.
+  - Verify resulting main commit and post-merge Android CI.
+  - Mark checkpoint completed with merged main commit.
+last_verified_commit: "58215376163d7bdf9f7c928e26ae6baf07dadde8"
 test_results:
-  - "git diff --check: PASS"
-  - "xcrun swiftc -parse VPNShortcuts.swift VPNController.swift ContentView.swift: PASS"
-  - "Initial CI found invalid App Shortcut utterance escaping; fixed in 013f2b8."
-  - "PR #187 exact-head CI: both unsigned-device-build jobs PASS; build/core/security/installer checks PASS."
-blocker: "No code blocker. Physical iPhone acceptance remains before release; APL-UI-001 remains the pre-release UI gate."
-resume_instruction: "Task completed on main aedcc18. Next, perform physical iPhone acceptance for Shortcuts actions/Opened-Closed automations, then continue APL-UI-001 before public release. Do not claim APL can programmatically create Personal Automation triggers."
-updated_at: "2026-09-26T14:10:00+03:00"
+  - "GitHub Actions run 36252064547 android-build: PASS."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "APK signer/branding/version guard: PASS for 0.1.33 / versionCode 34."
+  - "Artifact SHA256 verified locally: 808541e1987d885d36f6e77101fe8bc334931e4b075b26c13a5b48794d01aec8."
+  - "GitHub Actions run 36253680723 android-build: PASS on ea6051b."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "Signer/branding/version guard: PASS for 0.1.34 / versionCode 35."
+  - "Final APK SHA256 matches CI SHA256SUMS: 7c07e851a7d39f06c0b0be307f6b90723603fc33e07cccbb3c69e7509f069a1a."
+  - "GitHub Actions run 36259357006 android-build: PASS on 34af97e."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "Signer/branding/version guard: PASS for 0.1.35 / versionCode 36."
+  - "Final APK SHA256 matches CI SHA256SUMS: 86ede5336af4cf234d596c802ff085d74f891f3641ab52b703b04c5791882394."
+  - "GitHub Actions run 36260385236 android-build: PASS on 5821537."
+  - "ResponsiveUiPolicy unit tests included in testDebugUnitTest: PASS."
+  - "Android lint: PASS."
+  - "testDebugUnitTest + assembleDebug: PASS."
+  - "Signer/branding/version guard: PASS for 0.1.36 / versionCode 37."
+  - "Final APK SHA256 matches CI SHA256SUMS: 73981e6c89d33fe7ebd69ebb3199715868c31679b39771827dd1da7c2782352e."
+blocker: null
+resume_instruction: "Merge PR #190, verify origin/main and post-merge Android CI, then mark this checkpoint completed with the merged main commit."
+updated_at: "2026-09-26T21:23:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: agent/ios-shortcuts-app-routing-20260926
-  base_commit: 8069048
+  branch: task/android-0132-ux-fixes-20260926
+  base_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
   manual_override: true
