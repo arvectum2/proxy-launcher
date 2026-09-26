@@ -104,9 +104,9 @@ items:
     auto_merge: false
     source: "docs/ROADMAP.md#7a-cross-platform-adaptive-ui--apl-ui-001--planned--pre-release-gate; docs/LOCAL_EXECUTION_BACKLOG.md#p8a--apl-ui-001-cross-platform-adaptive-ui--planned--pre-release-gate; docs/APL_UI_UX_CROSSCHECK_20260926.md"
     dependencies: []
-    blocker: "Intentional sequencing: first stabilize/accept the per-application exclusions functional slice. APL-UI-001 then becomes mandatory before the first public release containing that functionality."
+    blocker: "Implementation is review-ready on PR #193 with exact-head CI green. Remaining gate: physical visual/interaction acceptance on release-target platforms; unavailable Windows/Linux hosts must not be claimed accepted."
     executor_scope: "When unblocked, implement the shared mobile-derived design language with adaptive desktop/mobile composition, native platform conventions and one stateful connection action. Preserve routing/recovery/security semantics. Do not churn already-published or Apple-review-waiting binaries merely for UI parity."
-    evidence: "Owner directive 2026-09-26: move next to application exclusions, then unify the interface before releasing the new functionality. Nine-pass UX cross-check recommends mobile visual/product language + desktop interaction model + native platform shell."
+    evidence: "PR #193 head 9b35b76 implements the adaptive UI contract. Local UI regression tests pass 50/50; exact-head PR workflows returned SUCCESS for Android, iOS, Windows, Linux, macOS packaging and security scans. Physical visual/interaction acceptance remains."
 
   - order: 70
     task_id: APL-REG-001C-REDOS

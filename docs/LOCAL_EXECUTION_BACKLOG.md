@@ -212,7 +212,7 @@ Acceptance direction:
 - preserve platform routing/recovery/security semantics; UI parity must not weaken backend guarantees;
 - require physical visual/interaction acceptance on every platform targeted by the release.
 
-Implementation is now in progress on the Owner-selected APL-UI-001 branch. Exact-head platform CI and physical visual/interaction acceptance remain mandatory before public release.
+Implementation is review-ready on PR #193 head 9b35b76. Local UI regressions pass 50/50 and exact-head Android/iOS/Windows/Linux/macOS/security workflows are green. Physical visual/interaction acceptance remains mandatory before merge/release; unavailable platforms must not be claimed accepted.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 

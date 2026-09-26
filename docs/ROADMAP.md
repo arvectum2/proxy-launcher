@@ -132,6 +132,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **TARGET IA** — Home, Profiles, Activity/Diagnostics and Settings; future Marketplace becomes top-level only when it is a real product surface.
 - **RELEASE GATE / OWNER SEQUENCING 2026-09-26** — implement the per-application exclusions functional slice first; before releasing that new functionality, complete and physically accept the unified Adaptive UI on the release-target platforms. Existing already-published/review-waiting binaries are not churned for this cosmetic/product-architecture change.
 - **BOUNDARY** — this task unifies presentation and interaction architecture; it must not alter the proven routing/recovery/security semantics of each platform backend merely for visual parity.
+- **IMPLEMENTATION / CI 2026-09-26** — PR #193 head 9b35b76 implements the shared contract; local UI regressions pass 50/50 and exact-head Android/iOS/Windows/Linux/macOS/security workflows are green. The gate remains **IN PROGRESS** until physical visual/interaction acceptance is recorded for the release-target platforms.
 
 ## 8. Mobile applications
 
