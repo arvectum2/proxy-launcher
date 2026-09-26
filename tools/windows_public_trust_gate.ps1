@@ -51,6 +51,12 @@ if ($env:OS -ne 'Windows_NT') {
 
 $CodeSigningEkuOid = '1.3.6.1.5.5.7.3.3'
 $RsaOid = '1.2.840.113549.1.1.1'
+$CertificatePoliciesOid = '2.5.29.32'
+$CabfNonEvCodeSigningPolicyOid = '2.23.140.1.4.1'
+$CabfEvCodeSigningPolicyOid = '2.23.140.1.3'
+$CabfReservedCodeSigningPolicyOids = @($CabfNonEvCodeSigningPolicyOid, $CabfEvCodeSigningPolicyOid)
+$CabfMaxSubscriberValidityDays = 460
+$CabfValidityLimitEffectiveUtc = [DateTimeOffset]::Parse('2026-03-01T00:00:00Z').UtcDateTime
 
 function Normalize-Thumbprint([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value)) { return $null }
@@ -82,6 +88,22 @@ function Get-RsaKeyBits([System.Security.Cryptography.X509Certificates.X509Certi
     } finally {
         $rsa.Dispose()
     }
+}
+
+function Get-CertificatePolicyOids([System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate) {
+    $extension = $Certificate.Extensions | Where-Object { $_.Oid.Value -eq $script:CertificatePoliciesOid } | Select-Object -First 1
+    if (-not $extension) { return @() }
+    $formatted = $extension.Format($false)
+    if ([string]::IsNullOrWhiteSpace($formatted)) { return @() }
+    return @([regex]::Matches($formatted, '(?<!\d)(?:\d+\.)+\d+(?!\d)') | ForEach-Object { $_.Value } | Select-Object -Unique)
+}
+
+function Test-CabfValidityWindow([System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate) {
+    if (-not $Certificate) { return $false }
+    $notBefore = $Certificate.NotBefore.ToUniversalTime()
+    if ($notBefore -lt $script:CabfValidityLimitEffectiveUtc) { return $true }
+    $days = ($Certificate.NotAfter.ToUniversalTime() - $notBefore).TotalDays
+    return ($days -le ($script:CabfMaxSubscriberValidityDays + 0.01))
 }
 
 function Build-CertificateChain([System.Security.Cryptography.X509Certificates.X509Certificate2]$Certificate) {
@@ -133,6 +155,11 @@ function Get-SignatureEvidence([string]$Path, [string]$Role) {
     $eku = if ($certificate) { Get-CodeSigningEkuPresent $certificate } else { $false }
     $rsaBits = if ($certificate) { Get-RsaKeyBits $certificate } else { 0 }
     $chain = if ($certificate) { Build-CertificateChain $certificate } else { $null }
+    $policyOids = if ($certificate) { @(Get-CertificatePolicyOids $certificate) } else { @() }
+    $reservedPolicyOids = @($policyOids | Where-Object { $script:CabfReservedCodeSigningPolicyOids -contains $_ })
+    $validityDays = if ($certificate) { ($certificate.NotAfter.ToUniversalTime() - $certificate.NotBefore.ToUniversalTime()).TotalDays } else { 0 }
+    $validityCompliant = if ($certificate) { Test-CabfValidityWindow $certificate } else { $false }
+    $timestampCertificate = $signature.TimeStamperCertificate
 
     return [pscustomobject][ordered]@{
         role = $Role
@@ -144,6 +171,16 @@ function Get-SignatureEvidence([string]$Path, [string]$Role) {
         code_signing_eku = $eku
         public_key_algorithm_oid = if ($certificate) { $certificate.PublicKey.Oid.Value } else { $null }
         rsa_key_bits = $rsaBits
+        certificate_not_before_utc = if ($certificate) { $certificate.NotBefore.ToUniversalTime().ToString('o') } else { $null }
+        certificate_not_after_utc = if ($certificate) { $certificate.NotAfter.ToUniversalTime().ToString('o') } else { $null }
+        certificate_validity_days = if ($certificate) { [Math]::Round($validityDays, 3) } else { $null }
+        cabf_validity_window_compliant = [bool]$validityCompliant
+        certificate_policy_oids = @($policyOids)
+        cabf_reserved_code_signing_policy_oids = @($reservedPolicyOids)
+        cabf_reserved_code_signing_policy_count = @($reservedPolicyOids).Count
+        timestamp_present = [bool]$timestampCertificate
+        timestamp_subject = if ($timestampCertificate) { $timestampCertificate.Subject } else { $null }
+        timestamp_thumbprint = if ($timestampCertificate) { Normalize-Thumbprint $timestampCertificate.Thumbprint } else { $null }
         chain_build = if ($chain) { [bool]$chain.Built } else { $false }
         chain_status = if ($chain) { @($chain.Status) } else { @() }
         root_subject = if ($chain) { $chain.RootSubject } else { $null }
@@ -253,6 +290,17 @@ if ($RequireMotw -or $RequirePublicReady) {
 if ($RequirePublicReady) {
     if ([string]::IsNullOrWhiteSpace($ExpectedPublisher)) { Add-Failure $failures 'RequirePublicReady requires -ExpectedPublisher.' }
     if ([string]::IsNullOrWhiteSpace($ExpectedThumbprint)) { Add-Failure $failures 'RequirePublicReady requires -ExpectedThumbprint.' }
+    foreach ($artifact in @($app, $setup)) {
+        if ([int]$artifact.cabf_reserved_code_signing_policy_count -ne 1) {
+            Add-Failure $failures "$($artifact.role): current public profile requires exactly one CAB Forum reserved Code Signing policy OID (2.23.140.1.4.1 Non-EV or 2.23.140.1.3 EV)."
+        }
+        if (-not $artifact.cabf_validity_window_compliant) {
+            Add-Failure $failures "$($artifact.role): subscriber certificate exceeds the current 460-day validity limit for certificates issued on/after 2026-03-01."
+        }
+        if (-not $artifact.timestamp_present) {
+            Add-Failure $failures "$($artifact.role): RFC 3161 timestamp evidence is absent."
+        }
+    }
     if ([string]::IsNullOrWhiteSpace($MicrosoftTrustedRootProgramReference)) {
         Add-Failure $failures 'RequirePublicReady requires retained Microsoft Trusted Root Program evidence reference; local root-store presence alone is insufficient.'
     }
@@ -274,7 +322,7 @@ if ($RequireNoSmartScreenWarning -and $SmartScreenOutcome -ne 'NoWarning') {
 }
 
 $signatureProfileReady = @($app, $setup) | Where-Object {
-    $_.signature_status -ne 'Valid' -or -not $_.code_signing_eku -or $_.public_key_algorithm_oid -ne $RsaOid -or $_.rsa_key_bits -lt 3072 -or -not $_.chain_build
+    $_.signature_status -ne 'Valid' -or -not $_.code_signing_eku -or $_.public_key_algorithm_oid -ne $RsaOid -or $_.rsa_key_bits -lt 3072 -or -not $_.chain_build -or $_.cabf_reserved_code_signing_policy_count -ne 1 -or -not $_.cabf_validity_window_compliant -or -not $_.timestamp_present
 }
 
 $classification = 'PUBLIC_SIGNATURE_READY_PHYSICAL_ACCEPTANCE_PENDING'
