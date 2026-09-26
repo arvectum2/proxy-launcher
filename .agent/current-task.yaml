@@ -2,45 +2,69 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPREVIEW-FIX-20260926
 status: in_progress
-goal: "Resolve Apple App Review rejection for iOS 0.1.19 (21) and resubmit the existing binary with the requested review information and physical-device recording."
+goal: Resolve Apple App Review rejection for iOS 0.1.19 (21) and resubmit the existing binary with the requested review information
+  and physical-device recording.
 authority: HUMAN
 definition_of_done:
-  - "Exact Apple rejection and submission ID are captured."
-  - "App Review Notes explicitly answer all six requested information items."
-  - "A screen recording from a physical supported iPhone on the latest available iOS shows launch and the typical user flow."
-  - "The recording is attached to App Review correspondence."
-  - "The reviewer reply contains the same complete information and references the recording."
-  - "Version 0.1.19 (21) is resubmitted and App Store Connect status is verified."
+- Exact Apple rejection and submission ID are captured.
+- App Review Notes explicitly answer all six requested information items.
+- A screen recording from a physical supported iPhone on the latest available iOS shows launch and the typical user flow.
+- The recording is attached to App Review correspondence.
+- The reviewer reply contains the same complete information and references the recording.
+- Version 0.1.19 (21) is resubmitted and App Store Connect status is verified.
 completed:
-  - "Mac mini persistent App Store Connect auth verified: Arvectum Release Bot API auth HTTP 200."
-  - "Authenticated Safari session on Mac mini opened iOS app 6816013574."
-  - "Captured rejection: Guideline 2.1 - Information Needed - New App Submission."
-  - "Captured submission ID 44e97256-2450-4fb6-924c-71143be545df."
-  - "Apple requests physical-device screen recording plus purpose/audience, setup/access, external services, regional differences, and regulated/protected-material information."
-  - "Confirmed rejection is informational; Apple did not report a binary defect or request a new build."
-  - "Confirmed current build remains iOS 0.1.19 (21), Rejected."
-  - "Confirmed no sign-in is required and existing Notes accurately disclose user-supplied proxies, Network Extension, local storage and no analytics/ads/cloud backend."
-  - "Prepared expanded App Review Notes draft at /Users/master/AppReview-APL-0.1.19-notes.txt."
-  - "Saved expanded six-point App Review Notes in App Store Connect; reload verification shows 2834 characters and the new Guideline 2.1 text persisted."
-current: "Expanded Notes are saved. Physical recording is the remaining hard prerequisite before reviewer reply and resubmission."
+- 'Mac mini persistent App Store Connect auth verified: Arvectum Release Bot API auth HTTP 200.'
+- Authenticated Safari session on Mac mini opened iOS app 6816013574.
+- 'Captured rejection: Guideline 2.1 - Information Needed - New App Submission.'
+- Captured submission ID 44e97256-2450-4fb6-924c-71143be545df.
+- Apple requests physical-device screen recording plus purpose/audience, setup/access, external services, regional differences,
+  and regulated/protected-material information.
+- Confirmed rejection is informational; Apple did not report a binary defect or request a new build.
+- Confirmed current build remains iOS 0.1.19 (21), Rejected.
+- Confirmed no sign-in is required and existing Notes accurately disclose user-supplied proxies, Network Extension, local
+  storage and no analytics/ads/cloud backend.
+- Prepared expanded App Review Notes draft at /Users/master/AppReview-APL-0.1.19-notes.txt.
+- Saved expanded six-point App Review Notes in App Store Connect; reload verification shows 2834 characters and the new Guideline
+  2.1 text persisted.
+- Owner explicitly requested in the current session to inspect the rejection, fix it, and resubmit; final App Review resubmission
+  is authorized once Apple's requested evidence is complete.
+- Verified the App Review Sign-in required flag is false; APL has no app account/login.
+- Verified a temporary review proxy already used by APL is currently reachable and routes traffic successfully; credentials
+  remain local/private.
+- Replaced the earlier Notes draft with a 3161-character six-point App Review Notes version that includes detailed test steps,
+  privacy/data explanation, and private temporary proxy credentials; Save succeeded and the textarea still reports 3161 characters
+  after reload.
+- Confirmed the same iOS 0.1.19 (21) build can be resubmitted; no code, archive, or replacement upload is required for the
+  current Guideline 2.1 information request.
+current: All requested written review information is saved. The only remaining prerequisite is Apple's required physical-iPhone
+  screen recording; then attach it, reply, Update Review, resubmit the same build, and verify status.
 pending:
-  - "Connect/unlock the paired physical iPhone to Mac mini and verify latest available iOS."
-  - "Capture launch -> privacy disclosure -> add proxy -> Connect -> normal use -> Disconnect."
-  - "Attach recording in App Review."
-  - "Reply to Apple with complete six-point information."
-  - "Resubmit version 0.1.19 (21) and verify new review status."
-last_verified_commit: "7aa45183187f6bc685409a9dbf322790c17961f6"
+- Capture a short screen recording from the paired physical iPhone Nikita (iPhone 13) on the latest available iOS, beginning
+  with app launch and demonstrating the normal connect/verify/disconnect flow.
+- Attach the recording to App Review correspondence and update the Notes recording sentence from future to completed.
+- Reply to Apple with the complete six-point information and the private test proxy.
+- Use Update Review for iOS 0.1.19 (21), then Resubmit to App Review.
+- Verify the resulting item/submission state and record final evidence.
+last_verified_commit: 7aa45183187f6bc685409a9dbf322790c17961f6
 test_results:
-  - "2026-09-26 App Store Connect authenticated Safari read: PASS."
-  - "2026-09-26 persistent API auth: PASS HTTP 200."
-  - "2026-09-26 Apple submission details read: Rejected / Guideline 2.1 Information Needed."
-blocker: "Paired iPhone Nikita (iPhone 13) is currently unavailable to CoreDevice on Mac mini, so an honest physical-device screen recording cannot yet be captured."
-resume_instruction: "Use only Mac mini. First run xcrun devicectl list devices. When iPhone Nikita is available and unlocked, capture a real physical-device screen recording of the typical APL flow, attach it to App Review, inject/save the prepared expanded Notes, reply to Apple, click Resubmit to App Review, and verify the resulting status. Do not rebuild or upload a new binary unless Apple raises a separate binary issue."
-updated_at: "2026-09-26T12:20:00+03:00"
+- '2026-09-26 App Store Connect authenticated Safari read: PASS.'
+- '2026-09-26 persistent API auth: PASS HTTP 200.'
+- '2026-09-26 Apple submission details read: Rejected / Guideline 2.1 Information Needed.'
+- '2026-09-26 temporary App Review test proxy connectivity: PASS; endpoint reached and egress matched the proxy host.'
+- '2026-09-26 App Review Sign-in required flag: PASS (false).'
+- '2026-09-26 App Review Notes Save: PASS; 3161 characters present after reload.'
+blocker: The paired physical iPhone Nikita (iPhone 13) is not currently available to CoreDevice/USB. iPhone Mirroring on both
+  Macs is at first-time setup; enabling that device link requires the owner to explicitly complete/approve it. An honest physical-device
+  recording cannot be created until the phone is available.
+resume_instruction: Use the existing same build 0.1.19 (21); do not rebuild unless Apple reports a separate binary issue.
+  First obtain the required physical-iPhone recording. Then update the saved Notes to say the recording is attached, attach
+  the video in Reply to App Review, send the complete reply, click Update Review, resubmit the item, and verify the resulting
+  App Store Connect state. Remove local temporary files containing review proxy credentials after submission.
+updated_at: '2026-09-26T12:28:00+03:00'
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "interactive-20260926-ios-appreview-fix"
-  branch: "task/apl-ios-appreview-fix-20260926"
-  base_commit: "7aa45183187f6bc685409a9dbf322790c17961f6"
+  claimed_by: chatgpt
+  execution_id: interactive-20260926-ios-appreview-fix
+  branch: task/apl-ios-appreview-fix-20260926
+  base_commit: 7aa45183187f6bc685409a9dbf322790c17961f6
   lease_until: null
   manual_override: true
