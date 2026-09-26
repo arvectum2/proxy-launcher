@@ -1,36 +1,31 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SHORTCUTS-APP-ROUTING-20260926
-status: completed
-goal: "Provide a consumer-iOS application-routing workaround using Shortcuts automations and APL App Intents for VPN connect/disconnect."
+task_id: APL-ANDROID-0132-UX-FIXES-20260926
+status: in_progress
+goal: "Fix Android 0.1.32 UX and application-exclusions flow based on physical-device feedback."
 authority: OWNER
 definition_of_done:
-  - Add APL App Intents for connect and disconnect, usable from Shortcuts without foreground UI.
-  - Add App Shortcuts metadata so APL actions are easy to discover.
-  - Replace the dead-end consumer app-exclusions screen with a truthful automation setup UX.
-  - Deep-link users into Shortcuts creation and explain Opened/Closed trigger setup.
-  - Preserve the managed Per-App VPN capability path and existing site exclusions.
-  - Run Swift tests, parse/build validation, CI, and merge if green.
-  - Keep APL-UI-001 as a pre-release gate.
+  - Active proxy profile can be edited while APL is connected, without corrupting current tunnel state.
+  - Site exclusions, application exclusions, and journal are visible/reachable without requiring hidden downward scrolling in the profile popup/menu.
+  - Application exclusions opens a real selectable installed-app list with current selections reflected and persisted.
+  - Android tests/lint/build pass and resulting APK is produced for physical testing.
 completed:
-  - Confirmed Apple Shortcuts supports App Opened/Closed personal-automation triggers and immediate execution.
-  - Confirmed App Intents can expose APL actions in Shortcuts.
-  - Confirmed Apple provides shortcuts://create-shortcut deep link, but no public API for APL to silently create a Personal Automation trigger.
-current: "Completed: consumer iOS Shortcuts app-routing automation merged to main with exact-head CI green."
+  - Captured physical-device feedback and screenshots for all three defects.
+current: "Inspect Android profile menu/editor and application-exclusion implementation."
 pending:
-  - Physical iPhone acceptance: verify APL actions appear in Shortcuts and Opened/Closed automations connect/disconnect as designed.
-  - Keep APL-UI-001 before public release.
-last_verified_commit: aedcc18
-test_results:
-  - "git diff --check: PASS"
-  - "xcrun swiftc -parse VPNShortcuts.swift VPNController.swift ContentView.swift: PASS"
-  - "Initial CI found invalid App Shortcut utterance escaping; fixed in 013f2b8."
-  - "PR #187 exact-head CI: both unsigned-device-build jobs PASS; build/core/security/installer checks PASS."
-blocker: "No code blocker. Physical iPhone acceptance remains before release; APL-UI-001 remains the pre-release UI gate."
-resume_instruction: "Task completed on main aedcc18. Next, perform physical iPhone acceptance for Shortcuts actions/Opened-Closed automations, then continue APL-UI-001 before public release. Do not claim APL can programmatically create Personal Automation triggers."
-updated_at: "2026-09-26T14:10:00+03:00"
+  - Implement active-profile editing behavior.
+  - Redesign menu visibility for exclusions/journal.
+  - Fix installed-app selection UI and persistence.
+  - Add/update tests.
+  - Run lint/unit/build and verify APK.
+  - Commit, push, and deliver test APK.
+last_verified_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
+test_results: []
+blocker: null
+resume_instruction: "Continue from Android UI inspection in task/android-0132-ux-fixes-20260926; fix the three owner-reported defects, test, build, and deliver APK."
+updated_at: "2026-09-26T18:20:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: agent/ios-shortcuts-app-routing-20260926
-  base_commit: 8069048
+  branch: task/android-0132-ux-fixes-20260926
+  base_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
   manual_override: true
