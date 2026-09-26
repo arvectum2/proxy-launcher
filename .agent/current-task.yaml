@@ -1,15 +1,14 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-0132-UX-FIXES-20260926
-status: completed
-goal: "Polish Android 0.1.33 physical-device UX: compact bordered routing actions and explicit application-list loading state."
+status: in_progress
+goal: "Polish Android main-screen framing, top system/header strip, and restore-policy copy after physical acceptance of 0.1.34."
 authority: OWNER
 definition_of_done:
-  - Routing quick actions fit on one line on the tested phone and are visually separated with clear borders.
-  - Opening application exclusions immediately shows an unmistakable loading state while installed apps are queried.
-  - Slow PackageManager queries do not freeze or leave a blank-looking main screen.
-  - Application selection/persistence and connected-profile editing remain functional.
-  - Complete 8 documented cross-review passes covering UX, async state, lifecycle, accessibility, performance, regressions, error handling, and release validation.
+  - New/Edit buttons are fully visible with complete rounded borders on the tested phone and remain safe on smaller/older screens.
+  - The dark/black strip beneath the top "Proxy Launcher" area is removed so Deep Navy visually continues behind/below the header.
+  - Restore-policy copy no longer assumes a profile literally named "Основной" and clearly explains the behavior.
+  - Complete 8 documented UI/UX cross-review passes covering layout, insets, system bars, hierarchy, copy, accessibility, regressions, and release validation.
   - Android lint/tests/build and APK verification pass.
 completed:
   - Captured physical-device feedback and screenshots for all three defects.
@@ -26,10 +25,15 @@ completed:
   - Cross-review 6 cancellation/error handling: Cancel dismisses loader; stale result ignored; query failures/empty results show explicit error.
   - Cross-review 7 regression: connected-profile editing and app-exclusion persistence/live reconnect paths remain intact.
   - Cross-review 8 release validation: bumped candidate to 0.1.34 / versionCode 35 and aligned CI APK version guards.
-current: "Completed: Android 0.1.34 UX-polish candidate built, verified, and ready for owner physical acceptance."
+  - Physical acceptance confirmed 0.1.34 UX polish works.
+current: "Inspect main layout, theme/system bars, and restore-policy semantics before implementing 0.1.35 UI polish."
 pending:
-  - External acceptance gate: owner installs 0.1.34 and verifies one-line bordered actions plus visible app-list loading state.
-  - If accepted, merge PR #190; if not, resume from the reported physical-device behavior.
+  - Fix main New/Edit button border clipping.
+  - Remove/neutralize black strip under top app label so Deep Navy continues cleanly.
+  - Rewrite restore-policy copy based on behavior, not profile name.
+  - Perform and document 8 UI/UX cross-review passes; fix findings.
+  - Run CI lint/unit/build and verify the new APK.
+  - Deliver physical-test APK and await owner acceptance.
 last_verified_commit: "ea6051b10759ee63d3f2b7642eb8b98d3a56f36a"
 test_results:
   - "GitHub Actions run 36252064547 android-build: PASS."
@@ -42,9 +46,9 @@ test_results:
   - "testDebugUnitTest + assembleDebug: PASS."
   - "Signer/branding/version guard: PASS for 0.1.34 / versionCode 35."
   - "Final APK SHA256 matches CI SHA256SUMS: 7c07e851a7d39f06c0b0be307f6b90723603fc33e07cccbb3c69e7509f069a1a."
-blocker: "No code/build blocker. PR #190 intentionally remains open until owner physical acceptance of 0.1.34."
-resume_instruction: "Wait for owner physical acceptance of Android 0.1.34. If accepted, merge PR #190 and mark the merged main commit; if any UX issue remains, reopen this task on the same branch and fix only the reported behavior."
-updated_at: "2026-09-26T19:01:00+03:00"
+blocker: null
+resume_instruction: "Continue the 0.1.35 UI polish on PR #190: fix New/Edit clipping, top black strip, and restore-policy wording; complete 8 cross-review passes, CI, and deliver the APK."
+updated_at: "2026-09-26T20:29:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926
