@@ -353,74 +353,102 @@ struct ExclusionsView: View {
 
 struct ApplicationExclusionsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var mode: AutomationRoutingMode = .proxySelectedApps
-
-    private enum AutomationRoutingMode: String, CaseIterable, Identifiable {
-        case proxySelectedApps
-        case bypassSelectedApps
-        var id: String { rawValue }
-        var title: String {
-            switch self {
-            case .proxySelectedApps: return "Через прокси только выбранные"
-            case .bypassSelectedApps: return "Обход прокси для выбранных"
-            }
-        }
-    }
+    @State private var mode: IOSAppRoutingMode = .normallyOn
+    @State private var storageError: String?
 
     var body: some View {
         NavigationView {
             List {
-                Section("Режим") {
-                    Picker("Автоматизация", selection: $mode) {
-                        ForEach(AutomationRoutingMode.allCases) { item in
+                Section("Обычное состояние") {
+                    Picker("Режим", selection: $mode) {
+                        ForEach(IOSAppRoutingMode.allCases) { item in
                             Text(item.title).tag(item)
                         }
                     }
                     .pickerStyle(.inline)
+                    .onChange(of: mode) { newValue in
+                        saveAndApplyMode(newValue)
+                    }
                 }
 
-                Section("Как это работает") {
-                    Text(instruction)
+                Section("Что произойдёт") {
+                    Text(modeExplanation).font(.footnote)
+                    Label("После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно.", systemImage: "checkmark.circle")
                         .font(.footnote)
-                    if #available(iOS 16.0, *) {
-                        Label("В «Командах» доступны действия «Подключить APL» и «Отключить APL».", systemImage: "bolt.fill")
-                            .font(.footnote)
-                    } else {
-                        Text("Действия APL для «Команд» доступны начиная с iOS 16.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
                 }
 
-                Section("Настроить") {
+                Section("Один раз настроить iPhone") {
                     Link(destination: URL(string: "shortcuts://create-shortcut")!) {
-                        Label("Открыть «Команды»", systemImage: "arrow.up.forward.app")
+                        Label("Продолжить в «Командах»", systemImage: "arrow.up.forward.app")
                     }
-                    Text("Создайте две личные автоматизации с триггером «Приложение»: одну для «Открыто», вторую для «Закрыто». Выберите нужные приложения и запуск «Немедленно».")
+                    Text("1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто».")
+                        .font(.footnote)
+                    Text("2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто».")
+                        .font(.footnote)
+                    Text("Для обеих выберите запуск «Немедленно». После этого APL сам решает, включать или выключать прокси.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
 
                 Section("Ограничение iOS") {
-                    Text("APL не может создать системный триггер «Приложение открыто/закрыто» без участия пользователя. После однократной настройки автоматизации работают системно и запускают действия APL автоматически.")
+                    Text("Apple не предоставляет приложению публичный API для создания или изменения системного триггера «Приложение открыто/закрыто». Поэтому список приложений выбирается в «Командах». Сам режим работы хранится в APL.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                }
+
+                if let storageError {
+                    Section { Text(storageError).font(.footnote).foregroundStyle(.red) }
                 }
             }
             .navigationTitle("Автоматизация приложений")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear { loadAndApplyMode() }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
             }
         }
     }
 
-    private var instruction: String {
+    private var modeExplanation: String {
         switch mode {
-        case .proxySelectedApps:
-            return "Для выбранных приложений: «Открыто» → «Подключить APL», «Закрыто» → «Отключить APL». Остальной трафик идёт напрямую, пока APL выключен."
-        case .bypassSelectedApps:
-            return "Если APL обычно включён: для выбранных приложений задайте «Открыто» → «Отключить APL», «Закрыто» → «Подключить APL». Это временно отключает прокси для всего устройства, пока выбранное приложение открыто."
+        case .normallyOn:
+            return "APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно."
+        case .normallyOff:
+            return "APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно."
+        }
+    }
+
+    private func loadAndApplyMode() {
+        do {
+            let storedMode = try ProfileStore().iosAppRoutingMode
+            mode = storedMode
+            storageError = nil
+            Task { @MainActor in
+                do {
+                    try await AppRoutingVPNControl.applyBaseline(storedMode)
+                } catch {
+                    storageError = error.localizedDescription
+                }
+            }
+        } catch {
+            storageError = error.localizedDescription
+        }
+    }
+
+    private func saveAndApplyMode(_ newValue: IOSAppRoutingMode) {
+        do {
+            let store = try ProfileStore()
+            store.iosAppRoutingMode = newValue
+            storageError = nil
+            Task { @MainActor in
+                do {
+                    try await AppRoutingVPNControl.applyBaseline(newValue)
+                } catch {
+                    storageError = error.localizedDescription
+                }
+            }
+        } catch {
+            storageError = error.localizedDescription
         }
     }
 }
