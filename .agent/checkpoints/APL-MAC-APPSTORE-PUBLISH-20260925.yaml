@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-APPSTORE-PUBLISH-20260925
-status: blocked
+status: completed
 goal: "Publish the first Mac App Store release of Arvectum Proxy Launcher as 0.2.17 through LLC ARVECTUM, using the sandboxed Mac Catalyst + Packet Tunnel lane while preserving immutable direct-distribution v0.2.16."
 authority: HUMAN
 definition_of_done:
@@ -43,11 +43,14 @@ completed:
   - "Physical signed Debug app launch on Mac mini PASS."
   - "Physical Packet Tunnel end-to-end smoke PASS on 2026-09-26: service reached Connected on utun5, HTTPS request through Local smoke returned HTTP 200, BytesIn=39015, BytesOut=31248, ErrorsIn=0, ErrorsOut=0, and service returned to Disconnected."
   - "Canonical persistent Arvectum Release Bot App Store Connect API credential remains in use; no per-release API key was created."
-current: "Waiting for one human physical Help-menu acceptance, then run final App Store Connect validation and submit 0.2.17 to App Review."
-pending:
-  - "Human: with the running 0.2.17 Debug app frontmost, open Help > Справка Arvectum Proxy Launcher and confirm the offline Help sheet opens."
-  - "After Help acceptance, run final App Store Connect readiness validation and submit version 0.2.17 to App Review."
-last_verified_commit: "36edf97e75190a543234cdf7c50b05274d22c06d"
+  - "Human physical Help-menu acceptance PASS: Help > Справка Arvectum Proxy Launcher opened the bundled offline Help surface."
+  - "Final App Store Connect readiness verified immediately before submission: version 0.2.17 READY_FOR_REVIEW, build 1 attached and VALID."
+  - "Review submission d07793b2-aaf8-405d-bbca-7d56ba0e3d47 contained exactly the macOS 0.2.17 app version and was submitted through authenticated App Store Connect."
+  - "Post-submit independent API verification PASS: review submission state WAITING_FOR_REVIEW, submittedDate 2026-09-26T06:23:08.926Z; app version state WAITING_FOR_REVIEW."
+  - "PR #175 branch reconciled with current main; roadmap/backlog/execution-queue synchronized to submitted/Waiting for Review state."
+current: "COMPLETED: macOS App Store 0.2.17 build 1 is submitted to Apple App Review and independently verified WAITING_FOR_REVIEW."
+pending: []
+last_verified_commit: "684072ef0e908a53dd424a7a219939f0b0f06193"
 test_results:
   - "2026-09-25 tests/test_macos_appstore_contract.py: 9 passed."
   - "2026-09-25 Release archive: ARCHIVE SUCCEEDED."
@@ -60,9 +63,12 @@ test_results:
   - "2026-09-26 App Privacy authenticated web check: Published / Data Not Collected."
   - "2026-09-26 APP_DESKTOP screenshots: 3 assets COMPLETE."
   - "2026-09-26 physical Packet Tunnel E2E: Connected, HTTPS 200, traffic counters nonzero, zero errors, clean disconnect."
-blocker: "Objective HUMAN/TCC gate only: System Events denies osascript assistive access and LLDB attach is permission-gated, so the actual Help menu item cannot be physically clicked by automation. One manual Help click is required before submission."
-resume_instruction: "Do not rebuild or re-upload build 1. Ask the human to click Help > Справка Arvectum Proxy Launcher in the currently running 0.2.17 Debug app and confirm the offline Help sheet appears. Immediately after confirmation, verify the App Store Connect version is still READY_FOR_REVIEW with build 1 attached, create/submit the App Store version submission, verify submission state, then mark this checkpoint completed."
-updated_at: "2026-09-26T09:14:00+03:00"
+  - "2026-09-26 physical Help-menu acceptance: PASS."
+  - "2026-09-26 final App Store Connect submission: 1 Item Submitted; review submission + app version independently verified WAITING_FOR_REVIEW."
+  - "2026-09-26 post-reconcile docs/YAML validation PASS; tests/test_macos_appstore_contract.py: 9 passed."
+blocker: "None. Submission is now with Apple App Review."
+resume_instruction: "Task is complete. Do not rebuild, re-upload, withdraw or resubmit macOS 0.2.17 build 1 while review is pending. On a future Apple review notification, inspect the exact App Store Connect result first and act only on a concrete review issue or explicit Owner request."
+updated_at: "2026-09-26T09:32:29+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260925-mac-appstore"
