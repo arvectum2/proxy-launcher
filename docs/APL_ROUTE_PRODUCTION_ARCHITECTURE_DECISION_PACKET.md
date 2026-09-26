@@ -1,7 +1,7 @@
 # APL-ROUTE — Windows production enforcement architecture decision packet
 
 Status: `OWNER REVIEW REQUIRED / no production architecture approved`
-Date: `2026-09-21`
+Date: `2026-09-26`
 Source: `docs/LOCAL_EXECUTION_BACKLOG.md#P8`
 Related: `APL-ROUTE-001..004`
 
@@ -20,13 +20,13 @@ The repository has already proven the following control-plane pieces:
 - `APL-ROUTE-003` uses the real Windows WFP `FwpmGetAppIdFromFileName0` application identity API and compiles rules into a non-mutating ALE connect-redirect filter plan.
 - `APL-ROUTE-004` defines durable ownership/recovery state: prepared -> applied -> restoring -> verified cleanup, Arvectum-only resource identities, plan digest binding, fail-closed recovery, and no deletion of foreign firewall/WFP resources.
 
-### Current v0.2.12 safety baseline
+### Current v0.2.16 safety baseline
 
-The production decision is now evaluated against the published `v0.2.12` desktop baseline. `v0.2.12` is an immutable patch release from exact green main and preserves the saved-or-Arvectum rollback-safety contract established in `v0.2.9`; its product changes are long-sleep recovery fixes, not broader Windows host-mutation authority. Windows, Astra/Fly and RED OS/KDE therefore continue to share the same ownership rule: if the host presents a third/foreign proxy state, Proxy Launcher fails closed and preserves durable rollback evidence instead of overwriting that state. Any future per-application enforcement plane must preserve that invariant rather than introducing broader privileged cleanup authority.
+The production decision is now evaluated against the published `v0.2.16` desktop baseline (exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`). `v0.2.16` is immutable and preserves the saved-or-Arvectum rollback-safety contract established in `v0.2.9`; later release work did not grant broader Windows host-mutation authority. Windows, Astra/Fly and RED OS/KDE therefore continue to share the same ownership rule: if the host presents a third/foreign proxy state, Proxy Launcher fails closed and preserves durable rollback evidence instead of overwriting that state. Any future per-application enforcement plane must preserve that invariant rather than introducing broader privileged cleanup authority.
 
 Consequently, an approved Windows enforcement implementation must keep WFP/service ownership evidence separate from system-proxy rollback evidence, must never treat unrelated WFP/firewall/VPN/EDR resources as Arvectum-owned, and must make update/uninstall recovery verifiable before deleting its own durable ownership journal. This refresh does not approve an architecture; it only carries the current stable safety contract into the Owner decision.
 
-The missing work is therefore not “how to represent routing rules.” It is choosing and proving the **privileged enforcement plane**.
+The missing work is therefore not “how to represent routing rules.” It is choosing and proving the **privileged enforcement plane**. Current application-exclusion work in PR #183 adds Android live enforcement and a cross-platform control-plane contract only; it does not select or authorize a Windows production enforcement architecture.
 
 ## 3. Microsoft-native mechanism
 
@@ -65,7 +65,7 @@ Not suitable as production enforcement because applications can bypass them and 
 
 Technical recommendation for Owner/Product Owner review: **Option A — Arvectum-owned narrow WFP ALE callout + privileged service + local proxy**, with an intentionally small native surface.
 
-The recommendation is not approval. It follows the completed APL-ROUTE-001..004 control-plane work and preserves the current v0.2.12 ownership/fail-closed recovery model.
+The recommendation is not approval. It follows the completed APL-ROUTE-001..004 control-plane work and preserves the current v0.2.16 ownership/fail-closed recovery model.
 
 Recommended responsibility split:
 
@@ -94,7 +94,7 @@ Any approved implementation must prove at minimum:
 
 A production WFP service/callout is a privileged security component. IPC authentication/authorization, bounded plan validation, least privilege, privacy-safe logging, binary/plan provenance and signed/version-compatible update behavior are mandatory. No remote-control listener is needed for the first production slice.
 
-Production Option A must remain coordinated with APL-REL-016. Architecture may be approved before certificate/provider procurement, but production release cannot complete until exact driver/service signing requirements and clean-machine install behavior are proven. Published `v0.2.12` is immutable; any embedded signing or per-app enforcement belongs to a new version after `v0.2.12`.
+Production Option A must remain coordinated with APL-REL-016. PR #161 is the latest substantive Windows public-trust packet but is version-stale after immutable v0.2.16; the canonical queue makes v0.2.17+ the first eligible future native-Authenticode release. Architecture may be approved before certificate/provider procurement, but production release cannot complete until exact service/driver signing requirements and clean-machine install behavior are proven. Published `v0.2.16` is immutable; any per-app Windows enforcement belongs to a later version.
 
 ## 9. Physical Windows acceptance matrix after approval
 
