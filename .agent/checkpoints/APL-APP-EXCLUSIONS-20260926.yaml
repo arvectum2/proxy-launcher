@@ -32,6 +32,7 @@ pending:
 last_verified_commit: "7aa45183187f6bc685409a9dbf322790c17961f6"
 test_results:
   - "Focused Python application/routing suite: 22 passed in 11.44s."
+  - "Canonical composition + application/routing focused suite after CI ownership fix: 31 passed in 56.16s."
   - "Android local Gradle build attempted; local Mac mini lacks the repository CI SDK/toolchain parity and the Gradle invocation is not producing task output, so authoritative Android compile/lint will run in GitHub CI after push."
 blocker: "Live Windows per-application enforcement remains blocked by the explicit Owner architecture selection gate in PR #144; this task proceeds with reversible non-privileged work only."
 resume_instruction: "Continue from /Users/master/Documents/proxy-launcher-app-exclusions-20260926. Push the implemented Android 0.1.32 app-exclusion slice and cross-platform control plane, require Android lint/unit/build CI green, then refresh/resolve the Windows WFP production architecture lane and continue enforcement implementation. Require physical Android routing proof before release."
