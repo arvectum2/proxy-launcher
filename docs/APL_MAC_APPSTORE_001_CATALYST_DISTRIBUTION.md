@@ -1,6 +1,6 @@
 # APL-MAC-APPSTORE-001 — Mac App Store distribution lane
 
-Status: in implementation.
+Status: submitted to App Review / Waiting for Review (0.2.17 build 1).
 
 The existing direct-download macOS product remains a PyInstaller application signed with Developer ID and notarized by Apple. That lane is unchanged and continues to use bundle identifier `ru.arvectum.proxylauncher`.
 
@@ -22,7 +22,7 @@ Network Extension provides the store-compatible ownership boundary. The Catalyst
 
 ## Release identity
 
-Initial Mac App Store product version: `0.2.16`, build `1`.
+Initial Mac App Store product version: `0.2.17`, build `1`.
 
 Planned identifiers:
 - app: `ru.arvectum.proxylauncher.macos`
@@ -31,3 +31,7 @@ Planned identifiers:
 - shared Keychain suffix: `ru.arvectum.proxylauncher.macos.shared`
 
 Mac App Store validation/upload uses the canonical local `Arvectum Release Bot` App Store Connect API credential. Private signing keys and provisioning profiles remain local and are never committed.
+
+## First submission evidence
+
+Apple Distribution archive/export PASS; Apple package validation/upload PASS; build 1 VALID / APP_STORE_ELIGIBLE; App Privacy Published / Data Not Collected; 175-territory availability; Mac screenshots COMPLETE; offline Help physical acceptance PASS; Packet Tunnel E2E physical acceptance PASS; version 0.2.17 build 1 submitted on 2026-09-26 and WAITING FOR REVIEW.

@@ -248,19 +248,20 @@ items:
   - order: 135
     task_id: APL-MAC-APPSTORE-PUBLISH-20260925
     title: "macOS App Store 0.2.17 publication + mandatory Help UX"
-    status: in_progress
+    status: completed
     authority: HUMAN
     independent: true
     auto_merge: false
-    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; draft PR #175"
+    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; PR #175; dedicated checkpoint"
     dependencies:
       - APL-MAC-PRODUCTION-DISTRIBUTION
-    owner_gate: "Owner explicitly directed the Mac App Store lane. Final App Store submission/release and any new Apple legal agreements remain HUMAN actions."
-    executor_scope: "Continue the separate Mac Catalyst + PacketTunnel Store lane in PR #175 without mutating direct v0.2.16 Developer ID distribution. Create required Apple identifiers/capabilities/profiles, run signed physical acceptance, and before any submission reconcile the branch with the later canonical Help UX amendment: functional offline Help menu/surface, Getting Started/status/proxy formats/troubleshooting/About & Privacy, version + © Arvectum LLC footer, View on GitHub, latest Release Notes, Report a Problem, and channel-aware update behavior. The Store build must not bypass App Store updates."
-    active_pr: 175
-    evidence: "IN PROGRESS: physical sandbox smoke proved direct networksetup backend incompatible (sandboxed read exit 133); separate bundle IDs/Catalyst + PacketTunnel architecture selected and implemented; Mac App Store contract tests 6/6 PASS; unsigned ARM64 Catalyst Debug build PASS. Signed automatic-provisioning reached Apple signing and failed only on missing Apple Account/development profiles for the two new bundle IDs. Current stage is identifiers/capabilities/provisioning, then signed physical tunnel smoke. PR #175 branch checkpoint predates the later mandatory Help UX roadmap amendment, so Help must be added before submission."
+    blocker: "Submission complete; current Apple state Waiting for Review."
+    owner_gate: "Do not rebuild, re-upload, withdraw, resubmit or change store/legal metadata absent a concrete Apple review result or explicit Owner instruction."
+    executor_scope: "On a future Apple review notification, inspect the exact review result first and preserve immutable direct v0.2.16 plus the separate sandboxed Catalyst + PacketTunnel Store lane."
+    publication_pr: 175
+    evidence: "macOS App Store 0.2.17 build 1 passed archive/export, Apple validation/upload, App Store processing, physical Help and Packet Tunnel E2E acceptance. Privacy is Published/Data Not Collected, screenshots COMPLETE, 175 territories configured. Submitted 2026-09-26; current state Waiting for Review / 1 Item Submitted."
 
-repository_hygiene:repository_hygiene:
+repository_hygiene:
   superseded_open_prs:
     - 81
     - 103
