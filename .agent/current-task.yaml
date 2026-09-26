@@ -1,45 +1,33 @@
-version: 2
+version: 1
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20260925-LATE
-status: completed
-goal: "Synchronize canonical roadmap/executor metadata to the verified late-2026-09-25 state: v0.2.16 production macOS distribution, submitted iOS App Store build, active Mac App Store PR #175, and current stale review packets."
-authority: REVIEW
+task_id: APL-IP-ROSPATENT-20260926
+status: in_progress
+goal: "Prepare a submission-ready working package for Russian state registration of the computer program Arvectum Proxy Launcher, anchored to the exact stable desktop release v0.2.16."
 definition_of_done:
-  - "Stable release remains immutable v0.2.16 and current main is recorded accurately."
-  - "iOS 0.1.19 build 21 is recorded as submitted / Waiting for Review, not active preparation or public release."
-  - "APL-REL-016 points to the latest substantive PR #161 and is marked stale against v0.2.16, with v0.2.17+ as the first eligible future Windows Authenticode release."
-  - "Per-app routing PR #144 is reconciled as the current Owner packet but still requires v0.2.16/current-main baseline refresh."
-  - "Mac production Developer ID/notarization is recorded DONE/PUBLISHED v0.2.16."
-  - "Mac App Store 0.2.17 is recorded IN PROGRESS in PR #175 with proven Catalyst/PacketTunnel architecture and current provisioning stage."
-  - "Mandatory offline Help UX from the later roadmap amendment remains a pre-submission requirement for PR #175 even though its branch checkpoint predates that amendment."
-  - "docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and .agent/execution-queue.yaml agree."
-  - "Required exact-head CI passes before the metadata/docs sync is merged."
+  - "Current Rospatent/FIPS requirements, form fields, fee and filing channels are verified against official sources."
+  - "The deposited software instance is fixed to tag v0.2.16 / commit 6799297bf1492d352ca9d78a0a49b2adf3345d2a."
+  - "Applicant/rightsholder data for ООО «АРВЕКТУМ» are populated from verifiable corporate data."
+  - "A draft application worksheet is prepared with every unknown author/personal/right-chain field explicitly marked, without inventing legal facts."
+  - "A publication abstract compliant with the 900-character limit is prepared."
+  - "Deposited identifying source-code materials are planned against the exact v0.2.16 source with a practical expert-review volume."
+  - "The working package is rendered and visually verified before delivery."
 completed:
-  - "Verified current pre-sync main b9d0d6bd89e334a1230a393991bc36e9db9a2244 and immutable v0.2.16 release."
-  - "Verified iOS checkpoint: 0.1.19 build 21 validation/upload/process/submission PASS; App Store Connect Waiting for Review; temporary publication API keys revoked."
-  - "Verified latest APL-REL-016 substantive PR #161 is stale after v0.2.16 and older #132/#157 are superseded preparation history."
-  - "Verified per-app PR #144 is the current Owner packet and still needs v0.2.16/current-main baseline wording."
-  - "Verified active Mac App Store draft PR #175: direct networksetup sandbox incompatibility proven; isolated Catalyst + PacketTunnel lane implemented; contract tests 6/6 PASS; unsigned ARM64 build PASS; current stage Apple identifiers/provisioning then signed physical smoke."
-  - "Recorded continuity gate that PR #175 must reconcile mandatory offline Help UX from main before App Store submission because its branch checkpoint predates that requirement."
-  - "Updated .agent/execution-queue.yaml, docs/ROADMAP.md and docs/LOCAL_EXECUTION_BACKLOG.md consistently."
-  - "PR #179 exact head e85fd48b9f5783a23a8025d8081e70f296a94114 passed all reported checks including Windows P0 build, installer fresh/upgrade/repair/uninstall E2E, Gate R6, signing contracts, SAST, dependency audit, Gitleaks, SBOM, provenance, clean-IP gates, sovereign lifecycle and mirror."
-  - "Re-read current Company authority; latest POS-004/AI-ENG-001 AM-4 renewal is 2026-09-22 with unchanged hard stops."
-  - "PR #179 merged to main as 2c11ae8c98ea4952e19ab7d19672b1dd5c02a277."
-current: "Completed. Canonical state now reflects v0.2.16, iOS Waiting for Review, active Mac App Store PR #175, stale APL-REL-016 PR #161 refresh requirement and per-app PR #144 baseline refresh."
-pending: []
-last_verified_commit: "2c11ae8c98ea4952e19ab7d19672b1dd5c02a277"
-merged_commit: "2c11ae8c98ea4952e19ab7d19672b1dd5c02a277"
+  - "Confirmed the filing route: state registration of a computer program."
+  - "Verified official Rospatent requirements and 5000 RUB fee."
+  - "Verified v0.2.16 and exact release commit 6799297bf1492d352ca9d78a0a49b2adf3345d2a."
+  - "Verified exact v0.2.16 desktop Python source: 52 authored runtime .py files, 582439 bytes total under the documented desktop-source scope."
+  - "Verified public applicant identifiers: ООО «АРВЕКТУМ», INN 7716261422, OGRN 1267700213725, KPP 771601001."
+current: "Prepare the working DOCX application dossier and unresolved-input checklist."
+pending:
+  - "Confirm author list and each author's DOB, residence address, creative contribution and publication preference."
+  - "Confirm documentary basis for exclusive rights belonging to ООО «АРВЕКТУМ»."
+  - "Confirm correspondence phone and desired public contact details."
+  - "Confirm first-publication entry and final machine-readable size basis."
+  - "Final signer/date and electronic filing action remain HUMAN."
+last_verified_commit: "9b79811281a9ebac963764b083f2f603278b9e17"
+release_commit: "6799297bf1492d352ca9d78a0a49b2adf3345d2a"
 test_results:
-  - "PR #179 exact head e85fd48b9f5783a23a8025d8081e70f296a94114: all reported checks SUCCESS."
-  - "Windows P0 portable required build: SUCCESS."
-  - "Windows installer fresh/upgrade/repair/uninstall E2E + Gate R6: SUCCESS."
-  - "Windows signing contracts, SAST, dependency audit, Gitleaks, SBOM, provenance, v0.2.5/v0.2.9 clean-IP, sovereign lifecycle and GitVerse mirror: SUCCESS."
-resume_instruction: "No continuation is required for this roadmap-sync task. Preserve active Mac App Store PR #175 and its HUMAN gates; before submission it must reconcile mandatory Help UX from main. iOS 0.1.19 is Waiting for Review and should not be churned. Independent safe REVIEW work may refresh APL-REL-016 PR #161 to v0.2.16/v0.2.17+, then per-app PR #144 to v0.2.16/current-main, stopping at their Owner/REVIEW gates."
-updated_at: "2026-09-25T22:25:00+03:00"
-execution:
-  claimed_by: null
-  execution_id: null
-  branch: null
-  base_commit: null
-  lease_until: null
-  manual_override: false
+  - "Repository release/tag facts verified through GitHub connector."
+  - "Official filing requirements verified through Rospatent web sources on 2026-09-26."
+resume_instruction: "Continue from the draft dossier. Do not invent author personal data or rights-chain facts. Once the user supplies those fields, fill the official Rospatent form, prepare author/personal-data consents, finalize deposit fragments from exact v0.2.16, verify PDF/A and stop before final signing/submission unless explicitly asked."
+updated_at: "2026-09-26T09:12:00+03:00"
