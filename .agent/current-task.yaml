@@ -11,19 +11,19 @@ definition_of_done:
   - Android tests/lint/build pass and resulting APK is produced for physical testing.
 completed:
   - Captured physical-device feedback and screenshots for all three defects.
-current: "Inspect Android profile menu/editor and application-exclusion implementation."
+  - Enabled active named-profile editing while connected; saving triggers a live reconnect and delete stays disabled during the active edit.
+  - Moved Sites / Apps / Journal into an always-visible quick-action row at the top of the profile menu.
+  - Removed the AlertDialog message/list conflict so the installed-app multi-choice list is actually rendered.
+  - Bumped Android physical-test candidate to 0.1.33 / versionCode 34 and updated the CI version guard.
+current: "Implementation complete; run CI and verify Android 0.1.33 APK."
 pending:
-  - Implement active-profile editing behavior.
-  - Redesign menu visibility for exclusions/journal.
-  - Fix installed-app selection UI and persistence.
-  - Add/update tests.
-  - Run lint/unit/build and verify APK.
+  - Run CI lint/unit/build and verify APK.
   - Commit, push, and deliver test APK.
 last_verified_commit: "2fb523d9600cecc7584d5accd79f3cf5f2184ab2"
 test_results: []
 blocker: null
 resume_instruction: "Continue from Android UI inspection in task/android-0132-ux-fixes-20260926; fix the three owner-reported defects, test, build, and deliver APK."
-updated_at: "2026-09-26T18:20:00+03:00"
+updated_at: "2026-09-26T18:31:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: task/android-0132-ux-fixes-20260926

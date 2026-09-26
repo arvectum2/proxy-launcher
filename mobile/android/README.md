@@ -307,6 +307,10 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
 - Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
 
+## 0.1.33 physical-test UX fix
+
+0.1.33 fixes the first physical-device feedback for application exclusions: the installed-app checklist is now visible, routing tools stay visible at the top of the profile menu, and an active named proxy profile can be edited and automatically reconnected with the new settings.
+
 ## 0.1.32 application exclusions candidate
 
 0.1.32 adds real Android per-application bypass on top of the existing site exclusions.
