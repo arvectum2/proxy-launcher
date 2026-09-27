@@ -38,7 +38,7 @@ def node(
         capacity_users=capacity,
         active_users=active,
         server_name="www.microsoft.com",
-        reality_public_key=PUBLIC_KEY,
+        reality_password=PUBLIC_KEY,
         reality_short_id=SHORT_ID,
         healthy=healthy,
     )
@@ -125,7 +125,7 @@ class ManagedNodeContractTests(unittest.TestCase):
         )
         clients = config["inbounds"][0]["settings"]["clients"]
         self.assertEqual([item["id"] for item in clients], [first.credential_id, second.credential_id])
-        self.assertEqual(config["inbounds"][0]["streamSettings"]["realitySettings"]["privateKey"], PRIVATE_KEY)
+        self.assertEqual(config["inbounds"][0]["streamSettings"]["network"], "raw")\n        self.assertEqual(config["inbounds"][0]["streamSettings"]["realitySettings"]["target"], "www.microsoft.com:443")\n        self.assertEqual(config["inbounds"][0]["streamSettings"]["realitySettings"]["privateKey"], PRIVATE_KEY)
         self.assertNotIn(PRIVATE_KEY, json.dumps(first.client_payload()))
 
     def test_xray_config_rejects_cross_node_and_duplicate_credentials(self):
