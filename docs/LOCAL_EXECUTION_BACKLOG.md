@@ -192,7 +192,7 @@ Current gate:
 
 No architecture is approved merely because the packet/tests are green.
 
-## P8A — APL-UI-001 cross-platform Adaptive UI — IN PROGRESS / REVIEW GATE
+## P8A — APL-UI-001 cross-platform Adaptive UI — DONE / OWNER MERGE APPROVED
 
 Source design review: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
@@ -212,7 +212,7 @@ Acceptance direction:
 - preserve platform routing/recovery/security semantics; UI parity must not weaken backend guarantees;
 - require physical visual/interaction acceptance on every platform targeted by the release.
 
-Implementation is review-ready on PR #193 head 9b35b76. Local UI regressions pass 50/50 and exact-head Android/iOS/Windows/Linux/macOS/security workflows are green. Physical visual/interaction acceptance remains mandatory before merge/release; unavailable platforms must not be claimed accepted.
+Implementation is complete on PR #193, including the macOS recovery-state Home CTA correction found during physical review. Focused desktop/UI regressions pass 53/53 and exact head 5370bb6 is green across all returned Android/iOS/Windows/Linux/macOS/security workflows. On 2026-09-27 Owner explicitly requested merge without waiting to reproduce the recovery state or for unavailable platform hosts. The remaining physical-acceptance gate is therefore waived for this PR merge only; unavailable/unperformed platform acceptance is not claimed as passed.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 

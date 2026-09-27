@@ -120,7 +120,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **OWNER PRIORITY / NEXT FUNCTIONAL SLICE** — exclusions/routing by applications are the next product capability to work on. This prioritization does **not** silently approve the privileged production architecture: refresh/reconcile PR #144 and resolve the existing Owner architecture stop-gate before production enforcement is treated as selected.
 - **RELEASE SEQUENCING** — once the per-application exclusions slice is functionally complete and accepted, do **not** publish it immediately. The first public release containing this new functionality must pass the APL-UI-001 cross-platform interface-unification gate below.
 
-## 7A. Cross-platform Adaptive UI — APL-UI-001 — IN PROGRESS / REVIEW GATE
+## 7A. Cross-platform Adaptive UI — APL-UI-001 — DONE / OWNER MERGE APPROVED
 
 Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
@@ -132,7 +132,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **TARGET IA** — Home, Profiles, Activity/Diagnostics and Settings; future Marketplace becomes top-level only when it is a real product surface.
 - **RELEASE GATE / OWNER SEQUENCING 2026-09-26** — implement the per-application exclusions functional slice first; before releasing that new functionality, complete and physically accept the unified Adaptive UI on the release-target platforms. Existing already-published/review-waiting binaries are not churned for this cosmetic/product-architecture change.
 - **BOUNDARY** — this task unifies presentation and interaction architecture; it must not alter the proven routing/recovery/security semantics of each platform backend merely for visual parity.
-- **IMPLEMENTATION / CI 2026-09-26** — PR #193 head 9b35b76 implements the shared contract; local UI regressions pass 50/50 and exact-head Android/iOS/Windows/Linux/macOS/security workflows are green. The gate remains **IN PROGRESS** until physical visual/interaction acceptance is recorded for the release-target platforms.
+- **IMPLEMENTATION / CI / OWNER DECISION 2026-09-27** — PR #193 implements the shared contract and the physical-review macOS recovery CTA correction. Focused desktop/UI regressions pass 53/53; exact head 5370bb6 is green across all returned Android/iOS/Windows/Linux/macOS/security workflows. Owner explicitly requested merge without waiting to reproduce the recovery state or for unavailable platform hosts. That decision waives the remaining physical-acceptance gate for this PR merge only; unperformed acceptance is not represented as passed.
 
 ## 8. Mobile applications
 
@@ -168,7 +168,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 9. **[macOS direct production distribution] — DONE / PUBLISHED v0.2.16.**
 10. **[iOS / APPLE] 0.1.19 build 21 — SUBMITTED / WAITING FOR REVIEW.** No repo action unless Apple returns a concrete issue or Owner requests a change.
 11. **[macOS App Store / APPLE] 0.2.17 build 1 — SUBMITTED / WAITING FOR REVIEW.** PR #175 carries the isolated Catalyst + PacketTunnel implementation; binary/store validation and physical Help/tunnel acceptance are complete.
-12. **[APL-UI-001 / REVIEW] cross-platform Adaptive UI — IN PROGRESS / REVIEW GATE.** Mobile design language becomes the common product foundation; desktop keeps a desktop-optimized composition. Execute after the per-application exclusions slice is functionally stable and before the first release that contains it.
+12. **[APL-UI-001] cross-platform Adaptive UI — DONE / OWNER MERGE APPROVED.** Shared mobile-derived product language and desktop-optimized composition are implemented in PR #193; remaining physical acceptance was explicitly waived by Owner for this merge without being claimed as performed.
 
 ### Repository-hygiene note
 

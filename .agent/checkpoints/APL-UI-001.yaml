@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-001
-status: blocked
+status: completed
 goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
@@ -31,11 +31,10 @@ completed:
   - "Home recovery CTA defect fixed: when recovery_required is active, the Home primary button is now «Восстановить сеть» and invokes the existing guarded rollback path; Settings retains the service restore action."
   - "MacBook Air broken network state was repaired successfully through the existing --rollback path (network settings restored, status STOPPED)."
   - "Exact-head macOS ARM64 CI package for 03cf5cc was installed on MacBook Air and launched."
-current: "macOS recovery UX defect is fixed and deployed to MacBook Air. Awaiting owner visual/interaction confirmation of the new Home recovery action; Windows/Linux physical acceptance remains unavailable while hosts are offline."
-pending:
-  - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
-  - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
-last_verified_commit: 03cf5cc51ddb33397fb73831cea2af1f48c6eedb
+  - "Owner merge override 2026-09-27: after reviewing the macOS build and recovery UX fix, Owner explicitly requested merging PR #193 now rather than waiting to reproduce the recovery state or for unavailable platform hosts. This waives the remaining physical-acceptance gate for this PR merge only; unperformed platform acceptance is not claimed as passed."
+current: "APL-UI-001 implementation is complete and Owner explicitly approved merge with the remaining physical-acceptance gate waived for this PR. No unperformed platform acceptance is claimed."
+pending: []
+last_verified_commit: 5370bb60f6fc2cb753fe67e12fc458b3f3024933
 test_results:
   - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 51/51 PASS via /usr/bin/python3 with Tk."
   - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
@@ -47,9 +46,9 @@ test_results:
   - "Android handoff artifact verified against CI SHA256SUMS: 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
   - "Post-fix desktop/UI regression: tests.test_proxy_gui + tests.test_macos_visual_contract + tests.test_adaptive_ui_contract = 53/53 PASS; py_compile and git diff --check PASS."
   - "Exact-head macOS ARM64 packaging job for 03cf5cc completed SUCCESS; generated DMG installed on MacBook Air."
-blocker: "Owner must visually confirm the fixed Home recovery action on MacBook Air. Windows/Linux RDC hosts remain offline; Android owner-side visual acceptance is also pending."
-resume_instruction: "Resume from PR #193 / code head 03cf5cc. Record owner confirmation of the macOS Home recovery CTA; if accepted, continue remaining Android/Windows/Linux physical acceptance. Fix only observed defects, then close through the REVIEW/Owner gate."
-updated_at: "2026-09-27T08:34:00+03:00"
+blocker: null
+resume_instruction: "Task completed by explicit Owner merge decision. Do not reopen APL-UI-001 unless a new physical defect is reported; track any later platform-specific acceptance or regression as a new task."
+updated_at: "2026-09-27T08:41:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926

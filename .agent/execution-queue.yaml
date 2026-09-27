@@ -98,15 +98,15 @@ items:
   - order: 65
     task_id: APL-UI-001-ADAPTIVE
     title: "Cross-platform Adaptive UI before per-app exclusions release"
-    status: blocked
+    status: done
     authority: REVIEW
     independent: false
     auto_merge: false
     source: "docs/ROADMAP.md#7a-cross-platform-adaptive-ui--apl-ui-001--planned--pre-release-gate; docs/LOCAL_EXECUTION_BACKLOG.md#p8a--apl-ui-001-cross-platform-adaptive-ui--planned--pre-release-gate; docs/APL_UI_UX_CROSSCHECK_20260926.md"
     dependencies: []
-    blocker: "Physical macOS review found a recovery-CTA defect; code head 03cf5cc fixes and deploys it. Owner visual confirmation of the fix remains, plus Android/Windows/Linux physical acceptance; Windows/Linux hosts are offline."
+    blocker: null
     executor_scope: "When unblocked, implement the shared mobile-derived design language with adaptive desktop/mobile composition, native platform conventions and one stateful connection action. Preserve routing/recovery/security semantics. Do not churn already-published or Apple-review-waiting binaries merely for UI parity."
-    evidence: "PR #193 code head 03cf5cc includes the physical-review recovery UX fix: recovery_required now makes the Home primary action «Восстановить сеть» using the existing guarded rollback path. 53/53 focused desktop/UI tests pass; py_compile and diff check pass; macOS ARM64 packaging job for 03cf5cc is green and its DMG is installed on MacBook Air. The broken MacBook network state was restored successfully through --rollback. Physical acceptance remains."
+    evidence: "PR #193 includes the adaptive UI and macOS Home recovery CTA fix. Exact head 5370bb6 is green across all returned Android/iOS/Windows/Linux/macOS/security workflows; 53/53 focused desktop/UI tests pass; MacBook network rollback succeeded and the fixed macOS build is installed. On 2026-09-27 Owner explicitly requested merge without waiting to reproduce the recovery state or for unavailable hosts; remaining physical acceptance is waived for this PR merge only and is not claimed as performed."
 
   - order: 70
     task_id: APL-REG-001C-REDOS
