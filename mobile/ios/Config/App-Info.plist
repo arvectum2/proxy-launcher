@@ -29,8 +29,6 @@
 	<array>
 		<string>arm64</string>
 	</array>
-	<key>APLKeychainAccessGroup</key>
-	<string>$(AppIdentifierPrefix)ru.arvectum.proxylauncher.ios.shared</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 </dict>

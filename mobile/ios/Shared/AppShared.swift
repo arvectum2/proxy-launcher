@@ -9,8 +9,12 @@ enum AppShared {
     }
     static let keychainService = "ru.arvectum.proxylauncher.ios.credentials"
 
+    // Do not derive this from AppIdentifierPrefix in Info.plist. CI intentionally
+    // produces an unsigned app first, where AppIdentifierPrefix is empty; signing
+    // happens later and does not rewrite Info.plist. Keep the runtime query aligned
+    // with the signed keychain-access-groups entitlement instead.
     static var keychainAccessGroup: String? {
-        Bundle.main.object(forInfoDictionaryKey: "APLKeychainAccessGroup") as? String
+        IOSKeychainConfiguration.credentialAccessGroup
     }
 }
 
