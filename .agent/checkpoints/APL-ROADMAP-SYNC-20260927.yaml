@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-SYNC-20260927
-status: in_progress
+status: completed
 goal: "Synchronize the canonical Proxy Launcher roadmap/backlog/execution queue to the verified 2026-09-27 state without changing product binaries, Apple review state, production infrastructure or Owner-gated architecture decisions."
 authority: REVIEW
 definition_of_done:
@@ -30,20 +30,22 @@ completed:
   - "Verified current iOS branch checkpoint: 0.1.36 build 37 VALID/APP_STORE_ELIGIBLE, physically installed on iPhone 13/iOS 27; remaining blocker is one physical screen recording and subsequent screenshot/review attachment/resubmission."
   - "Verified Mac App Store 0.2.17 build 1 is submitted and Waiting for Review."
   - "Verified Android 0.1.36 physical acceptance and merged PR #190; public Android release remains 0.1.19."
-current: "Cross-file consistency inspection passed. Open the consolidated docs/metadata PR and verify exact-head CI before merge."
-pending:
-  - "Open docs/metadata PR and verify exact-head CI."
-  - "Merge user-directed roadmap update and record completed checkpoint."
-last_verified_commit: "f554220680048ae28f3019b7225c6c56a9e64d8a"
+current: "Completed: canonical roadmap/backlog/queue are synchronized to the verified 2026-09-27 state; active iOS current-task remains intact."
+pending: []
+last_verified_commit: "3fd8bb0307360639fd75a824291a8212333ba5a2"
+merged_commit: "3fd8bb0307360639fd75a824291a8212333ba5a2"
 test_results:
+  - "PR #201 exact head 34c4df9f984aadb776df2e3fcbe69146292e1f76: all 13 returned checks SUCCESS, including required Windows build and full installer E2E."
+  - "PR #201 merged to main as 3fd8bb0307360639fd75a824291a8212333ba5a2."
+  - "Superseded PR #198 (build 38) and PR #200 (standalone network roadmap) closed without merge; their valid state/content is represented canonically on main."
   - "Cross-file consistency PASS: Android 0.1.36, iOS 0.1.36 build 37, Mac App Store wait, PR #144 decision gate, APL-NODE-001 PR #195, Arvectum Network and Rospatent statuses align across queue/ROADMAP/backlog."
   - "Repository/PR/checkpoint/release inspection complete; no product bytes changed by this sync task."
-resume_instruction: "Continue metadata/docs-only roadmap synchronization on agent/roadmap-sync-20260927. Do not merge product PR #195, do not merge stale iOS build-bump PR #198, do not submit Apple review, do not purchase VPS/IP resources, and do not cross Windows per-app Owner architecture gate."
-updated_at: "2026-09-27T13:16:00+03:00"
+resume_instruction: "Roadmap-sync task complete. Continue from the active .agent/current-task.yaml iOS App Review task when the physical iPhone recording is supplied. Independent repository work may continue on APL-NODE-001 PR #195, but do not purchase infrastructure or cross HUMAN/Owner gates. Proxy Launcher Watchdog remains untouched/disabled per Owner instruction."
+updated_at: "2026-09-27T13:32:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-SYNC-20260927"
-  branch: "agent/roadmap-sync-20260927"
-  base_commit: "f554220680048ae28f3019b7225c6c56a9e64d8a"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
