@@ -668,6 +668,21 @@ class MacOSBackend(ProxyBackend):
             and current.port == int(applied.get("direct_proxy_port", 0))
         )
 
+    @staticmethod
+    def _refresh_fail_closed_proxy_matches(current: ManualProxyState) -> bool:
+        """Recognize only APL's reserved transient wake-refresh sentinel.
+
+        The refresh path can intentionally leave an enabled manual proxy at
+        127.0.0.1:1 if restoring the owned upstream endpoint fails. That state
+        is not healthy ownership, but it is safe rollback evidence because APL
+        itself wrote the exact reserved endpoint.
+        """
+        return bool(
+            current.enabled
+            and current.server == _REFRESH_FAIL_CLOSED_HOST
+            and current.port == _REFRESH_FAIL_CLOSED_PORT
+        )
+
     def _manual_proxy_states(self, service_name: str):
         return (
             self._client.get_web_proxy(service_name),
@@ -732,6 +747,7 @@ class MacOSBackend(ProxyBackend):
 
         web_ok = bool(
             self._owned_direct_proxy_matches(web, applied)
+            or self._refresh_fail_closed_proxy_matches(web)
             or (
                 web_expected is not None
                 and self._manual_proxy_matches(web, web_expected)
@@ -739,6 +755,7 @@ class MacOSBackend(ProxyBackend):
         )
         secure_ok = bool(
             self._owned_direct_proxy_matches(secure_web, applied)
+            or self._refresh_fail_closed_proxy_matches(secure_web)
             or (
                 secure_expected is not None
                 and self._manual_proxy_matches(secure_web, secure_expected)
