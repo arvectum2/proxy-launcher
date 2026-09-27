@@ -21,6 +21,8 @@ qa/
 mobile/android/.gradle/
 mobile/android/app/build/
 mobile/android/app/src/main/jniLibs/
+mobile/android/app/libs/libXray.aar
+mobile/android/app/libs/.libxray-version
 
 # iOS generated state and fetched native dependency
 mobile/ios/.build/
