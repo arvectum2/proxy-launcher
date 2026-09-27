@@ -868,9 +868,9 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy, pla
             "label": "НУЖНО ВОССТАНОВИТЬ СЕТЬ",
             "color": MINT_LIGHT,
             "hint": (
-                "Предыдущий сеанс завершился некорректно. Сначала нажмите "
-                "«Восстановить настройки сети», дождитесь успешного восстановления, "
-                "а затем снова включите прокси."
+                "Предыдущий сеанс завершился некорректно. Нажмите "
+                "«Восстановить сеть» прямо здесь, дождитесь успешного восстановления, "
+                "а затем снова подключите прокси."
             ),
             "can_on": False,
             "can_off": False,
@@ -1192,7 +1192,13 @@ class Launcher:
     def _apply_primary_action(self, view):
         can_off = bool(view.get("can_off"))
         can_on = bool(view.get("can_on"))
-        if can_off:
+        restore_primary = bool(view.get("restore_primary"))
+        if restore_primary:
+            text = "Восстановить сеть"
+            command = self.restore_network
+            style = "MacPrimary.TButton" if self._mac_ui else "Mint.TButton"
+            enabled = True
+        elif can_off:
             text = "Отключить"
             command = self.off
             style = "MacSecondary.TButton" if self._mac_ui else "Navy.TButton"
@@ -1442,6 +1448,8 @@ class Launcher:
         self.btn_check.state(["!disabled"] if view["can_check"] else ["disabled"])
         if self._wake_destructive_guard_active():
             self.btn_restore.state(["disabled"])
+            if view["restore_primary"]:
+                self.btn_primary.state(["disabled"])
 
         if view["show_orphan_action"]:
             self.btn_orphan_pac.state(["!disabled"])

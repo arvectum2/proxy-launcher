@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-001
-status: blocked
+status: in_progress
 goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
@@ -28,7 +28,7 @@ completed:
   - "Exact-head iOS CI artifact apl-ios-unsigned from workflow run 36267974554 / code head 71c8ecc was development-signed locally with the existing APL Development and APL Packet Tunnel Development profiles, installed on the connected iPhone 13, and launched successfully as ru.arvectum.proxylauncher.ios."
   - "Exact-head macOS ARM64 CI DMG from workflow run 36267974647 / code head 71c8ecc was installed on MacBook Air at /Applications/Arvectum Proxy Launcher.app; bundle version 0.2.16 and a running app process were verified."
   - "Exact-head Android CI artifact from workflow run 36267974508 / code head 71c8ecc was extracted for owner installation; APK SHA-256 is 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-current: "Requested distribution pass is complete: latest verified UI build is installed/launched on the connected iPhone, exact-head macOS CI build is installed/running on MacBook Air, and exact-head Android APK is ready for owner installation. Physical visual/interaction acceptance is still pending."
+current: "Physical macOS acceptance found a UX defect: recovery-required state blocks Home while the only restore action lives in Settings. Add an inline Home recovery CTA and verify it uses the existing rollback path without weakening recovery safety."
 pending:
   - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
   - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
@@ -42,9 +42,9 @@ test_results:
   - "Physical distribution check: iPhone install and launch succeeded via devicectl for bundle ru.arvectum.proxylauncher.ios."
   - "Physical distribution check: MacBook Air exact-head CI arm64 app v0.2.16 is installed in /Applications and running."
   - "Android handoff artifact verified against CI SHA256SUMS: 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-blocker: "Owner physical visual/interaction acceptance is still required. Windows/Linux RDC hosts remain offline, so those release-target platforms cannot yet be accepted; Android APK also requires owner-side installation/visual check."
-resume_instruction: "Resume from PR #193 / code head 71c8ecc. Record owner feedback from iPhone/macOS/Android physical checks and fix only observed defects; when Windows/Linux hosts return, complete their physical acceptance. Then synchronize roadmap/backlog/queue and merge only through the REVIEW/Owner gate."
-updated_at: "2026-09-27T08:19:27+03:00"
+blocker: "Active defect remediation. After the Home recovery CTA is fixed and deployed, owner physical verification is required; Windows/Linux hosts remain offline."
+resume_instruction: "Implement and test a Home recovery action for recovery_required state, preserve the Settings restore action and wake/destructive guards, deploy the fixed macOS build to MacBook Air, then record owner physical verification."
+updated_at: "2026-09-27T08:25:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926

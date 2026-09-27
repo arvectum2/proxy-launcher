@@ -391,6 +391,29 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         launcher.btn_primary.configure.assert_called()
         launcher.btn_restore.state.assert_called_with(["disabled"])
 
+    def test_recovery_primary_action_is_disabled_during_wake_guard(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher._status_dot = mock.Mock()
+        launcher.chip = mock.Mock()
+        launcher.status_hint = mock.Mock()
+        launcher.btn_doctor = mock.Mock()
+        launcher.btn_restore = mock.Mock()
+        launcher.btn_orphan_pac = mock.Mock()
+        launcher.btn_primary = mock.Mock()
+        launcher.btn_check = mock.Mock()
+        launcher._wake_destructive_guard_active = mock.Mock(return_value=True)
+
+        with mock.patch.object(gui.core, "is_running", return_value=False),              mock.patch.object(gui.core, "system_proxy_enabled", return_value=False),              mock.patch.object(gui.core, "network_restore_pending", return_value=True),              mock.patch.object(gui.core, "orphaned_arvectum_pac", return_value=False):
+            launcher.refresh_status()
+
+        self.assertEqual(
+            launcher.btn_primary.configure.call_args.kwargs["text"],
+            "Восстановить сеть",
+        )
+        launcher.btn_primary.state.assert_called_with(["disabled"])
+        launcher.btn_restore.state.assert_called_with(["disabled"])
+
     def test_macos_off_defers_confirmation_until_original_click_finishes(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
         launcher.root = mock.Mock()
@@ -515,7 +538,24 @@ class FinalStatusUxTests(unittest.TestCase):
         self.assertFalse(view["can_on"])
         self.assertFalse(view["can_off"])
         self.assertTrue(view["restore_primary"])
-        self.assertIn("Восстановить настройки сети", view["hint"])
+        self.assertIn("Восстановить сеть", view["hint"])
+
+    def test_recovery_state_puts_restore_on_home_primary_action(self):
+        launcher = gui.Launcher.__new__(gui.Launcher)
+        launcher._mac_ui = True
+        launcher.btn_primary = mock.Mock()
+        launcher.restore_network = mock.Mock()
+        launcher.on = mock.Mock()
+        launcher.off = mock.Mock()
+
+        launcher._apply_primary_action(self.status(pending=True))
+
+        launcher.btn_primary.configure.assert_called_once_with(
+            text="Восстановить сеть",
+            command=launcher.restore_network,
+            style="MacPrimary.TButton",
+        )
+        launcher.btn_primary.state.assert_called_once_with(["!disabled"])
 
     def test_orphaned_state_exposes_only_safe_cleanup_action(self):
         view = self.status(orphaned_pac=True)
