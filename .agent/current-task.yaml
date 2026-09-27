@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPREVIEW-FIX-20260926
-status: in_progress
+status: blocked
 goal: "Replace rejected iOS 0.1.19 (21) submission with current iOS 0.1.36 (39), refresh all App Store metadata/evidence to current UI/features, satisfy Apple Guideline 2.1 information request, and resubmit."
 authority: HUMAN
 definition_of_done:
