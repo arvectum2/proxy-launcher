@@ -2,16 +2,16 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPREVIEW-FIX-20260926
 status: in_progress
-goal: "Replace rejected iOS 0.1.19 (21) submission with current iOS 0.1.36 (37), refresh all App Store metadata/evidence to current UI/features, satisfy Apple Guideline 2.1 information request, and resubmit."
+goal: "Replace rejected iOS 0.1.19 (21) submission with current iOS 0.1.36 (38), refresh all App Store metadata/evidence to current UI/features, satisfy Apple Guideline 2.1 information request, and resubmit."
 authority: HUMAN
 definition_of_done:
-  - "Current iOS product source is based on latest main and versioned 0.1.36 build 37."
+  - "Current iOS product source is based on latest main and versioned 0.1.36 build 38."
   - "Relevant iOS core/UI/build tests pass and physical iPhone 13 on iOS 27 runs the exact current candidate."
-  - "Apple Distribution archive/export validates and new 0.1.36 (37) IPA is uploaded and processed."
+  - "Apple Distribution archive/export validates and new 0.1.36 (38) IPA is uploaded and processed."
   - "App Store Connect version/metadata/description/screenshots/review notes reflect 0.1.36 current UI and features."
   - "A physical-device screen recording on iOS 27 begins with app launch and demonstrates the typical proxy flow."
   - "Recording is attached to App Review and reviewer response answers all six requested Guideline 2.1 items."
-  - "0.1.36 (37) is submitted to App Review and final submission state is verified."
+  - "0.1.36 (38) is submitted to App Review and final submission state is verified."
 completed:
   - "Captured rejection submission 44e97256-2450-4fb6-924c-71143be545df: Guideline 2.1 Information Needed / New App Submission."
   - "Apple requested physical-device recording plus purpose/audience, setup/access, external services, regional differences, and regulated/protected-material information."
@@ -21,25 +21,29 @@ completed:
   - "Current Android/mobile baseline is 0.1.36 versionCode 37; iOS source gained adaptive UI and Shortcuts/app-routing work since submitted 0.1.19 but version fields were not bumped."
   - "Owner explicitly requested updating the entire App Store submission to the current application version."
   - "Physical iPhone Nikita verified connected by USB, paired, Developer Mode enabled, iOS 27.0 build 24A437."
-  - "Prepared source/version metadata for iOS 0.1.36 build 37 from current main; XcodeGen regenerated the project with matching MARKETING_VERSION/CURRENT_PROJECT_VERSION."
-current: "Source/version metadata is prepared for iOS 0.1.36 (37); commit/push and exact-head CI/physical build are next."
+  - "Prepared source/version metadata for iOS 0.1.36 build 38 from current main; XcodeGen regenerated the project with matching MARKETING_VERSION/CURRENT_PROJECT_VERSION."
+  - "Exact-head CI for 0.1.36 build 37 passed and the Release artifact was produced; physical iPhone 13 iOS 27 install/launch verification passed for 0.1.36 (37)."
+  - "Apple server received build 37 but rejected it with ITMS-90046 because the first distribution signing used the provisioning profile full Network Extension entitlement set, including unsupported hotspot-provider."
+  - "Root cause isolated to signing only; application code is unchanged. Correct signing is minimal packet-tunnel-provider + app group + keychain group."
+  - "App Store Connect API confirms build 37 cannot be reused: ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE; previousBundleVersion=37. Therefore current candidate is 0.1.36 build 38."
+current: "Apple consumed failed build 37; preparing corrected minimally-signed 0.1.36 build 38 via exact-head Release CI, with no phone required until final install/recording."
 pending:
   - "Run iOS tests and signed physical-device build; install current candidate on iPhone."
   - "Physically verify current candidate on iOS 27 and capture screenshots + review recording."
-  - "Create Apple Distribution archive/export; validate and upload 0.1.36 (37); wait for processing."
+  - "Create Apple Distribution archive/export; validate and upload 0.1.36 (38); wait for processing."
   - "Update App Store Connect version, build, description/screenshots/review notes and attach recording."
   - "Reply to Apple and resubmit; verify resulting state."
-last_verified_commit: "19b02aa"
+last_verified_commit: "ee272a3"
 test_results:
   - "2026-09-27 physical device: PASS; iPhone 13, iOS 27.0 (24A437), USB paired, Developer Mode enabled."
   - "2026-09-27 current main fetched: 19b02aa."
 blocker: ""
-resume_instruction: "Use only Mac mini. Continue from current main with iOS 0.1.36 build 37. Do not reuse old 0.1.19 screenshots/build as final evidence. Build/install and physically verify on iPhone 13 iOS 27, then archive/upload, refresh the full App Store submission, attach the physical recording, answer Apple, resubmit, and verify status."
-updated_at: "2026-09-27T09:25:00+03:00"
+resume_instruction: "Use only Mac mini. Continue from current main with iOS 0.1.36 build 38. Do not reuse old 0.1.19 screenshots/build as final evidence. Build/install and physically verify on iPhone 13 iOS 27, then archive/upload, refresh the full App Store submission, attach the physical recording, answer Apple, resubmit, and verify status."
+updated_at: "2026-09-27T11:45:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260927-ios-appreview-current-version"
-  branch: "task/apl-ios-appreview-0136-20260927"
+  branch: "task/apl-ios-appreview-0136-build38-20260927"
   base_commit: "19b02aa"
   lease_until: null
   manual_override: true
