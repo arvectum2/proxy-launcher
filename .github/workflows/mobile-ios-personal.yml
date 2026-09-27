@@ -46,3 +46,39 @@ jobs:
           name: apl-ios-unsigned
           path: ${{ runner.temp }}/APLDerivedData/Build/Products/Debug-iphoneos/Arvectum Proxy Launcher.app
           if-no-files-found: error
+
+
+  unsigned-release-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build pinned patched tun2proxy XCFramework
+        run: python3 mobile/ios/Tools/fetch_tun2proxy.py
+      - name: Generate Xcode project
+        run: xcodegen generate --spec mobile/ios/project.yml
+      - name: Build unsigned Release iPhone app
+        run: |
+          xcodebuild \
+            -project mobile/ios/ArvectumProxyLauncherIOS.xcodeproj \
+            -scheme ArvectumProxyLauncher \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            -derivedDataPath "$RUNNER_TEMP/APLReleaseDerivedData" \
+            build
+      - name: Package unsigned Release app
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$RUNNER_TEMP/APLReleaseDerivedData/Build/Products/Release-iphoneos/Arvectum Proxy Launcher.app" \
+            "$RUNNER_TEMP/Arvectum-Proxy-Launcher-iOS-Release-unsigned.zip"
+      - name: Upload unsigned Release iPhone app
+        uses: actions/upload-artifact@v4
+        with:
+          name: apl-ios-release-unsigned
+          path: ${{ runner.temp }}/Arvectum-Proxy-Launcher-iOS-Release-unsigned.zip
+          if-no-files-found: error
