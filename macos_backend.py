@@ -683,6 +683,42 @@ class MacOSBackend(ProxyBackend):
             and current.port == _REFRESH_FAIL_CLOSED_PORT
         )
 
+    @staticmethod
+    def _disabled_owned_direct_proxy_endpoint_matches(
+        current: ManualProxyState,
+        applied: Mapping[str, Any],
+    ) -> bool:
+        """Accept only enable-bit drift on APL's exact direct endpoint.
+
+        macOS or another network transition can disable an otherwise unchanged
+        manual proxy.  The endpoint is still strong ownership evidence, so an
+        explicit rollback may safely restore the saved enable state.  Foreign
+        hosts/ports remain non-recoverable.
+        """
+        return bool(
+            not current.enabled
+            and current.server == str(applied.get("direct_proxy_host", ""))
+            and current.port == int(applied.get("direct_proxy_port", 0))
+        )
+
+    @staticmethod
+    def _disabled_snapshot_proxy_endpoint_matches(
+        current: ManualProxyState,
+        expected: Mapping[str, Any],
+    ) -> bool:
+        """Accept disabled state drift only for an exact saved endpoint."""
+        expected_server = str(expected.get("server", ""))
+        expected_port = int(expected.get("port", 0))
+        return bool(
+            not current.enabled
+            and bool(expected_server)
+            and expected_port > 0
+            and current.server == expected_server
+            and current.port == expected_port
+            and current.authenticated
+            == bool(expected.get("authenticated", False))
+        )
+
     def _manual_proxy_states(self, service_name: str):
         return (
             self._client.get_web_proxy(service_name),
@@ -748,17 +784,31 @@ class MacOSBackend(ProxyBackend):
         web_ok = bool(
             self._owned_direct_proxy_matches(web, applied)
             or self._refresh_fail_closed_proxy_matches(web)
+            or self._disabled_owned_direct_proxy_endpoint_matches(web, applied)
             or (
                 web_expected is not None
-                and self._manual_proxy_matches(web, web_expected)
+                and (
+                    self._manual_proxy_matches(web, web_expected)
+                    or self._disabled_snapshot_proxy_endpoint_matches(
+                        web, web_expected
+                    )
+                )
             )
         )
         secure_ok = bool(
             self._owned_direct_proxy_matches(secure_web, applied)
             or self._refresh_fail_closed_proxy_matches(secure_web)
+            or self._disabled_owned_direct_proxy_endpoint_matches(
+                secure_web, applied
+            )
             or (
                 secure_expected is not None
-                and self._manual_proxy_matches(secure_web, secure_expected)
+                and (
+                    self._manual_proxy_matches(secure_web, secure_expected)
+                    or self._disabled_snapshot_proxy_endpoint_matches(
+                        secure_web, secure_expected
+                    )
+                )
             )
         )
         socks_ok = bool(

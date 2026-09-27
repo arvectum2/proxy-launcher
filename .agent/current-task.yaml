@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-NETWORK-RECOVERY-20260927
-status: blocked
+status: in_progress
 goal: "Restore the MacBook network, identify why APL rollback cannot recover it, fix the recovery state machine, and lock the failure down with regression coverage."
 authority: HUMAN
 definition_of_done:
@@ -19,20 +19,27 @@ completed:
   - "Patched rollback recoverability to accept only the exact APL refresh sentinel 127.0.0.1:1; healthy ownership/is_enabled semantics are unchanged."
   - "Added regression: partial refresh restore failure leaves sentinel, then disable_preflight + disable restore the exact saved baseline and clear rollback evidence."
   - "Added boundary regression: 127.0.0.1:2 remains foreign and blocks destructive rollback."
+  - "MacBook RDC LaunchAgent/CLI were restored locally after Homebrew removed the previous global Desktop Commander installation; RDC is online again."
+  - "Physical evidence captured before mutation: DNS/default route are healthy; Wi-Fi HTTP/HTTPS endpoint remains 68.209.60.141:8000 but both Enabled flags are off; backup says both were enabled before APL."
+  - "Other saved services are still partly APL-owned, proving a mixed/incomplete proxy state rather than a DNS or route failure."
+  - "proxy_core.log confirms repeated explicit rollback attempts were rejected at disable_preflight with: Wi-Fi matches neither Arvectum-owned nor saved state."
+  - "Code search confirms APL wake/refresh never disables HTTP/HTTPS; the observed enable-bit drift was not produced by the normal refresh path."
+  - "Implemented narrow recovery for disabled manual proxies only when host/port exactly match APL direct endpoint or exact saved snapshot; foreign endpoints remain blocked."
+  - "Added regressions for exact disabled-owned recovery and disabled-foreign refusal."
   - "Mac mini focused macOS/backend/runtime suite PASS: 82 tests."
   - "macos_backend focused suite PASS: 38 tests."
   - "python3 -m py_compile PASS; git diff --check PASS; python3 -m ruff F,E9,I PASS."
-current: "PR #203 is merged to main as b8ca041ae1d0dd81ecec5f373da3282e6259daa7 with all 15 check-runs green. Physical MacBook recovery remains blocked because the RDC device is offline after the controlled stale-Node agent restart; local launchd kickstart is required to regain the channel before capturing live proxy evidence and restoring the saved baseline."
+current: "MacBook RDC is restored and live host evidence is captured. The actual rollback refusal is an enable-bit drift case: Wi-Fi keeps the exact saved/APL endpoint 68.209.60.141:8000 but HTTP/HTTPS are disabled, so preflight refuses it as neither owned nor snapshot. A narrow recovery patch now accepts only disabled exact APL/snapshot endpoints while foreign host/port changes remain blocked. Local macOS/backend tests pass; physical rollback and PR/CI remain."
 pending:
-  - "Locally restart com.arvectum.remote-desktop-commander on MacBook so it reconnects using the current Homebrew Node executable."
-  - "Capture live MacBook proxy state and macos_proxy_backup.json before network mutation."
+  - "Commit/push the enable-bit recovery patch, open PR and pass repository CI."
   - "Run patched rollback / restore exact saved baseline, verify connectivity and record physical result."
   - "Mark task completed only after physical network verification."
-last_verified_commit: "b8ca041ae1d0dd81ecec5f373da3282e6259daa7"
+last_verified_commit: "9a7ea34228df46b689aca57ddcb280a8dc2f58de"
 test_results:
   - "Static code-path diagnosis: fail-closed refresh sentinel is written by macos_backend.refresh but was not accepted by _manual_proxies_recoverable."
   - "tests.test_macos_backend: 38/38 PASS."
   - "Focused backend/runtime suite: 82/82 PASS."
+  - "Enable-bit drift patch: tests.test_macos_backend 40/40 PASS; focused backend/runtime suite 84/84 PASS; py_compile, ruff F/E9/I and git diff --check PASS."
   - "py_compile PASS; git diff --check PASS; ruff F,E9,I PASS."
   - "GUI local run on Homebrew Python unavailable because _tkinter is not installed; GUI/build coverage delegated to repository CI."
   - "PR #203 code-bearing head 6fb55b3030ca92322d7a22df80d6e320ab28a144: 15/15 GitHub check-runs PASS, including required build, macOS packaging (arm64/intel), backend contracts, security scans and installer lanes."
@@ -40,8 +47,8 @@ test_results:
   - "Controlled RDC agent shutdown removed the stale process, but MacBook did not reconnect; physical host diagnostics/network restoration now require a local launchd kickstart."
   - "PR #203 merged to main as b8ca041ae1d0dd81ecec5f373da3282e6259daa7 after the checkpoint-only head also passed all 15/15 checks."
   - "Exact ARM64 macOS packaging artifact downloaded to Mac mini at /Users/master/APLRecoveryArtifact-20260927/dist/Arvectum Proxy Launcher.app for immediate physical deployment once RDC returns."
-blocker: "MacBook RDC is offline after controlled restart. Owner must locally run: launchctl kickstart -k gui/$(id -u)/com.arvectum.remote-desktop-commander . Once the device reconnects, continue without asking for any other setup."
-resume_instruction: "Do not redo code work or PR #203. Wait only for the explicit local RDC kickstart blocker to clear. As soon as MacBook is online, capture scutil/networksetup state plus macos_proxy_backup.json before mutation, deploy the prepared ARM64 artifact if needed, run the patched rollback, verify exact baseline + internet, update checkpoint to completed, and preserve the iOS review task for later resumption."
+blocker: null
+resume_instruction: "Do not redo diagnosis. Continue from the enable-bit drift patch on branch agent/apl-macos-enable-drift-recovery-20260927: commit/push/open PR, pass CI, run the patched rollback on MacBook using the preserved macos_proxy_backup.json, verify all four services against snapshot plus internet/legacy tunnel, then mark completed. Preserve the iOS review task for later resumption."
 updated_at: "2026-09-27T14:44:00+03:00"
 execution:
   claimed_by: "chatgpt"
