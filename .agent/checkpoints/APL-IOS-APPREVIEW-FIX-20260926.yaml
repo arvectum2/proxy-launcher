@@ -28,7 +28,10 @@ completed:
   - "App Store Connect API confirms build 37 cannot be reused: ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE; previousBundleVersion=37. Therefore current candidate is 0.1.36 build 38."
   - "Owner corrected the physical-install assumption: current iOS candidate is NOT yet installed on the iPhone; do not treat prior devicectl output as physical install verification."
   - "Owner resumed at 2026-09-27 14:17 with iPhone connected to Mac mini; CoreDevice verifies physical iPhone 13, iOS 27.0, wired, paired, Developer Mode enabled."
-current: "Owner resumed with iPhone connected by cable. Device visibility is verified; install exact CI build 0.1.36 (38), verify on-device, then record App Review evidence and finish resubmission."
+  - "Exact CI build 0.1.36 (38) from workflow run 36307955804 was development-signed and installed on the physical iPhone; devicectl installation record now reports Arvectum Proxy Launcher version 0.1.36, bundle version 38."
+  - "Verified capture-source distinction: AVFoundation Continuity Camera exposes iPhone Nikita Camera / Desk View Camera, while CoreMediaIO kCMIOHardwarePropertyAllowScreenCaptureDevices exposes a separate muxed device named iPhone Nikita with model iOS Device; this muxed device is the USB screen source."
+  - "Built and Apple-Development-signed local macOS helper ArvectumIOSScreenRecorder.app to capture the muxed iOS screen device directly via AVCaptureSession."
+current: "Build 0.1.36 (38) is installed and verified on the physical iPhone. Screen-capture helper is running as a foreground macOS app and waiting on first-time Camera/TCC consent (AUTH_STATUS_BEFORE=0). After owner clicks Allow on Mac mini, verify the test MOV and record App Review evidence."
 pending:
   - "After owner reconnects iPhone by cable: verify actual device visibility, install the current 0.1.36 build 38 candidate, and confirm the version on the physical phone."
   - "After installation, physically verify the current candidate on iOS 27 and capture the App Review screen recording from the Mac mini/device workflow."
@@ -38,9 +41,9 @@ pending:
 last_verified_commit: "ee272a3"
 test_results:
   - "2026-09-27 current main fetched: 19b02aa."
-blocker: ""
-resume_instruction: "Do nothing on iOS until owner explicitly resumes after connecting the iPhone to Mac mini by cable. Then use only Mac mini: first verify the phone is visible; install the actual current 0.1.36 build 38 candidate and confirm it on-device (do not infer installation from devicectl alone); record the physical-device review video; then finish screenshots/attachments/App Review response and resubmission."
-updated_at: "2026-09-27T14:17:00+03:00"
+blocker: "macOS TCC consent is required once for the signed Arvectum iOS Screen Recorder helper. Foreground helper process is waiting in AVCaptureDevice requestAccess; owner must click Allow on the Mac mini system permission dialog."
+resume_instruction: "Use only Mac mini. First poll /Users/master/AppReviewAPL/recorder-stderr.log and the ArvectumIOSScreenRecorder process. Once owner grants the pending TCC Camera permission, verify registration-test.mov exists and is a portrait iPhone-screen capture (not Continuity Camera). Then record the current 0.1.36 (38) physical-device App Review flow, extract/update screenshots, upload recording/attachments, answer Apple, resubmit, and verify final state."
+updated_at: "2026-09-27T14:36:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260927-ios-appreview-current-version"
