@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-26  
+Updated: 2026-09-27  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Current stable release: `v0.2.16`
 
@@ -299,6 +299,31 @@ Boundary:
 - do not rebuild, re-upload, withdraw or resubmit while review is pending unless Apple returns a concrete issue or the Owner requests a change;
 - 0.1.19 contains no ads, analytics, Arvectum cloud backend or per-app routing.
 
+
+## P12 — APL-NODE-001 managed proxy infrastructure — CURRENT / OWNER PRIORITY
+
+Owner directive 2026-09-27: prioritize Arvectum-managed infrastructure with reusable node capacity over one-for-one proxy resale.
+
+Target architecture:
+- VLESS + REALITY is the first managed transport;
+- Trojan/TLS is the planned fallback; Shadowsocks 2022 is compatibility/experimental;
+- exit identity is a separate product dimension: Shared Datacenter, Private Pool, Dedicated Datacenter, later Static ISP / Residential / Mobile;
+- multiple users may share one Arvectum node and one exit IPv4 with unique credentials;
+- additional server IPv4 addresses may back small private pools or dedicated products;
+- upstream ISP/residential/mobile credentials stay server-side behind Arvectum routing.
+
+APL-NODE-001 MVP order:
+1. implement and test provider-neutral node/product/profile contracts;
+2. implement a deterministic Xray/VLESS+REALITY provisioning/configuration prototype without repository secrets;
+3. preserve existing manual HTTP/HTTPS/SOCKS profiles while adding a managed-profile path;
+4. add Android then iOS managed VLESS/REALITY consumption;
+5. after Owner provisions one EU test VPS, run real-device E2E and measure CPU, throughput, concurrency, per-user traffic and exit IP;
+6. use measured density/cost to decide initial Shared / Private / Dedicated pricing and the next ISP/residential integration.
+
+Boundary: code/prototype work is authorized. Paid VPS/IP/provider commitments and production infrastructure mutation remain Owner/HUMAN actions. Billing, checkout and public sale are follow-on work, not part of the first transport MVP.
+
+Design record: `docs/APL_MANAGED_NODES_ARCHITECTURE.md`.
+
 ## Maintenance / repository hygiene
 
 - PR #80 — release-evidence workflow maintenance; reconcile with current `main` before merge.
@@ -328,8 +353,9 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **PER-APP ROUTING:** PR #144 remains the Owner decision packet; refresh baseline wording to v0.2.16/current-main, then stop at architecture decision.
 - **REGISTRY INFRA:** HUMAN BLOCKED on physical Russian sovereign lifecycle proof (#55).
 - **REGISTRY FILING:** HUMAN HOLD; private/accounting/support/signature/live-portal evidence remains.
+- **APL-NODE-001:** CURRENT / OWNER PRIORITY; managed VLESS/REALITY node MVP is the active product-development track. Engineering proceeds now; first paid EU node is an Owner/HUMAN provisioning gate.
 
-Work-conserving order: do not churn either submitted Apple binary while review is pending; independent safe REVIEW work may refresh APL-REL-016, followed by PR #144. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
+Work-conserving order: APL-NODE-001 is the current Owner-prioritized product track and may proceed independently while submitted Apple binaries wait for review. Do not churn either submitted Apple binary while review is pending; lower-priority safe REVIEW work may continue when it does not conflict. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
 
 ## Completion discipline
 
