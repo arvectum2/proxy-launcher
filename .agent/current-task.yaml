@@ -1,56 +1,37 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-UI-001
-status: completed
-goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
+task_id: APL-NODE-001
+status: in_progress
+goal: "Build a non-billing Arvectum-managed node MVP where unique users connect through an Arvectum VLESS/REALITY node, while preserving existing manual proxy profiles and keeping exit type independent from transport."
 authority: OWNER
 definition_of_done:
-  - "Shared Arvectum navy/mint design tokens, wording, destination order, profile context and connection-state semantics are aligned across mobile and desktop."
-  - "Every platform exposes one stateful Connect/Connecting/Disconnect primary action rather than competing On/Off controls."
-  - "Top-level information model is Home, Profiles, Activity/Diagnostics, Settings; expert maintenance actions are removed from Home."
-  - "Android/iOS remain touch-first and adaptive; Windows/Linux/macOS use compact desktop composition, keyboard/pointer-friendly controls and available width."
-  - "Application/site exclusions integrate into the same mental model without changing proven routing/recovery/security semantics."
-  - "Focused UI contract/responsive tests pass, platform builds/tests pass where executable, and CI covers release-target platforms."
-  - "Physical visual/interaction acceptance is recorded for every platform targeted by the release."
-  - "Roadmap/backlog/queue and canonical checkpoint reflect implementation/acceptance state and verified commit."
+  - "Provider-neutral node, exit-class, product and managed-profile contracts are implemented and covered by deterministic tests."
+  - "A secret-free local Xray/VLESS+REALITY provisioning/configuration prototype can create unique per-user credentials and render client profiles."
+  - "Existing manual HTTP/HTTPS/SOCKS profile behavior remains backward compatible."
+  - "Android can consume a managed VLESS/REALITY profile and pass focused transport/recovery tests."
+  - "iOS can consume a managed VLESS/REALITY profile and pass focused PacketTunnel/recovery tests."
+  - "One Owner-provisioned EU test node passes real-device Android and iOS E2E for connect/disconnect, HTTPS traffic, sleep/wake and reconnect."
+  - "Node CPU, throughput, concurrent sessions, traffic-per-user and observed exit IP are captured so initial density/unit economics are based on measurements."
+  - "Roadmap, queue and checkpoint record final evidence and the next Shared/Private/Dedicated scaling decision."
 completed:
-  - "Added docs/APL_ADAPTIVE_UI_CONTRACT.md with common tokens, destination order, stateful primary-action semantics and non-regression boundary."
-  - "Android now uses Home, Profiles, Activity, Settings touch navigation and one stateful connection action; tunnel/profile/routing backend code is unchanged."
-  - "Shared SwiftUI ContentView now uses four mobile destinations; Mac Catalyst uses a desktop sidebar and compact connection/profile composition."
-  - "Windows/Linux/direct-macOS Tk UI now uses the same four-destination IA and one primary connection action; diagnostics/check/restore/autostart are off Home."
-  - "Linux capability rendering reuses the shared desktop primary-action controller without changing PolicyKit/runtime behavior."
-  - "Added cross-platform UI contract tests and updated macOS/proxy GUI regression tests."
-  - "Local desktop/UI verification: 50/50 tests PASS; Python compile PASS; Swift parser PASS; git diff --check PASS."
-  - "Implementation commits 1621a62, 9b35b76 and abf87b7 are pushed to agent/apl-ui-001-adaptive-20260926; PR #193 is Ready for review."
-  - "Exact-head CI for abf87b779448d72f2ae83cd0eac823a6c6dd9914 is green across all returned PR workflows, including Android, iOS unsigned device build, Windows, Linux, macOS packaging, core backend, SAST, dependency, secret and SBOM checks."
-  - "Local Mac Catalyst build exposed an iPhone-only AppRoutingVPNControl reference in shared ContentView; fixed by giving Catalyst an honest informational Application Exclusions surface while preserving the existing iPhone Shortcuts behavior."
-  - "After the Catalyst guard fix: 51/51 desktop/UI regression tests PASS, Swift parse PASS, git diff --check PASS, and full Mac Catalyst xcodebuild PASS."
-  - "Exact-head iOS CI artifact apl-ios-unsigned from workflow run 36267974554 / code head 71c8ecc was development-signed locally with the existing APL Development and APL Packet Tunnel Development profiles, installed on the connected iPhone 13, and launched successfully as ru.arvectum.proxylauncher.ios."
-  - "Exact-head macOS ARM64 CI DMG from workflow run 36267974647 / code head 71c8ecc was installed on MacBook Air at /Applications/Arvectum Proxy Launcher.app; bundle version 0.2.16 and a running app process were verified."
-  - "Exact-head Android CI artifact from workflow run 36267974508 / code head 71c8ecc was extracted for owner installation; APK SHA-256 is 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-  - "Home recovery CTA defect fixed: when recovery_required is active, the Home primary button is now «Восстановить сеть» and invokes the existing guarded rollback path; Settings retains the service restore action."
-  - "MacBook Air broken network state was repaired successfully through the existing --rollback path (network settings restored, status STOPPED)."
-  - "Exact-head macOS ARM64 CI package for 03cf5cc was installed on MacBook Air and launched."
-  - "Owner merge override 2026-09-27: after reviewing the macOS build and recovery UX fix, Owner explicitly requested merging PR #193 now rather than waiting to reproduce the recovery state or for unavailable platform hosts. This waives the remaining physical-acceptance gate for this PR merge only; unperformed platform acceptance is not claimed as passed."
-current: "APL-UI-001 implementation is complete and Owner explicitly approved merge with the remaining physical-acceptance gate waived for this PR. No unperformed platform acceptance is claimed."
-pending: []
-last_verified_commit: 5370bb60f6fc2cb753fe67e12fc458b3f3024933
+  - "Owner selected the managed-node economic model and priority order: own datacenter nodes; additional IPv4 private/dedicated; ISP upstream; residential/mobile upstream."
+  - "Repository main was verified at 19b02aa562506d148d5f1088c4ed1d8affdda25e after APL-UI-001 merge."
+current: "Canonicalize APL-NODE-001 and implement the provider-neutral model plus deterministic local VLESS/REALITY provisioning foundation."
+pending:
+  - "Add provider-neutral managed-node/product/profile contracts and tests."
+  - "Add Xray/VLESS+REALITY config/profile rendering prototype with no committed secrets."
+  - "Integrate managed profile consumption into Android while preserving manual proxy profiles."
+  - "Integrate managed profile consumption into iOS while preserving manual proxy profiles."
+  - "Owner provisions one EU test VPS when repository implementation reaches the real-node gate."
+  - "Run physical E2E and capture capacity/unit-economics measurements."
+last_verified_commit: 19b02aa562506d148d5f1088c4ed1d8affdda25e
 test_results:
-  - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 51/51 PASS via /usr/bin/python3 with Tk."
-  - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
-  - "xcrun swiftc -parse mobile/ios/App/ContentView.swift: PASS."
-  - "GitHub Actions exact code head 71c8ecc: every returned PR check completed SUCCESS, including Android build, both iOS unsigned-device-build jobs, Windows installer/signing, Linux packages/acceptance, macOS packaging and security checks."
-  - "Mac Catalyst local build after platform guard fix: BUILD SUCCEEDED."
-  - "Physical distribution check: iPhone install and launch succeeded via devicectl for bundle ru.arvectum.proxylauncher.ios."
-  - "Physical distribution check: MacBook Air exact-head CI arm64 app v0.2.16 is installed in /Applications and running."
-  - "Android handoff artifact verified against CI SHA256SUMS: 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-  - "Post-fix desktop/UI regression: tests.test_proxy_gui + tests.test_macos_visual_contract + tests.test_adaptive_ui_contract = 53/53 PASS; py_compile and git diff --check PASS."
-  - "Exact-head macOS ARM64 packaging job for 03cf5cc completed SUCCESS; generated DMG installed on MacBook Air."
+  - "Task initialization only; implementation tests not run yet."
 blocker: null
-resume_instruction: "Task completed by explicit Owner merge decision. Do not reopen APL-UI-001 unless a new physical defect is reported; track any later platform-specific acceptance or regression as a new task."
-updated_at: "2026-09-27T08:41:00+03:00"
+resume_instruction: "Continue on branch agent/apl-managed-nodes-001-20260927. First implement provider-neutral managed-node/product/profile contracts and deterministic tests, then add secret-free Xray/VLESS+REALITY config/profile rendering. Do not purchase infrastructure or mutate production; stop only when an Owner-provisioned EU node is objectively required."
+updated_at: "2026-09-27T10:02:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: agent/apl-ui-001-adaptive-20260926
-  base_commit: b757a062ac19c371c082c5ff5a0ccfee88fb8f40
+  branch: agent/apl-managed-nodes-001-20260927
+  base_commit: 19b02aa562506d148d5f1088c4ed1d8affdda25e
   manual_override: true
