@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-25T22:25:00+03:00"
+updated_at: "2026-09-27T13:16:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "b9d0d6bd89e334a1230a393991bc36e9db9a2244"
+  main_sha_verified: "f554220680048ae28f3019b7225c6c56a9e64d8a"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -84,16 +84,17 @@ items:
   - order: 60
     task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
     title: "Per-application routing production enforcement architecture"
-    status: ready
+    status: blocked
     authority: OWNER
     independent: true
     auto_merge: false
     source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #144"
     dependencies: []
-    owner_gate: "Production enforcement architecture is an explicit Owner/Product Owner stop-gate."
-    executor_scope: "Refresh PR #144 assumptions from the immutable v0.2.12 wording to current immutable v0.2.16/current-main recovery semantics; do not select or implement the production architecture as if approved."
+    blocker: "PR #144 is already reconciled to v0.2.16/current-main and exact-head CI is green. No further privileged Windows enforcement work is admitted until Owner/Product Owner explicitly selects or rejects the production architecture."
+    owner_gate: "Select/reject the production enforcement architecture. Current technical recommendation is Option A: Arvectum-owned WFP ALE callout + narrow privileged service + local proxy."
+    executor_scope: "Preserve the review-ready packet and existing non-mutating control plane. Do not install WFP filters/callouts, mutate privileged hosts, procure signing or release a Windows enforcement implementation before explicit Owner selection."
     active_pr: 144
-    evidence: "PR #144 is the current Owner decision packet, superseding #68. Exact-head checks were green for its current content; the technical recommendation remains Arvectum-owned WFP ALE callout + narrow privileged service + local proxy, but no architecture is approved."
+    evidence: "PR #144 head 40af0918ef1122d7b40a59f3d3b4c78e5316899c is reconciled to immutable v0.2.16/current-main, includes current application-exclusion work and APL-REL-016 dependency, and its returned exact-head checks are all SUCCESS."
 
   - order: 65
     task_id: APL-UI-001-ADAPTIVE
@@ -214,18 +215,31 @@ items:
     evidence: "DONE: Android fetches public locations and short-lived sessions, persists only location selection, keeps supplier credentials out of the client and refreshes sessions before expiry."
 
   - order: 116
-    task_id: APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921
-    title: "Android 0.1.31 free-proxy stability baseline"
+    task_id: APL-ANDROID-0136-CURRENT
+    title: "Android 0.1.36 adaptive/application-exclusion current-main baseline"
     status: done
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: ".agent/checkpoints/APL-ANDROID-FREE-PROXY-NO-TRAFFIC-20260921.yaml; merged PR #148"
+    source: ".agent/checkpoints/APL-ANDROID-0132-UX-FIXES-20260926.yaml; merged PR #190; merged PR #193"
     dependencies:
       - APL-FREE-PROXY-ANDROID-INTEGRATION-20260921
-    executor_scope: "Treat 0.1.31 as a merged friend-test baseline, not a public release. New tester regressions get a new incident task; do not republish or change release state by implication."
-    merged_pr: 148
-    evidence: "DONE technical baseline: Android 0.1.31/versionCode 32, lint PASS, gateway tests 13/13 PASS, exact-head Android/gateway/security workflows SUCCESS, RU/US checks PASS and US soak 15/15 PASS. No public android-v0.1.31 release tag exists."
+    executor_scope: "Treat 0.1.36/versionCode 37 as the physically accepted current-main Android candidate. Public release remains android-v0.1.19 until a separate publication task is explicitly authorized."
+    evidence: "DONE current-main baseline: Android 0.1.36/versionCode 37 physically accepted for adaptive New/Edit rendering and merged through PR #190; post-merge Android CI PASS. Application-exclusion implementation from PR #183 is merged. Exact dedicated public-IP bypass proof remains a separate acceptance fact and is not invented here."
+
+  - order: 118
+    task_id: APL-NODE-001
+    title: "Arvectum managed VLESS/REALITY node MVP"
+    status: in_progress
+    authority: OWNER
+    independent: true
+    auto_merge: false
+    source: "Owner directive 2026-09-27; docs/ROADMAP.md#8a-managed-proxy-infrastructure; PR #195"
+    dependencies: []
+    owner_gate: "Repository engineering/prototypes may continue. Any paid VPS/additional-IP/provider commitment, production infrastructure mutation, billing/public sale or release requires separate Owner/HUMAN action."
+    executor_scope: "Continue provider-neutral managed-node contracts and deterministic Xray/VLESS+REALITY prototype; then add managed-profile consumption to Android/iOS without breaking manual HTTP/HTTPS/SOCKS profiles. Stop at the real-node gate if no Owner-provisioned EU node exists."
+    active_pr: 195
+    evidence: "PR #195 Phase A is green: provider-neutral Transport/ExitClass/ProductSpec/ManagedNode/ManagedAccess contracts, capacity-aware allocation, unique per-user credentials, VLESS/REALITY URI/server rendering and server-only REALITY secret boundary. Focused managed-node + free-gateway suite 21/21 PASS. Exact xray run -test remains pending before real-node phase."
 
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
@@ -243,20 +257,19 @@ items:
     evidence: "Plan remains: public ads-enabled GitHub/GitVerse/site/RuStore channel plus private no-ads build from one codebase; Yandex Mobile Ads/App Open is the initial target."
 
   - order: 130
-    task_id: APL-IOS-APPSTORE-PUBLISH-20260925
-    title: "iOS 0.1.19 App Store submission / review wait"
+    task_id: APL-IOS-APPREVIEW-FIX-20260926
+    title: "iOS 0.1.36 build 37 App Review response/resubmission"
     status: blocked
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: ".agent/checkpoints/APL-IOS-APPSTORE-PUBLISH-20260925.yaml; merged PR #135; Owner directive 2026-09-25"
+    source: ".agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml; merged PR #194/#196; current task branch task/apl-ios-appreview-0136-20260927"
     dependencies:
-      - APL-MOB-003-SITE-EXCLUSIONS-20260919
-    blocker: "Submission is complete and App Store Connect status is Waiting for Review. There is no repository action to take unless Apple reports a concrete issue or the Owner requests a change."
-    owner_gate: "Do not rebuild, re-upload, withdraw, resubmit or change legal/store metadata absent a concrete Apple review result or explicit Owner instruction."
-    executor_scope: "On a future Apple review notification, inspect the exact review result first. Preserve no-data-collection privacy truth, no ads/analytics in 0.1.19, and no per-app routing."
-    merged_pr: 135
-    evidence: "iOS 0.1.19 build 21 passed Apple validation/upload, processed successfully, was attached to version 0.1.19 and submitted to App Review. Current recorded state: Waiting for Review / 1 Item Submitted. Temporary publication API keys were revoked and removed. This is not evidence that the app is publicly live yet."
+      - APL-UI-001-ADAPTIVE
+    blocker: "Apple rejected the earlier 0.1.19 new-app submission under Guideline 2.1 requesting a physical-device recording and six information items. Current 0.1.36 build 37 is VALID / APP_STORE_ELIGIBLE and physically installed, but the required iOS 27 screen recording cannot be captured remotely; Owner must record the flow on-device and transfer the MOV to Mac mini."
+    owner_gate: "Provide the physical recording. Do not increment/rebuild solely because stale PR #198 exists; build 37 is already valid after narrow-entitlement re-sign unless Apple reports a new binary issue."
+    executor_scope: "Once the recording exists, extract current 0.1.36 screenshots, replace old 0.1.19 screenshots, upload the recording as review attachment, reply to Apple's Guideline 2.1 questions, resubmit 0.1.36 build 37 and verify resulting state."
+    evidence: "0.1.36 build 37 exact current app installed/launched on iPhone 13 iOS 27; exact-head iOS core/unsigned-device/unsigned-release CI PASS. Clean narrow-entitlement IPA upload completed with no errors/warnings; build 37 processingState VALID, audience APP_STORE_ELIGIBLE, usesNonExemptEncryption=false and linked to version 0.1.36. Old screenshots/review attachment still need replacement."
 
   - order: 135
     task_id: APL-MAC-APPSTORE-PUBLISH-20260925
@@ -265,16 +278,46 @@ items:
     authority: HUMAN
     independent: true
     auto_merge: false
-    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; PR #175; dedicated checkpoint"
+    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; merged PR #175; dedicated checkpoint"
     dependencies:
       - APL-MAC-PRODUCTION-DISTRIBUTION
     blocker: "Submission complete; current Apple state Waiting for Review."
     owner_gate: "Do not rebuild, re-upload, withdraw, resubmit or change store/legal metadata absent a concrete Apple review result or explicit Owner instruction."
-    executor_scope: "On a future Apple review notification, inspect the exact review result first and preserve immutable direct v0.2.16 plus the separate sandboxed Catalyst + PacketTunnel Store lane."
+    executor_scope: "On a future Apple review notification, inspect the exact result first and preserve immutable direct v0.2.16 plus the separate sandboxed Catalyst + PacketTunnel Store lane."
     publication_pr: 175
-    evidence: "macOS App Store 0.2.17 build 1 passed archive/export, Apple validation/upload, App Store processing, physical Help and Packet Tunnel E2E acceptance. Privacy is Published/Data Not Collected, screenshots COMPLETE, 175 territories configured. Submitted 2026-09-26; current state Waiting for Review / 1 Item Submitted."
+    evidence: "macOS App Store 0.2.17 build 1 passed archive/export, Apple validation/upload, processing, physical Help and Packet Tunnel E2E. Privacy Published/Data Not Collected; 3 screenshots COMPLETE; 175 territories configured. Submitted 2026-09-26; state Waiting for Review / 1 Item Submitted."
 
-repository_hygiene:
+  - order: 140
+    task_id: APL-IP-ROSPATENT-20260926
+    title: "Rospatent computer-program registration package"
+    status: blocked
+    authority: HUMAN
+    independent: true
+    auto_merge: false
+    source: "PR #181; .agent/checkpoints/APL-IP-ROSPATENT-20260926.yaml"
+    dependencies: []
+    blocker: "Working v0.2.16 application package is prepared, but applicant must fill the highlighted rights-basis/personal/author/funding/release-country/signature fields before official forms can be finalized."
+    owner_gate: "Supply/fill the remaining factual yellow fields; final electronic signing and Rospatent submission remain HUMAN."
+    executor_scope: "After facts are supplied, prepare current official application/author-consent forms and exact-v0.2.16 deposited source fragments; render/verify and stop before final signing/submission unless explicitly authorized."
+    active_pr: 181
+    evidence: "Official requirements and 5000 RUB fee rechecked 2026-09-26; exact filing object v0.2.16 / release commit 6799297... fixed; 6-page working DOCX rendered/visually checked with unknown fields blank and yellow."
+
+  - order: 145
+    task_id: ARVECTUM-NETWORK-MVP-20260927
+    title: "Arvectum Network VPS-first control plane and Germany pilot"
+    status: blocked
+    authority: HUMAN
+    independent: true
+    auto_merge: false
+    source: "ARVECTUM_NETWORK_ROADMAP.md; Owner product decisions 2026-09-27"
+    dependencies:
+      - APL-NODE-001
+    blocker: "Corporate Timeweb Cloud account exists, but actual Moscow/Frankfurt VPS purchase/provisioning, production personal-data placement and Roskomnadzor notification are external HUMAN actions."
+    owner_gate: "Provision apl-control-ru-01 and first Frankfurt pilot only when ready; confirm production hosting facts and legal/personal-data inputs. No automatic purchase or production mutation."
+    executor_scope: "Maintain architecture, hardening, self-hosted PostgreSQL/control-plane deployment plan, tests and runbooks. Do not purchase servers, submit Roskomnadzor notification, accept payment commitments or mutate production without explicit authority."
+    evidence: "Fixed MVP decisions: Russian control plane + primary customer DB in Russia; self-host PostgreSQL on Moscow VPS; Managed PostgreSQL deferred; Mac mini is development/admin rather than production customer DB; first foreign exit pilot is Frankfurt; third-party supplier marketplace deferred until own network works."
+
+repository_hygiene:repository_hygiene:
   superseded_open_prs:
     - 81
     - 103
@@ -290,7 +333,9 @@ repository_hygiene:
     - 117
     - 120
     - 124
-  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 is the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app preparation PR #144. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
+    - 198
+    - 200
+  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 remains the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app packet PR #144. PR #198 build-38 bump is superseded because corrected 0.1.36 build 37 is already VALID/APP_STORE_ELIGIBLE. PR #200 is superseded by the consolidated 2026-09-27 roadmap sync after its Arvectum Network file is imported. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
   maintenance_prs:
     - 80
   maintenance_note: "PR #80 is a release-evidence workflow maintenance fix, not a product-priority track; reconcile it independently with current main before merge."
