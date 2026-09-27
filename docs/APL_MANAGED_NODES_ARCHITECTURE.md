@@ -78,6 +78,25 @@ The client receives only what is necessary to connect to Arvectum.
 - no secrets committed;
 - focused tests.
 
+### Android engine composition
+
+The accepted Android TUN/routing lifecycle remains owned by the existing
+`VpnService` + tun2proxy path. Managed transport is additive:
+
+```
+Android TUN
+   -> tun2proxy
+   -> loopback SOCKS5 (127.0.0.1)
+   -> pinned libXray
+   -> VLESS + REALITY
+   -> Arvectum managed node
+```
+
+libXray is pinned by release digest and isolated behind an Arvectum runtime
+adapter because upstream explicitly does not guarantee API stability. Its
+outbound sockets must be protected from the Android VPN route and its DNS
+resolver must use the selected physical network DNS endpoint.
+
 ### Phase B — Android
 
 - add managed-profile type without removing AUTO/HTTP/HTTPS/SOCKS;
