@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MACOS-NETWORK-RECOVERY-20260927
-status: in_progress
+status: blocked
 goal: "Restore the MacBook network, identify why APL rollback cannot recover it, fix the recovery state machine, and lock the failure down with regression coverage."
 authority: HUMAN
 definition_of_done:
@@ -22,11 +22,13 @@ completed:
   - "Mac mini focused macOS/backend/runtime suite PASS: 82 tests."
   - "macos_backend focused suite PASS: 38 tests."
   - "python3 -m py_compile PASS; git diff --check PASS; python3 -m ruff F,E9,I PASS."
-current: "Open governed PR and run required CI. In parallel, regain MacBook host diagnostics so the live network can be restored and the code-proven failure mode can be confirmed against physical state."
+current: "Code fix is review-ready on PR #203 with all 15 check-runs green. Physical MacBook recovery is blocked because the RDC device went offline after a controlled agent restart; local launchd kickstart is required to regain the channel before capturing live proxy evidence and restoring the saved baseline."
 pending:
-  - "Open PR and verify required build/CI checks."
-  - "Restore Desktop Commander command access or otherwise capture live MacBook proxy state and restore physical network."
-  - "Open/merge PR when checks pass; update checkpoint to completed."
+  - "Merge PR #203 after the checkpoint-only head passes the required build gate."
+  - "Locally restart com.arvectum.remote-desktop-commander on MacBook so it reconnects using the current Homebrew Node executable."
+  - "Capture live MacBook proxy state and macos_proxy_backup.json before network mutation."
+  - "Run patched rollback / restore exact saved baseline, verify connectivity and record physical result."
+  - "Mark task completed only after physical network verification."
 last_verified_commit: "0d2862c5d6c668ffeaf803238e91ee42cf5da41d"
 test_results:
   - "Static code-path diagnosis: fail-closed refresh sentinel is written by macos_backend.refresh but was not accepted by _manual_proxies_recoverable."
@@ -34,10 +36,12 @@ test_results:
   - "Focused backend/runtime suite: 82/82 PASS."
   - "py_compile PASS; git diff --check PASS; ruff F,E9,I PASS."
   - "GUI local run on Homebrew Python unavailable because _tkinter is not installed; GUI/build coverage delegated to repository CI."
-  - "Physical/host diagnostics: BLOCKED only by stale Desktop Commander Node executable path; device itself remains online."
-blocker: ""
-resume_instruction: "Continue on agent/apl-macos-recovery-sentinel-20260927. Open/inspect PR CI for head 0d2862c or later; do not weaken exact-sentinel boundary. Regain MacBook command access, capture live proxy/backup state before mutation, restore physical network, then merge only after required checks and record final state."
-updated_at: "2026-09-27T15:02:00+03:00"
+  - "PR #203 code-bearing head 6fb55b3030ca92322d7a22df80d6e320ab28a144: 15/15 GitHub check-runs PASS, including required build, macOS packaging (arm64/intel), backend contracts, security scans and installer lanes."
+  - "RDC root cause: Homebrew Node advanced from 26.9.0 to 26.10.0_1 while the long-running child MCP process retained /opt/homebrew/Cellar/node/26.9.0/bin/node."
+  - "Controlled RDC agent shutdown removed the stale process, but MacBook did not reconnect; physical host diagnostics/network restoration now require a local launchd kickstart."
+blocker: "MacBook RDC is offline after controlled restart. Owner must locally run: launchctl kickstart -k gui/$(id -u)/com.arvectum.remote-desktop-commander . Once the device reconnects, continue without asking for any other setup."
+resume_instruction: "First verify PR #203/checks and merge if the checkpoint-only head is green. Then wait only for the explicit local RDC kickstart blocker to clear. As soon as MacBook is online, capture scutil/networksetup state plus macos_proxy_backup.json before mutation, run the patched rollback, verify exact baseline + internet, update checkpoint to completed, and preserve the iOS review task for later resumption."
+updated_at: "2026-09-27T15:18:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260927-macos-network-recovery"
