@@ -3,7 +3,7 @@ repository: arvectum2/proxy-launcher
 updated_at: "2026-09-27T13:16:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "f554220680048ae28f3019b7225c6c56a9e64d8a"
+  main_sha_verified: "3fd8bb0307360639fd75a824291a8212333ba5a2"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -333,9 +333,7 @@ repository_hygiene:repository_hygiene:
     - 117
     - 120
     - 124
-    - 198
-    - 200
-  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 remains the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app packet PR #144. PR #198 build-38 bump is superseded because corrected 0.1.36 build 37 is already VALID/APP_STORE_ELIGIBLE. PR #200 is superseded by the consolidated 2026-09-27 roadmap sync after its Arvectum Network file is imported. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
+  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 remains the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app packet PR #144. Closed PR #198 build-38 bump is superseded because corrected 0.1.36 build 37 is already VALID/APP_STORE_ELIGIBLE. Closed PR #200 is superseded by merged roadmap sync PR #201 after its Arvectum Network file was imported. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
   maintenance_prs:
     - 80
   maintenance_note: "PR #80 is a release-evidence workflow maintenance fix, not a product-priority track; reconcile it independently with current main before merge."
