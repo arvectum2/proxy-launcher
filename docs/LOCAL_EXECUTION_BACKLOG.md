@@ -184,8 +184,10 @@ Android evidence boundary: merged implementation/current UI acceptance does not 
 - v0.2.16 publishes both notarized macOS DMGs alongside Windows/Linux artifacts.
 - GitHub/GitVerse payload parity and release evidence are complete.
 - Direct v0.2.16 is immutable and remains a separate supported distribution channel from the Mac App Store lane.
+- **MANDATORY FOR THE NEXT DIRECT DESKTOP/macOS RELEASE (v0.2.17+):** include the macOS recovery fixes merged in PR #203 and PR #207. PR #207 / merge 46aef7ecfd165aa03145d2a74d4aba1ba44d972d adds safe rollback when HTTP/HTTPS Enabled bits drift off while host/port still exactly match APL or the saved snapshot; foreign host/port changes must remain fail-closed.
+- **NEXT-RELEASE PHYSICAL GATE:** reproduce the enable-bit drift on a real Mac, require rollback exit 0, exact snapshot match for all saved services, working direct/ordinary HTTPS, and preservation of the independent legacy 127.0.0.1:1080/8082 tunnel.
 
-Do not reopen this task unless a later material direct-distribution signing/package change requires fresh acceptance.
+Do not reopen the published v0.2.16 object. Apply the recovery acceptance above to the next direct release candidate instead.
 
 ## P9A — macOS App Store 0.2.17 + Help UX — SUBMITTED / WAITING FOR REVIEW / PR #175
 
