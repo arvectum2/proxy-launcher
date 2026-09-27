@@ -33,7 +33,7 @@ def render_client_uri(access: ManagedAccess, *, label: str = "Arvectum") -> str:
         "security": "reality",
         "sni": access.server_name,
         "fp": access.fingerprint,
-        "pbk": access.reality_public_key,
+        "pbk": access.reality_password,
         "sid": access.reality_short_id,
         "type": "tcp",
     })
@@ -80,11 +80,11 @@ def render_server_config(
                 "decryption": "none",
             },
             "streamSettings": {
-                "network": "tcp",
+                "network": "raw",
                 "security": "reality",
                 "realitySettings": {
                     "show": False,
-                    "dest": secrets.destination,
+                    "target": secrets.destination,
                     "xver": 0,
                     "serverNames": [node.server_name],
                     "privateKey": secrets.private_key,
