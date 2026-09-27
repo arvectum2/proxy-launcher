@@ -61,66 +61,38 @@ Open preparation PRs #70/#74/#82 are superseded by the completed PR #83 path and
 
 ### Android public baseline — `android-v0.1.19`
 
-- **PUBLIC / MIRRORED** — Android 0.1.19 was published 2026-09-19 with the accepted site-exclusion UX/routing from APL-MOB-003.
-- **HISTORY** — APL-MOB-001 transport/multiprofile, APL-MOB-002 Auto failover/network handoff and APL-MOB-003 exclusions are closed engineering tracks.
+- **PUBLIC / MIRRORED** — Android 0.1.19 remains the latest explicitly published Android release.
+- Earlier transport/multiprofile, Auto failover/network handoff, site exclusions and sleep/wake work remain historical accepted foundations.
 
-### Android sleep/wake recovery — MERGED
+### Free RU/US gateway — DONE / LIVE CONTROLLED-TEST INFRA
 
-- PR #147 reconciles logically-ON VPN state when the app returns after long sleep and safely handles reclaimed/dead service or revoked VPN permission.
-- The initial fix bumped the dogfood candidate to 0.1.20; it is included in the later 0.1.31 current-main baseline.
+- supplier proxy credentials remain server-side;
+- clients receive short-lived Arvectum gateway sessions and public location metadata;
+- real RU→RU and US→US checks/soak passed;
+- broad anonymous rollout still requires per-install quota/rate-limit/anti-abuse hardening.
 
-### Free RU/US proxy gateway — DONE / LIVE FRIEND-TEST INFRA
+### Android current main — 0.1.36 / versionCode 37 — PHYSICAL UI ACCEPTANCE PASS / NOT PUBLIC
 
-Merged PR: `#148`.
+Merged path: application exclusions #183, UX fixes #190, Adaptive UI #193.
 
-Completed facts:
-- supplier proxy host/login/password stay server-side and are loaded only from secret environment/config;
-- public API exposes only free location metadata;
-- session API returns short-lived location-bound Arvectum gateway credentials, not supplier credentials;
-- gateway is deployed as a launchd service on the Mac mini with secret env permissions and localhost-only origins;
-- public TLS ingress is active;
-- real RU upstream exits in RU and real US upstream exits in US;
-- gateway tests and security scans pass.
+Current facts:
+- installed-app exclusion selection is implemented and persisted;
+- Android VpnService applies selected app bypass via `addDisallowedApplication` and reconnects in a controlled way;
+- connected active-profile editing, app-list async loading/error handling and adaptive New/Edit actions are merged;
+- owner physically accepted the final 0.1.36 adaptive action rendering;
+- post-merge Android CI passed;
+- public Android release remains 0.1.19.
 
-Scale boundary:
-- current gateway is appropriate for controlled/friend testing;
-- it is **not** yet an anti-abuse system for large anonymous public rollout;
-- per-install quotas/rate limiting/abuse controls require a separately admitted future task.
-
-### Android free-location integration — DONE
-
-- Android fetches free locations/session credentials from the gateway;
-- only location selection is durable; short-lived gateway credentials are ephemeral;
-- manual Primary/saved profiles remain supported;
-- supplier secrets never enter the APK/runtime configuration;
-- expiry/reconnect logic refreshes the gateway session rather than relying on stale credentials.
-
-### Android 0.1.31 — MERGED FRIEND-TEST BASELINE / NOT PUBLIC RELEASE
-
-Current source identity:
-- versionName `0.1.31`;
-- versionCode `32`;
-- merged in PR #148 to current `main`.
-
-Evidence:
-- Android exact-head workflow: SUCCESS;
-- lint: 0 errors / 8 intentional warnings;
-- gateway tests: 13/13 PASS;
-- gateway/security/SBOM/dependency/provenance checks: SUCCESS;
-- RU→RU and US→US post-deploy checks: PASS;
-- US soak: 15/15 PASS;
-- exact-head APK SHA-256: `edf2026ec05405031924e2893efe2d422a7c3aeeeda89c22f3c50d871aa24b99`.
-
-Boundary: no public `android-v0.1.31` release tag exists. Friend-test/merge evidence does not equal public publication.
+Acceptance boundary:
+- do not manufacture a dedicated public-IP routing proof for application bypass if it has not been separately recorded;
+- current-main 0.1.36 acceptance does not itself publish an APK/tag.
 
 ### APL-MOB-004 — PLANNED / OWNER PRIORITY + PACKAGE-IDENTITY GATE
 
-This remains a separate monetization/distribution track. The free gateway does not authorize ad integration.
-
-- public ads-enabled channel: GitHub, GitVerse, Arvectum site and RuStore;
-- initial target: Yandex Mobile Ads / App Open with first-launch grace, frequency limiting, fail-open behavior and privacy/consent documentation;
-- private no-ads artifact from the same codebase, preferably via build flavor/configuration;
-- private artifact must stay outside the public GitHub release surface;
+This remains a separate monetization/distribution track:
+- public ads-enabled channel planned for GitHub/GitVerse/site/RuStore;
+- initial ad target Yandex Mobile Ads / App Open;
+- private no-ads artifact from same codebase via build configuration/flavor;
 - Owner must decide private package/update semantics and explicitly authorize provider/configuration work before implementation.
 
 ## P5 — IP / corporate rights boundary — DONE FOR CURRENT FILING EVIDENCE
@@ -175,44 +147,35 @@ Current action:
 
 Provider/certificate spend, key custody, production signing, approval/merge of the decision packet and release remain Owner-reserved.
 
-## P8 — per-application routing — CURRENT PREPARATION / OWNER DECISION
+## P8 — per-application routing / exclusions — IMPLEMENTED MOBILE CONTROL PLANE / WINDOWS OWNER GATE
 
-Current decision PR: `#144`. Stale predecessor PR #68 is superseded.
+Current Windows decision PR: `#144`. Stale predecessor #68 is superseded.
 
-PR #144 carries the Owner decision packet and recommends, without approving, an Arvectum-owned WFP ALE callout + privileged service + local proxy path. Its current exact-head repository checks are green.
+Completed:
+- deterministic cross-platform application-exclusion persistence/capability model;
+- Android live application bypass through VpnService;
+- installed-app selection UI and controlled reconnect path;
+- iOS capability truth: unmanaged consumer iOS does not pretend to support arbitrary native Per-App VPN selection;
+- iOS consumer workaround implemented with App Intents + Shortcuts Opened/Closed automations;
+- PR #144 reconciled to immutable `v0.2.16`/current-main, current application-exclusion work and APL-REL-016 dependency;
+- PR #144 exact-head checks are green.
 
-Current gate:
-1. reconcile #144 wording/assumptions from immutable `v0.2.12` to **v0.2.16/current-main** recovery semantics;
-2. preserve separate WFP ownership, foreign-resource non-ownership and the current APL-REL-016 signing dependency;
-3. Owner/Product Owner selects or rejects the production architecture;
-4. only after approval implement the privileged enforcement slice;
-5. require real Windows host recovery/security acceptance;
-6. release only as a new version.
-7. Owner priority recorded 2026-09-26: application exclusions/routing are the next functional slice; after it reaches feature-complete acceptance, hand off to P8A before any public release.
+Current Windows stop-gate:
+1. Owner/Product Owner explicitly selects or rejects the production architecture;
+2. current technical recommendation is Option A — Arvectum-owned WFP ALE callout + narrow privileged service + local proxy;
+3. no WFP filter/callout installation, privileged service mutation or production enforcement before that decision;
+4. after approval, require real Windows recovery/security acceptance and a new release.
 
-No architecture is approved merely because the packet/tests are green.
+Android evidence boundary: merged implementation/current UI acceptance does not substitute for a separately documented public-IP bypass proof.
 
-## P8A — APL-UI-001 cross-platform Adaptive UI — DONE / OWNER MERGE APPROVED
+## P8A — APL-UI-001 cross-platform Adaptive UI — DONE / MERGED
 
-Source design review: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
-
-Owner sequencing:
-1. work next on the per-application exclusions/routing capability;
-2. stabilize and accept its functional behavior first;
-3. before publishing a release that contains that new capability, unify the interface across release-target platforms.
-
-Acceptance direction:
-- use the mobile UI as the common Arvectum design-language seed;
-- do **not** ship the current phone/Catalyst geometry unchanged on desktop;
-- use one stateful Connect/Connecting/Disconnect primary action on every platform;
-- keep connection status and active profile in one close visual cluster;
-- establish the same top-level information model: Home, Profiles, Activity/Diagnostics, Settings;
-- move expert/maintenance actions (connection test, diagnostics, network repair, autostart) out of the primary Home hierarchy;
-- preserve touch-first navigation on Android/iOS and desktop-density/keyboard/pointer/native-menu behavior on Windows/Linux/macOS;
-- preserve platform routing/recovery/security semantics; UI parity must not weaken backend guarantees;
-- require physical visual/interaction acceptance on every platform targeted by the release.
-
-Implementation is complete on PR #193, including the macOS recovery-state Home CTA correction found during physical review. Focused desktop/UI regressions pass 53/53 and exact head 5370bb6 is green across all returned Android/iOS/Windows/Linux/macOS/security workflows. On 2026-09-27 Owner explicitly requested merge without waiting to reproduce the recovery state or for unavailable platform hosts. The remaining physical-acceptance gate is therefore waived for this PR merge only; unavailable/unperformed platform acceptance is not claimed as passed.
+- PR #193 merged the shared navy/mint design language, common IA and stateful connection action across UI families.
+- macOS recovery-state Home CTA was fixed.
+- focused desktop/UI regressions: 53/53 PASS;
+- exact-head cross-platform/security CI green;
+- Owner explicitly requested merge without waiting for unavailable/reproduction-only physical gates;
+- waived/unperformed acceptance is not claimed as performed.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
@@ -273,31 +236,97 @@ Under the official baseline rechecked 2026-09-17, the two-trusted-OS condition f
 
 ### APL-MOB-004 Android monetization/distribution — PLANNED / OWNER-GATED
 
-Free RU/US proxy functionality is implemented separately. Ads/private distribution still require explicit Owner priority and package/update-identity decision; no ad SDK/private-release infrastructure is authorized by the gateway work.
+Free RU/US and managed-node functionality are separate from advertising/private-distribution decisions. No ad SDK/private-release infrastructure is authorized merely by those tracks.
 
-### iOS 0.1.19 — SUBMITTED / WAITING FOR REVIEW
+### iOS App Store — 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / HUMAN RECORDING BLOCKER
 
-Merged implementation PR: `#135`. Canonical checkpoint: `.agent/checkpoints/APL-IOS-APPSTORE-PUBLISH-20260925.yaml`.
+Canonical active checkpoint: `.agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml`.
 
-Completed:
-- physical iPhone acceptance PASS;
-- LLC ARVECTUM organization signing/provisioning complete;
-- first-use VPN privacy disclosure + app/PacketTunnel privacy manifests;
-- public privacy/support pages;
-- final Apple Distribution IPA 0.1.19 build 21 validation PASS;
-- upload PASS and processing complete;
-- build 21 attached to App Store version 0.1.19;
-- required metadata, screenshots, age rating, App Privacy (Data Not Collected), pricing/territories and review information saved;
-- DSA trader status recorded Active;
-- version submitted to App Review;
-- temporary upload/publish API keys revoked and local temporary key material removed.
+History/current state:
+- earlier 0.1.19 new-app submission was rejected under Guideline 2.1 Information Needed;
+- Apple requested a physical-device screen recording and six information items;
+- current source/version is 0.1.36 build 37 with Adaptive UI and Shortcuts-based app routing;
+- PR #196 merged the current version; unsigned Release artifact CI is present on main;
+- exact current app was physically installed/launched on iPhone 13 / iOS 27;
+- first distribution attempt failed 90046 because the signature inherited unsupported hotspot-provider entitlement;
+- the same build 37 was re-signed with narrow required entitlements only;
+- clean build-37 upload completed without errors/warnings;
+- App Store Connect reports build 37 VALID / APP_STORE_ELIGIBLE, export compliance false for non-exempt encryption and version relationship set to 0.1.36.
 
-Current external state: **Waiting for Review / 1 Item Submitted**.
+Remaining HUMAN step:
+1. record current 0.1.36 flow on the physical iPhone from launch through selection/connect/traffic/disconnect;
+2. transfer MOV to Mac mini;
+3. extract current screenshots and replace old 0.1.19 screenshots;
+4. attach the MOV to App Review;
+5. reply to Apple’s six requested items;
+6. resubmit/update review and verify resulting state.
 
-Boundary:
-- do not claim the app is publicly live until Apple approves/releases it;
-- do not rebuild, re-upload, withdraw or resubmit while review is pending unless Apple returns a concrete issue or the Owner requests a change;
-- 0.1.19 contains no ads, analytics, Arvectum cloud backend or per-app routing.
+Do not merge/use stale PR #198 build-38 bump unless Apple reports a new binary issue; corrected build 37 is already valid.
+
+## P12 — APL-NODE-001 managed proxy infrastructure — IN PROGRESS / PR #195
+
+Owner direction 2026-09-27: prioritize reusable Arvectum-managed node capacity over one-for-one third-party proxy resale.
+
+Phase A implemented in PR #195:
+- provider-neutral Transport / ExitClass / ProductSpec / ManagedNode / ManagedAccess contracts;
+- capacity-aware deterministic node selection;
+- unique per-user credential issuance;
+- VLESS/REALITY client URI + Xray server config rendering;
+- REALITY private key stays server-side;
+- generated config uses current Xray terminology/schema;
+- focused managed-node + free-gateway suite 21/21 PASS; py_compile and diff checks PASS;
+- official Xray v26.9.9 binary/version/x25519 generation verified.
+
+Pending:
+1. exact `xray run -test` on generated config in an environment that permits it;
+2. Android managed VLESS/REALITY profile consumption without breaking manual proxy types;
+3. iOS managed profile transport integration;
+4. Owner provisions one EU test node;
+5. real-device E2E + sleep/wake/reconnect + CPU/throughput/session/traffic measurements;
+6. use measurements to set initial Shared/Private/Dedicated density/economics.
+
+Hard boundary: no automatic VPS/IP/provider purchase, production mutation, billing or public sale.
+
+## P13 — Arvectum Network commercial infrastructure — PLANNED / HUMAN GATES
+
+Detailed checklist: `ARVECTUM_NETWORK_ROADMAP.md`.
+
+Fixed decisions:
+- VPS-first MVP; third-party proxy supplier marketplace deferred;
+- Russian control plane and primary production customer DB in Russia;
+- self-host PostgreSQL on Moscow VPS for MVP; Managed PostgreSQL deferred;
+- Mac mini remains development/build/admin, not production customer database;
+- first foreign pilot node is Frankfurt;
+- scale to Netherlands/Kazakhstan/Finland/second provider only after Germany E2E/load evidence.
+
+Current factual state:
+- corporate Timeweb Cloud account is created;
+- Moscow control VPS and Frankfurt node are not yet treated as purchased/provisioned;
+- target Moscow MVP sizing: 2 vCPU / 4 GB / 50 GB;
+- Roskomnadzor operator notification/responsible-person/final hosting-location facts remain HUMAN/legal work.
+
+Sequence:
+1. provision/harden Moscow control plane and self-hosted PostgreSQL + encrypted backups/restore drill;
+2. reconcile privacy policy and complete required personal-data operator steps;
+3. deploy Frankfurt pilot and technical per-user credentials/telemetry;
+4. validate APL→control plane→Germany→Internet E2E, failure/recovery and load/capacity;
+5. only then add billing/commercial pilot;
+6. only after a working own network add supplier marketplace layers.
+
+## P14 — Rospatent program registration — PACKAGE PREPARED / HUMAN INPUT BLOCKED
+
+Tracking PR: `#181`. Filing object: exact `v0.2.16` / release commit `6799297bf1492d352ca9d78a0a49b2adf3345d2a`.
+
+Prepared:
+- current official Rospatent/FIPS requirements and 5000 RUB fee rechecked;
+- applicant public corporate data verified;
+- 6-page working DOCX prepared/rendered/visually checked;
+- unknown author/personal/right-chain/funding/release-country/signature fields intentionally blank and yellow.
+
+Next:
+- applicant fills yellow factual fields;
+- then prepare official application/author-consent forms and exact-v0.2.16 deposited source fragments;
+- final electronic signing/submission remains HUMAN.
 
 ## Maintenance / repository hygiene
 
@@ -306,8 +335,10 @@ Boundary:
 - PR #113 — redundant AppImage closeout branch overtaken by merged PR #112.
 - PR #117 — redundant Android 0.1.13 closeout overtaken by merged PR #118.
 - PR #120 — superseded continuous-failover development branch overtaken by merged PR #119.
-- PR #124 — stale APL-MOB-002 closeout branch; Android APL-MOB-003 is completed/published at 0.1.19 and current-main friend-test work is 0.1.31.
+- PR #124 — stale APL-MOB-002 closeout branch; public Android is 0.1.19 and current-main Android is 0.1.36.
 - PR #68 — superseded per-app routing decision preparation; current packet is PR #144.
+- PR #198 — superseded build-38 bump; corrected iOS 0.1.36 build 37 is already VALID / APP_STORE_ELIGIBLE.
+- PR #200 — superseded docs branch after its Arvectum Network roadmap is imported by the consolidated 2026-09-27 sync.
 - PRs #90/#91/#92 — superseded Windows rollback implementations; merged PR #93/#94 and public `v0.2.9` are authoritative.
 - PRs #70/#74/#82 — superseded RED OS preparation paths; merged PR #83 is authoritative.
 
@@ -315,21 +346,24 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 
 ## Current execution view
 
-- **DESKTOP STABLE:** v0.2.16 is public and immutable; exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`.
-- **DIRECT macOS:** ARM64 + Intel DMGs are Developer ID-signed, notarized/stapled, Gatekeeper-verified and publicly released.
-- **MAC APP STORE:** **0.2.17 build 1 submitted / Waiting for Review / PR #175**. Store validation/upload, privacy/screenshots, Help and physical tunnel acceptance are complete.
-- **ANDROID PUBLIC:** `android-v0.1.19`.
-- **ANDROID FRIEND-TEST:** 0.1.31 merged with live server-backed RU/US locations; no public 0.1.31 release.
-- **FREE GATEWAY:** live controlled-test infrastructure with supplier secrets server-side; anti-abuse/quota hardening remains before broad anonymous rollout.
+- **DESKTOP STABLE:** v0.2.16 is public and immutable.
+- **DIRECT macOS:** ARM64 + Intel Developer ID/notarized DMGs are public.
+- **MAC APP STORE:** 0.2.17 build 1 submitted / Waiting for Review; physical Help and Packet Tunnel E2E complete.
+- **ANDROID PUBLIC:** 0.1.19.
+- **ANDROID CURRENT MAIN:** 0.1.36/versionCode 37 physically accepted for current adaptive UI; application-exclusion implementation is merged; no public 0.1.36 release.
+- **iOS APP STORE:** 0.1.36 build 37 VALID / APP_STORE_ELIGIBLE; HUMAN blocker is one physical iOS 27 screen recording, then screenshots/review attachment/reply/resubmission.
+- **APL-UI-001:** DONE / merged #193.
+- **PER-APP WINDOWS:** PR #144 is already refreshed/green; now blocked only on explicit Owner architecture selection.
+- **APL-NODE-001:** IN PROGRESS / PR #195; Phase A green, managed Android/iOS transport next, paid EU node remains HUMAN gate.
+- **ARVECTUM NETWORK:** VPS-first roadmap admitted; Timeweb Cloud account exists; Moscow control + self-hosted PostgreSQL + Frankfurt pilot are next external infrastructure steps.
+- **FREE GATEWAY:** live controlled-test infrastructure; broad-public anti-abuse/quota hardening still pending.
 - **APL-MOB-004:** PLANNED / OWNER-GATED.
-- **iOS:** **0.1.19 build 21 submitted / Waiting for Review**; no repo action while Apple review is pending absent a concrete review issue.
-- **APL-IP-001:** DONE for the exact v0.2.9 filing-evidence object; do not silently re-scope registry evidence to v0.2.16.
-- **APL-REL-016:** READY FOR REVIEW REFRESH; latest substantive PR #161 must move to v0.2.16 / first eligible v0.2.17+.
-- **PER-APP ROUTING:** PR #144 remains the Owner decision packet; refresh baseline wording to v0.2.16/current-main, then stop at architecture decision.
-- **REGISTRY INFRA:** HUMAN BLOCKED on physical Russian sovereign lifecycle proof (#55).
-- **REGISTRY FILING:** HUMAN HOLD; private/accounting/support/signature/live-portal evidence remains.
+- **APL-REL-016:** REVIEW refresh remains available but lower priority than the current managed-node track.
+- **ROSPATENT:** working package prepared; waiting for applicant yellow-field facts; final filing HUMAN.
+- **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD.
+- **PROXY LAUNCHER WATCHDOG:** intentionally not part of this update; do not enable it.
 
-Work-conserving order: do not churn either submitted Apple binary while review is pending; independent safe REVIEW work may refresh APL-REL-016, followed by PR #144. Do not publish Android 0.1.31, broaden the gateway, start MOB-004, choose per-app architecture, or submit registry filings without the required Owner/HUMAN gate.
+Current work order: finish the active iOS review-fix when the physical recording is supplied; continue safe APL-NODE-001 repository work independently; provision real Network infrastructure only through explicit HUMAN/Owner actions; leave #144 at Owner decision gate.
 
 ## Completion discipline
 
