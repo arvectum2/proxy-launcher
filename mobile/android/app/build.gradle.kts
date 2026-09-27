@@ -175,6 +175,7 @@ tasks.named("preBuild").configure {
 
 dependencies {
     implementation("androidx.core:core:1.15.0")
+    implementation(files("libs/libXray.aar"))
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 }
