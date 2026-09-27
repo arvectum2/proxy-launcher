@@ -674,6 +674,37 @@ class MacOSBackendTests(unittest.TestCase):
             self.assertEqual(actual["socks"], expected["socks"])
             self.assertEqual(tuple(actual["bypass"]), expected["bypass"])
 
+    def test_disabled_owned_manual_endpoint_can_be_rolled_back(self):
+        original_web = dict(self.client.services["Wi-Fi"]["web"])
+        original_secure = dict(self.client.services["Wi-Fi"]["secure_web"])
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        # A macOS/network transition may drop only the Enabled bits while
+        # leaving APL's exact direct endpoint in place.
+        self.client.services["Wi-Fi"]["web"]["enabled"] = False
+        self.client.services["Wi-Fi"]["secure_web"]["enabled"] = False
+
+        self.assertTrue(self.backend.disable_preflight())
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+        self.assertEqual(self.client.services["Wi-Fi"]["web"], original_web)
+        self.assertEqual(
+            self.client.services["Wi-Fi"]["secure_web"], original_secure
+        )
+
+    def test_disabled_foreign_manual_endpoint_is_not_recoverable(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["web"].update(
+            enabled=False,
+            server="foreign.example",
+            port=9000,
+            authenticated=False,
+        )
+
+        self.assertFalse(self.backend.disable_preflight())
+        self.assertFalse(self.backend.disable())
+        self.assertTrue(self.backend.restore_pending())
+
     def test_non_reserved_loopback_proxy_is_not_recoverable(self):
         self.assertTrue(self.backend.enable(CONFIG))
         self.client.services["Wi-Fi"]["web"].update(
