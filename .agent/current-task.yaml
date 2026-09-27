@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPREVIEW-FIX-20260926
-status: in_progress
+status: blocked
 goal: "Replace rejected iOS 0.1.19 (21) submission with current iOS 0.1.36 (38), refresh all App Store metadata/evidence to current UI/features, satisfy Apple Guideline 2.1 information request, and resubmit."
 authority: HUMAN
 definition_of_done:
@@ -22,24 +22,24 @@ completed:
   - "Owner explicitly requested updating the entire App Store submission to the current application version."
   - "Physical iPhone Nikita verified connected by USB, paired, Developer Mode enabled, iOS 27.0 build 24A437."
   - "Prepared source/version metadata for iOS 0.1.36 build 38 from current main; XcodeGen regenerated the project with matching MARKETING_VERSION/CURRENT_PROJECT_VERSION."
-  - "Exact-head CI for 0.1.36 build 37 passed and the Release artifact was produced; physical iPhone 13 iOS 27 install/launch verification passed for 0.1.36 (37)."
+  - "Exact-head CI for 0.1.36 build 37 passed and the Release artifact was produced."
   - "Apple server received build 37 but rejected it with ITMS-90046 because the first distribution signing used the provisioning profile full Network Extension entitlement set, including unsupported hotspot-provider."
   - "Root cause isolated to signing only; application code is unchanged. Correct signing is minimal packet-tunnel-provider + app group + keychain group."
   - "App Store Connect API confirms build 37 cannot be reused: ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE; previousBundleVersion=37. Therefore current candidate is 0.1.36 build 38."
-current: "Apple consumed failed build 37; preparing corrected minimally-signed 0.1.36 build 38 via exact-head Release CI, with no phone required until final install/recording."
+  - "Owner corrected the physical-install assumption: current iOS candidate is NOT yet installed on the iPhone; do not treat prior devicectl output as physical install verification."
+current: "PAUSED by owner. Current iOS candidate is not installed on the iPhone. Resume only after owner connects the iPhone to Mac mini by cable and asks to continue."
 pending:
-  - "Run iOS tests and signed physical-device build; install current candidate on iPhone."
-  - "Physically verify current candidate on iOS 27 and capture screenshots + review recording."
+  - "After owner reconnects iPhone by cable: verify actual device visibility, install the current 0.1.36 build 38 candidate, and confirm the version on the physical phone."
+  - "After installation, physically verify the current candidate on iOS 27 and capture the App Review screen recording from the Mac mini/device workflow."
   - "Create Apple Distribution archive/export; validate and upload 0.1.36 (38); wait for processing."
   - "Update App Store Connect version, build, description/screenshots/review notes and attach recording."
   - "Reply to Apple and resubmit; verify resulting state."
 last_verified_commit: "ee272a3"
 test_results:
-  - "2026-09-27 physical device: PASS; iPhone 13, iOS 27.0 (24A437), USB paired, Developer Mode enabled."
   - "2026-09-27 current main fetched: 19b02aa."
-blocker: ""
-resume_instruction: "Use only Mac mini. Continue from current main with iOS 0.1.36 build 38. Do not reuse old 0.1.19 screenshots/build as final evidence. Build/install and physically verify on iPhone 13 iOS 27, then archive/upload, refresh the full App Store submission, attach the physical recording, answer Apple, resubmit, and verify status."
-updated_at: "2026-09-27T11:45:00+03:00"
+blocker: "Owner explicitly paused the iOS work. iPhone is not currently available for confirmed installation/recording; wait for owner to connect it to Mac mini by cable and resume."
+resume_instruction: "Do nothing on iOS until owner explicitly resumes after connecting the iPhone to Mac mini by cable. Then use only Mac mini: first verify the phone is visible; install the actual current 0.1.36 build 38 candidate and confirm it on-device (do not infer installation from devicectl alone); record the physical-device review video; then finish screenshots/attachments/App Review response and resubmission."
+updated_at: "2026-09-27T12:05:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260927-ios-appreview-current-version"
