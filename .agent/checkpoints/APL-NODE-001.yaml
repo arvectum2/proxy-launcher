@@ -1,0 +1,37 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-NODE-001
+status: in_progress
+goal: "Build a non-billing Arvectum-managed node MVP where unique users connect through an Arvectum VLESS/REALITY node, while preserving existing manual proxy profiles and keeping exit type independent from transport."
+authority: OWNER
+definition_of_done:
+  - "Provider-neutral node, exit-class, product and managed-profile contracts are implemented and covered by deterministic tests."
+  - "A secret-free local Xray/VLESS+REALITY provisioning/configuration prototype can create unique per-user credentials and render client profiles."
+  - "Existing manual HTTP/HTTPS/SOCKS profile behavior remains backward compatible."
+  - "Android can consume a managed VLESS/REALITY profile and pass focused transport/recovery tests."
+  - "iOS can consume a managed VLESS/REALITY profile and pass focused PacketTunnel/recovery tests."
+  - "One Owner-provisioned EU test node passes real-device Android and iOS E2E for connect/disconnect, HTTPS traffic, sleep/wake and reconnect."
+  - "Node CPU, throughput, concurrent sessions, traffic-per-user and observed exit IP are captured so initial density/unit economics are based on measurements."
+  - "Roadmap, queue and checkpoint record final evidence and the next Shared/Private/Dedicated scaling decision."
+completed:
+  - "Owner selected the managed-node economic model and priority order: own datacenter nodes; additional IPv4 private/dedicated; ISP upstream; residential/mobile upstream."
+  - "Repository main was verified at 19b02aa562506d148d5f1088c4ed1d8affdda25e after APL-UI-001 merge."
+current: "Canonicalize APL-NODE-001 and implement the provider-neutral model plus deterministic local VLESS/REALITY provisioning foundation."
+pending:
+  - "Add provider-neutral managed-node/product/profile contracts and tests."
+  - "Add Xray/VLESS+REALITY config/profile rendering prototype with no committed secrets."
+  - "Integrate managed profile consumption into Android while preserving manual proxy profiles."
+  - "Integrate managed profile consumption into iOS while preserving manual proxy profiles."
+  - "Owner provisions one EU test VPS when repository implementation reaches the real-node gate."
+  - "Run physical E2E and capture capacity/unit-economics measurements."
+last_verified_commit: 19b02aa562506d148d5f1088c4ed1d8affdda25e
+test_results:
+  - "Task initialization only; implementation tests not run yet."
+blocker: null
+resume_instruction: "Continue on branch agent/apl-managed-nodes-001-20260927. First implement provider-neutral managed-node/product/profile contracts and deterministic tests, then add secret-free Xray/VLESS+REALITY config/profile rendering. Do not purchase infrastructure or mutate production; stop only when an Owner-provisioned EU node is objectively required."
+updated_at: "2026-09-27T10:02:00+03:00"
+execution:
+  claimed_by: chatgpt
+  branch: agent/apl-managed-nodes-001-20260927
+  base_commit: 19b02aa562506d148d5f1088c4ed1d8affdda25e
+  manual_override: true
