@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-25T22:25:00+03:00"
+updated_at: "2026-09-27T10:02:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "b9d0d6bd89e334a1230a393991bc36e9db9a2244"
+  main_sha_verified: "19b02aa562506d148d5f1088c4ed1d8affdda25e"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -226,6 +226,20 @@ items:
     executor_scope: "Treat 0.1.31 as a merged friend-test baseline, not a public release. New tester regressions get a new incident task; do not republish or change release state by implication."
     merged_pr: 148
     evidence: "DONE technical baseline: Android 0.1.31/versionCode 32, lint PASS, gateway tests 13/13 PASS, exact-head Android/gateway/security workflows SUCCESS, RU/US checks PASS and US soak 15/15 PASS. No public android-v0.1.31 release tag exists."
+
+
+  - order: 118
+    task_id: APL-NODE-001
+    title: "Arvectum managed VLESS/REALITY node MVP"
+    status: in_progress
+    authority: OWNER
+    independent: true
+    auto_merge: false
+    source: "Owner directive 2026-09-27; docs/ROADMAP.md#8a-managed-proxy-infrastructure--apl-node-001--current--owner-priority"
+    dependencies: []
+    owner_gate: "Repository engineering/prototypes are authorized. Any paid VPS/additional-IP/provider commitment, production infrastructure mutation, public sale or release requires separate Owner/HUMAN action."
+    executor_scope: "Implement provider-neutral managed-node contracts and deterministic Xray/VLESS+REALITY prototype first; then add managed-profile consumption without breaking manual HTTP/HTTPS/SOCKS profiles. Stop at the real-node gate if no Owner-provisioned EU node exists."
+    evidence: "Owner selected the reusable managed-node economic model on 2026-09-27: own datacenter nodes first, extra IPv4 private/dedicated products second, ISP third, residential/mobile fourth."
 
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
