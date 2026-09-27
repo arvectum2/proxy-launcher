@@ -32,7 +32,7 @@ def issue_access(
         host=node.host,
         port=node.port,
         server_name=node.server_name,
-        reality_public_key=node.reality_public_key,
+        reality_password=node.reality_password,
         reality_short_id=node.reality_short_id,
         fingerprint=node.fingerprint,
         exit_id=exit_id,
