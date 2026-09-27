@@ -104,9 +104,9 @@ items:
     auto_merge: false
     source: "docs/ROADMAP.md#7a-cross-platform-adaptive-ui--apl-ui-001--planned--pre-release-gate; docs/LOCAL_EXECUTION_BACKLOG.md#p8a--apl-ui-001-cross-platform-adaptive-ui--planned--pre-release-gate; docs/APL_UI_UX_CROSSCHECK_20260926.md"
     dependencies: []
-    blocker: "Implementation and exact-head CI are complete. Remaining gate: physical visual/interaction acceptance on release-target platforms; unavailable Windows/Linux hosts must not be claimed accepted."
+    blocker: "Implementation/exact-head CI and the requested iPhone/macOS/Android distribution pass are complete. Remaining gate: owner physical visual/interaction acceptance; Windows/Linux hosts are still offline and Android still needs owner-side install/visual check."
     executor_scope: "When unblocked, implement the shared mobile-derived design language with adaptive desktop/mobile composition, native platform conventions and one stateful connection action. Preserve routing/recovery/security semantics. Do not churn already-published or Apple-review-waiting binaries merely for UI parity."
-    evidence: "PR #193 code head 71c8ecc implements the adaptive UI contract. Local UI regression tests pass 51/51; full local Mac Catalyst build succeeds; every returned exact-head PR check is green across Android, iOS, Windows, Linux, macOS packaging and security scans. Physical visual/interaction acceptance remains."
+    evidence: "PR #193 code head 71c8ecc implements the adaptive UI contract. Local UI regression tests pass 51/51; full local Mac Catalyst build succeeds; every returned exact-head PR check is green. Exact-head iOS CI artifact was development-signed, installed and launched on connected iPhone 13; exact-head macOS arm64 CI DMG app v0.2.16 is installed/running on MacBook Air; exact-head Android APK was verified and handed off (SHA-256 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f). Physical visual/interaction acceptance remains."
 
   - order: 70
     task_id: APL-REG-001C-REDOS

@@ -24,21 +24,27 @@ completed:
   - "Implementation commits 1621a62, 9b35b76 and abf87b7 are pushed to agent/apl-ui-001-adaptive-20260926; PR #193 is Ready for review."
   - "Exact-head CI for abf87b779448d72f2ae83cd0eac823a6c6dd9914 is green across all returned PR workflows, including Android, iOS unsigned device build, Windows, Linux, macOS packaging, core backend, SAST, dependency, secret and SBOM checks."
   - "Local Mac Catalyst build exposed an iPhone-only AppRoutingVPNControl reference in shared ContentView; fixed by giving Catalyst an honest informational Application Exclusions surface while preserving the existing iPhone Shortcuts behavior."
-  - "After the Catalyst guard fix: 50/50 desktop/UI regression tests PASS, Swift parse PASS, git diff --check PASS, and full Mac Catalyst xcodebuild PASS."
-current: "Implementation is verified and PR #193 is Ready for review. The only remaining Definition-of-Done gate is physical visual/interaction acceptance on release-target platforms."
+  - "After the Catalyst guard fix: 51/51 desktop/UI regression tests PASS, Swift parse PASS, git diff --check PASS, and full Mac Catalyst xcodebuild PASS."
+  - "Exact-head iOS CI artifact apl-ios-unsigned from workflow run 36267974554 / code head 71c8ecc was development-signed locally with the existing APL Development and APL Packet Tunnel Development profiles, installed on the connected iPhone 13, and launched successfully as ru.arvectum.proxylauncher.ios."
+  - "Exact-head macOS ARM64 CI DMG from workflow run 36267974647 / code head 71c8ecc was installed on MacBook Air at /Applications/Arvectum Proxy Launcher.app; bundle version 0.2.16 and a running app process were verified."
+  - "Exact-head Android CI artifact from workflow run 36267974508 / code head 71c8ecc was extracted for owner installation; APK SHA-256 is 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
+current: "Requested distribution pass is complete: latest verified UI build is installed/launched on the connected iPhone, exact-head macOS CI build is installed/running on MacBook Air, and exact-head Android APK is ready for owner installation. Physical visual/interaction acceptance is still pending."
 pending:
   - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
   - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
 last_verified_commit: 71c8eccc47ca3f444e3fd4b005cddf4f2e964aa9
 test_results:
-  - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 50/50 PASS via /usr/bin/python3 with Tk."
+  - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 51/51 PASS via /usr/bin/python3 with Tk."
   - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
   - "xcrun swiftc -parse mobile/ios/App/ContentView.swift: PASS."
   - "GitHub Actions exact code head 71c8ecc: every returned PR check completed SUCCESS, including Android build, both iOS unsigned-device-build jobs, Windows installer/signing, Linux packages/acceptance, macOS packaging and security checks."
   - "Mac Catalyst local build after platform guard fix: BUILD SUCCEEDED."
-blocker: "Physical visual/interaction acceptance is still required by APL-UI-001 before merge/release. Windows/Linux RDC hosts are currently offline; no acceptance is claimed for unavailable platforms."
-resume_instruction: "Do not reopen implementation unless physical acceptance finds a defect. Resume from PR #193 / code head 71c8ecc, perform and record available physical visual/interaction acceptance, then synchronize the checkpoint and merge only through the REVIEW/Owner gate."
-updated_at: "2026-09-26T23:09:00+03:00"
+  - "Physical distribution check: iPhone install and launch succeeded via devicectl for bundle ru.arvectum.proxylauncher.ios."
+  - "Physical distribution check: MacBook Air exact-head CI arm64 app v0.2.16 is installed in /Applications and running."
+  - "Android handoff artifact verified against CI SHA256SUMS: 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
+blocker: "Owner physical visual/interaction acceptance is still required. Windows/Linux RDC hosts remain offline, so those release-target platforms cannot yet be accepted; Android APK also requires owner-side installation/visual check."
+resume_instruction: "Resume from PR #193 / code head 71c8ecc. Record owner feedback from iPhone/macOS/Android physical checks and fix only observed defects; when Windows/Linux hosts return, complete their physical acceptance. Then synchronize roadmap/backlog/queue and merge only through the REVIEW/Owner gate."
+updated_at: "2026-09-27T08:19:27+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926
