@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher for iOS — personal build
 
-This target follows the accepted Android 0.1.19 scope and intentionally does not implement per-app routing.
+This target is the current iPhone implementation of APL. Consumer iOS cannot directly enumerate or enforce routing by other installed apps, so application-based automation uses user-configured iOS Shortcuts triggers instead of pretending to provide MDM-only Per-App VPN.
 
 ## Implemented scope
 
@@ -13,7 +13,9 @@ This target follows the accepted Android 0.1.19 scope and intentionally does not
 - Auto pool ordering, health checks, failover and optional return to the primary proxy;
 - exact host/IP site exclusions, up to 32 entries, using packet-tunnel excluded routes;
 - pool/tunnel journal;
-- version 0.1.19 / build 20.
+- adaptive cross-platform APL visual language for current iPhone layouts;
+- optional iOS Shortcuts intents for the selected-app opened/closed automation flow;
+- version 0.1.36 / build 37.
 
 HTTPS-proxy transport is wrapped by a local TLS relay before traffic is passed to tun2proxy, matching the Android architecture.
 
