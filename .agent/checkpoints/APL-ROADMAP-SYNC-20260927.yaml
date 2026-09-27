@@ -1,0 +1,49 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-SYNC-20260927
+status: in_progress
+goal: "Synchronize the canonical Proxy Launcher roadmap/backlog/execution queue to the verified 2026-09-27 state without changing product binaries, Apple review state, production infrastructure or Owner-gated architecture decisions."
+authority: REVIEW
+definition_of_done:
+  - "Keep stable desktop release v0.2.16 immutable and distinguish later main/mobile work from the published release."
+  - "Record Android 0.1.36/versionCode 37 as physically accepted current-main candidate, while public Android release remains 0.1.19."
+  - "Record Android application exclusions as implemented/merged while preserving the explicit remaining routing-proof and Windows architecture gates."
+  - "Record iOS consumer app-routing via Shortcuts as implemented and the current App Store review-fix path as 0.1.36 build 37."
+  - "Record Apple rejection of old iOS 0.1.19 and current 0.1.36 build 37 as VALID/APP_STORE_ELIGIBLE, blocked only on physical screen recording/screenshots/reviewer attachment/resubmission."
+  - "Record Mac App Store 0.2.17 build 1 as submitted / Waiting for Review."
+  - "Record APL-UI-001 as completed/merged by explicit Owner decision without claiming waived physical checks were performed."
+  - "Record PR #144 as already refreshed to v0.2.16/current-main and now waiting only for explicit Owner architecture selection."
+  - "Record APL-NODE-001 as IN PROGRESS / PR #195 with Phase A green and real EU infrastructure as a later HUMAN gate."
+  - "Add the Arvectum Network VPS-first roadmap: Russian control plane + self-hosted PostgreSQL + first Frankfurt pilot; third-party supplier marketplace remains deferred."
+  - "Record Rospatent program-registration package as prepared/blocked on applicant yellow fields and HUMAN final filing."
+  - "Synchronize .agent/execution-queue.yaml, docs/ROADMAP.md, docs/LOCAL_EXECUTION_BACKLOG.md and active iOS current-task snapshot."
+  - "Required exact-head CI passes before merge."
+completed:
+  - "Merged docs PR #199, adding APL-NODE-001 economic/product direction to canonical roadmap."
+  - "Verified current pre-sync main f554220680048ae28f3019b7225c6c56a9e64d8a."
+  - "Verified APL-NODE-001 PR #195 Phase A exact-head checks green; product code PR remains unmerged."
+  - "Verified PR #144 exact-head checks green and packet already reconciled to v0.2.16/current-main; final Windows enforcement architecture remains Owner-gated."
+  - "Verified current iOS branch checkpoint: 0.1.36 build 37 VALID/APP_STORE_ELIGIBLE, physically installed on iPhone 13/iOS 27; remaining blocker is one physical screen recording and subsequent screenshot/review attachment/resubmission."
+  - "Verified Mac App Store 0.2.17 build 1 is submitted and Waiting for Review."
+  - "Verified Android 0.1.36 physical acceptance and merged PR #190; public Android release remains 0.1.19."
+current: "Update canonical roadmap/backlog/queue, import Arvectum Network roadmap, and synchronize the active iOS checkpoint snapshot."
+pending:
+  - "Update .agent/execution-queue.yaml."
+  - "Update docs/ROADMAP.md."
+  - "Update docs/LOCAL_EXECUTION_BACKLOG.md."
+  - "Add ARVECTUM_NETWORK_ROADMAP.md."
+  - "Synchronize .agent/current-task.yaml to the latest active iOS branch checkpoint without changing task identity."
+  - "Open docs/metadata PR and verify exact-head CI."
+  - "Merge user-directed roadmap update and record completed checkpoint."
+last_verified_commit: "f554220680048ae28f3019b7225c6c56a9e64d8a"
+test_results:
+  - "Repository/PR/checkpoint/release inspection complete; no product bytes changed by this sync task."
+resume_instruction: "Continue metadata/docs-only roadmap synchronization on agent/roadmap-sync-20260927. Do not merge product PR #195, do not merge stale iOS build-bump PR #198, do not submit Apple review, do not purchase VPS/IP resources, and do not cross Windows per-app Owner architecture gate."
+updated_at: "2026-09-27T13:16:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "APL-ROADMAP-SYNC-20260927"
+  branch: "agent/roadmap-sync-20260927"
+  base_commit: "f554220680048ae28f3019b7225c6c56a9e64d8a"
+  lease_until: null
+  manual_override: true
