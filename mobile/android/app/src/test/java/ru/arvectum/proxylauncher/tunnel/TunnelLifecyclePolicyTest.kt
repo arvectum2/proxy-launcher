@@ -20,7 +20,6 @@ class TunnelLifecyclePolicyTest {
     fun intentionallyOffStatesNeverTouchVpnPreparationOrAutoStartOnResume() {
         listOf(
             ProxyVpnService.STATE_DISCONNECTED,
-            ProxyVpnService.STATE_DISCONNECTING,
             ProxyVpnService.STATE_ERROR,
         ).forEach { state ->
             assertEquals(false, TunnelResumePolicy.requiresVpnPermissionCheck(state))
@@ -32,7 +31,7 @@ class TunnelLifecyclePolicyTest {
     }
 
     @Test
-    fun intendedOnStatesAreTheOnlyStatesThatMayInspectVpnPermission() {
+    fun activeOrInterruptedDisconnectStatesMayInspectVpnPermission() {
         assertEquals(
             true,
             TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_CONNECTED),
@@ -40,6 +39,28 @@ class TunnelLifecyclePolicyTest {
         assertEquals(
             true,
             TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_CONNECTING),
+        )
+        assertEquals(
+            true,
+            TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_DISCONNECTING),
+        )
+    }
+
+    @Test
+    fun staleDisconnectingAlwaysResetsWithoutRestartingTunnel() {
+        assertEquals(
+            TunnelResumeAction.RESET_STALE_DISCONNECTING,
+            TunnelResumePolicy.decide(
+                ProxyVpnService.STATE_DISCONNECTING,
+                vpnPermissionGranted = true,
+            ),
+        )
+        assertEquals(
+            TunnelResumeAction.RESET_STALE_DISCONNECTING,
+            TunnelResumePolicy.decide(
+                ProxyVpnService.STATE_DISCONNECTING,
+                vpnPermissionGranted = false,
+            ),
         )
     }
 

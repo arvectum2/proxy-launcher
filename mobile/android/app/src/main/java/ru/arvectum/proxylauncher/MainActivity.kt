@@ -1737,6 +1737,15 @@ class MainActivity : Activity() {
                 poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
             }
+            TunnelResumeAction.RESET_STALE_DISCONNECTING -> {
+                val detail = if (permissionGranted) {
+                    "Соединение завершено"
+                } else {
+                    "APL отключён системой или другим VPN-приложением"
+                }
+                poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
+                renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
+            }
         }
     }
 
