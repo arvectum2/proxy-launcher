@@ -2,8 +2,8 @@ import json
 import os
 import tempfile
 import unittest
-from unittest import mock
 from types import SimpleNamespace
+from unittest import mock
 
 from macos_backend import (
     AutoProxyState,
