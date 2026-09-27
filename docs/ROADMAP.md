@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-26
+Updated: 2026-09-27
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -32,7 +32,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified before this roadmap update: e843ab54b596eea622494fb3283af881e71826a8.
+Current canonical main verified before this roadmap update: ee272a3b5755bc7d0eccfe1393c306c60be63d11.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
@@ -155,6 +155,36 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **CREDENTIAL HYGIENE DONE** — temporary App Store Connect API keys used for upload/submission were revoked and local temporary key files/helpers removed.
 - **BOUNDARY** — the app is **not yet claimed public/live**. Do not rebuild, re-upload, withdraw or resubmit unless Apple returns a concrete review issue or the Owner requests a change.
 
+## 8A. Managed proxy infrastructure — APL-NODE-001 — PLANNED / OWNER PRIORITY
+
+Owner direction recorded 2026-09-27: prioritize Arvectum-managed reusable node capacity over one-for-one resale of third-party proxies.
+
+- **CORE ECONOMIC MODEL** — rent an Arvectum-controlled foreign VPS/dedicated node once and sell managed access to the same node to multiple customers; the unit sold is access to Arvectum infrastructure, not one upstream proxy credential.
+- **PRIMARY TRANSPORT** — VLESS + REALITY. Trojan/TLS is the planned fallback; Shadowsocks 2022 is a compatibility/experimental option.
+- **TRANSPORT / EXIT SEPARATION** — transport is an implementation detail; exit identity is a product dimension.
+- **PLANNED PRODUCT CLASSES**:
+  - Shared Datacenter — many users share one Arvectum exit IPv4;
+  - Private Pool — a small bounded group shares an additional IPv4;
+  - Dedicated Datacenter — one user is pinned to one additional IPv4;
+  - Static ISP — later upstream-backed fixed ISP exit;
+  - Residential — later upstream-backed rotating/sticky residential pool;
+  - Mobile — later upstream-backed mobile exit.
+- **SUPPLIER HIDING** — for ISP/residential/mobile products, clients connect only to Arvectum; upstream credentials remain server-side and suppliers may be switched without changing the client profile.
+- **PRIORITY ORDER** — own datacenter nodes first; additional IPv4 Private/Dedicated second; Static ISP third; Residential/Mobile fourth.
+
+### APL-NODE-001 MVP
+
+1. Define provider-neutral node/product/profile contracts.
+2. Build deterministic Xray/VLESS+REALITY provisioning with unique credentials per user and no committed secrets.
+3. Add managed-profile support without removing existing manual HTTP/HTTPS/SOCKS profiles.
+4. Add Android and iOS managed VLESS/REALITY transport support.
+5. Test one EU node on real devices: connect/disconnect, HTTPS traffic, sleep/wake and reconnect.
+6. Measure CPU, throughput, concurrent sessions, traffic per user and exit IP before fixing commercial density/pricing.
+7. Use measured economics to choose initial Shared / Private / Dedicated tariffs and only then add ISP/residential/mobile supplier adapters and billing.
+
+- **INFRASTRUCTURE GATE** — purchasing VPS/additional IPv4/upstream commitments and mutating production infrastructure remain explicit Owner/HUMAN actions.
+- **NO BILLING YET** — checkout, public sale and marketplace billing are follow-on work after transport and capacity evidence.
+
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Exact release SHA `6799297bf1492d352ca9d78a0a49b2adf3345d2a`; macOS Apple Silicon/Intel assets are Developer ID-signed and Apple-notarized.
@@ -169,6 +199,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 10. **[iOS / APPLE] 0.1.19 build 21 — SUBMITTED / WAITING FOR REVIEW.** No repo action unless Apple returns a concrete issue or Owner requests a change.
 11. **[macOS App Store / APPLE] 0.2.17 build 1 — SUBMITTED / WAITING FOR REVIEW.** PR #175 carries the isolated Catalyst + PacketTunnel implementation; binary/store validation and physical Help/tunnel acceptance are complete.
 12. **[APL-UI-001] cross-platform Adaptive UI — DONE / OWNER MERGE APPROVED.** Shared mobile-derived product language and desktop-optimized composition are implemented in PR #193; remaining physical acceptance was explicitly waived by Owner for this merge without being claimed as performed.
+13. **[APL-NODE-001] managed proxy infrastructure — PLANNED / OWNER PRIORITY.** Build Arvectum-owned VLESS/REALITY nodes first, then additional IPv4 Private/Dedicated products, then Static ISP and Residential/Mobile upstreams.
 
 ### Repository-hygiene note
 
@@ -176,6 +207,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; PR
 
 ### Execution order
 
+- **Owner product priority:** APL-NODE-001 managed-node track is admitted to the roadmap. Engineering may proceed manually/on explicit request; the Proxy Launcher Watchdog is disabled by Owner instruction.
 - Do not reopen completed v0.2.16 direct macOS production-signing/notarization acceptance.
 - **External wait:** macOS App Store 0.2.17 build 1 is Waiting for Review; act only on a concrete Apple review result or Owner request.
 - **First independent safe REVIEW lane when not conflicting with active App Store work:** refresh APL-REL-016 PR #161 to immutable v0.2.16 / first eligible v0.2.17+, then stop at Owner review.
