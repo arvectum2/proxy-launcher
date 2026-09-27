@@ -2,8 +2,8 @@ import json
 import os
 import tempfile
 import unittest
-from unittest import mock
 from types import SimpleNamespace
+from unittest import mock
 
 from macos_backend import (
     AutoProxyState,
@@ -617,6 +617,74 @@ class MacOSBackendTests(unittest.TestCase):
             self.client.services["Wi-Fi"]["web"].get("enabled"),
             False,
         )
+        self.assertTrue(self.backend.restore_pending())
+
+    def test_refresh_fail_closed_partial_state_can_be_rolled_back(self):
+        original = {
+            name: {
+                "auto": state["auto"],
+                "web": dict(state["web"]),
+                "secure_web": dict(state["secure_web"]),
+                "socks": dict(state["socks"]),
+                "bypass": tuple(state["bypass"]),
+            }
+            for name, state in self.client.services.items()
+            if state["service_enabled"]
+        }
+        self.assertTrue(self.backend.enable(CONFIG))
+
+        original_set_web_proxy = self.client.set_web_proxy
+        seen_fail_closed = {"Wi-Fi": False}
+
+        def fail_restore(service, server, port, username="", password=""):
+            if service == "Wi-Fi" and server == "127.0.0.1":
+                seen_fail_closed["Wi-Fi"] = True
+            if (
+                service == "Wi-Fi"
+                and seen_fail_closed["Wi-Fi"]
+                and server == "upstream.example"
+            ):
+                raise NetworkSetupError("injected restore failure")
+            return original_set_web_proxy(
+                service, server, port, username, password
+            )
+
+        self.client.set_web_proxy = fail_restore
+        with mock.patch("macos_backend.time.sleep"):
+            self.assertFalse(self.backend.refresh(CONFIG))
+
+        self.assertEqual(
+            (
+                self.client.services["Wi-Fi"]["web"]["server"],
+                self.client.services["Wi-Fi"]["web"]["port"],
+            ),
+            ("127.0.0.1", 1),
+        )
+        self.client.set_web_proxy = original_set_web_proxy
+
+        self.assertTrue(self.backend.disable_preflight())
+        self.assertTrue(self.backend.disable())
+        self.assertFalse(self.backend.restore_pending())
+
+        for name, expected in original.items():
+            actual = self.client.services[name]
+            self.assertEqual(actual["auto"], expected["auto"])
+            self.assertEqual(actual["web"], expected["web"])
+            self.assertEqual(actual["secure_web"], expected["secure_web"])
+            self.assertEqual(actual["socks"], expected["socks"])
+            self.assertEqual(tuple(actual["bypass"]), expected["bypass"])
+
+    def test_non_reserved_loopback_proxy_is_not_recoverable(self):
+        self.assertTrue(self.backend.enable(CONFIG))
+        self.client.services["Wi-Fi"]["web"].update(
+            enabled=True,
+            server="127.0.0.1",
+            port=2,
+            authenticated=False,
+        )
+
+        self.assertFalse(self.backend.disable_preflight())
+        self.assertFalse(self.backend.disable())
         self.assertTrue(self.backend.restore_pending())
 
     def test_disable_restores_exact_snapshots_and_clears_ownership_evidence(self):
