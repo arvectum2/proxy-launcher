@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-UI-001
-status: in_progress
+status: blocked
 goal: "Unify APL presentation and interaction architecture across Android/iOS and Windows/Linux/macOS while preserving platform-native composition and backend semantics."
 authority: OWNER
 definition_of_done:
@@ -28,11 +28,14 @@ completed:
   - "Exact-head iOS CI artifact apl-ios-unsigned from workflow run 36267974554 / code head 71c8ecc was development-signed locally with the existing APL Development and APL Packet Tunnel Development profiles, installed on the connected iPhone 13, and launched successfully as ru.arvectum.proxylauncher.ios."
   - "Exact-head macOS ARM64 CI DMG from workflow run 36267974647 / code head 71c8ecc was installed on MacBook Air at /Applications/Arvectum Proxy Launcher.app; bundle version 0.2.16 and a running app process were verified."
   - "Exact-head Android CI artifact from workflow run 36267974508 / code head 71c8ecc was extracted for owner installation; APK SHA-256 is 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-current: "Physical macOS acceptance found a UX defect: recovery-required state blocks Home while the only restore action lives in Settings. Add an inline Home recovery CTA and verify it uses the existing rollback path without weakening recovery safety."
+  - "Home recovery CTA defect fixed: when recovery_required is active, the Home primary button is now «Восстановить сеть» and invokes the existing guarded rollback path; Settings retains the service restore action."
+  - "MacBook Air broken network state was repaired successfully through the existing --rollback path (network settings restored, status STOPPED)."
+  - "Exact-head macOS ARM64 CI package for 03cf5cc was installed on MacBook Air and launched."
+current: "macOS recovery UX defect is fixed and deployed to MacBook Air. Awaiting owner visual/interaction confirmation of the new Home recovery action; Windows/Linux physical acceptance remains unavailable while hosts are offline."
 pending:
   - "Perform and record physical visual/interaction acceptance on the release-target devices/hosts."
   - "When physical acceptance is complete, refresh exact head if needed, synchronize ROADMAP/backlog/queue, mark APL-UI-001 completed and merge only through the REVIEW/Owner gate."
-last_verified_commit: 71c8eccc47ca3f444e3fd4b005cddf4f2e964aa9
+last_verified_commit: 03cf5cc51ddb33397fb73831cea2af1f48c6eedb
 test_results:
   - "tests.test_adaptive_ui_contract + tests.test_macos_visual_contract + tests.test_proxy_gui: 51/51 PASS via /usr/bin/python3 with Tk."
   - "Focused static UI suite: 10/10 PASS; python py_compile and git diff --check PASS."
@@ -42,9 +45,11 @@ test_results:
   - "Physical distribution check: iPhone install and launch succeeded via devicectl for bundle ru.arvectum.proxylauncher.ios."
   - "Physical distribution check: MacBook Air exact-head CI arm64 app v0.2.16 is installed in /Applications and running."
   - "Android handoff artifact verified against CI SHA256SUMS: 2b755fd39188cb25ca2f173562796a0862345480a607c9b36f55cae200ef067f."
-blocker: "Active defect remediation. After the Home recovery CTA is fixed and deployed, owner physical verification is required; Windows/Linux hosts remain offline."
-resume_instruction: "Implement and test a Home recovery action for recovery_required state, preserve the Settings restore action and wake/destructive guards, deploy the fixed macOS build to MacBook Air, then record owner physical verification."
-updated_at: "2026-09-27T08:25:00+03:00"
+  - "Post-fix desktop/UI regression: tests.test_proxy_gui + tests.test_macos_visual_contract + tests.test_adaptive_ui_contract = 53/53 PASS; py_compile and git diff --check PASS."
+  - "Exact-head macOS ARM64 packaging job for 03cf5cc completed SUCCESS; generated DMG installed on MacBook Air."
+blocker: "Owner must visually confirm the fixed Home recovery action on MacBook Air. Windows/Linux RDC hosts remain offline; Android owner-side visual acceptance is also pending."
+resume_instruction: "Resume from PR #193 / code head 03cf5cc. Record owner confirmation of the macOS Home recovery CTA; if accepted, continue remaining Android/Windows/Linux physical acceptance. Fix only observed defects, then close through the REVIEW/Owner gate."
+updated_at: "2026-09-27T08:34:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-ui-001-adaptive-20260926
