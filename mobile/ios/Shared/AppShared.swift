@@ -8,10 +8,7 @@ enum AppShared {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
     }
     static let keychainService = "ru.arvectum.proxylauncher.ios.credentials"
-
-    static var keychainAccessGroup: String? {
-        Bundle.main.object(forInfoDictionaryKey: "APLKeychainAccessGroup") as? String
-    }
+    static let keychainAccessGroup = "VML75VY94V.ru.arvectum.proxylauncher.ios.shared"
 }
 
 struct TunnelConfiguration: Codable {
