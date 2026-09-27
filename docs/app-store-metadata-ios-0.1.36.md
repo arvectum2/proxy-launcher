@@ -7,7 +7,7 @@
 - Bundle ID: ru.arvectum.proxylauncher.ios
 - SKU: APL-IOS-001
 - Version: 0.1.36
-- Build: 37
+- Build: 38
 - Primary category: Utilities
 - Secondary category: Productivity
 - Price: Free
@@ -50,7 +50,7 @@ APL использует системный Network Extension iOS. Прилож�
 - Privacy Policy URL: https://arvectum2.github.io/proxy-launcher/privacy.html
 
 ## Review notes — public-safe template
-Arvectum Proxy Launcher 0.1.36 (37) is a local network utility for users who already have access to a proxy endpoint, including developers, testers, network administrators, and individual users. It does not operate, sell, or bundle VPN/proxy endpoints.
+Arvectum Proxy Launcher 0.1.36 (38) is a local network utility for users who already have access to a proxy endpoint, including developers, testers, network administrators, and individual users. It does not operate, sell, or bundle VPN/proxy endpoints.
 
 The app uses Apple's Network Extension / NETunnelProviderManager APIs to create a packet tunnel and route device traffic to the proxy selected by the user. Users may configure HTTP, HTTPS CONNECT, or SOCKS5 proxy profiles. The app supports automatic profile selection/failover, optional return to the primary profile, site exclusions, and optional iOS Shortcuts automations that switch APL when a user-selected application is opened or closed.
 
