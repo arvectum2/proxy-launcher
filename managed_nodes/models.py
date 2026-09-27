@@ -54,7 +54,7 @@ class ManagedNode:
     capacity_users: int
     active_users: int
     server_name: str
-    reality_public_key: str
+    reality_password: str
     reality_short_id: str
     fingerprint: str = "chrome"
     healthy: bool = True
@@ -75,7 +75,7 @@ class ManagedNode:
         if self.active_users < 0 or self.active_users > self.capacity_users:
             raise ValueError("active_users must be within node capacity")
         if self.transport is Transport.VLESS_REALITY:
-            if not self.server_name or not self.reality_public_key or not self.reality_short_id:
+            if not self.server_name or not self.reality_password or not self.reality_short_id:
                 raise ValueError("VLESS/REALITY node requires public REALITY parameters")
 
     @property
@@ -97,7 +97,7 @@ class ManagedAccess:
     host: str
     port: int
     server_name: str
-    reality_public_key: str
+    reality_password: str
     reality_short_id: str
     fingerprint: str = "chrome"
     exit_id: str | None = None
@@ -133,7 +133,7 @@ class ManagedAccess:
             "port": self.port,
             "credential_id": self.credential_id,
             "server_name": self.server_name,
-            "reality_public_key": self.reality_public_key,
+            "reality_password": self.reality_password,
             "reality_short_id": self.reality_short_id,
             "fingerprint": self.fingerprint,
             "exit_id": self.exit_id,
