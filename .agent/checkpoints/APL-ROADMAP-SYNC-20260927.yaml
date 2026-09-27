@@ -30,12 +30,13 @@ completed:
   - "Verified current iOS branch checkpoint: 0.1.36 build 37 VALID/APP_STORE_ELIGIBLE, physically installed on iPhone 13/iOS 27; remaining blocker is one physical screen recording and subsequent screenshot/review attachment/resubmission."
   - "Verified Mac App Store 0.2.17 build 1 is submitted and Waiting for Review."
   - "Verified Android 0.1.36 physical acceptance and merged PR #190; public Android release remains 0.1.19."
-current: "Canonical roadmap/backlog/queue and Arvectum Network checklist are updated; active iOS checkpoint snapshot is synchronized. Validate cross-file consistency, open PR and verify exact-head CI."
+current: "Cross-file consistency inspection passed. Open the consolidated docs/metadata PR and verify exact-head CI before merge."
 pending:
   - "Open docs/metadata PR and verify exact-head CI."
   - "Merge user-directed roadmap update and record completed checkpoint."
 last_verified_commit: "f554220680048ae28f3019b7225c6c56a9e64d8a"
 test_results:
+  - "Cross-file consistency PASS: Android 0.1.36, iOS 0.1.36 build 37, Mac App Store wait, PR #144 decision gate, APL-NODE-001 PR #195, Arvectum Network and Rospatent statuses align across queue/ROADMAP/backlog."
   - "Repository/PR/checkpoint/release inspection complete; no product bytes changed by this sync task."
 resume_instruction: "Continue metadata/docs-only roadmap synchronization on agent/roadmap-sync-20260927. Do not merge product PR #195, do not merge stale iOS build-bump PR #198, do not submit Apple review, do not purchase VPS/IP resources, and do not cross Windows per-app Owner architecture gate."
 updated_at: "2026-09-27T13:16:00+03:00"
