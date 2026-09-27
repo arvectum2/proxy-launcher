@@ -16,20 +16,28 @@ definition_of_done:
 completed:
   - "Owner selected the managed-node economic model and priority order: own datacenter nodes; additional IPv4 private/dedicated; ISP upstream; residential/mobile upstream."
   - "Repository main was verified at 19b02aa562506d148d5f1088c4ed1d8affdda25e after APL-UI-001 merge."
-current: "Canonicalize APL-NODE-001 and implement the provider-neutral model plus deterministic local VLESS/REALITY provisioning foundation."
+  - "Roadmap, local backlog, execution queue, architecture record and dedicated APL-NODE-001 checkpoint were created on agent/apl-managed-nodes-001-20260927."
+  - "Implemented provider-neutral Transport, ExitClass, ProductSpec, ManagedNode and ManagedAccess contracts."
+  - "Implemented deterministic capacity-aware node selection and unique per-user credential issuance."
+  - "Implemented VLESS/REALITY client URI and Xray server config rendering with server-only REALITY private key boundary."
+  - "Aligned REALITY rendering with current Xray terminology/schema: network=raw, target, client-side reality_password; old Xray aliases are not used by the generated server config."
+  - "Focused regression suite passed on Mac mini with Homebrew Python 3.14: 21 tests OK (tests.test_managed_nodes + tests.test_free_gateway); py_compile and git diff --check also passed."
+current: "Open/verify the Phase A pull request and then inspect the existing Android VpnService transport path to design the additive managed VLESS/REALITY integration without breaking manual proxy profiles."
 pending:
-  - "Add provider-neutral managed-node/product/profile contracts and tests."
-  - "Add Xray/VLESS+REALITY config/profile rendering prototype with no committed secrets."
+  - "Run exact Xray runtime config validation (xray run -test) in an execution environment that permits it; v26.9.9 binary/version was verified on Mac mini but the generated-config invocation was blocked by the tool execution environment."
   - "Integrate managed profile consumption into Android while preserving manual proxy profiles."
   - "Integrate managed profile consumption into iOS while preserving manual proxy profiles."
   - "Owner provisions one EU test VPS when repository implementation reaches the real-node gate."
   - "Run physical E2E and capture capacity/unit-economics measurements."
-last_verified_commit: 19b02aa562506d148d5f1088c4ed1d8affdda25e
+last_verified_commit: 91f4db9bf55e4ad31d307280e9cf9e3a97510549
 test_results:
-  - "Task initialization only; implementation tests not run yet."
+  - "Mac mini: /opt/homebrew/bin/python3.14 -m unittest tests.test_managed_nodes tests.test_free_gateway -> Ran 21 tests in 6.328s, OK."
+  - "Mac mini: /opt/homebrew/bin/python3.14 -m py_compile managed_nodes/*.py -> PASS."
+  - "Mac mini: git diff --check -> PASS."
+  - "Temporary official Xray-core v26.9.9 darwin/arm64 binary downloaded to /tmp and xray version/x25519 executed successfully; xray run -test against generated config was not executed because the tool environment blocked that invocation."
 blocker: null
-resume_instruction: "Continue on branch agent/apl-managed-nodes-001-20260927. First implement provider-neutral managed-node/product/profile contracts and deterministic tests, then add secret-free Xray/VLESS+REALITY config/profile rendering. Do not purchase infrastructure or mutate production; stop only when an Owner-provisioned EU node is objectively required."
-updated_at: "2026-09-27T10:02:00+03:00"
+resume_instruction: "Continue from branch agent/apl-managed-nodes-001-20260927. Open/verify the Phase A PR and CI, then inspect Android ProxyVpnService/tunnel dependencies and implement the smallest additive managed VLESS/REALITY transport seam while preserving AUTO/HTTP/HTTPS/SOCKS behavior. Do not purchase infrastructure or mutate production. Keep xray run -test as an explicit pending gate before the real-node phase."
+updated_at: "2026-09-27T10:42:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: agent/apl-managed-nodes-001-20260927
