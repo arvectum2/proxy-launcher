@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
+		09162FA5D9E6D9FF9ECDAC8E /* KeychainConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DB279EC4181984F58EE711 /* KeychainConfiguration.swift */; };
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
@@ -20,6 +21,7 @@
 		43AA5F682830BDF4F00C9DEB /* tun2proxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */; };
 		48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		545D8C10352F63450BCAFE42 /* KeychainConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14DB279EC4181984F58EE711 /* KeychainConfiguration.swift */; };
 		563BFF4157A93CA8DE832045 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 558988BBD730E81E42CF9FA6 /* PrivacyInfo.xcprivacy */; };
 		58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
@@ -64,6 +66,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		14DB279EC4181984F58EE711 /* KeychainConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainConfiguration.swift; sourceTree = "<group>"; };
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
 		2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
@@ -176,6 +179,7 @@
 			children = (
 				2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */,
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
+				14DB279EC4181984F58EE711 /* KeychainConfiguration.swift */,
 				B266784C8D84E9CAEB06097B /* ProxyModel.swift */,
 				96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */,
 			);
@@ -314,6 +318,7 @@
 				5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */,
 				9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */,
 				58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */,
+				545D8C10352F63450BCAFE42 /* KeychainConfiguration.swift in Sources */,
 				3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */,
 				61C2D8CDC6BFA305A20537E6 /* ProfileStore.swift in Sources */,
 				1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */,
@@ -334,6 +339,7 @@
 				1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */,
 				11464251962C1B3FA454A316 /* ContentView.swift in Sources */,
 				1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */,
+				09162FA5D9E6D9FF9ECDAC8E /* KeychainConfiguration.swift in Sources */,
 				6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */,
 				0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */,
 				24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */,
@@ -391,7 +397,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = VML75VY94V;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -515,7 +521,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 39;
+				CURRENT_PROJECT_VERSION = 40;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = VML75VY94V;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
