@@ -34,6 +34,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
     def test_arm64_only_store_lane_requires_macos_13_or_newer(self):
         self.assertIn("ARCHS: arm64", PROJECT)
         self.assertIn('MACCATALYST_DEPLOYMENT_TARGET: "13.0"', PROJECT)
+        self.assertIn('MACOSX_DEPLOYMENT_TARGET: "13.0"', PROJECT)
 
     def test_app_and_extension_are_sandboxed_network_extension_clients(self):
         app = plist(STORE / "Config" / "App.entitlements")
