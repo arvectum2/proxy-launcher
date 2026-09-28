@@ -36,9 +36,9 @@ test_results:
   - "APK signer/branding/version checks PASS for 0.1.37 / versionCode 38."
   - "APK SHA-256: 49a87d0a45ba7e087d070a1d243f1fe75ca70ccf1435b50c591258bcbe6e54e5."
   - "git diff --check PASS."
-blocker: "No Android device is currently visible through adb on Mac mini, so the exact reported cross-VPN lifecycle sequence cannot yet be physically accepted."
-resume_instruction: "When the Android phone is connected and adb-visible, install /Users/master/APL-Android-0.1.37-ci-36396370895/app-debug.apk, run APL connected -> Amnezia connect -> Amnezia disconnect -> reopen APL, verify controls are usable and APL reconnects normally. If PASS, merge draft PR #215, update checkpoint to completed, and record merge commit."
-updated_at: "2026-09-28T11:24:00+03:00"
+blocker: "Phone is physically visible over USB as realme SM8350-IDP (serial c8ea45db), but it exposes no ADB interface: adb devices is empty. USB debugging must be enabled/authorized on the phone before physical acceptance can continue."
+resume_instruction: "After the user enables USB debugging on the connected realme phone (and accepts the Mac RSA prompt if shown), verify it appears in /Users/master/Library/Android/sdk/platform-tools/adb devices -l. Then install /Users/master/APL-Android-0.1.37-ci-36396370895/app-debug.apk, run APL connected -> Amnezia connect -> Amnezia disconnect -> reopen APL, verify controls are usable and APL reconnects normally. If PASS, merge draft PR #215, update checkpoint to completed, and record merge commit."
+updated_at: "2026-09-28T11:31:00+03:00"
 execution:
   claimed_by: "chatgpt"
   execution_id: "interactive-20260928-android-vpn-takeover-freeze"
