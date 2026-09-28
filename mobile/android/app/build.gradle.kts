@@ -166,12 +166,14 @@ android {
     productFlavors {
         create("public") {
             dimension = "distribution"
+            buildConfigField("boolean", "ADS_ENABLED", "true")
             buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "false")
         }
         create("private") {
             dimension = "distribution"
             applicationIdSuffix = ".private"
             versionNameSuffix = "-private"
+            buildConfigField("boolean", "ADS_ENABLED", "false")
             buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "true")
         }
     }
