@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-PAUSE-NODE-NETWORK-20260929
-status: in_progress
+status: completed
 goal: "Remove APL-NODE-001 and Arvectum Network from the primary product roadmap and pause both tracks while preserving all work in backlog/history."
 authority: OWNER
 definition_of_done:
@@ -20,20 +20,21 @@ completed:
   - "Verified active current-task is unrelated Mac App Store rejection remediation; it will be preserved unchanged."
   - "Verified APL-NODE-001 is currently queue status in_progress and appears in primary ROADMAP + backlog P12."
   - "Verified Arvectum Network is currently queue status blocked and appears in primary ROADMAP + backlog P13."
-current: "Primary roadmap removal and backlog deferral are complete. Open metadata/docs PR, verify exact-head CI and merge."
-pending:
-  - "Open metadata/docs PR, verify exact-head CI and merge."
-  - "Mark this checkpoint completed."
-last_verified_commit: "a40fb1fa29c27487999a1bdda106f2bf22432417"
+current: "Completed: APL-NODE-001 and Arvectum Network are removed from the primary roadmap and preserved only as deferred backlog tracks."
+pending: []
+last_verified_commit: "f99124f6896e6c9c112b82b1ead957857692a46b"
+merged_commit: "f99124f6896e6c9c112b82b1ead957857692a46b"
 test_results:
+  - "PR #225 exact head 512b37f9564fcb0fd87b7d88c7c66731ca1a877a: all 13 returned checks SUCCESS, including required Windows build and full installer E2E/Gate R6."
+  - "PR #225 merged to main as f99124f6896e6c9c112b82b1ead957857692a46b."
   - "Cross-file inspection PASS: zero primary-roadmap occurrences of APL-NODE-001, Arvectum Network or managed-node; backlog retains both; queue has exactly two deferred statuses for these tracks."
   - "Pre-change repository inspection complete."
-resume_instruction: "Continue metadata/docs-only pause of APL-NODE-001 and Arvectum Network. Do not alter product code, PR #195 contents, ARVECTUM_NETWORK_ROADMAP.md contents, active Mac App Store current-task, production infrastructure, or watchdog state."
-updated_at: "2026-09-29T00:47:00+03:00"
+resume_instruction: "No continuation is required for this pause task. Keep APL-NODE-001 and Arvectum Network deferred/backlog-only until the Owner explicitly reactivates them. Preserve PR #195 and ARVECTUM_NETWORK_ROADMAP.md for future resumption. Follow the unrelated canonical .agent/current-task.yaml for active work."
+updated_at: "2026-09-29T00:56:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-PAUSE-NODE-NETWORK-20260929"
-  branch: "agent/pause-node-network-roadmap-20260929"
-  base_commit: "a40fb1fa29c27487999a1bdda106f2bf22432417"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
