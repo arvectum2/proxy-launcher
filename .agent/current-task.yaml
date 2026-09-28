@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-VPN-TAKEOVER-FREEZE-20260928
-status: in_progress
+status: completed
 goal: "Fix Android UI/service state getting stuck in Disconnecting after another VPN app takes over the system VPN slot, then APL is reopened."
 authority: HUMAN
 definition_of_done:
@@ -25,27 +25,30 @@ completed:
   - "Physical realme RMX3363 test reproduced APL -> Amnezia takeover on 0.1.37 candidate: Amnezia became Connected and APL persisted DISCONNECTED / 'VPN отключён Android', confirming the system-revoke ordering fix."
   - "The same physical test exposed a second path: background MainActivity retained stale CONNECTED; after Amnezia disconnected, reopening APL used that stale memory state and silently reconnected APL."
   - "Implemented persisted-state precedence on MainActivity resume and immediate persistence of user CONNECTING/DISCONNECTING intent; added regression coverage for stale rendered CONNECTED vs persisted DISCONNECTED."
-current: "Commit/push the second resume-state fix, verify exact-head CI, then reinstall the rebuilt 0.1.37 and rerun the physical takeover sequence."
-pending:
-  - "Make MainActivity onResume refresh from PoolUiStateStore before deciding whether to reconcile/start the VPN service."
-  - "Persist immediate user CONNECTING/DISCONNECTING intent before service commands so resume cannot roll back a just-started user action."
-  - "Add regression coverage for stale in-memory CONNECTED vs persisted DISCONNECTED after external VPN takeover."
-  - "Run exact-head CI, reinstall the rebuilt 0.1.37 artifact, rerun APL -> Amnezia -> disconnect -> reopen, then reconnect APL."
-  - "If physical acceptance passes, merge PR #215 and mark checkpoint completed."
-last_verified_commit: "9e7529d9beedd1f5ef099d9da00caedf38a9e105"
+  - "Second exact-head Mobile Android spike run 36400152409 PASS on ca1ff7c160bb4d232179e53f84519a9c45319a78; rebuilt APK SHA-256 4d65a55b103aa719f1306915137d6f59b52a2ca5a43563370d7143b52b904db9."
+  - "Physical acceptance PASS on realme RMX3363: APL CONNECTED -> Amnezia CONNECTED revoked APL to persisted DISCONNECTED -> Amnezia disconnected -> reopening APL showed enabled Подключиться and did not auto-connect -> APL reconnected normally."
+  - "Physical manual disconnect/reconnect regression PASS on rebuilt 0.1.37; after reconnect device curl to https://example.com returned HTTP/1.1 200 OK and tun0 was active."
+  - "PR #215 merged to main as 56ecf352e08ad36ffbf9fec71cdc41a7db57a797."
+  - "Exact-main CI on merge commit 56ecf352e08ad36ffbf9fec71cdc41a7db57a797: all 13 observed workflows completed successfully, including Mobile Android spike run 36400810967."
+current: "Completed: Android 0.1.37 external-VPN takeover recovery is merged, physically accepted, and exact-main CI is green."
+pending: []
+last_verified_commit: "56ecf352e08ad36ffbf9fec71cdc41a7db57a797"
 test_results:
-  - "Exact-head Mobile Android spike run 36396370895: PASS."
-  - "Android lint PASS."
-  - "Android unit tests + assembleDebug PASS."
-  - "APK signer/branding/version checks PASS for 0.1.37 / versionCode 38."
-  - "APK SHA-256: 49a87d0a45ba7e087d070a1d243f1fe75ca70ccf1435b50c591258bcbe6e54e5."
+  - "Exact-head Mobile Android spike run 36400152409: PASS."
+  - "Exact-main Mobile Android spike run 36400810967: PASS."
+  - "Exact-main observed workflow set: 13/13 completed success."
+  - "Physical realme RMX3363 APL -> Amnezia takeover -> Amnezia disconnect -> reopen APL: PASS; APL remained DISCONNECTED with controls enabled."
+  - "Physical APL reconnect after takeover: PASS; persisted CONNECTED through Основной / HTTP/HTTPS."
+  - "Physical explicit disconnect/reconnect regression: PASS."
+  - "Device network smoke after reconnect: HTTP/1.1 200 OK from https://example.com; tun0 active."
+  - "Rebuilt exact-head APK SHA-256: 4d65a55b103aa719f1306915137d6f59b52a2ca5a43563370d7143b52b904db9."
   - "git diff --check PASS."
-blocker: "Phone is physically visible over USB as realme SM8350-IDP (serial c8ea45db), but it exposes no ADB interface: adb devices is empty. USB debugging must be enabled/authorized on the phone before physical acceptance can continue."
-resume_instruction: "After the user enables USB debugging on the connected realme phone (and accepts the Mac RSA prompt if shown), verify it appears in /Users/master/Library/Android/sdk/platform-tools/adb devices -l. Then install /Users/master/APL-Android-0.1.37-ci-36396370895/app-debug.apk, run APL connected -> Amnezia connect -> Amnezia disconnect -> reopen APL, verify controls are usable and APL reconnects normally. If PASS, merge draft PR #215, update checkpoint to completed, and record merge commit."
-updated_at: "2026-09-28T11:31:00+03:00"
+blocker: ""
+resume_instruction: "Task completed. Keep Android 0.1.37 behavior as the regression baseline: external VPN takeover must leave APL DISCONNECTED, reopening APL must not auto-connect, and the user can explicitly reconnect. Any future regression should start a new task from main commit 56ecf352e08ad36ffbf9fec71cdc41a7db57a797 or later."
+updated_at: "2026-09-28T12:03:23+03:00"
 execution:
   claimed_by: "chatgpt"
-  execution_id: "interactive-20260928-android-vpn-takeover-freeze"
-  branch: "task/android-vpn-takeover-fix-20260928"
-  base_commit: "1a8274833c7614589c50b3fa273bbf50ec621b04"
+  execution_id: "interactive-20260928-android-vpn-takeover-closeout"
+  branch: "task/android-vpn-takeover-closeout-20260928"
+  base_commit: "56ecf352e08ad36ffbf9fec71cdc41a7db57a797"
   manual_override: true
