@@ -1,54 +1,35 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-VPN-TAKEOVER-FREEZE-20260928
-status: completed
-goal: "Fix Android UI/service state getting stuck in Disconnecting after another VPN app takes over the system VPN slot, then APL is reopened."
+task_id: APL-MOB-004-YANDEX-APP-OPEN-20260928
+status: in_progress
+goal: "Integrate Yandex Mobile Ads App Open into the public Android build for RuStore testing while keeping a private no-ads build from the same codebase."
 authority: HUMAN
 definition_of_done:
-  - "Reproduce the stale Disconnecting state from code/tests for the sequence APL connected -> another VPN (e.g. Amnezia) connects -> other VPN disconnects -> reopen APL."
-  - "APL observes external VPN revocation/service teardown and converges to Disconnected without waiting forever for an internal disconnect callback."
-  - "Controls become usable again after external takeover; no stale operation lock survives app/service restart."
-  - "Existing explicit connect/disconnect and sticky-restart protections remain intact."
-  - "Add regression tests for external VPN takeover/revoke and stale UI state recovery."
-  - "Run relevant Android/unit tests and exact-head CI if practical; record verified commit and results."
+  - "Public Android build includes Yandex Mobile Ads SDK and App Open placement R-M-20130429-1."
+  - "Private Android build contains no ad-serving path and uses a distinct application id so RuStore cannot replace it with the public build."
+  - "Ad loading/showing is fail-open: APL remains usable if SDK init, ad load, or ad show fails."
+  - "Frequency policy avoids every-launch advertising and preserves a first-launch grace period."
+  - "Android version is advanced for the RuStore test candidate."
+  - "Relevant unit/build checks and exact-head CI pass, or any objective blocker is recorded."
 completed:
-  - "Created isolated worktree from origin/main 1a8274833c7614589c50b3fa273bbf50ec621b04 on task/android-vpn-takeover-fix-20260928."
-  - "Root cause: onRevoke() used the normal stop path, persisted DISCONNECTING before native cleanup, and MainActivity intentionally ignored DISCONNECTING on resume; if Android/process teardown interrupted cleanup, the transient state became durable and disabled all controls."
-  - "System revoke path now publishes DISCONNECTED before native cleanup; manual disconnect still publishes DISCONNECTING until cleanup completes."
-  - "Foreground resume now treats persisted DISCONNECTING as stale and resets it to DISCONNECTED without probing VPN permission or auto-connecting."
-  - "Added pure lifecycle-policy tests for stale DISCONNECTING recovery and system-revoke terminal-state ordering."
-  - "Advanced Android candidate to 0.1.37 / versionCode 38 and updated CI badging assertions and README notes."
-  - "git diff --check PASS; source consistency grep PASS."
-  - "Committed implementation as 9e7529d9beedd1f5ef099d9da00caedf38a9e105 and opened draft PR #215."
-  - "Exact-head Mobile Android spike run 36396370895 PASS: lint, unit tests, assembleDebug, signer/branding/version assertions, SHA-256 and artifact upload all succeeded."
-  - "Downloaded exact CI artifact to /Users/master/APL-Android-0.1.37-ci-36396370895/app-debug.apk; SHA-256 49a87d0a45ba7e087d070a1d243f1fe75ca70ccf1435b50c591258bcbe6e54e5 matches CI manifest."
-  - "Physical realme RMX3363 test reproduced APL -> Amnezia takeover on 0.1.37 candidate: Amnezia became Connected and APL persisted DISCONNECTED / 'VPN отключён Android', confirming the system-revoke ordering fix."
-  - "The same physical test exposed a second path: background MainActivity retained stale CONNECTED; after Amnezia disconnected, reopening APL used that stale memory state and silently reconnected APL."
-  - "Implemented persisted-state precedence on MainActivity resume and immediate persistence of user CONNECTING/DISCONNECTING intent; added regression coverage for stale rendered CONNECTED vs persisted DISCONNECTED."
-  - "Second exact-head Mobile Android spike run 36400152409 PASS on ca1ff7c160bb4d232179e53f84519a9c45319a78; rebuilt APK SHA-256 4d65a55b103aa719f1306915137d6f59b52a2ca5a43563370d7143b52b904db9."
-  - "Physical acceptance PASS on realme RMX3363: APL CONNECTED -> Amnezia CONNECTED revoked APL to persisted DISCONNECTED -> Amnezia disconnected -> reopening APL showed enabled Подключиться and did not auto-connect -> APL reconnected normally."
-  - "Physical manual disconnect/reconnect regression PASS on rebuilt 0.1.37; after reconnect device curl to https://example.com returned HTTP/1.1 200 OK and tun0 was active."
-  - "PR #215 merged to main as 56ecf352e08ad36ffbf9fec71cdc41a7db57a797."
-  - "Exact-main CI on merge commit 56ecf352e08ad36ffbf9fec71cdc41a7db57a797: all 13 observed workflows completed successfully, including Mobile Android spike run 36400810967."
-current: "Completed: Android 0.1.37 external-VPN takeover recovery is merged, physically accepted, and exact-main CI is green."
-pending: []
-last_verified_commit: "56ecf352e08ad36ffbf9fec71cdc41a7db57a797"
-test_results:
-  - "Exact-head Mobile Android spike run 36400152409: PASS."
-  - "Exact-main Mobile Android spike run 36400810967: PASS."
-  - "Exact-main observed workflow set: 13/13 completed success."
-  - "Physical realme RMX3363 APL -> Amnezia takeover -> Amnezia disconnect -> reopen APL: PASS; APL remained DISCONNECTED with controls enabled."
-  - "Physical APL reconnect after takeover: PASS; persisted CONNECTED through Основной / HTTP/HTTPS."
-  - "Physical explicit disconnect/reconnect regression: PASS."
-  - "Device network smoke after reconnect: HTTP/1.1 200 OK from https://example.com; tun0 active."
-  - "Rebuilt exact-head APK SHA-256: 4d65a55b103aa719f1306915137d6f59b52a2ca5a43563370d7143b52b904db9."
-  - "git diff --check PASS."
+  - "Owner supplied production Yandex App Open placement ID R-M-20130429-1."
+  - "Verified current main is Android 0.1.37 baseline and previous VPN takeover task is completed."
+  - "Verified Yandex Mobile Ads SDK 8.5.0 is current and official SDK 8 App Open API uses YandexAds, AppOpenAdLoader, AdRequest, and AppOpenAdEventListener."
+current: "Implement distribution flavors and fail-open App Open controller on a branch from current main."
+pending:
+  - "Add public/private distribution flavors and version bump."
+  - "Add Yandex SDK only to public runtime path and implement App Open controller."
+  - "Add policy tests for grace period/frequency gating."
+  - "Run Android build/tests/CI and inspect merged manifest/dependencies for private no-ads isolation."
+  - "Prepare RuStore test artifact and record exact commit/hash."
+last_verified_commit: "894f35ff1067935e1fb79feafb48c472b231e901"
+test_results: []
 blocker: ""
-resume_instruction: "Task completed. Keep Android 0.1.37 behavior as the regression baseline: external VPN takeover must leave APL DISCONNECTED, reopening APL must not auto-connect, and the user can explicitly reconnect. Any future regression should start a new task from main commit 56ecf352e08ad36ffbf9fec71cdc41a7db57a797 or later."
-updated_at: "2026-09-28T12:03:23+03:00"
+resume_instruction: "Continue on task/android-yandex-appopen-20260928. Implement public/private Android distribution variants, production placement R-M-20130429-1 for public only, fail-open App Open ads with first-launch grace/frequency cap, then run exact-head Android CI and verify the private artifact has a distinct package and no ad path."
+updated_at: "2026-09-28T14:00:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "interactive-20260928-android-vpn-takeover-closeout"
-  branch: "task/android-vpn-takeover-closeout-20260928"
-  base_commit: "56ecf352e08ad36ffbf9fec71cdc41a7db57a797"
+  claimed_by: "ChatGPT"
+  execution_id: "interactive-20260928-yandex-appopen"
+  branch: "task/android-yandex-appopen-20260928"
+  base_commit: "894f35ff1067935e1fb79feafb48c472b231e901"
   manual_override: true
