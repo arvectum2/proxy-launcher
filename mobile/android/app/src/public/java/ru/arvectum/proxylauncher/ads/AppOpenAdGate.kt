@@ -21,8 +21,6 @@ object AppOpenAdGate {
     private const val PREFS_NAME = "apl_ads"
     private const val KEY_LAUNCH_COUNT = "launch_count"
     private const val KEY_LAST_AD_SHOWN_AT_MS = "last_ad_shown_at_ms"
-    private const val KEY_PRIVACY_CHOICE_RECORDED = "privacy_choice_recorded"
-    private const val KEY_PERSONALIZED_ADS_CONSENT = "personalized_ads_consent"
     private const val DEMO_AD_UNIT_ID = "demo-appopenad-yandex"
     private const val PRODUCTION_AD_UNIT_ID = "R-M-20130429-1"
     private const val LOAD_TIMEOUT_MS = 1_500L
@@ -76,11 +74,11 @@ object AppOpenAdGate {
 
         fun start() {
             val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            if (!prefs.getBoolean(KEY_PRIVACY_CHOICE_RECORDED, false)) {
+            if (!AdPrivacyState.isChoiceRecorded(activity)) {
                 showPrivacyChoice()
                 return
             }
-            startAds(prefs.getBoolean(KEY_PERSONALIZED_ADS_CONSENT, false))
+            startAds(AdPrivacyState.personalizedAdsConsent(activity))
         }
 
         private fun showPrivacyChoice() {
@@ -105,11 +103,7 @@ object AppOpenAdGate {
 
         private fun recordChoiceAndStart(consent: Boolean) {
             if (completed) return
-            activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putBoolean(KEY_PRIVACY_CHOICE_RECORDED, true)
-                .putBoolean(KEY_PERSONALIZED_ADS_CONSENT, consent)
-                .apply()
+            AdPrivacyState.save(activity, consent)
             startAds(consent)
         }
 
