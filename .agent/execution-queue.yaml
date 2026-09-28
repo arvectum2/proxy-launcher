@@ -1,6 +1,6 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-27T13:16:00+03:00"
+updated_at: "2026-09-29T00:47:00+03:00"
 owner_controls_order: true
 baseline:
   main_sha_verified: "3fd8bb0307360639fd75a824291a8212333ba5a2"
@@ -230,16 +230,17 @@ items:
   - order: 118
     task_id: APL-NODE-001
     title: "Arvectum managed VLESS/REALITY node MVP"
-    status: in_progress
+    status: deferred
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "Owner directive 2026-09-27; docs/ROADMAP.md#8a-managed-proxy-infrastructure; PR #195"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P12; PR #195"
     dependencies: []
-    owner_gate: "Repository engineering/prototypes may continue. Any paid VPS/additional-IP/provider commitment, production infrastructure mutation, billing/public sale or release requires separate Owner/HUMAN action."
-    executor_scope: "Continue provider-neutral managed-node contracts and deterministic Xray/VLESS+REALITY prototype; then add managed-profile consumption to Android/iOS without breaking manual HTTP/HTTPS/SOCKS profiles. Stop at the real-node gate if no Owner-provisioned EU node exists."
+    blocker: "Paused by Owner on 2026-09-29. Keep all existing Phase A work, tests and PR #195 intact, but do not continue implementation until the Owner explicitly reactivates this track."
+    owner_gate: "Explicit Owner reactivation is required before any further repository engineering, merge, real-node provisioning, provider commitment, production mutation, billing/public sale or release."
+    executor_scope: "Preserve state only. Do not advance PR #195, add Android/iOS managed transport, run real-node work, merge the product branch or spend/provision infrastructure while deferred."
     active_pr: 195
-    evidence: "PR #195 Phase A is green: provider-neutral Transport/ExitClass/ProductSpec/ManagedNode/ManagedAccess contracts, capacity-aware allocation, unique per-user credentials, VLESS/REALITY URI/server rendering and server-only REALITY secret boundary. Focused managed-node + free-gateway suite 21/21 PASS. Exact xray run -test remains pending before real-node phase."
+    evidence: "Backlog-only paused track. Existing Phase A remains preserved: provider-neutral contracts, capacity-aware allocation, unique per-user credentials, VLESS/REALITY URI/server rendering, server-only REALITY private-key boundary and focused 21/21 managed-node/free-gateway tests."
 
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
@@ -305,19 +306,19 @@ items:
   - order: 145
     task_id: ARVECTUM-NETWORK-MVP-20260927
     title: "Arvectum Network VPS-first control plane and Germany pilot"
-    status: blocked
-    authority: HUMAN
+    status: deferred
+    authority: OWNER
     independent: true
     auto_merge: false
-    source: "ARVECTUM_NETWORK_ROADMAP.md; Owner product decisions 2026-09-27"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P13; ARVECTUM_NETWORK_ROADMAP.md"
     dependencies:
       - APL-NODE-001
-    blocker: "Corporate Timeweb Cloud account exists, but actual Moscow/Frankfurt VPS purchase/provisioning, production personal-data placement and Roskomnadzor notification are external HUMAN actions."
-    owner_gate: "Provision apl-control-ru-01 and first Frankfurt pilot only when ready; confirm production hosting facts and legal/personal-data inputs. No automatic purchase or production mutation."
-    executor_scope: "Maintain architecture, hardening, self-hosted PostgreSQL/control-plane deployment plan, tests and runbooks. Do not purchase servers, submit Roskomnadzor notification, accept payment commitments or mutate production without explicit authority."
-    evidence: "Fixed MVP decisions: Russian control plane + primary customer DB in Russia; self-host PostgreSQL on Moscow VPS; Managed PostgreSQL deferred; Mac mini is development/admin rather than production customer DB; first foreign exit pilot is Frankfurt; third-party supplier marketplace deferred until own network works."
+    blocker: "Paused by Owner on 2026-09-29. Preserve the architecture/checklist and existing Timeweb Cloud account facts, but do not continue infrastructure/legal/commercial execution until explicitly reactivated."
+    owner_gate: "Explicit Owner reactivation is required before further planning execution, VPS purchases/provisioning, production personal-data placement, Roskomnadzor submission, billing or rollout."
+    executor_scope: "Backlog preservation only. Do not purchase/provision Moscow or Frankfurt infrastructure, deploy production PostgreSQL/control plane, activate billing, submit legal filings or advance supplier-marketplace work."
+    evidence: "Backlog-only paused track. Existing detailed plan remains in ARVECTUM_NETWORK_ROADMAP.md: Russian control plane, self-hosted PostgreSQL MVP, Frankfurt first pilot, later E2E/load/security and billing gates."
 
-repository_hygiene:repository_hygiene:
+repository_hygiene:repository_hygiene:repository_hygiene:
   superseded_open_prs:
     - 81
     - 103
