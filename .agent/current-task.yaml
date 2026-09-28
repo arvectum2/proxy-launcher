@@ -9,16 +9,19 @@ definition_of_done:
   - "Signing/provisioning is valid for that specific device."
   - "APL installs successfully on the wife's iPhone."
   - "Installed version/build and successful launch are verified on-device."
-completed: []
-current: "Identify the newly connected iPhone and verify current repository/build/signing state."
+completed:
+  - "Identified wife device: iPhone (Анастасия), iPhone 15 Pro Max (iPhone16,2), iOS 26.6.2, hardware UDID 00008130-001159E21AFA001C, wired/paired/unlocked."
+  - "Current iOS main remains 0.1.36 build 40."
+  - "Developer Mode is disabled on wife device."
+  - "Existing APL Development and Packet Tunnel Development profiles include only iPhone Nikita; wife UDID is absent."
+  - "Apple Developer resource mapping verified: app bundleId resource X64C5DTUBV, extension bundleId resource YV64M74949, development certificate XZJ6L4J3WW."
+
+current: "Register wife device in Apple Developer, create device-specific development profiles, sign build 40, then attempt install."
 pending:
-  - "Identify wife's iPhone and hardware UDID."
-  - "Verify current iOS version/build on main."
-  - "Check whether current development provisioning profiles include the device."
   - "If required, refresh provisioning/signing for the new device."
   - "Install APL and verify version/build and launch."
 last_verified_commit: ""
 test_results: []
 blocker: ""
 resume_instruction: "Use only Mac mini. Read this checkpoint, identify the wife's connected physical iPhone, then continue from the first unfinished step without repeating verified work."
-updated_at: "2026-09-28T12:05:00+03:00"
+updated_at: "2026-09-28T12:16:00+03:00"
