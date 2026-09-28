@@ -1,36 +1,39 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-RUSTORE-PUBLISH-20260928
+task_id: APL-MAC-APPSTORE-REJECTION-20260928
 status: in_progress
-goal: "Produce and submit the final public RuStore Android build combining Yandex App Open ads with user-supplied proxy profiles only; no friend/free gateway; preserve site and application exclusions and accepted Android fixes."
+goal: "Diagnose and remediate the 2026-09-28 Mac App Store rejection under Guidelines 2.1.0 App Completeness and 2.4.5 Hardware Compatibility, produce a review-ready corrected build/evidence packet, and preserve the parallel RuStore task checkpoint."
+authority: OWNER
 definition_of_done:
-  - "Public build contains Yandex Mobile Ads/App Open integration with RuStore block R-M-20130429-1 and private flavor remains ad-free."
-  - "Remove friend/free proxy UX, gateway client, session refresh, recovery behavior, and obsolete persisted free selection."
-  - "Preserve manual user profiles, Auto across user profiles, site exclusions, application exclusions, and accepted VPN/UI fixes."
-  - "Build/test and smoke-verify the combined Android release candidate."
-  - "Produce and cryptographically verify the production-signed RuStore artifact."
-  - "Merge the combined source to main with green exact-head CI."
-  - "Upload metadata/artifact to RuStore, submit for moderation, and verify submitted status."
+  - "Verify the exact rejected App Store Connect version/build/submission state and preserve available review evidence."
+  - "Audit the Mac App Store target against every relevant Guideline 2.4.5 requirement and identify concrete binary/UX/packaging risks."
+  - "Reproduce the likely reviewer-visible failure on a real Mac where possible without relying on undocumented behavior."
+  - "Implement the smallest compliant fix(es) on the Mac App Store lane without regressing the direct macOS distribution lane."
+  - "Run focused contract/unit tests plus a signed local Mac App Store build or equivalent Xcode validation."
+  - "Record physical/runtime evidence for the corrected reviewer flow when feasible."
+  - "Prepare App Review notes/reply that directly explain the 2.1/2.4.5 remediation."
+  - "Do not resubmit until the corrected build and reviewer evidence have been verified."
 completed:
-  - "Committed no-free layer as a36bdd2: removed FreeGatewayClient, FreeTunnelRecoveryPolicy and all friend/free session/recovery UX while preserving user profiles."
-  - "No-free pre-merge gate PASS: lintDebug, testDebugUnitTest, assembleDebug."
-  - "Merged current main ee361033 (privacy + Yandex App Open ads) into the RuStore branch as 4c03222, resolving CI/checkpoint conflicts in favor of both ads and no-free guards."
-  - "Combined static audit PASS: no friend/free runtime references; site exclusions and application exclusions remain enforced."
-  - "Combined full Android gate PASS: lintPublicDebug, lintPrivateDebug, testPublicDebugUnitTest, testPrivateDebugUnitTest, assemblePublicDebug, assemblePrivateDebug; 106 tasks."
-  - "Combined package identity PASS: public ru.arvectum.proxylauncher 0.1.38/39; private ru.arvectum.proxylauncher.private 0.1.38-private/39."
-  - "Located existing production signing identity /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks; signer SHA-256 95:98:D6:B4:5F:EE:B6:44:AF:1B:AB:D8:FA:88:83:57:0F:10:DA:40:1D:A6:44:BD:48:E6:D0:B8:14:2E:C3:A4."
-current: "Run emulator clean-install smoke while pushing the combined branch for exact-head CI; then merge and build/sign the final public release artifact from canonical main."
+  - "Verified App Store Connect app 6816223569, macOS 0.2.17 build 1, version state REJECTED and submission d07793b2-aaf8-405d-bbca-7d56ba0e3d47 state UNRESOLVED_ISSUES."
+  - "Verified build 1 remains VALID in App Store Connect and the prior 2026-09-27 review-information packet/video are still attached in App Review notes."
+  - "Confirmed the public App Store Connect API does not expose reviewer message text; connected Gmail contains no Apple review email with the detailed narrative."
+  - "Re-enabled the single existing hourly Proxy Launcher Watchdog; no duplicate task was created."
+  - "Preserved the active parallel RuStore task in .agent/checkpoints/APL-RUSTORE-PUBLISH-20260928.yaml."
+current: "Audit current main Mac App Store source and submitted build behavior against Guideline 2.4.5; reproduce reviewer-visible incompatibility and implement the smallest compliant fix."
 pending:
-  - "Complete emulator smoke of combined public build and record evidence."
-  - "Push branch, open PR, verify exact-head CI, merge to main."
-  - "Build unsigned public release from merged main, zipalign/sign with existing production key, verify APK/signature/version/hash."
-  - "Drive authorized Safari RuStore upload/metadata/submission and verify moderation status."
-last_verified_commit: "4c03222"
+  - "Audit Mac App Store source, entitlements, Info.plist, lifecycle, updater/startup/install/root behavior, bundle contents and Network Extension persistence."
+  - "Inspect PR #175 merge/current-main drift and build 1 provenance."
+  - "Reproduce relevant behavior on Mac mini/MacBook."
+  - "Implement fixes and tests."
+  - "Build/sign/validate corrected candidate and capture evidence."
+  - "Update review notes/reply and resubmit only after verification."
+last_verified_commit: "408dba3e543b57a240c396d533abe30e01f041b6"
 test_results:
-  - "PASS: no-free pre-merge lintDebug/testDebugUnitTest/assembleDebug."
-  - "PASS: combined lintPublicDebug/lintPrivateDebug/testPublicDebugUnitTest/testPrivateDebugUnitTest/assemblePublicDebug/assemblePrivateDebug."
-  - "PASS: public debug SHA-256 68f57cb9e0318f986e58e3121adec3b89a29bcbebebc3a04618f4fb42fcc15c2."
-  - "PASS: private debug SHA-256 003a168847a9cbc8f4c5591d25747a03dfa4fb17a9203bf3d51f8a4ed0f6fe4a."
-blocker: null
-resume_instruction: "Resume in /Users/master/Documents/proxy-launcher-rustore-public. Finish emulator smoke, push/open PR for current combined branch, wait for exact-head Android CI, merge, then build and production-sign the public release APK and submit it through the authorized RuStore Safari session."
-updated_at: "2026-09-28T14:55:00+03:00"
+  - "No new binary tests run yet for this rejection task."
+blocker: "Exact free-form reviewer message text is not exposed by the public App Store Connect API and Safari automation is currently blocked by macOS Apple Events permission; proceed by auditing all 2.4.5 requirements and available local evidence."
+resume_instruction: "Continue on branch fix/macos-appstore-review-20260928. Audit the current Mac App Store lane against all Guideline 2.4.5 subclauses, inspect submitted build 1 provenance/runtime, reproduce the likely reviewer-visible issue on a real Mac, implement the smallest compliant fix, run focused tests and signed build validation, then update this checkpoint. Do not resubmit build 1."
+updated_at: "2026-09-28T15:45:00+03:00"
+execution:
+  claimed_by: chatgpt
+  branch: fix/macos-appstore-review-20260928
+  parallel_task_preserved: APL-RUSTORE-PUBLISH-20260928
