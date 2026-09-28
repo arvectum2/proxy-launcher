@@ -11,7 +11,7 @@ KEY_DIR="${ASC_KEY_DIR:-$HOME/.appstoreconnect/private_keys}"
 KEY_FILE="$KEY_DIR/AuthKey_${ASC_KEY_ID}.p8"
 [[ -r "$KEY_FILE" ]] || { echo "Missing private key" >&2; exit 2; }
 
-XCODE="${ASC_XCODE:-/Applications/Xcode-26.6.0.app}"
+XCODE="${ASC_XCODE:-/Applications/Xcode-27.0.0.app}"
 ALTOOL="$XCODE/Contents/SharedFrameworks/ContentDelivery.framework/Versions/A/Resources/altool"
 [[ -x "$ALTOOL" ]] || { echo "altool unavailable" >&2; exit 2; }
 export API_PRIVATE_KEYS_DIR="$KEY_DIR"

@@ -9,6 +9,10 @@ FETCH = (STORE / "Tools" / "fetch_tun2proxy.py").read_text(encoding="utf-8")
 APP_SHARED = (STORE / "Shared" / "AppShared.swift").read_text(encoding="utf-8")
 APP_ENTRY = (STORE / "App" / "ArvectumProxyLauncherMacApp.swift").read_text(encoding="utf-8")
 HELP = (STORE / "App" / "HelpView.swift").read_text(encoding="utf-8")
+VPN = (STORE / "App" / "VPNController.swift").read_text(encoding="utf-8")
+EXPORT = (STORE / "Tools" / "export_appstore.sh").read_text(encoding="utf-8")
+PROVISIONING = (STORE / "Tools" / "appstore_provisioning.sh").read_text(encoding="utf-8")
+ROTATE = (STORE / "Tools" / "rotate_installer_certificate.sh").read_text(encoding="utf-8")
 
 
 def plist(path):
@@ -25,7 +29,13 @@ class MacOSAppStoreContractTests(unittest.TestCase):
     def test_catalyst_is_explicit_and_does_not_derive_bundle_identifier(self):
         self.assertIn("SUPPORTS_MACCATALYST: YES", PROJECT)
         self.assertIn("DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO", PROJECT)
-        self.assertIn('MACCATALYST_DEPLOYMENT_TARGET: "12.0"', PROJECT)
+        self.assertIn('MACCATALYST_DEPLOYMENT_TARGET: "16.0"', PROJECT)
+
+    def test_arm64_only_store_lane_requires_macos_13_or_newer(self):
+        self.assertIn("ARCHS: arm64", PROJECT)
+        self.assertIn('iOS: "16.0"', PROJECT)
+        self.assertIn('MACCATALYST_DEPLOYMENT_TARGET: "16.0"', PROJECT)
+        self.assertNotIn('MACOSX_DEPLOYMENT_TARGET:', PROJECT)
 
     def test_app_and_extension_are_sandboxed_network_extension_clients(self):
         app = plist(STORE / "Config" / "App.entitlements")
@@ -75,11 +85,44 @@ class MacOSAppStoreContractTests(unittest.TestCase):
             "© Arvectum LLC",
         ):
             self.assertIn(phrase, HELP)
-        self.assertIn("https://github.com/arvectum2/proxy-launcher", HELP)
-        self.assertIn("https://github.com/arvectum2/proxy-launcher/releases/latest", HELP)
+        self.assertNotIn("/releases", HELP)
+        self.assertNotIn("Release Notes", HELP)
         self.assertIn("https://github.com/arvectum2/proxy-launcher/issues/new", HELP)
         self.assertIn("не изменяет системный прокси через networksetup", HELP)
         self.assertIn("Встроенного self-updater, обходящего App Store, в этой сборке нет.", HELP)
+
+    def test_passive_prepare_does_not_create_or_enable_vpn_configuration(self):
+        prepare = VPN.split("func prepare() async {", 1)[1].split("func connect() async throws {", 1)[0]
+        connect = VPN.split("func connect() async throws {", 1)[1].split("func disconnect()", 1)[0]
+        self.assertIn("loadExistingManager()", prepare)
+        self.assertNotIn("loadOrCreateManager", prepare)
+        self.assertIn("loadOrCreateManager()", connect)
+        self.assertIn("manager.isEnabled = true", VPN)
+
+    def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
+        self.assertIn('CURRENT_PROJECT_VERSION: "3"', PROJECT)
+
+    def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
+        self.assertIn("appstore-installer.env", EXPORT)
+        self.assertIn("ASC_INSTALLER_CERT_SHA1", EXPORT)
+        self.assertIn("ASC_INSTALLER_KEYCHAIN", EXPORT)
+        self.assertIn("ASC_INSTALLER_KEYCHAIN_PASS_FILE", EXPORT)
+        self.assertIn("security unlock-keychain", EXPORT)
+        self.assertIn("productbuild", EXPORT)
+        self.assertIn("--component", EXPORT)
+        self.assertIn("--keychain", EXPORT)
+        self.assertIn("codesign --verify --deep --strict", EXPORT)
+        self.assertIn("pkgutil --check-signature", EXPORT)
+        self.assertNotIn("-allowProvisioningUpdates", EXPORT)
+        self.assertNotIn("-authenticationKeyPath", EXPORT)
+        self.assertNotIn("xcodebuild -exportArchive", EXPORT)
+
+    def test_installer_rotation_exports_legacy_pkcs12_for_macos_security_import(self):
+        self.assertIn("openssl pkcs12 -export -legacy", ROTATE)
+
+    def test_store_tooling_prefers_current_xcode_27(self):
+        self.assertIn("/Applications/Xcode-27.0.0.app", PROVISIONING)
+        self.assertIn('Path("/Applications/Xcode-27.0.0.app/Contents/Developer")', FETCH)
 
     def test_store_lane_is_arm64_only(self):
         self.assertIn("ARCHS: arm64", PROJECT)

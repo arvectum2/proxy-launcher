@@ -17,6 +17,7 @@
 		4D5F231FB56873A35C0CE967 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820DB97A426DE7C5789F6F4D /* HelpView.swift */; };
 		52516AC62DA238B7D161229E /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7A2BB5AB783EE1CAEC3FC1 /* TLSProxyRelay.swift */; };
 		55934ACA2742B63BBDD05B26 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44089EC10BD39A03A2FF659 /* ProfileStore.swift */; };
+		5A3CD722FFEAA61450AB687B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AA86F99C7E1FDF09699BC45 /* ApplicationExclusionCapability.swift */; };
 		5C7F0E8415F2FA3CF8FABEC0 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985BFACF62558D9697E50718 /* FailoverPolicy.swift */; };
 		5F7C90FAEF3A0103632BCEC0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B68F170D4D28D53A30C2F374 /* Assets.xcassets */; };
 		69331A0787C2559368AE159F /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E434A226EB0089EE96A56F6 /* TelemetryStore.swift */; };
@@ -30,6 +31,7 @@
 		A453C2B4F6FF365368DD151E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC0C5563910637AC4B5E75FF /* PrivacyInfo.xcprivacy */; };
 		A87932C49AEB4538E0CF00DB /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A285D4CE0522B39A211728F /* ArvectumWordmark.png */; };
 		B62D62146691DBB42486B851 /* ArvectumProxyLauncherMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */; };
+		B921D0F67548D22D57502639 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AA86F99C7E1FDF09699BC45 /* ApplicationExclusionCapability.swift */; };
 		D3D01A1A8D233F5D5061D9BD /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5B7E4468C7AE6A73600D6D /* AppShared.swift */; };
 		DB0E9BE19FB28CD9F0AC17C9 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */; };
 		DCAC9FBC09F4B11C0257CE11 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */; };
@@ -73,6 +75,7 @@
 		792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
 		820DB97A426DE7C5789F6F4D /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		8721E1A7BB35D248C67BB14E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		8AA86F99C7E1FDF09699BC45 /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
 		920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDisclosureView.swift; sourceTree = "<group>"; };
 		985BFACF62558D9697E50718 /* FailoverPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailoverPolicy.swift; sourceTree = "<group>"; };
 		A44089EC10BD39A03A2FF659 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
@@ -131,6 +134,7 @@
 		33FF7616DE9CB392686167C6 /* SharedCore */ = {
 			isa = PBXGroup;
 			children = (
+				8AA86F99C7E1FDF09699BC45 /* ApplicationExclusionCapability.swift */,
 				985BFACF62558D9697E50718 /* FailoverPolicy.swift */,
 				AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */,
 				56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */,
@@ -328,6 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E25ED813957404DB6AB72D10 /* AppShared.swift in Sources */,
+				B921D0F67548D22D57502639 /* ApplicationExclusionCapability.swift in Sources */,
 				883EF79F193023A4F4C2996A /* FailoverPolicy.swift in Sources */,
 				89A609323856C5C2B1BDDE92 /* PacketTunnelProvider.swift in Sources */,
 				55934ACA2742B63BBDD05B26 /* ProfileStore.swift in Sources */,
@@ -345,6 +350,7 @@
 			files = (
 				D3D01A1A8D233F5D5061D9BD /* AppShared.swift in Sources */,
 				9274808A167F2FD4668BF099 /* AppViewModel.swift in Sources */,
+				5A3CD722FFEAA61450AB687B /* ApplicationExclusionCapability.swift in Sources */,
 				B62D62146691DBB42486B851 /* ArvectumProxyLauncherMacApp.swift in Sources */,
 				9DEA37A7AE556CAAC4B0B719 /* ContentView.swift in Sources */,
 				5C7F0E8415F2FA3CF8FABEC0 /* FailoverPolicy.swift in Sources */,
@@ -393,6 +399,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -424,7 +431,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
@@ -444,8 +451,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACCATALYST_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACCATALYST_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.2.17;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -506,6 +513,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -537,7 +545,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
@@ -551,8 +559,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACCATALYST_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACCATALYST_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 0.2.17;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
