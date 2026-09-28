@@ -99,8 +99,8 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("loadOrCreateManager()", connect)
         self.assertIn("manager.isEnabled = true", VPN)
 
-    def test_rejected_build_number_is_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "2"', PROJECT)
+    def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
+        self.assertIn('CURRENT_PROJECT_VERSION: "3"', PROJECT)
 
     def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
         self.assertIn("appstore-installer.env", EXPORT)
