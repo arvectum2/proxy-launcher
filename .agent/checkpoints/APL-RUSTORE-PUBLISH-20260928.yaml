@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-RUSTORE-PUBLISH-20260928
-status: in_progress
+status: completed
 goal: "Produce and submit the final public RuStore Android build combining Yandex App Open ads with user-supplied proxy profiles only; no friend/free gateway; preserve site and application exclusions and accepted Android fixes."
 definition_of_done:
   - "Public build contains Yandex Mobile Ads/App Open integration with RuStore block R-M-20130429-1 and private flavor remains ad-free."
@@ -12,25 +12,30 @@ definition_of_done:
   - "Merge the combined source to main with green exact-head CI."
   - "Upload metadata/artifact to RuStore, submit for moderation, and verify submitted status."
 completed:
-  - "Committed no-free layer as a36bdd2: removed FreeGatewayClient, FreeTunnelRecoveryPolicy and all friend/free session/recovery UX while preserving user profiles."
-  - "No-free pre-merge gate PASS: lintDebug, testDebugUnitTest, assembleDebug."
-  - "Merged current main ee361033 (privacy + Yandex App Open ads) into the RuStore branch as 4c03222, resolving CI/checkpoint conflicts in favor of both ads and no-free guards."
+  - "Committed no-free layer as a36bdd2: removed FreeGatewayClient, FreeTunnelRecoveryPolicy, friend/free session and recovery UX while preserving user profiles, Auto, and exclusions."
+  - "Merged ads/privacy main into the no-free branch as 4c03222; public flavor retains Yandex App Open block R-M-20130429-1 and private flavor remains ad-free."
   - "Combined static audit PASS: no friend/free runtime references; site exclusions and application exclusions remain enforced."
-  - "Combined full Android gate PASS: lintPublicDebug, lintPrivateDebug, testPublicDebugUnitTest, testPrivateDebugUnitTest, assemblePublicDebug, assemblePrivateDebug; 106 tasks."
-  - "Combined package identity PASS: public ru.arvectum.proxylauncher 0.1.38/39; private ru.arvectum.proxylauncher.private 0.1.38-private/39."
-  - "Located existing production signing identity /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks; signer SHA-256 95:98:D6:B4:5F:EE:B6:44:AF:1B:AB:D8:FA:88:83:57:0F:10:DA:40:1D:A6:44:BD:48:E6:D0:B8:14:2E:C3:A4."
-current: "Run emulator clean-install smoke while pushing the combined branch for exact-head CI; then merge and build/sign the final public release artifact from canonical main."
-pending:
-  - "Complete emulator smoke of combined public build and record evidence."
-  - "Push branch, open PR, verify exact-head CI, merge to main."
-  - "Build unsigned public release from merged main, zipalign/sign with existing production key, verify APK/signature/version/hash."
-  - "Drive authorized Safari RuStore upload/metadata/submission and verify moderation status."
-last_verified_commit: "4c03222"
+  - "Combined local gate PASS: lintPublicDebug, lintPrivateDebug, testPublicDebugUnitTest, testPrivateDebugUnitTest, assemblePublicDebug, assemblePrivateDebug; 106 tasks."
+  - "Emulator clean-install smoke PASS on small_phone: no free profiles; manual proxy creation, settings, site exclusions, and application exclusions render and open correctly."
+  - "PR #221 exact-head CI PASS including Mobile Android spike, SAST, secret scan, dependency scan, SBOM and related repository checks; no review findings."
+  - "PR #221 merged to main as release source commit 676a987105d8f01b8ed32db8b500b58a26e74542."
+  - "Canonical-main release build PASS: fetch_tun2proxy.py verified all four ABIs; assemblePublicRelease and lintVitalPublicRelease passed."
+  - "Production APK signed with the existing Arvectum release identity; package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, APK Signature Scheme v2/v3 verified, 16 KiB zip alignment verified."
+  - "Final APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+  - "RuStore app 2063760299 accepted the 32.49 MB production APK, metadata, technical/privacy declarations, 512x512 icon, and five 9:16 phone screenshots."
+  - "RuStore publication mode set to Manual after approval to preserve an explicit release decision."
+  - "RuStore verified submission: version 0.1.38 (39), status Waiting for moderation, release Manual, audience 100%; console confirmation states the version was submitted for moderation and review takes up to 3 days."
+current: null
+pending: []
+last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
 test_results:
-  - "PASS: no-free pre-merge lintDebug/testDebugUnitTest/assembleDebug."
+  - "PASS: no-free baseline lintDebug, testDebugUnitTest, assembleDebug."
   - "PASS: combined lintPublicDebug/lintPrivateDebug/testPublicDebugUnitTest/testPrivateDebugUnitTest/assemblePublicDebug/assemblePrivateDebug."
-  - "PASS: public debug SHA-256 68f57cb9e0318f986e58e3121adec3b89a29bcbebebc3a04618f4fb42fcc15c2."
-  - "PASS: private debug SHA-256 003a168847a9cbc8f4c5591d25747a03dfa4fb17a9203bf3d51f8a4ed0f6fe4a."
+  - "PASS: emulator clean-install smoke and site/application exclusion UI smoke."
+  - "PASS: PR #221 exact-head GitHub Actions, including Mobile Android spike and security scans."
+  - "PASS: canonical-main assemblePublicRelease + lintVitalPublicRelease."
+  - "PASS: production APK apksigner v2/v3, signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4, zipalign -P 16."
+  - "PASS: RuStore upload and submission confirmation for 0.1.38 (39), Waiting for moderation."
 blocker: null
-resume_instruction: "Resume in /Users/master/Documents/proxy-launcher-rustore-public. Finish emulator smoke, push/open PR for current combined branch, wait for exact-head Android CI, merge, then build and production-sign the public release APK and submit it through the authorized RuStore Safari session."
-updated_at: "2026-09-28T14:55:00+03:00"
+resume_instruction: "Task completed. No continuation is required. If RuStore moderation feedback arrives, start a new task from canonical main and reference RuStore version 0.1.38 (39) and release source commit 676a987105d8f01b8ed32db8b500b58a26e74542."
+updated_at: "2026-09-28T15:44:07+03:00"
