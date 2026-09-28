@@ -2,7 +2,7 @@ name: ArvectumProxyLauncherMacAppStore
 options:
   bundleIdPrefix: ru.arvectum.proxylauncher.macos
   deploymentTarget:
-    iOS: "15.0"
+    iOS: "16.0"
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -12,8 +12,7 @@ settings:
     CODE_SIGN_STYLE: Manual
     SUPPORTS_MACCATALYST: YES
     DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
-    MACCATALYST_DEPLOYMENT_TARGET: "13.0"
-    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    MACCATALYST_DEPLOYMENT_TARGET: "16.0"
     TARGETED_DEVICE_FAMILY: "1,2"
     ARCHS: arm64
 targets:
