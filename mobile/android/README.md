@@ -309,7 +309,7 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 
 ## 0.1.37 external-VPN takeover recovery candidate
 
-0.1.37 fixes the field-reported sequence APL connected → another VPN app takes the Android VPN slot → that VPN disconnects → APL is reopened. Android revocation now publishes the terminal DISCONNECTED state before native-engine cleanup, so process/service teardown cannot leave a durable DISCONNECTING latch. As a second recovery guard, a persisted DISCONNECTING state is treated as stale on foreground resume and is reset to DISCONNECTED without probing VPN permission or auto-connecting. Manual disconnect keeps its normal transient DISCONNECTING state until cleanup completes.
+0.1.37 fixes the field-reported sequence APL connected → another VPN app takes the Android VPN slot → that VPN disconnects → APL is reopened. Android revocation now publishes the terminal DISCONNECTED state before native-engine cleanup, so process/service teardown cannot leave a durable DISCONNECTING latch. Foreground resume now refreshes from the persisted service state before deciding whether any VPN reconciliation is allowed, preventing a background MainActivity with stale CONNECTED state from silently reconnecting APL after Amnezia disconnects. Immediate user connect/disconnect intent is persisted before issuing the service command so this resume reconciliation cannot roll back a just-requested action. As a second recovery guard, a persisted DISCONNECTING state is treated as stale on foreground resume and is reset to DISCONNECTED without probing VPN permission or auto-connecting. Manual disconnect keeps its normal transient DISCONNECTING state until cleanup completes.
 
 ## 0.1.36 responsive action candidate
 

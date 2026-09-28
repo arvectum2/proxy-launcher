@@ -61,6 +61,7 @@ import ru.arvectum.proxylauncher.tunnel.ProxyProtocolProbe
 import ru.arvectum.proxylauncher.tunnel.ProxyVpnService
 import ru.arvectum.proxylauncher.tunnel.TunnelResumeAction
 import ru.arvectum.proxylauncher.tunnel.TunnelResumePolicy
+import ru.arvectum.proxylauncher.tunnel.TunnelResumeStatePolicy
 
 class MainActivity : Activity() {
     private lateinit var profileSelectorShell: LinearLayout
@@ -1722,7 +1723,16 @@ class MainActivity : Activity() {
     }
 
     private fun reconcileTunnelAfterResume() {
-        val resumeState = currentState
+        val persistedState = poolUiStore.getTunnelState(currentState)
+        val persistedDetail = poolUiStore.getTunnelDetail()
+        val resumeState = TunnelResumeStatePolicy.effectiveState(
+            renderedState = currentState,
+            persistedState = persistedState,
+        )
+        if (resumeState != currentState) {
+            renderState(resumeState, persistedDetail)
+        }
+
         val permissionGranted = if (TunnelResumePolicy.requiresVpnPermissionCheck(resumeState)) {
             runCatching { VpnService.prepare(this) == null }.getOrDefault(false)
         } else {
@@ -1748,6 +1758,7 @@ class MainActivity : Activity() {
     }
 
     private fun connectVpn(detail: String = "Проверяем прокси…") {
+        poolUiStore.setTunnelState(ProxyVpnService.STATE_CONNECTING, detail)
         renderState(ProxyVpnService.STATE_CONNECTING, detail)
         startVpnService(ProxyVpnService.ACTION_CONNECT)
     }
@@ -1758,6 +1769,7 @@ class MainActivity : Activity() {
     }
 
     private fun disconnectVpn(detail: String = "Отключение…") {
+        poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTING, detail)
         renderState(ProxyVpnService.STATE_DISCONNECTING, detail)
         startService(Intent(this, ProxyVpnService::class.java).setAction(ProxyVpnService.ACTION_DISCONNECT))
     }

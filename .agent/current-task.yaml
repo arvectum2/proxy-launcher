@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-VPN-TAKEOVER-FREEZE-20260928
-status: blocked
+status: in_progress
 goal: "Fix Android UI/service state getting stuck in Disconnecting after another VPN app takes over the system VPN slot, then APL is reopened."
 authority: HUMAN
 definition_of_done:
@@ -22,11 +22,15 @@ completed:
   - "Committed implementation as 9e7529d9beedd1f5ef099d9da00caedf38a9e105 and opened draft PR #215."
   - "Exact-head Mobile Android spike run 36396370895 PASS: lint, unit tests, assembleDebug, signer/branding/version assertions, SHA-256 and artifact upload all succeeded."
   - "Downloaded exact CI artifact to /Users/master/APL-Android-0.1.37-ci-36396370895/app-debug.apk; SHA-256 49a87d0a45ba7e087d070a1d243f1fe75ca70ccf1435b50c591258bcbe6e54e5 matches CI manifest."
-current: "Blocked only on physical Android acceptance of the reported APL -> Amnezia takeover sequence."
+  - "Physical realme RMX3363 test reproduced APL -> Amnezia takeover on 0.1.37 candidate: Amnezia became Connected and APL persisted DISCONNECTED / 'VPN отключён Android', confirming the system-revoke ordering fix."
+  - "The same physical test exposed a second path: background MainActivity retained stale CONNECTED; after Amnezia disconnected, reopening APL used that stale memory state and silently reconnected APL."
+  - "Implemented persisted-state precedence on MainActivity resume and immediate persistence of user CONNECTING/DISCONNECTING intent; added regression coverage for stale rendered CONNECTED vs persisted DISCONNECTED."
+current: "Commit/push the second resume-state fix, verify exact-head CI, then reinstall the rebuilt 0.1.37 and rerun the physical takeover sequence."
 pending:
-  - "Connect the Android test phone to Mac mini (or otherwise make it visible to adb)."
-  - "Install exact CI 0.1.37 artifact and reproduce: connect APL -> connect Amnezia -> disconnect Amnezia -> reopen APL."
-  - "Verify APL shows disconnected/usable controls, then reconnect APL and confirm traffic works."
+  - "Make MainActivity onResume refresh from PoolUiStateStore before deciding whether to reconcile/start the VPN service."
+  - "Persist immediate user CONNECTING/DISCONNECTING intent before service commands so resume cannot roll back a just-started user action."
+  - "Add regression coverage for stale in-memory CONNECTED vs persisted DISCONNECTED after external VPN takeover."
+  - "Run exact-head CI, reinstall the rebuilt 0.1.37 artifact, rerun APL -> Amnezia -> disconnect -> reopen, then reconnect APL."
   - "If physical acceptance passes, merge PR #215 and mark checkpoint completed."
 last_verified_commit: "9e7529d9beedd1f5ef099d9da00caedf38a9e105"
 test_results:

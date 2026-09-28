@@ -5,6 +5,24 @@ import org.junit.Test
 
 class TunnelLifecyclePolicyTest {
     @Test
+    fun persistedTunnelStateOverridesStaleRenderedStateOnResume() {
+        assertEquals(
+            ProxyVpnService.STATE_DISCONNECTED,
+            TunnelResumeStatePolicy.effectiveState(
+                renderedState = ProxyVpnService.STATE_CONNECTED,
+                persistedState = ProxyVpnService.STATE_DISCONNECTED,
+            ),
+        )
+        assertEquals(
+            ProxyVpnService.STATE_CONNECTED,
+            TunnelResumeStatePolicy.effectiveState(
+                renderedState = ProxyVpnService.STATE_DISCONNECTED,
+                persistedState = ProxyVpnService.STATE_CONNECTED,
+            ),
+        )
+    }
+
+    @Test
     fun connectedAndConnectingStatesReconcileWhenVpnGrantExists() {
         assertEquals(
             TunnelResumeAction.RECONCILE_SERVICE,

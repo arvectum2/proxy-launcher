@@ -7,6 +7,11 @@ enum class TunnelResumeAction {
     RESET_STALE_DISCONNECT,
 }
 
+object TunnelResumeStatePolicy {
+    fun effectiveState(renderedState: String, persistedState: String): String =
+        persistedState.ifBlank { renderedState }
+}
+
 object TunnelResumePolicy {
     fun requiresVpnPermissionCheck(state: String): Boolean =
         state == ProxyVpnService.STATE_CONNECTED ||
