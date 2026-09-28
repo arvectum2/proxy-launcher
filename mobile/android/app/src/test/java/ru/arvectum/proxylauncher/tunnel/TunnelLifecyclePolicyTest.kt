@@ -5,6 +5,24 @@ import org.junit.Test
 
 class TunnelLifecyclePolicyTest {
     @Test
+    fun persistedTunnelStateOverridesStaleRenderedStateOnResume() {
+        assertEquals(
+            ProxyVpnService.STATE_DISCONNECTED,
+            TunnelResumeStatePolicy.effectiveState(
+                renderedState = ProxyVpnService.STATE_CONNECTED,
+                persistedState = ProxyVpnService.STATE_DISCONNECTED,
+            ),
+        )
+        assertEquals(
+            ProxyVpnService.STATE_CONNECTED,
+            TunnelResumeStatePolicy.effectiveState(
+                renderedState = ProxyVpnService.STATE_DISCONNECTED,
+                persistedState = ProxyVpnService.STATE_CONNECTED,
+            ),
+        )
+    }
+
+    @Test
     fun connectedAndConnectingStatesReconcileWhenVpnGrantExists() {
         assertEquals(
             TunnelResumeAction.RECONCILE_SERVICE,
@@ -20,7 +38,6 @@ class TunnelLifecyclePolicyTest {
     fun intentionallyOffStatesNeverTouchVpnPreparationOrAutoStartOnResume() {
         listOf(
             ProxyVpnService.STATE_DISCONNECTED,
-            ProxyVpnService.STATE_DISCONNECTING,
             ProxyVpnService.STATE_ERROR,
         ).forEach { state ->
             assertEquals(false, TunnelResumePolicy.requiresVpnPermissionCheck(state))
@@ -29,6 +46,21 @@ class TunnelLifecyclePolicyTest {
                 TunnelResumePolicy.decide(state, vpnPermissionGranted = true),
             )
         }
+    }
+
+    @Test
+    fun staleDisconnectingStateIsRecoveredWithoutVpnPermissionProbe() {
+        assertEquals(
+            false,
+            TunnelResumePolicy.requiresVpnPermissionCheck(ProxyVpnService.STATE_DISCONNECTING),
+        )
+        assertEquals(
+            TunnelResumeAction.RESET_STALE_DISCONNECT,
+            TunnelResumePolicy.decide(
+                ProxyVpnService.STATE_DISCONNECTING,
+                vpnPermissionGranted = false,
+            ),
+        )
     }
 
     @Test
@@ -49,6 +81,20 @@ class TunnelLifecyclePolicyTest {
             TunnelResumeAction.RESET_FOR_PERMISSION,
             TunnelResumePolicy.decide(ProxyVpnService.STATE_CONNECTING, vpnPermissionGranted = false),
         )
+    }
+
+    @Test
+    fun systemRevokePublishesDisconnectedBeforePotentiallyBlockingCleanup() {
+        val plan = TunnelStopStatePolicy.plan(TunnelStopOrigin.SYSTEM_REVOKE)
+        assertEquals(ProxyVpnService.STATE_DISCONNECTED, plan.stateBeforeCleanup)
+        assertEquals(false, plan.publishDisconnectedAfterCleanup)
+    }
+
+    @Test
+    fun userDisconnectKeepsTransientStateUntilCleanupFinishes() {
+        val plan = TunnelStopStatePolicy.plan(TunnelStopOrigin.USER_REQUEST)
+        assertEquals(ProxyVpnService.STATE_DISCONNECTING, plan.stateBeforeCleanup)
+        assertEquals(true, plan.publishDisconnectedAfterCleanup)
     }
 
     @Test

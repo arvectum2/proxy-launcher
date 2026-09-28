@@ -77,7 +77,7 @@ class ProxyVpnService : VpnService() {
         when (intent?.action) {
             ACTION_DISCONNECT -> {
                 store.clearVpnProcessRestartPending()
-                stopTunnel()
+                stopTunnel(TunnelStopOrigin.USER_REQUEST)
                 return START_NOT_STICKY
             }
             ACTION_RECONCILE -> reconcileTunnelAfterForegroundResume()
@@ -101,7 +101,7 @@ class ProxyVpnService : VpnService() {
 
     override fun onRevoke() {
         store.clearVpnProcessRestartPending()
-        stopTunnel()
+        stopTunnel(TunnelStopOrigin.SYSTEM_REVOKE)
     }
 
     override fun onDestroy() {
@@ -1141,7 +1141,7 @@ class ProxyVpnService : VpnService() {
         )
     }
 
-    private fun stopTunnel() {
+    private fun stopTunnel(origin: TunnelStopOrigin) {
         store.clearVpnProcessRestartPending()
         cancelFreeRecoveryReset()
         stopFreeSessionRefresh()
@@ -1156,14 +1156,21 @@ class ProxyVpnService : VpnService() {
         }
         probeThread?.interrupt()
 
-        publishState(STATE_DISCONNECTING, "Отключение…")
+        val statePlan = TunnelStopStatePolicy.plan(origin)
+        // System VPN takeover can terminate this service/process during cleanup.
+        // Publish the terminal state first so the default-process UI never keeps
+        // a durable DISCONNECTING latch if Android revokes APL for another VPN.
+        publishState(statePlan.stateBeforeCleanup, statePlan.detailBeforeCleanup)
+
         runCatching { engine.stop() }
         synchronized(lock) {
             tunFd?.runCatching { close() }
             tunFd = null
             worker = null
         }
-        publishState(STATE_DISCONNECTED, "Отключено")
+        if (statePlan.publishDisconnectedAfterCleanup) {
+            publishState(STATE_DISCONNECTED, "Отключено")
+        }
         stopForegroundCompat()
         stopSelf()
         terminateVpnProcess()
