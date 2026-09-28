@@ -1,0 +1,48 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-004-YANDEX-APP-OPEN-20260928
+status: completed
+goal: "Integrate Yandex Mobile Ads App Open into the public Android build for RuStore testing while keeping a private no-ads build from the same codebase."
+authority: HUMAN
+definition_of_done:
+  - "Public Android build includes Yandex Mobile Ads SDK and App Open placement R-M-20130429-1."
+  - "Private Android build contains no ad-serving path and uses a distinct application id so RuStore cannot replace it with the public build."
+  - "Ad loading/showing is fail-open: APL remains usable if SDK init, ad load, or ad show fails."
+  - "Frequency policy avoids every-launch advertising and preserves a first-launch grace period."
+  - "Android version is advanced for the RuStore test candidate."
+  - "Relevant unit/build checks and exact-head CI pass, or any objective blocker is recorded."
+completed:
+  - "Owner supplied production Yandex App Open placement ID R-M-20130429-1."
+  - "Integrated Yandex Mobile Ads SDK 8.5.0 only into the public flavor."
+  - "Public release uses placement R-M-20130429-1; debug uses official demo-appopenad-yandex."
+  - "Added LauncherActivity splash gate with a 1.5s fail-open timeout before MainActivity."
+  - "Added first-two-launch grace period and four-hour minimum interval between impressions."
+  - "Created private no-ads flavor with package ru.arvectum.proxylauncher.private and no Yandex dependency/runtime implementation."
+  - "Advanced Android candidate to versionCode 39 / versionName 0.1.38; private is 0.1.38-private."
+  - "Updated CI to lint/test/build both flavors, verify signing/package/version/branding and assert ad dependency isolation."
+  - "Exact-head Mobile Android spike run 36413494107 PASS on 4345cc73121fce2b3dafbed2373a06ad1df8e1a9."
+  - "All 11 observed workflow runs on 4345cc73121fce2b3dafbed2373a06ad1df8e1a9 completed successfully."
+  - "CI artifact proxy-launcher-android-debug contains both public and private APKs."
+  - "Public debug APK SHA-256 c49f621a7a3deb78075bebcde4762ca08eb94ff5fdd33fe950375591381e21e1."
+  - "Private debug APK SHA-256 eb562905d4ebb5bf8b77dddcbd15fab1c166125785551900d0581fba775bd559."
+current: "Completed and merged to main as edd1840d43f445e20542e48f019a7215d1c88cae."
+pending: []
+last_verified_commit: "edd1840d43f445e20542e48f019a7215d1c88cae"
+test_results:
+  - "PASS: Mobile Android spike run 36413494107."
+  - "PASS: lintPublicDebug + lintPrivateDebug."
+  - "PASS: testPublicDebugUnitTest + testPrivateDebugUnitTest."
+  - "PASS: assemblePublicDebug + assemblePrivateDebug."
+  - "PASS: public package ru.arvectum.proxylauncher versionCode 39 versionName 0.1.38."
+  - "PASS: private package ru.arvectum.proxylauncher.private versionCode 39 versionName 0.1.38-private."
+  - "PASS: public runtime contains com.yandex.android:mobileads:8.5.0; private runtime dependency graph does not contain Yandex Mobile Ads."
+  - "PASS: stable dogfood signer and branding assertions for both APKs."
+blocker: ""
+resume_instruction: "Task completed on main commit edd1840d43f445e20542e48f019a7215d1c88cae. Use public Android 0.1.38 as the RuStore advertising test candidate; keep ru.arvectum.proxylauncher.private as the no-ads sideload lane."
+updated_at: "2026-09-28T14:24:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "interactive-20260928-yandex-appopen"
+  branch: "main"
+  base_commit: "894f35ff1067935e1fb79feafb48c472b231e901"
+  manual_override: true
