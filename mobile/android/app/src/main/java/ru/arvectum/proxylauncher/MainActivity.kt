@@ -1723,10 +1723,12 @@ class MainActivity : Activity() {
 
     private fun reconcileTunnelAfterResume() {
         val resumeState = currentState
-        if (!TunnelResumePolicy.requiresVpnPermissionCheck(resumeState)) return
+        val permissionGranted = if (TunnelResumePolicy.requiresVpnPermissionCheck(resumeState)) {
+            runCatching { VpnService.prepare(this) == null }.getOrDefault(false)
+        } else {
+            false
+        }
 
-        val permissionGranted = runCatching { VpnService.prepare(this) == null }
-            .getOrDefault(false)
         when (TunnelResumePolicy.decide(resumeState, permissionGranted)) {
             TunnelResumeAction.NONE -> Unit
             TunnelResumeAction.RECONCILE_SERVICE -> {
@@ -1734,6 +1736,11 @@ class MainActivity : Activity() {
             }
             TunnelResumeAction.RESET_FOR_PERMISSION -> {
                 val detail = "Android сбросил разрешение VPN. Нажмите «Подключиться»."
+                poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
+                renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
+            }
+            TunnelResumeAction.RESET_STALE_DISCONNECT -> {
+                val detail = "VPN отключён. Можно подключиться снова."
                 poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
             }

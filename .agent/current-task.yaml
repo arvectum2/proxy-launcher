@@ -1,50 +1,40 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MACOS-NETWORK-RECOVERY-20260927
-status: completed
-goal: "Restore the MacBook network, identify why APL rollback cannot recover it, fix the recovery state machine, and lock the failure down with regression coverage."
+task_id: APL-ANDROID-VPN-TAKEOVER-FREEZE-20260928
+status: in_progress
+goal: "Fix Android UI/service state getting stuck in Disconnecting after another VPN app takes over the system VPN slot, then APL is reopened."
 authority: HUMAN
 definition_of_done:
-  - "MacBook connectivity is restored to its saved baseline."
-  - "The failure mode is identified from code plus host evidence."
-  - "APL rollback safely recovers both its reserved fail-closed refresh sentinel and exact-endpoint enable-bit drift without accepting foreign proxy endpoints."
-  - "Focused/full relevant tests and repository CI pass."
-  - "Fix is merged through repository governance, deployed to the MacBook, and physically verified."
+  - "Reproduce the stale Disconnecting state from code/tests for the sequence APL connected -> another VPN (e.g. Amnezia) connects -> other VPN disconnects -> reopen APL."
+  - "APL observes external VPN revocation/service teardown and converges to Disconnected without waiting forever for an internal disconnect callback."
+  - "Controls become usable again after external takeover; no stale operation lock survives app/service restart."
+  - "Existing explicit connect/disconnect and sticky-restart protections remain intact."
+  - "Add regression tests for external VPN takeover/revoke and stale UI state recovery."
+  - "Run relevant Android/unit tests and exact-head CI if practical; record verified commit and results."
 completed:
-  - "Interrupted iOS App Review task remains preserved in .agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml and must be resumed separately."
-  - "Earlier recovery gap for APL wake-refresh sentinel 127.0.0.1:1 was fixed and merged in PR #203 as b8ca041ae1d0dd81ecec5f373da3282e6259daa7."
-  - "MacBook RDC was restored after Homebrew Node/global npm churn removed the prior Desktop Commander CLI, wrapper and LaunchAgent."
-  - "Pre-mutation host evidence showed healthy default route/DNS, a valid macos_proxy_backup.json, and Wi-Fi manual endpoint 68.209.60.141:8000 with both HTTP/HTTPS Enabled flags unexpectedly off."
-  - "The saved Wi-Fi baseline required HTTP/HTTPS Enabled at 68.209.60.141:8000; other services remained partly APL-owned, producing a mixed state."
-  - "proxy_core.log proved repeated user rollback attempts were refused at disable_preflight because Wi-Fi matched neither APL-owned nor saved state."
-  - "Code inspection proved normal APL enable/wake/refresh paths do not turn those Wi-Fi HTTP/HTTPS flags off. The exact external origin of the enable-bit drift is not observable in available logs; the confirmed APL bug was that safe recovery from this exact-endpoint drift was refused."
-  - "Recovery logic was narrowed to accept a disabled manual proxy only when host/port exactly match APL's direct endpoint or the exact saved snapshot; foreign host/port changes remain non-recoverable."
-  - "Regression coverage added for disabled exact-owned endpoint recovery and disabled foreign endpoint refusal."
-  - "Local macOS backend suite passed 40/40; focused backend/runtime suite passed 84/84; py_compile, ruff F/E9/I and git diff --check passed."
-  - "After synchronizing with current main, all PR #207 checks passed, including build, core-tests, macOS arm64/intel packages, backend contracts, installer, unsigned builds and security/provenance gates."
-  - "PR #207 merged to main as 46aef7ecfd165aa03145d2a74d4aba1ba44d972d."
-  - "Patched source rollback on MacBook restored all four saved services; Tailscale, Thunderbolt Bridge, USB 10/100 LAN and Wi-Fi each matched the saved snapshot exactly."
-  - "Updated ARM64 CI artifact was installed at /Applications/Arvectum Proxy Launcher.app; binary SHA-256 da6b74f8dd83c1c571748b9e0f8267cf6b7574a7f418cf291d57a90a5bdb6184."
-  - "Physical regression smoke reproduced the incident by disabling only Wi-Fi HTTP/HTTPS enable bits while preserving 68.209.60.141:8000; installed APL rollback returned 'network settings restored' with exit 0 and cleared rollback evidence."
-  - "Final physical verification: all four services matched the smoke snapshot, Wi-Fi HTTP/HTTPS were Enabled at 68.209.60.141:8000, APL status STOPPED, direct and ordinary HTTPS returned 200, and the legacy tunnel remained listening on 127.0.0.1:1080 and 127.0.0.1:8082."
-current: "Completed. MacBook network is restored, the recovery bug is merged and deployed, and the real failure mode has a passing physical regression."
-pending: []
-last_verified_commit: "46aef7ecfd165aa03145d2a74d4aba1ba44d972d"
+  - "Created isolated worktree from origin/main 1a8274833c7614589c50b3fa273bbf50ec621b04 on task/android-vpn-takeover-fix-20260928."
+  - "Root cause: onRevoke() used the normal stop path, persisted DISCONNECTING before native cleanup, and MainActivity intentionally ignored DISCONNECTING on resume; if Android/process teardown interrupted cleanup, the transient state became durable and disabled all controls."
+  - "System revoke path now publishes DISCONNECTED before native cleanup; manual disconnect still publishes DISCONNECTING until cleanup completes."
+  - "Foreground resume now treats persisted DISCONNECTING as stale and resets it to DISCONNECTED without probing VPN permission or auto-connecting."
+  - "Added pure lifecycle-policy tests for stale DISCONNECTING recovery and system-revoke terminal-state ordering."
+  - "Advanced Android candidate to 0.1.37 / versionCode 38 and updated CI badging assertions and README notes."
+  - "git diff --check PASS; source consistency grep PASS."
+current: "Commit and push the 0.1.37 fix, then run exact-head Android CI and inspect results."
+pending:
+  - "Commit changes."
+  - "Push branch and run/verify Mobile Android CI."
+  - "If CI passes, provide candidate APK/artifact and perform physical APL -> Amnezia -> disconnect -> reopen acceptance when device is available."
+  - "Merge only after physical acceptance or explicit owner approval."
+last_verified_commit: "1a8274833c7614589c50b3fa273bbf50ec621b04"
 test_results:
-  - "tests.test_macos_backend: 40/40 PASS."
-  - "Focused backend/runtime suite: 84/84 PASS."
-  - "py_compile PASS; ruff F,E9,I PASS; git diff --check PASS."
-  - "PR #207 post-main-sync CI: all 18 displayed checks PASS."
-  - "Patched source physical rollback: PASS; all four saved network services snapshot_match=True."
-  - "Installed CI artifact physical incident reproduction: PASS; exact enable-bit drift recovered with rollback exit 0."
-  - "Final connectivity: direct HTTPS 200 and normal HTTPS 200; legacy tunnel ports 1080/8082 preserved; APL STOPPED."
-blocker: null
-resume_instruction: "This task is complete; do not redo macOS recovery work. If continuing the interrupted App Store work, restore state from .agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml and verify current main/iOS build state before acting."
-updated_at: "2026-09-27T15:33:54+03:00"
+  - "Local Gradle test attempt blocked because workstation Homebrew Gradle is 9.8/JDK27 while canonical workflow pins Gradle 8.9; no source/test failure observed."
+  - "git diff --check PASS."
+blocker: ""
+resume_instruction: "Commit and push task/android-vpn-takeover-fix-20260928, verify exact-head Mobile Android CI on canonical Gradle 8.9, then use the CI APK for physical APL -> Amnezia takeover -> disconnect -> reopen regression. Do not merge before that physical acceptance unless owner explicitly approves."
+updated_at: "2026-09-28T11:19:00+03:00"
 execution:
   claimed_by: "chatgpt"
-  execution_id: "interactive-20260927-macos-network-recovery"
-  branch: "agent/apl-macos-recovery-complete-20260927"
-  base_commit: "46aef7ecfd165aa03145d2a74d4aba1ba44d972d"
-  lease_until: null
+  execution_id: "interactive-20260928-android-vpn-takeover-freeze"
+  branch: "task/android-vpn-takeover-fix-20260928"
+  base_commit: "1a8274833c7614589c50b3fa273bbf50ec621b04"
   manual_override: true

@@ -4,6 +4,7 @@ enum class TunnelResumeAction {
     NONE,
     RECONCILE_SERVICE,
     RESET_FOR_PERMISSION,
+    RESET_STALE_DISCONNECT,
 }
 
 object TunnelResumePolicy {
@@ -12,6 +13,9 @@ object TunnelResumePolicy {
             state == ProxyVpnService.STATE_CONNECTING
 
     fun decide(state: String, vpnPermissionGranted: Boolean): TunnelResumeAction {
+        if (state == ProxyVpnService.STATE_DISCONNECTING) {
+            return TunnelResumeAction.RESET_STALE_DISCONNECT
+        }
         if (!requiresVpnPermissionCheck(state)) return TunnelResumeAction.NONE
         return if (vpnPermissionGranted) {
             TunnelResumeAction.RECONCILE_SERVICE
@@ -19,6 +23,33 @@ object TunnelResumePolicy {
             TunnelResumeAction.RESET_FOR_PERMISSION
         }
     }
+}
+
+enum class TunnelStopOrigin {
+    USER_REQUEST,
+    SYSTEM_REVOKE,
+}
+
+data class TunnelStopStatePlan(
+    val stateBeforeCleanup: String,
+    val detailBeforeCleanup: String,
+    val publishDisconnectedAfterCleanup: Boolean,
+)
+
+object TunnelStopStatePolicy {
+    fun plan(origin: TunnelStopOrigin): TunnelStopStatePlan =
+        when (origin) {
+            TunnelStopOrigin.USER_REQUEST -> TunnelStopStatePlan(
+                stateBeforeCleanup = ProxyVpnService.STATE_DISCONNECTING,
+                detailBeforeCleanup = "Отключение…",
+                publishDisconnectedAfterCleanup = true,
+            )
+            TunnelStopOrigin.SYSTEM_REVOKE -> TunnelStopStatePlan(
+                stateBeforeCleanup = ProxyVpnService.STATE_DISCONNECTED,
+                detailBeforeCleanup = "VPN отключён Android",
+                publishDisconnectedAfterCleanup = false,
+            )
+        }
 }
 
 enum class TunnelServiceReconcileAction {
