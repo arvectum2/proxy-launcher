@@ -90,8 +90,10 @@ jobs:
           aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           "$aapt" dump badging "$public_release" | grep -F "package: name='ru.arvectum.proxylauncher' versionCode='39' versionName='0.1.38'"
           "$aapt" dump badging "$private_release" | grep -F "package: name='ru.arvectum.proxylauncher.private' versionCode='39' versionName='0.1.38-private'"
-          unzip -p "$public_release" classes.dex | strings | grep -F "R-M-20130429-1"
-          ! unzip -p "$private_release" classes.dex | strings | grep -F "R-M-20130429-1"
+          unzip -p "$public_release" 'classes*.dex' | strings | grep -F "R-M-20130429-1"
+          ! unzip -p "$private_release" 'classes*.dex' | strings | grep -F "R-M-20130429-1"
+          ! unzip -p "$public_release" 'classes*.dex' | strings | grep -F "mac-mini-master.tail786c4b.ts.net"
+          unzip -p "$private_release" 'classes*.dex' | strings | grep -F "mac-mini-master.tail786c4b.ts.net"
       - name: Upload unsigned release APKs
         uses: actions/upload-artifact@v4
         with:
