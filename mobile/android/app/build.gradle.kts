@@ -145,8 +145,8 @@ android {
         applicationId = "ru.arvectum.proxylauncher"
         minSdk = 26
         targetSdk = 35
-        versionCode = 38
-        versionName = "0.1.37"
+        versionCode = 39
+        versionName = "0.1.38"
     }
 
     signingConfigs {
@@ -155,6 +155,26 @@ android {
             storePassword = "android"
             keyAlias = "androiddebugkey"
             keyPassword = "android"
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("public") {
+            dimension = "distribution"
+            buildConfigField("boolean", "ADS_ENABLED", "true")
+            buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "false")
+        }
+        create("private") {
+            dimension = "distribution"
+            applicationIdSuffix = ".private"
+            versionNameSuffix = "-private"
+            buildConfigField("boolean", "ADS_ENABLED", "false")
+            buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "true")
         }
     }
 
@@ -175,6 +195,7 @@ tasks.named("preBuild").configure {
 
 dependencies {
     implementation("androidx.core:core:1.15.0")
+    add("publicImplementation", "com.yandex.android:mobileads:8.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 }

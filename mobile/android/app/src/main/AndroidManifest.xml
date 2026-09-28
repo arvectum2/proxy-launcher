@@ -8,11 +8,11 @@
     </queries>
 
     <permission
-        android:name="ru.arvectum.proxylauncher.permission.INTERNAL_STATE"
+        android:name="${applicationId}.permission.INTERNAL_STATE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="ru.arvectum.proxylauncher.permission.INTERNAL_STATE" />
+    <uses-permission android:name="${applicationId}.permission.INTERNAL_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
@@ -25,12 +25,13 @@
         android:roundIcon="@mipmap/arvectum_launcher_round"
         android:label="Proxy Launcher"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".LauncherActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" android:exported="false" />
 
         <receiver
             android:name=".tunnel.PoolStateRelayReceiver"

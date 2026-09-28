@@ -16,28 +16,29 @@
 <p class="muted">Effective date: 28 September 2026 · LLC ARVECTUM</p>
 
 <h2>Summary</h2>
-<p>Arvectum Proxy Launcher (“APL”) is a local network utility. LLC ARVECTUM does not collect, sell, use, or disclose user traffic, browsing history, proxy credentials, device identifiers, analytics data, or advertising data through the current Android, iOS, or macOS apps.</p>
+<p>Arvectum Proxy Launcher (“APL”) is a local network utility. LLC ARVECTUM does not collect or retain user traffic, browsing history, proxy credentials, or the contents of communications. Starting with the public Android 0.1.38 distribution, APL uses the Yandex Mobile Ads SDK to display advertising. The private Android distribution and the current iOS and macOS distributions do not include that advertising SDK.</p>
 
-<h2>Data collection</h2>
-<p>The current Android, iOS, and macOS releases do not contain advertising SDKs, analytics SDKs, tracking technologies, user accounts, or an Arvectum cloud backend. The app does not send telemetry or usage analytics to LLC ARVECTUM.</p>
+<h2>Advertising and privacy choice</h2>
+<p>The public Android distribution uses Yandex Mobile Ads. Before APL manually initializes the advertising SDK for an eligible ad request, the app records the user’s choice about advertising-data processing and passes that choice to the SDK. A refusal does not block APL. The app stores the choice locally together with a launch counter and the time of the most recent App Open ad impression for frequency limiting.</p>
+<p>Depending on the user’s consent and device settings, Yandex may process advertising identifiers, IP address, device and operating-system parameters, and other advertising-related technical data under Yandex’s own terms. See <a href="https://yandex.com/legal/international_ads_privacy_policy/en/">Yandex Advertising Privacy Policy</a>. APL does not provide Yandex with saved proxy hosts, proxy usernames or passwords, site/application exclusion lists, the contents of network traffic, or a browsing-history log.</p>
 
 <h2>Proxy configuration and credentials</h2>
-<p>Users provide their own proxy servers. Proxy host, port, profile name, username, routing preferences, exclusions, and connection journal are stored locally on the device. Proxy passwords are protected by platform storage: Android encrypts them with a key held in Android Keystore, while Apple-platform releases use the system Keychain. These values are not transmitted to LLC ARVECTUM.</p>
+<p>Users provide their own proxy servers in the public distribution. Proxy host, port, profile name, username, routing preferences, exclusions, and connection journal are stored locally on the device. Proxy passwords are protected by platform storage: Android encrypts them with a key held in Android Keystore, while Apple-platform releases use the system Keychain. These values are not transmitted to LLC ARVECTUM.</p>
 
 <h2>Network traffic</h2>
-<p>APL creates a local system VPN/tunnel so selected device traffic can be routed to a proxy chosen by the user. On Android it uses Android VpnService with an embedded open-source packet-forwarding component; on iOS and macOS it uses Apple Network Extension / NEVPNManager APIs. Network traffic is routed from the device to the user-selected proxy and then to the requested destination. LLC ARVECTUM does not operate an intermediary server in the current public release and does not inspect or retain the contents of the traffic.</p>
+<p>APL creates a local system VPN/tunnel so selected device traffic can be routed to a proxy chosen by the user. On Android it uses Android VpnService with an embedded open-source packet-forwarding component; on iOS and macOS it uses Apple Network Extension / NEVPNManager APIs. Network traffic is routed from the device to the user-selected proxy and then to the requested destination. The public Android distribution does not provide the friends-only Arvectum free-gateway option. LLC ARVECTUM does not inspect or retain the contents of user traffic.</p>
 
 <h2>Local diagnostics</h2>
 <p>The app may store local connection events needed to show status and diagnose failures. These events are stored on the device and are designed not to contain proxy passwords or the contents of user traffic. A user may delete app data by removing the app from the device.</p>
 
 <h2>Third parties</h2>
-<p>The app uses operating-system networking and security services plus embedded open-source packet-forwarding components. LLC ARVECTUM does not share app-derived user data with advertisers, data brokers, or analytics providers. Operating-system vendors and the app store used to obtain the app may process their own account, download, security, or device information independently under their own terms and privacy policies.</p>
+<p>The app uses operating-system networking and security services plus embedded open-source packet-forwarding components. The public Android distribution additionally uses Yandex Mobile Ads for advertising. Operating-system vendors, app stores, proxy providers selected by the user, and Yandex may process information independently under their own terms and privacy policies.</p>
 
 <h2>Children</h2>
-<p>APL is a general-purpose network utility and is not designed to collect personal information from children. The app does not knowingly collect personal information from any user.</p>
+<p>APL is a general-purpose network utility and is not designed for children. The app does not ask users to create an Arvectum account or provide their age.</p>
 
 <h2>Changes</h2>
-<p>If a future release introduces data collection, analytics, advertising, accounts, or cloud services, this policy and the in-app disclosure will be updated before those features are enabled.</p>
+<p>This policy will be updated before a release materially changes its data collection, analytics, advertising, account, or cloud-service behavior.</p>
 
 <h2>Contact</h2>
 <p>LLC ARVECTUM<br>
@@ -46,7 +47,9 @@ Project: <a href="https://github.com/arvectum2/proxy-launcher">github.com/arvect
 
 <hr>
 <h1 lang="ru">Политика конфиденциальности</h1>
-<p lang="ru">Arvectum Proxy Launcher — локальная сетевая утилита. ООО «Арвектум» не собирает, не продаёт, не использует и не передаёт третьим лицам пользовательский трафик, историю посещений, данные прокси, идентификаторы устройства, аналитику или рекламные данные через текущие приложения Android, iOS и macOS. Адрес, порт, логин, настройки маршрутизации и локальный журнал хранятся на устройстве. На Android пароль прокси шифруется ключом из Android Keystore; на платформах Apple используется системная Связка ключей. APL создаёт локальный системный VPN/туннель и направляет выбранный трафик через прокси, указанный пользователем: на Android используется VpnService, на iOS и macOS — Network Extension / NEVPNManager. В текущей публичной версии серверы ООО «Арвектум» не находятся в пути пользовательского трафика. В приложении нет рекламы, аналитики, трекинга, регистрации или облачного backend.</p>
+<p lang="ru">Arvectum Proxy Launcher — локальная сетевая утилита. ООО «Арвектум» не собирает и не хранит пользовательский трафик, историю посещений, данные прокси или содержимое коммуникаций. Начиная с публичной Android-версии 0.1.38, приложение использует Yandex Mobile Ads для показа рекламы. Приватная Android-сборка и текущие версии для iOS и macOS рекламный SDK не содержат.</p>
+<p lang="ru">Перед ручной инициализацией рекламного SDK для показа рекламы публичная Android-сборка сохраняет на устройстве выбор пользователя относительно обработки рекламных данных и передаёт этот выбор SDK. Отказ не блокирует работу APL. Локально также хранятся счётчик запусков и время последнего показа рекламы для ограничения частоты. В зависимости от согласия пользователя и настроек устройства Яндекс может обрабатывать рекламный идентификатор, IP-адрес, параметры устройства и ОС и иные технические рекламные данные в соответствии со своей <a href="https://yandex.com/legal/international_ads_privacy_policy/en/">политикой конфиденциальности рекламы</a>. APL не передаёт Яндексу сохранённые адреса прокси, логины и пароли прокси, списки исключений сайтов/приложений, содержимое сетевого трафика или журнал истории посещений.</p>
+<p lang="ru">Адрес, порт, имя профиля, логин, настройки маршрутизации, исключения и локальный журнал APL хранятся на устройстве. На Android пароль прокси шифруется ключом из Android Keystore; на платформах Apple используется системная Связка ключей. APL создаёт локальный системный VPN/туннель и направляет выбранный трафик через прокси, указанный пользователем: на Android используется VpnService, на iOS и macOS — Network Extension / NEVPNManager. В публичной Android-сборке отсутствует предназначенный для друзей бесплатный шлюз Arvectum. ООО «Арвектум» не инспектирует и не хранит содержимое пользовательского трафика.</p>
 <p lang="ru">Контакт: <a href="mailto:arutyunov@arvectum.com">arutyunov@arvectum.com</a>.</p>
 </main></body>
 </html>

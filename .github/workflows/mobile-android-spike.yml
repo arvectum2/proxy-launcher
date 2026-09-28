@@ -33,43 +33,87 @@ jobs:
             echo "Dogfood signer mismatch: $actual" >&2
             exit 1
           }
+      - name: Verify public/private dependency boundary
+        shell: bash
+        run: |
+          gradle -p mobile/android :app:dependencies --configuration publicDebugRuntimeClasspath > /tmp/public-deps.txt
+          gradle -p mobile/android :app:dependencies --configuration privateDebugRuntimeClasspath > /tmp/private-deps.txt
+          grep -F "com.yandex.android:mobileads:8.5.0" /tmp/public-deps.txt
+          ! grep -F "com.yandex.android:mobileads" /tmp/private-deps.txt
       - name: Android lint
-        run: gradle -p mobile/android lintDebug --stacktrace
+        run: gradle -p mobile/android lintPublicDebug lintPrivateDebug --stacktrace
       - name: Upload Android lint report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: proxy-launcher-android-lint
           path: |
-            mobile/android/app/build/reports/lint-results-debug.html
-            mobile/android/app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+            mobile/android/app/build/reports/lint-results-publicDebug.html
+            mobile/android/app/build/reports/lint-results-privateDebug.html
+            mobile/android/app/build/intermediates/lint_intermediate_text_report/publicDebug/lintReportPublicDebug/lint-results-publicDebug.txt
+            mobile/android/app/build/intermediates/lint_intermediate_text_report/privateDebug/lintReportPrivateDebug/lint-results-privateDebug.txt
           if-no-files-found: warn
-      - name: Test and assemble debug APK
-        run: gradle -p mobile/android testDebugUnitTest assembleDebug --stacktrace
-      - name: Verify assembled APK signer and branding
+      - name: Test and assemble debug APKs
+        run: gradle -p mobile/android testPublicDebugUnitTest testPrivateDebugUnitTest assemblePublicDebug assemblePrivateDebug --stacktrace
+      - name: Verify assembled APK signers, identities and branding
         shell: bash
         run: |
-          apk="mobile/android/app/build/outputs/apk/debug/app-debug.apk"
+          public_apk="mobile/android/app/build/outputs/apk/public/debug/app-public-debug.apk"
+          private_apk="mobile/android/app/build/outputs/apk/private/debug/app-private-debug.apk"
           apksigner="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -n "$apksigner"
-          "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-signing.txt
-          grep -Fqi "certificate SHA-256 digest: fd57cd46ad1e54a153aa9ed56b4bbb630b33015e23d4c6a86077a67cf0e28313" /tmp/apk-signing.txt
+          for apk in "$public_apk" "$private_apk"; do
+            "$apksigner" verify --print-certs "$apk" | tee /tmp/apk-signing.txt
+            grep -Fqi "certificate SHA-256 digest: fd57cd46ad1e54a153aa9ed56b4bbb630b33015e23d4c6a86077a67cf0e28313" /tmp/apk-signing.txt
+            unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_launcher_foreground.png"
+            unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_mark.png"
+            unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher.xml"
+            unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher_round.xml"
+          done
           aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           test -n "$aapt"
-          "$aapt" dump badging "$apk" | tee /tmp/apk-badging.txt
-          grep -F "versionCode='38'" /tmp/apk-badging.txt
-          grep -F "versionName='0.1.37'" /tmp/apk-badging.txt
-          unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_launcher_foreground.png"
-          unzip -l "$apk" | grep -F "res/drawable-nodpi-v4/arvectum_mark.png"
-          unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher.xml"
-          unzip -l "$apk" | grep -F "res/mipmap-anydpi-v26/arvectum_launcher_round.xml"
+          "$aapt" dump badging "$public_apk" | tee /tmp/public-badging.txt
+          "$aapt" dump badging "$private_apk" | tee /tmp/private-badging.txt
+          grep -F "package: name='ru.arvectum.proxylauncher' versionCode='39' versionName='0.1.38'" /tmp/public-badging.txt
+          grep -F "package: name='ru.arvectum.proxylauncher.private' versionCode='39' versionName='0.1.38-private'" /tmp/private-badging.txt
+          "$aapt" dump permissions "$public_apk" | tee /tmp/public-permissions.txt
+          "$aapt" dump permissions "$private_apk" | tee /tmp/private-permissions.txt
+          grep -F "com.google.android.gms.permission.AD_ID" /tmp/public-permissions.txt
+          ! grep -F "com.google.android.gms.permission.AD_ID" /tmp/private-permissions.txt
+      - name: Assemble unsigned release APKs
+        run: gradle -p mobile/android assemblePublicRelease assemblePrivateRelease --stacktrace
+      - name: Verify unsigned release identities and ad IDs
+        shell: bash
+        run: |
+          public_release="mobile/android/app/build/outputs/apk/public/release/app-public-release-unsigned.apk"
+          private_release="mobile/android/app/build/outputs/apk/private/release/app-private-release-unsigned.apk"
+          aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          "$aapt" dump badging "$public_release" | grep -F "package: name='ru.arvectum.proxylauncher' versionCode='39' versionName='0.1.38'"
+          "$aapt" dump badging "$private_release" | grep -F "package: name='ru.arvectum.proxylauncher.private' versionCode='39' versionName='0.1.38-private'"
+          unzip -p "$public_release" 'classes*.dex' | strings | grep -F "R-M-20130429-1"
+          ! unzip -p "$private_release" 'classes*.dex' | strings | grep -F "R-M-20130429-1"
+          ! unzip -p "$public_release" 'classes*.dex' | strings | grep -F "mac-mini-master.tail786c4b.ts.net"
+          unzip -p "$private_release" 'classes*.dex' | strings | grep -F "mac-mini-master.tail786c4b.ts.net"
+      - name: Upload unsigned release APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-launcher-android-release-unsigned
+          path: |
+            mobile/android/app/build/outputs/apk/public/release/app-public-release-unsigned.apk
+            mobile/android/app/build/outputs/apk/private/release/app-private-release-unsigned.apk
+          if-no-files-found: error
       - name: Record APK SHA-256
-        run: sha256sum mobile/android/app/build/outputs/apk/debug/app-debug.apk | tee mobile/android/app/build/outputs/apk/debug/SHA256SUMS.txt
-      - name: Upload dogfood APK
+        shell: bash
+        run: |
+          sha256sum mobile/android/app/build/outputs/apk/public/debug/app-public-debug.apk \
+            mobile/android/app/build/outputs/apk/private/debug/app-private-debug.apk \
+            | tee mobile/android/app/build/outputs/apk/SHA256SUMS.txt
+      - name: Upload dogfood APKs
         uses: actions/upload-artifact@v4
         with:
           name: proxy-launcher-android-debug
           path: |
-            mobile/android/app/build/outputs/apk/debug/app-debug.apk
-            mobile/android/app/build/outputs/apk/debug/SHA256SUMS.txt
+            mobile/android/app/build/outputs/apk/public/debug/app-public-debug.apk
+            mobile/android/app/build/outputs/apk/private/debug/app-private-debug.apk
+            mobile/android/app/build/outputs/apk/SHA256SUMS.txt
           if-no-files-found: error

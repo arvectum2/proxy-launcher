@@ -20,6 +20,7 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import android.os.SystemClock
 import java.net.InetAddress
+import ru.arvectum.proxylauncher.BuildConfig
 import ru.arvectum.proxylauncher.MainActivity
 import ru.arvectum.proxylauncher.gateway.FreeGatewayClient
 import ru.arvectum.proxylauncher.gateway.FreeSessionRefreshPolicy
@@ -396,7 +397,8 @@ class ProxyVpnService : VpnService() {
     }
 
     private fun resolveProxySelection(generation: Long): PreparedProxy {
-        val freeLocationId = store.getActiveFreeLocationId()
+        val freeLocationId =
+            if (BuildConfig.FREE_GATEWAY_ENABLED) store.getActiveFreeLocationId() else null
         if (freeLocationId != null) {
             val label = store.getActiveFreeLocationLabel()?.ifBlank { null } ?: freeLocationId
             val displayName = "$label · бесплатно"
@@ -1310,8 +1312,8 @@ class ProxyVpnService : VpnService() {
         const val ACTION_CONNECT = "ru.arvectum.proxylauncher.CONNECT"
         const val ACTION_DISCONNECT = "ru.arvectum.proxylauncher.DISCONNECT"
         const val ACTION_RECONCILE = "ru.arvectum.proxylauncher.RECONCILE"
-        const val INTERNAL_BROADCAST_PERMISSION =
-            "ru.arvectum.proxylauncher.permission.INTERNAL_STATE"
+        val INTERNAL_BROADCAST_PERMISSION: String =
+            BuildConfig.APPLICATION_ID + ".permission.INTERNAL_STATE"
         const val ACTION_STATE = "ru.arvectum.proxylauncher.STATE"
         const val ACTION_POOL_UPDATE = "ru.arvectum.proxylauncher.POOL_UPDATE"
         const val ACTION_POOL_STATE = "ru.arvectum.proxylauncher.POOL_STATE"

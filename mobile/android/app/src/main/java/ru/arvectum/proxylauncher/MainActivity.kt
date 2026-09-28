@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import ru.arvectum.proxylauncher.ads.AdPrivacySettings
 import ru.arvectum.proxylauncher.gateway.FreeGatewayClient
 import ru.arvectum.proxylauncher.gateway.FreeProxyLocation
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
@@ -80,7 +81,7 @@ class MainActivity : Activity() {
     private lateinit var poolUiStore: PoolUiStateStore
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val freeGatewayClient = FreeGatewayClient()
+    private val freeGatewayClient by lazy { FreeGatewayClient() }
     private var currentState = ProxyVpnService.STATE_DISCONNECTED
     private var currentProfileId: String? = null
     private var profileChoices: List<ProfileChoice> = emptyList()
@@ -89,7 +90,8 @@ class MainActivity : Activity() {
     private var switchInProgress = false
     private var profilePopup: PopupWindow? = null
     private var appExclusionLoadingDialog: AlertDialog? = null
-    private var freeLocations: List<FreeProxyLocation> = FreeGatewayClient.BOOTSTRAP_LOCATIONS
+    private var freeLocations: List<FreeProxyLocation> =
+        if (BuildConfig.FREE_GATEWAY_ENABLED) FreeGatewayClient.BOOTSTRAP_LOCATIONS else emptyList()
     private var freeLocationsLastFetchedAtMs = 0L
     private val freeLocationRetryRunnable = Runnable { refreshFreeLocations(force = true) }
     @Volatile private var freeLocationRefreshInProgress = false
@@ -126,6 +128,9 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         store = SecureProfileStore(this)
         poolUiStore = PoolUiStateStore(this)
+        if (!BuildConfig.FREE_GATEWAY_ENABLED) {
+            runCatching { store.clearActiveFreeLocation() }
+        }
 
         window.statusBarColor = NAVY
         window.navigationBarColor = NAVY
@@ -191,7 +196,9 @@ class MainActivity : Activity() {
             null,
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
-        refreshFreeLocations(force = true)
+        if (BuildConfig.FREE_GATEWAY_ENABLED) {
+            refreshFreeLocations(force = true)
+        }
         startProfileHealthScan()
     }
 
@@ -322,6 +329,13 @@ class MainActivity : Activity() {
                     addView(settingsDestinationButton("Исключения сайтов") { showSiteExclusionsDialog() })
                     addView(settingsDestinationButton("Исключения приложений") { showAppExclusionsDialog() })
                     addView(settingsDestinationButton("Настройки Auto") { showAutoSettingsDialog() })
+                    if (BuildConfig.ADS_ENABLED) {
+                        addView(
+                            settingsDestinationButton("Реклама и конфиденциальность") {
+                                AdPrivacySettings.show(this@MainActivity)
+                            },
+                        )
+                    }
                     addView(
                         TextView(this@MainActivity).apply {
                             text = "Расширенные действия отделены от ежедневного подключения."
@@ -699,7 +713,9 @@ class MainActivity : Activity() {
     }
 
     private fun showProfileMenu() {
-        refreshFreeLocations()
+        if (BuildConfig.FREE_GATEWAY_ENABLED) {
+            refreshFreeLocations()
+        }
         if (profileChoices.isEmpty()) return
 
         val rows = LinearLayout(this).apply {
@@ -855,6 +871,7 @@ class MainActivity : Activity() {
     }
 
     private fun refreshFreeLocations(force: Boolean = false) {
+        if (!BuildConfig.FREE_GATEWAY_ENABLED) return
         val now = System.currentTimeMillis()
         if (!force &&
             freeLocations.isNotEmpty() &&
@@ -894,8 +911,18 @@ class MainActivity : Activity() {
             emptyList()
         }
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
-        val selectedFreeId = runCatching { store.getActiveFreeLocationId() }.getOrNull()
-        val selectedFreeLabel = runCatching { store.getActiveFreeLocationLabel() }.getOrNull()
+        val selectedFreeId =
+            if (BuildConfig.FREE_GATEWAY_ENABLED) {
+                runCatching { store.getActiveFreeLocationId() }.getOrNull()
+            } else {
+                null
+            }
+        val selectedFreeLabel =
+            if (BuildConfig.FREE_GATEWAY_ENABLED) {
+                runCatching { store.getActiveFreeLocationLabel() }.getOrNull()
+            } else {
+                null
+            }
         val displayedFreeLocations = buildList {
             if (selectedFreeId != null && freeLocations.none { it.id == selectedFreeId }) {
                 add(
@@ -1326,6 +1353,7 @@ class MainActivity : Activity() {
                     currentProfileId = id
                 }
                 ChoiceKind.FREE -> {
+                    if (!BuildConfig.FREE_GATEWAY_ENABLED) return false
                     val id = choice.freeLocationId ?: return false
                     store.setActiveFreeLocation(id, choice.label.removeSuffix(" · бесплатно"))
                     currentProfileId = null
@@ -1387,7 +1415,12 @@ class MainActivity : Activity() {
     }
 
     private fun currentSelectionKey(): String {
-        val freeId = runCatching { store.getActiveFreeLocationId() }.getOrNull()
+        val freeId =
+            if (BuildConfig.FREE_GATEWAY_ENABLED) {
+                runCatching { store.getActiveFreeLocationId() }.getOrNull()
+            } else {
+                null
+            }
         if (freeId != null) return FREE_KEY_PREFIX + freeId
         return if (runCatching { store.isAutoProfileSelection() }.getOrDefault(false)) {
             AUTO_KEY
