@@ -1,0 +1,39 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-PAUSE-NODE-NETWORK-20260929
+status: in_progress
+goal: "Remove APL-NODE-001 and Arvectum Network from the primary product roadmap and pause both tracks while preserving all work in backlog/history."
+authority: OWNER
+definition_of_done:
+  - "docs/ROADMAP.md contains no active APL-NODE-001 or Arvectum Network sections, workstream entries, priorities or execution-order actions."
+  - "docs/LOCAL_EXECUTION_BACKLOG.md preserves P12 APL-NODE-001 and P13 Arvectum Network with full context, explicitly marked DEFERRED / PAUSED BY OWNER."
+  - ".agent/execution-queue.yaml marks both tracks deferred and non-executable until explicit Owner reactivation."
+  - "PR #195 and ARVECTUM_NETWORK_ROADMAP.md are preserved; no product code or infrastructure is deleted."
+  - "The unrelated active .agent/current-task.yaml Mac App Store remediation task is not modified."
+  - "Required exact-head CI passes before merge."
+completed:
+  - "Set APL-NODE-001 and ARVECTUM-NETWORK-MVP-20260927 to status deferred in .agent/execution-queue.yaml with explicit no-work-until-reactivation scopes."
+  - "Removed all APL-NODE-001 / Arvectum Network / managed-node references from docs/ROADMAP.md."
+  - "Preserved full P12/P13 content in docs/LOCAL_EXECUTION_BACKLOG.md and marked both DEFERRED / PAUSED BY OWNER."
+  - "Confirmed active Mac App Store .agent/current-task.yaml is unchanged."
+  - "Verified current main a40fb1fa29c27487999a1bdda106f2bf22432417."
+  - "Verified active current-task is unrelated Mac App Store rejection remediation; it will be preserved unchanged."
+  - "Verified APL-NODE-001 is currently queue status in_progress and appears in primary ROADMAP + backlog P12."
+  - "Verified Arvectum Network is currently queue status blocked and appears in primary ROADMAP + backlog P13."
+current: "Primary roadmap removal and backlog deferral are complete. Open metadata/docs PR, verify exact-head CI and merge."
+pending:
+  - "Open metadata/docs PR, verify exact-head CI and merge."
+  - "Mark this checkpoint completed."
+last_verified_commit: "a40fb1fa29c27487999a1bdda106f2bf22432417"
+test_results:
+  - "Cross-file inspection PASS: zero primary-roadmap occurrences of APL-NODE-001, Arvectum Network or managed-node; backlog retains both; queue has exactly two deferred statuses for these tracks."
+  - "Pre-change repository inspection complete."
+resume_instruction: "Continue metadata/docs-only pause of APL-NODE-001 and Arvectum Network. Do not alter product code, PR #195 contents, ARVECTUM_NETWORK_ROADMAP.md contents, active Mac App Store current-task, production infrastructure, or watchdog state."
+updated_at: "2026-09-29T00:47:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "APL-ROADMAP-PAUSE-NODE-NETWORK-20260929"
+  branch: "agent/pause-node-network-roadmap-20260929"
+  base_commit: "a40fb1fa29c27487999a1bdda106f2bf22432417"
+  lease_until: null
+  manual_override: true

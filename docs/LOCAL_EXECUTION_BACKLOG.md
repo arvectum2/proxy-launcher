@@ -265,9 +265,9 @@ Remaining HUMAN step:
 
 Do not merge/use stale PR #198 build-38 bump unless Apple reports a new binary issue; corrected build 37 is already valid.
 
-## P12 — APL-NODE-001 managed proxy infrastructure — IN PROGRESS / PR #195
+## P12 — APL-NODE-001 managed proxy infrastructure — DEFERRED / PAUSED BY OWNER
 
-Owner direction 2026-09-27: prioritize reusable Arvectum-managed node capacity over one-for-one third-party proxy resale.
+Paused by Owner on 2026-09-29. Preserve all existing Phase A work and context below, but do not continue implementation, merge PR #195 or provision real infrastructure until explicitly reactivated.
 
 Phase A implemented in PR #195:
 - provider-neutral Transport / ExitClass / ProductSpec / ManagedNode / ManagedAccess contracts;
@@ -279,7 +279,7 @@ Phase A implemented in PR #195:
 - focused managed-node + free-gateway suite 21/21 PASS; py_compile and diff checks PASS;
 - official Xray v26.9.9 binary/version/x25519 generation verified.
 
-Pending:
+Deferred resume queue (do not execute while paused):
 1. exact `xray run -test` on generated config in an environment that permits it;
 2. Android managed VLESS/REALITY profile consumption without breaking manual proxy types;
 3. iOS managed profile transport integration;
@@ -289,9 +289,9 @@ Pending:
 
 Hard boundary: no automatic VPS/IP/provider purchase, production mutation, billing or public sale.
 
-## P13 — Arvectum Network commercial infrastructure — PLANNED / HUMAN GATES
+## P13 — Arvectum Network commercial infrastructure — DEFERRED / PAUSED BY OWNER
 
-Detailed checklist: `ARVECTUM_NETWORK_ROADMAP.md`.
+Paused by Owner on 2026-09-29. Detailed checklist remains preserved in `ARVECTUM_NETWORK_ROADMAP.md`; no infrastructure/legal/commercial execution should continue until explicit reactivation.
 
 Fixed decisions:
 - VPS-first MVP; third-party proxy supplier marketplace deferred;
@@ -307,7 +307,7 @@ Current factual state:
 - target Moscow MVP sizing: 2 vCPU / 4 GB / 50 GB;
 - Roskomnadzor operator notification/responsible-person/final hosting-location facts remain HUMAN/legal work.
 
-Sequence:
+Deferred resume queue (do not execute while paused):
 1. provision/harden Moscow control plane and self-hosted PostgreSQL + encrypted backups/restore drill;
 2. reconcile privacy policy and complete required personal-data operator steps;
 3. deploy Frankfurt pilot and technical per-user credentials/telemetry;
@@ -356,8 +356,8 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **iOS APP STORE:** 0.1.36 build 37 VALID / APP_STORE_ELIGIBLE; HUMAN blocker is one physical iOS 27 screen recording, then screenshots/review attachment/reply/resubmission.
 - **APL-UI-001:** DONE / merged #193.
 - **PER-APP WINDOWS:** PR #144 is already refreshed/green; now blocked only on explicit Owner architecture selection.
-- **APL-NODE-001:** IN PROGRESS / PR #195; Phase A green, managed Android/iOS transport next, paid EU node remains HUMAN gate.
-- **ARVECTUM NETWORK:** VPS-first roadmap admitted; Timeweb Cloud account exists; Moscow control + self-hosted PostgreSQL + Frankfurt pilot are next external infrastructure steps.
+- **APL-NODE-001:** DEFERRED / PAUSED BY OWNER; Phase A and PR #195 are preserved in backlog, with no further engineering until explicit reactivation.
+- **ARVECTUM NETWORK:** DEFERRED / PAUSED BY OWNER; detailed VPS-first plan remains in backlog/ARVECTUM_NETWORK_ROADMAP.md, with no infrastructure/legal/commercial execution until explicit reactivation.
 - **FREE GATEWAY:** live controlled-test infrastructure; broad-public anti-abuse/quota hardening still pending.
 - **APL-MOB-004:** PLANNED / OWNER-GATED.
 - **APL-REL-016:** REVIEW refresh remains available but lower priority than the current managed-node track.
@@ -365,7 +365,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD.
 - **PROXY LAUNCHER WATCHDOG:** intentionally not part of this update; do not enable it.
 
-Current work order: finish the active iOS review-fix when the physical recording is supplied; continue safe APL-NODE-001 repository work independently; provision real Network infrastructure only through explicit HUMAN/Owner actions; leave #144 at Owner decision gate.
+Current work order: follow the canonical active task; keep #144 at the Owner decision gate. APL-NODE-001 and Arvectum Network are backlog-only and must not be worked on until the Owner explicitly reactivates them.
 
 ## Completion discipline
 
