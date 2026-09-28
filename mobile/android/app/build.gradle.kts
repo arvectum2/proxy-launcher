@@ -158,6 +158,24 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("public") {
+            dimension = "distribution"
+            buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "false")
+        }
+        create("private") {
+            dimension = "distribution"
+            applicationIdSuffix = ".private"
+            versionNameSuffix = "-private"
+            buildConfigField("boolean", "FREE_GATEWAY_ENABLED", "true")
+        }
+    }
+
     buildTypes {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("dogfood")
@@ -175,6 +193,7 @@ tasks.named("preBuild").configure {
 
 dependencies {
     implementation("androidx.core:core:1.15.0")
+    add("publicImplementation", "com.yandex.android:mobileads:8.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
 }
