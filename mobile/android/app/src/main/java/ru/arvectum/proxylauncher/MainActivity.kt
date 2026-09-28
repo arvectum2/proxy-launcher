@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import ru.arvectum.proxylauncher.ads.AdPrivacySettings
 import ru.arvectum.proxylauncher.gateway.FreeGatewayClient
 import ru.arvectum.proxylauncher.gateway.FreeProxyLocation
 import ru.arvectum.proxylauncher.model.PrimaryRestorePolicy
@@ -328,6 +329,13 @@ class MainActivity : Activity() {
                     addView(settingsDestinationButton("Исключения сайтов") { showSiteExclusionsDialog() })
                     addView(settingsDestinationButton("Исключения приложений") { showAppExclusionsDialog() })
                     addView(settingsDestinationButton("Настройки Auto") { showAutoSettingsDialog() })
+                    if (BuildConfig.ADS_ENABLED) {
+                        addView(
+                            settingsDestinationButton("Реклама и конфиденциальность") {
+                                AdPrivacySettings.show(this@MainActivity)
+                            },
+                        )
+                    }
                     addView(
                         TextView(this@MainActivity).apply {
                             text = "Расширенные действия отделены от ежедневного подключения."
