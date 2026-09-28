@@ -24,6 +24,12 @@ jobs:
           gradle-version: '8.9'
       - name: Fetch pinned tun2proxy native libraries
         run: python3 mobile/android/tools/fetch_tun2proxy.py
+      - name: Verify public Android source excludes friend gateway
+        shell: bash
+        run: |
+          test ! -e mobile/android/app/src/main/java/ru/arvectum/proxylauncher/gateway/FreeGatewayClient.kt
+          test ! -e mobile/android/app/src/main/java/ru/arvectum/proxylauncher/tunnel/FreeTunnelRecoveryPolicy.kt
+          ! grep -R -n -E 'FreeGatewayClient|FreeTunnelRecoveryPolicy|/v1/free/|[Бб]есплатн' mobile/android/app/src/main
       - name: Verify stable dogfood signing key
         shell: bash
         run: |

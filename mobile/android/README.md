@@ -307,6 +307,10 @@ Physical acceptance for this slice must kill the active Auto-selected test proxy
 - Persisted `DISCONNECTED`, `DISCONNECTING`, and `ERROR` states never auto-connect on foreground resume.
 - Android version is `0.1.20` / versionCode 21 for in-place dogfood installation over 0.1.19.
 
+## 0.1.38 RuStore public candidate
+
+0.1.38 keeps the accepted adaptive UI and Android VPN recovery fixes while narrowing the public product to user-supplied proxy profiles. The friend-only free gateway/location/session flow introduced for private testing is removed from the UI, runtime service, and production source set. Site exclusions and application exclusions remain available, and Auto selection continues to operate only across proxy profiles saved by the user. Upgrades from friend builds clear obsolete persisted gateway selection/recovery state without deleting user proxy profiles.
+
 ## 0.1.37 external-VPN takeover recovery candidate
 
 0.1.37 fixes the field-reported sequence APL connected → another VPN app takes the Android VPN slot → that VPN disconnects → APL is reopened. Android revocation now publishes the terminal DISCONNECTED state before native-engine cleanup, so process/service teardown cannot leave a durable DISCONNECTING latch. Foreground resume now refreshes from the persisted service state before deciding whether any VPN reconciliation is allowed, preventing a background MainActivity with stale CONNECTED state from silently reconnecting APL after Amnezia disconnects. Immediate user connect/disconnect intent is persisted before issuing the service command so this resume reconciliation cannot roll back a just-requested action. As a second recovery guard, a persisted DISCONNECTING state is treated as stale on foreground resume and is reset to DISCONNECTED without probing VPN permission or auto-connecting. Manual disconnect keeps its normal transient DISCONNECTING state until cleanup completes.
