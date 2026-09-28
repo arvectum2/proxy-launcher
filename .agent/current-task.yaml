@@ -25,9 +25,9 @@ completed:
   - "CI artifact proxy-launcher-android-debug contains both public and private APKs."
   - "Public debug APK SHA-256 c49f621a7a3deb78075bebcde4762ca08eb94ff5fdd33fe950375591381e21e1."
   - "Private debug APK SHA-256 eb562905d4ebb5bf8b77dddcbd15fab1c166125785551900d0581fba775bd559."
-current: "Completed: public ads/private no-ads Android 0.1.38 architecture is implemented and CI-verified; PR #219 is ready to merge."
+current: "Completed and merged to main as edd1840d43f445e20542e48f019a7215d1c88cae."
 pending: []
-last_verified_commit: "4345cc73121fce2b3dafbed2373a06ad1df8e1a9"
+last_verified_commit: "edd1840d43f445e20542e48f019a7215d1c88cae"
 test_results:
   - "PASS: Mobile Android spike run 36413494107."
   - "PASS: lintPublicDebug + lintPrivateDebug."
@@ -38,11 +38,11 @@ test_results:
   - "PASS: public runtime contains com.yandex.android:mobileads:8.5.0; private runtime dependency graph does not contain Yandex Mobile Ads."
   - "PASS: stable dogfood signer and branding assertions for both APKs."
 blocker: ""
-resume_instruction: "Task completed. Merge PR #219 if not already merged, then use the public Android 0.1.38 artifact as the RuStore advertising test candidate. Do not use the private package for RuStore; it remains the no-ads sideload lane."
-updated_at: "2026-09-28T14:18:00+03:00"
+resume_instruction: "Task completed on main commit edd1840d43f445e20542e48f019a7215d1c88cae. Use public Android 0.1.38 as the RuStore advertising test candidate; keep ru.arvectum.proxylauncher.private as the no-ads sideload lane."
+updated_at: "2026-09-28T14:24:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "interactive-20260928-yandex-appopen"
-  branch: "task/android-yandex-appopen-20260928"
+  branch: "main"
   base_commit: "894f35ff1067935e1fb79feafb48c472b231e901"
   manual_override: true
