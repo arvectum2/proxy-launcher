@@ -1,0 +1,36 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MOB-004-ADS-20260928
+status: in_progress
+goal: "Integrate Yandex App Open Ads into the public Android distribution while keeping a separate private no-ads build and preserving the RuStore public scope without the friends-only free gateway."
+authority: HUMAN
+definition_of_done:
+  - "Android has explicit public and private distribution variants from one codebase."
+  - "Public variant keeps applicationId ru.arvectum.proxylauncher, uses Yandex Mobile Ads SDK 8.5.0, uses demo-appopenad-yandex in debug and production unit R-M-20130429-1 in release."
+  - "Ad launch path is fail-open: load/show failure or timeout never blocks opening APL."
+  - "Private variant contains no Yandex Mobile Ads dependency/runtime and has a distinct package identity to avoid RuStore replacing it."
+  - "Public variant does not expose or activate the friends-only free proxy gateway; manual/Auto saved profiles and site/application exclusions remain available."
+  - "Relevant Android unit/build/lint checks pass for both variants and CI is updated for flavored task names."
+  - "Canonical checkpoint records exact tested commit, artifacts and remaining RuStore physical/store acceptance."
+completed:
+  - "Owner supplied production Yandex App Open ad unit R-M-20130429-1."
+  - "Verified current Yandex Android SDK 8 documentation: latest SDK 8.5.0; App Open API and demo unit demo-appopenad-yandex."
+  - "Created task branch task/android-ads-public-private-20260928 from current main."
+current: "Implement distribution flavors, public ad launch gate, private no-op path, and public free-gateway disablement."
+pending:
+  - "Implement code/build/manifest changes."
+  - "Add/update regression tests and CI for public/private variants."
+  - "Run exact-head CI and obtain Android artifacts."
+  - "Perform physical/RuStore alpha acceptance before marking completed."
+last_verified_commit: "846535856892781d9c677d4d00acbbec8630da16"
+test_results:
+  - "Not run yet for this task."
+blocker: ""
+resume_instruction: "Continue on task/android-ads-public-private-20260928. Implement the public/private Android flavors first, then Yandex App Open launch gating with production ID only in public release and demo ID in public debug. Keep private no-ads and keep the friends-only free gateway disabled in public. Run both flavored Android variants and exact-head CI before RuStore alpha acceptance."
+updated_at: "2026-09-28T12:50:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-MOB-004-ADS-20260928"
+  branch: "task/android-ads-public-private-20260928"
+  base_commit: "846535856892781d9c677d4d00acbbec8630da16"
+  manual_override: true
