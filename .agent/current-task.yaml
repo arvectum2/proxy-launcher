@@ -1,7 +1,7 @@
 version: 1
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-INSTALL-WIFE-20260928
-status: in_progress
+status: completed
 goal: "Install the current APL iOS build on the wife's physically connected iPhone via Mac mini and verify it launches."
 definition_of_done:
   - "The wife's physical iPhone is positively identified and reachable through CoreDevice."
@@ -16,12 +16,17 @@ completed:
   - "Existing APL Development and Packet Tunnel Development profiles include only iPhone Nikita; wife UDID is absent."
   - "Apple Developer resource mapping verified: app bundleId resource X64C5DTUBV, extension bundleId resource YV64M74949, development certificate XZJ6L4J3WW."
 
-current: "Register wife device in Apple Developer, create device-specific development profiles, sign build 40, then attempt install."
-pending:
-  - "If required, refresh provisioning/signing for the new device."
-  - "Install APL and verify version/build and launch."
+  - "Registered wife iPhone in Apple Developer: device resource R3GFH6N4V4, hardware UDID 00008130-001159E21AFA001C."
+  - "Created device-specific development profiles without modifying Nikita profiles: APL Development Anastasia 20260928 (J676QSAQAZ / UUID 62e12a25-ca0f-4db8-9ae7-3b0d93245ddd) and APL Packet Tunnel Development Anastasia 20260928 (Q27XA623C7 / UUID dc1aebb9-7ada-42b7-b6ee-48945fad68f1)."
+  - "Signed exact CI iOS 0.1.36 build 40 as /Users/master/AppReviewAPL/APL-0.1.36-40-anastasia.app using Apple Development certificate and wife-specific profiles."
+  - "devicectl install succeeded on iPhone (Анастасия); on-device app record verifies Arvectum Proxy Launcher 0.1.36 build 40."
+  - "devicectl launch succeeded and process list confirms Arvectum Proxy Launcher is running on the wife iPhone."
+current: "Completed: APL 0.1.36 build 40 is installed and running on iPhone (Анастасия)."
+pending: []
 last_verified_commit: ""
-test_results: []
+test_results:
+  - "Wife iPhone install: PASS — 0.1.36 build 40 installed."
+  - "Wife iPhone launch: PASS — app process confirmed running." []
 blocker: ""
-resume_instruction: "Use only Mac mini. Read this checkpoint, identify the wife's connected physical iPhone, then continue from the first unfinished step without repeating verified work."
-updated_at: "2026-09-28T12:16:00+03:00"
+resume_instruction: "Task completed. If future wife-device installs are needed, reuse the registered Apple Developer device R3GFH6N4V4 and the dedicated Anastasia development profiles, refreshing them only when required."
+updated_at: "2026-09-28T12:25:00+03:00"
