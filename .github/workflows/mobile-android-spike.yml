@@ -76,6 +76,30 @@ jobs:
           "$aapt" dump badging "$private_apk" | tee /tmp/private-badging.txt
           grep -F "package: name='ru.arvectum.proxylauncher' versionCode='39' versionName='0.1.38'" /tmp/public-badging.txt
           grep -F "package: name='ru.arvectum.proxylauncher.private' versionCode='39' versionName='0.1.38-private'" /tmp/private-badging.txt
+          "$aapt" dump permissions "$public_apk" | tee /tmp/public-permissions.txt
+          "$aapt" dump permissions "$private_apk" | tee /tmp/private-permissions.txt
+          grep -F "com.google.android.gms.permission.AD_ID" /tmp/public-permissions.txt
+          ! grep -F "com.google.android.gms.permission.AD_ID" /tmp/private-permissions.txt
+      - name: Assemble unsigned release APKs
+        run: gradle -p mobile/android assemblePublicRelease assemblePrivateRelease --stacktrace
+      - name: Verify unsigned release identities and ad IDs
+        shell: bash
+        run: |
+          public_release="mobile/android/app/build/outputs/apk/public/release/app-public-release-unsigned.apk"
+          private_release="mobile/android/app/build/outputs/apk/private/release/app-private-release-unsigned.apk"
+          aapt="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          "$aapt" dump badging "$public_release" | grep -F "package: name='ru.arvectum.proxylauncher' versionCode='39' versionName='0.1.38'"
+          "$aapt" dump badging "$private_release" | grep -F "package: name='ru.arvectum.proxylauncher.private' versionCode='39' versionName='0.1.38-private'"
+          unzip -p "$public_release" classes.dex | strings | grep -F "R-M-20130429-1"
+          ! unzip -p "$private_release" classes.dex | strings | grep -F "R-M-20130429-1"
+      - name: Upload unsigned release APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-launcher-android-release-unsigned
+          path: |
+            mobile/android/app/build/outputs/apk/public/release/app-public-release-unsigned.apk
+            mobile/android/app/build/outputs/apk/private/release/app-private-release-unsigned.apk
+          if-no-files-found: error
       - name: Record APK SHA-256
         shell: bash
         run: |
