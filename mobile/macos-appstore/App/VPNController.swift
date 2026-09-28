@@ -35,7 +35,10 @@ final class VPNController: ObservableObject {
 
     func prepare() async {
         do {
-            manager = try await loadOrCreateManager()
+            // Passive app launch must not create, enable, or persist a VPN
+            // configuration. Only an explicit Connect action may mutate
+            // Network Extension preferences and trigger the macOS consent UI.
+            manager = try await loadExistingManager()
             refreshStatus()
         } catch {
             detail = userFacingError(error).localizedDescription
@@ -105,6 +108,16 @@ final class VPNController: ObservableObject {
             )
         }
         try session.startTunnel(options: ["requestedByUser": true as NSNumber])
+    }
+
+    private func loadExistingManager() async throws -> NETunnelProviderManager? {
+        let managers = try await loadAllManagers()
+        let matching = managers.filter(isArvectumManager)
+        guard let manager = matching.first(where: { $0.isEnabled }) ?? matching.first else {
+            return nil
+        }
+        try await reload(manager)
+        return manager
     }
 
     private func loadOrCreateManager(forceSave: Bool = false) async throws -> NETunnelProviderManager {

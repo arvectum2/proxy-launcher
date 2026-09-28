@@ -57,6 +57,7 @@ def tool(name: str) -> str:
 def developer_dir() -> str:
     configured = os.environ.get("DEVELOPER_DIR")
     candidates = ([Path(configured)] if configured else []) + [
+        Path("/Applications/Xcode-27.0.0.app/Contents/Developer"),
         Path("/Applications/Xcode-26.6.0.app/Contents/Developer"),
         Path("/Applications/Xcode.app/Contents/Developer"),
     ]

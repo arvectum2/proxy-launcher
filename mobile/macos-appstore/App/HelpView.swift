@@ -3,8 +3,6 @@ import SwiftUI
 struct APLHelpView: View {
     let onClose: () -> Void
 
-    private let repositoryURL = URL(string: "https://github.com/arvectum2/proxy-launcher")!
-    private let releaseNotesURL = URL(string: "https://github.com/arvectum2/proxy-launcher/releases/latest")!
     private let reportProblemURL = URL(string: "https://github.com/arvectum2/proxy-launcher/issues/new")!
     private let privacyURL = URL(string: "https://arvectum2.github.io/proxy-launcher/privacy.html")!
 
@@ -94,12 +92,8 @@ struct APLHelpView: View {
             Text("Версия \(AppShared.version) · © Arvectum LLC")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            HStack(spacing: 18) {
-                Link("View on GitHub", destination: repositoryURL)
-                Link("Release Notes", destination: releaseNotesURL)
-                Link("Report a Problem", destination: reportProblemURL)
-            }
-            .font(.callout)
+            Link("Report a Problem", destination: reportProblemURL)
+                .font(.callout)
             Link("Политика конфиденциальности", destination: privacyURL)
                 .font(.callout)
             Text("Проверка обновлений: откройте Mac App Store → Updates. Эта сборка намеренно не использует отдельный механизм обновления.")

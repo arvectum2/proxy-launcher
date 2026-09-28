@@ -113,7 +113,7 @@ security create-keychain -p "$kcpass" "$KC"
 security set-keychain-settings -lut 21600 "$KC"
 
 p12pass=$(openssl rand -hex 24)
-openssl pkcs12 -export \
+openssl pkcs12 -export -legacy \
   -inkey "$WORK/installer.key" \
   -in "$WORK/installer.pem" \
   -out "$WORK/installer.p12" \
