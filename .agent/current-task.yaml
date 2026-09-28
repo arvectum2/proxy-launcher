@@ -29,14 +29,17 @@ completed:
   - "Build 3 installer package was produced with Supported OS Min=13.0; SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf."
   - "Apple altool --validate-app on the exact build 3 PKG completed VERIFY SUCCEEDED with no errors."
   - "Focused Mac App Store/capability suite passes 19/19 after build-number and Catalyst-runtime regression coverage."
-current: "Finish physical development-signed launch smoke for the corrected build-3 source, then create/update review-ready PR and prepare App Review notes; upload/resubmit only from the validated build-3 package."
+  - "Development-signed physical smoke on Mac mini passed: app process launched successfully and APL VPN configuration count remained 1 -> 1 without pressing Connect."
+  - "Merged latest main into the remediation branch without code conflicts; only canonical task state required resolution. Post-merge focused suite remains 19/19 PASS."
+  - "Opened PR #223 (fix(macos): remediate App Store 2.1 and 2.4.5 rejection); GitHub reports mergeable=true at head 3c8d98c."
+current: "Merge review-ready PR #223, upload the exact validated build-3 PKG to App Store Connect, attach/select build 3 for macOS 0.2.17, update App Review notes, and resubmit."
 pending:
   - "Audit Mac App Store source, entitlements, Info.plist, lifecycle, updater/startup/install/root behavior, bundle contents and Network Extension persistence."
   - "Inspect PR #175 merge/current-main drift and build 1 provenance."
   - "Reproduce relevant behavior on Mac mini/MacBook."
   - "Build/sign/validate corrected candidate and capture evidence."
   - "Update review notes/reply and resubmit only after verification."
-last_verified_commit: "861503a381ed92ef03dfaa5d5a87d1a0d47c62e1"
+last_verified_commit: "3c8d98cf70f539322d3ca41dacfac626ce0bda59"
 test_results:
   - "PASS: pytest tests/test_macos_appstore_contract.py tests/test_macos_capability_ux.py — 19 passed."
   - "PASS: Xcode 27 Release settings — ARCHS=arm64, build=3, IPHONEOS_DEPLOYMENT_TARGET=16.0, MACCATALYST_DEPLOYMENT_TARGET=16.0, effective MACOSX_DEPLOYMENT_TARGET=13.0."
@@ -44,9 +47,10 @@ test_results:
   - "PASS: signed build-3 archive; app + extension arm64; LSMinimumSystemVersion=13.0; codesign --verify --deep --strict."
   - "PASS: build-3 PKG productbuild Supported OS Min=13.0; PKG SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf."
   - "PASS: Apple altool validate-app on exact build-3 PKG — VERIFY SUCCEEDED with no errors."
-  - "EXPECTED/NOT A PRODUCT FAILURE: direct launch of Apple Distribution archive failed with launchd spawn error 163; physical smoke is being repeated with the installed development profiles."
+  - "PASS: development-signed physical launch smoke on Mac mini; app launched and passive startup did not create a new APL VPN configuration (1 -> 1)."
+  - "EXPECTED/NOT A PRODUCT FAILURE: direct launch of Apple Distribution archive failed with launchd spawn error 163; App Store Distribution archives are not the local runtime test vehicle."
 blocker: "Exact free-form reviewer message text is not exposed by the public App Store Connect API and Safari automation is currently blocked by macOS Apple Events permission; proceed by auditing all 2.4.5 requirements and available local evidence."
-resume_instruction: "Continue on branch fix/macos-appstore-review-20260928 at 861503a or newer. Finish the currently running development-signed Debug build on Mac mini and perform a passive-launch smoke: app starts, no new VPN configuration is created before explicit Connect, then terminate it. If green, create/update a review-ready PR, prepare concise Review Notes explaining build 3, macOS 13 minimum, passive launch behavior, App Store-only updates, and reviewer steps. The exact validated upload artifact is build/macos-appstore-review-build3/export/Arvectum-Proxy-Launcher-macOS-AppStore-0.2.17-build3.pkg with SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf. Do not select or resubmit build 2 (ASC metadata proves min macOS 12)."
+resume_instruction: "Continue from PR #223 at 3c8d98c or newer. Preserve exact validated artifact /Users/master/Arvectum/worktrees/apl-mas-review-20260928/build/macos-appstore-review-build3/export/Arvectum-Proxy-Launcher-macOS-AppStore-0.2.17-build3.pkg (SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf). Merge PR #223, upload build 3 with altool, wait until ASC processingState=VALID, verify minOsVersion/lsMinimumSystemVersion=13.0, set usesNonExemptEncryption=false if needed, select build 3 for macOS 0.2.17, update App Review notes from docs/MAC_APPSTORE_REVIEW_NOTES_20260928.md, and resubmit. Never select build 2; ASC proves it remains min macOS 12."
 updated_at: "2026-09-28T15:45:00+03:00"
 execution:
   claimed_by: chatgpt
