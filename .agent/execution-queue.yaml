@@ -3,7 +3,7 @@ repository: arvectum2/proxy-launcher
 updated_at: "2026-09-29T00:47:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "3fd8bb0307360639fd75a824291a8212333ba5a2"
+  main_sha_verified: "f99124f6896e6c9c112b82b1ead957857692a46b"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
