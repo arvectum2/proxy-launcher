@@ -144,7 +144,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **FREE RU/US GATEWAY — LIVE FRIEND-TEST INFRA.** Supplier credentials remain server-side; Android receives short-lived Arvectum gateway sessions.
 - **PUBLIC-SCALE GATE** — current free gateway still needs per-install quotas/rate limiting/anti-abuse controls before broad anonymous rollout.
 - **NO PUBLIC 0.1.36 CLAIM.** Physical acceptance/current-main version does not equal publication; a separate public Android release is required.
-- **APL-MOB-004 — PLANNED / OWNER-GATED.** Ads + public/private distribution remains separate from the managed-node and free-gateway work.
+- **APL-MOB-004 — PLANNED / OWNER-GATED.** Ads + public/private distribution remains separate from the free-gateway work.
 
 ### iOS — current App Store review-fix: 0.1.36 build 37
 
@@ -157,68 +157,32 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **DO NOT BUMP TO BUILD 38 BY DEFAULT.** Open PR #198 was created during the earlier signing failure and is now superseded by the successful corrected build-37 upload unless Apple reports a new binary issue.
 - **PRIVACY TRUTH** — Data Not Collected; no ads/analytics in this App Store candidate. Do not claim public availability before Apple approval.
 
-## 8A. Managed proxy infrastructure — APL-NODE-001 — IN PROGRESS / PR #195
-
-Owner direction recorded 2026-09-27: prioritize Arvectum-managed reusable node capacity over one-for-one resale of third-party proxies.
-
-- **CORE ECONOMIC MODEL** — rent an Arvectum-controlled foreign VPS/dedicated node once and sell managed access to that capacity to multiple customers.
-- **PRIMARY TRANSPORT** — VLESS + REALITY; Trojan/TLS planned fallback; Shadowsocks 2022 remains compatibility/experimental.
-- **TRANSPORT / EXIT SEPARATION** — transport is implementation detail; exit identity/product class is separate.
-- **PRODUCT CLASSES** — Shared Datacenter; Private Pool; Dedicated Datacenter; later Static ISP, Residential and Mobile.
-- **SUPPLIER HIDING** — later ISP/residential/mobile upstream credentials remain server-side behind Arvectum profiles/control plane.
-- **PRIORITY ORDER** — own datacenter nodes → extra IPv4 Private/Dedicated → Static ISP → Residential/Mobile.
-- **PHASE A IMPLEMENTED / PR #195 GREEN** — provider-neutral Transport/ExitClass/ProductSpec/ManagedNode/ManagedAccess contracts, capacity-aware node selection, unique per-user credentials, VLESS/REALITY client URI and Xray server-config rendering with server-only REALITY private-key boundary.
-- **TESTS** — managed-node + free-gateway focused suite 21/21 PASS; py_compile/diff checks PASS; official Xray v26.9.9 binary/version and x25519 generation verified.
-- **PENDING TECH GATE** — run exact `xray run -test` against generated config in an environment that permits it.
-- **NEXT ENGINEERING** — additive managed-profile consumption for Android then iOS while preserving manual HTTP/HTTPS/SOCKS and existing Auto behavior.
-- **REAL-NODE HUMAN GATE** — one Owner-provisioned EU test node, then real Android/iOS E2E, sleep/wake/reconnect and CPU/throughput/session/traffic measurements.
-- **INFRASTRUCTURE / BILLING BOUNDARY** — no automatic VPS/IP purchase, provider commitment, production mutation, public sale or billing.
-
-## 8B. Arvectum Network — VPS-first commercial infrastructure — PLANNED / HUMAN GATES
-
-Canonical detailed checklist: `ARVECTUM_NETWORK_ROADMAP.md`.
-
-- **MVP TOPOLOGY** — Russian control plane + primary customer database on a Moscow VPS; first foreign exit pilot in Frankfurt.
-- **TIMEWEB CLOUD ACCOUNT — DONE.** Corporate account exists; actual VPS purchase/provisioning is not yet treated as completed.
-- **MOSCOW CONTROL TARGET** — `apl-control-ru-01`, initial target 2 vCPU / 4 GB RAM / 50 GB disk, subject to final purchase choice.
-- **DATABASE DECISION** — self-host PostgreSQL on the Moscow control VPS for MVP; Managed PostgreSQL is deferred until scale/availability justify it.
-- **PERSONAL DATA** — primary production customer DB stays on Russian infrastructure, not the home Mac mini. Existing Arvectum.com policy must be reconciled to actual architecture; responsible person/Roskomnadzor operator notification/register verification remain HUMAN/legal tasks.
-- **FOREIGN NODE** — first pilot `apl-de-01` in Frankfurt; minimize personal data on exit nodes and use technical identifiers.
-- **MVP GATE** — automatic provisioning/revocation, app receives config without manual low-level credentials, node health/capacity telemetry, traffic/accounting approach, failure/recovery, load test, security review and backup-restore drill.
-- **BILLING AFTER TECH/LEGAL GATES** — orders/subscriptions/payment adapters/entitlement/renewal/revocation are follow-on work.
-- **EXPANSION AFTER GERMANY PILOT** — Netherlands, Kazakhstan, Finland/second provider only after real E2E/load evidence.
-- **DEFERRED MARKETPLACE** — third-party datacenter/ISP/residential/mobile supplier adapters and traffic-priced marketplace layer come after Arvectum Network is operational.
-
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
 2. **[Android] public 0.1.19 / current-main 0.1.36.** 0.1.36 is physically accepted current source with adaptive UI and merged application-exclusion UI/enforcement; it is not yet a public Android release.
 3. **[iOS App Store / HUMAN] 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / BLOCKED ON PHYSICAL RECORDING.** After the recording arrives: replace screenshots, attach MOV, answer Guideline 2.1 and resubmit.
-4. **[macOS App Store / APPLE] 0.2.17 build 1 — SUBMITTED / WAITING FOR REVIEW.**
-5. **[APL-NODE-001 / OWNER] managed VLESS/REALITY infrastructure — IN PROGRESS / PR #195.** Phase A green; Android/iOS managed transport next; paid real EU node remains HUMAN gate.
-6. **[Arvectum Network / HUMAN] Russian control plane + Frankfurt pilot — PLANNED.** Timeweb Cloud account exists; server purchases/provisioning, personal-data operator steps and production deployment remain human/external actions.
-7. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is already reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
-8. **[APL-UI-001] Adaptive UI — DONE / MERGED #193.**
-9. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
-10. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
-11. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
-12. **[APL-MOB-004 / OWNER] advertising + dual Android public/private distribution — PLANNED.**
-13. **[Free RU/US gateway] live controlled-test infrastructure; anti-abuse/quota hardening remains before broad public rollout.**
+4. **[macOS App Store / HUMAN] 0.2.17 remediation — ACTIVE EXTERNAL REVIEW WORKFLOW.** Follow the canonical current-task; do not rebuild unless a new binary issue appears.
+5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
+6. **[APL-UI-001] Adaptive UI — DONE / MERGED #193.**
+7. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
+8. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
+9. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
+10. **[APL-MOB-004 / OWNER] advertising + dual Android public/private distribution — active product lane only as separately admitted by its current task/PR state.**
+11. **[Free RU/US gateway] live controlled-test infrastructure; anti-abuse/quota hardening remains before broad public rollout.**
 
 ### Repository-hygiene note
 
-Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #161 is the latest substantive stale trust packet. PR #68 is superseded by current per-app packet #144. PR #198’s build-38 bump is superseded by the successfully corrected/accepted build 37 unless Apple reports a new binary issue. PR #200 is superseded once this consolidated sync imports its Arvectum Network roadmap. Historical rollback/RED OS/mobile closeout branches remain non-authoritative where later merged work exists.
+Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #161 is the latest substantive stale trust packet. PR #68 is superseded by current per-app packet #144. Historical rollback/RED OS/mobile closeout branches remain non-authoritative where later merged work exists. Backlog-only paused initiatives are intentionally omitted from this primary roadmap.
 
 ### Execution order
 
-- **Current active HUMAN task:** iOS 0.1.36 App Review fix. It is blocked only on the owner-provided physical iOS 27 screen recording; do not rebuild/bump while build 37 is VALID/APP_STORE_ELIGIBLE.
-- **Current product-development priority:** APL-NODE-001 / PR #195 may continue at repository level. Stop before paid real infrastructure unless separately authorized.
-- **Arvectum Network external sequence:** Moscow control plane → self-hosted PostgreSQL/backups/legal-PD steps → Frankfurt pilot → E2E/load/security evidence → billing pilot → expansion.
-- **Windows per-app:** PR #144 is already technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
-- **macOS App Store:** wait for Apple review of 0.2.17 build 1; act only on a concrete review result.
+- Follow the canonical `.agent/current-task.yaml` for the active user-facing release/review workflow.
+- **Windows per-app:** PR #144 is technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
 - **Android:** current-main 0.1.36 is not a public release; publish only through a separate release task.
-- **APL-REL-016:** safe REVIEW refresh remains available but is below the current managed-node product priority.
+- **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
+- Paused backlog-only initiatives must not consume engineering time until the Owner explicitly restores them to the primary roadmap.
 - **Proxy Launcher Watchdog remains outside this roadmap update and must not be enabled by this task.**
 
 ## 10. Platform / distribution matrix
