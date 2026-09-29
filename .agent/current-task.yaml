@@ -45,6 +45,7 @@ test_results:
   - "ARVECTUM-DEMO physical preflight: BFE running; Secure Boot=False from elevated read-only probe; VBS and Code Integrity enforcement active; baseline curl IPv4 HTTPS returns HTTP 200; separate selected-curl.exe path prepared."
   - "Hardened test-signing lifecycle: driver load is attempted before boot-policy mutation; Arvectum records ownership only when it enables testsigning; rollback disables only Arvectum-owned test mode and reports reboot requirement."
   - "ARVECTUM-DEMO restored after Owner stop: removed task-created apl-wfp-live/selected-curl, elevated-probe files, live-acceptance script, WinGet Python temp payload and install log; verified no Python program directory, no ArvectumProxyRouting services, no routing test certificates, and no testsigning/nointegritychecks BCD entries."
+  - "Windows-dev (ArutyunovNS) upgraded through the canonical main Windows installer from APL 0.2.5.0 to 0.2.16.0; installer SHA256 matched CI evidence, upgrade completed without reboot, and proxy_settings.json/no_proxy.txt hashes were preserved."
   - "Windows-dev is online as ArutyunovNS: Windows build 26200, Python 3.14/3.11 and Git present, Visual Studio 18 BuildTools present, Windows SDK 10.0.26100.0 present, BFE running, current RDC session medium-integrity, Secure Boot enabled."
   - "Added explicit callout self-exclusion for the configured proxy process ID in addition to redirect-record loop prevention; focused native/production/redirect tests PASS 22/22."
 blocker: null

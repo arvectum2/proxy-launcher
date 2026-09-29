@@ -51,6 +51,8 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("FwpsQueryConnectionRedirectState0", CALLOUT)
         self.assertIn("FWPS_CONNECTION_PREVIOUSLY_REDIRECTED_BY_SELF", CALLOUT)
         self.assertIn("FWPS_CONNECTION_REDIRECTED_BY_OTHER", CALLOUT)
+        self.assertIn("FWPS_METADATA_FIELD_PROCESS_ID", CALLOUT)
+        self.assertIn("meta->processId == (UINT64)(ULONG)proxy_pid", CALLOUT)
         self.assertIn("SDDL_DEVOBJ_SYS_ALL_ADM_ALL", CALLOUT)
 
     def test_callout_preserves_original_destination_context(self):
