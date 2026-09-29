@@ -18,6 +18,9 @@ CALLOUT = (
 ACCEPTANCE = (
     ROOT / "native" / "windows_routing" / "wfp_acceptance_helper.cpp"
 ).read_text(encoding="utf-8")
+SELECTED_CLIENT = (
+    ROOT / "native" / "windows_routing" / "wfp_selected_client.cpp"
+).read_text(encoding="utf-8")
 TEST_INSTALL = (
     ROOT / "tools" / "windows_wfp_test_install.ps1"
 ).read_text(encoding="utf-8")
