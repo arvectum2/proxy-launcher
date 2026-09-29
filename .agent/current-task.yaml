@@ -31,7 +31,7 @@ pending:
   - "Connect redirected flows to the existing local proxy."
   - "Run hosted Windows build/contract CI."
   - "Run real Windows acceptance when a physical/remote Windows host is available."
-last_verified_commit: "cfa44259264e4dc68efdeba0d07aad06ce4ece95"
+last_verified_commit: "cb1890e4755bfe541ef3c2014bf507ec249e6cf0"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -42,6 +42,8 @@ test_results:
   - "Corrected driver project to match Microsoft's WFPSampler build contract with NDIS630 and fixed FWPS_CALLOUT_NOTIFY_FN1's non-const FWPS_FILTER1 pointer; focused local suite PASS 24/24."
   - "Added CI test-signing package for the callout/service/helper plus reversible elevated install/rollback scripts; local routing/native suite PASS 15/15."
   - "Added self-contained WFP acceptance relay mode: helper queries redirect context/records, connects to the original destination with redirect-record propagation, relays TCP, and logs observed original destination; local native/production suite PASS 16/16."
+  - "ARVECTUM-DEMO physical preflight: BFE running; Secure Boot=False from elevated read-only probe; VBS and Code Integrity enforcement active; baseline curl IPv4 HTTPS returns HTTP 200; separate selected-curl.exe path prepared."
+  - "Hardened test-signing lifecycle: driver load is attempted before boot-policy mutation; Arvectum records ownership only when it enables testsigning; rollback disables only Arvectum-owned test mode and reports reboot requirement."
 blocker: null
 resume_instruction: "ARVECTUM-DEMO is online. Continue on agent/apl-route-windows-production-20260929: build the smallest WFP callout with current WDK, prepare a test-signed install path, wire redirect context/records to the local proxy, then run selected-vs-unselected app routing and recovery tests. Keep live_enforcement_supported=false until acceptance passes."
 updated_at: "2026-09-29T11:33:00+03:00"
