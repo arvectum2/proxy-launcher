@@ -22,11 +22,19 @@ def sockaddr_v6(host, port):
     return bytes(raw)
 
 
-def context(remote, local):
+def context(remote, local, *, metadata_original=None):
+    if metadata_original is None:
+        return (
+            struct.pack("<II", redirect.CONTEXT_MAGIC, redirect.CONTEXT_VERSION_V1)
+            + remote
+            + local
+        )
     return (
         struct.pack("<II", redirect.CONTEXT_MAGIC, redirect.CONTEXT_VERSION)
         + remote
         + local
+        + struct.pack("<II", redirect.CONTEXT_HAS_METADATA_ORIGINAL, 0)
+        + metadata_original
     )
 
 
@@ -50,9 +58,20 @@ class WindowsRedirectTransportTests(unittest.TestCase):
         self.assertEqual(remote, ("2001:db8::7", 8443))
         self.assertEqual(local, ("2001:db8::10", 51000))
 
+    def test_v2_context_prefers_metadata_original_destination(self):
+        remote, local = redirect.parse_redirect_context(
+            context(
+                sockaddr_v4("127.0.0.1", 49739),
+                sockaddr_v4("192.0.2.10", 50123),
+                metadata_original=sockaddr_v4("203.0.113.9", 443),
+            )
+        )
+        self.assertEqual(remote, ("203.0.113.9", 443))
+        self.assertEqual(local, ("192.0.2.10", 50123))
+
     def test_wrong_owner_or_version_fails_closed(self):
         payload = (
-            struct.pack("<II", 0x11111111, redirect.CONTEXT_VERSION)
+            struct.pack("<II", 0x11111111, redirect.CONTEXT_VERSION_V1)
             + sockaddr_v4("203.0.113.9", 443)
             + sockaddr_v4("192.0.2.10", 50123)
         )

@@ -20,9 +20,14 @@ SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT = 0x980000DD
 SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS = 0x980000DE
 REDIRECT_RECORDS_MAX = 8192
 SOCKADDR_STORAGE_SIZE = 128
-REDIRECT_CONTEXT_SIZE = 8 + (SOCKADDR_STORAGE_SIZE * 2)
+REDIRECT_CONTEXT_V1_SIZE = 8 + (SOCKADDR_STORAGE_SIZE * 2)
+REDIRECT_CONTEXT_SIZE = (
+    REDIRECT_CONTEXT_V1_SIZE + 8 + SOCKADDR_STORAGE_SIZE
+)
 CONTEXT_MAGIC = 0x52565041
-CONTEXT_VERSION = 1
+CONTEXT_VERSION_V1 = 1
+CONTEXT_VERSION = 2
+CONTEXT_HAS_METADATA_ORIGINAL = 0x00000001
 
 
 class WindowsRedirectTransportError(RuntimeError):
@@ -55,11 +60,15 @@ def parse_sockaddr_storage(data: bytes) -> Tuple[str, int]:
     return host, port
 def parse_redirect_context(data: bytes) -> Tuple[Tuple[str, int], Tuple[str, int]]:
     raw = bytes(data)
-    if len(raw) != REDIRECT_CONTEXT_SIZE:
+    if len(raw) not in (REDIRECT_CONTEXT_V1_SIZE, REDIRECT_CONTEXT_SIZE):
         raise WindowsRedirectTransportError("unexpected redirect context size")
     magic, version = struct.unpack_from("<II", raw, 0)
-    if magic != CONTEXT_MAGIC or version != CONTEXT_VERSION:
+    if magic != CONTEXT_MAGIC or version not in (CONTEXT_VERSION_V1, CONTEXT_VERSION):
         raise WindowsRedirectTransportError("redirect context owner/version mismatch")
+    if version == CONTEXT_VERSION_V1 and len(raw) != REDIRECT_CONTEXT_V1_SIZE:
+        raise WindowsRedirectTransportError("redirect context version/size mismatch")
+    if version == CONTEXT_VERSION and len(raw) != REDIRECT_CONTEXT_SIZE:
+        raise WindowsRedirectTransportError("redirect context version/size mismatch")
     remote_start = 8
     local_start = remote_start + SOCKADDR_STORAGE_SIZE
     remote = parse_sockaddr_storage(
@@ -68,6 +77,14 @@ def parse_redirect_context(data: bytes) -> Tuple[Tuple[str, int], Tuple[str, int
     local = parse_sockaddr_storage(
         raw[local_start:local_start + SOCKADDR_STORAGE_SIZE]
     )
+    if version == CONTEXT_VERSION:
+        flags_start = local_start + SOCKADDR_STORAGE_SIZE
+        flags, _reserved = struct.unpack_from("<II", raw, flags_start)
+        metadata_start = flags_start + 8
+        if flags & CONTEXT_HAS_METADATA_ORIGINAL:
+            remote = parse_sockaddr_storage(
+                raw[metadata_start:metadata_start + SOCKADDR_STORAGE_SIZE]
+            )
     return remote, local
 
 

@@ -175,7 +175,34 @@ bool QueryRedirectData(
     return result != SOCKET_ERROR &&
         returned == sizeof(*context) &&
         context->magic == ARVECTUM_ROUTING_CONTEXT_MAGIC &&
-        context->version == ARVECTUM_ROUTING_IOCTL_VERSION;
+        context->version == ARVECTUM_ROUTING_CONTEXT_VERSION;
+}
+
+std::wstring EndpointText(const SOCKADDR_STORAGE& storage) {
+    wchar_t host[INET6_ADDRSTRLEN]{};
+    USHORT port = 0;
+    if (storage.ss_family == AF_INET) {
+        const auto* address =
+            reinterpret_cast<const SOCKADDR_IN*>(&storage);
+        InetNtopW(
+            AF_INET,
+            const_cast<IN_ADDR*>(&address->sin_addr),
+            host,
+            INET6_ADDRSTRLEN);
+        port = ntohs(address->sin_port);
+    } else if (storage.ss_family == AF_INET6) {
+        const auto* address =
+            reinterpret_cast<const SOCKADDR_IN6*>(&storage);
+        InetNtopW(
+            AF_INET6,
+            const_cast<IN6_ADDR*>(&address->sin6_addr),
+            host,
+            INET6_ADDRSTRLEN);
+        port = ntohs(address->sin6_port);
+    } else {
+        return L"<unavailable>";
+    }
+    return std::wstring(host) + L":" + std::to_wstring(port);
 }
 
 bool RelayPair(SOCKET first, SOCKET second) {
@@ -223,10 +250,28 @@ bool RelayRedirectedClient(SOCKET client) {
         return false;
     }
 
-    const int family = context.original_remote.ss_family;
+    const bool has_metadata_original =
+        (context.flags & ARVECTUM_REDIRECT_CONTEXT_HAS_METADATA_ORIGINAL) != 0 &&
+        (context.metadata_original.ss_family == AF_INET ||
+         context.metadata_original.ss_family == AF_INET6);
+    const SOCKADDR_STORAGE& destination =
+        has_metadata_original ? context.metadata_original : context.original_remote;
+    const int family = destination.ss_family;
     if (family != AF_INET && family != AF_INET6) {
         return false;
     }
+    std::wcout
+        << L"ARVECTUM_WFP_REDIRECT_CONTEXT request_remote="
+        << EndpointText(context.original_remote)
+        << L" request_local=" << EndpointText(context.original_local)
+        << L" metadata_original="
+        << (has_metadata_original
+                ? EndpointText(context.metadata_original)
+                : std::wstring(L"<unavailable>"))
+        << L" selected=" << EndpointText(destination)
+        << L" records=" << records.size() << L"\n";
+    std::wcout.flush();
+
     SOCKET outbound = WSASocketW(
         family,
         SOCK_STREAM,
@@ -257,28 +302,15 @@ bool RelayRedirectedClient(SOCKET client) {
         family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
     if (connect(
             outbound,
-            reinterpret_cast<const sockaddr*>(&context.original_remote),
+            reinterpret_cast<const sockaddr*>(&destination),
             address_length) == SOCKET_ERROR) {
         closesocket(outbound);
         return false;
     }
 
-    wchar_t host[INET6_ADDRSTRLEN]{};
-    USHORT port = 0;
-    if (family == AF_INET) {
-        const auto* address =
-            reinterpret_cast<const SOCKADDR_IN*>(&context.original_remote);
-        InetNtopW(AF_INET, const_cast<IN_ADDR*>(&address->sin_addr), host, INET6_ADDRSTRLEN);
-        port = ntohs(address->sin_port);
-    } else {
-        const auto* address =
-            reinterpret_cast<const SOCKADDR_IN6*>(&context.original_remote);
-        InetNtopW(AF_INET6, const_cast<IN6_ADDR*>(&address->sin6_addr), host, INET6_ADDRSTRLEN);
-        port = ntohs(address->sin6_port);
-    }
     std::wcout
         << L"ARVECTUM_WFP_REDIRECT_OBSERVED original="
-        << host << L":" << port
+        << EndpointText(destination)
         << L" records=" << records.size() << L"\n";
 
     const bool relayed = RelayPair(client, outbound);

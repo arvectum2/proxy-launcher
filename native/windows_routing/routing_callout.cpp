@@ -240,7 +240,7 @@ static VOID NTAPI ClassifyFn(
         redirect_context,
         sizeof(ARVECTUM_REDIRECT_CONTEXT));
     redirect_context->magic = ARVECTUM_ROUTING_CONTEXT_MAGIC;
-    redirect_context->version = ARVECTUM_ROUTING_IOCTL_VERSION;
+    redirect_context->version = ARVECTUM_ROUTING_CONTEXT_VERSION;
     RtlCopyMemory(
         &redirect_context->original_remote,
         &request->remoteAddressAndPort,
@@ -249,6 +249,17 @@ static VOID NTAPI ClassifyFn(
         &redirect_context->original_local,
         &request->localAddressAndPort,
         sizeof(SOCKADDR_STORAGE));
+    if (meta != NULL &&
+        (meta->currentMetadataValues &
+            FWPS_METADATA_FIELD_ORIGINAL_DESTINATION) != 0 &&
+        meta->originalDestination != NULL) {
+        RtlCopyMemory(
+            &redirect_context->metadata_original,
+            meta->originalDestination,
+            sizeof(SOCKADDR_STORAGE));
+        redirect_context->flags |=
+            ARVECTUM_REDIRECT_CONTEXT_HAS_METADATA_ORIGINAL;
+    }
 
     request->localRedirectHandle = g_redirect_handle;
     request->localRedirectTargetPID = (DWORD)proxy_pid;

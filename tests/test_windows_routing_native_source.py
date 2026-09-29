@@ -88,6 +88,9 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("request->localAddressAndPort,", CALLOUT)
         self.assertIn("&request->remoteAddressAndPort", CALLOUT)
         self.assertIn("&request->localAddressAndPort", CALLOUT)
+        self.assertIn("FWPS_METADATA_FIELD_ORIGINAL_DESTINATION", CALLOUT)
+        self.assertIn("meta->originalDestination", CALLOUT)
+        self.assertIn("ARVECTUM_REDIRECT_CONTEXT_HAS_METADATA_ORIGINAL", CALLOUT)
 
     def test_callout_fail_closed_after_writable_acquisition_failure(self):
         self.assertIn("classify_out->actionType = FWP_ACTION_BLOCK", CALLOUT)
@@ -115,6 +118,8 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT", ACCEPTANCE)
         self.assertIn("SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS", ACCEPTANCE)
         self.assertIn("ARVECTUM_WFP_REDIRECT_OBSERVED", ACCEPTANCE)
+        self.assertIn("ARVECTUM_WFP_REDIRECT_CONTEXT request_remote=", ACCEPTANCE)
+        self.assertIn("context.metadata_original", ACCEPTANCE)
         self.assertIn("GetCurrentProcessId()", ACCEPTANCE)
 
     def test_live_acceptance_preserves_primary_helper_failure(self):

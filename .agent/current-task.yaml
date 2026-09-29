@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "First live selected-vs-unselected WFP run proved real redirect and redirect-record delivery but exposed a callout pointer bug: helper observed original=127.0.0.1:49692 instead of the real remote endpoint. FWPS_CONNECT_REQUEST0 address members are pointers; the callout incorrectly copied/cast the address of those pointer fields. Pointer semantics and live-failure reporting are patched locally; run WDK CI, install the fresh driver in ARVECTUM-WFP-DEV, and repeat live acceptance."
+current: "Fresh f36e986 WDK CI and VM install PASS, but live selected redirect still reports request-derived original=127.0.0.1:49739 while direct curl targets public 8.6.112.0:443 with all proxy settings disabled. Added backward-compatible redirect context v2 carrying metadata.originalDestination, and updated helper/Python transport to prefer that authoritative metadata when present while logging request_remote/request_local/metadata_original. Next: MSVC/WDK build and live acceptance with this diagnostic/fix."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -32,7 +32,7 @@ pending:
   - "Run crash/reboot/rollback acceptance and verify owned WFP resources, certificate and test-signing cleanup."
   - "Exercise the production controller + privileged service against the existing local transparent proxy; keep domains fail-closed."
   - "Set live_enforcement_supported=true only after the complete Windows acceptance matrix passes."
-last_verified_commit: "3194d36bf1a9f10065f72a4be940065d2530cb76"
+last_verified_commit: "f36e9866538c99e800ca034a34c62ca3043f7bda"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -79,6 +79,14 @@ test_results:
   - "Patched windows_wfp_live_acceptance.ps1 to preserve primary helper/selected-curl diagnostics when the helper exits before Wait-Process."
   - "PASS: focused native/production/redirect/application suite after pointer fix — 35 tests; git diff --check PASS."
   - "PASS: Windows CI run 36565483380 for certutil commit 3194d36 completed successfully."
+  - "Corrected FWPS_CONNECT_REQUEST0 semantics against current Microsoft WDK documentation: localAddressAndPort/remoteAddressAndPort are embedded SOCKADDR_STORAGE fields, not pointers; restored address-of access and added LOCAL_REDIRECT_TARGET_PID repeat-redirect suppression in f36e986."
+  - "PASS: focused native/production/redirect/application suite after loop-suppression fix — 35 tests; git diff --check PASS."
+  - "PASS: Windows-dev MSVC user-mode compile/link for f36e986: ArvectumWfpAcceptance.exe, native service protocol test, and ArvectumProxyRoutingService.exe."
+  - "PASS: hosted WDK CI run 36568540907 for f36e986: kernel driver build, x64 ApiValidator, WDK test-signing, bundle packaging, WFP SDK probe and artifact upload all green."
+  - "PASS: fresh f36e986 driver installed in ARVECTUM-WFP-DEV; service RUNNING under new test cert BBB55589CC896B33E5A8571ABF470D209B48F20E; old cert EF27F1DB3E349278E50F7FE81D6C7B4AF3789B97 removed."
+  - "PARTIAL: f36e986 live acceptance still redirects selected app and carries records=1006, but custom request-derived original remains loopback 127.0.0.1:49739; helper restores cleanly."
+  - "PASS: guest network diagnostic shows ProxyEnable=0, WinHTTP direct, no proxy env settings, and direct curl --noproxy '*' reaches public 8.6.112.0:443 with HTTP 200."
+  - "Added redirect-context v2 diagnostics/fix: preserve request remote/local plus FWPS_METADATA_FIELD_ORIGINAL_DESTINATION; helper and Python transport prefer metadata original when available while retaining v1 parsing. Focused suite PASS 36/36; git diff check PASS."
 blocker: null
-resume_instruction: "Continue on Windows-dev (ArutyunovNS) and ARVECTUM-WFP-DEV only. Commit/push the FWPS_CONNECT_REQUEST0 pointer fix and live diagnostic fix, wait for green WDK CI, fetch its fresh windows-per-app-native-foundation artifact, replace/reload the driver in the guest, and repeat selected-vs-unselected live WFP acceptance. Require a non-loopback original remote endpoint and HTTP 200 for both paths before moving to crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false. ARVECTUM-DEMO must remain untouched."
+resume_instruction: "Continue on Windows-dev (ArutyunovNS) and ARVECTUM-WFP-DEV only. Commit/push redirect-context v2 metadata-original changes, run MSVC + hosted WDK CI, install the fresh artifact in the guest, and repeat live selected-vs-unselected acceptance. Inspect ARVECTUM_WFP_REDIRECT_CONTEXT diagnostics; require metadata/selected endpoint to be non-loopback and selected+unselected HTTP 200 before crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false. ARVECTUM-DEMO must remain untouched."
 updated_at: "2026-09-29T15:15:00+03:00"
