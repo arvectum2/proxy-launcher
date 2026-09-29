@@ -71,7 +71,7 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
     def test_callout_has_loop_prevention_and_bounded_admin_device(self):
         self.assertIn("FwpsQueryConnectionRedirectState0", CALLOUT)
         self.assertIn("FWPS_CONNECTION_PREVIOUSLY_REDIRECTED_BY_SELF", CALLOUT)
-        self.assertIn("FWPS_CONNECTION_REDIRECTED_BY_OTHER", CALLOUT)
+        self.assertNotIn("state == FWPS_CONNECTION_REDIRECTED_BY_OTHER", CALLOUT)
         self.assertIn("FWPS_METADATA_FIELD_PROCESS_ID", CALLOUT)
         self.assertIn("meta->processId == (UINT64)(ULONG)proxy_pid", CALLOUT)
         self.assertIn("FWPS_METADATA_FIELD_LOCAL_REDIRECT_TARGET_PID", CALLOUT)

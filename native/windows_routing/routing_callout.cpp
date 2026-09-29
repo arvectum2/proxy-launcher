@@ -40,6 +40,9 @@ static HANDLE g_redirect_handle = NULL;
 static volatile LONG g_enabled = 0;
 static volatile LONG g_proxy_pid = 0;
 static volatile LONG g_proxy_port = 0;
+static volatile LONG g_diagnostic_sequence = 0;
+static ARVECTUM_ROUTING_DIAGNOSTIC_EVENT
+    g_diagnostic_events[ARVECTUM_ROUTING_DIAGNOSTIC_EVENT_COUNT]{};
 
 static NTSTATUS CompleteIrp(
     PIRP irp,
@@ -65,12 +68,36 @@ static NTSTATUS DispatchDeviceControl(
     PIRP irp)
 {
     PIO_STACK_LOCATION stack;
-    ARVECTUM_ROUTING_CONFIG* config;
+    ULONG code;
 
     UNREFERENCED_PARAMETER(device_object);
     stack = IoGetCurrentIrpStackLocation(irp);
-    if (stack->Parameters.DeviceIoControl.IoControlCode !=
-        IOCTL_ARVECTUM_ROUTING_SET_CONFIG) {
+    code = stack->Parameters.DeviceIoControl.IoControlCode;
+
+    if (code == IOCTL_ARVECTUM_ROUTING_GET_DIAGNOSTICS) {
+        if (stack->Parameters.DeviceIoControl.OutputBufferLength <
+            sizeof(ARVECTUM_ROUTING_DIAGNOSTICS)) {
+            return CompleteIrp(irp, STATUS_BUFFER_TOO_SMALL, 0);
+        }
+        ARVECTUM_ROUTING_DIAGNOSTICS* diagnostics =
+            (ARVECTUM_ROUTING_DIAGNOSTICS*)irp->AssociatedIrp.SystemBuffer;
+        if (diagnostics == NULL) {
+            return CompleteIrp(irp, STATUS_INVALID_PARAMETER, 0);
+        }
+        RtlZeroMemory(diagnostics, sizeof(*diagnostics));
+        diagnostics->version = ARVECTUM_ROUTING_DIAGNOSTICS_VERSION;
+        diagnostics->count = ARVECTUM_ROUTING_DIAGNOSTIC_EVENT_COUNT;
+        RtlCopyMemory(
+            diagnostics->events,
+            g_diagnostic_events,
+            sizeof(g_diagnostic_events));
+        return CompleteIrp(
+            irp,
+            STATUS_SUCCESS,
+            sizeof(ARVECTUM_ROUTING_DIAGNOSTICS));
+    }
+
+    if (code != IOCTL_ARVECTUM_ROUTING_SET_CONFIG) {
         return CompleteIrp(irp, STATUS_INVALID_DEVICE_REQUEST, 0);
     }
     if (stack->Parameters.DeviceIoControl.InputBufferLength <
@@ -78,7 +105,8 @@ static NTSTATUS DispatchDeviceControl(
         return CompleteIrp(irp, STATUS_BUFFER_TOO_SMALL, 0);
     }
 
-    config = (ARVECTUM_ROUTING_CONFIG*)irp->AssociatedIrp.SystemBuffer;
+    ARVECTUM_ROUTING_CONFIG* config =
+        (ARVECTUM_ROUTING_CONFIG*)irp->AssociatedIrp.SystemBuffer;
     if (config == NULL ||
         config->version != ARVECTUM_ROUTING_IOCTL_VERSION ||
         config->proxy_port > 65535u) {
@@ -90,6 +118,10 @@ static NTSTATUS DispatchDeviceControl(
         return CompleteIrp(irp, STATUS_INVALID_PARAMETER, 0);
     }
 
+    if (config->enabled != 0) {
+        RtlZeroMemory(g_diagnostic_events, sizeof(g_diagnostic_events));
+        InterlockedExchange(&g_diagnostic_sequence, 0);
+    }
     InterlockedExchange(&g_proxy_pid, (LONG)config->proxy_pid);
     InterlockedExchange(&g_proxy_port, (LONG)config->proxy_port);
     InterlockedExchange(&g_enabled, config->enabled ? 1 : 0);
@@ -122,8 +154,7 @@ static BOOLEAN ShouldSkipRedirect(
         NULL);
 
     if (state == FWPS_CONNECTION_REDIRECTED_BY_SELF ||
-        state == FWPS_CONNECTION_PREVIOUSLY_REDIRECTED_BY_SELF ||
-        state == FWPS_CONNECTION_REDIRECTED_BY_OTHER) {
+        state == FWPS_CONNECTION_PREVIOUSLY_REDIRECTED_BY_SELF) {
         return TRUE;
     }
     return FALSE;
@@ -236,6 +267,64 @@ static BOOLEAN CaptureClassifyEndpoints(
 
     return FALSE;
 }
+
+static ARVECTUM_ROUTING_DIAGNOSTIC_EVENT* BeginDiagnosticEvent(
+    const FWPS_INCOMING_VALUES0* fixed_values,
+    const FWPS_INCOMING_METADATA_VALUES0* meta)
+{
+    const LONG sequence = InterlockedIncrement(&g_diagnostic_sequence);
+    const ULONG index =
+        (ULONG)(sequence - 1) % ARVECTUM_ROUTING_DIAGNOSTIC_EVENT_COUNT;
+    ARVECTUM_ROUTING_DIAGNOSTIC_EVENT* event =
+        &g_diagnostic_events[index];
+
+    RtlZeroMemory(event, sizeof(*event));
+    event->sequence = (ULONG)sequence;
+    if (fixed_values != NULL) {
+        event->layer_id = fixed_values->layerId;
+        if (fixed_values->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V4) {
+            const FWP_VALUE0* flags =
+                &fixed_values->incomingValue[
+                    FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_FLAGS].value;
+            if (flags->type == FWP_UINT32) {
+                event->condition_flags = flags->uint32;
+            }
+        } else if (
+            fixed_values->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V6) {
+            const FWP_VALUE0* flags =
+                &fixed_values->incomingValue[
+                    FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_FLAGS].value;
+            if (flags->type == FWP_UINT32) {
+                event->condition_flags = flags->uint32;
+            }
+        }
+        CaptureClassifyEndpoints(
+            fixed_values,
+            &event->fixed_remote,
+            &event->fixed_local);
+    }
+    if (meta != NULL) {
+        if ((meta->currentMetadataValues & FWPS_METADATA_FIELD_PROCESS_ID) != 0) {
+            event->process_id = meta->processId;
+        }
+        if ((meta->currentMetadataValues &
+                FWPS_METADATA_FIELD_LOCAL_REDIRECT_TARGET_PID) != 0) {
+            event->local_redirect_target_pid =
+                meta->localRedirectTargetPID;
+        }
+        if (meta->redirectRecords != NULL) {
+            event->has_redirect_records = 1;
+            if (g_redirect_handle != NULL) {
+                event->redirect_state = (ULONG)
+                    FwpsQueryConnectionRedirectState0(
+                        meta->redirectRecords,
+                        g_redirect_handle,
+                        NULL);
+            }
+        }
+    }
+    return event;
+}
 static VOID NTAPI ClassifyFn(
     const FWPS_INCOMING_VALUES0* fixed_values,
     const FWPS_INCOMING_METADATA_VALUES0* meta,
@@ -249,6 +338,7 @@ static VOID NTAPI ClassifyFn(
     PVOID writable = NULL;
     FWPS_CONNECT_REQUEST0* request = NULL;
     ARVECTUM_REDIRECT_CONTEXT* redirect_context = NULL;
+    ARVECTUM_ROUTING_DIAGNOSTIC_EVENT* diagnostic_event = NULL;
     NTSTATUS status;
     LONG enabled;
     LONG proxy_pid;
@@ -270,7 +360,11 @@ static VOID NTAPI ClassifyFn(
     if (!enabled || proxy_pid <= 0 ||
         proxy_port <= 0 || proxy_port > 65535 ||
         fixed_values == NULL || filter == NULL ||
-        classify_context == NULL || ShouldSkipRedirect(meta)) {
+        classify_context == NULL) {
+        return;
+    }
+    diagnostic_event = BeginDiagnosticEvent(fixed_values, meta);
+    if (ShouldSkipRedirect(meta)) {
         return;
     }
     if (meta != NULL &&
@@ -308,6 +402,16 @@ static VOID NTAPI ClassifyFn(
     }
 
     request = (FWPS_CONNECT_REQUEST0*)writable;
+    if (diagnostic_event != NULL) {
+        RtlCopyMemory(
+            &diagnostic_event->writable_remote,
+            &request->remoteAddressAndPort,
+            sizeof(SOCKADDR_STORAGE));
+        RtlCopyMemory(
+            &diagnostic_event->writable_local,
+            &request->localAddressAndPort,
+            sizeof(SOCKADDR_STORAGE));
+    }
     if (request->previousVersion != NULL &&
         (request->previousVersion->modifierFilterId == filter->filterId ||
          request->previousVersion->localRedirectHandle != NULL)) {

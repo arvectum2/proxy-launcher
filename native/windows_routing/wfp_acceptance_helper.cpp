@@ -205,6 +205,34 @@ std::wstring EndpointText(const SOCKADDR_STORAGE& storage) {
     return std::wstring(host) + L":" + std::to_wstring(port);
 }
 
+void DumpDriverDiagnostics() {
+    HANDLE device = CreateFileW(
+        kDevicePath, GENERIC_READ, 0, nullptr, OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (device == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    ARVECTUM_ROUTING_DIAGNOSTICS diagnostics{};
+    DWORD returned = 0;
+    const BOOL ok = DeviceIoControl(
+        device, IOCTL_ARVECTUM_ROUTING_GET_DIAGNOSTICS,
+        nullptr, 0, &diagnostics, sizeof(diagnostics),
+        &returned, nullptr);
+    CloseHandle(device);
+    if (!ok || returned != sizeof(diagnostics)) {
+        return;
+    }
+    for (const auto& event : diagnostics.events) {
+        if (event.sequence != 0) {
+            std::wcout << L"ARVECTUM_WFP_DIAG "
+                       << event.sequence << L" "
+                       << event.redirect_state << L" "
+                       << event.condition_flags << L" "
+                       << event.fixed_remote.ss_family << L"\n";
+        }
+    }
+}
+
 bool RelayPair(SOCKET first, SOCKET second) {
     std::array<char, 65536> buffer{};
     for (;;) {
