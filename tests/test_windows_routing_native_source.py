@@ -132,17 +132,23 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("context.metadata_original", ACCEPTANCE)
         self.assertIn("GetCurrentProcessId()", ACCEPTANCE)
 
-    def test_live_acceptance_preserves_primary_helper_failure(self):
-        self.assertIn("if (-not $process.HasExited)", LIVE_ACCEPTANCE)
-        self.assertIn("$process.WaitForExit()", LIVE_ACCEPTANCE)
-        self.assertIn("$helperExit = $process.ExitCode", LIVE_ACCEPTANCE)
-        self.assertIn("$null -eq $helperExit -or $helperExit -ne 0", LIVE_ACCEPTANCE)
-        self.assertIn("${helperExit}: stdout=$log stderr=$err", LIVE_ACCEPTANCE)
+    def test_live_acceptance_uses_deterministic_selected_client(self):
+        self.assertIn("ArvectumWfpSelectedClient.exe", LIVE_ACCEPTANCE)
+        self.assertIn("selected-wfp-client.exe", LIVE_ACCEPTANCE)
+        self.assertNotIn("selected-curl.exe", LIVE_ACCEPTANCE)
+        self.assertIn("ARVECTUM_WFP_SELECTED_CLIENT_HTTP_200", LIVE_ACCEPTANCE)
+        self.assertIn("$null -ne $helperExit -and $helperExit -ne 0", LIVE_ACCEPTANCE)
         self.assertIn(
             "ARVECTUM_WFP_REDIRECT_OBSERVED original=(127\\.|::1:)",
             LIVE_ACCEPTANCE,
         )
-        self.assertIn("stdout=$log stderr=$err", LIVE_ACCEPTANCE)
+
+    def test_selected_client_is_single_socket_http_probe(self):
+        self.assertIn("socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)", SELECTED_CLIENT)
+        self.assertEqual(SELECTED_CLIENT.count("connect("), 1)
+        self.assertIn("InetPtonW(AF_INET", SELECTED_CLIENT)
+        self.assertIn("GET / HTTP/1.1", SELECTED_CLIENT)
+        self.assertIn("ARVECTUM_WFP_SELECTED_CLIENT_HTTP_200", SELECTED_CLIENT)
 
     def test_test_install_rolls_back_only_certificates_added_by_this_attempt(self):
         self.assertIn("$certWasInRoot", TEST_INSTALL)
