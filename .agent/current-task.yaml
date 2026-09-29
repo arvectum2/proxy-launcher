@@ -14,7 +14,7 @@ definition_of_done:
 completed:
   - "Owner instruction on 2026-09-29 removed the architecture stop-gate; Option A selected."
   - "Initial production scope constrained to all/CIDR selectors; domain selectors fail closed."
-  - "Implemented protocol v1 in windows_routing_service_contract.py with fixed owned resources, strict app-id/CIDR validation and 512-filter limit."
+  - "Implemented protocol v2 in windows_routing_service_contract.py with fixed owned resources, strict app-id/CIDR validation, validated transparent proxy PID/port and 512-filter limit."
   - "Implemented WindowsRoutingController with journal-before-service apply, exact resource acknowledgement, restoring-on-failure and verified cleanup."
   - "Implemented Windows-only bounded named-pipe client transport with 1 MiB frame limits."
   - "Added native Windows Service host scaffold with PIPE_REJECT_REMOTE_CLIENTS, explicit local ACL and bounded framing; it deliberately rejects enforcement commands until the WFP lifecycle is wired."
@@ -24,14 +24,14 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "ARVECTUM-WFP-DEV Windows 11 unattended installation is progressing (38% verified); the fbf0ffd CI acceptance bundle is fully green and downloaded to Windows-dev. Next: finish guest setup, enable guest-only test signing, load the callout, and run selected-vs-unselected live routing plus rollback."
+current: "ARVECTUM-WFP-DEV first unattended install failed after reaching 54% because the VM was actually BIOS while the unattended disk layout is EFI/GPT. VM firmware is now corrected to UEFI with Secure Boot still off and a clean unattended reinstall is booting. The green fbf0ffd acceptance bundle is already on Windows-dev."
 pending:
   - "Get native WFP callout driver compiling cleanly with current WDK and package its .sys artifact."
   - "Implement narrow privileged Windows service for owned provider/sublayer/callout/filter lifecycle and IPC."
   - "Connect redirected flows to the existing local proxy."
   - "Run hosted Windows build/contract CI."
   - "Run real Windows acceptance when a physical/remote Windows host is available."
-last_verified_commit: "fbf0ffd3506b84b770cfa5591cc633391cda3d0e"
+last_verified_commit: "4f5647e62fae6d75ac9fb31ae4234ca8a5dd56de"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -58,7 +58,9 @@ test_results:
   - "Downloaded artifact windows-per-app-native-foundation (artifact 11025220387) to Windows-dev. Driver SHA256 0b6039ddd793121910b018fe4786a5236d1ecc48019436ed226ade8eff3efe09; driver/service/helper all embed WDK test signer thumbprint 3D7415862FA3A0498CD874F3F86A443115C8952B matching the bundled certificate."
   - "ARVECTUM-WFP-DEV installation visibly reached 38%; VDI grew to ~7.8 GB, confirming active guest installation rather than an EFI/WinPE hang."
   - "Upgraded privileged service protocol to v2: apply_plan now requires validated transparent proxy PID and port so the service can configure localRedirectTargetPID consistently with the tested callout path; focused Windows suite PASS 24/24."
+  - "Added strict native canonical protocol-v2 parser for the privileged service: exact fixed resource namespace, 512-filter bound, lower-hex app IDs, bounded PID/port, no escaped/unknown JSON fields; portable compile PASS and real MSVC executable contract test PASS on Windows-dev."
+  - "ARVECTUM-WFP-DEV first unattended install reached 54% then failed; root configuration mismatch found: VM firmware was BIOS while VirtualBox unattended.xml creates EFI/GPT partitions. Corrected only this isolated VM to UEFI and restarted clean unattended installation with Secure Boot off."
   - "CI on e9d147c proved full WDK .sys creation and test signing plus explicit x64 ApiValidator PASS; bundle preparation then failed only because PowerShell reports an untrusted WDK test certificate as non-Valid on the ephemeral runner. Bundle gate relaxed to require a concrete SignerCertificate, while the certificate itself remains bundled for explicit trust installation in the disposable VM."
 blocker: null
 resume_instruction: "Continue on Windows-dev (ArutyunovNS) only. First ensure APL 0.2.16 is installed and healthy, then build/fetch the test-signed WFP bundle, install the callout, run selected-vs-unselected app routing and crash/reboot/rollback acceptance, and keep live_enforcement_supported=false until all acceptance passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T12:44:00+03:00"
+updated_at: "2026-09-29T12:53:00+03:00"
