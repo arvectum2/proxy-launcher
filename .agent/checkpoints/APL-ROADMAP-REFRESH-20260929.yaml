@@ -1,0 +1,36 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-REFRESH-20260929
+status: completed
+goal: "Refresh the canonical project roadmap from current main and authoritative checkpoints, removing stale release/review state and preserving backlog-only initiatives outside the primary roadmap."
+authority: OWNER
+definition_of_done:
+  - "docs/ROADMAP.md is dated 2026-09-29 and reflects current canonical main."
+  - "Android state reflects the submitted RuStore 0.1.38 (39) public build with Yandex App Open ads, no friend/free profiles, preserved manual profiles/Auto/site/application exclusions, and private flavor ad-free."
+  - "macOS App Store state reflects rejected build 1, corrected build 3 VALID/PREPARE_FOR_SUBMISSION, and the remaining human App Store Connect resubmission step."
+  - "iOS state is reconciled to the latest authoritative checkpoint without inventing approval/publication."
+  - "APL-NODE-001 and Arvectum Network remain absent from the primary roadmap and execution queue."
+  - "Execution-order and platform/distribution matrix are internally consistent."
+  - "Roadmap changes pass focused consistency checks and repository required CI before merge."
+completed:
+  - "Verified pre-update canonical main e27d391259a436cc3ed7802c17f2e49787f13528."
+  - "Preserved latest Mac App Store task state in .agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml."
+  - "Refreshed docs/ROADMAP.md to 2026-09-29 current state: Android 0.1.38 RuStore moderation, iOS build 37 recording blocker, macOS build 3 resubmission state, and backlog-only exclusions."
+  - "Synchronized .agent/execution-queue.yaml with the same release/review state and repaired the malformed repository_hygiene key."
+  - "Focused roadmap/queue consistency assertions passed 14/14."
+  - "PR #229 exact-head 7818a2aaf16bc234fbe2b3ce700d3bcecc3e4526 completed 11/11 returned workflows successfully."
+  - "PR #229 merged to main as d1705d1d76587a308f268bbf530a1ec341f16e36."
+current: "Completed."
+pending: []
+last_verified_commit: "d1705d1d76587a308f268bbf530a1ec341f16e36"
+merged_commit: "d1705d1d76587a308f268bbf530a1ec341f16e36"
+test_results:
+  - "PASS: focused roadmap/queue consistency assertions 14/14."
+  - "PASS: PR #229 exact-head GitHub Actions 11/11 SUCCESS, including Windows P0 portable, Windows installer, SAST, dependency scan, secret scan, SBOM, provenance/reconciliation and sovereign lifecycle checks."
+blocker: null
+resume_instruction: "No continuation required. Canonical roadmap refresh is complete on main at d1705d1d76587a308f268bbf530a1ec341f16e36. Continue future work from .agent/current-task.yaml, which is restored to the outstanding Mac App Store build-3 resubmission task."
+updated_at: "2026-09-29T07:52:00+03:00"
+execution:
+  claimed_by: null
+  branch: null
+  base_commit: "e27d391259a436cc3ed7802c17f2e49787f13528"
