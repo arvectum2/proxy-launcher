@@ -24,6 +24,9 @@ TEST_INSTALL = (
 TEST_ROLLBACK = (
     ROOT / "tools" / "windows_wfp_test_rollback.ps1"
 ).read_text(encoding="utf-8")
+LIVE_ACCEPTANCE = (
+    ROOT / "tools" / "windows_wfp_live_acceptance.ps1"
+).read_text(encoding="utf-8")
 
 
 class WindowsRoutingNativeSourceTests(unittest.TestCase):
@@ -79,6 +82,10 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("original_local", CALLOUT)
         self.assertIn("localRedirectContext", CALLOUT)
         self.assertIn("localRedirectTargetPID", CALLOUT)
+        self.assertIn("request->remoteAddressAndPort,", CALLOUT)
+        self.assertIn("request->localAddressAndPort,", CALLOUT)
+        self.assertNotIn("&request->remoteAddressAndPort", CALLOUT)
+        self.assertNotIn("&request->localAddressAndPort", CALLOUT)
 
     def test_callout_fail_closed_after_writable_acquisition_failure(self):
         self.assertIn("classify_out->actionType = FWP_ACTION_BLOCK", CALLOUT)
@@ -107,6 +114,10 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS", ACCEPTANCE)
         self.assertIn("ARVECTUM_WFP_REDIRECT_OBSERVED", ACCEPTANCE)
         self.assertIn("GetCurrentProcessId()", ACCEPTANCE)
+
+    def test_live_acceptance_preserves_primary_helper_failure(self):
+        self.assertIn("if (-not $process.HasExited)", LIVE_ACCEPTANCE)
+        self.assertIn("stdout=$log stderr=$err", LIVE_ACCEPTANCE)
 
     def test_test_install_rolls_back_only_certificates_added_by_this_attempt(self):
         self.assertIn("$certWasInRoot", TEST_INSTALL)

@@ -53,16 +53,18 @@ if ($process.HasExited) {
 
 $selectedResult = & $selected -4 -sS --max-time 20 -o NUL -w '%{http_code}' $TargetUrl
 $selectedExit = $LASTEXITCODE
-Wait-Process -Id $process.Id -Timeout ($TimeoutSeconds + 10)
+if (-not $process.HasExited) {
+    Wait-Process -Id $process.Id -Timeout ($TimeoutSeconds + 10)
+}
 $process.Refresh()
 
 $log = Get-Content $stdout -Raw -ErrorAction SilentlyContinue
 $err = Get-Content $stderr -Raw -ErrorAction SilentlyContinue
 if ($selectedExit -ne 0 -or $selectedResult -ne '200') {
-    throw "Selected curl failed through WFP relay: exit=$selectedExit http=$selectedResult stderr=$err"
+    throw "Selected curl failed through WFP relay: exit=$selectedExit http=$selectedResult stdout=$log stderr=$err"
 }
 if ($process.ExitCode -ne 0) {
-    throw "Acceptance helper failed with exit code $($process.ExitCode): $err"
+    throw "Acceptance helper failed with exit code $($process.ExitCode): stdout=$log stderr=$err"
 }
 if ($log -notmatch 'ARVECTUM_WFP_REDIRECT_OBSERVED') {
     throw 'No WFP redirect observation was recorded for the selected executable.'

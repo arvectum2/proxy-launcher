@@ -136,14 +136,14 @@ static VOID SetLoopbackTarget(
 {
     if (layer_id == FWPS_LAYER_ALE_CONNECT_REDIRECT_V4) {
         SOCKADDR_IN* remote =
-            (SOCKADDR_IN*)&request->remoteAddressAndPort;
+            (SOCKADDR_IN*)request->remoteAddressAndPort;
         remote->sin_family = AF_INET;
         remote->sin_addr.S_un.S_addr =
             RtlUlongByteSwap(0x7f000001u);
         remote->sin_port = RtlUshortByteSwap(proxy_port);
     } else {
         SOCKADDR_IN6* remote =
-            (SOCKADDR_IN6*)&request->remoteAddressAndPort;
+            (SOCKADDR_IN6*)request->remoteAddressAndPort;
         RtlZeroMemory(&remote->sin6_addr, sizeof(remote->sin6_addr));
         remote->sin6_family = AF_INET6;
         remote->sin6_addr.u.Byte[15] = 1;
@@ -216,6 +216,12 @@ static VOID NTAPI ClassifyFn(
     }
 
     request = (FWPS_CONNECT_REQUEST0*)writable;
+    if (request->remoteAddressAndPort == NULL ||
+        request->localAddressAndPort == NULL) {
+        classify_out->actionType = FWP_ACTION_BLOCK;
+        FwpsReleaseClassifyHandle0(classify_handle);
+        return;
+    }
 #pragma warning(push)
 #pragma warning(disable:4996)
     redirect_context = (ARVECTUM_REDIRECT_CONTEXT*)
@@ -237,11 +243,11 @@ static VOID NTAPI ClassifyFn(
     redirect_context->version = ARVECTUM_ROUTING_IOCTL_VERSION;
     RtlCopyMemory(
         &redirect_context->original_remote,
-        &request->remoteAddressAndPort,
+        request->remoteAddressAndPort,
         sizeof(SOCKADDR_STORAGE));
     RtlCopyMemory(
         &redirect_context->original_local,
-        &request->localAddressAndPort,
+        request->localAddressAndPort,
         sizeof(SOCKADDR_STORAGE));
 
     request->localRedirectHandle = g_redirect_handle;
