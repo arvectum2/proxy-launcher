@@ -31,7 +31,7 @@ pending:
   - "Connect redirected flows to the existing local proxy."
   - "Run hosted Windows build/contract CI."
   - "Run real Windows acceptance when a physical/remote Windows host is available."
-last_verified_commit: "b35c8b459861895440ef374a9b1d91e1e118d87e"
+last_verified_commit: "cfa44259264e4dc68efdeba0d07aad06ce4ece95"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
