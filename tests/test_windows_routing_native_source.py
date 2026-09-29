@@ -74,6 +74,8 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("FWPS_CONNECTION_REDIRECTED_BY_OTHER", CALLOUT)
         self.assertIn("FWPS_METADATA_FIELD_PROCESS_ID", CALLOUT)
         self.assertIn("meta->processId == (UINT64)(ULONG)proxy_pid", CALLOUT)
+        self.assertIn("FWPS_METADATA_FIELD_LOCAL_REDIRECT_TARGET_PID", CALLOUT)
+        self.assertIn("meta->localRedirectTargetPID == (DWORD)proxy_pid", CALLOUT)
         self.assertIn("SDDL_DEVOBJ_SYS_ALL_ADM_ALL", CALLOUT)
 
     def test_callout_preserves_original_destination_context(self):
@@ -84,8 +86,8 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("localRedirectTargetPID", CALLOUT)
         self.assertIn("request->remoteAddressAndPort,", CALLOUT)
         self.assertIn("request->localAddressAndPort,", CALLOUT)
-        self.assertNotIn("&request->remoteAddressAndPort", CALLOUT)
-        self.assertNotIn("&request->localAddressAndPort", CALLOUT)
+        self.assertIn("&request->remoteAddressAndPort", CALLOUT)
+        self.assertIn("&request->localAddressAndPort", CALLOUT)
 
     def test_callout_fail_closed_after_writable_acquisition_failure(self):
         self.assertIn("classify_out->actionType = FWP_ACTION_BLOCK", CALLOUT)
