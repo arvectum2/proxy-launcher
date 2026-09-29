@@ -35,8 +35,9 @@ int wmain(int argc, wchar_t** argv) {
 
     const int host_bytes = WideCharToMultiByte(CP_UTF8, 0, argv[3], -1, nullptr, 0, nullptr, nullptr);
     if (host_bytes <= 1) { closesocket(client); WSACleanup(); return 8; }
-    std::string host(static_cast<size_t>(host_bytes - 1), '\0');
+    std::string host(static_cast<size_t>(host_bytes), '\0');
     WideCharToMultiByte(CP_UTF8, 0, argv[3], -1, host.data(), host_bytes, nullptr, nullptr);
+    host.resize(static_cast<size_t>(host_bytes - 1));
 
     const std::string request = "GET / HTTP/1.1\r\nHost: " + host +
         "\r\nConnection: close\r\nUser-Agent: Arvectum-WFP-SelectedClient\r\n\r\n";
