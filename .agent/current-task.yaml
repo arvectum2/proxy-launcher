@@ -1,39 +1,28 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-APPREVIEW-2.1-INFO-20260929
-status: completed
-goal: "Resolve the second iOS 0.1.36 build 40 App Review rejection by supplying the VPN data-handling information Apple requested, keeping disclosures truthful, and resubmitting the existing review submission."
+task_id: APL-ROUTE-WINDOWS-PRODUCTION
+status: in_progress
+goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
-  - "Capture the exact current Apple review message and submission/build state."
-  - "Verify the implementation and public privacy disclosures match the requested answers."
-  - "Clarify the public privacy policy about the user-selected proxy/destination data path."
-  - "Update App Review Information with direct answers to Apple's three VPN-data questions."
-  - "Reply to App Review with the same direct answers."
-  - "Resolve and resubmit the existing iOS submission without rebuilding unless Apple identifies a binary defect."
-  - "Verify the submission returns to WAITING_FOR_REVIEW and record evidence."
+  - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
+  - "Define a bounded versioned control-plane-to-service contract with strict validation and no arbitrary host mutation commands."
+  - "Add native Windows enforcement source/build scaffolding for Arvectum-owned WFP provider/sublayer/callout/filter resources and loop-prevention identity."
+  - "Bind enforcement lifecycle to the existing routing ownership journal before mutation and verified restore before cleanup."
+  - "Add deterministic unit/contract tests and static safety checks."
+  - "Run all locally available tests and exact diff checks."
+  - "Record real-Windows validation as required if no Windows host is online; do not fabricate PASS."
 completed:
-  - "Captured Apple automated Guideline 2.1 request: what user information is collected using VPN, why it is collected, and whether it is shared with third parties/where stored."
-  - "Verified the issue is information-only, not a crash or binary defect; iOS 0.1.36 build 40 remains the current valid review binary."
-  - "Verified iOS implementation: no Arvectum analytics, advertising SDK, tracking service, account service, or cloud backend; proxy credentials and activity journal remain local."
-  - "Verified PrivacyInfo manifests declare no collected data/tracking and TelemetryStore persists only local connection events in App Group UserDefaults."
-  - "Clarified docs/privacy.html to state that traffic is necessarily sent to the user-selected proxy and requested destination, while Arvectum receives/stores no copy."
-  - "PR #231 merged to main as 54f90a1; all repository checks passed."
-  - "Verified the updated public privacy policy is live on GitHub Pages."
-  - "Patched App Store Review Information notes through App Store Connect API with explicit Q1/Q2/Q3 answers; returned HTTP 200 and notes length 2654."
-  - "Sent the same direct Q1/Q2/Q3 response in the App Review conversation; submission page confirmed Messages (3) and displayed the reply."
-  - "Reused the existing COMPLETE physical-device review attachment APL-0.1.36-40-AppReview-FINAL.mov; no duplicate upload and no binary rebuild."
-  - "Resolved the existing rejected reviewSubmission item to READY_FOR_REVIEW and resubmitted submission 44e97256-2450-4fb6-924c-71143be545df."
-  - "Final App Store Connect API verification: review submission WAITING_FOR_REVIEW and app version 0.1.36 (40) WAITING_FOR_REVIEW."
-current: "COMPLETED: iOS 0.1.36 build 40 has been resubmitted after supplying Apple's requested VPN data-handling information and is WAITING_FOR_REVIEW."
-pending: []
-last_verified_commit: "54f90a1"
-test_results:
-  - "git diff --check for privacy/checkpoint change: PASS."
-  - "PR #231 required checks: PASS, including build, installer, Gitleaks, Bandit, pip-audit, CycloneDX SBOM and provenance gates."
-  - "Public privacy page verification: PASS after GitHub Pages deployment."
-  - "App Store Connect Review Notes PATCH: HTTP 200; explicit Q1/Q2/Q3 present."
-  - "App Review conversation reply: PASS; Messages count increased to 3 and reply text is visible."
-  - "Review resubmission: item REJECTED -> READY_FOR_REVIEW -> submission WAITING_FOR_REVIEW; app version WAITING_FOR_REVIEW."
+  - "Owner instruction on 2026-09-29 removes the prior architecture stop-gate; selected Option A from PR #144."
+  - "Initial production scope constrained to all/CIDR selectors; DNS/domain enforcement remains unsupported pending DNS-aware lifecycle design."
+current: "Create the bounded service/enforcement contract and native Windows source scaffold from current main."
+pending:
+  - "Implement control/service contract and validation."
+  - "Implement native WFP source/build scaffold and owned resource identities."
+  - "Wire ownership/recovery lifecycle."
+  - "Add tests and run local validation."
+  - "Run real Windows acceptance when a physical/remote Windows host is available."
+last_verified_commit: "21c1160c2afe6e09fd121ae9eaba1c78e65c697a"
+test_results: []
 blocker: null
-resume_instruction: "Task is complete. Do not rebuild or resubmit build 40 unless Apple sends a new concrete review issue. On a future Apple response, create a new task/checkpoint from this verified WAITING_FOR_REVIEW state and inspect the exact new message first."
-updated_at: "2026-09-29T08:02:00+03:00"
+resume_instruction: "Continue from current main-derived branch agent/apl-route-windows-production-20260929. Implement the smallest safe Option A production slice for all/CIDR only, then test. Do not claim live WFP enforcement PASS without a real Windows host."
+updated_at: "2026-09-29T09:58:00+03:00"
