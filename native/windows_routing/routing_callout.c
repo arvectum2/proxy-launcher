@@ -1,7 +1,9 @@
 #define INITGUID
 #include <ntddk.h>
-#include <fwpsk.h>
+#include <ndis.h>
 #include <fwpmk.h>
+#include <fwpsk.h>
+#include <netioddk.h>
 #include <wdmsec.h>
 #include <ws2def.h>
 #include <ws2ipdef.h>

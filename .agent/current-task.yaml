@@ -22,8 +22,9 @@ completed:
   - "Added native Windows WFP SDK/resource probe and dedicated Windows production-foundation CI workflow."
   - "Added first kernel WFP callout source: admin/system-only control device, redirect-handle loop prevention, original-destination context, IPv4/IPv6 loopback redirect, and fail-closed redirect errors."
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
+  - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Compile the new WFP callout with WDK 28000 in Windows CI, then fix any WDK errors before moving the binary to ARVECTUM-DEMO."
+current: "Fix the first WDK compile findings (NDIS include order/reserved macro), rerun Windows CI, and obtain the first callout .sys artifact."
 pending:
   - "Get native WFP callout driver compiling cleanly with current WDK and package its .sys artifact."
   - "Implement narrow privileged Windows service for owned provider/sublayer/callout/filter lifecycle and IPC."
@@ -36,6 +37,8 @@ test_results:
   - "PASS: local native-source + production controller suite — 10 tests."
   - "PASS: GitHub Actions Windows per-app production foundation run #3: 27 Python contract tests; MSVC C++17 WFP resource/probe build; Windows Service host build; real FwpmGetAppIdFromFileName0 runtime probe; no-mutation static gate."
   - "PASS: local routing native-source/production/application suite after callout addition — 22 tests."
+  - "PASS: local WFP transparent transport + proxy transport + native-source suite — 27 tests."
+  - "Windows CI run #5: SDK/WDK 28000 installation PASS; first WDK driver build exposed include-order/_KERNEL_MODE compile defects, now corrected for next run."
 blocker: null
 resume_instruction: "ARVECTUM-DEMO is online. Continue on agent/apl-route-windows-production-20260929: build the smallest WFP callout with current WDK, prepare a test-signed install path, wire redirect context/records to the local proxy, then run selected-vs-unselected app routing and recovery tests. Keep live_enforcement_supported=false until acceptance passes."
-updated_at: "2026-09-29T10:57:00+03:00"
+updated_at: "2026-09-29T11:08:00+03:00"

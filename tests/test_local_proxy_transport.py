@@ -286,5 +286,62 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         relay.assert_called_once_with(accepted, client, engine._stop)
 
 
+    def test_transparent_handler_relays_raw_stream_without_proxy_response(self):
+        import windows_redirect_transport as redirect
+
+        engine = core.ProxyCore({
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "u", "password": "p"},
+            ]
+        })
+        client = mock.Mock()
+        outbound = mock.Mock()
+        outbound.recv.return_value = b"HTTP/1.1 200 Connection Established\r\n\r\n"
+        metadata = redirect.RedirectMetadata(
+            ("203.0.113.9", 443),
+            ("192.0.2.10", 50123),
+            b"redirect-records",
+        )
+        prepared = mock.Mock()
+
+        with mock.patch.object(
+            redirect, "query_redirect_metadata", return_value=metadata
+        ), mock.patch.object(
+            redirect, "prepare_outbound_socket", return_value=prepared
+        ), mock.patch.object(
+            core, "_normalize_host", return_value="203.0.113.9"
+        ), mock.patch.object(
+            core, "host_bypasses_proxy", return_value=False
+        ), mock.patch.object(
+            local_proxy_transport.socket, "socket", return_value=outbound
+        ), mock.patch.object(engine, "_relay") as relay:
+            engine._handle_transparent(client)
+
+        prepared.assert_called_once_with(outbound)
+        outbound.connect.assert_called_once_with(("proxy.test", 8000))
+        relay.assert_called_once_with(outbound, client, engine._stop)
+        client.sendall.assert_not_called()
+
+    def test_transparent_listener_uses_ephemeral_loopback_port(self):
+        engine = core.ProxyCore({"upstream": []})
+        engine._socks = [object()]
+        listener = mock.Mock()
+        listener.getsockname.return_value = ("127.0.0.1", 54321)
+        thread = mock.Mock()
+
+        with mock.patch.object(
+            local_proxy_transport.socket, "socket", return_value=listener
+        ), mock.patch.object(
+            local_proxy_transport.threading, "Thread", return_value=thread
+        ):
+            ok, message, port = engine.start_transparent_listener()
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "OK")
+        self.assertEqual(port, 54321)
+        listener.bind.assert_called_once_with(("127.0.0.1", 0))
+        thread.start.assert_called_once_with()
+
+
 if __name__ == "__main__":
     unittest.main()
