@@ -29,7 +29,7 @@ struct FilterDescriptor {
     RedirectDecision decision;
     const unsigned char* app_id;
     unsigned long app_id_size;
-    ADDRESS_FAMILY family;
+    UINT16 family;
     const wchar_t* cidr;
 };
 

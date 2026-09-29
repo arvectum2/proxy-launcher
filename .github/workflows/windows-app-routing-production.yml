@@ -54,9 +54,12 @@ jobs:
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
           if not defined VSINSTALL exit /b 1
           call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
-          cl /nologo /W4 /EHsc /c native\windows_routing\wfp_resources.cpp /Fo:wfp_resources.obj
-          cl /nologo /W4 /EHsc native\windows_routing\wfp_sdk_probe.cpp wfp_resources.obj /Fe:wfp_sdk_probe.exe /link Fwpuclnt.lib
-          cl /nologo /W4 /EHsc native\windows_routing\routing_service_main.cpp /Fe:ArvectumProxyRoutingService.exe /link Advapi32.lib
+          cl /nologo /W4 /EHsc /std:c++17 /c native\windows_routing\wfp_resources.cpp /Fo:wfp_resources.obj
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_sdk_probe.cpp wfp_resources.obj /Fe:wfp_sdk_probe.exe /link Fwpuclnt.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\routing_service_main.cpp /Fe:ArvectumProxyRoutingService.exe /link Advapi32.lib
+          if errorlevel 1 exit /b 1
       - name: Run read-only native WFP SDK probe
         shell: pwsh
         run: .\wfp_sdk_probe.exe
