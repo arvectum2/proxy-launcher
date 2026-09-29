@@ -93,6 +93,19 @@ jobs:
           if not defined VSINSTALL exit /b 1
           "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m /p:Configuration=Debug /p:Platform=x64
           if errorlevel 1 exit /b 1
+      - name: Test-sign native acceptance artifacts
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=Arvectum Proxy Routing Test' -KeyAlgorithm RSA -KeyLength 2048 -HashAlgorithm SHA256 -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(7)
+          Export-Certificate -Cert $cert -FilePath ArvectumProxyRoutingTest.cer | Out-Null
+          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse | Where-Object FullName -Match '\\x64\\signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw 'signtool.exe not found' }
+          & $signtool sign /fd SHA256 /sha1 $cert.Thumbprint /s My native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+          if ($LASTEXITCODE -ne 0) { throw 'driver signing failed' }
+          & $signtool sign /fd SHA256 /sha1 $cert.Thumbprint /s My ArvectumProxyRoutingService.exe
+          if ($LASTEXITCODE -ne 0) { throw 'service signing failed' }
+          & $signtool sign /fd SHA256 /sha1 $cert.Thumbprint /s My ArvectumWfpAcceptance.exe
+          if ($LASTEXITCODE -ne 0) { throw 'acceptance helper signing failed' }
       - name: Run read-only native WFP SDK probe
         shell: pwsh
         run: .\wfp_sdk_probe.exe
@@ -109,5 +122,8 @@ jobs:
           path: |
             ArvectumProxyRoutingService.exe
             ArvectumWfpAcceptance.exe
+            ArvectumProxyRoutingTest.cer
+            tools/windows_wfp_test_install.ps1
+            tools/windows_wfp_test_rollback.ps1
             native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
           if-no-files-found: error

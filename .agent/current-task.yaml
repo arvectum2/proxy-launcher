@@ -40,6 +40,7 @@ test_results:
   - "PASS: local WFP transparent transport + proxy transport + native-source suite — 27 tests."
   - "Windows CI run #5: SDK/WDK 28000 installation PASS; first WDK driver build exposed NDIS type and notify callback signature defects."
   - "Corrected driver project to match Microsoft's WFPSampler build contract with NDIS630 and fixed FWPS_CALLOUT_NOTIFY_FN1's non-const FWPS_FILTER1 pointer; focused local suite PASS 24/24."
+  - "Added CI test-signing package for the callout/service/helper plus reversible elevated install/rollback scripts; local routing/native suite PASS 15/15."
 blocker: null
 resume_instruction: "ARVECTUM-DEMO is online. Continue on agent/apl-route-windows-production-20260929: build the smallest WFP callout with current WDK, prepare a test-signed install path, wire redirect context/records to the local proxy, then run selected-vs-unselected app routing and recovery tests. Keep live_enforcement_supported=false until acceptance passes."
 updated_at: "2026-09-29T11:33:00+03:00"
