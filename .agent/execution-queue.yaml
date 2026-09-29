@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-29T00:47:00+03:00"
+updated_at: "2026-09-29T06:57:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "f99124f6896e6c9c112b82b1ead957857692a46b"
+  main_sha_verified: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -227,21 +227,6 @@ items:
     executor_scope: "Treat 0.1.36/versionCode 37 as the physically accepted current-main Android candidate. Public release remains android-v0.1.19 until a separate publication task is explicitly authorized."
     evidence: "DONE current-main baseline: Android 0.1.36/versionCode 37 physically accepted for adaptive New/Edit rendering and merged through PR #190; post-merge Android CI PASS. Application-exclusion implementation from PR #183 is merged. Exact dedicated public-IP bypass proof remains a separate acceptance fact and is not invented here."
 
-  - order: 118
-    task_id: APL-NODE-001
-    title: "Arvectum managed VLESS/REALITY node MVP"
-    status: deferred
-    authority: OWNER
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P12; PR #195"
-    dependencies: []
-    blocker: "Paused by Owner on 2026-09-29. Keep all existing Phase A work, tests and PR #195 intact, but do not continue implementation until the Owner explicitly reactivates this track."
-    owner_gate: "Explicit Owner reactivation is required before any further repository engineering, merge, real-node provisioning, provider commitment, production mutation, billing/public sale or release."
-    executor_scope: "Preserve state only. Do not advance PR #195, add Android/iOS managed transport, run real-node work, merge the product branch or spend/provision infrastructure while deferred."
-    active_pr: 195
-    evidence: "Backlog-only paused track. Existing Phase A remains preserved: provider-neutral contracts, capacity-aware allocation, unique per-user credentials, VLESS/REALITY URI/server rendering, server-only REALITY private-key boundary and focused 21/21 managed-node/free-gateway tests."
-
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
     title: "Android advertising and dual public/private distribution"
@@ -303,21 +288,6 @@ items:
     active_pr: 181
     evidence: "Official requirements and 5000 RUB fee rechecked 2026-09-26; exact filing object v0.2.16 / release commit 6799297... fixed; 6-page working DOCX rendered/visually checked with unknown fields blank and yellow."
 
-  - order: 145
-    task_id: ARVECTUM-NETWORK-MVP-20260927
-    title: "Arvectum Network VPS-first control plane and Germany pilot"
-    status: deferred
-    authority: OWNER
-    independent: true
-    auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P13; ARVECTUM_NETWORK_ROADMAP.md"
-    dependencies:
-      - APL-NODE-001
-    blocker: "Paused by Owner on 2026-09-29. Preserve the architecture/checklist and existing Timeweb Cloud account facts, but do not continue infrastructure/legal/commercial execution until explicitly reactivated."
-    owner_gate: "Explicit Owner reactivation is required before further planning execution, VPS purchases/provisioning, production personal-data placement, Roskomnadzor submission, billing or rollout."
-    executor_scope: "Backlog preservation only. Do not purchase/provision Moscow or Frankfurt infrastructure, deploy production PostgreSQL/control plane, activate billing, submit legal filings or advance supplier-marketplace work."
-    evidence: "Backlog-only paused track. Existing detailed plan remains in ARVECTUM_NETWORK_ROADMAP.md: Russian control plane, self-hosted PostgreSQL MVP, Frankfurt first pilot, later E2E/load/security and billing gates."
-
 repository_hygiene:repository_hygiene:repository_hygiene:
   superseded_open_prs:
     - 81
@@ -334,7 +304,7 @@ repository_hygiene:repository_hygiene:repository_hygiene:
     - 117
     - 120
     - 124
-  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 remains the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app packet PR #144. Closed PR #198 build-38 bump is superseded because corrected 0.1.36 build 37 is already VALID/APP_STORE_ELIGIBLE. Closed PR #200 is superseded by merged roadmap sync PR #201 after its Arvectum Network file was imported. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
+  note: "PRs #81/#103/#132/#157 are superseded APL-REL-016 preparation paths; PR #161 remains the latest substantive but version-stale REVIEW packet to refresh against v0.2.16. PR #68 is superseded by current per-app packet PR #144. Closed PR #198 build-38 bump is superseded because corrected 0.1.36 build 37 is already VALID/APP_STORE_ELIGIBLE. PR #125 is the superseded original MOB-003 branch; accepted integration is merged via #130. PRs #90/#91/#92 were overtaken by merged v0.2.9 recovery work (#93/#94); PRs #70/#74/#82 by merged RED OS PR #83; PR #113 by merged AppImage closeout #112; PR #117 by merged Android release closeout #118; PR #120 by merged continuous-failover PR #119; PR #124 is obsolete. Reconcile before any reuse."
   maintenance_prs:
     - 80
   maintenance_note: "PR #80 is a release-evidence workflow maintenance fix, not a product-priority track; reconcile it independently with current main before merge."
