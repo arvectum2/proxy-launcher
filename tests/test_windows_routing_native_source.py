@@ -76,6 +76,10 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("meta->processId == (UINT64)(ULONG)proxy_pid", CALLOUT)
         self.assertIn("FWPS_METADATA_FIELD_LOCAL_REDIRECT_TARGET_PID", CALLOUT)
         self.assertIn("meta->localRedirectTargetPID == (DWORD)proxy_pid", CALLOUT)
+        self.assertIn("request->previousVersion != NULL", CALLOUT)
+        self.assertIn("request->previousVersion->modifierFilterId == filter->filterId", CALLOUT)
+        self.assertIn("request->previousVersion->localRedirectHandle != NULL", CALLOUT)
+        self.assertIn("classify_out->rights |= FWPS_RIGHT_ACTION_WRITE", CALLOUT)
         self.assertIn("SDDL_DEVOBJ_SYS_ALL_ADM_ALL", CALLOUT)
 
     def test_callout_preserves_original_destination_context(self):

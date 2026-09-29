@@ -222,6 +222,15 @@ static VOID NTAPI ClassifyFn(
     }
 
     request = (FWPS_CONNECT_REQUEST0*)writable;
+    if (request->previousVersion != NULL &&
+        (request->previousVersion->modifierFilterId == filter->filterId ||
+         request->previousVersion->localRedirectHandle != NULL)) {
+        classify_out->actionType = FWP_ACTION_PERMIT;
+        classify_out->rights |= FWPS_RIGHT_ACTION_WRITE;
+        FwpsApplyModifiedLayerData0(classify_handle, writable, 0);
+        FwpsReleaseClassifyHandle0(classify_handle);
+        return;
+    }
 #pragma warning(push)
 #pragma warning(disable:4996)
     redirect_context = (ARVECTUM_REDIRECT_CONTEXT*)
