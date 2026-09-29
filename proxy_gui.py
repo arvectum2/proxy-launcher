@@ -2193,6 +2193,11 @@ def main():
             doctor_args.extend(["--output", sys.argv[2]])
         return doctor_module.main(doctor_args)
 
+    # The WFP acceptance worker must execute the exact invoked binary and
+    # must not hand off to an older installed build or mutate system proxy state.
+    if len(sys.argv) > 1 and sys.argv[1] == "--transparent-acceptance":
+        return core.main()
+
     # A portable launch first tries the permanent Documents location.
     # If Windows refuses that handoff, the already-running portable GUI remains
     # a valid manual P0 fallback for the current session.

@@ -1,0 +1,149 @@
+name: Windows per-app production foundation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'routing_ownership.py'
+      - 'windows_app_routing.py'
+      - 'windows_routing_controller.py'
+      - 'windows_routing_service_contract.py'
+      - 'windows_redirect_transport.py'
+      - 'local_proxy_transport.py'
+      - 'application_runtime.py'
+      - 'proxy_gui.py'
+      - 'native/windows_routing/**'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_windows_app_routing.py'
+      - 'tests/test_windows_routing_production.py'
+      - 'tests/test_windows_routing_native_source.py'
+      - 'tests/test_windows_redirect_transport.py'
+      - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_application_runtime.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'routing_ownership.py'
+      - 'windows_app_routing.py'
+      - 'windows_routing_controller.py'
+      - 'windows_routing_service_contract.py'
+      - 'windows_redirect_transport.py'
+      - 'local_proxy_transport.py'
+      - 'application_runtime.py'
+      - 'proxy_gui.py'
+      - 'native/windows_routing/**'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_windows_app_routing.py'
+      - 'tests/test_windows_routing_production.py'
+      - 'tests/test_windows_routing_native_source.py'
+      - 'tests/test_windows_redirect_transport.py'
+      - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_application_runtime.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Production routing contract tests
+        run: >-
+          python -m unittest -v
+          tests.test_application_exclusions
+          tests.test_windows_app_routing
+          tests.test_routing_ownership
+          tests.test_windows_routing_production
+          tests.test_windows_routing_native_source
+          tests.test_windows_redirect_transport
+          tests.test_local_proxy_transport
+          tests.test_application_runtime
+      - name: Compile native WFP SDK probe
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
+          if not defined VSINSTALL exit /b 1
+          call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo /W4 /EHsc /std:c++17 /c native\windows_routing\wfp_resources.cpp /Fo:wfp_resources.obj
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_sdk_probe.cpp wfp_resources.obj /Fe:wfp_sdk_probe.exe /link Fwpuclnt.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\routing_service_protocol_test.cpp native\windows_routing\routing_service_protocol.cpp /Fe:routing_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          routing_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\routing_service_main.cpp native\windows_routing\routing_service_protocol.cpp native\windows_routing\routing_service_wfp.cpp wfp_resources.obj /Fe:ArvectumProxyRoutingService.exe /link Advapi32.lib Fwpuclnt.lib Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_acceptance_helper.cpp wfp_resources.obj /Fe:ArvectumWfpAcceptance.exe /link Fwpuclnt.lib Ws2_32.lib
+          if errorlevel 1 exit /b 1
+      - name: Install matching Windows SDK and WDK
+        shell: pwsh
+        run: |
+          winget install --id Microsoft.WindowsSDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
+          winget install --id Microsoft.WindowsWDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
+      - name: Build WFP callout driver
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
+          if not defined VSINSTALL exit /b 1
+          "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m /p:Configuration=Debug /p:Platform=x64 /p:ApiValidator_Enable=false
+          if errorlevel 1 exit /b 1
+      - name: Validate x64 WFP callout APIs
+        shell: pwsh
+        run: |
+          $kit = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Directory | Where-Object Name -Match '^10\.0\.' | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
+          if (-not $kit) { throw 'Windows Kit version not found' }
+          $validator = "${env:ProgramFiles(x86)}\Windows Kits\10\bin\$kit\x64\ApiValidator.exe"
+          $build = "${env:ProgramFiles(x86)}\Windows Kits\10\build\$kit\universalDDIs\x64"
+          & $validator "-DriverPackagePath:native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys" "-SupportedApiXmlFiles:$build\UniversalDDIs.xml" "-ModuleWhiteListXmlFiles:$build\ModuleWhiteList.xml" "-ApiExtractorExePath:${env:ProgramFiles(x86)}\Windows Kits\10\bin\$kit\x64"
+          if ($LASTEXITCODE -ne 0) { throw 'x64 ApiValidator failed' }
+      - name: Prepare WDK test-signed acceptance bundle
+        shell: pwsh
+        run: |
+          Copy-Item native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer ArvectumProxyRoutingTest.cer -Force
+          $exported = [Security.Cryptography.X509Certificates.X509Certificate2]::new((Resolve-Path ArvectumProxyRoutingTest.cer).Path)
+          $thumbprint = $exported.Thumbprint
+          $signerPath = "Cert:\CurrentUser\My\$thumbprint"
+          if (-not (Test-Path -LiteralPath $signerPath)) { throw 'WDK test signer certificate is not in CurrentUser\My' }
+          $signer = Get-Item -LiteralPath $signerPath
+          if (-not $signer.HasPrivateKey) { throw 'WDK test signer private key is unavailable' }
+          $driver = Get-AuthenticodeSignature native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+          if (-not $driver.SignerCertificate -or $driver.SignerCertificate.Thumbprint -ne $thumbprint) { throw 'driver signer does not match exported WDK certificate' }
+          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse | Where-Object FullName -Match '\\x64\\signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw 'signtool.exe not found' }
+          & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumProxyRoutingService.exe
+          if ($LASTEXITCODE -ne 0) { throw 'service signing failed' }
+          & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumWfpAcceptance.exe
+          if ($LASTEXITCODE -ne 0) { throw 'acceptance helper signing failed' }
+      - name: Run read-only native WFP SDK probe
+        shell: pwsh
+        run: .\wfp_sdk_probe.exe
+      - name: Enforce no live WFP mutation in CI probe
+        shell: pwsh
+        run: |
+          $text = Get-Content native/windows_routing/wfp_sdk_probe.cpp -Raw
+          if ($text -match 'FwpmFilterAdd|FwpmCalloutAdd|FwpmProviderAdd|FwpmSubLayerAdd') {
+            throw 'Mutation API found in SDK probe'
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-per-app-native-foundation
+          path: |
+            ArvectumProxyRoutingService.exe
+            ArvectumWfpAcceptance.exe
+            ArvectumProxyRoutingTest.cer
+            tools/windows_wfp_test_install.ps1
+            tools/windows_wfp_test_rollback.ps1
+            tools/windows_wfp_live_acceptance.ps1
+            native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+            native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer
+          if-no-files-found: error

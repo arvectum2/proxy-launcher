@@ -43,6 +43,8 @@ class ProxyCore:
         self._stop = threading.Event()
         self._socks = []
         self._threads = []
+        self._transparent_listener = None
+        self._transparent_port = None
         self._upstreams = self._build_upstreams()
 
     def _build_upstreams(self):
@@ -104,7 +106,9 @@ class ProxyCore:
             + preserved
         ) + b"\r\n\r\n"
 
-    def _open_upstream_tunnel(self, host, port, client_request=None):
+    def _open_upstream_tunnel(
+        self, host, port, client_request=None, socket_prepare=None
+    ):
         core = _core()
         for host_u, proxy_port, token in self._upstreams:
             stream = None
@@ -112,6 +116,8 @@ class ProxyCore:
             try:
                 stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 stream.settimeout(15)
+                if socket_prepare is not None:
+                    socket_prepare(stream)
                 stream.connect((host_u, proxy_port))
                 request = self._connect_request_with_auth(
                     host, port, token, client_request=client_request
@@ -235,6 +241,63 @@ class ProxyCore:
                     stream.close()
                 except Exception:
                     pass
+
+    @staticmethod
+    def _open_direct_socket(host, port, socket_prepare=None):
+        family = socket.AF_INET6 if ":" in str(host) else socket.AF_INET
+        stream = socket.socket(family, socket.SOCK_STREAM)
+        try:
+            stream.settimeout(15)
+            if socket_prepare is not None:
+                socket_prepare(stream)
+            stream.connect((host, port))
+            stream.settimeout(300)
+            return stream
+        except Exception:
+            try:
+                stream.close()
+            except Exception:
+                pass
+            raise
+
+    def _handle_transparent(self, client):
+        core = _core()
+        try:
+            from windows_redirect_transport import (
+                prepare_outbound_socket,
+                query_redirect_metadata,
+            )
+
+            client.settimeout(30)
+            metadata = query_redirect_metadata(client)
+            host, port = metadata.original_remote
+            host = core._normalize_host(host)
+            prepare = prepare_outbound_socket(metadata)
+            if core.host_bypasses_proxy(host):
+                outbound = self._open_direct_socket(
+                    host, port, socket_prepare=prepare
+                )
+            else:
+                outbound, _response = self._open_upstream_tunnel(
+                    host,
+                    port,
+                    socket_prepare=prepare,
+                )
+                if outbound is None:
+                    return
+            self._relay(outbound, client, self._stop)
+        except Exception as exc:
+            core.structured_log(
+                "transparent redirect failed",
+                level="WARNING",
+                event="proxy.transparent.error",
+                error_type=type(exc).__name__,
+            )
+        finally:
+            try:
+                client.close()
+            except Exception:
+                pass
 
     def _handle_http(self, client):
         core = _core()
@@ -436,6 +499,44 @@ class ProxyCore:
             except Exception:
                 pass
 
+    def start_transparent_listener(self):
+        """Start an ephemeral IPv4 loopback listener for WFP connect redirects."""
+        if not self._socks:
+            return False, "Основной proxy engine ещё не запущен", None
+        if self._transparent_listener is not None:
+            return True, "OK", self._transparent_port
+
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(200)
+            listener.settimeout(1.0)
+            port = int(listener.getsockname()[1])
+        except OSError as error:
+            try:
+                listener.close()
+            except Exception:
+                pass
+            return False, "Не удалось открыть transparent listener: %s" % error, None
+
+        self._transparent_listener = listener
+        self._transparent_port = port
+        self._socks.append(listener)
+        thread = threading.Thread(
+            target=self._accept_loop,
+            args=(listener, self._handle_transparent),
+            daemon=True,
+        )
+        thread.start()
+        self._threads.append(thread)
+        _core().structured_log(
+            "transparent redirect listener started",
+            event="proxy.transparent.started",
+            port=port,
+        )
+        return True, "OK", port
+
     def start(self):
         core = _core()
         if self._socks:
@@ -506,6 +607,8 @@ class ProxyCore:
             except Exception:
                 pass
         self._socks = []
+        self._transparent_listener = None
+        self._transparent_port = None
         core._log("proxy stopped")
         return True
 

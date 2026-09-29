@@ -11,6 +11,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
     def test_functions_are_owned_by_canonical_module(self):
         for name in (
             "_ensure_local_files",
+            "_cmd_transparent_acceptance",
             "_cmd_start",
             "_cmd_stop",
             "_cmd_rollback",
@@ -64,6 +65,64 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core.main(), 1)
         handoff.assert_not_called()
         repair.assert_not_called()
+
+    def test_transparent_acceptance_main_skips_handoff_and_run_entry_repair(self):
+        with mock.patch.object(
+            application_runtime.sys,
+            "argv",
+            ["proxy_core.py", "--transparent-acceptance", "30"],
+        ), mock.patch.object(
+            core, "handoff_to_stable_copy"
+        ) as handoff, mock.patch.object(
+            core, "_ensure_local_files", return_value=True
+        ), mock.patch.object(
+            core, "_cmd_transparent_acceptance", return_value=0
+        ) as acceptance, mock.patch.object(
+            core, "repair_portable_run_entries"
+        ) as repair:
+            self.assertEqual(core.main(), 0)
+        handoff.assert_not_called()
+        repair.assert_not_called()
+        acceptance.assert_called_once_with()
+
+    def test_transparent_acceptance_never_enables_system_proxy(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["upstream"] = [
+            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
+        ]
+        stop_event = mock.Mock()
+        stop_event.wait.return_value = False
+        proxy = mock.Mock(_stop=stop_event)
+        proxy.start.return_value = (True, "OK")
+        proxy.start_transparent_listener.return_value = (True, "OK", 54321)
+
+        with tempfile.TemporaryDirectory() as td, mock.patch.object(
+            application_runtime.sys,
+            "argv",
+            ["proxy_core.py", "--transparent-acceptance", "30"],
+        ), mock.patch.object(
+            core, "is_windows", return_value=True
+        ), mock.patch.object(
+            core, "load_settings", return_value=settings
+        ), mock.patch.object(
+            core, "ProxyCore", return_value=proxy
+        ), mock.patch.object(
+            core, "data_dir", return_value=td
+        ), mock.patch.object(
+            core, "_atomic_write_json"
+        ) as write_state, mock.patch.object(
+            core, "enable_system_proxy"
+        ) as enable:
+            self.assertEqual(core._cmd_transparent_acceptance(), 0)
+
+        enable.assert_not_called()
+        proxy.start.assert_called_once_with()
+        proxy.start_transparent_listener.assert_called_once_with()
+        stop_event.wait.assert_called_once_with(30)
+        proxy.stop.assert_called_once_with()
+        payload = write_state.call_args.args[1]
+        self.assertEqual(payload["port"], 54321)
+        self.assertEqual(payload["duration_seconds"], 30)
 
     def test_start_without_upstream_fails_before_process_or_network_mutation(self):
         settings = dict(core.DEFAULT_SETTINGS)
