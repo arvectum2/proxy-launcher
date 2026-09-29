@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-PRODUCT-INCY-INPUT-20260929
-status: in_progress
+status: completed
 goal: "Incorporate useful competitor-derived product capabilities into the canonical APL roadmap while preserving APL's simple user-facing model."
 definition_of_done:
   - "Record a universal connection-input strategy covering ordinary proxy credentials, VPN links/configuration keys, and MTProto."
@@ -9,21 +9,23 @@ definition_of_done:
   - "Stage advanced protocols so APL does not become a protocol-heavy UI clone."
   - "Verify the roadmap text against current APL capabilities and merge the documentation update to main."
 completed:
-  - "Verified current repository head 21c1160 and current mobile capability baseline from iOS/Android README and canonical roadmap."
+  - "Verified current repository/mobile capability baseline before editing."
   - "Added APL-CONNECT-001 to docs/ROADMAP.md with ordinary proxy, VPN key/config import, MTProto, QR/clipboard/deep links, managed subscriptions, zero-config Marketplace delivery, quick actions, capability-gated kill switch and local-first secret handling."
   - "Staged delivery as importer/MTProto -> VLESS+Reality -> managed subscriptions -> Marketplace zero-config -> demand-driven compatibility protocols."
   - "Added explicit anti-clone rule preserving APL's simple default UX."
-  - "Reconciled stale iOS roadmap state to the already-verified 0.1.36 build 40 WAITING_FOR_REVIEW baseline."
+  - "Reconciled stale iOS roadmap state to the verified 0.1.36 build 40 WAITING_FOR_REVIEW baseline."
   - "Fetched and reviewed the edited roadmap section and execution queue for current-vs-future accuracy."
-current: "Roadmap edit is verified on branch docs/incy-product-input-20260929; creating and merging the documentation PR."
-pending:
-  - "Merge documentation PR to main."
-  - "Record final merge commit and mark checkpoint completed."
-last_verified_commit: "d671e98df90e2657ac30588f65c9c148a8b7901e"
+  - "PR #235 passed the required build gate and merged to main as 3346d6963cf4c0b2d28d34f5d19a4bb2003aa7e9."
+  - "Verified main contains the APL-CONNECT-001 section after merge."
+current: "COMPLETED: APL-CONNECT-001 is recorded in the canonical roadmap on main."
+pending: []
+last_verified_commit: "3346d6963cf4c0b2d28d34f5d19a4bb2003aa7e9"
 test_results:
   - "Documentation-only change: no runtime code changed."
-  - "Roadmap section fetch/review: PASS."
+  - "Roadmap section fetch/review on branch: PASS."
   - "Current iOS review-state reconciliation: PASS against completed canonical App Review checkpoint."
+  - "PR #235 required build check: PASS before merge."
+  - "Post-merge docs/ROADMAP.md fetch from main: PASS."
 blocker: null
-resume_instruction: "Merge the verified docs/incy-product-input-20260929 PR to main, then mark this checkpoint completed with the merge commit and final verification."
-updated_at: "2026-09-29T18:55:00+03:00"
+resume_instruction: "Task is complete. Do not implement APL-CONNECT-001 automatically unless it becomes the prioritized product workstream. When prioritized, start with Stage A universal import/MTProto handoff, then VLESS+Reality."
+updated_at: "2026-09-29T19:15:00+03:00"
