@@ -233,6 +233,104 @@ void DumpDriverDiagnostics() {
     }
 }
 
+std::string WideToUtf8(const wchar_t* value) {
+    if (value == nullptr || *value == L'\0') {
+        return {};
+    }
+    const int size = WideCharToMultiByte(
+        CP_UTF8, 0, value, -1, nullptr, 0, nullptr, nullptr);
+    if (size <= 1) {
+        return {};
+    }
+    std::string result(static_cast<size_t>(size - 1), '\0');
+    WideCharToMultiByte(
+        CP_UTF8, 0, value, -1, result.data(), size, nullptr, nullptr);
+    return result;
+}
+
+int RunSelectedClient(
+    const wchar_t* ipv4_text,
+    unsigned long port,
+    const wchar_t* host_header)
+{
+    if (ipv4_text == nullptr || host_header == nullptr ||
+        port == 0 || port > 65535) {
+        return 40;
+    }
+
+    WSADATA winsock{};
+    if (WSAStartup(MAKEWORD(2, 2), &winsock) != 0) {
+        return 41;
+    }
+
+    SOCKADDR_IN destination{};
+    destination.sin_family = AF_INET;
+    destination.sin_port = htons(static_cast<USHORT>(port));
+    if (InetPtonW(AF_INET, ipv4_text, &destination.sin_addr) != 1) {
+        WSACleanup();
+        return 42;
+    }
+
+    SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (client == INVALID_SOCKET) {
+        WSACleanup();
+        return 43;
+    }
+    if (connect(
+            client,
+            reinterpret_cast<const sockaddr*>(&destination),
+            sizeof(destination)) == SOCKET_ERROR) {
+        closesocket(client);
+        WSACleanup();
+        return 44;
+    }
+
+    const std::string host = WideToUtf8(host_header);
+    if (host.empty()) {
+        closesocket(client);
+        WSACleanup();
+        return 45;
+    }
+    const std::string request =
+        "GET / HTTP/1.1\r\nHost: " + host +
+        "\r\nConnection: close\r\nUser-Agent: Arvectum-WFP-Acceptance\r\n\r\n";
+    size_t sent_total = 0;
+    while (sent_total < request.size()) {
+        const int sent = send(
+            client,
+            request.data() + sent_total,
+            static_cast<int>(request.size() - sent_total),
+            0);
+        if (sent <= 0) {
+            closesocket(client);
+            WSACleanup();
+            return 46;
+        }
+        sent_total += static_cast<size_t>(sent);
+    }
+
+    std::array<char, 2048> response{};
+    const int received = recv(
+        client,
+        response.data(),
+        static_cast<int>(response.size() - 1),
+        0);
+    closesocket(client);
+    WSACleanup();
+    if (received <= 0) {
+        return 47;
+    }
+
+    const std::string prefix(response.data(), static_cast<size_t>(received));
+    if (prefix.find(" 200 ") == std::string::npos) {
+        return 48;
+    }
+    std::wcout
+        << L"ARVECTUM_WFP_SELECTED_CLIENT_HTTP_200 target="
+        << ipv4_text << L":" << port << L"\n";
+    return 0;
+}
+
 bool RelayPair(SOCKET first, SOCKET second) {
     std::array<char, 65536> buffer{};
     for (;;) {
@@ -443,12 +541,17 @@ int RunSelfRelay(const wchar_t* executable_path, unsigned long seconds) {
 int Usage() {
     std::wcerr
         << L"usage: ArvectumWfpAcceptance.exe <exe> <proxy-pid> <port> <seconds>\n"
-        << L"   or: ArvectumWfpAcceptance.exe --self-relay <exe> <seconds>\n";
+        << L"   or: ArvectumWfpAcceptance.exe --self-relay <exe> <seconds>\n"
+        << L"   or: ArvectumWfpAcceptance.exe --selected-client <ipv4> <port> <host>\n";
     return 2;
 }
 }  // namespace
 
 int wmain(int argc, wchar_t** argv) {
+    if (argc == 5 && std::wstring(argv[1]) == L"--selected-client") {
+        const unsigned long port = std::wcstoul(argv[3], nullptr, 10);
+        return RunSelectedClient(argv[2], port, argv[4]);
+    }
     if (argc == 4 && std::wstring(argv[1]) == L"--self-relay") {
         const unsigned long seconds = std::wcstoul(argv[3], nullptr, 10);
         if (seconds == 0 || seconds > 600) {
