@@ -1,39 +1,24 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-APPREVIEW-2.1-INFO-20260929
-status: completed
-goal: "Resolve the second iOS 0.1.36 build 40 App Review rejection by supplying the VPN data-handling information Apple requested, keeping disclosures truthful, and resubmitting the existing review submission."
+task_id: APL-PRODUCT-INCY-INPUT-20260929
+status: in_progress
+goal: "Incorporate useful competitor-derived product capabilities into the canonical APL roadmap while preserving APL's simple user-facing model."
 definition_of_done:
-  - "Capture the exact current Apple review message and submission/build state."
-  - "Verify the implementation and public privacy disclosures match the requested answers."
-  - "Clarify the public privacy policy about the user-selected proxy/destination data path."
-  - "Update App Review Information with direct answers to Apple's three VPN-data questions."
-  - "Reply to App Review with the same direct answers."
-  - "Resolve and resubmit the existing iOS submission without rebuilding unless Apple identifies a binary defect."
-  - "Verify the submission returns to WAITING_FOR_REVIEW and record evidence."
+  - "Record a universal connection-input strategy covering ordinary proxy credentials, VPN links/configuration keys, and MTProto."
+  - "Add QR/deep-link/clipboard import, managed subscriptions, quick actions and safety/privacy constraints to the roadmap."
+  - "Stage advanced protocols so APL does not become a protocol-heavy UI clone."
+  - "Verify the roadmap text against current APL capabilities and merge the documentation update to main."
 completed:
-  - "Captured Apple automated Guideline 2.1 request: what user information is collected using VPN, why it is collected, and whether it is shared with third parties/where stored."
-  - "Verified the issue is information-only, not a crash or binary defect; iOS 0.1.36 build 40 remains the current valid review binary."
-  - "Verified iOS implementation: no Arvectum analytics, advertising SDK, tracking service, account service, or cloud backend; proxy credentials and activity journal remain local."
-  - "Verified PrivacyInfo manifests declare no collected data/tracking and TelemetryStore persists only local connection events in App Group UserDefaults."
-  - "Clarified docs/privacy.html to state that traffic is necessarily sent to the user-selected proxy and requested destination, while Arvectum receives/stores no copy."
-  - "PR #231 merged to main as 54f90a1; all repository checks passed."
-  - "Verified the updated public privacy policy is live on GitHub Pages."
-  - "Patched App Store Review Information notes through App Store Connect API with explicit Q1/Q2/Q3 answers; returned HTTP 200 and notes length 2654."
-  - "Sent the same direct Q1/Q2/Q3 response in the App Review conversation; submission page confirmed Messages (3) and displayed the reply."
-  - "Reused the existing COMPLETE physical-device review attachment APL-0.1.36-40-AppReview-FINAL.mov; no duplicate upload and no binary rebuild."
-  - "Resolved the existing rejected reviewSubmission item to READY_FOR_REVIEW and resubmitted submission 44e97256-2450-4fb6-924c-71143be545df."
-  - "Final App Store Connect API verification: review submission WAITING_FOR_REVIEW and app version 0.1.36 (40) WAITING_FOR_REVIEW."
-current: "COMPLETED: iOS 0.1.36 build 40 has been resubmitted after supplying Apple's requested VPN data-handling information and is WAITING_FOR_REVIEW."
-pending: []
-last_verified_commit: "54f90a1"
+  - "Verified current repository head 21c1160 and current mobile capability baseline from iOS/Android README and canonical roadmap."
+current: "Editing canonical roadmap with staged universal connection input and competitor-derived features."
+pending:
+  - "Update docs/ROADMAP.md."
+  - "Review roadmap wording for current-vs-future accuracy."
+  - "Merge documentation PR."
+  - "Record final commit and mark checkpoint completed."
+last_verified_commit: "21c1160c2afe6e09fd121ae9eaba1c78e65c697a"
 test_results:
-  - "git diff --check for privacy/checkpoint change: PASS."
-  - "PR #231 required checks: PASS, including build, installer, Gitleaks, Bandit, pip-audit, CycloneDX SBOM and provenance gates."
-  - "Public privacy page verification: PASS after GitHub Pages deployment."
-  - "App Store Connect Review Notes PATCH: HTTP 200; explicit Q1/Q2/Q3 present."
-  - "App Review conversation reply: PASS; Messages count increased to 3 and reply text is visible."
-  - "Review resubmission: item REJECTED -> READY_FOR_REVIEW -> submission WAITING_FOR_REVIEW; app version WAITING_FOR_REVIEW."
+  - "Repository baseline inspected: PASS."
 blocker: null
-resume_instruction: "Task is complete. Do not rebuild or resubmit build 40 unless Apple sends a new concrete review issue. On a future Apple response, create a new task/checkpoint from this verified WAITING_FOR_REVIEW state and inspect the exact new message first."
-updated_at: "2026-09-29T08:02:00+03:00"
+resume_instruction: "Continue on branch docs/incy-product-input-20260929. Update docs/ROADMAP.md with the staged universal connection-input strategy, then review, merge, and complete this checkpoint."
+updated_at: "2026-09-29T18:43:00+03:00"
