@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-DEFER-NODE-NETWORK-20260929
-status: in_progress
+status: completed
 goal: "Keep APL-NODE-001 and Arvectum Network out of the primary roadmap/execution queue and preserve them only as deferred backlog initiatives until explicit Owner reactivation."
 authority: REVIEW
 definition_of_done:
@@ -18,18 +18,20 @@ completed:
   - "Verified current main d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c."
   - "Verified docs/ROADMAP.md already contains zero APL-NODE-001 / Arvectum Network mentions."
   - "Verified backlog P12/P13 already preserve both tracks as DEFERRED / PAUSED BY OWNER."
-current: "Primary roadmap and execution queue are clean; backlog preservation verified. Open metadata-only PR and verify exact-head CI."
-pending:
-  - "Open metadata/docs PR, verify exact-head CI and merge."
-last_verified_commit: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
+current: "Completed: APL-NODE-001 and Arvectum Network are absent from the primary roadmap and execution queue, and preserved only in backlog documentation."
+pending: []
+last_verified_commit: "9caab43c4ccfbe9208940617afd3a3965ece7c1c"
+merged_commit: "9caab43c4ccfbe9208940617afd3a3965ece7c1c"
 test_results:
+  - "PR #227 exact head 54c105be68a8e92d427746e277be0675585554f6: all 11 returned checks SUCCESS, including required Windows build and installer E2E/Gate R6."
+  - "PR #227 merged to main as 9caab43c4ccfbe9208940617afd3a3965ece7c1c."
   - "Primary roadmap search: 0 APL-NODE-001 mentions; 0 Arvectum Network/Frankfurt/Russian-control-plane mentions."
-resume_instruction: "Continue metadata-only deferral cleanup on agent/defer-node-network-20260929. Do not touch PR #195 product code, do not provision infrastructure, and do not enable or modify Proxy Launcher Watchdog."
+resume_instruction: "No continuation required. APL-NODE-001 and Arvectum Network remain backlog-only until explicit Owner reactivation. Do not touch PR #195 product code, provision related infrastructure, or enable/modify Proxy Launcher Watchdog."
 updated_at: "2026-09-29T06:57:00+03:00"
 execution:
-  claimed_by: "chatgpt"
-  execution_id: "APL-ROADMAP-DEFER-NODE-NETWORK-20260929"
-  branch: "agent/defer-node-network-20260929"
-  base_commit: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
+  claimed_by: null
+  execution_id: null
+  branch: null
+  base_commit: null
   lease_until: null
-  manual_override: true
+  manual_override: false
