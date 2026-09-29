@@ -242,9 +242,10 @@ std::string WideToUtf8(const wchar_t* value) {
     if (size <= 1) {
         return {};
     }
-    std::string result(static_cast<size_t>(size - 1), '\0');
+    std::string result(static_cast<size_t>(size), '\0');
     WideCharToMultiByte(
         CP_UTF8, 0, value, -1, result.data(), size, nullptr, nullptr);
+    result.resize(static_cast<size_t>(size - 1));
     return result;
 }
 
