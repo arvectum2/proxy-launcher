@@ -99,7 +99,7 @@ static NTSTATUS DispatchDeviceControl(
 static NTSTATUS NTAPI NotifyFn(
     FWPS_CALLOUT_NOTIFY_TYPE notify_type,
     const GUID* filter_key,
-    const FWPS_FILTER1* filter)
+    FWPS_FILTER1* filter)
 {
     UNREFERENCED_PARAMETER(notify_type);
     UNREFERENCED_PARAMETER(filter_key);
