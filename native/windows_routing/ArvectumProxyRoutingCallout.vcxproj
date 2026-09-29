@@ -43,7 +43,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE;_UNICODE</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -55,7 +55,7 @@
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="routing_callout.c" />
+    <ClCompile Include="routing_callout.cpp" />
     <ClInclude Include="routing_ioctl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

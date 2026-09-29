@@ -1,4 +1,9 @@
 #define INITGUID
+#pragma warning(push)
+#pragma warning(disable:4201)
+#pragma warning(disable:4324)
+extern "C" {
+#include <ntifs.h>
 #include <ntddk.h>
 #include <ndis.h>
 #include <fwpmk.h>
@@ -7,6 +12,8 @@
 #include <wdmsec.h>
 #include <ws2def.h>
 #include <ws2ipdef.h>
+}
+#pragma warning(pop)
 
 #include "routing_ioctl.h"
 
@@ -272,7 +279,9 @@ static VOID DriverUnload(PDRIVER_OBJECT driver_object)
     }
 }
 
-NTSTATUS DriverEntry(
+extern "C" DRIVER_INITIALIZE DriverEntry;
+
+extern "C" NTSTATUS DriverEntry(
     PDRIVER_OBJECT driver_object,
     PUNICODE_STRING registry_path)
 {

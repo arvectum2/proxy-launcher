@@ -10,7 +10,7 @@ RESOURCES = (
     ROOT / "native" / "windows_routing" / "wfp_resources.cpp"
 ).read_text(encoding="utf-8")
 CALLOUT = (
-    ROOT / "native" / "windows_routing" / "routing_callout.c"
+    ROOT / "native" / "windows_routing" / "routing_callout.cpp"
 ).read_text(encoding="utf-8")
 ACCEPTANCE = (
     ROOT / "native" / "windows_routing" / "wfp_acceptance_helper.cpp"
