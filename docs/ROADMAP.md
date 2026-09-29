@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-27
+Updated: 2026-09-29
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -32,7 +32,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified before this roadmap update: f554220680048ae28f3019b7225c6c56a9e64d8a.
+Current canonical main verified before this roadmap update: e27d391259a436cc3ed7802c17f2e49787f13528.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
@@ -92,20 +92,19 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / ROUTING + WAKE HARDENING** — PRs #141/#143/#146/#149 plus later v0.2.14/v0.2.15 recovery work close the current direct-distribution routing/sleep baseline.
 - **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel packages were promoted through the Arvectum Mac mini, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published and mirrored with payload parity.
 - **NEXT DIRECT DESKTOP RELEASE — MANDATORY macOS recovery inclusion (v0.2.17+).** Carry forward PR #203 (reserved wake-refresh fail-closed sentinel recovery) and PR #207 (exact-endpoint HTTP/HTTPS enable-bit drift recovery). Release acceptance must physically verify: APL start → induced exact-endpoint enable-bit drift → rollback exit 0 → all saved network services match the pre-APL snapshot → direct and ordinary HTTPS succeed → legacy 127.0.0.1:1080/8082 tunnel remains untouched. Do not ship the next direct macOS desktop build from a source point older than merge commit 46aef7ecfd165aa03145d2a74d4aba1ba44d972d.
-- **MAC APP STORE — SUBMITTED / WAITING FOR REVIEW / PR #175 / v0.2.17 build 1.** The Store lane is separate and does not mutate or replace direct v0.2.16.
-  - Physical sandbox smoke proved the legacy networksetup backend incompatible with App Sandbox.
-  - Canonical Store architecture is a separate ARM64 Mac Catalyst app + PacketTunnel Network Extension.
-  - Identifiers, capabilities, provisioning, Apple Distribution archive/export, Apple validation/upload and App Store processing all PASS.
-  - Build 1 is VALID / APP_STORE_ELIGIBLE; metadata, Data Not Collected privacy, 175-territory availability, screenshots, age rating and review information are complete.
-  - Physical Packet Tunnel E2E PASS: Connected on utun5, HTTPS 200, non-zero traffic counters, zero tunnel errors, clean disconnect.
-  - Version 0.2.17 build 1 was submitted on 2026-09-26; current Apple state is **WAITING FOR REVIEW**.
-- **MANDATORY HELP UX — DONE / PHYSICAL PASS.** The standard macOS Help item opens the bundled offline Help surface and the owner physically confirmed it before submission.
-  - Standard macOS **Help** menu opens a bundled offline help surface; no “No help is available for Arvectum Proxy Launcher” system response.
-  - Offline sections: **Getting Started**, **status meanings**, **proxy formats**, **Troubleshooting**, **About & Privacy**.
-  - Footer/about: running version, **© Arvectum LLC**, **View on GitHub**, **Release Notes**, **Report a Problem**.
-  - **Release Notes** targets `https://github.com/arvectum2/proxy-launcher/releases/latest`, not a hard-coded version.
-  - Help remains useful offline; online links are secondary.
-  - **Check for Updates** is channel-aware: direct Developer ID builds may later use a direct/GitHub path, while Mac App Store builds must rely on App Store updates and not ship a competing self-updater.
+- **MAC APP STORE — REMEDIATED / READY FOR HUMAN RESUBMISSION — v0.2.17 build 3.** The Store lane remains separate from immutable direct v0.2.16.
+  - Initial build 1 was submitted on 2026-09-26 and rejected on 2026-09-28 under Guidelines 2.1.0 App Completeness and 2.4.5 Hardware Compatibility.
+  - PR #223 merged the remediation to main at `ad09b2393def6c498daa8d67d2439b1d1aac9502`: passive launch no longer mutates Network Extension preferences, the Store help flow no longer advertises GitHub Releases/self-update behavior, and the Catalyst deployment baseline was corrected.
+  - Build 2 was intentionally not reused because App Store Connect reported macOS 12.0 minimum for that already-uploaded artifact.
+  - Corrected build 3 is ARM64 Mac Catalyst + PacketTunnel, signed/validated, with app and extension `LSMinimumSystemVersion=13.0`; Apple `altool --validate-app` returned VERIFY SUCCEEDED.
+  - Physical development-signed smoke on Mac mini passed: launch succeeded and passive startup did not create an additional APL VPN configuration (1 -> 1).
+  - App Store Connect has build 3 selected and VALID with `minOsVersion=13.0`, `lsMinimumSystemVersion=13.0`, `usesNonExemptEncryption=false`; Review Notes were updated for the rejection response.
+  - **CURRENT ASC STATE:** version 0.2.17 is PREPARE_FOR_SUBMISSION while the prior review submission remains UNRESOLVED_ISSUES. Remaining gate is human App Store Connect workflow: resolve/edit the rejected item -> Add for Review -> Resubmit. Do not rebuild or re-upload build 3 unless Apple reports a new binary issue.
+- **MANDATORY HELP UX — DONE / PHYSICAL PASS.** The standard macOS Help item opens bundled offline help.
+  - Direct Developer ID builds may expose GitHub/release links appropriate to direct distribution.
+  - Mac App Store builds must remain useful offline and rely on App Store update semantics; the build-3 remediation removes competing GitHub Releases/self-update language from the Store help flow.
+  - Core offline sections remain: **Getting Started**, **status meanings**, **proxy formats**, **Troubleshooting**, **About & Privacy**.
+  - No Store build may ship a competing self-updater.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal direct macOS distribution lane; add a separate portable form only if it provides real benefit without weakening recovery/update semantics.
 
 ## 7. Per-application routing — application exclusions and desktop enforcement
@@ -115,7 +114,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **AUTONOMOUS COMPLETE / LOCAL-NATIVE PENDING** — APL-ROUTE-003 Windows read-only/control-plane prototype.
 - **DONE** — APL-ROUTE-004 durable ownership/recovery/security journal.
 - **APPLICATION EXCLUSIONS CONTROL PLANE — IMPLEMENTED.** PR #183 added deterministic application-exclusion persistence/capability semantics plus Android live enforcement through `VpnService.Builder.addDisallowedApplication`.
-- **ANDROID UI / CURRENT MAIN — 0.1.36.** Installed-app selection/async loading, active-profile editing and adaptive UI fixes are merged; Android 0.1.36/versionCode 37 is physically accepted for the latest UI candidate.
+- **ANDROID UI / CURRENT MAIN — 0.1.38 / versionCode 39.** The accepted adaptive/profile/application-exclusion baseline is retained; PR #221 layers the current public/private Android distribution flavors on top without regressing manual profiles, Auto, site exclusions or application exclusions.
 - **iOS CONSUMER PATH — SHORTCUTS AUTOMATION.** Native unmanaged consumer iOS cannot truthfully offer arbitrary Per-App VPN selection; PRs #185/#187/#189 provide the supported consumer workaround using APL App Intents + Shortcuts Opened/Closed automations. Managed/MDM Per-App VPN remains a different future capability.
 - **WINDOWS OWNER PACKET — PR #144 READY FOR DECISION.** The packet is already reconciled to current `v0.2.16`/main and exact-head checks are green. Technical recommendation remains an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy.
 - **STOP-GATE** — PR #144 is a recommendation, not approval. Do not install WFP callouts/filters or start privileged production enforcement until Owner/Product Owner explicitly selects or rejects the architecture.
@@ -135,16 +134,17 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
 ## 8. Mobile applications
 
-### Android — public 0.1.19 / current-main 0.1.36
+### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)
 
-- **PUBLIC BASELINE — android-v0.1.19.** This remains the latest public Android GitHub release unless a later publication task explicitly publishes another version.
-- **CURRENT MAIN — 0.1.36 / versionCode 37.** PR #190 completed the latest adaptive New/Edit/profile UX fixes and physical owner acceptance; post-merge Android CI passed.
-- **APPLICATION EXCLUSIONS — MERGED.** PR #183 added installed-app selection and VpnService per-app bypass with controlled reconnect. The UI path is present in the accepted 0.1.36 line.
-- **SITE EXCLUSIONS / AUTO FAILOVER / SLEEP RECOVERY — RETAINED.** Earlier accepted behavior remains part of the current source baseline.
-- **FREE RU/US GATEWAY — LIVE FRIEND-TEST INFRA.** Supplier credentials remain server-side; Android receives short-lived Arvectum gateway sessions.
-- **PUBLIC-SCALE GATE** — current free gateway still needs per-install quotas/rate limiting/anti-abuse controls before broad anonymous rollout.
-- **NO PUBLIC 0.1.36 CLAIM.** Physical acceptance/current-main version does not equal publication; a separate public Android release is required.
-- **APL-MOB-004 — PLANNED / OWNER-GATED.** Ads + public/private distribution remains separate from the free-gateway work.
+- **GITHUB/GITVERSE PUBLIC BASELINE — android-v0.1.19.** This remains the latest published Android release in those channels until a separate publication task creates a later release.
+- **CURRENT MAIN — 0.1.38 / versionCode 39.** PR #221 merged the combined RuStore source to main at `676a987105d8f01b8ed32db8b500b58a26e74542`.
+- **PUBLIC FLAVOR — ADS ENABLED.** The public flavor includes Yandex Mobile Ads App Open integration using RuStore block `R-M-20130429-1`.
+- **PRIVATE FLAVOR — AD-FREE.** A distinct private flavor/package identity is present in the same codebase and does not include the ad integration; separate private distribution remains a delivery concern, not a second divergent application.
+- **NO FRIEND/FREE PROFILES IN THE PUBLIC APP.** PR #221 removed the friend/free gateway UX, `FreeGatewayClient`, free-session refresh/recovery behavior and obsolete persisted free selection from the Android public path.
+- **CORE USER FEATURES RETAINED.** Manual user-supplied proxy profiles, Auto across user profiles, site exclusions, application exclusions, accepted adaptive UI fixes and VPN recovery behavior remain.
+- **RUSTORE — SUBMITTED / WAITING FOR MODERATION.** Version 0.1.38 (39), package `ru.arvectum.proxylauncher`, production-signed APK SHA-256 `21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572`, audience 100%. Publication mode is **Manual after approval**.
+- **HISTORICAL FREE-GATEWAY INFRA.** The prior RU/US friend-test gateway evidence is preserved as historical controlled-test infrastructure, but it is not part of the current public Android client path and must not be reintroduced without an explicit new product task.
+- **NEXT GATE.** Wait for RuStore moderation. Any rejection remediation starts from current main; any later GitHub/GitVerse/site 0.1.38+ publication is a separate release task.
 
 ### iOS — current App Store review-fix: 0.1.36 build 37
 
@@ -160,16 +160,15 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
-2. **[Android] public 0.1.19 / current-main 0.1.36.** 0.1.36 is physically accepted current source with adaptive UI and merged application-exclusion UI/enforcement; it is not yet a public Android release.
+2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
 3. **[iOS App Store / HUMAN] 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / BLOCKED ON PHYSICAL RECORDING.** After the recording arrives: replace screenshots, attach MOV, answer Guideline 2.1 and resubmit.
-4. **[macOS App Store / HUMAN] 0.2.17 remediation — ACTIVE EXTERNAL REVIEW WORKFLOW.** Follow the canonical current-task; do not rebuild unless a new binary issue appears.
+4. **[macOS App Store / HUMAN] 0.2.17 build 3 — VALID / PREPARE_FOR_SUBMISSION.** Remediation is merged and uploaded; finish only the App Store Connect resolve -> Add for Review -> Resubmit workflow. Do not rebuild/re-upload absent a new Apple binary issue.
 5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
-6. **[APL-UI-001] Adaptive UI — DONE / MERGED #193.**
-7. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
-8. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
-9. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
-10. **[APL-MOB-004 / OWNER] advertising + dual Android public/private distribution — active product lane only as separately admitted by its current task/PR state.**
-11. **[Free RU/US gateway] live controlled-test infrastructure; anti-abuse/quota hardening remains before broad public rollout.**
+6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
+7. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
+8. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
+9. **[Adaptive UI] APL-UI-001 — DONE / MERGED #193.** It remains the shared current UI baseline, not an active implementation task.
+10. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
 
 ### Repository-hygiene note
 
@@ -177,13 +176,15 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 
 ### Execution order
 
-- Follow the canonical `.agent/current-task.yaml` for the active user-facing release/review workflow.
+- Follow the canonical `.agent/current-task.yaml` for the active user-facing workflow.
+- **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
+- **macOS App Store:** corrected build 3 is already uploaded/selected. Complete only the human resolve -> Add for Review -> Resubmit flow; do not rebuild or re-upload unless Apple reports a new binary problem.
+- **iOS App Store:** wait for the physical iPhone 13 / iOS 27 recording, then refresh screenshots/attachment, answer Guideline 2.1 and resubmit the already-valid build 37.
 - **Windows per-app:** PR #144 is technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
-- **Android:** current-main 0.1.36 is not a public release; publish only through a separate release task.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
 - Paused backlog-only initiatives must not consume engineering time until the Owner explicitly restores them to the primary roadmap.
-- **Proxy Launcher Watchdog remains outside this roadmap update and must not be enabled by this task.**
+- **Proxy Launcher Watchdog remains outside this roadmap update and must not be enabled or modified by this task.**
 
 ## 10. Platform / distribution matrix
 
@@ -195,9 +196,9 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
-| macOS Mac App Store | **0.2.17 build 1 SUBMITTED / WAITING FOR REVIEW / PR #175** | Wait for Apple; act only on concrete review result or Owner change request |
-| Android | **0.1.19 PUBLIC / 0.1.31 MAIN FRIEND-TEST / FREE RU+US LIVE** | Public 0.1.31 release is separate; add anti-abuse before large rollout; MOB-004 remains Owner-gated |
-| iOS | **0.1.19 build 21 SUBMITTED / WAITING FOR REVIEW** | Wait for Apple; act only on concrete review result or Owner change request |
+| macOS Mac App Store | **0.2.17 build 3 VALID / PREPARE_FOR_SUBMISSION; rejection remediation merged/uploaded** | Human resolve rejected item -> Add for Review -> Resubmit; no rebuild unless Apple reports a new binary issue |
+| Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
+| iOS | **0.1.36 build 37 VALID / APP_STORE_ELIGIBLE; linked to App Store version; not resubmitted** | Physical iOS 27 recording -> current screenshots/attachment -> Guideline 2.1 reply -> resubmit |
 
 ## Completion discipline
 
