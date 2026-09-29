@@ -66,7 +66,7 @@ if ($selectedExit -ne 0 -or $selectedResult -ne '200') {
     throw "Selected curl failed through WFP relay: exit=$selectedExit http=$selectedResult stdout=$log stderr=$err"
 }
 if ($null -eq $helperExit -or $helperExit -ne 0) {
-    throw "Acceptance helper failed with exit code $helperExit: stdout=$log stderr=$err"
+    throw "Acceptance helper failed with exit code ${helperExit}: stdout=$log stderr=$err"
 }
 if ($log -notmatch 'ARVECTUM_WFP_REDIRECT_OBSERVED') {
     throw 'No WFP redirect observation was recorded for the selected executable.'

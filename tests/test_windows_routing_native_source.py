@@ -137,6 +137,7 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("$process.WaitForExit()", LIVE_ACCEPTANCE)
         self.assertIn("$helperExit = $process.ExitCode", LIVE_ACCEPTANCE)
         self.assertIn("$null -eq $helperExit -or $helperExit -ne 0", LIVE_ACCEPTANCE)
+        self.assertIn("${helperExit}: stdout=$log stderr=$err", LIVE_ACCEPTANCE)
         self.assertIn(
             "ARVECTUM_WFP_REDIRECT_OBSERVED original=(127\\.|::1:)",
             LIVE_ACCEPTANCE,
