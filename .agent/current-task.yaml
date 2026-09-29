@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: in_progress
+status: blocked
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Build the test-signed WFP bundle with the self-contained acceptance relay, then install it on ARVECTUM-DEMO and prove selected-app redirect plus restoration."
+current: "Wait for the dedicated Windows-dev laptop to connect via RDC; continue all WFP build/install/live acceptance there. Do not use ARVECTUM-DEMO for additional tooling or live WFP experimentation."
 pending:
   - "Get native WFP callout driver compiling cleanly with current WDK and package its .sys artifact."
   - "Implement narrow privileged Windows service for owned provider/sublayer/callout/filter lifecycle and IPC."
@@ -44,6 +44,7 @@ test_results:
   - "Added self-contained WFP acceptance relay mode: helper queries redirect context/records, connects to the original destination with redirect-record propagation, relays TCP, and logs observed original destination; local native/production suite PASS 16/16."
   - "ARVECTUM-DEMO physical preflight: BFE running; Secure Boot=False from elevated read-only probe; VBS and Code Integrity enforcement active; baseline curl IPv4 HTTPS returns HTTP 200; separate selected-curl.exe path prepared."
   - "Hardened test-signing lifecycle: driver load is attempted before boot-policy mutation; Arvectum records ownership only when it enables testsigning; rollback disables only Arvectum-owned test mode and reports reboot requirement."
-blocker: null
-resume_instruction: "ARVECTUM-DEMO is online. Continue on agent/apl-route-windows-production-20260929: build the smallest WFP callout with current WDK, prepare a test-signed install path, wire redirect context/records to the local proxy, then run selected-vs-unselected app routing and recovery tests. Keep live_enforcement_supported=false until acceptance passes."
-updated_at: "2026-09-29T11:33:00+03:00"
+  - "ARVECTUM-DEMO restored after Owner stop: removed task-created apl-wfp-live/selected-curl, elevated-probe files, live-acceptance script, WinGet Python temp payload and install log; verified no Python program directory, no ArvectumProxyRouting services, no routing test certificates, and no testsigning/nointegritychecks BCD entries."
+blocker: "Owner stopped live work on ARVECTUM-DEMO to keep the shared test stand clean. Awaiting Windows-dev laptop via RDC for WDK/Python/native tooling and privileged WFP acceptance."
+resume_instruction: "When Windows-dev appears online in RDC, continue on agent/apl-route-windows-production-20260929 there only: verify toolchain/elevation, build or fetch the test-signed WFP bundle, install the callout, run selected-vs-unselected app routing and crash/reboot/rollback acceptance, and keep live_enforcement_supported=false until all acceptance passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T12:04:00+03:00"
