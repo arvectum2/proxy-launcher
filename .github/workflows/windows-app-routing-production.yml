@@ -102,10 +102,19 @@ jobs:
           $build = "${env:ProgramFiles(x86)}\Windows Kits\10\build\$kit\universalDDIs\x64"
           & $validator "-DriverPackagePath:native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys" "-SupportedApiXmlFiles:$build\UniversalDDIs.xml" "-ModuleWhiteListXmlFiles:$build\ModuleWhiteList.xml" "-ApiExtractorExePath:${env:ProgramFiles(x86)}\Windows Kits\10\bin\$kit\x64"
           if ($LASTEXITCODE -ne 0) { throw 'x64 ApiValidator failed' }
-      - name: Prepare WDK test-signing certificate
+      - name: Prepare WDK test-signed acceptance bundle
         shell: pwsh
         run: |
           Copy-Item native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer ArvectumProxyRoutingTest.cer -Force
+          $driver = Get-AuthenticodeSignature native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+          if ($driver.Status -ne 'Valid' -or -not $driver.SignerCertificate) { throw 'WDK test signer unavailable' }
+          $thumbprint = $driver.SignerCertificate.Thumbprint
+          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse | Where-Object FullName -Match '\\x64\\signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $signtool) { throw 'signtool.exe not found' }
+          & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumProxyRoutingService.exe
+          if ($LASTEXITCODE -ne 0) { throw 'service signing failed' }
+          & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumWfpAcceptance.exe
+          if ($LASTEXITCODE -ne 0) { throw 'acceptance helper signing failed' }
       - name: Run read-only native WFP SDK probe
         shell: pwsh
         run: .\wfp_sdk_probe.exe
@@ -127,4 +136,5 @@ jobs:
             tools/windows_wfp_test_rollback.ps1
             tools/windows_wfp_live_acceptance.ps1
             native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+            native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer
           if-no-files-found: error
