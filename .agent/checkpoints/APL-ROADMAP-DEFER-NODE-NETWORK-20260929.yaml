@@ -1,0 +1,34 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-DEFER-NODE-NETWORK-20260929
+status: in_progress
+goal: "Keep APL-NODE-001 and Arvectum Network out of the primary roadmap/execution queue and preserve them only as deferred backlog initiatives until explicit Owner reactivation."
+authority: REVIEW
+definition_of_done:
+  - "docs/ROADMAP.md contains no APL-NODE-001 or Arvectum Network primary-roadmap entries."
+  - ".agent/execution-queue.yaml contains no executable/deferred queue items for APL-NODE-001 or Arvectum Network."
+  - "docs/LOCAL_EXECUTION_BACKLOG.md preserves both tracks as DEFERRED / PAUSED BY OWNER with their existing evidence and resume queues."
+  - "ARVECTUM_NETWORK_ROADMAP.md remains preserved."
+  - "No product branch, PR #195 code, infrastructure or watchdog state is changed."
+  - "Exact-head CI passes before merge."
+completed:
+  - "Verified current main d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c."
+  - "Verified docs/ROADMAP.md already contains zero APL-NODE-001 / Arvectum Network mentions."
+  - "Verified backlog P12/P13 already preserve both tracks as DEFERRED / PAUSED BY OWNER."
+current: "Remove the two paused items from execution queue and clean stale backlog priority wording."
+pending:
+  - "Update .agent/execution-queue.yaml."
+  - "Update docs/LOCAL_EXECUTION_BACKLOG.md stale priority wording."
+  - "Open metadata/docs PR, verify exact-head CI and merge."
+last_verified_commit: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
+test_results:
+  - "Primary roadmap search: 0 APL-NODE-001 mentions; 0 Arvectum Network/Frankfurt/Russian-control-plane mentions."
+resume_instruction: "Continue metadata-only deferral cleanup on agent/defer-node-network-20260929. Do not touch PR #195 product code, do not provision infrastructure, and do not enable or modify Proxy Launcher Watchdog."
+updated_at: "2026-09-29T06:57:00+03:00"
+execution:
+  claimed_by: "chatgpt"
+  execution_id: "APL-ROADMAP-DEFER-NODE-NETWORK-20260929"
+  branch: "agent/defer-node-network-20260929"
+  base_commit: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
+  lease_until: null
+  manual_override: true
