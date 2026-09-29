@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0B978B33-E26A-4F98-AF74-E6C68F64479A}</ProjectGuid>
+    <RootNamespace>ArvectumRoutingDriver</RootNamespace>
+    <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+    <Platform Condition="'$(Platform)'==''">x64</Platform>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+    <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+    <TargetVersion>Windows10</TargetVersion>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <TargetName>ArvectumProxyRouting</TargetName>
+    <OutDir>$(SolutionDir)out\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)obj\driver\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>_WIN64;AMD64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Fwpkclnt.lib;ntoskrnl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <DriverSign>
+      <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
+    </DriverSign>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="driver.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

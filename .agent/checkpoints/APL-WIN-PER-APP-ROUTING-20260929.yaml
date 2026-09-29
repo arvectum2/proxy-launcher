@@ -31,9 +31,12 @@ completed:
   - "Added bounded Windows per-app enforcement plan and length-prefixed named-pipe client contract; plans contain WFP app-id blobs and loopback proxy/direct ports, not executable paths."
   - "Integrated APL-ROUTE-004 ownership journal into apply/restore lifecycle and wired startup/stop/rollback fail-closed behavior."
   - "Focused runtime/transport/routing regression suite PASS: 92 tests."
-current: "Implement the native WFP callout + privileged service for the now-tested bounded loopback redirect plan."
+  - "Added minimal x64 WDM ALE_CONNECT_REDIRECT_V4 callout source with loopback-port-only mutation and redirect-state loop prevention."
+  - "Added LocalSystem routing service source with dynamic WFP provider/sublayer/callout ownership, transactional filter apply, owner-SID-only local named pipe ACL, client SID verification, bounded plan validation, and install/uninstall service plumbing."
+  - "Added native source-contract tests and Windows Server 2022 / VS2022-compatible WDK 26100.6584 CI workflow."
+current: "Compile the native WFP callout/service in Windows CI and resolve compiler/WDK issues before packaging."
 pending:
-  - "Implement native driver/service and bounded IPC service contract."
+  - "Get native driver/service green in Windows CI and harden any compiler/runtime findings."
   - "Wire desktop application-exclusion UI and native-component install/health UX."
   - "Integrate build/installer and CI."
   - "Run focused tests and Windows hosted build/smoke checks."
@@ -45,9 +48,10 @@ test_results:
   - "python3 -m unittest tests.test_application_runtime tests.test_proxy_core tests.test_local_proxy_transport tests.test_windows_per_app_routing -v: 92/92 PASS."
   - "python3 -m py_compile for new/changed Python modules: PASS."
   - "git diff --check: PASS."
+  - "python3 -m unittest tests.test_windows_native_routing_contract tests.test_windows_per_app_routing tests.test_local_proxy_transport -v: 29/29 PASS."
 blocker: null
-resume_instruction: "Continue from feature/windows-per-app-routing. Implement the native WFP ALE_CONNECT_REDIRECT_V4 callout and privileged service/named-pipe server for the bounded app-exclusion loopback-port plan, then add Windows build/installer integration and GUI selection/health UX. Preserve APL-ROUTE-004 ownership/recovery. Do not claim CIDR/domain enforcement, signed-driver load, or physical Windows PASS without evidence."
-updated_at: "2026-09-29T09:34:00+03:00"
+resume_instruction: "Continue from feature/windows-per-app-routing. Inspect the latest Windows per-app routing native workflow on the current head, fix driver/service build issues until CI is green, then integrate unsigned native outputs into the installer/build and add GUI install/health/application selection UX. Preserve APL-ROUTE-004 ownership/recovery. Do not claim CIDR/domain enforcement, signed-driver load, or physical Windows PASS without evidence."
+updated_at: "2026-09-29T10:02:00+03:00"
 execution:
   branch: feature/windows-per-app-routing
   base_commit: 21c1160c2afe6e09fd121ae9eaba1c78e65c697a

@@ -1,0 +1,76 @@
+name: Windows per-app routing native
+
+on:
+  push:
+    branches:
+      - feature/windows-per-app-routing
+    paths:
+      - "native/windows-routing/**"
+      - "windows_per_app_routing.py"
+      - "windows_app_routing_runtime.py"
+      - "local_proxy_transport.py"
+      - "application_runtime.py"
+      - "tests/test_windows_*routing*"
+      - ".github/workflows/windows-per-app-routing-native.yml"
+  pull_request:
+    paths:
+      - "native/windows-routing/**"
+      - "windows_per_app_routing.py"
+      - "windows_app_routing_runtime.py"
+      - "local_proxy_transport.py"
+      - "application_runtime.py"
+      - "tests/test_windows_*routing*"
+      - ".github/workflows/windows-per-app-routing-native.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-build:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python routing contracts
+        shell: pwsh
+        run: python -m unittest tests.test_windows_per_app_routing tests.test_windows_native_routing_contract tests.test_windows_app_routing tests.test_routing_ownership
+
+      - name: Install VS2022-compatible WDK
+        shell: pwsh
+        run: |
+          winget install --id Microsoft.WindowsWDK.10.0.26100 -e --version 10.1.26100.6584 --silent --accept-package-agreements --accept-source-agreements
+          if ($LASTEXITCODE -ne 0) { throw "WDK installation failed: $LASTEXITCODE" }
+
+      - name: Build routing service and callout driver
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if (-not $msbuild) { throw "MSBuild not found" }
+          & $msbuild native\windows-routing\ArvectumWindowsRouting.sln /m /restore /p:Configuration=Release /p:Platform=x64 /warnaserror
+          if ($LASTEXITCODE -ne 0) { throw "native routing build failed" }
+
+      - name: Verify native outputs
+        shell: pwsh
+        run: |
+          $out = "native\windows-routing\out\Release"
+          $service = Join-Path $out "ArvectumRoutingService.exe"
+          $driver = Join-Path $out "ArvectumProxyRouting.sys"
+          if (-not (Test-Path $service)) { throw "routing service output missing" }
+          if (-not (Test-Path $driver)) { throw "routing driver output missing" }
+          & $service
+          if ($LASTEXITCODE -ne 2) { throw "routing service CLI guard returned $LASTEXITCODE" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-per-app-routing-native-unsigned
+          path: |
+            native/windows-routing/out/Release/ArvectumRoutingService.exe
+            native/windows-routing/out/Release/ArvectumProxyRouting.sys
+          if-no-files-found: error
