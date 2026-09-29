@@ -9,6 +9,9 @@ SERVICE = (
 RESOURCES = (
     ROOT / "native" / "windows_routing" / "wfp_resources.cpp"
 ).read_text(encoding="utf-8")
+LIFECYCLE = (
+    ROOT / "native" / "windows_routing" / "routing_service_wfp.cpp"
+).read_text(encoding="utf-8")
 CALLOUT = (
     ROOT / "native" / "windows_routing" / "routing_callout.cpp"
 ).read_text(encoding="utf-8")
@@ -32,19 +35,28 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("(A;;GA;;;BA)", SERVICE)
         self.assertIn("(A;;GRGW;;;IU)", SERVICE)
 
-    def test_phase_one_service_contains_no_wfp_mutation_api(self):
-        forbidden = (
-            "FwpmFilterAdd",
-            "FwpmCalloutAdd",
-            "FwpmProviderAdd",
-            "FwpmSubLayerAdd",
-            "FwpmFilterDelete",
-            "FwpmCalloutDelete",
-            "FwpmProviderDelete",
-            "FwpmSubLayerDelete",
-        )
-        for symbol in forbidden:
-            self.assertNotIn(symbol, SERVICE)
+    def test_service_dispatches_strict_protocol_and_wfp_lifecycle(self):
+        self.assertIn("ParseServiceRequest", SERVICE)
+        self.assertIn("BuildServiceResponse", SERVICE)
+        self.assertIn("RoutingWfpSession", SERVICE)
+        self.assertIn("kClientIoTimeoutMs = 5000", SERVICE)
+        self.assertIn("FILE_FLAG_OVERLAPPED", SERVICE)
+        self.assertIn("CancelIoEx", SERVICE)
+
+    def test_service_wfp_lifecycle_is_dynamic_transactional_and_dual_stack(self):
+        self.assertIn("FWPM_SESSION_FLAG_DYNAMIC", LIFECYCLE)
+        self.assertIn("FwpmTransactionBegin0", LIFECYCLE)
+        self.assertIn("FwpmTransactionCommit0", LIFECYCLE)
+        self.assertIn("FwpmTransactionAbort0", LIFECYCLE)
+        self.assertIn("FWPM_LAYER_ALE_CONNECT_REDIRECT_V4", LIFECYCLE)
+        self.assertIn("FWPM_LAYER_ALE_CONNECT_REDIRECT_V6", LIFECYCLE)
+        self.assertIn("FWPM_CONDITION_ALE_APP_ID", LIFECYCLE)
+        self.assertIn("FWPM_CONDITION_IP_PROTOCOL", LIFECYCLE)
+        self.assertIn("FWPM_CONDITION_IP_REMOTE_ADDRESS", LIFECYCLE)
+        self.assertIn("FWP_ACTION_CALLOUT_TERMINATING", LIFECYCLE)
+        self.assertIn("FWP_ACTION_PERMIT", LIFECYCLE)
+        self.assertIn("ConfigureDriver(request.proxy_pid, request.proxy_port, true)", LIFECYCLE)
+        self.assertIn("VerifyAbsent", LIFECYCLE)
 
     def test_resource_source_uses_fixed_arvectum_namespace(self):
         self.assertIn('L"Arvectum.ProxyLauncher."', RESOURCES)
