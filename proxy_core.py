@@ -44,6 +44,7 @@ import recovery_autostart as _recovery_autostart
 import routing_policy as _routing_policy
 import system_proxy_runtime as _system_proxy_runtime
 import windows_pac_recovery as _windows_pac_recovery
+import windows_routing_component as _windows_routing_component
 import windows_app_routing_runtime as _windows_app_routing_runtime
 import windows_system_proxy as _windows_system_proxy
 
@@ -77,6 +78,8 @@ _application_exclusions.configure(_core)
 _application_exclusions.install_into_core(_core)
 _windows_app_routing_runtime.configure(_core)
 _windows_app_routing_runtime.install_into_core(_core)
+_windows_routing_component.configure(_core)
+_windows_routing_component.install_into_core(_core)
 _local_proxy_transport.configure(_core)
 _local_proxy_transport.install_into_core(_core)
 _process_supervision.configure(_core)

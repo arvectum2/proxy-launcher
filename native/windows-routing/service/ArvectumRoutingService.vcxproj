@@ -34,7 +34,7 @@
       <PreprocessorDefinitions>UNICODE;_UNICODE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Fwpuclnt.lib;Advapi32.lib;Rpcrt4.lib;windowsapp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Fwpuclnt.lib;Advapi32.lib;Rpcrt4.lib;windowsapp.lib;Ws2_32.lib;Shell32.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup><ClCompile Include="service.cpp" /></ItemGroup>

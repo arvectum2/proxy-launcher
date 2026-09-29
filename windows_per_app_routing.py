@@ -175,30 +175,59 @@ def _named_pipe_request(payload: Mapping[str, object], timeout_ms: int = 2500):
     create.restype = wintypes.HANDLE
     handle = create(PIPE_PATH, 0xC0000000, 0, None, 3, 0, None)
     invalid = ctypes.c_void_p(-1).value
-    if handle in (None, invalid):
+    handle_value = ctypes.cast(handle, ctypes.c_void_p).value if handle else None
+    if handle_value in (None, invalid):
         raise WindowsPerAppRoutingError("could not open Arvectum routing service pipe")
 
     write = kernel32.WriteFile
+    write.argtypes = [
+        wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p,
+    ]
+    write.restype = wintypes.BOOL
     read = kernel32.ReadFile
+    read.argtypes = [
+        wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p,
+    ]
+    read.restype = wintypes.BOOL
     close = kernel32.CloseHandle
-    try:
-        frame = struct.pack("<I", len(raw)) + raw
-        sent = wintypes.DWORD()
-        buf = ctypes.create_string_buffer(frame)
-        if not write(handle, buf, len(frame), ctypes.byref(sent), None) or sent.value != len(frame):
-            raise WindowsPerAppRoutingError("routing service request write failed")
+    close.argtypes = [wintypes.HANDLE]
+    close.restype = wintypes.BOOL
 
-        header = ctypes.create_string_buffer(4)
-        got = wintypes.DWORD()
-        if not read(handle, header, 4, ctypes.byref(got), None) or got.value != 4:
-            raise WindowsPerAppRoutingError("routing service reply header failed")
-        length = struct.unpack("<I", header.raw)[0]
+    def write_all(data: bytes) -> None:
+        offset = 0
+        while offset < len(data):
+            remaining = data[offset:]
+            buffer = ctypes.create_string_buffer(remaining)
+            sent = wintypes.DWORD()
+            if not write(handle, buffer, len(remaining), ctypes.byref(sent), None):
+                raise WindowsPerAppRoutingError("routing service request write failed")
+            if sent.value <= 0 or sent.value > len(remaining):
+                raise WindowsPerAppRoutingError("routing service request write made no progress")
+            offset += sent.value
+
+    def read_exact(length: int, label: str) -> bytes:
+        out = bytearray()
+        while len(out) < length:
+            remaining = length - len(out)
+            buffer = ctypes.create_string_buffer(remaining)
+            got = wintypes.DWORD()
+            if not read(handle, buffer, remaining, ctypes.byref(got), None):
+                raise WindowsPerAppRoutingError("routing service %s failed" % label)
+            if got.value <= 0 or got.value > remaining:
+                raise WindowsPerAppRoutingError("routing service %s made no progress" % label)
+            out.extend(buffer.raw[:got.value])
+        return bytes(out)
+
+    try:
+        write_all(struct.pack("<I", len(raw)) + raw)
+        header = read_exact(4, "reply header")
+        length = struct.unpack("<I", header)[0]
         if not 1 <= length <= MAX_PIPE_MESSAGE:
             raise WindowsPerAppRoutingError("routing service reply length is invalid")
-        body = ctypes.create_string_buffer(length)
-        if not read(handle, body, length, ctypes.byref(got), None) or got.value != length:
-            raise WindowsPerAppRoutingError("routing service reply body failed")
-        reply = json.loads(body.raw.decode("utf-8"))
+        body = read_exact(length, "reply body")
+        reply = json.loads(body.decode("utf-8"))
         if not isinstance(reply, dict):
             raise WindowsPerAppRoutingError("routing service returned a non-object reply")
         return reply

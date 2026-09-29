@@ -1,7 +1,13 @@
+#pragma warning(push)
+#pragma warning(disable: 4201)
+#pragma warning(disable: 4324)
+#include <ntifs.h>
 #include <ntddk.h>
+#include <ndis.h>
+#include <fwpmk.h>
 #include <fwpsk.h>
-#include <ws2def.h>
-#include <ws2ipdef.h>
+#include <netioddk.h>
+#pragma warning(pop)
 #include <initguid.h>
 #include "../include/arvectum_routing_guids.h"
 

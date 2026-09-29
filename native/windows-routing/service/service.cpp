@@ -2,9 +2,11 @@
 #include <windows.h>
 #include <fwpmu.h>
 #include <sddl.h>
+#include <shlobj.h>
 #include <winsvc.h>
 #include <ws2tcpip.h>
 #include <winrt/base.h>
+#include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Data.Json.h>
 
 #include <algorithm>
@@ -135,6 +137,75 @@ std::filesystem::path ModuleDirectory() {
     return std::filesystem::path(std::wstring(buffer.data(), length)).parent_path();
 }
 
+
+std::filesystem::path ProtectedInstallDirectory() {
+    PWSTR programFiles = nullptr;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, KF_FLAG_DEFAULT, nullptr, &programFiles);
+    if (FAILED(hr) || programFiles == nullptr)
+        throw std::runtime_error("Program Files location is unavailable");
+    std::filesystem::path result(programFiles);
+    CoTaskMemFree(programFiles);
+    result /= L"Arvectum";
+    result /= L"Proxy Launcher";
+    result /= L"Routing";
+    return result;
+}
+
+void CopyNativePayloadToProtectedDirectory(
+    std::filesystem::path* serviceOut,
+    std::filesystem::path* driverOut)
+{
+    const auto sourceDir = ModuleDirectory();
+    const auto sourceService = sourceDir / L"ArvectumRoutingService.exe";
+    const auto sourceDriver = sourceDir / L"ArvectumProxyRouting.sys";
+    if (!std::filesystem::is_regular_file(sourceService))
+        throw std::runtime_error("ArvectumRoutingService.exe source is missing");
+    if (!std::filesystem::is_regular_file(sourceDriver))
+        throw std::runtime_error("ArvectumProxyRouting.sys is missing next to the service executable");
+
+    const auto destination = ProtectedInstallDirectory();
+    std::filesystem::create_directories(destination);
+    const auto service = destination / L"ArvectumRoutingService.exe";
+    const auto driver = destination / L"ArvectumProxyRouting.sys";
+    std::filesystem::copy_file(
+        sourceService, service, std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::copy_file(
+        sourceDriver, driver, std::filesystem::copy_options::overwrite_existing);
+    *serviceOut = service;
+    *driverOut = driver;
+}
+
+SC_HANDLE CreateOrUpdateService(
+    SC_HANDLE scm,
+    const wchar_t* name,
+    const wchar_t* displayName,
+    DWORD serviceType,
+    DWORD startType,
+    const std::wstring& quotedBinaryPath)
+{
+    SC_HANDLE service = CreateServiceW(
+        scm, name, displayName,
+        SERVICE_START | SERVICE_STOP | DELETE | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG,
+        serviceType, startType, SERVICE_ERROR_NORMAL,
+        quotedBinaryPath.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr);
+    if (service != nullptr) return service;
+    if (GetLastError() != ERROR_SERVICE_EXISTS)
+        throw Win32Error("CreateServiceW failed");
+
+    service = OpenServiceW(
+        scm, name,
+        SERVICE_START | SERVICE_STOP | DELETE | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG);
+    if (!service) throw Win32Error("OpenServiceW(existing) failed");
+    if (!ChangeServiceConfigW(
+            service, serviceType, startType, SERVICE_ERROR_NORMAL,
+            quotedBinaryPath.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr, displayName)) {
+        DWORD error = GetLastError();
+        CloseServiceHandle(service);
+        throw Win32Error("ChangeServiceConfigW failed", error);
+    }
+    return service;
+}
+
 void SetServiceState(DWORD state, DWORD win32Exit = NO_ERROR, DWORD waitHint = 0) {
     g_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
     g_status.dwCurrentState = state;
@@ -180,7 +251,7 @@ void InitializeWfp() {
     FWPM_SUBLAYER0 sublayer{};
     sublayer.subLayerKey = ARVECTUM_ROUTING_SUBLAYER;
     sublayer.displayData.name = const_cast<wchar_t*>(L"Arvectum application routing");
-    sublayer.providerKey = &ARVECTUM_ROUTING_PROVIDER;
+    sublayer.providerKey = const_cast<GUID*>(&ARVECTUM_ROUTING_PROVIDER);
     sublayer.weight = 0x200;
     result = FwpmSubLayerAdd0(g_engine, &sublayer, nullptr);
     if (result != ERROR_SUCCESS && result != FWP_E_ALREADY_EXISTS)
@@ -189,7 +260,7 @@ void InitializeWfp() {
     FWPM_CALLOUT0 callout{};
     callout.calloutKey = ARVECTUM_CONNECT_REDIRECT_V4_CALLOUT;
     callout.displayData.name = const_cast<wchar_t*>(L"Arvectum loopback proxy redirect");
-    callout.providerKey = &ARVECTUM_ROUTING_PROVIDER;
+    callout.providerKey = const_cast<GUID*>(&ARVECTUM_ROUTING_PROVIDER);
     callout.applicableLayer = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
     result = FwpmCalloutAdd0(g_engine, &callout, nullptr, nullptr);
     if (result != ERROR_SUCCESS && result != FWP_E_ALREADY_EXISTS)
@@ -316,7 +387,7 @@ UINT64 AddFilter(const ParsedRedirect& redirect) {
 
     FWPM_FILTER0 filter{};
     filter.displayData.name = const_cast<wchar_t*>(redirect.resourceId.c_str());
-    filter.providerKey = &ARVECTUM_ROUTING_PROVIDER;
+    filter.providerKey = const_cast<GUID*>(&ARVECTUM_ROUTING_PROVIDER);
     filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
     filter.subLayerKey = ARVECTUM_ROUTING_SUBLAYER;
     filter.action.type = FWP_ACTION_CALLOUT_TERMINATING;
@@ -655,57 +726,55 @@ void StopAndDelete(SC_HANDLE scm, const wchar_t* name) {
 void Install(const std::wstring& ownerSid) {
     EnsureAdmin();
     const std::wstring canonicalSid = CanonicalSid(ownerSid);
-    const auto dir = ModuleDirectory();
-    const auto exe = dir / L"ArvectumRoutingService.exe";
-    const auto sys = dir / L"ArvectumProxyRouting.sys";
-    if (!std::filesystem::is_regular_file(sys))
-        throw std::runtime_error("ArvectumProxyRouting.sys is missing next to the service executable");
+    std::filesystem::path serviceBinary;
+    std::filesystem::path driverBinary;
+    CopyNativePayloadToProtectedDirectory(&serviceBinary, &driverBinary);
 
     WriteOwnerSid(canonicalSid);
-    SC_HANDLE scm = OpenSCManagerW(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE | SC_MANAGER_CONNECT);
+    SC_HANDLE scm = OpenSCManagerW(
+        nullptr, nullptr, SC_MANAGER_CREATE_SERVICE | SC_MANAGER_CONNECT);
     if (!scm) throw Win32Error("OpenSCManagerW failed");
 
-    std::wstring driverPath = L"\"" + sys.wstring() + L"\"";
-    SC_HANDLE driver = CreateServiceW(
-        scm, kDriverServiceName, L"Arvectum Proxy Routing Driver",
-        SERVICE_START | SERVICE_STOP | DELETE | SERVICE_QUERY_STATUS,
-        SERVICE_KERNEL_DRIVER, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
-        driverPath.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr);
-    if (!driver && GetLastError() != ERROR_SERVICE_EXISTS) {
-        DWORD error = GetLastError();
-        CloseServiceHandle(scm);
-        throw Win32Error("CreateServiceW(driver) failed", error);
-    }
-    if (driver) CloseServiceHandle(driver);
+    std::wstring driverPath = L"\"" + driverBinary.wstring() + L"\"";
+    SC_HANDLE driver = nullptr;
+    SC_HANDLE service = nullptr;
+    try {
+        driver = CreateOrUpdateService(
+            scm,
+            kDriverServiceName,
+            L"Arvectum Proxy Routing Driver",
+            SERVICE_KERNEL_DRIVER,
+            SERVICE_DEMAND_START,
+            driverPath);
+        CloseServiceHandle(driver);
+        driver = nullptr;
 
-    std::wstring servicePath = L"\"" + exe.wstring() + L"\" --service";
-    SC_HANDLE service = CreateServiceW(
-        scm, kServiceName, L"Arvectum Proxy Application Routing",
-        SERVICE_START | SERVICE_STOP | DELETE | SERVICE_QUERY_STATUS,
-        SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        servicePath.c_str(), nullptr, nullptr, nullptr, nullptr, nullptr);
-    if (!service && GetLastError() == ERROR_SERVICE_EXISTS) {
-        service = OpenServiceW(scm, kServiceName, SERVICE_START | SERVICE_QUERY_STATUS);
-    }
-    if (!service) {
-        DWORD error = GetLastError();
-        CloseServiceHandle(scm);
-        throw Win32Error("Create/Open routing service failed", error);
-    }
+        std::wstring servicePath = L"\"" + serviceBinary.wstring() + L"\" --service";
+        service = CreateOrUpdateService(
+            scm,
+            kServiceName,
+            L"Arvectum Proxy Application Routing",
+            SERVICE_WIN32_OWN_PROCESS,
+            SERVICE_AUTO_START,
+            servicePath);
 
-    SERVICE_DESCRIPTIONW description{};
-    description.lpDescription =
-        const_cast<wchar_t*>(L"Arvectum-owned WFP service for per-application proxy exclusions.");
-    ChangeServiceConfig2W(service, SERVICE_CONFIG_DESCRIPTION, &description);
+        SERVICE_DESCRIPTIONW description{};
+        description.lpDescription =
+            const_cast<wchar_t*>(L"Arvectum-owned WFP service for per-application proxy exclusions.");
+        ChangeServiceConfig2W(service, SERVICE_CONFIG_DESCRIPTION, &description);
 
-    if (!StartServiceW(service, 0, nullptr) && GetLastError() != ERROR_SERVICE_ALREADY_RUNNING) {
-        DWORD error = GetLastError();
+        if (!StartServiceW(service, 0, nullptr) &&
+            GetLastError() != ERROR_SERVICE_ALREADY_RUNNING) {
+            throw Win32Error("StartServiceW failed");
+        }
         CloseServiceHandle(service);
         CloseServiceHandle(scm);
-        throw Win32Error("StartServiceW failed", error);
+    } catch (...) {
+        if (service) CloseServiceHandle(service);
+        if (driver) CloseServiceHandle(driver);
+        CloseServiceHandle(scm);
+        throw;
     }
-    CloseServiceHandle(service);
-    CloseServiceHandle(scm);
 }
 
 void Uninstall() {
@@ -716,6 +785,8 @@ void Uninstall() {
     StopAndDelete(scm, kDriverServiceName);
     CloseServiceHandle(scm);
     RegDeleteTreeW(HKEY_LOCAL_MACHINE, kRegistryKey);
+    std::error_code ignored;
+    std::filesystem::remove_all(ProtectedInstallDirectory(), ignored);
 }
 
 }  // namespace

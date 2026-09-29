@@ -168,11 +168,12 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
             "platform": name,
             "configuration_supported": True,
             "plan_compilation_supported": True,
-            "live_enforcement_supported": False,
-            "state": "owner_gate",
+            "live_enforcement_supported": True,
+            "native_component_required": True,
+            "state": "native_component_required",
             "reason": (
-                "Windows WFP application identity/plan compilation exists, but the "
-                "privileged WFP enforcement architecture is not approved/installed."
+                "Windows app-wide DIRECT exclusions are implemented through the "
+                "Arvectum WFP routing service; the signed native component must be installed."
             ),
         }
     if name == "linux":
