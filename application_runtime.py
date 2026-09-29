@@ -92,6 +92,64 @@ def _run_proxy_loop(proxy):
         )
         last_wall = time.time()
 
+def _cmd_transparent_acceptance():
+    """Run the local transparent listener without mutating system proxy state."""
+    core = _core()
+    if not core.is_windows():
+        print("transparent acceptance requires Windows")
+        return 2
+
+    try:
+        duration = int(sys.argv[2]) if len(sys.argv) > 2 else 180
+    except (TypeError, ValueError):
+        return 2
+    if duration < 10 or duration > 600:
+        return 2
+
+    settings = core.load_settings()
+    configured = any(
+        (upstream.get("host") or "").strip()
+        for upstream in settings.get("upstream") or []
+    )
+    if not configured:
+        core._log("transparent acceptance aborted: no upstream proxy configured")
+        return 2
+
+    proxy = core.ProxyCore(settings)
+    ok, message = proxy.start()
+    if not ok:
+        core._log("transparent acceptance proxy start failed: %s" % message)
+        return 1
+
+    state_path = os.path.join(core.data_dir(), "transparent_acceptance.json")
+    try:
+        ok, message, port = proxy.start_transparent_listener()
+        if not ok or not port:
+            core._log("transparent listener start failed: %s" % message)
+            return 1
+        core._atomic_write_json(state_path, {
+            "schema": "arvectum.proxy.windows.transparent_acceptance.v1",
+            "pid": os.getpid(),
+            "port": int(port),
+            "duration_seconds": duration,
+        })
+        core.structured_log(
+            "transparent acceptance ready",
+            event="proxy.transparent.acceptance_ready",
+            pid=os.getpid(),
+            port=int(port),
+            duration_seconds=duration,
+        )
+        proxy._stop.wait(duration)
+        return 0
+    finally:
+        proxy.stop()
+        try:
+            os.remove(state_path)
+        except OSError:
+            pass
+
+
 def _cmd_start():
     core = _core()
     settings = core.load_settings()
@@ -228,6 +286,9 @@ def main():
         print("state initialization failed")
         return 1
 
+    if action == "transparent-acceptance":
+        return core._cmd_transparent_acceptance()
+
     core.repair_portable_run_entries()
     if action == "start":
         return core._cmd_start()
@@ -238,7 +299,10 @@ def main():
         return 0
     if action == "rollback":
         return core._cmd_rollback()
-    print("usage: proxy_core.py --start | --stop | --status | --rollback")
+    print(
+        "usage: proxy_core.py --start | --stop | --status | --rollback "
+        "| --transparent-acceptance [seconds]"
+    )
     return 2
 
 
@@ -248,6 +312,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     for name in (
         "_ensure_local_files",
         "_run_proxy_loop",
+        "_cmd_transparent_acceptance",
         "_cmd_start",
         "_cmd_stop",
         "_cmd_rollback",

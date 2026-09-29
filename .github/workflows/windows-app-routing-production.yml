@@ -11,6 +11,8 @@ on:
       - 'windows_routing_service_contract.py'
       - 'windows_redirect_transport.py'
       - 'local_proxy_transport.py'
+      - 'application_runtime.py'
+      - 'proxy_gui.py'
       - 'native/windows_routing/**'
       - 'tests/test_application_exclusions.py'
       - 'tests/test_windows_app_routing.py'
@@ -18,6 +20,7 @@ on:
       - 'tests/test_windows_routing_native_source.py'
       - 'tests/test_windows_redirect_transport.py'
       - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_application_runtime.py'
       - '.github/workflows/windows-app-routing-production.yml'
   push:
     branches: [main]
@@ -29,6 +32,8 @@ on:
       - 'windows_routing_service_contract.py'
       - 'windows_redirect_transport.py'
       - 'local_proxy_transport.py'
+      - 'application_runtime.py'
+      - 'proxy_gui.py'
       - 'native/windows_routing/**'
       - 'tests/test_application_exclusions.py'
       - 'tests/test_windows_app_routing.py'
@@ -36,6 +41,7 @@ on:
       - 'tests/test_windows_routing_native_source.py'
       - 'tests/test_windows_redirect_transport.py'
       - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_application_runtime.py'
       - '.github/workflows/windows-app-routing-production.yml'
   workflow_dispatch:
 
@@ -60,6 +66,7 @@ jobs:
           tests.test_windows_routing_native_source
           tests.test_windows_redirect_transport
           tests.test_local_proxy_transport
+          tests.test_application_runtime
       - name: Compile native WFP SDK probe
         shell: cmd
         run: |
