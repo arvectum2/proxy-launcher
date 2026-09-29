@@ -15,6 +15,7 @@ _STATE_FILES = (
     "proxy_settings.json",
     "no_proxy.txt",
     "app_exclusions.json",
+    "windows_app_routing_ownership.json",
     "proxy_core.pid",
     "proxy_core.log",
     "proxy_internet_backup.json",
@@ -43,6 +44,7 @@ import recovery_autostart as _recovery_autostart
 import routing_policy as _routing_policy
 import system_proxy_runtime as _system_proxy_runtime
 import windows_pac_recovery as _windows_pac_recovery
+import windows_app_routing_runtime as _windows_app_routing_runtime
 import windows_system_proxy as _windows_system_proxy
 
 # Source-contract index retained for release guards that inspect this facade.
@@ -73,6 +75,8 @@ _routing_policy.configure(_core)
 _routing_policy.install_into_core(_core)
 _application_exclusions.configure(_core)
 _application_exclusions.install_into_core(_core)
+_windows_app_routing_runtime.configure(_core)
+_windows_app_routing_runtime.install_into_core(_core)
 _local_proxy_transport.configure(_core)
 _local_proxy_transport.install_into_core(_core)
 _process_supervision.configure(_core)

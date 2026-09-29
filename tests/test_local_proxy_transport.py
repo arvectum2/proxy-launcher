@@ -286,5 +286,65 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         relay.assert_called_once_with(accepted, client, engine._stop)
 
 
+    def test_http_direct_endpoint_forces_direct_even_when_host_policy_proxies(self):
+        engine = core.ProxyCore({"upstream": [{"host": "proxy.test", "port": 8000, "username": "", "password": ""}]})
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT example.com:443 HTTP/1.1\r\n"
+            b"Host: example.com:443\r\n\r\n"
+        )
+        direct = mock.Mock()
+        with mock.patch.object(core, "_normalize_host", return_value="example.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False) as bypass, \
+             mock.patch.object(local_proxy_transport.socket, "create_connection", return_value=direct) as connect, \
+             mock.patch.object(engine, "_open_upstream_tunnel") as upstream, \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_http_direct(client)
+        bypass.assert_not_called()
+        upstream.assert_not_called()
+        connect.assert_called_once_with(("example.com", 443), timeout=15)
+        self.assertIn(b"200 Connection Established", client.sendall.call_args_list[0].args[0])
+        relay.assert_called_once_with(direct, client, engine._stop)
+
+    def test_socks_direct_endpoint_forces_direct_even_when_host_policy_proxies(self):
+        engine = core.ProxyCore({"upstream": [{"host": "proxy.test", "port": 8000, "username": "", "password": ""}]})
+        client = mock.Mock()
+        client.recv.side_effect = [
+            b"\x05", b"\x01", b"\x00", b"\x05\x01\x00\x03",
+            b"\x0b", b"example.com", b"\x01\xbb",
+        ]
+        direct = mock.Mock()
+        with mock.patch.object(core, "_normalize_host", return_value="example.com"), \
+             mock.patch.object(core, "host_bypasses_proxy", return_value=False) as bypass, \
+             mock.patch.object(local_proxy_transport.socket, "create_connection", return_value=direct) as connect, \
+             mock.patch.object(engine, "_open_upstream_tunnel") as upstream, \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_socks_direct(client)
+        bypass.assert_not_called()
+        upstream.assert_not_called()
+        connect.assert_called_once_with(("example.com", 443), timeout=15)
+        relay.assert_called_once_with(direct, client, engine._stop)
+
+    def test_windows_start_allocates_ephemeral_direct_listener_ports(self):
+        settings = {
+            "local_http_port": 0,
+            "local_socks_port": 0,
+            "local_pac_port": 0,
+            "pac_path": "/proxy.pac",
+            "upstream": [],
+        }
+        engine = core.ProxyCore(settings)
+        with mock.patch.object(core, "is_windows", return_value=True):
+            ok, message = engine.start()
+        try:
+            self.assertTrue(ok, message)
+            ports = engine.app_direct_ports()
+            self.assertEqual(set(ports), {"http", "socks5"})
+            self.assertTrue(all(isinstance(port, int) and port > 0 for port in ports.values()))
+            self.assertNotEqual(ports["http"], ports["socks5"])
+        finally:
+            engine.stop()
+
+
 if __name__ == "__main__":
     unittest.main()

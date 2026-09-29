@@ -8,10 +8,11 @@ owner_decision:
   architecture: "Option A — Arvectum-owned WFP ALE callout + narrow privileged service + local proxy"
   interpreted_from: "Owner instruction on 2026-09-29: 'давай сделаем Windows Per app routing'"
   initial_live_scope:
-    - "Application-level DIRECT/PROXY for all destinations."
-    - "CIDR selectors."
+    - "Application exclusions: selected Windows applications route DIRECT for all destinations while APL is enabled."
+    - "HTTP CONNECT/HTTP proxy and SOCKS5 traffic sent to the existing APL loopback proxy endpoints."
   deferred_scope:
-    - "Domain selectors until a DNS-aware lifecycle is implemented."
+    - "CIDR/domain selectors until a transparent destination-aware enforcement layer is implemented; the narrow loopback redirect slice cannot truthfully infer final destination at WFP."
+    - "Per-app PROXY include mode while the global system proxy is disabled."
 definition_of_done:
   - "Record the Owner architecture decision and retire the prior Option-A stop gate for this implementation branch."
   - "Implement a narrow native Windows enforcement plane with deterministic app identity, bounded local IPC/plan validation, loop prevention, and Arvectum-only resource ownership."
@@ -25,19 +26,28 @@ completed:
   - "Verified current main at 21c1160c2afe6e09fd121ae9eaba1c78e65c697a."
   - "Verified current Windows implementation is read-only WFP plan compilation; no live callout/filter enforcement exists."
   - "Reviewed PR #144 architecture packet and selected its technical recommendation (Option A) based on the Owner's new implementation instruction."
-current: "Create the implementation branch/checkpoint and design the smallest production enforcement slice against current main."
+  - "Narrowed first live slice to app-wide DIRECT exclusions after verifying that WFP sees the local APL proxy endpoint at this layer; CIDR/domain final-destination semantics remain deferred rather than fabricated."
+  - "Added ephemeral Windows-only direct HTTP/SOCKS listeners to the existing local proxy transport; selected apps can be redirected without reserving new persisted user ports."
+  - "Added bounded Windows per-app enforcement plan and length-prefixed named-pipe client contract; plans contain WFP app-id blobs and loopback proxy/direct ports, not executable paths."
+  - "Integrated APL-ROUTE-004 ownership journal into apply/restore lifecycle and wired startup/stop/rollback fail-closed behavior."
+  - "Focused runtime/transport/routing regression suite PASS: 92 tests."
+current: "Implement the native WFP callout + privileged service for the now-tested bounded loopback redirect plan."
 pending:
-  - "Implement native driver/service and bounded control-plane contract."
-  - "Wire Windows application exclusions to the enforcement lifecycle."
+  - "Implement native driver/service and bounded IPC service contract."
+  - "Wire desktop application-exclusion UI and native-component install/health UX."
   - "Integrate build/installer and CI."
   - "Run focused tests and Windows hosted build/smoke checks."
   - "Run physical Windows routing/recovery acceptance."
 last_verified_commit: "21c1160c2afe6e09fd121ae9eaba1c78e65c697a"
 test_results:
-  - "No implementation tests run yet; architecture/control-plane inspection only."
+  - "python3 -m unittest tests.test_local_proxy_transport -v: 15/15 PASS."
+  - "python3 -m unittest tests.test_windows_per_app_routing tests.test_routing_ownership tests.test_application_exclusions tests.test_windows_app_routing tests.test_local_proxy_transport -v: 40/40 PASS."
+  - "python3 -m unittest tests.test_application_runtime tests.test_proxy_core tests.test_local_proxy_transport tests.test_windows_per_app_routing -v: 92/92 PASS."
+  - "python3 -m py_compile for new/changed Python modules: PASS."
+  - "git diff --check: PASS."
 blocker: null
-resume_instruction: "Continue from feature/windows-per-app-routing. Inspect current runtime/GUI lifecycle and installer/build hooks, then implement the smallest Option-A Windows enforcement slice for ALL/CIDR application rules, preserving APL-ROUTE-004 ownership/recovery. Do not claim domain-rule enforcement or physical Windows PASS without evidence."
-updated_at: "2026-09-29T09:02:00+03:00"
+resume_instruction: "Continue from feature/windows-per-app-routing. Implement the native WFP ALE_CONNECT_REDIRECT_V4 callout and privileged service/named-pipe server for the bounded app-exclusion loopback-port plan, then add Windows build/installer integration and GUI selection/health UX. Preserve APL-ROUTE-004 ownership/recovery. Do not claim CIDR/domain enforcement, signed-driver load, or physical Windows PASS without evidence."
+updated_at: "2026-09-29T09:34:00+03:00"
 execution:
   branch: feature/windows-per-app-routing
   base_commit: 21c1160c2afe6e09fd121ae9eaba1c78e65c697a

@@ -107,6 +107,11 @@ def _cmd_start():
         core._log("already running, enabling system proxy")
         return 0 if core.enable_system_proxy() else 1
 
+    if not core.reconcile_windows_app_routing_before_start():
+        core._log("start aborted: pending Windows application routing could not be restored")
+        print("pending Windows application routing recovery is incomplete")
+        return 1
+
     proxy = core.ProxyCore(settings)
     ok, message = proxy.start()
     if not ok:
@@ -114,11 +119,20 @@ def _cmd_start():
         print(message)
         return 1
 
+    if not core.apply_windows_application_exclusions(proxy):
+        proxy.stop()
+        print("failed to apply Windows application exclusions; system proxy was not enabled")
+        return 1
+
     core._write_pid()
     if not core.enable_system_proxy():
+        routing_ok = core.restore_windows_application_routing()
         proxy.stop()
         core._remove_pid(os.getpid())
-        print("failed to enable system proxy; network settings rolled back")
+        if not routing_ok:
+            print("failed to enable system proxy; Windows application-routing recovery is pending")
+        else:
+            print("failed to enable system proxy; network settings rolled back")
         return 1
 
     print("proxy started")
@@ -127,13 +141,22 @@ def _cmd_start():
     except KeyboardInterrupt:
         pass
     finally:
+        routing_ok = core.restore_windows_application_routing()
         proxy.stop()
         core._remove_pid(os.getpid())
+        if not routing_ok:
+            core._log("proxy exit left Windows application-routing recovery pending")
     return 0
 
 
 def _cmd_stop():
     core = _core()
+    if not core.restore_windows_application_routing():
+        print(
+            "proxy stop refused: Windows application-routing filters could not be "
+            "verified as restored; proxy process was left running"
+        )
+        return 1
     if not core.system_proxy_disable_preflight():
         print(
             "proxy stop refused: saved network state depends on an unavailable "
@@ -163,6 +186,12 @@ def _cmd_stop():
 def _cmd_rollback():
     """Emergency rollback independent of a running GUI or proxy process."""
     core = _core()
+    if not core.restore_windows_application_routing():
+        print(
+            "rollback refused: Windows application-routing filters could not be "
+            "verified as restored; local proxy was left available for recovery"
+        )
+        return 1
     if not core.system_proxy_disable_preflight():
         print(
             "rollback refused: saved network state depends on an unavailable "
@@ -206,6 +235,10 @@ def _cmd_status():
             % ("ENABLED" if core.system_proxy_enabled() else "disabled")
         )
         print("exceptions: %d domains" % len(core.load_no_proxy()))
+        if core.is_windows():
+            app_count = len(core.load_application_exclusions())
+            route_state = "ACTIVE" if core.windows_app_routing_pending() else "inactive"
+            print("application exclusions: %d apps (%s)" % (app_count, route_state))
     else:
         print("STOPPED")
 
