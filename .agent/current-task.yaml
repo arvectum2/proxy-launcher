@@ -19,18 +19,20 @@ completed:
   - "Verified latest Mac App Store remediation state: corrected 0.2.17 build 3 is VALID, macOS minimum 13.0, selected in ASC with updated Review Notes; final resubmission remains human/tool-blocked."
   - "Verified APL-NODE-001 and Arvectum Network are backlog-only and absent from the primary roadmap/execution queue."
   - "Preserved latest Mac App Store task state in .agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml before taking over current-task."
-current: "Reconcile remaining mobile/release checkpoints and rewrite docs/ROADMAP.md."
+  - "Refreshed docs/ROADMAP.md to 2026-09-29 current state: Android 0.1.38 RuStore moderation, iOS build 37 recording blocker, macOS build 3 resubmission state, and backlog-only exclusions."
+  - "Synchronized .agent/execution-queue.yaml with the same release/review state and repaired the malformed repository_hygiene key."
+  - "Focused cross-file consistency assertions passed."
+current: "Roadmap and execution queue are reconciled; open PR, verify required CI, merge, then close checkpoint."
 pending:
-  - "Read latest iOS and Android monetization/release checkpoints needed for current-state accuracy."
-  - "Rewrite docs/ROADMAP.md current-state sections, workstreams, execution order, and platform matrix."
-  - "Run consistency checks against canonical checkpoints and main."
-  - "Open/merge a documentation PR after required checks pass."
+  - "Open the roadmap refresh PR."
+  - "Verify required exact-head CI/checks."
+  - "Merge to main if green and mark this checkpoint completed."
 last_verified_commit: "e27d391259a436cc3ed7802c17f2e49787f13528"
 test_results:
-  - "Pre-edit inspection only; no roadmap consistency checks run yet."
+  - "PASS: roadmap/queue consistency assertions — 14/14 checks true (date, RuStore 0.1.38, no-free public path, macOS build 3, iOS build 37, stale matrix states removed, backlog-only tracks absent from execution queue, repository_hygiene key repaired)."
 blocker: null
-resume_instruction: "On branch docs/roadmap-refresh-20260929, read the latest iOS/mobile/release checkpoints, update docs/ROADMAP.md to actual 2026-09-29 state, verify no primary-roadmap reintroduction of APL-NODE-001 or Arvectum Network, run focused consistency checks, then open and merge the documentation PR if required checks are green. Restore/retain the Mac App Store task as a dedicated checkpoint; do not rebuild or re-upload Mac build 3."
-updated_at: "2026-09-29T07:18:00+03:00"
+resume_instruction: "On branch docs/roadmap-refresh-20260929, open the PR, verify required exact-head checks, merge if green, then update .agent/current-task.yaml to completed with the merge commit. Do not alter product binaries, RuStore submission, Apple builds, or Proxy Launcher Watchdog."
+updated_at: "2026-09-29T07:36:00+03:00"
 execution:
   claimed_by: chatgpt
   branch: docs/roadmap-refresh-20260929
