@@ -84,17 +84,17 @@ items:
   - order: 60
     task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
     title: "Per-application routing production enforcement architecture"
-    status: blocked
+    status: in_progress
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #144"
+    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #144; Owner instruction 2026-09-29"
     dependencies: []
-    blocker: "PR #144 is already reconciled to v0.2.16/current-main and exact-head CI is green. No further privileged Windows enforcement work is admitted until Owner/Product Owner explicitly selects or rejects the production architecture."
-    owner_gate: "Select/reject the production enforcement architecture. Current technical recommendation is Option A: Arvectum-owned WFP ALE callout + narrow privileged service + local proxy."
-    executor_scope: "Preserve the review-ready packet and existing non-mutating control plane. Do not install WFP filters/callouts, mutate privileged hosts, procure signing or release a Windows enforcement implementation before explicit Owner selection."
+    blocker: null
+    owner_gate: "RESOLVED 2026-09-29: Option A selected — Arvectum-owned WFP ALE callout + narrow privileged service + local proxy."
+    executor_scope: "Implement the smallest safe Windows production slice for all/CIDR selectors. Preserve ownership journal, foreign-resource non-ownership, loop prevention, exact rollback and fail-closed behavior. Do not claim live support until real-Windows acceptance passes."
     active_pr: 144
-    evidence: "PR #144 head 40af0918ef1122d7b40a59f3d3b4c78e5316899c is reconciled to immutable v0.2.16/current-main, includes current application-exclusion work and APL-REL-016 dependency, and its returned exact-head checks are all SUCCESS."
+    evidence: "Owner explicitly started Windows Per-App routing on 2026-09-29. Production protocol/controller foundation is being implemented from current main; domain selectors remain unsupported pending DNS-aware lifecycle."
 
   - order: 65
     task_id: APL-UI-001-ADAPTIVE

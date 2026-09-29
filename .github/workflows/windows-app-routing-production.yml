@@ -1,0 +1,65 @@
+name: Windows per-app production foundation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'routing_ownership.py'
+      - 'windows_app_routing.py'
+      - 'windows_routing_controller.py'
+      - 'windows_routing_service_contract.py'
+      - 'native/windows_routing/**'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_windows_app_routing.py'
+      - 'tests/test_windows_routing_production.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'routing_ownership.py'
+      - 'windows_app_routing.py'
+      - 'windows_routing_controller.py'
+      - 'windows_routing_service_contract.py'
+      - 'native/windows_routing/**'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_windows_app_routing.py'
+      - 'tests/test_windows_routing_production.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Production routing contract tests
+        run: >-
+          python -m unittest -v
+          tests.test_application_exclusions
+          tests.test_windows_app_routing
+          tests.test_routing_ownership
+          tests.test_windows_routing_production
+      - name: Compile native WFP SDK probe
+        shell: cmd
+        run: |
+          call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo /W4 /EHsc /c native\windows_routing\wfp_resources.cpp /Fo:wfp_resources.obj
+          cl /nologo /W4 /EHsc native\windows_routing\wfp_sdk_probe.cpp wfp_resources.obj /Fe:wfp_sdk_probe.exe /link Fwpuclnt.lib
+      - name: Run read-only native WFP SDK probe
+        shell: pwsh
+        run: .\wfp_sdk_probe.exe
+      - name: Enforce no live WFP mutation in CI probe
+        shell: pwsh
+        run: |
+          $text = Get-Content native/windows_routing/wfp_sdk_probe.cpp -Raw
+          if ($text -match 'FwpmFilterAdd|FwpmCalloutAdd|FwpmProviderAdd|FwpmSubLayerAdd') {
+            throw 'Mutation API found in SDK probe'
+          }

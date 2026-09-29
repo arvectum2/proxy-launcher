@@ -116,8 +116,8 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **APPLICATION EXCLUSIONS CONTROL PLANE — IMPLEMENTED.** PR #183 added deterministic application-exclusion persistence/capability semantics plus Android live enforcement through `VpnService.Builder.addDisallowedApplication`.
 - **ANDROID UI / CURRENT MAIN — 0.1.38 / versionCode 39.** The accepted adaptive/profile/application-exclusion baseline is retained; PR #221 layers the current public/private Android distribution flavors on top without regressing manual profiles, Auto, site exclusions or application exclusions.
 - **iOS CONSUMER PATH — SHORTCUTS AUTOMATION.** Native unmanaged consumer iOS cannot truthfully offer arbitrary Per-App VPN selection; PRs #185/#187/#189 provide the supported consumer workaround using APL App Intents + Shortcuts Opened/Closed automations. Managed/MDM Per-App VPN remains a different future capability.
-- **WINDOWS OWNER PACKET — PR #144 READY FOR DECISION.** The packet is already reconciled to current `v0.2.16`/main and exact-head checks are green. Technical recommendation remains an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy.
-- **STOP-GATE** — PR #144 is a recommendation, not approval. Do not install WFP callouts/filters or start privileged production enforcement until Owner/Product Owner explicitly selects or rejects the architecture.
+- **WINDOWS PRODUCTION ENFORCEMENT — OPTION A APPROVED / IN PROGRESS.** On 2026-09-29 the Owner explicitly started Windows Per-App routing, lifting the PR #144 stop-gate in favor of an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy.
+- **INITIAL SCOPE** — production protocol v1 admits `all`/CIDR selectors only. Domain selectors remain fail-closed until a DNS-aware lifecycle exists. The bounded service contract and ownership-before-mutation controller are implemented; live WFP callout/service enforcement still requires native build/install and real-Windows acceptance before capability may report supported.
 - **ANDROID ACCEPTANCE BOUNDARY** — implementation and UI are merged, but do not invent the dedicated public-IP bypass proof if it has not been recorded separately.
 - **APL-UI-001 GATE — DONE.** The cross-platform Adaptive UI was merged in PR #193 by explicit Owner decision; the remaining unavailable physical-platform acceptance was waived for that merge only and is not claimed as performed.
 
@@ -163,7 +163,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
 3. **[iOS App Store / HUMAN] 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / BLOCKED ON PHYSICAL RECORDING.** After the recording arrives: replace screenshots, attach MOV, answer Guideline 2.1 and resubmit.
 4. **[macOS App Store / HUMAN] 0.2.17 build 3 — VALID / PREPARE_FOR_SUBMISSION.** Remediation is merged and uploaded; finish only the App Store Connect resolve -> Add for Review -> Resubmit workflow. Do not rebuild/re-upload absent a new Apple binary issue.
-5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
+5. **[Per-app Windows enforcement] Option A — IN PROGRESS.** Owner approval recorded 2026-09-29. Bounded service/ownership production foundation is being implemented from current main; native WFP callout/service plus real-Windows acceptance remain before live support.
 6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
 7. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
 8. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
@@ -180,7 +180,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
 - **macOS App Store:** corrected build 3 is already uploaded/selected. Complete only the human resolve -> Add for Review -> Resubmit flow; do not rebuild or re-upload unless Apple reports a new binary problem.
 - **iOS App Store:** wait for the physical iPhone 13 / iOS 27 recording, then refresh screenshots/attachment, answer Guideline 2.1 and resubmit the already-valid build 37.
-- **Windows per-app:** PR #144 is technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
+- **Windows per-app:** Option A is approved. Continue the smallest safe `all`/CIDR production slice; keep live capability disabled until native WFP service/callout installation and real-host recovery/security acceptance pass.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
 - Paused backlog-only initiatives must not consume engineering time until the Owner explicitly restores them to the primary roadmap.

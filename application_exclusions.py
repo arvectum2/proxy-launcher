@@ -169,10 +169,12 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
             "configuration_supported": True,
             "plan_compilation_supported": True,
             "live_enforcement_supported": False,
-            "state": "owner_gate",
+            "state": "native_validation_pending",
+            "production_controller_available": True,
             "reason": (
-                "Windows WFP application identity/plan compilation exists, but the "
-                "privileged WFP enforcement architecture is not approved/installed."
+                "Option A is approved and the bounded ownership/service control path exists; "
+                "live enforcement remains unavailable until the native WFP callout/service "
+                "is built, installed and accepted on a real Windows host."
             ),
         }
     if name == "linux":
