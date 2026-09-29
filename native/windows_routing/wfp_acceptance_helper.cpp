@@ -14,6 +14,7 @@
 #include "wfp_resources.h"
 
 #pragma comment(lib, "Fwpuclnt.lib")
+#pragma comment(lib, "Ws2_32.lib")
 
 namespace {
 constexpr wchar_t kDevicePath[] = L"\\\\.\\ArvectumProxyRouting";
