@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: in_progress
+status: blocked
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Windows-dev RDC is online again after reboot. Persistent RDC autostart is configured through HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -> hidden PowerShell launcher at %LOCALAPPDATA%\\Arvectum\\RDC\\start-rdc.ps1 with duplicate-process guard. Next: download/install hosted CI artifact 11033744676 into ARVECTUM-WFP-DEV and repeat selected-vs-unselected live acceptance."
+current: "Windows-dev RDC autostart is configured. Hosted CI artifact 11033744676 for 074e983 was downloaded, verified, copied into ARVECTUM-WFP-DEV and staged at C:\\APL-WFP-074e983. VM is running in Test Mode, but guest-control after reboot is Medium Integrity. Remote security correctly prevents programmatic UAC elevation; one manual Run-as-administrator + UAC approval for RUN-WFP-INSTALL-AS-ADMIN.cmd is required before live acceptance can continue."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -32,7 +32,7 @@ pending:
   - "Run crash/reboot/rollback acceptance and verify owned WFP resources, certificate and test-signing cleanup."
   - "Exercise the production controller + privileged service against the existing local transparent proxy; keep domains fail-closed."
   - "Set live_enforcement_supported=true only after the complete Windows acceptance matrix passes."
-last_verified_commit: "f36e9866538c99e800ca034a34c62ca3043f7bda"
+last_verified_commit: "074e983bca8cb696e5e9523f09dc1980da4f7164"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -91,6 +91,9 @@ test_results:
   - "PASS: exact Windows-dev checkout 074e983 focused native/production/redirect/application suite — 36/36 tests."
   - "PASS: hosted Windows per-app production CI run 36571104605 for commit 074e983 completed successfully; artifact windows-per-app-native-foundation id 11033744676 is available."
   - "PASS: Windows-dev RDC autostart configured in HKCU Run using %LOCALAPPDATA%\\Arvectum\\RDC\\start-rdc.ps1; manual verification while RDC was already active correctly logged duplicate-process skip."
-blocker: null
-resume_instruction: "Continue on Windows-dev (ArutyunovNS) and ARVECTUM-WFP-DEV only. Verify/download hosted CI run 36571104605 artifact 11033744676, install the fresh 074e983 test-signed callout in the disposable guest, repeat live selected-vs-unselected acceptance, inspect redirect-context v2 metadata_original, then run crash/reboot/rollback and production controller/service/local-proxy acceptance only if selected and unselected HTTP both pass. Keep live_enforcement_supported=false until the full matrix passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T16:39:00+03:00"
+  - "PASS: fresh 074e983 hosted artifact 11033744676 downloaded to Windows-dev. SHA256: callout b2bc18405a0fb7a4ee68b14a4fe7d2778cda9dc49fc2c989ebb2b49217f3a60f; service 352c7e90f34377c1f008a4ea665d675e9e581c7ea9f9abbf533485f2e8888bec; helper 62325243b38e51306282c5a9e8fe6179ac3343ac24d4606c4daed025aed57c1e; cert bca8a4b2d990e1f96f06e544c2eef38e4ca8dbbbe129f4f77735e014605149d8; embedded signer 9CA6E7A1318E99FBF3DCB5C94F73AD90C48313A1."
+  - "PASS: ARVECTUM-WFP-DEV restarted after host reboot; Guest Additions/guest-control reachable; fresh bundle copied read-only from host into C:\\APL-WFP-074e983; prior callout service is STOPPED before replacement."
+  - "EXPECTED BLOCKER: post-reboot guest-control token is Medium Integrity with BUILTIN\\Administrators deny-only. Non-elevated install fails closed with Administrator privileges required; programmatic RunAs is blocked by the remote control security layer, so one interactive UAC approval is required."
+blocker: "One manual UAC approval is required inside disposable VM ARVECTUM-WFP-DEV. Remote guest-control is Medium Integrity after reboot and the control plane correctly blocks programmatic RunAs/UAC elevation. Fresh installer wrapper is staged on the VM desktop as RUN-WFP-INSTALL-AS-ADMIN.cmd; right-click Run as administrator and approve UAC, then resume automatically from install logs."
+resume_instruction: "After Owner runs C:\\Users\\vboxuser\\Desktop\\RUN-WFP-INSTALL-AS-ADMIN.cmd as administrator inside ARVECTUM-WFP-DEV and approves UAC, read C:\\APL-WFP-074e983\\install.exitcode.txt/stdout/stderr via guest-control. Require ARVECTUM_WFP_DRIVER_READY and service RUNNING, then run windows_wfp_live_acceptance.ps1 with ArvectumWfpAcceptance.exe, inspect redirect-context v2 metadata_original, and require selected+unselected HTTP 200 before crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T16:52:00+03:00"
