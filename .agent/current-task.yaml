@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: blocked
+status: in_progress
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Windows-dev APL upgraded to 0.2.16 and preserved settings. Redirect-context v2 commit 074e983 is green locally and in hosted WDK CI run 36571104605. Next step is to download/install artifact 11033744676 into ARVECTUM-WFP-DEV and repeat selected-vs-unselected live acceptance. RDC command channel to Windows-dev became temporarily unresponsive after artifact download was started, so live VM work is paused without mutating ARVECTUM-DEMO."
+current: "Windows-dev RDC is online again after reboot. Persistent RDC autostart is configured through HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -> hidden PowerShell launcher at %LOCALAPPDATA%\\Arvectum\\RDC\\start-rdc.ps1 with duplicate-process guard. Next: download/install hosted CI artifact 11033744676 into ARVECTUM-WFP-DEV and repeat selected-vs-unselected live acceptance."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -90,6 +90,7 @@ test_results:
   - "PASS: Windows-dev canonical APL update from 0.2.5.0 to 0.2.16.0; canonical installer SHA256 b8361cc0f3d3c0539fe656a5a36e640eeec4cdf7525de53569f59a007bec7ecc matched CI evidence, installer log reports success/no reboot, proxy_settings.json and no_proxy.txt hashes remained unchanged, and recovery backups are absent."
   - "PASS: exact Windows-dev checkout 074e983 focused native/production/redirect/application suite — 36/36 tests."
   - "PASS: hosted Windows per-app production CI run 36571104605 for commit 074e983 completed successfully; artifact windows-per-app-native-foundation id 11033744676 is available."
-blocker: "Windows-dev rebooted and is currently offline in RDC. Owner must start Remote Desktop Commander once manually; after reconnect, configure persistent Windows autostart for RDC before resuming WFP live acceptance."
-resume_instruction: "After Owner manually starts RDC on Windows-dev with npx -y @wonderwhy-er/desktop-commander@latest remote and ArutyunovNS is online, first configure/test persistent RDC autostart on Windows login. Then continue there and in ARVECTUM-WFP-DEV only: verify/download hosted CI run 36571104605 artifact 11033744676, install the fresh 074e983 test-signed callout in the disposable guest, repeat live selected-vs-unselected acceptance, inspect redirect-context v2 metadata_original, then run crash/reboot/rollback and production controller/service/local-proxy acceptance only if selected and unselected HTTP both pass. Keep live_enforcement_supported=false until the full matrix passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T16:31:00+03:00"
+  - "PASS: Windows-dev RDC autostart configured in HKCU Run using %LOCALAPPDATA%\\Arvectum\\RDC\\start-rdc.ps1; manual verification while RDC was already active correctly logged duplicate-process skip."
+blocker: null
+resume_instruction: "Continue on Windows-dev (ArutyunovNS) and ARVECTUM-WFP-DEV only. Verify/download hosted CI run 36571104605 artifact 11033744676, install the fresh 074e983 test-signed callout in the disposable guest, repeat live selected-vs-unselected acceptance, inspect redirect-context v2 metadata_original, then run crash/reboot/rollback and production controller/service/local-proxy acceptance only if selected and unselected HTTP both pass. Keep live_enforcement_supported=false until the full matrix passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T16:39:00+03:00"
