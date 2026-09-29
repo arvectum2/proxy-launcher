@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: blocked
+status: in_progress
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Elevated live-only run with installed 36fcc24 completed and still failed selected curl (exit=35/http=000); redirect context remained loopback 127.0.0.1 with metadata_original unavailable. Direct guest curl without WFP is confirmed proxy-free and connects to public example.com IPv4:443, so loopback is inside the WFP path. Diagnostic candidate 68922d8 adds an admin-only read-only classify ring/GET_DIAGNOSTICS IOCTL, captures redirect state/reauthorize flags/fixed and writable tuples, and aligns REDIRECTED_BY_OTHER handling with Microsoft WFPSampler. Focused suite PASS 36/36; helper dump invocation is ready for commit/CI."
+current: "Deterministic single-connect selected client proved the WFP kernel redirect/relay path works: selected-wfp-client.exe was filtered while the elevated self-relay helper was active and returned ARVECTUM_WFP_MINCLIENT_HTTP_200 with process exit 0. This isolates prior loopback/reset failures to curl.exe auxiliary localhost TCP traffic in the acceptance harness, not the kernel redirect path. Canonical branch now contains a dedicated ArvectumWfpSelectedClient.exe, live acceptance uses it as the selected app, and workflow compiles/signs/packages it. Focused suite PASS 37/37, PowerShell parse PASS, user-mode MSVC compile PASS. Hosted WDK CI run 36603439914 dispatched on cbedbd5."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -32,7 +32,7 @@ pending:
   - "Run crash/reboot/rollback acceptance and verify owned WFP resources, certificate and test-signing cleanup."
   - "Exercise the production controller + privileged service against the existing local transparent proxy; keep domains fail-closed."
   - "Set live_enforcement_supported=true only after the complete Windows acceptance matrix passes."
-last_verified_commit: "36fcc24bcaf60552f797e8cbd591b644359e7f0e"
+last_verified_commit: "cbedbd5"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -112,6 +112,6 @@ test_results:
   - "PASS: fresh 36fcc24 bundle copied into ARVECTUM-WFP-DEV via VirtualBox Guest Control after transient shared-folder remap failed; guest-side driver SHA256 matched CI exactly. Combined refresh+live wrapper staged on VM desktop."
   - "PASS: Owner approved 36fcc24 refresh; install=0, signer 728B4FEC938B94CA1FAB798B19058273B99734B5 imported, callout service RUNNING. Live stage did not execute because PowerShell parser rejected `$helperExit:` in a double-quoted diagnostic string before script startup."
   - "PASS: parser bug fixed to `${helperExit}:`; PowerShell ScriptBlock parse PASS, focused suite 36/36 PASS, git diff --check PASS. Corrected acceptance script copied to VM desktop as windows_wfp_live_acceptance_fixed.ps1 and live-only elevated wrapper staged as RUN-WFP-LIVE-FIXED-AS-ADMIN.cmd."\n  - "PARTIAL: elevated 36fcc24 live-only run still failed selected curl with exit=35/http=000; redirect context remained loopback 127.0.0.1 and metadata_original unavailable. Direct guest curl is proxy-free and connects to public example.com IPv4:443, isolating loopback to the WFP path."\n  - "PASS: diagnostic candidate adds admin-only read-only classify ring/GET_DIAGNOSTICS IOCTL, captures redirect state/condition flags/fixed+writable tuples, and no longer treats REDIRECTED_BY_OTHER as an automatic skip, matching Microsoft WFPSampler semantics. Focused suite PASS 36/36."\n  - "PASS: hosted WDK CI run 36594951168 green; artifact 11045832354 downloaded. Driver SHA256=4f77b6079f1ed497ef83bf778c71a5a1ef7c092301b84e496babd9c59637ca44, signer=B94A52ED3CF124E0A65487683FA58EDCCF4E0306, and guest-side hash matched exactly."
-blocker: "RDC security layer is currently blocking creation/copy of the one-shot elevated helper wrapper. All binaries/scripts already exist in ARVECTUM-WFP-DEV; one manual elevated helper command is required, after which selected-wfp-client.exe can be launched remotely without elevation."
-resume_instruction: "In ARVECTUM-WFP-DEV open PowerShell or Command Prompt as Administrator and run: C:\\wfp-diag-6ea3a2\\ArvectumWfpAcceptance.exe --self-relay C:\\Users\\vboxuser\\Desktop\\selected-wfp-client.exe 180. Once Owner confirms it is running, immediately launch selected-wfp-client.exe non-elevated through guest-control with -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File C:\\Users\\vboxuser\\Desktop\\selected-wfp-client.ps1, then read helper diagnostics. If original destination is 8.47.69.0:80 and client returns HTTP 200, integrate the deterministic selected-client harness canonically and proceed to crash/reboot/rollback. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T19:31:00+03:00"
+blocker: null
+resume_instruction: "Wait for hosted WDK CI run 36603439914 on cbedbd5. If green, download the artifact, stage/install it in ARVECTUM-WFP-DEV, run canonical elevated live acceptance with the packaged ArvectumWfpSelectedClient.exe, and require unselected_http=200, selected_http=200, ARVECTUM_WFP_LIVE_ACCEPTANCE_PASS and clean restore. Then run crash/reboot/rollback acceptance and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until the full matrix passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T20:05:00+03:00"
