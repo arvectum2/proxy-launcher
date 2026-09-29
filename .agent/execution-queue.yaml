@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-29T06:57:00+03:00"
+updated_at: "2026-09-29T07:32:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "9caab43c4ccfbe9208940617afd3a3965ece7c1c"
+  main_sha_verified: "e27d391259a436cc3ed7802c17f2e49787f13528"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -196,7 +196,7 @@ items:
     auto_merge: false
     source: ".agent/checkpoints/APL-FREE-PROXY-GATEWAY-20260921.yaml; merged PR #148"
     dependencies: []
-    executor_scope: "Preserve the server-side supplier-secret boundary and existing live evidence. Large public rollout requires a separately admitted anti-abuse/quota/rate-limit task."
+    executor_scope: "Preserve the historical server-side supplier-secret boundary and evidence. Current public Android 0.1.38 does not use this friend-test gateway; do not reconnect it to the public client without a new Owner task."
     merged_pr: 148
     evidence: "DONE / LIVE FRIEND-TEST INFRA: gateway credentials are short-lived/location-bound; supplier credentials remain server-side. Mac mini launchd service + public TLS ingress are live; real RU->RU and US->US end-to-end checks PASS."
 
@@ -210,37 +210,48 @@ items:
     source: ".agent/checkpoints/APL-FREE-PROXY-ANDROID-INTEGRATION-20260921.yaml; merged PR #148"
     dependencies:
       - APL-FREE-PROXY-GATEWAY-20260921
-    executor_scope: "Preserve ephemeral-session/no-supplier-secret behavior and manual Primary profile compatibility."
+    executor_scope: "Historical Android friend-test integration only. PR #221 removed this client path from current public Android 0.1.38; preserve evidence but do not treat it as current distribution behavior."
     merged_pr: 148
     evidence: "DONE: Android fetches public locations and short-lived sessions, persists only location selection, keeps supplier credentials out of the client and refreshes sessions before expiry."
 
   - order: 116
-    task_id: APL-ANDROID-0136-CURRENT
-    title: "Android 0.1.36 adaptive/application-exclusion current-main baseline"
+    task_id: APL-ANDROID-0138-CURRENT
+    title: "Android 0.1.38 current-main / RuStore candidate"
     status: done
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: ".agent/checkpoints/APL-ANDROID-0132-UX-FIXES-20260926.yaml; merged PR #190; merged PR #193"
+    source: ".agent/checkpoints/APL-RUSTORE-PUBLISH-20260928.yaml; merged PR #221; merged PR #193"
     dependencies:
-      - APL-FREE-PROXY-ANDROID-INTEGRATION-20260921
-    executor_scope: "Treat 0.1.36/versionCode 37 as the physically accepted current-main Android candidate. Public release remains android-v0.1.19 until a separate publication task is explicitly authorized."
-    evidence: "DONE current-main baseline: Android 0.1.36/versionCode 37 physically accepted for adaptive New/Edit rendering and merged through PR #190; post-merge Android CI PASS. Application-exclusion implementation from PR #183 is merged. Exact dedicated public-IP bypass proof remains a separate acceptance fact and is not invented here."
+      - APL-MOB-003-SITE-EXCLUSIONS-20260919
+    executor_scope: "Treat 0.1.38/versionCode 39 as the current Android source baseline. Public client has no friend/free profiles; preserve manual user profiles, Auto, site exclusions, application exclusions and adaptive UI."
+    evidence: "DONE current-main baseline: PR #221 merged as 676a987105d8f01b8ed32db8b500b58a26e74542. Public flavor contains Yandex App Open ads; private flavor is ad-free. Production RuStore APK was signed/verified and submitted as 0.1.38 (39)."
 
   - order: 120
     task_id: APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
-    title: "Android advertising and dual public/private distribution"
-    status: blocked
+    title: "Android public ads + private no-ads flavors"
+    status: done
     authority: OWNER
     independent: false
     auto_merge: false
-    source: "docs/ROADMAP.md#8-mobile-applications; checkpoint APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919"
+    source: "historical plan checkpoint APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919; commit edd1840d; merged PR #221; RuStore checkpoint"
     dependencies:
       - APL-MOB-003-SITE-EXCLUSIONS-20260919
-    blocker: "Roadmap plan only. Free RU/US gateway and 0.1.31 friend-test work are separate and already implemented; monetization starts only after explicit Owner prioritization and private package/update-identity decision."
-    owner_gate: "Choose/confirm private package identity/update semantics and explicitly authorize APL-MOB-004 implementation/provider configuration before the public ads/private no-ads release lane is built."
-    executor_scope: "May preserve design constraints; do not add ad SDKs, create private distribution infrastructure, publish monetized APKs or make paid/provider commitments without the required gate."
-    evidence: "Plan remains: public ads-enabled GitHub/GitVerse/site/RuStore channel plus private no-ads build from one codebase; Yandex Mobile Ads/App Open is the initial target."
+    executor_scope: "Implementation baseline is complete: public flavor contains Yandex App Open ads and private flavor is ad-free with a distinct package identity. Do not infer that every planned distribution channel is published; GitHub/GitVerse/site publication and private delivery automation require separate release tasks."
+    evidence: "IMPLEMENTED in Android 0.1.38: one codebase, ads only in public flavor, ad-free private flavor. RuStore public candidate is submitted; broader distribution was not part of the completed RuStore task."
+
+  - order: 122
+    task_id: APL-RUSTORE-PUBLISH-20260928
+    title: "RuStore Android 0.1.38 (39) submission"
+    status: done
+    authority: HUMAN
+    independent: false
+    auto_merge: false
+    source: ".agent/checkpoints/APL-RUSTORE-PUBLISH-20260928.yaml; merged PR #221/#222"
+    dependencies:
+      - APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
+    executor_scope: "Submission task is complete. Do not rebuild/resubmit while moderation is merely pending. On feedback, start a new task from current main. After approval, publication mode remains Manual and requires an explicit release action."
+    evidence: "Production APK package ru.arvectum.proxylauncher, version 0.1.38 (39), SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; RuStore status Waiting for moderation, audience 100%, release Manual."
 
   - order: 130
     task_id: APL-IOS-APPREVIEW-FIX-20260926
@@ -259,19 +270,31 @@ items:
 
   - order: 135
     task_id: APL-MAC-APPSTORE-PUBLISH-20260925
-    title: "macOS App Store 0.2.17 publication + mandatory Help UX"
-    status: completed
+    title: "macOS App Store initial 0.2.17 submission"
+    status: done
     authority: HUMAN
     independent: true
     auto_merge: false
-    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; merged PR #175; dedicated checkpoint"
+    source: "docs/ROADMAP.md#6-macos; docs/LOCAL_EXECUTION_BACKLOG.md#P9A; merged PR #175"
     dependencies:
       - APL-MAC-PRODUCTION-DISTRIBUTION
-    blocker: "Submission complete; current Apple state Waiting for Review."
-    owner_gate: "Do not rebuild, re-upload, withdraw, resubmit or change store/legal metadata absent a concrete Apple review result or explicit Owner instruction."
-    executor_scope: "On a future Apple review notification, inspect the exact result first and preserve immutable direct v0.2.16 plus the separate sandboxed Catalyst + PacketTunnel Store lane."
-    publication_pr: 175
-    evidence: "macOS App Store 0.2.17 build 1 passed archive/export, Apple validation/upload, processing, physical Help and Packet Tunnel E2E. Privacy Published/Data Not Collected; 3 screenshots COMPLETE; 175 territories configured. Submitted 2026-09-26; state Waiting for Review / 1 Item Submitted."
+    executor_scope: "Historical initial-submission task only. Build 1 was submitted and later rejected; do not treat its old Waiting for Review state as current."
+    evidence: "Initial 0.2.17 build 1 submission completed on 2026-09-26 and was rejected on 2026-09-28 under Guidelines 2.1.0 and 2.4.5."
+
+  - order: 136
+    task_id: APL-MAC-APPSTORE-REJECTION-20260928
+    title: "macOS App Store 0.2.17 build 3 rejection remediation / resubmission"
+    status: blocked
+    authority: HUMAN
+    independent: false
+    auto_merge: false
+    source: ".agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml; merged PR #223"
+    dependencies:
+      - APL-MAC-APPSTORE-PUBLISH-20260925
+    blocker: "Corrected build 3 is already VALID, selected and prepared in App Store Connect, but the final resolve/Add for Review/Resubmit workflow requires human App Store Connect action."
+    owner_gate: "Do not rebuild or re-upload build 3. Complete only the App Store Connect review workflow unless Apple reports a new binary issue."
+    executor_scope: "Preserve build-3 evidence: ARM64 Mac Catalyst + PacketTunnel, macOS 13.0 minimum, updated Review Notes, altool validation PASS, physical passive-launch smoke PASS."
+    evidence: "PR #223 merged as ad09b2393def6c498daa8d67d2439b1d1aac9502. Build 3 is VALID with minOsVersion/lsMinimumSystemVersion 13.0 and usesNonExemptEncryption=false; version 0.2.17 is PREPARE_FOR_SUBMISSION while prior review item remains unresolved."
 
   - order: 140
     task_id: APL-IP-ROSPATENT-20260926
@@ -288,7 +311,7 @@ items:
     active_pr: 181
     evidence: "Official requirements and 5000 RUB fee rechecked 2026-09-26; exact filing object v0.2.16 / release commit 6799297... fixed; 6-page working DOCX rendered/visually checked with unknown fields blank and yellow."
 
-repository_hygiene:repository_hygiene:repository_hygiene:
+repository_hygiene:
   superseded_open_prs:
     - 81
     - 103
