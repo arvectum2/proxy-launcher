@@ -187,6 +187,11 @@ static VOID NTAPI ClassifyFn(
         classify_context == NULL || ShouldSkipRedirect(meta)) {
         return;
     }
+    if (meta != NULL &&
+        (meta->currentMetadataValues & FWPS_METADATA_FIELD_PROCESS_ID) != 0 &&
+        meta->processId == (UINT64)(ULONG)proxy_pid) {
+        return;
+    }
     status = FwpsAcquireClassifyHandle0(
         (PVOID)classify_context,
         0,
