@@ -428,6 +428,7 @@ int RunSelfRelay(const wchar_t* executable_path, unsigned long seconds) {
         }
     }
 
+    DumpDriverDiagnostics();
     const DWORD disable_status = ConfigureDriver(0, 0, false);
     FwpmEngineClose0(engine);
     closesocket(listener);
