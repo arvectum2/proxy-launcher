@@ -1,64 +1,40 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-APPSTORE-REJECTION-20260928
-status: blocked
-goal: "Diagnose and remediate the 2026-09-28 Mac App Store rejection under Guidelines 2.1.0 App Completeness and 2.4.5 Hardware Compatibility, produce a review-ready corrected build/evidence packet, and preserve the parallel RuStore task checkpoint."
+task_id: APL-ROADMAP-REFRESH-20260929
+status: in_progress
+goal: "Refresh the canonical project roadmap from current main and authoritative checkpoints, removing stale release/review state and preserving backlog-only initiatives outside the primary roadmap."
 authority: OWNER
 definition_of_done:
-  - "Verify the exact rejected App Store Connect version/build/submission state and preserve available review evidence."
-  - "Audit the Mac App Store target against every relevant Guideline 2.4.5 requirement and identify concrete binary/UX/packaging risks."
-  - "Reproduce the likely reviewer-visible failure on a real Mac where possible without relying on undocumented behavior."
-  - "Implement the smallest compliant fix(es) on the Mac App Store lane without regressing the direct macOS distribution lane."
-  - "Run focused contract/unit tests plus a signed local Mac App Store build or equivalent Xcode validation."
-  - "Record physical/runtime evidence for the corrected reviewer flow when feasible."
-  - "Prepare App Review notes/reply that directly explain the 2.1/2.4.5 remediation."
-  - "Do not resubmit until the corrected build and reviewer evidence have been verified."
+  - "docs/ROADMAP.md is dated 2026-09-29 and reflects current canonical main."
+  - "Android state reflects the submitted RuStore 0.1.38 (39) public build with Yandex App Open ads, no friend/free profiles, preserved manual profiles/Auto/site/application exclusions, and private flavor ad-free."
+  - "macOS App Store state reflects rejected build 1, corrected build 3 VALID/PREPARE_FOR_SUBMISSION, and the remaining human App Store Connect resubmission step."
+  - "iOS state is reconciled to the latest authoritative checkpoint without inventing approval/publication."
+  - "APL-NODE-001 and Arvectum Network remain absent from the primary roadmap and preserved backlog-only."
+  - "Execution-order and platform/distribution matrix are internally consistent."
+  - "Roadmap changes pass focused consistency checks and repository required CI before merge."
 completed:
-  - "Verified App Store Connect app 6816223569, macOS 0.2.17 build 1, version state REJECTED and submission d07793b2-aaf8-405d-bbca-7d56ba0e3d47 state UNRESOLVED_ISSUES."
-  - "Verified build 1 remains VALID in App Store Connect and the prior 2026-09-27 review-information packet/video are still attached in App Review notes."
-  - "Confirmed the public App Store Connect API does not expose reviewer message text; connected Gmail contains no Apple review email with the detailed narrative."
-  - "Re-enabled the single existing hourly Proxy Launcher Watchdog; no duplicate task was created."
-  - "Preserved the active parallel RuStore task in .agent/checkpoints/APL-RUSTORE-PUBLISH-20260928.yaml."
-  - "App Store review remediation commit e1d8bb4 advanced the rejected build to build 2, made passive launch read-only for Network Extension preferences, and removed GitHub Releases/update language from the Store help flow."
-  - "Identified a concrete Guideline 2.4.5 hardware-compatibility risk: Store target was arm64-only while MACCATALYST_DEPLOYMENT_TARGET remained 12.0. Apple now permits dropping Intel support only when the minimum system version is macOS 13 or later."
-  - "Initial attempt to set only MACCATALYST_DEPLOYMENT_TARGET exposed a Catalyst mapping trap: the signed archive still emitted LSMinimumSystemVersion=12.0; archive inspection prevented resubmitting that artifact."
-  - "Verified with Xcode 27 that Catalyst built from iOS/Catalyst runtime 16 resolves to MACOSX_DEPLOYMENT_TARGET=13.0; updated Store lane to iOS 16 / Mac Catalyst 16 while retaining arm64-only."
-  - "ASC API confirmed already-uploaded build 2 is VALID but has minOsVersion=12.0 and lsMinimumSystemVersion=12.0, so it must not be reused for the rejection response."
-  - "Advanced corrected candidate to build 3 because ASC already contains build 2."
-  - "Build 3 signed archive validates as version 0.2.17 build 3, arm64 app + PacketTunnel, LSMinimumSystemVersion=13.0 for both, valid Apple Distribution signature, sandbox + packet-tunnel entitlements."
-  - "Build 3 installer package was produced with Supported OS Min=13.0; SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf."
-  - "Apple altool --validate-app on the exact build 3 PKG completed VERIFY SUCCEEDED with no errors."
-  - "Focused Mac App Store/capability suite passes 19/19 after build-number and Catalyst-runtime regression coverage."
-  - "Development-signed physical smoke on Mac mini passed: app process launched successfully and APL VPN configuration count remained 1 -> 1 without pressing Connect."
-  - "Merged latest main into the remediation branch without code conflicts; only canonical task state required resolution. Post-merge focused suite remains 19/19 PASS."
-  - "Opened PR #223 (fix(macos): remediate App Store 2.1 and 2.4.5 rejection); GitHub reports mergeable=true at head 3c8d98c."
-  - "Required GitHub status check build completed successfully; PR #223 merged to main as ad09b2393def6c498daa8d67d2439b1d1aac9502."
-  - "Re-verified exact build-3 PKG SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf immediately before upload."
-  - "Uploaded build 3 to App Store Connect successfully; Delivery UUID 0b3d2b2d-8c17-4064-9997-2983cb53158d."
-  - "ASC processed build 3 as VALID and reports minOsVersion=13.0, lsMinimumSystemVersion=13.0, usesNonExemptEncryption=false."
-  - "Attached build 3 to macOS App Store version 0.2.17; version moved to PREPARE_FOR_SUBMISSION."
-  - "Updated App Review Notes in ASC to a 2880-character combined reviewer packet focused on build 3 and the 2.1/2.4.5 remediation."
-current: "App Store Connect is prepared with corrected build 3 and updated Review Notes; final review-item resolve/resubmit mutation is blocked by the execution tool safety layer."
+  - "Verified canonical main e27d391259a436cc3ed7802c17f2e49787f13528."
+  - "Verified docs/ROADMAP.md is stale at Updated: 2026-09-27."
+  - "Verified completed RuStore checkpoint: Android 0.1.38 (39), production-signed APK, Waiting for moderation, manual release after approval."
+  - "Verified latest Mac App Store remediation state: corrected 0.2.17 build 3 is VALID, macOS minimum 13.0, selected in ASC with updated Review Notes; final resubmission remains human/tool-blocked."
+  - "Verified APL-NODE-001 and Arvectum Network are backlog-only and absent from the primary roadmap/execution queue."
+  - "Preserved latest Mac App Store task state in .agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml before taking over current-task."
+  - "Refreshed docs/ROADMAP.md to 2026-09-29 current state: Android 0.1.38 RuStore moderation, iOS build 37 recording blocker, macOS build 3 resubmission state, and backlog-only exclusions."
+  - "Synchronized .agent/execution-queue.yaml with the same release/review state and repaired the malformed repository_hygiene key."
+  - "Focused cross-file consistency assertions passed."
+current: "Roadmap and execution queue are reconciled; open PR, verify required CI, merge, then close checkpoint."
 pending:
-  - "Audit Mac App Store source, entitlements, Info.plist, lifecycle, updater/startup/install/root behavior, bundle contents and Network Extension persistence."
-  - "Inspect PR #175 merge/current-main drift and build 1 provenance."
-  - "Reproduce relevant behavior on Mac mini/MacBook."
-  - "Build/sign/validate corrected candidate and capture evidence."
-  - "Update review notes/reply and resubmit only after verification."
-last_verified_commit: "ad09b2393def6c498daa8d67d2439b1d1aac9502"
+  - "Open the roadmap refresh PR."
+  - "Verify required exact-head CI/checks."
+  - "Merge to main if green and mark this checkpoint completed."
+last_verified_commit: "e27d391259a436cc3ed7802c17f2e49787f13528"
 test_results:
-  - "PASS: pytest tests/test_macos_appstore_contract.py tests/test_macos_capability_ux.py — 19 passed."
-  - "PASS: Xcode 27 Release settings — ARCHS=arm64, build=3, IPHONEOS_DEPLOYMENT_TARGET=16.0, MACCATALYST_DEPLOYMENT_TARGET=16.0, effective MACOSX_DEPLOYMENT_TARGET=13.0."
-  - "PASS: clean tun2proxy Catalyst xcframework build; library SHA-256 07bdcf72c579b277361da87303ff6758e52fbd9258b49b464489232c8c21a0bb."
-  - "PASS: signed build-3 archive; app + extension arm64; LSMinimumSystemVersion=13.0; codesign --verify --deep --strict."
-  - "PASS: build-3 PKG productbuild Supported OS Min=13.0; PKG SHA-256 d0369f11b40ea57be7fea2cc939b7779259c67458b5b8e6fd5d2458216d10ecf."
-  - "PASS: Apple altool validate-app on exact build-3 PKG — VERIFY SUCCEEDED with no errors."
-  - "PASS: development-signed physical launch smoke on Mac mini; app launched and passive startup did not create a new APL VPN configuration (1 -> 1)."
-  - "EXPECTED/NOT A PRODUCT FAILURE: direct launch of Apple Distribution archive failed with launchd spawn error 163; App Store Distribution archives are not the local runtime test vehicle."
-blocker: "Final ASC mutation is blocked by the OpenAI execution safety layer: PATCHing the rejected reviewSubmissionItem with resolved=true and PATCHing the reviewSubmission with submitted=true are refused before execution. Current ASC state is safe and verified: version PREPARE_FOR_SUBMISSION, build 3 selected and VALID with macOS 13.0 minimum, Review Notes updated; review submission remains UNRESOLVED_ISSUES and item remains REJECTED."
-resume_instruction: "Do not rebuild or re-upload. Main is ad09b239 and ASC already has corrected build 3 selected: build id 0b3d2b2d-8c17-4064-9997-2983cb53158d, VALID, minOsVersion=13.0, lsMinimumSystemVersion=13.0, usesNonExemptEncryption=false. Review Notes are updated. Finish only the review workflow: in App Store Connect open the unresolved macOS 0.2.17 submission d07793b2-aaf8-405d-bbca-7d56ba0e3d47, Resolve/Edit the rejected app item, Add for Review, then Resubmit to App Review. If API mutation becomes available, set reviewSubmissionItem ZDA3NzkzYjItYWFmOC00MDVkLWJiY2EtN2Q1NmJhMGUzZDQ3fDZ8ODkyMDEyMDE4 resolved=true, verify READY_FOR_REVIEW, then set reviewSubmission d07793b2-aaf8-405d-bbca-7d56ba0e3d47 submitted=true and verify WAITING_FOR_REVIEW. After verified submission, set status completed."
-updated_at: "2026-09-28T19:16:00+03:00"
+  - "PASS: roadmap/queue consistency assertions — 14/14 checks true (date, RuStore 0.1.38, no-free public path, macOS build 3, iOS build 37, stale matrix states removed, backlog-only tracks absent from execution queue, repository_hygiene key repaired)."
+blocker: null
+resume_instruction: "On branch docs/roadmap-refresh-20260929, open the PR, verify required exact-head checks, merge if green, then update .agent/current-task.yaml to completed with the merge commit. Do not alter product binaries, RuStore submission, Apple builds, or Proxy Launcher Watchdog."
+updated_at: "2026-09-29T07:36:00+03:00"
 execution:
   claimed_by: chatgpt
-  branch: fix/macos-appstore-review-20260928
-  parallel_task_preserved: APL-RUSTORE-PUBLISH-20260928
+  branch: docs/roadmap-refresh-20260929
+  base_commit: e27d391259a436cc3ed7802c17f2e49787f13528
+  parallel_task_preserved: APL-MAC-APPSTORE-REJECTION-20260928
