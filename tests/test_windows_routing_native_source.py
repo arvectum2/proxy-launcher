@@ -15,6 +15,9 @@ CALLOUT = (
 ACCEPTANCE = (
     ROOT / "native" / "windows_routing" / "wfp_acceptance_helper.cpp"
 ).read_text(encoding="utf-8")
+TEST_INSTALL = (
+    ROOT / "tools" / "windows_wfp_test_install.ps1"
+).read_text(encoding="utf-8")
 
 
 class WindowsRoutingNativeSourceTests(unittest.TestCase):
@@ -89,6 +92,15 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS", ACCEPTANCE)
         self.assertIn("ARVECTUM_WFP_REDIRECT_OBSERVED", ACCEPTANCE)
         self.assertIn("GetCurrentProcessId()", ACCEPTANCE)
+
+    def test_test_install_rolls_back_only_certificates_added_by_this_attempt(self):
+        self.assertIn("$certWasInRoot", TEST_INSTALL)
+        self.assertIn("$certWasInPublisher", TEST_INSTALL)
+        self.assertIn("function Remove-TestCertificates", TEST_INSTALL)
+        self.assertGreaterEqual(
+            TEST_INSTALL.count("Remove-TestCertificates -Thumbprint $thumbprint"),
+            4,
+        )
 
 
 if __name__ == "__main__":
