@@ -12,13 +12,14 @@ definition_of_done:
   - "No product branch, PR #195 code, infrastructure or watchdog state is changed."
   - "Exact-head CI passes before merge."
 completed:
+  - "Removed APL-NODE-001 and ARVECTUM-NETWORK-MVP-20260927 items from .agent/execution-queue.yaml."
+  - "Verified docs/ROADMAP.md contains zero mentions of either paused initiative."
+  - "Preserved backlog P12/P13 and ARVECTUM_NETWORK_ROADMAP.md unchanged except clarifying backlog-only execution wording."
   - "Verified current main d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c."
   - "Verified docs/ROADMAP.md already contains zero APL-NODE-001 / Arvectum Network mentions."
   - "Verified backlog P12/P13 already preserve both tracks as DEFERRED / PAUSED BY OWNER."
-current: "Remove the two paused items from execution queue and clean stale backlog priority wording."
+current: "Primary roadmap and execution queue are clean; backlog preservation verified. Open metadata-only PR and verify exact-head CI."
 pending:
-  - "Update .agent/execution-queue.yaml."
-  - "Update docs/LOCAL_EXECUTION_BACKLOG.md stale priority wording."
   - "Open metadata/docs PR, verify exact-head CI and merge."
 last_verified_commit: "d7b2e2e766f3cdab692b4beed6d0faec7cad2b6c"
 test_results:
