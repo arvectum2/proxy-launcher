@@ -106,9 +106,14 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer ArvectumProxyRoutingTest.cer -Force
+          $exported = [Security.Cryptography.X509Certificates.X509Certificate2]::new((Resolve-Path ArvectumProxyRoutingTest.cer).Path)
+          $thumbprint = $exported.Thumbprint
+          $signerPath = "Cert:\CurrentUser\My\$thumbprint"
+          if (-not (Test-Path -LiteralPath $signerPath)) { throw 'WDK test signer certificate is not in CurrentUser\My' }
+          $signer = Get-Item -LiteralPath $signerPath
+          if (-not $signer.HasPrivateKey) { throw 'WDK test signer private key is unavailable' }
           $driver = Get-AuthenticodeSignature native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
-          if (-not $driver.SignerCertificate) { throw 'WDK test signer unavailable' }
-          $thumbprint = $driver.SignerCertificate.Thumbprint
+          if (-not $driver.SignerCertificate -or $driver.SignerCertificate.Thumbprint -ne $thumbprint) { throw 'driver signer does not match exported WDK certificate' }
           $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Filter signtool.exe -Recurse | Where-Object FullName -Match '\\x64\\signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
           if (-not $signtool) { throw 'signtool.exe not found' }
           & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumProxyRoutingService.exe
