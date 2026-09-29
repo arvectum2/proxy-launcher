@@ -88,10 +88,16 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("original_local", CALLOUT)
         self.assertIn("localRedirectContext", CALLOUT)
         self.assertIn("localRedirectTargetPID", CALLOUT)
-        self.assertIn("request->remoteAddressAndPort,", CALLOUT)
-        self.assertIn("request->localAddressAndPort,", CALLOUT)
-        self.assertIn("&request->remoteAddressAndPort", CALLOUT)
-        self.assertIn("&request->localAddressAndPort", CALLOUT)
+        self.assertIn("CaptureClassifyEndpoints", CALLOUT)
+        self.assertIn("FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_REMOTE_ADDRESS", CALLOUT)
+        self.assertIn("FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_REMOTE_PORT", CALLOUT)
+        self.assertIn("FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_REMOTE_ADDRESS", CALLOUT)
+        self.assertIn("RtlUlongByteSwap(remote_address->uint32)", CALLOUT)
+        self.assertIn("RtlUshortByteSwap(remote_port->uint16)", CALLOUT)
+        self.assertNotIn(
+            "&redirect_context->original_remote,\n        &request->remoteAddressAndPort",
+            CALLOUT,
+        )
         self.assertIn("FWPS_METADATA_FIELD_ORIGINAL_DESTINATION", CALLOUT)
         self.assertIn("meta->originalDestination", CALLOUT)
         self.assertIn("ARVECTUM_REDIRECT_CONTEXT_HAS_METADATA_ORIGINAL", CALLOUT)
@@ -128,6 +134,13 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
 
     def test_live_acceptance_preserves_primary_helper_failure(self):
         self.assertIn("if (-not $process.HasExited)", LIVE_ACCEPTANCE)
+        self.assertIn("$process.WaitForExit()", LIVE_ACCEPTANCE)
+        self.assertIn("$helperExit = $process.ExitCode", LIVE_ACCEPTANCE)
+        self.assertIn("$null -eq $helperExit -or $helperExit -ne 0", LIVE_ACCEPTANCE)
+        self.assertIn(
+            "ARVECTUM_WFP_REDIRECT_OBSERVED original=(127\\.|::1:)",
+            LIVE_ACCEPTANCE,
+        )
         self.assertIn("stdout=$log stderr=$err", LIVE_ACCEPTANCE)
 
     def test_test_install_rolls_back_only_certificates_added_by_this_attempt(self):

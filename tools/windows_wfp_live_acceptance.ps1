@@ -56,18 +56,23 @@ $selectedExit = $LASTEXITCODE
 if (-not $process.HasExited) {
     Wait-Process -Id $process.Id -Timeout ($TimeoutSeconds + 10)
 }
+$process.WaitForExit()
 $process.Refresh()
+$helperExit = $process.ExitCode
 
 $log = Get-Content $stdout -Raw -ErrorAction SilentlyContinue
 $err = Get-Content $stderr -Raw -ErrorAction SilentlyContinue
 if ($selectedExit -ne 0 -or $selectedResult -ne '200') {
     throw "Selected curl failed through WFP relay: exit=$selectedExit http=$selectedResult stdout=$log stderr=$err"
 }
-if ($process.ExitCode -ne 0) {
-    throw "Acceptance helper failed with exit code $($process.ExitCode): stdout=$log stderr=$err"
+if ($null -eq $helperExit -or $helperExit -ne 0) {
+    throw "Acceptance helper failed with exit code $helperExit: stdout=$log stderr=$err"
 }
 if ($log -notmatch 'ARVECTUM_WFP_REDIRECT_OBSERVED') {
     throw 'No WFP redirect observation was recorded for the selected executable.'
+}
+if ($log -match 'ARVECTUM_WFP_REDIRECT_OBSERVED original=(127\.|::1:)') {
+    throw "WFP redirect context still reports a loopback original destination: $log"
 }
 if ($log -notmatch 'ARVECTUM_WFP_SELF_RELAY_RESTORED') {
     throw 'Acceptance helper did not confirm restoration.'

@@ -150,6 +150,92 @@ static VOID SetLoopbackTarget(
         remote->sin6_port = RtlUshortByteSwap(proxy_port);
     }
 }
+static BOOLEAN CaptureClassifyEndpoints(
+    const FWPS_INCOMING_VALUES0* fixed_values,
+    SOCKADDR_STORAGE* remote_storage,
+    SOCKADDR_STORAGE* local_storage)
+{
+    if (fixed_values == NULL ||
+        remote_storage == NULL ||
+        local_storage == NULL) {
+        return FALSE;
+    }
+
+    RtlZeroMemory(remote_storage, sizeof(*remote_storage));
+    RtlZeroMemory(local_storage, sizeof(*local_storage));
+
+    if (fixed_values->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V4) {
+        const FWP_VALUE0* remote_address =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_REMOTE_ADDRESS].value;
+        const FWP_VALUE0* remote_port =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_REMOTE_PORT].value;
+        const FWP_VALUE0* local_address =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_LOCAL_ADDRESS].value;
+        const FWP_VALUE0* local_port =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V4_IP_LOCAL_PORT].value;
+        if (remote_address->type != FWP_UINT32 ||
+            remote_port->type != FWP_UINT16 ||
+            local_address->type != FWP_UINT32 ||
+            local_port->type != FWP_UINT16) {
+            return FALSE;
+        }
+        SOCKADDR_IN* remote = (SOCKADDR_IN*)remote_storage;
+        SOCKADDR_IN* local = (SOCKADDR_IN*)local_storage;
+        remote->sin_family = AF_INET;
+        remote->sin_addr.S_un.S_addr =
+            RtlUlongByteSwap(remote_address->uint32);
+        remote->sin_port = RtlUshortByteSwap(remote_port->uint16);
+        local->sin_family = AF_INET;
+        local->sin_addr.S_un.S_addr =
+            RtlUlongByteSwap(local_address->uint32);
+        local->sin_port = RtlUshortByteSwap(local_port->uint16);
+        return TRUE;
+    }
+
+    if (fixed_values->layerId == FWPS_LAYER_ALE_CONNECT_REDIRECT_V6) {
+        const FWP_VALUE0* remote_address =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_REMOTE_ADDRESS].value;
+        const FWP_VALUE0* remote_port =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_REMOTE_PORT].value;
+        const FWP_VALUE0* local_address =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_LOCAL_ADDRESS].value;
+        const FWP_VALUE0* local_port =
+            &fixed_values->incomingValue[
+                FWPS_FIELD_ALE_CONNECT_REDIRECT_V6_IP_LOCAL_PORT].value;
+        if (remote_address->type != FWP_BYTE_ARRAY16_TYPE ||
+            remote_address->byteArray16 == NULL ||
+            remote_port->type != FWP_UINT16 ||
+            local_address->type != FWP_BYTE_ARRAY16_TYPE ||
+            local_address->byteArray16 == NULL ||
+            local_port->type != FWP_UINT16) {
+            return FALSE;
+        }
+        SOCKADDR_IN6* remote = (SOCKADDR_IN6*)remote_storage;
+        SOCKADDR_IN6* local = (SOCKADDR_IN6*)local_storage;
+        remote->sin6_family = AF_INET6;
+        RtlCopyMemory(
+            &remote->sin6_addr,
+            remote_address->byteArray16->byteArray16,
+            sizeof(remote->sin6_addr));
+        remote->sin6_port = RtlUshortByteSwap(remote_port->uint16);
+        local->sin6_family = AF_INET6;
+        RtlCopyMemory(
+            &local->sin6_addr,
+            local_address->byteArray16->byteArray16,
+            sizeof(local->sin6_addr));
+        local->sin6_port = RtlUshortByteSwap(local_port->uint16);
+        return TRUE;
+    }
+
+    return FALSE;
+}
 static VOID NTAPI ClassifyFn(
     const FWPS_INCOMING_VALUES0* fixed_values,
     const FWPS_INCOMING_METADATA_VALUES0* meta,
@@ -250,14 +336,16 @@ static VOID NTAPI ClassifyFn(
         sizeof(ARVECTUM_REDIRECT_CONTEXT));
     redirect_context->magic = ARVECTUM_ROUTING_CONTEXT_MAGIC;
     redirect_context->version = ARVECTUM_ROUTING_CONTEXT_VERSION;
-    RtlCopyMemory(
-        &redirect_context->original_remote,
-        &request->remoteAddressAndPort,
-        sizeof(SOCKADDR_STORAGE));
-    RtlCopyMemory(
-        &redirect_context->original_local,
-        &request->localAddressAndPort,
-        sizeof(SOCKADDR_STORAGE));
+    if (!CaptureClassifyEndpoints(
+            fixed_values,
+            &redirect_context->original_remote,
+            &redirect_context->original_local)) {
+        ExFreePoolWithTag(redirect_context, ARVECTUM_POOL_TAG);
+        classify_out->actionType = FWP_ACTION_BLOCK;
+        FwpsApplyModifiedLayerData0(classify_handle, writable, 0);
+        FwpsReleaseClassifyHandle0(classify_handle);
+        return;
+    }
     if (meta != NULL &&
         (meta->currentMetadataValues &
             FWPS_METADATA_FIELD_ORIGINAL_DESTINATION) != 0 &&
