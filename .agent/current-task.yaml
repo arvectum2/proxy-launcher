@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: blocked
+status: in_progress
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -20,10 +20,12 @@ completed:
   - "Added native Windows Service host scaffold with PIPE_REJECT_REMOTE_CLIENTS, explicit local ACL and bounded framing; it deliberately rejects enforcement commands until the WFP lifecycle is wired."
   - "Updated Windows capability truthfully to native_validation_pending; live enforcement remains false."
   - "Added native Windows WFP SDK/resource probe and dedicated Windows production-foundation CI workflow."
+  - "Added first kernel WFP callout source: admin/system-only control device, redirect-handle loop prevention, original-destination context, IPv4/IPv6 loopback redirect, and fail-closed redirect errors."
+  - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Privileged live-enforcement gate: build/install the WFP callout on an online Windows test stand, then wire original-destination redirect context to the local proxy."
+current: "Compile the new WFP callout with WDK 28000 in Windows CI, then fix any WDK errors before moving the binary to ARVECTUM-DEMO."
 pending:
-  - "Implement native WFP callout driver with self-redirect loop prevention and original-destination context."
+  - "Get native WFP callout driver compiling cleanly with current WDK and package its .sys artifact."
   - "Implement narrow privileged Windows service for owned provider/sublayer/callout/filter lifecycle and IPC."
   - "Connect redirected flows to the existing local proxy."
   - "Run hosted Windows build/contract CI."
@@ -33,6 +35,7 @@ test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
   - "PASS: GitHub Actions Windows per-app production foundation run #3: 27 Python contract tests; MSVC C++17 WFP resource/probe build; Windows Service host build; real FwpmGetAppIdFromFileName0 runtime probe; no-mutation static gate."
-blocker: "No Windows test device is online in Remote Desktop Commander. ARVECTUM-DEMO and ArutyunovNS are offline. The next step is privileged WFP callout installation/live redirection and must not be claimed or enabled without a real Windows rollback target."
-resume_instruction: "When a Windows test device is online, continue on agent/apl-route-windows-production-20260929: verify the host/WDK/signing mode, build/install the smallest WFP callout, wire redirect context/records to the local proxy, run selected-vs-unselected app routing plus crash/reboot/rollback tests, and keep live_enforcement_supported=false until all acceptance passes."
-updated_at: "2026-09-29T10:15:00+03:00"
+  - "PASS: local routing native-source/production/application suite after callout addition — 22 tests."
+blocker: null
+resume_instruction: "ARVECTUM-DEMO is online. Continue on agent/apl-route-windows-production-20260929: build the smallest WFP callout with current WDK, prepare a test-signed install path, wire redirect context/records to the local proxy, then run selected-vs-unselected app routing and recovery tests. Keep live_enforcement_supported=false until acceptance passes."
+updated_at: "2026-09-29T10:57:00+03:00"

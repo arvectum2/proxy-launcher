@@ -13,6 +13,7 @@ on:
       - 'tests/test_application_exclusions.py'
       - 'tests/test_windows_app_routing.py'
       - 'tests/test_windows_routing_production.py'
+      - 'tests/test_windows_routing_native_source.py'
       - '.github/workflows/windows-app-routing-production.yml'
   push:
     branches: [main]
@@ -26,6 +27,7 @@ on:
       - 'tests/test_application_exclusions.py'
       - 'tests/test_windows_app_routing.py'
       - 'tests/test_windows_routing_production.py'
+      - 'tests/test_windows_routing_native_source.py'
       - '.github/workflows/windows-app-routing-production.yml'
   workflow_dispatch:
 
@@ -60,6 +62,18 @@ jobs:
           if errorlevel 1 exit /b 1
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\routing_service_main.cpp /Fe:ArvectumProxyRoutingService.exe /link Advapi32.lib
           if errorlevel 1 exit /b 1
+      - name: Install matching Windows SDK and WDK
+        shell: pwsh
+        run: |
+          winget install --id Microsoft.WindowsSDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
+          winget install --id Microsoft.WindowsWDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
+      - name: Build WFP callout driver
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
+          if not defined VSINSTALL exit /b 1
+          "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m /p:Configuration=Debug /p:Platform=x64
+          if errorlevel 1 exit /b 1
       - name: Run read-only native WFP SDK probe
         shell: pwsh
         run: .\wfp_sdk_probe.exe
@@ -70,3 +84,10 @@ jobs:
           if ($text -match 'FwpmFilterAdd|FwpmCalloutAdd|FwpmProviderAdd|FwpmSubLayerAdd') {
             throw 'Mutation API found in SDK probe'
           }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-per-app-native-foundation
+          path: |
+            ArvectumProxyRoutingService.exe
+            native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
+          if-no-files-found: error

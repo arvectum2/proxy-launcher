@@ -9,6 +9,9 @@ SERVICE = (
 RESOURCES = (
     ROOT / "native" / "windows_routing" / "wfp_resources.cpp"
 ).read_text(encoding="utf-8")
+CALLOUT = (
+    ROOT / "native" / "windows_routing" / "routing_callout.c"
+).read_text(encoding="utf-8")
 
 
 class WindowsRoutingNativeSourceTests(unittest.TestCase):
@@ -40,6 +43,24 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
     def test_resource_source_uses_fixed_arvectum_namespace(self):
         self.assertIn('L"Arvectum.ProxyLauncher."', RESOURCES)
         self.assertIn("IsArvectumResourceName", RESOURCES)
+
+    def test_callout_has_loop_prevention_and_bounded_admin_device(self):
+        self.assertIn("FwpsQueryConnectionRedirectState0", CALLOUT)
+        self.assertIn("FWPS_CONNECTION_PREVIOUSLY_REDIRECTED_BY_SELF", CALLOUT)
+        self.assertIn("FWPS_CONNECTION_REDIRECTED_BY_OTHER", CALLOUT)
+        self.assertIn("SDDL_DEVOBJ_SYS_ALL_ADM_ALL", CALLOUT)
+
+    def test_callout_preserves_original_destination_context(self):
+        self.assertIn("ARVECTUM_REDIRECT_CONTEXT", CALLOUT)
+        self.assertIn("original_remote", CALLOUT)
+        self.assertIn("original_local", CALLOUT)
+        self.assertIn("localRedirectContext", CALLOUT)
+        self.assertIn("localRedirectTargetPID", CALLOUT)
+
+    def test_callout_fail_closed_after_writable_acquisition_failure(self):
+        self.assertIn("classify_out->actionType = FWP_ACTION_BLOCK", CALLOUT)
+        self.assertIn("FwpsApplyModifiedLayerData0", CALLOUT)
+        self.assertIn("FwpsReleaseClassifyHandle0", CALLOUT)
 
 
 if __name__ == "__main__":
