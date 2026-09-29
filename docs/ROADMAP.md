@@ -32,7 +32,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified before this roadmap update: e27d391259a436cc3ed7802c17f2e49787f13528.
+Current canonical main verified before this roadmap update: 21c1160c2afe6e09fd121ae9eaba1c78e65c697a.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
@@ -132,6 +132,33 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - Focused desktop/UI regression suite passed 53/53; exact-head cross-platform/security CI was green.
 - PR #193 merged on 2026-09-27 after explicit Owner instruction. Unperformed host-specific acceptance is not relabeled as PASS.
 
+## 7B. Universal connection input and managed configuration — APL-CONNECT-001 — FUTURE / PRODUCT-APPROVED
+
+**Product principle:** APL should accept whatever connection material the user already has and keep protocol complexity out of the primary UX. The primary action remains one simple **Add connection / Connect** flow; protocol names and routing internals belong in detected details or an Advanced section.
+
+- **ORDINARY PROXY — RETAIN CURRENT SIMPLE PATH.** Accept `host:port`, `host:port:login:password`, URL-form proxy credentials and the existing manual host/port/login/password fields. Preserve current APL Auto transport behavior across HTTP CONNECT, SOCKS5 and TLS-to-proxy HTTPS instead of forcing the user to select a protocol.
+- **VPN LINK / KEY / CONFIG IMPORT — NEW.** Add paste/clipboard, file, QR and deep-link ingestion with deterministic scheme/config detection. Do not label arbitrary opaque text as supported until the corresponding engine can actually connect with it.
+- **FIRST ADVANCED FULL-TUNNEL TARGET — VLESS + REALITY.** This is the preferred first VPN-protocol expansion because it matches the planned Arvectum VPS/VLESS+Reality infrastructure and gives Marketplace-issued configurations a native APL path. Keep VLESS/Reality details hidden by default after import.
+- **SECONDARY ADVANCED TARGETS — DEMAND DRIVEN.** Evaluate WireGuard/AmneziaWG next; Shadowsocks, Trojan, VMess and Hysteria2 remain later compatibility candidates rather than reasons to turn the main UI into an Xray/sing-box control panel.
+- **MTPROTO — TELEGRAM-SPECIFIC CONNECTION TYPE.** Accept manual `server + port + secret` plus standard Telegram proxy links (`tg://proxy...` / `t.me/proxy...`). Treat MTProto truthfully as a Telegram-specific proxy profile: APL may store/manage it and hand it off/open it in Telegram, but must not present MTProto as a device-wide VPN transport.
+- **QR / CLIPBOARD / DEEP LINK — REQUIRED IMPORT SURFACES.** A user receiving a supported proxy/VPN/MTProto configuration should be able to scan, paste or open it in APL without retyping credentials.
+- **SUBSCRIPTION / MANAGED PROFILE — FUTURE.** Support a URL-backed managed connection collection with bounded automatic refresh, explicit last-refresh/error state and safe rollback to the last known-good configuration. This is the preferred delivery mechanism for Arvectum-managed or third-party provider profiles.
+- **MARKETPLACE ZERO-CONFIG DELIVERY — FUTURE.** After purchase, the issued connection should appear in APL automatically; the normal customer should not need to see or copy host/port/login/password or VLESS internals unless they explicitly request/export them.
+- **QUICK ACTIONS — FUTURE UX.** Provide connect/disconnect/toggle through platform-appropriate Shortcuts, widgets or Control Center/quick settings where supported, while preserving the existing iOS Shortcuts application-routing workflow.
+- **KILL SWITCH — FUTURE / CAPABILITY-GATED.** Expose only on platforms/modes where APL can guarantee fail-closed full-tunnel semantics. Do not use the label for ordinary desktop system-proxy mode unless non-APL direct traffic is actually blocked.
+- **LOCAL-FIRST SECRET HANDLING — REQUIRED.** Imported credentials/keys remain in platform secure storage (Keychain/Keystore or equivalent) and must not be uploaded to Arvectum merely because the user pasted or scanned them. A managed Marketplace/subscription flow may contact the issuing backend only as explicitly required to provision/refresh that managed profile.
+- **EXPORT/SHARE SAFETY — REQUIRED.** Any export/share action containing secrets must be explicit, preview what will be exposed and never leak credentials through logs, analytics, crash reports or ordinary diagnostic bundles.
+
+### APL-CONNECT-001 staged delivery
+
+1. **Stage A — universal importer shell:** normalize proxy text/URLs, QR, clipboard and deep-link entry; add MTProto profile detection + Telegram handoff; keep current HTTP/SOCKS/HTTPS engines unchanged.
+2. **Stage B — VLESS + Reality:** select/pin the engine, implement cross-platform secure profile storage and full-tunnel connection path, then physically validate mobile and desktop behavior before claiming support.
+3. **Stage C — managed subscriptions:** signed/validated remote profile refresh with last-known-good rollback, explicit provider/source identity and no silent downgrade to an insecure transport.
+4. **Stage D — Marketplace zero-config:** purchase/provision/refresh integration so an Arvectum-issued connection becomes usable in one tap.
+5. **Stage E — compatibility expansion:** WireGuard/AmneziaWG first, then additional protocols only when demand/partner interoperability justifies their maintenance cost.
+
+**Anti-clone rule:** competitor breadth is input for compatibility, not the product identity. APL remains optimized for the shortest path from credentials/key/QR to a working connection; advanced routing engines, GeoIP/Geosite rules, raw JSON and protocol diagnostics stay out of the default flow.
+
 ## 8. Mobile applications
 
 ### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)
@@ -146,29 +173,30 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **HISTORICAL FREE-GATEWAY INFRA.** The prior RU/US friend-test gateway evidence is preserved as historical controlled-test infrastructure, but it is not part of the current public Android client path and must not be reintroduced without an explicit new product task.
 - **NEXT GATE.** Wait for RuStore moderation. Any rejection remediation starts from current main; any later GitHub/GitVerse/site 0.1.38+ publication is a separate release task.
 
-### iOS — current App Store review-fix: 0.1.36 build 37
+### iOS — current App Store review state: 0.1.36 build 40
 
 - **OLD SUBMISSION REJECTED FOR INFORMATION.** The earlier 0.1.19 new-app submission received Apple Guideline 2.1 Information Needed: physical-device recording plus six product/setup/service/region/material questions.
-- **CURRENT SOURCE — 0.1.36 build 37.** Adaptive UI and Shortcuts-based application routing are merged; PR #196 prepared the current App Store version and PR #197 added unsigned Release artifact CI.
-- **PHYSICAL DEVICE PASS.** Exact current 0.1.36 (37) was development-signed, installed and launched on iPhone 13 running iOS 27.0.
-- **APP STORE BINARY PASS.** The first distribution attempt inherited an unsupported hotspot-provider entitlement and failed Apple 90046; the same build 37 was then re-signed with only the required packet-tunnel-provider/App Group/Keychain entitlements.
-- **CURRENT APPLE BUILD STATE — VALID / APP_STORE_ELIGIBLE.** Clean 0.1.36 build 37 upload completed without errors/warnings, export compliance is set, and the build is linked to App Store version 0.1.36.
-- **CURRENT HUMAN BLOCKER — PHYSICAL SCREEN RECORDING.** The owner must record the current 0.1.36 flow on the iPhone and transfer the MOV to Mac mini. Then current screenshots can be extracted/replaced, the recording attached, Apple’s six questions answered and the version resubmitted.
-- **DO NOT BUMP TO BUILD 38 BY DEFAULT.** Open PR #198 was created during the earlier signing failure and is now superseded by the successful corrected build-37 upload unless Apple reports a new binary issue.
+- **CURRENT SOURCE / REVIEW BINARY — 0.1.36 build 40.** Adaptive UI and Shortcuts-based application routing remain merged; the current review binary is the validated build 40.
+- **PHYSICAL DEVICE / REVIEW EVIDENCE PASS.** Current 0.1.36 build 40 has the physical-device review recording already attached to the App Review submission.
+- **APP STORE BINARY PASS.** The current build 40 uses the accepted packet-tunnel/App Group/Keychain entitlement scope; no new binary defect is presently identified.
+- **CURRENT APPLE REVIEW STATE — WAITING_FOR_REVIEW.** After Apple's second Guideline 2.1 information request, privacy wording and Review Notes were clarified, the Q1/Q2/Q3 response was sent, and the existing 0.1.36 build 40 submission was resubmitted without rebuilding.
+- **NEXT GATE.** Wait for Apple review feedback. Do not rebuild or resubmit build 40 unless Apple identifies a new concrete issue.
+- **NO SPECULATIVE BUILD BUMP.** Reuse build 40 while it remains valid; any next build must correspond to a concrete binary/product change.
 - **PRIVACY TRUTH** — Data Not Collected; no ads/analytics in this App Store candidate. Do not claim public availability before Apple approval.
 
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
 2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
-3. **[iOS App Store / HUMAN] 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / BLOCKED ON PHYSICAL RECORDING.** After the recording arrives: replace screenshots, attach MOV, answer Guideline 2.1 and resubmit.
+3. **[iOS App Store] 0.1.36 build 40 — WAITING_FOR_REVIEW.** Apple has the physical recording and direct VPN-data answers; wait for review feedback and do not rebuild absent a new concrete issue.
 4. **[macOS App Store / HUMAN] 0.2.17 build 3 — VALID / PREPARE_FOR_SUBMISSION.** Remediation is merged and uploaded; finish only the App Store Connect resolve -> Add for Review -> Resubmit workflow. Do not rebuild/re-upload absent a new Apple binary issue.
 5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
 6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
 7. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
 8. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
 9. **[Adaptive UI] APL-UI-001 — DONE / MERGED #193.** It remains the shared current UI baseline, not an active implementation task.
-10. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
+10. **[Product expansion / FUTURE] APL-CONNECT-001 — PRODUCT-APPROVED.** Universal connection input: ordinary proxy, VPN link/key/config, MTProto, QR/deep link, managed subscriptions and Marketplace zero-config delivery, staged so protocol complexity stays out of the default UX.
+11. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
 
 ### Repository-hygiene note
 
@@ -179,7 +207,8 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - Follow the canonical `.agent/current-task.yaml` for the active user-facing workflow.
 - **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
 - **macOS App Store:** corrected build 3 is already uploaded/selected. Complete only the human resolve -> Add for Review -> Resubmit flow; do not rebuild or re-upload unless Apple reports a new binary problem.
-- **iOS App Store:** wait for the physical iPhone 13 / iOS 27 recording, then refresh screenshots/attachment, answer Guideline 2.1 and resubmit the already-valid build 37.
+- **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
+- **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
 - **Windows per-app:** PR #144 is technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
@@ -198,7 +227,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
 | macOS Mac App Store | **0.2.17 build 3 VALID / PREPARE_FOR_SUBMISSION; rejection remediation merged/uploaded** | Human resolve rejected item -> Add for Review -> Resubmit; no rebuild unless Apple reports a new binary issue |
 | Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
-| iOS | **0.1.36 build 37 VALID / APP_STORE_ELIGIBLE; linked to App Store version; not resubmitted** | Physical iOS 27 recording -> current screenshots/attachment -> Guideline 2.1 reply -> resubmit |
+| iOS | **0.1.36 build 40 WAITING_FOR_REVIEW** | Wait for Apple feedback; rebuild only for a concrete new issue |
 
 ## Completion discipline
 
