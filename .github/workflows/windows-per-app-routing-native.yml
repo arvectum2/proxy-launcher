@@ -41,11 +41,19 @@ jobs:
         shell: pwsh
         run: python -m unittest tests.test_windows_per_app_routing tests.test_windows_native_routing_contract tests.test_windows_app_routing tests.test_routing_ownership
 
-      - name: Install VS2022-compatible WDK
+      - name: Verify hosted VS2022 WDK toolchain
         shell: pwsh
         run: |
-          winget install --id Microsoft.WindowsWDK.10.0.26100 -e --version 10.1.26100.6584 --silent --accept-package-agreements --accept-source-agreements
-          if ($LASTEXITCODE -ne 0) { throw "WDK installation failed: $LASTEXITCODE" }
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+          if (-not $installation) { throw "Visual Studio 2022 installation not found" }
+          $driverTargets = Join-Path $installation "MSBuild\Microsoft\VC\v170\Platforms\x64\PlatformToolsets\WindowsKernelModeDriver10.0"
+          if (-not (Test-Path $driverTargets)) { throw "WindowsKernelModeDriver10.0 toolset is missing from hosted runner" }
+          $sdkLib = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Lib" -Directory |
+            Where-Object { Test-Path (Join-Path $_.FullName "km\x64\fwpkclnt.lib") } |
+            Sort-Object Name -Descending | Select-Object -First 1
+          if (-not $sdkLib) { throw "WDK fwpkclnt.lib x64 is missing from hosted runner" }
+          Write-Host "Using hosted WDK/SDK: $($sdkLib.Name)"
 
       - name: Build routing service and callout driver
         shell: pwsh
