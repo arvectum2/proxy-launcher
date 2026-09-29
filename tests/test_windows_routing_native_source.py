@@ -12,6 +12,9 @@ RESOURCES = (
 CALLOUT = (
     ROOT / "native" / "windows_routing" / "routing_callout.c"
 ).read_text(encoding="utf-8")
+ACCEPTANCE = (
+    ROOT / "native" / "windows_routing" / "wfp_acceptance_helper.cpp"
+).read_text(encoding="utf-8")
 
 
 class WindowsRoutingNativeSourceTests(unittest.TestCase):
@@ -61,6 +64,21 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("classify_out->actionType = FWP_ACTION_BLOCK", CALLOUT)
         self.assertIn("FwpsApplyModifiedLayerData0", CALLOUT)
         self.assertIn("FwpsReleaseClassifyHandle0", CALLOUT)
+
+    def test_acceptance_helper_is_dynamic_and_app_scoped(self):
+        self.assertIn("FWPM_SESSION_FLAG_DYNAMIC", ACCEPTANCE)
+        self.assertIn("FWPM_CONDITION_ALE_APP_ID", ACCEPTANCE)
+        self.assertIn("FWPM_CONDITION_IP_PROTOCOL", ACCEPTANCE)
+        self.assertIn("FWP_ACTION_CALLOUT_TERMINATING", ACCEPTANCE)
+        self.assertIn("FWPM_LAYER_ALE_CONNECT_REDIRECT_V4", ACCEPTANCE)
+
+    def test_acceptance_helper_uses_transaction_and_disables_driver(self):
+        self.assertIn("FwpmTransactionBegin0", ACCEPTANCE)
+        self.assertIn("FwpmTransactionCommit0", ACCEPTANCE)
+        self.assertIn("FwpmTransactionAbort0", ACCEPTANCE)
+        self.assertIn("ConfigureDriver(0, 0, false)", ACCEPTANCE)
+        self.assertNotIn("FwpmFilterDeleteById", ACCEPTANCE)
+        self.assertNotIn("FwpmProviderDeleteByKey", ACCEPTANCE)
 
 
 if __name__ == "__main__":

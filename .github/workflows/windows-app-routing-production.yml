@@ -72,6 +72,8 @@ jobs:
           if errorlevel 1 exit /b 1
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\routing_service_main.cpp /Fe:ArvectumProxyRoutingService.exe /link Advapi32.lib
           if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_acceptance_helper.cpp wfp_resources.obj /Fe:ArvectumWfpAcceptance.exe /link Fwpuclnt.lib
+          if errorlevel 1 exit /b 1
       - name: Install matching Windows SDK and WDK
         shell: pwsh
         run: |
@@ -99,5 +101,6 @@ jobs:
           name: windows-per-app-native-foundation
           path: |
             ArvectumProxyRoutingService.exe
+            ArvectumWfpAcceptance.exe
             native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
           if-no-files-found: error
