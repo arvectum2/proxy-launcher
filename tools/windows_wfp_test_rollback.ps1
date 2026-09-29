@@ -18,19 +18,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 
 $certificate = [Security.Cryptography.X509Certificates.X509Certificate2]::new((Resolve-Path $CertificatePath).Path)
 foreach ($storeName in @('Root','TrustedPublisher')) {
-    $store = [Security.Cryptography.X509Certificates.X509Store]::new(
-        $storeName,
-        [Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
-    )
-    $store.Open([Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-    try {
-        $matches = $store.Certificates | Where-Object Thumbprint -eq $certificate.Thumbprint
-        foreach ($item in $matches) {
-            $store.Remove($item)
-        }
-    } finally {
-        $store.Close()
-    }
+    & certutil.exe -delstore $storeName $certificate.Thumbprint 2>$null | Out-Null
 }
 
 if (Test-Path $testSigningMarker) {

@@ -30,10 +30,21 @@ function Remove-TestCertificates {
         [bool]$RemovePublisher
     )
     if ($RemoveRoot) {
-        Remove-Item -LiteralPath ("Cert:\LocalMachine\Root\" + $Thumbprint) -Force -ErrorAction SilentlyContinue
+        & certutil.exe -delstore Root $Thumbprint 2>$null | Out-Null
     }
     if ($RemovePublisher) {
-        Remove-Item -LiteralPath ("Cert:\LocalMachine\TrustedPublisher\" + $Thumbprint) -Force -ErrorAction SilentlyContinue
+        & certutil.exe -delstore TrustedPublisher $Thumbprint 2>$null | Out-Null
+    }
+}
+
+function Add-TestCertificate {
+    param(
+        [Parameter(Mandatory=$true)][string]$StoreName,
+        [Parameter(Mandatory=$true)][string]$Path
+    )
+    & certutil.exe -addstore -f $StoreName $Path | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw ("Failed to import WFP test certificate into " + $StoreName + ".")
     }
 }
 
@@ -45,8 +56,13 @@ $sourceCert = [Security.Cryptography.X509Certificates.X509Certificate2]::new($Ce
 $thumbprint = $sourceCert.Thumbprint
 $certWasInRoot = Test-Path -LiteralPath ("Cert:\LocalMachine\Root\" + $thumbprint)
 $certWasInPublisher = Test-Path -LiteralPath ("Cert:\LocalMachine\TrustedPublisher\" + $thumbprint)
-$cert = Import-Certificate -FilePath $CertificatePath -CertStoreLocation 'Cert:\LocalMachine\Root'
-Import-Certificate -FilePath $CertificatePath -CertStoreLocation 'Cert:\LocalMachine\TrustedPublisher' | Out-Null
+try {
+    Add-TestCertificate -StoreName 'Root' -Path $CertificatePath
+    Add-TestCertificate -StoreName 'TrustedPublisher' -Path $CertificatePath
+} catch {
+    Remove-TestCertificates -Thumbprint $thumbprint -RemoveRoot (-not $certWasInRoot) -RemovePublisher (-not $certWasInPublisher)
+    throw
+}
 
 Remove-TestService
 & sc.exe create $serviceName type= kernel start= demand binPath= $DriverPath | Out-Host
@@ -64,7 +80,7 @@ if ($startExit -eq 0) {
         Remove-TestCertificates -Thumbprint $thumbprint -RemoveRoot (-not $certWasInRoot) -RemovePublisher (-not $certWasInPublisher)
         throw 'WFP callout driver did not reach RUNNING state.'
     }
-    Write-Output ('ARVECTUM_WFP_DRIVER_READY thumbprint=' + $cert.Thumbprint)
+    Write-Output ('ARVECTUM_WFP_DRIVER_READY thumbprint=' + $thumbprint)
     exit 0
 }
 

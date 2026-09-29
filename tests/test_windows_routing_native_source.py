@@ -21,6 +21,9 @@ ACCEPTANCE = (
 TEST_INSTALL = (
     ROOT / "tools" / "windows_wfp_test_install.ps1"
 ).read_text(encoding="utf-8")
+TEST_ROLLBACK = (
+    ROOT / "tools" / "windows_wfp_test_rollback.ps1"
+).read_text(encoding="utf-8")
 
 
 class WindowsRoutingNativeSourceTests(unittest.TestCase):
@@ -109,6 +112,10 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("$certWasInRoot", TEST_INSTALL)
         self.assertIn("$certWasInPublisher", TEST_INSTALL)
         self.assertIn("function Remove-TestCertificates", TEST_INSTALL)
+        self.assertIn("certutil.exe -addstore -f", TEST_INSTALL)
+        self.assertIn("certutil.exe -delstore", TEST_INSTALL)
+        self.assertNotIn("Import-Certificate", TEST_INSTALL)
+        self.assertIn("certutil.exe -delstore", TEST_ROLLBACK)
         self.assertGreaterEqual(
             TEST_INSTALL.count("Remove-TestCertificates -Thumbprint $thumbprint"),
             4,
