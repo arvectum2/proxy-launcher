@@ -2,10 +2,13 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <fwpmu.h>
+#include <mstcpip.h>
 
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "routing_ioctl.h"
 #include "wfp_resources.h"
@@ -130,14 +133,266 @@ DWORD AddOwnedObjects(
     return status;
 }
 
+
+bool QueryRedirectData(
+    SOCKET client,
+    ARVECTUM_REDIRECT_CONTEXT* context,
+    std::vector<unsigned char>* records)
+{
+    if (context == nullptr || records == nullptr) {
+        return false;
+    }
+    records->assign(16384, 0);
+    DWORD returned = 0;
+    int result = WSAIoctl(
+        client,
+        SIO_QUERY_WFP_CONNECTION_REDIRECT_RECORDS,
+        nullptr,
+        0,
+        records->data(),
+        static_cast<DWORD>(records->size()),
+        &returned,
+        nullptr,
+        nullptr);
+    if (result == SOCKET_ERROR || returned == 0) {
+        return false;
+    }
+    records->resize(returned);
+
+    returned = 0;
+    result = WSAIoctl(
+        client,
+        SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT,
+        nullptr,
+        0,
+        context,
+        sizeof(*context),
+        &returned,
+        nullptr,
+        nullptr);
+    return result != SOCKET_ERROR &&
+        returned == sizeof(*context) &&
+        context->magic == ARVECTUM_ROUTING_CONTEXT_MAGIC &&
+        context->version == ARVECTUM_ROUTING_IOCTL_VERSION;
+}
+
+bool RelayPair(SOCKET first, SOCKET second) {
+    std::array<char, 65536> buffer{};
+    for (;;) {
+        fd_set reads;
+        FD_ZERO(&reads);
+        FD_SET(first, &reads);
+        FD_SET(second, &reads);
+        TIMEVAL timeout{30, 0};
+        const int ready = select(0, &reads, nullptr, nullptr, &timeout);
+        if (ready <= 0) {
+            return ready == 0;
+        }
+        for (SOCKET source : {first, second}) {
+            if (!FD_ISSET(source, &reads)) {
+                continue;
+            }
+            SOCKET target = source == first ? second : first;
+            const int received = recv(source, buffer.data(), static_cast<int>(buffer.size()), 0);
+            if (received <= 0) {
+                return true;
+            }
+            int sent_total = 0;
+            while (sent_total < received) {
+                const int sent = send(
+                    target,
+                    buffer.data() + sent_total,
+                    received - sent_total,
+                    0);
+                if (sent <= 0) {
+                    return false;
+                }
+                sent_total += sent;
+            }
+        }
+    }
+}
+
+bool RelayRedirectedClient(SOCKET client) {
+    ARVECTUM_REDIRECT_CONTEXT context{};
+    std::vector<unsigned char> records;
+    if (!QueryRedirectData(client, &context, &records)) {
+        std::wcerr << L"redirect metadata query failed: " << WSAGetLastError() << L"\n";
+        return false;
+    }
+
+    const int family = context.original_remote.ss_family;
+    if (family != AF_INET && family != AF_INET6) {
+        return false;
+    }
+    SOCKET outbound = WSASocketW(
+        family,
+        SOCK_STREAM,
+        IPPROTO_TCP,
+        nullptr,
+        0,
+        WSA_FLAG_OVERLAPPED);
+    if (outbound == INVALID_SOCKET) {
+        return false;
+    }
+
+    DWORD returned = 0;
+    if (WSAIoctl(
+            outbound,
+            SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS,
+            records.data(),
+            static_cast<DWORD>(records.size()),
+            nullptr,
+            0,
+            &returned,
+            nullptr,
+            nullptr) == SOCKET_ERROR) {
+        closesocket(outbound);
+        return false;
+    }
+
+    const int address_length =
+        family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
+    if (connect(
+            outbound,
+            reinterpret_cast<const sockaddr*>(&context.original_remote),
+            address_length) == SOCKET_ERROR) {
+        closesocket(outbound);
+        return false;
+    }
+
+    wchar_t host[INET6_ADDRSTRLEN]{};
+    USHORT port = 0;
+    if (family == AF_INET) {
+        const auto* address =
+            reinterpret_cast<const SOCKADDR_IN*>(&context.original_remote);
+        InetNtopW(AF_INET, const_cast<IN_ADDR*>(&address->sin_addr), host, INET6_ADDRSTRLEN);
+        port = ntohs(address->sin_port);
+    } else {
+        const auto* address =
+            reinterpret_cast<const SOCKADDR_IN6*>(&context.original_remote);
+        InetNtopW(AF_INET6, const_cast<IN6_ADDR*>(&address->sin6_addr), host, INET6_ADDRSTRLEN);
+        port = ntohs(address->sin6_port);
+    }
+    std::wcout
+        << L"ARVECTUM_WFP_REDIRECT_OBSERVED original="
+        << host << L":" << port
+        << L" records=" << records.size() << L"\n";
+
+    const bool relayed = RelayPair(client, outbound);
+    closesocket(outbound);
+    return relayed;
+}
+
+int RunSelfRelay(const wchar_t* executable_path, unsigned long seconds) {
+    WSADATA winsock{};
+    if (WSAStartup(MAKEWORD(2, 2), &winsock) != 0) {
+        return 20;
+    }
+
+    SOCKET listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listener == INVALID_SOCKET) {
+        WSACleanup();
+        return 21;
+    }
+    SOCKADDR_IN bind_address{};
+    bind_address.sin_family = AF_INET;
+    bind_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    bind_address.sin_port = 0;
+    if (bind(listener, reinterpret_cast<sockaddr*>(&bind_address), sizeof(bind_address)) == SOCKET_ERROR ||
+        listen(listener, 8) == SOCKET_ERROR) {
+        closesocket(listener);
+        WSACleanup();
+        return 22;
+    }
+    int bind_length = sizeof(bind_address);
+    if (getsockname(listener, reinterpret_cast<sockaddr*>(&bind_address), &bind_length) == SOCKET_ERROR) {
+        closesocket(listener);
+        WSACleanup();
+        return 23;
+    }
+    const USHORT proxy_port = ntohs(bind_address.sin_port);
+
+    FWPM_SESSION0 session{};
+    session.flags = FWPM_SESSION_FLAG_DYNAMIC;
+    session.displayData.name =
+        const_cast<wchar_t*>(L"Arvectum per-app routing self-relay acceptance");
+    HANDLE engine = nullptr;
+    DWORD status = FwpmEngineOpen0(
+        nullptr, RPC_C_AUTHN_WINNT, nullptr, &session, &engine);
+    if (status != ERROR_SUCCESS) {
+        closesocket(listener);
+        WSACleanup();
+        return 24;
+    }
+
+    UINT64 filter_id = 0;
+    status = AddOwnedObjects(engine, executable_path, &filter_id);
+    if (status != ERROR_SUCCESS) {
+        FwpmEngineClose0(engine);
+        closesocket(listener);
+        WSACleanup();
+        return 25;
+    }
+    status = ConfigureDriver(GetCurrentProcessId(), proxy_port, true);
+    if (status != ERROR_SUCCESS) {
+        FwpmEngineClose0(engine);
+        closesocket(listener);
+        WSACleanup();
+        return 26;
+    }
+
+    std::wcout
+        << L"ARVECTUM_WFP_SELF_RELAY_READY filter=" << filter_id
+        << L" pid=" << GetCurrentProcessId()
+        << L" port=" << proxy_port
+        << L" seconds=" << seconds << L"\n";
+    std::wcout.flush();
+
+    fd_set reads;
+    FD_ZERO(&reads);
+    FD_SET(listener, &reads);
+    TIMEVAL timeout{
+        static_cast<long>(seconds),
+        0
+    };
+    bool success = false;
+    const int ready = select(0, &reads, nullptr, nullptr, &timeout);
+    if (ready > 0) {
+        SOCKET client = accept(listener, nullptr, nullptr);
+        if (client != INVALID_SOCKET) {
+            success = RelayRedirectedClient(client);
+            closesocket(client);
+        }
+    }
+
+    const DWORD disable_status = ConfigureDriver(0, 0, false);
+    FwpmEngineClose0(engine);
+    closesocket(listener);
+    WSACleanup();
+    if (disable_status != ERROR_SUCCESS) {
+        return 27;
+    }
+    std::wcout << L"ARVECTUM_WFP_SELF_RELAY_RESTORED\n";
+    return success ? 0 : 28;
+}
+
 int Usage() {
     std::wcerr
-        << L"usage: ArvectumWfpAcceptance.exe <exe> <proxy-pid> <port> <seconds>\n";
+        << L"usage: ArvectumWfpAcceptance.exe <exe> <proxy-pid> <port> <seconds>\n"
+        << L"   or: ArvectumWfpAcceptance.exe --self-relay <exe> <seconds>\n";
     return 2;
 }
 }  // namespace
 
 int wmain(int argc, wchar_t** argv) {
+    if (argc == 4 && std::wstring(argv[1]) == L"--self-relay") {
+        const unsigned long seconds = std::wcstoul(argv[3], nullptr, 10);
+        if (seconds == 0 || seconds > 600) {
+            return Usage();
+        }
+        return RunSelfRelay(argv[2], seconds);
+    }
     if (argc != 5) {
         return Usage();
     }

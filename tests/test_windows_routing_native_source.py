@@ -80,6 +80,14 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertNotIn("FwpmFilterDeleteById", ACCEPTANCE)
         self.assertNotIn("FwpmProviderDeleteByKey", ACCEPTANCE)
 
+    def test_acceptance_self_relay_proves_redirect_context_and_records(self):
+        self.assertIn("--self-relay", ACCEPTANCE)
+        self.assertIn("SIO_QUERY_WFP_CONNECTION_REDIRECT_RECORDS", ACCEPTANCE)
+        self.assertIn("SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT", ACCEPTANCE)
+        self.assertIn("SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS", ACCEPTANCE)
+        self.assertIn("ARVECTUM_WFP_REDIRECT_OBSERVED", ACCEPTANCE)
+        self.assertIn("GetCurrentProcessId()", ACCEPTANCE)
+
 
 if __name__ == "__main__":
     unittest.main()
