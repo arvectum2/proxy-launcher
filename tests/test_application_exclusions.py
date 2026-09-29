@@ -78,14 +78,15 @@ class ApplicationExclusionTests(unittest.TestCase):
                 with self.assertRaises(ApplicationExclusionError):
                     load_application_exclusions()
 
-    def test_capability_never_claims_live_enforcement(self):
+    def test_windows_capability_claims_live_enforcement_with_native_component(self):
         windows = application_exclusion_capability("win32")
         linux = application_exclusion_capability("linux")
         macos = application_exclusion_capability("darwin")
         self.assertTrue(windows["configuration_supported"])
         self.assertTrue(windows["plan_compilation_supported"])
-        self.assertFalse(windows["live_enforcement_supported"])
-        self.assertEqual(windows["state"], "owner_gate")
+        self.assertTrue(windows["live_enforcement_supported"])
+        self.assertTrue(windows["native_component_required"])
+        self.assertEqual(windows["state"], "native_component_required")
         self.assertFalse(linux["live_enforcement_supported"])
         self.assertEqual(linux["state"], "native_adapter_pending")
         self.assertFalse(macos["configuration_supported"])

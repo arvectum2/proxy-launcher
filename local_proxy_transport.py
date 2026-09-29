@@ -43,6 +43,7 @@ class ProxyCore:
         self._stop = threading.Event()
         self._socks = []
         self._threads = []
+        self._app_direct_ports = {}
         self._upstreams = self._build_upstreams()
 
     def _build_upstreams(self):
@@ -236,7 +237,7 @@ class ProxyCore:
                 except Exception:
                     pass
 
-    def _handle_http(self, client):
+    def _handle_http(self, client, force_direct=False):
         core = _core()
         try:
             client.settimeout(30)
@@ -283,7 +284,7 @@ class ProxyCore:
                     port = 80
 
             host = core._normalize_host(host)
-            if core.host_bypasses_proxy(host):
+            if force_direct or core.host_bypasses_proxy(host):
                 try:
                     direct = socket.create_connection((host, port), timeout=15)
                 except Exception:
@@ -357,7 +358,7 @@ class ProxyCore:
             except Exception:
                 pass
 
-    def _handle_socks(self, client):
+    def _handle_socks(self, client, force_direct=False):
         core = _core()
         try:
             client.settimeout(15)
@@ -383,7 +384,7 @@ class ProxyCore:
 
             upstream = None
             host = core._normalize_host(host)
-            if core.host_bypasses_proxy(host):
+            if force_direct or core.host_bypasses_proxy(host):
                 try:
                     upstream = socket.create_connection((host, port), timeout=15)
                 except Exception:
@@ -404,6 +405,18 @@ class ProxyCore:
                 client.close()
             except Exception:
                 pass
+
+    def _handle_http_direct(self, client):
+        """HTTP proxy endpoint that always opens the requested target directly."""
+        return self._handle_http(client, force_direct=True)
+
+    def _handle_socks_direct(self, client):
+        """SOCKS5 endpoint that always opens the requested target directly."""
+        return self._handle_socks(client, force_direct=True)
+
+    def app_direct_ports(self):
+        """Return ephemeral loopback ports reserved for Windows app exclusions."""
+        return dict(self._app_direct_ports)
 
     def _handle_pac(self, client):
         core = _core()
@@ -440,20 +453,35 @@ class ProxyCore:
         core = _core()
         if self._socks:
             return False, "Уже запущено"
-        ports = (
+        ports = [
             ("HTTP", int(self.settings.get("local_http_port", 8080)), self._handle_http),
             ("SOCKS5", int(self.settings.get("local_socks_port", 1080)), self._handle_socks),
             ("PAC", int(self.settings.get("local_pac_port", 8082)), self._handle_pac),
-        )
+        ]
+        if core.is_windows():
+            # Direct-only endpoints are ephemeral; WFP receives their actual
+            # loopback ports only after every listener has bound successfully.
+            ports.extend([
+                ("APP-DIRECT-HTTP", 0, self._handle_http_direct),
+                ("APP-DIRECT-SOCKS5", 0, self._handle_socks_direct),
+            ])
         bound = []
+        bound_specs = []
+        self._app_direct_ports = {}
         try:
-            for _name, port, _handler in ports:
+            for name, port, handler in ports:
                 listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 listener.bind(("127.0.0.1", port))
                 listener.listen(200)
                 listener.settimeout(1.0)
+                actual_port = int(listener.getsockname()[1])
+                if name == "APP-DIRECT-HTTP":
+                    self._app_direct_ports["http"] = actual_port
+                elif name == "APP-DIRECT-SOCKS5":
+                    self._app_direct_ports["socks5"] = actual_port
                 bound.append(listener)
+                bound_specs.append((name, actual_port, handler))
         except OSError as error:
             for listener in bound:
                 try:
@@ -463,7 +491,7 @@ class ProxyCore:
             return False, "Не удалось занять порт: %s" % error
         self._socks = bound
         self._stop = threading.Event()
-        for listener, (_name, _port, handler) in zip(bound, ports):
+        for listener, (_name, _port, handler) in zip(bound, bound_specs):
             thread = threading.Thread(
                 target=self._accept_loop,
                 args=(listener, handler),
@@ -471,9 +499,15 @@ class ProxyCore:
             )
             thread.start()
             self._threads.append(thread)
+        direct_suffix = ""
+        if self._app_direct_ports:
+            direct_suffix = " app-direct-http=%d app-direct-socks=%d" % (
+                self._app_direct_ports["http"],
+                self._app_direct_ports["socks5"],
+            )
         core._log(
-            "proxy started (http=%d socks=%d pac=%d, upstreams=%d)"
-            % (ports[0][1], ports[1][1], ports[2][1], len(self._upstreams))
+            "proxy started (http=%d socks=%d pac=%d, upstreams=%d%s)"
+            % (ports[0][1], ports[1][1], ports[2][1], len(self._upstreams), direct_suffix)
         )
         return True, "OK"
 
@@ -506,6 +540,7 @@ class ProxyCore:
             except Exception:
                 pass
         self._socks = []
+        self._app_direct_ports = {}
         core._log("proxy stopped")
         return True
 

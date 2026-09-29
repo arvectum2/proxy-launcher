@@ -23,12 +23,13 @@ import threading
 import time
 import tkinter as tk
 from tkinter import font as tkfont
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
 
 import connection_test as connection_test_module
 import doctor as doctor_module
 import proxy_core as core
 import windows_single_instance as single_instance_module
+from routing_rules import ApplicationIdentity
 
 macos_autostart_module = None
 if os.name != "nt":
@@ -822,6 +823,129 @@ class ExceptionsDialog(tk.Toplevel):
         self.destroy()
 
 
+
+class ApplicationExclusionsDialog(tk.Toplevel):
+    """Windows application-wide DIRECT exclusions."""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Исключения приложений · " + APP_NAME)
+        self.result = False
+        self.identities = list(core.load_application_exclusions())
+        self.configure(bg=_window_bg())
+        self.grab_set()
+        self.resizable(False, False)
+        self._build()
+        self._center(master)
+
+    def _center(self, master):
+        self.update_idletasks()
+        try:
+            self.geometry("+%d+%d" % (
+                master.winfo_rootx() + 70,
+                master.winfo_rooty() + 70,
+            ))
+        except Exception:
+            pass
+
+    def _build(self):
+        _header_title(self, "Исключения приложений")
+        frm = tk.Frame(
+            self, bg=_window_bg(), padx=18 if _is_macos() else 16,
+            pady=16 if _is_macos() else 14)
+        frm.pack(fill="both", expand=True)
+
+        tk.Label(
+            frm,
+            text=(
+                "Выбранные приложения будут подключаться напрямую, минуя внешний proxy.\n"
+                "Правило действует на весь TCP-трафик приложения, который использует "
+                "системный HTTP/SOCKS proxy Arvectum."
+            ),
+            bg=_window_bg(), fg=_secondary_text_color(),
+            font=B["font_small"], justify="left",
+        ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 9))
+
+        self.listbox = tk.Listbox(
+            frm, width=68, height=12,
+            bg=_control_bg(), fg=_text_color(),
+            selectbackground=MINT, selectforeground=NAVY,
+            relief="solid", bd=1, highlightthickness=0, font=B["font"])
+        self.listbox.grid(row=1, column=0, columnspan=3, sticky="nsew")
+        scroll = ttk.Scrollbar(frm, orient="vertical", command=self.listbox.yview)
+        scroll.grid(row=1, column=3, sticky="ns")
+        self.listbox.configure(yscrollcommand=scroll.set)
+
+        actions = tk.Frame(frm, bg=_window_bg())
+        actions.grid(row=2, column=0, columnspan=4, sticky="w", pady=(9, 0))
+        ttk.Button(
+            actions, text="Добавить .exe…",
+            style=_button_style(primary=True, compact=True),
+            command=self._add,
+        ).grid(row=0, column=0, padx=(0, 6))
+        ttk.Button(
+            actions, text="Удалить выбранное",
+            style=_button_style(compact=True),
+            command=self._remove,
+        ).grid(row=0, column=1)
+
+        foot = tk.Frame(frm, bg=_window_bg())
+        foot.grid(row=3, column=0, columnspan=4, sticky="e", pady=(12, 0))
+        ttk.Button(
+            foot, text="Сохранить",
+            style=_button_style(primary=True), command=self._save,
+        ).grid(row=0, column=0, padx=4)
+        ttk.Button(
+            foot, text="Отмена", style=_button_style(), command=self.destroy,
+        ).grid(row=0, column=1)
+        self._refresh()
+
+    def _refresh(self):
+        self.listbox.delete(0, tk.END)
+        for identity in self.identities:
+            label = identity.display_name or os.path.basename(identity.executable_path)
+            self.listbox.insert(
+                tk.END, "  %s  —  %s" % (label, identity.executable_path))
+
+    def _add(self):
+        path = filedialog.askopenfilename(
+            parent=self,
+            title="Выберите приложение",
+            filetypes=[("Windows applications", "*.exe"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        path = os.path.abspath(path)
+        if not path.lower().endswith(".exe") or not os.path.isfile(path):
+            messagebox.showwarning(
+                APP_NAME, "Выберите существующий Windows .exe файл.", parent=self)
+            return
+        identity = ApplicationIdentity(
+            "windows",
+            executable_path=path,
+            display_name=os.path.splitext(os.path.basename(path))[0],
+        )
+        if identity.stable_id not in {item.stable_id for item in self.identities}:
+            self.identities.append(identity)
+        self.identities.sort(key=lambda item: item.stable_id)
+        self._refresh()
+
+    def _remove(self):
+        for index in reversed(self.listbox.curselection()):
+            self.identities.pop(index)
+        self._refresh()
+
+    def _save(self):
+        if not core.save_application_exclusions(self.identities):
+            messagebox.showerror(
+                APP_NAME,
+                "Не удалось безопасно сохранить исключения приложений. См. «Журнал».",
+                parent=self)
+            return
+        self.result = True
+        self.destroy()
+
+
 LEGACY_ORPHANED_PAC_DIAGNOSTIC = "ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM"
 
 
@@ -1139,12 +1263,36 @@ class Launcher:
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.exceptions,
         ).grid(row=3, column=0, sticky="ew", pady=(10, 7))
+
+        self.app_routing_status = None
+        self.btn_app_routing_install = None
+        if os.name == "nt":
+            ttk.Button(
+                settings, text="Исключения приложений…",
+                style="Ghost.TButton",
+                command=self.application_exclusions,
+            ).grid(row=4, column=0, sticky="ew", pady=(0, 7))
+            self.app_routing_status = ttk.Label(
+                settings,
+                text="Маршрутизация приложений · проверка компонента…",
+                justify="left", wraplength=650,
+            )
+            self.app_routing_status.grid(row=5, column=0, sticky="w", pady=(3, 6))
+            self.btn_app_routing_install = ttk.Button(
+                settings,
+                text="Установить / обновить компонент маршрутизации…",
+                style="Ghost.TButton",
+                command=self.install_windows_app_routing_component,
+            )
+            self.btn_app_routing_install.grid(row=6, column=0, sticky="ew", pady=(0, 8))
+            self.root.after(50, self._refresh_windows_routing_component_status)
+
         self.btn_restore = ttk.Button(
             settings, text="Восстановить настройки сети",
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.restore_network,
         )
-        self.btn_restore.grid(row=4, column=0, sticky="ew")
+        self.btn_restore.grid(row=7, column=0, sticky="ew")
 
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
@@ -1157,7 +1305,7 @@ class Launcher:
             command=self._toggle_autostart,
             style="Mac.TCheckbutton" if native_macos else "Brand.TCheckbutton",
         )
-        self.autostart_check.grid(row=5, column=0, sticky="w", pady=(18, 0))
+        self.autostart_check.grid(row=8, column=0, sticky="w", pady=(18, 0))
         if portable_fallback:
             self.autostart_check.state(["disabled"])
         ttk.Label(
@@ -1165,7 +1313,7 @@ class Launcher:
             text="Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.",
             justify="left", wraplength=650,
             style="MacFooter.TLabel" if native_macos else "TLabel",
-        ).grid(row=6, column=0, sticky="w", pady=(9, 0))
+        ).grid(row=9, column=0, sticky="w", pady=(9, 0))
         footer_text = (
             "Arvectum · %s · arvectum.com" % APP_VERSION
             if native_macos
@@ -1175,7 +1323,7 @@ class Launcher:
             settings,
             text=footer_text,
             style="MacFooter.TLabel" if native_macos else "TLabel",
-        ).grid(row=7, column=0, sticky="w", pady=(14, 0))
+        ).grid(row=10, column=0, sticky="w", pady=(14, 0))
 
     def _desktop_profile_summary(self):
         configured = [
@@ -1754,6 +1902,83 @@ class Launcher:
     def exceptions(self):
         ExceptionsDialog(self.root)
         self.refresh_status()
+
+    def application_exclusions(self):
+        if os.name != "nt":
+            return
+        try:
+            dlg = ApplicationExclusionsDialog(self.root)
+        except Exception as exc:
+            messagebox.showerror(
+                APP_NAME,
+                "Не удалось открыть исключения приложений: %s" % exc)
+            return
+        dlg.wait_window()
+        if dlg.result:
+            self._refresh_windows_routing_component_status()
+            self._maybe_restart_after_settings()
+
+    def _refresh_windows_routing_component_status(self):
+        if os.name != "nt" or self.app_routing_status is None:
+            return
+        self.app_routing_status.configure(
+            text="Маршрутизация приложений · проверка компонента…")
+        threading.Thread(
+            target=self._probe_windows_routing_component,
+            daemon=True,
+        ).start()
+
+    def _probe_windows_routing_component(self):
+        try:
+            status = core.windows_app_routing_service_status()
+        except Exception as exc:
+            status = {"available": False, "state": "error", "reason": str(exc)}
+
+        def apply_status():
+            if self.app_routing_status is None:
+                return
+            if status.get("available"):
+                count = int(status.get("filters") or 0)
+                text = "Маршрутизация приложений · компонент готов"
+                if count:
+                    text += " · активных правил: %d" % count
+                self.app_routing_status.configure(text=text)
+                if self.btn_app_routing_install is not None:
+                    self.btn_app_routing_install.configure(
+                        text="Обновить компонент маршрутизации…")
+            else:
+                state = str(status.get("state") or "")
+                if state == "service_unavailable":
+                    text = "Маршрутизация приложений · компонент не установлен"
+                else:
+                    text = "Маршрутизация приложений · компонент недоступен"
+                self.app_routing_status.configure(text=text)
+                if self.btn_app_routing_install is not None:
+                    self.btn_app_routing_install.configure(
+                        text="Установить компонент маршрутизации…")
+
+        self.root.after(0, apply_status)
+
+    def install_windows_app_routing_component(self):
+        if os.name != "nt":
+            return
+        if not core.windows_routing_component_payload_available():
+            messagebox.showerror(
+                APP_NAME,
+                "В этой сборке отсутствует native-компонент маршрутизации. "
+                "Установите полную Windows-сборку Arvectum Proxy Launcher.")
+            return
+        try:
+            core.launch_windows_routing_component_install()
+        except Exception as exc:
+            messagebox.showerror(
+                APP_NAME,
+                "Не удалось запустить установку компонента маршрутизации: %s" % exc)
+            return
+        if self.app_routing_status is not None:
+            self.app_routing_status.configure(
+                text="Маршрутизация приложений · подтвердите запрос UAC…")
+        self.root.after(1800, self._refresh_windows_routing_component_status)
 
     def show_log(self):
         path = core.log_path()
