@@ -1,0 +1,43 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-WIN-PER-APP-ROUTING-20260929
+status: in_progress
+goal: "Implement Windows per-application routing using the previously recommended Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
+authority: OWNER
+owner_decision:
+  architecture: "Option A — Arvectum-owned WFP ALE callout + narrow privileged service + local proxy"
+  interpreted_from: "Owner instruction on 2026-09-29: 'давай сделаем Windows Per app routing'"
+  initial_live_scope:
+    - "Application-level DIRECT/PROXY for all destinations."
+    - "CIDR selectors."
+  deferred_scope:
+    - "Domain selectors until a DNS-aware lifecycle is implemented."
+definition_of_done:
+  - "Record the Owner architecture decision and retire the prior Option-A stop gate for this implementation branch."
+  - "Implement a narrow native Windows enforcement plane with deterministic app identity, bounded local IPC/plan validation, loop prevention, and Arvectum-only resource ownership."
+  - "Integrate the Windows application-exclusion control plane with live capability reporting and runtime lifecycle."
+  - "Preserve APL-ROUTE-004 prepared/applied/restoring ownership semantics and fail closed on ambiguous/foreign state."
+  - "Add installer/build integration without modifying immutable v0.2.16."
+  - "Add deterministic Python/native contract tests and Windows CI build/smoke coverage."
+  - "Pass real Windows selected-app/unselected-app routing plus recovery/uninstall acceptance before marking completed."
+completed:
+  - "Read current canonical roadmap and prior APL-APP-EXCLUSIONS checkpoint."
+  - "Verified current main at 21c1160c2afe6e09fd121ae9eaba1c78e65c697a."
+  - "Verified current Windows implementation is read-only WFP plan compilation; no live callout/filter enforcement exists."
+  - "Reviewed PR #144 architecture packet and selected its technical recommendation (Option A) based on the Owner's new implementation instruction."
+current: "Create the implementation branch/checkpoint and design the smallest production enforcement slice against current main."
+pending:
+  - "Implement native driver/service and bounded control-plane contract."
+  - "Wire Windows application exclusions to the enforcement lifecycle."
+  - "Integrate build/installer and CI."
+  - "Run focused tests and Windows hosted build/smoke checks."
+  - "Run physical Windows routing/recovery acceptance."
+last_verified_commit: "21c1160c2afe6e09fd121ae9eaba1c78e65c697a"
+test_results:
+  - "No implementation tests run yet; architecture/control-plane inspection only."
+blocker: null
+resume_instruction: "Continue from feature/windows-per-app-routing. Inspect current runtime/GUI lifecycle and installer/build hooks, then implement the smallest Option-A Windows enforcement slice for ALL/CIDR application rules, preserving APL-ROUTE-004 ownership/recovery. Do not claim domain-rule enforcement or physical Windows PASS without evidence."
+updated_at: "2026-09-29T09:02:00+03:00"
+execution:
+  branch: feature/windows-per-app-routing
+  base_commit: 21c1160c2afe6e09fd121ae9eaba1c78e65c697a
