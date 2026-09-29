@@ -85,6 +85,8 @@ jobs:
           if errorlevel 1 exit /b 1
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_acceptance_helper.cpp wfp_resources.obj /Fe:ArvectumWfpAcceptance.exe /link Fwpuclnt.lib Ws2_32.lib
           if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_selected_client.cpp /Fe:ArvectumWfpSelectedClient.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
       - name: Install matching Windows SDK and WDK
         shell: pwsh
         run: |
@@ -124,6 +126,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'service signing failed' }
           & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumWfpAcceptance.exe
           if ($LASTEXITCODE -ne 0) { throw 'acceptance helper signing failed' }
+          & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumWfpSelectedClient.exe
+          if ($LASTEXITCODE -ne 0) { throw 'selected client signing failed' }
       - name: Run read-only native WFP SDK probe
         shell: pwsh
         run: .\wfp_sdk_probe.exe
@@ -140,6 +144,7 @@ jobs:
           path: |
             ArvectumProxyRoutingService.exe
             ArvectumWfpAcceptance.exe
+            ArvectumWfpSelectedClient.exe
             ArvectumProxyRoutingTest.cer
             tools/windows_wfp_test_install.ps1
             tools/windows_wfp_test_rollback.ps1
