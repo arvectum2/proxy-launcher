@@ -12,7 +12,7 @@ from typing import Iterable, Mapping, Tuple
 from routing_ownership import OwnedRoutingResource, RESOURCE_PREFIX
 from windows_app_routing import WfpFilterPlan
 
-PROTOCOL_VERSION = 1
+PROTOCOL_VERSION = 2
 MAX_FILTERS = 512
 PIPE_NAME = r"\\.\pipe\Arvectum.ProxyLauncher.Routing"
 _ALLOWED_OPERATIONS = {
@@ -115,8 +115,25 @@ def canonical_plan_json(plans: Iterable[WfpFilterPlan]) -> str:
     return json.dumps(payload, sort_keys=True, separators=(",", ":"))
 
 
+def _validate_proxy_endpoint(proxy_pid: int, proxy_port: int) -> Mapping[str, int]:
+    if isinstance(proxy_pid, bool) or not isinstance(proxy_pid, int):
+        raise WindowsRoutingContractError("proxy pid must be an integer")
+    if isinstance(proxy_port, bool) or not isinstance(proxy_port, int):
+        raise WindowsRoutingContractError("proxy port must be an integer")
+    if proxy_pid <= 0 or proxy_pid > 0xFFFFFFFF:
+        raise WindowsRoutingContractError("proxy pid is out of range")
+    if proxy_port <= 0 or proxy_port > 65535:
+        raise WindowsRoutingContractError("proxy port is out of range")
+    return {"pid": proxy_pid, "port": proxy_port}
+
+
 def build_apply_request(
-    plans: Iterable[WfpFilterPlan], *, session_id: str, plan_digest: str
+    plans: Iterable[WfpFilterPlan],
+    *,
+    session_id: str,
+    plan_digest: str,
+    proxy_pid: int,
+    proxy_port: int,
 ) -> Mapping[str, object]:
     plan_payload = json.loads(canonical_plan_json(plans))
     return {
@@ -124,6 +141,7 @@ def build_apply_request(
         "command": "apply_plan",
         "session_id": _validate_session_id(session_id),
         "plan_digest": _validate_digest(plan_digest),
+        "proxy": _validate_proxy_endpoint(proxy_pid, proxy_port),
         "owned_resources": [r.resource_id for r in OWNED_RESOURCES],
         "filters": plan_payload["filters"],
     }

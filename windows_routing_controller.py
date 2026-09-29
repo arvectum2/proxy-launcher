@@ -71,7 +71,7 @@ class WindowsRoutingController:
         self.ownership_store = ownership_store
         self.client = client
 
-    def activate(self, plans):
+    def activate(self, plans, *, proxy_pid: int, proxy_port: int):
         plan_json = canonical_plan_json(plans)
         state = self.ownership_store.prepare(
             platform="windows",
@@ -79,7 +79,11 @@ class WindowsRoutingController:
             resources=OWNED_RESOURCES,
         )
         request = build_apply_request(
-            plans, session_id=state.session_id, plan_digest=state.plan_digest
+            plans,
+            session_id=state.session_id,
+            plan_digest=state.plan_digest,
+            proxy_pid=proxy_pid,
+            proxy_port=proxy_port,
         )
         try:
             response = validate_service_response(

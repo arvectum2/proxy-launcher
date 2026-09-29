@@ -32,7 +32,7 @@ class FakeService:
         resources = payload["owned_resources"]
         if payload["command"] == "apply_plan":
             return {
-                "protocol_version": 1,
+                "protocol_version": payload["protocol_version"],
                 "command": "apply_plan",
                 "session_id": payload["session_id"],
                 "plan_digest": payload["plan_digest"],
@@ -40,7 +40,7 @@ class FakeService:
                 "applied_resources": resources,
             }
         return {
-            "protocol_version": 1,
+            "protocol_version": payload["protocol_version"],
             "command": "restore",
             "session_id": payload["session_id"],
             "plan_digest": payload["plan_digest"],
@@ -69,6 +69,8 @@ class WindowsRoutingProductionTests(unittest.TestCase):
             plans,
             session_id="11111111-1111-4111-8111-111111111111",
             plan_digest="a" * 64,
+            proxy_pid=1234,
+            proxy_port=49152,
         )
         self.assertEqual(
             set(request["owned_resources"]),
@@ -77,13 +79,27 @@ class WindowsRoutingProductionTests(unittest.TestCase):
         self.assertTrue(
             all(x.startswith("Arvectum.ProxyLauncher.") for x in request["owned_resources"])
         )
+        self.assertEqual(request["protocol_version"], 2)
+        self.assertEqual(request["proxy"], {"pid": 1234, "port": 49152})
+
+    def test_request_rejects_invalid_proxy_endpoint(self):
+        for pid, port in ((0, 49152), (-1, 49152), (1234, 0), (1234, 65536), (True, 49152)):
+            with self.subTest(pid=pid, port=port):
+                with self.assertRaises(WindowsRoutingContractError):
+                    build_apply_request(
+                        plan_for(),
+                        session_id="11111111-1111-4111-8111-111111111111",
+                        plan_digest="a" * 64,
+                        proxy_pid=pid,
+                        proxy_port=port,
+                    )
 
     def test_controller_journals_before_apply_and_clears_only_after_verified_restore(self):
         with tempfile.TemporaryDirectory() as temp:
             store = RoutingOwnershipStore(os.path.join(temp, "routing.json"))
             service = FakeService()
             controller = WindowsRoutingController(store, service)
-            state = controller.activate(plan_for())
+            state = controller.activate(plan_for(), proxy_pid=1234, proxy_port=49152)
             self.assertEqual(state.phase, "applied")
             self.assertTrue(store.exists())
             self.assertEqual(service.requests[0]["command"], "apply_plan")
@@ -94,7 +110,7 @@ class WindowsRoutingProductionTests(unittest.TestCase):
         class RejectingService:
             def request(self, payload):
                 return {
-                    "protocol_version": 1,
+                    "protocol_version": payload["protocol_version"],
                     "command": payload["command"],
                     "session_id": payload["session_id"],
                     "plan_digest": payload["plan_digest"],
@@ -106,7 +122,7 @@ class WindowsRoutingProductionTests(unittest.TestCase):
             store = RoutingOwnershipStore(os.path.join(temp, "routing.json"))
             controller = WindowsRoutingController(store, RejectingService())
             with self.assertRaises(WindowsRoutingContractError):
-                controller.activate(plan_for())
+                controller.activate(plan_for(), proxy_pid=1234, proxy_port=49152)
             self.assertTrue(store.exists())
             self.assertEqual(store.load().phase, "restoring")
     def test_service_cannot_claim_partial_resource_set(self):
@@ -120,7 +136,7 @@ class WindowsRoutingProductionTests(unittest.TestCase):
             store = RoutingOwnershipStore(os.path.join(temp, "routing.json"))
             controller = WindowsRoutingController(store, PartialService())
             with self.assertRaises(WindowsRoutingContractError):
-                controller.activate(plan_for())
+                controller.activate(plan_for(), proxy_pid=1234, proxy_port=49152)
             self.assertEqual(store.load().phase, "restoring")
 
 
