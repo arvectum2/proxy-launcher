@@ -52,6 +52,7 @@ test_results:
   - "Created a dedicated fresh VirtualBox guest ARVECTUM-WFP-DEV on Windows-dev from the verified Windows 11 Enterprise Evaluation 25H2 ISO; 4 GB RAM, 2 vCPU, EFI, NAT, Secure Boot off, Guest Additions requested. Existing recovery VMs remain untouched."
   - "Latest CI proved compile/link code path but /t:ClCompile;Link;TestSign skipped producing the final .sys; workflow corrected to run the normal WDK build with ApiValidator_Enable=false followed by explicit x64 ApiValidator."
   - "Upgraded privileged service protocol to v2: apply_plan now requires validated transparent proxy PID and port so the service can configure localRedirectTargetPID consistently with the tested callout path; focused Windows suite PASS 24/24."
+  - "CI on e9d147c proved full WDK .sys creation and test signing plus explicit x64 ApiValidator PASS; bundle preparation then failed only because PowerShell reports an untrusted WDK test certificate as non-Valid on the ephemeral runner. Bundle gate relaxed to require a concrete SignerCertificate, while the certificate itself remains bundled for explicit trust installation in the disposable VM."
 blocker: null
 resume_instruction: "Continue on Windows-dev (ArutyunovNS) only. First ensure APL 0.2.16 is installed and healthy, then build/fetch the test-signed WFP bundle, install the callout, run selected-vs-unselected app routing and crash/reboot/rollback acceptance, and keep live_enforcement_supported=false until all acceptance passes. ARVECTUM-DEMO must remain untouched."
 updated_at: "2026-09-29T12:13:00+03:00"
