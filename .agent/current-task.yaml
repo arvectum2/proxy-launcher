@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: in_progress
+status: blocked
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "074e983 live acceptance executed elevated and reproduced selected reset: redirect records present but request context was overwritten on WFP reauthorization (request_remote loopback, metadata_original unavailable). Root cause aligned with Microsoft WFPSampler: callout lacked previousVersion/modifierFilterId/localRedirectHandle reauthorization suppression. Patched callout to permit/apply without a second redirect when prior modification is ours or any prior local redirect exists. Focused suite PASS 36/36 and diff-check PASS; hosted WDK CI is next."
+current: "Reauthorization suppression fix bd67b64 passed hosted Windows WDK CI run 36580829087, including kernel build, ApiValidator, test-signing and artifact packaging. Artifact 11039935649 is downloaded and copied into ARVECTUM-WFP-DEV at C:\\APL-WFP-bd67b64. A combined desktop wrapper RUN-WFP-REFRESH-LIVE-AS-ADMIN.cmd is staged to install the new driver, remove the previous exact test certificate, and immediately run elevated live acceptance with one UAC approval."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -100,6 +100,9 @@ test_results:
   - "Root cause corrected against Microsoft WFPSampler/connect-redirection guidance: second WFP reauthorization exposed a previousVersion created by our filter/local redirect; previous code redirected again and overwrote localRedirectContext with loopback. Added previousVersion modifierFilterId/localRedirectHandle suppression and matching FwpsApplyModifiedLayerData0 finalization."
   - "PASS: focused native/production/redirect/application suite after reauthorization suppression — 36/36; git diff --check PASS."
   - "LOCAL ENV LIMITATION: Windows-dev VS18 MSBuild reports MSB8020 WindowsKernelModeDriver10.0 toolset not registered; driver code did not compile locally. Hosted WDK CI remains canonical kernel compile/sign gate and has been green for prior commits."
-blocker: null
-resume_instruction: "Commit/push the WFP previousVersion reauthorization suppression patch, run hosted Windows per-app WDK CI, download the green artifact to Windows-dev, install it in ARVECTUM-WFP-DEV via the existing one-click UAC wrapper, and repeat elevated live acceptance. Require selected+unselected HTTP 200 and a non-loopback original destination before crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T17:13:00+03:00"
+  - "PASS: hosted Windows per-app production CI run 36580829087 for bd67b64 completed green: contract tests, native user-mode compile, WDK kernel build, x64 ApiValidator, WDK test-signing, bundle preparation, SDK probe and artifact upload all passed."
+  - "PASS: artifact 11039935649 downloaded to Windows-dev. New test signer 1B2AAFC034165397ADCBECD40ACDC6A9EDE7B803 matches the driver signer; callout SHA256=2fe2cd7784a1942b2f5ffbd857f78ec3f8ede218419a1f90b8b8ab5aadbe3497."
+  - "PASS: fresh bd67b64 bundle copied into ARVECTUM-WFP-DEV at C:\\APL-WFP-bd67b64; combined RUN-WFP-REFRESH-LIVE-AS-ADMIN.cmd staged on desktop to install new driver, delete prior exact 9CA6E7A1318E99FBF3DCB5C94F73AD90C48313A1 test cert, and run live acceptance in one elevated session."
+blocker: "One interactive UAC approval is required in disposable VM ARVECTUM-WFP-DEV for the staged combined refresh+live wrapper. Remote guest-control remains Medium Integrity by design."
+resume_instruction: "After Owner runs C:\\Users\\vboxuser\\Desktop\\RUN-WFP-REFRESH-LIVE-AS-ADMIN.cmd as administrator in ARVECTUM-WFP-DEV and approves UAC, read C:\\APL-WFP-bd67b64\\refresh.exitcode.txt, refresh-install stdout/stderr and live stdout/stderr. Require install=0, live=0, ARVECTUM_WFP_DRIVER_READY, selected+unselected HTTP 200, ARVECTUM_WFP_LIVE_ACCEPTANCE_PASS and a non-loopback original destination. Only then proceed to crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T17:24:00+03:00"
