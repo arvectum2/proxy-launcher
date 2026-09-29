@@ -91,7 +91,7 @@ jobs:
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
           if not defined VSINSTALL exit /b 1
-          "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m "/t:ClCompile;Link;TestSign" /p:Configuration=Debug /p:Platform=x64
+          "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m /p:Configuration=Debug /p:Platform=x64 /p:ApiValidator_Enable=false
           if errorlevel 1 exit /b 1
       - name: Validate x64 WFP callout APIs
         shell: pwsh

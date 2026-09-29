@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Windows-dev is online as ArutyunovNS. Finish the CI test-signed bundle and verify it on this host; Secure Boot is enabled, so live kernel load requires either Microsoft kernel signing or an explicit lab Secure Boot change."
+current: "Fresh isolated ARVECTUM-WFP-DEV VirtualBox guest is installing from the verified Windows 11 Enterprise 25H2 ISO with NAT, Guest Additions and Secure Boot off. CI driver build compiles/links; fix packaging by running the normal WDK build with built-in ApiValidator disabled and retaining explicit x64 ApiValidator."
 pending:
   - "Get native WFP callout driver compiling cleanly with current WDK and package its .sys artifact."
   - "Implement narrow privileged Windows service for owned provider/sublayer/callout/filter lifecycle and IPC."
@@ -48,6 +48,9 @@ test_results:
   - "Windows-dev (ArutyunovNS) upgraded through the canonical main Windows installer from APL 0.2.5.0 to 0.2.16.0; installer SHA256 matched CI evidence, upgrade completed without reboot, and proxy_settings.json/no_proxy.txt hashes were preserved."
   - "Windows-dev is online as ArutyunovNS: Windows build 26200, Python 3.14/3.11 and Git present, Visual Studio 18 BuildTools present, Windows SDK 10.0.26100.0 present, BFE running, current RDC session medium-integrity, Secure Boot enabled."
   - "Added explicit callout self-exclusion for the configured proxy process ID in addition to redirect-record loop prevention; focused native/production/redirect tests PASS 22/22."
+  - "Windows-dev exact checkout 07266dc passes the focused native/production/redirect suite 22/22."
+  - "Created a dedicated fresh VirtualBox guest ARVECTUM-WFP-DEV on Windows-dev from the verified Windows 11 Enterprise Evaluation 25H2 ISO; 4 GB RAM, 2 vCPU, EFI, NAT, Secure Boot off, Guest Additions requested. Existing recovery VMs remain untouched."
+  - "Latest CI proved compile/link code path but /t:ClCompile;Link;TestSign skipped producing the final .sys; workflow corrected to run the normal WDK build with ApiValidator_Enable=false followed by explicit x64 ApiValidator."
 blocker: null
 resume_instruction: "Continue on Windows-dev (ArutyunovNS) only. First ensure APL 0.2.16 is installed and healthy, then build/fetch the test-signed WFP bundle, install the callout, run selected-vs-unselected app routing and crash/reboot/rollback acceptance, and keep live_enforcement_supported=false until all acceptance passes. ARVECTUM-DEMO must remain untouched."
 updated_at: "2026-09-29T12:13:00+03:00"
