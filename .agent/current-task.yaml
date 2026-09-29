@@ -17,8 +17,9 @@ completed:
   - "Implemented protocol v1 in windows_routing_service_contract.py with fixed owned resources, strict app-id/CIDR validation and 512-filter limit."
   - "Implemented WindowsRoutingController with journal-before-service apply, exact resource acknowledgement, restoring-on-failure and verified cleanup."
   - "Implemented Windows-only bounded named-pipe client transport with 1 MiB frame limits."
+  - "Added native Windows Service host scaffold with PIPE_REJECT_REMOTE_CLIENTS, explicit local ACL and bounded framing; it deliberately rejects enforcement commands until the WFP lifecycle is wired."
   - "Updated Windows capability truthfully to native_validation_pending; live enforcement remains false."
-  - "Added native Windows WFP SDK probe and dedicated Windows production-foundation CI workflow."
+  - "Added native Windows WFP SDK/resource probe and dedicated Windows production-foundation CI workflow."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
 current: "Build the actual native WFP callout/service enforcement plane and connect it to the existing local proxy."
 pending:
