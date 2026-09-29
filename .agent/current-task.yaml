@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: in_progress
+status: blocked
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,7 +24,7 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Combined bd67b64 refresh+live completed install=0/live=1. Selected HTTP path no longer failed before helper verification, proving reauthorization suppression changed behavior, but redirect context still reported loopback and metadata_original unavailable. Fixed original-destination capture to use ALE_CONNECT_REDIRECT fixed classify fields (host-order FWP values) before writable rewrite, and hardened live acceptance to WaitForExit/validate helper exit plus reject loopback originals. Focused suite PASS 36/36; next gate is hosted WDK CI."
+current: "Fixed-values original-destination patch 36fcc24 passed hosted Windows WDK CI run 36589197199, including kernel build, ApiValidator, test-signing and artifact packaging. Artifact 11043946271 is downloaded, verified and copied into ARVECTUM-WFP-DEV at C:\\APL-WFP-36fcc24; guest driver SHA256 matches CI. Combined RUN-WFP-REFRESH-LIVE-AS-ADMIN.cmd is staged on the VM desktop for one interactive UAC approval."
 pending:
   - "Commit and push the certutil-based Windows WFP test-certificate install/rollback fix; run hosted Windows CI."
   - "Refresh the patched install/rollback scripts in ARVECTUM-WFP-DEV."
@@ -32,7 +32,7 @@ pending:
   - "Run crash/reboot/rollback acceptance and verify owned WFP resources, certificate and test-signing cleanup."
   - "Exercise the production controller + privileged service against the existing local transparent proxy; keep domains fail-closed."
   - "Set live_enforcement_supported=true only after the complete Windows acceptance matrix passes."
-last_verified_commit: "074e983bca8cb696e5e9523f09dc1980da4f7164"
+last_verified_commit: "36fcc24bcaf60552f797e8cbd591b644359e7f0e"
 test_results:
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -107,6 +107,9 @@ test_results:
   - "Root cause refinement: writable FWPS_CONNECT_REQUEST can already reflect a redirected tuple even when the first surviving localRedirectContext is created. Original remote/local endpoint capture moved to FWPS_FIELD_ALE_CONNECT_REDIRECT_V4/V6 fixed classify values before writable acquisition; host-order FWP_UINT32/FWP_UINT16 values are converted to network-order sockaddr storage. Metadata original remains diagnostic-only."
   - "Hardened live acceptance: always WaitForExit before reading helper ExitCode, reject null/nonzero helper exit, and fail if ARVECTUM_WFP_REDIRECT_OBSERVED still reports loopback original."
   - "PASS: focused native/production/redirect/application suite after fixed-value capture + acceptance hardening — 36/36; git diff --check PASS."
-blocker: null
-resume_instruction: "Commit/push the fixed-values original-destination capture and hardened live acceptance, run hosted Windows WDK CI, download the green artifact to Windows-dev, stage one combined refresh+live UAC wrapper in ARVECTUM-WFP-DEV, and rerun live acceptance. Require install=0, live=0, selected+unselected HTTP 200, ARVECTUM_WFP_LIVE_ACCEPTANCE_PASS and non-loopback original destination before crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
-updated_at: "2026-09-29T18:18:00+03:00"
+  - "PASS: hosted Windows per-app production CI run 36589197199 for commit 36fcc24 completed green: contract tests, user-mode native compile, WDK kernel build, x64 ApiValidator, test-signing, bundle preparation, SDK probe and artifact upload all passed."
+  - "PASS: artifact 11043946271 downloaded to Windows-dev. Fresh callout SHA256=928aa8e91426a6425000709566130c8567875b3a68c63077b9fd1761352a38a5; bundled/embedded signer thumbprint=728B4FEC938B94CA1FAB798B19058273B99734B5."
+  - "PASS: fresh 36fcc24 bundle copied into ARVECTUM-WFP-DEV via VirtualBox Guest Control after transient shared-folder remap failed; guest-side driver SHA256 matched CI exactly. Combined refresh+live wrapper staged on VM desktop."
+blocker: "One interactive UAC approval is required in disposable VM ARVECTUM-WFP-DEV to run the staged 36fcc24 refresh+live wrapper. Remote guest-control remains Medium Integrity by design."
+resume_instruction: "After Owner runs C:\\Users\\vboxuser\\Desktop\\RUN-WFP-REFRESH-LIVE-AS-ADMIN.cmd as administrator in ARVECTUM-WFP-DEV and approves UAC, read C:\\APL-WFP-36fcc24\\refresh.exitcode.txt plus install/live stdout/stderr. Require install=0, live=0, selected+unselected HTTP 200, ARVECTUM_WFP_LIVE_ACCEPTANCE_PASS and a non-loopback original destination. Only then proceed to crash/reboot/rollback and production controller/service/local-proxy acceptance. Keep live_enforcement_supported=false until full matrix passes. ARVECTUM-DEMO must remain untouched."
+updated_at: "2026-09-29T18:32:00+03:00"
