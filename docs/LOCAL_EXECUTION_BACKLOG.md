@@ -360,12 +360,12 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **ARVECTUM NETWORK:** DEFERRED / PAUSED BY OWNER; detailed VPS-first plan remains in backlog/ARVECTUM_NETWORK_ROADMAP.md, with no infrastructure/legal/commercial execution until explicit reactivation.
 - **FREE GATEWAY:** live controlled-test infrastructure; broad-public anti-abuse/quota hardening still pending.
 - **APL-MOB-004:** PLANNED / OWNER-GATED.
-- **APL-REL-016:** REVIEW refresh remains available but lower priority than the current managed-node track.
+- **APL-REL-016:** REVIEW refresh remains available when prioritized; it has no dependency on the paused APL-NODE-001 / Arvectum Network backlog tracks.
 - **ROSPATENT:** working package prepared; waiting for applicant yellow-field facts; final filing HUMAN.
 - **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD.
 - **PROXY LAUNCHER WATCHDOG:** intentionally not part of this update; do not enable it.
 
-Current work order: follow the canonical active task; keep #144 at the Owner decision gate. APL-NODE-001 and Arvectum Network are backlog-only and must not be worked on until the Owner explicitly reactivates them.
+Current work order: follow the canonical active task and keep #144 at the Owner decision gate. APL-NODE-001 and Arvectum Network remain backlog-only; they are intentionally absent from the primary roadmap and execution queue until the Owner explicitly reactivates them.
 
 ## Completion discipline
 
