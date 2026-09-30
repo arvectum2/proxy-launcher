@@ -79,15 +79,38 @@ class ApplicationExclusionTests(unittest.TestCase):
                 with self.assertRaises(ApplicationExclusionError):
                     load_application_exclusions()
 
-    def test_capability_never_claims_live_enforcement(self):
-        windows = application_exclusion_capability("win32")
-        linux = application_exclusion_capability("linux")
-        macos = application_exclusion_capability("darwin")
+    def test_windows_capability_is_driven_by_production_native_stack_readiness(self):
+        with mock.patch(
+            "windows_native_stack.windows_native_stack_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "native stack absent",
+            },
+        ):
+            windows = application_exclusion_capability("win32")
         self.assertTrue(windows["configuration_supported"])
         self.assertTrue(windows["plan_compilation_supported"])
         self.assertFalse(windows["live_enforcement_supported"])
-        self.assertEqual(windows["state"], "native_validation_pending")
+        self.assertEqual(windows["state"], "not_installed")
         self.assertTrue(windows["production_controller_available"])
+
+        with mock.patch(
+            "windows_native_stack.windows_native_stack_readiness",
+            return_value={
+                "ready": True,
+                "state": "production_ready",
+                "reason": "ready",
+                "protocol_version": 3,
+            },
+        ):
+            windows_ready = application_exclusion_capability("win32")
+        self.assertTrue(windows_ready["live_enforcement_supported"])
+        self.assertEqual(windows_ready["state"], "production_ready")
+
+    def test_non_windows_capabilities_remain_fail_closed(self):
+        linux = application_exclusion_capability("linux")
+        macos = application_exclusion_capability("darwin")
         self.assertFalse(linux["live_enforcement_supported"])
         self.assertEqual(linux["state"], "native_adapter_pending")
         self.assertFalse(macos["configuration_supported"])

@@ -12,6 +12,12 @@ on:
       - 'windows_redirect_transport.py'
       - 'local_proxy_transport.py'
       - 'application_runtime.py'
+      - 'windows_native_stack.py'
+      - 'installer/native_stack_helper.ps1'
+      - 'installer/ArvectumProxyLauncher.iss'
+      - 'tools/build_windows_installer.ps1'
+      - 'tools/build_windows_native_stack_bundle.ps1'
+      - 'tools/prepare_windows_driver_submission.ps1'
       - 'proxy_gui.py'
       - 'native/windows_routing/**'
       - 'tests/test_application_exclusions.py'
@@ -21,6 +27,8 @@ on:
       - 'tests/test_windows_redirect_transport.py'
       - 'tests/test_local_proxy_transport.py'
       - 'tests/test_application_runtime.py'
+      - 'tests/test_windows_native_stack.py'
+      - 'tests/test_windows_native_stack_installer.py'
       - '.github/workflows/windows-app-routing-production.yml'
   push:
     branches: [main]
@@ -33,6 +41,12 @@ on:
       - 'windows_redirect_transport.py'
       - 'local_proxy_transport.py'
       - 'application_runtime.py'
+      - 'windows_native_stack.py'
+      - 'installer/native_stack_helper.ps1'
+      - 'installer/ArvectumProxyLauncher.iss'
+      - 'tools/build_windows_installer.ps1'
+      - 'tools/build_windows_native_stack_bundle.ps1'
+      - 'tools/prepare_windows_driver_submission.ps1'
       - 'proxy_gui.py'
       - 'native/windows_routing/**'
       - 'tests/test_application_exclusions.py'
@@ -42,6 +56,8 @@ on:
       - 'tests/test_windows_redirect_transport.py'
       - 'tests/test_local_proxy_transport.py'
       - 'tests/test_application_runtime.py'
+      - 'tests/test_windows_native_stack.py'
+      - 'tests/test_windows_native_stack_installer.py'
       - '.github/workflows/windows-app-routing-production.yml'
   workflow_dispatch:
 
@@ -67,6 +83,8 @@ jobs:
           tests.test_windows_redirect_transport
           tests.test_local_proxy_transport
           tests.test_application_runtime
+          tests.test_windows_native_stack
+          tests.test_windows_native_stack_installer
       - name: Compile native WFP SDK probe
         shell: cmd
         run: |
@@ -86,6 +104,8 @@ jobs:
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_acceptance_helper.cpp wfp_resources.obj /Fe:ArvectumWfpAcceptance.exe /link Fwpuclnt.lib Ws2_32.lib
           if errorlevel 1 exit /b 1
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\wfp_selected_client.cpp /Fe:ArvectumWfpSelectedClient.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\driver_package_tool.cpp /Fe:ArvectumDriverPackageTool.exe /link Newdev.lib
           if errorlevel 1 exit /b 1
       - name: Install matching Windows SDK and WDK
         shell: pwsh
@@ -108,6 +128,19 @@ jobs:
           $build = "${env:ProgramFiles(x86)}\Windows Kits\10\build\$kit\universalDDIs\x64"
           & $validator "-DriverPackagePath:native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys" "-SupportedApiXmlFiles:$build\UniversalDDIs.xml" "-ModuleWhiteListXmlFiles:$build\ModuleWhiteList.xml" "-ApiExtractorExePath:${env:ProgramFiles(x86)}\Windows Kits\10\bin\$kit\x64"
           if ($LASTEXITCODE -ne 0) { throw 'x64 ApiValidator failed' }
+      - name: Prepare canonical Hardware Dev Center submission package
+        shell: pwsh
+        run: |
+          $sys = Resolve-Path 'native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys'
+          $pdb = Resolve-Path 'native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.pdb'
+          ./tools/prepare_windows_driver_submission.ps1 `
+            -DriverPath $sys.Path `
+            -PdbPath $pdb.Path `
+            -OutputDirectory 'out/windows-driver-submission'
+          $manifest = Get-Content 'out/windows-driver-submission/driver-submission-manifest.json' -Raw | ConvertFrom-Json
+          if ([string]$manifest.release_signing_path -cne 'microsoft-hardware-dashboard-whcp-hlk') { throw 'Driver submission manifest release path mismatch.' }
+          if ([bool]$manifest.attestation_release_allowed) { throw 'Attestation must not be enabled as the public production release path.' }
+          if (-not (Test-Path 'out/windows-driver-submission/ArvectumProxyRoutingCallout.cat')) { throw 'Canonical driver catalog was not produced.' }
       - name: Prepare WDK test-signed acceptance bundle
         shell: pwsh
         run: |
@@ -145,10 +178,18 @@ jobs:
             ArvectumProxyRoutingService.exe
             ArvectumWfpAcceptance.exe
             ArvectumWfpSelectedClient.exe
+            ArvectumDriverPackageTool.exe
             ArvectumProxyRoutingTest.cer
+            tools/prepare_windows_driver_submission.ps1
+            native/windows_routing/ArvectumProxyRoutingCallout.inf.in
             tools/windows_wfp_test_install.ps1
             tools/windows_wfp_test_rollback.ps1
             tools/windows_wfp_live_acceptance.ps1
             native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys
             native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer
+            out/windows-driver-submission/ArvectumProxyRoutingCallout.inf
+            out/windows-driver-submission/ArvectumProxyRoutingCallout.cat
+            out/windows-driver-submission/ArvectumProxyRoutingCallout.sys
+            out/windows-driver-submission/ArvectumProxyRoutingCallout.pdb
+            out/windows-driver-submission/driver-submission-manifest.json
           if-no-files-found: error

@@ -165,18 +165,21 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     """Return truthful capability state for the current product baseline."""
     name = _platform_name(platform)
     if name == "windows":
+        from windows_native_stack import windows_native_stack_readiness
+
+        readiness = windows_native_stack_readiness()
         return {
             "platform": name,
             "configuration_supported": True,
             "plan_compilation_supported": True,
-            "live_enforcement_supported": False,
-            "state": "native_validation_pending",
+            "live_enforcement_supported": bool(readiness.get("ready")),
+            "state": readiness.get("state", "native_stack_unavailable"),
             "production_controller_available": True,
-            "reason": (
-                "Option A is approved and the bounded ownership/service control path exists; "
-                "live enforcement remains unavailable until the native WFP callout/service "
-                "is built, installed and accepted on a real Windows host."
+            "reason": readiness.get(
+                "reason",
+                "production native routing stack is unavailable",
             ),
+            "native_stack": dict(readiness),
         }
     if name == "linux":
         return {

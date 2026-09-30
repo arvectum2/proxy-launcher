@@ -8,7 +8,9 @@ param(
     [string]$ApplicationExe,
     [string]$PortableZip,
     [string]$BuildResultPath,
-    [string]$ExpectedApplicationSha256
+    [string]$ExpectedApplicationSha256,
+    [string]$NativeStackBundle,
+    [switch]$AllowTestNativeStack
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -73,6 +75,49 @@ New-Item -ItemType Directory -Path $payload -Force | Out-Null
 Copy-Item -LiteralPath $exe -Destination (Join-Path $payload 'Arvectum Proxy Launcher.exe')
 Copy-Item -LiteralPath (Join-Path $root 'installer\upgrade_helper.ps1') -Destination $payload
 Copy-Item -LiteralPath (Join-Path $root 'installer\uninstall_helper.ps1') -Destination $payload
+$nativeStackEnabled = $false
+$nativeStackManifest = $null
+$nativeStackManifestSha256 = $null
+$nativeStackHelperSha256 = $null
+if ($NativeStackBundle) {
+    $nativeSource = (Resolve-Path -LiteralPath $NativeStackBundle).Path
+    $nativeManifestPath = Join-Path $nativeSource 'native-stack-bundle.json'
+    if (-not (Test-Path -LiteralPath $nativeManifestPath -PathType Leaf)) {
+        throw 'NativeStackBundle does not contain native-stack-bundle.json.'
+    }
+    $nativeStackManifest = Get-Content -LiteralPath $nativeManifestPath -Raw | ConvertFrom-Json
+    if ([string]$nativeStackManifest.schema -cne 'arvectum.proxy.windows-native-stack.v1') {
+        throw 'NativeStackBundle schema mismatch.'
+    }
+    if ([int]$nativeStackManifest.protocol_version -ne 3) {
+        throw 'NativeStackBundle protocol mismatch.'
+    }
+    $nativeMode = [string]$nativeStackManifest.signing_mode
+    if ($nativeMode -cne 'production' -and $nativeMode -cne 'test') {
+        throw 'NativeStackBundle signing_mode is invalid.'
+    }
+    if ($nativeMode -eq 'test' -and -not $AllowTestNativeStack) {
+        throw 'Test native stack requires -AllowTestNativeStack and must never be used for a public installer.'
+    }
+    foreach ($required in @(
+        'ArvectumProxyRoutingCallout.sys',
+        'ArvectumProxyRoutingCallout.inf',
+        'ArvectumProxyRoutingCallout.cat',
+        'ArvectumProxyRoutingService.exe',
+        'ArvectumDriverPackageTool.exe'
+    )) {
+        if (-not (Test-Path -LiteralPath (Join-Path $nativeSource $required) -PathType Leaf)) {
+            throw "NativeStackBundle missing $required."
+        }
+    }
+    $nativeDest = Join-Path $payload 'native'
+    Copy-Item -LiteralPath $nativeSource -Destination $nativeDest -Recurse
+    $nativeHelper = Join-Path $root 'installer\native_stack_helper.ps1'
+    Copy-Item -LiteralPath $nativeHelper -Destination $payload
+    $nativeStackManifestSha256 = Hash (Join-Path $nativeDest 'native-stack-bundle.json')
+    $nativeStackHelperSha256 = Hash (Join-Path $payload 'native_stack_helper.ps1')
+    $nativeStackEnabled = $true
+}
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $payload 'LICENSE.txt')
 Copy-Item -LiteralPath (Join-Path $root 'THIRD_PARTY_NOTICES.txt') -Destination (Join-Path $payload 'THIRD_PARTY_NOTICES.txt')
 
@@ -135,6 +180,11 @@ $manifest = [ordered]@{
     application_sha256=(Hash (Join-Path $payload 'Arvectum Proxy Launcher.exe'))
     upgrade_helper_sha256=(Hash (Join-Path $payload 'upgrade_helper.ps1'))
     uninstall_helper_sha256=(Hash (Join-Path $payload 'uninstall_helper.ps1'))
+    native_stack_enabled=$nativeStackEnabled
+    native_stack_signing_mode=if ($nativeStackManifest) { [string]$nativeStackManifest.signing_mode } else { $null }
+    native_stack_allow_test_bundle=[bool]$AllowTestNativeStack
+    native_stack_bundle_manifest_sha256=$nativeStackManifestSha256
+    native_stack_helper_sha256=$nativeStackHelperSha256
     third_party_license_manifest_sha256=(Hash (Join-Path $payload 'THIRD_PARTY_LICENSES\manifest.json'))
     inno_setup_version=$requiredInnoSetupVersion
     inno_setup_version_verification='compiler-preprocessor-ver-0x06070100'
@@ -150,6 +200,9 @@ $isccArgs = @(
     "/DPayloadDir=$payload"
 )
 if ($SyntheticPredecessor) { $isccArgs += '/DSyntheticLifecycleFixture=1' }
+if ($nativeStackEnabled) {
+    $isccArgs += "/DNativeStackPayloadDir=$(Join-Path $payload 'native')"
+}
 $isccArgs += 'installer\ArvectumProxyLauncher.iss'
 & $IsccPath @isccArgs
 if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed (exact 6.7.1 compiler contract not satisfied or script compilation failed).' }

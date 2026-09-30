@@ -3,6 +3,7 @@ param(
   [Parameter(Mandatory)] [string]$PayloadRoot,
   [Parameter(Mandatory)] [string]$InstallRoot,
   [string]$LegacyInstallRoot,
+  [string]$NativePayloadRoot,
   [switch]$PreflightOnly
 )
 Set-StrictMode -Version Latest
@@ -30,6 +31,50 @@ function Get-Sha256([string]$Path) {
   if ($hash.Count -eq 0) { throw "certutil SHA256 produced no hash candidate for $Path" }
   if ($hash.Count -gt 1) { throw "certutil SHA256 produced multiple hash candidates for $Path" }
   return $hash[0]
+}
+
+function Invoke-NativeStackHelper($Manifest, [string]$Action) {
+  $enabled = $false
+  if ($null -ne $Manifest.PSObject.Properties['native_stack_enabled']) {
+    $enabled = [bool]$Manifest.native_stack_enabled
+  }
+  if (-not $enabled) { return }
+
+  if ([string]::IsNullOrWhiteSpace($NativePayloadRoot)) {
+    throw 'native stack is enabled in build_manifest.json but NativePayloadRoot is absent'
+  }
+  $helperPath = Join-Path $PayloadRoot 'native_stack_helper.ps1'
+  $bundleManifestPath = Join-Path $NativePayloadRoot 'native-stack-bundle.json'
+  if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) {
+    throw 'native stack helper is missing from installer payload'
+  }
+  if (-not (Test-Path -LiteralPath $bundleManifestPath -PathType Leaf)) {
+    throw 'native stack bundle manifest is missing from installer payload'
+  }
+  if ((Get-Sha256 $helperPath) -ine [string]$Manifest.native_stack_helper_sha256) {
+    throw 'native stack helper SHA256 verification failed'
+  }
+  if ((Get-Sha256 $bundleManifestPath) -ine [string]$Manifest.native_stack_bundle_manifest_sha256) {
+    throw 'native stack bundle manifest SHA256 verification failed'
+  }
+
+  $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+  $arguments = @(
+    '-NoProfile',
+    '-ExecutionPolicy', 'Bypass',
+    $helperPath,
+    '-Action', $Action,
+    '-PayloadRoot', $NativePayloadRoot
+  )
+  if ($null -ne $Manifest.PSObject.Properties['native_stack_allow_test_bundle'] -and [bool]$Manifest.native_stack_allow_test_bundle) {
+    $arguments += '-AllowTestBundle'
+  }
+  Write-InstallLog "native stack helper start: Action=$Action"
+  $process = Start-Process -FilePath $powershell -ArgumentList $arguments -PassThru -Wait
+  if ($process.ExitCode -ne 0) {
+    throw "native stack helper Action=$Action failed with exit code $($process.ExitCode)"
+  }
+  Write-InstallLog "native stack helper PASS: Action=$Action"
 }
 
 function Test-ExactPath([string]$Candidate, [string]$Expected) {
@@ -284,6 +329,7 @@ try {
   # deletion, PID cleanup or installation-root mutation may occur before this exit.
   Assert-PreflightRecoverySafe $previousExe
   if ($PreflightOnly) {
+    Invoke-NativeStackHelper $manifest 'Preflight'
     Write-InstallLog "=== INSTALL SESSION END: PASS (read-only preflight $maintenanceKind)"
     exit 0
   }
@@ -314,6 +360,8 @@ try {
     }
     Move-Item -LiteralPath $staged -Destination $targetExe -Force
     if ((Get-Sha256 $targetExe) -ine $manifest.application_sha256) { throw 'final application SHA256 verification failed' }
+
+    Invoke-NativeStackHelper $manifest 'Install'
 
     if ($previousRuntimeActive) {
       Start-RuntimeAndVerify $targetExe 'new-version'

@@ -137,6 +137,26 @@ function Remove-OwnedLegacyTask([string]$ExpectedExe) {
   Write-MaintenanceLog 'owned legacy scheduled task removed'
 }
 
+function Invoke-NativeStackUninstall([string]$ExpectedAppRoot) {
+  $helper = Join-Path $ExpectedAppRoot 'native_stack_helper.ps1'
+  $systemMarker = Join-Path $env:ProgramData 'Arvectum\ProxyLauncher\native-stack.json'
+  if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) {
+    if (Test-Path -LiteralPath $systemMarker -PathType Leaf) {
+      throw 'Native stack ownership marker exists but installed native_stack_helper.ps1 is missing; uninstall stopped safely.'
+    }
+    Write-MaintenanceLog 'native stack helper absent and no native ownership marker exists'
+    return
+  }
+
+  $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+  $args = @('-NoProfile','-ExecutionPolicy','Bypass',$helper,'-Action','Uninstall')
+  $process = Start-Process -FilePath $powershell -ArgumentList $args -PassThru -Wait
+  if ($process.ExitCode -ne 0) {
+    throw "Native stack uninstall failed with exit code $($process.ExitCode)"
+  }
+  Write-MaintenanceLog 'native stack uninstall PASS'
+}
+
 function Stop-OwnedProcesses([string]$ExpectedExe) {
   $owned = @(Get-CimInstance Win32_Process -Filter "Name='Arvectum Proxy Launcher.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.ExecutablePath -and (Test-ExactPath $_.ExecutablePath $ExpectedExe) })
@@ -176,6 +196,7 @@ try {
   }
 
   Stop-OwnedProcesses $exe
+  Invoke-NativeStackUninstall $InstallRoot
   Remove-OwnedRunValue $MainRunName $exe
   Remove-OwnedRunValue $RecoveryRunName $exe
   Remove-OwnedLegacyTask $exe

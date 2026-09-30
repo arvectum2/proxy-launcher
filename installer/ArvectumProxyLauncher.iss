@@ -66,6 +66,16 @@ Source: "{#PayloadDir}\build_manifest.json"; Flags: dontcopy
 Source: "{#PayloadDir}\upgrade_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\uninstall_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\upgrade_helper.ps1"; Flags: dontcopy
+#ifdef NativeStackPayloadDir
+Source: "{#PayloadDir}\native_stack_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\native_stack_helper.ps1"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.sys"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.inf"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.cat"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingService.exe"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumDriverPackageTool.exe"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\native-stack-bundle.json"; Flags: dontcopy
+#endif
 Source: "{#PayloadDir}\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_LICENSES\*"; DestDir: "{app}\THIRD_PARTY_LICENSES"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -76,6 +86,7 @@ Type: files; Name: "{app}\Arvectum Proxy Launcher.exe"
 Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.new"
 Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.old"
 Type: files; Name: "{app}\{#RepairExeName}"
+Type: files; Name: "{app}\native_stack_helper.ps1"
 Type: files; Name: "{app}\.arvectum-install-owner"
 
 [Icons]
@@ -92,6 +103,28 @@ begin
   ExtractTemporaryFile(Helper);
   ExtractTemporaryFile('Arvectum Proxy Launcher.exe');
   ExtractTemporaryFile('build_manifest.json');
+#ifdef NativeStackPayloadDir
+  ExtractTemporaryFile('native_stack_helper.ps1');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.sys');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.inf');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.cat');
+  ExtractTemporaryFile('ArvectumProxyRoutingService.exe');
+  ExtractTemporaryFile('ArvectumDriverPackageTool.exe');
+  ExtractTemporaryFile('native-stack-bundle.json');
+  ForceDirectories(ExpandConstant('{tmp}\native'));
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.sys'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.sys'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.inf'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.inf'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.cat'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.cat'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingService.exe'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingService.exe'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumDriverPackageTool.exe'),
+    ExpandConstant('{tmp}\native\ArvectumDriverPackageTool.exe'), False);
+  FileCopy(ExpandConstant('{tmp}\native-stack-bundle.json'),
+    ExpandConstant('{tmp}\native\native-stack-bundle.json'), False);
+#endif
   HelperPath := ExpandConstant('{tmp}\' + Helper);
   PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
   // Do not use PowerShell file-mode execution here. Under enforced App Control / UMCI,
@@ -111,6 +144,9 @@ begin
   Result := '-PayloadRoot "' + ExpandConstant('{tmp}') +
     '" -InstallRoot "' + ExpandConstant('{app}') +
     '" -LegacyInstallRoot "' + ExpandConstant('{#LegacyAppDir}') + '"';
+#ifdef NativeStackPayloadDir
+  Result := Result + ' -NativePayloadRoot "' + ExpandConstant('{tmp}\native') + '"';
+#endif
   if Extra <> '' then
     Result := Result + ' ' + Extra;
 end;
