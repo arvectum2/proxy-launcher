@@ -1,4 +1,4 @@
-<# Canonical APL-REL-006 / APL-WIN-010..012 installer build. Requires exact Inno Setup 6.7.1. #>
+﻿<# Canonical APL-REL-006 / APL-WIN-010..012 installer build. Requires exact Inno Setup 6.7.1. #>
 [CmdletBinding()]
 param(
     [string]$PythonExecutable = 'python',
