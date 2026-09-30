@@ -65,6 +65,8 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         for forbidden in ("$env:OS", "$env:ProgramFiles", "$env:ProgramData", "$env:SystemRoot", "$env:TEMP"):
             self.assertNotIn(forbidden, self.native)
         self.assertNotIn("$env:OS", self.bundle)
+        self.assertNotIn("$env:OS", self.builder)
+        self.assertIn("OSVersion.Platform", self.builder)
         self.assertIn("GetFolderPath", self.native)
         self.assertIn("EnvironmentVariableTarget", self.native)
         self.assertIn("OSVersion.Platform", self.native)
