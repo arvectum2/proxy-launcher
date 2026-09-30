@@ -262,9 +262,9 @@ Copy-Item -LiteralPath (Join-Path $RepoRoot "qa\diagnose_app_control.ps1") -Dest
 Copy-Item -LiteralPath (Join-Path $RepoRoot "qa\run_p01_native_qa_v2.ps1") -Destination (Join-Path $StageDir "run_p01_native_qa_v2.ps1")
 
 $ThirdPartyBundle = Join-Path $StageDir "THIRD_PARTY_LICENSES"
-& $BuildPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --build --output $ThirdPartyBundle
+& $VenvPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --build --output $ThirdPartyBundle
 if ($LASTEXITCODE -ne 0) { throw "APL-IP-004: failed to build third-party license bundle for portable package." }
-& $BuildPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --verify --output $ThirdPartyBundle
+& $VenvPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --verify --output $ThirdPartyBundle
 if ($LASTEXITCODE -ne 0) { throw "APL-IP-004: portable third-party license bundle verification failed." }
 
 Set-Content -LiteralPath (Join-Path $StageDir "SHA256SUMS.txt") -Value "$ExeHash  Arvectum Proxy Launcher.exe" -Encoding ascii
@@ -302,7 +302,7 @@ foreach ($af in $ActualFiles) {
 foreach ($ad in $ActualDirectories) {
     if ($ExpectedDirectories -notcontains $ad) { throw "Package verification failed: forbidden/unexpected directory in package '$ad'" }
 }
-& $BuildPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --verify --output (Join-Path $VerifyDir "THIRD_PARTY_LICENSES")
+& $VenvPython (Join-Path $RepoRoot "tools\third_party_license_bundle.py") --verify --output (Join-Path $VerifyDir "THIRD_PARTY_LICENSES")
 if ($LASTEXITCODE -ne 0) { throw "APL-IP-004: unpacked portable third-party license bundle verification failed." }
 $UnpackedExe = Join-Path $VerifyDir "Arvectum Proxy Launcher.exe"
 $UnpackedExeHash = (Get-FileHash -LiteralPath $UnpackedExe -Algorithm SHA256).Hash.ToLowerInvariant()
