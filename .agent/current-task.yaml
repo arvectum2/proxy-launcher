@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROUTE-WINDOWS-PRODUCTION
-status: in_progress
+status: completed
 goal: "Implement the first production Windows per-application routing slice using the approved Arvectum-owned WFP ALE callout + narrow privileged service + local proxy architecture."
 definition_of_done:
   - "Record Owner approval of Option A and initial all/CIDR-only enforcement scope."
@@ -24,13 +24,13 @@ completed:
   - "Added WDM driver project and Windows CI installation of matching SDK/WDK 28000 for real driver compilation."
   - "Added Windows transparent socket transport: WFP redirect context/records query, original IPv4/IPv6 destination parsing, redirect-record propagation to outbound sockets, and an ephemeral IPv4 loopback listener that reuses the existing upstream CONNECT/relay engine."
   - "Focused tests PASS: 14/14 routing ownership/controller tests and 15/15 application-exclusion/production tests."
-current: "Real Windows production app-exclusion acceptance is PASS in disposable ARVECTUM-WFP-DEV. The first real transaction exposed FWP_E_INVALID_WEIGHT (0x80320025); native service weights were corrected from invalid FWP_UINT8 values 0x80/0xF0 to valid range identifiers 8/15 per WFP rules, with regression coverage. Rebuilt service SHA256 2980AFE397D4FAF15DA3769F8BC4BE5DC1700D735B2E96E8994EBAC6FD84A806 was hash-verified in guest. Live acceptance then returned exit 0 with ARVECTUM_WINDOWS_APP_EXCLUSION_LIVE_PASS, unselected_http=418, selected_http=200 and fake_upstream_requests=1. Acceptance itself verified controller.restore before reporting PASS. Protective bootstrap cleanup subsequently removed bootstrap/routing/driver services, removed test certs, disabled test mode and rebooted; post-cleanup HTTP baseline is 200. Final focused suite PASS 89/89 and git diff --check PASS. Next step is commit/push and hosted Windows CI."
-pending:
-  - "Commit/push the production runtime wiring and run hosted Windows per-app CI after live acceptance."
-  - "Keep release live_enforcement_supported=false until production kernel-driver signing/distribution and installer lifecycle are implemented truthfully."
-last_verified_commit: "a89a6331fcb71cc6d9e248a904608ae57791bd72"
+current: "Task completed. Production Windows app-exclusion routing passed real ordinary-user acceptance in disposable ARVECTUM-WFP-DEV, cleanup invariants, final focused tests, commit/push, and hosted Windows per-app CI on the exact final commit."
+pending: []
+last_verified_commit: "a3a0817a5432d14dc436b0092330bfa0f7fa31d2"
 test_results:
-  - "PASS: manual deterministic selected-client proof against active WFP filter: selected-wfp-client.exe returned ARVECTUM_WFP_MINCLIENT_HTTP_200 and helper process exited, isolating prior curl failures to the curl-based acceptance harness."\n  - "PASS: hosted WDK CI run 36604196083 for canonical HEAD a89a633 completed successfully; artifact 11050723494 contains signed service/helper/selected-client plus driver and live scripts."\n  - "PASS: canonical guest files verified: driver SHA256=bd8109fac8f643292b6de4bcafde352d738a9ff3023352805622676ec79005ab; acceptance helper SHA256=7d3b07447d6018a57f00d56173be67addd14f1075d5e0c184f414d8ac046bd00; selected client SHA256=a8b0625e2d235c88a0cd03751456aacc387174344b194316548c4d9803b300eb; live script SHA256=6f81814f9a5829cc4434f29c69ce2aba6d57ba6a01fe225edea45f7aaed7f487."
+  - "PASS: manual deterministic selected-client proof against active WFP filter: selected-wfp-client.exe returned ARVECTUM_WFP_MINCLIENT_HTTP_200 and helper process exited, isolating prior curl failures to the curl-based acceptance harness."
+  - "PASS: hosted WDK CI run 36604196083 for canonical HEAD a89a633 completed successfully; artifact 11050723494 contains signed service/helper/selected-client plus driver and live scripts."
+  - "PASS: canonical guest files verified: driver SHA256=bd8109fac8f643292b6de4bcafde352d738a9ff3023352805622676ec79005ab; acceptance helper SHA256=7d3b07447d6018a57f00d56173be67addd14f1075d5e0c184f414d8ac046bd00; selected client SHA256=a8b0625e2d235c88a0cd03751456aacc387174344b194316548c4d9803b300eb; live script SHA256=6f81814f9a5829cc4434f29c69ce2aba6d57ba6a01fe225edea45f7aaed7f487."
   - "PASS: deterministic selected-client live acceptance on ARVECTUM-WFP-DEV. While elevated self-relay helper was active, selected-wfp-client.exe returned ARVECTUM_WFP_MINCLIENT_HTTP_200; helper process then exited, proving redirect+relay was exercised. After helper exit, selected-wfp-client.exe again returned HTTP 200 directly, confirming cleanup/restore. Prior curl-selected failures are classified as acceptance-harness artifacts from auxiliary localhost TCP."
   - "PASS: local combined routing/application/ownership suite — 23 tests."
   - "PASS: local native-source + production controller suite — 10 tests."
@@ -109,7 +109,10 @@ test_results:
   - "PASS: artifact 11043946271 downloaded to Windows-dev. Fresh callout SHA256=928aa8e91426a6425000709566130c8567875b3a68c63077b9fd1761352a38a5; bundled/embedded signer thumbprint=728B4FEC938B94CA1FAB798B19058273B99734B5."
   - "PASS: fresh 36fcc24 bundle copied into ARVECTUM-WFP-DEV via VirtualBox Guest Control after transient shared-folder remap failed; guest-side driver SHA256 matched CI exactly. Combined refresh+live wrapper staged on VM desktop."
   - "PASS: Owner approved 36fcc24 refresh; install=0, signer 728B4FEC938B94CA1FAB798B19058273B99734B5 imported, callout service RUNNING. Live stage did not execute because PowerShell parser rejected `$helperExit:` in a double-quoted diagnostic string before script startup."
-  - "PASS: parser bug fixed to `${helperExit}:`; PowerShell ScriptBlock parse PASS, focused suite 36/36 PASS, git diff --check PASS. Corrected acceptance script copied to VM desktop as windows_wfp_live_acceptance_fixed.ps1 and live-only elevated wrapper staged as RUN-WFP-LIVE-FIXED-AS-ADMIN.cmd."\n  - "PARTIAL: elevated 36fcc24 live-only run still failed selected curl with exit=35/http=000; redirect context remained loopback 127.0.0.1 and metadata_original unavailable. Direct guest curl is proxy-free and connects to public example.com IPv4:443, isolating loopback to the WFP path."\n  - "PASS: diagnostic candidate adds admin-only read-only classify ring/GET_DIAGNOSTICS IOCTL, captures redirect state/condition flags/fixed+writable tuples, and no longer treats REDIRECTED_BY_OTHER as an automatic skip, matching Microsoft WFPSampler semantics. Focused suite PASS 36/36."\n  - "PASS: hosted WDK CI run 36594951168 green; artifact 11045832354 downloaded. Driver SHA256=4f77b6079f1ed497ef83bf778c71a5a1ef7c092301b84e496babd9c59637ca44, signer=B94A52ED3CF124E0A65487683FA58EDCCF4E0306, and guest-side hash matched exactly."
+  - "PASS: parser bug fixed to `${helperExit}:`; PowerShell ScriptBlock parse PASS, focused suite 36/36 PASS, git diff --check PASS. Corrected acceptance script copied to VM desktop as windows_wfp_live_acceptance_fixed.ps1 and live-only elevated wrapper staged as RUN-WFP-LIVE-FIXED-AS-ADMIN.cmd."
+  - "PARTIAL: elevated 36fcc24 live-only run still failed selected curl with exit=35/http=000; redirect context remained loopback 127.0.0.1 and metadata_original unavailable. Direct guest curl is proxy-free and connects to public example.com IPv4:443, isolating loopback to the WFP path."
+  - "PASS: diagnostic candidate adds admin-only read-only classify ring/GET_DIAGNOSTICS IOCTL, captures redirect state/condition flags/fixed+writable tuples, and no longer treats REDIRECTED_BY_OTHER as an automatic skip, matching Microsoft WFPSampler semantics. Focused suite PASS 36/36."
+  - "PASS: hosted WDK CI run 36594951168 green; artifact 11045832354 downloaded. Driver SHA256=4f77b6079f1ed497ef83bf778c71a5a1ef7c092301b84e496babd9c59637ca44, signer=B94A52ED3CF124E0A65487683FA58EDCCF4E0306, and guest-side hash matched exactly."
   - "PASS: production app-exclusion focused suite — 87/87 tests; git diff --check PASS after normalization."
   - "PASS: real Windows MSVC protocol-v3 executable test and full privileged service compile/link with SID scoping, proxy-process watchdog and exact remote-port filtering."
   - "PASS: self-contained PyInstaller 6.22 production acceptance EXE built; guest SHA256 matches host: ABD51BEA89B41EA1B4EA10566D7F9C086D45BBFCC4B259A15E1B096CBD95D3D7. Service SHA256 matches host/guest: 6E42CE3A88A7B75E85257CC30A28D447F58241E0F648B43FE0BEC41F2C03408F. Reused previously accepted unchanged callout SHA256 BD8109FAC8F643292B6DE4BCAFDE352D738A9FF3023352805622676EC79005AB."
@@ -121,6 +124,9 @@ test_results:
   - "PASS: real ordinary-user production app-exclusion acceptance in ARVECTUM-WFP-DEV — exit 0, ARVECTUM_WINDOWS_APP_EXCLUSION_LIVE_PASS, unselected_http=418, selected_http=200, fake_upstream_requests=1; controller.restore completed before PASS."
   - "PASS: post-live cleanup after reboot — bootstrap/routing/callout services absent, test certificates absent, test mode absent, direct HTTP baseline 200."
   - "PASS: final focused production suite 89/89 and git diff --check."
+  - "PASS: exact final code commit a3a0817a5432d14dc436b0092330bfa0f7fa31d2 is pushed to origin; branch divergence 0/0."
+  - "PASS: hosted Windows per-app production foundation run 36677426354 on exact code commit a3a0817a5432d14dc436b0092330bfa0f7fa31d2 completed successfully."
+  - "PASS: Mirror to GitVerse run 36677278116 on exact code commit a3a0817a5432d14dc436b0092330bfa0f7fa31d2 completed successfully."
 blocker: null
-resume_instruction: "Commit the validated production Windows app-exclusion runtime wiring and weight fix, push branch agent/apl-route-windows-production-20260929, run/inspect hosted Windows per-app production CI, and if green record the commit/run in this checkpoint and mark this task completed. Keep release live_enforcement_supported=false; production kernel-driver signing/distribution and installer lifecycle are a separate follow-on task."
-updated_at: "2026-09-30T09:08:00+03:00"
+resume_instruction: "No continuation required for APL-ROUTE-WINDOWS-PRODUCTION. Follow-on work must be a new task for production kernel-driver signing/distribution and installer lifecycle; keep live_enforcement_supported=false until that follow-on is completed."
+updated_at: "2026-09-30T09:10:00+03:00"
