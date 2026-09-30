@@ -10,9 +10,24 @@ Microsoft's current Hardware Dev Center guidance requires an Extended Validation
 
 Attestation signing is not the Arvectum public-production route. Microsoft currently describes attestation signing as a testing scenario and it does not provide Windows Certified status or normal retail Windows Update distribution.
 
+## External account and HLK prerequisites
+
+Hardware Developer Program onboarding currently requires:
+- an EV code-signing certificate;
+- a Microsoft Entra ID organization account with a Global Administrator;
+- an authorized legal contact who can accept the Hardware Program agreements;
+- uploading the EV certificate to Partner Center and completing Microsoft's organization questionnaire/approval flow.
+
+For Windows 10/11 WHCP submissions, Partner Center expects an HLK result package. The HLK environment must be a dedicated test environment. Microsoft explicitly does not support the HLK test system inside Virtual PC or a third-party hypervisor, so ARVECTUM-WFP-DEV/VirtualBox is development and test-mode evidence only, not WHCP certification evidence.
+
+The physical HLK test system must use the English-language/English-locale Windows image for the target OS and have at least 300 GB of disk capacity for test files and logs. The current Windows-dev host is not suitable as-is: it reports system locale ru-RU and a 237.5 GB C: disk. ARVECTUM-DEMO remains out of scope and must stay clean. Production certification therefore requires either rebuilding Windows-dev with an English Windows image plus >=300 GB storage or provisioning a separate physical Windows HLK client.
+
 Primary Microsoft references:
+- https://learn.microsoft.com/windows-hardware/drivers/dashboard/hardware-program-register
 - https://learn.microsoft.com/windows-hardware/drivers/dashboard/code-signing-reqs
 - https://learn.microsoft.com/windows-hardware/drivers/dashboard/driver-signing-offerings
+- https://learn.microsoft.com/windows-hardware/drivers/dashboard/hardware-submission-create
+- https://learn.microsoft.com/windows-hardware/test/hlk/getstarted/windows-hlk-prerequisites
 - https://learn.microsoft.com/windows-hardware/drivers/dashboard
 - https://learn.microsoft.com/windows-hardware/drivers/install/kernel-mode-code-signing-requirements--windows-vista-and-later-
 - https://learn.microsoft.com/windows-hardware/drivers/develop/creating-a-primitive-driver
