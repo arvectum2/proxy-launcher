@@ -24,7 +24,11 @@
 #else
   ; 0.2.5+: keep executable payload outside Controlled Folder Access user folders.
   #define AppDir "{localappdata}\Programs\ArvectumProxyLauncher"
+#ifdef WindowsAppExclusionsPreview
+  #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup-preview"
+#else
   #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup"
+#endif
 #endif
 #define RepairExeName "Arvectum Proxy Launcher Repair.exe"
 
@@ -76,6 +80,9 @@ Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingService.exe"; Flags: dontc
 Source: "{#NativeStackPayloadDir}\ArvectumDriverPackageTool.exe"; Flags: dontcopy
 Source: "{#NativeStackPayloadDir}\native-stack-bundle.json"; Flags: dontcopy
 #endif
+#ifdef WindowsAppExclusionsPreview
+Source: "{#PayloadDir}\windows_preview_mode_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
+#endif
 Source: "{#PayloadDir}\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_LICENSES\*"; DestDir: "{app}\THIRD_PARTY_LICENSES"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -87,6 +94,7 @@ Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.new"
 Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.old"
 Type: files; Name: "{app}\{#RepairExeName}"
 Type: files; Name: "{app}\native_stack_helper.ps1"
+Type: files; Name: "{app}\windows_preview_mode_helper.ps1"
 Type: files; Name: "{app}\.arvectum-install-owner"
 
 [Icons]

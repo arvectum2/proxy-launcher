@@ -70,9 +70,10 @@ function Invoke-NativeStackHelper($Manifest, [string]$Action) {
     $arguments += '-AllowTestBundle'
   }
   Write-InstallLog "native stack helper start: Action=$Action"
-  $process = Start-Process -FilePath $powershell -ArgumentList $arguments -PassThru -Wait
-  if ($process.ExitCode -ne 0) {
-    throw "native stack helper Action=$Action failed with exit code $($process.ExitCode)"
+  & $powershell @arguments
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne 0) {
+    throw "native stack helper Action=$Action failed with exit code $exitCode"
   }
   Write-InstallLog "native stack helper PASS: Action=$Action"
 }

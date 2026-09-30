@@ -108,6 +108,33 @@ class ApplicationExclusionTests(unittest.TestCase):
         self.assertTrue(windows_ready["live_enforcement_supported"])
         self.assertEqual(windows_ready["state"], "production_ready")
 
+    def test_windows_preview_capability_requires_explicit_preview_manifest(self):
+        with mock.patch(
+            "windows_native_stack.windows_app_exclusions_preview_build",
+            return_value={
+                "enabled": True,
+                "state": "preview_build",
+                "source_commit": "abc123",
+            },
+        ), mock.patch(
+            "windows_native_stack.windows_native_stack_readiness",
+            return_value={
+                "ready": True,
+                "state": "preview_ready",
+                "reason": "preview ready",
+                "protocol_version": 3,
+                "signing_mode": "test",
+            },
+        ) as readiness:
+            windows = application_exclusion_capability("win32")
+        self.assertTrue(windows["live_enforcement_supported"])
+        self.assertEqual(windows["state"], "preview_ready")
+        self.assertTrue(windows["preview_build"]["enabled"])
+        readiness.assert_called_once_with(
+            allow_test_preview=True,
+            expected_source_commit="abc123",
+        )
+
     def test_non_windows_capabilities_remain_fail_closed(self):
         linux = application_exclusion_capability("linux")
         macos = application_exclusion_capability("darwin")

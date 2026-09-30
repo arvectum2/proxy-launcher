@@ -11,7 +11,9 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         cls.upgrade = (ROOT / "installer" / "upgrade_helper.ps1").read_text(encoding="utf-8")
         cls.uninstall = (ROOT / "installer" / "uninstall_helper.ps1").read_text(encoding="utf-8")
         cls.native = (ROOT / "installer" / "native_stack_helper.ps1").read_text(encoding="utf-8")
+        cls.preview = (ROOT / "installer" / "windows_preview_mode_helper.ps1").read_text(encoding="utf-8")
         cls.builder = (ROOT / "tools" / "build_windows_installer.ps1").read_text(encoding="utf-8")
+        cls.preview_builder = (ROOT / "tools" / "build_windows_app_exclusions_preview.ps1").read_text(encoding="utf-8")
         cls.bundle = (ROOT / "tools" / "build_windows_native_stack_bundle.ps1").read_text(encoding="utf-8")
         cls.submission = (ROOT / "tools" / "prepare_windows_driver_submission.ps1").read_text(encoding="utf-8")
         cls.inf = (ROOT / "native" / "windows_routing" / "ArvectumProxyRoutingCallout.inf.in").read_text(encoding="utf-8")
@@ -97,6 +99,52 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         self.assertIn("[switch]$AllowTestNativeStack", self.builder)
         self.assertIn("Test native stack requires -AllowTestNativeStack", self.builder)
         self.assertIn("native_stack_allow_test_bundle", self.builder)
+
+    def test_preview_installer_is_explicit_and_separate_from_public_setup(self):
+        self.assertIn("[switch]$WindowsAppExclusionsPreview", self.builder)
+        self.assertIn("WindowsAppExclusionsPreview requires -NativeStackBundle.", self.builder)
+        self.assertIn(
+            "WindowsAppExclusionsPreview requires an explicitly allowed test native stack.",
+            self.builder,
+        )
+        self.assertIn("windows_app_exclusions_preview", self.builder)
+        self.assertIn("windows_preview_mode_helper_sha256", self.builder)
+        self.assertIn("windows_preview_mode_helper.ps1", self.builder)
+        self.assertIn("/DWindowsAppExclusionsPreview=1", self.builder)
+        self.assertIn("elseif ($WindowsAppExclusionsPreview)", self.builder)
+        self.assertIn("'-preview'", self.builder)
+        self.assertIn("#ifdef WindowsAppExclusionsPreview", self.iss)
+        self.assertIn("windows-x64-setup-preview", self.iss)
+        self.assertIn("windows_preview_mode_helper.ps1", self.iss)
+
+    def test_preview_mode_is_isolated_from_production_native_helper(self):
+        self.assertNotIn("testsigning", self.native.lower())
+        self.assertIn("bcdedit.exe", self.preview.lower())
+        self.assertIn("Import-Certificate", self.preview)
+        self.assertIn("windows-preview-mode.json", self.preview)
+        self.assertIn("root_certificate_owned", self.preview)
+        self.assertIn("testsigning_owned", self.preview)
+
+    def test_uninstall_cleans_preview_mode_after_native_stack(self):
+        native_index = self.uninstall.index("Invoke-NativeStackUninstall $InstallRoot")
+        preview_index = self.uninstall.index("Invoke-WindowsPreviewCleanup $InstallRoot")
+        self.assertLess(native_index, preview_index)
+        self.assertIn("windows_preview_mode_helper_sha256", self.uninstall)
+        self.assertIn("& $powershell @arguments", self.uninstall)
+        self.assertIn("& $powershell @arguments", self.upgrade)
+
+    def test_preview_release_builder_keeps_private_key_local_and_binds_foundation_commit(self):
+        self.assertIn("KeyExportPolicy NonExportable", self.preview_builder)
+        self.assertIn("driver-submission-manifest.json", self.preview_builder)
+        self.assertIn("foundationManifest.source_commit", self.preview_builder)
+        self.assertIn("WindowsAppExclusionsPreview = $true", self.preview_builder)
+        self.assertIn("AllowTestNativeStack = $true", self.preview_builder)
+        self.assertIn("setup-preview.exe", self.preview_builder)
+        self.assertIn("app-exclusions-preview.zip", self.preview_builder)
+        self.assertIn("production_certified = $false", self.preview_builder)
+        self.assertIn("requires_windows_testsigning = $true", self.preview_builder)
+        self.assertIn("Cert:\\CurrentUser\\My\\{0}", self.preview_builder)
+        self.assertNotIn("Export-PfxCertificate", self.preview_builder)
 
     def test_production_bundle_requires_microsoft_catalog_and_signed_user_mode_helpers(self):
         self.assertIn("Microsoft Windows Hardware Compatibility Publisher", self.bundle)

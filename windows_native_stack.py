@@ -15,6 +15,7 @@ DRIVER_SERVICE_NAME = "ArvectumProxyRoutingCallout"
 ROUTING_SERVICE_NAME = "ArvectumProxyRouting"
 DRIVER_FILENAME = "ArvectumProxyRoutingCallout.sys"
 SERVICE_FILENAME = "ArvectumProxyRoutingService.exe"
+BUILD_MANIFEST_FILENAME = "build_manifest.json"
 
 _SERVICE_KERNEL_DRIVER = 0x00000001
 _SERVICE_WIN32_OWN_PROCESS = 0x00000010
@@ -30,6 +31,62 @@ def _is_windows() -> bool:
 def native_stack_state_path() -> str:
     root = os.environ.get("PROGRAMDATA") or r"C:\ProgramData"
     return os.path.join(root, "Arvectum", "ProxyLauncher", "native-stack.json")
+
+
+def installed_build_manifest_path(executable_path: Optional[str] = None) -> str:
+    executable = str(executable_path or sys.executable)
+    return os.path.join(os.path.dirname(os.path.abspath(executable)), BUILD_MANIFEST_FILENAME)
+
+
+def windows_app_exclusions_preview_build(
+    *,
+    manifest_path: Optional[str] = None,
+) -> Mapping[str, object]:
+    """Return explicit preview-build trust metadata without mutating the host."""
+    path = installed_build_manifest_path() if manifest_path is None else str(manifest_path)
+    if not os.path.isfile(path):
+        return {
+            "enabled": False,
+            "state": "preview_manifest_absent",
+            "reason": "installed preview build manifest is absent",
+            "source_commit": None,
+        }
+    try:
+        with open(path, "r", encoding="utf-8") as stream:
+            payload = json.load(stream)
+    except Exception:
+        return {
+            "enabled": False,
+            "state": "preview_manifest_invalid",
+            "reason": "installed preview build manifest is unreadable",
+            "source_commit": None,
+        }
+
+    source_commit = str(payload.get("source_commit") or "")
+    valid = (
+        payload.get("product") == "Arvectum Proxy Launcher"
+        and payload.get("platform") == "windows-x64"
+        and payload.get("windows_app_exclusions_preview") is True
+        and payload.get("native_stack_enabled") is True
+        and payload.get("native_stack_signing_mode") == "test"
+        and payload.get("native_stack_allow_test_bundle") is True
+        and bool(source_commit)
+    )
+    if not valid:
+        return {
+            "enabled": False,
+            "state": "preview_manifest_rejected",
+            "reason": "installed build is not an explicit Windows app-exclusions preview",
+            "source_commit": source_commit or None,
+        }
+    return {
+        "enabled": True,
+        "state": "preview_build",
+        "reason": "explicit Windows app-exclusions preview build manifest is valid",
+        "source_commit": source_commit,
+        "version": str(payload.get("version") or ""),
+        "manifest_path": path,
+    }
 
 
 def _sha256(path: str) -> str:
@@ -157,8 +214,10 @@ def windows_native_stack_readiness(
     *,
     marker_path: Optional[str] = None,
     require_running: bool = True,
+    allow_test_preview: bool = False,
+    expected_source_commit: Optional[str] = None,
 ) -> Mapping[str, object]:
-    """Return fail-closed readiness for the production-installed Windows stack."""
+    """Return fail-closed readiness for production or an explicitly trusted preview stack."""
     if not _is_windows():
         return _fail("not_windows", "native Windows stack can only be verified on Windows")
 
@@ -177,13 +236,26 @@ def windows_native_stack_readiness(
 
     mode = str(payload.get("signing_mode") or "")
     protocol = payload.get("protocol_version")
-    if mode != "production":
+    preview_mode = mode == "test" and bool(allow_test_preview)
+    if mode != "production" and not preview_mode:
         return _fail(
             "non_production_stack",
             "installed native stack is not production-signed",
             signing_mode=mode or None,
             protocol_version=protocol,
         )
+    source_commit = str(payload.get("source_commit") or "")
+    if preview_mode:
+        expected = str(expected_source_commit or "")
+        if not expected or source_commit != expected:
+            return _fail(
+                "preview_source_mismatch",
+                "test native stack does not match the explicit preview build source commit",
+                signing_mode=mode,
+                protocol_version=protocol,
+                source_commit=source_commit or None,
+                expected_source_commit=expected or None,
+            )
     if protocol != PROTOCOL_VERSION:
         return _fail(
             "protocol_mismatch",
@@ -250,11 +322,16 @@ def windows_native_stack_readiness(
 
     return {
         "ready": True,
-        "state": "production_ready",
-        "reason": "production native routing stack is installed and verified",
+        "state": "preview_ready" if preview_mode else "production_ready",
+        "reason": (
+            "explicit preview native routing stack is installed and verified"
+            if preview_mode
+            else "production native routing stack is installed and verified"
+        ),
         "signing_mode": mode,
         "protocol_version": protocol,
         "install_root": install_root,
-        "source_commit": str(payload.get("source_commit") or ""),
+        "source_commit": source_commit,
         "version": str(payload.get("version") or ""),
+        "preview": preview_mode,
     }

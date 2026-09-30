@@ -17,6 +17,15 @@ function Write-MaintenanceLog([string]$Message) {
   } catch {}
 }
 
+function Get-Sha256([string]$Path) {
+  $certutil = Join-Path $env:SystemRoot 'System32\certutil.exe'
+  $output = & $certutil -hashfile $Path SHA256
+  if ($LASTEXITCODE -ne 0) { throw "certutil SHA256 failed for $Path" }
+  $hashes = @($output | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ -match '^[0-9A-Fa-f]{64}$' })
+  if ($hashes.Count -ne 1) { throw "certutil SHA256 produced an ambiguous result for $Path" }
+  return ([string]$hashes[0]).ToLowerInvariant()
+}
+
 function Test-ExactPath([string]$Candidate, [string]$Expected) {
   if (-not $Candidate -or -not $Expected) { return $false }
   try {
@@ -149,12 +158,39 @@ function Invoke-NativeStackUninstall([string]$ExpectedAppRoot) {
   }
 
   $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-  $args = @('-NoProfile','-ExecutionPolicy','Bypass',$helper,'-Action','Uninstall')
-  $process = Start-Process -FilePath $powershell -ArgumentList $args -PassThru -Wait
-  if ($process.ExitCode -ne 0) {
-    throw "Native stack uninstall failed with exit code $($process.ExitCode)"
+  $arguments = @('-NoProfile','-ExecutionPolicy','Bypass',$helper,'-Action','Uninstall')
+  & $powershell @arguments
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne 0) {
+    throw "Native stack uninstall failed with exit code $exitCode"
   }
   Write-MaintenanceLog 'native stack uninstall PASS'
+}
+
+function Invoke-WindowsPreviewCleanup([string]$ExpectedAppRoot) {
+  $manifestPath = Join-Path $ExpectedAppRoot 'build_manifest.json'
+  if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { return }
+  $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding utf8 | ConvertFrom-Json
+  $previewProperty = $manifest.PSObject.Properties['windows_app_exclusions_preview']
+  if ($null -eq $previewProperty -or -not [bool]$manifest.windows_app_exclusions_preview) { return }
+
+  $helper = Join-Path $ExpectedAppRoot 'windows_preview_mode_helper.ps1'
+  if (-not (Test-Path -LiteralPath $helper -PathType Leaf)) {
+    throw 'Preview build manifest exists but windows_preview_mode_helper.ps1 is missing.'
+  }
+  $expectedHash = [string]$manifest.windows_preview_mode_helper_sha256
+  if ([string]::IsNullOrWhiteSpace($expectedHash) -or (Get-Sha256 $helper) -ine $expectedHash) {
+    throw 'Preview mode helper SHA256 verification failed during uninstall.'
+  }
+
+  $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+  $arguments = @('-NoProfile','-ExecutionPolicy','Bypass',$helper,'-Action','Disable')
+  & $powershell @arguments
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ne 0) {
+    throw "Preview mode cleanup failed with exit code $exitCode"
+  }
+  Write-MaintenanceLog 'Windows app-exclusions preview mode cleanup PASS'
 }
 
 function Stop-OwnedProcesses([string]$ExpectedExe) {
@@ -197,6 +233,7 @@ try {
 
   Stop-OwnedProcesses $exe
   Invoke-NativeStackUninstall $InstallRoot
+  Invoke-WindowsPreviewCleanup $InstallRoot
   Remove-OwnedRunValue $MainRunName $exe
   Remove-OwnedRunValue $RecoveryRunName $exe
   Remove-OwnedLegacyTask $exe

@@ -85,6 +85,59 @@ class WindowsNativeStackTests(unittest.TestCase):
         self.assertFalse(result["ready"])
         self.assertEqual(result["state"], "non_production_stack")
 
+    def test_test_signed_stack_is_ready_only_for_explicit_matching_preview(self):
+        with tempfile.TemporaryDirectory() as td:
+            marker, driver_path, service_path = self._fixture(td, mode="test")
+            records = self._records(driver_path, service_path)
+            with mock.patch.object(native, "_is_windows", return_value=True), \
+                 mock.patch.object(native, "_service_registry_record", side_effect=lambda name: records.get(name)), \
+                 mock.patch.object(native, "_service_running", return_value=True):
+                result = native.windows_native_stack_readiness(
+                    marker_path=marker,
+                    allow_test_preview=True,
+                    expected_source_commit="abc123",
+                )
+        self.assertTrue(result["ready"])
+        self.assertEqual(result["state"], "preview_ready")
+        self.assertTrue(result["preview"])
+
+    def test_test_preview_source_commit_mismatch_fails_closed(self):
+        with tempfile.TemporaryDirectory() as td:
+            marker, _, _ = self._fixture(td, mode="test")
+            with mock.patch.object(native, "_is_windows", return_value=True):
+                result = native.windows_native_stack_readiness(
+                    marker_path=marker,
+                    allow_test_preview=True,
+                    expected_source_commit="different",
+                )
+        self.assertFalse(result["ready"])
+        self.assertEqual(result["state"], "preview_source_mismatch")
+
+    def test_preview_build_manifest_requires_all_explicit_test_flags(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, native.BUILD_MANIFEST_FILENAME)
+            payload = {
+                "product": "Arvectum Proxy Launcher",
+                "platform": "windows-x64",
+                "source_commit": "abc123",
+                "windows_app_exclusions_preview": True,
+                "native_stack_enabled": True,
+                "native_stack_signing_mode": "test",
+                "native_stack_allow_test_bundle": True,
+                "version": "0.2.16",
+            }
+            with open(path, "w", encoding="utf-8") as stream:
+                json.dump(payload, stream)
+            enabled = native.windows_app_exclusions_preview_build(manifest_path=path)
+            payload["native_stack_allow_test_bundle"] = False
+            with open(path, "w", encoding="utf-8") as stream:
+                json.dump(payload, stream)
+            rejected = native.windows_app_exclusions_preview_build(manifest_path=path)
+        self.assertTrue(enabled["enabled"])
+        self.assertEqual(enabled["source_commit"], "abc123")
+        self.assertFalse(rejected["enabled"])
+        self.assertEqual(rejected["state"], "preview_manifest_rejected")
+
     def test_protocol_mismatch_fails_closed(self):
         with tempfile.TemporaryDirectory() as td:
             marker, _, _ = self._fixture(td, protocol=2)

@@ -10,7 +10,8 @@ param(
     [string]$BuildResultPath,
     [string]$ExpectedApplicationSha256,
     [string]$NativeStackBundle,
-    [switch]$AllowTestNativeStack
+    [switch]$AllowTestNativeStack,
+    [switch]$WindowsAppExclusionsPreview
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -79,6 +80,13 @@ $nativeStackEnabled = $false
 $nativeStackManifest = $null
 $nativeStackManifestSha256 = $null
 $nativeStackHelperSha256 = $null
+$previewModeHelperSha256 = $null
+if ($WindowsAppExclusionsPreview -and -not $NativeStackBundle) {
+    throw 'WindowsAppExclusionsPreview requires -NativeStackBundle.'
+}
+if ($SyntheticPredecessor -and $WindowsAppExclusionsPreview) {
+    throw 'WindowsAppExclusionsPreview cannot be combined with SyntheticPredecessor.'
+}
 if ($NativeStackBundle) {
     $nativeSource = (Resolve-Path -LiteralPath $NativeStackBundle).Path
     $nativeManifestPath = Join-Path $nativeSource 'native-stack-bundle.json'
@@ -99,6 +107,9 @@ if ($NativeStackBundle) {
     if ($nativeMode -eq 'test' -and -not $AllowTestNativeStack) {
         throw 'Test native stack requires -AllowTestNativeStack and must never be used for a public installer.'
     }
+    if ($WindowsAppExclusionsPreview -and ($nativeMode -cne 'test' -or -not $AllowTestNativeStack)) {
+        throw 'WindowsAppExclusionsPreview requires an explicitly allowed test native stack.'
+    }
     foreach ($required in @(
         'ArvectumProxyRoutingCallout.sys',
         'ArvectumProxyRoutingCallout.inf',
@@ -117,6 +128,14 @@ if ($NativeStackBundle) {
     $nativeStackManifestSha256 = Hash (Join-Path $nativeDest 'native-stack-bundle.json')
     $nativeStackHelperSha256 = Hash (Join-Path $payload 'native_stack_helper.ps1')
     $nativeStackEnabled = $true
+}
+if ($WindowsAppExclusionsPreview) {
+    $previewHelper = Join-Path $root 'installer\windows_preview_mode_helper.ps1'
+    if (-not (Test-Path -LiteralPath $previewHelper -PathType Leaf)) {
+        throw 'Windows preview mode helper is missing.'
+    }
+    Copy-Item -LiteralPath $previewHelper -Destination $payload
+    $previewModeHelperSha256 = Hash (Join-Path $payload 'windows_preview_mode_helper.ps1')
 }
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $payload 'LICENSE.txt')
 Copy-Item -LiteralPath (Join-Path $root 'THIRD_PARTY_NOTICES.txt') -Destination (Join-Path $payload 'THIRD_PARTY_NOTICES.txt')
@@ -183,6 +202,8 @@ $manifest = [ordered]@{
     native_stack_enabled=$nativeStackEnabled
     native_stack_signing_mode=if ($nativeStackManifest) { [string]$nativeStackManifest.signing_mode } else { $null }
     native_stack_allow_test_bundle=[bool]$AllowTestNativeStack
+    windows_app_exclusions_preview=[bool]$WindowsAppExclusionsPreview
+    windows_preview_mode_helper_sha256=$previewModeHelperSha256
     native_stack_bundle_manifest_sha256=$nativeStackManifestSha256
     native_stack_helper_sha256=$nativeStackHelperSha256
     third_party_license_manifest_sha256=(Hash (Join-Path $payload 'THIRD_PARTY_LICENSES\manifest.json'))
@@ -203,12 +224,21 @@ if ($SyntheticPredecessor) { $isccArgs += '/DSyntheticLifecycleFixture=1' }
 if ($nativeStackEnabled) {
     $isccArgs += "/DNativeStackPayloadDir=$(Join-Path $payload 'native')"
 }
+if ($WindowsAppExclusionsPreview) {
+    $isccArgs += '/DWindowsAppExclusionsPreview=1'
+}
 $isccArgs += 'installer\ArvectumProxyLauncher.iss'
 & $IsccPath @isccArgs
 if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed (exact 6.7.1 compiler contract not satisfied or script compilation failed).' }
 Write-Host "Inno Setup $requiredInnoSetupVersion compiler contract PASS."
 
-$suffix = if ($SyntheticPredecessor) { '-synthetic-predecessor' } else { '' }
+$suffix = if ($SyntheticPredecessor) {
+    '-synthetic-predecessor'
+} elseif ($WindowsAppExclusionsPreview) {
+    '-preview'
+} else {
+    ''
+}
 $setup = Join-Path $root "out\installer\Arvectum-Proxy-Launcher-$version-windows-x64-setup$suffix.exe"
 if (-not (Test-Path -LiteralPath $setup)) { throw "Expected setup EXE was not produced: $setup" }
 $setupHash = Hash $setup

@@ -165,9 +165,16 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     """Return truthful capability state for the current product baseline."""
     name = _platform_name(platform)
     if name == "windows":
-        from windows_native_stack import windows_native_stack_readiness
+        from windows_native_stack import (
+            windows_app_exclusions_preview_build,
+            windows_native_stack_readiness,
+        )
 
-        readiness = windows_native_stack_readiness()
+        preview = windows_app_exclusions_preview_build()
+        readiness = windows_native_stack_readiness(
+            allow_test_preview=bool(preview.get("enabled")),
+            expected_source_commit=preview.get("source_commit"),
+        )
         return {
             "platform": name,
             "configuration_supported": True,
@@ -180,6 +187,7 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
                 "production native routing stack is unavailable",
             ),
             "native_stack": dict(readiness),
+            "preview_build": dict(preview),
         }
     if name == "linux":
         return {
