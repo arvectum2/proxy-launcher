@@ -134,6 +134,22 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         self.assertIn("GetEnvironmentVariable('ProgramData')", self.preview)
         self.assertIn("GetEnvironmentVariable('ALLUSERSPROFILE')", self.preview)
 
+    def test_preview_mode_rejects_secure_boot_before_certificate_mutation(self):
+        self.assertIn("function Test-SecureBootEnabled", self.preview)
+        self.assertIn("UEFISecureBootEnabled", self.preview)
+        self.assertIn("Windows Secure Boot is enabled.", self.preview)
+        self.assertLess(
+            self.preview.index("if ($testSigningOwned -and (Test-SecureBootEnabled))"),
+            self.preview.index("$rootOwned = -not (Certificate-InStore 'Root' $thumbprint)"),
+        )
+
+    def test_preview_mode_rolls_back_partial_enable_mutations(self):
+        for token in ("$rootImported", "$publisherImported", "$testSigningChanged", "Rollback failed:"):
+            self.assertIn(token, self.preview)
+        self.assertIn("Remove-OwnedCertificate 'TrustedPublisher' $thumbprint $true", self.preview)
+        self.assertIn("Remove-OwnedCertificate 'Root' $thumbprint $true", self.preview)
+        self.assertIn("& $BcdEdit /set testsigning off | Out-Null", self.preview)
+
     def test_uninstall_cleans_preview_mode_after_native_stack(self):
         native_index = self.uninstall.index("Invoke-NativeStackUninstall $InstallRoot")
         preview_index = self.uninstall.index("Invoke-WindowsPreviewCleanup $InstallRoot")

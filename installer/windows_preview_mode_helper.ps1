@@ -46,6 +46,17 @@ function Test-TestSigningEnabled {
     return [string]$line[0] -match '(?i)\b(yes|on|true|1|да)\b'
 }
 
+function Test-SecureBootEnabled {
+    $statePath = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State'
+    if (-not (Test-Path -LiteralPath $statePath -PathType Container)) { return $false }
+    try {
+        $state = Get-ItemProperty -LiteralPath $statePath -Name UEFISecureBootEnabled -ErrorAction Stop
+    } catch {
+        throw 'Could not determine Windows Secure Boot state.'
+    }
+    return [int]$state.UEFISecureBootEnabled -eq 1
+}
+
 function Read-Marker {
     if (-not (Test-Path -LiteralPath $MarkerPath -PathType Leaf)) { return $null }
     $payload = Get-Content -LiteralPath $MarkerPath -Raw -Encoding utf8 | ConvertFrom-Json
@@ -119,27 +130,78 @@ try {
             throw 'A different Arvectum preview-mode certificate is already owned by this machine.'
         }
 
-        $rootOwned = -not (Certificate-InStore 'Root' $thumbprint)
-        $publisherOwned = -not (Certificate-InStore 'TrustedPublisher' $thumbprint)
-        if ($rootOwned) { Import-PreviewCertificate $CertificatePath 'Root' }
-        if ($publisherOwned) { Import-PreviewCertificate $CertificatePath 'TrustedPublisher' }
-
         $wasEnabled = Test-TestSigningEnabled
         $testSigningOwned = -not $wasEnabled
-        if ($testSigningOwned) {
-            & $BcdEdit /set testsigning on | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw 'Could not enable Windows test-signing mode.' }
+        if ($testSigningOwned -and (Test-SecureBootEnabled)) {
+            throw 'Windows Secure Boot is enabled. Disable Secure Boot before enabling Arvectum preview test-signing mode.'
         }
 
-        Write-Marker ([ordered]@{
-            schema = $Schema
-            certificate_thumbprint = $thumbprint
-            certificate_subject = [string]$certificate.Subject
-            root_certificate_owned = [bool]$rootOwned
-            trusted_publisher_certificate_owned = [bool]$publisherOwned
-            testsigning_owned = [bool]$testSigningOwned
-            enabled_utc = [DateTime]::UtcNow.ToString('o')
-        })
+        $rootOwned = -not (Certificate-InStore 'Root' $thumbprint)
+        $publisherOwned = -not (Certificate-InStore 'TrustedPublisher' $thumbprint)
+        $rootImported = $false
+        $publisherImported = $false
+        $testSigningChanged = $false
+        try {
+            if ($rootOwned) {
+                Import-PreviewCertificate $CertificatePath 'Root'
+                $rootImported = $true
+            }
+            if ($publisherOwned) {
+                Import-PreviewCertificate $CertificatePath 'TrustedPublisher'
+                $publisherImported = $true
+            }
+
+            if ($testSigningOwned) {
+                $bcdOutput = @(& $BcdEdit /set testsigning on 2>&1)
+                if ($LASTEXITCODE -ne 0) {
+                    $detail = (@($bcdOutput | ForEach-Object { [string]$_ }) -join ' ').Trim()
+                    if (-not [string]::IsNullOrWhiteSpace($detail)) {
+                        throw ("Could not enable Windows test-signing mode. bcdedit: {0}" -f $detail)
+                    }
+                    throw 'Could not enable Windows test-signing mode.'
+                }
+                $testSigningChanged = $true
+            }
+
+            Write-Marker ([ordered]@{
+                schema = $Schema
+                certificate_thumbprint = $thumbprint
+                certificate_subject = [string]$certificate.Subject
+                root_certificate_owned = [bool]$rootOwned
+                trusted_publisher_certificate_owned = [bool]$publisherOwned
+                testsigning_owned = [bool]$testSigningOwned
+                enabled_utc = [DateTime]::UtcNow.ToString('o')
+            })
+        } catch {
+            $enableError = [string]$_.Exception.Message
+            $rollbackErrors = New-Object System.Collections.Generic.List[string]
+
+            if ($testSigningChanged) {
+                & $BcdEdit /set testsigning off | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    $rollbackErrors.Add('Could not restore Windows test-signing mode.')
+                }
+            }
+            if ($publisherImported) {
+                try {
+                    Remove-OwnedCertificate 'TrustedPublisher' $thumbprint $true
+                } catch {
+                    $rollbackErrors.Add('Could not remove preview certificate from TrustedPublisher.')
+                }
+            }
+            if ($rootImported) {
+                try {
+                    Remove-OwnedCertificate 'Root' $thumbprint $true
+                } catch {
+                    $rollbackErrors.Add('Could not remove preview certificate from Root.')
+                }
+            }
+
+            if ($rollbackErrors.Count -gt 0) {
+                throw ("{0} Rollback failed: {1}" -f $enableError,($rollbackErrors -join ' '))
+            }
+            throw $enableError
+        }
         Write-Output ("ARVECTUM_WINDOWS_PREVIEW_MODE_ENABLED thumbprint={0} reboot_required={1}" -f $thumbprint,[int]$testSigningOwned)
         if ($testSigningOwned) { exit 3010 }
         exit 0
