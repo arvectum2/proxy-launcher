@@ -127,6 +127,13 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         self.assertIn("root_certificate_owned", self.preview)
         self.assertIn("testsigning_owned", self.preview)
 
+    def test_preview_mode_resolves_system_root_when_machine_environment_is_empty(self):
+        self.assertIn("GetEnvironmentVariable('SystemRoot', [EnvironmentVariableTarget]::Machine)", self.preview)
+        self.assertIn("GetEnvironmentVariable('SystemRoot')", self.preview)
+        self.assertIn("[Environment]::SystemDirectory", self.preview)
+        self.assertIn("GetEnvironmentVariable('ProgramData')", self.preview)
+        self.assertIn("GetEnvironmentVariable('ALLUSERSPROFILE')", self.preview)
+
     def test_uninstall_cleans_preview_mode_after_native_stack(self):
         native_index = self.uninstall.index("Invoke-NativeStackUninstall $InstallRoot")
         preview_index = self.uninstall.index("Invoke-WindowsPreviewCleanup $InstallRoot")

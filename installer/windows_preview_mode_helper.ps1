@@ -9,7 +9,21 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $ProgramDataRoot = [Environment]::GetFolderPath([Environment+SpecialFolder]::CommonApplicationData)
+if ([string]::IsNullOrWhiteSpace($ProgramDataRoot)) {
+    $ProgramDataRoot = [Environment]::GetEnvironmentVariable('ProgramData')
+}
+if ([string]::IsNullOrWhiteSpace($ProgramDataRoot)) {
+    $ProgramDataRoot = [Environment]::GetEnvironmentVariable('ALLUSERSPROFILE')
+}
+
 $SystemRootPath = [Environment]::GetEnvironmentVariable('SystemRoot', [EnvironmentVariableTarget]::Machine)
+if ([string]::IsNullOrWhiteSpace($SystemRootPath)) {
+    $SystemRootPath = [Environment]::GetEnvironmentVariable('SystemRoot')
+}
+if ([string]::IsNullOrWhiteSpace($SystemRootPath) -and -not [string]::IsNullOrWhiteSpace([Environment]::SystemDirectory)) {
+    $SystemRootPath = Split-Path -Parent [Environment]::SystemDirectory
+}
+
 if ([string]::IsNullOrWhiteSpace($ProgramDataRoot) -or [string]::IsNullOrWhiteSpace($SystemRootPath)) {
     throw 'Required Windows system folders could not be resolved.'
 }
