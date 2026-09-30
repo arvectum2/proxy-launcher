@@ -64,6 +64,15 @@ class PromotedArtifactContractTests(unittest.TestCase):
         workflow = (REPO / ".github" / "workflows" / "windows-p0.yml").read_text(encoding="utf-8")
         self.assertIn("windows_promoted_license_compliance.ps1", workflow)
 
+    def test_canonical_windows_portable_build_embeds_verified_license_bundle(self):
+        script = (REPO / "tools" / "clean_build_windows.ps1").read_text(encoding="utf-8")
+        self.assertIn('Join-Path $StageDir "THIRD_PARTY_LICENSES"', script)
+        self.assertIn("third_party_license_bundle.py", script)
+        self.assertIn("--build --output $ThirdPartyBundle", script)
+        self.assertIn("--verify --output $ThirdPartyBundle", script)
+        self.assertIn('$ExpectedDirectories = @("THIRD_PARTY_LICENSES")', script)
+        self.assertIn('unpacked portable third-party license bundle verification failed', script)
+
     def test_windows_gate_r6_requires_manifest_and_hash_bound_bundle(self):
         acceptance = (REPO / "tools" / "windows_rc_acceptance.ps1").read_text(encoding="utf-8")
         self.assertIn("THIRD_PARTY_LICENSES", acceptance)
