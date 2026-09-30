@@ -60,7 +60,6 @@ if (-not $Inf2CatPath) {
     foreach ($base in @((Join-Path $programFilesX86 'Windows Kits\10\bin'), (Join-Path $programFilesX86 'Windows Kits\10\Tools'))) {
         if (-not (Test-Path -LiteralPath $base)) { continue }
         $Inf2CatPath = Get-ChildItem $base -Filter inf2cat.exe -Recurse -ErrorAction SilentlyContinue |
-            Where-Object FullName -Match '\\x64\\inf2cat\.exe$' |
             Sort-Object FullName -Descending |
             Select-Object -First 1 -ExpandProperty FullName
         if ($Inf2CatPath) { break }
