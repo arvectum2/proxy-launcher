@@ -93,6 +93,7 @@ class WindowsInnoSetupSovereigntyTests(unittest.TestCase):
             self.assertIn(token, BUILD)
         self.assertNotIn('.VersionInfo.FileVersion', BUILD)
         self.assertNotIn("requiredInnoSetupVersion = '6.7.2'", BUILD)
+        self.assertIn('$env:LOCALAPPDATA\\Programs\\Inno Setup 6\\ISCC.exe', BUILD)
 
     def test_locked_hash_is_single_sha256(self):
         matches = re.findall(r'^INNO_INSTALLER_SHA256=([0-9a-f]{64})$', LOCK, re.MULTILINE)
