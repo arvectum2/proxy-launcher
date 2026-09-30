@@ -322,6 +322,54 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         relay.assert_called_once_with(outbound, client, engine._stop)
         client.sendall.assert_not_called()
 
+    def test_direct_http_handler_never_opens_upstream_proxy(self):
+        engine = core.ProxyCore({
+            "upstream": [
+                {"host": "proxy.test", "port": 8000, "username": "u", "password": "p"},
+            ]
+        })
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT example.com:443 HTTP/1.1\r\n"
+            b"Host: example.com:443\r\n\r\n"
+        )
+        direct = mock.Mock()
+
+        with mock.patch.object(core, "_normalize_host", return_value="example.com"), \
+             mock.patch.object(core, "host_bypasses_proxy") as bypass, \
+             mock.patch.object(local_proxy_transport.socket, "create_connection", return_value=direct) as connect, \
+             mock.patch.object(engine, "_open_upstream_tunnel") as upstream, \
+             mock.patch.object(engine, "_relay") as relay:
+            engine._handle_direct_http(client)
+
+        bypass.assert_not_called()
+        upstream.assert_not_called()
+        connect.assert_called_once_with(("example.com", 443), timeout=15)
+        client.sendall.assert_called_once_with(
+            b"HTTP/1.1 200 Connection Established\r\n\r\n"
+        )
+        relay.assert_called_once_with(direct, client, engine._stop)
+
+    def test_direct_listener_uses_ephemeral_loopback_port(self):
+        engine = core.ProxyCore({"upstream": []})
+        engine._socks = [object()]
+        listener = mock.Mock()
+        listener.getsockname.return_value = ("127.0.0.1", 54322)
+        thread = mock.Mock()
+
+        with mock.patch.object(
+            local_proxy_transport.socket, "socket", return_value=listener
+        ), mock.patch.object(
+            local_proxy_transport.threading, "Thread", return_value=thread
+        ):
+            ok, message, port = engine.start_direct_listener()
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "OK")
+        self.assertEqual(port, 54322)
+        listener.bind.assert_called_once_with(("127.0.0.1", 0))
+        thread.start.assert_called_once_with()
+
     def test_transparent_listener_uses_ephemeral_loopback_port(self):
         engine = core.ProxyCore({"upstream": []})
         engine._socks = [object()]

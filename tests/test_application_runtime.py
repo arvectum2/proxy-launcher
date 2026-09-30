@@ -137,6 +137,136 @@ class ApplicationRuntimeTests(unittest.TestCase):
         proxy_core.assert_not_called()
         enable.assert_not_called()
 
+    def test_windows_routing_helpers_use_real_named_pipe_client(self):
+        proxy = mock.Mock()
+        proxy.start_direct_listener.return_value = (True, "OK", 54321)
+        plans = ("plan",)
+        store = mock.Mock()
+        controller = mock.Mock()
+        client = mock.Mock()
+        with tempfile.TemporaryDirectory() as td, \
+             mock.patch.object(core, "runtime_dir", return_value=td), \
+             mock.patch.object(
+                 core,
+                 "compile_windows_application_exclusion_enforcement_plan",
+                 return_value=plans,
+             ) as compile_plan, \
+             mock.patch("routing_ownership.RoutingOwnershipStore", return_value=store), \
+             mock.patch(
+                 "windows_routing_controller.NamedPipeWindowsRoutingClient",
+                 return_value=client,
+             ) as client_cls, \
+             mock.patch(
+                 "windows_routing_controller.WindowsRoutingController",
+                 return_value=controller,
+             ) as controller_cls:
+            result = application_runtime._activate_windows_application_routing(
+                proxy,
+                {"local_http_port": 8080},
+                ("app",),
+            )
+
+        self.assertIs(result, controller)
+        compile_plan.assert_called_once_with(("app",), local_http_port=8080)
+        client_cls.assert_called_once_with()
+        controller_cls.assert_called_once_with(store, client)
+        controller.activate.assert_called_once_with(
+            plans,
+            proxy_pid=application_runtime.os.getpid(),
+            proxy_port=54321,
+        )
+
+    def test_windows_routing_restore_uses_real_named_pipe_client(self):
+        store = mock.Mock()
+        store.exists.return_value = True
+        controller = mock.Mock()
+        controller.restore.return_value = True
+        client = mock.Mock()
+        with tempfile.TemporaryDirectory() as td, \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "runtime_dir", return_value=td), \
+             mock.patch("routing_ownership.RoutingOwnershipStore", return_value=store), \
+             mock.patch(
+                 "windows_routing_controller.NamedPipeWindowsRoutingClient",
+                 return_value=client,
+             ) as client_cls, \
+             mock.patch(
+                 "windows_routing_controller.WindowsRoutingController",
+                 return_value=controller,
+             ) as controller_cls:
+            self.assertTrue(application_runtime._restore_windows_application_routing())
+
+        client_cls.assert_called_once_with()
+        controller_cls.assert_called_once_with(store, client)
+        controller.restore.assert_called_once_with()
+
+    def test_windows_exclusions_fail_closed_until_live_capability(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["upstream"] = [
+            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
+        ]
+        with mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "load_application_exclusions", return_value=("app",)), \
+             mock.patch.object(application_runtime, "_restore_windows_application_routing", return_value=True), \
+             mock.patch.object(core, "application_exclusion_capability", return_value={"live_enforcement_supported": False}), \
+             mock.patch.object(core, "ProxyCore") as proxy_core, \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_start(), 1)
+        proxy_core.assert_not_called()
+
+    def test_windows_exclusions_activate_and_restore_with_worker(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["upstream"] = [
+            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
+        ]
+        proxy = mock.Mock()
+        proxy.start.return_value = (True, "OK")
+        routing = mock.Mock()
+        routing.restore.return_value = True
+        with mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "load_application_exclusions", return_value=("app",)), \
+             mock.patch.object(application_runtime, "_restore_windows_application_routing", return_value=True), \
+             mock.patch.object(core, "application_exclusion_capability", return_value={"live_enforcement_supported": True}), \
+             mock.patch.object(core, "is_running", return_value=False), \
+             mock.patch.object(core, "ProxyCore", return_value=proxy), \
+             mock.patch.object(core, "_write_pid"), \
+             mock.patch.object(application_runtime, "_activate_windows_application_routing", return_value=routing) as activate, \
+             mock.patch.object(core, "enable_system_proxy", return_value=True), \
+             mock.patch.object(application_runtime, "_run_proxy_loop", side_effect=KeyboardInterrupt), \
+             mock.patch.object(core, "_remove_pid") as remove_pid, \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_start(), 0)
+        activate.assert_called_once_with(proxy, settings, ("app",))
+        routing.restore.assert_called_once_with()
+        proxy.stop.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
+
+    def test_windows_exclusion_activation_failure_never_enables_system_proxy(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["upstream"] = [
+            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
+        ]
+        proxy = mock.Mock()
+        proxy.start.return_value = (True, "OK")
+        with mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(core, "load_application_exclusions", return_value=("app",)), \
+             mock.patch.object(application_runtime, "_restore_windows_application_routing", return_value=True), \
+             mock.patch.object(core, "application_exclusion_capability", return_value={"live_enforcement_supported": True}), \
+             mock.patch.object(core, "is_running", return_value=False), \
+             mock.patch.object(core, "ProxyCore", return_value=proxy), \
+             mock.patch.object(core, "_write_pid"), \
+             mock.patch.object(application_runtime, "_activate_windows_application_routing", side_effect=RuntimeError("native failure")), \
+             mock.patch.object(core, "enable_system_proxy") as enable, \
+             mock.patch.object(core, "_remove_pid") as remove_pid, \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_start(), 1)
+        enable.assert_not_called()
+        proxy.stop.assert_called_once_with()
+        remove_pid.assert_called_once_with(application_runtime.os.getpid())
+
     def test_start_enable_failure_stops_proxy_and_removes_pid(self):
         settings = dict(core.DEFAULT_SETTINGS)
         settings["upstream"] = [{"host": "proxy.test", "port": 8000, "username": "", "password": ""}]

@@ -42,6 +42,7 @@ class WfpFilterPlan:
     conditions: Tuple[WfpConditionPlan, ...]
     enforcement_ready: bool
     note: str
+    remote_port: int = 0
 
 
 def get_wfp_app_id(executable_path: str, *, platform: Optional[str] = None) -> bytes:
@@ -127,5 +128,6 @@ def compile_windows_filter_plan(
                 conditions=tuple(conditions),
                 enforcement_ready=ready,
                 note=note,
+                remote_port=0,
             ))
     return tuple(plans)

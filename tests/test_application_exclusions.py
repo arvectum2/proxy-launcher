@@ -10,6 +10,7 @@ from application_exclusions import (
     application_exclusion_capability,
     application_exclusion_rule,
     compile_application_exclusion_rules,
+    compile_windows_application_exclusion_enforcement_plan,
     compile_windows_application_exclusion_plan,
     load_application_exclusions,
     save_application_exclusions,
@@ -103,6 +104,24 @@ class ApplicationExclusionTests(unittest.TestCase):
         self.assertEqual(plan.destination_kind, "all")
         self.assertTrue(plan.enforcement_ready)
         self.assertEqual(plan.application_wfp_id_hex, "0102")
+
+    def test_windows_live_plan_targets_only_apl_http_proxy(self):
+        app = ApplicationIdentity("windows", executable_path=r"C:\\Browser\\browser.exe")
+        plans = compile_windows_application_exclusion_enforcement_plan(
+            [app],
+            local_http_port=8080,
+            app_id_resolver=lambda path: b"\x01\x02",
+        )
+        self.assertEqual(len(plans), 1)
+        plan = plans[0]
+        self.assertEqual(plan.operation, "redirect_to_local_proxy")
+        self.assertEqual(plan.destination_kind, "cidr")
+        self.assertEqual(plan.destination_value, "127.0.0.1/32")
+        self.assertEqual(plan.remote_port, 8080)
+        self.assertIn(
+            ("FWPM_CONDITION_IP_REMOTE_PORT", "8080"),
+            [(item.condition, item.value) for item in plan.conditions],
+        )
 
     def test_windows_plan_rejects_non_windows_identity(self):
         app = ApplicationIdentity("linux", executable_path="/usr/bin/browser")

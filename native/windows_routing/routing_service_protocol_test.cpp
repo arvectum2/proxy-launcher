@@ -36,10 +36,11 @@ std::string ApplyRequest() {
         "\"destination_kind\":\"all\","
         "\"destination_value\":\"*\","
         "\"operation\":\"redirect_to_local_proxy\","
+        "\"remote_port\":8080,"
         "\"rule_id\":\"browser-proxy\"}],") +
         kResources +
         ",\"plan_digest\":\"" + std::string(64, 'a') +
-        "\",\"protocol_version\":2,"
+        "\",\"protocol_version\":3,"
         "\"proxy\":{\"pid\":4242,\"port\":18080},"
         "\"session_id\":\"11111111-1111-4111-8111-111111111111\"}";
 }
@@ -48,7 +49,7 @@ std::string RestoreRequest() {
     return std::string("{\"command\":\"restore\",") +
         kResources +
         ",\"plan_digest\":\"" + std::string(64, 'b') +
-        "\",\"protocol_version\":2,"
+        "\",\"protocol_version\":3,"
         "\"session_id\":\"22222222-2222-4222-8222-222222222222\"}";
 }
 bool Expect(bool condition, const char* message) {
@@ -71,6 +72,7 @@ int main() {
         "apply command");
     pass &= Expect(apply.proxy_pid == 4242, "proxy pid");
     pass &= Expect(apply.proxy_port == 18080, "proxy port");
+    pass &= Expect(apply.filters[0].remote_port == 8080, "filter remote port");
     pass &= Expect(apply.filters.size() == 1, "single filter");
     if (!apply.filters.empty()) {
         pass &= Expect(
@@ -103,7 +105,7 @@ int main() {
     }
     pass &= Expect(!Parse(escaped), "escaped token rejected");
     std::string wrong_protocol = ApplyRequest();
-    const std::string protocol = "\"protocol_version\":2";
+    const std::string protocol = "\"protocol_version\":3";
     const std::size_t protocol_at = wrong_protocol.find(protocol);
     if (protocol_at != std::string::npos) {
         wrong_protocol.replace(

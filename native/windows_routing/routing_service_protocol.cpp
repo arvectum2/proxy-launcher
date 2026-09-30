@@ -205,11 +205,17 @@ bool ParseFilter(Cursor* cursor, ServiceFilterSpec* filter) noexcept {
     } else {
         return false;
     }
-    if (!cursor->ExpectText(",\"rule_id\":") ||
+    if (!cursor->ExpectText(",\"remote_port\":")) {
+        return false;
+    }
+    std::uint32_t remote_port = 0;
+    if (!cursor->ReadUInt(&remote_port) || remote_port > 65535 ||
+        !cursor->ExpectText(",\"rule_id\":") ||
         !cursor->ReadString(&filter->rule_id, 64) ||
         !IsRuleId(filter->rule_id) || !cursor->Expect('}')) {
         return false;
     }
+    filter->remote_port = static_cast<std::uint16_t>(remote_port);
     if (filter->destination_kind == ServiceDestinationKind::kAll) {
         return filter->destination_value == "*" &&
             filter->address_families.size() == 2 &&
@@ -406,7 +412,9 @@ std::string BuildServiceResponse(
     response += command;
     response += "\",\"plan_digest\":\"";
     response += request.plan_digest;
-    response += "\",\"protocol_version\":2,";
+    response += "\",\"protocol_version\":";
+    response += std::to_string(kServiceProtocolVersion);
+    response += ",";
     if (ok && restore) {
         response += "\"remaining_owned_resources\":";
         if (resources_verified) {

@@ -45,6 +45,8 @@ class ProxyCore:
         self._threads = []
         self._transparent_listener = None
         self._transparent_port = None
+        self._direct_listener = None
+        self._direct_port = None
         self._upstreams = self._build_upstreams()
 
     def _build_upstreams(self):
@@ -300,6 +302,12 @@ class ProxyCore:
                 pass
 
     def _handle_http(self, client):
+        self._handle_http_mode(client, force_direct=False)
+
+    def _handle_direct_http(self, client):
+        self._handle_http_mode(client, force_direct=True)
+
+    def _handle_http_mode(self, client, *, force_direct):
         core = _core()
         try:
             client.settimeout(30)
@@ -346,11 +354,11 @@ class ProxyCore:
                     port = 80
 
             host = core._normalize_host(host)
-            if core.host_bypasses_proxy(host):
+            if force_direct or core.host_bypasses_proxy(host):
                 try:
                     direct = socket.create_connection((host, port), timeout=15)
                 except Exception:
-                    self._send_error(client, 502, "Localhost connection failed")
+                    self._send_error(client, 502, "Direct connection failed")
                     return
                 direct.settimeout(300)
                 if is_connect:
@@ -359,56 +367,58 @@ class ProxyCore:
                         direct.sendall(buffered_after_headers)
                 else:
                     rest = data.split(b"\r\n", 1)[1]
-                    data = method + b" " + path.encode() + b" HTTP/1.1\r\n" + rest
-                    direct.sendall(data)
+                    direct_request = (
+                        method + b" " + path.encode() + b" HTTP/1.1\r\n" + rest
+                    )
+                    direct.sendall(direct_request)
                 self._relay(direct, client, self._stop)
+                return
+
+            if is_connect:
+                upstream, response = self._open_upstream_tunnel(
+                    host, port, client_request=request_headers
+                )
+                if upstream is None:
+                    self._send_error(client, 502, "All external proxies unreachable")
+                    return
+                client.sendall(response)
+                core.structured_log(
+                    "CONNECT response forwarded to client",
+                    event="proxy.connect.client_ready",
+                    target_port=port,
+                    response_bytes=len(response),
+                    buffered_client_bytes=len(buffered_after_headers),
+                )
+                if buffered_after_headers:
+                    upstream.sendall(buffered_after_headers)
+                self._relay(upstream, client, self._stop)
             else:
-                if is_connect:
-                    upstream, response = self._open_upstream_tunnel(
-                        host, port, client_request=request_headers
-                    )
-                    if upstream is None:
-                        self._send_error(client, 502, "All external proxies unreachable")
-                        return
-                    client.sendall(response)
-                    core.structured_log(
-                        "CONNECT response forwarded to client",
-                        event="proxy.connect.client_ready",
-                        target_port=port,
-                        response_bytes=len(response),
-                        buffered_client_bytes=len(buffered_after_headers),
-                    )
-                    if buffered_after_headers:
-                        upstream.sendall(buffered_after_headers)
-                    self._relay(upstream, client, self._stop)
-                else:
-                    upstream = None
-                    for host_u, proxy_port, token in self._upstreams:
-                        stream = None
-                        try:
-                            stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            stream.settimeout(15)
-                            stream.connect((host_u, proxy_port))
-                            header = (
-                                b"Proxy-Authorization: Basic "
-                                + token.encode("ascii")
-                                + b"\r\n"
-                            )
-                            request = data.replace(b"\r\n", b"\r\n" + header, 1)
-                            stream.sendall(request)
-                            upstream = stream
-                            break
-                        except Exception:
-                            if stream is not None:
-                                try:
-                                    stream.close()
-                                except Exception:
-                                    pass
-                            continue
-                    if upstream is None:
-                        self._send_error(client, 502, "All external proxies unreachable")
-                        return
-                    self._relay(upstream, client, self._stop)
+                upstream = None
+                for host_u, proxy_port, token in self._upstreams:
+                    stream = None
+                    try:
+                        stream = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        stream.settimeout(15)
+                        stream.connect((host_u, proxy_port))
+                        header = (
+                            b"Proxy-Authorization: Basic "
+                            + token.encode("ascii")
+                            + b"\r\n"
+                        )
+                        request = data.replace(b"\r\n", b"\r\n" + header, 1)
+                        stream.sendall(request)
+                        upstream = stream
+                        break
+                    except Exception:
+                        if stream is not None:
+                            try:
+                                stream.close()
+                            except Exception:
+                                pass
+                if upstream is None:
+                    self._send_error(client, 502, "All external proxies unreachable")
+                    return
+                self._relay(upstream, client, self._stop)
         except OSError:
             try:
                 self._send_error(client, 502, "Proxy error")
@@ -537,6 +547,44 @@ class ProxyCore:
         )
         return True, "OK", port
 
+    def start_direct_listener(self):
+        """Start an ephemeral HTTP/CONNECT listener that always exits directly."""
+        if not self._socks:
+            return False, "Основной proxy engine ещё не запущен", None
+        if self._direct_listener is not None:
+            return True, "OK", self._direct_port
+
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(200)
+            listener.settimeout(1.0)
+            port = int(listener.getsockname()[1])
+        except OSError as error:
+            try:
+                listener.close()
+            except Exception:
+                pass
+            return False, "Не удалось открыть direct listener: %s" % error, None
+
+        self._direct_listener = listener
+        self._direct_port = port
+        self._socks.append(listener)
+        thread = threading.Thread(
+            target=self._accept_loop,
+            args=(listener, self._handle_direct_http),
+            daemon=True,
+        )
+        thread.start()
+        self._threads.append(thread)
+        _core().structured_log(
+            "application exclusion direct listener started",
+            event="proxy.application_exclusion.direct_listener_started",
+            port=port,
+        )
+        return True, "OK", port
+
     def start(self):
         core = _core()
         if self._socks:
@@ -609,6 +657,8 @@ class ProxyCore:
         self._socks = []
         self._transparent_listener = None
         self._transparent_port = None
+        self._direct_listener = None
+        self._direct_port = None
         core._log("proxy stopped")
         return True
 

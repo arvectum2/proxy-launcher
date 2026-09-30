@@ -67,6 +67,24 @@ class WindowsRoutingNativeSourceTests(unittest.TestCase):
         self.assertIn("ConfigureDriver(request.proxy_pid, request.proxy_port, true)", LIFECYCLE)
         self.assertIn("VerifyAbsent", LIFECYCLE)
 
+    def test_service_scopes_filters_to_pipe_user(self):
+        self.assertIn("ImpersonateNamedPipeClient", SERVICE)
+        self.assertIn("TokenUser", SERVICE)
+        self.assertIn("RestoreForCaller", SERVICE)
+        self.assertIn("FWPM_CONDITION_ALE_USER_ID", LIFECYCLE)
+        self.assertIn("FWP_SECURITY_DESCRIPTOR_TYPE", LIFECYCLE)
+
+    def test_service_tracks_proxy_process_and_remote_port(self):
+        self.assertIn("OpenProxyProcessForCaller", LIFECYCLE)
+        self.assertIn("ProxyProcessHandle", SERVICE)
+        self.assertIn("ConnectionWaitResult::kProxyExited", SERVICE)
+        self.assertIn("FWPM_CONDITION_IP_REMOTE_PORT", LIFECYCLE)
+        self.assertIn("FWP_UINT16", LIFECYCLE)
+        self.assertIn("constexpr UINT8 kRedirectWeight = 8;", LIFECYCLE)
+        self.assertIn("constexpr UINT8 kBypassWeight = 15;", LIFECYCLE)
+        self.assertNotIn("kRedirectWeight = 0x80", LIFECYCLE)
+        self.assertNotIn("kBypassWeight = 0xf0", LIFECYCLE)
+
     def test_resource_source_uses_fixed_arvectum_namespace(self):
         self.assertIn('L"Arvectum.ProxyLauncher."', RESOURCES)
         self.assertIn("IsArvectumResourceName", RESOURCES)

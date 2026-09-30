@@ -150,6 +150,68 @@ def _cmd_transparent_acceptance():
             pass
 
 
+def _windows_routing_ownership_path():
+    return os.path.join(_core().runtime_dir(), "windows_routing_ownership.json")
+
+
+def _restore_windows_application_routing():
+    core = _core()
+    if not core.is_windows():
+        return True
+    from routing_ownership import RoutingOwnershipStore
+    from windows_routing_controller import (
+        NamedPipeWindowsRoutingClient,
+        WindowsRoutingController,
+    )
+
+    store = RoutingOwnershipStore(_windows_routing_ownership_path())
+    if not store.exists():
+        return True
+    try:
+        return bool(
+            WindowsRoutingController(
+                store, NamedPipeWindowsRoutingClient()
+            ).restore()
+        )
+    except Exception as exc:
+        core.structured_log(
+            "Windows application routing restore failed",
+            level="ERROR",
+            event="routing.windows.restore_failed",
+            error_type=type(exc).__name__,
+        )
+        return False
+
+
+def _activate_windows_application_routing(proxy, settings, identities):
+    core = _core()
+    from routing_ownership import RoutingOwnershipStore
+    from windows_routing_controller import (
+        NamedPipeWindowsRoutingClient,
+        WindowsRoutingController,
+    )
+
+    ok, message, direct_port = proxy.start_direct_listener()
+    if not ok or not direct_port:
+        raise RuntimeError(message or "direct listener startup failed")
+    plans = core.compile_windows_application_exclusion_enforcement_plan(
+        identities,
+        local_http_port=int(settings.get("local_http_port", 8080)),
+    )
+    if not plans:
+        return None
+    store = RoutingOwnershipStore(_windows_routing_ownership_path())
+    controller = WindowsRoutingController(
+        store, NamedPipeWindowsRoutingClient()
+    )
+    controller.activate(
+        plans,
+        proxy_pid=os.getpid(),
+        proxy_port=int(direct_port),
+    )
+    return controller
+
+
 def _cmd_start():
     core = _core()
     settings = core.load_settings()
@@ -161,6 +223,24 @@ def _cmd_start():
         core._log("start aborted: no upstream proxy configured")
         print("upstream proxy is not configured")
         return 2
+
+    exclusions = ()
+    if core.is_windows():
+        try:
+            exclusions = tuple(core.load_application_exclusions())
+        except Exception as exc:
+            core._log("application exclusions load failed: %r" % exc)
+            print("application exclusions state is invalid")
+            return 1
+        if not _restore_windows_application_routing():
+            print("previous Windows application routing could not be restored")
+            return 1
+        if exclusions:
+            capability = core.application_exclusion_capability(sys.platform)
+            if not capability.get("live_enforcement_supported"):
+                print("Windows application exclusions are not live-enabled")
+                return 1
+
     if core.is_running():
         core._log("already running, enabling system proxy")
         return 0 if core.enable_system_proxy() else 1
@@ -173,21 +253,50 @@ def _cmd_start():
         return 1
 
     core._write_pid()
+    routing_controller = None
+    if exclusions:
+        try:
+            routing_controller = _activate_windows_application_routing(
+                proxy, settings, exclusions
+            )
+        except Exception as exc:
+            core.structured_log(
+                "Windows application routing activation failed",
+                level="ERROR",
+                event="routing.windows.activation_failed",
+                error_type=type(exc).__name__,
+            )
+            proxy.stop()
+            core._remove_pid(os.getpid())
+            print("failed to activate Windows application exclusions")
+            return 1
+
     if not core.enable_system_proxy():
+        if routing_controller is not None:
+            try:
+                routing_controller.restore()
+            except Exception:
+                pass
         proxy.stop()
         core._remove_pid(os.getpid())
         print("failed to enable system proxy; network settings rolled back")
         return 1
 
     print("proxy started")
+    cleanup_ok = True
     try:
         _run_proxy_loop(proxy)
     except KeyboardInterrupt:
         pass
     finally:
+        if routing_controller is not None:
+            try:
+                cleanup_ok = bool(routing_controller.restore()) and cleanup_ok
+            except Exception:
+                cleanup_ok = False
         proxy.stop()
         core._remove_pid(os.getpid())
-    return 0
+    return 0 if cleanup_ok else 1
 
 
 def _cmd_stop():
@@ -205,14 +314,15 @@ def _cmd_stop():
     still_running = core.is_running()
     if killed or not still_running:
         core._remove_pid()
+    routing_ok = _restore_windows_application_routing()
     network_ok = core.disable_system_proxy()
     still_running = core.is_running()
     pending = core.network_restore_pending()
     if still_running:
         print("proxy process is still running; network proxy was disabled where possible")
         return 1
-    if not network_ok or pending:
-        print("proxy stopped, but network settings restore is incomplete; retry --rollback")
+    if not routing_ok or not network_ok or pending:
+        print("proxy stopped, but routing/network restore is incomplete; retry --rollback")
         return 1
     print("proxy stopped; network settings restored")
     return 0
@@ -234,14 +344,15 @@ def _cmd_rollback():
     still_running = core.is_running()
     if killed or not still_running:
         core._remove_pid()
+    routing_ok = _restore_windows_application_routing()
     network_ok = core.disable_system_proxy()
     still_running = core.is_running()
     pending = core.network_restore_pending()
     if still_running:
         print("network proxy was disabled where possible, but proxy process is still running")
         return 1
-    if not network_ok or pending:
-        print("network settings restore is incomplete; recovery files were kept for retry")
+    if not routing_ok or not network_ok or pending:
+        print("routing/network restore is incomplete; recovery files were kept for retry")
         return 1
     print("network settings restored")
     return 0

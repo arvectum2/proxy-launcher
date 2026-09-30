@@ -6,7 +6,7 @@
 
 namespace arvectum::routing {
 
-inline constexpr std::uint32_t kServiceProtocolVersion = 2;
+inline constexpr std::uint32_t kServiceProtocolVersion = 3;
 inline constexpr std::size_t kServiceMaxFilters = 512;
 
 enum class ServiceCommand {
@@ -31,6 +31,7 @@ struct ServiceFilterSpec {
     ServiceDestinationKind destination_kind;
     std::string destination_value;
     std::vector<unsigned short> address_families;
+    std::uint16_t remote_port = 0;
 };
 
 struct ServiceRequest {

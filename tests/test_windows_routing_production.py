@@ -79,7 +79,7 @@ class WindowsRoutingProductionTests(unittest.TestCase):
         self.assertTrue(
             all(x.startswith("Arvectum.ProxyLauncher.") for x in request["owned_resources"])
         )
-        self.assertEqual(request["protocol_version"], 2)
+        self.assertEqual(request["protocol_version"], 3)
         self.assertEqual(request["proxy"], {"pid": 1234, "port": 49152})
 
     def test_request_rejects_invalid_proxy_endpoint(self):

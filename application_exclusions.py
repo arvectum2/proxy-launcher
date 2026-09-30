@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import replace
 import os
 import sys
 from types import ModuleType
@@ -213,12 +214,49 @@ def compile_windows_application_exclusion_plan(
     *,
     app_id_resolver=None,
 ):
-    """Compile the exact non-mutating Windows WFP plan for selected apps."""
+    """Compile the exact Windows WFP bypass identities for selected apps."""
     from windows_app_routing import compile_windows_filter_plan, get_wfp_app_id
 
     resolver = get_wfp_app_id if app_id_resolver is None else app_id_resolver
     rules = compile_application_exclusion_rules(identities)
     return compile_windows_filter_plan(rules, app_id_resolver=resolver)
+
+
+def compile_windows_application_exclusion_enforcement_plan(
+    identities: Iterable[ApplicationIdentity],
+    *,
+    local_http_port: int,
+    app_id_resolver=None,
+):
+    """Redirect only selected-app connections to APL's HTTP proxy into direct relay."""
+    port = int(local_http_port)
+    if port <= 0 or port > 65535:
+        raise ApplicationExclusionError("invalid local HTTP proxy port")
+    plans = compile_windows_application_exclusion_plan(
+        identities, app_id_resolver=app_id_resolver
+    )
+    if not plans:
+        return ()
+    from windows_app_routing import WfpConditionPlan
+    output = []
+    for plan in plans:
+        conditions = tuple(
+            item for item in plan.conditions
+            if item.condition != "ARVECTUM_DESTINATION_ALL"
+        ) + (
+            WfpConditionPlan("FWPM_CONDITION_IP_REMOTE_ADDRESS", "127.0.0.1/32"),
+            WfpConditionPlan("FWPM_CONDITION_IP_REMOTE_PORT", str(port)),
+        )
+        output.append(replace(
+            plan,
+            operation="redirect_to_local_proxy",
+            destination_kind="cidr",
+            destination_value="127.0.0.1/32",
+            conditions=conditions,
+            note="selected app HTTP-proxy flow redirected to Arvectum direct listener",
+            remote_port=port,
+        ))
+    return tuple(output)
 
 
 def install_into_core(core: ModuleType) -> ModuleType:
@@ -229,4 +267,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core.compile_application_exclusion_rules = compile_application_exclusion_rules
     core.application_exclusion_capability = application_exclusion_capability
     core.compile_windows_application_exclusion_plan = compile_windows_application_exclusion_plan
+    core.compile_windows_application_exclusion_enforcement_plan = (
+        compile_windows_application_exclusion_enforcement_plan
+    )
     return core

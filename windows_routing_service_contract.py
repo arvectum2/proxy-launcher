@@ -12,7 +12,7 @@ from typing import Iterable, Mapping, Tuple
 from routing_ownership import OwnedRoutingResource, RESOURCE_PREFIX
 from windows_app_routing import WfpFilterPlan
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION = 3
 MAX_FILTERS = 512
 PIPE_NAME = r"\\.\pipe\Arvectum.ProxyLauncher.Routing"
 _ALLOWED_OPERATIONS = {
@@ -42,6 +42,7 @@ class ServiceFilter:
     destination_kind: str
     destination_value: str
     address_families: Tuple[int, ...]
+    remote_port: int
 
     def to_dict(self):
         payload = asdict(self)
@@ -90,8 +91,11 @@ def _service_filter(plan: WfpFilterPlan) -> ServiceFilter:
         families = (network.version,)
     else:
         raise WindowsRoutingContractError(
-            "only all/CIDR selectors are admitted by production service protocol v1"
+            "only all/CIDR selectors are admitted by production service protocol v3"
         )
+    remote_port = int(getattr(plan, "remote_port", 0) or 0)
+    if remote_port < 0 or remote_port > 65535:
+        raise WindowsRoutingContractError("remote port is out of range")
     return ServiceFilter(
         rule_id=str(plan.rule_id),
         operation=plan.operation,
@@ -99,6 +103,7 @@ def _service_filter(plan: WfpFilterPlan) -> ServiceFilter:
         destination_kind=kind,
         destination_value=value,
         address_families=families,
+        remote_port=remote_port,
     )
 
 

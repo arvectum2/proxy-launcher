@@ -120,6 +120,48 @@ bool WriteFrame(HANDLE pipe, const std::string& response) noexcept {
             pipe, response.data(), static_cast<DWORD>(response.size()));
 }
 
+bool QueryPipeClientSid(
+    HANDLE pipe,
+    std::vector<unsigned char>* storage,
+    PSID* sid,
+    std::string* error) noexcept
+{
+    if (storage == nullptr || sid == nullptr) {
+        return false;
+    }
+    *sid = nullptr;
+    if (!ImpersonateNamedPipeClient(pipe)) {
+        if (error != nullptr) {
+            *error = "named-pipe client impersonation failed";
+        }
+        return false;
+    }
+    HANDLE token = nullptr;
+    bool ok = false;
+    if (OpenThreadToken(GetCurrentThread(), TOKEN_QUERY, TRUE, &token)) {
+        DWORD required = 0;
+        GetTokenInformation(token, TokenUser, nullptr, 0, &required);
+        if (required != 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+            storage->resize(required);
+            if (GetTokenInformation(
+                    token, TokenUser, storage->data(), required, &required)) {
+                TOKEN_USER* user =
+                    reinterpret_cast<TOKEN_USER*>(storage->data());
+                if (IsValidSid(user->User.Sid)) {
+                    *sid = user->User.Sid;
+                    ok = true;
+                }
+            }
+        }
+        CloseHandle(token);
+    }
+    RevertToSelf();
+    if (!ok && error != nullptr) {
+        *error = "named-pipe client SID query failed";
+    }
+    return ok;
+}
+
 void HandleClient(
     HANDLE pipe,
     arvectum::routing::RoutingWfpSession* lifecycle)
@@ -150,8 +192,18 @@ void HandleClient(
             pipe,
             "{\"command\":\"invalid\","
             "\"error\":\"invalid request\","
-            "\"protocol_version\":2,"
+            "\"protocol_version\":3,"
             "\"status\":\"error\"}");
+        return;
+    }
+
+    std::vector<unsigned char> sid_storage;
+    PSID caller_sid = nullptr;
+    if (!QueryPipeClientSid(pipe, &sid_storage, &caller_sid, &error)) {
+        const std::string response =
+            arvectum::routing::BuildServiceResponse(
+                request, false, error.c_str(), false, false);
+        WriteFrame(pipe, response);
         return;
     }
 
@@ -160,9 +212,10 @@ void HandleClient(
     const bool restore =
         request.command == arvectum::routing::ServiceCommand::kRestore;
     if (restore) {
-        ok = lifecycle->Restore(&resources_verified, &error);
+        ok = lifecycle->RestoreForCaller(
+            caller_sid, &resources_verified, &error);
     } else {
-        ok = lifecycle->Apply(request, &error);
+        ok = lifecycle->Apply(request, caller_sid, &error);
     }
     const std::string response =
         arvectum::routing::BuildServiceResponse(
@@ -186,34 +239,49 @@ SECURITY_ATTRIBUTES PipeSecurity(PSECURITY_DESCRIPTOR* descriptor) {
     return attributes;
 }
 
-bool WaitForConnection(HANDLE pipe) noexcept {
+enum class ConnectionWaitResult {
+    kConnected,
+    kStop,
+    kProxyExited,
+    kFailed,
+};
+
+ConnectionWaitResult WaitForConnection(
+    HANDLE pipe,
+    HANDLE proxy_process) noexcept
+{
     HANDLE event = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     if (event == nullptr) {
-        return false;
+        return ConnectionWaitResult::kFailed;
     }
     OVERLAPPED overlapped{};
     overlapped.hEvent = event;
     BOOL connected = ConnectNamedPipe(pipe, &overlapped);
-    if (!connected) {
-        const DWORD error = GetLastError();
-        if (error == ERROR_PIPE_CONNECTED) {
-            connected = TRUE;
-        } else if (error == ERROR_IO_PENDING) {
-            HANDLE waits[2] = {g_stop_event, event};
-            const DWORD wait = WaitForMultipleObjects(
-                2, waits, FALSE, INFINITE);
-            if (wait == WAIT_OBJECT_0 + 1) {
-                DWORD transferred = 0;
-                connected = GetOverlappedResult(
-                    pipe, &overlapped, &transferred, FALSE);
-            } else {
-                CancelIoEx(pipe, &overlapped);
-                connected = FALSE;
-            }
+    ConnectionWaitResult result = ConnectionWaitResult::kFailed;
+    if (connected || GetLastError() == ERROR_PIPE_CONNECTED) {
+        result = ConnectionWaitResult::kConnected;
+    } else if (GetLastError() == ERROR_IO_PENDING) {
+        HANDLE waits[3] = {g_stop_event, event, proxy_process};
+        const DWORD count = proxy_process != nullptr ? 3 : 2;
+        const DWORD wait = WaitForMultipleObjects(
+            count, waits, FALSE, INFINITE);
+        if (wait == WAIT_OBJECT_0 + 1) {
+            DWORD transferred = 0;
+            result = GetOverlappedResult(
+                pipe, &overlapped, &transferred, FALSE)
+                ? ConnectionWaitResult::kConnected
+                : ConnectionWaitResult::kFailed;
+        } else {
+            CancelIoEx(pipe, &overlapped);
+            result = wait == WAIT_OBJECT_0
+                ? ConnectionWaitResult::kStop
+                : (wait == WAIT_OBJECT_0 + 2
+                    ? ConnectionWaitResult::kProxyExited
+                    : ConnectionWaitResult::kFailed);
         }
     }
     CloseHandle(event);
-    return connected == TRUE;
+    return result;
 }
 
 void RunPipeLoop(arvectum::routing::RoutingWfpSession* lifecycle) {
@@ -239,12 +307,21 @@ void RunPipeLoop(arvectum::routing::RoutingWfpSession* lifecycle) {
             }
             continue;
         }
-        if (WaitForConnection(pipe)) {
+        const ConnectionWaitResult wait = WaitForConnection(
+            pipe, lifecycle->ProxyProcessHandle());
+        if (wait == ConnectionWaitResult::kConnected) {
             HandleClient(pipe, lifecycle);
             FlushFileBuffers(pipe);
             DisconnectNamedPipe(pipe);
+        } else if (wait == ConnectionWaitResult::kProxyExited) {
+            bool verified = false;
+            std::string ignored;
+            lifecycle->Restore(&verified, &ignored);
         }
         CloseHandle(pipe);
+        if (wait == ConnectionWaitResult::kStop) {
+            break;
+        }
     }
 }
 

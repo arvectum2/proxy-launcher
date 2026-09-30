@@ -2,6 +2,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#include <aclapi.h>
 #include <fwpmu.h>
 
 #include <algorithm>
@@ -15,6 +16,7 @@
 #include "routing_service_wfp.h"
 #include "wfp_resources.h"
 
+#pragma comment(lib, "Advapi32.lib")
 #pragma comment(lib, "Fwpuclnt.lib")
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -22,12 +24,121 @@ namespace arvectum::routing {
 namespace {
 
 constexpr wchar_t kDevicePath[] = L"\\\\.\\ArvectumProxyRouting";
-constexpr UINT8 kRedirectWeight = 0x80;
-constexpr UINT8 kBypassWeight = 0xf0;
+constexpr UINT8 kRedirectWeight = 8;
+constexpr UINT8 kBypassWeight = 15;
 
 std::string StatusError(const char* operation, DWORD status) {
     return std::string(operation) + " failed status " +
         std::to_string(static_cast<unsigned long>(status));
+}
+
+bool CopySidBytes(PSID sid, std::vector<unsigned char>* output) noexcept {
+    if (sid == nullptr || output == nullptr || !IsValidSid(sid)) {
+        return false;
+    }
+    const DWORD length = GetLengthSid(sid);
+    output->resize(length);
+    return CopySid(length, output->data(), sid) != FALSE;
+}
+
+DWORD OpenProxyProcessForCaller(
+    std::uint32_t pid,
+    PSID caller_sid,
+    HANDLE* process_out) noexcept
+{
+    if (caller_sid == nullptr || process_out == nullptr || !IsValidSid(caller_sid)) {
+        return ERROR_INVALID_SID;
+    }
+    *process_out = nullptr;
+    HANDLE process = OpenProcess(
+        PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE,
+        FALSE,
+        pid);
+    if (process == nullptr) {
+        return GetLastError();
+    }
+    HANDLE token = nullptr;
+    if (!OpenProcessToken(process, TOKEN_QUERY, &token)) {
+        const DWORD status = GetLastError();
+        CloseHandle(process);
+        return status;
+    }
+    DWORD required = 0;
+    GetTokenInformation(token, TokenUser, nullptr, 0, &required);
+    if (required == 0 || GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+        const DWORD status = GetLastError();
+        CloseHandle(token);
+        CloseHandle(process);
+        return status;
+    }
+    std::vector<unsigned char> storage(required);
+    if (!GetTokenInformation(
+            token, TokenUser, storage.data(), required, &required)) {
+        const DWORD status = GetLastError();
+        CloseHandle(token);
+        CloseHandle(process);
+        return status;
+    }
+    const TOKEN_USER* user =
+        reinterpret_cast<const TOKEN_USER*>(storage.data());
+    const bool matches = EqualSid(user->User.Sid, caller_sid) != FALSE;
+    CloseHandle(token);
+    if (!matches) {
+        CloseHandle(process);
+        return ERROR_ACCESS_DENIED;
+    }
+    *process_out = process;
+    return ERROR_SUCCESS;
+}
+
+DWORD BuildUserSecurityDescriptor(
+    PSID caller_sid,
+    std::vector<unsigned char>* storage,
+    FWP_BYTE_BLOB* blob) noexcept
+{
+    if (caller_sid == nullptr || storage == nullptr || blob == nullptr ||
+        !IsValidSid(caller_sid)) {
+        return ERROR_INVALID_SID;
+    }
+    EXPLICIT_ACCESSW access{};
+    access.grfAccessPermissions = FWP_ACTRL_MATCH_FILTER;
+    access.grfAccessMode = GRANT_ACCESS;
+    access.grfInheritance = NO_INHERITANCE;
+    BuildTrusteeWithSidW(&access.Trustee, caller_sid);
+
+    PACL acl = nullptr;
+    DWORD status = SetEntriesInAclW(1, &access, nullptr, &acl);
+    if (status != ERROR_SUCCESS) {
+        return status;
+    }
+    SECURITY_DESCRIPTOR absolute{};
+    if (!InitializeSecurityDescriptor(
+            &absolute, SECURITY_DESCRIPTOR_REVISION) ||
+        !SetSecurityDescriptorDacl(&absolute, TRUE, acl, FALSE)) {
+        status = GetLastError();
+        LocalFree(acl);
+        return status;
+    }
+    DWORD required = 0;
+    MakeSelfRelativeSD(&absolute, nullptr, &required);
+    if (required == 0 || GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+        status = GetLastError();
+        LocalFree(acl);
+        return status;
+    }
+    storage->resize(required);
+    if (!MakeSelfRelativeSD(
+            &absolute,
+            reinterpret_cast<PSECURITY_DESCRIPTOR>(storage->data()),
+            &required)) {
+        status = GetLastError();
+        LocalFree(acl);
+        return status;
+    }
+    LocalFree(acl);
+    blob->size = required;
+    blob->data = storage->data();
+    return ERROR_SUCCESS;
 }
 
 DWORD ConfigureDriver(
@@ -169,7 +280,8 @@ DWORD AddProviderAndCallouts(HANDLE engine) noexcept {
 DWORD AddFilterForFamily(
     HANDLE engine,
     const ServiceFilterSpec& spec,
-    unsigned short family) noexcept
+    unsigned short family,
+    FWP_BYTE_BLOB* user_sd) noexcept
 {
     const bool ipv4 = family == 4;
     if (!ipv4 && family != 6) {
@@ -179,8 +291,18 @@ DWORD AddFilterForFamily(
     app_blob.size = static_cast<UINT32>(spec.application_id.size());
     app_blob.data = const_cast<UINT8*>(spec.application_id.data());
 
-    std::array<FWPM_FILTER_CONDITION0, 3> conditions{};
+    if (user_sd == nullptr || user_sd->data == nullptr || user_sd->size == 0) {
+        return ERROR_INVALID_SECURITY_DESCR;
+    }
+
+    std::array<FWPM_FILTER_CONDITION0, 5> conditions{};
     std::size_t count = 0;
+    conditions[count].fieldKey = FWPM_CONDITION_ALE_USER_ID;
+    conditions[count].matchType = FWP_MATCH_EQUAL;
+    conditions[count].conditionValue.type = FWP_SECURITY_DESCRIPTOR_TYPE;
+    conditions[count].conditionValue.sd = user_sd;
+    ++count;
+
     conditions[count].fieldKey = FWPM_CONDITION_ALE_APP_ID;
     conditions[count].matchType = FWP_MATCH_EQUAL;
     conditions[count].conditionValue.type = FWP_BYTE_BLOB_TYPE;
@@ -212,6 +334,14 @@ DWORD AddFilterForFamily(
         ++count;
     }
 
+    if (spec.remote_port != 0) {
+        conditions[count].fieldKey = FWPM_CONDITION_IP_REMOTE_PORT;
+        conditions[count].matchType = FWP_MATCH_EQUAL;
+        conditions[count].conditionValue.type = FWP_UINT16;
+        conditions[count].conditionValue.uint16 = spec.remote_port;
+        ++count;
+    }
+
     std::wstring name = L"Arvectum.ProxyLauncher.Rule.";
     name.append(spec.rule_id.begin(), spec.rule_id.end());
     name += ipv4 ? L".v4" : L".v6";
@@ -238,7 +368,11 @@ DWORD AddFilterForFamily(
     return FwpmFilterAdd0(engine, &filter, nullptr, nullptr);
 }
 
-DWORD AddPlan(HANDLE engine, const ServiceRequest& request) noexcept {
+DWORD AddPlan(
+    HANDLE engine,
+    const ServiceRequest& request,
+    FWP_BYTE_BLOB* user_sd) noexcept
+{
     DWORD status = FwpmTransactionBegin0(engine, 0);
     if (status != ERROR_SUCCESS) {
         return status;
@@ -247,7 +381,7 @@ DWORD AddPlan(HANDLE engine, const ServiceRequest& request) noexcept {
     if (status == ERROR_SUCCESS) {
         for (const ServiceFilterSpec& spec : request.filters) {
             for (unsigned short family : spec.address_families) {
-                status = AddFilterForFamily(engine, spec, family);
+                status = AddFilterForFamily(engine, spec, family, user_sd);
                 if (status != ERROR_SUCCESS) {
                     break;
                 }
@@ -307,7 +441,8 @@ bool VerifyAbsent(std::string* error) noexcept {
 
 }  // namespace
 
-RoutingWfpSession::RoutingWfpSession() noexcept : engine_(nullptr) {}
+RoutingWfpSession::RoutingWfpSession() noexcept
+    : engine_(nullptr), proxy_process_(nullptr) {}
 
 RoutingWfpSession::~RoutingWfpSession() {
     bool verified = false;
@@ -317,6 +452,7 @@ RoutingWfpSession::~RoutingWfpSession() {
 
 bool RoutingWfpSession::Apply(
     const ServiceRequest& request,
+    PSID caller_sid,
     std::string* error) noexcept
 {
     bool verified = false;
@@ -330,39 +466,101 @@ bool RoutingWfpSession::Apply(
         return false;
     }
 
+    HANDLE proxy_process = nullptr;
+    DWORD status = OpenProxyProcessForCaller(
+        request.proxy_pid, caller_sid, &proxy_process);
+    if (status != ERROR_SUCCESS) {
+        if (error != nullptr) {
+            *error = StatusError("proxy process ownership validation", status);
+        }
+        return false;
+    }
+
+    std::vector<unsigned char> security_descriptor;
+    FWP_BYTE_BLOB user_sd{};
+    status = BuildUserSecurityDescriptor(
+        caller_sid, &security_descriptor, &user_sd);
+    if (status != ERROR_SUCCESS) {
+        CloseHandle(proxy_process);
+        if (error != nullptr) {
+            *error = StatusError("user security descriptor", status);
+        }
+        return false;
+    }
+
     FWPM_SESSION0 session{};
     session.flags = FWPM_SESSION_FLAG_DYNAMIC;
     session.displayData.name =
         const_cast<wchar_t*>(L"Arvectum Proxy Launcher routing session");
     HANDLE engine = nullptr;
-    DWORD status = FwpmEngineOpen0(
+    status = FwpmEngineOpen0(
         nullptr, RPC_C_AUTHN_WINNT, nullptr, &session, &engine);
     if (status != ERROR_SUCCESS) {
+        CloseHandle(proxy_process);
         if (error != nullptr) {
             *error = StatusError("WFP engine open", status);
         }
         return false;
     }
 
-    status = AddPlan(engine, request);
+    status = AddPlan(engine, request, &user_sd);
     if (status != ERROR_SUCCESS) {
         FwpmEngineClose0(engine);
+        CloseHandle(proxy_process);
         if (error != nullptr) {
             *error = StatusError("WFP plan transaction", status);
         }
         return false;
     }
     status = ConfigureDriver(request.proxy_pid, request.proxy_port, true);
-    if (status != ERROR_SUCCESS) {
+    if (status != ERROR_SUCCESS || WaitForSingleObject(proxy_process, 0) != WAIT_TIMEOUT) {
         FwpmEngineClose0(engine);
         ConfigureDriver(0, 0, false);
+        CloseHandle(proxy_process);
         if (error != nullptr) {
-            *error = StatusError("driver configuration", status);
+            *error = status == ERROR_SUCCESS
+                ? "proxy process exited during routing activation"
+                : StatusError("driver configuration", status);
+        }
+        return false;
+    }
+    if (!CopySidBytes(caller_sid, &owner_sid_)) {
+        FwpmEngineClose0(engine);
+        ConfigureDriver(0, 0, false);
+        CloseHandle(proxy_process);
+        if (error != nullptr) {
+            *error = "failed to persist routing owner SID";
         }
         return false;
     }
     engine_ = engine;
+    proxy_process_ = proxy_process;
     return true;
+}
+
+bool RoutingWfpSession::RestoreForCaller(
+    PSID caller_sid,
+    bool* resources_verified,
+    std::string* error) noexcept
+{
+    if (engine_ != nullptr) {
+        if (caller_sid == nullptr || !IsValidSid(caller_sid) ||
+            owner_sid_.empty() ||
+            !EqualSid(owner_sid_.data(), caller_sid)) {
+            if (error != nullptr) {
+                *error = "active routing session belongs to another user";
+            }
+            if (resources_verified != nullptr) {
+                *resources_verified = false;
+            }
+            return false;
+        }
+    }
+    return Restore(resources_verified, error);
+}
+
+HANDLE RoutingWfpSession::ProxyProcessHandle() const noexcept {
+    return proxy_process_;
 }
 
 bool RoutingWfpSession::Restore(
@@ -381,6 +579,11 @@ bool RoutingWfpSession::Restore(
         FwpmEngineClose0(static_cast<HANDLE>(engine_));
         engine_ = nullptr;
     }
+    if (proxy_process_ != nullptr) {
+        CloseHandle(proxy_process_);
+        proxy_process_ = nullptr;
+    }
+    owner_sid_.clear();
     std::string verify_error;
     const bool absent = VerifyAbsent(&verify_error);
     if (resources_verified != nullptr) {
