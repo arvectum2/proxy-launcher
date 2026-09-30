@@ -156,6 +156,10 @@ class WindowsNativeStackTests(unittest.TestCase):
         self.assertIn('$dependency = "BFE/$DriverService"', helper)
         self.assertIn("& $Tool $Operation $InfPath 1> $stdoutPath 2> $stderrPath", helper)
         self.assertNotIn("Start-Process -FilePath $Tool -ArgumentList @($Operation,$InfPath)", helper)
+        self.assertIn("if (Get-ServiceRecord $DriverService) {", helper)
+        self.assertIn("Delete-ServiceBestEffort $DriverService", helper)
+        self.assertIn("primitive package uninstall cleanup", helper)
+        self.assertIn("[DateTime]::UtcNow.AddSeconds(5)", helper)
         self.assertNotIn("testsigning", helper.lower())
 
     def test_installer_embeds_complete_flat_native_bundle(self):

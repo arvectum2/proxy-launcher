@@ -93,7 +93,11 @@ function Stop-ServiceBestEffort([string]$Name) {
 
 function Delete-ServiceBestEffort([string]$Name) {
     & sc.exe delete $Name 2>$null | Out-Null
-    Start-Sleep -Milliseconds 400
+    $deadline = [DateTime]::UtcNow.AddSeconds(5)
+    do {
+        if ($null -eq (Get-ServiceRecord $Name)) { return }
+        Start-Sleep -Milliseconds 200
+    } while ([DateTime]::UtcNow -lt $deadline)
 }
 
 function Read-Json([string]$Path) {
@@ -445,7 +449,14 @@ function Uninstall-Stack {
     if ($result.RebootRequired) {
         throw 'Driver package uninstall requires reboot; application uninstall is blocked until cleanup can be completed safely.'
     }
-    if (Get-ServiceRecord $DriverService) { throw 'Kernel routing service remains after primitive package uninstall.' }
+
+    # Windows can leave the owned primitive-driver service record behind even
+    # after DiUninstallDriver has removed the package. Remove only our already
+    # validated service record, then require registry ownership state to vanish.
+    if (Get-ServiceRecord $DriverService) {
+        Delete-ServiceBestEffort $DriverService
+    }
+    if (Get-ServiceRecord $DriverService) { throw 'Kernel routing service remains after primitive package uninstall cleanup.' }
     if (Get-ServiceRecord $RoutingService) { throw 'Privileged routing service remains after deletion.' }
 
     Remove-Item -LiteralPath $InstalledMarker -Force -ErrorAction SilentlyContinue
