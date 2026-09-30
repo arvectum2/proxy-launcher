@@ -13,6 +13,12 @@ on:
       - 'local_proxy_transport.py'
       - 'application_runtime.py'
       - 'windows_native_stack.py'
+      - 'windows_windivert_backend.py'
+      - 'windows_windivert_controller.py'
+      - 'windows_windivert_service_contract.py'
+      - 'native/windows_windivert/**'
+      - 'tests/test_windows_windivert_*.py'
+      - 'tools/stage_windows_windivert.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
       - 'tools/build_windows_installer.ps1'
@@ -42,6 +48,12 @@ on:
       - 'local_proxy_transport.py'
       - 'application_runtime.py'
       - 'windows_native_stack.py'
+      - 'windows_windivert_backend.py'
+      - 'windows_windivert_controller.py'
+      - 'windows_windivert_service_contract.py'
+      - 'native/windows_windivert/**'
+      - 'tests/test_windows_windivert_*.py'
+      - 'tools/stage_windows_windivert.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
       - 'tools/build_windows_installer.ps1'
@@ -85,6 +97,30 @@ jobs:
           tests.test_application_runtime
           tests.test_windows_native_stack
           tests.test_windows_native_stack_installer
+      - name: Run WinDivert backend candidate tests
+        shell: pwsh
+        run: |
+          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py
+          ./tools/stage_windows_windivert.ps1 -OutputDirectory 'out/windivert'
+
+      - name: Compile native WinDivert acceptance probes
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
+          if not defined VSINSTALL exit /b 1
+          call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_windivert\loopback_smoke.cpp /Fe:loopback_smoke.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 /Iout\windivert\sdk native\windows_windivert\windivert_nat_probe.cpp out\windivert\sdk\WinDivert.lib /Fe:windivert_nat_probe.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+
+      - name: Validate compiled WinDivert filters
+        shell: pwsh
+        run: |
+          Copy-Item out/windivert/WinDivert.dll . -Force
+          ./windivert_nat_probe.exe --validate-filters 38180 38181
+          if ($LASTEXITCODE -ne 0) { throw 'WinDivert filter validation failed' }
+
       - name: Compile native WFP SDK probe
         shell: cmd
         run: |
@@ -171,6 +207,26 @@ jobs:
           if ($text -match 'FwpmFilterAdd|FwpmCalloutAdd|FwpmProviderAdd|FwpmSubLayerAdd') {
             throw 'Mutation API found in SDK probe'
           }
+      - name: Assemble WinDivert VM acceptance artifact
+        shell: pwsh
+        run: |
+          $out = 'out/windows-windivert-vm-acceptance'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          Copy-Item loopback_smoke.exe $out
+          Copy-Item windivert_nat_probe.exe $out
+          Copy-Item out/windivert/WinDivert.dll $out
+          Copy-Item out/windivert/WinDivert64.sys $out
+          Copy-Item out/windivert/WinDivert-LICENSE $out
+          Copy-Item out/windivert/windivert-dependency.json $out
+          Copy-Item tools/run_windows_windivert_vm_acceptance.ps1 $out
+          Copy-Item tools/windivert_nat_probe_run.cmd $out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-windivert-vm-acceptance
+          path: out/windows-windivert-vm-acceptance
+          if-no-files-found: error
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-per-app-native-foundation
