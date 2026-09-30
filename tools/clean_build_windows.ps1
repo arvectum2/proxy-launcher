@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Canonical reproducible clean-build script for Arvectum Proxy Launcher on Windows.
 .DESCRIPTION
