@@ -59,6 +59,15 @@ class WindowsNativeStackInstallerTests(unittest.TestCase):
         self.assertIn("Invoke-PackageTool", self.native)
         self.assertIn("Refusing to modify foreign", self.native)
 
+    def test_native_lifecycle_does_not_depend_on_process_environment_paths(self):
+        for forbidden in ("$env:OS", "$env:ProgramFiles", "$env:ProgramData", "$env:SystemRoot", "$env:TEMP"):
+            self.assertNotIn(forbidden, self.native)
+        self.assertNotIn("$env:OS", self.bundle)
+        self.assertIn("GetFolderPath", self.native)
+        self.assertIn("EnvironmentVariableTarget", self.native)
+        self.assertIn("OSVersion.Platform", self.native)
+        self.assertIn("OSVersion.Platform", self.bundle)
+
     def test_routing_service_auto_starts_with_bfe_and_driver_dependency(self):
         self.assertIn('$dependency = "BFE/$DriverService"', self.native)
         self.assertIn("sc.exe create $RoutingService type= own start= auto depend= $dependency", self.native)

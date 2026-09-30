@@ -3,12 +3,26 @@ param(
     [ValidateSet('Preflight','Install','Uninstall','Status')]
     [string]$Action = 'Status',
     [string]$PayloadRoot,
-    [string]$InstallRoot = (Join-Path $env:ProgramFiles 'Arvectum\ProxyLauncherNative'),
+    [string]$InstallRoot,
     [switch]$AllowTestBundle,
     [switch]$Elevated
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+$ProgramFilesRoot = [Environment]::GetFolderPath([Environment+SpecialFolder]::ProgramFiles)
+$ProgramDataRoot = [Environment]::GetFolderPath([Environment+SpecialFolder]::CommonApplicationData)
+$SystemRootPath = [Environment]::GetEnvironmentVariable('SystemRoot', [EnvironmentVariableTarget]::Machine)
+if ([string]::IsNullOrWhiteSpace($SystemRootPath)) {
+    $SystemRootPath = [Environment]::GetFolderPath([Environment+SpecialFolder]::Windows)
+}
+$TempRoot = [IO.Path]::GetTempPath()
+foreach ($requiredRoot in @($ProgramFilesRoot,$ProgramDataRoot,$SystemRootPath,$TempRoot)) {
+    if ([string]::IsNullOrWhiteSpace($requiredRoot)) { throw 'Required Windows system folder could not be resolved.' }
+}
+if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
+    $InstallRoot = Join-Path $ProgramFilesRoot 'Arvectum\ProxyLauncherNative'
+}
 
 $DriverService = 'ArvectumProxyRoutingCallout'
 $RoutingService = 'ArvectumProxyRouting'
@@ -20,10 +34,10 @@ $PackageToolFile = 'ArvectumDriverPackageTool.exe'
 $BundleManifestName = 'native-stack-bundle.json'
 $InstalledSchema = 'arvectum.proxy.windows-native-stack.v1'
 $ProtocolVersion = 3
-$StateRoot = Join-Path $env:ProgramData 'Arvectum\ProxyLauncher'
+$StateRoot = Join-Path $ProgramDataRoot 'Arvectum\ProxyLauncher'
 $InstalledMarker = Join-Path $StateRoot 'native-stack.json'
 $LogPath = Join-Path $StateRoot 'native-stack-install.log'
-$DriverStoreRoot = Join-Path $env:SystemRoot 'System32\DriverStore\FileRepository'
+$DriverStoreRoot = Join-Path $SystemRootPath 'System32\DriverStore\FileRepository'
 
 function Is-Administrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -47,9 +61,9 @@ function Normalize-Path([string]$Value) {
     $text = [Environment]::ExpandEnvironmentVariables($Value.Trim().Trim('"'))
     if ($text.StartsWith('\??\')) { $text = $text.Substring(4) }
     if ($text.StartsWith('\SystemRoot\', [StringComparison]::OrdinalIgnoreCase)) {
-        $text = Join-Path $env:SystemRoot $text.Substring(12)
+        $text = Join-Path $SystemRootPath $text.Substring(12)
     } elseif ($text.StartsWith('System32\', [StringComparison]::OrdinalIgnoreCase)) {
-        $text = Join-Path $env:SystemRoot $text
+        $text = Join-Path $SystemRootPath $text
     }
     try { return [IO.Path]::GetFullPath($text).TrimEnd('\').ToLowerInvariant() }
     catch { return $text.TrimEnd('\').ToLowerInvariant() }
@@ -203,8 +217,8 @@ function Assert-No-Foreign-Native-State($Marker) {
 
 function Invoke-PackageTool([string]$Tool, [string]$Operation, [string]$InfPath) {
     $token = [Guid]::NewGuid().ToString('N')
-    $stdoutPath = Join-Path $env:TEMP "apl-driver-package-$token.out"
-    $stderrPath = Join-Path $env:TEMP "apl-driver-package-$token.err"
+    $stdoutPath = Join-Path $TempRoot "apl-driver-package-$token.out"
+    $stderrPath = Join-Path $TempRoot "apl-driver-package-$token.err"
     try {
         $p = Start-Process -FilePath $Tool -ArgumentList @($Operation,$InfPath) -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru -Wait
         $stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw -ErrorAction SilentlyContinue } else { '' }
@@ -442,13 +456,13 @@ function Invoke-Elevated {
     $arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -Action {1} -InstallRoot "{2}" -Elevated' -f $PSCommandPath,$Action,$InstallRoot
     if ($PayloadRoot) { $arguments += (' -PayloadRoot "{0}"' -f $PayloadRoot) }
     if ($AllowTestBundle) { $arguments += ' -AllowTestBundle' }
-    $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $powershell = Join-Path $SystemRootPath 'System32\WindowsPowerShell\v1.0\powershell.exe'
     $process = Start-Process -FilePath $powershell -Verb RunAs -ArgumentList $arguments -PassThru -Wait
     exit $process.ExitCode
 }
 
 try {
-    if ($env:OS -ne 'Windows_NT') { throw 'Windows native-stack helper requires Windows.' }
+    if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) { throw 'Windows native-stack helper requires Windows.' }
 
     if ($Action -eq 'Status') {
         $marker = Installed-Marker
