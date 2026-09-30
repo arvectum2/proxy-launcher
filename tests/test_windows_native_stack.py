@@ -154,6 +154,8 @@ class WindowsNativeStackTests(unittest.TestCase):
         self.assertIn("Microsoft Windows Hardware Compatibility Publisher", helper)
         self.assertIn("depend= $dependency", helper)
         self.assertIn('$dependency = "BFE/$DriverService"', helper)
+        self.assertIn("& $Tool $Operation $InfPath 1> $stdoutPath 2> $stderrPath", helper)
+        self.assertNotIn("Start-Process -FilePath $Tool -ArgumentList @($Operation,$InfPath)", helper)
         self.assertNotIn("testsigning", helper.lower())
 
     def test_installer_embeds_complete_flat_native_bundle(self):

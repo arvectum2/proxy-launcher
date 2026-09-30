@@ -220,15 +220,16 @@ function Invoke-PackageTool([string]$Tool, [string]$Operation, [string]$InfPath)
     $stdoutPath = Join-Path $TempRoot "apl-driver-package-$token.out"
     $stderrPath = Join-Path $TempRoot "apl-driver-package-$token.err"
     try {
-        $p = Start-Process -FilePath $Tool -ArgumentList @($Operation,$InfPath) -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru -Wait
+        & $Tool $Operation $InfPath 1> $stdoutPath 2> $stderrPath
+        $exitCode = [int]$LASTEXITCODE
         $stdout = if (Test-Path -LiteralPath $stdoutPath) { Get-Content -LiteralPath $stdoutPath -Raw -ErrorAction SilentlyContinue } else { '' }
         $stderr = if (Test-Path -LiteralPath $stderrPath) { Get-Content -LiteralPath $stderrPath -Raw -ErrorAction SilentlyContinue } else { '' }
-        if ($p.ExitCode -ne 0 -and $p.ExitCode -ne 3010) {
-            throw "Driver package $Operation failed with exit code $($p.ExitCode): $stderr"
+        if ($exitCode -ne 0 -and $exitCode -ne 3010) {
+            throw "Driver package $Operation failed with exit code ${exitCode}: $stderr"
         }
         return [pscustomobject]@{
-            ExitCode = [int]$p.ExitCode
-            RebootRequired = ($p.ExitCode -eq 3010 -or $stdout -match 'reboot=1')
+            ExitCode = $exitCode
+            RebootRequired = ($exitCode -eq 3010 -or $stdout -match 'reboot=1')
             StdOut = [string]$stdout
         }
     } finally {
