@@ -21,9 +21,9 @@ function Get-Sha256([string]$Path) {
   $certutil = Join-Path $env:SystemRoot 'System32\certutil.exe'
   $output = & $certutil -hashfile $Path SHA256
   if ($LASTEXITCODE -ne 0) { throw "certutil SHA256 failed for $Path" }
-  $hashes = @($output | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ -match '^[0-9A-Fa-f]{64}$' })
+  $hashes = @($output | ForEach-Object { ([string]$_) -replace '^\s+|\s+$','' } | Where-Object { $_ -match '^[0-9A-Fa-f]{64}$' })
   if ($hashes.Count -ne 1) { throw "certutil SHA256 produced an ambiguous result for $Path" }
-  return ([string]$hashes[0]).ToLowerInvariant()
+  return [string]$hashes[0]
 }
 
 function Test-ExactPath([string]$Candidate, [string]$Expected) {

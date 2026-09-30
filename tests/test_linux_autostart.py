@@ -100,7 +100,12 @@ class LinuxAutostartTests(unittest.TestCase):
         target.write_text("foreign", encoding="utf-8")
         path = autostart.autostart_path(environ=self.env, home=str(self.home))
         path.parent.mkdir(parents=True)
-        path.symlink_to(target)
+        try:
+            path.symlink_to(target)
+        except OSError as exc:
+            if os.name == "nt" and getattr(exc, "winerror", None) == 1314:
+                self.skipTest("Windows process is not allowed to create symlinks")
+            raise
         with self.assertRaises(autostart.LinuxAutostartError):
             self.enable()
         self.assertEqual(target.read_text(encoding="utf-8"), "foreign")
