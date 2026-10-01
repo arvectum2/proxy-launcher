@@ -6,7 +6,10 @@ import pytest
 
 from routing_ownership import RoutingOwnershipStore
 from routing_rules import ApplicationIdentity
-from windows_windivert_backend import compile_windivert_application_plan
+from windows_windivert_backend import (
+    compile_windivert_application_plan,
+    windows_executable_path_sha256,
+)
 from windows_windivert_controller import WindowsWinDivertController
 from windows_windivert_service_contract import (
     OWNED_RESOURCES,
@@ -57,7 +60,7 @@ class FakeService:
         }
 
 
-def test_contract_serializes_executable_paths_and_one_proxy_port():
+def test_contract_serializes_path_hashes_and_one_proxy_port():
     payload = json.loads(
         canonical_plan_json(
             _plans((r"C:\Apps\B.exe", r"C:\Apps\A.exe"))
@@ -65,10 +68,21 @@ def test_contract_serializes_executable_paths_and_one_proxy_port():
     )
     assert payload["protocol_version"] == PROTOCOL_VERSION
     assert payload["backend"] == "windivert"
-    assert [item["executable_path"] for item in payload["applications"]] == [
-        r"c:\apps\a.exe",
-        r"c:\apps\b.exe",
-    ]
+    assert {
+        item["application_path_sha256"]
+        for item in payload["applications"]
+    } == {
+        windows_executable_path_sha256(r"C:\Apps\A.exe"),
+        windows_executable_path_sha256(r"C:\Apps\B.exe"),
+    }
+    assert all(
+        set(item) == {
+            "application_path_sha256",
+            "local_proxy_port",
+            "rule_id",
+        }
+        for item in payload["applications"]
+    )
     assert {item["local_proxy_port"] for item in payload["applications"]} == {
         8080
     }

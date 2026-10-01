@@ -11,7 +11,7 @@ from typing import Iterable, Mapping, Tuple
 from routing_ownership import OwnedRoutingResource, RESOURCE_PREFIX
 from windows_windivert_backend import (
     WinDivertApplicationPlan,
-    normalize_windows_executable_path,
+    windows_executable_path_sha256,
 )
 
 PROTOCOL_VERSION = 1
@@ -36,8 +36,7 @@ class WindowsWinDivertContractError(RuntimeError):
 @dataclass(frozen=True)
 class ServiceApplication:
     rule_id: str
-    application_stable_id: str
-    executable_path: str
+    application_path_sha256: str
     local_proxy_port: int
 
     def to_dict(self) -> Mapping[str, object]:
@@ -75,7 +74,7 @@ def _service_application(
 ) -> ServiceApplication:
     if not isinstance(plan, WinDivertApplicationPlan):
         raise TypeError("WinDivertApplicationPlan required")
-    path = normalize_windows_executable_path(plan.executable_path)
+    path_hash = windows_executable_path_sha256(plan.executable_path)
     port = _validate_port(plan.local_proxy_port, "local proxy port")
     rule_id = str(plan.rule_id or "").strip()
     stable_id = str(plan.application_stable_id or "").strip()
@@ -85,8 +84,7 @@ def _service_application(
         )
     return ServiceApplication(
         rule_id=rule_id,
-        application_stable_id=stable_id,
-        executable_path=path,
+        application_path_sha256=path_hash,
         local_proxy_port=port,
     )
 

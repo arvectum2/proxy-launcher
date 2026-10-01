@@ -82,6 +82,11 @@ def normalize_windows_executable_path(path: str) -> str:
     return ntpath.normcase(normalized)
 
 
+def windows_executable_path_sha256(path: str) -> str:
+    normalized = normalize_windows_executable_path(path)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
 def _validate_port(value: int, label: str) -> int:
     if isinstance(value, bool):
         raise WindowsWinDivertError(f"{label} must be an integer")

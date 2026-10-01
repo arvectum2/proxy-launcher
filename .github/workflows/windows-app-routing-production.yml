@@ -101,7 +101,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install pytest==8.4.2
-          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py
+          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_native_source.py
           ./tools/stage_windows_windivert.ps1 -OutputDirectory 'out/windivert'
 
       - name: Compile native WinDivert acceptance probes
@@ -113,6 +113,12 @@ jobs:
           cl /nologo /W4 /EHsc /std:c++17 native\windows_windivert\loopback_smoke.cpp /Fe:loopback_smoke.exe /link Ws2_32.lib
           if errorlevel 1 exit /b 1
           cl /nologo /W4 /EHsc /std:c++17 /Iout\windivert\sdk native\windows_windivert\windivert_nat_probe.cpp out\windivert\sdk\WinDivert.lib /Fe:windivert_nat_probe.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /WX /EHsc /std:c++17 /MT /O2 native\windows_windivert\windivert_service_protocol_test.cpp native\windows_windivert\windivert_service_protocol.cpp /Fe:windivert_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          windivert_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /WX /EHsc /std:c++17 /MT /O2 /Iout\windivert\sdk native\windows_windivert\windivert_service_main.cpp native\windows_windivert\windivert_service_protocol.cpp native\windows_windivert\windivert_routing_session.cpp out\windivert\sdk\WinDivert.lib /Fe:ArvectumProxyWinDivertRoutingService.exe /link Advapi32.lib Bcrypt.lib Ws2_32.lib
           if errorlevel 1 exit /b 1
 
       - name: Validate compiled WinDivert filters
@@ -215,6 +221,7 @@ jobs:
           New-Item -ItemType Directory -Path $out -Force | Out-Null
           Copy-Item loopback_smoke.exe $out
           Copy-Item windivert_nat_probe.exe $out
+          Copy-Item ArvectumProxyWinDivertRoutingService.exe $out
           Copy-Item out/windivert/WinDivert.dll $out
           Copy-Item out/windivert/WinDivert64.sys $out
           Copy-Item out/windivert/WinDivert-LICENSE $out
