@@ -134,3 +134,12 @@ def test_installer_never_embeds_test_mode_for_production_windivert():
         script.index("#define AppName")
     ]
     assert "windows_preview_mode_helper" not in section.lower()
+
+
+def test_third_party_notice_covers_redistributed_windivert():
+    notice = (ROOT / "THIRD_PARTY_NOTICES.txt").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "WinDivert 2.2.2" in notice
+    assert "LGPL-3.0-or-later OR GPL-2.0" in notice
+    assert "WinDivert-LICENSE" in notice

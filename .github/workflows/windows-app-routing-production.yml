@@ -74,6 +74,12 @@ on:
       - 'tests/test_windows_native_stack_installer.py'
       - '.github/workflows/windows-app-routing-production.yml'
   workflow_dispatch:
+    inputs:
+      windivert_only:
+        description: 'Build/test only the production WinDivert path'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -131,6 +137,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'WinDivert filter validation failed' }
 
       - name: Compile native WFP SDK probe
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: cmd
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
@@ -153,11 +160,13 @@ jobs:
           cl /nologo /W4 /EHsc /std:c++17 native\windows_routing\driver_package_tool.cpp /Fe:ArvectumDriverPackageTool.exe /link Newdev.lib
           if errorlevel 1 exit /b 1
       - name: Install matching Windows SDK and WDK
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: |
           winget install --id Microsoft.WindowsSDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
           winget install --id Microsoft.WindowsWDK.10.0.28000 -e --silent --accept-package-agreements --accept-source-agreements
       - name: Build WFP callout driver
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: cmd
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
@@ -165,6 +174,7 @@ jobs:
           "%VSINSTALL%\MSBuild\Current\Bin\MSBuild.exe" native\windows_routing\ArvectumProxyRoutingCallout.vcxproj /m /p:Configuration=Debug /p:Platform=x64 /p:ApiValidator_Enable=false
           if errorlevel 1 exit /b 1
       - name: Validate x64 WFP callout APIs
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: |
           $kit = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin" -Directory | Where-Object Name -Match '^10\.0\.' | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
@@ -174,6 +184,7 @@ jobs:
           & $validator "-DriverPackagePath:native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys" "-SupportedApiXmlFiles:$build\UniversalDDIs.xml" "-ModuleWhiteListXmlFiles:$build\ModuleWhiteList.xml" "-ApiExtractorExePath:${env:ProgramFiles(x86)}\Windows Kits\10\bin\$kit\x64"
           if ($LASTEXITCODE -ne 0) { throw 'x64 ApiValidator failed' }
       - name: Prepare canonical Hardware Dev Center submission package
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: |
           $sys = Resolve-Path 'native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.sys'
@@ -187,6 +198,7 @@ jobs:
           if ([bool]$manifest.attestation_release_allowed) { throw 'Attestation must not be enabled as the public production release path.' }
           if (-not (Test-Path 'out/windows-driver-submission/ArvectumProxyRoutingCallout.cat')) { throw 'Canonical driver catalog was not produced.' }
       - name: Prepare WDK test-signed acceptance bundle
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: |
           Copy-Item native/windows_routing/build/Debug/ArvectumProxyRoutingCallout.cer ArvectumProxyRoutingTest.cer -Force
@@ -207,9 +219,11 @@ jobs:
           & $signtool sign /fd SHA256 /sha1 $thumbprint /s My ArvectumWfpSelectedClient.exe
           if ($LASTEXITCODE -ne 0) { throw 'selected client signing failed' }
       - name: Run read-only native WFP SDK probe
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: .\wfp_sdk_probe.exe
       - name: Enforce no live WFP mutation in CI probe
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         shell: pwsh
         run: |
           $text = Get-Content native/windows_routing/wfp_sdk_probe.cpp -Raw
@@ -250,6 +264,7 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.windivert_only != true }}
         with:
           name: windows-per-app-native-foundation
           path: |

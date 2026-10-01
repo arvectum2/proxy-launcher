@@ -34,6 +34,15 @@ with their respective upstream license terms. The exact runtime SHA-256 and
 source commit used by Arvectum are recorded in tools/appimage-toolchain.lock.
 This runtime is not present in the Debian .deb package.
 
+WinDivert 2.2.2 — Windows per-application routing only
+------------------------------------------------------
+Copyright WinDivert contributors. Arvectum redistributes the official pre-built
+WinDivert.dll and WinDivert64.sys from WinDivert 2.2.2 under the upstream dual
+license (LGPL-3.0-or-later OR GPL-2.0). The Windows installer also redistributes
+the upstream WinDivert-LICENSE file alongside those binaries. Arvectum's
+routing service uses WinDivert through its DLL/import-library interface; the
+WinDivert source code is not incorporated into Arvectum application source.
+
 Build-only tooling
 ------------------
 The exact Python build dependency set is pinned in requirements-build.lock.txt.
