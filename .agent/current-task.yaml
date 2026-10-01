@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPREVIEW-BUSINESS-MODEL-20261001
-status: in_progress
+status: completed
 goal: "Resolve the current iOS 0.1.36 build 40 App Review Guideline 2.1(b) business-model information request and resubmit the existing review item without unnecessary binary changes."
 definition_of_done:
   - "Capture the exact current Apple review questions and submission/build state."
@@ -12,18 +12,26 @@ definition_of_done:
   - "Resubmit the existing iOS 0.1.36 build 40 review item unless verification reveals a binary defect requiring a new build."
   - "Verify the submission returns to WAITING_FOR_REVIEW and record evidence."
 completed:
-  - "Captured Apple 2026-09-30 Guideline 2.1(b) request: five questions about paid content/services, where purchased content comes from, non-IAP unlocks, and how users obtain proxies."
-  - "Confirmed the immediately preceding VPN data-handling response was supplied; Apple now requests separate business-model clarification."
-current: "Verify current binary/metadata monetization behavior and prepare the five-part response before modifying App Store Connect."
-pending:
-  - "Verify app source contains no StoreKit/IAP/subscription/paywall/commerce or external purchase flow."
-  - "Verify App Store metadata/review notes do not imply paid content is sold by Arvectum."
-  - "Patch App Review Information notes with direct Q1-Q5 answers."
-  - "Reply to current App Review message."
-  - "Resubmit existing review item and verify WAITING_FOR_REVIEW."
+  - "Captured Apple 2026-09-30 Guideline 2.1(b) request: five questions about paid content/services, purchase location, previously purchased content, non-IAP unlocks, and how users obtain proxies."
+  - "Verified current iOS source has no StoreKit, IAP, subscription, paywall, purchase, or buy-proxy flow."
+  - "Verified live App Store description explicitly states that APL does not provide or sell proxy servers and users add their own connection parameters."
+  - "Verified App Review Notes already contained a temporary private reviewer proxy and exact connection steps; tested that proxy successfully and confirmed routed egress."
+  - "Rewrote App Review Notes with explicit Q1-Q5 business-model answers while preserving the reviewer proxy, VPN/data-handling summary, and test instructions; persisted length 2969 characters."
+  - "Corrected contradictory App Review metadata by disabling Sign-in required because APL has no accounts or sign-in."
+  - "Replied in the App Review conversation with direct answers to all five questions; Messages count increased from 4 to 5."
+  - "Used Update Review to move iOS 0.1.36 (40) from REJECTED to READY_FOR_REVIEW."
+  - "Resubmitted submission 44e97256-2450-4fb6-924c-71143be545df; live App Store Connect page now reports Waiting for Review for both submission and app version."
+current: "COMPLETED: iOS 0.1.36 build 40 is resubmitted with business-model clarification and is WAITING_FOR_REVIEW."
+pending: []
 last_verified_commit: "7b4651d4806f78828f548ca24d369cb3bb624743"
 test_results:
-  - "App Store Connect live page: iOS 0.1.36 (40), REJECTED / UNRESOLVED_ISSUES, Guideline 2.1(b) information request."
+  - "GitHub code search for StoreKit / In-App Purchase / subscription-paywall-purchase-buy-proxy terms: no matching monetization implementation found."
+  - "App Store metadata verification: description says APL does not provide or sell proxies; no Arvectum account is required."
+  - "Temporary reviewer proxy connectivity: PASS; authenticated HTTP CONNECT returned the proxy egress IP."
+  - "App Review Information persistence after reload: PASS; Notes length 2969 and Sign-in required=false."
+  - "App Review conversation reply: PASS; current response visible as message 5."
+  - "Review item transition: REJECTED -> READY_FOR_REVIEW -> WAITING_FOR_REVIEW."
+  - "Final live App Store Connect verification: submission and iOS 0.1.36 (40) both WAITING_FOR_REVIEW."
 blocker: null
-resume_instruction: "Continue from the current Guideline 2.1(b) business-model request. Do not rebuild unless source/metadata verification reveals an actual paid-content or purchase-flow defect. Verify monetization behavior, answer all five questions in Review Notes and the conversation, resubmit build 40, verify WAITING_FOR_REVIEW, then mark completed."
-updated_at: "2026-10-01T21:50:00+03:00"
+resume_instruction: "Task is complete. Do not rebuild or resubmit build 40 unless Apple sends a new concrete review issue. On the next Apple response, inspect the exact new message first and create a new checkpoint only if further action is required."
+updated_at: "2026-10-01T21:58:00+03:00"
