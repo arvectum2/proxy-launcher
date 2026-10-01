@@ -264,6 +264,26 @@ def windows_windivert_stack_readiness(
             "WinDivert routing stack marker identity is invalid",
         )
 
+    recorded_source_commit = str(
+        payload.get("source_commit") or ""
+    ).lower()
+    if not re.fullmatch(r"[0-9a-f]{40}", recorded_source_commit):
+        return _fail(
+            "invalid_marker",
+            "WinDivert routing stack source commit is invalid",
+        )
+    application_source_commit = current_application_source_commit()
+    if (
+        application_source_commit is not None
+        and recorded_source_commit != application_source_commit
+    ):
+        return _fail(
+            "source_commit_mismatch",
+            "WinDivert routing stack does not match this application build",
+            installed_source_commit=recorded_source_commit,
+            application_source_commit=application_source_commit,
+        )
+
     service = payload.get("service")
     dependency = payload.get("dependency")
     if not isinstance(service, Mapping) or not isinstance(

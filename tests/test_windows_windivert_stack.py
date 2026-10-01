@@ -4,6 +4,9 @@ import json
 import windows_windivert_stack as stack
 
 
+SOURCE_COMMIT = "a" * 40
+
+
 def _sha(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -42,6 +45,7 @@ def _ready_fixture(tmp_path, monkeypatch):
     marker_payload = {
         "schema": stack.SCHEMA,
         "version": stack.WINDIVERT_VERSION,
+        "source_commit": SOURCE_COMMIT,
         "install_root": str(root),
         "service": {
             "name": stack.SERVICE_NAME,
@@ -86,6 +90,34 @@ def test_readiness_accepts_exact_installed_stack(
     assert result["ready"] is True
     assert result["state"] == "windivert_ready"
     assert result["backend"] == "windivert"
+
+
+def test_readiness_rejects_invalid_source_commit(
+    tmp_path, monkeypatch
+):
+    _, marker, _ = _ready_fixture(tmp_path, monkeypatch)
+    payload = json.loads(marker.read_text(encoding="utf-8"))
+    payload["source_commit"] = "not-a-commit"
+    marker.write_text(json.dumps(payload), encoding="utf-8")
+    result = stack.windows_windivert_stack_readiness()
+    assert result["ready"] is False
+    assert result["state"] == "invalid_marker"
+
+
+def test_readiness_rejects_application_source_commit_mismatch(
+    tmp_path, monkeypatch
+):
+    _ready_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        stack,
+        "current_application_source_commit",
+        lambda: "b" * 40,
+    )
+    result = stack.windows_windivert_stack_readiness()
+    assert result["ready"] is False
+    assert result["state"] == "source_commit_mismatch"
+    assert result["installed_source_commit"] == SOURCE_COMMIT
+    assert result["application_source_commit"] == "b" * 40
 
 
 def test_readiness_fails_closed_on_dependency_hash_mismatch(
