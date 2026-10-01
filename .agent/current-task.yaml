@@ -1,31 +1,29 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-PRODUCT-INCY-INPUT-20260929
-status: completed
-goal: "Incorporate useful competitor-derived product capabilities into the canonical APL roadmap while preserving APL's simple user-facing model."
+task_id: APL-IOS-APPREVIEW-BUSINESS-MODEL-20261001
+status: in_progress
+goal: "Resolve the current iOS 0.1.36 build 40 App Review Guideline 2.1(b) business-model information request and resubmit the existing review item without unnecessary binary changes."
 definition_of_done:
-  - "Record a universal connection-input strategy covering ordinary proxy credentials, VPN links/configuration keys, and MTProto."
-  - "Add QR/deep-link/clipboard import, managed subscriptions, quick actions and safety/privacy constraints to the roadmap."
-  - "Stage advanced protocols so APL does not become a protocol-heavy UI clone."
-  - "Verify the roadmap text against current APL capabilities and merge the documentation update to main."
+  - "Capture the exact current Apple review questions and submission/build state."
+  - "Verify the released iOS build and App Store metadata do not sell, unlock, link to, or require paid digital content/services."
+  - "Verify how proxies are supplied and whether any payment to Arvectum or third parties is required by the app."
+  - "Update App Review Information with explicit answers to all five business-model questions."
+  - "Reply to App Review with the same explicit answers."
+  - "Resubmit the existing iOS 0.1.36 build 40 review item unless verification reveals a binary defect requiring a new build."
+  - "Verify the submission returns to WAITING_FOR_REVIEW and record evidence."
 completed:
-  - "Verified current repository/mobile capability baseline before editing."
-  - "Added APL-CONNECT-001 to docs/ROADMAP.md with ordinary proxy, VPN key/config import, MTProto, QR/clipboard/deep links, managed subscriptions, zero-config Marketplace delivery, quick actions, capability-gated kill switch and local-first secret handling."
-  - "Staged delivery as importer/MTProto -> VLESS+Reality -> managed subscriptions -> Marketplace zero-config -> demand-driven compatibility protocols."
-  - "Added explicit anti-clone rule preserving APL's simple default UX."
-  - "Reconciled stale iOS roadmap state to the verified 0.1.36 build 40 WAITING_FOR_REVIEW baseline."
-  - "Fetched and reviewed the edited roadmap section and execution queue for current-vs-future accuracy."
-  - "PR #235 passed the required build gate and merged to main as 3346d6963cf4c0b2d28d34f5d19a4bb2003aa7e9."
-  - "Verified main contains the APL-CONNECT-001 section after merge."
-current: "COMPLETED: APL-CONNECT-001 is recorded in the canonical roadmap on main."
-pending: []
-last_verified_commit: "3346d6963cf4c0b2d28d34f5d19a4bb2003aa7e9"
+  - "Captured Apple 2026-09-30 Guideline 2.1(b) request: five questions about paid content/services, where purchased content comes from, non-IAP unlocks, and how users obtain proxies."
+  - "Confirmed the immediately preceding VPN data-handling response was supplied; Apple now requests separate business-model clarification."
+current: "Verify current binary/metadata monetization behavior and prepare the five-part response before modifying App Store Connect."
+pending:
+  - "Verify app source contains no StoreKit/IAP/subscription/paywall/commerce or external purchase flow."
+  - "Verify App Store metadata/review notes do not imply paid content is sold by Arvectum."
+  - "Patch App Review Information notes with direct Q1-Q5 answers."
+  - "Reply to current App Review message."
+  - "Resubmit existing review item and verify WAITING_FOR_REVIEW."
+last_verified_commit: "7b4651d4806f78828f548ca24d369cb3bb624743"
 test_results:
-  - "Documentation-only change: no runtime code changed."
-  - "Roadmap section fetch/review on branch: PASS."
-  - "Current iOS review-state reconciliation: PASS against completed canonical App Review checkpoint."
-  - "PR #235 required build check: PASS before merge."
-  - "Post-merge docs/ROADMAP.md fetch from main: PASS."
+  - "App Store Connect live page: iOS 0.1.36 (40), REJECTED / UNRESOLVED_ISSUES, Guideline 2.1(b) information request."
 blocker: null
-resume_instruction: "Task is complete. Do not implement APL-CONNECT-001 automatically unless it becomes the prioritized product workstream. When prioritized, start with Stage A universal import/MTProto handoff, then VLESS+Reality."
-updated_at: "2026-09-29T19:15:00+03:00"
+resume_instruction: "Continue from the current Guideline 2.1(b) business-model request. Do not rebuild unless source/metadata verification reveals an actual paid-content or purchase-flow defect. Verify monetization behavior, answer all five questions in Review Notes and the conversation, resubmit build 40, verify WAITING_FOR_REVIEW, then mark completed."
+updated_at: "2026-10-01T21:50:00+03:00"
