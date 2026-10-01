@@ -66,9 +66,14 @@ std::wstring NormalizePath(std::wstring value) {
         if (mapped == static_cast<int>(value.size())) {
             value.swap(lower);
         } else {
-            CharLowerBuffW(
-                value.data(),
-                static_cast<DWORD>(value.size()));
+            std::transform(
+                value.begin(),
+                value.end(),
+                value.begin(),
+                [](wchar_t ch) {
+                    return static_cast<wchar_t>(
+                        std::towlower(ch));
+                });
         }
     }
     return value;
