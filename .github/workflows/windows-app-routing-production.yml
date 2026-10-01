@@ -231,6 +231,17 @@ jobs:
           Copy-Item tools/run_windows_windivert_vm_acceptance.ps1 $out
           Copy-Item tools/windivert_nat_probe_run.cmd $out
           Copy-Item installer/windivert_service_helper.ps1 $out
+          $stackManifest = [ordered]@{
+            schema = 'arvectum.proxy.windows-windivert-build.v1'
+            source_commit = $env:GITHUB_SHA
+            version = '2.2.2'
+            service = [ordered]@{
+              filename = 'ArvectumProxyWinDivertRoutingService.exe'
+              sha256 = (Get-FileHash ArvectumProxyWinDivertRoutingService.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+            dependency_manifest_sha256 = (Get-FileHash out/windivert/windivert-dependency.json -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+          $stackManifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'windivert-stack-build.json') -Encoding utf8
 
       - uses: actions/upload-artifact@v4
         with:

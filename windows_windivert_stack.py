@@ -6,6 +6,7 @@ import ctypes
 import hashlib
 import json
 import os
+import re
 import sys
 from typing import Mapping, Optional
 
@@ -46,6 +47,22 @@ def marker_path() -> str:
     return os.path.join(
         root, "Arvectum", "ProxyLauncher", MARKER_FILENAME
     )
+
+
+def current_application_source_commit() -> Optional[str]:
+    if not getattr(sys, "frozen", False):
+        return None
+    manifest_path = os.path.join(
+        os.path.dirname(os.path.abspath(sys.executable)),
+        "build_manifest.json",
+    )
+    try:
+        with open(manifest_path, "r", encoding="utf-8-sig") as stream:
+            payload = json.load(stream)
+    except (OSError, ValueError, TypeError):
+        return None
+    commit = str(payload.get("source_commit") or "").lower()
+    return commit if re.fullmatch(r"[0-9a-f]{40}", commit) else None
 
 
 def _sha256(path: str) -> str:

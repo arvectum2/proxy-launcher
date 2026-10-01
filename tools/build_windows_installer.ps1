@@ -10,6 +10,7 @@ param(
     [string]$BuildResultPath,
     [string]$ExpectedApplicationSha256,
     [string]$NativeStackBundle,
+    [string]$WinDivertStackBundle,
     [switch]$AllowTestNativeStack,
     [switch]$WindowsAppExclusionsPreview
 )
@@ -81,11 +82,24 @@ $nativeStackManifest = $null
 $nativeStackManifestSha256 = $null
 $nativeStackHelperSha256 = $null
 $previewModeHelperSha256 = $null
+$winDivertStackEnabled = $false
+$winDivertDependencyManifestSha256 = $null
+$winDivertServiceHelperSha256 = $null
+$winDivertServiceSha256 = $null
 if ($WindowsAppExclusionsPreview -and -not $NativeStackBundle) {
     throw 'WindowsAppExclusionsPreview requires -NativeStackBundle.'
 }
 if ($SyntheticPredecessor -and $WindowsAppExclusionsPreview) {
     throw 'WindowsAppExclusionsPreview cannot be combined with SyntheticPredecessor.'
+}
+if ($WinDivertStackBundle -and $NativeStackBundle) {
+    throw 'WinDivertStackBundle and NativeStackBundle are mutually exclusive.'
+}
+if ($WindowsAppExclusionsPreview -and $WinDivertStackBundle) {
+    throw 'WindowsAppExclusionsPreview cannot use the production WinDivert stack.'
+}
+if ($SyntheticPredecessor -and $WinDivertStackBundle) {
+    throw 'SyntheticPredecessor cannot embed the production WinDivert stack.'
 }
 if ($NativeStackBundle) {
     $nativeSource = (Resolve-Path -LiteralPath $NativeStackBundle).Path
@@ -128,6 +142,101 @@ if ($NativeStackBundle) {
     $nativeStackManifestSha256 = Hash (Join-Path $nativeDest 'native-stack-bundle.json')
     $nativeStackHelperSha256 = Hash (Join-Path $payload 'native_stack_helper.ps1')
     $nativeStackEnabled = $true
+}
+if ($WinDivertStackBundle) {
+    $winDivertSource = (Resolve-Path -LiteralPath $WinDivertStackBundle).Path
+    foreach ($required in @(
+        'ArvectumProxyWinDivertRoutingService.exe',
+        'WinDivert.dll',
+        'WinDivert64.sys',
+        'WinDivert-LICENSE',
+        'windivert-dependency.json',
+        'windivert-stack-build.json'
+    )) {
+        if (-not (Test-Path -LiteralPath (Join-Path $winDivertSource $required) -PathType Leaf)) {
+            throw "WinDivertStackBundle missing $required."
+        }
+    }
+
+    $winDivertBuildManifestPath = Join-Path $winDivertSource 'windivert-stack-build.json'
+    $winDivertBuildManifest = Get-Content -LiteralPath $winDivertBuildManifestPath -Raw | ConvertFrom-Json
+    if ([string]$winDivertBuildManifest.schema -cne 'arvectum.proxy.windows-windivert-build.v1') {
+        throw 'WinDivertStackBundle build manifest schema mismatch.'
+    }
+    if ([string]$winDivertBuildManifest.version -cne '2.2.2') {
+        throw 'WinDivertStackBundle version mismatch.'
+    }
+    $head = (git rev-parse HEAD).Trim()
+    if ([string]$winDivertBuildManifest.source_commit -cne $head) {
+        throw 'WinDivertStackBundle source_commit does not match HEAD.'
+    }
+    if ([string]$winDivertBuildManifest.service.filename -cne 'ArvectumProxyWinDivertRoutingService.exe') {
+        throw 'WinDivertStackBundle service filename mismatch.'
+    }
+
+    $winDivertDependencyPath = Join-Path $winDivertSource 'windivert-dependency.json'
+    $winDivertDependency = Get-Content -LiteralPath $winDivertDependencyPath -Raw | ConvertFrom-Json
+    if ([string]$winDivertDependency.schema -cne 'arvectum.proxy.windivert-dependency.v1' -or
+        [string]$winDivertDependency.version -cne '2.2.2') {
+        throw 'WinDivert dependency manifest identity mismatch.'
+    }
+
+    $expectedWinDivertDll = 'c1e060ee19444a259b2162f8af0f3fe8c4428a1c6f694dce20de194ac8d7d9a2'
+    $expectedWinDivertDriver = '8da085332782708d8767bcace5327a6ec7283c17cfb85e40b03cd2323a90ddc2'
+    $expectedWinDivertLicense = '14a0cb5214d536e4fdae6aa3f5696f981eeda106cd026e9794bba489ee79d628'
+    $expectedWinDivertSigner = '043589F75FCE2795E7F2CC3E526D46784D5DDAB3'
+
+    $winDivertServicePath = Join-Path $winDivertSource 'ArvectumProxyWinDivertRoutingService.exe'
+    $winDivertDllPath = Join-Path $winDivertSource 'WinDivert.dll'
+    $winDivertDriverPath = Join-Path $winDivertSource 'WinDivert64.sys'
+    $winDivertLicensePath = Join-Path $winDivertSource 'WinDivert-LICENSE'
+    $winDivertServiceHash = Hash $winDivertServicePath
+    $winDivertDllHash = Hash $winDivertDllPath
+    $winDivertDriverHash = Hash $winDivertDriverPath
+    $winDivertLicenseHash = Hash $winDivertLicensePath
+    $winDivertDependencyHash = Hash $winDivertDependencyPath
+
+    if ($winDivertServiceHash -cne ([string]$winDivertBuildManifest.service.sha256).ToLowerInvariant()) {
+        throw 'WinDivertStackBundle service hash mismatch.'
+    }
+    if ($winDivertDependencyHash -cne ([string]$winDivertBuildManifest.dependency_manifest_sha256).ToLowerInvariant()) {
+        throw 'WinDivertStackBundle dependency manifest hash mismatch.'
+    }
+    if ($winDivertDllHash -cne $expectedWinDivertDll -or
+        $winDivertDriverHash -cne $expectedWinDivertDriver -or
+        $winDivertLicenseHash -cne $expectedWinDivertLicense) {
+        throw 'WinDivertStackBundle pinned dependency hash mismatch.'
+    }
+    if ([string]$winDivertDependency.files.'WinDivert.dll' -cne $expectedWinDivertDll.ToUpperInvariant() -or
+        [string]$winDivertDependency.files.'WinDivert64.sys' -cne $expectedWinDivertDriver.ToUpperInvariant() -or
+        [string]$winDivertDependency.files.'WinDivert-LICENSE' -cne $expectedWinDivertLicense.ToUpperInvariant()) {
+        throw 'WinDivert dependency manifest pinned hashes mismatch.'
+    }
+    $winDivertSignature = Get-AuthenticodeSignature -LiteralPath $winDivertDriverPath
+    if ($winDivertSignature.Status -ne [System.Management.Automation.SignatureStatus]::Valid -or
+        $null -eq $winDivertSignature.SignerCertificate -or
+        $winDivertSignature.SignerCertificate.Thumbprint.ToUpperInvariant() -cne $expectedWinDivertSigner) {
+        throw 'WinDivertStackBundle driver signature identity mismatch.'
+    }
+
+    $winDivertDest = Join-Path $payload 'windivert'
+    New-Item -ItemType Directory -Path $winDivertDest -Force | Out-Null
+    foreach ($name in @(
+        'ArvectumProxyWinDivertRoutingService.exe',
+        'WinDivert.dll',
+        'WinDivert64.sys',
+        'WinDivert-LICENSE',
+        'windivert-dependency.json',
+        'windivert-stack-build.json'
+    )) {
+        Copy-Item -LiteralPath (Join-Path $winDivertSource $name) -Destination $winDivertDest
+    }
+    $winDivertHelper = Join-Path $root 'installer\windivert_service_helper.ps1'
+    Copy-Item -LiteralPath $winDivertHelper -Destination $payload
+    $winDivertDependencyManifestSha256 = Hash (Join-Path $winDivertDest 'windivert-dependency.json')
+    $winDivertServiceHelperSha256 = Hash (Join-Path $payload 'windivert_service_helper.ps1')
+    $winDivertServiceSha256 = Hash (Join-Path $winDivertDest 'ArvectumProxyWinDivertRoutingService.exe')
+    $winDivertStackEnabled = $true
 }
 if ($WindowsAppExclusionsPreview) {
     $previewHelper = Join-Path $root 'installer\windows_preview_mode_helper.ps1'
@@ -210,6 +319,10 @@ $manifest = [ordered]@{
     windows_preview_mode_helper_sha256=$previewModeHelperSha256
     native_stack_bundle_manifest_sha256=$nativeStackManifestSha256
     native_stack_helper_sha256=$nativeStackHelperSha256
+    windivert_stack_enabled=$winDivertStackEnabled
+    windivert_dependency_manifest_sha256=$winDivertDependencyManifestSha256
+    windivert_service_helper_sha256=$winDivertServiceHelperSha256
+    windivert_service_sha256=$winDivertServiceSha256
     third_party_license_manifest_sha256=(Hash (Join-Path $payload 'THIRD_PARTY_LICENSES\manifest.json'))
     inno_setup_version=$requiredInnoSetupVersion
     inno_setup_version_verification='compiler-preprocessor-ver-0x06070100'
@@ -227,6 +340,10 @@ $isccArgs = @(
 if ($SyntheticPredecessor) { $isccArgs += '/DSyntheticLifecycleFixture=1' }
 if ($nativeStackEnabled) {
     $isccArgs += "/DNativeStackPayloadDir=$(Join-Path $payload 'native')"
+}
+if ($winDivertStackEnabled) {
+    $isccArgs += "/DWinDivertStackPayloadDir=$(Join-Path $payload 'windivert')"
+    $isccArgs += "/DWinDivertSourceCommit=$((git rev-parse HEAD).Trim())"
 }
 if ($WindowsAppExclusionsPreview) {
     $isccArgs += '/DWindowsAppExclusionsPreview=1'

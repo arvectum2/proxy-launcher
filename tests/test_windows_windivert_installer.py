@@ -91,3 +91,46 @@ def test_uninstall_removes_only_owned_service_files_and_marker():
         "ARVECTUM_WINDIVERT_STACK_UNINSTALLED", ""
     )
 
+
+
+def test_canonical_installer_accepts_only_commit_bound_windivert_bundle():
+    builder = (
+        ROOT / "tools" / "build_windows_installer.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "[string]$WinDivertStackBundle" in builder
+    assert "WinDivertStackBundle and NativeStackBundle are mutually exclusive" in builder
+    assert "arvectum.proxy.windows-windivert-build.v1" in builder
+    assert "source_commit does not match HEAD" in builder
+    assert "WinDivertStackBundle service hash mismatch" in builder
+    assert "WinDivertStackBundle driver signature identity mismatch" in builder
+    assert "WinDivertSourceCommit" in builder
+
+
+def test_inno_embeds_windivert_stack_and_uses_standard_uac():
+    script = (
+        ROOT / "installer" / "ArvectumProxyLauncher.iss"
+    ).read_text(encoding="utf-8-sig")
+    assert "PrivilegesRequired=lowest" in script
+    assert "WinDivertStackPayloadDir" in script
+    assert "ArvectumProxyWinDivertRoutingService.exe" in script
+    assert "windivert-dependency.json" in script
+    assert "windivert-stack-build.json" in script
+    assert "windivert_service_helper.ps1" in script
+    assert "ShellExec('runas', PowerShell" in script
+    assert "-Action Install -SourceDirectory" in script
+    assert "-Action Uninstall" in script
+
+
+def test_installer_never_embeds_test_mode_for_production_windivert():
+    builder = (
+        ROOT / "tools" / "build_windows_installer.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "WindowsAppExclusionsPreview cannot use the production WinDivert stack" in builder
+    script = (
+        ROOT / "installer" / "ArvectumProxyLauncher.iss"
+    ).read_text(encoding="utf-8-sig")
+    section = script[
+        script.index("#ifdef WinDivertStackPayloadDir"):
+        script.index("#define AppName")
+    ]
+    assert "windows_preview_mode_helper" not in section.lower()
