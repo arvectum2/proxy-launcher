@@ -176,7 +176,59 @@ class ApplicationRuntimeTests(unittest.TestCase):
             proxy_port=54321,
         )
 
+    def test_windows_windivert_activation_uses_separate_ownership_and_pipe(self):
+        proxy = mock.Mock()
+        proxy.start_direct_listener.return_value = (True, "OK", 54321)
+        plans = ("windivert-plan",)
+        store = mock.Mock()
+        controller = mock.Mock()
+        client = mock.Mock()
+        with tempfile.TemporaryDirectory() as td, \
+             mock.patch.object(core, "runtime_dir", return_value=td), \
+             mock.patch(
+                 "windows_windivert_backend.compile_windivert_application_plan",
+                 return_value=plans,
+             ) as compile_plan, \
+             mock.patch(
+                 "routing_ownership.RoutingOwnershipStore",
+                 return_value=store,
+             ) as store_cls, \
+             mock.patch(
+                 "windows_routing_controller.NamedPipeWindowsRoutingClient",
+                 return_value=client,
+             ) as client_cls, \
+             mock.patch(
+                 "windows_windivert_controller.WindowsWinDivertController",
+                 return_value=controller,
+             ) as controller_cls:
+            result = application_runtime._activate_windows_application_routing(
+                proxy,
+                {"local_http_port": 8080},
+                ("app",),
+                backend="windivert",
+            )
+
+        self.assertIs(result, controller)
+        compile_plan.assert_called_once_with(
+            ("app",), local_proxy_port=8080
+        )
+        expected_path = application_runtime.os.path.join(
+            td, "windows_windivert_routing_ownership.json"
+        )
+        store_cls.assert_called_once_with(expected_path)
+        client_cls.assert_called_once_with(
+            r"\\.\pipe\Arvectum.ProxyLauncher.WinDivertRouting"
+        )
+        controller_cls.assert_called_once_with(store, client)
+        controller.activate.assert_called_once_with(
+            plans,
+            proxy_pid=application_runtime.os.getpid(),
+            direct_listener_port=54321,
+        )
+
     def test_windows_routing_restore_uses_real_named_pipe_client(self):
+        windivert_store = mock.Mock()
+        windivert_store.exists.return_value = False
         store = mock.Mock()
         store.exists.return_value = True
         controller = mock.Mock()
@@ -185,7 +237,10 @@ class ApplicationRuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td, \
              mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.object(core, "runtime_dir", return_value=td), \
-             mock.patch("routing_ownership.RoutingOwnershipStore", return_value=store), \
+             mock.patch(
+                 "routing_ownership.RoutingOwnershipStore",
+                 side_effect=(windivert_store, store),
+             ), \
              mock.patch(
                  "windows_routing_controller.NamedPipeWindowsRoutingClient",
                  return_value=client,

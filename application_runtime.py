@@ -154,49 +154,116 @@ def _windows_routing_ownership_path():
     return os.path.join(_core().runtime_dir(), "windows_routing_ownership.json")
 
 
+def _windows_windivert_routing_ownership_path():
+    return os.path.join(
+        _core().runtime_dir(),
+        "windows_windivert_routing_ownership.json",
+    )
+
+
 def _restore_windows_application_routing():
     core = _core()
     if not core.is_windows():
         return True
+
     from routing_ownership import RoutingOwnershipStore
     from windows_routing_controller import (
         NamedPipeWindowsRoutingClient,
         WindowsRoutingController,
     )
+    from windows_windivert_controller import WindowsWinDivertController
+    from windows_windivert_service_contract import PIPE_NAME as WINDIVERT_PIPE
 
-    store = RoutingOwnershipStore(_windows_routing_ownership_path())
-    if not store.exists():
-        return True
-    try:
-        return bool(
-            WindowsRoutingController(
-                store, NamedPipeWindowsRoutingClient()
-            ).restore()
-        )
-    except Exception as exc:
-        core.structured_log(
-            "Windows application routing restore failed",
-            level="ERROR",
-            event="routing.windows.restore_failed",
-            error_type=type(exc).__name__,
-        )
-        return False
+    candidates = (
+        (
+            _windows_windivert_routing_ownership_path(),
+            lambda store: WindowsWinDivertController(
+                store,
+                NamedPipeWindowsRoutingClient(WINDIVERT_PIPE),
+            ),
+            "windivert",
+        ),
+        (
+            _windows_routing_ownership_path(),
+            lambda store: WindowsRoutingController(
+                store,
+                NamedPipeWindowsRoutingClient(),
+            ),
+            "legacy_wfp",
+        ),
+    )
+    restored = True
+    for path, factory, backend in candidates:
+        store = RoutingOwnershipStore(path)
+        if not store.exists():
+            continue
+        try:
+            restored = bool(factory(store).restore()) and restored
+        except Exception as exc:
+            restored = False
+            core.structured_log(
+                "Windows application routing restore failed",
+                level="ERROR",
+                event="routing.windows.restore_failed",
+                backend=backend,
+                error_type=type(exc).__name__,
+            )
+    return restored
 
 
-def _activate_windows_application_routing(proxy, settings, identities):
+def _activate_windows_application_routing(
+    proxy,
+    settings,
+    identities,
+    *,
+    backend=None,
+):
     core = _core()
     from routing_ownership import RoutingOwnershipStore
-    from windows_routing_controller import (
-        NamedPipeWindowsRoutingClient,
-        WindowsRoutingController,
-    )
 
     ok, message, direct_port = proxy.start_direct_listener()
     if not ok or not direct_port:
         raise RuntimeError(message or "direct listener startup failed")
+
+    local_http_port = int(settings.get("local_http_port", 8080))
+    if backend == "windivert":
+        from windows_windivert_backend import (
+            compile_windivert_application_plan,
+        )
+        from windows_windivert_controller import WindowsWinDivertController
+        from windows_routing_controller import NamedPipeWindowsRoutingClient
+        from windows_windivert_service_contract import PIPE_NAME as WINDIVERT_PIPE
+
+        plans = compile_windivert_application_plan(
+            identities,
+            local_proxy_port=local_http_port,
+        )
+        if not plans:
+            return None
+        store = RoutingOwnershipStore(
+            _windows_windivert_routing_ownership_path()
+        )
+        controller = WindowsWinDivertController(
+            store,
+            NamedPipeWindowsRoutingClient(WINDIVERT_PIPE),
+        )
+        controller.activate(
+            plans,
+            proxy_pid=os.getpid(),
+            direct_listener_port=int(direct_port),
+        )
+        return controller
+
+    if backend not in {None, "legacy_wfp_preview"}:
+        raise RuntimeError("unsupported Windows application routing backend")
+
+    from windows_routing_controller import (
+        NamedPipeWindowsRoutingClient,
+        WindowsRoutingController,
+    )
     plans = core.compile_windows_application_exclusion_enforcement_plan(
         identities,
-        local_http_port=int(settings.get("local_http_port", 8080)),
+        local_http_port=local_http_port,
     )
     if not plans:
         return None
@@ -225,6 +292,7 @@ def _cmd_start():
         return 2
 
     exclusions = ()
+    routing_backend = None
     if core.is_windows():
         try:
             exclusions = tuple(core.load_application_exclusions())
@@ -240,6 +308,7 @@ def _cmd_start():
             if not capability.get("live_enforcement_supported"):
                 print("Windows application exclusions are not live-enabled")
                 return 1
+            routing_backend = capability.get("backend")
 
     if core.is_running():
         core._log("already running, enabling system proxy")
@@ -256,9 +325,17 @@ def _cmd_start():
     routing_controller = None
     if exclusions:
         try:
-            routing_controller = _activate_windows_application_routing(
-                proxy, settings, exclusions
-            )
+            if routing_backend:
+                routing_controller = _activate_windows_application_routing(
+                    proxy,
+                    settings,
+                    exclusions,
+                    backend=routing_backend,
+                )
+            else:
+                routing_controller = _activate_windows_application_routing(
+                    proxy, settings, exclusions
+                )
         except Exception as exc:
             core.structured_log(
                 "Windows application routing activation failed",

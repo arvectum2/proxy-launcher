@@ -79,13 +79,22 @@ class ApplicationExclusionTests(unittest.TestCase):
                 with self.assertRaises(ApplicationExclusionError):
                     load_application_exclusions()
 
-    def test_windows_capability_is_driven_by_production_native_stack_readiness(self):
+    def test_windows_production_capability_requires_windivert(self):
+        windivert_absent = {
+            "ready": False,
+            "state": "not_installed",
+            "reason": "WinDivert stack absent",
+        }
         with mock.patch(
+            "windows_windivert_stack.windows_windivert_stack_readiness",
+            return_value=windivert_absent,
+        ), mock.patch(
             "windows_native_stack.windows_native_stack_readiness",
             return_value={
-                "ready": False,
-                "state": "not_installed",
-                "reason": "native stack absent",
+                "ready": True,
+                "state": "production_ready",
+                "reason": "legacy stack ready",
+                "protocol_version": 3,
             },
         ):
             windows = application_exclusion_capability("win32")
@@ -93,20 +102,30 @@ class ApplicationExclusionTests(unittest.TestCase):
         self.assertTrue(windows["plan_compilation_supported"])
         self.assertFalse(windows["live_enforcement_supported"])
         self.assertEqual(windows["state"], "not_installed")
+        self.assertIsNone(windows["backend"])
         self.assertTrue(windows["production_controller_available"])
 
         with mock.patch(
-            "windows_native_stack.windows_native_stack_readiness",
+            "windows_windivert_stack.windows_windivert_stack_readiness",
             return_value={
                 "ready": True,
-                "state": "production_ready",
+                "state": "windivert_ready",
                 "reason": "ready",
-                "protocol_version": 3,
+                "backend": "windivert",
+                "version": "2.2.2",
+            },
+        ), mock.patch(
+            "windows_native_stack.windows_native_stack_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "legacy absent",
             },
         ):
             windows_ready = application_exclusion_capability("win32")
         self.assertTrue(windows_ready["live_enforcement_supported"])
-        self.assertEqual(windows_ready["state"], "production_ready")
+        self.assertEqual(windows_ready["state"], "windivert_ready")
+        self.assertEqual(windows_ready["backend"], "windivert")
 
     def test_windows_preview_capability_requires_explicit_preview_manifest(self):
         with mock.patch(

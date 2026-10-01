@@ -165,28 +165,49 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     """Return truthful capability state for the current product baseline."""
     name = _platform_name(platform)
     if name == "windows":
+        from windows_windivert_stack import (
+            windows_windivert_stack_readiness,
+        )
         from windows_native_stack import (
             windows_app_exclusions_preview_build,
             windows_native_stack_readiness,
         )
 
+        windivert = windows_windivert_stack_readiness()
         preview = windows_app_exclusions_preview_build()
-        readiness = windows_native_stack_readiness(
+        legacy = windows_native_stack_readiness(
             allow_test_preview=bool(preview.get("enabled")),
             expected_source_commit=preview.get("source_commit"),
+        )
+        legacy_preview_ready = bool(
+            preview.get("enabled")
+            and legacy.get("ready")
+            and legacy.get("state") == "preview_ready"
+        )
+        active = (
+            windivert
+            if windivert.get("ready")
+            else (legacy if legacy_preview_ready else windivert)
+        )
+        backend = (
+            "windivert"
+            if windivert.get("ready")
+            else ("legacy_wfp_preview" if legacy_preview_ready else None)
         )
         return {
             "platform": name,
             "configuration_supported": True,
             "plan_compilation_supported": True,
-            "live_enforcement_supported": bool(readiness.get("ready")),
-            "state": readiness.get("state", "native_stack_unavailable"),
+            "live_enforcement_supported": bool(active.get("ready")),
+            "state": active.get("state", "native_stack_unavailable"),
+            "backend": backend,
             "production_controller_available": True,
-            "reason": readiness.get(
+            "reason": active.get(
                 "reason",
                 "production native routing stack is unavailable",
             ),
-            "native_stack": dict(readiness),
+            "windivert_stack": dict(windivert),
+            "native_stack": dict(legacy),
             "preview_build": dict(preview),
         }
     if name == "linux":

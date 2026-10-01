@@ -19,6 +19,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
       - 'tools/build_windows_installer.ps1'
@@ -54,6 +55,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
       - 'tools/build_windows_installer.ps1'
@@ -101,7 +103,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install pytest==8.4.2
-          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_native_source.py
+          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_stack.py tests/test_windows_windivert_native_source.py tests/test_windows_windivert_installer.py
           ./tools/stage_windows_windivert.ps1 -OutputDirectory 'out/windivert'
 
       - name: Compile native WinDivert acceptance probes
@@ -228,6 +230,7 @@ jobs:
           Copy-Item out/windivert/windivert-dependency.json $out
           Copy-Item tools/run_windows_windivert_vm_acceptance.ps1 $out
           Copy-Item tools/windivert_nat_probe_run.cmd $out
+          Copy-Item installer/windivert_service_helper.ps1 $out
 
       - uses: actions/upload-artifact@v4
         with:
