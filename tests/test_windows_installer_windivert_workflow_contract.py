@@ -1,3 +1,5 @@
+import os
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -71,6 +73,40 @@ class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
         )
         self.assertIn("[Environment]::GetFolderPath(", text)
         self.assertNotIn("$env:ProgramData", text)
+    @unittest.skipUnless(os.name == "nt", "Windows PowerShell regression")
+    def test_helper_status_survives_missing_programdata_environment(self):
+        powershell = os.path.join(
+            os.environ["SystemRoot"],
+            "System32",
+            "WindowsPowerShell",
+            "v1.0",
+            "powershell.exe",
+        )
+        env = os.environ.copy()
+        env.pop("ProgramData", None)
+        result = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(HELPER),
+                "-Action",
+                "Status",
+            ],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=(result.stdout + "\n" + result.stderr),
+        )
+
     def test_workflow_parses_all_windivert_installer_helpers(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         for required in (
