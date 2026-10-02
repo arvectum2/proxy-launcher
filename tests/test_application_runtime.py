@@ -164,6 +164,7 @@ class ApplicationRuntimeTests(unittest.TestCase):
                 proxy,
                 {"local_http_port": 8080},
                 ("app",),
+                backend="legacy_wfp_preview",
             )
 
         self.assertIs(result, controller)
@@ -270,6 +271,42 @@ class ApplicationRuntimeTests(unittest.TestCase):
             self.assertEqual(core._cmd_start(), 1)
         proxy_core.assert_not_called()
 
+    def test_windows_live_capability_without_backend_fails_closed(self):
+        settings = dict(core.DEFAULT_SETTINGS)
+        settings["upstream"] = [
+            {"host": "proxy.test", "port": 8000, "username": "", "password": ""}
+        ]
+        with mock.patch.object(core, "load_settings", return_value=settings), \
+             mock.patch.object(core, "is_windows", return_value=True), \
+             mock.patch.object(
+                 core, "load_application_exclusions", return_value=("app",)
+             ), \
+             mock.patch.object(
+                 application_runtime,
+                 "_restore_windows_application_routing",
+                 return_value=True,
+             ), \
+             mock.patch.object(
+                 core,
+                 "application_exclusion_capability",
+                 return_value={
+                     "live_enforcement_supported": True,
+                     "state": "windivert_ready",
+                     "backend": None,
+                 },
+             ), \
+             mock.patch.object(core, "ProxyCore") as proxy_core, \
+             mock.patch.object(core, "structured_log") as structured_log, \
+             mock.patch("builtins.print"):
+            self.assertEqual(core._cmd_start(), 1)
+
+        proxy_core.assert_not_called()
+        structured_log.assert_called_once()
+        self.assertEqual(
+            structured_log.call_args.kwargs["event"],
+            "routing.windows.backend_missing",
+        )
+
     def test_windows_exclusions_activate_and_restore_with_worker(self):
         settings = dict(core.DEFAULT_SETTINGS)
         settings["upstream"] = [
@@ -283,7 +320,14 @@ class ApplicationRuntimeTests(unittest.TestCase):
              mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.object(core, "load_application_exclusions", return_value=("app",)), \
              mock.patch.object(application_runtime, "_restore_windows_application_routing", return_value=True), \
-             mock.patch.object(core, "application_exclusion_capability", return_value={"live_enforcement_supported": True}), \
+             mock.patch.object(
+                 core,
+                 "application_exclusion_capability",
+                 return_value={
+                     "live_enforcement_supported": True,
+                     "backend": "windivert",
+                 },
+             ), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "ProxyCore", return_value=proxy), \
              mock.patch.object(core, "_write_pid"), \
@@ -293,7 +337,9 @@ class ApplicationRuntimeTests(unittest.TestCase):
              mock.patch.object(core, "_remove_pid") as remove_pid, \
              mock.patch("builtins.print"):
             self.assertEqual(core._cmd_start(), 0)
-        activate.assert_called_once_with(proxy, settings, ("app",))
+        activate.assert_called_once_with(
+            proxy, settings, ("app",), backend="windivert"
+        )
         routing.restore.assert_called_once_with()
         proxy.stop.assert_called_once_with()
         remove_pid.assert_called_once_with(application_runtime.os.getpid())
@@ -309,7 +355,14 @@ class ApplicationRuntimeTests(unittest.TestCase):
              mock.patch.object(core, "is_windows", return_value=True), \
              mock.patch.object(core, "load_application_exclusions", return_value=("app",)), \
              mock.patch.object(application_runtime, "_restore_windows_application_routing", return_value=True), \
-             mock.patch.object(core, "application_exclusion_capability", return_value={"live_enforcement_supported": True}), \
+             mock.patch.object(
+                 core,
+                 "application_exclusion_capability",
+                 return_value={
+                     "live_enforcement_supported": True,
+                     "backend": "windivert",
+                 },
+             ), \
              mock.patch.object(core, "is_running", return_value=False), \
              mock.patch.object(core, "ProxyCore", return_value=proxy), \
              mock.patch.object(core, "_write_pid"), \

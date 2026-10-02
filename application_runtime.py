@@ -254,8 +254,10 @@ def _activate_windows_application_routing(
         )
         return controller
 
-    if backend not in {None, "legacy_wfp_preview"}:
-        raise RuntimeError("unsupported Windows application routing backend")
+    if backend != "legacy_wfp_preview":
+        raise RuntimeError(
+            "Windows application routing backend must be explicitly selected"
+        )
 
     from windows_routing_controller import (
         NamedPipeWindowsRoutingClient,
@@ -309,6 +311,15 @@ def _cmd_start():
                 print("Windows application exclusions are not live-enabled")
                 return 1
             routing_backend = capability.get("backend")
+            if routing_backend not in {"windivert", "legacy_wfp_preview"}:
+                core.structured_log(
+                    "Windows application routing backend is missing",
+                    level="ERROR",
+                    event="routing.windows.backend_missing",
+                    capability_state=capability.get("state"),
+                )
+                print("Windows application exclusions backend is unavailable")
+                return 1
 
     if core.is_running():
         core._log("already running, enabling system proxy")

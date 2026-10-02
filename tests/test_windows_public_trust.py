@@ -115,6 +115,21 @@ class WindowsPublicTrustTests(unittest.TestCase):
         self.assertIn("Hash $portableZipPath", installer)
         self.assertNotIn("$portableZip = Join-Path", installer)
 
+    def test_public_trust_installer_smoke_embeds_production_windivert(self):
+        workflow = self.read(".github/workflows/windows-public-trust.yml")
+        self.assertIn(
+            "Build exact production WinDivert stack bundle",
+            workflow,
+        )
+        self.assertIn(
+            "tools/build_windows_windivert_stack_bundle.ps1",
+            workflow,
+        )
+        self.assertIn(
+            "-WinDivertStackBundle 'out\\windows-windivert-stack'",
+            workflow,
+        )
+
     def test_authenticode_primitive_enforces_rsa_3072_profile(self):
         script = self.read("tools/windows_authenticode.ps1")
         self.assertIn("1.2.840.113549.1.1.1", script)

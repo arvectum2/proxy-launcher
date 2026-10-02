@@ -18,7 +18,9 @@ on:
       - 'windows_windivert_service_contract.py'
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
+      - 'tests/test_windows_installer_windivert_workflow_contract.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'tools/build_windows_windivert_stack_bundle.ps1'
       - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
       - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
@@ -55,7 +57,9 @@ on:
       - 'windows_windivert_service_contract.py'
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
+      - 'tests/test_windows_installer_windivert_workflow_contract.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'tools/build_windows_windivert_stack_bundle.ps1'
       - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
       - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
@@ -111,7 +115,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install pytest==8.4.2
-          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_stack.py tests/test_windows_windivert_native_source.py tests/test_windows_windivert_installer.py
+          python -m pytest -q tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_stack.py tests/test_windows_windivert_native_source.py tests/test_windows_windivert_installer.py tests/test_windows_installer_windivert_workflow_contract.py
           ./tools/stage_windows_windivert.ps1 -OutputDirectory 'out/windivert'
 
       - name: Compile native WinDivert acceptance probes
