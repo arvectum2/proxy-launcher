@@ -77,8 +77,10 @@ def _sync_portable_support_files(source_dir: str, target_dir: str) -> None:
         finally:
             if os.path.exists(temporary):
                 os.remove(temporary)
-    elif os.path.exists(manifest_target):
-        os.remove(manifest_target)
+    # Absence beside the invoking portable executable is not authority to
+    # delete support metadata owned by an already-installed canonical build.
+    # Historical/partial portable copies may legitimately lack these files.
+    # Readiness remains fail-closed on manifest identity/hash when they exist.
 
     bundle_source = os.path.join(
         source_dir, _PORTABLE_WINDIVERT_DIR
@@ -103,8 +105,6 @@ def _sync_portable_support_files(source_dir: str, target_dir: str) -> None:
         finally:
             if os.path.exists(temporary_bundle):
                 shutil.rmtree(temporary_bundle)
-    elif os.path.exists(bundle_target):
-        shutil.rmtree(bundle_target)
 
 
 def ensure_stable_app_copy() -> str | None:

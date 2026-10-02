@@ -123,5 +123,58 @@ class PortableSupportSyncTests(unittest.TestCase):
             )
 
 
+    def test_partial_legacy_portable_never_deletes_canonical_support_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            source_dir = os.path.join(td, "legacy")
+            target_dir = os.path.join(td, "canonical")
+            os.makedirs(source_dir)
+            os.makedirs(target_dir)
+
+            source = os.path.join(
+                source_dir, "Arvectum Proxy Launcher.exe"
+            )
+            target = os.path.join(
+                target_dir, "Arvectum Proxy Launcher.exe"
+            )
+            with open(source, "wb") as stream:
+                stream.write(b"same-exe")
+            with open(target, "wb") as stream:
+                stream.write(b"same-exe")
+
+            manifest = os.path.join(target_dir, "build_manifest.json")
+            with open(manifest, "w", encoding="utf-8") as stream:
+                json.dump({"source_commit": "b" * 40}, stream)
+
+            sidecar = os.path.join(target_dir, "WINDOWS_WINDIVERT")
+            os.makedirs(sidecar)
+            sidecar_manifest = os.path.join(
+                sidecar, "windivert-stack-build.json"
+            )
+            with open(sidecar_manifest, "w", encoding="utf-8") as stream:
+                json.dump({"source_commit": "b" * 40}, stream)
+
+            with mock.patch.object(
+                core, "is_windows", return_value=True
+            ), mock.patch.object(
+                portable_lifecycle.sys,
+                "frozen",
+                True,
+                create=True,
+            ), mock.patch.object(
+                portable_lifecycle.sys, "executable", source
+            ), mock.patch.object(
+                core, "stable_app_exe", return_value=target
+            ), mock.patch.object(
+                core, "_same_path", return_value=False
+            ):
+                self.assertEqual(
+                    core.ensure_stable_app_copy(),
+                    os.path.realpath(target),
+                )
+
+            self.assertTrue(os.path.isfile(manifest))
+            self.assertTrue(os.path.isfile(sidecar_manifest))
+
+
 if __name__ == "__main__":
     unittest.main()
