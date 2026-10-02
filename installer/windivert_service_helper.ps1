@@ -66,15 +66,39 @@ function Assert-Elevated {
     }
 }
 
+function Get-Sha256 {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Required WinDivert service file is absent: $Path"
+    }
+
+    $stream = [IO.File]::Open(
+        $Path,
+        [IO.FileMode]::Open,
+        [IO.FileAccess]::Read,
+        [IO.FileShare]::Read
+    )
+    try {
+        $sha = [Security.Cryptography.SHA256]::Create()
+        try {
+            $bytes = $sha.ComputeHash($stream)
+            return ([BitConverter]::ToString($bytes)).Replace("-", "").ToUpperInvariant()
+        }
+        finally {
+            $sha.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+}
+
 function Assert-Sha256 {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
         [Parameter(Mandatory = $true)][string]$Expected
     )
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
-        throw "Required WinDivert service file is absent: $Path"
-    }
-    $actual = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToUpperInvariant()
+    $actual = Get-Sha256 -Path $Path
     if ($actual -ne $Expected.ToUpperInvariant()) {
         throw "SHA256 mismatch for $Path. Expected $Expected, got $actual."
     }
@@ -255,7 +279,7 @@ function Verify-Source {
     if (-not (Test-Path -LiteralPath $servicePath -PathType Leaf)) {
         throw "Arvectum WinDivert routing service executable is absent."
     }
-    $serviceHash = (Get-FileHash -LiteralPath $servicePath -Algorithm SHA256).Hash.ToUpperInvariant()
+    $serviceHash = Get-Sha256 -Path $servicePath
     $dllHash = Assert-Sha256 -Path $dllPath -Expected $ExpectedDllHash
     $driverHash = Assert-Sha256 -Path $driverPath -Expected $ExpectedDriverHash
     $licenseHash = Assert-Sha256 -Path $licensePath -Expected $ExpectedLicenseHash

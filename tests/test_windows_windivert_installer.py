@@ -55,6 +55,8 @@ def test_install_verifies_source_and_rejects_foreign_driver_before_mutation():
 
 def test_dependency_is_exact_hash_and_signer_pinned():
     text = _text()
+    assert "Get-FileHash" not in text
+    assert "[Security.Cryptography.SHA256]::Create()" in text
     assert (
         "8DA085332782708D8767BCACE5327A6EC7283C17CFB85E40B03CD2323A90DDC2"
         in text
