@@ -49,6 +49,15 @@ def test_native_protocol_never_receives_plain_executable_paths():
     assert "WinDivert.NetworkTranslator" in protocol
 
 
+def test_loopback_smoke_supports_ipv4_and_ipv6():
+    source = _read("loopback_smoke.cpp")
+    assert "AF_INET" in source
+    assert "AF_INET6" in source
+    assert "in6addr_loopback" in source
+    assert '"ipv4"' in source
+    assert '"ipv6"' in source
+
+
 def test_session_is_tcp_loopback_bounded_and_fail_safe():
     source = _read("windivert_routing_session.cpp")
     assert '"loopback and tcp and remotePort == "' in source

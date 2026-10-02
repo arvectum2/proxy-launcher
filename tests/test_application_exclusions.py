@@ -126,6 +126,18 @@ class ApplicationExclusionTests(unittest.TestCase):
         self.assertTrue(windows_ready["live_enforcement_supported"])
         self.assertEqual(windows_ready["state"], "windivert_ready")
         self.assertEqual(windows_ready["backend"], "windivert")
+        self.assertEqual(
+            windows_ready["transport_scope"]["intercepted_protocols"],
+            ["tcp"],
+        )
+        self.assertEqual(
+            windows_ready["transport_scope"]["non_intercepted_protocols"],
+            ["udp", "quic", "dns"],
+        )
+        self.assertEqual(
+            windows_ready["transport_scope"]["external_target_families"],
+            ["ipv4", "ipv6"],
+        )
 
     def test_windows_preview_capability_requires_explicit_preview_manifest(self):
         with mock.patch(

@@ -19,6 +19,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
       - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
@@ -55,6 +56,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_windivert_*.py'
       - 'tools/stage_windows_windivert.ps1'
+      - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
       - 'installer/windivert_service_helper.ps1'
       - 'installer/native_stack_helper.ps1'
       - 'installer/ArvectumProxyLauncher.iss'
@@ -243,6 +245,7 @@ jobs:
           Copy-Item out/windivert/WinDivert-LICENSE $out
           Copy-Item out/windivert/windivert-dependency.json $out
           Copy-Item tools/run_windows_windivert_vm_acceptance.ps1 $out
+          Copy-Item tools/run_windows_windivert_service_vm_acceptance.ps1 $out
           Copy-Item tools/windivert_nat_probe_run.cmd $out
           Copy-Item installer/windivert_service_helper.ps1 $out
           $stackManifest = [ordered]@{

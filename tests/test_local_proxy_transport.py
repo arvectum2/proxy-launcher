@@ -350,6 +350,28 @@ class LocalProxyTransportExtractionTests(unittest.TestCase):
         )
         relay.assert_called_once_with(direct, client, engine._stop)
 
+    def test_direct_http_handler_supports_ipv6_literal_target(self):
+        engine = core.ProxyCore({"upstream": []})
+        client = mock.Mock()
+        client.recv.return_value = (
+            b"CONNECT [::1]:443 HTTP/1.1\r\n"
+            b"Host: [::1]:443\r\n\r\n"
+        )
+        direct = mock.Mock()
+
+        with mock.patch.object(
+            local_proxy_transport.socket,
+            "create_connection",
+            return_value=direct,
+        ) as connect, mock.patch.object(engine, "_relay") as relay:
+            engine._handle_direct_http(client)
+
+        connect.assert_called_once_with(("::1", 443), timeout=15)
+        client.sendall.assert_called_once_with(
+            b"HTTP/1.1 200 Connection Established\r\n\r\n"
+        )
+        relay.assert_called_once_with(direct, client, engine._stop)
+
     def test_direct_listener_uses_ephemeral_loopback_port(self):
         engine = core.ProxyCore({"upstream": []})
         engine._socks = [object()]

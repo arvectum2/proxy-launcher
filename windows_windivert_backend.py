@@ -43,6 +43,15 @@ WINDIVERT_DLL_FILENAME = "WinDivert.dll"
 WINDIVERT_LICENSE_FILENAME = "WinDivert-LICENSE"
 WINDIVERT_DRIVER_SIGNER_THUMBPRINT = "043589F75FCE2795E7F2CC3E526D46784D5DDAB3"
 
+WINDIVERT_TRANSPORT_SCOPE = {
+    "intercepted_protocols": ("tcp",),
+    "intercepted_path": "selected_app_to_local_http_proxy",
+    "local_proxy_endpoint": "127.0.0.1",
+    "external_target_families": ("ipv4", "ipv6"),
+    "non_intercepted_protocols": ("udp", "quic", "dns"),
+    "non_intercepted_behavior": "unchanged_direct",
+}
+
 _DRIVE_ABSOLUTE = re.compile(r"^[a-zA-Z]:\\")
 UNC_PREFIX = "\\\\"
 
@@ -97,6 +106,22 @@ def _validate_port(value: int, label: str) -> int:
     if port <= 0 or port > 65535:
         raise WindowsWinDivertError(f"{label} is out of range")
     return port
+
+
+def windows_windivert_transport_scope() -> Mapping[str, object]:
+    """Describe exactly what the per-app backend intercepts.
+
+    APL's owned system proxy endpoint is IPv4 loopback. Selected applications
+    are diverted only when they connect to that local HTTP proxy over TCP.
+    UDP-based traffic (including QUIC and ordinary DNS datagrams) is not
+    captured by this backend and therefore keeps the operating system's normal
+    direct path. The direct HTTP/CONNECT listener can open both IPv4 and IPv6
+    destinations.
+    """
+    return {
+        key: list(value) if isinstance(value, tuple) else value
+        for key, value in WINDIVERT_TRANSPORT_SCOPE.items()
+    }
 
 
 def compile_windivert_application_plan(

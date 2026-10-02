@@ -24,43 +24,84 @@ bool ParsePort(const char* text, unsigned short* output) {
     return true;
 }
 
-SOCKET ConnectLoopback(unsigned short port) {
-    SOCKET socket_handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+int ParseFamily(const char* text) {
+    if (text == nullptr || std::string(text) == "ipv4") {
+        return AF_INET;
+    }
+    if (std::string(text) == "ipv6") {
+        return AF_INET6;
+    }
+    return AF_UNSPEC;
+}
+
+SOCKET ConnectLoopback(unsigned short port, int family) {
+    SOCKET socket_handle = socket(family, SOCK_STREAM, IPPROTO_TCP);
     if (socket_handle == INVALID_SOCKET) {
         return INVALID_SOCKET;
     }
-    sockaddr_in target{};
-    target.sin_family = AF_INET;
-    target.sin_port = htons(port);
-    target.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    if (connect(
+    int result = SOCKET_ERROR;
+    if (family == AF_INET6) {
+        sockaddr_in6 target{};
+        target.sin6_family = AF_INET6;
+        target.sin6_port = htons(port);
+        target.sin6_addr = in6addr_loopback;
+        result = connect(
             socket_handle,
             reinterpret_cast<sockaddr*>(&target),
-            sizeof(target)) == SOCKET_ERROR) {
+            sizeof(target));
+    } else {
+        sockaddr_in target{};
+        target.sin_family = AF_INET;
+        target.sin_port = htons(port);
+        target.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        result = connect(
+            socket_handle,
+            reinterpret_cast<sockaddr*>(&target),
+            sizeof(target));
+    }
+    if (result == SOCKET_ERROR) {
         closesocket(socket_handle);
         return INVALID_SOCKET;
     }
     return socket_handle;
 }
 
-int RunServer(unsigned short port, const std::string& marker) {
-    SOCKET listener = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+int RunServer(
+    unsigned short port,
+    const std::string& marker,
+    int family)
+{
+    SOCKET listener = socket(family, SOCK_STREAM, IPPROTO_TCP);
     if (listener == INVALID_SOCKET) {
         return 10;
     }
-    sockaddr_in local{};
-    local.sin_family = AF_INET;
-    local.sin_port = htons(port);
-    local.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    if (bind(
+    int bind_result = SOCKET_ERROR;
+    if (family == AF_INET6) {
+        sockaddr_in6 local{};
+        local.sin6_family = AF_INET6;
+        local.sin6_port = htons(port);
+        local.sin6_addr = in6addr_loopback;
+        bind_result = bind(
             listener,
             reinterpret_cast<sockaddr*>(&local),
-            sizeof(local)) == SOCKET_ERROR ||
+            sizeof(local));
+    } else {
+        sockaddr_in local{};
+        local.sin_family = AF_INET;
+        local.sin_port = htons(port);
+        local.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        bind_result = bind(
+            listener,
+            reinterpret_cast<sockaddr*>(&local),
+            sizeof(local));
+    }
+    if (bind_result == SOCKET_ERROR ||
         listen(listener, 16) == SOCKET_ERROR) {
         closesocket(listener);
         return 11;
     }
     std::cout << "SERVER_READY port=" << port
+              << " family=" << (family == AF_INET6 ? "ipv6" : "ipv4")
               << " marker=" << marker << std::endl;
     SOCKET client = accept(listener, nullptr, nullptr);
     if (client == INVALID_SOCKET) {
@@ -86,8 +127,8 @@ int RunServer(unsigned short port, const std::string& marker) {
     return 0;
 }
 
-int RunClient(unsigned short port) {
-    SOCKET connection = ConnectLoopback(port);
+int RunClient(unsigned short port, int family) {
+    SOCKET connection = ConnectLoopback(port, family);
     if (connection == INVALID_SOCKET) {
         std::cerr << "CLIENT_CONNECT_FAILED error=" << WSAGetLastError()
                   << "\n";
@@ -136,20 +177,24 @@ int main(int argc, char** argv) {
         return 2;
     }
     int result = 2;
-    if (argc == 4 && std::string(argv[1]) == "server") {
+    if ((argc == 4 || argc == 5) &&
+        std::string(argv[1]) == "server") {
         unsigned short port = 0;
-        if (ParsePort(argv[2], &port)) {
-            result = RunServer(port, argv[3]);
+        const int family = ParseFamily(argc == 5 ? argv[4] : "ipv4");
+        if (ParsePort(argv[2], &port) && family != AF_UNSPEC) {
+            result = RunServer(port, argv[3], family);
         }
-    } else if (argc == 3 && std::string(argv[1]) == "client") {
+    } else if ((argc == 3 || argc == 4) &&
+               std::string(argv[1]) == "client") {
         unsigned short port = 0;
-        if (ParsePort(argv[2], &port)) {
-            result = RunClient(port);
+        const int family = ParseFamily(argc == 4 ? argv[3] : "ipv4");
+        if (ParsePort(argv[2], &port) && family != AF_UNSPEC) {
+            result = RunClient(port, family);
         }
     } else {
         std::cerr
-            << "usage: loopback_smoke.exe server <port> <marker>\n"
-            << "       loopback_smoke.exe client <port>\n";
+            << "usage: loopback_smoke.exe server <port> <marker> [ipv4|ipv6]\n"
+            << "       loopback_smoke.exe client <port> [ipv4|ipv6]\n";
     }
     WSACleanup();
     return result;

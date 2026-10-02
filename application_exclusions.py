@@ -165,6 +165,9 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     """Return truthful capability state for the current product baseline."""
     name = _platform_name(platform)
     if name == "windows":
+        from windows_windivert_backend import (
+            windows_windivert_transport_scope,
+        )
         from windows_windivert_stack import (
             windows_windivert_stack_readiness,
         )
@@ -207,6 +210,7 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
                 "production native routing stack is unavailable",
             ),
             "windivert_stack": dict(windivert),
+            "transport_scope": windows_windivert_transport_scope(),
             "native_stack": dict(legacy),
             "preview_build": dict(preview),
         }

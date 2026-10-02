@@ -143,3 +143,17 @@ def test_third_party_notice_covers_redistributed_windivert():
     assert "WinDivert 2.2.2" in notice
     assert "LGPL-3.0-or-later OR GPL-2.0" in notice
     assert "WinDivert-LICENSE" in notice
+
+
+def test_service_vm_acceptance_covers_dual_stack_and_cleanup():
+    script = (
+        ROOT / "tools" / "run_windows_windivert_service_vm_acceptance.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "ValidateSet('ipv4','ipv6')" in script
+    assert "Run-RoutingCase -Family 'ipv4'" in script
+    assert "Run-RoutingCase -Family 'ipv6'" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_APPLY PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_ROUTE PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_RESTORE PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_CLEANUP PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_ACCEPTANCE PASS" in script

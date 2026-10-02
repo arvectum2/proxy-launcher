@@ -20,6 +20,7 @@ from windows_windivert_backend import (
     compile_windivert_application_plan,
     normalize_windows_executable_path,
     verify_windivert_bundle,
+    windows_windivert_transport_scope,
 )
 
 
@@ -98,6 +99,18 @@ def test_canonical_plan_json_is_deterministic():
         local_proxy_port=8080,
     )
     assert first == canonical_windivert_plan_json(recomp)
+
+
+
+
+def test_transport_scope_is_truthful_about_tcp_and_direct_udp():
+    scope = windows_windivert_transport_scope()
+    assert scope["intercepted_protocols"] == ["tcp"]
+    assert scope["intercepted_path"] == "selected_app_to_local_http_proxy"
+    assert scope["local_proxy_endpoint"] == "127.0.0.1"
+    assert scope["external_target_families"] == ["ipv4", "ipv6"]
+    assert scope["non_intercepted_protocols"] == ["udp", "quic", "dns"]
+    assert scope["non_intercepted_behavior"] == "unchanged_direct"
 
 
 def test_filters_limit_capture_to_loopback_proxy_translation():
