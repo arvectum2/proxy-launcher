@@ -12,6 +12,11 @@
 #ifndef PayloadDir
   #error PayloadDir must be supplied by tools/build_windows_installer.ps1
 #endif
+#ifdef WinDivertStackPayloadDir
+#ifndef WinDivertSourceCommit
+  #error WinDivertSourceCommit is required with WinDivertStackPayloadDir
+#endif
+#endif
 #define AppName "Arvectum Proxy Launcher"
 #define AppPublisher "ООО «Арвектум»"
 #define AppPublisherURL "https://arvectum.com"
@@ -24,7 +29,11 @@
 #else
   ; 0.2.5+: keep executable payload outside Controlled Folder Access user folders.
   #define AppDir "{localappdata}\Programs\ArvectumProxyLauncher"
+#ifdef WindowsAppExclusionsPreview
+  #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup-preview"
+#else
   #define SetupName "Arvectum-Proxy-Launcher-" + AppVersion + "-windows-x64-setup"
+#endif
 #endif
 #define RepairExeName "Arvectum Proxy Launcher Repair.exe"
 
@@ -66,6 +75,29 @@ Source: "{#PayloadDir}\build_manifest.json"; Flags: dontcopy
 Source: "{#PayloadDir}\upgrade_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\uninstall_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\upgrade_helper.ps1"; Flags: dontcopy
+#ifdef NativeStackPayloadDir
+Source: "{#PayloadDir}\native_stack_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\native_stack_helper.ps1"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.sys"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.inf"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingCallout.cat"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumProxyRoutingService.exe"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\ArvectumDriverPackageTool.exe"; Flags: dontcopy
+Source: "{#NativeStackPayloadDir}\native-stack-bundle.json"; Flags: dontcopy
+#endif
+#ifdef WindowsAppExclusionsPreview
+Source: "{#PayloadDir}\windows_preview_mode_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
+#endif
+#ifdef WinDivertStackPayloadDir
+Source: "{#PayloadDir}\windivert_service_helper.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PayloadDir}\windivert_service_helper.ps1"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\ArvectumProxyWinDivertRoutingService.exe"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\WinDivert.dll"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\WinDivert64.sys"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\WinDivert-LICENSE"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\windivert-dependency.json"; Flags: dontcopy
+Source: "{#WinDivertStackPayloadDir}\windivert-stack-build.json"; Flags: dontcopy
+#endif
 Source: "{#PayloadDir}\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_NOTICES.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#PayloadDir}\THIRD_PARTY_LICENSES\*"; DestDir: "{app}\THIRD_PARTY_LICENSES"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -76,6 +108,9 @@ Type: files; Name: "{app}\Arvectum Proxy Launcher.exe"
 Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.new"
 Type: files; Name: "{app}\Arvectum Proxy Launcher.exe.old"
 Type: files; Name: "{app}\{#RepairExeName}"
+Type: files; Name: "{app}\native_stack_helper.ps1"
+Type: files; Name: "{app}\windows_preview_mode_helper.ps1"
+Type: files; Name: "{app}\windivert_service_helper.ps1"
 Type: files; Name: "{app}\.arvectum-install-owner"
 
 [Icons]
@@ -92,6 +127,28 @@ begin
   ExtractTemporaryFile(Helper);
   ExtractTemporaryFile('Arvectum Proxy Launcher.exe');
   ExtractTemporaryFile('build_manifest.json');
+#ifdef NativeStackPayloadDir
+  ExtractTemporaryFile('native_stack_helper.ps1');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.sys');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.inf');
+  ExtractTemporaryFile('ArvectumProxyRoutingCallout.cat');
+  ExtractTemporaryFile('ArvectumProxyRoutingService.exe');
+  ExtractTemporaryFile('ArvectumDriverPackageTool.exe');
+  ExtractTemporaryFile('native-stack-bundle.json');
+  ForceDirectories(ExpandConstant('{tmp}\native'));
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.sys'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.sys'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.inf'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.inf'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingCallout.cat'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingCallout.cat'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumProxyRoutingService.exe'),
+    ExpandConstant('{tmp}\native\ArvectumProxyRoutingService.exe'), False);
+  FileCopy(ExpandConstant('{tmp}\ArvectumDriverPackageTool.exe'),
+    ExpandConstant('{tmp}\native\ArvectumDriverPackageTool.exe'), False);
+  FileCopy(ExpandConstant('{tmp}\native-stack-bundle.json'),
+    ExpandConstant('{tmp}\native\native-stack-bundle.json'), False);
+#endif
   HelperPath := ExpandConstant('{tmp}\' + Helper);
   PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
   // Do not use PowerShell file-mode execution here. Under enforced App Control / UMCI,
@@ -106,11 +163,68 @@ begin
   end;
 end;
 
+#ifdef WinDivertStackPayloadDir
+procedure PrepareWinDivertTempPayload();
+begin
+  ExtractTemporaryFile('windivert_service_helper.ps1');
+  ExtractTemporaryFile('ArvectumProxyWinDivertRoutingService.exe');
+  ExtractTemporaryFile('WinDivert.dll');
+  ExtractTemporaryFile('WinDivert64.sys');
+  ExtractTemporaryFile('WinDivert-LICENSE');
+  ExtractTemporaryFile('windivert-dependency.json');
+  ExtractTemporaryFile('windivert-stack-build.json');
+  ForceDirectories(ExpandConstant('{tmp}\windivert'));
+  if not FileCopy(
+    ExpandConstant('{tmp}\ArvectumProxyWinDivertRoutingService.exe'),
+    ExpandConstant('{tmp}\windivert\ArvectumProxyWinDivertRoutingService.exe'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert routing service.');
+  if not FileCopy(ExpandConstant('{tmp}\WinDivert.dll'),
+    ExpandConstant('{tmp}\windivert\WinDivert.dll'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert.dll.');
+  if not FileCopy(ExpandConstant('{tmp}\WinDivert64.sys'),
+    ExpandConstant('{tmp}\windivert\WinDivert64.sys'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert64.sys.');
+  if not FileCopy(ExpandConstant('{tmp}\WinDivert-LICENSE'),
+    ExpandConstant('{tmp}\windivert\WinDivert-LICENSE'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert license.');
+  if not FileCopy(ExpandConstant('{tmp}\windivert-dependency.json'),
+    ExpandConstant('{tmp}\windivert\windivert-dependency.json'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert dependency manifest.');
+  if not FileCopy(ExpandConstant('{tmp}\windivert-stack-build.json'),
+    ExpandConstant('{tmp}\windivert\windivert-stack-build.json'), False) then
+    RaiseException('InstallFailure: could not stage WinDivert build manifest.');
+end;
+
+function RunElevatedWinDivertInstall(var ErrorText: String): Boolean;
+var
+  PowerShell, HelperPath, Arguments: String;
+  ExitCode: Integer;
+begin
+  PrepareWinDivertTempPayload();
+  HelperPath := ExpandConstant('{tmp}\windivert_service_helper.ps1');
+  PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
+  Arguments := '-NoProfile -ExecutionPolicy Bypass "' + HelperPath +
+    '" -Action Install -SourceDirectory "' +
+    ExpandConstant('{tmp}\windivert') +
+    '" -SourceCommit "{#WinDivertSourceCommit}"';
+  Result := Exec(PowerShell, Arguments, '', SW_HIDE,
+    ewWaitUntilTerminated, ExitCode);
+  if (not Result) or (ExitCode <> 0) then begin
+    ErrorText := 'InstallFailure: WinDivert service install failed with exit code ' +
+      IntToStr(ExitCode);
+    Result := False;
+  end;
+end;
+#endif
+
 function HelperArguments(const Extra: String): String;
 begin
   Result := '-PayloadRoot "' + ExpandConstant('{tmp}') +
     '" -InstallRoot "' + ExpandConstant('{app}') +
     '" -LegacyInstallRoot "' + ExpandConstant('{#LegacyAppDir}') + '"';
+#ifdef NativeStackPayloadDir
+  Result := Result + ' -NativePayloadRoot "' + ExpandConstant('{tmp}\native') + '"';
+#endif
   if Extra <> '' then
     Result := Result + ' ' + Extra;
 end;
@@ -157,12 +271,17 @@ begin
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
+var ErrorText: String;
 begin
   if CurStep = ssPostInstall then begin
     // Finish ordinary Inno writes first. Only then perform the runtime/network
     // handover so an earlier Setup/CFA failure leaves the old runtime untouched.
     CacheRepairInstaller();
     InstallVerifiedPayload();
+#ifdef WinDivertStackPayloadDir
+    if not RunElevatedWinDivertInstall(ErrorText) then
+      RaiseException(ErrorText);
+#endif
     // Commit ownership only after the exact application payload and runtime
     // handover have succeeded. A failed partial install must remain unowned.
     CommitInstallOwnership();
@@ -189,9 +308,41 @@ begin
   end;
 end;
 
+#ifdef WinDivertStackPayloadDir
+function RunInstalledWinDivertUninstallHelper(var ErrorText: String): Boolean;
+var
+  PowerShell, HelperPath, Arguments: String;
+  ExitCode: Integer;
+begin
+  HelperPath := ExpandConstant('{app}\windivert_service_helper.ps1');
+  if not FileExists(HelperPath) then begin
+    ErrorText := 'InstallFailure: installed WinDivert helper is missing.';
+    Result := False;
+    exit;
+  end;
+  PowerShell := ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe');
+  Arguments := '-NoProfile -ExecutionPolicy Bypass "' + HelperPath +
+    '" -Action Uninstall';
+  Result := ShellExec('runas', PowerShell, Arguments, '', SW_HIDE,
+    ewWaitUntilTerminated, ExitCode);
+  if (not Result) or (ExitCode <> 0) then begin
+    ErrorText := 'InstallFailure: WinDivert service uninstall failed with exit code ' +
+      IntToStr(ExitCode);
+    Result := False;
+  end;
+end;
+#endif
+
 function InitializeUninstall(): Boolean;
 var ErrorText: String;
 begin
+#ifdef WinDivertStackPayloadDir
+  Result := RunInstalledWinDivertUninstallHelper(ErrorText);
+  if not Result then begin
+    SuppressibleMsgBox(ErrorText, mbError, MB_OK, IDOK);
+    exit;
+  end;
+#endif
   Result := RunInstalledUninstallHelper(ErrorText);
   if not Result then
     SuppressibleMsgBox(ErrorText, mbError, MB_OK, IDOK);

@@ -7,10 +7,19 @@ QUICK START
 2. Run "Arvectum Proxy Launcher.exe".
 3. Configure the upstream proxy and verify connectivity before enabling autostart.
 
+APPLICATION EXCLUSIONS
+
+Per-application exclusions use the production WinDivert routing component bundled
+inside this portable package. Nothing is installed merely by starting the launcher.
+The first time you save a non-empty application-exclusion list, Windows may ask once
+for normal administrator consent so Arvectum can install its exact verified routing
+service. Do not disable Secure Boot, Memory Integrity, antivirus, or other Windows
+security features.
+
 DATA LOCATIONS
 
 The launcher uses a stable executable location when Windows permits it:
-  %USERPROFILE%\Documents\ArvectumProxyLauncher
+  %LOCALAPPDATA%\Programs\ArvectumProxyLauncher
 
 Persistent settings, no-proxy rules, logs and recovery state are stored in:
   %LOCALAPPDATA%\Arvectum\ProxyLauncher
@@ -19,9 +28,11 @@ SAFETY
 
 * Do not move or delete the executable while the proxy is active.
 * Do not delete the LocalAppData state directory while rollback/recovery is pending.
-* If the stable Documents handoff is blocked, the current portable session can continue,
-  but autostart remains disabled and existing startup entries are not redirected.
+* If the stable LocalAppData handoff is blocked, the current portable session can
+  continue, but autostart remains disabled and existing startup entries are not redirected.
 * Saved upstream passwords are protected for the current Windows user with DPAPI.
+* The bundled WinDivert component is verified against pinned hashes and signer identity
+  before installation; a mismatch fails closed instead of weakening Windows security.
 
 DIAGNOSTICS
 

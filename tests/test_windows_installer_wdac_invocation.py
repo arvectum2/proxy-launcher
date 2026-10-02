@@ -12,10 +12,28 @@ class WindowsInstallerWdacInvocationTests(unittest.TestCase):
             if "Result := Exec(PowerShell" in line
         ]
 
-        self.assertEqual(len(exec_lines), 2, exec_lines)
-        self.assertTrue(all(" -File " not in line for line in exec_lines), exec_lines)
-        self.assertTrue(all("-ExecutionPolicy Bypass" in line for line in exec_lines), exec_lines)
-        self.assertTrue(all("HelperPath" in line for line in exec_lines), exec_lines)
+        self.assertEqual(len(exec_lines), 3, exec_lines)
+        self.assertTrue(
+            all(" -File " not in line for line in exec_lines),
+            exec_lines,
+        )
+
+        embedded = installer[
+            installer.index("function RunEmbeddedHelper"):
+            installer.index("procedure PrepareWinDivertTempPayload")
+        ]
+        self.assertIn("-ExecutionPolicy Bypass", embedded)
+        self.assertIn("HelperPath", embedded)
+        self.assertNotIn(" -File ", embedded)
+
+        windivert = installer[
+            installer.index("function RunElevatedWinDivertInstall"):
+            installer.index("function HelperArguments")
+        ]
+        self.assertIn("-ExecutionPolicy Bypass", windivert)
+        self.assertIn("HelperPath", windivert)
+        self.assertIn("Result := Exec(PowerShell, Arguments", windivert)
+        self.assertNotIn(" -File ", windivert)
 
 
 if __name__ == "__main__":

@@ -78,18 +78,50 @@ class ApplicationExclusionTests(unittest.TestCase):
                 with self.assertRaises(ApplicationExclusionError):
                     load_application_exclusions()
 
-    def test_capability_never_claims_live_enforcement(self):
-        windows = application_exclusion_capability("win32")
+    def test_capability_reports_truthful_windivert_state(self):
+        with mock.patch(
+            "windows_windivert_stack.windows_windivert_stack_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "WinDivert stack absent",
+            },
+        ), mock.patch(
+            "windows_windivert_stack.portable_windivert_bootstrap_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "portable bootstrap unavailable",
+                "portable_bootstrap_available": False,
+            },
+        ):
+            windows = application_exclusion_capability("win32")
+
         linux = application_exclusion_capability("linux")
         macos = application_exclusion_capability("darwin")
         self.assertTrue(windows["configuration_supported"])
         self.assertTrue(windows["plan_compilation_supported"])
         self.assertFalse(windows["live_enforcement_supported"])
-        self.assertEqual(windows["state"], "owner_gate")
+        self.assertEqual(windows["state"], "not_installed")
+        self.assertIsNone(windows["backend"])
         self.assertFalse(linux["live_enforcement_supported"])
         self.assertEqual(linux["state"], "native_adapter_pending")
         self.assertFalse(macos["configuration_supported"])
         self.assertEqual(macos["state"], "managed_only")
+
+    def test_capability_enables_only_verified_windivert_backend(self):
+        with mock.patch(
+            "windows_windivert_stack.windows_windivert_stack_readiness",
+            return_value={
+                "ready": True,
+                "state": "ready",
+                "reason": "verified",
+            },
+        ):
+            windows = application_exclusion_capability("win32")
+        self.assertTrue(windows["live_enforcement_supported"])
+        self.assertEqual(windows["backend"], "windivert")
+        self.assertEqual(windows["state"], "ready")
 
     def test_windows_plan_is_read_only_direct_bypass_plan(self):
         app = ApplicationIdentity("windows", executable_path=r"C:\Browser\browser.exe")

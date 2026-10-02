@@ -164,16 +164,45 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     """Return truthful capability state for the current product baseline."""
     name = _platform_name(platform)
     if name == "windows":
+        from windows_windivert_backend import windows_windivert_transport_scope
+        from windows_windivert_stack import (
+            portable_windivert_bootstrap_readiness,
+            windows_windivert_stack_readiness,
+        )
+
+        windivert = windows_windivert_stack_readiness()
+        portable_bootstrap = (
+            {"portable_bootstrap_available": False}
+            if windivert.get("ready")
+            else portable_windivert_bootstrap_readiness()
+        )
+        bootstrap_available = bool(
+            portable_bootstrap.get("portable_bootstrap_available")
+        )
         return {
             "platform": name,
             "configuration_supported": True,
             "plan_compilation_supported": True,
-            "live_enforcement_supported": False,
-            "state": "owner_gate",
-            "reason": (
-                "Windows WFP application identity/plan compilation exists, but the "
-                "privileged WFP enforcement architecture is not approved/installed."
+            "live_enforcement_supported": bool(windivert.get("ready")),
+            "state": (
+                "portable_bootstrap_ready"
+                if not windivert.get("ready") and bootstrap_available
+                else windivert.get("state", "not_installed")
             ),
+            "backend": "windivert" if windivert.get("ready") else None,
+            "production_controller_available": True,
+            "reason": (
+                portable_bootstrap.get("reason")
+                if not windivert.get("ready") and bootstrap_available
+                else windivert.get(
+                    "reason",
+                    "production WinDivert routing stack is unavailable",
+                )
+            ),
+            "windivert_stack": dict(windivert),
+            "portable_bootstrap": dict(portable_bootstrap),
+            "portable_bootstrap_available": bootstrap_available,
+            "transport_scope": windows_windivert_transport_scope(),
         }
     if name == "linux":
         return {
@@ -206,6 +235,29 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
     }
 
 
+def prepare_windows_application_exclusion_backend() -> Mapping[str, object]:
+    capability = application_exclusion_capability("win32")
+    if capability.get("live_enforcement_supported"):
+        return capability
+    if not capability.get("portable_bootstrap_available"):
+        return capability
+
+    from windows_windivert_stack import bootstrap_windows_windivert_stack
+
+    result = bootstrap_windows_windivert_stack()
+    if not result.get("ready"):
+        return {
+            **capability,
+            "state": result.get("state", "portable_bootstrap_failed"),
+            "reason": result.get(
+                "reason",
+                "Windows application routing bootstrap failed",
+            ),
+            "portable_bootstrap_result": dict(result),
+        }
+    return application_exclusion_capability("win32")
+
+
 def compile_windows_application_exclusion_plan(
     identities: Iterable[ApplicationIdentity],
     *,
@@ -226,5 +278,8 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core.application_exclusion_rule = application_exclusion_rule
     core.compile_application_exclusion_rules = compile_application_exclusion_rules
     core.application_exclusion_capability = application_exclusion_capability
+    core.prepare_windows_application_exclusion_backend = (
+        prepare_windows_application_exclusion_backend
+    )
     core.compile_windows_application_exclusion_plan = compile_windows_application_exclusion_plan
     return core

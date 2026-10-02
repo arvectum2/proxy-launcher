@@ -1,0 +1,132 @@
+name: Windows per-app WinDivert production
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'application_runtime.py'
+      - 'local_proxy_transport.py'
+      - 'proxy_gui.py'
+      - 'portable_lifecycle.py'
+      - 'windows_windivert_*.py'
+      - 'native/windows_windivert/**'
+      - 'installer/windivert_service_helper.ps1'
+      - 'installer/ArvectumProxyLauncher.iss'
+      - 'tools/stage_windows_windivert.ps1'
+      - 'tools/build_windows_windivert_stack_bundle.ps1'
+      - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
+      - 'tools/run_windows_windivert_vm_acceptance.ps1'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_application_runtime.py'
+      - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_proxy_gui.py'
+      - 'tests/test_windows_windivert_*.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application_exclusions.py'
+      - 'application_runtime.py'
+      - 'local_proxy_transport.py'
+      - 'proxy_gui.py'
+      - 'portable_lifecycle.py'
+      - 'windows_windivert_*.py'
+      - 'native/windows_windivert/**'
+      - 'installer/windivert_service_helper.ps1'
+      - 'installer/ArvectumProxyLauncher.iss'
+      - 'tools/stage_windows_windivert.ps1'
+      - 'tools/build_windows_windivert_stack_bundle.ps1'
+      - 'tools/run_windows_windivert_service_vm_acceptance.ps1'
+      - 'tools/run_windows_windivert_vm_acceptance.ps1'
+      - 'tests/test_application_exclusions.py'
+      - 'tests/test_application_runtime.py'
+      - 'tests/test_local_proxy_transport.py'
+      - 'tests/test_proxy_gui.py'
+      - 'tests/test_windows_windivert_*.py'
+      - '.github/workflows/windows-app-routing-production.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  production:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned test dependency
+        run: python -m pip install pytest==8.4.2
+
+      - name: Run production WinDivert contract tests
+        run: python -m pytest -q tests/test_application_exclusions.py tests/test_application_runtime.py tests/test_local_proxy_transport.py tests/test_proxy_gui.py tests/test_windows_windivert_backend.py tests/test_windows_windivert_service_contract.py tests/test_windows_windivert_stack.py tests/test_windows_windivert_native_source.py tests/test_windows_windivert_installer.py
+
+      - name: Stage pinned official WinDivert dependency
+        shell: pwsh
+        run: ./tools/stage_windows_windivert.ps1 -OutputDirectory 'out/windivert'
+
+      - name: Compile production WinDivert service and probes
+        shell: cmd
+        run: |
+          for /f "tokens=*" %%i in ('"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath') do set "VSINSTALL=%%i"
+          if not defined VSINSTALL exit /b 1
+          call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo /W4 /EHsc /std:c++17 native\windows_windivert\loopback_smoke.cpp /Fe:loopback_smoke.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /EHsc /std:c++17 /Iout\windivert\sdk native\windows_windivert\windivert_nat_probe.cpp out\windivert\sdk\WinDivert.lib /Fe:windivert_nat_probe.exe /link Ws2_32.lib
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /WX /EHsc /std:c++17 /MT /O2 native\windows_windivert\windivert_service_protocol_test.cpp native\windows_windivert\windivert_service_protocol.cpp /Fe:windivert_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          windivert_service_protocol_test.exe
+          if errorlevel 1 exit /b 1
+          cl /nologo /W4 /WX /EHsc /std:c++17 /MT /O2 /Iout\windivert\sdk native\windows_windivert\windivert_service_main.cpp native\windows_windivert\windivert_service_protocol.cpp native\windows_windivert\windivert_routing_session.cpp out\windivert\sdk\WinDivert.lib /Fe:ArvectumProxyWinDivertRoutingService.exe /link Advapi32.lib Bcrypt.lib Ws2_32.lib
+          if errorlevel 1 exit /b 1
+
+      - name: Validate compiled WinDivert filters
+        shell: pwsh
+        run: |
+          Copy-Item out/windivert/WinDivert.dll . -Force
+          ./windivert_nat_probe.exe --validate-filters 38180 38181
+          if ($LASTEXITCODE -ne 0) {
+            throw 'WinDivert filter validation failed'
+          }
+
+      - name: Assemble exact VM acceptance artifact
+        shell: pwsh
+        run: |
+          $out = 'out/windows-windivert-vm-acceptance'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          Copy-Item loopback_smoke.exe $out
+          Copy-Item windivert_nat_probe.exe $out
+          Copy-Item ArvectumProxyWinDivertRoutingService.exe $out
+          Copy-Item out/windivert/WinDivert.dll $out
+          Copy-Item out/windivert/WinDivert64.sys $out
+          Copy-Item out/windivert/WinDivert-LICENSE $out
+          Copy-Item out/windivert/windivert-dependency.json $out
+          Copy-Item tools/run_windows_windivert_vm_acceptance.ps1 $out
+          Copy-Item tools/run_windows_windivert_service_vm_acceptance.ps1 $out
+          Copy-Item tools/windivert_nat_probe_run.cmd $out
+          Copy-Item installer/windivert_service_helper.ps1 $out
+          $manifest = [ordered]@{
+            schema = 'arvectum.proxy.windows-windivert-build.v1'
+            source_commit = (git rev-parse HEAD).Trim()
+            version = '2.2.2'
+            service = [ordered]@{
+              filename = 'ArvectumProxyWinDivertRoutingService.exe'
+              sha256 = (Get-FileHash ArvectumProxyWinDivertRoutingService.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+            }
+            dependency_manifest_sha256 = (Get-FileHash out/windivert/windivert-dependency.json -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+          $manifest | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $out 'windivert-stack-build.json') -Encoding utf8
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-windivert-vm-acceptance
+          path: out/windows-windivert-vm-acceptance
+          if-no-files-found: error
