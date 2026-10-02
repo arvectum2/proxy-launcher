@@ -13,10 +13,23 @@ class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
         bundle_step = text.index(
             "- name: Build exact production WinDivert stack bundle"
         )
+        portable_step = text.index(
+            "- name: Embed production WinDivert bootstrap into portable"
+        )
         installer_step = text.index(
             "- name: Compile current canonical installer and verify Setup metadata"
         )
-        self.assertLess(bundle_step, installer_step)
+        self.assertLess(bundle_step, portable_step)
+        self.assertLess(portable_step, installer_step)
+        portable_block = text[portable_step:installer_step]
+        self.assertIn(
+            "./tools/package_windows_portable_windivert.ps1",
+            portable_block,
+        )
+        self.assertIn(
+            "-WinDivertStackBundle 'out/windows-windivert-stack'",
+            portable_block,
+        )
 
         installer_block = text[
             installer_step:
@@ -53,6 +66,7 @@ class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
         text = WORKFLOW.read_text(encoding="utf-8")
         for required in (
             "tools/build_windows_windivert_stack_bundle.ps1",
+            "tools/package_windows_portable_windivert.ps1",
             "tools/stage_windows_windivert.ps1",
             "installer/windivert_service_helper.ps1",
             "tests.test_windows_installer_windivert_workflow_contract",

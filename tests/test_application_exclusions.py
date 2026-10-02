@@ -13,6 +13,7 @@ from application_exclusions import (
     compile_windows_application_exclusion_enforcement_plan,
     compile_windows_application_exclusion_plan,
     load_application_exclusions,
+    prepare_windows_application_exclusion_backend,
     save_application_exclusions,
 )
 from routing_rules import ApplicationIdentity, DestinationKind, RoutingAction
@@ -214,6 +215,65 @@ class ApplicationExclusionTests(unittest.TestCase):
     def test_canonical_state_file_is_registered_for_migration(self):
         self.assertIn("app_exclusions.json", core._STATE_FILES)
         self.assertTrue(core.app_exclusions_path().endswith("app_exclusions.json"))
+
+
+    def test_windows_capability_exposes_verified_portable_bootstrap(self):
+        with mock.patch(
+            "windows_windivert_stack.windows_windivert_stack_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "absent",
+            },
+        ), mock.patch(
+            "windows_windivert_stack.portable_windivert_bootstrap_readiness",
+            return_value={
+                "ready": False,
+                "state": "portable_bootstrap_ready",
+                "reason": "one consent required",
+                "portable_bootstrap_available": True,
+            },
+        ), mock.patch(
+            "windows_native_stack.windows_native_stack_readiness",
+            return_value={
+                "ready": False,
+                "state": "not_installed",
+                "reason": "legacy absent",
+            },
+        ):
+            capability = application_exclusion_capability("win32")
+
+        self.assertFalse(capability["live_enforcement_supported"])
+        self.assertEqual(
+            capability["state"], "portable_bootstrap_ready"
+        )
+        self.assertTrue(capability["portable_bootstrap_available"])
+        self.assertEqual(capability["reason"], "one consent required")
+
+    def test_prepare_windows_backend_bootstraps_then_requires_live_ready(self):
+        initial = {
+            "live_enforcement_supported": False,
+            "portable_bootstrap_available": True,
+            "state": "portable_bootstrap_ready",
+        }
+        ready = {
+            "live_enforcement_supported": True,
+            "portable_bootstrap_available": False,
+            "state": "windivert_ready",
+            "backend": "windivert",
+        }
+        with mock.patch(
+            "application_exclusions.application_exclusion_capability",
+            side_effect=[initial, ready],
+        ), mock.patch(
+            "windows_windivert_stack.bootstrap_windows_windivert_stack",
+            return_value={"ready": True, "state": "windivert_ready"},
+        ) as bootstrap:
+            result = prepare_windows_application_exclusion_backend()
+
+        bootstrap.assert_called_once_with()
+        self.assertTrue(result["live_enforcement_supported"])
+        self.assertEqual(result["backend"], "windivert")
 
 
 if __name__ == "__main__":

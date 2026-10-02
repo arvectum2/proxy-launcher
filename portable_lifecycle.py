@@ -38,9 +38,73 @@ def _sha256_file(path: str) -> str:
     return digest.hexdigest()
 
 
+_PORTABLE_BUILD_MANIFEST = "build_manifest.json"
+_PORTABLE_WINDIVERT_DIR = "WINDOWS_WINDIVERT"
+
+
 def _is_historical_documents_copy(path: str) -> bool:
     core = _core()
     return core._same_path(path, core.historical_documents_app_exe())
+
+
+def _directory_hashes(root: str) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for current, _dirs, files in os.walk(root):
+        for name in sorted(files):
+            path = os.path.join(current, name)
+            relative = os.path.relpath(path, root).replace("\\", "/")
+            result[relative] = _sha256_file(path)
+    return result
+
+
+def _sync_portable_support_files(source_dir: str, target_dir: str) -> None:
+    manifest_source = os.path.join(
+        source_dir, _PORTABLE_BUILD_MANIFEST
+    )
+    manifest_target = os.path.join(
+        target_dir, _PORTABLE_BUILD_MANIFEST
+    )
+    if os.path.isfile(manifest_source):
+        temporary = manifest_target + ".%s.tmp" % os.getpid()
+        try:
+            shutil.copy2(manifest_source, temporary)
+            if (
+                _sha256_file(manifest_source)
+                != _sha256_file(temporary)
+            ):
+                raise IOError("portable build manifest copy hash mismatch")
+            os.replace(temporary, manifest_target)
+        finally:
+            if os.path.exists(temporary):
+                os.remove(temporary)
+    elif os.path.exists(manifest_target):
+        os.remove(manifest_target)
+
+    bundle_source = os.path.join(
+        source_dir, _PORTABLE_WINDIVERT_DIR
+    )
+    bundle_target = os.path.join(
+        target_dir, _PORTABLE_WINDIVERT_DIR
+    )
+    if os.path.isdir(bundle_source):
+        temporary_bundle = bundle_target + ".%s.tmp" % os.getpid()
+        if os.path.exists(temporary_bundle):
+            shutil.rmtree(temporary_bundle)
+        try:
+            shutil.copytree(bundle_source, temporary_bundle)
+            if (
+                _directory_hashes(bundle_source)
+                != _directory_hashes(temporary_bundle)
+            ):
+                raise IOError("portable WinDivert sidecar copy hash mismatch")
+            if os.path.exists(bundle_target):
+                shutil.rmtree(bundle_target)
+            os.replace(temporary_bundle, bundle_target)
+        finally:
+            if os.path.exists(temporary_bundle):
+                shutil.rmtree(temporary_bundle)
+    elif os.path.exists(bundle_target):
+        shutil.rmtree(bundle_target)
 
 
 def ensure_stable_app_copy() -> str | None:
@@ -64,6 +128,10 @@ def ensure_stable_app_copy() -> str | None:
             os.path.isfile(target)
             and core._sha256_file(source) == core._sha256_file(target)
         ):
+            _sync_portable_support_files(
+                os.path.dirname(source),
+                os.path.dirname(target),
+            )
             return target
         temporary = target + ".%s.tmp" % os.getpid()
         try:
@@ -77,6 +145,10 @@ def ensure_stable_app_copy() -> str | None:
                     os.remove(temporary)
                 except OSError:
                     pass
+        _sync_portable_support_files(
+            os.path.dirname(source),
+            os.path.dirname(target),
+        )
         with io.open(
             os.path.join(os.path.dirname(target), core._INSTALL_OWNER_MARKER),
             "w",

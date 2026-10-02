@@ -1,4 +1,4 @@
-<# APL-WIN-011 / Gate R6 Windows RC packaging and acceptance verifier. #>
+﻿<# APL-WIN-011 / Gate R6 Windows RC packaging and acceptance verifier. #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)] [string]$PortableZip,
@@ -78,7 +78,8 @@ try {
         'run_p01_native_qa_v2.ps1',
         'SHA256SUMS.txt',
         'LICENSE.txt',
-        'THIRD_PARTY_NOTICES.txt'
+        'THIRD_PARTY_NOTICES.txt',
+        'build_manifest.json'
     )
     foreach ($required in $baseExpectedFiles) {
         $requiredPath = Join-Path $temp $required
@@ -123,11 +124,51 @@ try {
         }
     }
 
-    # Gate R6 remains an exact-content gate: bundle children are not broadly
-    # allowlisted. Only files enumerated and hash-bound by manifest.json are valid.
+    $portableManifestPath = Join-Path $temp 'build_manifest.json'
+    $portableManifest = Get-Content -LiteralPath $portableManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    Add-Check 'portable.windivert.enabled' ([bool]$portableManifest.windivert_stack_enabled) ([string]$portableManifest.windivert_stack_enabled)
+    Add-Check 'portable.windivert.source_commit' ([string]$portableManifest.source_commit -ceq [string]$build.source_commit) ([string]$portableManifest.source_commit)
+
+    $windivertRoot = Join-Path $temp 'WINDOWS_WINDIVERT'
+    $windivertFiles = @(
+        'ArvectumProxyWinDivertRoutingService.exe',
+        'WinDivert.dll',
+        'WinDivert64.sys',
+        'WinDivert-LICENSE',
+        'windivert-dependency.json',
+        'windivert-stack-build.json',
+        'windivert_service_helper.ps1'
+    )
+    foreach ($name in $windivertFiles) {
+        $path = Join-Path $windivertRoot $name
+        Add-Check "portable.windivert.required.$name" (Test-Path -LiteralPath $path -PathType Leaf) $name
+    }
+    if (Test-Path -LiteralPath (Join-Path $windivertRoot 'windivert-stack-build.json') -PathType Leaf) {
+        $windivertBuild = Get-Content -LiteralPath (Join-Path $windivertRoot 'windivert-stack-build.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        Add-Check 'portable.windivert.stack_source_commit' ([string]$windivertBuild.source_commit -ceq [string]$build.source_commit) ([string]$windivertBuild.source_commit)
+        Add-Check 'portable.windivert.service_sha256' ((Get-FileHash -LiteralPath (Join-Path $windivertRoot 'ArvectumProxyWinDivertRoutingService.exe') -Algorithm SHA256).Hash.ToLowerInvariant() -ceq ([string]$portableManifest.windivert_service_sha256).ToLowerInvariant()) ([string]$portableManifest.windivert_service_sha256)
+    }
+    if (Test-Path -LiteralPath (Join-Path $windivertRoot 'windivert-dependency.json') -PathType Leaf) {
+        $dependencyHash = (Get-FileHash -LiteralPath (Join-Path $windivertRoot 'windivert-dependency.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+        Add-Check 'portable.windivert.dependency_manifest_sha256' ($dependencyHash -ceq ([string]$portableManifest.windivert_dependency_manifest_sha256).ToLowerInvariant()) $dependencyHash
+    }
+    if (Test-Path -LiteralPath (Join-Path $windivertRoot 'windivert_service_helper.ps1') -PathType Leaf) {
+        $helperHash = (Get-FileHash -LiteralPath (Join-Path $windivertRoot 'windivert_service_helper.ps1') -Algorithm SHA256).Hash.ToLowerInvariant()
+        Add-Check 'portable.windivert.helper_sha256' ($helperHash -ceq ([string]$portableManifest.windivert_service_helper_sha256).ToLowerInvariant()) $helperHash
+    }
+    if (Test-Path -LiteralPath (Join-Path $windivertRoot 'WinDivert64.sys') -PathType Leaf) {
+        $driverSignature = Get-AuthenticodeSignature -LiteralPath (Join-Path $windivertRoot 'WinDivert64.sys')
+        $driverThumbprint = if ($driverSignature.SignerCertificate) { ($driverSignature.SignerCertificate.Thumbprint -replace '\s','').ToUpperInvariant() } else { '' }
+        Add-Check 'portable.windivert.driver_signature' ($driverSignature.Status.ToString() -ceq 'Valid') ($driverSignature.Status.ToString())
+        Add-Check 'portable.windivert.driver_signer' ($driverThumbprint -ceq '043589F75FCE2795E7F2CC3E526D46784D5DDAB3') $driverThumbprint
+    }
+
+    # Gate R6 remains an exact-content gate: every portable sidecar child is
+    # explicitly allowlisted and hash-bound by the portable build manifest.
     # Path.GetRelativePath handles the Windows 8.3 short-path alias that hosted
     # runners can expose for %TEMP% (for example RUNNER~1 vs runneradmin).
-    $expectedEntries = @($baseExpectedFiles | ForEach-Object { $_ }) + @('THIRD_PARTY_LICENSES/manifest.json') + @($manifestAllowed)
+    $windivertEntries = @($windivertFiles | ForEach-Object { "WINDOWS_WINDIVERT/$_" })
+    $expectedEntries = @($baseExpectedFiles | ForEach-Object { $_ }) + @('THIRD_PARTY_LICENSES/manifest.json') + @($manifestAllowed) + $windivertEntries
     $actualEntries = @(Get-ChildItem -LiteralPath $temp -File -Recurse | ForEach-Object {
         ([System.IO.Path]::GetRelativePath($temp, $_.FullName)) -replace '\\','/'
     } | Sort-Object)

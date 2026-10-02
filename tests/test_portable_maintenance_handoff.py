@@ -1,4 +1,6 @@
+import json
 import os
+import tempfile
 import unittest
 from unittest import mock
 
@@ -32,6 +34,71 @@ class PortableMaintenanceHandoffTests(unittest.TestCase):
             cwd=os.path.dirname(target),
             creationflags=getattr(portable_lifecycle.subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
         )
+
+
+class PortableSupportSyncTests(unittest.TestCase):
+    def test_stable_copy_carries_manifest_and_windivert_sidecar(self):
+        with tempfile.TemporaryDirectory() as td:
+            source_dir = os.path.join(td, "source")
+            target_dir = os.path.join(td, "target")
+            os.makedirs(source_dir)
+            source = os.path.join(
+                source_dir, "Arvectum Proxy Launcher.exe"
+            )
+            target = os.path.join(
+                target_dir, "Arvectum Proxy Launcher.exe"
+            )
+            with open(source, "wb") as stream:
+                stream.write(b"portable-exe")
+            with open(
+                os.path.join(source_dir, "build_manifest.json"),
+                "w",
+                encoding="utf-8",
+            ) as stream:
+                json.dump({"source_commit": "a" * 40}, stream)
+            sidecar = os.path.join(source_dir, "WINDOWS_WINDIVERT")
+            os.makedirs(sidecar)
+            with open(
+                os.path.join(sidecar, "windivert-stack-build.json"),
+                "w",
+                encoding="utf-8",
+            ) as stream:
+                json.dump({"source_commit": "a" * 40}, stream)
+
+            with mock.patch.object(
+                core, "is_windows", return_value=True
+            ), mock.patch.object(
+                portable_lifecycle.sys,
+                "frozen",
+                True,
+                create=True,
+            ), mock.patch.object(
+                portable_lifecycle.sys, "executable", source
+            ), mock.patch.object(
+                core, "stable_app_exe", return_value=target
+            ), mock.patch.object(
+                core, "_same_path", return_value=False
+            ):
+                self.assertEqual(
+                    core.ensure_stable_app_copy(),
+                    os.path.realpath(target),
+                )
+
+            self.assertTrue(os.path.isfile(target))
+            self.assertTrue(
+                os.path.isfile(
+                    os.path.join(target_dir, "build_manifest.json")
+                )
+            )
+            self.assertTrue(
+                os.path.isfile(
+                    os.path.join(
+                        target_dir,
+                        "WINDOWS_WINDIVERT",
+                        "windivert-stack-build.json",
+                    )
+                )
+            )
 
 
 if __name__ == "__main__":

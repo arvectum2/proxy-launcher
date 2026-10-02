@@ -190,3 +190,152 @@ def test_readiness_is_windows_only(monkeypatch):
     assert result["ready"] is False
     assert result["state"] == "not_windows"
 
+
+
+def _portable_fixture(tmp_path, monkeypatch):
+    app_dir = tmp_path / "portable"
+    bundle = app_dir / stack.PORTABLE_BUNDLE_DIRNAME
+    bundle.mkdir(parents=True)
+    exe = app_dir / "Arvectum Proxy Launcher.exe"
+    exe.write_bytes(b"exe")
+    monkeypatch.setattr(stack, "_is_windows", lambda: True)
+    monkeypatch.setattr(stack.sys, "frozen", True, raising=False)
+    monkeypatch.setattr(stack.sys, "executable", str(exe))
+
+    service = bundle / stack.SERVICE_FILENAME
+    dll = bundle / stack.WINDIVERT_DLL_FILENAME
+    driver = bundle / stack.WINDIVERT_DRIVER_FILENAME
+    license_file = bundle / stack.WINDIVERT_LICENSE_FILENAME
+    helper = bundle / stack.PORTABLE_HELPER_FILENAME
+    payloads = {
+        service: b"portable-service",
+        dll: b"portable-dll",
+        driver: b"portable-driver",
+        license_file: b"portable-license",
+        helper: b"portable-helper",
+    }
+    for path, data in payloads.items():
+        path.write_bytes(data)
+
+    monkeypatch.setattr(
+        stack, "WINDIVERT_X64_DLL_SHA256", _sha(payloads[dll])
+    )
+    monkeypatch.setattr(
+        stack, "WINDIVERT_X64_DRIVER_SHA256", _sha(payloads[driver])
+    )
+    monkeypatch.setattr(
+        stack, "WINDIVERT_LICENSE_SHA256", _sha(payloads[license_file])
+    )
+
+    dependency = {
+        "schema": "arvectum.proxy.windivert-dependency.v1",
+        "version": stack.WINDIVERT_VERSION,
+        "driver_signer_thumbprint":
+            stack.WINDIVERT_DRIVER_SIGNER_THUMBPRINT,
+        "files": {
+            stack.WINDIVERT_DLL_FILENAME: _sha(payloads[dll]),
+            stack.WINDIVERT_DRIVER_FILENAME: _sha(payloads[driver]),
+            stack.WINDIVERT_LICENSE_FILENAME:
+                _sha(payloads[license_file]),
+        },
+    }
+    dependency_path = (
+        bundle / stack.PORTABLE_DEPENDENCY_MANIFEST_FILENAME
+    )
+    dependency_path.write_text(
+        json.dumps(dependency), encoding="utf-8"
+    )
+    stack_manifest = {
+        "schema": "arvectum.proxy.windows-windivert-build.v1",
+        "source_commit": SOURCE_COMMIT,
+        "version": stack.WINDIVERT_VERSION,
+        "service": {
+            "filename": stack.SERVICE_FILENAME,
+            "sha256": _sha(payloads[service]),
+        },
+        "dependency_manifest_sha256":
+            _sha(dependency_path.read_bytes()),
+    }
+    (bundle / stack.PORTABLE_STACK_MANIFEST_FILENAME).write_text(
+        json.dumps(stack_manifest), encoding="utf-8"
+    )
+    build_manifest = {
+        "product": "Arvectum Proxy Launcher",
+        "format": "portable",
+        "source_commit": SOURCE_COMMIT,
+        "windivert_stack_enabled": True,
+        "windivert_service_helper_sha256":
+            _sha(payloads[helper]),
+        "windivert_dependency_manifest_sha256":
+            _sha(dependency_path.read_bytes()),
+        "windivert_service_sha256":
+            _sha(payloads[service]),
+    }
+    (app_dir / stack.PORTABLE_BUILD_MANIFEST_FILENAME).write_text(
+        json.dumps(build_manifest), encoding="utf-8"
+    )
+    return app_dir, bundle
+
+
+def test_portable_bootstrap_readiness_accepts_exact_sidecar(
+    tmp_path, monkeypatch
+):
+    _portable_fixture(tmp_path, monkeypatch)
+    result = stack.portable_windivert_bootstrap_readiness()
+    assert result["portable_bootstrap_available"] is True
+    assert result["state"] == "portable_bootstrap_ready"
+    assert result["source_commit"] == SOURCE_COMMIT
+
+
+def test_portable_bootstrap_readiness_rejects_source_commit_mismatch(
+    tmp_path, monkeypatch
+):
+    app_dir, _ = _portable_fixture(tmp_path, monkeypatch)
+    manifest = app_dir / stack.PORTABLE_BUILD_MANIFEST_FILENAME
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    payload["source_commit"] = "b" * 40
+    manifest.write_text(json.dumps(payload), encoding="utf-8")
+    result = stack.portable_windivert_bootstrap_readiness()
+    assert result["portable_bootstrap_available"] is False
+    assert result["state"] == "portable_payload_invalid"
+
+
+def test_portable_bootstrap_readiness_rejects_tampered_driver(
+    tmp_path, monkeypatch
+):
+    _, bundle = _portable_fixture(tmp_path, monkeypatch)
+    (bundle / stack.WINDIVERT_DRIVER_FILENAME).write_bytes(b"tampered")
+    result = stack.portable_windivert_bootstrap_readiness()
+    assert result["portable_bootstrap_available"] is False
+    assert result["state"] == "portable_dependency_hash_mismatch"
+
+
+def test_portable_bootstrap_elevates_once_and_rechecks_readiness(
+    tmp_path, monkeypatch
+):
+    _portable_fixture(tmp_path, monkeypatch)
+    calls = []
+    readiness = [
+        {"ready": False, "state": "not_installed"},
+        {"ready": True, "state": "windivert_ready"},
+    ]
+
+    monkeypatch.setattr(
+        stack,
+        "windows_windivert_stack_readiness",
+        lambda: readiness.pop(0),
+    )
+    monkeypatch.setattr(
+        stack,
+        "_run_elevated_powershell",
+        lambda args, timeout_ms=120000: calls.append(tuple(args)) or 0,
+    )
+
+    result = stack.bootstrap_windows_windivert_stack()
+    assert result["ready"] is True
+    assert len(calls) == 1
+    args = calls[0]
+    assert "-Action" in args
+    assert args[args.index("-Action") + 1] == "Install"
+    assert "-SourceCommit" in args
+    assert args[args.index("-SourceCommit") + 1] == SOURCE_COMMIT

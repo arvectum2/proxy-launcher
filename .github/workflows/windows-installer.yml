@@ -43,6 +43,7 @@ jobs:
           foreach ($script in @(
             'tools/build_windows_installer.ps1',
             'tools/build_windows_windivert_stack_bundle.ps1',
+            'tools/package_windows_portable_windivert.ps1',
             'tools/stage_windows_windivert.ps1',
             'tools/windows_promoted_license_compliance.ps1',
             'tools/prepare_windows_inno_setup_base.ps1',
@@ -108,6 +109,14 @@ jobs:
             Write-Host "::error title=Production WinDivert stack build failed::$message"
             throw
           }
+
+      - name: Embed production WinDivert bootstrap into portable
+        shell: pwsh
+        run: |
+          ./tools/package_windows_portable_windivert.ps1 `
+            -PortableZip '${{ steps.portable.outputs.zip_path }}' `
+            -BuildResultPath 'out/build-result.json' `
+            -WinDivertStackBundle 'out/windows-windivert-stack'
 
       - name: Build synthetic predecessor lifecycle fixture
         id: predecessor

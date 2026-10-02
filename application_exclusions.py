@@ -169,6 +169,7 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
             windows_windivert_transport_scope,
         )
         from windows_windivert_stack import (
+            portable_windivert_bootstrap_readiness,
             windows_windivert_stack_readiness,
         )
         from windows_native_stack import (
@@ -177,6 +178,11 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
         )
 
         windivert = windows_windivert_stack_readiness()
+        portable_bootstrap = (
+            {"portable_bootstrap_available": False}
+            if windivert.get("ready")
+            else portable_windivert_bootstrap_readiness()
+        )
         preview = windows_app_exclusions_preview_build()
         legacy = windows_native_stack_readiness(
             allow_test_preview=bool(preview.get("enabled")),
@@ -202,14 +208,36 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
             "configuration_supported": True,
             "plan_compilation_supported": True,
             "live_enforcement_supported": bool(active.get("ready")),
-            "state": active.get("state", "native_stack_unavailable"),
+            "state": (
+                "portable_bootstrap_ready"
+                if (
+                    not active.get("ready")
+                    and portable_bootstrap.get(
+                        "portable_bootstrap_available"
+                    )
+                )
+                else active.get("state", "native_stack_unavailable")
+            ),
             "backend": backend,
             "production_controller_available": True,
-            "reason": active.get(
-                "reason",
-                "production native routing stack is unavailable",
+            "reason": (
+                portable_bootstrap.get("reason")
+                if (
+                    not active.get("ready")
+                    and portable_bootstrap.get(
+                        "portable_bootstrap_available"
+                    )
+                )
+                else active.get(
+                    "reason",
+                    "production native routing stack is unavailable",
+                )
             ),
             "windivert_stack": dict(windivert),
+            "portable_bootstrap": dict(portable_bootstrap),
+            "portable_bootstrap_available": bool(
+                portable_bootstrap.get("portable_bootstrap_available")
+            ),
             "transport_scope": windows_windivert_transport_scope(),
             "native_stack": dict(legacy),
             "preview_build": dict(preview),
@@ -243,6 +271,29 @@ def application_exclusion_capability(platform: Optional[str] = None) -> Mapping[
         "state": "unsupported",
         "reason": "Application exclusions are unsupported on this platform.",
     }
+
+
+def prepare_windows_application_exclusion_backend() -> Mapping[str, object]:
+    capability = application_exclusion_capability("win32")
+    if capability.get("live_enforcement_supported"):
+        return capability
+    if not capability.get("portable_bootstrap_available"):
+        return capability
+
+    from windows_windivert_stack import bootstrap_windows_windivert_stack
+
+    result = bootstrap_windows_windivert_stack()
+    if not result.get("ready"):
+        return {
+            **capability,
+            "state": result.get("state", "portable_bootstrap_failed"),
+            "reason": result.get(
+                "reason",
+                "Windows application routing bootstrap failed",
+            ),
+            "portable_bootstrap_result": dict(result),
+        }
+    return application_exclusion_capability("win32")
 
 
 def compile_windows_application_exclusion_plan(
@@ -302,6 +353,9 @@ def install_into_core(core: ModuleType) -> ModuleType:
     core.application_exclusion_rule = application_exclusion_rule
     core.compile_application_exclusion_rules = compile_application_exclusion_rules
     core.application_exclusion_capability = application_exclusion_capability
+    core.prepare_windows_application_exclusion_backend = (
+        prepare_windows_application_exclusion_backend
+    )
     core.compile_windows_application_exclusion_plan = compile_windows_application_exclusion_plan
     core.compile_windows_application_exclusion_enforcement_plan = (
         compile_windows_application_exclusion_enforcement_plan

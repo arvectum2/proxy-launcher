@@ -129,6 +129,14 @@ class WindowsPublicTrustTests(unittest.TestCase):
             "-WinDivertStackBundle 'out\\windows-windivert-stack'",
             workflow,
         )
+        self.assertIn(
+            "Embed production WinDivert bootstrap into signed portable",
+            workflow,
+        )
+        self.assertIn(
+            "tools/package_windows_portable_windivert.ps1",
+            workflow,
+        )
 
     def test_authenticode_primitive_enforces_rsa_3072_profile(self):
         script = self.read("tools/windows_authenticode.ps1")

@@ -1013,6 +1013,35 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         self._refresh()
 
     def _save(self):
+        if os.name == "nt" and self.identities:
+            capability = core.application_exclusion_capability(sys.platform)
+            if (
+                not capability.get("live_enforcement_supported")
+                and capability.get("portable_bootstrap_available")
+            ):
+                try:
+                    capability = (
+                        core.prepare_windows_application_exclusion_backend()
+                    )
+                except Exception as exc:
+                    capability = {
+                        "live_enforcement_supported": False,
+                        "reason": str(exc),
+                    }
+                if not capability.get("live_enforcement_supported"):
+                    messagebox.showerror(
+                        APP_NAME,
+                        (
+                            "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u0438\u0442\u044c "
+                            "\u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u044e \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s"
+                            % (
+                                capability.get("reason")
+                                or "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f \u043e\u0448\u0438\u0431\u043a\u0430"
+                            )
+                        ),
+                        parent=self,
+                    )
+                    return
         try:
             saved = core.save_application_exclusions(self.identities)
         except Exception as exc:

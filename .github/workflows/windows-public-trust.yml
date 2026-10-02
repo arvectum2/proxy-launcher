@@ -15,6 +15,7 @@ on:
       - 'tools/windows_authenticode.ps1'
       - 'tools/windows_public_trust_gate.ps1'
       - 'tools/package_signed_windows_portable.ps1'
+      - 'tools/package_windows_portable_windivert.ps1'
       - 'tools/windows_promoted_license_compliance.ps1'
       - 'tools/build_windows_installer.ps1'
       - 'tools/build_windows_windivert_stack_bundle.ps1'
@@ -23,6 +24,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_public_trust.py'
       - 'tests/test_windows_installer_windivert_workflow_contract.py'
+      - 'tests/test_windows_portable_windivert.py'
       - 'tests/test_windows_authenticode_foundation.py'
   pull_request:
     branches:
@@ -36,6 +38,7 @@ on:
       - 'tools/windows_authenticode.ps1'
       - 'tools/windows_public_trust_gate.ps1'
       - 'tools/package_signed_windows_portable.ps1'
+      - 'tools/package_windows_portable_windivert.ps1'
       - 'tools/windows_promoted_license_compliance.ps1'
       - 'tools/build_windows_installer.ps1'
       - 'tools/build_windows_windivert_stack_bundle.ps1'
@@ -44,6 +47,7 @@ on:
       - 'native/windows_windivert/**'
       - 'tests/test_windows_public_trust.py'
       - 'tests/test_windows_installer_windivert_workflow_contract.py'
+      - 'tests/test_windows_portable_windivert.py'
       - 'tests/test_windows_authenticode_foundation.py'
   workflow_dispatch:
 
@@ -74,6 +78,7 @@ jobs:
             '.\tools\windows_authenticode.ps1',
             '.\tools\windows_public_trust_gate.ps1',
             '.\tools\package_signed_windows_portable.ps1',
+            '.\tools\package_windows_portable_windivert.ps1',
             '.\tools\build_windows_windivert_stack_bundle.ps1',
             '.\tools\stage_windows_windivert.ps1',
             '.\installer\windivert_service_helper.ps1'
@@ -162,6 +167,16 @@ jobs:
         run: |
           ./tools/build_windows_windivert_stack_bundle.ps1 `
             -OutputDirectory 'out/windows-windivert-stack'
+
+      - name: Embed production WinDivert bootstrap into signed portable
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $portable = "out\public-signed\Arvectum-Proxy-Launcher-$version-windows-x64-portable.zip"
+          ./tools/package_windows_portable_windivert.ps1 `
+            -PortableZip $portable `
+            -BuildResultPath 'out\public-signed\build-result.json' `
+            -WinDivertStackBundle 'out/windows-windivert-stack'
 
       - name: Build installer from exact signed application bytes
         id: signed_installer
