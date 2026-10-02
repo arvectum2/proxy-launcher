@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "windows-installer.yml"
 BUILDER = ROOT / "tools" / "build_windows_windivert_stack_bundle.ps1"
+HELPER = ROOT / "installer" / "windivert_service_helper.ps1"
 
 
 class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
@@ -62,6 +63,14 @@ class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
         self.assertNotIn("-WinDivertStackBundle", block)
         self.assertNotIn("-NativeStackBundle", block)
 
+    def test_helper_does_not_depend_on_programdata_environment_variable(self):
+        text = HELPER.read_text(encoding="utf-8-sig")
+        self.assertIn(
+            "[Environment+SpecialFolder]::CommonApplicationData",
+            text,
+        )
+        self.assertIn("[Environment]::GetFolderPath(", text)
+        self.assertNotIn("$env:ProgramData", text)
     def test_workflow_parses_all_windivert_installer_helpers(self):
         text = WORKFLOW.read_text(encoding="utf-8")
         for required in (
