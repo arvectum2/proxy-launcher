@@ -1,0 +1,24 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
+status: blocked
+authority: OWNER
+branch: agent/apl-route-decision-refresh-20260920
+source_pr: 68
+review_pr: 144
+baseline_main_commit: 7aa45183187f6bc685409a9dbf322790c17961f6
+stable_release: v0.2.16
+stable_release_commit: 6799297bf1492d352ca9d78a0a49b2adf3345d2a
+reconciliation:
+  - "Legacy PR #68 remains superseded and must not replay obsolete .agent state."
+  - "PR #144 remains the Owner decision surface; this refresh updates only baseline facts and keeps architecture selection Owner-reserved."
+  - "Canonical main at refresh is 7aa45183187f6bc685409a9dbf322790c17961f6; immutable desktop stable is v0.2.16 from 6799297bf1492d352ca9d78a0a49b2adf3345d2a."
+  - "Application-exclusion feature work in PR #183 adds Android enforcement and cross-platform control-plane state but does not authorize Windows privileged enforcement."
+evidence:
+  - "APL-ROUTE-001..004 still establish the deterministic rule model, feasibility matrix, read-only WFP application-id/filter-plan prototype, and fail-closed ownership/recovery journal."
+  - "PAC/no_proxy remains destination-aware rather than process-aware and cannot truthfully provide Windows per-application enforcement."
+  - "Technical recommendation remains Option A: Arvectum-owned WFP ALE callout plus narrow privileged service plus local proxy; recommendation is not approval."
+  - "APL-REL-016 PR #161 is version-stale after v0.2.16; canonical queue makes v0.2.17+ the first eligible future native-Authenticode release."
+  - "Any approved implementation must preserve saved-or-Arvectum recovery, separate WFP ownership evidence, foreign-resource non-ownership, exact rollback, loop prevention and real-host acceptance."
+blocker: "Owner/Product Owner must explicitly select/reject the Windows production enforcement architecture. No privileged WFP service/callout mutation is authorized before that decision."
+resume_instruction: "Inspect exact-head CI for refreshed PR #144. If green, leave it at the Owner decision gate. If Owner explicitly selects an architecture, create the smallest approved Windows enforcement slice from current main and require real Windows recovery/security acceptance. Otherwise preserve this stop-gate."
