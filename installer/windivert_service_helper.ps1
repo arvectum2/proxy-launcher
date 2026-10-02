@@ -22,7 +22,8 @@ $ProductRoot = Join-Path $env:ProgramData "Arvectum\ProxyLauncher"
 $InstallRoot = Join-Path $ProductRoot "WinDivert"
 $InstalledDriverPath = Join-Path $InstallRoot "WinDivert64.sys"
 $MarkerPath = Join-Path $ProductRoot "windivert-stack.json"
-$DiagnosticLogPath = Join-Path $env:TEMP "apl-windivert-service-helper.log"
+$DiagnosticRoot = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $env:TEMP }
+$DiagnosticLogPath = Join-Path $DiagnosticRoot "apl-windivert-service-helper.log"
 
 function Test-Elevated {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
