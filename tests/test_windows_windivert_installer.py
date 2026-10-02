@@ -128,18 +128,27 @@ def test_canonical_installer_accepts_only_commit_bound_windivert_bundle():
     assert "WinDivertSourceCommit" in builder
 
 
-def test_inno_embeds_windivert_stack_and_uses_standard_uac():
+def test_inno_embeds_windivert_stack_and_helper_owns_uac():
     script = (
         ROOT / "installer" / "ArvectumProxyLauncher.iss"
     ).read_text(encoding="utf-8-sig")
+    helper = _text()
     assert "PrivilegesRequired=lowest" in script
     assert "WinDivertStackPayloadDir" in script
     assert "ArvectumProxyWinDivertRoutingService.exe" in script
     assert "windivert-dependency.json" in script
     assert "windivert-stack-build.json" in script
     assert "windivert_service_helper.ps1" in script
-    assert "ShellExec('runas', PowerShell" in script
-    assert "-Action Install -SourceDirectory" in script
+    install_section = script[
+        script.index("function RunElevatedWinDivertInstall"):
+        script.index("function HelperArguments")
+    ]
+    assert "Result := Exec(PowerShell, Arguments" in install_section
+    assert "ShellExec('runas'" not in install_section
+    assert "-Action Install -SourceDirectory" in install_section
+    assert "function Invoke-SelfElevated" in helper
+    assert "Start-Process -FilePath $powershell -Verb RunAs" in helper
+    assert "apl-windivert-service-helper.log" in helper
     assert "-Action Uninstall" in script
 
 

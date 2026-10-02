@@ -22,12 +22,45 @@ $ProductRoot = Join-Path $env:ProgramData "Arvectum\ProxyLauncher"
 $InstallRoot = Join-Path $ProductRoot "WinDivert"
 $InstalledDriverPath = Join-Path $InstallRoot "WinDivert64.sys"
 $MarkerPath = Join-Path $ProductRoot "windivert-stack.json"
+$DiagnosticLogPath = Join-Path $env:TEMP "apl-windivert-service-helper.log"
 
-function Assert-Elevated {
+function Test-Elevated {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($identity)
     $admin = [Security.Principal.WindowsBuiltInRole]::Administrator
-    if (-not $principal.IsInRole($admin)) {
+    return $principal.IsInRole($admin)
+}
+
+function Write-Diagnostic {
+    param([Parameter(Mandatory = $true)][string]$Message)
+    try {
+        $line = "{0:o} action={1} elevated={2} {3}" -f
+            [DateTime]::UtcNow, $Action, (Test-Elevated), ($Message -replace '[\r\n]+', ' ')
+        Add-Content -LiteralPath $DiagnosticLogPath -Value $line -Encoding UTF8
+    }
+    catch {}
+}
+
+function Invoke-SelfElevated {
+    $powershell = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
+    $escapedScript = $PSCommandPath.Replace('"', '""')
+    $arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -Action {1}' -f
+        $escapedScript, $Action
+    if ($SourceDirectory) {
+        $escapedSource = $SourceDirectory.Replace('"', '""')
+        $arguments += ' -SourceDirectory "{0}"' -f $escapedSource
+    }
+    if ($SourceCommit) {
+        $arguments += ' -SourceCommit "{0}"' -f $SourceCommit
+    }
+    Write-Diagnostic "requesting Administrator consent"
+    $process = Start-Process -FilePath $powershell -Verb RunAs -ArgumentList $arguments -Wait -PassThru
+    Write-Diagnostic ("elevated child exit={0}" -f $process.ExitCode)
+    return [int]$process.ExitCode
+}
+
+function Assert-Elevated {
+    if (-not (Test-Elevated)) {
         throw "WinDivert service lifecycle requires Administrator elevation."
     }
 }
@@ -356,9 +389,26 @@ function Show-Status {
     )
 }
 
-switch ($Action) {
-    "Install" { Install-Stack }
-    "Uninstall" { Uninstall-Stack }
-    "Status" { Show-Status }
+try {
+    if ($Action -in @("Install", "Uninstall") -and -not (Test-Elevated)) {
+        $exitCode = Invoke-SelfElevated
+        if ($exitCode -ne 0) {
+            throw "Elevated WinDivert lifecycle child failed with exit code $exitCode."
+        }
+        exit 0
+    }
+
+    Write-Diagnostic "lifecycle start"
+    switch ($Action) {
+        "Install" { Install-Stack }
+        "Uninstall" { Uninstall-Stack }
+        "Status" { Show-Status }
+    }
+    Write-Diagnostic "lifecycle PASS"
+}
+catch {
+    Write-Diagnostic ("lifecycle FAIL error={0}" -f $_.Exception.Message)
+    Write-Error $_.Exception.Message
+    exit 1
 }
 

@@ -207,7 +207,7 @@ begin
     '" -Action Install -SourceDirectory "' +
     ExpandConstant('{tmp}\windivert') +
     '" -SourceCommit "{#WinDivertSourceCommit}"';
-  Result := ShellExec('runas', PowerShell, Arguments, '', SW_HIDE,
+  Result := Exec(PowerShell, Arguments, '', SW_HIDE,
     ewWaitUntilTerminated, ExitCode);
   if (not Result) or (ExitCode <> 0) then begin
     ErrorText := 'InstallFailure: WinDivert service install failed with exit code ' +
