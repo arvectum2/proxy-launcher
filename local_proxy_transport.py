@@ -43,6 +43,8 @@ class ProxyCore:
         self._stop = threading.Event()
         self._socks = []
         self._threads = []
+        self._direct_listener = None
+        self._direct_port = None
         self._upstreams = self._build_upstreams()
 
     def _build_upstreams(self):
@@ -357,6 +359,81 @@ class ProxyCore:
             except Exception:
                 pass
 
+    def _handle_direct_http(self, client):
+        core = _core()
+        try:
+            client.settimeout(30)
+            data = self._read_client_request(client)
+            marker = b"\r\n\r\n"
+            header_end = data.index(marker) + len(marker)
+            request_headers = data[:header_end]
+            buffered_after_headers = data[header_end:]
+            first = request_headers.split(b"\r\n", 1)[0]
+            is_connect = first.startswith(b"CONNECT")
+
+            if is_connect:
+                try:
+                    dest = first.split(b" ")[1].decode()
+                    host, port_s = dest.rsplit(":", 1)
+                    port = int(port_s)
+                except Exception:
+                    self._send_error(client, 400, "Bad CONNECT")
+                    return
+                method = None
+                path = None
+            else:
+                parts = first.split(b" ")
+                if len(parts) < 2:
+                    self._send_error(client, 400, "Bad request")
+                    return
+                method = parts[0]
+                url = parts[1].decode()
+                if url.startswith("http://"):
+                    url = url[7:]
+                elif url.startswith("https://"):
+                    url = url[8:]
+                slash = url.find("/")
+                hostport = url if slash == -1 else url[:slash]
+                path = "/" if slash == -1 else url[slash:]
+                if ":" in hostport:
+                    host, port_s = hostport.rsplit(":", 1)
+                    try:
+                        port = int(port_s)
+                    except ValueError:
+                        port = 80
+                else:
+                    host = hostport
+                    port = 80
+
+            host = core._normalize_host(host)
+            try:
+                direct = socket.create_connection((host, port), timeout=15)
+            except Exception:
+                self._send_error(client, 502, "Direct connection failed")
+                return
+            direct.settimeout(300)
+            if is_connect:
+                client.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                if buffered_after_headers:
+                    direct.sendall(buffered_after_headers)
+            else:
+                rest = data.split(b"\r\n", 1)[1]
+                direct_request = (
+                    method + b" " + path.encode() + b" HTTP/1.1\r\n" + rest
+                )
+                direct.sendall(direct_request)
+            self._relay(direct, client, self._stop)
+        except OSError:
+            try:
+                self._send_error(client, 502, "Proxy error")
+            except Exception:
+                pass
+        finally:
+            try:
+                client.close()
+            except Exception:
+                pass
+
     def _handle_socks(self, client):
         core = _core()
         try:
@@ -436,6 +513,44 @@ class ProxyCore:
             except Exception:
                 pass
 
+    def start_direct_listener(self):
+        """Start an ephemeral HTTP/CONNECT listener that always exits directly."""
+        if not self._socks:
+            return False, "Основной proxy engine ещё не запущен", None
+        if self._direct_listener is not None:
+            return True, "OK", self._direct_port
+
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            listener.bind(("127.0.0.1", 0))
+            listener.listen(200)
+            listener.settimeout(1.0)
+            port = int(listener.getsockname()[1])
+        except OSError as error:
+            try:
+                listener.close()
+            except Exception:
+                pass
+            return False, "Не удалось открыть direct listener: %s" % error, None
+
+        self._direct_listener = listener
+        self._direct_port = port
+        self._socks.append(listener)
+        thread = threading.Thread(
+            target=self._accept_loop,
+            args=(listener, self._handle_direct_http),
+            daemon=True,
+        )
+        thread.start()
+        self._threads.append(thread)
+        _core().structured_log(
+            "application exclusion direct listener started",
+            event="proxy.application_exclusion.direct_listener_started",
+            port=port,
+        )
+        return True, "OK", port
+
     def start(self):
         core = _core()
         if self._socks:
@@ -506,6 +621,8 @@ class ProxyCore:
             except Exception:
                 pass
         self._socks = []
+        self._direct_listener = None
+        self._direct_port = None
         core._log("proxy stopped")
         return True
 

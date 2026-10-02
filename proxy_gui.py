@@ -23,7 +23,9 @@ import threading
 import time
 import tkinter as tk
 from tkinter import font as tkfont
-from tkinter import messagebox, ttk
+from tkinter import filedialog, messagebox, ttk
+
+from routing_rules import ApplicationIdentity
 
 import connection_test as connection_test_module
 import doctor as doctor_module
@@ -822,6 +824,241 @@ class ExceptionsDialog(tk.Toplevel):
         self.destroy()
 
 
+class ApplicationExclusionsDialog(tk.Toplevel):
+    """Manage Windows executable exclusions from the Arvectum proxy."""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u2014 " + APP_NAME)
+        self.configure(bg=_window_bg())
+        self.grab_set()
+        self.resizable(True, True)
+        self.result = False
+        try:
+            self.identities = list(core.load_application_exclusions())
+        except Exception as exc:
+            self.identities = []
+            messagebox.showerror(
+                APP_NAME,
+                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u0440\u043e\u0447\u0438\u0442\u0430\u0442\u044c \u0441\u043f\u0438\u0441\u043e\u043a \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0439: %s" % exc,
+                parent=self,
+            )
+        self._build()
+        self._center(master)
+
+    def _center(self, master):
+        self.update_idletasks()
+        try:
+            x = master.winfo_rootx() + 70
+            y = master.winfo_rooty() + 70
+            self.geometry("+%d+%d" % (x, y))
+        except Exception:
+            pass
+
+    def _build(self):
+        _header_title(self, "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439")
+        frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
+                       pady=16 if _is_macos() else 14)
+        frm.pack(fill="both", expand=True)
+        frm.columnconfigure(0, weight=1)
+        frm.rowconfigure(2, weight=1)
+
+        capability = core.application_exclusion_capability(sys.platform)
+        state = str(capability.get("state") or "")
+        if capability.get("live_enforcement_supported"):
+            if state == "preview_ready":
+                status_text = (
+                    "\u041f\u0440\u0435\u0432\u044c\u044e \u0433\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
+                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438."
+                )
+            else:
+                status_text = (
+                    "\u0413\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
+                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438."
+                )
+        else:
+            status_text = (
+                "\u041c\u0435\u0445\u0430\u043d\u0438\u0437\u043c \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438 \u043f\u043e\u043a\u0430 \u043d\u0435 \u0433\u043e\u0442\u043e\u0432: %s"
+                % (capability.get("reason") or state or "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e")
+            )
+
+        tk.Label(
+            frm,
+            text=status_text,
+            bg=_window_bg(),
+            fg=_secondary_text_color(),
+            font=B["font_small"],
+            justify="left",
+            wraplength=680,
+        ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 8))
+
+        tk.Label(
+            frm,
+            text=(
+                "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 .exe, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0434\u043e\u043b\u0436\u043d\u044b \u0445\u043e\u0434\u0438\u0442\u044c \u0432 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e. "
+                "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u0441\u0430\u0439\u0442\u043e\u0432 no_proxy \u043f\u0440\u0438 \u044d\u0442\u043e\u043c \u043e\u0441\u0442\u0430\u044e\u0442\u0441\u044f \u0431\u0435\u0437 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u0439."
+            ),
+            bg=_window_bg(),
+            fg=_text_color(),
+            font=B["font"],
+            justify="left",
+            wraplength=680,
+        ).grid(row=1, column=0, columnspan=3, sticky="w", pady=(0, 10))
+
+        self.listbox = tk.Listbox(
+            frm,
+            width=78,
+            height=12,
+            bg=_control_bg(),
+            fg=_text_color(),
+            selectbackground="systemSelectedContentBackgroundColor" if _is_macos() else MINT,
+            selectforeground=WHITE if _is_macos() else NAVY,
+            relief="solid",
+            bd=0 if _is_macos() else 1,
+            highlightthickness=0,
+            font=B["font"],
+        )
+        self.listbox.grid(row=2, column=0, columnspan=2, sticky="nsew")
+        scroll = ttk.Scrollbar(frm, orient="vertical", command=self.listbox.yview)
+        scroll.grid(row=2, column=2, sticky="ns")
+        self.listbox.configure(yscrollcommand=scroll.set)
+
+        actions = tk.Frame(frm, bg=_window_bg())
+        actions.grid(row=3, column=0, columnspan=3, sticky="ew", pady=(10, 0))
+        ttk.Button(
+            actions,
+            text="\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c .exe\u2026",
+            style=_button_style(primary=True, compact=True),
+            command=self._add,
+        ).grid(row=0, column=0, padx=(0, 6))
+        ttk.Button(
+            actions,
+            text="\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u043e\u0435",
+            style=_button_style(compact=True),
+            command=self._remove,
+        ).grid(row=0, column=1, padx=(0, 6))
+        ttk.Button(
+            actions,
+            text="\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c",
+            style=_button_style(compact=True),
+            command=self._clear,
+        ).grid(row=0, column=2)
+
+        foot = tk.Frame(frm, bg=_window_bg())
+        foot.grid(row=4, column=0, columnspan=3, sticky="e", pady=(12, 0))
+        ttk.Button(
+            foot,
+            text="\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+            style=_button_style(primary=True),
+            command=self._save,
+        ).grid(row=0, column=0, padx=(0, 6))
+        ttk.Button(
+            foot,
+            text="\u041e\u0442\u043c\u0435\u043d\u0430",
+            style=_button_style(),
+            command=self.destroy,
+        ).grid(row=0, column=1)
+        self._refresh()
+
+    def _refresh(self):
+        self.listbox.delete(0, tk.END)
+        for identity in self.identities:
+            path = identity.executable_path
+            name = identity.display_name or os.path.basename(path) or path
+            self.listbox.insert(tk.END, "%s  \u2014  %s" % (name, path))
+
+    def _add(self):
+        if os.name != "nt":
+            messagebox.showwarning(
+                APP_NAME,
+                "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u0432 \u044d\u0442\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b \u0442\u043e\u043b\u044c\u043a\u043e \u0432 Windows.",
+                parent=self,
+            )
+            return
+        path = filedialog.askopenfilename(
+            parent=self,
+            title="\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435",
+            filetypes=[
+                ("Windows applications", "*.exe"),
+                ("All files", "*.*"),
+            ],
+        )
+        if not path:
+            return
+        path = os.path.normpath(os.path.abspath(path))
+        if not os.path.isfile(path):
+            messagebox.showerror(APP_NAME, "\u0424\u0430\u0439\u043b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d.", parent=self)
+            return
+        try:
+            identity = ApplicationIdentity(
+                "windows",
+                executable_path=path,
+                display_name=os.path.basename(path),
+            )
+        except Exception as exc:
+            messagebox.showerror(APP_NAME, str(exc), parent=self)
+            return
+        if any(item.stable_id == identity.stable_id for item in self.identities):
+            return
+        self.identities.append(identity)
+        self._refresh()
+
+    def _remove(self):
+        for idx in reversed(self.listbox.curselection()):
+            self.identities.pop(idx)
+        self._refresh()
+
+    def _clear(self):
+        self.identities = []
+        self._refresh()
+
+    def _save(self):
+        if os.name == "nt" and self.identities:
+            capability = core.application_exclusion_capability(sys.platform)
+            if (
+                not capability.get("live_enforcement_supported")
+                and capability.get("portable_bootstrap_available")
+            ):
+                try:
+                    capability = (
+                        core.prepare_windows_application_exclusion_backend()
+                    )
+                except Exception as exc:
+                    capability = {
+                        "live_enforcement_supported": False,
+                        "reason": str(exc),
+                    }
+                if not capability.get("live_enforcement_supported"):
+                    messagebox.showerror(
+                        APP_NAME,
+                        (
+                            "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u0438\u0442\u044c "
+                            "\u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u044e \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s"
+                            % (
+                                capability.get("reason")
+                                or "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f \u043e\u0448\u0438\u0431\u043a\u0430"
+                            )
+                        ),
+                        parent=self,
+                    )
+                    return
+        try:
+            saved = core.save_application_exclusions(self.identities)
+        except Exception as exc:
+            saved = False
+            error = str(exc)
+        else:
+            error = ""
+        if not saved:
+            messagebox.showerror(
+                APP_NAME,
+                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s" % error,
+                parent=self,
+            )
+            return
+        self.result = True
+        self.destroy()
+
 LEGACY_ORPHANED_PAC_DIAGNOSTIC = "ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM"
 
 
@@ -1139,12 +1376,21 @@ class Launcher:
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.exceptions,
         ).grid(row=3, column=0, sticky="ew", pady=(10, 7))
+        self.btn_app_exclusions = ttk.Button(
+            settings,
+            text="Исключения приложений…",
+            style="MacCompact.TButton" if native_macos else "Ghost.TButton",
+            command=self.application_exclusions,
+        )
+        self.btn_app_exclusions.grid(row=4, column=0, sticky="ew", pady=(0, 7))
+        if os.name != "nt":
+            self.btn_app_exclusions.state(["disabled"])
         self.btn_restore = ttk.Button(
             settings, text="Восстановить настройки сети",
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.restore_network,
         )
-        self.btn_restore.grid(row=4, column=0, sticky="ew")
+        self.btn_restore.grid(row=5, column=0, sticky="ew")
 
         portable_fallback = _portable_fallback_active()
         self.auto_var = tk.BooleanVar(
@@ -1157,7 +1403,7 @@ class Launcher:
             command=self._toggle_autostart,
             style="Mac.TCheckbutton" if native_macos else "Brand.TCheckbutton",
         )
-        self.autostart_check.grid(row=5, column=0, sticky="w", pady=(18, 0))
+        self.autostart_check.grid(row=6, column=0, sticky="w", pady=(18, 0))
         if portable_fallback:
             self.autostart_check.state(["disabled"])
         ttk.Label(
@@ -1165,7 +1411,7 @@ class Launcher:
             text="Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.",
             justify="left", wraplength=650,
             style="MacFooter.TLabel" if native_macos else "TLabel",
-        ).grid(row=6, column=0, sticky="w", pady=(9, 0))
+        ).grid(row=7, column=0, sticky="w", pady=(9, 0))
         footer_text = (
             "Arvectum · %s · arvectum.com" % APP_VERSION
             if native_macos
@@ -1175,7 +1421,7 @@ class Launcher:
             settings,
             text=footer_text,
             style="MacFooter.TLabel" if native_macos else "TLabel",
-        ).grid(row=7, column=0, sticky="w", pady=(14, 0))
+        ).grid(row=8, column=0, sticky="w", pady=(14, 0))
 
     def _desktop_profile_summary(self):
         configured = [
@@ -1753,6 +1999,13 @@ class Launcher:
 
     def exceptions(self):
         ExceptionsDialog(self.root)
+        self.refresh_status()
+
+    def application_exclusions(self):
+        dlg = ApplicationExclusionsDialog(self.root)
+        dlg.wait_window()
+        if dlg.result:
+            self._maybe_restart_after_settings()
         self.refresh_status()
 
     def show_log(self):

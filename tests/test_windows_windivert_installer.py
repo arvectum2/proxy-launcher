@@ -1,0 +1,196 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+HELPER = ROOT / "installer" / "windivert_service_helper.ps1"
+
+
+def _text():
+    return HELPER.read_text(encoding="utf-8-sig")
+
+
+def test_helper_cleans_only_exact_owned_windivert_driver_service():
+    text = _text()
+    assert '$ServiceName = "ArvectumProxyWinDivertRouting"' in text
+    assert '$WinDivertDriverServiceName = "WinDivert"' in text
+    assert "sc.exe delete $ServiceName" in text
+    assert "Stop-Service -Name $ServiceName" in text
+    assert "function Assert-NoForeignWinDivertDriverService" in text
+    assert "function Remove-OwnedWinDivertDriverService" in text
+    owned = text[
+        text.index("function Remove-OwnedWinDivertDriverService"):
+        text.index("function Read-DependencyManifest")
+    ]
+    assert "$actual = Normalize-DriverImagePath -Path $imagePath" in owned
+    assert "$expected = Normalize-DriverImagePath -Path $InstalledDriverPath" in owned
+    guard = owned.index("if ($actual -ne $expected)")
+    stop = owned.index("Stop-Service -Name $WinDivertDriverServiceName")
+    delete = owned.index("sc.exe delete $WinDivertDriverServiceName")
+    assert guard < stop < delete
+    assert "Get-Service -Name $WinDivertDriverServiceName -ErrorAction Stop" in owned
+    assert "if ($null -eq $service" in owned
+    assert "if (Test-Path -LiteralPath $registryPath)" in owned
+    assert "$LASTEXITCODE -ne 0 -and (Test-Path -LiteralPath $registryPath)" in owned
+    assert "Remove-Service WinDivert" not in text
+
+
+def test_install_verifies_source_and_rejects_foreign_driver_before_mutation():
+    text = _text()
+    install = text[text.index("function Install-Stack"):]
+    verify = install.index(
+        "$verified = Verify-Source -Directory $SourceDirectory"
+    )
+    foreign_guard = install.index("Assert-NoForeignWinDivertDriverService")
+    remove = install.index("Remove-OwnedService")
+    driver_cleanup = install.index("Remove-OwnedWinDivertDriverService")
+    copy = install.index("Copy-Item")
+    assert verify < foreign_guard < remove < driver_cleanup < copy
+
+    guard = text[
+        text.index("function Assert-NoForeignWinDivertDriverService"):
+        text.index("function Remove-OwnedWinDivertDriverService")
+    ]
+    assert "if ($actual -ne $expected)" in guard
+    assert "Arvectum will not stop, delete, or reuse it." in guard
+
+
+def test_dependency_is_exact_hash_and_signer_pinned():
+    text = _text()
+    assert "Get-FileHash" not in text
+    assert "[Security.Cryptography.SHA256]::Create()" in text
+    assert (
+        "8DA085332782708D8767BCACE5327A6EC7283C17CFB85E40B03CD2323A90DDC2"
+        in text
+    )
+    assert (
+        "C1E060EE19444A259B2162F8AF0F3FE8C4428A1C6F694DCE20DE194AC8D7D9A2"
+        in text
+    )
+    assert (
+        "043589F75FCE2795E7F2CC3E526D46784D5DDAB3"
+        in text
+    )
+    assert "Get-AuthenticodeSignature" not in text
+    assert "CreateFromSignedFile" in text
+    assert "Get-EmbeddedSignerThumbprint" in text
+
+
+def test_service_configuration_is_bfe_auto_and_system_default():
+    text = _text()
+    assert 'StartupType = "Automatic"' in text
+    assert 'DependsOn = "BFE"' in text
+    assert "New-Service @serviceArgs" in text
+    assert "Credential" not in text
+    assert "Start-Service -Name $ServiceName" in text
+
+
+def test_helper_never_changes_windows_code_integrity_policy():
+    lower = _text().lower()
+    for forbidden in (
+        "testsigning",
+        "bcdedit",
+        "secureboot",
+        "trustedpublisher",
+        "cert:\\localmachine\\root",
+    ):
+        assert forbidden not in lower
+
+
+def test_marker_matches_runtime_readiness_contract():
+    text = _text()
+    assert "arvectum.proxy.windows-windivert-stack.v1" in text
+    assert "windivert-stack.json" in text
+    assert "ArvectumProxyWinDivertRoutingService.exe" in text
+    assert "driver_signer_thumbprint" in text
+    assert "source_commit" in text
+
+
+def test_uninstall_removes_owned_driver_before_files_and_marker():
+    text = _text()
+    uninstall = text[
+        text.index("function Uninstall-Stack"):
+        text.index("function Show-Status")
+    ]
+    owned_service = uninstall.index("Remove-OwnedService")
+    owned_driver = uninstall.index("Remove-OwnedWinDivertDriverService")
+    files = uninstall.index("Remove-Item -LiteralPath $InstallRoot")
+    marker = uninstall.index("Remove-Item -LiteralPath $MarkerPath")
+    assert owned_service < owned_driver < files < marker
+
+
+
+def test_canonical_installer_accepts_only_commit_bound_windivert_bundle():
+    builder = (
+        ROOT / "tools" / "build_windows_installer.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "[string]$WinDivertStackBundle" in builder
+    assert "WinDivertStackBundle and NativeStackBundle are mutually exclusive" in builder
+    assert "arvectum.proxy.windows-windivert-build.v1" in builder
+    assert "source_commit does not match HEAD" in builder
+    assert "WinDivertStackBundle service hash mismatch" in builder
+    assert "WinDivertStackBundle driver signature identity mismatch" in builder
+    assert "WinDivertSourceCommit" in builder
+
+
+def test_inno_embeds_windivert_stack_and_helper_owns_uac():
+    script = (
+        ROOT / "installer" / "ArvectumProxyLauncher.iss"
+    ).read_text(encoding="utf-8-sig")
+    helper = _text()
+    assert "PrivilegesRequired=lowest" in script
+    assert "WinDivertStackPayloadDir" in script
+    assert "ArvectumProxyWinDivertRoutingService.exe" in script
+    assert "windivert-dependency.json" in script
+    assert "windivert-stack-build.json" in script
+    assert "windivert_service_helper.ps1" in script
+    install_section = script[
+        script.index("function RunElevatedWinDivertInstall"):
+        script.index("function HelperArguments")
+    ]
+    assert "Result := Exec(PowerShell, Arguments" in install_section
+    assert "ShellExec('runas'" not in install_section
+    assert "-Action Install -SourceDirectory" in install_section
+    assert "function Invoke-SelfElevated" in helper
+    assert "Start-Process -FilePath $powershell -Verb RunAs" in helper
+    assert "apl-windivert-service-helper.log" in helper
+    assert "-Action Uninstall" in script
+
+
+def test_installer_never_embeds_test_mode_for_production_windivert():
+    builder = (
+        ROOT / "tools" / "build_windows_installer.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "WindowsAppExclusionsPreview cannot use the production WinDivert stack" in builder
+    script = (
+        ROOT / "installer" / "ArvectumProxyLauncher.iss"
+    ).read_text(encoding="utf-8-sig")
+    section = script[
+        script.index("#ifdef WinDivertStackPayloadDir"):
+        script.index("#define AppName")
+    ]
+    assert "windows_preview_mode_helper" not in section.lower()
+
+
+def test_third_party_notice_covers_redistributed_windivert():
+    notice = (ROOT / "THIRD_PARTY_NOTICES.txt").read_text(
+        encoding="utf-8-sig"
+    )
+    assert "WinDivert 2.2.2" in notice
+    assert "LGPL-3.0-or-later OR GPL-2.0" in notice
+    assert "WinDivert-LICENSE" in notice
+
+
+def test_service_vm_acceptance_covers_dual_stack_and_cleanup():
+    script = (
+        ROOT / "tools" / "run_windows_windivert_service_vm_acceptance.ps1"
+    ).read_text(encoding="utf-8-sig")
+    assert "ValidateSet('ipv4','ipv6')" in script
+    assert "Run-RoutingCase -Family 'ipv4'" in script
+    assert "Run-RoutingCase -Family 'ipv6'" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_APPLY PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_ROUTE PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_RESTORE PASS" in script
+    assert "$DriverServiceName = 'WinDivert'" in script
+    assert "Get-Service -Name $DriverServiceName" in script
+    assert "driver=absent" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_CLEANUP PASS" in script
+    assert "ARVECTUM_WINDIVERT_SERVICE_ACCEPTANCE PASS" in script

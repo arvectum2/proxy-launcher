@@ -503,6 +503,85 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
         ask.assert_not_called()
 
 
+class ApplicationExclusionsPortableBootstrapTests(unittest.TestCase):
+    def dialog(self):
+        dlg = gui.ApplicationExclusionsDialog.__new__(
+            gui.ApplicationExclusionsDialog
+        )
+        dlg.identities = [mock.Mock()]
+        dlg.result = False
+        dlg.destroy = mock.Mock()
+        return dlg
+
+    def test_save_bootstraps_portable_backend_before_persisting(self):
+        dlg = self.dialog()
+        initial = {
+            "live_enforcement_supported": False,
+            "portable_bootstrap_available": True,
+        }
+        ready = {
+            "live_enforcement_supported": True,
+            "backend": "windivert",
+        }
+        with mock.patch.object(gui.os, "name", "nt"), \
+             mock.patch.object(
+                 gui.core,
+                 "application_exclusion_capability",
+                 return_value=initial,
+             ), \
+             mock.patch.object(
+                 gui.core,
+                 "prepare_windows_application_exclusion_backend",
+                 return_value=ready,
+             ) as prepare, \
+             mock.patch.object(
+                 gui.core,
+                 "save_application_exclusions",
+                 return_value=True,
+             ) as save, \
+             mock.patch.object(gui.messagebox, "showerror") as error:
+            dlg._save()
+
+        prepare.assert_called_once_with()
+        save.assert_called_once_with(dlg.identities)
+        error.assert_not_called()
+        self.assertTrue(dlg.result)
+        dlg.destroy.assert_called_once_with()
+
+    def test_save_fails_closed_when_portable_bootstrap_does_not_become_live(self):
+        dlg = self.dialog()
+        initial = {
+            "live_enforcement_supported": False,
+            "portable_bootstrap_available": True,
+        }
+        failed = {
+            "live_enforcement_supported": False,
+            "reason": "bootstrap failed",
+        }
+        with mock.patch.object(gui.os, "name", "nt"), \
+             mock.patch.object(
+                 gui.core,
+                 "application_exclusion_capability",
+                 return_value=initial,
+             ), \
+             mock.patch.object(
+                 gui.core,
+                 "prepare_windows_application_exclusion_backend",
+                 return_value=failed,
+             ) as prepare, \
+             mock.patch.object(
+                 gui.core,
+                 "save_application_exclusions",
+             ) as save, \
+             mock.patch.object(gui.messagebox, "showerror") as error:
+            dlg._save()
+
+        prepare.assert_called_once_with()
+        save.assert_not_called()
+        error.assert_called_once()
+        self.assertFalse(dlg.result)
+        dlg.destroy.assert_not_called()
+
 class FinalStatusUxTests(unittest.TestCase):
     def status(self, **overrides):
         values = {

@@ -42,6 +42,9 @@ jobs:
         run: |
           foreach ($script in @(
             'tools/build_windows_installer.ps1',
+            'tools/build_windows_windivert_stack_bundle.ps1',
+            'tools/package_windows_portable_windivert.ps1',
+            'tools/stage_windows_windivert.ps1',
             'tools/windows_promoted_license_compliance.ps1',
             'tools/prepare_windows_inno_setup_base.ps1',
             'tools/install_verified_windows_inno_setup.ps1',
@@ -58,7 +61,8 @@ jobs:
             'qa/windows_installer_171_e2e.ps1',
             'qa/windows_rc_e2e.ps1',
             'installer/upgrade_helper.ps1',
-            'installer/uninstall_helper.ps1'
+            'installer/uninstall_helper.ps1',
+            'installer/windivert_service_helper.ps1'
           )) {
             [void][scriptblock]::Create((Get-Content -LiteralPath $script -Raw))
             Write-Host "PowerShell syntax PASS: $script"
@@ -71,6 +75,7 @@ jobs:
             tests.test_windows_app_control_legacy_baseline `
             tests.test_windows_app_control_final_local_gate `
             tests.test_windows_installer_wdac_invocation `
+            tests.test_windows_installer_windivert_workflow_contract `
             -v
 
       - name: Validate Inno Setup sovereignty contract
@@ -92,6 +97,27 @@ jobs:
             throw
           }
 
+      - name: Build exact production WinDivert stack bundle
+        id: windivert
+        shell: pwsh
+        run: |
+          try {
+            ./tools/build_windows_windivert_stack_bundle.ps1 `
+              -OutputDirectory 'out/windows-windivert-stack'
+          } catch {
+            $message = ($_.Exception.Message -replace "`r|`n", ' ')
+            Write-Host "::error title=Production WinDivert stack build failed::$message"
+            throw
+          }
+
+      - name: Embed production WinDivert bootstrap into portable
+        shell: pwsh
+        run: |
+          ./tools/package_windows_portable_windivert.ps1 `
+            -PortableZip '${{ steps.portable.outputs.zip_path }}' `
+            -BuildResultPath 'out/build-result.json' `
+            -WinDivertStackBundle 'out/windows-windivert-stack'
+
       - name: Build synthetic predecessor lifecycle fixture
         id: predecessor
         shell: pwsh
@@ -109,12 +135,39 @@ jobs:
         shell: pwsh
         run: |
           try {
-            ./tools/build_windows_installer.ps1 -PythonExecutable python
+            ./tools/build_windows_installer.ps1 `
+              -PythonExecutable python `
+              -WinDivertStackBundle 'out/windows-windivert-stack'
           } catch {
             $message = ($_.Exception.Message -replace "`r|`n", ' ')
             Write-Host "::error title=Canonical Setup build failed::$message"
             throw
           }
+
+      - name: Verify canonical installer production routing payload
+        shell: pwsh
+        run: |
+          $manifest = Get-Content 'out/installer-payload/build_manifest.json' -Raw | ConvertFrom-Json
+          if (-not [bool]$manifest.windivert_stack_enabled) {
+            throw 'Canonical Windows installer does not embed the production WinDivert stack.'
+          }
+          if ([bool]$manifest.native_stack_enabled) {
+            throw 'Canonical Windows installer must not embed the custom WFP native stack.'
+          }
+          if ([bool]$manifest.windows_app_exclusions_preview) {
+            throw 'Canonical Windows installer must not enable app-exclusions preview mode.'
+          }
+          foreach ($name in @(
+            'windivert_dependency_manifest_sha256',
+            'windivert_service_helper_sha256',
+            'windivert_service_sha256'
+          )) {
+            $value = [string]$manifest.$name
+            if ($value -notmatch '^[0-9a-f]{64}$') {
+              throw "Canonical Windows installer has invalid $name."
+            }
+          }
+          Write-Host 'Canonical production WinDivert installer payload PASS.'
 
       - name: Windows installer #171 portable transition / preflight fail-closed
         shell: pwsh
@@ -176,6 +229,9 @@ jobs:
             out/windows-installer-171-e2e.json
             out/windows-rc-*.json
             out/windows-rc-SHA256SUMS.txt
+            out/installer-payload/build_manifest.json
+            out/windows-windivert-stack/windivert-stack-build.json
+            out/windows-windivert-stack/windivert-dependency.json
             ${{ runner.temp }}/apl-*.log
 
       - name: Upload canonical Windows installer RC and acceptance evidence
@@ -188,3 +244,6 @@ jobs:
             out/windows-rc-e2e.json
             out/windows-rc-acceptance.json
             out/windows-rc-SHA256SUMS.txt
+            out/installer-payload/build_manifest.json
+            out/windows-windivert-stack/windivert-stack-build.json
+            out/windows-windivert-stack/windivert-dependency.json
