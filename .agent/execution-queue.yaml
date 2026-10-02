@@ -251,7 +251,7 @@ items:
     dependencies:
       - APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
     executor_scope: "Submission task is complete. Do not rebuild/resubmit while moderation is merely pending. On feedback, start a new task from current main. After approval, publication mode remains Manual and requires an explicit release action."
-    evidence: "Submission completed, then RuStore rejected 0.1.38 (39) on 2026-10-02 under Rules 2.12 and 12.1. Exact submitted APK SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Current APL functionality (user-supplied proxies, system routing, Auto/failover) falls within the store explicit prohibition; do not resubmit the same functionality."
+    evidence: "Initial submission was rejected on 2026-10-02 under Rules 2.12 and 12.1. Owner then authorized a metadata-only retry of the unchanged 0.1.38 (39) APK, clarifying that APL is only a local client for user-supplied infrastructure and that Arvectum provides no proxy/VPN servers, traffic or access. Re-review submitted 2026-10-02; manual publication remains selected."
 
   - order: 123
     task_id: APL-RUSTORE-MODERATION-20261002
