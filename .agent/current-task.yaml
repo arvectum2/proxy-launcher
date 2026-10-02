@@ -27,7 +27,7 @@ pending:
   - "IN PROGRESS: production runtime + installer integration is locally green; commit/push and prove exact-head routing, canonical installer and public-trust CI before Windows-dev integration PASS."
   - "Before final merge, create a clean integration branch from current main and transplant only validated WinDivert changes; do not merge draft PR #237 as-is."
   - "After Windows-dev PASS, validate exact artifact on ARVECTUM-DEMO and prepare release packaging."
-last_verified_commit: "5f08ba4809ced17c7399b6e57ae6886e12719124"
+last_verified_commit: "3f54ac74d051d01104f9d5a92deba8846fc87db1"
 test_results:
   - "PASS: WinDivert local candidate contract tests 30/30."
   - "PASS: Python py_compile for windows_windivert_backend/controller/service_contract."
@@ -50,6 +50,6 @@ test_results:
   - "PASS: EFI-PROBE SecureBoot registry state=1; disk 0 GPT/boot/system; Guest Additions 7.2.16 RunLevel=3."
   - "PASS: pre-HVCI Device Guard baseline captured: VirtualizationBasedSecurityStatus=0; SecurityServicesRunning=[0]."
   - "PASS: ENABLE-HVCI-AS-ADMIN.ps1 parser validation; nested-hw-virt=on and Hyper-V paravirtualization exposed to guest."
-blocker: "No human blocker. Await exact-head CI on 5f08ba4: routing 37006315341, installer 37006319129, public-trust 37006322581. Inspect exact failing step if any. HVCI Running remains separately blocked by current VirtualBox/NEM lab topology; do not disable host Hyper-V/WHP or alter physical Secure Boot/HVCI without explicit approval. ARVECTUM-DEMO remains untouched until Windows-dev integration PASS."
-resume_instruction: "Check exact-head runs once: routing 37006315341, canonical installer 37006319129, public-trust 37006322581, all on code commit 5f08ba4. For any failure inspect exact job/step/log and fix only the demonstrated issue. Installer CI must prove exact Inno 6.7.1 setup with windivert_stack_enabled=true, native_stack_enabled=false, preview=false plus fresh/upgrade/repair/uninstall lifecycle E2E. Public-trust must prove signed application -> portable -> WinDivert-enabled setup. If all three pass, inspect installer/public-trust artifacts and manifests, then investigate remaining portable per-app support/bootstrap gap before touching ARVECTUM-DEMO. HVCI Running remains separately blocked by VirtualBox/NEM topology."
-updated_at: "2026-10-02T15:14:00+03:00"
+blocker: "No human blocker. First exact-head integration pass on 5f08ba4: routing 37006315341 SUCCESS; installer 37006319129 and public-trust 37006322581 failed before WinDivert build because clean_build unittest discovery imported two pytest-dependent test modules and an old sovereignty assertion rejected the safe substring SourceDirectory. Both test-infrastructure issues are fixed in 3f54ac7; local unittest-import + sovereignty PASS and pytest 21/21 PASS. Await reruns on exact 3f54ac7: routing 37007110750, installer 37007114463, public-trust 37007118840. HVCI Running remains separately blocked by VirtualBox/NEM topology. ARVECTUM-DEMO untouched."
+resume_instruction: "Check exact-head reruns once on 3f54ac7: routing 37007110750, canonical installer 37007114463, public-trust 37007118840. For any failure inspect exact job/step/log and fix only the demonstrated issue. Installer CI must prove exact Inno 6.7.1 setup with windivert_stack_enabled=true, native_stack_enabled=false, preview=false plus fresh/upgrade/repair/uninstall lifecycle E2E. Public-trust must prove signed application -> portable -> WinDivert-enabled setup. If all three pass, inspect installer/public-trust artifacts/manifests, then investigate the remaining Windows portable per-app bootstrap gap before touching ARVECTUM-DEMO. HVCI Running remains separately blocked by VirtualBox/NEM topology."
+updated_at: "2026-10-02T15:33:00+03:00"
