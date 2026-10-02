@@ -55,6 +55,8 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -113,7 +115,7 @@ jobs:
           Copy-Item installer/windivert_service_helper.ps1 $out
           $manifest = [ordered]@{
             schema = 'arvectum.proxy.windows-windivert-build.v1'
-            source_commit = $env:GITHUB_SHA
+            source_commit = (git rev-parse HEAD).Trim()
             version = '2.2.2'
             service = [ordered]@{
               filename = 'ArvectumProxyWinDivertRoutingService.exe'
