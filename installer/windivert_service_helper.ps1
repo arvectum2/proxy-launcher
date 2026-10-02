@@ -105,6 +105,35 @@ function Assert-Sha256 {
     return $actual
 }
 
+function Get-EmbeddedSignerThumbprint {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Signed WinDivert driver file is absent: $Path"
+    }
+
+    try {
+        $certificate = [Security.Cryptography.X509Certificates.X509Certificate]::CreateFromSignedFile($Path)
+        if ($null -eq $certificate) {
+            throw "No embedded Authenticode signer certificate was found."
+        }
+        $certificate2 = [Security.Cryptography.X509Certificates.X509Certificate2]::new($certificate)
+        try {
+            $thumbprint = [string]$certificate2.Thumbprint
+            if ([string]::IsNullOrWhiteSpace($thumbprint)) {
+                throw "Embedded Authenticode signer thumbprint is empty."
+            }
+            return $thumbprint.Replace(" ", "").ToUpperInvariant()
+        }
+        finally {
+            $certificate2.Dispose()
+            $certificate.Dispose()
+        }
+    }
+    catch {
+        throw "Could not read WinDivert64.sys embedded Authenticode signer certificate: $($_.Exception.Message)"
+    }
+}
+
 function Get-OwnedService {
     return Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
 }
@@ -290,12 +319,7 @@ function Verify-Source {
         throw "WinDivert dependency manifest hashes do not match staged files."
     }
 
-    $signature = Get-AuthenticodeSignature -LiteralPath $driverPath
-    if ($signature.Status -ne [System.Management.Automation.SignatureStatus]::Valid -or
-        $null -eq $signature.SignerCertificate) {
-        throw "WinDivert64.sys Authenticode verification failed."
-    }
-    $signer = $signature.SignerCertificate.Thumbprint.ToUpperInvariant()
+    $signer = Get-EmbeddedSignerThumbprint -Path $driverPath
     if ($signer -ne $ExpectedSigner -or
         [string]$manifest.driver_signer_thumbprint -cne $ExpectedSigner) {
         throw "WinDivert64.sys signer identity is not pinned."

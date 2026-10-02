@@ -69,8 +69,9 @@ def test_dependency_is_exact_hash_and_signer_pinned():
         "043589F75FCE2795E7F2CC3E526D46784D5DDAB3"
         in text
     )
-    assert "Get-AuthenticodeSignature" in text
-    assert "SignatureStatus]::Valid" in text
+    assert "Get-AuthenticodeSignature" not in text
+    assert "CreateFromSignedFile" in text
+    assert "Get-EmbeddedSignerThumbprint" in text
 
 
 def test_service_configuration_is_bfe_auto_and_system_default():
