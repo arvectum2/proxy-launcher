@@ -12,6 +12,7 @@ $Smoke = Join-Path $ArtifactRoot 'loopback_smoke.exe'
 $BuildManifest = Join-Path $ArtifactRoot 'windivert-stack-build.json'
 $ResultPath = Join-Path $ArtifactRoot 'service-acceptance.result'
 $ServiceName = 'ArvectumProxyWinDivertRouting'
+$DriverServiceName = 'WinDivert'
 $MarkerPath = Join-Path $env:ProgramData 'Arvectum\ProxyLauncher\windivert-stack.json'
 $InstallRoot = Join-Path $env:ProgramData 'Arvectum\ProxyLauncher\WinDivert'
 
@@ -150,13 +151,24 @@ try {
 }
 
 $serviceAfter = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+$driverServiceAfter = Get-Service -Name $DriverServiceName -ErrorAction SilentlyContinue
 $markerAfter = Test-Path -LiteralPath $MarkerPath
 $filesAfter = Test-Path -LiteralPath $InstallRoot
-if ($null -ne $serviceAfter -or $markerAfter -or $filesAfter) {
+if ($null -ne $serviceAfter -or
+    $null -ne $driverServiceAfter -or
+    $markerAfter -or
+    $filesAfter) {
     if ($null -eq $failure) { $failure = [RuntimeException]::new('service cleanup is incomplete') }
-    Report 'ARVECTUM_WINDIVERT_SERVICE_CLEANUP FAIL residual_state=true'
+    Report (
+        'ARVECTUM_WINDIVERT_SERVICE_CLEANUP FAIL residual_state=true ' +
+        ('service={0} driver={1} files={2} marker={3}' -f
+            ($null -ne $serviceAfter),
+            ($null -ne $driverServiceAfter),
+            $filesAfter,
+            $markerAfter)
+    )
 } else {
-    Report 'ARVECTUM_WINDIVERT_SERVICE_CLEANUP PASS service=absent files=absent marker=absent'
+    Report 'ARVECTUM_WINDIVERT_SERVICE_CLEANUP PASS service=absent driver=absent files=absent marker=absent'
 }
 
 if ($null -ne $failure) { throw $failure }

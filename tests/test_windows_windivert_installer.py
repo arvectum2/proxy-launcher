@@ -8,25 +8,45 @@ def _text():
     return HELPER.read_text(encoding="utf-8-sig")
 
 
-def test_helper_owns_only_arvectum_service():
+def test_helper_cleans_only_exact_owned_windivert_driver_service():
     text = _text()
     assert '$ServiceName = "ArvectumProxyWinDivertRouting"' in text
+    assert '$WinDivertDriverServiceName = "WinDivert"' in text
     assert "sc.exe delete $ServiceName" in text
     assert "Stop-Service -Name $ServiceName" in text
-    assert "sc.exe delete WinDivert" not in text
-    assert "Stop-Service -Name WinDivert" not in text
+    assert "function Assert-NoForeignWinDivertDriverService" in text
+    assert "function Remove-OwnedWinDivertDriverService" in text
+    owned = text[
+        text.index("function Remove-OwnedWinDivertDriverService"):
+        text.index("function Read-DependencyManifest")
+    ]
+    assert "$actual = Normalize-DriverImagePath -Path $imagePath" in owned
+    assert "$expected = Normalize-DriverImagePath -Path $InstalledDriverPath" in owned
+    guard = owned.index("if ($actual -ne $expected)")
+    stop = owned.index("Stop-Service -Name $WinDivertDriverServiceName")
+    delete = owned.index("sc.exe delete $WinDivertDriverServiceName")
+    assert guard < stop < delete
     assert "Remove-Service WinDivert" not in text
 
 
-def test_install_verifies_source_before_any_owned_mutation():
+def test_install_verifies_source_and_rejects_foreign_driver_before_mutation():
     text = _text()
     install = text[text.index("function Install-Stack"):]
     verify = install.index(
         "$verified = Verify-Source -Directory $SourceDirectory"
     )
+    foreign_guard = install.index("Assert-NoForeignWinDivertDriverService")
     remove = install.index("Remove-OwnedService")
+    driver_cleanup = install.index("Remove-OwnedWinDivertDriverService")
     copy = install.index("Copy-Item")
-    assert verify < remove < copy
+    assert verify < foreign_guard < remove < driver_cleanup < copy
+
+    guard = text[
+        text.index("function Assert-NoForeignWinDivertDriverService"):
+        text.index("function Remove-OwnedWinDivertDriverService")
+    ]
+    assert "if ($actual -ne $expected)" in guard
+    assert "Arvectum will not stop, delete, or reuse it." in guard
 
 
 def test_dependency_is_exact_hash_and_signer_pinned():
@@ -77,19 +97,17 @@ def test_marker_matches_runtime_readiness_contract():
     assert "source_commit" in text
 
 
-def test_uninstall_removes_only_owned_service_files_and_marker():
+def test_uninstall_removes_owned_driver_before_files_and_marker():
     text = _text()
     uninstall = text[
         text.index("function Uninstall-Stack"):
         text.index("function Show-Status")
     ]
-    assert "Remove-OwnedService" in uninstall
-    assert "Remove-Item -LiteralPath $InstallRoot" in uninstall
-    assert "Remove-Item -LiteralPath $MarkerPath" in uninstall
-    assert "WinDivert64.sys" not in uninstall
-    assert "WinDivert" not in uninstall.replace(
-        "ARVECTUM_WINDIVERT_STACK_UNINSTALLED", ""
-    )
+    owned_service = uninstall.index("Remove-OwnedService")
+    owned_driver = uninstall.index("Remove-OwnedWinDivertDriverService")
+    files = uninstall.index("Remove-Item -LiteralPath $InstallRoot")
+    marker = uninstall.index("Remove-Item -LiteralPath $MarkerPath")
+    assert owned_service < owned_driver < files < marker
 
 
 
@@ -155,5 +173,8 @@ def test_service_vm_acceptance_covers_dual_stack_and_cleanup():
     assert "ARVECTUM_WINDIVERT_SERVICE_APPLY PASS" in script
     assert "ARVECTUM_WINDIVERT_SERVICE_ROUTE PASS" in script
     assert "ARVECTUM_WINDIVERT_SERVICE_RESTORE PASS" in script
+    assert "$DriverServiceName = 'WinDivert'" in script
+    assert "Get-Service -Name $DriverServiceName" in script
+    assert "driver=absent" in script
     assert "ARVECTUM_WINDIVERT_SERVICE_CLEANUP PASS" in script
     assert "ARVECTUM_WINDIVERT_SERVICE_ACCEPTANCE PASS" in script

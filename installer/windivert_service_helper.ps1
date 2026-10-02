@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 $ServiceName = "ArvectumProxyWinDivertRouting"
 $ServiceDisplayName = "Arvectum Proxy Launcher WinDivert Routing"
 $ServiceFile = "ArvectumProxyWinDivertRoutingService.exe"
+$WinDivertDriverServiceName = "WinDivert"
 $Version = "2.2.2"
 $ExpectedDriverHash = "8DA085332782708D8767BCACE5327A6EC7283C17CFB85E40B03CD2323A90DDC2"
 $ExpectedDllHash = "C1E060EE19444A259B2162F8AF0F3FE8C4428A1C6F694DCE20DE194AC8D7D9A2"
@@ -19,6 +20,7 @@ $ExpectedSigner = "043589F75FCE2795E7F2CC3E526D46784D5DDAB3"
 
 $ProductRoot = Join-Path $env:ProgramData "Arvectum\ProxyLauncher"
 $InstallRoot = Join-Path $ProductRoot "WinDivert"
+$InstalledDriverPath = Join-Path $InstallRoot "WinDivert64.sys"
 $MarkerPath = Join-Path $ProductRoot "windivert-stack.json"
 
 function Assert-Elevated {
@@ -79,6 +81,85 @@ function Remove-OwnedService {
     }
     if (Test-Path -LiteralPath $registryPath) {
         throw "Arvectum WinDivert routing service deletion is pending."
+    }
+}
+
+function Normalize-DriverImagePath {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    $value = [Environment]::ExpandEnvironmentVariables($Path.Trim().Trim('"'))
+    if ($value.StartsWith('\??\', [StringComparison]::Ordinal)) {
+        $value = $value.Substring(4)
+    }
+    try {
+        return [IO.Path]::GetFullPath($value).TrimEnd('\').ToLowerInvariant()
+    }
+    catch {
+        return $value.TrimEnd('\').ToLowerInvariant()
+    }
+}
+
+function Get-WinDivertDriverRegistryPath {
+    return "HKLM:\SYSTEM\CurrentControlSet\Services\$WinDivertDriverServiceName"
+}
+
+function Get-WinDivertDriverImagePath {
+    $registryPath = Get-WinDivertDriverRegistryPath
+    if (-not (Test-Path -LiteralPath $registryPath)) {
+        return $null
+    }
+    return [string](Get-ItemPropertyValue -LiteralPath $registryPath -Name ImagePath -ErrorAction Stop)
+}
+
+function Assert-NoForeignWinDivertDriverService {
+    $imagePath = Get-WinDivertDriverImagePath
+    if ([string]::IsNullOrWhiteSpace($imagePath)) {
+        return
+    }
+    $actual = Normalize-DriverImagePath -Path $imagePath
+    $expected = Normalize-DriverImagePath -Path $InstalledDriverPath
+    if ($actual -ne $expected) {
+        throw (
+            "A foreign WinDivert driver service is already registered at '{0}'. " +
+            "Arvectum will not stop, delete, or reuse it." -f $imagePath
+        )
+    }
+}
+
+function Remove-OwnedWinDivertDriverService {
+    $imagePath = Get-WinDivertDriverImagePath
+    if ([string]::IsNullOrWhiteSpace($imagePath)) {
+        return
+    }
+
+    $actual = Normalize-DriverImagePath -Path $imagePath
+    $expected = Normalize-DriverImagePath -Path $InstalledDriverPath
+    if ($actual -ne $expected) {
+        return
+    }
+
+    $service = Get-Service -Name $WinDivertDriverServiceName -ErrorAction SilentlyContinue
+    if ($null -ne $service -and
+        $service.Status -ne [ServiceProcess.ServiceControllerStatus]::Stopped) {
+        Stop-Service -Name $WinDivertDriverServiceName -Force -ErrorAction Stop
+        (Get-Service -Name $WinDivertDriverServiceName).WaitForStatus(
+            [ServiceProcess.ServiceControllerStatus]::Stopped,
+            [TimeSpan]::FromSeconds(15)
+        )
+    }
+
+    & sc.exe delete $WinDivertDriverServiceName | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not delete owned WinDivert driver service."
+    }
+
+    $registryPath = Get-WinDivertDriverRegistryPath
+    $deadline = [DateTime]::UtcNow.AddSeconds(15)
+    while ((Test-Path -LiteralPath $registryPath) -and
+           [DateTime]::UtcNow -lt $deadline) {
+        Start-Sleep -Milliseconds 200
+    }
+    if (Test-Path -LiteralPath $registryPath) {
+        throw "Owned WinDivert driver service deletion is pending."
     }
 }
 
@@ -176,7 +257,9 @@ function Install-Stack {
     Assert-Elevated
     $verified = Verify-Source -Directory $SourceDirectory
 
+    Assert-NoForeignWinDivertDriverService
     Remove-OwnedService
+    Remove-OwnedWinDivertDriverService
     if (Test-Path -LiteralPath $InstallRoot) {
         Remove-Item -LiteralPath $InstallRoot -Recurse -Force
     }
@@ -226,6 +309,7 @@ function Install-Stack {
 function Uninstall-Stack {
     Assert-Elevated
     Remove-OwnedService
+    Remove-OwnedWinDivertDriverService
     Remove-Item -LiteralPath $InstallRoot -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $MarkerPath -Force -ErrorAction SilentlyContinue
     Write-Output "ARVECTUM_WINDIVERT_STACK_UNINSTALLED"
