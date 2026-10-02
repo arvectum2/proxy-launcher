@@ -60,10 +60,17 @@ def test_loopback_smoke_supports_ipv4_and_ipv6():
 
 def test_session_is_tcp_loopback_bounded_and_fail_safe():
     source = _read("windivert_routing_session.cpp")
+    header = _read("windivert_routing_session.h")
     assert '"loopback and tcp and remotePort == "' in source
     assert '"loopback and tcp and (tcp.DstPort == "' in source
-    assert "IsSelectedPort(ipv6, source)" in source
-    assert "IsSelectedPort(ipv6, destination)" in source
+    assert "std::condition_variable ports_condition_" in header
+    assert "WaitForPortDecision(" in source
+    assert "std::chrono::milliseconds(100)" in source
+    assert "CommitProxyIfUnknown(ipv6, source)" in source
+    assert "port_decisions_.try_emplace(" in source
+    assert "PortDecision::Direct" in source
+    assert "PortDecision::Proxy" in source
+    assert "IsDirectPort(ipv6, destination)" in source
     assert "WinDivertHelperCalcChecksums(" in source
     assert "WinDivertSend(" in source
 

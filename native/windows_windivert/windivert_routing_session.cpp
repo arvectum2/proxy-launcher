@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cwctype>
 #include <memory>
 #include <utility>
@@ -340,29 +341,92 @@ bool RoutingSession::ProcessPathMatches(
             application_hashes_.end();
 }
 
-bool RoutingSession::IsSelectedPort(
+bool RoutingSession::WaitForPortDecision(
+    bool ipv6,
+    std::uint16_t port,
+    PortDecision* decision) noexcept
+{
+    if (decision == nullptr) {
+        return false;
+    }
+    try {
+        const std::uint32_t key = PortKey(ipv6, port);
+        std::unique_lock<std::mutex> lock(ports_mutex_);
+        const bool ready = ports_condition_.wait_for(
+            lock,
+            std::chrono::milliseconds(100),
+            [&]() {
+                return stop_.load() ||
+                    port_decisions_.find(key) != port_decisions_.end();
+            });
+        if (!ready || stop_.load()) {
+            return false;
+        }
+        const auto found = port_decisions_.find(key);
+        if (found == port_decisions_.end()) {
+            return false;
+        }
+        *decision = found->second;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool RoutingSession::IsDirectPort(
     bool ipv6,
     std::uint16_t port) const noexcept
 {
-    std::lock_guard<std::mutex> guard(ports_mutex_);
-    return selected_ports_.find(PortKey(ipv6, port)) !=
-        selected_ports_.end();
+    try {
+        std::lock_guard<std::mutex> guard(ports_mutex_);
+        const auto found =
+            port_decisions_.find(PortKey(ipv6, port));
+        return found != port_decisions_.end() &&
+            found->second == PortDecision::Direct;
+    } catch (...) {
+        return false;
+    }
 }
 
-void RoutingSession::AddSelectedPort(
+void RoutingSession::ClassifyPort(
+    bool ipv6,
+    std::uint16_t port,
+    PortDecision decision)
+{
+    {
+        std::lock_guard<std::mutex> guard(ports_mutex_);
+        port_decisions_.try_emplace(
+            PortKey(ipv6, port),
+            decision);
+    }
+    ports_condition_.notify_all();
+}
+
+void RoutingSession::CommitProxyIfUnknown(
+    bool ipv6,
+    std::uint16_t port) noexcept
+{
+    try {
+        {
+            std::lock_guard<std::mutex> guard(ports_mutex_);
+            port_decisions_.try_emplace(
+                PortKey(ipv6, port),
+                PortDecision::Proxy);
+        }
+        ports_condition_.notify_all();
+    } catch (...) {
+    }
+}
+
+void RoutingSession::RemovePortDecision(
     bool ipv6,
     std::uint16_t port)
 {
-    std::lock_guard<std::mutex> guard(ports_mutex_);
-    selected_ports_.insert(PortKey(ipv6, port));
-}
-
-void RoutingSession::RemoveSelectedPort(
-    bool ipv6,
-    std::uint16_t port)
-{
-    std::lock_guard<std::mutex> guard(ports_mutex_);
-    selected_ports_.erase(PortKey(ipv6, port));
+    {
+        std::lock_guard<std::mutex> guard(ports_mutex_);
+        port_decisions_.erase(PortKey(ipv6, port));
+    }
+    ports_condition_.notify_all();
 }
 
 void RoutingSession::SocketLoop() noexcept {
@@ -390,15 +454,15 @@ void RoutingSession::SocketLoop() noexcept {
         const bool ipv6 = address.IPv6 != 0;
         if (address.Event ==
                 WINDIVERT_EVENT_SOCKET_CONNECT) {
-            if (ProcessPathMatches(socket.ProcessId)) {
-                AddSelectedPort(
-                    ipv6,
-                    static_cast<std::uint16_t>(
-                        socket.LocalPort));
-            }
+            ClassifyPort(
+                ipv6,
+                static_cast<std::uint16_t>(socket.LocalPort),
+                ProcessPathMatches(socket.ProcessId)
+                    ? PortDecision::Direct
+                    : PortDecision::Proxy);
         } else if (
             address.Event == WINDIVERT_EVENT_SOCKET_CLOSE) {
-            RemoveSelectedPort(
+            RemovePortDecision(
                 ipv6,
                 static_cast<std::uint16_t>(
                     socket.LocalPort));
@@ -456,14 +520,26 @@ void RoutingSession::NetworkLoop() noexcept {
         const bool ipv6 = address.IPv6 != 0;
         bool changed = false;
 
-        if (destination == proxy_port_ &&
-            IsSelectedPort(ipv6, source)) {
-            tcp->DstPort =
-                WinDivertHelperHtons(direct_port_);
-            changed = true;
+        if (destination == proxy_port_) {
+            PortDecision decision = PortDecision::Proxy;
+            if (!WaitForPortDecision(
+                    ipv6,
+                    source,
+                    &decision)) {
+                // Fail closed to the configured proxy for this connection.
+                // This also prevents a late SOCKET event from causing a
+                // dangerous mid-stream destination rewrite.
+                CommitProxyIfUnknown(ipv6, source);
+                decision = PortDecision::Proxy;
+            }
+            if (decision == PortDecision::Direct) {
+                tcp->DstPort =
+                    WinDivertHelperHtons(direct_port_);
+                changed = true;
+            }
         } else if (
             source == direct_port_ &&
-            IsSelectedPort(ipv6, destination)) {
+            IsDirectPort(ipv6, destination)) {
             tcp->SrcPort =
                 WinDivertHelperHtons(proxy_port_);
             changed = true;
@@ -671,6 +747,7 @@ bool RoutingSession::StopLocked(
     }
 
     stop_.store(true);
+    ports_condition_.notify_all();
     if (socket_handle_ != INVALID_HANDLE_VALUE) {
         WinDivertShutdown(
             socket_handle_,
@@ -705,8 +782,9 @@ bool RoutingSession::StopLocked(
     application_hashes_.clear();
     {
         std::lock_guard<std::mutex> ports_guard(ports_mutex_);
-        selected_ports_.clear();
+        port_decisions_.clear();
     }
+    ports_condition_.notify_all();
     caller_sid_.clear();
     session_id_.clear();
     plan_digest_.clear();
