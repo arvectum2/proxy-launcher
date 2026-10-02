@@ -18,6 +18,28 @@ class PortableMaintenanceHandoffTests(unittest.TestCase):
             ensure.assert_not_called()
             spawn.assert_not_called()
 
+    def test_maintenance_main_never_repairs_run_entries_or_self_heals(self):
+        commands = (
+            ("--stop", "_cmd_stop"),
+            ("--status", "_cmd_status"),
+            ("--rollback", "_cmd_rollback"),
+        )
+        for command, handler_name in commands:
+            with self.subTest(command=command), \
+                 mock.patch.object(
+                     portable_lifecycle.sys,
+                     "argv",
+                     ["Arvectum Proxy Launcher.exe", command],
+                 ), \
+                 mock.patch.object(core, "_ensure_local_files", return_value=True), \
+                 mock.patch.object(core, "repair_portable_run_entries") as repair, \
+                 mock.patch.object(core, "managed_executable") as managed, \
+                 mock.patch.object(core, handler_name, return_value=0) as handler:
+                self.assertEqual(core.main(), 0)
+            repair.assert_not_called()
+            managed.assert_not_called()
+            handler.assert_called_once_with()
+
     def test_start_remains_eligible_for_stable_copy_handoff(self):
         source = os.path.realpath("source-launcher.exe")
         target = os.path.realpath("canonical-launcher.exe")

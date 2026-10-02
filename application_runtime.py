@@ -488,8 +488,8 @@ def main():
     if action == "transparent-acceptance":
         return core._cmd_transparent_acceptance()
 
-    core.repair_portable_run_entries()
     if action == "start":
+        core.repair_portable_run_entries()
         return core._cmd_start()
     if action == "stop":
         return core._cmd_stop()
