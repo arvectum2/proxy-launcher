@@ -2,7 +2,9 @@ import json
 import os
 import tempfile
 
-import pytest
+import unittest
+
+_ASSERTIONS = unittest.TestCase()
 
 from routing_ownership import RoutingOwnershipStore
 from routing_rules import ApplicationIdentity
@@ -110,32 +112,34 @@ def test_apply_request_has_ephemeral_owned_resource_namespace():
     )
 
 
-@pytest.mark.parametrize("pid", [0, -1, True])
-def test_apply_request_rejects_invalid_proxy_pid(pid):
-    with pytest.raises(WindowsWinDivertContractError):
-        build_apply_request(
-            _plans(),
-            session_id=SESSION_ID,
-            plan_digest=DIGEST,
-            proxy_pid=pid,
-            direct_listener_port=49152,
-        )
+def test_apply_request_rejects_invalid_proxy_pid():
+    for pid in (0, -1, True):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertContractError):
+            build_apply_request(
+                _plans(),
+                session_id=SESSION_ID,
+                plan_digest=DIGEST,
+                proxy_pid=pid,
+                direct_listener_port=49152,
+            )
 
 
-@pytest.mark.parametrize("port", [0, 65536, True])
-def test_apply_request_rejects_invalid_direct_listener_port(port):
-    with pytest.raises(WindowsWinDivertContractError):
-        build_apply_request(
-            _plans(),
-            session_id=SESSION_ID,
-            plan_digest=DIGEST,
-            proxy_pid=1234,
-            direct_listener_port=port,
-        )
+def test_apply_request_rejects_invalid_direct_listener_port():
+    for port in (0, 65536, True):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertContractError):
+            build_apply_request(
+                _plans(),
+                session_id=SESSION_ID,
+                plan_digest=DIGEST,
+                proxy_pid=1234,
+                direct_listener_port=port,
+            )
 
 
 def test_apply_request_rejects_proxy_direct_port_collision():
-    with pytest.raises(WindowsWinDivertContractError, match="must differ"):
+    with _ASSERTIONS.assertRaisesRegex(
+        WindowsWinDivertContractError, "must differ"
+    ):
         build_apply_request(
             _plans(port=8080),
             session_id=SESSION_ID,
@@ -182,7 +186,7 @@ def test_apply_failure_leaves_restoring_evidence():
             store,
             RejectingService(),
         )
-        with pytest.raises(WindowsWinDivertContractError):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertContractError):
             controller.activate(
                 _plans(),
                 proxy_pid=1234,
@@ -210,7 +214,7 @@ def test_service_cannot_claim_partial_resource_set():
             store,
             PartialService(),
         )
-        with pytest.raises(WindowsWinDivertContractError):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertContractError):
             controller.activate(
                 _plans(),
                 proxy_pid=1234,

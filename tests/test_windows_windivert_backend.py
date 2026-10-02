@@ -2,7 +2,9 @@ import hashlib
 import json
 from pathlib import Path
 
-import pytest
+import unittest
+
+_ASSERTIONS = unittest.TestCase()
 
 from routing_rules import ApplicationIdentity
 from windows_windivert_backend import (
@@ -36,10 +38,10 @@ def test_normalize_windows_executable_path_is_case_insensitive():
     ) == r"c:\program files\example\app.exe"
 
 
-@pytest.mark.parametrize("path", ["", "App.exe", r".\App.exe", "C:\\"])
-def test_normalize_windows_executable_path_rejects_non_files(path):
-    with pytest.raises(WindowsWinDivertError):
-        normalize_windows_executable_path(path)
+def test_normalize_windows_executable_path_rejects_non_files():
+    for path in ("", "App.exe", r".\App.exe", "C:\\"):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertError):
+            normalize_windows_executable_path(path)
 
 
 def test_compile_windivert_plan_dedupes_stable_identity():
@@ -59,9 +61,9 @@ def test_compile_windivert_plan_rejects_non_windows_identity():
         platform="linux",
         executable_path="/usr/bin/example",
     )
-    with pytest.raises(
+    with _ASSERTIONS.assertRaisesRegex(
         WindowsWinDivertError,
-        match="executable-backed Windows identities",
+        "executable-backed Windows identities",
     ):
         compile_windivert_application_plan(
             (identity,),
@@ -69,13 +71,13 @@ def test_compile_windivert_plan_rejects_non_windows_identity():
         )
 
 
-@pytest.mark.parametrize("port", [0, 65536, True, "nope"])
-def test_compile_windivert_plan_rejects_invalid_proxy_port(port):
-    with pytest.raises(WindowsWinDivertError):
-        compile_windivert_application_plan(
-            (_identity(),),
-            local_proxy_port=port,
-        )
+def test_compile_windivert_plan_rejects_invalid_proxy_port():
+    for port in (0, 65536, True, "nope"):
+        with _ASSERTIONS.assertRaises(WindowsWinDivertError):
+            compile_windivert_application_plan(
+                (_identity(),),
+                local_proxy_port=port,
+            )
 
 
 def test_canonical_plan_json_is_deterministic():
@@ -128,7 +130,9 @@ def test_filters_limit_capture_to_loopback_proxy_translation():
 
 
 def test_network_filter_rejects_same_proxy_and_direct_port():
-    with pytest.raises(WindowsWinDivertError, match="must differ"):
+    with _ASSERTIONS.assertRaisesRegex(
+        WindowsWinDivertError, "must differ"
+    ):
         build_windivert_network_filter(8080, 8080)
 def _write_bytes_for_sha(path: Path, target_sha: str):
     # This helper is intentionally not a preimage generator. Tests monkeypatch
