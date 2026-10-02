@@ -26,6 +26,10 @@ def test_helper_cleans_only_exact_owned_windivert_driver_service():
     stop = owned.index("Stop-Service -Name $WinDivertDriverServiceName")
     delete = owned.index("sc.exe delete $WinDivertDriverServiceName")
     assert guard < stop < delete
+    assert "Get-Service -Name $WinDivertDriverServiceName -ErrorAction Stop" in owned
+    assert "if ($null -eq $service" in owned
+    assert "if (Test-Path -LiteralPath $registryPath)" in owned
+    assert "$LASTEXITCODE -ne 0 -and (Test-Path -LiteralPath $registryPath)" in owned
     assert "Remove-Service WinDivert" not in text
 
 

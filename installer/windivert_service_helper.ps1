@@ -137,22 +137,53 @@ function Remove-OwnedWinDivertDriverService {
         return
     }
 
-    $service = Get-Service -Name $WinDivertDriverServiceName -ErrorAction SilentlyContinue
+    $registryPath = Get-WinDivertDriverRegistryPath
+    $service = try {
+        Get-Service -Name $WinDivertDriverServiceName -ErrorAction Stop
+    }
+    catch {
+        $null
+    }
+
     if ($null -ne $service -and
         $service.Status -ne [ServiceProcess.ServiceControllerStatus]::Stopped) {
-        Stop-Service -Name $WinDivertDriverServiceName -Force -ErrorAction Stop
-        (Get-Service -Name $WinDivertDriverServiceName).WaitForStatus(
-            [ServiceProcess.ServiceControllerStatus]::Stopped,
-            [TimeSpan]::FromSeconds(15)
-        )
+        try {
+            Stop-Service -Name $WinDivertDriverServiceName -Force -ErrorAction Stop
+        }
+        catch {
+            if (Test-Path -LiteralPath $registryPath) {
+                throw
+            }
+        }
     }
 
-    & sc.exe delete $WinDivertDriverServiceName | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not delete owned WinDivert driver service."
+    $stopDeadline = [DateTime]::UtcNow.AddSeconds(15)
+    do {
+        $service = try {
+            Get-Service -Name $WinDivertDriverServiceName -ErrorAction Stop
+        }
+        catch {
+            $null
+        }
+        if ($null -eq $service -or
+            $service.Status -eq [ServiceProcess.ServiceControllerStatus]::Stopped) {
+            break
+        }
+        Start-Sleep -Milliseconds 200
+    } while ([DateTime]::UtcNow -lt $stopDeadline)
+
+    if ($null -ne $service -and
+        $service.Status -ne [ServiceProcess.ServiceControllerStatus]::Stopped) {
+        throw "Owned WinDivert driver service did not stop."
     }
 
-    $registryPath = Get-WinDivertDriverRegistryPath
+    if (Test-Path -LiteralPath $registryPath) {
+        & sc.exe delete $WinDivertDriverServiceName | Out-Null
+        if ($LASTEXITCODE -ne 0 -and (Test-Path -LiteralPath $registryPath)) {
+            throw "Could not delete owned WinDivert driver service."
+        }
+    }
+
     $deadline = [DateTime]::UtcNow.AddSeconds(15)
     while ((Test-Path -LiteralPath $registryPath) -and
            [DateTime]::UtcNow -lt $deadline) {
