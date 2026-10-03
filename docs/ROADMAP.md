@@ -161,7 +161,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
 ## 8. Mobile applications
 
-### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)
+### Android — GitHub public 0.1.19 / current-main 0.1.38 (39); RuStore re-review pending
 
 - **GITHUB/GITVERSE PUBLIC BASELINE — android-v0.1.19.** This remains the latest published Android release in those channels until a separate publication task creates a later release.
 - **CURRENT MAIN — 0.1.38 / versionCode 39.** PR #221 merged the combined RuStore source to main at `676a987105d8f01b8ed32db8b500b58a26e74542`.
@@ -169,9 +169,9 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **PRIVATE FLAVOR — AD-FREE.** A distinct private flavor/package identity is present in the same codebase and does not include the ad integration; separate private distribution remains a delivery concern, not a second divergent application.
 - **NO FRIEND/FREE PROFILES IN THE PUBLIC APP.** PR #221 removed the friend/free gateway UX, `FreeGatewayClient`, free-session refresh/recovery behavior and obsolete persisted free selection from the Android public path.
 - **CORE USER FEATURES RETAINED.** Manual user-supplied proxy profiles, Auto across user profiles, site exclusions, application exclusions, accepted adaptive UI fixes and VPN recovery behavior remain.
-- **RUSTORE — SUBMITTED / WAITING FOR MODERATION.** Version 0.1.38 (39), package `ru.arvectum.proxylauncher`, production-signed APK SHA-256 `21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572`, audience 100%. Publication mode is **Manual after approval**.
+- **RUSTORE — RESUBMITTED / WAITING FOR MODERATION (2026-10-02).** The unchanged 0.1.38 (39) production APK (SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572) was resubmitted after a metadata-only clarification. The card now states that APL is a local client for user-supplied infrastructure; Arvectum provides no proxy/VPN servers, configurations, traffic, subscription or network access. Auto is explicitly described as operating only across profiles added by the user, and Android VPN API is disclosed as the local routing mechanism rather than Arvectum-provided VPN infrastructure.
 - **HISTORICAL FREE-GATEWAY INFRA.** The prior RU/US friend-test gateway evidence is preserved as historical controlled-test infrastructure, but it is not part of the current public Android client path and must not be reintroduced without an explicit new product task.
-- **NEXT GATE.** Wait for RuStore moderation. Any rejection remediation starts from current main; any later GitHub/GitVerse/site 0.1.38+ publication is a separate release task.
+- **NEXT GATE.** Wait for the RuStore re-review result. If approved, publication remains manual. If rejected again, capture the exact moderator rationale before considering any binary/product-scope change.
 
 ### iOS — current App Store review state: 0.1.36 build 40
 
@@ -187,7 +187,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
-2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
+2. **[Android / RuStore] 0.1.38 (39) — RESUBMITTED / WAITING FOR MODERATION.** Same APK, metadata-only clarification that APL is a local client for user-supplied infrastructure and provides no Arvectum proxy/VPN servers or traffic.
 3. **[iOS App Store] 0.1.36 build 40 — WAITING_FOR_REVIEW.** Apple has the physical recording and direct VPN-data answers; wait for review feedback and do not rebuild absent a new concrete issue.
 4. **[macOS App Store] 0.2.17 build 3 — WAITING_FOR_REVIEW.** On 2026-10-02 the new App Review issues were resolved without a binary rebuild: Store name changed to `Proxy Launcher by Arvectum`, Review Notes now include a tested temporary reviewer proxy plus direct VPN/data answers, the reviewer reply was sent, and the existing submission was resubmitted successfully.
 5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
@@ -205,7 +205,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 ### Execution order
 
 - Follow the canonical `.agent/current-task.yaml` for the active user-facing workflow.
-- **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
+- **Android / RuStore:** metadata-only retry submitted 2026-10-02 with unchanged APK and explicit client-only/no-infrastructure wording. Wait for moderator feedback; do not rebuild while re-review is pending.
 - **macOS App Store:** 0.2.17 build 3 is WAITING_FOR_REVIEW after the 2026-10-02 metadata/reviewer-access/data-handling remediation. Wait for Apple feedback; do not rebuild or re-upload unless Apple identifies a new concrete binary issue.
 - **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
@@ -226,7 +226,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
 | macOS Mac App Store | **0.2.17 build 3 WAITING_FOR_REVIEW** | Wait for Apple feedback; no rebuild/re-upload unless Apple reports a new concrete binary issue |
-| Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
+| Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main 0.1.38 (39); RuStore 0.1.38 (39) RESUBMITTED / WAITING FOR MODERATION** | Wait for re-review; manual publication if approved, exact-reason analysis if rejected |
 | iOS | **0.1.36 build 40 WAITING_FOR_REVIEW** | Wait for Apple feedback; rebuild only for a concrete new issue |
 
 ## Completion discipline

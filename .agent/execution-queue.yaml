@@ -251,7 +251,21 @@ items:
     dependencies:
       - APL-MOB-004-MONETIZATION-DISTRIBUTION-20260919
     executor_scope: "Submission task is complete. Do not rebuild/resubmit while moderation is merely pending. On feedback, start a new task from current main. After approval, publication mode remains Manual and requires an explicit release action."
-    evidence: "Production APK package ru.arvectum.proxylauncher, version 0.1.38 (39), SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; RuStore status Waiting for moderation, audience 100%, release Manual."
+    evidence: "Initial submission was rejected on 2026-10-02 under Rules 2.12 and 12.1. Owner then authorized a metadata-only retry of the unchanged 0.1.38 (39) APK, clarifying that APL is only a local client for user-supplied infrastructure and that Arvectum provides no proxy/VPN servers, traffic or access. Re-review submitted 2026-10-02; manual publication remains selected."
+
+  - order: 123
+    task_id: APL-RUSTORE-MODERATION-20261002
+    title: "RuStore 0.1.38 rejection remediation"
+    status: blocked
+    authority: OWNER
+    independent: false
+    auto_merge: false
+    source: ".agent/checkpoints/APL-RUSTORE-MODERATION-20261002.yaml; RuStore Rules 2.12/12.1"
+    dependencies:
+      - APL-RUSTORE-PUBLISH-20260928
+    owner_gate: "Current APL cannot be resubmitted honestly under RuStore Rule 2.12. Any RuStore-specific corporate-only or otherwise materially different product is an Owner product-scope decision."
+    executor_scope: "Do not rename, hide or cosmetically disable proxy/VPN functionality to evade moderation. Resume only on a material RuStore policy change or explicit Owner decision defining a genuinely compliant product."
+    evidence: "RuStore Dev Console rejection captured 2026-10-02 for 0.1.38 (39): Rules 2.12 and 12.1. Official current Rule 2.12 explicitly lists VPN services, proxy services, tunneling, arbitrary routing and automatic server switching as prohibited and states naming/packaging does not change applicability; only stated exception is corporate VPN to one legal entity infrastructure without arbitrary routing."
 
   - order: 130
     task_id: APL-IOS-APPREVIEW-FIX-20260926
