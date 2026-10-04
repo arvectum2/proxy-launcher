@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-PERAPP-ROADMAP-20261004
-status: in_progress
+status: completed
 goal: "Add a dedicated macOS application-exclusions roadmap track that separates Direct Developer ID feasibility from Mac App Store/MDM constraints and defines staged delivery."
 definition_of_done:
   - "docs/ROADMAP.md contains a dedicated APL-MAC-PERAPP track."
@@ -11,18 +11,25 @@ definition_of_done:
   - "APL-NODE-001 and Arvectum Network remain paused and untouched."
   - "Focused consistency checks pass and the roadmap update is merged."
 completed:
-  - "Verified previous canonical planning sync is completed."
-  - "Verified main at ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42 before starting this task."
-current: "APL-MAC-PERAPP added to roadmap/backlog; 12/12 focused consistency checks pass; PR/merge remains."
-pending:
-  - "Merge through PR and close checkpoint."
-last_verified_commit: "ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42"
+  - "Added ROADMAP section 7C: APL-MAC-PERAPP — FUTURE / PRODUCT-APPROVED."
+  - "Recorded Direct Developer ID as the primary consumer target and Mac App Store behavior as capability-gated."
+  - "Recorded Stages A-E: flow attribution feasibility, recovery/security, UI, production Direct release, optional managed/MDM path."
+  - "Added P8C to LOCAL_EXECUTION_BACKLOG.md as PRODUCT-APPROVED / NOT STARTED."
+  - "Kept APL-MAC-PERAPP out of execution-queue.yaml until implementation is explicitly prioritized."
+  - "Preserved APL-NODE-001 and Arvectum Network as paused backlog-only tracks."
+  - "Focused roadmap/backlog consistency checks passed 12/12."
+  - "PR #247 merged to main as 6be2649b6270c5a5519c78c685f1cf178105f9d2."
+current: "COMPLETED: macOS application exclusions are now a canonical product-approved roadmap track."
+pending: []
+last_verified_commit: "6be2649b6270c5a5519c78c685f1cf178105f9d2"
 test_results:
   - "Focused roadmap/backlog consistency assertions: 12/12 PASS."
-  - "APL-MAC-PERAPP is intentionally absent from execution-queue.yaml until implementation is explicitly prioritized."
+  - "Required branch-protection build check passed before PR #247 merge."
+  - "10/11 returned PR #247 workflow runs were completed SUCCESS at merge; Windows installer workflow was still in progress and had no failure."
+  - "APL-MAC-PERAPP remains intentionally absent from execution-queue.yaml until explicitly prioritized."
   - "APL-NODE-001 and Arvectum Network remain absent from the active execution queue."
 blocker: null
-resume_instruction: "Open/merge the macOS per-app roadmap PR, then mark the checkpoint completed. Do not start implementation unless explicitly prioritized."
+resume_instruction: "Task complete. Do not start APL-MAC-PERAPP implementation unless explicitly prioritized. When started, begin with Stage A Direct Developer ID feasibility: source-app attribution and a real DIRECT/PROXY split, then proceed to recovery/security before product UI or release."
 updated_at: "2026-10-04T22:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
