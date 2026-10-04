@@ -1,41 +1,31 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ROADMAP-SYNC-20261004
-status: completed
-goal: "Synchronize the canonical Proxy Launcher roadmap, execution queue, and local execution backlog with the verified 2026-10-04 repository state and expose the remaining work in executable order."
+task_id: APL-MAC-PERAPP-ROADMAP-20261004
+status: in_progress
+goal: "Add a dedicated macOS application-exclusions roadmap track that separates Direct Developer ID feasibility from Mac App Store/MDM constraints and defines staged delivery."
 definition_of_done:
-  - "Roadmap header/current-main reference reflects the 2026-10-04 canonical main state."
-  - "macOS App Store 0.2.17 build 3 is recorded as WAITING_FOR_REVIEW after the 2026-10-02 resubmission."
-  - "iOS App Store 0.1.36 build 40 is recorded as WAITING_FOR_REVIEW after the completed review responses."
-  - "Windows per-app routing is recorded as WinDivert production implementation complete and physically accepted; old owner-gate wording is removed."
-  - "APL-CONNECT-001 staged universal connection input remains visible as product-approved future work."
-  - "RuStore 0.1.38 (39) remains pending moderation/manual publication unless newer verified evidence exists."
-  - "APL-NODE-001 and Arvectum Network remain backlog-only and paused."
-  - "Roadmap, execution queue, and local execution backlog agree on active/remaining steps."
-  - "Focused consistency checks pass and the update is merged through a PR."
+  - "docs/ROADMAP.md contains a dedicated APL-MAC-PERAPP track."
+  - "The track distinguishes Direct Developer ID implementation from managed/MDM App Store capability."
+  - "Stages cover flow attribution/feasibility, recovery/security, UI, and production release acceptance."
+  - "docs/LOCAL_EXECUTION_BACKLOG.md contains the same future workstream without promoting it to the active execution queue."
+  - "APL-NODE-001 and Arvectum Network remain paused and untouched."
+  - "Focused consistency checks pass and the roadmap update is merged."
 completed:
-  - "Verified canonical main baseline before the sync: 6b3a9c4a2b18585487a3df0504d9b62b0110a292."
-  - "Updated docs/ROADMAP.md to 2026-10-04 and current store/Windows states."
-  - "Updated .agent/execution-queue.yaml: stale iOS/macOS review blockers closed; current WinDivert state retained."
-  - "Updated docs/LOCAL_EXECUTION_BACKLOG.md: WinDivert physical pass, current App Store/RuStore states, and APL-CONNECT-001 staged backlog."
-  - "Preserved APL-NODE-001 and Arvectum Network as paused backlog-only tracks and kept them out of execution-queue.yaml."
-  - "Focused cross-file assertions passed 20/20."
-  - "PR #245 merged to main as 3586f19238778bc0daa50c1f6e99ff6fe1f143ad."
-current: "COMPLETED: canonical roadmap, execution queue, and local backlog are synchronized to the verified 2026-10-04 state."
-pending: []
-last_verified_commit: "3586f19238778bc0daa50c1f6e99ff6fe1f143ad"
-test_results:
-  - "Cross-file focused consistency assertions: 20/20 PASS."
-  - "Required branch-protection build check passed before PR #245 merge."
-  - "10/11 returned PR #245 workflow runs were completed SUCCESS at merge-closeout capture; Windows installer workflow was still in progress and had no failure."
-  - "No stale build-37 references remained in ROADMAP.md or LOCAL_EXECUTION_BACKLOG.md."
-  - "No stale PR #144 Windows owner-gate reference remained in LOCAL_EXECUTION_BACKLOG.md."
-  - "APL-NODE-001 and Arvectum Network remained absent from execution-queue.yaml."
+  - "Verified previous canonical planning sync is completed."
+  - "Verified main at ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42 before starting this task."
+current: "Adding APL-MAC-PERAPP to canonical roadmap and local backlog."
+pending:
+  - "Update ROADMAP.md."
+  - "Update LOCAL_EXECUTION_BACKLOG.md."
+  - "Run focused consistency checks."
+  - "Merge through PR and close checkpoint."
+last_verified_commit: "ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42"
+test_results: []
 blocker: null
-resume_instruction: "Task is complete. On the next Proxy Launcher engineering request, start from main at or after 3586f19238778bc0daa50c1f6e99ff6fe1f143ad, read the refreshed roadmap/queue, and select only an explicitly prioritized remaining workstream. Do not reactivate APL-NODE-001 or Arvectum Network without explicit Owner instruction."
+resume_instruction: "Continue on docs/macos-perapp-roadmap-20261004: add the macOS per-app Direct/MDM split and staged delivery to ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md; keep it product-approved/not-started and out of the active execution queue; validate and merge."
 updated_at: "2026-10-04T22:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-ROADMAP-SYNC-20261004"
-  branch: "docs/roadmap-sync-20261004"
-  base_commit: "6b3a9c4a2b18585487a3df0504d9b62b0110a292"
+  execution_id: "APL-MAC-PERAPP-ROADMAP-20261004"
+  branch: "docs/macos-perapp-roadmap-20261004"
+  base_commit: "ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42"
