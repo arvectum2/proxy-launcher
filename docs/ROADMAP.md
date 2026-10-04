@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-09-29
+Updated: 2026-10-04
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -32,7 +32,7 @@ Historical repository identifiers remain valid only inside explicit provenance, 
 - **HISTORICAL ANCHOR** — v0.2.5 remains the first physically sealed Windows CFA-safe baseline and immutable provenance anchor.
 - **HISTORICAL PROGRESSION** — v0.2.6 Windows+Astra; v0.2.7 RED OS; v0.2.8 Linux recovery hardening; v0.2.9 Windows recovery symmetry; v0.2.10 AppImage promotion; v0.2.11 PAC/WPAD + Safari routing fixes; v0.2.12 long-sleep recovery.
 
-Current canonical main verified before this roadmap update: 21c1160c2afe6e09fd121ae9eaba1c78e65c697a.
+Current canonical main verified before this roadmap update: 6b3a9c4a2b18585487a3df0504d9b62b0110a292.
 ## 2. Russian-first release trust and Windows public trust
 
 - **DONE** — APL-REL-010 real Rutoken/CryptoPro detached-signature POC and the Russian release-evidence architecture.
@@ -92,14 +92,14 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / ROUTING + WAKE HARDENING** — PRs #141/#143/#146/#149 plus later v0.2.14/v0.2.15 recovery work close the current direct-distribution routing/sleep baseline.
 - **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel packages were promoted through the Arvectum Mac mini, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published and mirrored with payload parity.
 - **NEXT DIRECT DESKTOP RELEASE — MANDATORY macOS recovery inclusion (v0.2.17+).** Carry forward PR #203 (reserved wake-refresh fail-closed sentinel recovery) and PR #207 (exact-endpoint HTTP/HTTPS enable-bit drift recovery). Release acceptance must physically verify: APL start → induced exact-endpoint enable-bit drift → rollback exit 0 → all saved network services match the pre-APL snapshot → direct and ordinary HTTPS succeed → legacy 127.0.0.1:1080/8082 tunnel remains untouched. Do not ship the next direct macOS desktop build from a source point older than merge commit 46aef7ecfd165aa03145d2a74d4aba1ba44d972d.
-- **MAC APP STORE — REMEDIATED / READY FOR HUMAN RESUBMISSION — v0.2.17 build 3.** The Store lane remains separate from immutable direct v0.2.16.
+- **MAC APP STORE — RESUBMITTED / WAITING_FOR_REVIEW — v0.2.17 build 3.** The Store lane remains separate from immutable direct v0.2.16.
   - Initial build 1 was submitted on 2026-09-26 and rejected on 2026-09-28 under Guidelines 2.1.0 App Completeness and 2.4.5 Hardware Compatibility.
-  - PR #223 merged the remediation to main at `ad09b2393def6c498daa8d67d2439b1d1aac9502`: passive launch no longer mutates Network Extension preferences, the Store help flow no longer advertises GitHub Releases/self-update behavior, and the Catalyst deployment baseline was corrected.
-  - Build 2 was intentionally not reused because App Store Connect reported macOS 12.0 minimum for that already-uploaded artifact.
-  - Corrected build 3 is ARM64 Mac Catalyst + PacketTunnel, signed/validated, with app and extension `LSMinimumSystemVersion=13.0`; Apple `altool --validate-app` returned VERIFY SUCCEEDED.
-  - Physical development-signed smoke on Mac mini passed: launch succeeded and passive startup did not create an additional APL VPN configuration (1 -> 1).
-  - App Store Connect has build 3 selected and VALID with `minOsVersion=13.0`, `lsMinimumSystemVersion=13.0`, `usesNonExemptEncryption=false`; Review Notes were updated for the rejection response.
-  - **CURRENT ASC STATE:** version 0.2.17 is PREPARE_FOR_SUBMISSION while the prior review submission remains UNRESOLVED_ISSUES. Remaining gate is human App Store Connect workflow: resolve/edit the rejected item -> Add for Review -> Resubmit. Do not rebuild or re-upload build 3 unless Apple reports a new binary issue.
+  - PR #223 merged the binary remediation at `ad09b2393def6c498daa8d67d2439b1d1aac9502`: passive launch no longer mutates Network Extension preferences, Store help no longer advertises GitHub/self-update behavior, and the Catalyst minimum was corrected.
+  - Build 2 remains intentionally unused because its uploaded metadata reported macOS 12.0 minimum.
+  - Build 3 remains the accepted binary: ARM64 Mac Catalyst + PacketTunnel, `LSMinimumSystemVersion=13.0`, Apple validation PASS, physical passive-launch smoke PASS, `usesNonExemptEncryption=false`.
+  - Apple returned a second review response on 2026-10-01 covering Guideline 5.2.5 product naming plus Guideline 2.1 reviewer access and VPN/data-handling questions. These were metadata/reviewer-information issues, not a new binary defect.
+  - On 2026-10-02 the App Store name was changed to `Proxy Launcher by Arvectum`; App Review Information was updated with working reviewer-access instructions and direct VPN/data answers; a reviewer reply was sent; the existing build 3 review item was resolved and resubmitted without rebuilding.
+  - **CURRENT ASC STATE:** app version 0.2.17 (3) and its review submission are `WAITING_FOR_REVIEW`. Do not rebuild, re-upload or bump the build unless Apple identifies a concrete new binary issue.
 - **MANDATORY HELP UX — DONE / PHYSICAL PASS.** The standard macOS Help item opens bundled offline help.
   - Direct Developer ID builds may expose GitHub/release links appropriate to direct distribution.
   - Mac App Store builds must remain useful offline and rely on App Store update semantics; the build-3 remediation removes competing GitHub Releases/self-update language from the Store help flow.
@@ -211,6 +211,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
 - **Windows per-app:** production architecture is settled on official signed WinDivert 2.2.2 and physically accepted on current main. Do not revive the custom-WFP production path without a new Owner decision; do not publish/release the merged feature without a separate Windows release gate.
+- **Next direct desktop release:** when prioritized, cut a new release from current main (never mutate v0.2.16), include the merged Windows WinDivert production path and mandatory macOS recovery fixes, rerun platform-specific physical acceptance, then publish as a new version.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
 - Paused backlog-only initiatives must not consume engineering time until the Owner explicitly restores them to the primary roadmap.
@@ -220,8 +221,8 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 
 | Platform / form | Current state | Next gate |
 | --- | --- | --- |
-| Windows installer | **PUBLISHED v0.2.16** | Maintenance; Windows Authenticode remains a separate trust track |
-| Windows portable | **PUBLISHED v0.2.16** | Maintenance / future feature release |
+| Windows installer | **PUBLISHED v0.2.16; current main also contains physically accepted WinDivert per-app routing** | Next explicit desktop release + physical release acceptance; Authenticode remains a separate trust track |
+| Windows portable | **PUBLISHED v0.2.16; current main has later unreleased Windows routing work** | Next explicit desktop feature release; keep v0.2.16 immutable |
 | Astra Linux .deb | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |

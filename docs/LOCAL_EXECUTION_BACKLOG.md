@@ -147,26 +147,24 @@ Current action:
 
 Provider/certificate spend, key custody, production signing, approval/merge of the decision packet and release remain Owner-reserved.
 
-## P8 — per-application routing / exclusions — IMPLEMENTED MOBILE CONTROL PLANE / WINDOWS OWNER GATE
-
-Current Windows decision PR: `#144`. Stale predecessor #68 is superseded.
+## P8 — per-application routing / exclusions — IMPLEMENTED / WINDOWS PHYSICAL PASS
 
 Completed:
 - deterministic cross-platform application-exclusion persistence/capability model;
-- Android live application bypass through VpnService;
-- installed-app selection UI and controlled reconnect path;
-- iOS capability truth: unmanaged consumer iOS does not pretend to support arbitrary native Per-App VPN selection;
-- iOS consumer workaround implemented with App Intents + Shortcuts Opened/Closed automations;
-- PR #144 reconciled to immutable `v0.2.16`/current-main, current application-exclusion work and APL-REL-016 dependency;
-- PR #144 exact-head checks are green.
+- Android live application bypass through VpnService plus installed-app selection UI and controlled reconnect;
+- iOS capability truth plus consumer workaround through App Intents + Shortcuts Opened/Closed automations;
+- Owner selected the official signed WinDivert 2.2.2 production architecture; the custom Arvectum WFP callout path is lab-only;
+- PR #241 merged the production WinDivert routing implementation;
+- PR #243 merged the physical-installer ProgramData compatibility fix;
+- PR #244 records closure of the old architecture gate;
+- exact-head Windows installer/portable/WinDivert/public-trust CI passed;
+- physical Windows acceptance proved GUI-selected DIRECT vs unselected PROXY routing, rule changes, disconnect/reconnect, forced-crash rollback and active-session reboot recovery.
 
-Current Windows stop-gate:
-1. Owner/Product Owner explicitly selects or rejects the production architecture;
-2. current technical recommendation is Option A — Arvectum-owned WFP ALE callout + narrow privileged service + local proxy;
-3. no WFP filter/callout installation, privileged service mutation or production enforcement before that decision;
-4. after approval, require real Windows recovery/security acceptance and a new release.
-
-Android evidence boundary: merged implementation/current UI acceptance does not substitute for a separately documented public-IP bypass proof.
+Current boundary:
+1. published v0.2.16 is immutable and does not contain this later per-app implementation;
+2. shipping WinDivert per-app routing requires a new explicit Windows desktop release and release acceptance;
+3. do not revive custom WFP for production or procure a custom kernel-driver signing path without a new Owner decision;
+4. Android public-IP bypass proof remains a separate evidence boundary where not already documented.
 
 ## P8A — APL-UI-001 cross-platform Adaptive UI — DONE / MERGED
 
@@ -176,6 +174,19 @@ Android evidence boundary: merged implementation/current UI acceptance does not 
 - exact-head cross-platform/security CI green;
 - Owner explicitly requested merge without waiting for unavailable/reproduction-only physical gates;
 - waived/unperformed acceptance is not claimed as performed.
+
+## P8B — APL-CONNECT-001 universal connection input — PRODUCT-APPROVED / NOT STARTED
+
+Product direction is approved, but implementation is not yet prioritized into the execution queue.
+
+Staged delivery:
+1. **Stage A:** universal importer shell for proxy text/URLs, clipboard, QR and deep links; MTProto detection + Telegram handoff; preserve current HTTP/SOCKS/HTTPS engines.
+2. **Stage B:** VLESS + Reality full-tunnel support with selected/pinned engine, secure storage and physical cross-platform validation.
+3. **Stage C:** managed subscriptions with validated refresh, last-known-good rollback and explicit provider/source identity.
+4. **Stage D:** Marketplace zero-config provisioning so purchased/issued connections appear in APL without manual credential entry.
+5. **Stage E:** demand-driven compatibility expansion, beginning with WireGuard/AmneziaWG.
+
+Required product rules: keep the default UX simple, keep imported secrets local-first, make export/share of secrets explicit, and do not market unsupported opaque configs or MTProto as device-wide VPN.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
@@ -189,12 +200,17 @@ Android evidence boundary: merged implementation/current UI acceptance does not 
 
 Do not reopen the published v0.2.16 object. Apply the recovery acceptance above to the next direct release candidate instead.
 
-## P9A — macOS App Store 0.2.17 + Help UX — SUBMITTED / WAITING FOR REVIEW / PR #175
+## P9A — macOS App Store 0.2.17 build 3 — RESUBMITTED / WAITING FOR REVIEW
 
-Completed: isolated sandboxed ARM64 Catalyst + PacketTunnel lane; contract tests 9/9; provisioning/signing/archive/export/Apple validation/upload PASS; build 1 VALID / APP_STORE_ELIGIBLE; metadata, 4+ rating, Data Not Collected privacy, 175 territories and Mac screenshots complete; mandatory offline Help physically accepted; Packet Tunnel E2E physically accepted with HTTPS 200 and zero tunnel errors; version 0.2.17 build 1 submitted on 2026-09-26 and now WAITING FOR REVIEW.
+Completed:
+- isolated sandboxed ARM64 Catalyst + PacketTunnel lane, provisioning/signing/archive/export/Apple validation and physical Packet Tunnel E2E;
+- initial build 1 review and 2026-09-28 rejection remediation in PR #223;
+- corrected build 3 with macOS 13.0 minimum, VALID / APP_STORE_ELIGIBLE, passive-launch physical smoke PASS;
+- 2026-10-01 follow-up review issues were metadata/reviewer-information only: Apple product naming, reviewer access and VPN/data-handling questions;
+- on 2026-10-02 Store name changed to `Proxy Launcher by Arvectum`, reviewer-access instructions and direct VPN/data answers were added, the reviewer reply was sent, and the existing build 3 submission was resolved/resubmitted without a binary rebuild;
+- final verified App Store Connect state: app version 0.2.17 (3) and review submission `WAITING_FOR_REVIEW`.
 
-Boundary: direct v0.2.16 remains immutable and separate. Do not rebuild, re-upload, withdraw or resubmit the Mac App Store version while review is pending unless Apple returns a concrete issue or the Owner requests a change.
-
+Current boundary: wait for Apple feedback. Do not rebuild, re-upload, withdraw or bump build 3 solely because review is pending. Start a new task only if Apple returns a concrete new issue.
 
 ## P10 — Russian Software Register dossier / external filing — DOSSIER DONE, SUBMISSION HOLD
 
@@ -236,34 +252,27 @@ Under the official baseline rechecked 2026-09-17, the two-trusted-OS condition f
 
 ## P11 — mobile store stages
 
-### APL-MOB-004 Android monetization/distribution — PLANNED / OWNER-GATED
+### Android / RuStore — 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION
 
-Free RU/US and managed-node functionality are separate from advertising/private-distribution decisions. No ad SDK/private-release infrastructure is authorized merely by those tracks.
+- PR #221 merged the current Android source baseline.
+- Public flavor includes Yandex App Open advertising; private flavor remains ad-free with a distinct package identity.
+- Friend/free gateway UX and client behavior are absent from the current public app.
+- Manual user profiles, Auto, site exclusions, application exclusions, adaptive UI and recovery remain.
+- Production RuStore APK 0.1.38 (39) is submitted; publication mode is Manual after approval.
+- Current action: wait for moderation. On rejection, start targeted remediation from current main; on approval, perform the explicit manual publication action.
 
-### iOS App Store — 0.1.36 build 37 — VALID / APP_STORE_ELIGIBLE / HUMAN RECORDING BLOCKER
+### iOS App Store — 0.1.36 build 40 — RESUBMITTED / WAITING FOR REVIEW
 
-Canonical active checkpoint: `.agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml`.
+Completed:
+- current 0.1.36 review binary uses build 40 with Adaptive UI and Shortcuts-based application routing;
+- physical-device review recording is attached;
+- current entitlement scope is accepted and no binary defect is presently identified;
+- Apple VPN/data-handling questions were answered and public privacy wording clarified;
+- Apple business-model questions were answered: the app does not sell/unlock paid digital content or proxies and users supply their own connection parameters;
+- existing review item was resubmitted without a speculative build bump;
+- final verified state is `WAITING_FOR_REVIEW`.
 
-History/current state:
-- earlier 0.1.19 new-app submission was rejected under Guideline 2.1 Information Needed;
-- Apple requested a physical-device screen recording and six information items;
-- current source/version is 0.1.36 build 37 with Adaptive UI and Shortcuts-based app routing;
-- PR #196 merged the current version; unsigned Release artifact CI is present on main;
-- exact current app was physically installed/launched on iPhone 13 / iOS 27;
-- first distribution attempt failed 90046 because the signature inherited unsupported hotspot-provider entitlement;
-- the same build 37 was re-signed with narrow required entitlements only;
-- clean build-37 upload completed without errors/warnings;
-- App Store Connect reports build 37 VALID / APP_STORE_ELIGIBLE, export compliance false for non-exempt encryption and version relationship set to 0.1.36.
-
-Remaining HUMAN step:
-1. record current 0.1.36 flow on the physical iPhone from launch through selection/connect/traffic/disconnect;
-2. transfer MOV to Mac mini;
-3. extract current screenshots and replace old 0.1.19 screenshots;
-4. attach the MOV to App Review;
-5. reply to Apple’s six requested items;
-6. resubmit/update review and verify resulting state.
-
-Do not merge/use stale PR #198 build-38 bump unless Apple reports a new binary issue; corrected build 37 is already valid.
+Current action: wait for Apple feedback. Do not rebuild/resubmit build 40 unless Apple identifies a concrete new issue.
 
 ## P12 — APL-NODE-001 managed proxy infrastructure — DEFERRED / PAUSED BY OWNER
 
@@ -337,9 +346,9 @@ Next:
 - PR #113 — redundant AppImage closeout branch overtaken by merged PR #112.
 - PR #117 — redundant Android 0.1.13 closeout overtaken by merged PR #118.
 - PR #120 — superseded continuous-failover development branch overtaken by merged PR #119.
-- PR #124 — stale APL-MOB-002 closeout branch; public Android is 0.1.19 and current-main Android is 0.1.36.
-- PR #68 — superseded per-app routing decision preparation; current packet is PR #144.
-- PR #198 — superseded build-38 bump; corrected iOS 0.1.36 build 37 is already VALID / APP_STORE_ELIGIBLE.
+- PR #124 — stale APL-MOB-002 closeout branch; public GitHub/GitVerse Android remains 0.1.19 while current-main/RuStore Android is 0.1.38 (39).
+- PR #68/#144 — superseded Windows per-app recommendation/decision preparation; merged PR #241/#243 plus gate-closing PR #244 are authoritative.
+- PR #198 — superseded build-38 bump; current App Store review binary is iOS 0.1.36 build 40 and is WAITING_FOR_REVIEW.
 - PR #200 — superseded docs branch after its Arvectum Network roadmap is imported by the consolidated 2026-09-27 sync.
 - PRs #90/#91/#92 — superseded Windows rollback implementations; merged PR #93/#94 and public `v0.2.9` are authoritative.
 - PRs #70/#74/#82 — superseded RED OS preparation paths; merged PR #83 is authoritative.
@@ -349,23 +358,22 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 ## Current execution view
 
 - **DESKTOP STABLE:** v0.2.16 is public and immutable.
-- **DIRECT macOS:** ARM64 + Intel Developer ID/notarized DMGs are public.
-- **MAC APP STORE:** 0.2.17 build 1 submitted / Waiting for Review; physical Help and Packet Tunnel E2E complete.
-- **ANDROID PUBLIC:** 0.1.19.
-- **ANDROID CURRENT MAIN:** 0.1.36/versionCode 37 physically accepted for current adaptive UI; application-exclusion implementation is merged; no public 0.1.36 release.
-- **iOS APP STORE:** 0.1.36 build 37 VALID / APP_STORE_ELIGIBLE; HUMAN blocker is one physical iOS 27 screen recording, then screenshots/review attachment/reply/resubmission.
+- **DIRECT macOS:** ARM64 + Intel Developer ID/notarized DMGs are public; the next direct release must carry the merged macOS recovery fixes and physical recovery acceptance.
+- **MAC APP STORE:** 0.2.17 build 3 is `WAITING_FOR_REVIEW` after the 2026-10-02 metadata/reviewer-access/VPN-data remediation and resubmission.
+- **ANDROID:** GitHub/GitVerse public baseline remains 0.1.19; current main/RuStore candidate is 0.1.38 (39), submitted and waiting for moderation with manual publication after approval.
+- **iOS APP STORE:** 0.1.36 build 40 is `WAITING_FOR_REVIEW`; physical review recording and required information responses are already supplied.
 - **APL-UI-001:** DONE / merged #193.
-- **PER-APP WINDOWS:** PR #144 is already refreshed/green; now blocked only on explicit Owner architecture selection.
-- **APL-NODE-001:** DEFERRED / PAUSED BY OWNER; Phase A and PR #195 are preserved in backlog, with no further engineering until explicit reactivation.
-- **ARVECTUM NETWORK:** DEFERRED / PAUSED BY OWNER; detailed VPS-first plan remains in backlog/ARVECTUM_NETWORK_ROADMAP.md, with no infrastructure/legal/commercial execution until explicit reactivation.
-- **FREE GATEWAY:** live controlled-test infrastructure; broad-public anti-abuse/quota hardening still pending.
-- **APL-MOB-004:** PLANNED / OWNER-GATED.
-- **APL-REL-016:** REVIEW refresh remains available when prioritized; it has no dependency on the paused APL-NODE-001 / Arvectum Network backlog tracks.
+- **PER-APP WINDOWS:** production WinDivert 2.2.2 implementation is merged and physically accepted on current main; old WFP owner gate is closed. Shipping waits for a new explicit desktop release.
+- **APL-CONNECT-001:** PRODUCT-APPROVED / NOT STARTED; Stage A universal importer/MTProto handoff is the first implementation step when prioritized.
+- **APL-REL-016:** REVIEW refresh remains available when prioritized; PR #161 is version-stale against v0.2.16.
 - **ROSPATENT:** working package prepared; waiting for applicant yellow-field facts; final filing HUMAN.
-- **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD.
-- **PROXY LAUNCHER WATCHDOG:** intentionally not part of this update; do not enable it.
+- **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD, chiefly on sovereign lifecycle/private/signature evidence.
+- **APL-NODE-001:** DEFERRED / PAUSED BY OWNER; preserve existing Phase A/PR #195 and do not resume without explicit reactivation.
+- **ARVECTUM NETWORK:** DEFERRED / PAUSED BY OWNER; do not provision infrastructure or restart commercial/legal work without explicit reactivation.
+- **FREE GATEWAY:** historical controlled-test infrastructure only; current public Android does not use it.
+- **PROXY LAUNCHER WATCHDOG:** outside this roadmap sync; do not modify its state here.
 
-Current work order: follow the canonical active task and keep #144 at the Owner decision gate. APL-NODE-001 and Arvectum Network remain backlog-only; they are intentionally absent from the primary roadmap and execution queue until the Owner explicitly reactivates them.
+Current work order is event-driven for the stores (wait for Apple/RuStore), while autonomous engineering can proceed on explicitly prioritized ready tracks such as APL-REL-016, a new direct desktop release, or APL-CONNECT-001. APL-NODE-001 and Arvectum Network remain backlog-only.
 
 ## Completion discipline
 
