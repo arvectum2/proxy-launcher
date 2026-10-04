@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ROADMAP-SYNC-20261004
-status: in_progress
+status: completed
 goal: "Synchronize the canonical Proxy Launcher roadmap, execution queue, and local execution backlog with the verified 2026-10-04 repository state and expose the remaining work in executable order."
 definition_of_done:
   - "Roadmap header/current-main reference reflects the 2026-10-04 canonical main state."
@@ -14,21 +14,25 @@ definition_of_done:
   - "Roadmap, execution queue, and local execution backlog agree on active/remaining steps."
   - "Focused consistency checks pass and the update is merged through a PR."
 completed:
-  - "Verified canonical main latest commit before this task: 6b3a9c4a2b18585487a3df0504d9b62b0110a292 (PR #244)."
-  - "Verified macOS App Store checkpoint APL-MAC-APPREVIEW-20261002 is completed and build 3 is WAITING_FOR_REVIEW."
-  - "Verified iOS 0.1.36 build 40 review-response checkpoints are completed and current roadmap records WAITING_FOR_REVIEW."
-  - "Verified Windows WinDivert production implementation merged in PR #241, installer compatibility fix in PR #243, and architecture gate closure in PR #244."
-current: "Planning files synchronized and 20/20 focused consistency checks pass; PR/merge remains."
-pending:
-  - "Open/merge PR and record final checkpoint."
-last_verified_commit: "6b3a9c4a2b18585487a3df0504d9b62b0110a292"
+  - "Verified canonical main baseline before the sync: 6b3a9c4a2b18585487a3df0504d9b62b0110a292."
+  - "Updated docs/ROADMAP.md to 2026-10-04 and current store/Windows states."
+  - "Updated .agent/execution-queue.yaml: stale iOS/macOS review blockers closed; current WinDivert state retained."
+  - "Updated docs/LOCAL_EXECUTION_BACKLOG.md: WinDivert physical pass, current App Store/RuStore states, and APL-CONNECT-001 staged backlog."
+  - "Preserved APL-NODE-001 and Arvectum Network as paused backlog-only tracks and kept them out of execution-queue.yaml."
+  - "Focused cross-file assertions passed 20/20."
+  - "PR #245 merged to main as 3586f19238778bc0daa50c1f6e99ff6fe1f143ad."
+current: "COMPLETED: canonical roadmap, execution queue, and local backlog are synchronized to the verified 2026-10-04 state."
+pending: []
+last_verified_commit: "3586f19238778bc0daa50c1f6e99ff6fe1f143ad"
 test_results:
   - "Cross-file focused consistency assertions: 20/20 PASS."
-  - "No stale build-37 references remain in ROADMAP.md or LOCAL_EXECUTION_BACKLOG.md."
-  - "No stale PR #144 Windows owner-gate reference remains in LOCAL_EXECUTION_BACKLOG.md."
-  - "APL-NODE-001 and Arvectum Network remain absent from execution-queue.yaml."
+  - "Required branch-protection build check passed before PR #245 merge."
+  - "10/11 returned PR #245 workflow runs were completed SUCCESS at merge-closeout capture; Windows installer workflow was still in progress and had no failure."
+  - "No stale build-37 references remained in ROADMAP.md or LOCAL_EXECUTION_BACKLOG.md."
+  - "No stale PR #144 Windows owner-gate reference remained in LOCAL_EXECUTION_BACKLOG.md."
+  - "APL-NODE-001 and Arvectum Network remained absent from execution-queue.yaml."
 blocker: null
-resume_instruction: "Open and merge the roadmap-sync PR after checks pass, then create the completed checkpoint and mark .agent/current-task.yaml completed with the merge commit."
+resume_instruction: "Task is complete. On the next Proxy Launcher engineering request, start from main at or after 3586f19238778bc0daa50c1f6e99ff6fe1f143ad, read the refreshed roadmap/queue, and select only an explicitly prioritized remaining workstream. Do not reactivate APL-NODE-001 or Arvectum Network without explicit Owner instruction."
 updated_at: "2026-10-04T22:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
