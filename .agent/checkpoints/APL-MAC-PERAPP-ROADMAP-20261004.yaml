@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-PERAPP-ROADMAP-20261004
+status: completed
+goal: "Add macOS application exclusions as a canonical product-approved roadmap track."
+definition_of_done:
+  - "Direct Developer ID and Mac App Store/MDM boundaries are explicit."
+  - "Stages A-E are recorded."
+  - "Roadmap/backlog are consistent and merged."
+completed:
+  - "ROADMAP 7C and backlog P8C added."
+  - "Direct consumer target + capability-gated Store path recorded."
+  - "12/12 focused consistency checks PASS."
+  - "PR #247 merged."
+current: "completed"
+pending: []
+last_verified_commit: "6be2649b6270c5a5519c78c685f1cf178105f9d2"
+test_results:
+  - "12/12 focused roadmap/backlog assertions PASS."
+  - "Required branch-protection build check PASS before merge."
+resume_instruction: "No continuation required until implementation is explicitly prioritized. Start future implementation with Stage A source-app attribution and DIRECT/PROXY split feasibility on Direct Developer ID macOS."
+updated_at: "2026-10-04T22:36:00+03:00"
