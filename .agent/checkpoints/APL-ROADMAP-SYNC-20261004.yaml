@@ -1,0 +1,27 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ROADMAP-SYNC-20261004
+status: completed
+goal: "Synchronize canonical roadmap/execution planning to the verified 2026-10-04 state."
+definition_of_done:
+  - "ROADMAP.md, execution-queue.yaml and LOCAL_EXECUTION_BACKLOG.md agree on current store, Windows routing, and remaining-work states."
+  - "Paused APL-NODE-001 and Arvectum Network stay outside the active execution queue."
+  - "Update is validated and merged."
+completed:
+  - "Roadmap date/current-main anchor updated."
+  - "macOS App Store 0.2.17 build 3 -> WAITING_FOR_REVIEW."
+  - "iOS 0.1.36 build 40 -> WAITING_FOR_REVIEW."
+  - "Windows WinDivert per-app routing -> implemented / physical PASS; old owner gate removed."
+  - "RuStore 0.1.38 (39) remains waiting for moderation/manual publication."
+  - "APL-CONNECT-001 visible as PRODUCT-APPROVED / NOT STARTED with Stages A-E."
+  - "20/20 focused cross-file consistency checks PASS."
+  - "PR #245 merged."
+current: "completed"
+pending: []
+last_verified_commit: "3586f19238778bc0daa50c1f6e99ff6fe1f143ad"
+test_results:
+  - "20/20 focused roadmap/queue/backlog assertions PASS."
+  - "Required branch-protection build check PASS before merge."
+  - "At closeout capture, 10/11 PR workflows SUCCESS; Windows installer remained in progress without failure."
+resume_instruction: "No continuation required. Use refreshed roadmap and execution queue for the next prioritized task; keep APL-NODE-001 and Arvectum Network paused until explicit reactivation."
+updated_at: "2026-10-04T22:36:00+03:00"
