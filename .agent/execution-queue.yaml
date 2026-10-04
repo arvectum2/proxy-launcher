@@ -84,17 +84,17 @@ items:
   - order: 60
     task_id: APL-ROUTE-PRODUCTION-ARCHITECTURE
     title: "Per-application routing production enforcement architecture"
-    status: blocked
+    status: done
     authority: OWNER
     independent: true
     auto_merge: false
-    source: "docs/LOCAL_EXECUTION_BACKLOG.md#P8; PR #144"
+    source: "docs/ROADMAP.md#7-per-application-routing--application-exclusions-and-desktop-enforcement; PR #241; PR #243"
     dependencies: []
-    blocker: "PR #144 is already reconciled to v0.2.16/current-main and exact-head CI is green. No further privileged Windows enforcement work is admitted until Owner/Product Owner explicitly selects or rejects the production architecture."
-    owner_gate: "Select/reject the production enforcement architecture. Current technical recommendation is Option A: Arvectum-owned WFP ALE callout + narrow privileged service + local proxy."
-    executor_scope: "Preserve the review-ready packet and existing non-mutating control plane. Do not install WFP filters/callouts, mutate privileged hosts, procure signing or release a Windows enforcement implementation before explicit Owner selection."
-    active_pr: 144
-    evidence: "PR #144 head 40af0918ef1122d7b40a59f3d3b4c78e5316899c is reconciled to immutable v0.2.16/current-main, includes current application-exclusion work and APL-REL-016 dependency, and its returned exact-head checks are all SUCCESS."
+    blocker: null
+    owner_gate: "SATISFIED: Owner selected the official signed WinDivert 2.2.2 production architecture. The custom Arvectum WFP callout path remains lab-only."
+    executor_scope: "Maintain the WinDivert 2.2.2 production path and its fail-closed ownership/recovery semantics. Do not revive custom WFP for production, procure an Arvectum kernel-driver signing certificate, or publish a Windows release without a new explicit gate."
+    active_pr: null
+    evidence: "PR #241 merged production WinDivert routing as 61fcf2c0fae1e1b0ca93b2271eb3b907f49db352. PR #243 merged the physical-installer ProgramData fix as f61f506761c79a882470ebdbf9f34a1aab9baf28. Exact-head Windows installer/portable/WinDivert/public-trust CI passed, and physical ArutyunovNS E2E proved GUI DIRECT/PROXY split routing, rule changes, disconnect/reconnect, forced-crash rollback and active-session reboot recovery. Published v0.2.16 remains immutable; shipping is a separate release task."
 
   - order: 65
     task_id: APL-UI-001-ADAPTIVE

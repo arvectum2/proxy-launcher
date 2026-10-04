@@ -116,8 +116,9 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **APPLICATION EXCLUSIONS CONTROL PLANE — IMPLEMENTED.** PR #183 added deterministic application-exclusion persistence/capability semantics plus Android live enforcement through `VpnService.Builder.addDisallowedApplication`.
 - **ANDROID UI / CURRENT MAIN — 0.1.38 / versionCode 39.** The accepted adaptive/profile/application-exclusion baseline is retained; PR #221 layers the current public/private Android distribution flavors on top without regressing manual profiles, Auto, site exclusions or application exclusions.
 - **iOS CONSUMER PATH — SHORTCUTS AUTOMATION.** Native unmanaged consumer iOS cannot truthfully offer arbitrary Per-App VPN selection; PRs #185/#187/#189 provide the supported consumer workaround using APL App Intents + Shortcuts Opened/Closed automations. Managed/MDM Per-App VPN remains a different future capability.
-- **WINDOWS OWNER PACKET — PR #144 READY FOR DECISION.** The packet is already reconciled to current `v0.2.16`/main and exact-head checks are green. Technical recommendation remains an Arvectum-owned WFP ALE callout + narrow privileged service + local proxy.
-- **STOP-GATE** — PR #144 is a recommendation, not approval. Do not install WFP callouts/filters or start privileged production enforcement until Owner/Product Owner explicitly selects or rejects the architecture.
+- **WINDOWS PRODUCTION ARCHITECTURE — OWNER SELECTED / IMPLEMENTED / PHYSICAL PASS.** Production per-application routing uses the official signed WinDivert 2.2.2 stack plus the narrow Arvectum routing service and local proxy. PR #241 merged the production implementation to main at `61fcf2c0fae1e1b0ca93b2271eb3b907f49db352`; PR #243 merged the physical-installer compatibility fix at `f61f506761c79a882470ebdbf9f34a1aab9baf28`. The Arvectum-owned custom WFP callout path is lab-only and is not the production architecture.
+- **WINDOWS PHYSICAL E2E — DONE.** Exact-head Windows CI passed for installer, portable, WinDivert production and public-trust gates. Physical `ArutyunovNS` acceptance proved fresh install, GUI-selected `curl.exe` DIRECT vs unselected `powershell.exe` PROXY, live rule removal/re-add, disconnect/reconnect, forced-runtime-crash rollback and active-session reboot recovery. The production path does not require an Arvectum-owned Microsoft kernel-driver signing certificate.
+- **RELEASE BOUNDARY.** These merges update current main only. Published desktop v0.2.16 remains immutable and must not be represented as containing this later Windows per-app implementation. Shipping it requires the next explicit Windows desktop release task and release acceptance.
 - **ANDROID ACCEPTANCE BOUNDARY** — implementation and UI are merged, but do not invent the dedicated public-IP bypass proof if it has not been recorded separately.
 - **APL-UI-001 GATE — DONE.** The cross-platform Adaptive UI was merged in PR #193 by explicit Owner decision; the remaining unavailable physical-platform acceptance was waived for that merge only and is not claimed as performed.
 
@@ -190,7 +191,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
 3. **[iOS App Store] 0.1.36 build 40 — WAITING_FOR_REVIEW.** Apple has the physical recording and direct VPN-data answers; wait for review feedback and do not rebuild absent a new concrete issue.
 4. **[macOS App Store] 0.2.17 build 3 — WAITING_FOR_REVIEW.** On 2026-10-02 the new App Review issues were resolved without a binary rebuild: Store name changed to `Proxy Launcher by Arvectum`, Review Notes now include a tested temporary reviewer proxy plus direct VPN/data answers, the reviewer reply was sent, and the existing submission was resubmitted successfully.
-5. **[Per-app Windows enforcement / OWNER] PR #144 — DECISION READY.** Packet is reconciled to v0.2.16/current-main and green; final architecture selection remains Owner-reserved.
+5. **[Per-app Windows enforcement] IMPLEMENTED / PHYSICAL PASS ON CURRENT MAIN.** Owner selected official signed WinDivert 2.2.2; PR #241 implementation and PR #243 installer fix are merged and physically validated. Custom WFP remains lab-only. Next gate is an explicit future Windows desktop release; published v0.2.16 is unchanged.
 6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
 7. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
 8. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
@@ -200,7 +201,7 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
 ### Repository-hygiene note
 
-Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #161 is the latest substantive stale trust packet. PR #68 is superseded by current per-app packet #144. Historical rollback/RED OS/mobile closeout branches remain non-authoritative where later merged work exists. Backlog-only paused initiatives are intentionally omitted from this primary roadmap.
+Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #161 is the latest substantive stale trust packet. Historical per-app recommendation PRs #68/#144 are superseded by the Owner-selected production WinDivert implementation in merged PR #241 and its physical-installer fix in merged PR #243. Historical rollback/RED OS/mobile closeout branches remain non-authoritative where later merged work exists. Backlog-only paused initiatives are intentionally omitted from this primary roadmap.
 
 ### Execution order
 
@@ -209,7 +210,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - **macOS App Store:** 0.2.17 build 3 is WAITING_FOR_REVIEW after the 2026-10-02 metadata/reviewer-access/data-handling remediation. Wait for Apple feedback; do not rebuild or re-upload unless Apple identifies a new concrete binary issue.
 - **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
-- **Windows per-app:** PR #144 is technically decision-ready; do not perform privileged enforcement before explicit Owner architecture selection.
+- **Windows per-app:** production architecture is settled on official signed WinDivert 2.2.2 and physically accepted on current main. Do not revive the custom-WFP production path without a new Owner decision; do not publish/release the merged feature without a separate Windows release gate.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
 - **Registry/Rospatent:** prepare evidence/forms as authorized, but final external signing/submission remains HUMAN.
 - Paused backlog-only initiatives must not consume engineering time until the Owner explicitly restores them to the primary roadmap.
