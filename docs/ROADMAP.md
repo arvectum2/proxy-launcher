@@ -160,6 +160,26 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
 **Anti-clone rule:** competitor breadth is input for compatibility, not the product identity. APL remains optimized for the shortest path from credentials/key/QR to a working connection; advanced routing engines, GeoIP/Geosite rules, raw JSON and protocol diagnostics stay out of the default flow.
 
+## 7C. macOS application exclusions — APL-MAC-PERAPP — FUTURE / PRODUCT-APPROVED
+
+**Goal:** bring real application exclusions to macOS where technically supportable: selected applications use **DIRECT** while other traffic follows the active APL proxy/VPN route, with the same understandable user model as Windows/Android.
+
+- **DIRECT DEVELOPER ID PATH — PRIMARY CONSUMER TARGET.** Treat arbitrary consumer per-app exclusions as a separate macOS networking architecture task, not as a small extension of the current system-proxy/PacketTunnel implementation. The feasibility prototype must choose a supported Network Extension/System Extension design that can attribute flows to their originating application and selectively route them DIRECT or PROXY.
+- **MAC APP STORE PATH — CAPABILITY-GATED.** Do not promise arbitrary unmanaged-consumer per-app selection in the Store build. Apple's native `NEAppRule` / per-app VPN path is treated as managed/MDM capability unless a later App Store-specific feasibility review proves a supported consumer design. Store UI must hide unsupported controls rather than emulate them inaccurately.
+- **IDENTITY / HELPERS.** Application matching must survive ordinary app updates and handle helper/tool processes deliberately; matching must use stable application identity where possible rather than ephemeral PID-only rules.
+- **SAFETY / RECOVERY.** A per-app implementation must preserve APL's ownership journal and rollback discipline, fail safely after crashes, sleep/wake and reboot, and never strand macOS networking or overwrite unrelated proxy/VPN state.
+- **UX PARITY.** When supported, expose the same simple model used elsewhere: user picks applications to bypass the proxy, the list shows capability/state clearly, and changes apply through a controlled reconnect without surfacing low-level routing internals.
+
+### APL-MAC-PERAPP staged delivery
+
+1. **Stage A — feasibility / flow attribution:** on a Direct Developer ID test build, prove reliable source-application identification and a real split such as Safari **DIRECT** while another selected test application remains **PROXY** (and vice versa), including helper/tool process behavior.
+2. **Stage B — recovery/security:** validate rule changes, disconnect/reconnect, forced runtime failure, sleep/wake, reboot, app update/removal, stale identity handling and exact rollback of APL-owned network state.
+3. **Stage C — product UI:** add installed-application selection and exclusions UI aligned with Windows/Android, with capability-gated messaging for unsupported Store/managed contexts.
+4. **Stage D — production Direct release:** sign/notarize the required app/system extension components, run physical macOS release acceptance, document uninstall/rollback, and ship only in a new Direct desktop release.
+5. **Stage E — managed/MDM option:** if enterprise demand justifies it, add a separate managed `NEAppRule`/Per-App VPN configuration path. Do not conflate this with ordinary consumer App Store functionality.
+
+**Release boundary:** this track is approved for the roadmap but is **not started** and is not part of published v0.2.16 or the current Mac App Store 0.2.17 build 3 review binary. It must not trigger a rebuild/resubmission of the Store candidate while Apple review is pending.
+
 ## 8. Mobile applications
 
 ### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)
@@ -197,7 +217,8 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 8. **[Russian Software Register / HUMAN] dossier prepared on exact v0.2.9; external filing remains on hold for real private/infrastructure/signature gates.**
 9. **[Adaptive UI] APL-UI-001 — DONE / MERGED #193.** It remains the shared current UI baseline, not an active implementation task.
 10. **[Product expansion / FUTURE] APL-CONNECT-001 — PRODUCT-APPROVED.** Universal connection input: ordinary proxy, VPN link/key/config, MTProto, QR/deep link, managed subscriptions and Marketplace zero-config delivery, staged so protocol complexity stays out of the default UX.
-11. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
+11. **[macOS per-app / FUTURE] APL-MAC-PERAPP — PRODUCT-APPROVED / NOT STARTED.** Primary target is a Direct Developer ID implementation with real source-app attribution and DIRECT/PROXY split routing; Mac App Store behavior remains capability-gated, with managed/MDM Per-App VPN treated separately.
+12. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
 
 ### Repository-hygiene note
 
@@ -210,6 +231,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - **macOS App Store:** 0.2.17 build 3 is WAITING_FOR_REVIEW after the 2026-10-02 metadata/reviewer-access/data-handling remediation. Wait for Apple feedback; do not rebuild or re-upload unless Apple identifies a new concrete binary issue.
 - **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
+- **APL-MAC-PERAPP:** product direction is approved but implementation is not started; first gate is a Direct Developer ID feasibility prototype proving source-app attribution plus real DIRECT/PROXY split routing. Keep the current Mac App Store build unchanged while it is under review.
 - **Windows per-app:** production architecture is settled on official signed WinDivert 2.2.2 and physically accepted on current main. Do not revive the custom-WFP production path without a new Owner decision; do not publish/release the merged feature without a separate Windows release gate.
 - **Next direct desktop release:** when prioritized, cut a new release from current main (never mutate v0.2.16), include the merged Windows WinDivert production path and mandatory macOS recovery fixes, rerun platform-specific physical acceptance, then publish as a new version.
 - **APL-REL-016:** safe REVIEW refresh remains available when prioritized.
@@ -226,7 +248,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | Astra Linux .deb | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
-| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Maintain exact-main ephemeral signing/notarization gate for future direct macOS releases |
+| macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Next direct release: mandatory recovery acceptance; APL-MAC-PERAPP may enter only after its Stage A/B feasibility and safety gates pass |
 | macOS Mac App Store | **0.2.17 build 3 WAITING_FOR_REVIEW** | Wait for Apple feedback; no rebuild/re-upload unless Apple reports a new concrete binary issue |
 | Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
 | iOS | **0.1.36 build 40 WAITING_FOR_REVIEW** | Wait for Apple feedback; rebuild only for a concrete new issue |
