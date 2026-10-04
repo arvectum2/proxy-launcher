@@ -188,6 +188,28 @@ Staged delivery:
 
 Required product rules: keep the default UX simple, keep imported secrets local-first, make export/share of secrets explicit, and do not market unsupported opaque configs or MTProto as device-wide VPN.
 
+
+## P8C — APL-MAC-PERAPP macOS application exclusions — PRODUCT-APPROVED / NOT STARTED
+
+Goal: provide real macOS application exclusions where supported, using a simple selected-app **DIRECT** vs remaining **PROXY** model consistent with Windows/Android.
+
+Scope and boundaries:
+- primary consumer target is the **Direct Developer ID** distribution lane;
+- first prove a supported Network Extension/System Extension architecture that can attribute network flows to the source application and selectively route DIRECT/PROXY;
+- do not promise arbitrary unmanaged-consumer per-app selection in the Mac App Store build; treat native `NEAppRule` / Per-App VPN as managed/MDM capability unless a later Store feasibility review proves otherwise;
+- matching must account for app identity, ordinary updates and helper/tool processes, not only transient PIDs;
+- preserve APL ownership/recovery semantics and unrelated user/network configuration.
+
+Staged delivery:
+1. **Stage A — feasibility:** source-app attribution plus real Safari/second-app DIRECT-vs-PROXY split on a Direct Developer ID test build.
+2. **Stage B — recovery/security:** rule edits, reconnect, forced crash, sleep/wake, reboot, app update/removal and exact rollback.
+3. **Stage C — UI:** installed-app selector and application exclusions UX aligned with Windows/Android; capability-gate unsupported Store contexts.
+4. **Stage D — production Direct release:** signing/notarization of required components, physical acceptance, uninstall/rollback verification and new-version publication.
+5. **Stage E — managed/MDM:** optional separate enterprise Per-App VPN path if demand warrants it.
+
+Not in the active execution queue yet. Do not rebuild/resubmit the current Mac App Store 0.2.17 build 3 for this future feature.
+
+
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
 - Developer ID Application signing is operational on the Arvectum-controlled Mac mini.
@@ -365,6 +387,7 @@ These stale PRs are not product tracks and must not be resumed without reconcili
 - **APL-UI-001:** DONE / merged #193.
 - **PER-APP WINDOWS:** production WinDivert 2.2.2 implementation is merged and physically accepted on current main; old WFP owner gate is closed. Shipping waits for a new explicit desktop release.
 - **APL-CONNECT-001:** PRODUCT-APPROVED / NOT STARTED; Stage A universal importer/MTProto handoff is the first implementation step when prioritized.
+- **APL-MAC-PERAPP:** PRODUCT-APPROVED / NOT STARTED; first gate is a Direct Developer ID source-app attribution + DIRECT/PROXY split feasibility prototype; Mac App Store remains capability-gated.
 - **APL-REL-016:** REVIEW refresh remains available when prioritized; PR #161 is version-stale against v0.2.16.
 - **ROSPATENT:** working package prepared; waiting for applicant yellow-field facts; final filing HUMAN.
 - **RUSSIAN SOFTWARE REGISTER:** repository dossier done on exact v0.2.9; external filing remains HUMAN HOLD, chiefly on sovereign lifecycle/private/signature evidence.
