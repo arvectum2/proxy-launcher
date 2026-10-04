@@ -1,9 +1,9 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-09-29T07:32:00+03:00"
+updated_at: "2026-10-04T22:36:00+03:00"
 owner_controls_order: true
 baseline:
-  main_sha_verified: "e27d391259a436cc3ed7802c17f2e49787f13528"
+  main_sha_verified: "6b3a9c4a2b18585487a3df0504d9b62b0110a292"
   stable_release: "v0.2.16"
   stable_release_published_at: "2026-09-25"
   platforms:
@@ -255,18 +255,18 @@ items:
 
   - order: 130
     task_id: APL-IOS-APPREVIEW-FIX-20260926
-    title: "iOS 0.1.36 build 37 App Review response/resubmission"
-    status: blocked
+    title: "iOS 0.1.36 build 40 App Review response/resubmission"
+    status: done
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: ".agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml; merged PR #194/#196; current task branch task/apl-ios-appreview-0136-20260927"
+    source: ".agent/checkpoints/APL-IOS-APPREVIEW-FIX-20260926.yaml; .agent/checkpoints/APL-IOS-APPREVIEW-2.1-INFO-20260929.yaml; .agent/checkpoints/APL-IOS-APPREVIEW-BUSINESS-MODEL-20261001.yaml"
     dependencies:
       - APL-UI-001-ADAPTIVE
-    blocker: "Apple rejected the earlier 0.1.19 new-app submission under Guideline 2.1 requesting a physical-device recording and six information items. Current 0.1.36 build 37 is VALID / APP_STORE_ELIGIBLE and physically installed, but the required iOS 27 screen recording cannot be captured remotely; Owner must record the flow on-device and transfer the MOV to Mac mini."
-    owner_gate: "Provide the physical recording. Do not increment/rebuild solely because stale PR #198 exists; build 37 is already valid after narrow-entitlement re-sign unless Apple reports a new binary issue."
-    executor_scope: "Once the recording exists, extract current 0.1.36 screenshots, replace old 0.1.19 screenshots, upload the recording as review attachment, reply to Apple's Guideline 2.1 questions, resubmit 0.1.36 build 37 and verify resulting state."
-    evidence: "0.1.36 build 37 exact current app installed/launched on iPhone 13 iOS 27; exact-head iOS core/unsigned-device/unsigned-release CI PASS. Clean narrow-entitlement IPA upload completed with no errors/warnings; build 37 processingState VALID, audience APP_STORE_ELIGIBLE, usesNonExemptEncryption=false and linked to version 0.1.36. Old screenshots/review attachment still need replacement."
+    blocker: null
+    owner_gate: "No current owner action while Apple review is pending. On a new Apple response, inspect the exact message first and create a new remediation task only for a concrete issue."
+    executor_scope: "Preserve the validated 0.1.36 build 40 review binary and attached physical-device evidence. Do not rebuild, bump, withdraw or resubmit merely because review is pending."
+    evidence: "DONE through current review-response cycle: physical iPhone review recording attached; build 40 validated with narrow entitlements; Apple VPN/data and business-model questions answered directly; privacy wording clarified; existing submission resubmitted and verified WAITING_FOR_REVIEW."
 
   - order: 135
     task_id: APL-MAC-APPSTORE-PUBLISH-20260925
@@ -283,18 +283,18 @@ items:
 
   - order: 136
     task_id: APL-MAC-APPSTORE-REJECTION-20260928
-    title: "macOS App Store 0.2.17 build 3 rejection remediation / resubmission"
-    status: blocked
+    title: "macOS App Store 0.2.17 build 3 remediation/resubmission"
+    status: done
     authority: HUMAN
     independent: false
     auto_merge: false
-    source: ".agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml; merged PR #223"
+    source: ".agent/checkpoints/APL-MAC-APPSTORE-REJECTION-20260928.yaml; .agent/checkpoints/APL-MAC-APPREVIEW-20261002.yaml; merged PR #223/#239"
     dependencies:
       - APL-MAC-APPSTORE-PUBLISH-20260925
-    blocker: "Corrected build 3 is already VALID, selected and prepared in App Store Connect, but the final resolve/Add for Review/Resubmit workflow requires human App Store Connect action."
-    owner_gate: "Do not rebuild or re-upload build 3. Complete only the App Store Connect review workflow unless Apple reports a new binary issue."
-    executor_scope: "Preserve build-3 evidence: ARM64 Mac Catalyst + PacketTunnel, macOS 13.0 minimum, updated Review Notes, altool validation PASS, physical passive-launch smoke PASS."
-    evidence: "PR #223 merged as ad09b2393def6c498daa8d67d2439b1d1aac9502. Build 3 is VALID with minOsVersion/lsMinimumSystemVersion 13.0 and usesNonExemptEncryption=false; version 0.2.17 is PREPARE_FOR_SUBMISSION while prior review item remains unresolved."
+    blocker: null
+    owner_gate: "No current owner action while Apple review is pending. Do not rebuild/re-upload build 3 unless Apple identifies a concrete binary issue."
+    executor_scope: "Preserve build-3 evidence and the 2026-10-02 metadata/reviewer-access/VPN-data remediation. Start a new task only on new Apple feedback."
+    evidence: "DONE through current review-response cycle: build 3 remains VALID / APP_STORE_ELIGIBLE, macOS 13.0 minimum, passive-launch physical smoke PASS; Store name/reviewer instructions/VPN-data answers were corrected, reviewer reply sent, item resolved and existing submission resubmitted. Final App Store Connect state WAITING_FOR_REVIEW."
 
   - order: 140
     task_id: APL-IP-ROSPATENT-20260926
