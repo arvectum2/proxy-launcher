@@ -13,16 +13,16 @@ definition_of_done:
 completed:
   - "Verified previous canonical planning sync is completed."
   - "Verified main at ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42 before starting this task."
-current: "Adding APL-MAC-PERAPP to canonical roadmap and local backlog."
+current: "APL-MAC-PERAPP added to roadmap/backlog; 12/12 focused consistency checks pass; PR/merge remains."
 pending:
-  - "Update ROADMAP.md."
-  - "Update LOCAL_EXECUTION_BACKLOG.md."
-  - "Run focused consistency checks."
   - "Merge through PR and close checkpoint."
 last_verified_commit: "ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42"
-test_results: []
+test_results:
+  - "Focused roadmap/backlog consistency assertions: 12/12 PASS."
+  - "APL-MAC-PERAPP is intentionally absent from execution-queue.yaml until implementation is explicitly prioritized."
+  - "APL-NODE-001 and Arvectum Network remain absent from the active execution queue."
 blocker: null
-resume_instruction: "Continue on docs/macos-perapp-roadmap-20261004: add the macOS per-app Direct/MDM split and staged delivery to ROADMAP.md and LOCAL_EXECUTION_BACKLOG.md; keep it product-approved/not-started and out of the active execution queue; validate and merge."
+resume_instruction: "Open/merge the macOS per-app roadmap PR, then mark the checkpoint completed. Do not start implementation unless explicitly prioritized."
 updated_at: "2026-10-04T22:36:00+03:00"
 execution:
   claimed_by: "ChatGPT"
