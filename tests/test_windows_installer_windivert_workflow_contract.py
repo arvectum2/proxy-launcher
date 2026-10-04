@@ -1,3 +1,5 @@
+import os
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -5,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "windows-installer.yml"
 BUILDER = ROOT / "tools" / "build_windows_windivert_stack_bundle.ps1"
+HELPER = ROOT / "installer" / "windivert_service_helper.ps1"
 
 
 class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
@@ -61,6 +64,48 @@ class WindowsInstallerWinDivertWorkflowContractTests(unittest.TestCase):
         self.assertIn("-SyntheticPredecessor", block)
         self.assertNotIn("-WinDivertStackBundle", block)
         self.assertNotIn("-NativeStackBundle", block)
+
+    def test_helper_does_not_depend_on_programdata_environment_variable(self):
+        text = HELPER.read_text(encoding="utf-8-sig")
+        self.assertIn(
+            "[Environment+SpecialFolder]::CommonApplicationData",
+            text,
+        )
+        self.assertIn("[Environment]::GetFolderPath(", text)
+        self.assertNotIn("$env:ProgramData", text)
+    @unittest.skipUnless(os.name == "nt", "Windows PowerShell regression")
+    def test_helper_status_survives_missing_programdata_environment(self):
+        powershell = os.path.join(
+            os.environ["SystemRoot"],
+            "System32",
+            "WindowsPowerShell",
+            "v1.0",
+            "powershell.exe",
+        )
+        env = os.environ.copy()
+        env.pop("ProgramData", None)
+        result = subprocess.run(
+            [
+                powershell,
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(HELPER),
+                "-Action",
+                "Status",
+            ],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=(result.stdout + "\n" + result.stderr),
+        )
 
     def test_workflow_parses_all_windivert_installer_helpers(self):
         text = WORKFLOW.read_text(encoding="utf-8")

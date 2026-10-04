@@ -18,7 +18,13 @@ $ExpectedDllHash = "C1E060EE19444A259B2162F8AF0F3FE8C4428A1C6F694DCE20DE194AC8D7
 $ExpectedLicenseHash = "14A0CB5214D536E4FDAE6AA3F5696F981EEDA106CD026E9794BBA489EE79D628"
 $ExpectedSigner = "043589F75FCE2795E7F2CC3E526D46784D5DDAB3"
 
-$ProductRoot = Join-Path $env:ProgramData "Arvectum\ProxyLauncher"
+$CommonApplicationData = [Environment]::GetFolderPath(
+    [Environment+SpecialFolder]::CommonApplicationData
+)
+if ([string]::IsNullOrWhiteSpace($CommonApplicationData)) {
+    throw "Windows CommonApplicationData path is unavailable."
+}
+$ProductRoot = Join-Path $CommonApplicationData "Arvectum\ProxyLauncher"
 $InstallRoot = Join-Path $ProductRoot "WinDivert"
 $InstalledDriverPath = Join-Path $InstallRoot "WinDivert64.sys"
 $MarkerPath = Join-Path $ProductRoot "windivert-stack.json"
