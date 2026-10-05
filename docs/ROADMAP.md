@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-10-04
+Updated: 2026-10-05
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -194,22 +194,22 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 - **HISTORICAL FREE-GATEWAY INFRA.** The prior RU/US friend-test gateway evidence is preserved as historical controlled-test infrastructure, but it is not part of the current public Android client path and must not be reintroduced without an explicit new product task.
 - **NEXT GATE.** Wait for RuStore moderation. Any rejection remediation starts from current main; any later GitHub/GitVerse/site 0.1.38+ publication is a separate release task.
 
-### iOS — current App Store review state: 0.1.36 build 40
+### iOS — App Store PUBLISHED: 0.1.36 build 40
 
 - **OLD SUBMISSION REJECTED FOR INFORMATION.** The earlier 0.1.19 new-app submission received Apple Guideline 2.1 Information Needed: physical-device recording plus six product/setup/service/region/material questions.
 - **CURRENT SOURCE / REVIEW BINARY — 0.1.36 build 40.** Adaptive UI and Shortcuts-based application routing remain merged; the current review binary is the validated build 40.
 - **PHYSICAL DEVICE / REVIEW EVIDENCE PASS.** Current 0.1.36 build 40 has the physical-device review recording already attached to the App Review submission.
 - **APP STORE BINARY PASS.** The current build 40 uses the accepted packet-tunnel/App Group/Keychain entitlement scope; no new binary defect is presently identified.
-- **CURRENT APPLE REVIEW STATE — WAITING_FOR_REVIEW.** After Apple's second Guideline 2.1 information request, privacy wording and Review Notes were clarified, the Q1/Q2/Q3 response was sent, and the existing 0.1.36 build 40 submission was resubmitted without rebuilding.
-- **NEXT GATE.** Wait for Apple review feedback. Do not rebuild or resubmit build 40 unless Apple identifies a new concrete issue.
-- **NO SPECULATIVE BUILD BUMP.** Reuse build 40 while it remains valid; any next build must correspond to a concrete binary/product change.
-- **PRIVACY TRUTH** — Data Not Collected; no ads/analytics in this App Store candidate. Do not claim public availability before Apple approval.
+- **APP STORE — PUBLISHED / PUBLIC.** Apple completed review successfully on 2026-10-05; version 0.1.36 build 40 is publicly available in the App Store, including the Russian storefront.
+- **PUBLIC METADATA VERIFIED.** Apple exposes ARVECTUM / LLC ARVECTUM, Utilities, 4+, iOS 15.0+, free pricing, `ru.arvectum.proxylauncher.ios`, and Data Not Collected.
+- **POST-RELEASE METADATA BACKLOG.** In the next metadata/version update, move Developer Website from GitHub to `arvectum.com`, move the Privacy Policy link to the canonical `arvectum.com` privacy page, and verify/fix App Store localization/language metadata so intended languages are explicitly represented.
+- **NO HOTFIX REQUIRED.** These are cosmetic/metadata follow-ups only; do not rebuild solely for them unless a binary/product change is otherwise warranted.
 
 ## 9. Currently available workstreams
 
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
 2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
-3. **[iOS App Store] 0.1.36 build 40 — WAITING_FOR_REVIEW.** Apple has the physical recording and direct VPN-data answers; wait for review feedback and do not rebuild absent a new concrete issue.
+3. **[iOS App Store] 0.1.36 build 40 — PUBLISHED / PUBLIC.** Apple approved the submission on 2026-10-05 and the production App Store listing is live. Next work is metadata cleanup only: canonical `arvectum.com` developer/privacy links and localization/language verification.
 4. **[macOS App Store] 0.2.17 build 3 — WAITING_FOR_REVIEW.** On 2026-10-02 the new App Review issues were resolved without a binary rebuild: Store name changed to `Proxy Launcher by Arvectum`, Review Notes now include a tested temporary reviewer proxy plus direct VPN/data answers, the reviewer reply was sent, and the existing submission was resubmitted successfully.
 5. **[Per-app Windows enforcement] IMPLEMENTED / PHYSICAL PASS ON CURRENT MAIN.** Owner selected official signed WinDivert 2.2.2; PR #241 implementation and PR #243 installer fix are merged and physically validated. Custom WFP remains lab-only. Next gate is an explicit future Windows desktop release; published v0.2.16 is unchanged.
 6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
@@ -229,7 +229,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 - Follow the canonical `.agent/current-task.yaml` for the active user-facing workflow.
 - **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
 - **macOS App Store:** 0.2.17 build 3 is WAITING_FOR_REVIEW after the 2026-10-02 metadata/reviewer-access/data-handling remediation. Wait for Apple feedback; do not rebuild or re-upload unless Apple identifies a new concrete binary issue.
-- **iOS App Store:** wait for Apple review feedback on 0.1.36 build 40; do not rebuild/resubmit unless Apple identifies a new concrete issue.
+- **iOS App Store:** 0.1.36 build 40 is published. Do not rebuild solely for metadata cosmetics; fold canonical `arvectum.com` links and localization/language cleanup into the next justified App Store update.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
 - **APL-MAC-PERAPP:** product direction is approved but implementation is not started; first gate is a Direct Developer ID feasibility prototype proving source-app attribution plus real DIRECT/PROXY split routing. Keep the current Mac App Store build unchanged while it is under review.
 - **Windows per-app:** production architecture is settled on official signed WinDivert 2.2.2 and physically accepted on current main. Do not revive the custom-WFP production path without a new Owner decision; do not publish/release the merged feature without a separate Windows release gate.
@@ -251,7 +251,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Next direct release: mandatory recovery acceptance; APL-MAC-PERAPP may enter only after its Stage A/B feasibility and safety gates pass |
 | macOS Mac App Store | **0.2.17 build 3 WAITING_FOR_REVIEW** | Wait for Apple feedback; no rebuild/re-upload unless Apple reports a new concrete binary issue |
 | Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
-| iOS | **0.1.36 build 40 WAITING_FOR_REVIEW** | Wait for Apple feedback; rebuild only for a concrete new issue |
+| iOS | **0.1.36 build 40 PUBLISHED / PUBLIC** | Post-release metadata cleanup: `arvectum.com` developer/privacy links + localization/language verification; rebuild only for a justified binary/product change |
 
 ## Completion discipline
 
