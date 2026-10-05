@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-TRAFFIC-001-ROADMAP-20261005
-status: in_progress
+status: completed
 goal: "Add a product-approved research roadmap track for possible 5G international-traffic charging and reusable cost-aware multi-hop routing."
 definition_of_done:
   - "docs/ROADMAP.md contains APL-TRAFFIC-001 with RU ingress -> foreign exit, cost-aware routing, LTE guidance boundary, and regulatory stop-gates."
@@ -11,19 +11,23 @@ definition_of_done:
   - "No DPI-evasion or tariff-circumvention implementation is promoted."
   - "Focused roadmap/backlog consistency checks pass and the documentation change is merged."
 completed:
-  - "Recovered the previous completed canonical checkpoint."
-  - "Confirmed this is a new roadmap-only product/research task."
-current: "Editing canonical roadmap and local execution backlog."
-pending:
-  - "Add APL-TRAFFIC-001 to ROADMAP.md."
-  - "Mirror it in LOCAL_EXECUTION_BACKLOG.md."
-  - "Run focused consistency checks."
-  - "Merge documentation PR."
-last_verified_commit: null
-test_results: []
+  - "Added ROADMAP section 7D: APL-TRAFFIC-001 — FUTURE / PRODUCT-APPROVED / RESEARCH."
+  - "Added LOCAL_EXECUTION_BACKLOG P8D mirror without promoting it to the active execution queue."
+  - "Recorded provider-neutral multi-hop RU ingress -> foreign exit and cost-aware Smart Supplier Router composition."
+  - "Recorded conditional 5G/LTE UX, real-operator measurement stage and safe failover/rollback requirements."
+  - "Recorded provider-owned infrastructure preference plus a legal stop-gate for any Arvectum-owned Russian transit gateway."
+  - "Explicitly prohibited DPI camouflage, billing manipulation, deliberate traffic misclassification and tariff-circumvention positioning."
+  - "Preserved APL-NODE-001 and Arvectum Network as paused."
+  - "Focused roadmap/backlog consistency checks passed 6/6."
+current: "COMPLETED: APL-TRAFFIC-001 is now a canonical product-approved research roadmap track."
+pending: []
+last_verified_commit: "11bafbd6048ac874d70d7acd025569c6b0164eec"
+test_results:
+  - "Focused roadmap/backlog consistency assertions: 6/6 PASS."
+  - "Documentation-only update; no product binaries or runtime behavior changed."
 blocker: null
-resume_instruction: "Continue APL-TRAFFIC-001 roadmap-only update. Do not start network infrastructure or evasion engineering; finish docs, consistency checks, PR and merge."
-updated_at: "2026-10-05T10:55:00+03:00"
+resume_instruction: "Task complete. Do not implement APL-TRAFFIC-001 until explicitly prioritized and the official international-traffic accounting methodology is known. Start with Stage A regulatory/operator methodology research, then provider-neutral multi-hop lab validation. Do not reactivate paused APL-NODE-001 or Arvectum Network by implication."
+updated_at: "2026-10-05T11:00:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-TRAFFIC-001-ROADMAP-20261005"
