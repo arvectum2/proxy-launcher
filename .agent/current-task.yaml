@@ -1,38 +1,34 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-PERAPP-ROADMAP-20261004
+task_id: APL-TRAFFIC-001-ROADMAP-20261005
 status: completed
-goal: "Add a dedicated macOS application-exclusions roadmap track that separates Direct Developer ID feasibility from Mac App Store/MDM constraints and defines staged delivery."
+goal: "Add a product-approved research roadmap track for possible 5G international-traffic charging and reusable cost-aware multi-hop routing."
 definition_of_done:
-  - "docs/ROADMAP.md contains a dedicated APL-MAC-PERAPP track."
-  - "The track distinguishes Direct Developer ID implementation from managed/MDM App Store capability."
-  - "Stages cover flow attribution/feasibility, recovery/security, UI, and production release acceptance."
-  - "docs/LOCAL_EXECUTION_BACKLOG.md contains the same future workstream without promoting it to the active execution queue."
-  - "APL-NODE-001 and Arvectum Network remain paused and untouched."
-  - "Focused consistency checks pass and the roadmap update is merged."
+  - "docs/ROADMAP.md contains APL-TRAFFIC-001 with RU ingress -> foreign exit, cost-aware routing, LTE guidance boundary, and regulatory stop-gates."
+  - "docs/LOCAL_EXECUTION_BACKLOG.md mirrors the future workstream without adding it to the active execution queue."
+  - "The track does not assume that the reported 50 GB proposal is enacted or technically final."
+  - "The track prefers provider-owned ingress/exit marketplace composition and requires legal review before any Arvectum-owned traffic gateway."
+  - "No DPI-evasion or tariff-circumvention implementation is promoted."
+  - "Focused roadmap/backlog consistency checks pass and the documentation change is merged."
 completed:
-  - "Added ROADMAP section 7C: APL-MAC-PERAPP — FUTURE / PRODUCT-APPROVED."
-  - "Recorded Direct Developer ID as the primary consumer target and Mac App Store behavior as capability-gated."
-  - "Recorded Stages A-E: flow attribution feasibility, recovery/security, UI, production Direct release, optional managed/MDM path."
-  - "Added P8C to LOCAL_EXECUTION_BACKLOG.md as PRODUCT-APPROVED / NOT STARTED."
-  - "Kept APL-MAC-PERAPP out of execution-queue.yaml until implementation is explicitly prioritized."
-  - "Preserved APL-NODE-001 and Arvectum Network as paused backlog-only tracks."
-  - "Focused roadmap/backlog consistency checks passed 12/12."
-  - "PR #247 merged to main as 6be2649b6270c5a5519c78c685f1cf178105f9d2."
-current: "COMPLETED: macOS application exclusions are now a canonical product-approved roadmap track."
+  - "Added ROADMAP section 7D: APL-TRAFFIC-001 — FUTURE / PRODUCT-APPROVED / RESEARCH."
+  - "Added LOCAL_EXECUTION_BACKLOG P8D mirror without promoting it to the active execution queue."
+  - "Recorded provider-neutral multi-hop RU ingress -> foreign exit and cost-aware Smart Supplier Router composition."
+  - "Recorded conditional 5G/LTE UX, real-operator measurement stage and safe failover/rollback requirements."
+  - "Recorded provider-owned infrastructure preference plus a legal stop-gate for any Arvectum-owned Russian transit gateway."
+  - "Explicitly prohibited DPI camouflage, billing manipulation, deliberate traffic misclassification and tariff-circumvention positioning."
+  - "Preserved APL-NODE-001 and Arvectum Network as paused."
+  - "Focused roadmap/backlog consistency checks passed 6/6."
+current: "COMPLETED: APL-TRAFFIC-001 is now a canonical product-approved research roadmap track."
 pending: []
-last_verified_commit: "6be2649b6270c5a5519c78c685f1cf178105f9d2"
+last_verified_commit: "11bafbd6048ac874d70d7acd025569c6b0164eec"
 test_results:
-  - "Focused roadmap/backlog consistency assertions: 12/12 PASS."
-  - "Required branch-protection build check passed before PR #247 merge."
-  - "10/11 returned PR #247 workflow runs were completed SUCCESS at merge; Windows installer workflow was still in progress and had no failure."
-  - "APL-MAC-PERAPP remains intentionally absent from execution-queue.yaml until explicitly prioritized."
-  - "APL-NODE-001 and Arvectum Network remain absent from the active execution queue."
+  - "Focused roadmap/backlog consistency assertions: 6/6 PASS."
+  - "Documentation-only update; no product binaries or runtime behavior changed."
 blocker: null
-resume_instruction: "Task complete. Do not start APL-MAC-PERAPP implementation unless explicitly prioritized. When started, begin with Stage A Direct Developer ID feasibility: source-app attribution and a real DIRECT/PROXY split, then proceed to recovery/security before product UI or release."
-updated_at: "2026-10-04T22:36:00+03:00"
+resume_instruction: "Task complete. Do not implement APL-TRAFFIC-001 until explicitly prioritized and the official international-traffic accounting methodology is known. Start with Stage A regulatory/operator methodology research, then provider-neutral multi-hop lab validation. Do not reactivate paused APL-NODE-001 or Arvectum Network by implication."
+updated_at: "2026-10-05T11:00:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-MAC-PERAPP-ROADMAP-20261004"
-  branch: "docs/macos-perapp-roadmap-20261004"
-  base_commit: "ff0a555d0caeb5d8b62c6f357b6cd3b9d80aad42"
+  execution_id: "APL-TRAFFIC-001-ROADMAP-20261005"
+  branch: "docs/international-traffic-routing-20261005"

@@ -180,6 +180,31 @@ Design decision source: `docs/APL_UI_UX_CROSSCHECK_20260926.md`.
 
 **Release boundary:** this track is approved for the roadmap but is **not started** and is not part of published v0.2.16 or the current Mac App Store 0.2.17 build 3 review binary. It must not trigger a rebuild/resubmission of the Store candidate while Apple review is pending.
 
+## 7D. International-traffic cost-aware routing — APL-TRAFFIC-001 — FUTURE / PRODUCT-APPROVED / RESEARCH
+
+**Research trigger (2026-10-05):** Russian authorities and mobile operators are reported to be discussing possible charging for high-volume international traffic in 5G networks. Treat the reported **50 GB** threshold and the technical accounting model as provisional until an official rule, tariff methodology or operator implementation is published.
+
+**Product objective:** make APL capable of choosing an economically efficient route without exposing routing complexity to the user. The capability must remain useful independently of any specific 5G charging rule.
+
+- **MULTI-HOP ROUTING — NEW.** Support a provider-neutral chain such as `client -> RU ingress -> foreign exit -> destination`, with health, latency, capacity and price attributes for each hop.
+- **COST-AWARE ROUTER — NEW.** Extend Smart Supplier Router so it can compare direct foreign proxy/VPN routes with composed ingress+exit routes and select by availability, quality, latency, price and policy.
+- **DIRECT-RU SPLIT — RETAIN.** Russian destinations may remain DIRECT while selected foreign destinations/applications use the configured route; do not turn the whole product into an always-on full-tunnel requirement.
+- **PROVIDER-OWNED INFRASTRUCTURE FIRST.** For marketplace design, prefer third-party RU ingress and foreign exit providers so APL remains software/router/marketplace rather than automatically becoming the operator of the transit infrastructure.
+- **ARVECTUM-OWNED RU GATEWAY — LEGAL STOP-GATE.** Do not provision or publicly offer an Arvectum-owned Russian traffic gateway until communications/data-processing/licensing and traffic-responsibility implications are separately reviewed.
+- **5G/LTE UX — CONDITIONAL.** If an enacted rule applies only to 5G, APL may show usage/context guidance and explain an OS-level LTE option where the platform permits it. Do not claim that APL can programmatically force radio mode on platforms that do not expose that capability.
+- **REGULATORY INPUT, NOT EVASION.** Do not implement DPI camouflage, billing-counter manipulation, traffic misclassification or a feature marketed as tariff circumvention. Re-evaluate the route model against the exact official accounting definition before implementation.
+- **MEASUREMENT BEFORE PRODUCTIZATION.** When rules become concrete, build a lab matrix across major operators: what endpoint is visible to the operator, how traffic is classified, whether roaming/IPv6/CDN/private relay paths differ, and whether RU-ingress traffic is actually accounted as domestic.
+- **FAILOVER / SAFETY.** Multi-hop must degrade predictably: explicit route health, bounded reconnect, no secret leakage, deterministic rollback to the user's prior routing state, and no silent switch from a policy-constrained route to an unapproved one.
+
+Staged delivery:
+1. **Stage A — regulatory/technical research:** capture the official rule/methodology and operator implementation; determine exactly what is metered.
+2. **Stage B — provider-neutral multi-hop core:** route graph, ingress/exit contracts, health/capacity/price metadata and deterministic selection.
+3. **Stage C — lab validation:** real mobile-network measurements for DIRECT vs foreign exit vs RU-ingress→foreign-exit, including IPv4/IPv6 and 5G/LTE where available.
+4. **Stage D — product UX:** simple route mode, usage/cost hints, diagnostics and explicit advanced details without protocol jargon in the primary flow.
+5. **Stage E — marketplace composition:** supplier auction for ingress and exit capacity only after legal/commercial review and measured benefit.
+
+**Execution boundary:** product-approved research track only. It is not added to the active execution queue and does not reactivate paused APL-NODE-001 or Arvectum Network infrastructure work.
+
 ## 8. Mobile applications
 
 ### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)

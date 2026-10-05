@@ -209,6 +209,28 @@ Staged delivery:
 
 Not in the active execution queue yet. Do not rebuild/resubmit the current Mac App Store 0.2.17 build 3 for this future feature.
 
+## P8D — APL-TRAFFIC-001 international-traffic cost-aware routing — PRODUCT-APPROVED / RESEARCH / NOT STARTED
+
+Goal: preserve APL's simple UX while preparing a provider-neutral routing capability that can optimize for price/latency/policy if mobile operators introduce separate charging for international traffic.
+
+Research/product scope:
+- verify the exact official metering definition before implementation; the reported 50 GB/5G proposal is provisional;
+- support a reusable `client -> RU ingress -> foreign exit -> destination` multi-hop model;
+- extend Smart Supplier Router to compose ingress and exit suppliers by price, availability, latency, health and capacity;
+- retain DIRECT routing for Russian destinations and selective routing for chosen foreign destinations/apps;
+- prefer provider-owned RU ingress and foreign exit infrastructure for marketplace composition;
+- require a separate legal stop-gate before any Arvectum-owned Russian transit gateway;
+- if final rules are 5G-only, provide truthful user guidance about OS-level LTE selection where applicable, without promising unsupported radio control;
+- prohibit DPI camouflage, billing manipulation, deliberate traffic misclassification or marketing the feature as tariff circumvention.
+
+Staged delivery:
+1. **Stage A:** official-rule/operator-methodology research and accounting test plan.
+2. **Stage B:** provider-neutral route graph and multi-hop contracts.
+3. **Stage C:** real operator lab measurements for DIRECT / foreign exit / RU ingress -> foreign exit, including IPv4/IPv6 and 5G/LTE where available.
+4. **Stage D:** simple cost-aware route UX, diagnostics and safe failover/rollback.
+5. **Stage E:** ingress+exit supplier auction/marketplace composition after legal/commercial review.
+
+Not in the active execution queue. Does not reactivate APL-NODE-001 or Arvectum Network.
 
 ## P9 — macOS direct production distribution — DONE / PUBLISHED v0.2.16
 
