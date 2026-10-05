@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — remaining local / human / infrastructure backlog
 
-Updated: 2026-09-26  
+Updated: 2026-10-05  
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Current stable release: `v0.2.16`
 
@@ -283,7 +283,7 @@ Under the official baseline rechecked 2026-09-17, the two-trusted-OS condition f
 - Production RuStore APK 0.1.38 (39) is submitted; publication mode is Manual after approval.
 - Current action: wait for moderation. On rejection, start targeted remediation from current main; on approval, perform the explicit manual publication action.
 
-### iOS App Store — 0.1.36 build 40 — RESUBMITTED / WAITING FOR REVIEW
+### iOS App Store — 0.1.36 build 40 — PUBLISHED / PUBLIC
 
 Completed:
 - current 0.1.36 review binary uses build 40 with Adaptive UI and Shortcuts-based application routing;
@@ -292,9 +292,15 @@ Completed:
 - Apple VPN/data-handling questions were answered and public privacy wording clarified;
 - Apple business-model questions were answered: the app does not sell/unlock paid digital content or proxies and users supply their own connection parameters;
 - existing review item was resubmitted without a speculative build bump;
-- final verified state is `WAITING_FOR_REVIEW`.
+- Apple completed review successfully on 2026-10-05 and the production listing is publicly available, including the Russian storefront;
+- public metadata verifies ARVECTUM / LLC ARVECTUM, Utilities, 4+, iOS 15.0+, free pricing and Data Not Collected.
 
-Current action: wait for Apple feedback. Do not rebuild/resubmit build 40 unless Apple identifies a concrete new issue.
+Post-release metadata backlog (non-blocking, no hotfix required):
+- [ ] change **Developer Website** from GitHub to the canonical `arvectum.com` product/company page;
+- [ ] change **Privacy Policy** from GitHub Pages to the canonical `arvectum.com` privacy page;
+- [ ] verify and correct App Store Connect localization/language metadata so the intended supported languages are explicitly represented on the listing.
+
+Current action: keep 0.1.36 build 40 immutable in production; fold these metadata cleanups into the next justified App Store metadata/version update rather than rebuilding solely for cosmetics.
 
 ## P12 — APL-NODE-001 managed proxy infrastructure — DEFERRED / PAUSED BY OWNER
 
