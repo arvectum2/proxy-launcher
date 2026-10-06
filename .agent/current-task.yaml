@@ -1,41 +1,28 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ASO-US-20261006
-status: completed
-goal: "Optimize the US App Store product-page metadata for Arvectum Proxy Launcher based on the ASO gap reported by ASO Scout."
+task_id: APL-IOS-REVIEW-20261006
+status: in_progress
+goal: "Submit the next iOS version of Arvectum Proxy Launcher to Apple App Review."
 definition_of_done:
-  - "US App Store subtitle is populated with a concise, accurate, search-oriented phrase that does not duplicate the app name."
-  - "US keyword field is reviewed and optimized without keyword stuffing or unsupported claims."
-  - "Metadata changes are saved in App Store Connect for the next eligible app version."
-  - "The exact resulting subtitle/keywords and publication constraint are recorded."
-  - "Final state is verified and this checkpoint is marked completed or blocked with a concrete reason."
+  - "An eligible 0.1.37-or-later build is attached to the App Store version."
+  - "Required version metadata, including What's New and review information, is complete and accurate."
+  - "The version is explicitly submitted to App Review."
+  - "Final App Store Connect state is verified after submission."
 completed:
-  - "Reviewed ASO Scout email and confirmed the missing-subtitle observation was actionable."
-  - "Verified App Store Connect app 6816013574 / bundle ru.arvectum.proxylauncher.ios / SKU APL-IOS-001."
-  - "Created iOS App Store version 0.1.37 in PREPARE_FOR_SUBMISSION state; no build was uploaded and the version was not submitted for review."
-  - "Added English (U.S.) localization."
-  - "Set US app name to 'Arvectum Proxy Launcher'."
-  - "Set US subtitle to 'SOCKS5, HTTP & HTTPS Client' (27/30 characters)."
-  - "Set US keywords to 'network,routing,server,ip,tunnel,connection,profiles,failover,automation,privacy,utility,switch' (95/100 characters), avoiding duplicates from title/subtitle."
-  - "Added English promotional text describing own-proxy use, automatic profile switching, direct-site routing and iOS Shortcuts automation."
-  - "Replaced the copied Russian US description with an English description of the actual app capabilities and privacy/data-handling boundaries."
-  - "Saved App Store Connect metadata."
-  - "Independently re-read App Store Connect API and verified version 0.1.37 PREPARE_FOR_SUBMISSION, en-US keywords/promo/description, and en-US subtitle exactly match the intended values."
-current: "COMPLETED: US ASO metadata is saved in App Store Connect on draft version 0.1.37."
-pending: []
+  - "US ASO metadata for draft version 0.1.37 was previously saved and verified."
+current: "Check available builds and App Store Connect submission blockers."
+pending:
+  - "Attach or upload an eligible build."
+  - "Complete any required metadata."
+  - "Submit for App Review."
+  - "Verify post-submission state."
 last_verified_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
 test_results:
-  - "Read-only App Store Connect API verification PASS."
-  - "Version: 0.1.37 / PREPARE_FOR_SUBMISSION PASS."
-  - "AppInfo en-US name/subtitle exact-match PASS."
-  - "Version en-US keywords exact-match PASS."
-  - "Version en-US promotional text exact-match PASS."
-  - "Version en-US English description exact-match PASS."
-  - "No release/submission side effect: 0.1.37 remains a draft and has no build selected."
+  - "0.1.37 metadata exists in PREPARE_FOR_SUBMISSION."
 blocker: null
-resume_instruction: "Task complete. For the next actual iOS release, attach the intended 0.1.37-or-later build, update What's New for the real binary changes, review screenshots if English localization is desired, and submit only when the release itself is ready."
-updated_at: "2026-10-06T19:55:00+03:00"
+resume_instruction: "Inspect App Store Connect for eligible iOS builds and submission blockers. If a suitable build exists, attach it, complete required metadata, submit for review, and verify. If no eligible build exists, build/upload the current approved iOS source only after verifying the exact source/release state."
+updated_at: "2026-10-06T20:00:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-ASO-US-20261006"
+  execution_id: "APL-IOS-REVIEW-20261006"
   branch: "chore/appstore-us-aso-20261006"
