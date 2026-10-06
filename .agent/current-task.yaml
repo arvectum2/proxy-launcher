@@ -1,34 +1,30 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-TRAFFIC-001-ROADMAP-20261005
-status: completed
-goal: "Add a product-approved research roadmap track for possible 5G international-traffic charging and reusable cost-aware multi-hop routing."
+task_id: APL-ASO-US-20261006
+status: in_progress
+goal: "Optimize the US App Store product-page metadata for Arvectum Proxy Launcher based on the ASO gap reported by ASO Scout."
 definition_of_done:
-  - "docs/ROADMAP.md contains APL-TRAFFIC-001 with RU ingress -> foreign exit, cost-aware routing, LTE guidance boundary, and regulatory stop-gates."
-  - "docs/LOCAL_EXECUTION_BACKLOG.md mirrors the future workstream without adding it to the active execution queue."
-  - "The track does not assume that the reported 50 GB proposal is enacted or technically final."
-  - "The track prefers provider-owned ingress/exit marketplace composition and requires legal review before any Arvectum-owned traffic gateway."
-  - "No DPI-evasion or tariff-circumvention implementation is promoted."
-  - "Focused roadmap/backlog consistency checks pass and the documentation change is merged."
+  - "US App Store subtitle is populated with a concise, accurate, search-oriented phrase that does not duplicate the app name."
+  - "US keyword field is reviewed and optimized without keyword stuffing or unsupported claims."
+  - "Metadata changes are saved in App Store Connect for the next eligible app version."
+  - "The exact resulting subtitle/keywords and publication constraint are recorded."
+  - "Final state is verified and this checkpoint is marked completed or blocked with a concrete reason."
 completed:
-  - "Added ROADMAP section 7D: APL-TRAFFIC-001 — FUTURE / PRODUCT-APPROVED / RESEARCH."
-  - "Added LOCAL_EXECUTION_BACKLOG P8D mirror without promoting it to the active execution queue."
-  - "Recorded provider-neutral multi-hop RU ingress -> foreign exit and cost-aware Smart Supplier Router composition."
-  - "Recorded conditional 5G/LTE UX, real-operator measurement stage and safe failover/rollback requirements."
-  - "Recorded provider-owned infrastructure preference plus a legal stop-gate for any Arvectum-owned Russian transit gateway."
-  - "Explicitly prohibited DPI camouflage, billing manipulation, deliberate traffic misclassification and tariff-circumvention positioning."
-  - "Preserved APL-NODE-001 and Arvectum Network as paused."
-  - "Focused roadmap/backlog consistency checks passed 6/6."
-current: "COMPLETED: APL-TRAFFIC-001 is now a canonical product-approved research roadmap track."
-pending: []
-last_verified_commit: "11bafbd6048ac874d70d7acd025569c6b0164eec"
+  - "Reviewed ASO Scout email and confirmed the missing-subtitle observation is actionable."
+  - "Selected initial subtitle candidate: SOCKS5, HTTP & HTTPS Client."
+current: "Inspect the live App Store Connect US localization and apply the subtitle/keyword changes."
+pending:
+  - "Open App Store Connect for Arvectum Proxy Launcher."
+  - "Inspect current US metadata and keyword field."
+  - "Apply subtitle and optimized keywords."
+  - "Save and verify the resulting metadata state."
+last_verified_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
 test_results:
-  - "Focused roadmap/backlog consistency assertions: 6/6 PASS."
-  - "Documentation-only update; no product binaries or runtime behavior changed."
+  - "No code/runtime changes yet; ASO metadata task only."
 blocker: null
-resume_instruction: "Task complete. Do not implement APL-TRAFFIC-001 until explicitly prioritized and the official international-traffic accounting methodology is known. Start with Stage A regulatory/operator methodology research, then provider-neutral multi-hop lab validation. Do not reactivate paused APL-NODE-001 or Arvectum Network by implication."
-updated_at: "2026-10-05T11:00:00+03:00"
+resume_instruction: "Open Arvectum Proxy Launcher in App Store Connect, inspect the US English localization for the next editable version, set the subtitle to the approved search-oriented text, optimize the keyword field without duplicating title/subtitle terms, save, verify, and then mark this checkpoint completed."
+updated_at: "2026-10-06T18:45:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-TRAFFIC-001-ROADMAP-20261005"
-  branch: "docs/international-traffic-routing-20261005"
+  execution_id: "APL-ASO-US-20261006"
+  branch: "chore/appstore-us-aso-20261006"
