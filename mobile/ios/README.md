@@ -15,7 +15,7 @@ This target is the current iPhone implementation of APL. Consumer iOS cannot dir
 - pool/tunnel journal;
 - adaptive cross-platform APL visual language for current iPhone layouts;
 - optional iOS Shortcuts intents for the selected-app opened/closed automation flow;
-- version 0.1.36 / build 40.
+- version 0.1.37 / build 41.
 
 HTTPS-proxy transport is wrapped by a local TLS relay before traffic is passed to tun2proxy, matching the Android architecture.
 
