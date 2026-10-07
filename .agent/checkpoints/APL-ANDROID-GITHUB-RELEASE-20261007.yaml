@@ -1,0 +1,38 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-ANDROID-GITHUB-RELEASE-20261007
+status: in_progress
+goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
+definition_of_done:
+  - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
+  - "Release artifact is package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
+  - "Published APK SHA-256 equals 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+  - "A dedicated Android tag/release exists on GitHub and contains the production public APK plus SHA256 checksum information."
+  - "Release notes clearly identify Android public / RuStore build and do not confuse it with desktop v0.2.16."
+  - "Published release and asset metadata are re-read from GitHub and verified."
+completed:
+  - "Confirmed Android public 0.1.38 / versionCode 39 is the canonical RuStore production candidate."
+  - "Confirmed production APK was previously built from canonical main source commit 676a987105d8f01b8ed32db8b500b58a26e74542, signed with the production identity, zipaligned for 16 KiB pages, and submitted to RuStore."
+  - "Confirmed production artifact SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572 and signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 from canonical checkpoint APL-RUSTORE-PUBLISH-20260928."
+  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used for this release."
+  - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
+current: "Recover the exact already production-signed 0.1.38 APK bytes, then publish them as a dedicated GitHub Android release."
+pending:
+  - "Recover exact production APK matching the canonical SHA-256."
+  - "Create dedicated Android tag/release pinned to the release source commit."
+  - "Upload production APK and checksum metadata."
+  - "Re-read release/assets and verify hash/version/source metadata."
+last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
+test_results:
+  - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
+  - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
+  - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+blocker: null
+resume_instruction: "Recover the exact production-signed Android 0.1.38 APK matching SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Never substitute the dogfood/debug APK. Then publish a dedicated Android GitHub tag/release pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542, upload APK + checksum, and verify release metadata/assets."
+updated_at: "2026-10-07T20:10:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
+  branch: "task/android-github-release-20261007"
+  base_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
+  manual_override: true
