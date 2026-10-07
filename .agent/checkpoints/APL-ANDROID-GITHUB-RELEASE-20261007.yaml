@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-GITHUB-RELEASE-20261007
-status: blocked
+status: completed
 goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
 definition_of_done:
   - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
@@ -23,23 +23,27 @@ completed:
   - "Checked all Remote Desktop Commander devices: Mac mini and all other authorized devices are offline."
   - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
   - "Created PR #252 carrying the interruption-safe canonical checkpoint."
-  - "Continuation recheck: Remote Desktop Commander still reports Mac-mini-master.local and every other authorized device offline; production APK remains unavailable outside the trusted local release environment."
-current: "BLOCKED: fresh RDC recheck still shows the trusted Mac mini offline; exact production-signed APK bytes remain unavailable for publication."
-pending:
-  - "When Mac-mini-master.local becomes reachable, inspect /Users/master/Documents/proxy-launcher-rustore-public and canonical proxy-launcher checkout for the final 0.1.38 APK."
-  - "Accept only an APK whose SHA-256 is exactly 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; otherwise rebuild from source commit 676a987... and sign with /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks, then record the new verified hash before publication."
-  - "Create dedicated Android tag/release pinned to release source commit 676a987105d8f01b8ed32db8b500b58a26e74542."
-  - "Upload production APK and checksum metadata."
-  - "Re-read release/assets and verify hash/version/source metadata."
+  - "Recovered the canonical production APK at /Users/master/Documents/proxy-launcher-rustore-final/dist/Arvectum-Proxy-0.1.38-rustore.apk after restoring Remote Desktop Commander access."
+  - "Live verification PASS: SHA-256 21519775..., package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer 9598d6..., APK Signature v2/v3, and 16 KiB zip alignment."
+  - "Published tag android-v0.1.38 pinned exactly to 676a987105d8f01b8ed32db8b500b58a26e74542."
+  - "Published GitHub Release Arvectum Proxy Launcher Android 0.1.38 with Arvectum-Proxy-Launcher-Android-0.1.38.apk and SHA256SUMS.txt."
+  - "Downloaded the published APK back from GitHub and re-verified SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; SHA256SUMS verification PASS."
+current: "COMPLETED: Android public 0.1.38 is published as GitHub Release android-v0.1.38 with the verified production-signed APK."
+pending: []
 last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
 test_results:
   - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
   - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
   - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
   - "GitHub Actions PR #221 artifact audit: only debug artifact present; production signer not available in GitHub Actions artifact."
-blocker: "Mac-mini-master.local and all other authorized RDC devices are offline, and no second copy of the production-signed APK was found in GitHub Actions, Google Drive, Gmail, conversation Library, or repository history. Publishing the debug/dogfood APK would violate the canonical Android signing policy."
-resume_instruction: "FIRST: verify Mac-mini-master.local is online. Then inspect /Users/master/Documents/proxy-launcher-rustore-public and the canonical checkout for the final signed 0.1.38 APK. Compute SHA-256 and require exact match 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Verify package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4, v2/v3 signatures and 16 KiB alignment. If and only if all pass, publish a dedicated Android GitHub release/tag pinned to 676a987105d8f01b8ed32db8b500b58a26e74542 with APK + SHA256SUMS, then re-read and verify the release. Never substitute artifact 10968885672 or any dogfood/debug APK."
-updated_at: "2026-10-07T20:20:00+03:00"
+  - "Live production APK verification PASS: v2=true, v3=true, signer certificate SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
+  - "Live package/version verification PASS: ru.arvectum.proxylauncher / 0.1.38 / versionCode 39."
+  - "Live zipalign verification PASS with -P 16."
+  - "Published GitHub asset digest: sha256:21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+  - "Fresh post-publication download checksum verification PASS."
+blocker: null
+resume_instruction: "Task complete. Future Android public releases must use the production signing identity and verify package/version/signer/hash before publication; never substitute debug/dogfood artifacts."
+updated_at: "2026-10-07T20:31:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
