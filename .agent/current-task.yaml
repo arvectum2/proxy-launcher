@@ -1,34 +1,38 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-TRAFFIC-001-ROADMAP-20261005
-status: completed
-goal: "Add a product-approved research roadmap track for possible 5G international-traffic charging and reusable cost-aware multi-hop routing."
+task_id: APL-ANDROID-GITHUB-RELEASE-20261007
+status: in_progress
+goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
 definition_of_done:
-  - "docs/ROADMAP.md contains APL-TRAFFIC-001 with RU ingress -> foreign exit, cost-aware routing, LTE guidance boundary, and regulatory stop-gates."
-  - "docs/LOCAL_EXECUTION_BACKLOG.md mirrors the future workstream without adding it to the active execution queue."
-  - "The track does not assume that the reported 50 GB proposal is enacted or technically final."
-  - "The track prefers provider-owned ingress/exit marketplace composition and requires legal review before any Arvectum-owned traffic gateway."
-  - "No DPI-evasion or tariff-circumvention implementation is promoted."
-  - "Focused roadmap/backlog consistency checks pass and the documentation change is merged."
+  - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
+  - "Release artifact is package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
+  - "Published APK SHA-256 equals 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+  - "A dedicated Android tag/release exists on GitHub and contains the production public APK plus SHA256 checksum information."
+  - "Release notes clearly identify Android public / RuStore build and do not confuse it with desktop v0.2.16."
+  - "Published release and asset metadata are re-read from GitHub and verified."
 completed:
-  - "Added ROADMAP section 7D: APL-TRAFFIC-001 — FUTURE / PRODUCT-APPROVED / RESEARCH."
-  - "Added LOCAL_EXECUTION_BACKLOG P8D mirror without promoting it to the active execution queue."
-  - "Recorded provider-neutral multi-hop RU ingress -> foreign exit and cost-aware Smart Supplier Router composition."
-  - "Recorded conditional 5G/LTE UX, real-operator measurement stage and safe failover/rollback requirements."
-  - "Recorded provider-owned infrastructure preference plus a legal stop-gate for any Arvectum-owned Russian transit gateway."
-  - "Explicitly prohibited DPI camouflage, billing manipulation, deliberate traffic misclassification and tariff-circumvention positioning."
-  - "Preserved APL-NODE-001 and Arvectum Network as paused."
-  - "Focused roadmap/backlog consistency checks passed 6/6."
-current: "COMPLETED: APL-TRAFFIC-001 is now a canonical product-approved research roadmap track."
-pending: []
-last_verified_commit: "11bafbd6048ac874d70d7acd025569c6b0164eec"
+  - "Confirmed Android public 0.1.38 / versionCode 39 is the canonical RuStore production candidate."
+  - "Confirmed production APK was previously built from canonical main source commit 676a987105d8f01b8ed32db8b500b58a26e74542, signed with the production identity, zipaligned for 16 KiB pages, and submitted to RuStore."
+  - "Confirmed production artifact SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572 and signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 from canonical checkpoint APL-RUSTORE-PUBLISH-20260928."
+  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used for this release."
+  - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
+current: "Recover the exact already production-signed 0.1.38 APK bytes, then publish them as a dedicated GitHub Android release."
+pending:
+  - "Recover exact production APK matching the canonical SHA-256."
+  - "Create dedicated Android tag/release pinned to the release source commit."
+  - "Upload production APK and checksum metadata."
+  - "Re-read release/assets and verify hash/version/source metadata."
+last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
 test_results:
-  - "Focused roadmap/backlog consistency assertions: 6/6 PASS."
-  - "Documentation-only update; no product binaries or runtime behavior changed."
+  - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
+  - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
+  - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
 blocker: null
-resume_instruction: "Task complete. Do not implement APL-TRAFFIC-001 until explicitly prioritized and the official international-traffic accounting methodology is known. Start with Stage A regulatory/operator methodology research, then provider-neutral multi-hop lab validation. Do not reactivate paused APL-NODE-001 or Arvectum Network by implication."
-updated_at: "2026-10-05T11:00:00+03:00"
+resume_instruction: "Recover the exact production-signed Android 0.1.38 APK matching SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Never substitute the dogfood/debug APK. Then publish a dedicated Android GitHub tag/release pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542, upload APK + checksum, and verify release metadata/assets."
+updated_at: "2026-10-07T20:10:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-TRAFFIC-001-ROADMAP-20261005"
-  branch: "docs/international-traffic-routing-20261005"
+  execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
+  branch: "task/android-github-release-20261007"
+  base_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
+  manual_override: true
