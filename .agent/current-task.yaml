@@ -23,7 +23,8 @@ completed:
   - "Checked all Remote Desktop Commander devices: Mac mini and all other authorized devices are offline."
   - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
   - "Created PR #252 carrying the interruption-safe canonical checkpoint."
-current: "BLOCKED: exact production-signed APK bytes and the private production signing identity are only available on the trusted local release environment, which is currently offline."
+  - "Continuation recheck: Remote Desktop Commander still reports Mac-mini-master.local and every other authorized device offline; production APK remains unavailable outside the trusted local release environment."
+current: "BLOCKED: fresh RDC recheck still shows the trusted Mac mini offline; exact production-signed APK bytes remain unavailable for publication."
 pending:
   - "When Mac-mini-master.local becomes reachable, inspect /Users/master/Documents/proxy-launcher-rustore-public and canonical proxy-launcher checkout for the final 0.1.38 APK."
   - "Accept only an APK whose SHA-256 is exactly 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; otherwise rebuild from source commit 676a987... and sign with /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks, then record the new verified hash before publication."
