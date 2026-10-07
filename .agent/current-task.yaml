@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-ANDROID-GITHUB-RELEASE-20261007
-status: in_progress
+status: blocked
 goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
 definition_of_done:
   - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
@@ -12,14 +12,22 @@ definition_of_done:
   - "Published release and asset metadata are re-read from GitHub and verified."
 completed:
   - "Confirmed Android public 0.1.38 / versionCode 39 is the canonical RuStore production candidate."
-  - "Confirmed production APK was previously built from canonical main source commit 676a987105d8f01b8ed32db8b500b58a26e74542, signed with the production identity, zipaligned for 16 KiB pages, and submitted to RuStore."
-  - "Confirmed production artifact SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572 and signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 from canonical checkpoint APL-RUSTORE-PUBLISH-20260928."
-  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used for this release."
+  - "Confirmed release source commit 676a987105d8f01b8ed32db8b500b58a26e74542 and production APK SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
+  - "Confirmed production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 and historical v2/v3 + 16 KiB alignment verification."
+  - "Recovered canonical production signing key path from PR #221 history: /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks."
+  - "Recovered prior release worktree path from PR #221 history: /Users/master/Documents/proxy-launcher-rustore-public."
+  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used."
+  - "Confirmed PR #221 Android Actions artifact 10968885672 is proxy-launcher-android-debug only; it is not release-eligible."
+  - "Searched connected Google Drive for APK/0.1.38/Proxy Launcher and the 2026-09-28 date window: no production APK found."
+  - "Searched both connected Gmail accounts for Sep 27-29 messages with relevant APK/RuStore/0.1.38 attachments: no production APK found."
+  - "Checked all Remote Desktop Commander devices: Mac mini and all other authorized devices are offline."
   - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
-current: "Recover the exact already production-signed 0.1.38 APK bytes, then publish them as a dedicated GitHub Android release."
+  - "Created PR #252 carrying the interruption-safe canonical checkpoint."
+current: "BLOCKED: exact production-signed APK bytes and the private production signing identity are only available on the trusted local release environment, which is currently offline."
 pending:
-  - "Recover exact production APK matching the canonical SHA-256."
-  - "Create dedicated Android tag/release pinned to the release source commit."
+  - "When Mac-mini-master.local becomes reachable, inspect /Users/master/Documents/proxy-launcher-rustore-public and canonical proxy-launcher checkout for the final 0.1.38 APK."
+  - "Accept only an APK whose SHA-256 is exactly 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; otherwise rebuild from source commit 676a987... and sign with /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks, then record the new verified hash before publication."
+  - "Create dedicated Android tag/release pinned to release source commit 676a987105d8f01b8ed32db8b500b58a26e74542."
   - "Upload production APK and checksum metadata."
   - "Re-read release/assets and verify hash/version/source metadata."
 last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
@@ -27,12 +35,14 @@ test_results:
   - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
   - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
   - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-blocker: null
-resume_instruction: "Recover the exact production-signed Android 0.1.38 APK matching SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Never substitute the dogfood/debug APK. Then publish a dedicated Android GitHub tag/release pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542, upload APK + checksum, and verify release metadata/assets."
-updated_at: "2026-10-07T20:10:00+03:00"
+  - "GitHub Actions PR #221 artifact audit: only debug artifact present; production signer not available in GitHub Actions artifact."
+blocker: "Mac-mini-master.local and all other authorized RDC devices are offline, and no second copy of the production-signed APK was found in GitHub Actions, Google Drive, Gmail, conversation Library, or repository history. Publishing the debug/dogfood APK would violate the canonical Android signing policy."
+resume_instruction: "FIRST: verify Mac-mini-master.local is online. Then inspect /Users/master/Documents/proxy-launcher-rustore-public and the canonical checkout for the final signed 0.1.38 APK. Compute SHA-256 and require exact match 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572. Verify package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4, v2/v3 signatures and 16 KiB alignment. If and only if all pass, publish a dedicated Android GitHub release/tag pinned to 676a987105d8f01b8ed32db8b500b58a26e74542 with APK + SHA256SUMS, then re-read and verify the release. Never substitute artifact 10968885672 or any dogfood/debug APK."
+updated_at: "2026-10-07T20:20:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
   branch: "task/android-github-release-20261007"
   base_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
+  pr: 252
   manual_override: true
