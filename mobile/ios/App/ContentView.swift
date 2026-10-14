@@ -35,6 +35,46 @@ private enum AppDestination: String, CaseIterable, Identifiable {
     }
 }
 
+#if targetEnvironment(macCatalyst)
+/// Gives both desktop home cards the height of the taller card at the
+/// available column width. Unlike a hard-coded height this also accommodates
+/// longer localized copy, font scaling and window resizing.
+private struct EqualHeightDashboardLayout: Layout {
+    let spacing: CGFloat
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        let width = max(0, proposal.width ?? 0)
+        guard !subviews.isEmpty else { return CGSize(width: width, height: 0) }
+        let cardWidth = max(0, (width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
+        let tallest = subviews.map {
+            $0.sizeThatFits(ProposedViewSize(width: cardWidth, height: nil)).height
+        }.max() ?? 0
+        return CGSize(width: width, height: tallest)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        guard !subviews.isEmpty else { return }
+        let cardWidth = max(0, (bounds.width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
+        for (index, card) in subviews.enumerated() {
+            card.place(
+                at: CGPoint(x: bounds.minX + CGFloat(index) * (cardWidth + spacing), y: bounds.minY),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: cardWidth, height: bounds.height)
+            )
+        }
+    }
+}
+#endif
+
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @State private var destination: AppDestination = .home
@@ -105,8 +145,11 @@ struct ContentView: View {
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: item.icon).frame(width: 22)
-                            Text(item.title).fontWeight(.semibold)
-                            Spacer()
+                            Text(item.title)
+                                .font(.system(size: 14, weight: .semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer(minLength: 0)
                         }
                         .foregroundStyle(destination == item ? Brand.navy : Brand.mintLight)
                         .padding(.horizontal, 12)
@@ -137,12 +180,27 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 760, minHeight: 560)
+        .frame(minWidth: 760, minHeight: 440)
         .background(Brand.navy)
     }
 #endif
 
     private var header: some View {
+#if targetEnvironment(macCatalyst)
+        VStack(alignment: .leading, spacing: 5) {
+            Image("ArvectumWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 144, height: 28, alignment: .leading)
+                .accessibilityLabel("Arvectum")
+            Text("Proxy Launcher")
+                .font(.system(size: 17, weight: .bold))
+                .foregroundStyle(Brand.mint)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+#else
         HStack(alignment: .center, spacing: 8) {
             Image("ArvectumWordmark")
                 .resizable()
@@ -155,12 +213,11 @@ struct ContentView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
             Spacer(minLength: 4)
-#if !targetEnvironment(macCatalyst)
             Text(AppShared.version)
                 .font(.caption2)
                 .foregroundStyle(Brand.mintLight.opacity(0.72))
-#endif
         }
+#endif
     }
 
     private var homeScreen: some View {
@@ -172,6 +229,20 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                         header
 #endif
+                        // Each card needs enough room for its primary actions.
+                        // The profile naturally moves below Connection when the
+                        // window shrinks; on wide windows card heights always match.
+#if targetEnvironment(macCatalyst)
+                        if geometry.size.width >= 820 {
+                            EqualHeightDashboardLayout(spacing: 18) {
+                                connectionCard
+                                activeProfileCard
+                            }
+                        } else {
+                            connectionCard
+                            activeProfileCard
+                        }
+#else
                         if geometry.size.width >= 700 {
                             HStack(alignment: .top, spacing: 18) {
                                 connectionCard.frame(maxWidth: .infinity)
@@ -181,6 +252,7 @@ struct ContentView: View {
                             connectionCard
                             activeProfileCard
                         }
+#endif
                     }
                     .padding(.horizontal, 18)
                     .padding(.vertical, 16)
@@ -191,81 +263,135 @@ struct ContentView: View {
         }
     }
     private var connectionCard: some View {
-        VStack(spacing: 14) {
-            HStack {
+        VStack(spacing: 18) {
+            HStack(spacing: 10) {
                 Text("Соединение")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Brand.mintLight)
-                Spacer()
-                Text(model.vpn.detail)
-                    .font(.caption)
-                    .foregroundStyle(connectionStatusColor)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                Spacer(minLength: 8)
+                HStack(spacing: 6) {
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 9))
+                        .accessibilityHidden(true)
+                    Text(model.vpn.detail)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .foregroundStyle(connectionStatusColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Brand.navy.opacity(0.7))
+                .clipShape(Capsule())
+                .accessibilityElement(children: .combine)
             }
             Button {
-                Task { await model.toggleVPN() }
+                if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                    showNewProfile = true
+                } else {
+                    Task { await model.toggleVPN() }
+                }
             } label: {
-                Text(primaryActionTitle)
-                    .font(.system(size: powerDiameter < 140 ? 17 : 20, weight: .bold))
-                    .foregroundStyle(model.vpn.isConnectedOrConnecting ? Brand.navy : .white)
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(1)
-                    .frame(width: powerDiameter, height: powerDiameter)
-                    .background(model.vpn.isConnectedOrConnecting ? Brand.mint : Brand.graphite)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Brand.mint.opacity(0.58), lineWidth: 2))
-                    .shadow(color: .black.opacity(0.24), radius: 10, y: 6)
+                HStack(spacing: 14) {
+                    Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                        ? "plus.circle.fill" : "power")
+                        .font(.system(size: 25, weight: .bold))
+                        .accessibilityHidden(true)
+                    Text(primaryActionTitle)
+                        .font(.system(size: 22, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 0)
+                    Image(systemName: model.vpn.isConnectedOrConnecting ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                        .font(.system(size: 24, weight: .semibold))
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, 22)
+                .foregroundStyle(Brand.navy)
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(Brand.mint)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Brand.mintLight.opacity(0.7), lineWidth: 2)
+                )
+                .shadow(color: Brand.mint.opacity(0.19), radius: 14, y: 6)
+                .opacity(model.vpn.canToggle ? 1 : 0.6)
             }
             .buttonStyle(.plain)
             .disabled(!model.vpn.canToggle)
+            .accessibilityLabel(primaryActionTitle)
+            .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                ? "Открыть создание первого прокси"
+                : model.vpn.isConnectedOrConnecting
+                    ? "Отключить системный прокси-туннель"
+                    : "Подключиться через выбранный прокси")
             Text(connectionHelp)
                 .font(.footnote)
                 .foregroundStyle(Brand.softGray)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: 320)
+                .frame(maxWidth: .infinity)
         }
         .padding(18)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Brand.graphite)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 
     private var activeProfileCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Активный профиль")
-                .font(.caption.weight(.bold))
+            Text("Выбор прокси")
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(Brand.mintLight)
-            Text(model.selectedLabel)
+            Text(model.profiles.isEmpty ? "Прокси пока нет" : model.selectedLabel)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)
                 .lineLimit(1)
-            Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Выбран вручную.")
-                .font(.footnote)
-                .foregroundStyle(Brand.softGray)
-            Menu {
-                profileSelectionMenu
-            } label: {
-                HStack {
-                    Text("Выбрать профиль")
-                    Spacer()
-                    Image(systemName: "chevron.down")
+            if !model.profiles.isEmpty {
+                Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль.")
+                    .font(.footnote)
+                    .foregroundStyle(Brand.softGray)
+            }
+            if model.profiles.isEmpty {
+                Text("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт.")
+                    .font(.footnote)
+                    .foregroundStyle(Brand.softGray)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    showNewProfile = true
+                } label: {
+                    Label("Добавить прокси", systemImage: "plus.circle.fill")
+                        .frame(maxWidth: .infinity)
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Brand.navy)
-                .padding(.horizontal, 14)
-                .frame(height: 44)
-                .background(Brand.mint)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .buttonStyle(PrimaryBrandButtonStyle())
+            } else {
+                Menu {
+                    profileSelectionMenu
+                } label: {
+                    HStack {
+                        Text("Выбрать профиль")
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.navy)
+                    .padding(.horizontal, 14)
+                    .frame(height: 52)
+                    .background(Brand.mint)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                Button {
+                    destination = .profiles
+                } label: {
+                    Label("Управление профилями", systemImage: "rectangle.stack")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SecondaryBrandButtonStyle())
             }
-            Button {
-                destination = .profiles
-            } label: {
-                Label("Управление профилями", systemImage: "rectangle.stack")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(SecondaryBrandButtonStyle())
         }
         .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Brand.surface)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -279,6 +405,7 @@ struct ContentView: View {
                     header
 #endif
                     sectionTitle("Профили", subtitle: "Выбор, добавление и приоритет прокси")
+                    if !model.profiles.isEmpty {
                     Menu { profileSelectionMenu } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
@@ -292,8 +419,9 @@ struct ContentView: View {
                         .background(Brand.graphite)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    }
                     HStack(spacing: 10) {
-                        cardButton("＋ Новый", filled: true) { showNewProfile = true }
+                        cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first
@@ -359,7 +487,9 @@ struct ContentView: View {
 #endif
                     sectionTitle("Настройки", subtitle: "Маршрутизация и поведение APL")
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
-                    settingsButton("Исключения приложений", icon: "app.badge") { showAppExclusions = true }
+#if !targetEnvironment(macCatalyst)
+                    settingsButton("Автоматизация приложений", icon: "app.badge") { showAppExclusions = true }
+#endif
                     if !model.profiles.isEmpty {
                         autoSettingsCard
                     }
@@ -493,6 +623,9 @@ struct ContentView: View {
     }
 
     private var primaryActionTitle: String {
+        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+            return "Добавить прокси"
+        }
         switch model.vpn.status {
         case .connected, .reasserting: return "Отключить"
         case .connecting: return "Подключение…"
@@ -502,6 +635,9 @@ struct ContentView: View {
     }
 
     private var connectionHelp: String {
+        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+            return "Без профиля подключение невозможно. Добавьте прокси для начала работы."
+        }
         switch model.vpn.status {
         case .connected: return "Трафик устройства направляется через выбранный прокси."
         case .connecting, .reasserting: return "APL устанавливает защищённый системный туннель."
@@ -518,12 +654,16 @@ struct ContentView: View {
         }
     }
 
-    private var powerDiameter: CGFloat {
-#if targetEnvironment(macCatalyst)
-        return 116
-#else
-        return 164
-#endif
+}
+
+private struct PrimaryBrandButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(Brand.navy)
+            .frame(height: 52)
+            .background(Brand.mint.opacity(configuration.isPressed ? 0.78 : 1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
