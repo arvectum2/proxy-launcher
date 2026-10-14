@@ -17,16 +17,23 @@ final class SiteExclusionPolicyTests: XCTestCase {
     func testExclusionPairsBareDomainWithWWWInBothDirections() {
         XCTAssertEqual(
             SiteExclusionPolicy.routingHosts(for: "gosuslugi.ru"),
-            ["gosuslugi.ru", "www.gosuslugi.ru"]
+            ["gosuslugi.ru", "gu-st.ru", "www.gosuslugi.ru"]
         )
         XCTAssertEqual(
             SiteExclusionPolicy.routingHosts(for: "www.gosuslugi.ru"),
-            ["gosuslugi.ru", "www.gosuslugi.ru"]
+            ["gosuslugi.ru", "gu-st.ru", "www.gosuslugi.ru"]
         )
         XCTAssertEqual(
             SiteExclusionPolicy.routingHosts(for: "zakupki.gov.ru"),
             ["www.zakupki.gov.ru", "zakupki.gov.ru"].sorted()
         )
+    }
+
+    func testKnownSiteAssetDomainIsIncludedButUnrelatedSitesAreNot() {
+        XCTAssertTrue(SiteExclusionPolicy.routingHosts(for: "gosuslugi.ru").contains("gu-st.ru"))
+        XCTAssertFalse(SiteExclusionPolicy.routingHosts(for: "zakupki.gov.ru").contains("gu-st.ru"))
+        XCTAssertFalse(SiteExclusionPolicy.routingHosts(for: "example.com").contains("gu-st.ru"))
+        XCTAssertEqual(SiteExclusionPolicy.routingHosts(for: "gu-st.ru"), ["gu-st.ru", "www.gu-st.ru"])
     }
 
     func testLiteralIPExclusionsAreNeverExpanded() {

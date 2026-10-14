@@ -760,6 +760,7 @@ struct ExclusionsView: View {
     @State private var entries: [String] = []
     @State private var input = ""
     @State private var localError: String?
+    @State private var confirmClearAll = false
 
     var body: some View {
         NavigationView {
@@ -774,22 +775,66 @@ struct ExclusionsView: View {
                             .autocorrectionDisabled()
                         Button("Добавить") { addEntry() }
                     }
-                    Text("Домен и его вариант с www (если существует) идут напрямую. Например, gosuslugi.ru и www.gosuslugi.ru. Другие поддомены добавляйте отдельно. Изменения применятся после переподключения VPN.")
+                    Text("Домен и его вариант с www идут напрямую. Для gosuslugi.ru также исключается gu-st.ru — он нужен для загрузки интерфейса Госуслуг. Другие поддомены добавляйте отдельно. Изменения вступят в силу после переподключения VPN.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
                     }
                 }
-                Section(entries.isEmpty ? "Список пока пуст" : "Исключения") {
+                Section {
                     ForEach(entries, id: \.self) { host in
-                        Text(host)
+                        HStack(spacing: 12) {
+                            Text(host)
+                                .textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Button(role: .destructive) {
+                                entries.removeAll { $0 == host }
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundStyle(.red)
+                                    .frame(minWidth: 36, minHeight: 36)
+                            }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("Удалить исключение \(host)")
+                        }
                     }
                     .onDelete { entries.remove(atOffsets: $0) }
+                } header: {
+                    HStack {
+                        Text(entries.isEmpty ? "Список пока пуст" : "Исключения (\(entries.count))")
+                        Spacer()
+                        if !entries.isEmpty {
+                            Button("Очистить все", role: .destructive) {
+                                confirmClearAll = true
+                            }
+                            .font(.subheadline)
+                            .buttonStyle(.borderless)
+                            .accessibilityHint("Удалить все исключения после подтверждения")
+                        }
+                    }
+                } footer: {
+                    if !entries.isEmpty {
+                        Text("Изменения вступят в силу после нажатия «Сохранить».")
+                    }
                 }
             }
             .navigationTitle("Исключения сайтов")
             .navigationBarTitleDisplayMode(.inline)
+            .confirmationDialog(
+                "Очистить все исключения?",
+                isPresented: $confirmClearAll,
+                titleVisibility: .visible
+            ) {
+                Button("Очистить все", role: .destructive) {
+                    entries.removeAll()
+                    input = ""
+                    localError = nil
+                }
+                Button("Отмена", role: .cancel) {}
+            } message: {
+                Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
+            }
             .onAppear { entries = model.exclusions }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }

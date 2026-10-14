@@ -54,6 +54,13 @@ enum SiteExclusionPolicy {
     /// alias during navigation. Pair those two exact DNS names, without
     /// pretending to bypass every arbitrary subdomain (which would require
     /// dynamic NE routing updates). Literal IP exclusions are never expanded.
+    /// Site-specific first-party dependencies confirmed by real browser QA.
+    /// Keep this intentionally small and auditable; automatically bypassing
+    /// arbitrary third-party hosts would expose traffic outside user's intent.
+    private static let requiredSiteHosts: [String: [String]] = [
+        "gosuslugi.ru": ["gu-st.ru"],
+    ]
+
     static func routingHosts(for normalized: String) -> [String] {
         var ipv4 = in_addr()
         var ipv6 = in6_addr()
@@ -70,7 +77,9 @@ enum SiteExclusionPolicy {
             alias = "www." + normalized
         }
         guard !alias.isEmpty, alias != normalized else { return [normalized] }
-        return [normalized, alias].sorted()
+        let apex = normalized.hasPrefix("www.") ? String(normalized.dropFirst(4)) : normalized
+        let dependencies = requiredSiteHosts[apex] ?? []
+        return Array(Set([normalized, alias] + dependencies)).sorted()
     }
 
     static func normalizeAll<S: Sequence>(_ entries: S) throws -> [String] where S.Element == String {

@@ -108,7 +108,33 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "7"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "8"', PROJECT)
+
+    def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
+        self.assertIn('Button(role: .destructive)', exclusion_view)
+        self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
+        self.assertIn('.accessibilityLabel("Удалить исключение \(host)")', exclusion_view)
+        self.assertIn('.onDelete { entries.remove(atOffsets: $0) }', exclusion_view)
+        self.assertIn('Button("Очистить все", role: .destructive)', exclusion_view)
+        self.assertIn('confirmClearAll = true', exclusion_view)
+        self.assertIn('.confirmationDialog(', exclusion_view)
+        self.assertIn('isPresented: $confirmClearAll', exclusion_view)
+        self.assertIn('entries.removeAll()', exclusion_view)
+        self.assertIn('input = ', exclusion_view)
+        self.assertIn('await model.saveExclusions(entries)', exclusion_view)
+        self.assertIn('Button("Отмена") { dismiss() }', exclusion_view)
+
+    def test_gosuslugi_site_dependency_gu_st_is_direct_bypassed(self):
+        policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
+        tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
+        self.assertIn('"gosuslugi.ru": ["gu-st.ru"]', policy)
+        self.assertIn('let dependencies = requiredSiteHosts[apex] ?? []', policy)
+        self.assertIn('return Array(Set([normalized, alias] + dependencies)).sorted()', policy)
+        self.assertIn('for host in candidateHosts', tunnel)
+        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
+        self.assertIn('addresses.insert(address)', tunnel)
 
     def test_www_alias_gets_real_dns_and_same_excluded_route_as_parent(self):
         policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
