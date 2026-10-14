@@ -12,8 +12,6 @@
 		14C95F5135F84D57E060BF73 /* PrivacyDisclosureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */; };
 		198061DB62CA9402B9F5C64E /* tun2proxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CAE6FE1231A7397DBF24E85 /* tun2proxy.xcframework */; };
 		1ED95C41564B9A881F120E9A /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E434A226EB0089EE96A56F6 /* TelemetryStore.swift */; };
-		257D159DDEC40CF4315284C7 /* SponsoredPlacementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED8259DDB425B710BD3A66A /* SponsoredPlacementView.swift */; };
-		3B7E72E927C120B6ACA38023 /* SponsoredPlacement.json in Resources */ = {isa = PBXBuildFile; fileRef = 65D95F08F31A53777ED9BB8E /* SponsoredPlacement.json */; };
 		46389FE165D0693BEDD372A8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */; };
 		4BDAFB7E915954D62B3F34C2 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */; };
 		4D5F231FB56873A35C0CE967 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820DB97A426DE7C5789F6F4D /* HelpView.swift */; };
@@ -73,10 +71,8 @@
 		4EBD1501C526331BF611377E /* ArvectumProxyLauncherMac.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncherMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
 		601B7B7BE66C63A105FC5A31 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		65D95F08F31A53777ED9BB8E /* SponsoredPlacement.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SponsoredPlacement.json; sourceTree = "<group>"; };
 		6CAE6FE1231A7397DBF24E85 /* tun2proxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tun2proxy.xcframework; path = Frameworks/tun2proxy.xcframework; sourceTree = "<group>"; };
 		792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
-		7ED8259DDB425B710BD3A66A /* SponsoredPlacementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SponsoredPlacementView.swift; sourceTree = "<group>"; };
 		820DB97A426DE7C5789F6F4D /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		8721E1A7BB35D248C67BB14E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8AA86F99C7E1FDF09699BC45 /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
@@ -110,7 +106,6 @@
 			children = (
 				0A285D4CE0522B39A211728F /* ArvectumWordmark.png */,
 				B68F170D4D28D53A30C2F374 /* Assets.xcassets */,
-				65D95F08F31A53777ED9BB8E /* SponsoredPlacement.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -121,7 +116,6 @@
 				B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */,
 				820DB97A426DE7C5789F6F4D /* HelpView.swift */,
 				920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */,
-				7ED8259DDB425B710BD3A66A /* SponsoredPlacementView.swift */,
 				CA66D25C28E9164DB6A564F5 /* VPNController.swift */,
 			);
 			path = App;
@@ -319,7 +313,6 @@
 				A87932C49AEB4538E0CF00DB /* ArvectumWordmark.png in Resources */,
 				5F7C90FAEF3A0103632BCEC0 /* Assets.xcassets in Resources */,
 				8CF83F1BD97FB9BC388ECE98 /* PrivacyInfo.xcprivacy in Resources */,
-				3B7E72E927C120B6ACA38023 /* SponsoredPlacement.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,7 +360,6 @@
 				46389FE165D0693BEDD372A8 /* ProxyModel.swift in Sources */,
 				90B3F4125ECCC842678E769F /* ProxyProbe.swift in Sources */,
 				06AAFBE4EBBD09D51BF3A87C /* SiteExclusionPolicy.swift in Sources */,
-				257D159DDEC40CF4315284C7 /* SponsoredPlacementView.swift in Sources */,
 				69331A0787C2559368AE159F /* TelemetryStore.swift in Sources */,
 				FE07A550B9077A94C3575C8F /* VPNController.swift in Sources */,
 			);
@@ -439,7 +431,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
@@ -461,7 +453,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACCATALYST_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 0.2.18;
+				MARKETING_VERSION = 0.2.19;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -553,7 +545,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
@@ -569,7 +561,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACCATALYST_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 0.2.18;
+				MARKETING_VERSION = 0.2.19;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

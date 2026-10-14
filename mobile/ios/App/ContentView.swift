@@ -197,21 +197,32 @@ struct ContentView: View {
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
                 Spacer(minLength: 8)
-                Image(systemName: "circle.fill")
-                    .font(.system(size: 9))
-                    .foregroundStyle(connectionStatusColor)
-                    .accessibilityHidden(true)
-                Text(model.vpn.detail)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(connectionStatusColor)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                HStack(spacing: 6) {
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 9))
+                        .accessibilityHidden(true)
+                    Text(model.vpn.detail)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .foregroundStyle(connectionStatusColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Brand.navy.opacity(0.7))
+                .clipShape(Capsule())
+                .accessibilityElement(children: .combine)
             }
             Button {
-                Task { await model.toggleVPN() }
+                if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                    showNewProfile = true
+                } else {
+                    Task { await model.toggleVPN() }
+                }
             } label: {
                 HStack(spacing: 14) {
-                    Image(systemName: "power")
+                    Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                        ? "plus.circle.fill" : "power")
                         .font(.system(size: 25, weight: .bold))
                         .accessibilityHidden(true)
                     Text(primaryActionTitle)
@@ -239,9 +250,11 @@ struct ContentView: View {
             .buttonStyle(.plain)
             .disabled(!model.vpn.canToggle)
             .accessibilityLabel(primaryActionTitle)
-            .accessibilityHint(model.vpn.isConnectedOrConnecting
-                ? "Отключить системный прокси-туннель"
-                : "Подключиться через выбранный прокси")
+            .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                ? "Открыть создание первого прокси"
+                : model.vpn.isConnectedOrConnecting
+                    ? "Отключить системный прокси-туннель"
+                    : "Подключиться через выбранный прокси")
             Text(connectionHelp)
                 .font(.footnote)
                 .foregroundStyle(Brand.softGray)
@@ -256,38 +269,54 @@ struct ContentView: View {
 
     private var activeProfileCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Активный профиль")
-                .font(.caption.weight(.bold))
+            Text("Выбор прокси")
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(Brand.mintLight)
-            Text(model.selectedLabel)
+            Text(model.profiles.isEmpty ? "Прокси пока нет" : model.selectedLabel)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)
                 .lineLimit(1)
-            Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Выбран вручную.")
-                .font(.footnote)
-                .foregroundStyle(Brand.softGray)
-            Menu {
-                profileSelectionMenu
-            } label: {
-                HStack {
-                    Text("Выбрать профиль")
-                    Spacer()
-                    Image(systemName: "chevron.down")
+            if !model.profiles.isEmpty {
+                Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль.")
+                    .font(.footnote)
+                    .foregroundStyle(Brand.softGray)
+            }
+            if model.profiles.isEmpty {
+                Text("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт.")
+                    .font(.footnote)
+                    .foregroundStyle(Brand.softGray)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button {
+                    showNewProfile = true
+                } label: {
+                    Label("Добавить прокси", systemImage: "plus.circle.fill")
+                        .frame(maxWidth: .infinity)
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Brand.navy)
-                .padding(.horizontal, 14)
-                .frame(height: 44)
-                .background(Brand.mint)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .buttonStyle(PrimaryBrandButtonStyle())
+            } else {
+                Menu {
+                    profileSelectionMenu
+                } label: {
+                    HStack {
+                        Text("Выбрать профиль")
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.navy)
+                    .padding(.horizontal, 14)
+                    .frame(height: 52)
+                    .background(Brand.mint)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                Button {
+                    destination = .profiles
+                } label: {
+                    Label("Управление профилями", systemImage: "rectangle.stack")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(SecondaryBrandButtonStyle())
             }
-            Button {
-                destination = .profiles
-            } label: {
-                Label("Управление профилями", systemImage: "rectangle.stack")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(SecondaryBrandButtonStyle())
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -304,6 +333,7 @@ struct ContentView: View {
                     header
 #endif
                     sectionTitle("Профили", subtitle: "Выбор, добавление и приоритет прокси")
+                    if !model.profiles.isEmpty {
                     Menu { profileSelectionMenu } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
@@ -317,8 +347,9 @@ struct ContentView: View {
                         .background(Brand.graphite)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    }
                     HStack(spacing: 10) {
-                        cardButton("＋ Новый", filled: true) { showNewProfile = true }
+                        cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first
@@ -388,11 +419,6 @@ struct ContentView: View {
                     if !model.profiles.isEmpty {
                         autoSettingsCard
                     }
-#if targetEnvironment(macCatalyst)
-                    if let sponsor = SponsoredPlacement.current {
-                        SponsoredPlacementView(placement: sponsor)
-                    }
-#endif
                     HStack {
                         Text("Версия")
                         Spacer()
@@ -523,6 +549,9 @@ struct ContentView: View {
     }
 
     private var primaryActionTitle: String {
+        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+            return "Добавить прокси"
+        }
         switch model.vpn.status {
         case .connected, .reasserting: return "Отключить"
         case .connecting: return "Подключение…"
@@ -532,6 +561,9 @@ struct ContentView: View {
     }
 
     private var connectionHelp: String {
+        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+            return "Без профиля подключение невозможно. Добавьте прокси для начала работы."
+        }
         switch model.vpn.status {
         case .connected: return "Трафик устройства направляется через выбранный прокси."
         case .connecting, .reasserting: return "APL устанавливает защищённый системный туннель."
@@ -548,6 +580,17 @@ struct ContentView: View {
         }
     }
 
+}
+
+private struct PrimaryBrandButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(Brand.navy)
+            .frame(height: 52)
+            .background(Brand.mint.opacity(configuration.isPressed ? 0.78 : 1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
 }
 
 private struct SecondaryBrandButtonStyle: ButtonStyle {
