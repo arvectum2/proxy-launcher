@@ -65,11 +65,16 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('SOURCE_COMMIT = "e271de19683937f23d3f8f0eb4df0a61fc4a6e50"', FETCH)
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
         self.assertIn("-create-xcframework", FETCH)
-        self.assertIn("disable-api-forced-exit-for-network-extension-live-restart", FETCH)
+        self.assertIn("disable-api-forced-exit-and-exact-host-split-dns", FETCH)
+        self.assertIn("tun2proxy-split-dns.patch", FETCH)
+        patch = (ROOT / "mobile" / "ios" / "Tools" / "tun2proxy-split-dns.patch").read_text(encoding="utf-8")
+        self.assertIn("dns_bypass", patch)
+        self.assertIn("with_bypass", patch)
+        self.assertIn("RecordType::AAAA", patch)
 
-    def test_store_release_is_0_2_17_and_uses_mac_specific_entrypoint(self):
-        self.assertIn('MARKETING_VERSION: "0.2.17"', PROJECT)
-        self.assertIn('?? "0.2.17"', APP_SHARED)
+    def test_store_release_is_0_2_18_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.18"', PROJECT)
+        self.assertIn('CFBundleShortVersionString', APP_SHARED)
         self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
         self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
 
@@ -100,7 +105,17 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "3"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "4"', PROJECT)
+
+    def test_native_dns_bypass_uses_same_real_ips_as_tunnel_excluded_routes(self):
+        tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
+        self.assertIn("networkSettings(excludedAddresses: exclusions.addresses)", tunnel)
+        self.assertIn("dnsBypassFlags = exclusions.dnsBypass", tunnel)
+        self.assertIn("--dns virtual", tunnel)
+        self.assertIn("--dns-bypass", tunnel)
+        self.assertIn("domainMappings.insert", tunnel)
+        self.assertIn("if !resolved.contains(entry)", tunnel)
+        self.assertIn("for address in try resolveHost(prepared.storedProfile.host)", tunnel)
 
     def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
         self.assertIn("appstore-installer.env", EXPORT)
