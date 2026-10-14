@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-10-05
+Updated: 2026-10-14 (Smart Exclusions roadmap and current Mac App Store review)
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -92,20 +92,53 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - **DONE / ROUTING + WAKE HARDENING** — PRs #141/#143/#146/#149 plus later v0.2.14/v0.2.15 recovery work close the current direct-distribution routing/sleep baseline.
 - **PRODUCTION DISTRIBUTION — DONE / PUBLISHED v0.2.16** — exact-main ARM64/Intel packages were promoted through the Arvectum Mac mini, signed with Developer ID Application, Apple-notarized/stapled, Gatekeeper-verified, published and mirrored with payload parity.
 - **NEXT DIRECT DESKTOP RELEASE — MANDATORY macOS recovery inclusion (v0.2.17+).** Carry forward PR #203 (reserved wake-refresh fail-closed sentinel recovery) and PR #207 (exact-endpoint HTTP/HTTPS enable-bit drift recovery). Release acceptance must physically verify: APL start → induced exact-endpoint enable-bit drift → rollback exit 0 → all saved network services match the pre-APL snapshot → direct and ordinary HTTPS succeed → legacy 127.0.0.1:1080/8082 tunnel remains untouched. Do not ship the next direct macOS desktop build from a source point older than merge commit 46aef7ecfd165aa03145d2a74d4aba1ba44d972d.
-- **MAC APP STORE — RESUBMITTED / WAITING_FOR_REVIEW — v0.2.17 build 3.** The Store lane remains separate from immutable direct v0.2.16.
+- **MAC APP STORE — CURRENT 2026-10-14: v0.2.19 build 8 WAITING_FOR_REVIEW / MANUAL RELEASE.** Owner verified Safari site exclusions in TestFlight, Apple accepted the review submission; publicly available macOS Store version remains v0.2.17. The Store lane remains separate from immutable direct v0.2.16. The following build1–3 notes are historical.
   - Initial build 1 was submitted on 2026-09-26 and rejected on 2026-09-28 under Guidelines 2.1.0 App Completeness and 2.4.5 Hardware Compatibility.
   - PR #223 merged the binary remediation at `ad09b2393def6c498daa8d67d2439b1d1aac9502`: passive launch no longer mutates Network Extension preferences, Store help no longer advertises GitHub/self-update behavior, and the Catalyst minimum was corrected.
   - Build 2 remains intentionally unused because its uploaded metadata reported macOS 12.0 minimum.
   - Build 3 remains the accepted binary: ARM64 Mac Catalyst + PacketTunnel, `LSMinimumSystemVersion=13.0`, Apple validation PASS, physical passive-launch smoke PASS, `usesNonExemptEncryption=false`.
   - Apple returned a second review response on 2026-10-01 covering Guideline 5.2.5 product naming plus Guideline 2.1 reviewer access and VPN/data-handling questions. These were metadata/reviewer-information issues, not a new binary defect.
   - On 2026-10-02 the App Store name was changed to `Proxy Launcher by Arvectum`; App Review Information was updated with working reviewer-access instructions and direct VPN/data answers; a reviewer reply was sent; the existing build 3 review item was resolved and resubmitted without rebuilding.
-  - **CURRENT ASC STATE:** app version 0.2.17 (3) and its review submission are `WAITING_FOR_REVIEW`. Do not rebuild, re-upload or bump the build unless Apple identifies a concrete new binary issue.
+  - **HISTORICAL ASC STATE (2026-10-02):** v0.2.17 (3) was `WAITING_FOR_REVIEW`; it subsequently became public. Current review is v0.2.19 (8), MANUAL release, independent of this old submission.
 - **MANDATORY HELP UX — DONE / PHYSICAL PASS.** The standard macOS Help item opens bundled offline help.
   - Direct Developer ID builds may expose GitHub/release links appropriate to direct distribution.
   - Mac App Store builds must remain useful offline and rely on App Store update semantics; the build-3 remediation removes competing GitHub Releases/self-update language from the Store help flow.
   - Core offline sections remain: **Getting Started**, **status meanings**, **proxy formats**, **Troubleshooting**, **About & Privacy**.
   - No Store build may ship a competing self-updater.
 - **OPTIONAL FUTURE** — keep `.app`/DMG as the normal direct macOS distribution lane; add a separate portable form only if it provides real benefit without weakening recovery/update semantics.
+
+## 6A. Smart Exclusions — automatic related-site discovery (APL-SMART-001..004)
+
+**OWNER-APPROVED / PLANNED FOR A LATER SPRINT (2026-10-14). NOT PART OF MAC APP STORE 0.2.19 (8).** The user enters one website, and APL discovers its essential supporting domains, maintains a safe local dependency graph and routes those connections directly. Release 0.2.19 (8) has been signed, physically tested and submitted for Apple App Review; do **not** modify or rebuild that binary for Smart Exclusions.
+
+**Baseline / motivating case:** Safari loaded the main `www.gosuslugi.ru` HTML directly (HTTP 200), but lacked styles and JS because the separate `gu-st.ru` asset host was still proxied. PR #255 manually added the verified dependency and is merged; owner confirmed build 8 works. This is a hard-coded workaround, not discovery.
+
+### Phase A — local dependency analysis and test (APL-SMART-001)
+
+- Offer an opt-in **Умное исключение** on a parent URL. A bounded on-device WebKit analysis checks initial redirects, scripts/module imports, CSS, fonts, images, API/fetch hosts and CDN assets when observable. Auth-gated routes and dynamic resource origins require later learning/confirmation; no user passwords, TLS interception or unrelated browsing history.
+- Build a local graph `root site → host → resource type/source → confidence/last seen`. Classify first-party/necessary assets separately from analytics, ads and broad third-party/CDN domains. Auto-exclude high-confidence necessary origins only; request confirmation for ambiguous hosts. Enforce maximum graph size and expiry.
+- Test **full loading**, not only DNS, TCP or main-frame HTTP 200. Show site-health status, missing resources, retry and manual fallback. Validate `www`, redirects, CNAMEs, A/AAAA, changed IPs, third-party shared CDN, blocked assets, and inaccessible/login-protected flows.
+- **DoD:** the user adds only `gosuslugi.ru` and APL discovers `gu-st.ru` without a Gosuslugi-specific hard-coded mapping; physical Safari page fully renders with APL active; `github.com` and unrelated hosts remain on selected proxy. Tests include at least two unrelated real sites. Ship in a NEW feature version, not App Store 0.2.19.
+
+### Phase B — usable rules and bounded refresh (APL-SMART-002)
+
+- Present one parent exception with an expandable, auditable list of auto-discovered child hosts, reason, confidence, last check and owner override. Provide single removal, clear with confirmation and Undo; shared dependency removed only when no other parent references it.
+- First use existing macOS/iOS `PacketTunnelProvider.resolveExclusions` and patched tun2proxy DNS `--dns-bypass`: apply both real-IP `NEPacketTunnelNetworkSettings.excludedRoutes` and DNS mappings together, with bounded refresh/reconnect, TTL/IPv6 handling, rollback and clear failure messages. **Do not claim runtime rule editing already exists.**
+- Store minimal metadata **on-device**, with user-controlled retention and deletion. Never silently upload browsing logs, secrets or dependency graphs.
+- **DoD:** changes survive restart, cleanup is complete, unrelated VPN traffic never silently bypasses its configured proxy, and updates fail safely if DNS or the proxy is unavailable.
+
+### Phase C — dynamic Rust direct/proxy routing (APL-SMART-003)
+
+- Research and prototype a **per-domain/per-connection policy engine** in Rust tun2proxy and Network Extension with direct physical egress, instead of relying on startup-only IP `excludedRoutes`. Validate Apple extension/platform capabilities and safe socket binding before architectural commitment.
+- Handle DNS TTL/CNAME/cache changes, IPv4/IPv6, shared CDN IPs, TCP/TLS/WebSocket, UDP/QUIC/HTTP3 where feasible, DNS-over-HTTPS and ECH visibility limitations; avoid DNS leaks, bypass of arbitrary third-party traffic, proxy credential disclosure or direct/utun routing loops.
+- **DoD:** new flows observe updated site rules without toggling VPN, non-excluded flows remain proxied, shared-IP and sleep/reconnect/failure regression tests pass on a real MacBook; Android/iOS parity requires separate platform acceptance.
+
+### Phase D — optional Safari extension / runtime learning (APL-SMART-004)
+
+- Consider Safari Web Extension for *per-navigation* dependency attribution after interactive login only with explicit installation and per-site permissions. Do not make the extension mandatory or assert full visibility into every browser/protocol; keep an understandable fallback on Chromium/Firefox.
+- Retain observations locally, avoid surveillance of unrelated tabs or credentials, and recheck App Store VPN rules/privacy declarations before requesting permissions.
+
+**Honest promise:** minimize manual domain management, proactively discover and repair gaps, but never promise 100% guaranteed success for arbitrarily dynamic/authenticated sites. Start a separate task/branch after 0.2.19 review; shipping requires real browser QA and owner authorization.
 
 ## 7. Per-application routing — application exclusions and desktop enforcement
 
@@ -235,7 +268,7 @@ Staged delivery:
 1. **[Desktop release] v0.2.16 — PUBLISHED / IMMUTABLE.** Windows/Astra/RED OS/AppImage plus Developer ID-signed/notarized Apple Silicon + Intel DMGs.
 2. **[Android / RuStore] 0.1.38 (39) — SUBMITTED / WAITING FOR MODERATION.** Public flavor has Yandex App Open ads and no friend/free profiles; private flavor is ad-free. RuStore publication is manual after approval.
 3. **[iOS App Store] 0.1.36 build 40 — PUBLISHED / PUBLIC.** Apple approved the submission on 2026-10-05 and the production App Store listing is live. Next work is metadata cleanup only: canonical `arvectum.com` developer/privacy links and localization/language verification.
-4. **[macOS App Store] 0.2.17 build 3 — WAITING_FOR_REVIEW.** On 2026-10-02 the new App Review issues were resolved without a binary rebuild: Store name changed to `Proxy Launcher by Arvectum`, Review Notes now include a tested temporary reviewer proxy plus direct VPN/data answers, the reviewer reply was sent, and the existing submission was resubmitted successfully.
+4. **[macOS App Store] 0.2.19 build 8 — WAITING_FOR_REVIEW / MANUAL RELEASE.** Verified by owner on MacBook; public macOS Store version remains 0.2.17. Review submission received 2026-10-14; publication after Apple approval is a separate manual owner decision.
 5. **[Per-app Windows enforcement] IMPLEMENTED / PHYSICAL PASS ON CURRENT MAIN.** Owner selected official signed WinDivert 2.2.2; PR #241 implementation and PR #243 installer fix are merged and physically validated. Custom WFP remains lab-only. Next gate is an explicit future Windows desktop release; published v0.2.16 is unchanged.
 6. **[Windows trust / REVIEW] APL-REL-016 — READY FOR REFRESH.** Latest substantive PR #161 remains version-stale against v0.2.16; future native signing starts with a new release, never by mutating v0.2.16.
 7. **[Rospatent / HUMAN] program registration package — PREPARED / WAITING FOR APPLICANT FACTS.** PR #181 tracks the checkpoint; official filing/signature remains human.
@@ -244,6 +277,7 @@ Staged delivery:
 10. **[Product expansion / FUTURE] APL-CONNECT-001 — PRODUCT-APPROVED.** Universal connection input: ordinary proxy, VPN link/key/config, MTProto, QR/deep link, managed subscriptions and Marketplace zero-config delivery, staged so protocol complexity stays out of the default UX.
 11. **[macOS per-app / FUTURE] APL-MAC-PERAPP — PRODUCT-APPROVED / NOT STARTED.** Primary target is a Direct Developer ID implementation with real source-app attribution and DIRECT/PROXY split routing; Mac App Store behavior remains capability-gated, with managed/MDM Per-App VPN treated separately.
 12. **[Backlog-only] APL-NODE-001 and Arvectum Network remain intentionally absent from the primary roadmap and execution queue until explicit Owner reactivation.**
+13. **[Smart Exclusions] APL-SMART-001..004 — OWNER-APPROVED / PLANNED AFTER 0.2.19 REVIEW.** WebKit dependency discovery and local graph first; dynamic Rust routing later, optional Safari extension last. Not present in build8; see section 6A.
 
 ### Repository-hygiene note
 
@@ -253,9 +287,10 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 
 - Follow the canonical `.agent/current-task.yaml` for the active user-facing workflow.
 - **Android / RuStore:** do not rebuild or resubmit merely because moderation is pending. On RuStore feedback, start a new remediation task from current main and the exact 0.1.38 (39) artifact/source evidence. After approval, publication remains an explicit manual release decision.
-- **macOS App Store:** 0.2.17 build 3 is WAITING_FOR_REVIEW after the 2026-10-02 metadata/reviewer-access/data-handling remediation. Wait for Apple feedback; do not rebuild or re-upload unless Apple identifies a new concrete binary issue.
+- **macOS App Store (2026-10-14):** 0.2.19 build 8 has been submitted for review, releaseType MANUAL; previous 0.2.17 is public and 0.2.18 was withdrawn. Wait for Apple, never auto-publish or change the submitted binary.
 - **iOS App Store:** 0.1.36 build 40 is published. Do not rebuild solely for metadata cosmetics; fold canonical `arvectum.com` links and localization/language cleanup into the next justified App Store update.
 - **APL-CONNECT-001:** product direction is approved; start with Stage A universal import/MTProto handoff when this workstream is explicitly prioritized, then VLESS+Reality as the first full-tunnel expansion.
+- **APL-SMART-001..004:** planned for after macOS 0.2.19 review, not part of tested build 8.
 - **APL-MAC-PERAPP:** product direction is approved but implementation is not started; first gate is a Direct Developer ID feasibility prototype proving source-app attribution plus real DIRECT/PROXY split routing. Keep the current Mac App Store build unchanged while it is under review.
 - **Windows per-app:** production architecture is settled on official signed WinDivert 2.2.2 and physically accepted on current main. Do not revive the custom-WFP production path without a new Owner decision; do not publish/release the merged feature without a separate Windows release gate.
 - **Next direct desktop release:** when prioritized, cut a new release from current main (never mutate v0.2.16), include the merged Windows WinDivert production path and mandatory macOS recovery fixes, rerun platform-specific physical acceptance, then publish as a new version.
@@ -274,7 +309,7 @@ Open PRs #81/#103/#132/#157 are superseded Windows-trust preparation history; #1
 | RED OS .rpm | **PUBLISHED v0.2.16 / PHYSICAL BASELINE PROVEN** | Rerun physical acceptance only for material platform/recovery or filing changes |
 | Linux AppImage | **PUBLISHED v0.2.16** | Maintain governed runtime/license/release parity |
 | macOS .app / DMG | **PUBLISHED v0.2.16 / DEVELOPER ID + NOTARIZED** | Next direct release: mandatory recovery acceptance; APL-MAC-PERAPP may enter only after its Stage A/B feasibility and safety gates pass |
-| macOS Mac App Store | **0.2.17 build 3 WAITING_FOR_REVIEW** | Wait for Apple feedback; no rebuild/re-upload unless Apple reports a new concrete binary issue |
+| macOS Mac App Store | **PUBLIC v0.2.17 / v0.2.19 (8) WAITING_FOR_REVIEW; MANUAL release** | Await Apple response and separate owner publication approval; Smart Exclusions in future sprint |
 | Android | **GitHub/GitVerse 0.1.19 PUBLIC; current main + RuStore 0.1.38 (39) WAITING FOR MODERATION** | RuStore moderation -> explicit manual publication or targeted remediation; other channels require separate release task |
 | iOS | **0.1.36 build 40 PUBLISHED / PUBLIC** | Post-release metadata cleanup: `arvectum.com` developer/privacy links + localization/language verification; rebuild only for a justified binary/product change |
 
