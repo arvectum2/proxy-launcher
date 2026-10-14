@@ -253,12 +253,26 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         var addresses = Set<String>()
         var domainMappings = Set<String>()
         for entry in store.siteExclusions {
-            let resolved = try resolveHost(entry)
-            for address in resolved {
-                addresses.insert(address)
-                // Literal IPs require no DNS override, only the host route.
-                if !resolved.contains(entry) {
-                    domainMappings.insert("\(entry)=\(address)")
+            let candidateHosts = SiteExclusionPolicy.routingHosts(for: entry)
+            for host in candidateHosts {
+                // The explicitly entered host must be resolvable; the implied
+                // www/apex alias is optional (many hosts have no www entry).
+                // Do not let an absent alias make a valid VPN configuration fail.
+                let resolved: [String]
+                if host == entry {
+                    resolved = try resolveHost(host)
+                } else {
+                    guard let aliasAddresses = try? resolveHost(host) else { continue }
+                    resolved = aliasAddresses
+                }
+                for address in resolved {
+                    addresses.insert(address)
+                    // Both the virtual DNS answer and /32-/128 excluded route
+                    // must use the same real IP. Otherwise www gets a fake
+                    // 198.18/15 address and silently falls back to the proxy.
+                    if !resolved.contains(host) {
+                        domainMappings.insert("\(host)=\(address)")
+                    }
                 }
             }
         }

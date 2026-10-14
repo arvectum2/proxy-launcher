@@ -108,7 +108,48 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "6"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "8"', PROJECT)
+
+    def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
+        self.assertIn('Button(role: .destructive)', exclusion_view)
+        self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
+        self.assertIn('.accessibilityLabel("Удалить исключение \(host)")', exclusion_view)
+        self.assertIn('.onDelete { entries.remove(atOffsets: $0) }', exclusion_view)
+        self.assertIn('Button("Очистить все", role: .destructive)', exclusion_view)
+        self.assertIn('confirmClearAll = true', exclusion_view)
+        self.assertIn('.confirmationDialog(', exclusion_view)
+        self.assertIn('isPresented: $confirmClearAll', exclusion_view)
+        self.assertIn('entries.removeAll()', exclusion_view)
+        self.assertIn('input = ', exclusion_view)
+        self.assertIn('await model.saveExclusions(entries)', exclusion_view)
+        self.assertIn('Button("Отмена") { dismiss() }', exclusion_view)
+
+    def test_gosuslugi_site_dependency_gu_st_is_direct_bypassed(self):
+        policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
+        tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
+        self.assertIn('"gosuslugi.ru": ["gu-st.ru"]', policy)
+        self.assertIn('let dependencies = requiredSiteHosts[apex] ?? []', policy)
+        self.assertIn('return Array(Set([normalized, alias] + dependencies)).sorted()', policy)
+        self.assertIn('for host in candidateHosts', tunnel)
+        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
+        self.assertIn('addresses.insert(address)', tunnel)
+
+    def test_www_alias_gets_real_dns_and_same_excluded_route_as_parent(self):
+        policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
+        tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
+        self.assertIn("static func routingHosts(for normalized: String)", policy)
+        self.assertIn('alias = "www." + normalized', policy)
+        self.assertIn('normalized.hasPrefix("www.")', policy)
+        self.assertIn("inet_pton(AF_INET", policy)
+        self.assertIn("inet_pton(AF_INET6", policy)
+        self.assertIn("SiteExclusionPolicy.routingHosts(for: entry)", tunnel)
+        self.assertIn('host == entry', tunnel)
+        self.assertIn('guard let aliasAddresses = try? resolveHost(host) else { continue }', tunnel)
+        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
+        self.assertIn('addresses.insert(address)', tunnel)
+        self.assertIn("networkSettings(excludedAddresses: exclusions.addresses)", tunnel)
 
     def test_native_dns_bypass_uses_same_real_ips_as_tunnel_excluded_routes(self):
         tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
@@ -117,7 +158,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("--dns virtual", tunnel)
         self.assertIn("--dns-bypass", tunnel)
         self.assertIn("domainMappings.insert", tunnel)
-        self.assertIn("if !resolved.contains(entry)", tunnel)
+        self.assertIn("if !resolved.contains(host)", tunnel)
         self.assertIn("for address in try resolveHost(prepared.storedProfile.host)", tunnel)
 
     def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
