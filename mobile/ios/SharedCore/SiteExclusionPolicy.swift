@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 enum SiteExclusionError: LocalizedError, Equatable {
     case malformedIPv6, unsupportedMask, whitespace, malformed, tooLong, tooMany
@@ -47,6 +48,29 @@ enum SiteExclusionPolicy {
         if value.contains("@") || value.contains("[") || value.contains("]") { throw SiteExclusionError.malformed }
         if value.count > 253 { throw SiteExclusionError.tooLong }
         return value
+    }
+
+    /// Common websites may alternate between an apex domain and its www
+    /// alias during navigation. Pair those two exact DNS names, without
+    /// pretending to bypass every arbitrary subdomain (which would require
+    /// dynamic NE routing updates). Literal IP exclusions are never expanded.
+    static func routingHosts(for normalized: String) -> [String] {
+        var ipv4 = in_addr()
+        var ipv6 = in6_addr()
+        let literal = normalized.withCString { value in
+            inet_pton(AF_INET, value, &ipv4) == 1 ||
+            inet_pton(AF_INET6, value, &ipv6) == 1
+        }
+        guard !literal, normalized.contains(".") else { return [normalized] }
+
+        let alias: String
+        if normalized.hasPrefix("www.") {
+            alias = String(normalized.dropFirst(4))
+        } else {
+            alias = "www." + normalized
+        }
+        guard !alias.isEmpty, alias != normalized else { return [normalized] }
+        return [normalized, alias].sorted()
     }
 
     static func normalizeAll<S: Sequence>(_ entries: S) throws -> [String] where S.Element == String {

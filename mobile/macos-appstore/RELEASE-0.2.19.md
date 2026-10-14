@@ -1,4 +1,4 @@
-# macOS App Store candidate 0.2.19 (6) — UI recovery (not submitted)
+# macOS App Store candidate 0.2.19 (7) — UI recovery (not submitted)
 
 **Release gate: obtain explicit owner approval before submitting for Apple App Review or public release.** This is a private build candidate only.
 
@@ -26,3 +26,9 @@ Ads/sponsorship have been postponed by the owner. No sponsor placement view, inv
 - Run macOS App Store contract tests and all GitHub checks.
 - Confirm existing Network Extension VPN continues to work and Telegram stays connected.
 - Owner specifically confirms "submit 0.2.19 (5) to Apple App Review" after reviewing the final candidate.
+
+## Critical site-exclusion fix in build 7
+- Normal website address and its www alias are paired for native real-DNS answers and excluded physical IP routes (e.g. gosuslugi.ru + www.gosuslugi.ru, www.zakupki.gov.ru + zakupki.gov.ru).
+- Nonexistent aliases are optional and skipped, so profiles excluding a concrete host or raw IP still connect.
+- Other subdomains are still exact and must be configured explicitly; this does not claim recursive wildcard/DNS TTL support.
+- DO NOT submit App Review or release pending real MacBook TestFlight HTTPS verification and fresh owner authorization.

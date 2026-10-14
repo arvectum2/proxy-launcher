@@ -14,6 +14,33 @@ final class SiteExclusionPolicyTests: XCTestCase {
         }
     }
 
+    func testExclusionPairsBareDomainWithWWWInBothDirections() {
+        XCTAssertEqual(
+            SiteExclusionPolicy.routingHosts(for: "gosuslugi.ru"),
+            ["gosuslugi.ru", "www.gosuslugi.ru"]
+        )
+        XCTAssertEqual(
+            SiteExclusionPolicy.routingHosts(for: "www.gosuslugi.ru"),
+            ["gosuslugi.ru", "www.gosuslugi.ru"]
+        )
+        XCTAssertEqual(
+            SiteExclusionPolicy.routingHosts(for: "zakupki.gov.ru"),
+            ["www.zakupki.gov.ru", "zakupki.gov.ru"].sorted()
+        )
+    }
+
+    func testLiteralIPExclusionsAreNeverExpanded() {
+        XCTAssertEqual(SiteExclusionPolicy.routingHosts(for: "192.0.2.77"), ["192.0.2.77"])
+        XCTAssertEqual(SiteExclusionPolicy.routingHosts(for: "2001:db8::1"), ["2001:db8::1"])
+        XCTAssertEqual(SiteExclusionPolicy.routingHosts(for: "127.0.0.1"), ["127.0.0.1"])
+    }
+
+    func testOtherSubdomainsAreNotAccidentallyIncluded() {
+        let resolved = SiteExclusionPolicy.routingHosts(for: "gosuslugi.ru")
+        XCTAssertFalse(resolved.contains("lk.gosuslugi.ru"))
+        XCTAssertFalse(resolved.contains("www2.gosuslugi.ru"))
+    }
+
     func testDeduplicatesAndSorts() throws {
         XCTAssertEqual(try SiteExclusionPolicy.normalizeAll(["B.example", "a.example", "b.example"]), ["a.example", "b.example"])
     }

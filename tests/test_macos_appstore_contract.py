@@ -108,7 +108,22 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "6"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "7"', PROJECT)
+
+    def test_www_alias_gets_real_dns_and_same_excluded_route_as_parent(self):
+        policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
+        tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
+        self.assertIn("static func routingHosts(for normalized: String)", policy)
+        self.assertIn('alias = "www." + normalized', policy)
+        self.assertIn('normalized.hasPrefix("www.")', policy)
+        self.assertIn("inet_pton(AF_INET", policy)
+        self.assertIn("inet_pton(AF_INET6", policy)
+        self.assertIn("SiteExclusionPolicy.routingHosts(for: entry)", tunnel)
+        self.assertIn('host == entry', tunnel)
+        self.assertIn('guard let aliasAddresses = try? resolveHost(host) else { continue }', tunnel)
+        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
+        self.assertIn('addresses.insert(address)', tunnel)
+        self.assertIn("networkSettings(excludedAddresses: exclusions.addresses)", tunnel)
 
     def test_native_dns_bypass_uses_same_real_ips_as_tunnel_excluded_routes(self):
         tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
@@ -117,7 +132,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("--dns virtual", tunnel)
         self.assertIn("--dns-bypass", tunnel)
         self.assertIn("domainMappings.insert", tunnel)
-        self.assertIn("if !resolved.contains(entry)", tunnel)
+        self.assertIn("if !resolved.contains(host)", tunnel)
         self.assertIn("for address in try resolveHost(prepared.storedProfile.host)", tunnel)
 
     def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
