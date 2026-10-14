@@ -634,6 +634,9 @@ struct ExclusionsView: View {
                             .autocorrectionDisabled()
                         Button("Добавить") { addEntry() }
                     }
+                    Text("Исключения открываются напрямую, без прокси. Указывайте точный домен (без *): например, zakupki.gov.ru. При сохранении VPN переподключится автоматически.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
                     }

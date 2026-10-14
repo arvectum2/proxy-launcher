@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = Path(__file__).resolve().parent
 TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = TOOLS / "tun2proxy-v0.8.3.Cargo.lock"
+SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -124,6 +125,9 @@ def build_patched_library(tmpdir: Path) -> Path:
         encoding="utf-8",
     )
 
+    run("git", "apply", "--check", str(SPLIT_DNS_PATCH), cwd=source)
+    run("git", "apply", str(SPLIT_DNS_PATCH), cwd=source)
+
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
     run(rustup, "target", "add", "aarch64-apple-ios", "--toolchain", RUST_TOOLCHAIN)
@@ -190,7 +194,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-for-ios-live-restart\n"
+            f"patch=disable-api-forced-exit-and-exact-host-split-dns\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n",
             encoding="utf-8",

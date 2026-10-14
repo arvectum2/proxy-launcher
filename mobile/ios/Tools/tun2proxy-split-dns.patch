@@ -1,0 +1,190 @@
+diff --git a/src/args.rs b/src/args.rs
+index 1976cbe..6513544 100644
+--- a/src/args.rs
++++ b/src/args.rs
+@@ -98,6 +98,12 @@ pub struct Args {
+     #[arg(long, value_name = "CIDR", default_value = "198.18.0.0/15")]
+     pub virtual_dns_pool: IpCidr,
+
++    /// Exact host-to-IP pairs returned by virtual DNS as real addresses for
++    /// split-tunnel domains, e.g. --dns-bypass example.org=203.0.113.7.
++    /// Multiple A/AAAA records may be specified for the same hostname.
++    #[arg(long, value_name = "HOST=IP", value_parser = validate_dns_bypass)]
++    pub dns_bypass: Vec<String>,
++
+     /// IPs used in routing setup which should bypass the tunnel,
+     /// in the form of IP or IP/CIDR. Multiple IPs can be specified,
+     /// e.g. --bypass 3.4.5.0/24 --bypass 5.6.7.8
+@@ -163,6 +169,16 @@ pub struct Args {
+     pub udpgw_keepalive: Option<u64>,
+ }
+
++fn validate_dns_bypass(value: &str) -> Result<String> {
++    let (domain, ip) = value.split_once('=').ok_or("Expected HOST=IP for --dns-bypass")?;
++    let domain = domain.trim_end_matches('.').to_ascii_lowercase();
++    if domain.is_empty() || domain.chars().any(|c| c.is_whitespace() || c == '=') {
++        return Err("Invalid DNS bypass domain".into());
++    }
++    let addr: IpAddr = ip.parse().map_err(|_| "Invalid DNS bypass IP")?;
++    Ok(format!("{domain}={addr}"))
++}
++
+ fn validate_tun(p: &str) -> Result<String> {
+     #[cfg(target_os = "macos")]
+     if p.len() <= 4 || &p[..4] != "utun" {
+@@ -203,6 +219,7 @@ impl Default for Args {
+             udp_timeout: 10,
+             verbosity: ArgVerbosity::Info,
+             virtual_dns_pool: IpCidr::from_str("198.18.0.0/15").unwrap(),
++            dns_bypass: Vec::new(),
+             daemonize: false,
+             exit_on_fatal_error: false,
+             max_sessions: 200,
+diff --git a/src/lib.rs b/src/lib.rs
+index 52addbb..63c3f06 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -176,7 +176,11 @@ where
+     let dns_addr = args.dns_addr;
+     let ipv6_enabled = args.ipv6_enabled;
+     let virtual_dns = if args.dns == ArgDns::Virtual {
+-        Some(Arc::new(Mutex::new(VirtualDns::new(args.virtual_dns_pool))))
++        let bypass = args.dns_bypass.iter().map(|entry| {
++            let (host, address) = entry.split_once('=').expect("Validated --dns-bypass");
++            (host.to_string(), address.parse().expect("Validated bypass IP"))
++        }).collect();
++        Some(Arc::new(Mutex::new(VirtualDns::with_bypass(args.virtual_dns_pool, bypass))))
+     } else {
+         None
+     };
+diff --git a/src/virtual_dns.rs b/src/virtual_dns.rs
+index 7794d37..1b16f5b 100644
+--- a/src/virtual_dns.rs
++++ b/src/virtual_dns.rs
+@@ -22,6 +22,7 @@ pub struct VirtualDns {
+     trailing_dot: bool,
+     lru_cache: LruCache<IpAddr, NameCacheEntry>,
+     name_to_ip: HashMap<String, IpAddr>,
++    bypass: HashMap<String, Vec<IpAddr>>,
+     network_addr: IpAddr,
+     broadcast_addr: IpAddr,
+     next_addr: IpAddr,
+@@ -29,10 +30,23 @@ pub struct VirtualDns {
+
+ impl VirtualDns {
+     pub fn new(ip_pool: IpCidr) -> Self {
++        Self::with_bypass(ip_pool, Vec::new())
++    }
++
++    pub fn with_bypass(ip_pool: IpCidr, mappings: Vec<(String, IpAddr)>) -> Self {
++        let mut bypass: HashMap<String, Vec<IpAddr>> = HashMap::new();
++        for (host, ip) in mappings {
++            bypass.entry(host.trim_end_matches('.').to_ascii_lowercase()).or_default().push(ip);
++        }
++        for addresses in bypass.values_mut() {
++            addresses.sort_unstable();
++            addresses.dedup();
++        }
+         Self {
+             trailing_dot: false,
+             next_addr: ip_pool.first_address(),
+             name_to_ip: HashMap::default(),
++            bypass,
+             network_addr: ip_pool.first_address(),
+             broadcast_addr: ip_pool.last_address(),
+             lru_cache: LruCache::new_unbounded(),
+@@ -44,6 +58,29 @@ impl VirtualDns {
+         use crate::dns;
+         let message = dns::parse_data_to_dns_message(data, false)?;
+         let qname = dns::extract_domain_from_dns_message(&message)?;
++        // The upstream virtual DNS maps hostnames to synthetic 198.18/15 IPs.
++        // Real-IP NEPacketTunnel excludedRoutes cannot match those synthetic
++        // addresses. For exact excluded names, return the same real IPs that
++        // Swift added to excludedRoutes; leave every other domain virtual.
++        let canonical = qname.trim_end_matches('.').to_ascii_lowercase();
++        if let Some(addresses) = self.bypass.get(&canonical) {
++            use hickory_proto::{op::MessageType, rr::RecordType};
++            let qtype = message.queries.first().map(|q| q.query_type());
++            let real = addresses.iter().copied().find(|ip| match qtype {
++                Some(RecordType::A) => ip.is_ipv4(),
++                Some(RecordType::AAAA) => ip.is_ipv6(),
++                _ => false,
++            });
++            if let Some(ip) = real {
++                let reply = dns::build_dns_response(message, &qname, ip, 5)?;
++                return Ok((reply.to_vec()?, qname, ip));
++            }
++            // Empty NOERROR answer is intentional: do not issue a fake A
++            // response to an AAAA-only excluded host (or vice versa).
++            let mut reply = message;
++            reply.metadata.message_type = MessageType::Response;
++            return Ok((reply.to_vec()?, qname, IpAddr::V4(Ipv4Addr::UNSPECIFIED)));
++        }
+         let ip = self.find_or_allocate_ip(qname.clone())?;
+         let message = dns::build_dns_response(message, &qname, ip, 5)?;
+         Ok((message.to_vec()?, qname, ip))
+@@ -148,3 +185,64 @@ impl VirtualDns {
+         }
+     }
+ }
++
++
++// Regression checks for the exact-match split DNS used by iOS/macOS
++// NEPacketTunnel excludedRoutes.
++#[cfg(test)]
++mod split_dns_tests {
++    use super::*;
++    use hickory_proto::{op::{Message, MessageType, OpCode, Query}, rr::{Name, RecordType}};
++    use std::str::FromStr;
++
++    fn query(domain: &str, record: RecordType) -> Vec<u8> {
++        let mut msg = Message::new(42, MessageType::Query, OpCode::Query);
++        msg.add_query(Query::query(Name::from_str(domain).unwrap(), record));
++        msg.to_vec().unwrap()
++    }
++
++    #[test]
++    fn excluded_domain_returns_real_ipv4_not_synthetic() {
++        let pool = IpCidr::from_str("198.18.0.0/15").unwrap();
++        let mut dns = VirtualDns::with_bypass(
++            pool,
++            vec![("Zakupki.Gov.Ru".into(), "95.167.245.92".parse().unwrap())],
++        );
++        let (reply, _, ip) = dns.generate_query(&query("zakupki.gov.ru.", RecordType::A)).unwrap();
++        assert_eq!(ip, "95.167.245.92".parse::<IpAddr>().unwrap());
++        let answer = crate::dns::parse_data_to_dns_message(&reply, false).unwrap();
++        assert_eq!(answer.answers.len(), 1);
++        assert_eq!(crate::dns::extract_ipaddr_from_dns_message(&answer).unwrap(), ip);
++        // No IPv6 address must never trigger a synthetic DNS answer for bypass.
++        let (reply, _, _) = dns.generate_query(&query("zakupki.gov.ru.", RecordType::AAAA)).unwrap();
++        let answer = crate::dns::parse_data_to_dns_message(&reply, false).unwrap();
++        assert!(answer.answers.is_empty());
++    }
++
++    #[test]
++    fn nonexcluded_domain_keeps_virtual_dns_mapping() {
++        let pool = IpCidr::from_str("198.18.0.0/15").unwrap();
++        let mut dns = VirtualDns::with_bypass(
++            pool,
++            vec![("zakupki.gov.ru".into(), "95.167.245.92".parse().unwrap())],
++        );
++        let (_, _, ip) = dns.generate_query(&query("github.com.", RecordType::A)).unwrap();
++        assert!(matches!(ip, IpAddr::V4(ip) if ip.octets()[0] == 198 && ip.octets()[1] == 18));
++        assert_eq!(dns.resolve_ip(&ip).unwrap(), "github.com");
++    }
++
++    #[test]
++    fn excluded_ipv6_and_name_matching_are_exact() {
++        let pool = IpCidr::from_str("198.18.0.0/15").unwrap();
++        let mut dns = VirtualDns::with_bypass(pool, vec![
++            ("Example.COM.".into(), "2001:db8::2".parse().unwrap()),
++            ("example.com".into(), "203.0.113.5".parse().unwrap()),
++        ]);
++        let (_, _, v6) = dns.generate_query(&query("EXAMPLE.COM.", RecordType::AAAA)).unwrap();
++        assert_eq!(v6, "2001:db8::2".parse::<IpAddr>().unwrap());
++        let (_, _, v4) = dns.generate_query(&query("example.com", RecordType::A)).unwrap();
++        assert_eq!(v4, "203.0.113.5".parse::<IpAddr>().unwrap());
++        let (_, _, nonmatch) = dns.generate_query(&query("sub.example.com.", RecordType::A)).unwrap();
++        assert!(matches!(nonmatch, IpAddr::V4(ip) if ip.octets()[0] == 198));
++    }
++}
