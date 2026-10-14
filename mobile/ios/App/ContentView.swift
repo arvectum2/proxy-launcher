@@ -35,6 +35,46 @@ private enum AppDestination: String, CaseIterable, Identifiable {
     }
 }
 
+#if targetEnvironment(macCatalyst)
+/// Gives both desktop home cards the height of the taller card at the
+/// available column width. Unlike a hard-coded height this also accommodates
+/// longer localized copy, font scaling and window resizing.
+private struct EqualHeightDashboardLayout: Layout {
+    let spacing: CGFloat
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        let width = max(0, proposal.width ?? 0)
+        guard !subviews.isEmpty else { return CGSize(width: width, height: 0) }
+        let cardWidth = max(0, (width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
+        let tallest = subviews.map {
+            $0.sizeThatFits(ProposedViewSize(width: cardWidth, height: nil)).height
+        }.max() ?? 0
+        return CGSize(width: width, height: tallest)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        guard !subviews.isEmpty else { return }
+        let cardWidth = max(0, (bounds.width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
+        for (index, card) in subviews.enumerated() {
+            card.place(
+                at: CGPoint(x: bounds.minX + CGFloat(index) * (cardWidth + spacing), y: bounds.minY),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(width: cardWidth, height: bounds.height)
+            )
+        }
+    }
+}
+#endif
+
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @State private var destination: AppDestination = .home
@@ -105,8 +145,11 @@ struct ContentView: View {
                     } label: {
                         HStack(spacing: 10) {
                             Image(systemName: item.icon).frame(width: 22)
-                            Text(item.title).fontWeight(.semibold)
-                            Spacer()
+                            Text(item.title)
+                                .font(.system(size: 14, weight: .semibold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer(minLength: 0)
                         }
                         .foregroundStyle(destination == item ? Brand.navy : Brand.mintLight)
                         .padding(.horizontal, 12)
@@ -137,12 +180,27 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 760, minHeight: 560)
+        .frame(minWidth: 760, minHeight: 440)
         .background(Brand.navy)
     }
 #endif
 
     private var header: some View {
+#if targetEnvironment(macCatalyst)
+        VStack(alignment: .leading, spacing: 5) {
+            Image("ArvectumWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 144, height: 28, alignment: .leading)
+                .accessibilityLabel("Arvectum")
+            Text("Proxy Launcher")
+                .font(.system(size: 17, weight: .bold))
+                .foregroundStyle(Brand.mint)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+#else
         HStack(alignment: .center, spacing: 8) {
             Image("ArvectumWordmark")
                 .resizable()
@@ -155,12 +213,11 @@ struct ContentView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
             Spacer(minLength: 4)
-#if !targetEnvironment(macCatalyst)
             Text(AppShared.version)
                 .font(.caption2)
                 .foregroundStyle(Brand.mintLight.opacity(0.72))
-#endif
         }
+#endif
     }
 
     private var homeScreen: some View {
@@ -172,6 +229,20 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                         header
 #endif
+                        // Each card needs enough room for its primary actions.
+                        // The profile naturally moves below Connection when the
+                        // window shrinks; on wide windows card heights always match.
+#if targetEnvironment(macCatalyst)
+                        if geometry.size.width >= 820 {
+                            EqualHeightDashboardLayout(spacing: 18) {
+                                connectionCard
+                                activeProfileCard
+                            }
+                        } else {
+                            connectionCard
+                            activeProfileCard
+                        }
+#else
                         if geometry.size.width >= 700 {
                             HStack(alignment: .top, spacing: 18) {
                                 connectionCard.frame(maxWidth: .infinity)
@@ -181,6 +252,7 @@ struct ContentView: View {
                             connectionCard
                             activeProfileCard
                         }
+#endif
                     }
                     .padding(.horizontal, 18)
                     .padding(.vertical, 16)
@@ -262,7 +334,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
         }
         .padding(18)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Brand.graphite)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -319,7 +391,7 @@ struct ContentView: View {
             }
         }
         .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Brand.surface)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }

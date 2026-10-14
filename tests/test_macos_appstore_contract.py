@@ -108,7 +108,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "5"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "6"', PROJECT)
 
     def test_native_dns_bypass_uses_same_real_ips_as_tunnel_excluded_routes(self):
         tunnel = (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
@@ -160,6 +160,21 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('.clipShape(Capsule())', content)
         self.assertNotIn('SponsoredPlacement', content)
         self.assertIn('#if !targetEnvironment(macCatalyst)\n                    settingsButton("Автоматизация приложений"', content)
+
+    def test_mac_dashboard_matches_card_heights_and_stacks_on_narrow_windows(self):
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        self.assertIn("private struct EqualHeightDashboardLayout: Layout", content)
+        self.assertIn("geometry.size.width >= 820", content)
+        self.assertIn("EqualHeightDashboardLayout(spacing: 18)", content)
+        self.assertIn("connectionCard\n                                activeProfileCard", content)
+        self.assertIn("} else {\n                            connectionCard\n                            activeProfileCard", content)
+        self.assertIn("let tallest = subviews.map", content)
+        self.assertIn("height: bounds.height", content)
+        self.assertIn(".frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)", content)
+        self.assertIn(".frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)", content)
+        self.assertIn("VStack(alignment: .leading, spacing: 5)", content)
+        self.assertIn(".frame(minWidth: 760, minHeight: 440)", content)
+        self.assertIn(".lineLimit(1)\n                                .minimumScaleFactor(0.8)", content)
 
     def test_store_target_reuses_packet_tunnel_not_networksetup(self):
         self.assertIn("../ios/PacketTunnel", PROJECT)
