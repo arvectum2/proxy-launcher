@@ -191,37 +191,62 @@ struct ContentView: View {
         }
     }
     private var connectionCard: some View {
-        VStack(spacing: 14) {
-            HStack {
+        VStack(spacing: 18) {
+            HStack(spacing: 10) {
                 Text("Соединение")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Brand.mintLight)
-                Spacer()
-                Text(model.vpn.detail)
-                    .font(.caption)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                Spacer(minLength: 8)
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 9))
                     .foregroundStyle(connectionStatusColor)
+                    .accessibilityHidden(true)
+                Text(model.vpn.detail)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(connectionStatusColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
             Button {
                 Task { await model.toggleVPN() }
             } label: {
-                Text(primaryActionTitle)
-                    .font(.system(size: powerDiameter < 140 ? 17 : 20, weight: .bold))
-                    .foregroundStyle(model.vpn.isConnectedOrConnecting ? Brand.navy : .white)
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(1)
-                    .frame(width: powerDiameter, height: powerDiameter)
-                    .background(model.vpn.isConnectedOrConnecting ? Brand.mint : Brand.graphite)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Brand.mint.opacity(0.58), lineWidth: 2))
-                    .shadow(color: .black.opacity(0.24), radius: 10, y: 6)
+                HStack(spacing: 14) {
+                    Image(systemName: "power")
+                        .font(.system(size: 25, weight: .bold))
+                        .accessibilityHidden(true)
+                    Text(primaryActionTitle)
+                        .font(.system(size: 22, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 0)
+                    Image(systemName: model.vpn.isConnectedOrConnecting ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                        .font(.system(size: 24, weight: .semibold))
+                        .accessibilityHidden(true)
+                }
+                .padding(.horizontal, 22)
+                .foregroundStyle(Brand.navy)
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(Brand.mint)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(Brand.mintLight.opacity(0.7), lineWidth: 2)
+                )
+                .shadow(color: Brand.mint.opacity(0.19), radius: 14, y: 6)
+                .opacity(model.vpn.canToggle ? 1 : 0.6)
             }
             .buttonStyle(.plain)
             .disabled(!model.vpn.canToggle)
+            .accessibilityLabel(primaryActionTitle)
+            .accessibilityHint(model.vpn.isConnectedOrConnecting
+                ? "Отключить системный прокси-туннель"
+                : "Подключиться через выбранный прокси")
             Text(connectionHelp)
                 .font(.footnote)
                 .foregroundStyle(Brand.softGray)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: 320)
+                .frame(maxWidth: .infinity)
         }
         .padding(18)
         .frame(maxWidth: .infinity)
@@ -363,6 +388,11 @@ struct ContentView: View {
                     if !model.profiles.isEmpty {
                         autoSettingsCard
                     }
+#if targetEnvironment(macCatalyst)
+                    if let sponsor = SponsoredPlacement.current {
+                        SponsoredPlacementView(placement: sponsor)
+                    }
+#endif
                     HStack {
                         Text("Версия")
                         Spacer()
@@ -518,13 +548,6 @@ struct ContentView: View {
         }
     }
 
-    private var powerDiameter: CGFloat {
-#if targetEnvironment(macCatalyst)
-        return 116
-#else
-        return 164
-#endif
-    }
 }
 
 private struct SecondaryBrandButtonStyle: ButtonStyle {

@@ -94,6 +94,9 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertNotIn("Release Notes", HELP)
         self.assertIn("https://github.com/arvectum2/proxy-launcher/issues/new", HELP)
         self.assertIn("не изменяет системный прокси через networksetup", HELP)
+        self.assertIn("Telegram для macOS не подключается", HELP)
+        self.assertIn("Использовать прокси", HELP)
+        self.assertIn("127.0.0.1:1080", HELP)
         self.assertIn("Встроенного self-updater, обходящего App Store, в этой сборке нет.", HELP)
 
     def test_passive_prepare_does_not_create_or_enable_vpn_configuration(self):
@@ -142,6 +145,31 @@ class MacOSAppStoreContractTests(unittest.TestCase):
     def test_store_lane_is_arm64_only(self):
         self.assertIn("ARCHS: arm64", PROJECT)
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
+
+    def test_primary_connection_control_is_large_accessible_and_responsive(self):
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        self.assertIn('Text(primaryActionTitle)', content)
+        self.assertIn('.frame(maxWidth: .infinity)', content)
+        self.assertIn('.frame(height: 80)', content)
+        self.assertIn('.accessibilityLabel(primaryActionTitle)', content)
+        self.assertIn('.disabled(!model.vpn.canToggle)', content)
+        self.assertNotIn('powerDiameter', content)
+
+    def test_sponsorship_is_local_manual_and_disabled_until_a_real_partner_exists(self):
+        import json
+        inventory = json.loads((STORE / "Resources" / "SponsoredPlacement.json").read_text(encoding="utf-8"))
+        placement = (STORE / "App" / "SponsoredPlacementView.swift").read_text(encoding="utf-8")
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        self.assertIs(inventory["enabled"], False)
+        self.assertIn("App/SponsoredPlacementView.swift", PROJECT)
+        self.assertIn("SponsoredPlacement.current", content)
+        self.assertIn('#if targetEnvironment(macCatalyst)', content)
+        self.assertIn('Text("Реклама")', placement)
+        self.assertIn('Link("Пожаловаться на рекламу"', placement)
+        self.assertIn('destination.query == nil', placement)
+        self.assertNotIn("YandexMobileAds", placement)
+        self.assertNotIn("WKWebView", placement)
+        self.assertNotIn("SponsoredPlacement", (ROOT / "mobile" / "ios" / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8"))
 
     def test_store_target_reuses_packet_tunnel_not_networksetup(self):
         self.assertIn("../ios/PacketTunnel", PROJECT)

@@ -26,6 +26,7 @@ targets:
       - ../ios/App/ContentView.swift
       - App/VPNController.swift
       - App/PrivacyDisclosureView.swift
+      - App/SponsoredPlacementView.swift
       - ../ios/Shared/ProfileStore.swift
       - ../ios/Shared/ProxyProbe.swift
       - ../ios/Shared/TelemetryStore.swift
