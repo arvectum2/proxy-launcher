@@ -12,6 +12,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let latencyMs: Int
     }
 
+    /// The real addresses must match both Network Extension bypass routes
+    /// and the DNS answers returned by the patched tun2proxy virtual DNS.
+    private struct SplitDNSExclusions {
+        let addresses: [String]
+        let dnsBypass: [String]
+    }
+
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
@@ -138,7 +145,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
 
         let exclusions = try resolveExclusions(for: prepared)
-        let settings = networkSettings(excludedAddresses: exclusions)
+        let settings = networkSettings(excludedAddresses: exclusions.addresses)
         try await setSettings(settings)
         guard let tunFD = tunnelFileDescriptor(forAddress: "192.0.2.1"), tunFD >= 0 else {
             throw tunnelError("Не удалось получить файловый дескриптор Packet Tunnel")
@@ -148,7 +155,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // Match Android's virtual-DNS mode. Keeping the original hostname lets
         // HTTP CONNECT proxies receive CONNECT host:port instead of CONNECT IP:port;
         // some otherwise valid proxies break TLS when the hostname is lost.
-        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn"
+        // A real-IP bypass route cannot match tun2proxy's synthetic 198.18/15
+        // DNS answers. Supply only explicit bypass hosts and their resolved IPs
+        // to the patched virtual DNS; other hosts keep proxy-side name lookup.
+        let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
+        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
         engineQueue.async { [weak self] in
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
@@ -237,17 +248,26 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private func resolveExclusions(for prepared: PreparedProxy) throws -> [String] {
-        guard let store else { return [] }
+    private func resolveExclusions(for prepared: PreparedProxy) throws -> SplitDNSExclusions {
+        guard let store else { return SplitDNSExclusions(addresses: [], dnsBypass: []) }
         var addresses = Set<String>()
+        var domainMappings = Set<String>()
         for entry in store.siteExclusions {
-            for address in try resolveHost(entry) { addresses.insert(address) }
+            let resolved = try resolveHost(entry)
+            for address in resolved {
+                addresses.insert(address)
+                // Literal IPs require no DNS override, only the host route.
+                if !resolved.contains(entry) {
+                    domainMappings.insert("\(entry)=\(address)")
+                }
+            }
         }
+        // Always preserve a physical route to the upstream proxy.
         for address in try resolveHost(prepared.storedProfile.host) { addresses.insert(address) }
         if addresses.count > SiteExclusionPolicy.maxResolvedAddresses {
             throw tunnelError("Слишком много IP-адресов в исключениях")
         }
-        return addresses.sorted()
+        return SplitDNSExclusions(addresses: addresses.sorted(), dnsBypass: domainMappings.sorted())
     }
 
     private func networkSettings(excludedAddresses: [String]) -> NEPacketTunnelNetworkSettings {

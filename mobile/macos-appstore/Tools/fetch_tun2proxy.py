@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parents[1]
 TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = Path(__file__).resolve().parent / "tun2proxy-v0.8.3.Cargo.lock"
+SPLIT_DNS_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-split-dns.patch"
 CARGO_TARGET = REPO / "build" / "tun2proxy-maccatalyst"
 RUST_TARGET = "aarch64-apple-ios-macabi"
 
@@ -102,6 +103,11 @@ def main() -> None:
             raise SystemExit("tun2proxy forced-exit patch anchor mismatch")
         general_api.write_text(text.replace(FORCED_EXIT_BLOCK, PATCHED_BLOCK, 1), encoding="utf-8")
 
+        # Exact-domain real-IP DNS responses must match Network Extension
+        # excludedRoutes; keep default virtual DNS for all other hosts.
+        run("git", "apply", "--check", str(SPLIT_DNS_PATCH), cwd=source, env=env)
+        run("git", "apply", str(SPLIT_DNS_PATCH), cwd=source, env=env)
+
         run(cargo, f"+{RUST_TOOLCHAIN}", "build", "--release", "--locked",
             "--target", RUST_TARGET, cwd=source, env=env)
         library = CARGO_TARGET / RUST_TARGET / "release" / "libtun2proxy.a"
@@ -130,7 +136,7 @@ def main() -> None:
         (TARGET.parent / ".tun2proxy-version").write_text(
             f"{VERSION}\nsource_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"rust_target={RUST_TARGET}\npatch=disable-api-forced-exit-for-network-extension-live-restart\n"
+            f"rust_target={RUST_TARGET}\npatch=disable-api-forced-exit-and-exact-host-split-dns\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\npatched_library_sha256={sha}\n",
             encoding="utf-8",
         )
