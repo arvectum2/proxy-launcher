@@ -159,6 +159,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting', content)
         self.assertIn('.clipShape(Capsule())', content)
         self.assertNotIn('SponsoredPlacement', content)
+        self.assertIn('#if !targetEnvironment(macCatalyst)\n                    settingsButton("Автоматизация приложений"', content)
 
     def test_store_target_reuses_packet_tunnel_not_networksetup(self):
         self.assertIn("../ios/PacketTunnel", PROJECT)

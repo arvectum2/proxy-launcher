@@ -415,7 +415,9 @@ struct ContentView: View {
 #endif
                     sectionTitle("Настройки", subtitle: "Маршрутизация и поведение APL")
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
-                    settingsButton("Исключения приложений", icon: "app.badge") { showAppExclusions = true }
+#if !targetEnvironment(macCatalyst)
+                    settingsButton("Автоматизация приложений", icon: "app.badge") { showAppExclusions = true }
+#endif
                     if !model.profiles.isEmpty {
                         autoSettingsCard
                     }

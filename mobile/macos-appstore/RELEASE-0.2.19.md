@@ -7,6 +7,7 @@
 - Live status is easier to read, with a pill and a separate state indicator; action remains disabled while the native VPN is disconnecting.
 - First-time setup no longer leads to an empty selection menu: it clearly offers "Добавить прокси" directly in both connection and profile cards.
 - Adjusted copy to describe selected *mode* rather than claiming "Авто" is a particular active proxy.
+- macOS Settings no longer displays a dead-end app-exclusions button; that automation remains available only in iOS, where the implementation exists.
 - Troubleshooting guide explains that a Telegram-specific localhost SOCKS setting used by the retired developer build can prevent Telegram from connecting despite a functioning device-wide Packet Tunnel.
 
 ## Verified functionality inherited from 0.2.18
