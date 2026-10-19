@@ -62,7 +62,29 @@ final class AppViewModel: ObservableObject {
         await vpn.prepare()
         await scanProfiles()
         refreshEvents()
+#if DEBUG
+        await runAppReviewAutomationIfRequested()
+#endif
     }
+
+#if DEBUG
+    private func runAppReviewAutomationIfRequested() async {
+        guard let action = ProcessInfo.processInfo.environment["APL_APP_REVIEW_AUTOMATION"] else { return }
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        switch action {
+        case "connect":
+            if !vpn.isConnectedOrConnecting {
+                await toggleVPN()
+            }
+        case "disconnect":
+            if vpn.isConnectedOrConnecting {
+                vpn.disconnect()
+            }
+        default:
+            break
+        }
+    }
+#endif
 
     func refresh() {
         profiles = store.listProfiles()
