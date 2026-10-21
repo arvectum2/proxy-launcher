@@ -14,6 +14,7 @@ from types import ModuleType
 _CORE: ModuleType | None = None
 
 MACOS_RESUME_POLL_SECONDS = 1.0
+WINDOWS_PAC_POLL_SECONDS = 20.0
 MACOS_RESUME_GAP_SECONDS = 5.0
 MACOS_RESUME_SETTLE_SECONDS = 2.0
 
@@ -53,6 +54,29 @@ def _ensure_local_files():
 
 def _run_proxy_loop(proxy):
     """Wait for shutdown and refresh an owned macOS route after long suspension gaps."""
+    if sys.platform == "win32":
+        core = _core()
+        last_foreign = False
+        while not proxy._stop.wait(WINDOWS_PAC_POLL_SECONDS):
+            try:
+                if core.system_proxy_enabled():
+                    last_foreign = False
+                    continue
+                result = core.reassert_missing_owned_pac(proxy._stop)
+                if result == "foreign" and not last_foreign:
+                    core.structured_log(
+                        "Windows proxy differs from owned state; no automatic overwrite",
+                        event="proxy.windows.pac_self_heal", level="WARNING",
+                        result="foreign",
+                    )
+                last_foreign = result == "foreign"
+            except Exception as exc:
+                core.structured_log(
+                    "Windows PAC self-heal check failed",
+                    event="proxy.windows.pac_self_heal", level="WARNING",
+                    result="failed", error_type=type(exc).__name__,
+                )
+        return
     if sys.platform != "darwin":
         while not proxy._stop.wait(3600):
             pass
