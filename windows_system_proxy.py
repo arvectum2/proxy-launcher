@@ -670,6 +670,55 @@ def _registry_dword_equals(item, expected: int) -> bool:
         return False
 
 
+
+def reconcile_owned_pac() -> str:
+    """Repair only a missing Arvectum PAC while the owning worker is running.
+
+    Never take over a foreign PAC, manually enabled proxy, modified WinINET
+    fields, or a registry state whose rollback evidence is missing/invalid.
+    Unlike enable_system_proxy, this operation cannot rewrite environment
+    variables, recovery autostart, or backup evidence.
+    """
+    core = _core()
+    if not core.is_windows() or not core.is_running():
+        return "inactive"
+
+    path = core._internet_backup_path()
+    if not core._valid_internet_backup_at(path):
+        return "unverified"
+    try:
+        with io.open(path, "r", encoding="utf-8") as stream:
+            saved = json.load(stream)
+    except (OSError, ValueError):
+        return "unverified"
+    if not core._valid_internet_backup(saved):
+        return "unverified"
+
+    current = core._read_internet_settings()
+    if not core._valid_internet_backup(current):
+        return "unverified"
+    settings = core.load_settings()
+    pac = current["AutoConfigURL"]
+    owned = bool(pac["exists"] and core._exact_arvectum_pac_url(pac["value"], settings))
+    if owned and _registry_dword_equals(current["ProxyEnable"], 0) and _registry_dword_equals(current["AutoDetect"], 0):
+        return "healthy"
+
+    # An existing non-Arvectum PAC or a manual proxy is an intentional
+    # third-party configuration, not an invitation to seize WinINET ownership.
+    if (pac["exists"] and not owned) or not _registry_dword_equals(current["ProxyEnable"], 0) or not _registry_dword_equals(current["AutoDetect"], 0):
+        return "foreign"
+    if not _internet_state_is_owned_or_saved(saved, current, settings):
+        return "foreign"
+
+    # Revalidate immediately before modifying the single missing field:
+    # network settings can change concurrently with this heartbeat.
+    if core._read_internet_settings() != current or not core.is_running():
+        return "raced"
+    if not core._reg_set("AutoConfigURL", core.pac_url(settings), "REG_SZ"):
+        return "error"
+    core._refresh_internet()
+    return "restored" if core.system_proxy_enabled() else "error"
+
 def system_proxy_enabled() -> bool:
     """Return true only while the Arvectum PAC is the exclusive WinINET route."""
     core = _core()
@@ -723,6 +772,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
         "_reg_set",
         "_reg_del",
         "_refresh_internet",
+        "reconcile_owned_pac",
         "enable_system_proxy",
         "disable_system_proxy",
         "system_proxy_enabled",
