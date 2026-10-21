@@ -1072,11 +1072,12 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy, pla
     if running and enabled:
         return {
             "key": "active",
-            "label": "ПРОКСИ РАБОТАЕТ",
+            "label": "МАРШРУТИЗАЦИЯ ВКЛЮЧЕНА",
             "color": MINT,
             "hint": (
                 "Системный прокси %s включён и направлен через Arvectum Proxy Launcher. " % platform_label
-                + "Окно можно закрыть — прокси продолжит работать в фоне."
+                + "Локальная маршрутизация включена. Доступность внешнего сервера проверяется отдельно. "
+                + "При сбое запустите проверку соединения."
             ),
             "can_on": False,
             "can_off": True,

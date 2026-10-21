@@ -46,6 +46,9 @@ class ProxyCore:
         self._direct_listener = None
         self._direct_port = None
         self._upstreams = self._build_upstreams()
+        self._upstream_health_lock = threading.Lock()
+        self._upstream_failures = {}
+        self._upstream_cooldowns = {}
 
     def _build_upstreams(self):
         out = []
@@ -61,6 +64,28 @@ class ProxyCore:
                 port = 8000
             out.append((host, port, token))
         return out
+
+    def _available_upstreams(self):
+        """Use healthy backups while failed upstreams cool down."""
+        if len(self._upstreams) < 2:
+            return list(self._upstreams)
+        now = time.monotonic()
+        with self._upstream_health_lock:
+            ready = [up for up in self._upstreams if self._upstream_cooldowns.get(up, 0.0) <= now]
+            if ready:
+                return ready
+            return [min(self._upstreams, key=lambda up: self._upstream_cooldowns.get(up, 0.0))]
+
+    def _record_upstream_result(self, upstream, success):
+        with self._upstream_health_lock:
+            if success:
+                self._upstream_failures.pop(upstream, None)
+                self._upstream_cooldowns.pop(upstream, None)
+                return
+            count = self._upstream_failures.get(upstream, 0) + 1
+            self._upstream_failures[upstream] = count
+            if len(self._upstreams) > 1 and count >= 2:
+                self._upstream_cooldowns[upstream] = time.monotonic() + 30.0
 
     @staticmethod
     def _read_proxy_response(stream):
@@ -108,7 +133,8 @@ class ProxyCore:
 
     def _open_upstream_tunnel(self, host, port, client_request=None):
         core = _core()
-        for host_u, proxy_port, token in self._upstreams:
+        for upstream in self._available_upstreams():
+            host_u, proxy_port, token = upstream
             stream = None
             started = time.monotonic()
             try:
@@ -132,6 +158,7 @@ class ProxyCore:
                     elapsed_ms=elapsed_ms,
                 )
                 if 200 <= status < 300:
+                    self._record_upstream_result(upstream, True)
                     stream.settimeout(300)
                     return stream, response
             except Exception as exc:
@@ -145,6 +172,7 @@ class ProxyCore:
                     error_type=type(exc).__name__,
                     elapsed_ms=int((time.monotonic() - started) * 1000),
                 )
+            self._record_upstream_result(upstream, False)
             if stream is not None:
                 try:
                     stream.close()

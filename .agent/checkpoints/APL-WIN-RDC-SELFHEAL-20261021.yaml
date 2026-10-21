@@ -1,0 +1,33 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-WIN-RDC-SELFHEAL-20261021
+status: in_progress
+goal: "First restore Desktop Commander RDC on Windows laptop ArutyunovNS via Mac mini SSH and validate online; next engineer APL self-healing Windows PAC and reliable proxy health and test."
+definition_of_done:
+  - "RDC on ArutyunovNS online and verified with remote tool call."
+  - "RDC auto-reconnect/autostart appropriately repaired and verified non-destructively."
+  - "Implement safe APL Windows PAC self-healing with evidence-aware ownership and user-stop protection."
+  - "Improve upstream error handling and truthful health status where feasible; cover edge cases with relevant tests."
+  - "Run tests and physically verify applicable Windows behavior; record completed or real blocker and commit."
+completed:
+  - "Mac mini SSH to GN@192.168.1.70 verified in previous task."
+  - "RDC root cause confirmed: direct Node fetch to MCP endpoint returned HTTP403 while APL HTTP proxy returned HTTP200; Node v24.14.0 needs NODE_USE_ENV_PROXY=1."
+  - "Updated existing C:/Users/GN/AppData/Local/Arvectum/RDC/start-rdc.ps1 with proxy env opt-in; preserved original .backup-20261021."
+  - "RDC agent recovered persisted authorized session, device e8839310-c8d2-4753-b84e-bceed0956e9a registered online as v0.3.0; native RDC remote command hostname and Get-Date PASS."
+  - "RDC existing Windows scheduled task Arvectum RDC Recovery confirmed with 5-minute recurrence, latest run code 0; no duplicate task created."
+  - "Implemented Windows PAC 30s recovery inside APL worker, fail-closed ownership/rollback evidence, foreign PAC and manual proxy protection, race revalidation, no user settings overwrite."
+  - "Implemented 30s circuit breaker for repeatedly failed upstreams with multiple configured proxies, preserving retries for a sole upstream and not routing traffic direct."
+  - "Updated GUI active label to reflect local system routing rather than guarantee external network accessibility."
+  - "Mac mini Python3.12 165 focused unit tests PASS, git diff --check PASS."
+current: "Code + 165 tests ready on isolated branch; commit, push, Windows build and physical validation pending."
+pending:
+  - "Check RDC autostart recovery on future process exit without new credentials."
+  - "Review/push implementation branch and run Windows build + physical validation."
+  - "Validate on Windows without altering owner's active proxy credentials or exceptions."
+last_verified_commit: "14db1ea56f94d13b0664f5230ff6b18af21c87d7 local; origin/main to be verified."
+test_results:
+  - "Mac mini Python3.12 focused unittest battery 165/165 PASS."
+  - "Previous APL-WIN-DEV-CONNECTION-20261021 checkpoint reported current proxy working."
+  - "RDC remote client connected via APL and remote execution PASS; existing startup hook preserved."
+blocker: null
+resume_instruction: "RDC online and verified. Worktree /Volumes/ArvectumSSD/arvectum/worktrees/apl-win-selfheal-20261021 on clean origin/main branch fix/apl-win-selfheal-20261021; code + tests implemented and 165 pass. Push PR, run Windows physical tests/build, preserve live profile, do not release publicly."

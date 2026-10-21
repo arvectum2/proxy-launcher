@@ -16,6 +16,7 @@ _CORE: ModuleType | None = None
 MACOS_RESUME_POLL_SECONDS = 1.0
 MACOS_RESUME_GAP_SECONDS = 5.0
 MACOS_RESUME_SETTLE_SECONDS = 2.0
+WINDOWS_PAC_POLL_SECONDS = 30.0
 
 
 def configure(core: ModuleType) -> None:
@@ -52,7 +53,34 @@ def _ensure_local_files():
 
 
 def _run_proxy_loop(proxy):
-    """Wait for shutdown and refresh an owned macOS route after long suspension gaps."""
+    """Supervise owned OS routing while the proxy worker runs."""
+    if sys.platform == "win32":
+        core = _core()
+        previous = None
+        while not proxy._stop.wait(WINDOWS_PAC_POLL_SECONDS):
+            if proxy._stop.is_set():
+                return
+            try:
+                result = core.reconcile_owned_pac()
+            except Exception as exc:
+                core.structured_log(
+                    "Windows PAC self-healing check raised an error",
+                    level="WARNING",
+                    event="proxy.windows.pac_recovery",
+                    outcome="error",
+                    error_type=type(exc).__name__,
+                )
+                continue
+            if result != previous and result in ("restored", "foreign", "unverified", "raced", "error"):
+                core.structured_log(
+                    "Windows PAC self-healing state changed",
+                    event="proxy.windows.pac_recovery",
+                    level="INFO" if result == "restored" else "WARNING",
+                    outcome=result,
+                )
+            previous = result
+        return
+
     if sys.platform != "darwin":
         while not proxy._stop.wait(3600):
             pass

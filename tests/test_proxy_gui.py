@@ -597,7 +597,7 @@ class FinalStatusUxTests(unittest.TestCase):
     def test_active_state_is_unambiguous_and_actionable(self):
         view = self.status(running=True, enabled=True)
         self.assertEqual(view["key"], "active")
-        self.assertEqual(view["label"], "ПРОКСИ РАБОТАЕТ")
+        self.assertEqual(view["label"], "МАРШРУТИЗАЦИЯ ВКЛЮЧЕНА")
         self.assertFalse(view["can_on"])
         self.assertTrue(view["can_off"])
         self.assertTrue(view["can_check"])
