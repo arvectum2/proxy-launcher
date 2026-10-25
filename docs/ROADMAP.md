@@ -240,6 +240,14 @@ Staged delivery:
 
 ## 8. Mobile applications
 
+### APL-MOB-THEME-001 — Light / Dark / System theme selector (P1 UX, BACKLOG)
+
+- **User feedback (2026-10-25):** a mobile-app review suggests that only a dark appearance is currently available. Verify the actual behavior on current Android and iOS builds before implementation; do not treat the review as proof of platform parity or a confirmed defect.
+- **Scope:** provide a user-facing **Appearance / Theme** setting on Android and iOS with **System (default)**, **Light**, and **Dark** choices. Support following OS appearance changes in System mode and immediate preview/application when selecting a mode.
+- **Persistence:** retain an explicit user choice across app relaunch and VPN/proxy reconnect; preserve existing preferences through upgrades. Existing users should not experience an unexpected forced theme switch without migration/UX review.
+- **UX/accessibility:** correctly theme all screens and modal dialogs, native controls, status/navigation bars, onboarding/settings, errors, connection states, and (Android public) ad containers; verify contrast, text/icon legibility, and light/dark screenshots on real phones.
+- **Acceptance / DoD:** all three modes work on both platforms, System tracks device appearance, selection persists after restart, no hard-coded dark surfaces remain, critical connection/exclusion flows are unchanged, and targeted UI/regression checks pass. **Planning only — not yet implemented; no release requested.**
+
 ### Android — GitHub public 0.1.19 / current-main + RuStore candidate 0.1.38 (39)
 
 - **GITHUB/GITVERSE PUBLIC BASELINE — android-v0.1.19.** This remains the latest published Android release in those channels until a separate publication task creates a later release.
