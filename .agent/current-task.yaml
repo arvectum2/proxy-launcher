@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-APPSTORE-DOMAIN-20261027
-status: in_progress
+status: blocked
 goal: "Correct canonical iOS roadmap to public App Store 0.1.37 and change live App Store metadata Support URL + Marketing URL to https://arvectum.com/ for Yandex app-ads.txt discovery."
 definition_of_done:
   - "Live Apple App Store Connect version and localization metadata verified, including Russian and English."
@@ -12,21 +12,21 @@ definition_of_done:
 completed:
   - "Confirmed public iTunes API version 0.1.37 and release date 2026-10-07."
   - "Confirmed live App Store Connect iOS 0.1.37 READY_FOR_SALE; en-US and ru localizations still point to github.io support and GitHub marketing URLs."
-  - "Confirmed https://arvectum.com/app-ads.txt HTTP 200 (body 7896 bytes); https://arvectum.com/ads.txt is irrelevant to mobile app verification."
-current: "Updating live App Store Connect localization URLs and roadmap; no binary build or resubmission."
+  - "Confirmed https://arvectum.com/app-ads.txt HTTP 200 (body 7896 bytes); https://arvectum.com/ads.txt is irrelevant to mobile app verification."\n  - "Attempted App Store Connect PATCH current 0.1.37 en-US supportUrl/marketingUrl; Apple HTTP 409 STATE_ERROR for both fields. No live metadata was changed."\n  - "Confirmed live build number 41 through authenticated Apple API."\n  - "Updated canonical docs/ROADMAP.md and created docs/app-store-metadata-ios-0.1.37.md; 0.1.36 historical evidence preserved."\n  - "Opened GitHub P0 issue #undefined tracking new-version domain fix."
+current: "Documentation corrected on branch; live 0.1.37 URL update rejected by Apple HTTP 409 (READY_FOR_SALE), requires separate new-version App Review release."
 pending:
-  - "PATCH current 0.1.37 localized supportUrl and marketingUrl for both en-US and ru; re-read."
-  - "Update roadmap and canonical forward-looking metadata documentation."
-  - "Run narrow checks, create PR, merge if required build passes."
-last_verified_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
+  - "After approved new iOS version is prepared, set localized supportUrl/marketingUrl to https://arvectum.com/; complete App Review and confirm public card."
+  - "After updated public card is available, resubmit Yandex RСЯ app-ads.txt verification."
+  - "Merge documentation PR after GitHub required build passes."
+last_verified_commit: "42512382e330dbe0d12b631c68b4947dd0e4f187"
 test_results:
-  - "Apple public lookup: version 0.1.37; currentVersionReleaseDate 2026-10-07T15:55:15Z."
+  - "Apple public lookup: version 0.1.37; currentVersionReleaseDate 2026-10-07T15:55:15Z."\n  - "ASC 0.1.37 build relationship GET 200: build 41."\n  - "ASC PATCH on live 0.1.37 returned HTTP 409 STATE_ERROR on both desired attributes; data unchanged."
   - "Apple authenticated App Store Connect API GET 200 for app 6816013574, version READY_FOR_SALE."
   - "Current supportUrl en-US/ru https://arvectum2.github.io/proxy-launcher/support.html, marketingUrl https://github.com/arvectum2/proxy-launcher."
   - "Live https://arvectum.com/app-ads.txt HTTP 200, 7896 bytes."
-blocker: null
-resume_instruction: "Use ASC API on Mac mini with local Team API key kept local; PATCH 0.1.37 ru/en-US support+marketing URLs to https://arvectum.com/; verify. Then update docs/ROADMAP.md, document 0.1.37 current metadata, ensure PR with required build and update this checkpoint to completed or blocked according to observed API outcome."
-updated_at: "2026-10-27T14:55:00+03:00"
+blocker: "Apple prohibits editing live 0.1.37 supportUrl/marketingUrl: HTTP 409 STATE_ERROR; requires new App Store version and approved release to change public listing."
+resume_instruction: "Do NOT repeat PATCH on live 0.1.37: Apple HTTP 409 is definitive. After owner approves a new iOS release, create next App Store version, set en-US and ru supportUrl+marketingUrl to https://arvectum.com/, produce and validate next signed build, submit for App Review, then verify the public Store sellerUrl and recheck Yandex app-ads.txt. Roadmap/docs corrected in branch docs/ios-appstore-domain-037-20261027."
+updated_at: "2026-10-27T15:17:00+03:00"
 execution:
   claimed_by: "ChatGPT"
   execution_id: "APL-IOS-APPSTORE-DOMAIN-20261027"
