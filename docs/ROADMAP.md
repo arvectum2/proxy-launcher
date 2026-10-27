@@ -1,6 +1,6 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
-Updated: 2026-10-14 (Smart Exclusions roadmap and current Mac App Store review)
+Updated: 2026-10-27 (iOS ads research added; other track statuses carry their existing verification dates)
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
@@ -253,6 +253,17 @@ Staged delivery:
 - **NEXT GATE.** Wait for RuStore moderation. Any rejection remediation starts from current main; any later GitHub/GitVerse/site 0.1.38+ publication is a separate release task.
 
 ### iOS — App Store PUBLISHED: 0.1.36 build 40
+
+### APL-IOS-ADS-001 — App Store monetization (P1 product / P0 privacy STOP-GATE; issue #261)
+
+- **Owner request (2026-10-27):** iOS App Store downloads exceeded 100 according to the owner. Start monetization preparation; this number has not been independently verified and does not establish ad-revenue projections.
+- **Target UX:** contextual, non-disruptive adaptive banner in Settings or Activity; never block Connect/Disconnect, never place advertising inside `PacketTunnel`, never impair VPN/recovery/Shortcuts. Interstitial/App Open ads are deliberately deferred for iOS.
+- **CURRENT STOP-GATE:** Apple App Review guideline **5.4 VPN Apps** restricts use/disclosure of user data to third parties. The proposed Yandex Mobile Ads SDK may transmit advertising/device-related information and initializes AppMetrica. Obtain a documented 5.4/privacy decision about actual data flows before integrating the SDK, requesting personal data/IDFA, or shipping ads. In the absence of an acceptable SDK privacy model, evaluate only privacy-preserving locally bundled direct-sponsor content (also requiring review).
+- **Platform + unit gate:** register/verify this exact iOS bundle `ru.arvectum.proxylauncher.ios` and a banner unit in the RСЯ account. Do not reuse Android `R-M-20130429-1` or any unrelated/macOS placement as if valid for iOS.
+- **Implementation if cleared:** iOS application target only; current vendor SDK via Swift Package Manager; no SDK in Network Extension; test units + default-OFF feature flag until privacy, Store data declarations and physical acceptance are approved.
+- **Pre-release gate:** revise existing first-launch “Без аналитики и рекламы” disclosure, public privacy policy, App Store description/metadata, privacy manifest/App Privacy, SKAdNetwork/ATT decision based on actual SDK behavior; test on a real iPhone with VPN connected/disconnected. App Store submission and release require a separate explicit owner decision.
+- **Status:** PRODUCT-APPROVED RESEARCH / SDK INTEGRATION BLOCKED. Detailed plan: `docs/monetization/ios-appstore-advertising.md`.
+
 
 - **OLD SUBMISSION REJECTED FOR INFORMATION.** The earlier 0.1.19 new-app submission received Apple Guideline 2.1 Information Needed: physical-device recording plus six product/setup/service/region/material questions.
 - **CURRENT SOURCE / REVIEW BINARY — 0.1.36 build 40.** Adaptive UI and Shortcuts-based application routing remain merged; the current review binary is the validated build 40.
