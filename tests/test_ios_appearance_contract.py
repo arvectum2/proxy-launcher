@@ -11,8 +11,8 @@ IOS = ROOT / "mobile" / "ios"
 
 class IOSAppearanceContractTests(unittest.TestCase):
     def test_persisted_system_default_and_three_modes(self):
-        app = (IOS / "App" / "ArvectumProxyLauncherApp.swift").read_text()
-        view = (IOS / "App" / "ContentView.swift").read_text()
+        app = (IOS / "App" / "ArvectumProxyLauncherApp.swift").read_text(encoding="utf-8")
+        view = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
         self.assertIn('case system, light, dark', app)
         self.assertIn('@AppStorage("appearanceMode.v1")', app)
         self.assertIn('@AppStorage("appearanceMode.v1")', view)
@@ -21,26 +21,26 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertIn('Picker("Тема оформления"', view)
 
     def test_no_fixed_dark_palette_on_main_screens(self):
-        view = (IOS / "App" / "ContentView.swift").read_text()
+        view = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
         self.assertIn('static let canvas = adaptive(', view)
         self.assertIn('static let graphite = adaptive(', view)
         self.assertIn('static let text = adaptive(', view)
         self.assertNotIn('Brand.navy.ignoresSafeArea()', view)
         self.assertNotIn('.foregroundStyle(.white)', view)
-        disclosure = (IOS / "App" / "PrivacyDisclosureView.swift").read_text()
+        disclosure = (IOS / "App" / "PrivacyDisclosureView.swift").read_text(encoding="utf-8")
         self.assertIn('Brand.canvas.ignoresSafeArea()', disclosure)
         self.assertNotIn('.foregroundStyle(.white)', disclosure)
 
     def test_release_version_and_project_consistent(self):
-        yml = (IOS / "project.yml").read_text()
-        pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj" / "project.pbxproj").read_text()
+        yml = (IOS / "project.yml").read_text(encoding="utf-8")
+        pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
         self.assertIn('MARKETING_VERSION: "0.1.38"', yml)
         self.assertIn('CURRENT_PROJECT_VERSION: "42"', yml)
         self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.38;'), 2)
         self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 42;'), 2)
 
     def test_no_ad_sdk_added_to_this_release(self):
-        config = (IOS / "project.yml").read_text()
+        config = (IOS / "project.yml").read_text(encoding="utf-8")
         self.assertNotIn('YandexMobileAds', config)
         self.assertNotIn('AppMetrica', config)
 
