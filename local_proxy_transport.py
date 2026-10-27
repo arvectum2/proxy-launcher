@@ -6,6 +6,9 @@ Owns the platform-neutral local enforcement plane: upstream preparation and fail
 from __future__ import annotations
 
 import base64
+import io
+import json
+import os
 import re
 import select
 import socket
@@ -18,6 +21,11 @@ from types import ModuleType
 # SOCKS5 reply BND.ADDR field per RFC 1928. ``0.0.0.0`` is serialized protocol
 # data here, not a socket bind to all interfaces; Bandit B104 does not apply.
 SOCKS5_REPLY_BIND_ADDR = socket.inet_aton("0.0.0.0")  # nosec B104
+
+UPSTREAM_FAILURE_LIMIT = 3
+UPSTREAM_COOLDOWN_SECONDS = 30.0
+HEALTH_TTL_SECONDS = 90.0
+HEALTH_FILENAME = "proxy_transport_health.json"
 
 _CORE: ModuleType | None = None
 
@@ -46,6 +54,72 @@ class ProxyCore:
         self._direct_listener = None
         self._direct_port = None
         self._upstreams = self._build_upstreams()
+        self._health_lock = threading.Lock()
+        self._failures = [0] * len(self._upstreams)
+        self._retry_after = [0.0] * len(self._upstreams)
+        self._health_state = None
+        self._last_health_write = 0.0
+
+    def _record_health(self, status):
+        """Publish credential-free status, updated at state transitions or once/minute."""
+        core = _core()
+        if not core.is_windows():
+            return
+        now = time.time()
+        with self._health_lock:
+            if self._health_state == status and now - self._last_health_write < 60:
+                return
+            try:
+                path = os.path.join(core.runtime_dir(), HEALTH_FILENAME)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                temp = path + ".%d.tmp" % os.getpid()
+                with io.open(temp, "w", encoding="utf-8") as stream:
+                    json.dump(
+                        {"pid": os.getpid(), "status": status, "updated": now},
+                        stream,
+                    )
+                os.replace(temp, path)
+                self._health_state = status
+                self._last_health_write = now
+            except OSError:
+                # Connection handling must not depend on diagnostic persistence.
+                pass
+
+    def _candidates(self):
+        now = time.monotonic()
+        with self._health_lock:
+            return [
+                (i, up) for i, up in enumerate(self._upstreams)
+                if self._retry_after[i] <= now
+            ]
+
+    def _mark_upstream_success(self, index):
+        with self._health_lock:
+            self._failures[index] = 0
+            self._retry_after[index] = 0.0
+        self._record_health("healthy")
+
+    def _mark_upstream_failure(self, index):
+        core = _core()
+        quarantined = False
+        with self._health_lock:
+            self._failures[index] += 1
+            if self._failures[index] >= UPSTREAM_FAILURE_LIMIT:
+                quarantined = self._retry_after[index] <= time.monotonic()
+                self._retry_after[index] = (
+                    time.monotonic() + UPSTREAM_COOLDOWN_SECONDS
+                )
+                self._failures[index] = 0
+            all_blocked = all(
+                retry > time.monotonic() for retry in self._retry_after
+            )
+        if quarantined:
+            core.structured_log(
+                "unresponsive upstream temporarily quarantined",
+                level="WARNING", event="proxy.upstream.cooldown",
+                index=index, cooldown_seconds=UPSTREAM_COOLDOWN_SECONDS,
+            )
+        self._record_health("unavailable" if all_blocked else "degraded")
 
     def _build_upstreams(self):
         out = []
@@ -108,7 +182,11 @@ class ProxyCore:
 
     def _open_upstream_tunnel(self, host, port, client_request=None):
         core = _core()
-        for host_u, proxy_port, token in self._upstreams:
+        candidates = self._candidates()
+        if not candidates:
+            self._record_health("unavailable")
+            return None, b""
+        for index, (host_u, proxy_port, token) in candidates:
             stream = None
             started = time.monotonic()
             try:
@@ -133,6 +211,7 @@ class ProxyCore:
                 )
                 if 200 <= status < 300:
                     stream.settimeout(300)
+                    self._mark_upstream_success(index)
                     return stream, response
             except Exception as exc:
                 core.structured_log(
@@ -145,6 +224,7 @@ class ProxyCore:
                     error_type=type(exc).__name__,
                     elapsed_ms=int((time.monotonic() - started) * 1000),
                 )
+            self._mark_upstream_failure(index)
             if stream is not None:
                 try:
                     stream.close()
@@ -627,8 +707,31 @@ class ProxyCore:
         return True
 
 
+def read_transport_health():
+    """Read only recent health from the currently owned worker, never stale runs."""
+    core = _core()
+    if not core.is_windows():
+        return "unknown"
+    try:
+        with io.open(
+            os.path.join(core.runtime_dir(), HEALTH_FILENAME),
+            "r", encoding="utf-8",
+        ) as stream:
+            state = json.load(stream)
+        record = core._read_pid() or {}
+        if (state.get("pid") != record.get("pid")
+                or time.time() - float(state.get("updated", 0)) > HEALTH_TTL_SECONDS
+                or float(state.get("updated", 0)) > time.time() + 5):
+            return "unknown"
+        status = state.get("status")
+        return status if status in ("healthy", "degraded", "unavailable") else "unknown"
+    except (OSError, ValueError, TypeError, AttributeError):
+        return "unknown"
+
+
 def install_into_core(core: ModuleType) -> ModuleType:
     """Expose canonical transport ownership through the compatibility seam."""
     core._SOCKS5_REPLY_BIND_ADDR = SOCKS5_REPLY_BIND_ADDR
     core.ProxyCore = ProxyCore
+    core.read_transport_health = read_transport_health
     return core
