@@ -7,6 +7,23 @@ Current stable product line: 0.2.16 — public release for Windows x64, Astra Li
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
+## Синхронизация 27.10.2026 · мобильные приложения, продуктовая очередь
+
+Этот блок новее исторических дат ниже. Последний стабильный desktop baseline в GitHub `main` на момент сверки — 0.2.16; точную публичную версию по каждому каналу и статус Mac App Store 0.2.19 (8) необходимо перепроверить, а не считать прошлую подачу публикацией.
+
+- [x] Android: рабочий мобильный VpnService/TUN, профили, failover, реальная 0.1.17 опубликована; 0.1.19 site exclusions интегрированы и физически принимались, но факт публичного релиза этой версии требует отдельной проверки.
+- [ ] Android P0/P1: MOB-004 Yandex Ads и двухканальная дистрибуция (публичный APK с рекламой и приватный без SDK), решение об update/package identity, consent/QA/реальные устройства. Монетизация — owner-gated, не запускать автоматически.
+- [ ] **iOS APL**: по сообщению владельца опубликована **0.1.37** и более 100 скачиваний; источник в этом desktop-репозитории не доказывает точные ASC build/live состояние. Первым шагом read-only сверить App Store Connect и отдельный iOS source/release pipeline.
+- [ ] iOS P0: явный выбор светлой/тёмной системной темы и контрастная физическая проверка, включая VoiceOver; пользовательский отзыв о только тёмной теме. Отделить готовый код от опубликованной версии.
+- [ ] iOS P0: сайт поддержки в App Store — **https://arvectum.com/** вместо GitHub; подтвердить владение рекламным доменом через корректные ads.txt/app-ads.txt согласно требованиям РСЯ, проверить реальные live metadata и права до изменения.
+- [ ] iOS P1: ненавязчивая реклама РСЯ с согласием/privacy, без агрессивной рекламы при старте; реальные fill/no-fill, доходность, UX и review policy — до релиза.
+- [ ] Common P1: Smart Exclusions — on-device анализ зависимых доменов (например, gu-st.ru для gosuslugi.ru), понятное управление, защита privacy/rollback; не смешивать с уже реализованным ручным исключением.
+- [ ] Research: коммерческий ГОСТ-VPN клиент для Apple/macOS/iOS — API/криптография, интероперабельность, правовая квалификация, лицензирование и сертификация, App Store допуск; **не заявлять сертификацию или совместимость до проверки**.
+- [ ] Desktop: Windows full-trust publisher signing; per-app routing architecture; macOS production notarization и Store status; Linux acceptance. Сохранять fail-safe rollback/owner gates из канонического плана.
+
+**Граница:** без отправки новых App Store/Google/RuStore билдов, изменений опубликованных карточек, сертификатов или платного API. Проверка статуса — read-only. Бэклог не равен одобренной разработке каждой отложенной ветки.
+
+
 ## 0. Repository authority and release baseline
 
 - **DONE** — source/history/tags were recovered into `arvectum2/proxy-launcher`; `main` is the canonical integration branch.
