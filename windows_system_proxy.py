@@ -659,6 +659,76 @@ def disable_system_proxy() -> bool:
     )
 
 
+
+def reassert_missing_owned_pac(stop_event=None) -> str:
+    """Repair an unexpectedly *absent* PAC only when every other owned field agrees.
+
+    Never overwrite a different PAC, a manual proxy, changed WPAD settings, or
+    unknown backup state. The live runtime calls this only during its own
+    active session; a user-requested stop sets stop_event before mutation.
+    """
+    core = _core()
+    if not core.is_windows() or (stop_event and stop_event.is_set()):
+        return "skipped"
+    try:
+        with io.open(core._internet_backup_path(), "r", encoding="utf-8") as stream:
+            saved = json.load(stream)
+    except (OSError, ValueError):
+        return "no_ownership"
+    if not core._valid_internet_backup(saved):
+        return "no_ownership"
+    original_pac = saved.get("AutoConfigURL") or {}
+    # If a corporate PAC existed before APL, its reappearance might be an
+    # intentional user/administrator action, not something to override.
+    if original_pac.get("exists"):
+        return "foreign"
+
+    def eligible(values):
+        if not core._valid_internet_backup(values):
+            return False
+        pac = values.get("AutoConfigURL") or {}
+        if pac.get("exists"):
+            return False
+        if not _registry_dword_equals(values.get("ProxyEnable"), 0):
+            return False
+        if not _registry_dword_equals(values.get("AutoDetect"), 0):
+            return False
+        return all(
+            _state_item_matches(values.get(name), saved.get(name))
+            for name in ("ProxyServer", "ProxyOverride")
+        )
+
+    if not eligible(core._read_internet_settings()):
+        return "foreign"
+    # Recheck immediately before writing: an intervening VPN/corporate proxy
+    # must take precedence over this self-healing attempt.
+    if stop_event and stop_event.is_set():
+        return "skipped"
+    if not eligible(core._read_internet_settings()):
+        return "foreign"
+    if stop_event and stop_event.is_set():
+        return "skipped"
+
+    url = core.pac_url(core.load_settings())
+    if not core._reg_set("AutoConfigURL", url, "REG_SZ"):
+        core.structured_log(
+            "Windows PAC self-heal failed to write registry value",
+            event="proxy.windows.pac_self_heal", level="WARNING",
+            result="write_failed",
+        )
+        return "failed"
+    core._refresh_internet()
+    restored = core.system_proxy_enabled()
+    core.structured_log(
+        "Windows PAC restored after unexpected removal" if restored
+        else "Windows PAC self-heal verification failed",
+        event="proxy.windows.pac_self_heal",
+        level="INFO" if restored else "WARNING",
+        result="restored" if restored else "failed",
+    )
+    return "restored" if restored else "failed"
+
+
 def _registry_dword_equals(item, expected: int) -> bool:
     """Return false for absent or malformed registry DWORD state."""
     item = item or {}
@@ -724,6 +794,7 @@ def install_into_core(core: ModuleType) -> ModuleType:
         "_reg_del",
         "_refresh_internet",
         "enable_system_proxy",
+        "reassert_missing_owned_pac",
         "disable_system_proxy",
         "system_proxy_enabled",
         "network_restore_pending",
