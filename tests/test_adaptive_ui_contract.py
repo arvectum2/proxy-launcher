@@ -18,7 +18,9 @@ class AdaptiveUiContractTests(unittest.TestCase):
             self.assertIn(token, ANDROID)
 
         self.assertIn("static let navy = Color(red: 0, green: 20/255, blue: 50/255)", IOS)
-        self.assertIn("static let mint = Color(red: 0, green: 200/255, blue: 160/255)", IOS)
+        # Light mode adds a semantic palette; preserve the original dark-mode brand mint.
+        self.assertIn("static let mint = adaptive(", IOS)
+        self.assertIn("dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)", IOS)
 
     def test_navigation_order_is_shared(self):
         desktop_items = (
