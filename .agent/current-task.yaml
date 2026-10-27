@@ -1,53 +1,37 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-GITHUB-RELEASE-20261007
-status: completed
-goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
+task_id: APL-IOS-ADS-001-20261027
+status: blocked
+goal: "Prepare safe iOS App Store advertising monetization after owner-reported 100+ downloads without putting existing published VPN binary at risk."
 definition_of_done:
-  - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
-  - "Release artifact is package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
-  - "Published APK SHA-256 equals 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "A dedicated Android tag/release exists on GitHub and contains the production public APK plus SHA256 checksum information."
-  - "Release notes clearly identify Android public / RuStore build and do not confuse it with desktop v0.2.16."
-  - "Published release and asset metadata are re-read from GitHub and verified."
+  - "Document Apple 5.4 compliance assessment and acceptable iOS advertising data flows, with clarification when necessary."
+  - "Verify exact iOS Yandex RСЯ app and ad unit for ru.arvectum.proxylauncher.ios."
+  - "Implement approved ad format in main app only, not PacketTunnel, with disabled-by-default feature gate."
+  - "Update in-app privacy disclosure, public policy, metadata, Apple privacy manifest and App Store Connect App Privacy before enabling advertising."
+  - "Pass exact-head iOS builds, real iPhone VPN+ads+privacy acceptance and owner-approved release."
 completed:
-  - "Confirmed Android public 0.1.38 / versionCode 39 is the canonical RuStore production candidate."
-  - "Confirmed release source commit 676a987105d8f01b8ed32db8b500b58a26e74542 and production APK SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "Confirmed production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 and historical v2/v3 + 16 KiB alignment verification."
-  - "Recovered canonical production signing key path from PR #221 history: /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks."
-  - "Recovered prior release worktree path from PR #221 history: /Users/master/Documents/proxy-launcher-rustore-public."
-  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used."
-  - "Confirmed PR #221 Android Actions artifact 10968885672 is proxy-launcher-android-debug only; it is not release-eligible."
-  - "Searched connected Google Drive for APK/0.1.38/Proxy Launcher and the 2026-09-28 date window: no production APK found."
-  - "Searched both connected Gmail accounts for Sep 27-29 messages with relevant APK/RuStore/0.1.38 attachments: no production APK found."
-  - "Checked all Remote Desktop Commander devices: Mac mini and all other authorized devices are offline."
-  - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
-  - "Created PR #252 carrying the interruption-safe canonical checkpoint."
-  - "Recovered the canonical production APK at /Users/master/Documents/proxy-launcher-rustore-final/dist/Arvectum-Proxy-0.1.38-rustore.apk after restoring Remote Desktop Commander access."
-  - "Live verification PASS: SHA-256 21519775..., package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer 9598d6..., APK Signature v2/v3, and 16 KiB zip alignment."
-  - "Published tag android-v0.1.38 pinned exactly to 676a987105d8f01b8ed32db8b500b58a26e74542."
-  - "Published GitHub Release Arvectum Proxy Launcher Android 0.1.38 with Arvectum-Proxy-Launcher-Android-0.1.38.apk and SHA256SUMS.txt."
-  - "Downloaded the published APK back from GitHub and re-verified SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; SHA256SUMS verification PASS."
-current: "COMPLETED: Android public 0.1.38 is published as GitHub Release android-v0.1.38 with the verified production-signed APK."
-pending: []
-last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
+  - "Verified canonical iOS roadmap and published documented baseline 0.1.36 (40), no advertising SDK."
+  - "Identified first-launch and Store descriptions currently promise no ads, analytics, tracking or collection."
+  - "Verified PrivacyInfo.xcprivacy has NSPrivacyTracking=false and no collected data."
+  - "Reviewed official Apple guideline 5.4, 2.5.18 and Yandex iOS SDK 8 integration/privacy documentation."
+  - "Created GitHub issue #261 for P0 Apple/privacy gating and iOS ads work."
+  - "Prepared iOS monetization implementation/review plan and updated primary roadmap in PR branch."
+current: "Blocked before SDK integration: obtain Apple 5.4/privacy data-flow clearance and verify correct iOS RСЯ ad unit."
+pending:
+  - "Obtain documented Apple 5.4 assessment or clarification about third-party ad SDK data flows."
+  - "Confirm Yandex iOS app registration, ad unit, targeting/geography and accepted inventory."
+  - "Once compliant, implement application-only contextual banner, test on iPhone, update privacy/ASO, then seek release approval."
+last_verified_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
 test_results:
-  - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
-  - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
-  - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "GitHub Actions PR #221 artifact audit: only debug artifact present; production signer not available in GitHub Actions artifact."
-  - "Live production APK verification PASS: v2=true, v3=true, signer certificate SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
-  - "Live package/version verification PASS: ru.arvectum.proxylauncher / 0.1.38 / versionCode 39."
-  - "Live zipalign verification PASS with -P 16."
-  - "Published GitHub asset digest: sha256:21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "Fresh post-publication download checksum verification PASS."
-blocker: null
-resume_instruction: "Task complete. Future Android public releases must use the production signing identity and verify package/version/signer/hash before publication; never substitute debug/dogfood artifacts."
-updated_at: "2026-10-07T20:31:00+03:00"
+  - "Read-only repository inspection complete: iOS target main app and PacketTunnel are separate."
+  - "Documentation/planning change only: no iOS SDK compiled or ad impressions tested."
+  - "Published binary 0.1.36 (40) unchanged."
+blocker: "Apple guideline 5.4 applicability and advertising SDK data transfer not yet cleared; Yandex iOS app/ad unit not verified."
+resume_instruction: "Read docs/monetization/ios-appstore-advertising.md and GitHub issue #261. Verify privacy/data flows and iOS RСЯ unit first. Do not integrate Yandex SDK or change Store privacy declarations until compliant release approach is documented. Preserve current published build."
+updated_at: "2026-10-27T14:34:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
-  branch: "task/android-github-release-20261007"
-  base_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
-  pr: 252
+  execution_id: "APL-IOS-ADS-001-20261027"
+  branch: "docs/ios-ads-monetization-20261027"
+  base_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
   manual_override: true
