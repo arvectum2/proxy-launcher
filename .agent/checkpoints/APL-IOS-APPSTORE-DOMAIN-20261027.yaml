@@ -12,7 +12,11 @@ definition_of_done:
 completed:
   - "Confirmed public iTunes API version 0.1.37 and release date 2026-10-07."
   - "Confirmed live App Store Connect iOS 0.1.37 READY_FOR_SALE; en-US and ru localizations still point to github.io support and GitHub marketing URLs."
-  - "Confirmed https://arvectum.com/app-ads.txt HTTP 200 (body 7896 bytes); https://arvectum.com/ads.txt is irrelevant to mobile app verification."\n  - "Attempted App Store Connect PATCH current 0.1.37 en-US supportUrl/marketingUrl; Apple HTTP 409 STATE_ERROR for both fields. No live metadata was changed."\n  - "Confirmed live build number 41 through authenticated Apple API."\n  - "Updated canonical docs/ROADMAP.md and created docs/app-store-metadata-ios-0.1.37.md; 0.1.36 historical evidence preserved."\n  - "Opened GitHub P0 issue #undefined tracking new-version domain fix."
+  - "Confirmed https://arvectum.com/app-ads.txt HTTP 200 (body 7896 bytes); https://arvectum.com/ads.txt is irrelevant to mobile app verification."
+  - "Attempted App Store Connect PATCH current 0.1.37 en-US supportUrl/marketingUrl; Apple HTTP 409 STATE_ERROR for both fields. No live metadata was changed."
+  - "Confirmed live build number 41 through authenticated Apple API."
+  - "Updated canonical docs/ROADMAP.md and created docs/app-store-metadata-ios-0.1.37.md; 0.1.36 historical evidence preserved."
+  - "Opened GitHub P0 issue #263 tracking new-version domain fix."
 current: "Documentation corrected on branch; live 0.1.37 URL update rejected by Apple HTTP 409 (READY_FOR_SALE), requires separate new-version App Review release."
 pending:
   - "After approved new iOS version is prepared, set localized supportUrl/marketingUrl to https://arvectum.com/; complete App Review and confirm public card."
@@ -20,7 +24,9 @@ pending:
   - "Merge documentation PR after GitHub required build passes."
 last_verified_commit: "42512382e330dbe0d12b631c68b4947dd0e4f187"
 test_results:
-  - "Apple public lookup: version 0.1.37; currentVersionReleaseDate 2026-10-07T15:55:15Z."\n  - "ASC 0.1.37 build relationship GET 200: build 41."\n  - "ASC PATCH on live 0.1.37 returned HTTP 409 STATE_ERROR on both desired attributes; data unchanged."
+  - "Apple public lookup: version 0.1.37; currentVersionReleaseDate 2026-10-07T15:55:15Z."
+  - "ASC 0.1.37 build relationship GET 200: build 41."
+  - "ASC PATCH on live 0.1.37 returned HTTP 409 STATE_ERROR on both desired attributes; data unchanged."
   - "Apple authenticated App Store Connect API GET 200 for app 6816013574, version READY_FOR_SALE."
   - "Current supportUrl en-US/ru https://arvectum2.github.io/proxy-launcher/support.html, marketingUrl https://github.com/arvectum2/proxy-launcher."
   - "Live https://arvectum.com/app-ads.txt HTTP 200, 7896 bytes."
