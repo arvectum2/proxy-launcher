@@ -1,53 +1,35 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-ANDROID-GITHUB-RELEASE-20261007
-status: completed
-goal: "Publish a canonical GitHub Release for Android public 0.1.38 using the already verified production-signed APK, without substituting the dogfood/debug signer."
+task_id: APL-IOS-APPSTORE-DOMAIN-20261027
+status: in_progress
+goal: "Correct canonical iOS roadmap to public App Store 0.1.37 and change live App Store metadata Support URL + Marketing URL to https://arvectum.com/ for Yandex app-ads.txt discovery."
 definition_of_done:
-  - "Canonical release source is pinned to commit 676a987105d8f01b8ed32db8b500b58a26e74542."
-  - "Release artifact is package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
-  - "Published APK SHA-256 equals 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "A dedicated Android tag/release exists on GitHub and contains the production public APK plus SHA256 checksum information."
-  - "Release notes clearly identify Android public / RuStore build and do not confuse it with desktop v0.2.16."
-  - "Published release and asset metadata are re-read from GitHub and verified."
+  - "Live Apple App Store Connect version and localization metadata verified, including Russian and English."
+  - "App Store Connect supportUrl and marketingUrl set to https://arvectum.com/ for current published iOS version, or record Apple restriction precisely if unavailable."
+  - "Verify https://arvectum.com/app-ads.txt is publicly accessible, and instruct on next RСЯ verification step."
+  - "Correct iOS 0.1.37 references in canonical roadmap and version-specific metadata source documentation, preserving historical 0.1.36 evidence."
+  - "Verify actual API readback and checked files; commit changes via pull request, retain reproducible checkpoint."
 completed:
-  - "Confirmed Android public 0.1.38 / versionCode 39 is the canonical RuStore production candidate."
-  - "Confirmed release source commit 676a987105d8f01b8ed32db8b500b58a26e74542 and production APK SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "Confirmed production signer SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4 and historical v2/v3 + 16 KiB alignment verification."
-  - "Recovered canonical production signing key path from PR #221 history: /Users/master/Arvectum/signing/proxy-launcher/proxy-launcher-release.jks."
-  - "Recovered prior release worktree path from PR #221 history: /Users/master/Documents/proxy-launcher-rustore-public."
-  - "Confirmed committed mobile/android/signing/proxy-launcher-dogfood.keystore is explicitly non-production and must not be used."
-  - "Confirmed PR #221 Android Actions artifact 10968885672 is proxy-launcher-android-debug only; it is not release-eligible."
-  - "Searched connected Google Drive for APK/0.1.38/Proxy Launcher and the 2026-09-28 date window: no production APK found."
-  - "Searched both connected Gmail accounts for Sep 27-29 messages with relevant APK/RuStore/0.1.38 attachments: no production APK found."
-  - "Checked all Remote Desktop Commander devices: Mac mini and all other authorized devices are offline."
-  - "Re-enabled the existing single hourly Proxy Launcher Watchdog; no duplicate task created."
-  - "Created PR #252 carrying the interruption-safe canonical checkpoint."
-  - "Recovered the canonical production APK at /Users/master/Documents/proxy-launcher-rustore-final/dist/Arvectum-Proxy-0.1.38-rustore.apk after restoring Remote Desktop Commander access."
-  - "Live verification PASS: SHA-256 21519775..., package ru.arvectum.proxylauncher, versionName 0.1.38, versionCode 39, production signer 9598d6..., APK Signature v2/v3, and 16 KiB zip alignment."
-  - "Published tag android-v0.1.38 pinned exactly to 676a987105d8f01b8ed32db8b500b58a26e74542."
-  - "Published GitHub Release Arvectum Proxy Launcher Android 0.1.38 with Arvectum-Proxy-Launcher-Android-0.1.38.apk and SHA256SUMS.txt."
-  - "Downloaded the published APK back from GitHub and re-verified SHA-256 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572; SHA256SUMS verification PASS."
-current: "COMPLETED: Android public 0.1.38 is published as GitHub Release android-v0.1.38 with the verified production-signed APK."
-pending: []
-last_verified_commit: "676a987105d8f01b8ed32db8b500b58a26e74542"
+  - "Confirmed public iTunes API version 0.1.37 and release date 2026-10-07."
+  - "Confirmed live App Store Connect iOS 0.1.37 READY_FOR_SALE; en-US and ru localizations still point to github.io support and GitHub marketing URLs."
+  - "Confirmed https://arvectum.com/app-ads.txt HTTP 200 (body 7896 bytes); https://arvectum.com/ads.txt is irrelevant to mobile app verification."
+current: "Updating live App Store Connect localization URLs and roadmap; no binary build or resubmission."
+pending:
+  - "PATCH current 0.1.37 localized supportUrl and marketingUrl for both en-US and ru; re-read."
+  - "Update roadmap and canonical forward-looking metadata documentation."
+  - "Run narrow checks, create PR, merge if required build passes."
+last_verified_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
 test_results:
-  - "Historical canonical release gate PASS: assemblePublicRelease + lintVitalPublicRelease."
-  - "Historical APK verification PASS: v2/v3 signing, signer fingerprint 9598d6..., 16 KiB zip alignment."
-  - "Historical production APK SHA-256: 21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "GitHub Actions PR #221 artifact audit: only debug artifact present; production signer not available in GitHub Actions artifact."
-  - "Live production APK verification PASS: v2=true, v3=true, signer certificate SHA-256 9598d6b45feeb644af1babd8fa8883570f10da401da644bd48e6d0b8142ec3a4."
-  - "Live package/version verification PASS: ru.arvectum.proxylauncher / 0.1.38 / versionCode 39."
-  - "Live zipalign verification PASS with -P 16."
-  - "Published GitHub asset digest: sha256:21519775dd098fba2c2389ced34e5e991bf3335b6a414af3561b298515f8d572."
-  - "Fresh post-publication download checksum verification PASS."
+  - "Apple public lookup: version 0.1.37; currentVersionReleaseDate 2026-10-07T15:55:15Z."
+  - "Apple authenticated App Store Connect API GET 200 for app 6816013574, version READY_FOR_SALE."
+  - "Current supportUrl en-US/ru https://arvectum2.github.io/proxy-launcher/support.html, marketingUrl https://github.com/arvectum2/proxy-launcher."
+  - "Live https://arvectum.com/app-ads.txt HTTP 200, 7896 bytes."
 blocker: null
-resume_instruction: "Task complete. Future Android public releases must use the production signing identity and verify package/version/signer/hash before publication; never substitute debug/dogfood artifacts."
-updated_at: "2026-10-07T20:31:00+03:00"
+resume_instruction: "Use ASC API on Mac mini with local Team API key kept local; PATCH 0.1.37 ru/en-US support+marketing URLs to https://arvectum.com/; verify. Then update docs/ROADMAP.md, document 0.1.37 current metadata, ensure PR with required build and update this checkpoint to completed or blocked according to observed API outcome."
+updated_at: "2026-10-27T14:55:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-ANDROID-GITHUB-RELEASE-20261007"
-  branch: "task/android-github-release-20261007"
-  base_commit: "f05b49ec2712e53848576cacbc833b33d8870f23"
-  pr: 252
+  execution_id: "APL-IOS-APPSTORE-DOMAIN-20261027"
+  branch: "docs/ios-appstore-domain-037-20261027"
+  base_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
   manual_override: true
