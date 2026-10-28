@@ -75,7 +75,7 @@
 "Отключено" = "Disconnected";
 "Отключить" = "Disconnect";
 "Отключить системный прокси-туннель" = "Disconnect the system proxy tunnel";
-"Откройте «Профили» → «Новый». Укажите адрес сервера (хост), номер порта и тип подключения (HTTP, HTTPS или SOCKS5). Добавьте логин и пароль, только если они требуются." = "Open Profiles → New. Enter the server address (host), port and connection type (HTTP, HTTPS or SOCKS5). Enter a username and password only if required.";
+"Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Open Profiles and tap Add your first proxy (or New if you already have profiles). Enter the server host, port and protocol (HTTP, HTTPS or SOCKS5). Use a username and password only if required.";
 "Открыть создание первого прокси" = "Open the form to add your first proxy";
 "Отмена" = "Cancel";
 "Оформление" = "Appearance";
