@@ -1,6 +1,6 @@
 # APL-IOS-ADS-001 — advertising and App Store compliance plan
 
-Status: **SDK WIRED IN ISOLATED SOURCE BRANCH (PRODUCTION OFF); public release still BLOCKED by Apple guideline 5.4 privacy/data-flow assessment.**
+Status: **Owner requested production RSYA banner enabled in source for iOS 0.1.39 (44); App Store upload/review not verified.**
 Updated: 2026-10-28 (preserved #262 research; reconciled against merged #265)
 Owner signal: >100 App Store downloads (owner report, not verified directly).
 RSYA ownership: owner confirmed 2026-10-28 and supplied iOS banner unit `R-M-20288304-1`; dashboard-to-bundle provenance and regional availability remain to be independently verified.
@@ -21,7 +21,7 @@ Tracking: https://github.com/arvectum2/proxy-launcher/issues/261
 | P0 — Apple/legal | Document classification under App Review 5.4, SDK full data-flow/privacy analysis, and acceptable advertising method, obtaining written Apple clarification when necessary | **BLOCKED / REQUIRED BEFORE SDK** |
 | P0 — RСЯ account | Owner confirmed ownership and supplied iOS banner `R-M-20288304-1`; verify exact bundle association, supported regions/creatives before activation | OWNER CONFIRMED; ACCOUNT DETAILS UNVERIFIED |
 | P1 — UX | Choose an unobtrusive adaptive banner in Settings or Activity; no banners over connection controls; no interstitial/App Open in MVP | PRODUCT DIRECTION |
-| P1 — Build (conditional) | Yandex Mobile Ads SDK 8.6.0 linked into iOS **main app only** on `feat/ios-rsya-banner-20261028`; Settings sticky banner, production OFF, debug uses demo unit and explicit launch flag | SOURCE INTEGRATED; DEBUG/RELEASE UNSIGNED BUILDS PASS; PR PENDING |
+| P1 — Build (conditional) | Yandex Mobile Ads SDK 8.6.0 linked into iOS **main app only** on `feat/ios-rsya-banner-20261028`; Settings sticky banner, production ON by owner's explicit request, debug uses demo unit and explicit launch flag | SOURCE INTEGRATED; DEBUG/RELEASE UNSIGNED BUILDS PASS; PR PENDING |
 | P1 — Privacy/ASO | Update policy, onboarding, App Privacy, privacy manifest, age rating/creative reporting, ATT decision, localized listing/links | NOT STARTED |
 | P1 — QA/release | CI + Xcode no-sign build, real-iPhone VPN smoke, ad request/no-fill/offline, accessibility, network egress/privacy audit, TestFlight, App Review, human release decision | NOT STARTED |
 
@@ -68,6 +68,12 @@ Official references:
 
 - `R-M-20288304-1` is the owner-supplied iOS banner placement, not a replacement for Android public App Open `R-M-20130429-1`.
 - `App/SettingsBannerView.swift` is a single adaptive sticky banner at the bottom of Settings. It is outside `PacketTunnel`, never blocks VPN controls, has an ad label, and suppresses a failed/no-fill view without retry.
-- The ad runtime is **disabled in Release** (`IOSAdsConfig.isEnabled = false`) and thus makes no production ad requests. Debug displays only Yandex `demo-banner-yandex` when Xcode launch arguments explicitly include `-APL_ENABLE_DEMO_BANNER`.
-- The current `PrivacyInfo.xcprivacy` and App Store privacy answers remain valid only for the ad-disabled build; **do not switch the release feature flag on, upload, or submit until** Apple 5.4/data flow assessment, Yandex SDK privacy manifest review, regional/creative compliance, declarations/ASO/legal consent, real-device ad and VPN QA, and separate owner release approval.
+- The ad runtime is **enabled in Release source** (`IOSAdsConfig.isEnabled = true`); the submitted/published binary does not change until a newly signed ad-enabled build is uploaded and reviewed. Debug displays only Yandex `demo-banner-yandex` when Xcode launch arguments explicitly include `-APL_ENABLE_DEMO_BANNER`.
+- The owner explicitly requested leaving existing App Store privacy answers unchanged. **No privacy declarations were edited in this branch.** Those answers may no longer describe a build that loads the Yandex SDK; Apple 5.4 and data-disclosure concerns remain unresolved and must not be described as verified compliant.
 - The integration's presence in source or an unsigned QA build is not evidence that ads are running in the published App Store app.
+
+## Ad-enabled candidate (explicit owner directive, 2026-10-28)
+
+- Source flag enabled for Release, production banner `R-M-20288304-1`, allocated iOS `0.1.39 (44)` for a distinct build from the already-uploaded build 43.
+- Existing App Store privacy fields, privacy policy and `PrivacyInfo.xcprivacy` unchanged at owner's request; no claim of SDK data-flow compliance is made.
+- No signed ad-enabled IPA or App Store submission has been verified. GitHub branch/PR is source staging only. Any Apple approval/rejection must be reported as an actual portal result rather than assumed.
