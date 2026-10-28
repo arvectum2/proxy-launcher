@@ -7,7 +7,7 @@ Tracking: https://github.com/arvectum2/proxy-launcher/issues/261
 
 ## Stable app baseline
 
-- Historical public iOS 0.1.36 / build 40 (2026-10-05) is not the latest. Public 0.1.37 / build 41 was confirmed in PR #265 review; 0.1.38 / build 42 theme/website code is **merged in main**, with signed IPA evidence but **no claim that 0.1.38 is public**. Verify the current App Store status read-only before a release decision.
+- Historical 0.1.36 / build 40 and 0.1.37 / build 41 are not the current public release. Apple public **single-app Lookup** on 28.10 confirmed **0.1.38** in **15 of 16 checked regions** (RU, US, GB, CA, AU, ES, MX, FR, DE, IT, PT, BR, JP, KR, TW); China (CN) returned `resultCount=0` by ID and bundle identifier, so no listing/version there was confirmed. Date in public result `2026-10-27T20:24:47Z`, minimum iOS 15.0. Public Lookup does not expose the installed build number, signed SHA or review history; 0.1.38 build 42 comes from source/release evidence in PR #265, not public API. [C18 read-only snapshot](apple-public-apl-ios-c18-20261028.json).
 - iOS bundle: `ru.arvectum.proxylauncher.ios`, iOS 15+, native SwiftUI, `NEPacketTunnelProvider` in a separate extension.
 - No advertising SDK was added by merged PR #265. Existing app disclosures promise no ads/analytics/tracking; preserve consistency until a separate privacy-compliant release is explicitly approved.
 - `Config/AppPrivacy/PrivacyInfo.xcprivacy` sets `NSPrivacyTracking=false` and no collected data, and App Store privacy metadata has “Data Not Collected”. None of these statements may be carried forward unchanged if the ad integration changes real data behavior.
@@ -59,6 +59,6 @@ Official references:
 ## 28.10 handover and implementation boundary
 
 - Source of this plan: older conflicting docs PR #262. Its `.agent/current-task.yaml` replacement was **not copied**: APL has a live multi-platform operations tracker and rewriting its current-task state would destroy unrelated progress.
-- Canonical PR #265 theme work is already merged; the advertising feature is **not** implemented, enabled, or included in that binary.
+- Canonical PR #265 theme work is already merged, and its 0.1.38 release is independently visible in Apple Lookup in 15/16 checked regions. The advertising feature is **not** implemented, enabled, or claimed to be included in that binary.
 - Owner's 100+ downloads report establishes commercial interest, **not** an independently verified number or revenue projection.
 - This document preserves research only; no SDK, ad unit, App Store listing, Store privacy labels, local network, or VPN tunnel code changed. Any installation/publication requires a separate authorized change.

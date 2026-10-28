@@ -7,6 +7,12 @@ Current stable product line: 0.2.16 — public release for Windows x64, Astra Li
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
+## 28.10.2026 · C18 публичная iOS-проверка (новее нижнего среза 27.10)
+
+- [x] **APL iOS 0.1.38 опубликована:** Apple Lookup по одному ID на страну подтвердил `0.1.38` в **15/16** проверенных регионах, дата `2026-10-27T20:24:47Z`, RU минимум iOS 15.0. **CN — `resultCount=0`**, версия/причина недоступности неизвестны. [Доказательство](monetization/APL_IOS_C18_PUBLIC_CHECK_2026-10-28.md).
+- [x] Исходники тем и Support/Marketing URL объединены PR #265; прежняя запись ниже «не опубликовано» относится только к исходному состоянию 27.10, **не** к текущему магазину.
+- [ ] Реклама в iOS APL пока отсутствует, Apple VPN Guideline 5.4 и vendor ad-data STOP-GATE сохраняются; [план](monetization/ios-appstore-advertising.md). Публикация новой версии/SDK/metadata только по отдельному разрешению.
+
 ## Синхронизация 27.10.2026 · мобильные приложения, продуктовая очередь
 
 Этот блок новее исторических дат ниже. Последний стабильный desktop baseline в GitHub `main` на момент сверки — 0.2.16; точную публичную версию по каждому каналу и статус Mac App Store 0.2.19 (8) необходимо перепроверить, а не считать прошлую подачу публикацией.
