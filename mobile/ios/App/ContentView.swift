@@ -820,6 +820,9 @@ struct ProfileEditorView: View {
         NavigationView {
             Form {
                 Section("Прокси") {
+                    Text("Данные подключения выдаёт поставщик прокси или администратор сети.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     TextField("Название", text: $name)
                     TextField("Хост", text: $host)
                         .textInputAutocapitalization(.never)
@@ -829,8 +832,14 @@ struct ProfileEditorView: View {
                     Picker("Тип", selection: $type) {
                         ForEach(ProxyType.allCases) { type in Text(AppL10n.tr(type.label)).tag(type) }
                     }
+                    Text("Хост — адрес сервера, порт — его номер. Тип уточните у поставщика.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
                 Section("Авторизация") {
+                    Text("Логин и пароль нужны только для прокси с авторизацией.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     TextField("Логин", text: $username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
