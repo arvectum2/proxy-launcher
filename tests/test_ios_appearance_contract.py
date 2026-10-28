@@ -34,10 +34,10 @@ class IOSAppearanceContractTests(unittest.TestCase):
     def test_release_version_and_project_consistent(self):
         yml = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.1.38"', yml)
-        self.assertIn('CURRENT_PROJECT_VERSION: "42"', yml)
-        self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.38;'), 2)
-        self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 42;'), 2)
+        self.assertIn('MARKETING_VERSION: "0.1.39"', yml)
+        self.assertIn('CURRENT_PROJECT_VERSION: "43"', yml)
+        self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.39;'), 2)
+        self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 43;'), 2)
 
     def test_ads_are_default_off_in_release_and_not_in_tunnel(self):
         config = (IOS / "project.yml").read_text(encoding="utf-8")

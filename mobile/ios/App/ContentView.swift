@@ -60,10 +60,10 @@ private enum AppDestination: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .home: return "Главная"
-        case .profiles: return "Профили"
-        case .activity: return "Активность"
-        case .settings: return "Настройки"
+        case .home: return AppL10n.tr("Главная")
+        case .profiles: return AppL10n.tr("Профили")
+        case .activity: return AppL10n.tr("Активность")
+        case .settings: return AppL10n.tr("Настройки")
         }
     }
     var icon: String {
@@ -119,6 +119,10 @@ private struct EqualHeightDashboardLayout: Layout {
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
+    @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
+    @AppStorage("setupGuideSeen.v1") private var setupGuideSeen = false
+    @State private var showSetupGuide = false
+    @State private var openProfileAfterGuide = false
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
@@ -133,7 +137,32 @@ struct ContentView: View {
             mobileShell
 #endif
         }
-        .task { await model.prepare() }
+        .task {
+            await model.prepare()
+#if !targetEnvironment(macCatalyst)
+            if !setupGuideSeen && model.profiles.isEmpty {
+                showSetupGuide = true
+            }
+#endif
+        }
+        .sheet(isPresented: $showSetupGuide, onDismiss: {
+            if openProfileAfterGuide {
+                openProfileAfterGuide = false
+                showNewProfile = true
+            }
+        }) {
+            SetupGuideView(
+                onClose: {
+                    setupGuideSeen = true
+                    showSetupGuide = false
+                },
+                onCreateProfile: {
+                    setupGuideSeen = true
+                    openProfileAfterGuide = true
+                    showSetupGuide = false
+                }
+            )
+        }
         .sheet(isPresented: $showNewProfile) {
             ProfileEditorView(profile: nil).environmentObject(model)
         }
@@ -152,7 +181,7 @@ struct ContentView: View {
         )) {
             Button("OK", role: .cancel) { model.errorMessage = nil }
         } message: {
-            Text(model.errorMessage ?? "")
+            Text(AppL10n.tr(model.errorMessage ?? ""))
         }
     }
 
@@ -319,7 +348,7 @@ struct ContentView: View {
                     Image(systemName: "circle.fill")
                         .font(.system(size: 9))
                         .accessibilityHidden(true)
-                    Text(model.vpn.detail)
+                    Text(AppL10n.tr(model.vpn.detail))
                         .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
@@ -343,7 +372,7 @@ struct ContentView: View {
                         ? "plus.circle.fill" : "power")
                         .font(.system(size: 25, weight: .bold))
                         .accessibilityHidden(true)
-                    Text(primaryActionTitle)
+                    Text(AppL10n.tr(primaryActionTitle))
                         .font(.system(size: 22, weight: .bold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
@@ -367,13 +396,13 @@ struct ContentView: View {
             }
             .buttonStyle(.plain)
             .disabled(!model.vpn.canToggle)
-            .accessibilityLabel(primaryActionTitle)
+            .accessibilityLabel(AppL10n.tr(primaryActionTitle))
             .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
                 ? "Открыть создание первого прокси"
                 : model.vpn.isConnectedOrConnecting
                     ? "Отключить системный прокси-туннель"
                     : "Подключиться через выбранный прокси")
-            Text(connectionHelp)
+            Text(AppL10n.tr(connectionHelp))
                 .font(.footnote)
                 .foregroundStyle(Brand.softGray)
                 .multilineTextAlignment(.center)
@@ -390,12 +419,12 @@ struct ContentView: View {
             Text("Выбор прокси")
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Brand.mintLight)
-            Text(model.profiles.isEmpty ? "Прокси пока нет" : model.selectedLabel)
+            Text(model.profiles.isEmpty ? AppL10n.tr("Прокси пока нет") : model.selectedLabel)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(Brand.text)
                 .lineLimit(1)
             if !model.profiles.isEmpty {
-                Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль.")
+                Text(AppL10n.tr(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль."))
                     .font(.footnote)
                     .foregroundStyle(Brand.softGray)
             }
@@ -456,7 +485,7 @@ struct ContentView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("Текущий профиль").font(.caption).foregroundStyle(Brand.softGray)
-                                Text(model.selectedLabel).font(.headline).foregroundStyle(Brand.text).lineLimit(1)
+                                Text(AppL10n.tr(model.selectedLabel)).font(.headline).foregroundStyle(Brand.text).lineLimit(1)
                             }
                             Spacer()
                             Image(systemName: "chevron.down").foregroundStyle(Brand.mint)
@@ -495,7 +524,7 @@ struct ContentView: View {
 #endif
                     sectionTitle("Активность", subtitle: "Состояние соединения и последние события")
                     HStack {
-                        Label(model.vpn.detail, systemImage: "bolt.horizontal.circle")
+                        Label(AppL10n.tr(model.vpn.detail), systemImage: "bolt.horizontal.circle")
                             .foregroundStyle(connectionStatusColor)
                         Spacer()
                         Button("Обновить") { model.refreshEvents() }
@@ -552,6 +581,26 @@ struct ContentView: View {
                     .background(Brand.graphite)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 #endif
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Язык приложения", systemImage: "character.bubble")
+                            .font(.headline)
+                            .foregroundStyle(Brand.text)
+                        Picker("Язык приложения", selection: $appLanguage) {
+                            ForEach(AppLanguage.allCases) { language in
+                                Text(language.title).tag(language.rawValue)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        Text("Выберите язык интерфейса или используйте язык iPhone.")
+                            .font(.footnote)
+                            .foregroundStyle(Brand.softGray)
+                    }
+                    .padding(16)
+                    .background(Brand.graphite)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    settingsButton("Первое подключение", icon: "questionmark.circle") {
+                        showSetupGuide = true
+                    }
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
 #if !targetEnvironment(macCatalyst)
                     settingsButton("Автоматизация приложений", icon: "app.badge") { showAppExclusions = true }
@@ -625,7 +674,7 @@ struct ContentView: View {
                 }
             } label: {
                 HStack {
-                    Text(model.returnToPrimary ? "Возврат к приоритетному включён" : "Оставаться на текущем после сбоя")
+                    Text(AppL10n.tr(model.returnToPrimary ? "Возврат к приоритетному включён" : "Оставаться на текущем после сбоя"))
                     Spacer()
                     Image(systemName: "chevron.down")
                 }
@@ -644,7 +693,7 @@ struct ContentView: View {
     private func eventRow(_ event: TunnelEvent) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Text(event.type).font(.headline)
+                Text(AppL10n.tr(event.type)).font(.headline)
                 Spacer()
                 Text(event.timestamp, style: .time).font(.caption).foregroundStyle(Brand.softGray)
             }
@@ -659,8 +708,8 @@ struct ContentView: View {
 
     private func sectionTitle(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(title).font(.title2.weight(.bold)).foregroundStyle(Brand.text)
-            Text(subtitle).font(.subheadline).foregroundStyle(Brand.softGray)
+            Text(AppL10n.tr(title)).font(.title2.weight(.bold)).foregroundStyle(Brand.text)
+            Text(AppL10n.tr(subtitle)).font(.subheadline).foregroundStyle(Brand.softGray)
         }
     }
 
@@ -681,7 +730,7 @@ struct ContentView: View {
     }
 
     private func cardButton(_ title: String, filled: Bool, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
+        Button(AppL10n.tr(title), action: action)
             .font(.subheadline.weight(.bold))
             .foregroundStyle(filled ? Brand.actionText : Brand.mintLight)
             .frame(maxWidth: .infinity)
@@ -774,6 +823,9 @@ struct ProfileEditorView: View {
         NavigationView {
             Form {
                 Section("Прокси") {
+                    Text("Данные подключения выдаёт поставщик прокси или администратор сети.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     TextField("Название", text: $name)
                     TextField("Хост", text: $host)
                         .textInputAutocapitalization(.never)
@@ -781,10 +833,16 @@ struct ProfileEditorView: View {
                     TextField("Порт", text: $port)
                         .keyboardType(.numberPad)
                     Picker("Тип", selection: $type) {
-                        ForEach(ProxyType.allCases) { type in Text(type.label).tag(type) }
+                        ForEach(ProxyType.allCases) { type in Text(AppL10n.tr(type.label)).tag(type) }
                     }
+                    Text("Хост — адрес сервера, порт — его номер. Тип уточните у поставщика.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
                 Section("Авторизация") {
+                    Text("Логин и пароль нужны только для прокси с авторизацией.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     TextField("Логин", text: $username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -799,7 +857,7 @@ struct ProfileEditorView: View {
                     }
                 }
             }
-            .navigationTitle(profile == nil ? "Новый прокси" : "Изменить прокси")
+            .navigationTitle(AppL10n.tr(profile == nil ? "Новый прокси" : "Изменить прокси"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -865,13 +923,13 @@ struct ExclusionsView: View {
                                     .frame(minWidth: 36, minHeight: 36)
                             }
                             .buttonStyle(.borderless)
-                            .accessibilityLabel("Удалить исключение \(host)")
+                            .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
                         }
                     }
                     .onDelete { entries.remove(atOffsets: $0) }
                 } header: {
                     HStack {
-                        Text(entries.isEmpty ? "Список пока пуст" : "Исключения (\(entries.count))")
+                        Text(entries.isEmpty ? AppL10n.tr("Список пока пуст") : AppL10n.tr("Исключения") + " (\(entries.count))")
                         Spacer()
                         if !entries.isEmpty {
                             Button("Очистить все", role: .destructive) {
@@ -965,7 +1023,7 @@ struct ApplicationExclusionsView: View {
                 Section("Обычное состояние") {
                     Picker("Режим", selection: $mode) {
                         ForEach(IOSAppRoutingMode.allCases) { item in
-                            Text(item.title).tag(item)
+                            Text(AppL10n.tr(item.title)).tag(item)
                         }
                     }
                     .pickerStyle(.inline)
@@ -975,7 +1033,7 @@ struct ApplicationExclusionsView: View {
                 }
 
                 Section("Что произойдёт") {
-                    Text(modeExplanation).font(.footnote)
+                    Text(AppL10n.tr(modeExplanation)).font(.footnote)
                     Label("После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно.", systemImage: "checkmark.circle")
                         .font(.footnote)
                 }

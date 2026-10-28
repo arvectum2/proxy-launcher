@@ -34,6 +34,13 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('if IOSAdsConfig.isEnabled, !failed', ads)
         self.assertEqual(ads.count('BannerState('), 1)
 
+    def test_ad_label_respects_new_app_language_setting(self):
+        view = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        self.assertIn('AppL10n.tr("Реклама")', view)
+        for language, value in (("ru", "Реклама"), ("en", "Advertisement")):
+            strings = (IOS / "Resources" / f"{language}.lproj" / "Localizable.strings").read_text()
+            self.assertIn(f'"Реклама" = "{value}";', strings)
+
     def test_android_placement_preserved(self):
         gradle = (IOS.parent / "android" / "app" / "build.gradle.kts").read_text()
         self.assertIn("R-M-20130429-1", gradle)

@@ -87,10 +87,10 @@ struct PrivacyDisclosureView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(title)
+                Text(AppL10n.tr(title))
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Brand.text)
-                Text(text)
+                Text(AppL10n.tr(text))
                     .font(.system(size: 15))
                     .foregroundStyle(Brand.softGray)
                     .fixedSize(horizontal: false, vertical: true)

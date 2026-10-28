@@ -1,0 +1,24 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-RSYA-BANNER-20261028
+status: completed
+goal: "Integrate newly owner-confirmed Yandex RSYA iOS banner placement R-M-20288304-1 into APL."
+definition_of_done:
+  - "iOS app main target contains a single unobtrusive Settings banner, no SDK linked to PacketTunnel."
+  - "Production unit is R-M-20288304-1; debug uses official Yandex demo unit; Android/App Open unchanged."
+  - "Ad network disabled by default for production until Apple 5.4 privacy/legal approvals and App Store metadata updates."
+  - "Relevant tests/build run; exact commit and compliance gates recorded."
+completed:
+  - "Verified existing iOS monetization plan, Android separate placement, and official Yandex SwiftUI banner API."
+  - "Added SDK 8.6.0 main-app-only and SwiftUI Settings sticky banner with production ID, DEBUG demo and production-off privacy gate; generated Xcode project."
+current: "COMPLETED — iOS SDK/source integration, unsigned Debug+Release compile, Swift/core/contract tests. Production ad runtime remains OFF; PR review/Apple 5.4 gate precedes release."
+pending:
+  - "Separate compliance review and release approval: Apple 5.4, SDK/AppMetrica network/data review, privacy documents/App Store labels, regional ad validation, device QA. No production activation or App Store submission authorized."
+last_verified_commit: "01f3074eb3a2c738d40e200de37310a936812905 (implementation commit; unsigned Debug+Release builds PASS)."
+test_results:
+  - "XcodeGen regeneration: PASS; Xcode SDK 8.6.0 SPM resolution: PASS."
+  - "Unsigned iOS Debug build + PacketTunnel: PASS (final one-line SwiftUI adjustment included); Release build + PacketTunnel: PASS."
+  - "Swift package tests: 12 PASS. iOS Python source-contract tests: 8 PASS. git diff --check: PASS."
+  - "Real iPhone ad request/no-fill and App Store privacy/legal compliance: NOT TESTED (intentionally disabled by release flag)."
+blocker: null
+resume_instruction: "Source task completed on feat/ios-rsya-banner-20261028. Do not regenerate implementation or activate Release banner until Apple 5.4 SDK/AppMetrica privacy audit, policy and App Store disclosures, real-device testing, and human release gate. PR review/merge separate; automatic merge forbidden with expired AM-4 review deadline."

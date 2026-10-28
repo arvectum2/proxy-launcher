@@ -1,24 +1,45 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-RSYA-BANNER-20261028
-status: completed
-goal: "Integrate newly owner-confirmed Yandex RSYA iOS banner placement R-M-20288304-1 into APL."
+task_id: APL-IOS-FIRST-RUN-LANGUAGE-20261028
+status: blocked
+goal: "Implement and release APL iOS 0.1.39 beginner first-connection guide and genuine system/ru/en language selection after peer feedback."
 definition_of_done:
-  - "iOS app main target contains a single unobtrusive Settings banner, no SDK linked to PacketTunnel."
-  - "Production unit is R-M-20288304-1; debug uses official Yandex demo unit; Android/App Open unchanged."
-  - "Ad network disabled by default for production until Apple 5.4 privacy/legal approvals and App Store metadata updates."
-  - "Relevant tests/build run; exact commit and compliance gates recorded."
+  - "First-launch guide is skippable, shown after privacy disclosure only when no profiles and can be reopened in Settings; it accurately explains user-supplied proxies and VPN permission."
+  - "The profile editor explains host, port, protocol and optional authentication."
+  - "System/Russian/English language selection persists and uses real localized resources across primary iOS screens, privacy and setup."
+  - "Signed 0.1.39 build 43 archive and IPA pass Apple validation, App Store API upload + review submission proven, with public 0.1.38 preserved until Apple approval."
+  - "GitHub PR #269 passes required CI and is merged into canonical main."
 completed:
-  - "Verified existing iOS monetization plan, Android separate placement, and official Yandex SwiftUI banner API."
-  - "Added SDK 8.6.0 main-app-only and SwiftUI Settings sticky banner with production ID, DEBUG demo and production-off privacy gate; generated Xcode project."
-current: "COMPLETED — iOS SDK/source integration, unsigned Debug+Release compile, Swift/core/contract tests. Production ad runtime remains OFF; PR review/Apple 5.4 gate precedes release."
+  - "GitHub PR #269 required build check SUCCESS and squash merged to main ec48523caf97c416cb70427a8326b0a725213db3."
+  - "Apple altool validation/upload PASS for signed 0.1.39 build 43; buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec is PROCESSING with no errors/warnings."
+  - "Confirmed public Apple storefront 0.1.38 build 42 and sellerUrl https://arvectum.com/."
+  - "Built SetupGuideView: three steps, explicit user-provided proxy host/port/type/auth and VPN approval, skippable and reopening via Settings, first-run guard for existing profiles."
+  - "Added beginner explanatory fields for Host, Port, Type and optional credentials in profile editor."
+  - "Implemented AppLanguage system/ru/en via persisted AppStorage and app scene locale override, including 155 matching Russian/English Localizable.strings keys in .app bundle."
+  - "Updated canonical ROADMAP with 0.1.38 publication and 0.1.39 candidate."
+  - "XcodeGen project updated and committed, iOS 0.1.39 build 43 version pinned; no change to PacketTunnel/Shared networking code or ad SDK."
+  - "Signed Apple Distribution archive /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-20261028-r2.xcarchive verified exact bundle and version with codesign --verify --deep --strict."
+  - "Signed export produced /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-export/Arvectum Proxy Launcher.ipa; ZIP CRC pass, SHA-256 a06649c1dbf63717c4fc9da9a1d08b4a93d7321a2fe25a6de8f0f25fd830dc6b."
+  - "App Store Connect draft 0.1.39 created (id 02b73c8b-ad06-45b6-9d9b-e09abf371470); ru/en-US release notes, supportUrl and marketingUrl point to https://arvectum.com/ and verified by API; Apple review contacts present."
+  - "GitHub PR #269 opened. Initial Windows CI had 3 old Russian-only source assertions; fixed test contracts for actual localized navigation, connect button and deletion a11y. macOS focused tests now pass."
+current: "iOS 0.1.39 build 43 Apple-uploaded and PROCESSING; PR #269 successfully merged, public storefront still 0.1.38."
 pending:
-  - "Separate compliance review and release approval: Apple 5.4, SDK/AppMetrica network/data review, privacy documents/App Store labels, regional ad validation, device QA. No production activation or App Store submission authorized."
-last_verified_commit: "01f3074eb3a2c738d40e200de37310a936812905 (implementation commit; unsigned Debug+Release builds PASS)."
+  - "Apple upload build 43 must finish PROCESSING and become VALID."
+  - "Attach build 43 to 0.1.39, submit review and verify WAITING_FOR_REVIEW."
+  - "Verify public 0.1.39 only after Apple approval; public still 0.1.38."
+last_verified_commit: "ec48523caf97c416cb70427a8326b0a725213db3"
 test_results:
-  - "XcodeGen regeneration: PASS; Xcode SDK 8.6.0 SPM resolution: PASS."
-  - "Unsigned iOS Debug build + PacketTunnel: PASS (final one-line SwiftUI adjustment included); Release build + PacketTunnel: PASS."
-  - "Swift package tests: 12 PASS. iOS Python source-contract tests: 8 PASS. git diff --check: PASS."
-  - "Real iPhone ad request/no-fill and App Store privacy/legal compliance: NOT TESTED (intentionally disabled by release flag)."
-blocker: null
-resume_instruction: "Source task completed on feat/ios-rsya-banner-20261028. Do not regenerate implementation or activate Release banner until Apple 5.4 SDK/AppMetrica privacy audit, policy and App Store disclosures, real-device testing, and human release gate. PR review/merge separate; automatic merge forbidden with expired AM-4 review deadline."
+  - "swift test --package-path mobile/ios PASS."
+  - "Xcode 27.1 Release archive app 0.1.39 (43) PASS, Apple Distribution signing verification PASS."
+  - "en/ru .strings plutil -lint PASS, both .lproj included in final signed .app."
+  - "Python onboarding 4/4, appearance 4/4, adaptive UI 7/7, macOS AppStore contract 21/21 tests PASS on Mac mini."
+  - "Initial Windows CI failed on three expected literal-only assertions and was fixed in PR head; latest CI underway."
+blocker: "Apple buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec PROCESSING, build 43 not yet available for App Review submission."
+resume_instruction: "Do not reactivate Proxy Launcher Watchdog. PR #269 merged at ec48523caf97c416cb70427a8326b0a725213db3; do not rebuild or reupload the accepted IPA. Inspect App Store Connect buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec and builds for app 6816013574 using Mac mini API key. When build 43 becomes VALID, set usesNonExemptEncryption=false consistent with prior version, attach it to App Store 0.1.39 version 02b73c8b-ad06-45b6-9d9b-e09abf371470, create/use reviewSubmission and reviewSubmissionItem, submit, verify WAITING_FOR_REVIEW. New 0.1.39 ru/en-US What's New and both developer/support URLs are already verified, release AFTER_APPROVAL. Verify public version only after Apple approves. Mark checkpoint completed only when DoD is verified."
+updated_at: "2026-10-28T14:12:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-IOS-FIRST-RUN-LANGUAGE-20261028"
+  branch: "feat/ios-onboarding-language-20261028"
+  pr: 269
+  manual_override: true

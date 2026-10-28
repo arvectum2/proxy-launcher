@@ -32,7 +32,7 @@ struct SettingsBannerView: View {
             if IOSAdsConfig.isEnabled, !failed, let bannerState {
                 VStack(alignment: .leading, spacing: 4) {
                     if loaded {
-                        Text(Locale.current.languageCode == "ru" ? "Реклама" : "Advertisement")
+                        Text(AppL10n.tr("Реклама"))
                             .font(.caption)
                             .foregroundStyle(Brand.softGray)
                     }
