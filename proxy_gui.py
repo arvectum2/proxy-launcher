@@ -1531,6 +1531,48 @@ class Launcher:
             pass
         return True
 
+    def _schedule_wake_guard_expiry_refresh(self, now=None):
+        """Re-evaluate recovery controls after a macOS wake protection window.
+
+        Never schedule a raw refresh: a second sleep before this callback must
+        re-arm the guard before the primary recovery button becomes available.
+        Ordinary Off remains actionable according to current UI policy.
+        """
+        if not self._mac_ui:
+            return
+        if now is None:
+            now = time.time()
+        delay_ms = max(250, int(max(0.0, self._mac_wake_guard_until - now) * 1000) + 100)
+        self.root.after(delay_ms, self._refresh_after_wake_guard)
+
+    def _refresh_after_wake_guard(self):
+        """Reconcile the GUI even when no focus/status event follows wake."""
+        now = time.time()
+        armed = self._arm_wake_guard_from_gap(now, "guard_expiry")
+        if self._wake_destructive_guard_active(now):
+            # A queued callback could run after another sleep: leave guarded
+            # recovery controls disabled and extend their expiry timer.
+            if armed:
+                try:
+                    self.refresh_status()
+                except tk.TclError:
+                    pass
+            self._schedule_wake_guard_expiry_refresh(now)
+            return
+        try:
+            core.structured_log(
+                "macOS wake guard expired; updating recovery controls",
+                event="proxy_gui.wake_guard.expired",
+            )
+        except Exception:
+            pass
+        if self._reconcile_pending_lifecycle("guard_expiry", now=now):
+            return
+        try:
+            self.refresh_status()
+        except tk.TclError:
+            pass
+
     def _begin_lifecycle_action(self, action):
         self._lifecycle_action_pending = str(action)
         self._lifecycle_action_started_wall = time.time()
@@ -1608,6 +1650,8 @@ class Launcher:
         """Arm a short wake guard and recover stale lifecycle UI state."""
         now = time.time()
         armed = self._arm_wake_guard_from_gap(now, "heartbeat")
+        if armed:
+            self._schedule_wake_guard_expiry_refresh(now)
         reconciled = self._reconcile_pending_lifecycle("heartbeat", now=now)
         if armed and not reconciled and not getattr(self, "_lifecycle_action_pending", None):
             try:
@@ -1644,8 +1688,7 @@ class Launcher:
         except Exception:
             pass
         self.refresh_status()
-        delay_ms = max(250, int(remaining * 1000) + 100)
-        self.root.after(delay_ms, self.refresh_status)
+        self._schedule_wake_guard_expiry_refresh(now)
         return True
 
     def _refresh_status_on_focus(self, _event=None):
