@@ -13,9 +13,8 @@ enum IOSAdsConfig {
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER")
     static let activeBannerUnitID = demoBannerUnitID
 #else
-    // Do not transmit data to ad providers from an App Store VPN client until
-    // Apple 5.4 determination, privacy disclosures and owner approval are complete.
-    static let isEnabled = false
+    // Production banner enabled by explicit owner directive; App Store privacy metadata is unchanged.
+    static let isEnabled = true
     static let activeBannerUnitID = productionBannerUnitID
 #endif
 }
