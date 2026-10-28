@@ -55,7 +55,7 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         project = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
         self.assertIn('MARKETING_VERSION: "0.1.39"', project)
-        self.assertIn('CURRENT_PROJECT_VERSION: "43"', project)
+        self.assertIn('CURRENT_PROJECT_VERSION: "44"', project)
         self.assertIn('Localizable.strings in Resources', pbx)
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
