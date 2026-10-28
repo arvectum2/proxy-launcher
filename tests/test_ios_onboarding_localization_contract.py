@@ -60,7 +60,7 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
         self.assertIn("package: YandexMobileAds", project)
-        self.assertIn("static let isEnabled = false", (IOS / "App/SettingsBannerView.swift").read_text(encoding="utf-8"))
+        self.assertIn("static let isEnabled = true", (IOS / "App/SettingsBannerView.swift").read_text(encoding="utf-8"))
 
 if __name__ == "__main__":
     unittest.main()
