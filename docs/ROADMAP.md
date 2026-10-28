@@ -7,6 +7,23 @@ Current stable product line: 0.2.16 — public release for Windows x64, Astra Li
 
 Status legend: **DONE**, **PUBLISHED**, **CURRENT**, **READY NOW**, **READY**, **IMPLEMENTED**, **PARTIAL**, **HUMAN/LEGAL PENDING**, **STOP-GATE**, **PAUSED**, **DEFERRED**, **FUTURE**.
 
+## Синхронизация 27.10.2026 · мобильные приложения, продуктовая очередь
+
+Этот блок новее исторических дат ниже. Последний стабильный desktop baseline в GitHub `main` на момент сверки — 0.2.16; точную публичную версию по каждому каналу и статус Mac App Store 0.2.19 (8) необходимо перепроверить, а не считать прошлую подачу публикацией.
+
+- [x] Android: рабочий мобильный VpnService/TUN, профили, failover, реальная 0.1.17 опубликована; 0.1.19 site exclusions интегрированы и физически принимались, но факт публичного релиза этой версии требует отдельной проверки.
+- [ ] Android P0/P1: MOB-004 Yandex Ads и двухканальная дистрибуция (публичный APK с рекламой и приватный без SDK), решение об update/package identity, consent/QA/реальные устройства. Монетизация — owner-gated, не запускать автоматически.
+- [x] **iOS APL:** опубликована **0.1.37 (build 41)**; Apple API verified в [PR #264](https://github.com/arvectum2/proxy-launcher/pull/264); владельцем сообщено 100+ установок (количество не сверено с ASC Analytics). Старую запись 0.1.36 (40) как текущую считать ошибочной.
+- [x] iOS P0 **реализовано в PR #265**, не опубликовано: выбор System/Light/Dark, сохранение AppStorage, семантические цвета на основных экранах; **0.1.38 (build 42)** подписан и IPA экспортирован, пакетные тесты PASS. [ ] Отдельно нужны CI/слияние, физическая проверка VoiceOver/контраста и проверка фактического Apple Review/publication.
+- [x] iOS P0: **https://arvectum.com/app-ads.txt** проверен; 0.1.38 (42) [PR #265](https://github.com/arvectum2/proxy-launcher/pull/265) готовит **Support URL и Marketing URL = https://arvectum.com/** для RU/en-US, ASC metadata write/readback HTTP 200. [ ] В опубликованной 0.1.37 ссылки **не изменены** (Apple API 409 STATE_ERROR при попытке правки READY_FOR_SALE); подтвердить live после отдельного релиза.
+- [ ] iOS P1 реклама: план в [PR #262](https://github.com/arvectum2/proxy-launcher/pull/262), [issue #261](https://github.com/arvectum2/proxy-launcher/issues/261). В **0.1.38 (42) рекламного SDK нет**. Прежде чем внедрять нативный баннер РСЯ, пройти юридическую/Apple App Review Guideline **5.4 (VPN-app advertisement)** проверку, privacy/consent, real fill/no-fill и доходность; не обещать рекламу в VPN-клиенте как заранее разрешённую.
+- [ ] Common P1: Smart Exclusions — on-device анализ зависимых доменов (например, gu-st.ru для gosuslugi.ru), понятное управление, защита privacy/rollback; не смешивать с уже реализованным ручным исключением.
+- [ ] Research: коммерческий ГОСТ-VPN клиент для Apple/macOS/iOS — API/криптография, интероперабельность, правовая квалификация, лицензирование и сертификация, App Store допуск; **не заявлять сертификацию или совместимость до проверки**.
+- [ ] Desktop: Windows full-trust publisher signing; per-app routing architecture; macOS production notarization и Store status; Linux acceptance. Сохранять fail-safe rollback/owner gates из канонического плана.
+
+**Граница:** без отправки новых App Store/Google/RuStore билдов, изменений опубликованных карточек, сертификатов или платного API. Проверка статуса — read-only. Бэклог не равен одобренной разработке каждой отложенной ветки.
+
+
 ## 0. Repository authority and release baseline
 
 - **DONE** — source/history/tags were recovered into `arvectum2/proxy-launcher`; `main` is the canonical integration branch.
