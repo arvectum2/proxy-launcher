@@ -115,7 +115,8 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
         self.assertIn('Button(role: .destructive)', exclusion_view)
         self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
-        self.assertIn('.accessibilityLabel("Удалить исключение \(host)")', exclusion_view)
+        self.assertIn('AppL10n.tr("Удалить исключение")', exclusion_view)
+        self.assertIn('\\(host)', exclusion_view)
         self.assertIn('.onDelete { entries.remove(atOffsets: $0) }', exclusion_view)
         self.assertIn('Button("Очистить все", role: .destructive)', exclusion_view)
         self.assertIn('confirmClearAll = true', exclusion_view)
@@ -189,10 +190,10 @@ class MacOSAppStoreContractTests(unittest.TestCase):
 
     def test_primary_connection_control_is_large_accessible_and_responsive(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn('Text(primaryActionTitle)', content)
+        self.assertIn('Text(AppL10n.tr(primaryActionTitle))', content)
         self.assertIn('.frame(maxWidth: .infinity)', content)
         self.assertIn('.frame(height: 80)', content)
-        self.assertIn('.accessibilityLabel(primaryActionTitle)', content)
+        self.assertIn('.accessibilityLabel(AppL10n.tr(primaryActionTitle))', content)
         self.assertIn('.disabled(!model.vpn.canToggle)', content)
         self.assertNotIn('powerDiameter', content)
         self.assertIn('showNewProfile = true', content)

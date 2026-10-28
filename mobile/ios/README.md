@@ -15,7 +15,7 @@ This target is the current iPhone implementation of APL. Consumer iOS cannot dir
 - pool/tunnel journal;
 - adaptive cross-platform APL visual language for current iPhone layouts;
 - optional iOS Shortcuts intents for the selected-app opened/closed automation flow;
-- version 0.1.38 / build 42 (release candidate; published 0.1.37 / build 41 unchanged until approved).
+- version 0.1.39 / build 43 (release candidate; published 0.1.38 / build 42 remains unchanged until approved).
 - selectable iOS appearance: System (default), Light or Dark; the preference is stored locally.
 
 HTTPS-proxy transport is wrapped by a local TLS relay before traffic is passed to tun2proxy, matching the Android architecture.
@@ -44,3 +44,10 @@ App Group:
 - group.ru.arvectum.proxylauncher.ios
 
 The repository CI deliberately builds without signing; certificates and provisioning profiles must never be committed.
+
+### 0.1.39 onboarding / language candidate
+
+- First-run three-step proxy setup guide after privacy disclosure (skippable, accessible again in Settings).
+- Editor now explains host, port, connection type and optional credentials.
+- App language: Follow System / Русский / English; working Russian/English strings throughout main iOS interface.
+- Public App Store version stays 0.1.38 until the separate 0.1.39 release is verified.

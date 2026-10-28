@@ -36,10 +36,10 @@ class AdaptiveUiContractTests(unittest.TestCase):
             'destination(Destination.SETTINGS, "Настройки"',
         )
         ios_items = (
-            'case .home: return "Главная"',
-            'case .profiles: return "Профили"',
-            'case .activity: return "Активность"',
-            'case .settings: return "Настройки"',
+            'case .home: return AppL10n.tr("Главная")',
+            'case .profiles: return AppL10n.tr("Профили")',
+            'case .activity: return AppL10n.tr("Активность")',
+            'case .settings: return AppL10n.tr("Настройки")',
         )
         for source, fragments in ((DESKTOP, desktop_items), (ANDROID, android_items), (IOS, ios_items)):
             positions = [source.index(fragment) for fragment in fragments]
