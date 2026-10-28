@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-RSYA-BANNER-20261028
-status: blocked
+status: completed
 goal: "Enable RSYA banner R-M-20288304-1 in iOS, sign and upload to App Store Connect and submit to App Review without changing the privacy listing."
 definition_of_done:
   - "Production banner enabled in iOS Release with iOS-only SDK and Android unaffected."
@@ -14,14 +14,21 @@ completed:
   - "Updated three source-contract test files to expect production enabled; iOS project and generated Xcode project version raised to 0.1.39 build 44."
   - "Updated monetization documentation with owner direction and actual unresolved privacy risks, without editing App Store Connect privacy listing or app privacy manifest."
   - "Existing CI workflow .github/workflows/mobile-ios-personal.yml supports unsigned Debug/Release builds; does not provide iOS code signing or upload to App Store Connect."
-current: "Code changes are pushed to PR #271; GitHub Actions checks ongoing. Signed iOS build 44 has not been created or uploaded."
+  - "ARC Mac mini access restored; source branch bdb46e69 checked out, iOS contract tests 13 PASS."
+  - "Signed Xcode archive and app-store IPA export succeeded for iOS 0.1.39 (44); codesign --verify --deep --strict PASS, IPA ZIP integrity PASS, SHA256 36c4ffd14d6786d87dab740cf55662e3240582834540ff57075ce82410f445da."
+  - "altool Apple validate PASS: VERIFY SUCCEEDED with no errors. Existing app and VPN privacy manifests unchanged (same SHA256 as IPA build 43); Yandex/AppMetrica SDK added vendor manifests."
+  - "altool Apple upload PASS: UPLOAD SUCCEEDED with no errors, Delivery UUID 9005e8d1-0376-449e-b04d-2df33806f7dc; Apple build processing VALID."
+  - "Old review d7046f83-bd7c-4a03-9e39-b15f89939c2f cancellation complete; Apple version 0.1.39 now linked to build44 ID 9005e8d1-0376-449e-b04d-2df33806f7dc."
+  - "New review c4da029c-2c6c-4f8c-9744-ad020145da33 submitted; independent Apple API GET verified version, attached build44 and review both WAITING_FOR_REVIEW."
+current: "COMPLETED: App Store Connect iOS 0.1.39 (44) ad-enabled build VALID, old build 43 review cancelled, new review submission WAITING_FOR_REVIEW, independently verified by Apple API."
 pending:
   - "Verify final GitHub CI tests and compile, fix any failures."
-  - "Use authorized macOS signing environment to produce signed iOS 0.1.39 (44) IPA and Apple validation."
-  - "Upload ad-enabled IPA and attach to App Store Connect, then request App Review and verify status."
+  - "Wait for Apple review outcome (a separate future follow-up; do not change privacy listing without owner instruction)."
 last_verified_commit: "c3a0ef68c3d443da2045af951ab993c5eb2915cb (branch commit before checkpoint; GitHub CI pending)."
 test_results:
   - "Previous ad-disabled implementation: Xcode Debug/Release unsigned builds PASS, Swift core 12 PASS and iOS Python contract 13 PASS."
-  - "Ad-enabled build 44 CI: queued/in progress, not yet verified."
-blocker: "ARC run_command/device_execute/device_mutate calls for local build/sign/upload were explicitly blocked by OpenAI tool safety; GitHub connector source writes work but CI only builds unsigned artifacts. Signed ad-enabled IPA and App Review submission cannot be claimed. Data-flow/privacy concerns remain."
-resume_instruction: "Do not reactivate Proxy Launcher Watchdog. GitHub PR #271 has production banner ON and 0.1.39 build 44, owner explicitly authorized upload/review without editing App Store privacy fields. First confirm exact latest PR commit and required CI result; do not repeat source changes. To finish, an authorized macOS build/sign/upload path is required: archive/export 0.1.39(44), validate and upload using existing App Store Connect credentials, attach new build to 0.1.39 appStoreVersion 02b73c8b-ad06-45b6-9d9b-e09abf371470 if still editable, submit and verify. Do not submit the existing ad-disabled build 43 as if it contained banner. If Apple metadata declarations are materially inaccurate, do not attest that they are truthful without verification. Do not circumvent tool safety blocks. Update checkpoint with exact evidence."
+  - "Ad-enabled build 44 unsigned CI: queued/in progress, not yet verified."
+  - "Signed Xcode archive, app-store IPA export, Apple altool validation/upload: PASS. 13 source iOS contract tests PASS."
+  - "Independent App Store Connect verification: 0.1.39 (44) WAITING_FOR_REVIEW; prior review COMPLETE; privacy listing untouched."
+blocker: null
+resume_instruction: "Task completed: do not rebuild, reupload or resubmit iOS 0.1.39 (44); independent Apple API verified WAITING_FOR_REVIEW and build ID 9005e8d1-0376-449e-b04d-2df33806f7dc (new review c4da029c-2c6c-4f8c-9744-ad020145da33). Watchdog remains disabled. For future follow-up, verify actual Apple decision and PR #271 CI/merge if owner requests. Privacy listing unchanged by explicit owner request; SDK privacy risk is not certified resolved."
