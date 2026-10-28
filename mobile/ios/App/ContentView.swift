@@ -1,13 +1,54 @@
 import SwiftUI
 import NetworkExtension
+import UIKit
 
-private enum Brand {
+/// Semantic iPhone appearance colors that follow dynamic device traits.
+enum Brand {
     static let navy = Color(red: 0, green: 20/255, blue: 50/255)
-    static let mint = Color(red: 0, green: 200/255, blue: 160/255)
-    static let mintLight = Color(red: 120/255, green: 250/255, blue: 230/255)
-    static let softGray = Color(red: 200/255, green: 210/255, blue: 220/255)
-    static let graphite = Color(red: 40/255, green: 50/255, blue: 70/255)
-    static let surface = Color(red: 16/255, green: 40/255, blue: 70/255)
+
+    private static func adaptive(light: UIColor, dark: UIColor) -> Color {
+        Color(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark ? dark : light
+        })
+    }
+
+    static let canvas = adaptive(
+        light: UIColor(red: 0.957, green: 0.973, blue: 0.988, alpha: 1),
+        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
+    )
+    static let graphite = adaptive(
+        light: .white,
+        dark: UIColor(red: 40/255, green: 50/255, blue: 70/255, alpha: 1)
+    )
+    static let surface = adaptive(
+        light: UIColor(red: 0.918, green: 0.949, blue: 0.970, alpha: 1),
+        dark: UIColor(red: 16/255, green: 40/255, blue: 70/255, alpha: 1)
+    )
+    static let text = adaptive(
+        light: UIColor(red: 0.075, green: 0.133, blue: 0.220, alpha: 1),
+        dark: .white
+    )
+    static let softGray = adaptive(
+        light: UIColor(red: 0.290, green: 0.344, blue: 0.410, alpha: 1),
+        dark: UIColor(red: 200/255, green: 210/255, blue: 220/255, alpha: 1)
+    )
+    static let mint = adaptive(
+        light: UIColor(red: 0, green: 0.43, blue: 0.34, alpha: 1),
+        dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)
+    )
+    static let mintLight = adaptive(
+        light: UIColor(red: 0.008, green: 0.40, blue: 0.36, alpha: 1),
+        dark: UIColor(red: 120/255, green: 250/255, blue: 230/255, alpha: 1)
+    )
+    static let actionText = adaptive(
+        light: .white,
+        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
+    )
+    // The original wordmark has light lettering.
+    static let logoBacking = adaptive(
+        light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
+        dark: .clear
+    )
 }
 
 private enum AppDestination: String, CaseIterable, Identifiable {
@@ -77,6 +118,7 @@ private struct EqualHeightDashboardLayout: Layout {
 
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
+    @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
@@ -151,7 +193,7 @@ struct ContentView: View {
                                 .minimumScaleFactor(0.8)
                             Spacer(minLength: 0)
                         }
-                        .foregroundStyle(destination == item ? Brand.navy : Brand.mintLight)
+                        .foregroundStyle(destination == item ? Brand.actionText : Brand.mintLight)
                         .padding(.horizontal, 12)
                         .frame(height: 44)
                         .background(destination == item ? Brand.mint : Brand.graphite)
@@ -166,7 +208,7 @@ struct ContentView: View {
             }
             .padding(18)
             .frame(width: 208)
-            .background(Brand.navy)
+            .background(Brand.canvas)
 
             Divider().overlay(Brand.softGray.opacity(0.22))
 
@@ -181,7 +223,7 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(minWidth: 760, minHeight: 440)
-        .background(Brand.navy)
+        .background(Brand.canvas)
     }
 #endif
 
@@ -192,6 +234,8 @@ struct ContentView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 144, height: 28, alignment: .leading)
+                .padding(6)
+                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 8))
                 .accessibilityLabel("Arvectum")
             Text("Proxy Launcher")
                 .font(.system(size: 17, weight: .bold))
@@ -206,6 +250,8 @@ struct ContentView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 112, height: 24)
+                .padding(6)
+                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 8))
                 .accessibilityLabel("Arvectum")
             Text("Proxy Launcher")
                 .font(.system(size: 18, weight: .bold))
@@ -222,7 +268,7 @@ struct ContentView: View {
 
     private var homeScreen: some View {
         ZStack {
-            Brand.navy.ignoresSafeArea()
+            Brand.canvas.ignoresSafeArea()
             GeometryReader { geometry in
                 ScrollView {
                     VStack(spacing: 18) {
@@ -267,7 +313,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 Text("Соединение")
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Brand.text)
                 Spacer(minLength: 8)
                 HStack(spacing: 6) {
                     Image(systemName: "circle.fill")
@@ -281,7 +327,7 @@ struct ContentView: View {
                 .foregroundStyle(connectionStatusColor)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Brand.navy.opacity(0.7))
+                .background(Brand.canvas.opacity(0.7))
                 .clipShape(Capsule())
                 .accessibilityElement(children: .combine)
             }
@@ -307,7 +353,7 @@ struct ContentView: View {
                         .accessibilityHidden(true)
                 }
                 .padding(.horizontal, 22)
-                .foregroundStyle(Brand.navy)
+                .foregroundStyle(Brand.actionText)
                 .frame(maxWidth: .infinity)
                 .frame(height: 80)
                 .background(Brand.mint)
@@ -346,7 +392,7 @@ struct ContentView: View {
                 .foregroundStyle(Brand.mintLight)
             Text(model.profiles.isEmpty ? "Прокси пока нет" : model.selectedLabel)
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Brand.text)
                 .lineLimit(1)
             if !model.profiles.isEmpty {
                 Text(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль.")
@@ -375,7 +421,7 @@ struct ContentView: View {
                         Image(systemName: "chevron.down")
                     }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.navy)
+                    .foregroundStyle(Brand.actionText)
                     .padding(.horizontal, 14)
                     .frame(height: 52)
                     .background(Brand.mint)
@@ -398,7 +444,7 @@ struct ContentView: View {
 
     private var profilesScreen: some View {
         ZStack {
-            Brand.navy.ignoresSafeArea()
+            Brand.canvas.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
 #if !targetEnvironment(macCatalyst)
@@ -410,7 +456,7 @@ struct ContentView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("Текущий профиль").font(.caption).foregroundStyle(Brand.softGray)
-                                Text(model.selectedLabel).font(.headline).foregroundStyle(.white).lineLimit(1)
+                                Text(model.selectedLabel).font(.headline).foregroundStyle(Brand.text).lineLimit(1)
                             }
                             Spacer()
                             Image(systemName: "chevron.down").foregroundStyle(Brand.mint)
@@ -441,7 +487,7 @@ struct ContentView: View {
 
     private var activityScreen: some View {
         ZStack {
-            Brand.navy.ignoresSafeArea()
+            Brand.canvas.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
 #if !targetEnvironment(macCatalyst)
@@ -479,13 +525,33 @@ struct ContentView: View {
 
     private var settingsScreen: some View {
         ZStack {
-            Brand.navy.ignoresSafeArea()
+            Brand.canvas.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
 #if !targetEnvironment(macCatalyst)
                     header
 #endif
                     sectionTitle("Настройки", subtitle: "Маршрутизация и поведение APL")
+#if !targetEnvironment(macCatalyst)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Оформление", systemImage: "paintpalette")
+                            .font(.headline)
+                            .foregroundStyle(Brand.text)
+                        Picker("Тема оформления", selection: $appearanceMode) {
+                            ForEach(AppearanceMode.allCases) { mode in
+                                Text(mode.title).tag(mode.rawValue)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .accessibilityHint("Как в системе, светлая или тёмная тема")
+                        Text("Системная тема автоматически следует настройкам iPhone.")
+                            .font(.footnote)
+                            .foregroundStyle(Brand.softGray)
+                    }
+                    .padding(16)
+                    .background(Brand.graphite)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+#endif
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
 #if !targetEnvironment(macCatalyst)
                     settingsButton("Автоматизация приложений", icon: "app.badge") { showAppExclusions = true }
@@ -499,7 +565,7 @@ struct ContentView: View {
                         Text(AppShared.version).foregroundStyle(Brand.softGray)
                     }
                     .padding(16)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Brand.text)
                     .background(Brand.graphite)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
@@ -534,7 +600,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Auto и приоритет")
                 .font(.headline)
-                .foregroundStyle(.white)
+                .foregroundStyle(Brand.text)
             Menu {
                 Section("Приоритетный прокси") {
                     ForEach(model.profiles) { profile in
@@ -582,7 +648,7 @@ struct ContentView: View {
             if let name = event.profileName { Text(name).font(.subheadline) }
             if let detail = event.detail { Text(detail).font(.caption).foregroundStyle(Brand.softGray) }
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Brand.text)
         .padding(14)
         .background(Brand.graphite)
         .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -590,7 +656,7 @@ struct ContentView: View {
 
     private func sectionTitle(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(title).font(.title2.weight(.bold)).foregroundStyle(.white)
+            Text(title).font(.title2.weight(.bold)).foregroundStyle(Brand.text)
             Text(subtitle).font(.subheadline).foregroundStyle(Brand.softGray)
         }
     }
@@ -603,7 +669,7 @@ struct ContentView: View {
                 Spacer()
                 Image(systemName: "chevron.right")
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(Brand.text)
             .padding(16)
             .background(Brand.graphite)
             .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -614,7 +680,7 @@ struct ContentView: View {
     private func cardButton(_ title: String, filled: Bool, action: @escaping () -> Void) -> some View {
         Button(title, action: action)
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(filled ? Brand.navy : Brand.mintLight)
+            .foregroundStyle(filled ? Brand.actionText : Brand.mintLight)
             .frame(maxWidth: .infinity)
             .frame(height: 46)
             .background(filled ? Brand.mint : Brand.surface)
@@ -660,7 +726,7 @@ private struct PrimaryBrandButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(Brand.navy)
+            .foregroundStyle(Brand.actionText)
             .frame(height: 52)
             .background(Brand.mint.opacity(configuration.isPressed ? 0.78 : 1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -674,7 +740,7 @@ private struct SecondaryBrandButtonStyle: ButtonStyle {
             .foregroundStyle(Brand.mintLight)
             .padding(.horizontal, 14)
             .frame(height: 44)
-            .background(Brand.navy.opacity(configuration.isPressed ? 0.72 : 1))
+            .background(Brand.canvas.opacity(configuration.isPressed ? 0.72 : 1))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Brand.mint.opacity(0.55)))
     }

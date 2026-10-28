@@ -97,7 +97,7 @@ $ExpectedNames = @(
     'pyinstaller-6.22.0-py3-none-win_amd64.whl',
     'pyinstaller_hooks_contrib-2026.6-py3-none-any.whl',
     'pywin32_ctypes-0.2.3-py3-none-any.whl',
-    'setuptools-84.0.0-py3-none-any.whl'
+    'setuptools-84.1.0-py3-none-any.whl'
 )
 $ActualNames = @($Wheels | Select-Object -ExpandProperty Name)
 foreach ($name in $ExpectedNames) {

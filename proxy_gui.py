@@ -1062,13 +1062,36 @@ class ApplicationExclusionsDialog(tk.Toplevel):
 LEGACY_ORPHANED_PAC_DIAGNOSTIC = "ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM"
 
 
-def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy, platform_label="Windows"):
+def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
+                       platform_label="Windows", transport_health=None):
     """Return the user-facing final state for the launcher.
 
     Single-instance activation keeps low-level engine/PAC details out of the primary status
     label and makes every stable state answer two questions: what is happening
     now, and what (if anything) the user should do next.
     """
+    if running and enabled and transport_health in ("unavailable", "degraded", "unknown"):
+        messages = {
+            "unavailable": (
+                "ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН",
+                "Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси.",
+            ),
+            "degraded": (
+                "НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ",
+                "Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер.",
+            ),
+            "unknown": (
+                "ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА",
+                "Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена.",
+            ),
+        }
+        label, hint = messages[transport_health]
+        return {
+            "key": "upstream_" + transport_health,
+            "label": label, "color": MINT_LIGHT, "hint": hint,
+            "can_on": False, "can_off": True, "can_check": True,
+            "restore_primary": False, "show_orphan_action": False,
+        }
     if running and enabled:
         return {
             "key": "active",
@@ -1194,6 +1217,8 @@ class Launcher:
         self.refresh_status()
         self.root.bind("<FocusIn>", self._refresh_status_on_focus, add="+")
         self.root.after(MAC_WAKE_GUARD_HEARTBEAT_MS, self._ui_heartbeat)
+        if os.name == "nt":
+            self.root.after(10000, self._windows_status_poll)
         _center_window(self.root)
         self._maybe_first_run()
         self.root.after(200, self._maybe_prompt_recovery)
@@ -1633,6 +1658,16 @@ class Launcher:
         except tk.TclError:
             pass
 
+    def _windows_status_poll(self):
+        """Refresh upstream state while the Windows UI is open."""
+        try:
+            if not self.root.winfo_exists():
+                return
+            self.refresh_status()
+            self.root.after(10000, self._windows_status_poll)
+        except tk.TclError:
+            return
+
     def refresh_status(self):
         running = core.is_running()
         enabled = core.system_proxy_enabled()
@@ -1649,6 +1684,10 @@ class Launcher:
             orphaned_pac=orphaned_pac,
             stale_proxy=stale_proxy,
             platform_label=_platform_label(),
+            transport_health=(
+                core.read_transport_health() if os.name == "nt" and running
+                else None
+            ),
         )
 
         self.btn_doctor.state(["!disabled"])
@@ -1665,6 +1704,9 @@ class Launcher:
         if self._mac_ui:
             display_labels = {
                 "active": "Прокси подключён",
+                "upstream_unknown": "Проверка подключения",
+                "upstream_degraded": "Соединение нестабильно",
+                "upstream_unavailable": "Прокси недоступен",
                 "engine_only": "Прокси запущен, но не подключён",
                 "recovery_required": "Нужно восстановить сеть",
                 "orphaned_arvectum_pac": "Нужно восстановить настройки",
@@ -1673,6 +1715,9 @@ class Launcher:
             }
             dot_colors = {
                 "active": MINT,
+                "upstream_unknown": "#FF9F0A",
+                "upstream_degraded": "#FF9F0A",
+                "upstream_unavailable": "#FF453A",
                 "engine_only": "#FF9F0A",
                 "recovery_required": "#FF9F0A",
                 "orphaned_arvectum_pac": "#FF9F0A",

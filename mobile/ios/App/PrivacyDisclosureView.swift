@@ -7,8 +7,7 @@ struct PrivacyDisclosureView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.0, green: 0.078, blue: 0.196)
-                .ignoresSafeArea()
+            Brand.canvas.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
@@ -16,15 +15,17 @@ struct PrivacyDisclosureView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 34)
+                        .padding(8)
+                        .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 10))
                         .padding(.top, 28)
 
                     Text("Конфиденциальность")
                         .font(.system(size: 30, weight: .bold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Brand.text)
 
                     Text("Перед первым подключением")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(red: 0.43, green: 0.95, blue: 0.84))
+                        .foregroundStyle(Brand.mintLight)
 
                     disclosureRow(
                         icon: "hand.raised.fill",
@@ -54,15 +55,15 @@ struct PrivacyDisclosureView: View {
                         Label("Политика конфиденциальности", systemImage: "doc.text")
                             .font(.system(size: 16, weight: .semibold))
                     }
-                    .foregroundStyle(Color(red: 0.04, green: 0.79, blue: 0.67))
+                    .foregroundStyle(Brand.mint)
 
                     Button(action: onContinue) {
                         Text("Понятно, продолжить")
                             .font(.system(size: 18, weight: .bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .foregroundStyle(Color(red: 0.0, green: 0.078, blue: 0.196))
-                            .background(Color(red: 0.04, green: 0.79, blue: 0.67))
+                            .foregroundStyle(Brand.actionText)
+                            .background(Brand.mint)
                             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -70,7 +71,7 @@ struct PrivacyDisclosureView: View {
 
                     Text("Продолжая, вы подтверждаете, что ознакомились с описанием обработки данных.")
                         .font(.footnote)
-                        .foregroundStyle(.white.opacity(0.58))
+                        .foregroundStyle(Brand.softGray)
                         .padding(.bottom, 30)
                 }
                 .padding(.horizontal, 28)
@@ -82,16 +83,16 @@ struct PrivacyDisclosureView: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color(red: 0.43, green: 0.95, blue: 0.84))
+                .foregroundStyle(Brand.mintLight)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Brand.text)
                 Text(text)
                     .font(.system(size: 15))
-                    .foregroundStyle(.white.opacity(0.74))
+                    .foregroundStyle(Brand.softGray)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
