@@ -7,11 +7,11 @@ IOS = ROOT / "mobile" / "ios"
 
 
 class IOSRSYABannerTests(unittest.TestCase):
-    def test_ids_and_production_off_default(self):
+    def test_ids_and_production_enabled(self):
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text()
         self.assertIn('productionBannerUnitID = "R-M-20288304-1"', ads)
         self.assertIn('demoBannerUnitID = "demo-banner-yandex"', ads)
-        self.assertIn('static let isEnabled = false', ads)
+        self.assertIn('static let isEnabled = true', ads)
         self.assertIn('-APL_ENABLE_DEMO_BANNER', ads)
         self.assertIn('activeBannerUnitID = demoBannerUnitID', ads)
         self.assertIn('activeBannerUnitID = productionBannerUnitID', ads)
