@@ -1,5 +1,11 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
+## 28.10.2026 · C19 — macOS wake guard безопасное автоматическое восстановление UI
+
+- [x] Текущий macOS GUI автоматически обновляет recovery controls после истечения wake guard без focus/click, повторный сон продлевает guard до безопасного expiry, а обычный Off остаётся доступным. 47/47 `test_proxy_gui` PASS (Python 3.12 + Tk 9.1); исходники в отдельном PR. [C19 QA](APL_MAC_WAKE_GUARD_C19_QA_2026-10-28.md).
+- [ ] Реальная проверка сна/пробуждения MacBook, статуса proxy worker и Safari/ChatGPT, обновлённая подписанная сборка — не пройдены и не заявляются.
+
+
 Updated: 2026-10-27 (iOS 0.1.38 owner-approved theme and website release; other statuses retain prior observation dates)
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
