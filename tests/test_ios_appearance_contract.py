@@ -39,12 +39,12 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.39;'), 2)
         self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 43;'), 2)
 
-    def test_ads_are_default_off_in_release_and_not_in_tunnel(self):
+    def test_ads_enabled_in_release_only_main_app(self):
         config = (IOS / "project.yml").read_text(encoding="utf-8")
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         tunnel = (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8")
         self.assertIn('package: YandexMobileAds', config)
-        self.assertIn('static let isEnabled = false', ads)
+        self.assertIn('static let isEnabled = true', ads)
         self.assertIn('R-M-20288304-1', ads)
         self.assertIn('demo-banner-yandex', ads)
         self.assertNotIn('YandexMobileAds', tunnel)
