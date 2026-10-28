@@ -568,6 +568,9 @@ struct ContentView: View {
                     .foregroundStyle(Brand.text)
                     .background(Brand.graphite)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+#if !targetEnvironment(macCatalyst)
+                    SettingsBannerView()
+#endif
                 }
                 .padding(18)
                 .frame(maxWidth: 760)
