@@ -1,52 +1,34 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-APPEARANCE-RELEASE-20261027
-status: blocked
-goal: "Release iOS 0.1.38 build 42 with System/Light/Dark appearance and Arvectum.com App Store Support/Developer URLs, then complete review and public verification."
+task_id: APL-IOS-FIRST-RUN-LANGUAGE-20261028
+status: in_progress
+goal: "Act on APL App Store peer feedback: approachable proxy onboarding, terminology help, and an obvious, genuinely functional Russian/English language selector, preserving public iOS 0.1.38."
 definition_of_done:
-  - "Native iOS appearance offers System/Light/Dark, choice persists and System follows OS; no Network Extension changes."
-  - "Actual 0.1.38 build 42 signed and validated, Apple App Store Connect metadata ru/en-US corrected to arvectum.com."
-  - "Apple receives and accepts App Review submission; public version and Yandex app-ads verification to be checked when Apple approval occurs."
-  - "Canonical GitHub source PR is integrated after required CI, and runtime QA evidence is truthful."
+  - "iOS first-time after privacy onboarding shows concise, skippable step-by-step guide; Help/Setup entry remains in Settings and onboarding can be reopened."
+  - "Guide explains where user gets their own proxy settings, host/port/type/auth fields, saving a profile and connecting, with no claim of provisioned proxy or guaranteed success."
+  - "Language Settings explicitly offer system/ru/en, persist choice, and translate real app UI/help across primary screens including onboarding rather than decorative selector."
+  - "iOS 0.1.39 (43) candidate cleanly builds, relevant tests pass; current public 0.1.38 not modified."
+  - "Changes integrated into canonical GitHub main via PR after required CI; record release separately if App Review not submitted."
 completed:
-  - "Verified current public iOS 0.1.37 build 41; 0.1.38 build 42 is submitted while public build is intact."
-  - "Implemented a persistent System/Light/Dark appearance selector using SwiftUI AppStorage and dynamic semantic UIColor palette without PacketTunnel code changes."
-  - "App version 0.1.38 build 42 built with Xcode 27.1, Swift package tests PASS, unsigned device Release build PASS."
-  - "Apple Distribution signed archive and exported IPA passed signature verification; IPA SHA-256 0f80cf1bb42596bf497baa38a713c9dc11c48cdeaf6de4705699767ae8135a84."
-  - "altool IPA validation PASS and upload PASS; Apple buildUploads COMPLETE zero warnings/errors."
-  - "Apple build 42 ID 73fbe779-2f35-4f7e-abb2-bedfb24cbba7 VALID, export compliance flag false, attached to iOS version 2f7d4c38-ff0c-4ca5-81c5-6bfeeab768f6 by Apple REST API."
-  - "Apple ru/en-US localizations marketingUrl and supportUrl https://arvectum.com/, What's New updated and read back."
-  - "App Store review submission ecae724b-0cc2-4e51-bc5d-92c15d107277 submitted true, Apple version state WAITING_FOR_REVIEW. releaseType AFTER_APPROVAL."
-  - "PR #265 opened. Windows CI discovered fixed literal brand palette assertion and cp1252 test encoding, both fixed; unrelated setuptools 84.0.0 GHSA in build dependency lock updated to 84.1.0."
-  - "On Mac mini, iOS appearance and shared adaptive UI contract tests 11/11 PASS; change-independent app archive remains valid."
-  - "Source/release evidence documented in docs/ROADMAP.md and docs/app-store-metadata-ios-0.1.38.md."
-  - "Verified runtime iOS App/PacketTunnel/Shared/SharedCore and project.yml have zero source changes after the Apple-uploaded IPA archive commit."
-  - "Verified canonical only hourly Proxy Launcher Watchdog exists; reenabled it (automation 6aa7ef9d47d48191b9fa1578d1d856a5)."
-current: "Apple iOS 0.1.38 (42) WAITING_FOR_REVIEW with AFTER_APPROVAL; GitHub PR #265 is awaiting required build CI, currently queued. Public Store remains 0.1.37."
+  - "Verified Apple Lookup currently publicly serves 0.1.38, sellerUrl https://arvectum.com/, dated 2026-10-27T20:24:47Z."
+  - "Verified previous iOS appearance release PR #265 merged; latest code contains three appearance modes."
+  - "Verified repository has no iOS Localizable.strings yet and UI has hard-coded Russian in ContentView and PrivacyDisclosureView."
+current: "Implement scoped first-run guide + native bilingual localization in isolated iOS branch."
 pending:
-  - "Finish PR #265 required build and relevant CI, fix only reproducible blockers, merge after protection passes."
-  - "Apple App Review approval and public 0.1.38 must be verified via Apple API and public sellerUrl; Apple controls review, no immediate publication claim."
-  - "After public website changes to arvectum.com, repeat RСЯ app-ads.txt verification and verify its status."
-  - "Physical real-iPhone light/dark UI acceptance is not yet independently evidenced; do not claim it passed."
-last_verified_commit: "20356d0c3683aa9e56395248f1d74934ab5460a2"
+  - "Create isolated clean checkout from current remote main; preserve dirty local main."
+  - "Implement first-launch guide and persistent language UI with genuine translations."
+  - "Add localization resources, ensure language selection updates primary flows and errors."
+  - "Add tests and update ROADMAP for confirmed iOS 0.1.38 published."
+  - "Run Xcode build/Swift tests and applicable CI, open PR, merge if eligible."
+last_verified_commit: "e3015580f89f282a0b03e62960e63babad251389"
 test_results:
-  - "swift test --package-path mobile/ios: PASS; xcodebuild iOS Release CODE_SIGNING_ALLOWED=NO: PASS"
-  - "Signed archive Xcode 27.1: PASS; codesign --verify --deep --strict: PASS"
-  - "altool --validate-app: PASS; --upload-app: PASS"
-  - "App Store Connect buildUploads COMPLETE (warnings 0 errors 0); build 42 processing VALID; review WAITING_FOR_REVIEW."
-  - "Mac focused adaptive UI contract tests 7/7 PASS and appearance contract tests 4/4 PASS."
-  - "Mac 981-test full Python collection ran: 4 import errors only from host Python 3.15 missing _tkinter for desktop GUI; iOS-targeted tests passed. Windows GitHub runner remains the release-wide verification authority."
-  - "Updated requirements-build.windows-x64.hashes.txt to patched setuptools 84.1.0 wheel digest 5231689c6ac8156cd155cfb98c3fd6fb252c3e7e9bd3d78b64d3c55f132624c9; wheel downloaded and checked on Mac mini."
-  - "GitHub merge of PR #265 still rejected HTTP 405 solely because required build check queued."
-  - "Initial GitHub CI 260bd9d Windows tests failed due to cp1252 and obsolete palette test; fixed in later branch commits, CI of new HEAD pending."
-  - "Initial pip-audit reported setuptools 84.0.0 vulnerability GHSA-xmj3-9gf7-h52w; lock bumped 84.1.0, CI verification pending."
-blocker: "External gates: Apple App Review WAITING_FOR_REVIEW; GitHub required build job queued so protected main rejects merge. The original CI test failures were fixed and source validated on Mac mini."
-resume_instruction: "Read this checkpoint and GitHub PR #265. Verify exact branch head and required build; inspect failing checks and fix only genuine failures; merge after checks pass, without changing already Apple-submitted IPA content. Monitor App Store Connect 0.1.38 version id 2f7d4c38-ff0c-4ca5-81c5-6bfeeab768f6 and reviewSubmission id ecae724b-0cc2-4e51-bc5d-92c15d107277. Current state WAITING_FOR_REVIEW and auto release after Apple approval. After public 0.1.38, check developer sellerUrl arvectum.com and verify RСЯ app-ads.txt. Do not falsely claim public release or physical QA. Update checkpoint status completed only when DoD met."
-updated_at: "2026-10-27T16:04:00+03:00"
+  - "Apple public iTunes Lookup: version 0.1.38 and developer site arvectum.com."
+blocker: null
+resume_instruction: "Resume from feat/ios-onboarding-language-20261028, inspect actual repo branch and PR; implement first-run guide and proper iOS Russian/English in Settings, run simulator Release and Swift tests, then PR/merge. Never reactivate Proxy Launcher Watchdog (user explicitly disabled). Leave public 0.1.38 untouched until a separately verified new release."
+updated_at: "2026-10-28T13:26:00+03:00"
 execution:
   claimed_by: "ChatGPT"
-  execution_id: "APL-IOS-APPEARANCE-RELEASE-20261027"
-  branch: "feat/ios-appearance-0.1.38-20261027"
-  base_commit: "8ed4df08adeed4123fe94283d60be27ea635883b"
-  pr: 265
+  execution_id: "APL-IOS-FIRST-RUN-LANGUAGE-20261028"
+  branch: "feat/ios-onboarding-language-20261028"
+  base_commit: "e3015580f89f282a0b03e62960e63babad251389"
   manual_override: true
