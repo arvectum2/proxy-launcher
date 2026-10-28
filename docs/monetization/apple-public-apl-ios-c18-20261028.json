@@ -1,0 +1,134 @@
+{
+  "appleId": "6816013574",
+  "asOfUTC": "2026-10-28T07:21:35.159627+00:00",
+  "regions": {
+    "ru": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/ru/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "us": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/us/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "gb": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/gb/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "ca": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/ca/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "au": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/au/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "es": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/es/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "mx": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/mx/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "fr": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/fr/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "de": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/de/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "it": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/it/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "pt": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/pt/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "br": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/br/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "jp": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/jp/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "kr": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/kr/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    },
+    "cn": {
+      "version": null,
+      "releaseDateUTC": null,
+      "storeURL": null,
+      "minimumOs": null,
+      "languages": [],
+      "screenshots": 0
+    },
+    "tw": {
+      "version": "0.1.38",
+      "releaseDateUTC": "2026-10-27T20:24:47Z",
+      "storeURL": "https://apps.apple.com/tw/app/arvectum-proxy-launcher/id6816013574?uo=4",
+      "minimumOs": "15.0",
+      "languages": [],
+      "screenshots": 2
+    }
+  }
+}
