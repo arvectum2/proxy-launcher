@@ -1,0 +1,44 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-FIRST-RUN-LANGUAGE-20261028
+status: in_progress
+goal: "Implement and release APL iOS 0.1.39 beginner first-connection guide and genuine system/ru/en language selection after peer feedback."
+definition_of_done:
+  - "First-launch guide is skippable, shown after privacy disclosure only when no profiles and can be reopened in Settings; it accurately explains user-supplied proxies and VPN permission."
+  - "The profile editor explains host, port, protocol and optional authentication."
+  - "System/Russian/English language selection persists and uses real localized resources across primary iOS screens, privacy and setup."
+  - "Signed 0.1.39 build 43 archive and IPA pass Apple validation, App Store API upload + review submission proven, with public 0.1.38 preserved until Apple approval."
+  - "GitHub PR #269 passes required CI and is merged into canonical main."
+completed:
+  - "Confirmed public Apple storefront 0.1.38 build 42 and sellerUrl https://arvectum.com/."
+  - "Built SetupGuideView: three steps, explicit user-provided proxy host/port/type/auth and VPN approval, skippable and reopening via Settings, first-run guard for existing profiles."
+  - "Added beginner explanatory fields for Host, Port, Type and optional credentials in profile editor."
+  - "Implemented AppLanguage system/ru/en via persisted AppStorage and app scene locale override, including 155 matching Russian/English Localizable.strings keys in .app bundle."
+  - "Updated canonical ROADMAP with 0.1.38 publication and 0.1.39 candidate."
+  - "XcodeGen project updated and committed, iOS 0.1.39 build 43 version pinned; no change to PacketTunnel/Shared networking code or ad SDK."
+  - "Signed Apple Distribution archive /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-20261028-r2.xcarchive verified exact bundle and version with codesign --verify --deep --strict."
+  - "Signed export produced /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-export/Arvectum Proxy Launcher.ipa; ZIP CRC pass, SHA-256 a06649c1dbf63717c4fc9da9a1d08b4a93d7321a2fe25a6de8f0f25fd830dc6b."
+  - "App Store Connect draft 0.1.39 created (id 02b73c8b-ad06-45b6-9d9b-e09abf371470); ru/en-US release notes, supportUrl and marketingUrl point to https://arvectum.com/ and verified by API; Apple review contacts present."
+  - "GitHub PR #269 opened. Initial Windows CI had 3 old Russian-only source assertions; fixed test contracts for actual localized navigation, connect button and deletion a11y. macOS focused tests now pass."
+current: "Apple IPA upload validation in progress on Mac mini; GitHub required CI build currently in progress."
+pending:
+  - "Read /tmp/apl-ios-0139-upload.exit and tool log; confirm Apple upload success, then wait for processed VALID build 43."
+  - "Attach build 43 to App Store version 02b73c8b-ad06-45b6-9d9b-e09abf371470; set usesNonExemptEncryption false only if existing encryption classification remains unchanged; submit review and verify WAITING_FOR_REVIEW."
+  - "Inspect GitHub PR #269 required build on latest HEAD; fix failures if any and merge when protected-main gate passes."
+  - "When Apple publishes 0.1.39, verify public version and storefront localizations; current version 0.1.38 stays public until then."
+last_verified_commit: "9da271b51fa8d1a696eae7ffc1d274a6e76aba85"
+test_results:
+  - "swift test --package-path mobile/ios PASS."
+  - "Xcode 27.1 Release archive app 0.1.39 (43) PASS, Apple Distribution signing verification PASS."
+  - "en/ru .strings plutil -lint PASS, both .lproj included in final signed .app."
+  - "Python onboarding 4/4, appearance 4/4, adaptive UI 7/7, macOS AppStore contract 21/21 tests PASS on Mac mini."
+  - "Initial Windows CI failed on three expected literal-only assertions and was fixed in PR head; latest CI underway."
+blocker: null
+resume_instruction: "Use PR #269 branch feat/ios-onboarding-language-20261028 and canonical state; do NOT reactivate Proxy Launcher Watchdog, which owner explicitly turned off. No new app/PacketTunnel changes after signed IPA source commit 38da082ac43bb3650b9f5aa8fcf806a9d09c36ac: later commits only update tests. Confirm Apple upload marker /tmp/apl-ios-0139-upload.exit and App Store Connect build 43 upload/processing via API; attach to version 02b73c8b-ad06-45b6-9d9b-e09abf371470 and submit review if processing VALID. Then required GitHub CI #269 and merge. Public remains 0.1.38 until Apple approves."
+updated_at: "2026-10-28T13:57:00+03:00"
+execution:
+  claimed_by: "ChatGPT"
+  execution_id: "APL-IOS-FIRST-RUN-LANGUAGE-20261028"
+  branch: "feat/ios-onboarding-language-20261028"
+  pr: 269
+  manual_override: true
