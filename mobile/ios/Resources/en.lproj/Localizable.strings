@@ -5,8 +5,8 @@
 "2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. App → Is Closed: choose the same apps and the APL App Closed action.";
 "Авто" = "Auto";
 "Автоматизация приложений" = "App automation";
-"Автоматическая" = "Автоматическая";
-"Автоматический" = "Автоматический";
+"Автоматическая" = "Automatic";
+"Автоматический" = "Automatic";
 "Авторизация" = "Authentication";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Your proxy address, port and username are stored locally. Your password is kept in the iOS Keychain. Arvectum does not receive this information.";
 "Активность" = "Activity";
@@ -63,7 +63,7 @@
 "Не удалось открыть VPN-сессию" = "Unable to open VPN session";
 "Не удалось сохранить профиль" = "Could not save profile";
 "недоступен" = "Unavailable";
-"Недоступен" = "Недоступен";
+"Недоступен" = "Unavailable";
 "Неизвестное состояние" = "Unknown status";
 "Новый прокси" = "New proxy";
 "Обновить" = "Refresh";
@@ -81,7 +81,7 @@
 "Оформление" = "Appearance";
 "Очистить все" = "Clear all";
 "Очистить все исключения?" = "Clear all exclusions?";
-"Ошибка" = "Ошибка";
+"Ошибка" = "Error";
 "Пароль" = "Password";
 "Пароль (пусто = оставить прежний)" = "Password (leave blank to keep existing)";
 "Первое подключение" = "First connection";
@@ -132,7 +132,7 @@
 "Удалить исключение" = "Remove exclusion";
 "Удалить профиль" = "Delete profile";
 "Управление профилями" = "Manage profiles";
-"Успешно" = "Успешно";
+"Успешно" = "Success";
 "Хост" = "Host";
 "Хост — адрес сервера, порт — его номер. Тип уточните у поставщика." = "Host is the server address; port is its port number. Ask your provider which protocol to use.";
 "Что произойдёт" = "What happens";
