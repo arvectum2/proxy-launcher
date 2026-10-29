@@ -12,7 +12,7 @@ IOS = ROOT / 'mobile/ios/Resources'
 ANDROID = ROOT / 'mobile/android/app/src/main/res'
 ANDROID_DIR = {'en':'values-en','ru':'values','es':'values-es','fr':'values-fr','de':'values-de',
                'it':'values-it','ja':'values-ja','ko':'values-ko','pt-BR':'values-pt-rBR',
-               'pt-PT':'values-pt-rPT','zh-Hans':'values-b+zh+Hans','zh-Hant':'values-b+zh+Hant','fa':'values-fa','nl':'values-nl','id':'values-in','tr':'values-tr'}
+               'pt-PT':'values-pt-rPT','zh-Hans':'values-b+zh+Hans','zh-Hant':'values-b+zh+Hant','fa':'values-fa','nl':'values-nl','id':'values-in','tr':'values-tr','hi':'values-hi','ar':'values-ar','vi':'values-vi','pl':'values-pl','th':'values-th'}
 PAT = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 
 
@@ -33,7 +33,7 @@ def desktop():
 
 
 def test_editorial_glossary_in_all_available_platform_surfaces():
-    assert len(LANGS)==16
+    assert len(LANGS)==21
     rus=android('ru'); desk=desktop()
     for lang in LANGS:
         strings=ios(lang); resources=android(lang)

@@ -930,6 +930,9 @@ class MainActivity : Activity() {
         val input = EditText(this).apply {
             hint = "example.com"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            // Domain/IP input remains LTR inside the Arabic RTL interface.
+            textDirection = View.TEXT_DIRECTION_LTR
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
             setSingleLine(true)
             textSize = 15f
             setTextColor(NAVY)
@@ -1348,12 +1351,16 @@ class MainActivity : Activity() {
 
         val nameField = editorField(fields, getString(R.string.apl_name_0918b), getString(R.string.apl_for_example_basic_1589d))
         val hostField = editorField(fields, getString(R.string.apl_proxy_address_ef480), "proxy.example.com")
+        hostField.textDirection = View.TEXT_DIRECTION_LTR
+        hostField.layoutDirection = View.LAYOUT_DIRECTION_LTR
         val portField = editorField(
             fields,
             getString(R.string.apl_port_90947),
             "8000",
             InputType.TYPE_CLASS_NUMBER,
         )
+        portField.textDirection = View.TEXT_DIRECTION_LTR
+        portField.layoutDirection = View.LAYOUT_DIRECTION_LTR
         val usernameField = editorField(fields, getString(R.string.apl_username_5be12), getString(R.string.apl_optional_f6d95))
         val passwordField = editorField(
             fields,

@@ -18,13 +18,18 @@
     "fa",
     "nl",
     "id",
-    "tr"
+    "tr",
+    "hi",
+    "ar",
+    "vi",
+    "pl",
+    "th"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core16_editorial_source",
+  "stage": "core21_editorial_source",
   "appStoreConnectModified": false
 }

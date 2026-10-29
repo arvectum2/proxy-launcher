@@ -1,7 +1,7 @@
 import Foundation
 
 /// The locale preference is independent of the color-scheme preference.
-/// The cases match the 12-language Arvectum Tools Core source baseline.
+/// The cases cover the 21 fully populated APL source languages.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case en
@@ -18,6 +18,11 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case nl
     case indonesian = "id"
     case tr
+    case hi
+    case ar
+    case vi
+    case pl
+    case th
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -40,6 +45,11 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .nl: return "Nederlands"
         case .indonesian: return "Bahasa Indonesia"
         case .tr: return "Türkçe"
+        case .hi: return "हिन्दी"
+        case .ar: return "العربية"
+        case .vi: return "Tiếng Việt"
+        case .pl: return "Polski"
+        case .th: return "ไทย"
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -66,7 +76,7 @@ enum AppL10n {
         }
         if id == "pt" || id.hasPrefix("pt-pt") { return "pt-PT" }
         if id.hasPrefix("pt-br") { return "pt-BR" }
-        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr"] {
+        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th"] {
             if id == code || id.hasPrefix(code + "-") { return code }
         }
         return nil

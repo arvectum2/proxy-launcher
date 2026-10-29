@@ -17,7 +17,12 @@
     "fa",
     "nl",
     "id",
-    "tr"
+    "tr",
+    "hi",
+    "ar",
+    "vi",
+    "pl",
+    "th"
   ],
   "terms": {
     "Прокси": {
@@ -36,7 +41,12 @@
       "fa": "پروکسی",
       "nl": "Proxy",
       "id": "Proksi",
-      "tr": "Proxy"
+      "tr": "Proxy",
+      "hi": "प्रॉक्सी",
+      "ar": "بروكسي",
+      "vi": "Proxy",
+      "pl": "Serwer proxy",
+      "th": "พร็อกซี"
     },
     "Порт": {
       "en": "Port",
@@ -54,7 +64,12 @@
       "fa": "پورت",
       "nl": "Poort",
       "id": "Port",
-      "tr": "Bağlantı noktası"
+      "tr": "Bağlantı noktası",
+      "hi": "पोर्ट",
+      "ar": "المنفذ",
+      "vi": "Cổng",
+      "pl": "Port",
+      "th": "พอร์ต"
     },
     "Хост": {
       "en": "Host",
@@ -72,7 +87,12 @@
       "fa": "میزبان",
       "nl": "Host",
       "id": "Host",
-      "tr": "Sunucu adresi"
+      "tr": "Sunucu adresi",
+      "hi": "होस्ट",
+      "ar": "المضيف",
+      "vi": "Máy chủ",
+      "pl": "Host",
+      "th": "โฮสต์"
     },
     "Тип": {
       "en": "Type",
@@ -90,7 +110,12 @@
       "fa": "نوع",
       "nl": "Type",
       "id": "Jenis",
-      "tr": "Tür"
+      "tr": "Tür",
+      "hi": "प्रकार",
+      "ar": "النوع",
+      "vi": "Loại",
+      "pl": "Typ",
+      "th": "ประเภท"
     },
     "Журнал": {
       "en": "Log",
@@ -108,7 +133,12 @@
       "fa": "گزارش",
       "nl": "Logboek",
       "id": "Log",
-      "tr": "Günlük"
+      "tr": "Günlük",
+      "hi": "लॉग",
+      "ar": "السجل",
+      "vi": "Nhật ký",
+      "pl": "Dziennik",
+      "th": "บันทึก"
     },
     "Главная": {
       "en": "Home",
@@ -126,7 +156,12 @@
       "fa": "خانه",
       "nl": "Start",
       "id": "Beranda",
-      "tr": "Ana sayfa"
+      "tr": "Ana sayfa",
+      "hi": "होम",
+      "ar": "الرئيسية",
+      "vi": "Trang chủ",
+      "pl": "Strona główna",
+      "th": "หน้าหลัก"
     },
     "Профили": {
       "en": "Profiles",
@@ -144,7 +179,12 @@
       "fa": "پروفایل‌ها",
       "nl": "Profielen",
       "id": "Profil",
-      "tr": "Profiller"
+      "tr": "Profiller",
+      "hi": "प्रोफ़ाइल",
+      "ar": "الملفات الشخصية",
+      "vi": "Hồ sơ",
+      "pl": "Profile",
+      "th": "โปรไฟล์"
     },
     "Русский": {
       "en": "Русский",
@@ -162,7 +202,12 @@
       "fa": "Русский",
       "nl": "Русский",
       "id": "Русский",
-      "tr": "Русский"
+      "tr": "Русский",
+      "hi": "Русский",
+      "ar": "Русский",
+      "vi": "Русский",
+      "pl": "Русский",
+      "th": "Русский"
     },
     "Светлая": {
       "en": "Light",
@@ -180,7 +225,12 @@
       "fa": "روشن",
       "nl": "Licht",
       "id": "Terang",
-      "tr": "Açık"
+      "tr": "Açık",
+      "hi": "लाइट",
+      "ar": "فاتح",
+      "vi": "Sáng",
+      "pl": "Jasny",
+      "th": "สว่าง"
     },
     "Тёмная": {
       "en": "Dark",
@@ -198,7 +248,12 @@
       "fa": "تیره",
       "nl": "Donker",
       "id": "Gelap",
-      "tr": "Koyu"
+      "tr": "Koyu",
+      "hi": "डार्क",
+      "ar": "داكن",
+      "vi": "Tối",
+      "pl": "Ciemny",
+      "th": "มืด"
     },
     "Ошибка": {
       "en": "Error",
@@ -216,7 +271,12 @@
       "fa": "خطا",
       "nl": "Fout",
       "id": "Kesalahan",
-      "tr": "Hata"
+      "tr": "Hata",
+      "hi": "त्रुटि",
+      "ar": "خطأ",
+      "vi": "Lỗi",
+      "pl": "Błąd",
+      "th": "ข้อผิดพลาด"
     },
     "Проверка": {
       "en": "Check",
@@ -234,7 +294,12 @@
       "fa": "بررسی",
       "nl": "Controleren",
       "id": "Periksa",
-      "tr": "Kontrol et"
+      "tr": "Kontrol et",
+      "hi": "जाँचें",
+      "ar": "تحقق",
+      "vi": "Kiểm tra",
+      "pl": "Sprawdź",
+      "th": "ตรวจสอบ"
     },
     "Проверяется": {
       "en": "Checking",
@@ -252,7 +317,12 @@
       "fa": "در حال بررسی…",
       "nl": "Controleren…",
       "id": "Memeriksa…",
-      "tr": "Kontrol ediliyor…"
+      "tr": "Kontrol ediliyor…",
+      "hi": "जाँच हो रही है…",
+      "ar": "جارٍ التحقق…",
+      "vi": "Đang kiểm tra…",
+      "pl": "Sprawdzanie…",
+      "th": "กำลังตรวจสอบ…"
     },
     "проверяется": {
       "en": "Checking",
@@ -270,7 +340,12 @@
       "fa": "در حال بررسی…",
       "nl": "Controleren…",
       "id": "Memeriksa…",
-      "tr": "Kontrol ediliyor…"
+      "tr": "Kontrol ediliyor…",
+      "hi": "जाँच हो रही है…",
+      "ar": "جارٍ التحقق…",
+      "vi": "Đang kiểm tra…",
+      "pl": "Sprawdzanie…",
+      "th": "กำลังตรวจสอบ…"
     },
     "Авто": {
       "en": "Auto",
@@ -288,7 +363,12 @@
       "fa": "خودکار",
       "nl": "Automatisch",
       "id": "Otomatis",
-      "tr": "Otomatik"
+      "tr": "Otomatik",
+      "hi": "स्वचालित",
+      "ar": "تلقائي",
+      "vi": "Tự động",
+      "pl": "Automatycznie",
+      "th": "อัตโนมัติ"
     },
     "Выберите прокси": {
       "en": "Select a proxy",
@@ -306,7 +386,12 @@
       "fa": "انتخاب پروکسی",
       "nl": "Selecteer een proxy",
       "id": "Pilih proksi",
-      "tr": "Proxy seç"
+      "tr": "Proxy seç",
+      "hi": "प्रॉक्सी चुनें",
+      "ar": "اختر بروكسي",
+      "vi": "Chọn proxy",
+      "pl": "Wybierz serwer proxy",
+      "th": "เลือกพร็อกซี"
     },
     "Новый прокси": {
       "en": "New proxy",
@@ -324,7 +409,12 @@
       "fa": "پروکسی جدید",
       "nl": "Nieuwe proxy",
       "id": "Proksi baru",
-      "tr": "Yeni proxy"
+      "tr": "Yeni proxy",
+      "hi": "नया प्रॉक्सी",
+      "ar": "بروكسي جديد",
+      "vi": "Proxy mới",
+      "pl": "Nowy serwer proxy",
+      "th": "พร็อกซีใหม่"
     },
     "Приоритетный прокси": {
       "en": "Preferred proxy",
@@ -342,7 +432,12 @@
       "fa": "پروکسی اولویت‌دار",
       "nl": "Voorkeursproxy",
       "id": "Proksi utama",
-      "tr": "Öncelikli proxy"
+      "tr": "Öncelikli proxy",
+      "hi": "प्राथमिक प्रॉक्सी",
+      "ar": "البروكسي المفضّل",
+      "vi": "Proxy ưu tiên",
+      "pl": "Preferowany serwer proxy",
+      "th": "พร็อกซีที่ต้องการ"
     },
     "Подключиться": {
       "en": "Connect",
@@ -360,7 +455,12 @@
       "fa": "اتصال",
       "nl": "Verbinden",
       "id": "Hubungkan",
-      "tr": "Bağlan"
+      "tr": "Bağlan",
+      "hi": "कनेक्ट करें",
+      "ar": "اتصال",
+      "vi": "Kết nối",
+      "pl": "Połącz",
+      "th": "เชื่อมต่อ"
     },
     "Подключитесь": {
       "en": "Connect",
@@ -378,7 +478,12 @@
       "fa": "اتصال",
       "nl": "Verbinden",
       "id": "Hubungkan",
-      "tr": "Bağlan"
+      "tr": "Bağlan",
+      "hi": "कनेक्ट करें",
+      "ar": "اتصال",
+      "vi": "Kết nối",
+      "pl": "Połącz",
+      "th": "เชื่อมต่อ"
     },
     "Подключено": {
       "en": "Connected",
@@ -396,7 +501,12 @@
       "fa": "متصل است",
       "nl": "Verbonden",
       "id": "Terhubung",
-      "tr": "Bağlandı"
+      "tr": "Bağlandı",
+      "hi": "कनेक्ट किया गया",
+      "ar": "متصل",
+      "vi": "Đã kết nối",
+      "pl": "Połączono",
+      "th": "เชื่อมต่อแล้ว"
     },
     "Отключено": {
       "en": "Disconnected",
@@ -414,7 +524,12 @@
       "fa": "قطع است",
       "nl": "Verbinding verbroken",
       "id": "Terputus",
-      "tr": "Bağlantı kesildi"
+      "tr": "Bağlantı kesildi",
+      "hi": "डिस्कनेक्ट किया गया",
+      "ar": "غير متصل",
+      "vi": "Đã ngắt kết nối",
+      "pl": "Rozłączono",
+      "th": "ตัดการเชื่อมต่อแล้ว"
     },
     "Системная": {
       "en": "System",
@@ -432,7 +547,12 @@
       "fa": "سیستم",
       "nl": "Systeem",
       "id": "Sistem",
-      "tr": "Sistem"
+      "tr": "Sistem",
+      "hi": "सिस्टम",
+      "ar": "النظام",
+      "vi": "Hệ thống",
+      "pl": "System",
+      "th": "ระบบ"
     },
     "Настройки": {
       "en": "Settings",
@@ -450,7 +570,12 @@
       "fa": "تنظیمات",
       "nl": "Instellingen",
       "id": "Pengaturan",
-      "tr": "Ayarlar"
+      "tr": "Ayarlar",
+      "hi": "सेटिंग",
+      "ar": "الإعدادات",
+      "vi": "Cài đặt",
+      "pl": "Ustawienia",
+      "th": "การตั้งค่า"
     },
     "Готово": {
       "en": "Done",
@@ -468,7 +593,12 @@
       "fa": "انجام شد",
       "nl": "Gereed",
       "id": "Selesai",
-      "tr": "Bitti"
+      "tr": "Bitti",
+      "hi": "हो गया",
+      "ar": "تم",
+      "vi": "Xong",
+      "pl": "Gotowe",
+      "th": "เสร็จสิ้น"
     },
     "Далее": {
       "en": "Next",
@@ -486,7 +616,12 @@
       "fa": "بعدی",
       "nl": "Volgende",
       "id": "Berikutnya",
-      "tr": "İleri"
+      "tr": "İleri",
+      "hi": "आगे",
+      "ar": "التالي",
+      "vi": "Tiếp",
+      "pl": "Dalej",
+      "th": "ถัดไป"
     },
     "Пароль": {
       "en": "Password",
@@ -504,7 +639,12 @@
       "fa": "گذرواژه",
       "nl": "Wachtwoord",
       "id": "Kata sandi",
-      "tr": "Parola"
+      "tr": "Parola",
+      "hi": "पासवर्ड",
+      "ar": "كلمة المرور",
+      "vi": "Mật khẩu",
+      "pl": "Hasło",
+      "th": "รหัสผ่าน"
     },
     "Протокол": {
       "en": "Protocol",
@@ -522,7 +662,12 @@
       "fa": "پروتکل",
       "nl": "Protocol",
       "id": "Protokol",
-      "tr": "Protokol"
+      "tr": "Protokol",
+      "hi": "प्रोटोकॉल",
+      "ar": "البروتوكول",
+      "vi": "Giao thức",
+      "pl": "Protokół",
+      "th": "โปรโตคอล"
     }
   }
 }
