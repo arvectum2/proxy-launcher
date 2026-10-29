@@ -1,14 +1,14 @@
-# APL localization — Core-31 source coverage
+# APL localization — Core-36 source coverage
 
-The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **31**, not all 50 target languages.
+The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **36**, not all 50 target languages.
 
-`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**, **`nl`, `id`, `tr`**, **`hi`, `ar`, `vi`, `pl`, `th`**, **`ur`, `bn`, `pa`, `ta`, `te`**, **`mr`, `gu`, `kn`, `ml`, `uz`**.
+`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**, **`nl`, `id`, `tr`**, **`hi`, `ar`, `vi`, `pl`, `th`**, **`ur`, `bn`, `pa`, `ta`, `te`**, **`mr`, `gu`, `kn`, `ml`, `uz`**, **`ms`, `fil`, `sw`, `ro`, `hu`**.
 
-- iOS: localized UI, setup, privacy and errors via `mobile/ios/Resources/*.lproj/Localizable.strings`; the app's language picker supports all 12 plus iOS language. No production Apple version or submission is modified.
+- iOS: localized UI, setup, privacy and errors via `mobile/ios/Resources/*.lproj/Localizable.strings`; the app's language picker supports all 36 source languages plus system default. No production Apple version or submission is modified.
 - Android: standard resource folders, automatic Android locale selection, and display messages are localized; internal Russian routing/status protocol literals remain unchanged to protect behavior.
 - Desktop: Tk labels, dialogs and status strings via embedded `desktop_i18n.py`; follows OS locale with `APL_UI_LANGUAGE` developer override. Networking and proxy configuration are not locale-dependent.
 
-**Stage (2026-10-29):** source-complete catalogs have completed a model-assisted technical/editorial correction pass, including cross-platform terminology, safety and error messages; **425 locale values changed** with 28 reviewed source-keyed glossary entries. Automated review covers the 12-language, 5424-entry corpus, but this is **not** an independent native-speaker sign-off. Dynamic text overflow, voice accessibility, device/simulator screenshots, consent truthfulness and App Store release approval remain outstanding. Do not mass-enable the remaining 38 target languages as empty/English catalogs. Preserve existing App Store Connect privacy declaration and review state; do not upload a new build without a separate release instruction.
+**Stage (2026-10-29):** source-complete catalogs have completed a model-assisted technical/editorial correction pass, including cross-platform terminology, safety and error messages; **425 locale values changed** with 28 reviewed source-keyed glossary entries. Automated review covers the 12-language, 5424-entry corpus, but this is **not** an independent native-speaker sign-off. Dynamic text overflow, voice accessibility, device/simulator screenshots, consent truthfulness and App Store release approval remain outstanding. Do not mass-enable the remaining 14 target languages as empty/English catalogs. Preserve existing App Store Connect privacy declaration and review state; do not upload a new build without a separate release instruction.
 
 Run `python3 -m pytest -q tests/test_core12_localization.py` and the platform-specific build/compile validation before release. UI resources are bundled in the regular target builds (iOS xcodegen and Android Gradle). Desktop catalogs are Python source to avoid external JSON data files in PyInstaller bundles.
 
@@ -31,3 +31,7 @@ Five complete locale catalogs added for iOS, Android and desktop (2260 strings).
 ## Core-31: Marathi, Gujarati, Kannada, Malayalam and Uzbek (Latin)
 
 Five complete source catalogs on iOS, Android and desktop (2260 new values), 80 long setup/automation explanations and 20 critical desktop warnings reviewed, 28 glossary terms per new language. Script-qualified Android Uzbek `values-b+uz+Latn`, with explicit Cyrillic exclusion on iOS/desktop. Validation and remaining native-device QA: `docs/APL_CORE31_LOCALIZATION_QA_2026-10-29.md`.
+
+## Core-36: Malay, Filipino, Swahili, Romanian and Hungarian
+
+Five complete 155 iOS / 104 Android / 193 desktop catalogs (+2260 UI source values). Editorial revisions cover 80 onboarding and automation instructions and 20 critical network diagnostics/recovery warnings, with 28 standardized terms per language. Now 36/50 source languages; see `docs/APL_LOCALIZATION_COVERAGE_2026-10-29.md` for statuses and `docs/APL_CORE36_LOCALIZATION_QA_2026-10-29.md` for verification. Native-speaker and physical-device QA are separate release gates.

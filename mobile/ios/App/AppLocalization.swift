@@ -1,7 +1,7 @@
 import Foundation
 
 /// The locale preference is independent of the color-scheme preference.
-/// The cases cover the 31 fully populated APL source languages.
+/// The cases cover the 36 fully populated APL source languages.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case en
@@ -33,6 +33,11 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case kn
     case ml
     case uz
+    case ms
+    case fil
+    case sw
+    case ro
+    case hu
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -70,6 +75,11 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .kn: return "ಕನ್ನಡ"
         case .ml: return "മലയാളം"
         case .uz: return "Oʻzbekcha (lotin)"
+        case .ms: return "Bahasa Melayu"
+        case .fil: return "Filipino"
+        case .sw: return "Kiswahili"
+        case .ro: return "Română"
+        case .hu: return "Magyar"
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -98,7 +108,7 @@ enum AppL10n {
         if id.hasPrefix("pt-br") { return "pt-BR" }
         if id == "pa-pk" || id.hasPrefix("pa-arab") { return nil }
         if id == "uz-cyrl" || id.hasPrefix("uz-cyrl-") { return nil }
-        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz"] {
+        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz", "ms", "fil", "sw", "ro", "hu"] {
             if id == code || id.hasPrefix(code + "-") { return code }
         }
         return nil

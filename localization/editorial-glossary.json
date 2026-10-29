@@ -32,7 +32,12 @@
     "gu",
     "kn",
     "ml",
-    "uz"
+    "uz",
+    "ms",
+    "fil",
+    "sw",
+    "ro",
+    "hu"
   ],
   "terms": {
     "Прокси": {
@@ -66,7 +71,12 @@
       "gu": "પ્રોક્સી",
       "kn": "ಪ್ರಾಕ್ಸಿ",
       "ml": "പ്രോക്സി",
-      "uz": "Proksi"
+      "uz": "Proksi",
+      "ms": "Proksi",
+      "fil": "Proxy",
+      "sw": "Proksi",
+      "ro": "Proxy",
+      "hu": "Proxy"
     },
     "Порт": {
       "en": "Port",
@@ -99,7 +109,12 @@
       "gu": "પોર્ટ",
       "kn": "ಪೋರ್ಟ್",
       "ml": "പോർട്ട്",
-      "uz": "Port"
+      "uz": "Port",
+      "ms": "Port",
+      "fil": "Port",
+      "sw": "Porti",
+      "ro": "Port",
+      "hu": "Port"
     },
     "Хост": {
       "en": "Host",
@@ -132,7 +147,12 @@
       "gu": "હોસ્ટ",
       "kn": "ಹೋಸ್ಟ್",
       "ml": "ഹോസ്റ്റ്",
-      "uz": "Xost"
+      "uz": "Xost",
+      "ms": "Hos",
+      "fil": "Host",
+      "sw": "Seva pangishi",
+      "ro": "Gazdă",
+      "hu": "Kiszolgáló"
     },
     "Тип": {
       "en": "Type",
@@ -165,7 +185,12 @@
       "gu": "પ્રકાર",
       "kn": "ಪ್ರಕಾರ",
       "ml": "തരം",
-      "uz": "Tur"
+      "uz": "Tur",
+      "ms": "Jenis",
+      "fil": "Uri",
+      "sw": "Aina",
+      "ro": "Tip",
+      "hu": "Típus"
     },
     "Журнал": {
       "en": "Log",
@@ -198,7 +223,12 @@
       "gu": "લૉગ",
       "kn": "ಲಾಗ್",
       "ml": "ലോഗ്",
-      "uz": "Jurnal"
+      "uz": "Jurnal",
+      "ms": "Log",
+      "fil": "Log",
+      "sw": "Kumbukumbu",
+      "ro": "Jurnal",
+      "hu": "Napló"
     },
     "Главная": {
       "en": "Home",
@@ -231,7 +261,12 @@
       "gu": "હોમ",
       "kn": "ಮುಖಪುಟ",
       "ml": "ഹോം",
-      "uz": "Bosh sahifa"
+      "uz": "Bosh sahifa",
+      "ms": "Utama",
+      "fil": "Home",
+      "sw": "Nyumbani",
+      "ro": "Acasă",
+      "hu": "Kezdőlap"
     },
     "Профили": {
       "en": "Profiles",
@@ -264,7 +299,12 @@
       "gu": "પ્રોફાઇલ",
       "kn": "ಪ್ರೊಫೈಲ್‌ಗಳು",
       "ml": "പ്രൊഫൈലുകൾ",
-      "uz": "Profillar"
+      "uz": "Profillar",
+      "ms": "Profil",
+      "fil": "Mga profile",
+      "sw": "Wasifu",
+      "ro": "Profiluri",
+      "hu": "Profilok"
     },
     "Русский": {
       "en": "Русский",
@@ -297,7 +337,12 @@
       "gu": "Русский",
       "kn": "Русский",
       "ml": "Русский",
-      "uz": "Русский"
+      "uz": "Русский",
+      "ms": "Русский",
+      "fil": "Русский",
+      "sw": "Русский",
+      "ro": "Русский",
+      "hu": "Русский"
     },
     "Светлая": {
       "en": "Light",
@@ -330,7 +375,12 @@
       "gu": "લાઇટ",
       "kn": "ಲೈಟ್",
       "ml": "ലൈറ്റ്",
-      "uz": "Yorugʻ"
+      "uz": "Yorugʻ",
+      "ms": "Cerah",
+      "fil": "Maliwanag",
+      "sw": "Angavu",
+      "ro": "Luminos",
+      "hu": "Világos"
     },
     "Тёмная": {
       "en": "Dark",
@@ -363,7 +413,12 @@
       "gu": "ડાર્ક",
       "kn": "ಡಾರ್ಕ್",
       "ml": "ഡാർക്ക്",
-      "uz": "Qorongʻi"
+      "uz": "Qorongʻi",
+      "ms": "Gelap",
+      "fil": "Madilim",
+      "sw": "Giza",
+      "ro": "Întunecat",
+      "hu": "Sötét"
     },
     "Ошибка": {
       "en": "Error",
@@ -396,7 +451,12 @@
       "gu": "ભૂલ",
       "kn": "ದೋಷ",
       "ml": "പിശക്",
-      "uz": "Xatolik"
+      "uz": "Xatolik",
+      "ms": "Ralat",
+      "fil": "Error",
+      "sw": "Hitilafu",
+      "ro": "Eroare",
+      "hu": "Hiba"
     },
     "Проверка": {
       "en": "Check",
@@ -429,7 +489,12 @@
       "gu": "તપાસો",
       "kn": "ಪರಿಶೀಲಿಸಿ",
       "ml": "പരിശോധിക്കുക",
-      "uz": "Tekshirish"
+      "uz": "Tekshirish",
+      "ms": "Semak",
+      "fil": "Suriin",
+      "sw": "Kagua",
+      "ro": "Verifică",
+      "hu": "Ellenőrzés"
     },
     "Проверяется": {
       "en": "Checking",
@@ -462,7 +527,12 @@
       "gu": "તપાસી રહ્યું છે…",
       "kn": "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…",
       "ml": "പരിശോധിക്കുന്നു…",
-      "uz": "Tekshirilmoqda…"
+      "uz": "Tekshirilmoqda…",
+      "ms": "Sedang disemak…",
+      "fil": "Sinusuri…",
+      "sw": "Inakaguliwa…",
+      "ro": "Se verifică…",
+      "hu": "Ellenőrzés folyamatban…"
     },
     "проверяется": {
       "en": "Checking",
@@ -495,7 +565,12 @@
       "gu": "તપાસી રહ્યું છે…",
       "kn": "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…",
       "ml": "പരിശോധിക്കുന്നു…",
-      "uz": "Tekshirilmoqda…"
+      "uz": "Tekshirilmoqda…",
+      "ms": "Sedang disemak…",
+      "fil": "Sinusuri…",
+      "sw": "Inakaguliwa…",
+      "ro": "Se verifică…",
+      "hu": "Ellenőrzés folyamatban…"
     },
     "Авто": {
       "en": "Auto",
@@ -528,7 +603,12 @@
       "gu": "આપમેળે",
       "kn": "ಸ್ವಯಂಚಾಲಿತ",
       "ml": "യാന്ത്രികം",
-      "uz": "Avtomatik"
+      "uz": "Avtomatik",
+      "ms": "Automatik",
+      "fil": "Awtomatiko",
+      "sw": "Otomatiki",
+      "ro": "Automat",
+      "hu": "Automatikus"
     },
     "Выберите прокси": {
       "en": "Select a proxy",
@@ -561,7 +641,12 @@
       "gu": "પ્રોક્સી પસંદ કરો",
       "kn": "ಪ್ರಾಕ್ಸಿ ಆಯ್ಕೆಮಾಡಿ",
       "ml": "പ്രോക്സി തിരഞ്ഞെടുക്കുക",
-      "uz": "Proksini tanlang"
+      "uz": "Proksini tanlang",
+      "ms": "Pilih proksi",
+      "fil": "Pumili ng proxy",
+      "sw": "Chagua proksi",
+      "ro": "Alegeți proxy-ul",
+      "hu": "Válasszon proxyt"
     },
     "Новый прокси": {
       "en": "New proxy",
@@ -594,7 +679,12 @@
       "gu": "નવી પ્રોક્સી",
       "kn": "ಹೊಸ ಪ್ರಾಕ್ಸಿ",
       "ml": "പുതിയ പ്രോക്സി",
-      "uz": "Yangi proksi"
+      "uz": "Yangi proksi",
+      "ms": "Proksi baharu",
+      "fil": "Bagong proxy",
+      "sw": "Proksi mpya",
+      "ro": "Proxy nou",
+      "hu": "Új proxy"
     },
     "Приоритетный прокси": {
       "en": "Preferred proxy",
@@ -627,7 +717,12 @@
       "gu": "પ્રાથમિક પ્રોક્સી",
       "kn": "ಆದ್ಯತೆಯ ಪ್ರಾಕ್ಸಿ",
       "ml": "മുൻഗണനാ പ്രോക്സി",
-      "uz": "Afzal proksi"
+      "uz": "Afzal proksi",
+      "ms": "Proksi pilihan",
+      "fil": "Piniling proxy",
+      "sw": "Proksi inayopendelewa",
+      "ro": "Proxy preferat",
+      "hu": "Elsődleges proxy"
     },
     "Подключиться": {
       "en": "Connect",
@@ -660,7 +755,12 @@
       "gu": "કનેક્ટ કરો",
       "kn": "ಸಂಪರ್ಕಿಸಿ",
       "ml": "കണക്റ്റുചെയ്യുക",
-      "uz": "Ulanish"
+      "uz": "Ulanish",
+      "ms": "Sambung",
+      "fil": "Kumonekta",
+      "sw": "Unganisha",
+      "ro": "Conectare",
+      "hu": "Csatlakozás"
     },
     "Подключитесь": {
       "en": "Connect",
@@ -693,7 +793,12 @@
       "gu": "કનેક્ટ કરો",
       "kn": "ಸಂಪರ್ಕಿಸಿ",
       "ml": "കണക്റ്റുചെയ്യുക",
-      "uz": "Ulanish"
+      "uz": "Ulanish",
+      "ms": "Sambung",
+      "fil": "Kumonekta",
+      "sw": "Unganisha",
+      "ro": "Conectare",
+      "hu": "Csatlakozás"
     },
     "Подключено": {
       "en": "Connected",
@@ -726,7 +831,12 @@
       "gu": "જોડાયેલ",
       "kn": "ಸಂಪರ್ಕಗೊಂಡಿದೆ",
       "ml": "കണക്റ്റുചെയ്തു",
-      "uz": "Ulangan"
+      "uz": "Ulangan",
+      "ms": "Disambungkan",
+      "fil": "Nakakonekta",
+      "sw": "Imeunganishwa",
+      "ro": "Conectat",
+      "hu": "Csatlakoztatva"
     },
     "Отключено": {
       "en": "Disconnected",
@@ -759,7 +869,12 @@
       "gu": "ડિસ્કનેક્ટ",
       "kn": "ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ",
       "ml": "വിച്ഛേദിച്ചു",
-      "uz": "Uzilgan"
+      "uz": "Uzilgan",
+      "ms": "Diputuskan",
+      "fil": "Nakakadiskonekta",
+      "sw": "Imekatizwa",
+      "ro": "Deconectat",
+      "hu": "Leválasztva"
     },
     "Системная": {
       "en": "System",
@@ -792,7 +907,12 @@
       "gu": "સિસ્ટમ",
       "kn": "ಸಿಸ್ಟಮ್",
       "ml": "സിസ്റ്റം",
-      "uz": "Tizim"
+      "uz": "Tizim",
+      "ms": "Sistem",
+      "fil": "System",
+      "sw": "Mfumo",
+      "ro": "Sistem",
+      "hu": "Rendszer"
     },
     "Настройки": {
       "en": "Settings",
@@ -825,7 +945,12 @@
       "gu": "સેટિંગ્સ",
       "kn": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
       "ml": "ക്രമീകരണങ്ങൾ",
-      "uz": "Sozlamalar"
+      "uz": "Sozlamalar",
+      "ms": "Tetapan",
+      "fil": "Mga setting",
+      "sw": "Mipangilio",
+      "ro": "Setări",
+      "hu": "Beállítások"
     },
     "Готово": {
       "en": "Done",
@@ -858,7 +983,12 @@
       "gu": "પૂર્ણ થયું",
       "kn": "ಮುಗಿದಿದೆ",
       "ml": "പൂർത്തിയായി",
-      "uz": "Tayyor"
+      "uz": "Tayyor",
+      "ms": "Selesai",
+      "fil": "Tapos na",
+      "sw": "Imekamilika",
+      "ro": "Gata",
+      "hu": "Kész"
     },
     "Далее": {
       "en": "Next",
@@ -891,7 +1021,12 @@
       "gu": "આગળ",
       "kn": "ಮುಂದೆ",
       "ml": "അടുത്തത്",
-      "uz": "Keyingi"
+      "uz": "Keyingi",
+      "ms": "Seterusnya",
+      "fil": "Susunod",
+      "sw": "Endelea",
+      "ro": "Înainte",
+      "hu": "Tovább"
     },
     "Пароль": {
       "en": "Password",
@@ -924,7 +1059,12 @@
       "gu": "પાસવર્ડ",
       "kn": "ಪಾಸ್‌ವರ್ಡ್",
       "ml": "പാസ്‌വേഡ്",
-      "uz": "Parol"
+      "uz": "Parol",
+      "ms": "Kata laluan",
+      "fil": "Password",
+      "sw": "Nenosiri",
+      "ro": "Parolă",
+      "hu": "Jelszó"
     },
     "Протокол": {
       "en": "Protocol",
@@ -957,7 +1097,12 @@
       "gu": "પ્રોટોકોલ",
       "kn": "ಪ್ರೋಟೋಕಾಲ್",
       "ml": "പ്രോട്ടോക്കോൾ",
-      "uz": "Protokol"
+      "uz": "Protokol",
+      "ms": "Protokol",
+      "fil": "Protocol",
+      "sw": "Itifaki",
+      "ro": "Protocol",
+      "hu": "Protokoll"
     }
   }
 }

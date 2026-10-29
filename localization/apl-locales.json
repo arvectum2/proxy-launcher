@@ -33,13 +33,18 @@
     "gu",
     "kn",
     "ml",
-    "uz"
+    "uz",
+    "ms",
+    "fil",
+    "sw",
+    "ro",
+    "hu"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core31_editorial_source",
+  "stage": "core36_editorial_source",
   "appStoreConnectModified": false
 }

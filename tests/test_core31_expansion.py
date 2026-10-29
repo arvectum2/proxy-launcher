@@ -44,7 +44,7 @@ def test_all_complete_catalogs_and_formats():
 
 def test_registry_native_selection_and_uzbek_latin():
     d=json.loads((R/'localization/apl-locales.json').read_text())
-    assert len(d['languages'])==31 and d['languages'][-5:]==list(LANGS)
+    assert len(d['languages'])>=31 and d['languages'][26:31]==list(LANGS)
     src=(R/'mobile/ios/App/AppLocalization.swift').read_text()
     for code in LANGS:assert f'case {code}' in src
     for label in ('मराठी','ગુજરાતી','ಕನ್ನಡ','മലയാളം','Oʻzbekcha (lotin)'):assert label in src
