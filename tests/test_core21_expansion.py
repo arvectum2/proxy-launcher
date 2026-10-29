@@ -30,9 +30,9 @@ def test_system_languages_and_arabic_rtl():
  src=(R/'mobile/ios/App/AppLocalization.swift').read_text()
  for lang in LANGS:assert f'case {lang}' in src
  swift=(R/'mobile/ios/App/ArvectumProxyLauncherApp.swift').read_text()
- assert '["fa", "ar", "ur"].contains(AppL10n.effectiveLanguage)' in swift
+ assert '["fa", "ar", "ur", "he"].contains(AppL10n.effectiveLanguage)' in swift
  assert 'android:supportsRtl="true"' in (R/'mobile/android/app/src/main/AndroidManifest.xml').read_text()
- assert 'LANGUAGE in ("fa", "ar", "ur")' in (R/'proxy_gui.py').read_text()
+ assert 'LANGUAGE in ("fa", "ar", "ur", "he")' in (R/'proxy_gui.py').read_text()
  android=(R/'mobile/android/app/src/main/java/ru/arvectum/proxylauncher/MainActivity.kt').read_text()
  for value in ('hostField.textDirection = View.TEXT_DIRECTION_LTR','portField.textDirection = View.TEXT_DIRECTION_LTR'):
   assert value in android

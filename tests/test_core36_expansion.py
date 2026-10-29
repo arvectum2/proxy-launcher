@@ -38,7 +38,7 @@ def test_all_five_catalogs_keys_parameters_and_safety_messages():
 
 def test_registry_ui_picker_and_system_locale_matching():
     manifest=json.loads((R/'localization/apl-locales.json').read_text())
-    assert len(manifest['languages'])==36 and manifest['languages'][-5:]==list(LANGS)
+    assert len(manifest['languages'])>=36 and manifest['languages'][31:36]==list(LANGS)
     swift=(R/'mobile/ios/App/AppLocalization.swift').read_text()
     for c in LANGS:assert f'case {c}' in swift and f'"{c}"' in swift
     for label in ('Bahasa Melayu','Filipino','Kiswahili','Română','Magyar'):

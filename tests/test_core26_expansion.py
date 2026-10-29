@@ -26,8 +26,8 @@ def test_registry_and_rtl():
     assert all(f'case {code}' in src for code in LANGS)
     for name in ('اردو','বাংলা','ਪੰਜਾਬੀ','தமிழ்','తెలుగు'):
         assert name in src
-    assert '["fa", "ar", "ur"].contains(AppL10n.effectiveLanguage)' in (R/'mobile/ios/App/ArvectumProxyLauncherApp.swift').read_text()
-    assert 'LANGUAGE in ("fa", "ar", "ur")' in (R/'proxy_gui.py').read_text()
+    assert '["fa", "ar", "ur", "he"].contains(AppL10n.effectiveLanguage)' in (R/'mobile/ios/App/ArvectumProxyLauncherApp.swift').read_text()
+    assert 'LANGUAGE in ("fa", "ar", "ur", "he")' in (R/'proxy_gui.py').read_text()
     assert 'android:supportsRtl="true"' in (R/'mobile/android/app/src/main/AndroidManifest.xml').read_text()
     src=(R/'mobile/android/app/src/main/java/ru/arvectum/proxylauncher/MainActivity.kt').read_text()
     for n in ('hostField.textDirection = View.TEXT_DIRECTION_LTR', 'portField.textDirection = View.TEXT_DIRECTION_LTR'):

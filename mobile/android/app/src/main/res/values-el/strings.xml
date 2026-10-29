@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">Εισαγάγετε διεύθυνση ιστότοπου και πατήστε «Προσθήκη». Κάθε ιστότοπος εμφανίζεται σε δική του γραμμή. Μπορείτε να επικολλήσετε URL, host:port ή διεύθυνση IP.</string>
+    <string name="apl_connection_828dd" formatted="false">Σύνδεση</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">Κατάσταση APL και ενεργό προφίλ</string>
+    <string name="apl_profile_cc3f0" formatted="false">Προφίλ · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">Διαχείριση προφίλ</string>
+    <string name="apl_profiles_30c61" formatted="false">Προφίλ</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Επιλέξτε, προσθέστε και ιεραρχήστε τους διακομιστές μεσολάβησης</string>
+    <string name="apl_activity_85f08" formatted="false">Δραστηριότητα</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">Κατάσταση σύνδεσης και πρόσφατη δραστηριότητα</string>
+    <string name="apl_disconnected_3e958" formatted="false">Αποσυνδέθηκε</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">Ανοίξτε το αρχείο καταγραφής</string>
+    <string name="apl_settings_985b5" formatted="false">Ρυθμίσεις</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Δρομολόγηση και συμπεριφορά APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">Εξαιρέσεις ιστοτόπων</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">Εξαιρέσεις εφαρμογών</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">Αυτόματες ρυθμίσεις</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">Οι προηγμένες ενέργειες είναι ξεχωριστές από την καθημερινή σύνδεση.</string>
+    <string name="apl_home_d328e" formatted="false">Αρχική</string>
+    <string name="apl_close_a7a40" formatted="false">Κλείσιμο</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Επιστροφή στον προτιμώμενο διακομιστή μεσολάβησης μετά από αποτυχία</string>
+    <string name="apl_connect_36b4c" formatted="false">Σύνδεση</string>
+    <string name="apl_proxy_a5677" formatted="false">Διακομιστής μεσολάβησης</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">Επιλέξτε έναν διακομιστή μεσολάβησης</string>
+    <string name="apl_new_4460b" formatted="false">+ Νέο</string>
+    <string name="apl_edit_b8b15" formatted="false">Επεξεργασία</string>
+    <string name="apl_websites_54646" formatted="false">Ιστοσελίδες</string>
+    <string name="apl_applications_39c4b" formatted="false">Εφαρμογές</string>
+    <string name="apl_log_97c45" formatted="false">Καταγραφή</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Αποτυχία ανάγνωσης αποθηκευμένων προφίλ</string>
+    <string name="apl_auto_8dca2" formatted="false">Αυτόματα</string>
+    <string name="apl_checked_6a779" formatted="false">· έλεγχος</string>
+    <string name="apl_available_c75e3" formatted="false">· διαθέσιμο</string>
+    <string name="apl_unavailable_bee71" formatted="false">· μη διαθέσιμο</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">Προσθήκη διακομιστή μεσολάβησης</string>
+    <string name="apl_profile_309fc" formatted="false">Προφίλ ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">δεν έχει ρυθμιστεί</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">Δεν προστέθηκαν εξαιρέσεις</string>
+    <string name="apl_delete_be99b" formatted="false">Διαγραφή</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">Ελέγξτε τη διεύθυνση του ιστότοπου</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">Εισαγάγετε τη διεύθυνση του ιστότοπου</string>
+    <string name="apl_add_71038" formatted="false">Προσθήκη</string>
+    <string name="apl_exclusions_f4f81" formatted="false">Αποκλεισμοί</string>
+    <string name="apl_cancel_8fbe9" formatted="false">Ακύρωση</string>
+    <string name="apl_save_b4d30" formatted="false">Αποθήκευση</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">Ελέγξτε τη λίστα των εξαιρέσεων</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">Αποτυχία αποθήκευσης εξαιρέσεων</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">Εφαρμογή εξαιρέσεων…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">Οι εξαιρέσεις διαγράφονται</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">Φόρτωση λίστας εφαρμογών</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">Φόρτωση λίστας εφαρμογών…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">Αποτυχία λήψης λίστας εγκατεστημένων εφαρμογών.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">Αποτυχία αποθήκευσης εξαιρέσεων εφαρμογής</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">Εφαρμογή εξαιρέσεων εφαρμογών...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">Οι εξαιρέσεις εφαρμογών διαγράφηκαν</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">Το αρχείο καταγραφής είναι κενό</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">μη διαθέσιμος διακομιστής μεσολάβησης</string>
+    <string name="apl_switched_4c72e" formatted="false">άλλαξε</string>
+    <string name="apl_main_restored_290c9" formatted="false">κύρια αναπαλαιωμένη</string>
+    <string name="apl_network_change_50fc1" formatted="false">αλλαγή δικτύου</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Προσθέστε πρώτα τουλάχιστον έναν διακομιστή μεσολάβησης</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">Αποτυχία επιλογής διακομιστή μεσολάβησης</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Νέος διακομιστής μεσολάβησης</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">Επεξεργασία προφίλ</string>
+    <string name="apl_name_0918b" formatted="false">Όνομα</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">Π.χ. Πρωτοβάθμια</string>
+    <string name="apl_proxy_address_ef480" formatted="false">Διεύθυνση διακομιστή μεσολάβησης</string>
+    <string name="apl_port_90947" formatted="false">Θύρα</string>
+    <string name="apl_username_5be12" formatted="false">Όνομα χρήστη</string>
+    <string name="apl_optional_f6d95" formatted="false">Προαιρετικό</string>
+    <string name="apl_password_cb1a2" formatted="false">Κωδικός πρόσβασης</string>
+    <string name="apl_protocol_b3680" formatted="false">Πρωτόκολλο</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">Αυτόματο πρωτόκολλο</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">HTTPS διακομιστής μεσολάβησης με TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">Προτεραιότητα για την αυτόματη λειτουργία</string>
+    <string name="apl_delete_profile_b745f" formatted="false">Διαγραφή προφίλ;</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">Εισαγάγετε τη διεύθυνση διακομιστή μεσολάβησης</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">Θύρα 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">Η ασφαλής αποθήκευση του προφίλ απέτυχε</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">Εφαρμογή αλλαγών προφίλ...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">Αποτυχία διαγραφής προφίλ</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">Το προφίλ διαγράφηκε</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">Προσθέστε πρώτα έναν διακομιστή μεσολάβησης</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Επιτρέψτε τη δημιουργία μιας σύνδεσης VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Το Android ανακάλεσε την άδεια VPN. Πατήστε Σύνδεση.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">Το VPN είναι απενεργοποιημένο. Μπορείτε να συνδεθείτε ξανά.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">Έλεγχος διακομιστή μεσολάβησης…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">Αποσύνδεση…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">Η άδεια VPN δεν χορηγήθηκε</string>
+    <string name="apl_switching_b0760" formatted="false">Εναλλαγή</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">Αποσύνδεση</string>
+    <string name="apl_connecting_e2449" formatted="false">Σύνδεση…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">Αλλαγή του ενεργού διακομιστή μεσολάβησης</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">Η σύνδεση είναι ενεργή</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">Έλεγχος του επιλεγμένου διακομιστή μεσολάβησης</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">Τερματισμός της σύνδεσης</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Επιλέξτε διακομιστή μεσολάβησης</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">Αποθηκευμένες εξαιρέσεις: %1$d</string>
+    <string name="apl_apps_bypassing_count">Εφαρμογές που παρακάμπτουν τον διακομιστή μεσολάβησης: %1$d</string>
+    <string name="apl_switching_to_profile">Μετάβαση σε %1$s…</string>
+    <string name="apl_profile_saved">Αποθηκεύτηκε: %1$s</string>
+    <string name="apl_error_detail">Σφάλμα: %1$s</string>
+    <string name="apl_cannot_connect">Δεν ήταν δυνατή η σύνδεση</string>
+</resources>

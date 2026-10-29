@@ -38,13 +38,17 @@
     "fil",
     "sw",
     "ro",
-    "hu"
+    "hu",
+    "cs",
+    "sk",
+    "el",
+    "he"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core36_editorial_source",
+  "stage": "core40_editorial_source",
   "appStoreConnectModified": false
 }

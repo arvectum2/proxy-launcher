@@ -37,7 +37,11 @@
     "fil",
     "sw",
     "ro",
-    "hu"
+    "hu",
+    "cs",
+    "sk",
+    "el",
+    "he"
   ],
   "terms": {
     "Прокси": {
@@ -76,7 +80,11 @@
       "fil": "Proxy",
       "sw": "Proksi",
       "ro": "Proxy",
-      "hu": "Proxy"
+      "hu": "Proxy",
+      "cs": "Proxy",
+      "sk": "Proxy",
+      "el": "Διακομιστής μεσολάβησης",
+      "he": "פרוקסי"
     },
     "Порт": {
       "en": "Port",
@@ -114,7 +122,11 @@
       "fil": "Port",
       "sw": "Porti",
       "ro": "Port",
-      "hu": "Port"
+      "hu": "Port",
+      "cs": "Port",
+      "sk": "Port",
+      "el": "Θύρα",
+      "he": "פורט"
     },
     "Хост": {
       "en": "Host",
@@ -152,7 +164,11 @@
       "fil": "Host",
       "sw": "Seva pangishi",
       "ro": "Gazdă",
-      "hu": "Kiszolgáló"
+      "hu": "Kiszolgáló",
+      "cs": "Hostitel",
+      "sk": "Hostiteľ",
+      "el": "Κεντρικός υπολογιστής",
+      "he": "שרת מארח"
     },
     "Тип": {
       "en": "Type",
@@ -190,7 +206,11 @@
       "fil": "Uri",
       "sw": "Aina",
       "ro": "Tip",
-      "hu": "Típus"
+      "hu": "Típus",
+      "cs": "Typ",
+      "sk": "Typ",
+      "el": "Τύπος",
+      "he": "סוג"
     },
     "Журнал": {
       "en": "Log",
@@ -228,7 +248,11 @@
       "fil": "Log",
       "sw": "Kumbukumbu",
       "ro": "Jurnal",
-      "hu": "Napló"
+      "hu": "Napló",
+      "cs": "Protokol",
+      "sk": "Záznamy",
+      "el": "Καταγραφή",
+      "he": "יומן"
     },
     "Главная": {
       "en": "Home",
@@ -266,7 +290,11 @@
       "fil": "Home",
       "sw": "Nyumbani",
       "ro": "Acasă",
-      "hu": "Kezdőlap"
+      "hu": "Kezdőlap",
+      "cs": "Domů",
+      "sk": "Domov",
+      "el": "Αρχική",
+      "he": "בית"
     },
     "Профили": {
       "en": "Profiles",
@@ -304,7 +332,11 @@
       "fil": "Mga profile",
       "sw": "Wasifu",
       "ro": "Profiluri",
-      "hu": "Profilok"
+      "hu": "Profilok",
+      "cs": "Profily",
+      "sk": "Profily",
+      "el": "Προφίλ",
+      "he": "פרופילים"
     },
     "Русский": {
       "en": "Русский",
@@ -342,7 +374,11 @@
       "fil": "Русский",
       "sw": "Русский",
       "ro": "Русский",
-      "hu": "Русский"
+      "hu": "Русский",
+      "cs": "Русский",
+      "sk": "Русский",
+      "el": "Русский",
+      "he": "Русский"
     },
     "Светлая": {
       "en": "Light",
@@ -380,7 +416,11 @@
       "fil": "Maliwanag",
       "sw": "Angavu",
       "ro": "Luminos",
-      "hu": "Világos"
+      "hu": "Világos",
+      "cs": "Světlý",
+      "sk": "Svetlý",
+      "el": "Φωτεινό",
+      "he": "בהיר"
     },
     "Тёмная": {
       "en": "Dark",
@@ -418,7 +458,11 @@
       "fil": "Madilim",
       "sw": "Giza",
       "ro": "Întunecat",
-      "hu": "Sötét"
+      "hu": "Sötét",
+      "cs": "Tmavý",
+      "sk": "Tmavý",
+      "el": "Σκοτεινό",
+      "he": "כהה"
     },
     "Ошибка": {
       "en": "Error",
@@ -456,7 +500,11 @@
       "fil": "Error",
       "sw": "Hitilafu",
       "ro": "Eroare",
-      "hu": "Hiba"
+      "hu": "Hiba",
+      "cs": "Chyba",
+      "sk": "Chyba",
+      "el": "Σφάλμα",
+      "he": "שגיאה"
     },
     "Проверка": {
       "en": "Check",
@@ -494,7 +542,11 @@
       "fil": "Suriin",
       "sw": "Kagua",
       "ro": "Verifică",
-      "hu": "Ellenőrzés"
+      "hu": "Ellenőrzés",
+      "cs": "Zkontrolovat",
+      "sk": "Skontrolovať",
+      "el": "Έλεγχος",
+      "he": "בדיקה"
     },
     "Проверяется": {
       "en": "Checking",
@@ -532,7 +584,11 @@
       "fil": "Sinusuri…",
       "sw": "Inakaguliwa…",
       "ro": "Se verifică…",
-      "hu": "Ellenőrzés folyamatban…"
+      "hu": "Ellenőrzés folyamatban…",
+      "cs": "Probíhá kontrola…",
+      "sk": "Prebieha kontrola…",
+      "el": "Γίνεται έλεγχος…",
+      "he": "מתבצעת בדיקה…"
     },
     "проверяется": {
       "en": "Checking",
@@ -570,7 +626,11 @@
       "fil": "Sinusuri…",
       "sw": "Inakaguliwa…",
       "ro": "Se verifică…",
-      "hu": "Ellenőrzés folyamatban…"
+      "hu": "Ellenőrzés folyamatban…",
+      "cs": "Probíhá kontrola…",
+      "sk": "Prebieha kontrola…",
+      "el": "Γίνεται έλεγχος…",
+      "he": "מתבצעת בדיקה…"
     },
     "Авто": {
       "en": "Auto",
@@ -608,7 +668,11 @@
       "fil": "Awtomatiko",
       "sw": "Otomatiki",
       "ro": "Automat",
-      "hu": "Automatikus"
+      "hu": "Automatikus",
+      "cs": "Automaticky",
+      "sk": "Automaticky",
+      "el": "Αυτόματα",
+      "he": "אוטומטי"
     },
     "Выберите прокси": {
       "en": "Select a proxy",
@@ -646,7 +710,11 @@
       "fil": "Pumili ng proxy",
       "sw": "Chagua proksi",
       "ro": "Alegeți proxy-ul",
-      "hu": "Válasszon proxyt"
+      "hu": "Válasszon proxyt",
+      "cs": "Vyberte proxy",
+      "sk": "Vyberte proxy",
+      "el": "Επιλέξτε διακομιστή μεσολάβησης",
+      "he": "בחר פרוקסי"
     },
     "Новый прокси": {
       "en": "New proxy",
@@ -684,7 +752,11 @@
       "fil": "Bagong proxy",
       "sw": "Proksi mpya",
       "ro": "Proxy nou",
-      "hu": "Új proxy"
+      "hu": "Új proxy",
+      "cs": "Nová proxy",
+      "sk": "Nová proxy",
+      "el": "Νέος διακομιστής μεσολάβησης",
+      "he": "פרוקסי חדש"
     },
     "Приоритетный прокси": {
       "en": "Preferred proxy",
@@ -722,7 +794,11 @@
       "fil": "Piniling proxy",
       "sw": "Proksi inayopendelewa",
       "ro": "Proxy preferat",
-      "hu": "Elsődleges proxy"
+      "hu": "Elsődleges proxy",
+      "cs": "Preferovaná proxy",
+      "sk": "Preferovaná proxy",
+      "el": "Προτιμώμενος διακομιστής μεσολάβησης",
+      "he": "פרוקסי מועדף"
     },
     "Подключиться": {
       "en": "Connect",
@@ -760,7 +836,11 @@
       "fil": "Kumonekta",
       "sw": "Unganisha",
       "ro": "Conectare",
-      "hu": "Csatlakozás"
+      "hu": "Csatlakozás",
+      "cs": "Připojit",
+      "sk": "Pripojiť",
+      "el": "Σύνδεση",
+      "he": "התחברות"
     },
     "Подключитесь": {
       "en": "Connect",
@@ -798,7 +878,11 @@
       "fil": "Kumonekta",
       "sw": "Unganisha",
       "ro": "Conectare",
-      "hu": "Csatlakozás"
+      "hu": "Csatlakozás",
+      "cs": "Připojit",
+      "sk": "Pripojiť",
+      "el": "Σύνδεση",
+      "he": "התחברות"
     },
     "Подключено": {
       "en": "Connected",
@@ -836,7 +920,11 @@
       "fil": "Nakakonekta",
       "sw": "Imeunganishwa",
       "ro": "Conectat",
-      "hu": "Csatlakoztatva"
+      "hu": "Csatlakoztatva",
+      "cs": "Připojeno",
+      "sk": "Pripojené",
+      "el": "Συνδέθηκε",
+      "he": "מחובר"
     },
     "Отключено": {
       "en": "Disconnected",
@@ -874,7 +962,11 @@
       "fil": "Nakakadiskonekta",
       "sw": "Imekatizwa",
       "ro": "Deconectat",
-      "hu": "Leválasztva"
+      "hu": "Leválasztva",
+      "cs": "Odpojeno",
+      "sk": "Odpojené",
+      "el": "Αποσυνδέθηκε",
+      "he": "מנותק"
     },
     "Системная": {
       "en": "System",
@@ -912,7 +1004,11 @@
       "fil": "System",
       "sw": "Mfumo",
       "ro": "Sistem",
-      "hu": "Rendszer"
+      "hu": "Rendszer",
+      "cs": "Systém",
+      "sk": "Systém",
+      "el": "Σύστημα",
+      "he": "מערכת"
     },
     "Настройки": {
       "en": "Settings",
@@ -950,7 +1046,11 @@
       "fil": "Mga setting",
       "sw": "Mipangilio",
       "ro": "Setări",
-      "hu": "Beállítások"
+      "hu": "Beállítások",
+      "cs": "Nastavení",
+      "sk": "Nastavenia",
+      "el": "Ρυθμίσεις",
+      "he": "הגדרות"
     },
     "Готово": {
       "en": "Done",
@@ -988,7 +1088,11 @@
       "fil": "Tapos na",
       "sw": "Imekamilika",
       "ro": "Gata",
-      "hu": "Kész"
+      "hu": "Kész",
+      "cs": "Hotovo",
+      "sk": "Hotovo",
+      "el": "Έτοιμο",
+      "he": "בוצע"
     },
     "Далее": {
       "en": "Next",
@@ -1026,7 +1130,11 @@
       "fil": "Susunod",
       "sw": "Endelea",
       "ro": "Înainte",
-      "hu": "Tovább"
+      "hu": "Tovább",
+      "cs": "Další",
+      "sk": "Ďalej",
+      "el": "Επόμενο",
+      "he": "הבא"
     },
     "Пароль": {
       "en": "Password",
@@ -1064,7 +1172,11 @@
       "fil": "Password",
       "sw": "Nenosiri",
       "ro": "Parolă",
-      "hu": "Jelszó"
+      "hu": "Jelszó",
+      "cs": "Heslo",
+      "sk": "Heslo",
+      "el": "Κωδικός πρόσβασης",
+      "he": "סיסמה"
     },
     "Протокол": {
       "en": "Protocol",
@@ -1102,7 +1214,11 @@
       "fil": "Protocol",
       "sw": "Itifaki",
       "ro": "Protocol",
-      "hu": "Protokoll"
+      "hu": "Protokoll",
+      "cs": "Protokol",
+      "sk": "Protokol",
+      "el": "Πρωτόκολλο",
+      "he": "פרוטוקול"
     }
   }
 }

@@ -15,7 +15,7 @@ def test_ios_persian_complete_and_rtl():
     localization = (R / 'mobile/ios/App/AppLocalization.swift').read_text()
     assert 'case fa' in localization and 'return "فارسی"' in localization
     app = (R / 'mobile/ios/App/ArvectumProxyLauncherApp.swift').read_text()
-    assert '["fa", "ar", "ur"].contains(AppL10n.effectiveLanguage) ? .rightToLeft : .leftToRight' in app
+    assert '["fa", "ar", "ur", "he"].contains(AppL10n.effectiveLanguage) ? .rightToLeft : .leftToRight' in app
     assert 'fa.lproj' in (R / 'mobile/ios/ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj').read_text()
 
 
