@@ -75,6 +75,7 @@
 		2F4FCA25B746417DA30EF17E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSProxyRelay.swift; sourceTree = "<group>"; };
+		40D6F885512E0D4307BFD2F3 /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		558988BBD730E81E42CF9FA6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tun2proxy.xcframework; path = Frameworks/tun2proxy.xcframework; sourceTree = "<group>"; };
@@ -293,6 +294,7 @@
 				de,
 				en,
 				es,
+				fa,
 				fr,
 				it,
 				ja,
@@ -396,6 +398,7 @@
 				2F4FCA25B746417DA30EF17E /* de */,
 				97289884E2BC264E1928499B /* en */,
 				F9B570BA33B4DA173321D277 /* es */,
+				40D6F885512E0D4307BFD2F3 /* fa */,
 				FF516E2D4071DAEF8513A99F /* fr */,
 				0569245A357CCCDF1ECAA7A0 /* it */,
 				7F61CB5A4850AED0A4445C82 /* ja */,

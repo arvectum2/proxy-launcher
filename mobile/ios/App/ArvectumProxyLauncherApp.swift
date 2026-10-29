@@ -41,6 +41,7 @@ struct ArvectumProxyLauncherApp: App {
             .environmentObject(model)
             .preferredColorScheme(AppearanceMode(rawValue: appearanceMode)?.colorScheme)
             .environment(\.locale, (AppLanguage(rawValue: appLanguage) ?? .system).locale)
+            .environment(\.layoutDirection, AppL10n.effectiveLanguage == "fa" ? .rightToLeft : .leftToRight)
         }
     }
 }

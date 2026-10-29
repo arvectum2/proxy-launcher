@@ -1,8 +1,8 @@
 /* APL iOS es translations; first-pass translations require linguistic and native UI QA. */
 "＋ Добавить первый прокси" = "+ Agrega tu primer proxy";
 "＋ Новый" = "+ Nuevo";
-"1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. Aplicación → Está abierta: seleccione las aplicaciones y la acción Aplicación APL abierta.";
-"2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. Aplicación → Está cerrada: elija las mismas aplicaciones y la acción Aplicación APL cerrada.";
+"1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. En «App → Se abre», elige las aplicaciones y la acción de APL «App abierta».";
+"2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. En «App → Se cierra», selecciona las mismas aplicaciones y la acción de APL «App cerrada».";
 "Авто" = "Auto";
 "Автоматизация приложений" = "Automatización de aplicaciones";
 "Автоматическая" = "Automático";
@@ -69,7 +69,7 @@
 "Обновить" = "Actualizar";
 "Обычное состояние" = "Estado predeterminado";
 "Ограничение iOS" = "Limitación de iOS";
-"Один раз настроить iPhone" = "Configurar iPhone una vez";
+"Один раз настроить iPhone" = "Configura tu iPhone una sola vez";
 "Оставаться на текущем после сбоя" = "Permanecer con el proxy actual después de una falla";
 "Отключение…" = "Desconectando…";
 "Отключено" = "Desconectado";
@@ -96,7 +96,7 @@
 "Политика конфиденциальности" = "Política de privacidad";
 "Понятно, продолжить" = "Entendido, continuar";
 "Порт" = "Puerto";
-"После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно." = "Después de la configuración, cambie el modo aquí en APL. No es necesario reconstruir sus automatizaciones de iOS.";
+"После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно." = "Después de configurar las automatizaciones, cambia el modo desde APL sin tener que crearlas de nuevo.";
 "После сбоя возвращаться к приоритетному прокси" = "Volver al proxy preferido después de un error";
 "Приоритетный прокси" = "Proxy preferido";
 "Проверка" = "Comprobar";
@@ -138,10 +138,10 @@
 "Что произойдёт" = "Qué sucede";
 "Шаг" = "Paso";
 "Язык приложения" = "Idioma de la aplicación";
-"APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно." = "APL normalmente está activado para el dispositivo. Al abrir una aplicación seleccionada se desconecta temporalmente APL; al cerrarlo se vuelve a conectar APL.";
+"APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно." = "APL suele estar conectado en el dispositivo. Al abrir una aplicación seleccionada, APL se desconecta temporalmente; al cerrarla, vuelve a conectarse.";
 "APL возвращает обычное сетевое подключение." = "APL está restaurando su conexión de red habitual.";
 "APL выбирает доступный профиль автоматически." = "APL selecciona automáticamente un perfil de proxy disponible.";
-"APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно." = "APL normalmente está apagado. Abrir una aplicación seleccionada conecta APL; al cerrarlo se desconecta APL.";
+"APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно." = "APL suele estar desconectado. Al abrir una aplicación seleccionada, APL se conecta; al cerrarla, se desconecta.";
 "APL не продаёт и не предоставляет прокси-серверы. Без действующих данных подключиться не получится." = "APL no vende ni proporciona servidores proxy. Necesita detalles de proxy válidos para conectarse.";
 "APL обычно включён" = "APL normalmente encendido";
 "APL обычно выключен" = "APL normalmente apagado";

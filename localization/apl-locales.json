@@ -14,13 +14,14 @@
     "ja",
     "ko",
     "zh-Hans",
-    "zh-Hant"
+    "zh-Hant",
+    "fa"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "editorial_pass_completed_native_review_pending",
+  "stage": "core13_persian_editorial_source",
   "appStoreConnectModified": false
 }

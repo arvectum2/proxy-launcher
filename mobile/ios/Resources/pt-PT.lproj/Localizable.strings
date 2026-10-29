@@ -1,8 +1,8 @@
 /* APL iOS pt-PT translations; first-pass translations require linguistic and native UI QA. */
 "＋ Добавить первый прокси" = "+ Adicione o seu primeiro proxy";
 "＋ Новый" = "+ Novo";
-"1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. Aplicação → Está Aberto: selecione as aplicações e a ação Aplicação APL Aberto.";
-"2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. Aplicação → Está Fechado: escolha as mesmas aplicações e a ação APL App Fechado.";
+"1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. Em «Aplicação → É aberta», selecione as aplicações e a ação do APL «Aplicação aberta».";
+"2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. Em «Aplicação → É fechada», selecione as mesmas aplicações e a ação do APL «Aplicação fechada».";
 "Авто" = "Auto";
 "Автоматизация приложений" = "Automação de aplicações";
 "Автоматическая" = "Automático";
@@ -44,7 +44,7 @@
 "Используется выбранный профиль." = "Utilizando o perfil selecionado.";
 "Используется системный VPN-механизм iOS" = "Utiliza a estrutura VPN do sistema iOS";
 "Как в системе" = "Seguir o idioma do sistema";
-"Как в системе, светлая или тёмная тема" = "Siga o sistema, tema claro ou escuro";
+"Как в системе, светлая или тёмная тема" = "Tema do sistema, claro ou escuro";
 "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её." = "A configuração da VPN foi alterada pelo iOS. Volte a ligar para que o APL possa recarregá-lo e restaurá-lo.";
 "Конфиденциальность" = "Privacidade";
 "Логин" = "Nome de utilizador";
@@ -69,7 +69,7 @@
 "Обновить" = "Atualizar";
 "Обычное состояние" = "Estado padrão";
 "Ограничение iOS" = "Limitação do iOS";
-"Один раз настроить iPhone" = "Configure o iPhone uma vez";
+"Один раз настроить iPhone" = "Configure o iPhone apenas uma vez";
 "Оставаться на текущем после сбоя" = "Permaneça com o proxy atual após uma falha";
 "Отключение…" = "Desligando…";
 "Отключено" = "Desligado";
@@ -96,7 +96,7 @@
 "Политика конфиденциальности" = "Política de privacidade";
 "Понятно, продолжить" = "Compreendi, continuar";
 "Порт" = "Porta";
-"После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно." = "Após a configuração, altere o modo aqui no APL. Não há necessidade de reconstruir as suas automatizações iOS.";
+"После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно." = "Depois da configuração, altere o modo no APL sem precisar de recriar as automatizações do iOS.";
 "После сбоя возвращаться к приоритетному прокси" = "Regressar ao proxy preferencial após uma falha";
 "Приоритетный прокси" = "Proxy preferido";
 "Проверка" = "Verificar";
@@ -138,10 +138,10 @@
 "Что произойдёт" = "O que acontece";
 "Шаг" = "Passo";
 "Язык приложения" = "Idioma da aplicação";
-"APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно." = "O APL está normalmente ativado para o dispositivo. Abrir uma aplicação selecionada desconecta temporariamente o APL; fechá-lo volta a ligar o APL.";
+"APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно." = "O APL está normalmente ligado no dispositivo. Ao abrir uma aplicação selecionada, desliga-se temporariamente; ao fechá-la, volta a ligar-se.";
 "APL возвращает обычное сетевое подключение." = "A APL está a restaurar a sua ligação de rede normal.";
 "APL выбирает доступный профиль автоматически." = "O APL seleciona automaticamente um perfil de proxy disponível.";
-"APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно." = "O APL está normalmente desligado. Abrir uma aplicação selecionada conecta o APL; fechá-lo desliga o APL.";
+"APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно." = "O APL está normalmente desligado. Abrir uma aplicação selecionada liga o APL; fechá-la desliga-o.";
 "APL не продаёт и не предоставляет прокси-серверы. Без действующих данных подключиться не получится." = "A APL não vende nem disponibiliza servidores proxy. Necessita de detalhes de proxy válidos para se ligar.";
 "APL обычно включён" = "APL normalmente ligado";
 "APL обычно выключен" = "APL normalmente desligado";

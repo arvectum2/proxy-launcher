@@ -12,7 +12,7 @@ IOS = ROOT / 'mobile/ios/Resources'
 ANDROID = ROOT / 'mobile/android/app/src/main/res'
 ANDROID_DIR = {'en':'values-en','ru':'values','es':'values-es','fr':'values-fr','de':'values-de',
                'it':'values-it','ja':'values-ja','ko':'values-ko','pt-BR':'values-pt-rBR',
-               'pt-PT':'values-pt-rPT','zh-Hans':'values-b+zh+Hans','zh-Hant':'values-b+zh+Hant'}
+               'pt-PT':'values-pt-rPT','zh-Hans':'values-b+zh+Hans','zh-Hant':'values-b+zh+Hant','fa':'values-fa'}
 PAT = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 
 
@@ -33,7 +33,7 @@ def desktop():
 
 
 def test_editorial_glossary_in_all_available_platform_surfaces():
-    assert len(LANGS)==12
+    assert len(LANGS)==13
     rus=android('ru'); desk=desktop()
     for lang in LANGS:
         strings=ios(lang); resources=android(lang)

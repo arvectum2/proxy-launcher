@@ -1,31 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-CORE12-EDITORIAL-20261029
-status: completed
-goal: "Editorial correction and automated semantic validation of all 12 APL source language corpora (iOS/Android/desktop) without modifying submitted Apple review metadata or binary."
+task_id: APL-CORE12-PROOFREAD-PERSIAN-20261029
+status: in_progress
+goal: "Complete a second substantive proofreading of all existing 12 APL locales, and add Persian fa with RTL support to iOS, Android, and desktop, in PR #272."
 definition_of_done:
-  - "Review source catalogs and fix context, terminology, instructions, safety and privacy meaning, keeping the 12 original locales."
-  - "Record corrections in reproducible technical glossary and cross-platform semantic regression contracts."
-  - "Build/validate iOS UI-only target, Android Public/Private, desktop and scoped Python tests."
-  - "Document limitations, open compliance truth check for ads, update existing PR #272; leave Apple review and privacy card untouched."
+  - "Inspect all existing locale catalogs for semantic/style consistency and correct actionable errors."
+  - "Add full Persian fa catalogs with identical keys/formats for 155 iOS, 104 Android, 193 desktop texts; use locally usable Persian terminology."
+  - "Ensure fa locale selection/system detection and right-to-left layout appropriate to platform without touching network/backend logic."
+  - "Add QA tests/docs; verify Python/Android/iOS and no new regression."
+  - "Commit, push to existing PR #272; leave already submitted Apple binary and App Store metadata unchanged."
 completed:
-  - "Reused PR #272 from original branch feat/apl-core12-locales-20261029; archived prior source rollout checkpoint in .agent/checkpoints/APL-CORE12-LOCALIZATIONS-20261029.yaml."
-  - "Verified structural coverage 5424 source strings across 12 locales: 1860 iOS, 1248 Android, 2316 desktop. Source keys and technical placeholders preserved."
-  - "Corrected 425 translations relative to original PR: iOS 183, Android 56, desktop 186. Fixed Proxy/Host/Port/Auto/Profiles false friends, Shortcuts titles, Network Extension/Packet Tunnel names, log/autostart and network recovery instructions."
-  - "Created 28-term exact-key localization/editorial-glossary.json and seven new multi-platform semantic review tests; 13 combined language/editing tests PASS."
-  - "Documented proofing scope, native/editorial limits and outstanding privacy/ad copy truth-check in docs/APL_CORE12_EDITORIAL_QA_2026-10-29.md; roadmap updated."
-  - "Final source correction commit 034732dd4a3ab95979e466b1f23f249e8370f7f0; no changes to App Store Connect."
-current: "COMPLETED for model-assisted technical/editorial source QA. External native-editor approval and release/device QA remain independent future gates."
+  - "Restored clean PR #272 head f77b170f, archived previous completed checkpoint."
+  - "Second full meaning/style pass across original 12 locales; 67 additional iOS onboarding and operation instructions rewritten by language."
+  - "Added Persian fa source catalog: 155 iOS, 104 Android, 193 desktop; curated 147/155 iOS and 102/104 Android entries, 28 core glossary terms plus desktop safety labels."
+  - "Added iOS native RTL and language picker, Android values-fa and supportsRtl, desktop fa selection and right-aligned Tk labels, native iOS project regenerated."
+  - "Built unsigned UI-only simulator target successfully; 13 .lproj resources bundled and AppLocalization Swift typecheck passes; language contract 16 pass."
+current: "Awaiting Android and full Python verification; update roadmap/QA and PR commit."
 pending:
-  - "Independent native-speaker review for each locale, full UI wrapping/VoiceOver/TalkBack/actual device acceptance, Shortcuts locale-specific system action title check, and signed VPN PacketTunnel build."
-  - "Before next binary with advertising, verify existing no-ad source privacy claims truthfully match the SDK and consent; do not alter reviewed ASC privacy settings without separate user instruction."
-  - "Unrelated baseline Windows App Control three test failures and external AppImage runtime checksum mismatch in PR #272 CI require separate follow-up before merge."
-last_verified_commit: "034732dd4a3ab95979e466b1f23f249e8370f7f0 (editorial source commit), 06fd53fcda74f8ba1aa21c492066c1967b8e1008 (original localization PR head)"
-test_results:
-  - "1288 Python passed, 1 skipped, 3 exact old Windows App Control cases deselected, 113 subtests pass; 62 locale-aware focused GUI tests pass."
-  - "Android Public and Private Gradle Kotlin build and unit test tasks BUILD SUCCESSFUL."
-  - "iOS unsigned UI-only arm64 Simulator BUILD SUCCEEDED with 12 bundled .lproj; AppLocalization Swift typecheck and 12 Apple string catalogs plutil PASS."
-  - "13 locale/editorial semantic tests PASS; Python compile, JSON/XML, technical format invariants, git diff --check PASS."
-  - "PR initial CI: 31 pass, 2 unrelated ubuntu AppImage toolchain runtime sha256 mismatches; after push, verify exact-head CI before any merge."
-blocker: null
-resume_instruction: "This editor task is complete. Follow PR #272 exact SHA and CI for later merge; no automatic merge, Apple metadata changes, reviewed build upload or watchdog changes. For independent native/hardware/regional ASO QA start a separate owner-scoped task. Main source worktree: /tmp/apl-core12-locales-20261029, branch feat/apl-core12-locales-20261029. Source QA docs/APL_CORE12_EDITORIAL_QA_2026-10-29.md."
+  - "Verify, document, checkpoint, commit, push existing PR."
+last_verified_commit: f77b170f1f7e60ebe47d0f8e847530bd01965062
+test_results: []
+resume_instruction: "Continue /tmp/apl-core12-locales-20261029, branch feat/apl-core12-locales-20261029, PR 272. Existing 12 source catalogs; implement substantive editorial sweep and full fa RTL, run builds/test, commit/push."

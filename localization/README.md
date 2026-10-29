@@ -1,8 +1,8 @@
-# APL localization — Core baseline (12 source locales)
+# APL localization — Core-12 + Persian (13 source locales)
 
-The source language baseline is synchronized with `arvectum-tools/core/localization/portfolio-locales.json` (the first 12 approved *source* locales, not the 50-language future target).
+The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **13**, not all 50 target languages.
 
-`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`.
+`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**.
 
 - iOS: localized UI, setup, privacy and errors via `mobile/ios/Resources/*.lproj/Localizable.strings`; the app's language picker supports all 12 plus iOS language. No production Apple version or submission is modified.
 - Android: standard resource folders, automatic Android locale selection, and display messages are localized; internal Russian routing/status protocol literals remain unchanged to protect behavior.
@@ -11,3 +11,7 @@ The source language baseline is synchronized with `arvectum-tools/core/localizat
 **Stage (2026-10-29):** source-complete catalogs have completed a model-assisted technical/editorial correction pass, including cross-platform terminology, safety and error messages; **425 locale values changed** with 28 reviewed source-keyed glossary entries. Automated review covers the 12-language, 5424-entry corpus, but this is **not** an independent native-speaker sign-off. Dynamic text overflow, voice accessibility, device/simulator screenshots, consent truthfulness and App Store release approval remain outstanding. Do not mass-enable the remaining 38 target languages as empty/English catalogs. Preserve existing App Store Connect privacy declaration and review state; do not upload a new build without a separate release instruction.
 
 Run `python3 -m pytest -q tests/test_core12_localization.py` and the platform-specific build/compile validation before release. UI resources are bundled in the regular target builds (iOS xcodegen and Android Gradle). Desktop catalogs are Python source to avoid external JSON data files in PyInstaller bundles.
+
+## Second editorial sweep + Persian (29 Oct 2026)
+
+Added a second copyediting pass on the original 12 languages (67 further complete onboarding/automations/connection-mode corrections), plus complete 452-entry Persian source catalog. iOS and Android use native RTL; desktop uses right-justified Tk copy rather than complete grid mirroring. Details: `docs/APL_CORE13_PERSIAN_EDITORIAL_QA_2026-10-29.md`. Do not ship RTL layouts without device UI approval.

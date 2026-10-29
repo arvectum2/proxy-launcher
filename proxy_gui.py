@@ -1189,6 +1189,12 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
 class Launcher:
     def __init__(self, root):
         self.root = root
+        # Tk has no automatic full widget mirroring. Use right-justified
+        # Persian labels while keeping IP/host/port entry fields LTR.
+        if __import__("desktop_i18n").LANGUAGE == "fa":
+            root.option_add("*Label.justify", "right")
+            root.option_add("*Label.anchor", "e")
+            ttk.Style(root).configure("TLabel", anchor="e", justify="right")
         self._mac_ui = _is_macos()
         root.title(APP_NAME)
         root.resizable(False, False)

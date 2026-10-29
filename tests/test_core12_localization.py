@@ -1,4 +1,4 @@
-"""Standalone source parity checks for APL's Arvectum Tools Core-12 language set."""
+"""Standalone source parity checks for APL Core 12 + new Persian language set."""
 import ast
 import json
 import re
@@ -12,7 +12,7 @@ ANDROID = {
     'en': 'values-en', 'ru': 'values', 'es': 'values-es', 'fr': 'values-fr',
     'de': 'values-de', 'it': 'values-it', 'pt-BR': 'values-pt-rBR',
     'pt-PT': 'values-pt-rPT', 'ja': 'values-ja', 'ko': 'values-ko',
-    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant',
+    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant', 'fa': 'values-fa',
 }
 STRING = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 FORMAT = re.compile(r'%(?:\d+\$)?(?:@|s|d|f)')
@@ -39,10 +39,10 @@ def android_catalog(code):
 
 
 def test_core_baseline_languages_and_registry():
-    assert len(LANGS) == len(set(LANGS)) == 12
+    assert len(LANGS) == len(set(LANGS)) == 13
     assert LANGS == ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt-BR', 'pt-PT',
-                     'ja', 'ko', 'zh-Hans', 'zh-Hant']
-    assert MANIFEST['stage'] == 'editorial_pass_completed_native_review_pending'
+                     'ja', 'ko', 'zh-Hans', 'zh-Hant', 'fa']
+    assert MANIFEST['stage'] == 'core13_persian_editorial_source'
     assert MANIFEST['fallback'] == 'en'
     assert MANIFEST['appStoreConnectModified'] is False
 

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">نشانی سایت را وارد کنید و «افزودن» را بزنید. هر سایت در یک ردیف جداگانه قرار می‌گیرد. می‌توانید URL، نشانی host:port یا IP را وارد کنید.</string>
+    <string name="apl_connection_828dd" formatted="false">اتصال</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">وضعیت APL و پروفایل فعال</string>
+    <string name="apl_profile_cc3f0" formatted="false">پروفایل · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">مدیریت پروفایل‌ها</string>
+    <string name="apl_profiles_30c61" formatted="false">پروفایل‌ها</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">انتخاب، افزودن و اولویت‌بندی پروکسی‌ها</string>
+    <string name="apl_activity_85f08" formatted="false">فعالیت‌ها</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">وضعیت اتصال و فعالیت‌های اخیر</string>
+    <string name="apl_disconnected_3e958" formatted="false">قطع است</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">باز کردن گزارش</string>
+    <string name="apl_settings_985b5" formatted="false">تنظیمات</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">مسیریابی و رفتار APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">استثناهای سایت‌ها</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">استثناهای برنامه‌ها</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">تنظیمات خودکار</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">تنظیمات پیشرفته از اتصال روزانه جدا هستند.</string>
+    <string name="apl_home_d328e" formatted="false">خانه</string>
+    <string name="apl_close_a7a40" formatted="false">بستن</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">بازگشت به پروکسی اولویت‌دار پس از خطا</string>
+    <string name="apl_connect_36b4c" formatted="false">اتصال</string>
+    <string name="apl_proxy_a5677" formatted="false">پروکسی</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">انتخاب پروکسی</string>
+    <string name="apl_new_4460b" formatted="false">+ جدید</string>
+    <string name="apl_edit_b8b15" formatted="false">ویرایش</string>
+    <string name="apl_websites_54646" formatted="false">سایت‌ها</string>
+    <string name="apl_applications_39c4b" formatted="false">برنامه‌ها</string>
+    <string name="apl_log_97c45" formatted="false">گزارش</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">خواندن پروفایل‌های ذخیره‌شده ممکن نشد</string>
+    <string name="apl_auto_8dca2" formatted="false">خودکار</string>
+    <string name="apl_checked_6a779" formatted="false"> · در حال بررسی</string>
+    <string name="apl_available_c75e3" formatted="false">· در دسترس</string>
+    <string name="apl_unavailable_bee71" formatted="false">· در دسترس نیست</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">افزودن پروکسی</string>
+    <string name="apl_profile_309fc" formatted="false">پروفایل ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">تنظیم نشده</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">هیچ استثنایی اضافه نشده است</string>
+    <string name="apl_delete_be99b" formatted="false">حذف</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">نشانی سایت را بررسی کنید</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">نشانی سایت را وارد کنید</string>
+    <string name="apl_add_71038" formatted="false">افزودن</string>
+    <string name="apl_exclusions_f4f81" formatted="false">استثناها</string>
+    <string name="apl_cancel_8fbe9" formatted="false">لغو</string>
+    <string name="apl_save_b4d30" formatted="false">ذخیره</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">فهرست استثناها را بررسی کنید</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">ذخیرهٔ استثناها ممکن نشد</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">در حال اعمال استثناها…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">استثناها پاک شدند</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">در حال بارگذاری فهرست برنامه‌ها</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">در حال بارگذاری فهرست برنامه‌ها…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">دریافت فهرست برنامه‌های نصب‌شده ممکن نشد.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">ذخیرهٔ استثناهای برنامه‌ها ممکن نشد</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">در حال اعمال استثناهای برنامه‌ها…</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">استثناهای برنامه‌ها پاک شدند</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">گزارش خالی است</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">پروکسی در دسترس نیست</string>
+    <string name="apl_switched_4c72e" formatted="false">تغییر یافت</string>
+    <string name="apl_main_restored_290c9" formatted="false">پروکسی اصلی بازیابی شد</string>
+    <string name="apl_network_change_50fc1" formatted="false">تغییر شبکه</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">ابتدا دست‌کم یک پروکسی اضافه کنید</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">انتخاب پروکسی ممکن نشد</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">پروکسی جدید</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">ویرایش پروفایل</string>
+    <string name="apl_name_0918b" formatted="false">نام</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">مثلاً اصلی</string>
+    <string name="apl_proxy_address_ef480" formatted="false">نشانی پروکسی</string>
+    <string name="apl_port_90947" formatted="false">پورت</string>
+    <string name="apl_username_5be12" formatted="false">نام کاربری</string>
+    <string name="apl_optional_f6d95" formatted="false">اختیاری</string>
+    <string name="apl_password_cb1a2" formatted="false">گذرواژه</string>
+    <string name="apl_protocol_b3680" formatted="false">پروتکل</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">پروتکل خودکار</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">پروکسی HTTPS با TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">اولویت در حالت خودکار</string>
+    <string name="apl_delete_profile_b745f" formatted="false">پروفایل حذف شود؟</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">نشانی پروکسی را وارد کنید</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">پورت از ۱ تا ۶۵۵۳۵</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">ذخیرهٔ امن پروفایل ممکن نشد</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">در حال اعمال تغییرات پروفایل…</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">حذف پروفایل ممکن نشد</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">پروفایل حذف شد</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">ابتدا پروکسی اضافه کنید</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">اجازهٔ ایجاد اتصال VPN را بدهید</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android مجوز VPN را لغو کرده است. «اتصال» را بزنید.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN غیرفعال است. می‌توانید دوباره متصل شوید.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">در حال بررسی پروکسی…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">در حال قطع اتصال…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">مجوز VPN داده نشده است</string>
+    <string name="apl_switching_b0760" formatted="false">در حال تغییر</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">قطع اتصال</string>
+    <string name="apl_connecting_e2449" formatted="false">در حال اتصال…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">در حال تغییر پروکسی فعال</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">اتصال فعال است</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">در حال بررسی پروکسی انتخاب‌شده</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">در حال پایان دادن به اتصال</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">انتخاب پروکسی</string>
+    <string name="apl_latency_milliseconds"> · %1$d میلی‌ثانیه</string>
+    <string name="apl_exclusions_saved_count">استثناهای ذخیره‌شده: %1$d</string>
+    <string name="apl_apps_bypassing_count">برنامه‌های بدون پروکسی: %1$d</string>
+    <string name="apl_switching_to_profile">در حال تغییر به %1$s…</string>
+    <string name="apl_profile_saved">ذخیره شد: %1$s</string>
+    <string name="apl_error_detail">خطا: %1$s</string>
+    <string name="apl_cannot_connect">اتصال برقرار نشد</string>
+</resources>
