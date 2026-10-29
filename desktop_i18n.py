@@ -122,7 +122,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      'verfügbar. Das '
                                                                                                      'Netzwerk bleibt '
                                                                                                      'unverändert.',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Der Proxy-Prozess läuft noch. Siehe „Tagebuch“.',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Der Proxy-Prozess läuft noch. Siehe „Protokoll“.',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                               'hat '
                                                                                                                                               'den '
@@ -367,7 +367,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Выберите приложение': 'Wählen Sie eine Anwendung aus',
         'Выключить прокси и восстановить исходные настройки сети?': 'Den Proxy ausschalten und die ursprünglichen '
                                                                     'Netzwerkeinstellungen wiederherstellen?',
-        'Главная': 'Zuhause',
+        'Главная': 'Start',
         'Готово: выбранные приложения будут обходить прокси.': 'Fertig: Die ausgewählten Anwendungen umgehen den '
                                                                'Proxy.',
         'Диагностика': 'Diagnose',
@@ -398,7 +398,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                              'und der Zielseite wird hier nicht '
                                                                              'geprüft.',
         'Журнал': 'Protokoll',
-        'Журнал пока пуст.': 'Das Tagebuch ist noch leer.',
+        'Журнал пока пуст.': 'Das Protokoll ist noch leer.',
         'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Eine '
                                                                                                                                                                         'Windows-Aufgabe '
                                                                                                                                                                         'namens '
@@ -469,7 +469,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                            'versetzt; '
                                                                                                                                                            'Überprüfen '
                                                                                                                                                            'Sie '
-                                                                                                                                                           '„Tagebuch“.',
+                                                                                                                                                           '„Protokoll“.',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Ausnahmen '
                                                                                                                        'wurden '
                                                                                                                        'gespeichert, '
@@ -549,10 +549,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'Sie '
                                                                                                                                                                                                  'es '
                                                                                                                                                                                                  'erneut.',
-        'Компонент автозапуска macOS недоступен.': 'Die macOS AutoPlay-Funktion ist nicht verfügbar.',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Die macOS AutoPlay-Funktion ist '
+        'Компонент автозапуска macOS недоступен.': 'Die macOS-Autostartfunktion ist nicht verfügbar.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Die macOS-Autostartfunktion ist '
                                                                                   'nicht verfügbar. Starten Sie die '
-                                                                                  'Anwendung manuell.',
+                                                                                  'App manuell.',
         'Логин': 'Benutzername',
         'Локальные порты должны быть числами от 1 до 65535.': 'Lokale Ports müssen Nummern von 1 bis 65535 sein.',
         'Локальные порты приложения': 'Lokale Anwendungsports',
@@ -582,7 +582,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              'ändern.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'INSTABILE VERBINDUNG',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'NETZWERKDIAGNOSE BENÖTIGEN',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'Das Netzwerk muss wiederhergestellt werden',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NETZWERK WIEDERHERSTELLEN',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'SIE MÜSSEN ALTE EINSTELLUNGEN LÖSCHEN',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Klicken Sie auf „Proxy aktivieren“, um den '
                                                                          'System-Proxy zu aktivieren.',
@@ -620,7 +620,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'im '
                                                                                                                       'Journal.',
         'Не удалось включить автозапуск: %s': 'Autorun konnte nicht aktiviert werden: %s',
-        'Не удалось выключить автозапуск macOS: %s': 'macOS AutoPlay konnte nicht deaktiviert werden: %s',
+        'Не удалось выключить автозапуск macOS: %s': 'macOS autostart konnte nicht deaktiviert werden: %s',
         'Не удалось добавить Launcher в автозапуск macOS: %s': 'Launcher konnte nicht zum macOS-Start hinzugefügt '
                                                                'werden: %s',
         'Не удалось запустить постоянную копию Launcher в Documents.\n\nТекущая portable-версия продолжит работать в этом сеансе. Автозапуск временно отключён: запускайте этот EXE вручную.': 'Die '
@@ -660,9 +660,9 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                             'werden.',
         'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Der alte Prozess konnte nicht gestoppt '
                                                                                'und neu gestartet werden. Siehe '
-                                                                               '„Tagebuch“.',
+                                                                               '„Protokoll“.',
         'Не удалось остановить старый процесс. См. «Журнал».': 'Der alte Prozess konnte nicht gestoppt werden. Siehe '
-                                                               '„Tagebuch“.',
+                                                               '„Protokoll“.',
         'Не удалось открыть журнал: %s': 'Protokoll konnte nicht geöffnet werden: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': 'Die Anwendungsweiterleitung konnte nicht vorbereitet '
                                                                'werden. %s',
@@ -751,7 +751,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                          'implementiert.',
         'Подключение недоступно': 'Verbindung nicht verfügbar',
         'Подключиться': 'Verbinden',
-        'Порт': 'Hafen',
+        'Порт': 'Port',
         'Порт должен быть числом от 1 до 65535.': 'Der Port muss eine Zahl zwischen 1 und 65535 sein.',
         'Превью готово: выбранные приложения будут обходить прокси.': 'Die Vorschau ist bereit: Ausgewählte '
                                                                       'Anwendungen umgehen Proxys.',
@@ -839,25 +839,24 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                   'vorherige '
                                                                                                                                                                   'Sitzung '
                                                                                                                                                                   'wurde '
-                                                                                                                                                                  'falsch '
+                                                                                                                                                                  'unerwartet '
                                                                                                                                                                   'beendet. '
                                                                                                                                                                   'Klicken '
                                                                                                                                                                   'Sie '
-                                                                                                                                                                  'hier '
                                                                                                                                                                   'auf '
                                                                                                                                                                   '„Netzwerk '
-                                                                                                                                                                  'reparieren“, '
+                                                                                                                                                                  'wiederherstellen“, '
                                                                                                                                                                   'warten '
                                                                                                                                                                   'Sie, '
                                                                                                                                                                   'bis '
                                                                                                                                                                   'die '
-                                                                                                                                                                  'Wiederherstellung '
-                                                                                                                                                                  'erfolgreich '
-                                                                                                                                                                  'ist, '
+                                                                                                                                                                  'ursprünglichen '
+                                                                                                                                                                  'Einstellungen '
+                                                                                                                                                                  'wiederhergestellt '
+                                                                                                                                                                  'sind, '
                                                                                                                                                                   'und '
                                                                                                                                                                   'verbinden '
                                                                                                                                                                   'Sie '
-                                                                                                                                                                  'dann '
                                                                                                                                                                   'den '
                                                                                                                                                                   'Proxy '
                                                                                                                                                                   'erneut.',
@@ -1094,7 +1093,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                    'bestätigt '
                                                                                                                    'werden. '
                                                                                                                    'Siehe '
-                                                                                                                   '„Tagebuch“.',
+                                                                                                                   '„Protokoll“.',
         'Требуется диагностика': 'Diagnose erforderlich',
         'Удаление старого PAC…': 'Altes PAC wird entfernt...',
         'Удалить': 'Löschen',
@@ -1176,7 +1175,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'HTTP, SOCKS5 и PAC должны использовать три разных локальных порта.': 'HTTP, SOCKS5 and PAC must use three '
                                                                               'different local ports.',
         'IP адрес': 'IP address',
-        'LaunchAgent не прошёл проверку после записи': 'LaunchAgent failed verification after recording',
+        'LaunchAgent не прошёл проверку после записи': 'LaunchAgent failed verification after being written',
         'LaunchAgent остался после удаления': 'LaunchAgent remains after removal',
         'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
                                                                                                      'is currently not '
@@ -1185,7 +1184,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      'modification. '
                                                                                                      'The network is '
                                                                                                      'left unchanged.',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': 'The proxy process is still running. See "Journal".',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'The proxy process is still running. See "log".',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                               'has '
                                                                                                                                               'not '
@@ -1337,7 +1336,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       'saved '
                                                                                                                                       'in '
                                                                                                                                       'the '
-                                                                                                                                      '"Journal".',
+                                                                                                                                      '"log".',
         'Автоподключение прокси при входе в %s': 'Automatic proxy connection when logging into %s',
         'Активность': 'Activity',
         'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'EXTERNAL PROXY IS NOT AVAILABLE',
@@ -1412,7 +1411,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                           'saved '
                                                                                                                                           'in '
                                                                                                                                           'the '
-                                                                                                                                          '"Journal".',
+                                                                                                                                          '"log".',
         'Выберите приложение': 'Select an application',
         'Выключить прокси и восстановить исходные настройки сети?': 'Turn off the proxy and restore the original '
                                                                     'network settings?',
@@ -1444,7 +1443,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Доступность внешнего proxy и целевого сайта здесь не проверяется.': 'The availability of the external proxy '
                                                                              'and the target site is not checked here.',
         'Журнал': 'Log',
-        'Журнал пока пуст.': 'The journal is still empty.',
+        'Журнал пока пуст.': 'The log is still empty.',
         'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'A '
                                                                                                                                                                         'Windows '
                                                                                                                                                                         'task '
@@ -1521,7 +1520,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                            'unknown '
                                                                                                                                                            'state; '
                                                                                                                                                            'check '
-                                                                                                                                                           '"Journal".',
+                                                                                                                                                           '"log".',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Exceptions '
                                                                                                                        'were '
                                                                                                                        'saved, '
@@ -1596,9 +1595,9 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'and '
                                                                                                                                                                                                  'try '
                                                                                                                                                                                                  'again.',
-        'Компонент автозапуска macOS недоступен.': 'The macOS AutoPlay feature is not available.',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'The macOS AutoPlay feature is not '
-                                                                                  'available. Launch the application '
+        'Компонент автозапуска macOS недоступен.': 'macOS autostart component is unavailable.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS autostart component is '
+                                                                                  'unavailable. Start the application '
                                                                                   'manually.',
         'Логин': 'Username',
         'Локальные порты должны быть числами от 1 до 65535.': 'Local ports must be numbers from 1 to 65535.',
@@ -1628,7 +1627,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              'settings.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'UNSTABLE CONNECTION',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'NEED NETWORK DIAGNOSTICS',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NEED TO RESTORE THE NETWORK',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NETWORK RESTORE REQUIRED',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'YOU NEED TO DELETE OLD SETTINGS',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Click "Enable Proxy" to enable the system '
                                                                          'proxy.',
@@ -1662,11 +1661,13 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'clear '
                                                                                                                       'text. '
                                                                                                                       'Details '
+                                                                                                                      'are '
+                                                                                                                      'available '
                                                                                                                       'in '
                                                                                                                       'the '
-                                                                                                                      'Journal.',
+                                                                                                                      'log.',
         'Не удалось включить автозапуск: %s': 'Failed to enable autorun: %s',
-        'Не удалось выключить автозапуск macOS: %s': 'Failed to disable macOS AutoPlay: %s',
+        'Не удалось выключить автозапуск macOS: %s': 'Failed to disable macOS autostart: %s',
         'Не удалось добавить Launcher в автозапуск macOS: %s': 'Failed to add Launcher to macOS startup: %s',
         'Не удалось запустить постоянную копию Launcher в Documents.\n\nТекущая portable-версия продолжит работать в этом сеансе. Автозапуск временно отключён: запускайте этот EXE вручную.': 'Failed '
                                                                                                                                                                                                'to '
@@ -1697,11 +1698,12 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                'this '
                                                                                                                                                                                                'EXE '
                                                                                                                                                                                                'manually.',
-        'Не удалось запустить прокси. Подробности в «Журнал».': 'Failed to start proxy. Details in the Journal.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'Failed to start proxy. Details are available in the '
+                                                                'log.',
         'Не удалось определить готовность NetworkManager.': 'NetworkManager readiness could not be determined.',
         'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Failed to stop old process to restart. '
-                                                                               'See "Journal".',
-        'Не удалось остановить старый процесс. См. «Журнал».': 'Failed to stop old process. See "Journal".',
+                                                                               'See "log".',
+        'Не удалось остановить старый процесс. См. «Журнал».': 'Failed to stop old process. See "log".',
         'Не удалось открыть журнал: %s': 'Failed to open log: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': 'Failed to prepare application routing. %s',
         'Не удалось подготовить постоянную копию Launcher.': 'Failed to prepare a permanent copy of Launcher.',
@@ -1766,7 +1768,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                    'are '
                                                                                                                                                                    'in '
                                                                                                                                                                    'the '
-                                                                                                                                                                   'Journal.',
+                                                                                                                                                                   'log.',
         'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Connection '
                                                                                                                                                          'not '
                                                                                                                                                          'confirmed. '
@@ -1879,31 +1881,30 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                   'previous '
                                                                                                                                                                   'session '
                                                                                                                                                                   'ended '
-                                                                                                                                                                  'incorrectly. '
+                                                                                                                                                                  'unexpectedly. '
                                                                                                                                                                   'Click '
-                                                                                                                                                                  '"Repair '
-                                                                                                                                                                  'Network" '
-                                                                                                                                                                  'right '
+                                                                                                                                                                  '“Restore '
+                                                                                                                                                                  'network” '
                                                                                                                                                                   'here, '
                                                                                                                                                                   'wait '
-                                                                                                                                                                  'until '
+                                                                                                                                                                  'for '
                                                                                                                                                                   'the '
-                                                                                                                                                                  'restore '
-                                                                                                                                                                  'is '
-                                                                                                                                                                  'successful, '
-                                                                                                                                                                  'and '
+                                                                                                                                                                  'original '
+                                                                                                                                                                  'settings '
+                                                                                                                                                                  'to '
+                                                                                                                                                                  'be '
+                                                                                                                                                                  'restored, '
                                                                                                                                                                   'then '
-                                                                                                                                                                  'connect '
+                                                                                                                                                                  'reconnect '
                                                                                                                                                                   'the '
-                                                                                                                                                                  'proxy '
-                                                                                                                                                                  'again.',
+                                                                                                                                                                  'proxy.',
         'Проверить': 'Check',
-        'Проверка подключения': 'Checking the connection',
-        'Проверка соединения': 'Checking the connection',
+        'Проверка подключения': 'Connection test',
+        'Проверка соединения': 'Connection test',
         'Проверка соединения…': 'Checking connection...',
         'Проверки, требующие внимания:': 'Checks requiring attention:',
         'Прокси будет запускаться автоматически при входе в Windows.': 'The proxy will start automatically when you '
-                                                                       'log into Windows.',
+                                                                       'sign in to Windows.',
         'Прокси выключен': 'Proxy disabled',
         'Прокси выключен, исходные настройки сети восстановлены.': 'The proxy is turned off, the original network '
                                                                    'settings have been restored.',
@@ -1988,7 +1989,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                            'it '
                                                                                                                                                                            'again.',
         'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'The proxy process could not be stopped. '
-                                                                         'Details in the Journal.',
+                                                                         'Details are available in the log.',
         'Профили': 'Profiles',
         'Профили прокси': 'Proxy profiles',
         'Профили прокси…': 'Proxy profiles...',
@@ -2048,11 +2049,12 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                               'you '
                                                                                                                                               'need '
                                                                                                                                               'it.',
-        'Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.': 'Service actions '
-                                                                                                   'are carried out '
-                                                                                                   'from the Main page '
-                                                                                                   'so that daily '
-                                                                                                   'connection remains '
+        'Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.': 'Advanced '
+                                                                                                   'maintenance '
+                                                                                                   'actions are kept '
+                                                                                                   'off Home to make '
+                                                                                                   'everyday '
+                                                                                                   'connections '
                                                                                                    'simple.',
         'Сеть восстановлена. Теперь можно снова включить прокси.': 'The network has been restored. Now you can enable '
                                                                    'the proxy again.',
@@ -2142,7 +2144,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                    'be '
                                                                                                                    'confirmed. '
                                                                                                                    'See '
-                                                                                                                   '"Journal".',
+                                                                                                                   '"log".',
         'Требуется диагностика': 'Diagnostics required',
         'Удаление старого PAC…': 'Removing old PAC...',
         'Удалить': 'Delete',
@@ -2181,7 +2183,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                        'reset does not '
                                                                                                        'occur: Open '
                                                                                                        'Diagnostics or '
-                                                                                                       'History.'},
+                                                                                                       'log.'},
  'es': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'El '
                                                                                                                  'iniciador '
                                                                                                                  'se '
@@ -2234,7 +2236,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      'modificaciones '
                                                                                                      'seguras. La red '
                                                                                                      'no se modifica.',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': 'El proceso de proxy aún se está ejecutando. Ver "Diario".',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'El proceso de proxy aún se está ejecutando. Ver "registro".',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                               'no '
                                                                                                                                               'ha '
@@ -2406,7 +2408,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       'guardan '
                                                                                                                                       'en '
                                                                                                                                       'el '
-                                                                                                                                      '"Diario".',
+                                                                                                                                      '"registro".',
         'Автоподключение прокси при входе в %s': 'Conexión proxy automática al iniciar sesión en %s',
         'Активность': 'Actividad',
         'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'EL PROXY EXTERNO NO ESTÁ DISPONIBLE',
@@ -2494,7 +2496,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                           'guardan '
                                                                                                                                           'en '
                                                                                                                                           'el '
-                                                                                                                                          '"Diario".',
+                                                                                                                                          '"registro".',
         'Выберите приложение': 'Seleccione una aplicación',
         'Выключить прокси и восстановить исходные настройки сети?': '¿Apagar el proxy y restaurar la configuración de '
                                                                     'red original?',
@@ -2531,7 +2533,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                              'del proxy externo y del sitio de '
                                                                              'destino.',
         'Журнал': 'Registro',
-        'Журнал пока пуст.': 'El diario sigue vacío.',
+        'Журнал пока пуст.': 'El registro sigue vacío.',
         'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Ya '
                                                                                                                                                                         'existe '
                                                                                                                                                                         'una '
@@ -2606,7 +2608,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                            'estado '
                                                                                                                                                            'desconocido; '
                                                                                                                                                            'consulte '
-                                                                                                                                                           '"Diario".',
+                                                                                                                                                           '"registro".',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Se '
                                                                                                                        'guardaron '
                                                                                                                        'excepciones, '
@@ -2687,11 +2689,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'e '
                                                                                                                                                                                                  'inténtelo '
                                                                                                                                                                                                  'nuevamente.',
-        'Компонент автозапуска macOS недоступен.': 'La función de reproducción automática de macOS no está disponible.',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'La función de reproducción '
-                                                                                  'automática de macOS no está '
-                                                                                  'disponible. Inicie la aplicación '
-                                                                                  'manualmente.',
+        'Компонент автозапуска macOS недоступен.': 'El componente de inicio automático de macOS no está disponible.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'El componente de inicio automático '
+                                                                                  'de macOS no está disponible. Abra '
+                                                                                  'la aplicación manualmente.',
         'Логин': 'Nombre de usuario',
         'Локальные порты должны быть числами от 1 до 65535.': 'Los puertos locales deben ser números del 1 al 65535.',
         'Локальные порты приложения': 'Puertos de aplicaciones locales',
@@ -2723,11 +2724,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              'sistema.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'CONEXIÓN INESTABLE',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'NECESITA DIAGNÓSTICO DE RED',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NECESITA RESTAURAR LA RED',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'RESTAURACIÓN DE RED NECESARIA',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'NECESITAS ELIMINAR CONFIGURACIONES ANTIGUAS',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Haga clic en "Habilitar proxy" para '
                                                                          'habilitar el proxy del sistema.',
-        'Настройки': 'Configuración',
+        'Настройки': 'Ajustes',
         'Настройки и сервис': 'Configuraciones y servicio',
         'Настройки прокси': 'Configuración de proxy',
         'Настройки прокси · ': 'Configuración de proxy ·',
@@ -2766,7 +2767,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'Detalles '
                                                                                                                       'en '
                                                                                                                       'el '
-                                                                                                                      'Diario.',
+                                                                                                                      'registro.',
         'Не удалось включить автозапуск: %s': 'No se pudo habilitar la ejecución automática: %s',
         'Не удалось выключить автозапуск macOS: %s': 'No se pudo desactivar la reproducción automática de macOS: %s',
         'Не удалось добавить Launcher в автозапуск macOS: %s': 'No se pudo agregar el Iniciador al inicio de macOS: %s',
@@ -2801,11 +2802,12 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                'este '
                                                                                                                                                                                                'EXE '
                                                                                                                                                                                                'manualmente.',
-        'Не удалось запустить прокси. Подробности в «Журнал».': 'No se pudo iniciar el proxy. Detalles en el Diario.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'No se pudo iniciar el proxy. Detalles en el registro.',
         'Не удалось определить готовность NetworkManager.': 'No se pudo determinar la preparación de NetworkManager.',
         'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'No se pudo detener el proceso anterior '
-                                                                               'para reiniciar. Ver "Diario".',
-        'Не удалось остановить старый процесс. См. «Журнал».': 'No se pudo detener el proceso anterior. Ver "Diario".',
+                                                                               'para reiniciar. Ver "registro".',
+        'Не удалось остановить старый процесс. См. «Журнал».': 'No se pudo detener el proceso anterior. Ver '
+                                                               '"registro".',
         'Не удалось открыть журнал: %s': 'No se pudo abrir el registro: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': 'No se pudo preparar el enrutamiento de la aplicación. '
                                                                '%s',
@@ -2879,7 +2881,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                    'están '
                                                                                                                                                                    'en '
                                                                                                                                                                    'el '
-                                                                                                                                                                   'Diario.',
+                                                                                                                                                                   'registro.',
         'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Conexión '
                                                                                                                                                          'no '
                                                                                                                                                          'confirmada. '
@@ -2996,28 +2998,25 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                   'sesión '
                                                                                                                                                                   'anterior '
                                                                                                                                                                   'terminó '
-                                                                                                                                                                  'incorrectamente. '
-                                                                                                                                                                  'Haga '
-                                                                                                                                                                  'clic '
-                                                                                                                                                                  'en '
-                                                                                                                                                                  '"Reparar '
-                                                                                                                                                                  'red" '
-                                                                                                                                                                  'aquí '
-                                                                                                                                                                  'mismo, '
+                                                                                                                                                                  'inesperadamente. '
+                                                                                                                                                                  'Pulse '
+                                                                                                                                                                  '«Restaurar '
+                                                                                                                                                                  'red» '
+                                                                                                                                                                  'aquí, '
                                                                                                                                                                   'espere '
-                                                                                                                                                                  'hasta '
+                                                                                                                                                                  'a '
                                                                                                                                                                   'que '
-                                                                                                                                                                  'la '
-                                                                                                                                                                  'restauración '
                                                                                                                                                                   'se '
-                                                                                                                                                                  'realice '
-                                                                                                                                                                  'correctamente '
+                                                                                                                                                                  'restaure '
+                                                                                                                                                                  'la '
+                                                                                                                                                                  'configuración '
+                                                                                                                                                                  'original '
                                                                                                                                                                   'y '
-                                                                                                                                                                  'luego '
-                                                                                                                                                                  'conecte '
+                                                                                                                                                                  'vuelva '
+                                                                                                                                                                  'a '
+                                                                                                                                                                  'conectar '
                                                                                                                                                                   'el '
-                                                                                                                                                                  'proxy '
-                                                                                                                                                                  'nuevamente.',
+                                                                                                                                                                  'proxy.',
         'Проверить': 'comprobar',
         'Проверка подключения': 'Comprobando la conexión',
         'Проверка соединения': 'Comprobando la conexión',
@@ -3120,7 +3119,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                            'ejecútela '
                                                                                                                                                                            'nuevamente.',
         'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'No se pudo detener el proceso de proxy. '
-                                                                         'Detalles en el Diario.',
+                                                                         'Detalles en el registro.',
         'Профили': 'Perfiles',
         'Профили прокси': 'Perfiles de proxy',
         'Профили прокси…': 'Perfiles de proxy...',
@@ -3287,7 +3286,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                    'la '
                                                                                                                    'propiedad. '
                                                                                                                    'Ver '
-                                                                                                                   '"Diario".',
+                                                                                                                   '"registro".',
         'Требуется диагностика': 'Diagnóstico requerido',
         'Удаление старого PAC…': 'Eliminando el PAC antiguo...',
         'Удалить': 'Eliminar',
@@ -3857,10 +3856,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'tâches '
                                                                                                                                                                                                  'et '
                                                                                                                                                                                                  'réessayez.',
-        'Компонент автозапуска macOS недоступен.': "La fonctionnalité macOS AutoPlay n'est pas disponible.",
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'La fonctionnalité macOS AutoPlay '
-                                                                                  "n'est pas disponible. Lancez "
-                                                                                  "l'application manuellement.",
+        'Компонент автозапуска macOS недоступен.': 'Le composant de lancement automatique de macOS est indisponible.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Le composant de lancement '
+                                                                                  'automatique de macOS est '
+                                                                                  'indisponible. Lancez l’application '
+                                                                                  'manuellement.',
         'Логин': "Nom d'utilisateur",
         'Локальные порты должны быть числами от 1 до 65535.': 'Les ports locaux doivent être des numéros compris entre '
                                                               '1 et 65\xa0535.',
@@ -3893,11 +3893,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              'système.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'CONNEXION INSTABLE',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'BESOIN DE DIAGNOSTIC RÉSEAU',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'BESOIN DE RESTAURER LE RÉSEAU',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'RESTAURATION DU RÉSEAU REQUISE',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'VOUS DEVEZ SUPPRIMER LES ANCIENS PARAMÈTRES',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Cliquez sur "Activer le proxy" pour activer '
                                                                          'le proxy système.',
-        'Настройки': 'Paramètres',
+        'Настройки': 'Réglages',
         'Настройки и сервис': 'Paramètres et service',
         'Настройки прокси': 'Paramètres du proxy',
         'Настройки прокси · ': 'Paramètres du proxy ·',
@@ -4184,21 +4184,24 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': 'La '
                                                                                                                                                                   'session '
                                                                                                                                                                   'précédente '
-                                                                                                                                                                  "s'est "
-                                                                                                                                                                  'mal '
-                                                                                                                                                                  'terminée. '
+                                                                                                                                                                  's’est '
+                                                                                                                                                                  'terminée '
+                                                                                                                                                                  'de '
+                                                                                                                                                                  'manière '
+                                                                                                                                                                  'inattendue. '
                                                                                                                                                                   'Cliquez '
                                                                                                                                                                   'sur '
-                                                                                                                                                                  '"Réparer '
+                                                                                                                                                                  '« '
+                                                                                                                                                                  'Restaurer '
                                                                                                                                                                   'le '
-                                                                                                                                                                  'réseau" '
-                                                                                                                                                                  'ici, '
+                                                                                                                                                                  'réseau '
+                                                                                                                                                                  '», '
                                                                                                                                                                   'attendez '
-                                                                                                                                                                  'que '
                                                                                                                                                                   'la '
                                                                                                                                                                   'restauration '
-                                                                                                                                                                  'soit '
-                                                                                                                                                                  'réussie, '
+                                                                                                                                                                  'des '
+                                                                                                                                                                  'paramètres '
+                                                                                                                                                                  'd’origine, '
                                                                                                                                                                   'puis '
                                                                                                                                                                   'reconnectez '
                                                                                                                                                                   'le '
@@ -4565,7 +4568,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      'sicure. La rete '
                                                                                                      'rimane '
                                                                                                      'invariata.',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Il processo proxy è ancora in esecuzione. Vedi "Diario".',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Il processo proxy è ancora in esecuzione. Vedi "registro".',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                               'non '
                                                                                                                                               'ha '
@@ -4727,7 +4730,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       'vengono '
                                                                                                                                       'salvati '
                                                                                                                                       'nel '
-                                                                                                                                      '"Diario".',
+                                                                                                                                      '"registro".',
         'Автоподключение прокси при входе в %s': 'Connessione proxy automatica quando si accede a %s',
         'Активность': 'Attività',
         'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'IL PROXY ESTERNO NON È DISPONIBILE',
@@ -4810,11 +4813,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                           'vengono '
                                                                                                                                           'salvati '
                                                                                                                                           'nel '
-                                                                                                                                          '"Diario".',
+                                                                                                                                          '"registro".',
         'Выберите приложение': "Seleziona un'applicazione",
         'Выключить прокси и восстановить исходные настройки сети?': 'Disattivare il proxy e ripristinare le '
                                                                     'impostazioni di rete originali?',
-        'Главная': 'Casa',
+        'Главная': 'Home',
         'Готово: выбранные приложения будут обходить прокси.': 'Fatto: le applicazioni selezionate ignoreranno il '
                                                                'proxy.',
         'Диагностика': 'Diagnostica',
@@ -4846,7 +4849,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                              'sito di destinazione non viene '
                                                                              'verificata qui.',
         'Журнал': 'Registro',
-        'Журнал пока пуст.': 'Il diario è ancora vuoto.',
+        'Журнал пока пуст.': 'Il registro è ancora vuoto.',
         'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Esiste '
                                                                                                                                                                         'già '
                                                                                                                                                                         "un'attività "
@@ -4926,7 +4929,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                            'stato '
                                                                                                                                                            'sconosciuto; '
                                                                                                                                                            'controlla '
-                                                                                                                                                           '"Diario".',
+                                                                                                                                                           '"registro".',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Le '
                                                                                                                        'eccezioni '
                                                                                                                        'sono '
@@ -5009,10 +5012,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'pianificazione '
                                                                                                                                                                                                  'e '
                                                                                                                                                                                                  'riprova.',
-        'Компонент автозапуска macOS недоступен.': 'La funzione AutoPlay di macOS non è disponibile.',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'La funzione AutoPlay di macOS non è '
-                                                                                  "disponibile. Avviare l'applicazione "
-                                                                                  'manualmente.',
+        'Компонент автозапуска macOS недоступен.': 'Il componente di avvio automatico di macOS non è disponibile.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Il componente di avvio automatico '
+                                                                                  'di macOS non è disponibile. Avvia '
+                                                                                  'l’app manualmente.',
         'Логин': 'Nome utente',
         'Локальные порты должны быть числами от 1 до 65535.': 'Le porte locali devono essere numeri compresi tra 1 e '
                                                               '65535.',
@@ -5045,7 +5048,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              'sistema.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'CONNESSIONE INSTABILE',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'NECESSITA DI DIAGNOSTICA DI RETE',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'È NECESSARIO RIPRISTINARE LA RETE',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'RIPRISTINO RETE NECESSARIO',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'È NECESSARIO ELIMINARE LE VECCHIE IMPOSTAZIONI',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Fare clic su "Abilita proxy" per abilitare '
                                                                          'il proxy di sistema.',
@@ -5084,7 +5087,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'chiaro. '
                                                                                                                       'Dettagli '
                                                                                                                       'nel '
-                                                                                                                      'Giornale.',
+                                                                                                                      'registro.',
         'Не удалось включить автозапуск: %s': "Impossibile abilitare l'esecuzione automatica: %s",
         'Не удалось выключить автозапуск macOS: %s': 'Impossibile disattivare la riproduzione automatica di macOS: %s',
         'Не удалось добавить Launcher в автозапуск macOS: %s': "Impossibile aggiungere Launcher all'avvio di macOS: %s",
@@ -5116,14 +5119,14 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                'questo '
                                                                                                                                                                                                'EXE '
                                                                                                                                                                                                'manualmente.',
-        'Не удалось запустить прокси. Подробности в «Журнал».': 'Impossibile avviare il proxy. Dettagli nel Giornale.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'Impossibile avviare il proxy. Dettagli nel registro.',
         'Не удалось определить готовность NetworkManager.': 'Non è stato possibile determinare la disponibilità di '
                                                             'NetworkManager.',
         'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Impossibile arrestare il vecchio '
                                                                                'processo per riavviarlo. Vedi '
-                                                                               '"Diario".',
+                                                                               '"registro".',
         'Не удалось остановить старый процесс. См. «Журнал».': 'Impossibile arrestare il vecchio processo. Vedi '
-                                                               '"Diario".',
+                                                               '"registro".',
         'Не удалось открыть журнал: %s': 'Impossibile aprire il registro: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': "Impossibile preparare il routing dell'applicazione. %s",
         'Не удалось подготовить постоянную копию Launcher.': 'Impossibile preparare una copia permanente di Launcher.',
@@ -5169,7 +5172,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН': 'PROXY IN FUNZIONE · NON CONNESSO',
         'ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА': 'IL PROXY È AVVIATO · VERIFICA',
         'ПРОКСИ РАБОТАЕТ': 'IL PROXY FUNZIONA',
-        'Пароль': "Parola d'ordine",
+        'Пароль': 'Password',
         'Перезапуск…': 'Riavvia...',
         'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': 'Connessione '
                                                                                                                                                                    'non '
@@ -5195,7 +5198,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                    'dettagli '
                                                                                                                                                                    'sono '
                                                                                                                                                                    'nel '
-                                                                                                                                                                   'Giornale.',
+                                                                                                                                                                   'registro.',
         'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Connessione '
                                                                                                                                                          'non '
                                                                                                                                                          'confermata. '
@@ -5219,8 +5222,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                          'implementate '
                                                                                                                                                          'automaticamente.',
         'Подключение недоступно': 'Connessione non disponibile',
-        'Подключиться': 'Connettiti',
-        'Порт': 'Porto',
+        'Подключиться': 'Connetti',
+        'Порт': 'Porta',
         'Порт должен быть числом от 1 до 65535.': 'La porta deve essere un numero compreso tra 1 e 65535.',
         'Превью готово: выбранные приложения будут обходить прокси.': "L'anteprima è pronta: le applicazioni "
                                                                       'selezionate ignoreranno i proxy.',
@@ -5318,24 +5321,18 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                   'terminata '
                                                                                                                                                                   'in '
                                                                                                                                                                   'modo '
-                                                                                                                                                                  'errato. '
-                                                                                                                                                                  'Fai '
-                                                                                                                                                                  'clic '
-                                                                                                                                                                  'su '
-                                                                                                                                                                  '"Ripara '
-                                                                                                                                                                  'rete" '
-                                                                                                                                                                  'proprio '
-                                                                                                                                                                  'qui, '
+                                                                                                                                                                  'anomalo. '
+                                                                                                                                                                  'Seleziona '
+                                                                                                                                                                  '«Ripristina '
+                                                                                                                                                                  'rete», '
                                                                                                                                                                   'attendi '
-                                                                                                                                                                  'che '
                                                                                                                                                                   'il '
                                                                                                                                                                   'ripristino '
-                                                                                                                                                                  'abbia '
-                                                                                                                                                                  'esito '
-                                                                                                                                                                  'positivo, '
-                                                                                                                                                                  'quindi '
-                                                                                                                                                                  'collega '
-                                                                                                                                                                  'nuovamente '
+                                                                                                                                                                  'delle '
+                                                                                                                                                                  'impostazioni '
+                                                                                                                                                                  'originali, '
+                                                                                                                                                                  'poi '
+                                                                                                                                                                  'riconnetti '
                                                                                                                                                                   'il '
                                                                                                                                                                   'proxy.',
         'Проверить': 'Controlla',
@@ -5435,7 +5432,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                            'e '
                                                                                                                                                                            'riavviala.',
         'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'Impossibile arrestare il processo proxy. '
-                                                                         'Dettagli nel Giornale.',
+                                                                         'Dettagli nel registro.',
         'Профили': 'Profili',
         'Профили прокси': 'Profili delegati',
         'Профили прокси…': 'Profili proxy...',
@@ -5595,7 +5592,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                    'la '
                                                                                                                    'proprietà. '
                                                                                                                    'Vedi '
-                                                                                                                   '"Diario".',
+                                                                                                                   '"registro".',
         'Требуется диагностика': 'Necessaria la diagnostica',
         'Удаление старого PAC…': 'Rimozione del vecchio PAC...',
         'Удалить': 'Elimina',
@@ -5655,7 +5652,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'LaunchAgent остался после удаления': 'LaunchAgent は削除後も残ります',
         'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': '現在、NetworkManager '
                                                                                                      'は安全に変更できません。ネットワークは変更されません。',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': 'プロキシ プロセスはまだ実行中です。 「ジャーナル」を参照してください。',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'プロキシ プロセスはまだ実行中です。 「ログ」を参照してください。',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                               'は、正確な '
                                                                                                                                               'Launcher '
@@ -5687,7 +5684,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                          'で実行されることが確認されていません。現在のポータブル '
                                                                                                                                                                          'ランチャーは手動で使用できます。',
         'Автозапуск выключен не полностью:\n• ': '自動実行は完全には無効になっていません。\n•',
-        'Автоматическая диагностика завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': '内部エラーにより自動診断が失敗しました。ネットワークの状態は変化しませんでした。詳細は「ジャーナル」に保存されます。',
+        'Автоматическая диагностика завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': '内部エラーにより自動診断が失敗しました。ネットワークの状態は変化しませんでした。詳細は「ログ」に保存されます。',
         'Автоподключение прокси при входе в %s': '%s へのログイン時の自動プロキシ接続',
         'Активность': 'アクティビティ',
         'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': '外部プロキシは利用できません',
@@ -5708,7 +5705,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      'APL '
                                                                                                      'はプロキシをバイパスせずに接続を再試行します。',
         'Вставить': 'ペースト',
-        'Встроенная проверка соединения завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': '組み込みの接続テストが内部エラーにより失敗しました。ネットワークの状態は変化しませんでした。詳細は「ジャーナル」に保存されます。',
+        'Встроенная проверка соединения завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': '組み込みの接続テストが内部エラーにより失敗しました。ネットワークの状態は変化しませんでした。詳細は「ログ」に保存されます。',
         'Выберите приложение': 'アプリケーションを選択してください',
         'Выключить прокси и восстановить исходные настройки сети?': 'プロキシをオフにして、元のネットワーク設定を復元しますか?',
         'Главная': 'ホーム',
@@ -5759,7 +5756,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': '例外は保存されましたが、アクティブな '
                                                                                                                                                            'NetworkManager '
                                                                                                                                                            'プロファイルを更新できませんでした。ネットワークは不明な状態にはなりませんでした。 '
-                                                                                                                                                           '「ジャーナル」をチェックしてください。',
+                                                                                                                                                           '「ログ」をチェックしてください。',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': '例外は保存されましたが、システム '
                                                                                                                        'NO_PROXY '
                                                                                                                        'を更新できませんでした。プロキシを再起動し、「ログ」を確認します。',
@@ -5770,9 +5767,9 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  'Run '
                                                                                                                                                                                                  'エントリが作成されましたが、古い自動実行タスクを安全に削除できませんでした。新しい実行が作成された場合、その実行はロールバックされます。タスク '
                                                                                                                                                                                                  'スケジューラの権限を確認して、再試行してください。',
-        'Компонент автозапуска macOS недоступен.': 'macOS の自動再生機能は利用できません。',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS '
-                                                                                  'の自動再生機能は利用できません。アプリケーションを手動で起動します。',
+        'Компонент автозапуска macOS недоступен.': 'macOS の自動起動機能を利用できません。',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS の自動起動機能を利用できません。 '
+                                                                                  'アプリを手動で起動してください。',
         'Логин': 'ユーザー名',
         'Локальные порты должны быть числами от 1 до 65535.': 'ローカル ポートは 1 ～ 65535 の番号である必要があります。',
         'Локальные порты приложения': 'ローカルアプリケーションポート',
@@ -5788,7 +5785,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              '設定のみを削除しても安全です。',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': '接続が不安定',
         'НУЖНА ДИАГНОСТИКА СЕТИ': 'ネットワーク診断が必要です',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'ネットワークを復元する必要があります',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'ネットワークの復元が必要です',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': '古い設定を削除する必要があります',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': '「プロキシを有効にする」をクリックしてシステムプロキシを有効にします。',
         'Настройки': '設定',
@@ -5800,7 +5797,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Не удалось безопасно определить готовность NetworkManager. Сеть оставлена без изменений.': 'NetworkManager '
                                                                                                     'の準備状況を安全に判断できませんでした。ネットワークは変更されません。',
         'Не удалось безопасно прочитать запись автозапуска Windows: %s': 'Windows スタートアップ エントリを安全に読み取ることができませんでした: %s',
-        'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': 'プロキシ設定を安全に保存できませんでした。パスワードは平文で書かれていません。詳細はジャーナルに掲載されています。',
+        'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': 'プロキシ設定を安全に保存できませんでした。パスワードは平文で書かれていません。詳細はログに掲載されています。',
         'Не удалось включить автозапуск: %s': '自動実行を有効にできませんでした: %s',
         'Не удалось выключить автозапуск macOS: %s': 'macOS の自動再生を無効にできませんでした: %s',
         'Не удалось добавить Launcher в автозапуск macOS: %s': 'ランチャーを macOS スタートアップに追加できませんでした: %s',
@@ -5810,11 +5807,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                'バージョンは、このセッションでも引き続き動作します。自動実行は一時的に無効になっています。この '
                                                                                                                                                                                                'EXE '
                                                                                                                                                                                                'を手動で実行してください。',
-        'Не удалось запустить прокси. Подробности в «Журнал».': 'プロキシの開始に失敗しました。詳細はジャーナルに掲載されています。',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'プロキシの開始に失敗しました。詳細はログに掲載されています。',
         'Не удалось определить готовность NetworkManager.': 'NetworkManager の準備状況を判断できませんでした。',
-        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '古いプロセスを停止して再起動できませんでした。 '
-                                                                               '「ジャーナル」を参照してください。',
-        'Не удалось остановить старый процесс. См. «Журнал».': '古いプロセスを停止できませんでした。 「ジャーナル」を参照してください。',
+        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '古いプロセスを停止して再起動できませんでした。 「ログ」を参照してください。',
+        'Не удалось остановить старый процесс. См. «Журнал».': '古いプロセスを停止できませんでした。 「ログ」を参照してください。',
         'Не удалось открыть журнал: %s': 'ログを開けませんでした: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': 'アプリケーションのルーティングを準備できませんでした。 %s',
         'Не удалось подготовить постоянную копию Launcher.': 'Launcher の永久コピーを準備できませんでした。',
@@ -5842,13 +5838,13 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': '接続に失敗しました。 '
                                                                                                                                                                    'PolicyKit '
                                                                                                                                                                    'システム '
-                                                                                                                                                                   'ウィンドウがキャンセルされるか、許可が拒否された場合でも、ネットワークは変化しませんでした。詳細はジャーナルに記載されています。',
+                                                                                                                                                                   'ウィンドウがキャンセルされるか、許可が拒否された場合でも、ネットワークは変化しませんでした。詳細はログに記載されています。',
         'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': '接続が確認されていません。 '
                                                                                                                                                          'NetworkManager '
                                                                                                                                                          'のステータスは、「診断」を通じて確認できます。新しいネットワーク変更は自動的に実装されませんでした。',
         'Подключение недоступно': '接続できません',
-        'Подключиться': '接続する',
-        'Порт': '港',
+        'Подключиться': '接続',
+        'Порт': 'ポート',
         'Порт должен быть числом от 1 до 65535.': 'ポートは 1 ～ 65535 の数値である必要があります。',
         'Превью готово: выбранные приложения будут обходить прокси.': 'プレビューの準備ができました: 選択したアプリケーションはプロキシをバイパスします。',
         'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': '前のセッション '
@@ -5869,7 +5865,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                       'ネットワークに古いプロキシ設定が残らないようにするには、まず元のネットワーク設定を復元する必要があります。\n'
                                                                                                                                                                                                       '\n'
                                                                                                                                                                                                       '今すぐネットワークを復元しますか?',
-        'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '前回のセッションが正しく終了しませんでした。ここで「ネットワークの修復」をクリックし、復元が成功するまで待ってから、プロキシに再度接続します。',
+        'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '前回のセッションが正常に終了しませんでした。「ネットワークを復元する」を選択し、元の設定への復元が完了してからプロキシに再接続してください。',
         'Проверить': 'チェックする',
         'Проверка подключения': '接続を確認する',
         'Проверка соединения': '接続を確認する',
@@ -5891,8 +5887,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                            'システムプロキシ設定が適用されました。\n'
                                                                                                                                                                            '\n'
                                                                                                                                                                            '特定のアプリケーションが新しい設定を反映しない場合は、アプリケーションを完全に閉じて、再度起動してください。',
-        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'プロキシ プロセスを停止できませんでした。詳細はジャーナルに掲載されています。',
-        'Профили': 'プロフィール',
+        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'プロキシ プロセスを停止できませんでした。詳細はログに掲載されています。',
+        'Профили': 'プロファイル',
         'Профили прокси': 'プロキシプロファイル',
         'Профили прокси…': 'プロキシプロファイル...',
         'Профиль · %s:%s': 'プロファイル %s:%s',
@@ -5933,7 +5929,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': '古い '
                                                                                                                    'PAC '
                                                                                                                    'は削除されませんでした。ネットワーク状態が変更されたか、所有権を確認できませんでした。 '
-                                                                                                                   '「ジャーナル」を参照してください。',
+                                                                                                                   '「ログ」を参照してください。',
         'Требуется диагностика': '診断が必要です',
         'Удаление старого PAC…': '古い PAC を削除しています...',
         'Удалить': '削除',
@@ -5987,7 +5983,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                      '현재 안전한 수정에 사용할 수 '
                                                                                                      '없습니다. 네트워크는 변경되지 '
                                                                                                      '않은 상태로 유지됩니다.',
-        'Proxy-процесс всё ещё работает. См. «Журнал».': '프록시 프로세스가 아직 실행 중입니다. "일지"를 참조하세요.',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': '프록시 프로세스가 아직 실행 중입니다. "로그"를 참조하세요.',
         'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows에서는 '
                                                                                                                                               '정확한 '
                                                                                                                                               'Launcher '
@@ -6103,7 +6099,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       '않았습니다. '
                                                                                                                                       '세부 '
                                                                                                                                       '정보는 '
-                                                                                                                                      '"저널"에 '
+                                                                                                                                      '"로그"에 '
                                                                                                                                       '저장됩니다.',
         'Автоподключение прокси при входе в %s': '%s에 로그인할 때 자동 프록시 연결',
         'Активность': '활동',
@@ -6155,7 +6151,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                           '않았습니다. '
                                                                                                                                           '세부 '
                                                                                                                                           '정보는 '
-                                                                                                                                          '"저널"에 '
+                                                                                                                                          '"로그"에 '
                                                                                                                                           '저장됩니다.',
         'Выберите приложение': '애플리케이션 선택',
         'Выключить прокси и восстановить исходные настройки сети?': '프록시를 끄고 원래 네트워크 설정을 복원하시겠습니까?',
@@ -6183,7 +6179,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                  '않습니다.',
         'Доступность внешнего proxy и целевого сайта здесь не проверяется.': '외부 프록시 및 대상 사이트의 가용성은 여기에서 확인되지 않습니다.',
         'Журнал': '로그',
-        'Журнал пока пуст.': '일지는 아직 비어있습니다.',
+        'Журнал пока пуст.': '로그는 아직 비어있습니다.',
         'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'ArvectumProxyLauncher라는 '
                                                                                                                                                                         'Windows '
                                                                                                                                                                         '작업이 '
@@ -6237,7 +6233,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                            '상태가 '
                                                                                                                                                            '되지 '
                                                                                                                                                            '않았습니다. '
-                                                                                                                                                           '"일지"를 '
+                                                                                                                                                           '"로그"를 '
                                                                                                                                                            '확인하세요.',
         'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': '예외가 '
                                                                                                                        '저장되었지만 '
@@ -6290,9 +6286,9 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                  '확인하고 '
                                                                                                                                                                                                  '다시 '
                                                                                                                                                                                                  '시도하세요.',
-        'Компонент автозапуска macOS недоступен.': 'macOS 자동 실행 기능을 사용할 수 없습니다.',
-        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 자동 실행 기능을 사용할 수 없습니다. 응용 '
-                                                                                  '프로그램을 수동으로 시작하십시오.',
+        'Компонент автозапуска macOS недоступен.': 'macOS 자동 시작 기능을 사용할 수 없습니다.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 자동 시작 기능을 사용할 수 없습니다. 앱을 수동으로 '
+                                                                                  '실행하세요.',
         'Логин': '사용자 이름',
         'Локальные порты должны быть числами от 1 до 65535.': '로컬 포트는 1~65535 사이의 숫자여야 합니다.',
         'Локальные порты приложения': '로컬 애플리케이션 포트',
@@ -6313,7 +6309,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                              '안전합니다.',
         'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': '불안정한 연결',
         'НУЖНА ДИАГНОСТИКА СЕТИ': '네트워크 진단이 필요함',
-        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': '네트워크를 복원해야 함',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': '네트워크 복원 필요',
         'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': '이전 설정을 삭제해야 합니다.',
         'Нажмите «Включить прокси», чтобы подключить системный прокси.': '시스템 프록시를 활성화하려면 "프록시 활성화"를 클릭하십시오.',
         'Настройки': '설정',
@@ -6337,7 +6333,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       '텍스트로 '
                                                                                                                       '작성되지 '
                                                                                                                       '않습니다. '
-                                                                                                                      '저널의 '
+                                                                                                                      '로그의 '
                                                                                                                       '세부 '
                                                                                                                       '사항.',
         'Не удалось включить автозапуск: %s': '자동 실행을 활성화하지 못했습니다: %s',
@@ -6365,11 +6361,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                'EXE를 '
                                                                                                                                                                                                '수동으로 '
                                                                                                                                                                                                '실행하세요.',
-        'Не удалось запустить прокси. Подробности в «Журнал».': '프록시를 시작하지 못했습니다. 저널의 세부 사항.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': '프록시를 시작하지 못했습니다. 로그의 세부 사항.',
         'Не удалось определить готовность NetworkManager.': 'NetworkManager 준비 상태를 확인할 수 없습니다.',
-        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '다시 시작하려면 이전 프로세스를 중지하지 못했습니다. "일지"를 '
+        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '다시 시작하려면 이전 프로세스를 중지하지 못했습니다. "로그"를 '
                                                                                '참조하세요.',
-        'Не удалось остановить старый процесс. См. «Журнал».': '이전 프로세스를 중지하지 못했습니다. "일지"를 참조하세요.',
+        'Не удалось остановить старый процесс. См. «Журнал».': '이전 프로세스를 중지하지 못했습니다. "로그"를 참조하세요.',
         'Не удалось открыть журнал: %s': '로그를 열지 못했습니다: %s',
         'Не удалось подготовить маршрутизацию приложений. %s': '애플리케이션 라우팅을 준비하지 못했습니다. %s',
         'Не удалось подготовить постоянную копию Launcher.': 'Launcher의 영구 사본을 준비하지 못했습니다.',
@@ -6421,7 +6417,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                    '않았습니다. '
                                                                                                                                                                    '자세한 '
                                                                                                                                                                    '내용은 '
-                                                                                                                                                                   '저널에 '
+                                                                                                                                                                   '로그에 '
                                                                                                                                                                    '있습니다.',
         'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': '연결이 '
                                                                                                                                                          '확인되지 '
@@ -6441,8 +6437,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                          '구현되지 '
                                                                                                                                                          '않았습니다.',
         'Подключение недоступно': '연결할 수 없음',
-        'Подключиться': '연결하다',
-        'Порт': '항구',
+        'Подключиться': '연결',
+        'Порт': '포트',
         'Порт должен быть числом от 1 до 65535.': '포트는 1에서 65535 사이의 숫자여야 합니다.',
         'Превью готово: выбранные приложения будут обходить прокси.': '미리보기가 준비되었습니다. 선택한 애플리케이션이 프록시를 우회합니다.',
         'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': '이전 '
@@ -6509,17 +6505,16 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                       '복원하시겠습니까?',
         'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '이전 '
                                                                                                                                                                   '세션이 '
-                                                                                                                                                                  '잘못 '
-                                                                                                                                                                  '종료되었습니다. '
-                                                                                                                                                                  '여기에서 '
-                                                                                                                                                                  '"네트워크 '
-                                                                                                                                                                  '복구"를 '
-                                                                                                                                                                  '클릭하고 '
-                                                                                                                                                                  '복원이 '
-                                                                                                                                                                  '성공할 '
-                                                                                                                                                                  '때까지 '
-                                                                                                                                                                  '기다린 '
-                                                                                                                                                                  '후 '
+                                                                                                                                                                  '정상적으로 '
+                                                                                                                                                                  '종료되지 '
+                                                                                                                                                                  '않았습니다. '
+                                                                                                                                                                  '‘네트워크 '
+                                                                                                                                                                  '복원’을 '
+                                                                                                                                                                  '눌러 '
+                                                                                                                                                                  '원래 '
+                                                                                                                                                                  '설정을 '
+                                                                                                                                                                  '복원한 '
+                                                                                                                                                                  '다음 '
                                                                                                                                                                   '프록시를 '
                                                                                                                                                                   '다시 '
                                                                                                                                                                   '연결하세요.',
@@ -6587,7 +6582,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                            '닫았다가 '
                                                                                                                                                                            '다시 '
                                                                                                                                                                            '실행하세요.',
-        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '프록시 프로세스를 중지할 수 없습니다. 저널의 세부 사항.',
+        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '프록시 프로세스를 중지할 수 없습니다. 로그의 세부 사항.',
         'Профили': '프로필',
         'Профили прокси': '프록시 프로필',
         'Профили прокси…': '프록시 프로필...',
@@ -6693,7 +6688,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                    '확인할 '
                                                                                                                    '수 '
                                                                                                                    '없습니다. '
-                                                                                                                   '"일지"를 '
+                                                                                                                   '"로그"를 '
                                                                                                                    '참조하세요.',
         'Требуется диагностика': '진단 필요',
         'Удаление старого PAC…': '기존 PAC 제거 중...',
@@ -6774,7 +6769,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                         'permanece '
                                                                                                         'inalterada.',
            'Proxy-процесс всё ещё работает. См. «Журнал».': 'O processo de proxy ainda está em execução. Consulte '
-                                                            '"Diário".',
+                                                            '"registro".',
            'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'O '
                                                                                                                                                  'Windows '
                                                                                                                                                  'não '
@@ -6943,7 +6938,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                          'são '
                                                                                                                                          'salvos '
                                                                                                                                          'no '
-                                                                                                                                         '"Diário".',
+                                                                                                                                         '"registro".',
            'Автоподключение прокси при входе в %s': 'Conexão proxy automática ao fazer login em %s',
            'Активность': 'Atividade',
            'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'PROXY EXTERNO NÃO ESTÁ DISPONÍVEL',
@@ -7031,11 +7026,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                              'são '
                                                                                                                                              'salvos '
                                                                                                                                              'no '
-                                                                                                                                             '"Diário".',
+                                                                                                                                             '"registro".',
            'Выберите приложение': 'Selecione um aplicativo',
            'Выключить прокси и восстановить исходные настройки сети?': 'Desativar o proxy e restaurar as configurações '
                                                                        'de rede originais?',
-           'Главная': 'Página inicial',
+           'Главная': 'Início',
            'Готово: выбранные приложения будут обходить прокси.': 'Pronto: os aplicativos selecionados irão ignorar o '
                                                                   'proxy.',
            'Диагностика': 'Diagnóstico',
@@ -7068,7 +7063,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                 'do site de destino não é verificada '
                                                                                 'aqui.',
            'Журнал': 'Registro',
-           'Журнал пока пуст.': 'O diário ainda está vazio.',
+           'Журнал пока пуст.': 'O registro ainda está vazio.',
            'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Uma '
                                                                                                                                                                            'tarefa '
                                                                                                                                                                            'do '
@@ -7144,7 +7139,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                               'estado '
                                                                                                                                                               'desconhecido; '
                                                                                                                                                               'verifique '
-                                                                                                                                                              '"Diário".',
+                                                                                                                                                              '"registro".',
            'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'As '
                                                                                                                           'exceções '
                                                                                                                           'foram '
@@ -7228,10 +7223,12 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                     'e '
                                                                                                                                                                                                     'tente '
                                                                                                                                                                                                     'novamente.',
-           'Компонент автозапуска macOS недоступен.': 'O recurso macOS AutoPlay não está disponível.',
-           'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'O recurso macOS AutoPlay não '
-                                                                                     'está disponível. Inicie o '
-                                                                                     'aplicativo manualmente.',
+           'Компонент автозапуска macOS недоступен.': 'O componente de inicialização automática do macOS não está '
+                                                      'disponível.',
+           'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'O componente de inicialização '
+                                                                                     'automática do macOS não está '
+                                                                                     'disponível. Abra o aplicativo '
+                                                                                     'manualmente.',
            'Логин': 'Nome de usuário',
            'Локальные порты должны быть числами от 1 до 65535.': 'As portas locais devem ser números de 1 a 65535.',
            'Локальные порты приложения': 'Portas de aplicativos locais',
@@ -7265,7 +7262,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                 'sistema.',
            'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'CONEXÃO INSTÁVEL',
            'НУЖНА ДИАГНОСТИКА СЕТИ': 'PRECISA DE DIAGNÓSTICO DE REDE',
-           'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NECESSIDADE DE RESTAURAR A REDE',
+           'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'RESTAURAÇÃO DA REDE NECESSÁRIA',
            'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'VOCÊ PRECISA EXCLUIR CONFIGURAÇÕES ANTIGAS',
            'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Clique em “Ativar proxy” para ativar o '
                                                                             'proxy do sistema.',
@@ -7307,7 +7304,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                          'criptografado. '
                                                                                                                          'Detalhes '
                                                                                                                          'no '
-                                                                                                                         'Diário.',
+                                                                                                                         'registro.',
            'Не удалось включить автозапуск: %s': 'Falha ao ativar a execução automática: %s',
            'Не удалось выключить автозапуск macOS: %s': 'Falha ao desativar a reprodução automática do macOS: %s',
            'Не удалось добавить Launcher в автозапуск macOS: %s': 'Falha ao adicionar o Launcher à inicialização do '
@@ -7341,14 +7338,14 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                   'este '
                                                                                                                                                                                                   'EXE '
                                                                                                                                                                                                   'manualmente.',
-           'Не удалось запустить прокси. Подробности в «Журнал».': 'Falha ao iniciar o proxy. Detalhes no Diário.',
+           'Не удалось запустить прокси. Подробности в «Журнал».': 'Falha ao iniciar o proxy. Detalhes no registro.',
            'Не удалось определить готовность NetworkManager.': 'A prontidão do NetworkManager não pôde ser '
                                                                'determinada.',
            'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Falha ao interromper o processo '
                                                                                   'antigo para reiniciar. Consulte '
-                                                                                  '"Diário".',
+                                                                                  '"registro".',
            'Не удалось остановить старый процесс. См. «Журнал».': 'Falha ao interromper o processo antigo. Consulte '
-                                                                  '"Diário".',
+                                                                  '"registro".',
            'Не удалось открыть журнал: %s': 'Falha ao abrir o registro: %s',
            'Не удалось подготовить маршрутизацию приложений. %s': 'Falha ao preparar o roteamento do aplicativo. %s',
            'Не удалось подготовить постоянную копию Launcher.': 'Falha ao preparar uma cópia permanente do Launcher.',
@@ -7419,7 +7416,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                       'detalhes '
                                                                                                                                                                       'estão '
                                                                                                                                                                       'no '
-                                                                                                                                                                      'Diário.',
+                                                                                                                                                                      'registro.',
            'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Conexão '
                                                                                                                                                             'não '
                                                                                                                                                             'confirmada. '
@@ -7443,7 +7440,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                             'automaticamente.',
            'Подключение недоступно': 'Conexão indisponível',
            'Подключиться': 'Conectar',
-           'Порт': 'Porto',
+           'Порт': 'Porta',
            'Порт должен быть числом от 1 до 65535.': 'A porta deve ser um número entre 1 e 65535.',
            'Превью готово: выбранные приложения будут обходить прокси.': 'A visualização está pronta: os aplicativos '
                                                                          'selecionados irão ignorar os proxies.',
@@ -7541,24 +7538,21 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                      'sessão '
                                                                                                                                                                      'anterior '
                                                                                                                                                                      'terminou '
-                                                                                                                                                                     'incorretamente. '
+                                                                                                                                                                     'inesperadamente. '
                                                                                                                                                                      'Clique '
                                                                                                                                                                      'em '
-                                                                                                                                                                     '“Reparar '
-                                                                                                                                                                     'Rede” '
-                                                                                                                                                                     'aqui, '
-                                                                                                                                                                     'espere '
-                                                                                                                                                                     'até '
-                                                                                                                                                                     'que '
+                                                                                                                                                                     '“Restaurar '
+                                                                                                                                                                     'rede”, '
+                                                                                                                                                                     'aguarde '
                                                                                                                                                                      'a '
                                                                                                                                                                      'restauração '
-                                                                                                                                                                     'seja '
-                                                                                                                                                                     'bem-sucedida '
+                                                                                                                                                                     'das '
+                                                                                                                                                                     'configurações '
+                                                                                                                                                                     'originais '
                                                                                                                                                                      'e '
-                                                                                                                                                                     'conecte '
+                                                                                                                                                                     'reconecte '
                                                                                                                                                                      'o '
-                                                                                                                                                                     'proxy '
-                                                                                                                                                                     'novamente.',
+                                                                                                                                                                     'proxy.',
            'Проверить': 'Verifique',
            'Проверка подключения': 'Verificando a conexão',
            'Проверка соединения': 'Verificando a conexão',
@@ -7655,7 +7649,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                               'inicie-o '
                                                                                                                                                                               'novamente.',
            'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'O processo de proxy não pôde ser '
-                                                                            'interrompido. Detalhes no Diário.',
+                                                                            'interrompido. Detalhes no registro.',
            'Профили': 'Perfis',
            'Профили прокси': 'Perfis proxy',
            'Профили прокси…': 'Perfis de proxy...',
@@ -7816,7 +7810,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'ser '
                                                                                                                       'confirmada. '
                                                                                                                       'Consulte '
-                                                                                                                      '"Diário".',
+                                                                                                                      '"registro".',
            'Требуется диагностика': 'Diagnóstico necessário',
            'Удаление старого PAC…': 'Removendo o PAC antigo...',
            'Удалить': 'Excluir',
@@ -7916,7 +7910,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                         'permanece '
                                                                                                         'inalterada.',
            'Proxy-процесс всё ещё работает. См. «Журнал».': 'O processo de proxy ainda está em execução. Consulte '
-                                                            '"Diário".',
+                                                            '"registo".',
            'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'O '
                                                                                                                                                  'Windows '
                                                                                                                                                  'não '
@@ -8084,7 +8078,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                          'estão '
                                                                                                                                          'guardados '
                                                                                                                                          'no '
-                                                                                                                                         '"Diário".',
+                                                                                                                                         '"registo".',
            'Автоподключение прокси при входе в %s': 'Ligação proxy automática ao fazer login em %s',
            'Активность': 'Atividade',
            'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'PROXY EXTERNO NÃO ESTÁ DISPONÍVEL',
@@ -8172,11 +8166,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                              'estão '
                                                                                                                                              'guardados '
                                                                                                                                              'no '
-                                                                                                                                             '"Diário".',
+                                                                                                                                             '"registo".',
            'Выберите приложение': 'Selecione uma aplicação',
            'Выключить прокси и восстановить исходные настройки сети?': 'Desativar o proxy e restaurar as definições de '
                                                                        'rede originais?',
-           'Главная': 'Página inicial',
+           'Главная': 'Início',
            'Готово: выбранные приложения будут обходить прокси.': 'Pronto: as aplicações selecionadas irão ignorar o '
                                                                   'proxy.',
            'Диагностика': 'Diagnóstico',
@@ -8209,7 +8203,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                 'do site de destino não é verificada '
                                                                                 'aqui.',
            'Журнал': 'Registo',
-           'Журнал пока пуст.': 'O diário ainda está vazio.',
+           'Журнал пока пуст.': 'O registo ainda está vazio.',
            'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Uma '
                                                                                                                                                                            'tarefa '
                                                                                                                                                                            'do '
@@ -8286,7 +8280,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                               'estado '
                                                                                                                                                               'desconhecido; '
                                                                                                                                                               'verifique '
-                                                                                                                                                              '"Diário".',
+                                                                                                                                                              '"registo".',
            'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'As '
                                                                                                                           'exceções '
                                                                                                                           'foram '
@@ -8369,10 +8363,12 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                     'e '
                                                                                                                                                                                                     'tente '
                                                                                                                                                                                                     'novamente.',
-           'Компонент автозапуска macOS недоступен.': 'A funcionalidade macOS AutoPlay não está disponível.',
-           'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'A funcionalidade macOS AutoPlay '
-                                                                                     'não está disponível. Inicie a '
-                                                                                     'aplicação manualmente.',
+           'Компонент автозапуска macOS недоступен.': 'O componente de arranque automático do macOS não está '
+                                                      'disponível.',
+           'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'O componente de arranque '
+                                                                                     'automático do macOS não está '
+                                                                                     'disponível. Inicie a aplicação '
+                                                                                     'manualmente.',
            'Логин': 'Nome de utilizador',
            'Локальные порты должны быть числами от 1 до 65535.': 'As portas locais devem ser os números de 1 a 65535.',
            'Локальные порты приложения': 'Portas de aplicações locais',
@@ -8406,11 +8402,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                 'sistema.',
            'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'LIGAÇÃO INSTÁVEL',
            'НУЖНА ДИАГНОСТИКА СЕТИ': 'NECESSITA DE DIAGNÓSTICO DE REDE',
-           'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NECESSIDADE DE RESTAURAR A REDE',
+           'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'É NECESSÁRIO REPOR A REDE',
            'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'PRECISA DE EXCLUIR CONFIGURAÇÕES ANTIGAS',
            'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Clique em “Ativar proxy” para ativar o '
                                                                             'proxy do sistema.',
-           'Настройки': 'Configurações',
+           'Настройки': 'Definições',
            'Настройки и сервис': 'Configurações e serviço',
            'Настройки прокси': 'Configurações de proxy',
            'Настройки прокси · ': 'Definições de proxy ·',
@@ -8448,7 +8444,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                          'encriptado. '
                                                                                                                          'Detalhes '
                                                                                                                          'no '
-                                                                                                                         'Diário.',
+                                                                                                                         'registo.',
            'Не удалось включить автозапуск: %s': 'Falha ao ativar a execução automática: %s',
            'Не удалось выключить автозапуск macOS: %s': 'Falha ao desativar a reprodução automática do macOS: %s',
            'Не удалось добавить Launcher в автозапуск macOS: %s': 'Falha ao adicionar o Launcher ao arranque do macOS: '
@@ -8483,14 +8479,14 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                   'este '
                                                                                                                                                                                                   'EXE '
                                                                                                                                                                                                   'manualmente.',
-           'Не удалось запустить прокси. Подробности в «Журнал».': 'Falha ao iniciar o proxy. Detalhes no Diário.',
+           'Не удалось запустить прокси. Подробности в «Журнал».': 'Falha ao iniciar o proxy. Detalhes no registo.',
            'Не удалось определить готовность NetworkManager.': 'A prontidão do NetworkManager não pôde ser '
                                                                'determinada.',
            'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Falha ao interromper o processo '
                                                                                   'antigo para reiniciar. Consulte '
-                                                                                  '"Diário".',
+                                                                                  '"registo".',
            'Не удалось остановить старый процесс. См. «Журнал».': 'Falha ao interromper o processo antigo. Consulte '
-                                                                  '"Diário".',
+                                                                  '"registo".',
            'Не удалось открыть журнал: %s': 'Falha ao abrir o registo: %s',
            'Не удалось подготовить маршрутизацию приложений. %s': 'Falha ao preparar o encaminhamento da aplicação. %s',
            'Не удалось подготовить постоянную копию Launcher.': 'Falha ao preparar uma cópia permanente do Launcher.',
@@ -8538,7 +8534,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
            'ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН': 'PROXY EM EXECUÇÃO · NÃO LIGADO',
            'ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА': 'O PROXY É INICIADO · VERIFICANDO',
            'ПРОКСИ РАБОТАЕТ': 'O PROXY ESTÁ A FUNCIONAR',
-           'Пароль': 'Senha',
+           'Пароль': 'Palavra-passe',
            'Перезапуск…': 'Reiniciar...',
            'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': 'Falha '
                                                                                                                                                                       'na '
@@ -8564,7 +8560,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                       'detalhes '
                                                                                                                                                                       'estão '
                                                                                                                                                                       'no '
-                                                                                                                                                                      'Diário.',
+                                                                                                                                                                      'registo.',
            'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Ligação '
                                                                                                                                                             'não '
                                                                                                                                                             'confirmada. '
@@ -8587,8 +8583,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                             'implementadas '
                                                                                                                                                             'automaticamente.',
            'Подключение недоступно': 'Conexão indisponível',
-           'Подключиться': 'Conectar',
-           'Порт': 'Porto',
+           'Подключиться': 'Ligar',
+           'Порт': 'Porta',
            'Порт должен быть числом от 1 до 65535.': 'A porta deve ser um número entre 1 e 65535.',
            'Превью готово: выбранные приложения будут обходить прокси.': 'A pré-visualização está pronta: as '
                                                                          'aplicações selecionadas irão ignorar os '
@@ -8689,19 +8685,17 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                      'sessão '
                                                                                                                                                                      'anterior '
                                                                                                                                                                      'terminou '
-                                                                                                                                                                     'incorretamente. '
+                                                                                                                                                                     'inesperadamente. '
                                                                                                                                                                      'Clique '
-                                                                                                                                                                     'aqui '
                                                                                                                                                                      'em '
-                                                                                                                                                                     '“Reparar '
-                                                                                                                                                                     'Rede”, '
+                                                                                                                                                                     '«Restaurar '
+                                                                                                                                                                     'rede», '
                                                                                                                                                                      'aguarde '
-                                                                                                                                                                     'até '
-                                                                                                                                                                     'que '
                                                                                                                                                                      'a '
-                                                                                                                                                                     'restauração '
-                                                                                                                                                                     'seja '
-                                                                                                                                                                     'bem-sucedida '
+                                                                                                                                                                     'reposição '
+                                                                                                                                                                     'das '
+                                                                                                                                                                     'definições '
+                                                                                                                                                                     'originais '
                                                                                                                                                                      'e '
                                                                                                                                                                      'volte '
                                                                                                                                                                      'a '
@@ -8806,7 +8800,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                               'inicie-a '
                                                                                                                                                                               'novamente.',
            'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'O processo de proxy não pôde ser '
-                                                                            'interrompido. Detalhes no Diário.',
+                                                                            'interrompido. Detalhes no registo.',
            'Профили': 'Perfis',
            'Профили прокси': 'Perfis proxy',
            'Профили прокси…': 'Perfis de proxy...',
@@ -8965,7 +8959,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                       'ser '
                                                                                                                       'confirmada. '
                                                                                                                       'Consulte '
-                                                                                                                      '"Diário".',
+                                                                                                                      '"registo".',
            'Требуется диагностика': 'Diagnóstico necessário',
            'Удаление старого PAC…': 'Remover o PAC antigo...',
            'Удалить': 'Excluir',
@@ -9892,7 +9886,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'LaunchAgent остался после удаления': 'LaunchAgent 删除后仍然存在',
              'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
                                                                                                           '目前无法进行安全修改。网络保持不变。',
-             'Proxy-процесс всё ещё работает. См. «Журнал».': '代理进程仍在运行。参见“期刊”。',
+             'Proxy-процесс всё ещё работает. См. «Журнал».': '代理进程仍在运行。参见“日志”。',
              'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                                    '尚未确认确切的启动器自动启动条目。更改已取消；手动运行应用程序并检查“日志”。',
              'legacy-задача Task Scheduler осталась после удаления': '删除后遗留任务任务计划程序仍然存在',
@@ -9957,7 +9951,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       '站点例外保持不变。',
              'Доступность внешнего proxy и целевого сайта здесь не проверяется.': '此处不检查外部代理和目标站点的可用性。',
              'Журнал': '日志',
-             'Журнал пока пуст.': '日记仍然是空的。',
+             'Журнал пока пуст.': '日志仍然是空的。',
              'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': '名为 '
                                                                                                                                                                              'ArvectumProxyLauncher '
                                                                                                                                                                              '的 '
@@ -9986,7 +9980,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'Исключения сайтов…': '网站异常...',
              'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': '已保存异常，但无法更新活动的 '
                                                                                                                                                                 'NetworkManager '
-                                                                                                                                                                '配置文件。网络并未进入未知状态；检查“日记”。',
+                                                                                                                                                                '配置文件。网络并未进入未知状态；检查“日志”。',
              'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': '异常已保存，但系统 '
                                                                                                                             'NO_PROXY '
                                                                                                                             '无法更新。重新启动代理并检查“日志”。',
@@ -9994,8 +9988,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                              'NetworkManager '
                                                                                                                                                                              '配置文件需要单独的权限；它们将在下次显式连接代理时应用。',
              'Каноническая запись Run создана, но старую задачу автозапуска не удалось безопасно удалить. Новый Run откатан, если он был создан сейчас. Проверьте права Task Scheduler и повторите.': '规范的运行条目已创建，但旧的自动运行任务无法安全删除。如果新的运行是现在创建的，则将回滚它。检查任务计划程序权限并重试。',
-             'Компонент автозапуска macOS недоступен.': 'macOS 自动播放功能不可用。',
-             'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 自动播放功能不可用。手动启动应用程序。',
+             'Компонент автозапуска macOS недоступен.': 'macOS 自动启动组件不可用。',
+             'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 自动启动组件不可用。 请手动启动应用。',
              'Логин': '用户名',
              'Локальные порты должны быть числами от 1 до 65535.': '本地端口的数字必须为 1 到 65535。',
              'Локальные порты приложения': '本地应用程序端口',
@@ -10023,7 +10017,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                          'NetworkManager '
                                                                                                          '的准备情况。网络保持不变。',
              'Не удалось безопасно прочитать запись автозапуска Windows: %s': '无法安全读取 Windows 启动项：%s',
-             'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': '无法安全保存代理设置。密码不是以明文形式写入的。详情见期刊。',
+             'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': '无法安全保存代理设置。密码不是以明文形式写入的。详情见日志。',
              'Не удалось включить автозапуск: %s': '无法启用自动运行：%s',
              'Не удалось выключить автозапуск macOS: %s': '无法禁用 macOS 自动播放：%s',
              'Не удалось добавить Launcher в автозапуск macOS: %s': '无法将启动器添加到 macOS 启动：%s',
@@ -10031,10 +10025,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                     '\n'
                                                                                                                                                                                                     '当前的便携版本将在本次会议中继续运行。自动运行暂时禁用：手动运行此 '
                                                                                                                                                                                                     'EXE。',
-             'Не удалось запустить прокси. Подробности в «Журнал».': '无法启动代理。详情见期刊。',
+             'Не удалось запустить прокси. Подробности в «Журнал».': '无法启动代理。详情见日志。',
              'Не удалось определить готовность NetworkManager.': '无法确定 NetworkManager 的准备情况。',
-             'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '无法停止旧进程以重新启动。参见“期刊”。',
-             'Не удалось остановить старый процесс. См. «Журнал».': '无法停止旧进程。参见“期刊”。',
+             'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '无法停止旧进程以重新启动。参见“日志”。',
+             'Не удалось остановить старый процесс. См. «Журнал».': '无法停止旧进程。参见“日志”。',
              'Не удалось открыть журнал: %s': '无法打开日志：%s',
              'Не удалось подготовить маршрутизацию приложений. %s': '无法准备应用程序路由。 %s',
              'Не удалось подготовить постоянную копию Launcher.': '无法准备启动器的永久副本。',
@@ -10059,11 +10053,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'ПРОКСИ РАБОТАЕТ': '代理正在运行',
              'Пароль': '密码',
              'Перезапуск…': '重新启动...',
-             'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': '连接失败。如果PolicyKit系统窗口被取消或权限被拒绝，网络保持不变。详情见期刊。',
+             'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': '连接失败。如果PolicyKit系统窗口被取消或权限被拒绝，网络保持不变。详情见日志。',
              'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': '连接未确认。通过“诊断”可以检查NetworkManager的状态；新的网络变更不会自动实施。',
              'Подключение недоступно': '连接不可用',
              'Подключиться': '连接',
-             'Порт': '港口',
+             'Порт': '端口',
              'Порт должен быть числом от 1 до 65535.': '端口必须是 1 到 65535 之间的数字。',
              'Превью готово: выбранные приложения будут обходить прокси.': '预览已准备就绪：选定的应用程序将绕过代理。',
              'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': '上一个会话 '
@@ -10081,7 +10075,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                            '为了防止网络留下过时的代理设置，您首先需要恢复原始网络设置。\n'
                                                                                                                                                                                                            '\n'
                                                                                                                                                                                                            '现在恢复网络吗？',
-             'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '上一个会话错误地结束了。点击此处的“修复网络”，等待恢复成功，然后重新连接代理。',
+             'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '上次会话未正常结束。点击“恢复网络”，等待原始网络设置恢复完成，然后重新连接代理。',
              'Проверить': '检查',
              'Проверка подключения': '检查连接',
              'Проверка соединения': '检查连接',
@@ -10103,8 +10097,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                 '系统代理设置已应用。\n'
                                                                                                                                                                                 '\n'
                                                                                                                                                                                 '如果特定应用程序未采用新设置，请将其完全关闭并再次启动。',
-             'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '无法停止代理进程。详情见期刊。',
-             'Профили': '型材',
+             'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '无法停止代理进程。详情见日志。',
+             'Профили': '配置文件',
              'Профили прокси': '代理配置文件',
              'Профили прокси…': '代理配置文件...',
              'Профиль · %s:%s': '个人资料 %s：%s',
@@ -10145,7 +10139,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                            '已被删除。其余系统设置未更改。现在您可以再次启用代理。',
              'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': '旧 '
                                                                                                                         'PAC '
-                                                                                                                        '未删除：网络状态已更改或所有权无法确认。参见“期刊”。',
+                                                                                                                        '未删除：网络状态已更改或所有权无法确认。参见“日志”。',
              'Требуется диагностика': '需要诊断',
              'Удаление старого PAC…': '删除旧的 PAC...',
              'Удалить': '删除',
@@ -10181,7 +10175,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'LaunchAgent остался после удаления': 'LaunchAgent 刪除後仍然存在',
              'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
                                                                                                           '目前無法進行安全修改。網路保持不變。',
-             'Proxy-процесс всё ещё работает. См. «Журнал».': '代理進程仍在運行。參見“期刊”。',
+             'Proxy-процесс всё ещё работает. См. «Журнал».': '代理進程仍在運行。參見“日誌”。',
              'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
                                                                                                                                                    '尚未確認確切的啟動器自動啟動項目。更改已取消；手動運行應用程式並檢查“日誌”。',
              'legacy-задача Task Scheduler осталась после удаления': '刪除後遺留任務任務計劃程序仍然存在',
@@ -10245,8 +10239,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                       'No_proxy '
                                                                                                                                       '網站例外保持不變。',
              'Доступность внешнего proxy и целевого сайта здесь не проверяется.': '此處不檢查外部代理程式和目標網站的可用性。',
-             'Журнал': '日誌',
-             'Журнал пока пуст.': '日記仍然是空的。',
+             'Журнал': '記錄',
+             'Журнал пока пуст.': '日誌仍然是空的。',
              'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': '名為 '
                                                                                                                                                                              'ArvectumProxyLauncher '
                                                                                                                                                                              '的 '
@@ -10275,7 +10269,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'Исключения сайтов…': '網站異常...',
              'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': '已儲存異常，但無法更新活動的 '
                                                                                                                                                                 'NetworkManager '
-                                                                                                                                                                '設定檔。網路並未進入未知狀態；檢視「日記」。',
+                                                                                                                                                                '設定檔。網路並未進入未知狀態；檢視「日誌」。',
              'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': '異常已儲存，但係統 '
                                                                                                                             'NO_PROXY '
                                                                                                                             '無法更新。重新啟動代理程式並檢查“日誌”。',
@@ -10283,8 +10277,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                              'NetworkManager '
                                                                                                                                                                              '設定檔需要單獨的權限；它們將在下次明確連線代理程式時套用。',
              'Каноническая запись Run создана, но старую задачу автозапуска не удалось безопасно удалить. Новый Run откатан, если он был создан сейчас. Проверьте права Task Scheduler и повторите.': '規範的運行條目已創建，但舊的自動運行任務無法安全刪除。如果新的運行是現在建立的，則將回滾它。檢查任務計劃程序權限並重試。',
-             'Компонент автозапуска macOS недоступен.': 'macOS 自動播放功能無法使用。',
-             'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 自動播放功能無法使用。手動啟動應用程式。',
+             'Компонент автозапуска macOS недоступен.': 'macOS 自動啟動元件無法使用。',
+             'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS 自動啟動元件無法使用。 請手動啟動應用程式。',
              'Логин': '使用者名稱',
              'Локальные порты должны быть числами от 1 до 65535.': '本機連接埠的數字必須為 1 到 65535。',
              'Локальные порты приложения': '本地應用程式端口',
@@ -10299,7 +10293,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                   '設定而不更改其他系統設定是安全的。',
              'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': '連接不穩定',
              'НУЖНА ДИАГНОСТИКА СЕТИ': '需要網路診斷',
-             'НУЖНО ВОССТАНОВИТЬ СЕТЬ': '需要恢復網絡',
+             'НУЖНО ВОССТАНОВИТЬ СЕТЬ': '需要復原網路',
              'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': '您需要刪除舊設置',
              'Нажмите «Включить прокси», чтобы подключить системный прокси.': '點選“啟用代理”即可啟用系統代理。',
              'Настройки': '設定',
@@ -10312,7 +10306,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                          'NetworkManager '
                                                                                                          '的準備情況。網路保持不變。',
              'Не удалось безопасно прочитать запись автозапуска Windows: %s': '無法安全讀取 Windows 啟動項目：%s',
-             'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': '無法安全儲存代理設定。密碼不是以明文形式寫入的。詳情請見期刊。',
+             'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': '無法安全儲存代理設定。密碼不是以明文形式寫入的。詳情請見日誌。',
              'Не удалось включить автозапуск: %s': '無法啟用自動運行：%s',
              'Не удалось выключить автозапуск macOS: %s': '無法停用 macOS 自動播放：%s',
              'Не удалось добавить Launcher в автозапуск macOS: %s': '無法將啟動器新增至 macOS 啟動：%s',
@@ -10320,10 +10314,10 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                     '\n'
                                                                                                                                                                                                     '目前的便攜版本將在本次會議中繼續運作。自動運行暫時停用：手動執行此 '
                                                                                                                                                                                                     'EXE。',
-             'Не удалось запустить прокси. Подробности в «Журнал».': '無法啟動代理程式。詳情請見期刊。',
+             'Не удалось запустить прокси. Подробности в «Журнал».': '無法啟動代理程式。詳情請見日誌。',
              'Не удалось определить готовность NetworkManager.': '無法確定 NetworkManager 的準備情況。',
-             'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '無法停止舊進程以重新啟動。參見“期刊”。',
-             'Не удалось остановить старый процесс. См. «Журнал».': '無法停止舊進程。參見“期刊”。',
+             'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': '無法停止舊進程以重新啟動。參見“日誌”。',
+             'Не удалось остановить старый процесс. См. «Журнал».': '無法停止舊進程。參見“日誌”。',
              'Не удалось открыть журнал: %s': '無法開啟日誌：%s',
              'Не удалось подготовить маршрутизацию приложений. %s': '無法準備應用程式路由。 %s',
              'Не удалось подготовить постоянную копию Launcher.': '無法準備啟動器的永久副本。',
@@ -10348,11 +10342,11 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
              'ПРОКСИ РАБОТАЕТ': '代理正在運行',
              'Пароль': '密碼',
              'Перезапуск…': '重新啟動...',
-             'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': '連線失敗。如果PolicyKit系統視窗被取消或權限被拒絕，網路保持不變。詳情請見期刊。',
+             'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': '連線失敗。如果PolicyKit系統視窗被取消或權限被拒絕，網路保持不變。詳情請見日誌。',
              'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': '連線未確認。透過「診斷」可以檢查NetworkManager的狀態；新的網路變更不會自動實施。',
              'Подключение недоступно': '連線不可用',
-             'Подключиться': '連接',
-             'Порт': '港口',
+             'Подключиться': '連線',
+             'Порт': '連接埠',
              'Порт должен быть числом от 1 до 65535.': '連接埠必須是 1 到 65535 之間的數字。',
              'Превью готово: выбранные приложения будут обходить прокси.': '預覽已準備就緒：選定的應用程式將繞過代理程式。',
              'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': '上一個會話 '
@@ -10370,7 +10364,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                                            '為了防止網路留下過時的代理設置，您首先需要恢復原始網路設定。\n'
                                                                                                                                                                                                            '\n'
                                                                                                                                                                                                            '現在恢復網路嗎？',
-             'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '上一個會話錯誤地結束了。點擊此處的“修復網路”，等待恢復成功，然後重新連接代理。',
+             'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': '上次工作階段未正常結束。點選「復原網路」，等待原始網路設定復原完成，再重新連線代理。',
              'Проверить': '檢查',
              'Проверка подключения': '檢查連接',
              'Проверка соединения': '檢查連接',
@@ -10392,8 +10386,8 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                                                                                 '系統代理設定已套用。\n'
                                                                                                                                                                                 '\n'
                                                                                                                                                                                 '如果特定應用程式未採用新設置，請將其完全關閉並再次啟動。',
-             'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '無法停止代理進程。詳情請見期刊。',
-             'Профили': '型材',
+             'Прокси-процесс не удалось остановить. Подробности в «Журнал».': '無法停止代理進程。詳情請見日誌。',
+             'Профили': '設定檔',
              'Профили прокси': '代理設定檔',
              'Профили прокси…': '代理設定檔...',
              'Профиль · %s:%s': '個人資料 %s：%s',
@@ -10434,7 +10428,7 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                                            '已刪除。其餘系統設定未更改。現在您可以再次啟用代理。',
              'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': '舊 '
                                                                                                                         'PAC '
-                                                                                                                        '未刪除：網路狀態已變更或所有權無法確認。參見“期刊”。',
+                                                                                                                        '未刪除：網路狀態已變更或所有權無法確認。參見“日誌”。',
              'Требуется диагностика': '需要診斷',
              'Удаление старого PAC…': '刪除舊的 PAC...',
              'Удалить': '刪除',

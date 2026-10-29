@@ -18,11 +18,11 @@
     <string name="apl_app_exclusions_7910b" formatted="false">Exclusões de aplicativos</string>
     <string name="apl_auto_settings_b61a2" formatted="false">Configurações automáticas</string>
     <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">As ações avançadas são separadas da conexão diária.</string>
-    <string name="apl_home_d328e" formatted="false">Página inicial</string>
+    <string name="apl_home_d328e" formatted="false">Início</string>
     <string name="apl_close_a7a40" formatted="false">Fechar</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Retornar ao proxy preferencial após uma falha</string>
     <string name="apl_connect_36b4c" formatted="false">Conectar</string>
-    <string name="apl_proxy_a5677" formatted="false">Procurador</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">Selecione um proxy</string>
     <string name="apl_new_4460b" formatted="false">+ Novo</string>
     <string name="apl_edit_b8b15" formatted="false">Editar</string>
@@ -30,7 +30,7 @@
     <string name="apl_applications_39c4b" formatted="false">Aplicativos</string>
     <string name="apl_log_97c45" formatted="false">Registro</string>
     <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Falha ao ler perfis salvos</string>
-    <string name="apl_auto_8dca2" formatted="false">Automático</string>
+    <string name="apl_auto_8dca2" formatted="false">Auto</string>
     <string name="apl_checked_6a779" formatted="false"> · verificando</string>
     <string name="apl_available_c75e3" formatted="false">· disponível</string>
     <string name="apl_unavailable_bee71" formatted="false">· indisponível</string>
@@ -67,7 +67,7 @@
     <string name="apl_name_0918b" formatted="false">Nome</string>
     <string name="apl_for_example_basic_1589d" formatted="false">Por exemplo Primário</string>
     <string name="apl_proxy_address_ef480" formatted="false">Endereço proxy</string>
-    <string name="apl_port_90947" formatted="false">Porto</string>
+    <string name="apl_port_90947" formatted="false">Porta</string>
     <string name="apl_username_5be12" formatted="false">Nome de usuário</string>
     <string name="apl_optional_f6d95" formatted="false">Opcional</string>
     <string name="apl_password_cb1a2" formatted="false">Senha</string>

@@ -10,7 +10,7 @@
     <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">프록시 선택, 추가 및 우선순위 지정</string>
     <string name="apl_activity_85f08" formatted="false">활동</string>
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">연결 상태 및 최근 활동</string>
-    <string name="apl_disconnected_3e958" formatted="false">연결이 끊김</string>
+    <string name="apl_disconnected_3e958" formatted="false">연결 끊김</string>
     <string name="apl_open_magazine_9ebce" formatted="false">로그 열기</string>
     <string name="apl_settings_985b5" formatted="false">설정</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">라우팅 및 APL 동작</string>
@@ -21,7 +21,7 @@
     <string name="apl_home_d328e" formatted="false">홈</string>
     <string name="apl_close_a7a40" formatted="false">닫기</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">실패 후 기본 프록시로 돌아가기</string>
-    <string name="apl_connect_36b4c" formatted="false">연결하다</string>
+    <string name="apl_connect_36b4c" formatted="false">연결</string>
     <string name="apl_proxy_a5677" formatted="false">프록시</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">프록시 선택</string>
     <string name="apl_new_4460b" formatted="false">+ 신규</string>
@@ -67,7 +67,7 @@
     <string name="apl_name_0918b" formatted="false">이름</string>
     <string name="apl_for_example_basic_1589d" formatted="false">예: 기본</string>
     <string name="apl_proxy_address_ef480" formatted="false">프록시 주소</string>
-    <string name="apl_port_90947" formatted="false">항구</string>
+    <string name="apl_port_90947" formatted="false">포트</string>
     <string name="apl_username_5be12" formatted="false">사용자 이름</string>
     <string name="apl_optional_f6d95" formatted="false">선택사항</string>
     <string name="apl_password_cb1a2" formatted="false">비밀번호</string>

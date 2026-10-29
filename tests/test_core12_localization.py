@@ -42,7 +42,7 @@ def test_core_baseline_languages_and_registry():
     assert len(LANGS) == len(set(LANGS)) == 12
     assert LANGS == ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt-BR', 'pt-PT',
                      'ja', 'ko', 'zh-Hans', 'zh-Hant']
-    assert MANIFEST['stage'] == 'source_draft_editorial_pending'
+    assert MANIFEST['stage'] == 'editorial_pass_completed_native_review_pending'
     assert MANIFEST['fallback'] == 'en'
     assert MANIFEST['appStoreConnectModified'] is False
 

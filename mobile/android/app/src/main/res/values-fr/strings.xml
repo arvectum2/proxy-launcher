@@ -12,7 +12,7 @@
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">État de la connexion et activité récente</string>
     <string name="apl_disconnected_3e958" formatted="false">Déconnecté</string>
     <string name="apl_open_magazine_9ebce" formatted="false">Ouvrir le journal</string>
-    <string name="apl_settings_985b5" formatted="false">Paramètres</string>
+    <string name="apl_settings_985b5" formatted="false">Réglages</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Comportement de routage et d\'APL</string>
     <string name="apl_website_exclusions_bd616" formatted="false">Exclusions de sites Web</string>
     <string name="apl_app_exclusions_7910b" formatted="false">Exclusions d\'applications</string>
@@ -22,7 +22,7 @@
     <string name="apl_close_a7a40" formatted="false">Fermer</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Revenir au proxy préféré après un échec</string>
     <string name="apl_connect_36b4c" formatted="false">Se connecter</string>
-    <string name="apl_proxy_a5677" formatted="false">Procuration</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">Sélectionnez un mandataire</string>
     <string name="apl_new_4460b" formatted="false">+ Nouveau</string>
     <string name="apl_edit_b8b15" formatted="false">Modifier</string>
@@ -30,7 +30,7 @@
     <string name="apl_applications_39c4b" formatted="false">Applications</string>
     <string name="apl_log_97c45" formatted="false">Journal</string>
     <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Échec de la lecture des profils enregistrés</string>
-    <string name="apl_auto_8dca2" formatted="false">Automatique</string>
+    <string name="apl_auto_8dca2" formatted="false">Auto</string>
     <string name="apl_checked_6a779" formatted="false"> · vérifier</string>
     <string name="apl_available_c75e3" formatted="false">· disponible</string>
     <string name="apl_unavailable_bee71" formatted="false">· indisponible</string>
@@ -62,7 +62,7 @@
     <string name="apl_network_change_50fc1" formatted="false">changement de réseau</string>
     <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Ajoutez d\'abord au moins un proxy</string>
     <string name="apl_failed_to_select_proxy_c4629" formatted="false">Échec de la sélection du proxy</string>
-    <string name="apl_new_proxy_29c0e" formatted="false">Nouveau mandataire</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Nouveau proxy</string>
     <string name="apl_edit_profile_4bc58" formatted="false">Modifier le profil</string>
     <string name="apl_name_0918b" formatted="false">Nom</string>
     <string name="apl_for_example_basic_1589d" formatted="false">Par ex. Primaire</string>
@@ -96,7 +96,7 @@
     <string name="apl_connection_active_6cfc7" formatted="false">Connection active</string>
     <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">Vérification du proxy sélectionné</string>
     <string name="apl_ending_the_connection_170ca" formatted="false">Ending the connection</string>
-    <string name="apl_select_a_proxy_f0954" formatted="false">Sélectionnez un mandataire</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Sélectionnez un proxy</string>
     <string name="apl_latency_milliseconds"> · %1$d ms</string>
     <string name="apl_exclusions_saved_count">Exclusions enregistrées: %1$d</string>
     <string name="apl_apps_bypassing_count">Applications contournant le proxy: %1$d</string>

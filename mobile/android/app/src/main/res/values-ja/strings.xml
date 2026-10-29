@@ -6,11 +6,11 @@
     <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL ステータスとアクティブなプロファイル</string>
     <string name="apl_profile_cc3f0" formatted="false">プロフィール · —</string>
     <string name="apl_manage_profiles_ec69b" formatted="false">プロファイルの管理</string>
-    <string name="apl_profiles_30c61" formatted="false">プロフィール</string>
+    <string name="apl_profiles_30c61" formatted="false">プロファイル</string>
     <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">プロキシの選択、追加、優先順位付け</string>
     <string name="apl_activity_85f08" formatted="false">アクティビティ</string>
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">接続ステータスと最近のアクティビティ</string>
-    <string name="apl_disconnected_3e958" formatted="false">切断されました</string>
+    <string name="apl_disconnected_3e958" formatted="false">未接続</string>
     <string name="apl_open_magazine_9ebce" formatted="false">ログを開く</string>
     <string name="apl_settings_985b5" formatted="false">設定</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">ルーティングとAPLの動作</string>
@@ -21,7 +21,7 @@
     <string name="apl_home_d328e" formatted="false">ホーム</string>
     <string name="apl_close_a7a40" formatted="false">閉じる</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">失敗後に優先プロキシに戻る</string>
-    <string name="apl_connect_36b4c" formatted="false">接続する</string>
+    <string name="apl_connect_36b4c" formatted="false">接続</string>
     <string name="apl_proxy_a5677" formatted="false">プロキシ</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">プロキシを選択してください</string>
     <string name="apl_new_4460b" formatted="false">+ 新しい</string>
@@ -67,7 +67,7 @@
     <string name="apl_name_0918b" formatted="false">名前</string>
     <string name="apl_for_example_basic_1589d" formatted="false">例：プライマリー</string>
     <string name="apl_proxy_address_ef480" formatted="false">プロキシアドレス</string>
-    <string name="apl_port_90947" formatted="false">港</string>
+    <string name="apl_port_90947" formatted="false">ポート</string>
     <string name="apl_username_5be12" formatted="false">ユーザー名</string>
     <string name="apl_optional_f6d95" formatted="false">オプション</string>
     <string name="apl_password_cb1a2" formatted="false">パスワード</string>
@@ -96,7 +96,7 @@
     <string name="apl_connection_active_6cfc7" formatted="false">接続がアクティブです</string>
     <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">選択したプロキシを確認する</string>
     <string name="apl_ending_the_connection_170ca" formatted="false">接続を終了する</string>
-    <string name="apl_select_a_proxy_f0954" formatted="false">プロキシを選択してください</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">プロキシを選択</string>
     <string name="apl_latency_milliseconds"> · %1$d ms</string>
     <string name="apl_exclusions_saved_count">保存された除外項目: %1$d</string>
     <string name="apl_apps_bypassing_count">プロキシをバイパスするアプリ: %1$d</string>

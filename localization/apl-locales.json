@@ -2,8 +2,25 @@
   "schemaVersion": 1,
   "sourceRegistry": "arvectum-tools/core/localization/portfolio-locales.json",
   "fallback": "en",
-  "languages": ["en", "ru", "es", "fr", "de", "it", "pt-BR", "pt-PT", "ja", "ko", "zh-Hans", "zh-Hant"],
-  "platforms": ["ios", "android", "desktop"],
-  "stage": "source_draft_editorial_pending",
+  "languages": [
+    "en",
+    "ru",
+    "es",
+    "fr",
+    "de",
+    "it",
+    "pt-BR",
+    "pt-PT",
+    "ja",
+    "ko",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "platforms": [
+    "ios",
+    "android",
+    "desktop"
+  ],
+  "stage": "editorial_pass_completed_native_review_pending",
   "appStoreConnectModified": false
 }

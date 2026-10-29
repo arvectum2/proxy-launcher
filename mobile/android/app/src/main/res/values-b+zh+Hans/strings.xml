@@ -6,11 +6,11 @@
     <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL 状态和活动配置文件</string>
     <string name="apl_profile_cc3f0" formatted="false">简介 · —</string>
     <string name="apl_manage_profiles_ec69b" formatted="false">管理个人资料</string>
-    <string name="apl_profiles_30c61" formatted="false">型材</string>
+    <string name="apl_profiles_30c61" formatted="false">配置文件</string>
     <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">选择、添加代理并确定代理的优先级</string>
     <string name="apl_activity_85f08" formatted="false">活动</string>
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">连接状态和最近的活动</string>
-    <string name="apl_disconnected_3e958" formatted="false">已断开连接</string>
+    <string name="apl_disconnected_3e958" formatted="false">已断开</string>
     <string name="apl_open_magazine_9ebce" formatted="false">打开日志</string>
     <string name="apl_settings_985b5" formatted="false">设置</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">路由和 APL 行为</string>
@@ -30,7 +30,7 @@
     <string name="apl_applications_39c4b" formatted="false">应用领域</string>
     <string name="apl_log_97c45" formatted="false">日志</string>
     <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">无法读取保存的配置文件</string>
-    <string name="apl_auto_8dca2" formatted="false">汽车</string>
+    <string name="apl_auto_8dca2" formatted="false">自动</string>
     <string name="apl_checked_6a779" formatted="false"> · 检查</string>
     <string name="apl_available_c75e3" formatted="false">· 可用</string>
     <string name="apl_unavailable_bee71" formatted="false">· 不可用</string>
@@ -62,12 +62,12 @@
     <string name="apl_network_change_50fc1" formatted="false">网络变化</string>
     <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">首先添加至少一个代理</string>
     <string name="apl_failed_to_select_proxy_c4629" formatted="false">选择代理失败</string>
-    <string name="apl_new_proxy_29c0e" formatted="false">新代理</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">新建代理</string>
     <string name="apl_edit_profile_4bc58" formatted="false">编辑个人资料</string>
     <string name="apl_name_0918b" formatted="false">名称</string>
     <string name="apl_for_example_basic_1589d" formatted="false">例如小学</string>
     <string name="apl_proxy_address_ef480" formatted="false">代理地址</string>
-    <string name="apl_port_90947" formatted="false">港口</string>
+    <string name="apl_port_90947" formatted="false">端口</string>
     <string name="apl_username_5be12" formatted="false">用户名</string>
     <string name="apl_optional_f6d95" formatted="false">可选</string>
     <string name="apl_password_cb1a2" formatted="false">密码</string>

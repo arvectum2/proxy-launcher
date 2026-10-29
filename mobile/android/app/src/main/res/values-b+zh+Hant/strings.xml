@@ -6,11 +6,11 @@
     <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL 狀態和活動設定檔</string>
     <string name="apl_profile_cc3f0" formatted="false">簡介 · —</string>
     <string name="apl_manage_profiles_ec69b" formatted="false">管理個人資料</string>
-    <string name="apl_profiles_30c61" formatted="false">型材</string>
+    <string name="apl_profiles_30c61" formatted="false">設定檔</string>
     <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">選擇、新增代理並確定代理的優先級</string>
     <string name="apl_activity_85f08" formatted="false">活動</string>
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">連線狀態和最近的活動</string>
-    <string name="apl_disconnected_3e958" formatted="false">已斷開連接</string>
+    <string name="apl_disconnected_3e958" formatted="false">已中斷連線</string>
     <string name="apl_open_magazine_9ebce" formatted="false">打開日誌</string>
     <string name="apl_settings_985b5" formatted="false">設定</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">路由和 APL 行為</string>
@@ -21,16 +21,16 @@
     <string name="apl_home_d328e" formatted="false">首頁</string>
     <string name="apl_close_a7a40" formatted="false">關閉</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">失敗後回傳首選代理</string>
-    <string name="apl_connect_36b4c" formatted="false">連接</string>
-    <string name="apl_proxy_a5677" formatted="false">代理商</string>
+    <string name="apl_connect_36b4c" formatted="false">連線</string>
+    <string name="apl_proxy_a5677" formatted="false">代理</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">選擇代理</string>
     <string name="apl_new_4460b" formatted="false">+ 新</string>
     <string name="apl_edit_b8b15" formatted="false">編輯</string>
     <string name="apl_websites_54646" formatted="false">網站</string>
     <string name="apl_applications_39c4b" formatted="false">應用領域</string>
-    <string name="apl_log_97c45" formatted="false">紀錄</string>
+    <string name="apl_log_97c45" formatted="false">記錄</string>
     <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">無法讀取已儲存的設定檔</string>
-    <string name="apl_auto_8dca2" formatted="false">汽車</string>
+    <string name="apl_auto_8dca2" formatted="false">自動</string>
     <string name="apl_checked_6a779" formatted="false"> · 檢查</string>
     <string name="apl_available_c75e3" formatted="false">· 可用</string>
     <string name="apl_unavailable_bee71" formatted="false">· 不可用</string>
@@ -62,12 +62,12 @@
     <string name="apl_network_change_50fc1" formatted="false">網路變化</string>
     <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">首先新增至少一個代理</string>
     <string name="apl_failed_to_select_proxy_c4629" formatted="false">選擇代理失敗</string>
-    <string name="apl_new_proxy_29c0e" formatted="false">新代理</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">新增代理</string>
     <string name="apl_edit_profile_4bc58" formatted="false">編輯個人資料</string>
     <string name="apl_name_0918b" formatted="false">名稱</string>
     <string name="apl_for_example_basic_1589d" formatted="false">例如小學</string>
     <string name="apl_proxy_address_ef480" formatted="false">代理地址</string>
-    <string name="apl_port_90947" formatted="false">港口</string>
+    <string name="apl_port_90947" formatted="false">連接埠</string>
     <string name="apl_username_5be12" formatted="false">使用者名稱</string>
     <string name="apl_optional_f6d95" formatted="false">可選</string>
     <string name="apl_password_cb1a2" formatted="false">密碼</string>

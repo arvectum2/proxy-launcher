@@ -10,9 +10,9 @@
     <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Seleccionar, agregar y priorizar proxies</string>
     <string name="apl_activity_85f08" formatted="false">Actividad</string>
     <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">Estado de la conexión y actividad reciente</string>
-    <string name="apl_disconnected_3e958" formatted="false">desconectado</string>
+    <string name="apl_disconnected_3e958" formatted="false">Desconectado</string>
     <string name="apl_open_magazine_9ebce" formatted="false">Abrir registro</string>
-    <string name="apl_settings_985b5" formatted="false">Configuración</string>
+    <string name="apl_settings_985b5" formatted="false">Ajustes</string>
     <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Comportamiento de enrutamiento y APL</string>
     <string name="apl_website_exclusions_bd616" formatted="false">Exclusiones de sitios web</string>
     <string name="apl_app_exclusions_7910b" formatted="false">Exclusiones de aplicaciones</string>
@@ -22,15 +22,15 @@
     <string name="apl_close_a7a40" formatted="false">Cerrar</string>
     <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Volver al proxy preferido después de un error</string>
     <string name="apl_connect_36b4c" formatted="false">Conectar</string>
-    <string name="apl_proxy_a5677" formatted="false">apoderado</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
     <string name="apl_select_a_proxy_43c2e" formatted="false">Seleccione un proxy</string>
     <string name="apl_new_4460b" formatted="false">+ Nuevo</string>
     <string name="apl_edit_b8b15" formatted="false">Editar</string>
     <string name="apl_websites_54646" formatted="false">Sitios web</string>
     <string name="apl_applications_39c4b" formatted="false">Aplicaciones</string>
-    <string name="apl_log_97c45" formatted="false">Iniciar sesión</string>
+    <string name="apl_log_97c45" formatted="false">Registro</string>
     <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">No se pudieron leer los perfiles guardados</string>
-    <string name="apl_auto_8dca2" formatted="false">Automático</string>
+    <string name="apl_auto_8dca2" formatted="false">Auto</string>
     <string name="apl_checked_6a779" formatted="false"> · comprobando</string>
     <string name="apl_available_c75e3" formatted="false">· disponible</string>
     <string name="apl_unavailable_bee71" formatted="false">· no disponible</string>
