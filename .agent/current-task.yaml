@@ -1,32 +1,33 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-CORE16-LOCALES-20261029
+task_id: APL-CORE21-LOCALES-20261029
 status: completed
-goal: "Expand full APL localization from 13 to 16 languages with nl, id and tr on iOS, Android and desktop; editorial corrections, native source tests and existing PR #272."
+goal: "Add full Tier-1 Hindi, Arabic, Vietnamese, Polish and Thai UI source localizations on APL iOS, Android and desktop, with Arabic RTL."
 definition_of_done:
-  - "Complete 155 iOS, 104 Android and 193 desktop source strings for nl/id/tr with preserved placeholders."
-  - "Add NL ID TR language selection/system detection; retain prior 13 including Persian RTL."
-  - "Review critical UI/Shortcuts/network recovery wording, glossary and cross-platform semantic tests."
-  - "Verify iOS UI-only build, Android Public/Private builds and unit tests, Python regression; commit/push PR #272 without affecting submitted Apple binary."
+  - "Five full 155 iOS, 104 Android, 193 desktop catalogs with format/key parity and nonempty translated values."
+  - "Language selection/system language detection and Arabic RTL while preserving Persian RTL."
+  - "Copyedit key UI flows and technical terms; preserve server/proxy behavior."
+  - "Run Python, iOS unsigned UI-only and Android Public/Private builds/unit tests; push to PR #272 without changing submitted Apple build or App Store metadata."
 completed:
-  - "Archived prior Core-13 checkpoint in .agent/checkpoints/APL-CORE13-PERSIAN-20261029.yaml."
-  - "NL, ID, TR: 155 iOS + 104 Android + 193 desktop localized entries each; 1356 additions, total 7232 source entries across 16 languages."
-  - "54 long native-language setup/Shortcuts/connection mode instructions manually revised (18 per new locale); 21 desktop network recovery, auth/save and PAC safety warning strings revised."
-  - "Added 28 technical glossary terms in all three languages; Indonesian Android values-in and iOS AppLanguage.indonesian = id alias avoids Identifiable.id collision."
-  - "Regenerated iOS XcodeGen project and added catalog/semantics contract tests tests/test_core16_expansion.py."
-  - "Full Python regression: 1289 passed, 6 skipped, 3 previously known Windows maintenance contracts deselected, 113 subtests passed. 19 source/localization/RTL tests PASS separately in NL, ID, TR."
-  - "iOS unsigned UI-only Simulator BUILD SUCCEEDED, 16 localized .lproj bundled, 16 .strings plutil linted and AppLocalization.swift arm64 simulator typechecked."
-  - "Android Public/Private JDK17 Gradle Kotlin compilation and both unit-test tasks BUILD SUCCESSFUL, 49 actions executed."
-  - "Documentation and roadmap updated in docs/APL_CORE16_LOCALIZATION_QA_2026-10-29.md. Code commit 74fd1e43430b8f01dac8747421989d0bc8e7a821."
-current: "COMPLETED for source locale wave and source/native UI-only validation."
+  - "Archived prior Core-16 checkpoint; clean local clone of b923783 used for new wave."
+  - "Added hi, ar, vi, pl and th: 155 iOS, 104 Android, 193 desktop strings per language = 2260 new values, 21 languages and 9492 total UI source values."
+  - "Manually copyedited 80 long setup, Shortcuts, connection-mode, exclusion and VPN permission texts, five exact-match desktop network recovery messages; added 28 per-language glossary technical terms."
+  - "AppLanguage/Core selection, regenerated XcodeGen project, Android values-hi/ar/vi/pl/th and desktop language normalization; SwiftUI right-to-left for fa/ar; Android RTL and LTR address/host/port entry, desktop Arabic label right alignment."
+  - "Added test_core21_expansion.py and updated parity, terminology, prior-Core16 and Persian RTL assertions; QA report docs/APL_CORE21_LOCALIZATION_QA_2026-10-29.md and roadmap."
+  - "Python full regression under Arabic locale: 1291 passed, 6 skipped, 3 inherited unrelated Windows maintenance cases deselected, 113 subtests passed; 21 localization-focused tests per each new locale passed."
+  - "21 iOS .strings plutil checks, Swift localization simulator typecheck PASS; unsigned UI-only iOS Simulator BUILD SUCCEEDED and 21 .lproj bundled."
+  - "Android JDK17 Gradle Public and Private Kotlin compile and unit-test tasks BUILD SUCCESSFUL, 49 tasks executed."
+  - "Git diff --check and Python syntax checks pass; code commit abfd98f04e4a1a48bf0f01991574c61f3dcbb882."
+current: "COMPLETED for Core21 translation source/build QA; PR #272 remains separate release review gate."
 pending:
-  - "Future wave Tier 1: hi, ar, vi, pl, th; device-level screenshots, native speaker review and release-specific UX checks before publication."
-  - "Full signed PacketTunnel archive and Apple release require separate action; current submitted Apple build and metadata untouched."
-last_verified_commit: "74fd1e43430b8f01dac8747421989d0bc8e7a821 (code commit)"
+  - "Future distinct tasks: on-device Arabic RTL, long-label, accessibility, iOS Shortcuts regional QA, native-speaker editorial signoff and any full Tk mirroring; signed PacketTunnel archive before Apple release."
+  - "Future Tier-2 locales tracked by the Arvectum Tools Core 50-language registry."
+last_verified_commit: "abfd98f04e4a1a48bf0f01991574c61f3dcbb882 (source commit; checkpoint recorded in following metadata commit)"
 test_results:
-  - "1289 Python PASS, 6 skipped, 3 old unrelated Windows cases deselected, 113 subtests passed."
-  - "19 localization focused tests PASS under NL, ID and TR."
-  - "iOS unsigned simulator UI-only BUILD SUCCEEDED with 16 .lproj; 16 plutil and Swift typecheck PASS."
-  - "Android Public/Private Kotlin compilation and unit test Gradle BUILD SUCCESSFUL (49 tasks)."
+  - "21/21 focused localization/Arabic RTL checks PASS in hi/ar/vi/pl/th."
+  - "Full Python: 1291 passed, 6 skipped, 3 old Windows unrelated cases deselected, 113 subtests passed."
+  - "iOS unsigned UI-only Simulator build 21 bundled .lproj PASS, Swift typecheck and plutil 21 PASS."
+  - "Android Public/Private Kotlin compile and unit tests BUILD SUCCESSFUL (49 tasks)."
+  - "No Apple review binary, App Store Connect privacy declaration/metadata, networking or Watchdog changes."
 blocker: null
-resume_instruction: "This Core-16 localization source task is complete. On future 'continue', verify current PR #272 exact head SHA, inspect .agent/current-task.yaml, then open a NEW checkpoint for next Core Tier-1 localization wave (hi/ar/vi/pl/th) or separate real-device QA; do not redo completed languages. Do not change Apple review metadata/build or watchdog."
+resume_instruction: "Core21 is complete. Verify latest PR #272 head and this checkpoint before next wave; do not repeat existing 21 locales. Next languages should be selected from remaining Arvectum Tools Core 50 targets and implemented in a new checkpoint, with separate device/native QA before shipping."
