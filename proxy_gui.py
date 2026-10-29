@@ -1191,7 +1191,7 @@ class Launcher:
         self.root = root
         # Tk has no automatic full widget mirroring. Use right-justified
         # Persian labels while keeping IP/host/port entry fields LTR.
-        if __import__("desktop_i18n").LANGUAGE in ("fa", "ar"):
+        if __import__("desktop_i18n").LANGUAGE in ("fa", "ar", "ur"):
             root.option_add("*Label.justify", "right")
             root.option_add("*Label.anchor", "e")
             ttk.Style(root).configure("TLabel", anchor="e", justify="right")

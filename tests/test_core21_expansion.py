@@ -26,13 +26,13 @@ def test_all_source_resources_exact_and_nonempty():
   for marker in ('SOCKS5','HTTPS','Network Extension','Packet Tunnel','gu-st.ru'):
    assert marker in ''.join(i.values()),(lang,marker)
 def test_system_languages_and_arabic_rtl():
- assert json.loads((R/'localization/apl-locales.json').read_text())['languages'][-5:]==LANGS
+ assert json.loads((R/'localization/apl-locales.json').read_text())['languages'][16:21]==LANGS
  src=(R/'mobile/ios/App/AppLocalization.swift').read_text()
  for lang in LANGS:assert f'case {lang}' in src
  swift=(R/'mobile/ios/App/ArvectumProxyLauncherApp.swift').read_text()
- assert '["fa", "ar"].contains(AppL10n.effectiveLanguage)' in swift
+ assert '["fa", "ar", "ur"].contains(AppL10n.effectiveLanguage)' in swift
  assert 'android:supportsRtl="true"' in (R/'mobile/android/app/src/main/AndroidManifest.xml').read_text()
- assert 'LANGUAGE in ("fa", "ar")' in (R/'proxy_gui.py').read_text()
+ assert 'LANGUAGE in ("fa", "ar", "ur")' in (R/'proxy_gui.py').read_text()
  android=(R/'mobile/android/app/src/main/java/ru/arvectum/proxylauncher/MainActivity.kt').read_text()
  for value in ('hostField.textDirection = View.TEXT_DIRECTION_LTR','portField.textDirection = View.TEXT_DIRECTION_LTR'):
   assert value in android

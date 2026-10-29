@@ -1,3 +1,9 @@
+## 29.10.2026 · APL Core-26 / ur, bn, pa-Guru, ta, te
+
+- [x] Полные каталоги Tier-2 (урду, бенгальский, панджаби гурмукхи, тамильский, телугу), 155 iOS/104 Android/193 desktop на язык, итого 26 языков.
+- [x] 28 терминов × 5, редактура 80 инструкций и 20 сетевых предупреждений, защита урду RTL; уточнение script-specific Punjabi Gurmukhi; tests, iOS Simulator UI-only и Android Public/Private.
+- [ ] В отдельном QA: native-speaker proofread, физические устройства, VoiceOver/TalkBack, LTR IP/URL и полное зеркалирование Tk при необходимости.
+
 ## 29.10.2026 · APL Core-21 — hi/ar/vi/pl/th
 
 - [x] Полные локализации хинди, арабского, вьетнамского, польского, тайского: 155 iOS + 104 Android + 193 desktop строк для каждого языка; всего 21 язык.

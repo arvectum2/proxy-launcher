@@ -23,13 +23,18 @@
     "ar",
     "vi",
     "pl",
-    "th"
+    "th",
+    "ur",
+    "bn",
+    "pa",
+    "ta",
+    "te"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core21_editorial_source",
+  "stage": "core26_editorial_source",
   "appStoreConnectModified": false
 }

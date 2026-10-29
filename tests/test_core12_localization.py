@@ -12,7 +12,7 @@ ANDROID = {
     'en': 'values-en', 'ru': 'values', 'es': 'values-es', 'fr': 'values-fr',
     'de': 'values-de', 'it': 'values-it', 'pt-BR': 'values-pt-rBR',
     'pt-PT': 'values-pt-rPT', 'ja': 'values-ja', 'ko': 'values-ko',
-    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant', 'fa': 'values-fa', 'nl': 'values-nl', 'id': 'values-in', 'tr': 'values-tr', 'hi': 'values-hi', 'ar': 'values-ar', 'vi': 'values-vi', 'pl': 'values-pl', 'th': 'values-th',
+    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant', 'fa': 'values-fa', 'nl': 'values-nl', 'id': 'values-in', 'tr': 'values-tr', 'hi': 'values-hi', 'ar': 'values-ar', 'vi': 'values-vi', 'pl': 'values-pl', 'th': 'values-th', 'ur': 'values-ur', 'bn': 'values-bn', 'pa': 'values-b+pa+Guru', 'ta': 'values-ta', 'te': 'values-te',
 }
 STRING = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 FORMAT = re.compile(r'%(?:\d+\$)?(?:@|s|d|f)')
@@ -39,10 +39,10 @@ def android_catalog(code):
 
 
 def test_core_baseline_languages_and_registry():
-    assert len(LANGS) == len(set(LANGS)) == 21
+    assert len(LANGS) == len(set(LANGS)) == 26
     assert LANGS == ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt-BR', 'pt-PT',
-                     'ja', 'ko', 'zh-Hans', 'zh-Hant', 'fa', 'nl', 'id', 'tr', 'hi', 'ar', 'vi', 'pl', 'th']
-    assert MANIFEST['stage'] == 'core21_editorial_source'
+                     'ja', 'ko', 'zh-Hans', 'zh-Hant', 'fa', 'nl', 'id', 'tr', 'hi', 'ar', 'vi', 'pl', 'th', 'ur', 'bn', 'pa', 'ta', 'te']
+    assert MANIFEST['stage'] == 'core26_editorial_source'
     assert MANIFEST['fallback'] == 'en'
     assert MANIFEST['appStoreConnectModified'] is False
 

@@ -72,9 +72,12 @@
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
 		1C70CD5C33236647B0F5E8A7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2CE2164C5D8E07AF9ACBA242 /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
 		2F4FCA25B746417DA30EF17E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3202003843F0368D9FEBED74 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3775CCC840C042E2F1D53CAC /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/Localizable.strings; sourceTree = "<group>"; };
 		39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSProxyRelay.swift; sourceTree = "<group>"; };
 		40D6F885512E0D4307BFD2F3 /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
@@ -101,9 +104,11 @@
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		B53D80D2A2ADC58F6A9573E6 /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B5EBB91886885B4BCF51A780 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B741081B8B4404D86742AD2E /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BACDBE610B2263D79F3BCCA7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		BEA603A59EEC8463F7514A12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C0DD7FD033993A09C93D6574 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		CAFE5642EEC59627E7B1D769 /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CB04057014F01C39512BA98A /* SetupGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupGuideView.swift; sourceTree = "<group>"; };
 		CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNShortcuts.swift; sourceTree = "<group>"; };
 		CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -300,6 +305,7 @@
 			knownRegions = (
 				Base,
 				ar,
+				bn,
 				de,
 				en,
 				es,
@@ -311,12 +317,16 @@
 				ja,
 				ko,
 				nl,
+				pa,
 				pl,
 				"pt-BR",
 				"pt-PT",
 				ru,
+				ta,
+				te,
 				th,
 				tr,
+				ur,
 				vi,
 				"zh-Hans",
 				"zh-Hant",
@@ -412,6 +422,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				FABCC235174815FAD26EE4C9 /* ar */,
+				3775CCC840C042E2F1D53CAC /* bn */,
 				2F4FCA25B746417DA30EF17E /* de */,
 				97289884E2BC264E1928499B /* en */,
 				F9B570BA33B4DA173321D277 /* es */,
@@ -423,12 +434,16 @@
 				7F61CB5A4850AED0A4445C82 /* ja */,
 				7930444C0EAA48D618BAA227 /* ko */,
 				9402FCE65792B5E8A47BF4DD /* nl */,
+				CAFE5642EEC59627E7B1D769 /* pa */,
 				87CA18C20E4F8688D0FE0D25 /* pl */,
 				D22A7AC7C830AA8F90843E55 /* pt-BR */,
 				0FE6C179D53398282FC43E83 /* pt-PT */,
 				9ADE40E1415BE281B3E223B7 /* ru */,
+				2CE2164C5D8E07AF9ACBA242 /* ta */,
+				3202003843F0368D9FEBED74 /* te */,
 				50DE6305A52E1B9FFAE8C097 /* th */,
 				1C70CD5C33236647B0F5E8A7 /* tr */,
+				B741081B8B4404D86742AD2E /* ur */,
 				B5EBB91886885B4BCF51A780 /* vi */,
 				C0DD7FD033993A09C93D6574 /* zh-Hans */,
 				BACDBE610B2263D79F3BCCA7 /* zh-Hant */,

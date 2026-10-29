@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">இணையதள முகவரியை உள்ளிட்டு “சேர்” என்பதைத் தட்டவும். ஒவ்வொரு தளமும் தனி வரியில் தோன்றும். URL, host:port அல்லது IP முகவரியை ஒட்டலாம்.</string>
+    <string name="apl_connection_828dd" formatted="false">இணைப்பு</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL நிலை மற்றும் செயலில் உள்ள சுயவிவரம்</string>
+    <string name="apl_profile_cc3f0" formatted="false">சுயவிவரம் · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">சுயவிவரங்களை நிர்வகிக்கவும்</string>
+    <string name="apl_profiles_30c61" formatted="false">சுயவிவரங்கள்</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">ப்ராக்ஸிகளைத் தேர்ந்தெடுக்கவும், சேர்க்கவும் மற்றும் முன்னுரிமை செய்யவும்</string>
+    <string name="apl_activity_85f08" formatted="false">செயல்பாடு</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">இணைப்பு நிலை மற்றும் சமீபத்திய செயல்பாடு</string>
+    <string name="apl_disconnected_3e958" formatted="false">துண்டிக்கப்பட்டது</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">பதிவைத் திற</string>
+    <string name="apl_settings_985b5" formatted="false">அமைப்புகள்</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">ரூட்டிங் மற்றும் APL நடத்தை</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">வலைத்தள விலக்குகள்</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">பயன்பாட்டு விதிவிலக்குகள்</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">தானியங்கு அமைப்புகள்</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">தினசரி இணைப்பிலிருந்து மேம்பட்ட செயல்கள் தனித்தனியாக இருக்கும்.</string>
+    <string name="apl_home_d328e" formatted="false">முகப்பு</string>
+    <string name="apl_close_a7a40" formatted="false">மூடு</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">தோல்விக்குப் பிறகு விருப்பமான ப்ராக்ஸிக்குத் திரும்பவும்</string>
+    <string name="apl_connect_36b4c" formatted="false">இணைக்கவும்</string>
+    <string name="apl_proxy_a5677" formatted="false">ப்ராக்ஸி</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">ப்ராக்ஸியைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="apl_new_4460b" formatted="false">+ புதியது</string>
+    <string name="apl_edit_b8b15" formatted="false">திருத்தவும்</string>
+    <string name="apl_websites_54646" formatted="false">இணையதளங்கள்</string>
+    <string name="apl_applications_39c4b" formatted="false">விண்ணப்பங்கள்</string>
+    <string name="apl_log_97c45" formatted="false">பதிவு</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">சேமித்த சுயவிவரங்களைப் படிக்க முடியவில்லை</string>
+    <string name="apl_auto_8dca2" formatted="false">தானியங்கி</string>
+    <string name="apl_checked_6a779" formatted="false">· சரிபார்க்கிறது</string>
+    <string name="apl_available_c75e3" formatted="false">· கிடைக்கும்</string>
+    <string name="apl_unavailable_bee71" formatted="false">· கிடைக்கவில்லை</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">ப்ராக்ஸியைச் சேர்க்கவும்</string>
+    <string name="apl_profile_309fc" formatted="false">சுயவிவரம் ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">கட்டமைக்கப்படவில்லை</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">விலக்குகள் எதுவும் சேர்க்கப்படவில்லை</string>
+    <string name="apl_delete_be99b" formatted="false">நீக்கு</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">தள முகவரியைச் சரிபார்க்கவும்</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">தள முகவரியை உள்ளிடவும்</string>
+    <string name="apl_add_71038" formatted="false">சேர்</string>
+    <string name="apl_exclusions_f4f81" formatted="false">விலக்குகள்</string>
+    <string name="apl_cancel_8fbe9" formatted="false">ரத்து செய்</string>
+    <string name="apl_save_b4d30" formatted="false">சேமிக்கவும்</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">விதிவிலக்குகளின் பட்டியலைச் சரிபார்க்கவும்</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">விதிவிலக்குகளைச் சேமிப்பதில் தோல்வி</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">விலக்குகளைப் பயன்படுத்துகிறது…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">விதிவிலக்குகள் அழிக்கப்பட்டன</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">ஆப்ஸ் பட்டியலை ஏற்றுகிறது</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">ஆப்ஸ் பட்டியலை ஏற்றுகிறது…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">நிறுவப்பட்ட பயன்பாடுகளின் பட்டியலைப் பெறுவதில் தோல்வி.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">பயன்பாட்டு விதிவிலக்குகளைச் சேமிப்பதில் தோல்வி</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">விண்ணப்ப விதிவிலக்குகளைப் பயன்படுத்துகிறது...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">விண்ணப்ப விதிவிலக்குகள் அழிக்கப்பட்டன</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">பதிவு காலியாக உள்ளது</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">ப்ராக்ஸி கிடைக்கவில்லை</string>
+    <string name="apl_switched_4c72e" formatted="false">மாறியது</string>
+    <string name="apl_main_restored_290c9" formatted="false">முக்கியமாக மீட்டெடுக்கப்பட்டது</string>
+    <string name="apl_network_change_50fc1" formatted="false">பிணைய மாற்றம்</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">முதலில் குறைந்தது ஒரு ப்ராக்ஸியையாவது சேர்க்கவும்</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">ப்ராக்ஸியைத் தேர்ந்தெடுக்க முடியவில்லை</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">புதிய ப்ராக்ஸி</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">சுயவிவரத்தைத் திருத்தவும்</string>
+    <string name="apl_name_0918b" formatted="false">பெயர்</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">எ.கா. முதன்மை</string>
+    <string name="apl_proxy_address_ef480" formatted="false">ப்ராக்ஸி முகவரி</string>
+    <string name="apl_port_90947" formatted="false">போர்ட்</string>
+    <string name="apl_username_5be12" formatted="false">பயனர் பெயர்</string>
+    <string name="apl_optional_f6d95" formatted="false">விருப்பமானது</string>
+    <string name="apl_password_cb1a2" formatted="false">கடவுச்சொல்</string>
+    <string name="apl_protocol_b3680" formatted="false">நெறிமுறை</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">தானியங்கு நெறிமுறை</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">TLS உடன் HTTPS ப்ராக்ஸி</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">தானியங்கு முறையில் முன்னுரிமை</string>
+    <string name="apl_delete_profile_b745f" formatted="false">சுயவிவரத்தை நீக்கவா?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">ப்ராக்ஸி முகவரியை உள்ளிடவும்</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">போர்ட் 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">சுயவிவரத்தை பாதுகாப்பாகச் சேமிப்பதில் தோல்வி</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">சுயவிவர மாற்றங்களைப் பயன்படுத்துகிறது...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">சுயவிவரத்தை நீக்க முடியவில்லை</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">சுயவிவரம் நீக்கப்பட்டது</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">முதலில் ப்ராக்ஸியைச் சேர்க்கவும்</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">VPN இணைப்பை உருவாக்க அனுமதிக்கவும்</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android VPN அனுமதியை ரத்து செய்தது. இணை என்பதைத் தட்டவும்.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN முடக்கப்பட்டுள்ளது. நீங்கள் மீண்டும் இணைக்க முடியும்.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">ப்ராக்ஸியைச் சரிபார்க்கிறது…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">துண்டிக்கிறது…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">VPN அனுமதி வழங்கப்படவில்லை</string>
+    <string name="apl_switching_b0760" formatted="false">மாறுகிறது</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">துண்டிக்கவும்</string>
+    <string name="apl_connecting_e2449" formatted="false">இணைக்கிறது…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">செயலில் உள்ள ப்ராக்ஸியை மாற்றுகிறது</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">இணைப்பு செயலில் உள்ளது</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">தேர்ந்தெடுக்கப்பட்ட ப்ராக்ஸியை சரிபார்க்கிறது</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">இணைப்பை முடிக்கிறது</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">ப்ராக்ஸியைத் தேர்ந்தெடுக்கவும்</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">விலக்குகள் சேமிக்கப்பட்டன: %1$d</string>
+    <string name="apl_apps_bypassing_count">ப்ராக்ஸியைக் கடந்து செல்லும் பயன்பாடுகள்: %1$d</string>
+    <string name="apl_switching_to_profile">%1$s க்கு மாறுகிறது…</string>
+    <string name="apl_profile_saved">சேமிக்கப்பட்டது: %1$s</string>
+    <string name="apl_error_detail">பிழை: %1$s</string>
+    <string name="apl_cannot_connect">இணைக்க முடியவில்லை</string>
+</resources>
