@@ -38,3 +38,7 @@ RTL:
 - iOS unsigned UI-only arm64 Simulator build SUCCESS, 13 compiled localization bundles, Swift localization typecheck PASS. Full VPN PacketTunnel archive not claimed.
 - Android XML and format placeholders pass cross-platform source tests. Full local Gradle build remained blocked by an unrelated hanging Gradle cache at an external-SSD symlink on the Mac mini; validate through GitHub CI before merging.
 - Original macOS/Windows/Linux runtime routing and backend configuration untouched. Personal device Persian visual preview and full Tk grid mirroring remain a later acceptance gate.
+
+## Финальная редакторская проверка
+
+Повторно скорректированы ещё девять персидских сообщений desktop о безопасном восстановлении сети, защите чужих настроек, журнале ошибок и невозможности запуска. После исправлений повторно проверены все локализационные контракты (16 PASS) и полные Python-регрессии в режиме `APL_UI_LANGUAGE=fa` (1286 PASS, 6 skipped, 3 ранее известных Windows-теста deselected, 113 subtests PASS). Два GitHub Actions `android-build` для commit `aea52fb` прошли успешно; локальный Gradle на Mac mini зависал при чтении кэша на внешнем SSD. Это не касается результатов GitHub Android CI.
