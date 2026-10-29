@@ -1,45 +1,32 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-FIRST-RUN-LANGUAGE-20261028
-status: blocked
-goal: "Implement and release APL iOS 0.1.39 beginner first-connection guide and genuine system/ru/en language selection after peer feedback."
+task_id: APL-CORE12-LOCALIZATIONS-20261029
+status: completed
+goal: "Bring APL source localizations into parity with the 12-language baseline from Arvectum Tools Core, without changing current App Store review."
 definition_of_done:
-  - "First-launch guide is skippable, shown after privacy disclosure only when no profiles and can be reopened in Settings; it accurately explains user-supplied proxies and VPN permission."
-  - "The profile editor explains host, port, protocol and optional authentication."
-  - "System/Russian/English language selection persists and uses real localized resources across primary iOS screens, privacy and setup."
-  - "Signed 0.1.39 build 43 archive and IPA pass Apple validation, App Store API upload + review submission proven, with public 0.1.38 preserved until Apple approval."
-  - "GitHub PR #269 passes required CI and is merged into canonical main."
+  - "Twelve language catalogs synchronized with the existing complete Arvectum Tools Core source-language baseline."
+  - "iOS language picker has 12 options plus system and 12 localized source catalogs."
+  - "Android and desktop UI sources have 12-language resources with accurate fallback."
+  - "Source resource/placeholder checks and scoped app compilation/regression tests pass; unrelated inherited failures isolated."
+  - "Changes committed on isolated feature branch; the already-reviewed Apple build and Store privacy card unchanged."
 completed:
-  - "GitHub PR #269 required build check SUCCESS and squash merged to main ec48523caf97c416cb70427a8326b0a725213db3."
-  - "Apple altool validation/upload PASS for signed 0.1.39 build 43; buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec is PROCESSING with no errors/warnings."
-  - "Confirmed public Apple storefront 0.1.38 build 42 and sellerUrl https://arvectum.com/."
-  - "Built SetupGuideView: three steps, explicit user-provided proxy host/port/type/auth and VPN approval, skippable and reopening via Settings, first-run guard for existing profiles."
-  - "Added beginner explanatory fields for Host, Port, Type and optional credentials in profile editor."
-  - "Implemented AppLanguage system/ru/en via persisted AppStorage and app scene locale override, including 155 matching Russian/English Localizable.strings keys in .app bundle."
-  - "Updated canonical ROADMAP with 0.1.38 publication and 0.1.39 candidate."
-  - "XcodeGen project updated and committed, iOS 0.1.39 build 43 version pinned; no change to PacketTunnel/Shared networking code or ad SDK."
-  - "Signed Apple Distribution archive /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-20261028-r2.xcarchive verified exact bundle and version with codesign --verify --deep --strict."
-  - "Signed export produced /Users/master/Arvectum/releases/APL-iOS-0.1.39-43-export/Arvectum Proxy Launcher.ipa; ZIP CRC pass, SHA-256 a06649c1dbf63717c4fc9da9a1d08b4a93d7321a2fe25a6de8f0f25fd830dc6b."
-  - "App Store Connect draft 0.1.39 created (id 02b73c8b-ad06-45b6-9d9b-e09abf371470); ru/en-US release notes, supportUrl and marketingUrl point to https://arvectum.com/ and verified by API; Apple review contacts present."
-  - "GitHub PR #269 opened. Initial Windows CI had 3 old Russian-only source assertions; fixed test contracts for actual localized navigation, connect button and deletion a11y. macOS focused tests now pass."
-current: "iOS 0.1.39 build 43 Apple-uploaded and PROCESSING; PR #269 successfully merged, public storefront still 0.1.38."
+  - "Inspected Core 50-target registry and selected exact 12-language common baseline. NL not yet ready in all Core apps; no placeholder languages added."
+  - "Created worktree feat/apl-core12-locales-20261029 at origin/main 179d74cf; original dirty checkout and live Apple submission untouched."
+  - "iOS: 12 complete-key catalogs, 155 strings each, system+12 native-language picker, pt-BR/pt-PT and zh-Hans/zh-Hant routing; XcodeGen project regenerated."
+  - "Android: 12 resource catalogs (95 static + 7 dynamic UI entries), backend routing literals preserved; localized site exclusion help."
+  - "Desktop: 193 UI strings across 12 locales, OS AppleLanguages detection and APL_UI_LANGUAGE developer override, unlocalized keyboard protocol identifiers retained."
+  - "Scoped tests and language-agnostic UI contract tests updated; branch code committed 53e44e69a86c4eb9ca552d0fe7db6362669b2262."
+  - "Verification evidence: docs/APL_CORE12_LOCALIZATION_QA_2026-10-29.md; roadmap and localization source metadata updated."
+current: "COMPLETE for source-first rollout; editorial/native device QA and any new release are separately gated."
 pending:
-  - "Apple upload build 43 must finish PROCESSING and become VALID."
-  - "Attach build 43 to 0.1.39, submit review and verify WAITING_FOR_REVIEW."
-  - "Verify public 0.1.39 only after Apple approval; public still 0.1.38."
-last_verified_commit: "ec48523caf97c416cb70427a8326b0a725213db3"
+  - "Human editing/proofreading of technical, privacy, and safety strings, native UI overflow/VoiceOver checks, actual VPN iOS compile with patched tun2proxy framework, actual physical devices, and release signoff."
+  - "Three preexisting unrelated Windows App Control script/runbook contract failures need separate maintenance handling; reproduced on origin/main 179d74cf."
+  - "Future expansion wave after editorial signoff: NL and remaining Core tier 1 locales, then other registry languages."
+last_verified_commit: "53e44e69a86c4eb9ca552d0fe7db6362669b2262 (full source implementation and validations)"
 test_results:
-  - "swift test --package-path mobile/ios PASS."
-  - "Xcode 27.1 Release archive app 0.1.39 (43) PASS, Apple Distribution signing verification PASS."
-  - "en/ru .strings plutil -lint PASS, both .lproj included in final signed .app."
-  - "Python onboarding 4/4, appearance 4/4, adaptive UI 7/7, macOS AppStore contract 21/21 tests PASS on Mac mini."
-  - "Initial Windows CI failed on three expected literal-only assertions and was fixed in PR head; latest CI underway."
-blocker: "Apple buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec PROCESSING, build 43 not yet available for App Review submission."
-resume_instruction: "Do not reactivate Proxy Launcher Watchdog. PR #269 merged at ec48523caf97c416cb70427a8326b0a725213db3; do not rebuild or reupload the accepted IPA. Inspect App Store Connect buildUploads 610ab159-86ba-4ae0-b6da-86fb1211feec and builds for app 6816013574 using Mac mini API key. When build 43 becomes VALID, set usesNonExemptEncryption=false consistent with prior version, attach it to App Store 0.1.39 version 02b73c8b-ad06-45b6-9d9b-e09abf371470, create/use reviewSubmission and reviewSubmissionItem, submit, verify WAITING_FOR_REVIEW. New 0.1.39 ru/en-US What's New and both developer/support URLs are already verified, release AFTER_APPROVAL. Verify public version only after Apple approves. Mark checkpoint completed only when DoD is verified."
-updated_at: "2026-10-28T14:12:00+03:00"
-execution:
-  claimed_by: "ChatGPT"
-  execution_id: "APL-IOS-FIRST-RUN-LANGUAGE-20261028"
-  branch: "feat/ios-onboarding-language-20261028"
-  pr: 269
-  manual_override: true
+  - "iOS XcodeGen and unsigned iOS Simulator UI-only build: PASS; 12 compiled .lproj resources; AppLocalization.swift arm64 simulator typecheck PASS. Full PacketTunnel build blocked by missing tun2proxy.xcframework in isolated worktree."
+  - "Android Public and Private Debug Kotlin compilation PASS, Public/Private Android unit tests PASS (JDK17/Android SDK)."
+  - "Full Python suite: 1281 PASS, 1 skipped, 3 known baseline Windows failures excluded, 113 subtests PASS; without exclusion same 3 failures as origin/main."
+  - "Desktop/source focused tests: 55 PASS each in EN/system, RU, ES, JA; Core-12 catalog contract 6 PASS; .strings plutil and Python compile PASS; diff --check PASS."
+blocker: null
+resume_instruction: "Task completed: do not repeat source generation, do not modify reviewed Apple build, privacy declaration, or Watchdog. Next independent task is human technical/editorial QA of 12 draft catalogs, physical UI QA and later source expansion to the next full Core language. Existing branch feat/apl-core12-locales-20261029, source commit 53e44e69a86c4eb9ca552d0fe7db6362669b2262. Full verification docs/APL_CORE12_LOCALIZATION_QA_2026-10-29.md."
