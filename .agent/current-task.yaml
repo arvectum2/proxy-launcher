@@ -1,31 +1,32 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-CORE12-PROOFREAD-PERSIAN-20261029
+task_id: APL-CORE16-LOCALES-20261029
 status: completed
-goal: "Second editorial proofread of 12 existing locales plus full Persian fa and RTL support for iOS, Android and desktop."
+goal: "Expand full APL localization from 13 to 16 languages with nl, id and tr on iOS, Android and desktop; editorial corrections, native source tests and existing PR #272."
 definition_of_done:
-  - "Correct existing UI instructions, terminology and style across 12 source locales."
-  - "Complete fa resources with all keys and placeholders on iOS, Android and desktop."
-  - "Enable native RTL for iOS/Android and Persian desktop labels; test format and UI build."
-  - "Commit and push source changes to existing PR #272 while leaving Apple review submission unchanged."
+  - "Complete 155 iOS, 104 Android and 193 desktop source strings for nl/id/tr with preserved placeholders."
+  - "Add NL ID TR language selection/system detection; retain prior 13 including Persian RTL."
+  - "Review critical UI/Shortcuts/network recovery wording, glossary and cross-platform semantic tests."
+  - "Verify iOS UI-only build, Android Public/Private builds and unit tests, Python regression; commit/push PR #272 without affecting submitted Apple binary."
 completed:
-  - "Second editorial pass: 67 additional onboarding, automation and connection-mode iOS string revisions across 10 translated locales; original RU and EN baselines preserved."
-  - "Persian fa fully translated: 155 iOS, 104 Android and 193 desktop values, 452 total; 147 iOS and 102 Android values manually copyedited plus key desktop safety wording."
-  - "Native SwiftUI right-to-left effective-language layout and fa language picker; Android values-fa and supportsRtl; desktop fa locale resolution and right-justified Tk labels."
-  - "Post-edited nine Persian desktop network recovery and safety messages; corresponding Python and locale tests rerun successfully."
-  - "Editorial glossary expanded to 13 languages, 28 key terms; iOS XcodeGen project regenerated and Persian resource/test documentation added."
-  - "Sources pushed into existing GitHub PR #272; Apple submitted build, metadata and review state untouched; no merge."
-current: "COMPLETED for source editing and current platform build validation."
+  - "Archived prior Core-13 checkpoint in .agent/checkpoints/APL-CORE13-PERSIAN-20261029.yaml."
+  - "NL, ID, TR: 155 iOS + 104 Android + 193 desktop localized entries each; 1356 additions, total 7232 source entries across 16 languages."
+  - "54 long native-language setup/Shortcuts/connection mode instructions manually revised (18 per new locale); 21 desktop network recovery, auth/save and PAC safety warning strings revised."
+  - "Added 28 technical glossary terms in all three languages; Indonesian Android values-in and iOS AppLanguage.indonesian = id alias avoids Identifiable.id collision."
+  - "Regenerated iOS XcodeGen project and added catalog/semantics contract tests tests/test_core16_expansion.py."
+  - "Full Python regression: 1289 passed, 6 skipped, 3 previously known Windows maintenance contracts deselected, 113 subtests passed. 19 source/localization/RTL tests PASS separately in NL, ID, TR."
+  - "iOS unsigned UI-only Simulator BUILD SUCCEEDED, 16 localized .lproj bundled, 16 .strings plutil linted and AppLocalization.swift arm64 simulator typechecked."
+  - "Android Public/Private JDK17 Gradle Kotlin compilation and both unit-test tasks BUILD SUCCESSFUL, 49 actions executed."
+  - "Documentation and roadmap updated in docs/APL_CORE16_LOCALIZATION_QA_2026-10-29.md. Code commit 74fd1e43430b8f01dac8747421989d0bc8e7a821."
+current: "COMPLETED for source locale wave and source/native UI-only validation."
 pending:
-  - "Separate release QA: physical-device Persian RTL display and overflow, VoiceOver/TalkBack and complete Tk geometry mirroring if required."
-  - "Full signed PacketTunnel target and release review require separate approval."
-  - "Other unrelated CI issues (Ubuntu AppImage runtime checksum and Windows doctor) are outside the localization task."
-last_verified_commit: "aea52fb113be1a5f5598a97cefecdf84b6137ea4 (source source/platform tests); final Persian desktop copyedit commit is the next git commit."
+  - "Future wave Tier 1: hi, ar, vi, pl, th; device-level screenshots, native speaker review and release-specific UX checks before publication."
+  - "Full signed PacketTunnel archive and Apple release require separate action; current submitted Apple build and metadata untouched."
+last_verified_commit: "74fd1e43430b8f01dac8747421989d0bc8e7a821 (code commit)"
 test_results:
-  - "16/16 localization/Persian RTL tests PASS after final copyediting."
-  - "1286 Python PASS, 6 skipped, 3 known inherited Windows tests deselected, 113 subtests PASS in Persian mode."
-  - "iOS unsigned UI-only Simulator BUILD SUCCEEDED with 13 bundled .lproj and Swift typecheck PASS; plutil 13 PASS."
-  - "Two exact-SHA aea52fb GitHub Actions android-build checks PASS. Mac mini local Gradle inaccessible due to external SSD-backed cache I/O stalls."
-  - "Python compile and git diff --check PASS."
+  - "1289 Python PASS, 6 skipped, 3 old unrelated Windows cases deselected, 113 subtests passed."
+  - "19 localization focused tests PASS under NL, ID and TR."
+  - "iOS unsigned simulator UI-only BUILD SUCCEEDED with 16 .lproj; 16 plutil and Swift typecheck PASS."
+  - "Android Public/Private Kotlin compilation and unit test Gradle BUILD SUCCESSFUL (49 tasks)."
 blocker: null
-resume_instruction: "Completed. PR #272 remains open for future release gates; do not repeat source localization. Next task only if requested: physical device/native UI QA, additional Core languages or other separately prioritized work. Do not alter Apple review submission or Watchdog."
+resume_instruction: "This Core-16 localization source task is complete. On future 'continue', verify current PR #272 exact head SHA, inspect .agent/current-task.yaml, then open a NEW checkpoint for next Core Tier-1 localization wave (hi/ar/vi/pl/th) or separate real-device QA; do not redo completed languages. Do not change Apple review metadata/build or watchdog."
