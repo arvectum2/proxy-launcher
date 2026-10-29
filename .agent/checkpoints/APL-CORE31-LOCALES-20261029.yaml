@@ -1,0 +1,35 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CORE31-LOCALES-20261029
+status: completed
+goal: "Add full Marathi, Gujarati, Kannada, Malayalam and Uzbek (Latin) source localizations to APL iOS, Android and desktop."
+definition_of_done:
+  - "Five source languages: iOS 155, Android 104, desktop 193 entries each with key and placeholder parity."
+  - "iOS picker, Android qualified locale resources and desktop OS matching including Uzbek Latin script."
+  - "Edit critical onboarding, Shortcuts, network recovery/safety texts and glossary."
+  - "Python regression, iOS Simulator UI-only build and Android Public/Private compile and unit tests pass."
+  - "Document QA, update roadmap, push existing PR #272 and close canonical checkpoint; no Apple submitted binary, ASC metadata/privacy, or watchdog changes."
+completed:
+  - "Confirmed prior Core-26 complete and PR #272 head 72f5fb0266fdfe79588863a86048c6374f2eda2c; archived checkpoint APL-CORE26-LOCALES-20261029.yaml."
+  - "Implemented source strings for mr, gu, kn, ml and uz-Latn: each 155 iOS, 104 Android, 193 desktop; +2260 new values, 31 locales and 14012 source entries."
+  - "Corrected 80 long manual-reviewed onboarding/Shortcuts/connection/exclusion instructions; added 28 glossary terms per language and kept the product name Arvectum Proxy Launcher unchanged."
+  - "Edited 20 critical desktop network recovery/diagnostics/other-app-settings messages; preserved exact UI button names and boundary whitespace."
+  - "Added AppLanguage mr/gu/kn/ml/uz and desktop normalize() OS matching. Uzbek Latin uses Android values-b+uz+Latn, picker Oʻzbekcha (lotin); explicitly uz-Cyrl not mapped to Latin on iOS/desktop."
+  - "New tests/test_core31_expansion.py and updated prior Core-12, Core-26 and glossary tests."
+  - "25 focused locale tests PASS under each new locale. Full Python regression with APL_UI_LANGUAGE=uz: 1295 passed, 6 skipped, 3 inherited Windows maintenance contracts deselected, 113 subtests passed."
+  - "iOS XcodeGen and Swift localization typecheck PASS; all 31 Apple strings plutil PASS; unsigned Simulator UI-only BUILD SUCCEEDED and all 31 .lproj bundled."
+  - "Android JDK17 Gradle public/private Kotlin compile and unit tests BUILD SUCCESSFUL, 49 tasks executed."
+  - "QA report docs/APL_CORE31_LOCALIZATION_QA_2026-10-29.md, README and ROADMAP updated; git diff --check and Python source compile PASS. Source commit 5040e73d8d18b06c4e7374d547879341d2978388."
+current: "COMPLETED for Core-31 source localization and automated validation."
+pending:
+  - "Future separate real-device QA: native speaker review, long texts/typography, iOS Shortcuts action label verification, VoiceOver/TalkBack and Uzbek Latin consistency."
+  - "Future signed PacketTunnel archive and Apple submission are independent release gates."
+  - "Next Tier-2 language selection should follow Arvectum Tools Core remaining language targets, without redoing current 31."
+last_verified_commit: 5040e73d8d18b06c4e7374d547879341d2978388
+test_results:
+  - "25/25 focused language tests PASS in mr gu kn ml uz."
+  - "1295 Python tests passed, 6 skipped, 3 inherited unrelated Windows tests deselected, 113 subtests passed."
+  - "iOS unsigned Simulator UI-only BUILD SUCCEEDED with 31 .lproj, Swift typecheck, plutil x31 PASS."
+  - "Android Public/Private Kotlin+unit tests Gradle BUILD SUCCESSFUL, 49 tasks."
+blocker: null
+resume_instruction: "Core-31 complete. Before future 'continue', verify PR #272 head and this checkpoint, open a NEW task for remaining languages. Do not repeat earlier 31, and do not change submitted Apple release/ASC privacy metadata or disabled watchdog."
