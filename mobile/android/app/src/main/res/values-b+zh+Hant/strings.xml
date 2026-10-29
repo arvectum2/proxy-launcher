@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">輸入網站並點擊新增。每個網站都獨佔一行。您可以貼上 URL、主機:連接埠或 IP 位址。</string>
+    <string name="apl_connection_828dd" formatted="false">連接方式</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL 狀態和活動設定檔</string>
+    <string name="apl_profile_cc3f0" formatted="false">簡介 · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">管理個人資料</string>
+    <string name="apl_profiles_30c61" formatted="false">型材</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">選擇、新增代理並確定代理的優先級</string>
+    <string name="apl_activity_85f08" formatted="false">活動</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">連線狀態和最近的活動</string>
+    <string name="apl_disconnected_3e958" formatted="false">已斷開連接</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">打開日誌</string>
+    <string name="apl_settings_985b5" formatted="false">設定</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">路由和 APL 行為</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">網站排除</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">應用排除</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">自動設定</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">進階操作與日常連接分開。</string>
+    <string name="apl_home_d328e" formatted="false">首頁</string>
+    <string name="apl_close_a7a40" formatted="false">關閉</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">失敗後回傳首選代理</string>
+    <string name="apl_connect_36b4c" formatted="false">連接</string>
+    <string name="apl_proxy_a5677" formatted="false">代理商</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">選擇代理</string>
+    <string name="apl_new_4460b" formatted="false">+ 新</string>
+    <string name="apl_edit_b8b15" formatted="false">編輯</string>
+    <string name="apl_websites_54646" formatted="false">網站</string>
+    <string name="apl_applications_39c4b" formatted="false">應用領域</string>
+    <string name="apl_log_97c45" formatted="false">紀錄</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">無法讀取已儲存的設定檔</string>
+    <string name="apl_auto_8dca2" formatted="false">汽車</string>
+    <string name="apl_checked_6a779" formatted="false"> · 檢查</string>
+    <string name="apl_available_c75e3" formatted="false">· 可用</string>
+    <string name="apl_unavailable_bee71" formatted="false">· 不可用</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">新增代理</string>
+    <string name="apl_profile_309fc" formatted="false">公司簡介·</string>
+    <string name="apl_not_configured_6153e" formatted="false">未配置</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">未新增排除項</string>
+    <string name="apl_delete_be99b" formatted="false">刪除</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">檢查網站位址</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">輸入站址</string>
+    <string name="apl_add_71038" formatted="false">添加</string>
+    <string name="apl_exclusions_f4f81" formatted="false">排除情況</string>
+    <string name="apl_cancel_8fbe9" formatted="false">取消</string>
+    <string name="apl_save_b4d30" formatted="false">儲存</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">檢查例外列表</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">無法保存異常</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">應用排除...</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">異常已清除</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">正在載入應用程式列表</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">正在載入應用程式列表...</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">無法取得已安裝應用程式的清單。</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">無法保存應用程式異常</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">正在應用應用程式例外...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">應用程式異常已清除</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">日誌為空</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">代理不可用</string>
+    <string name="apl_switched_4c72e" formatted="false">切換</string>
+    <string name="apl_main_restored_290c9" formatted="false">主要恢復</string>
+    <string name="apl_network_change_50fc1" formatted="false">網路變化</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">首先新增至少一個代理</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">選擇代理失敗</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">新代理</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">編輯個人資料</string>
+    <string name="apl_name_0918b" formatted="false">名稱</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">例如小學</string>
+    <string name="apl_proxy_address_ef480" formatted="false">代理地址</string>
+    <string name="apl_port_90947" formatted="false">港口</string>
+    <string name="apl_username_5be12" formatted="false">使用者名稱</string>
+    <string name="apl_optional_f6d95" formatted="false">可選</string>
+    <string name="apl_password_cb1a2" formatted="false">密碼</string>
+    <string name="apl_protocol_b3680" formatted="false">協定</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">自動協議</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">帶有 TLS 的 HTTPS 代理</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">自動模式優先</string>
+    <string name="apl_delete_profile_b745f" formatted="false">刪除個人資料？</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">輸入代理地址</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">埠 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">無法安全地儲存設定檔</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">正在套用設定檔更改...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">刪除個人資料失敗</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">個人資料已刪除</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">首先新增代理</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">允許建立 VPN 連接</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android 撤銷了 VPN 權限。點擊連接。</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN 已禁用。您可以再次連線。</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">正在檢查代理...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">正在斷開連接...</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">未授予 VPN 權限</string>
+    <string name="apl_switching_b0760" formatted="false">切換</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">斷開連接</string>
+    <string name="apl_connecting_e2449" formatted="false">正在連線…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">更改活動代理</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">連接有效</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">檢查所選代理</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">結束連接</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">選擇代理</string>
+    <string name="apl_latency_milliseconds"> · %1$d ms</string>
+    <string name="apl_exclusions_saved_count">已儲存排除項: %1$d</string>
+    <string name="apl_apps_bypassing_count">繞過代理的應用程式: %1$d</string>
+    <string name="apl_switching_to_profile">正在切換至 %1$s…</string>
+    <string name="apl_profile_saved">已儲存: %1$s</string>
+    <string name="apl_error_detail">錯誤: %1$s</string>
+    <string name="apl_cannot_connect">無法連接</string>
+</resources>

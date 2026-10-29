@@ -16,10 +16,10 @@ class MacOSVisualContractTests(unittest.TestCase):
         self.assertIn("def _build_classic_main(self):", GUI)
         self.assertIn("def _build_adaptive_desktop_main(self, native_macos=False):", GUI)
         self.assertIn('style="MacStatus.TLabel"', GUI)
-        self.assertIn('("home", "Главная")', GUI)
-        self.assertIn('("profiles", "Профили")', GUI)
-        self.assertIn('("activity", "Активность")', GUI)
-        self.assertIn('("settings", "Настройки")', GUI)
+        self.assertIn('("home", tr("Главная"))', GUI)
+        self.assertIn('("profiles", tr("Профили"))', GUI)
+        self.assertIn('("activity", tr("Активность"))', GUI)
+        self.assertIn('("settings", tr("Настройки"))', GUI)
         self.assertIn("self.btn_primary = ttk.Button(", GUI)
 
     def test_secondary_windows_use_semantic_macos_colors(self):
