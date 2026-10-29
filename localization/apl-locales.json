@@ -28,13 +28,18 @@
     "bn",
     "pa",
     "ta",
-    "te"
+    "te",
+    "mr",
+    "gu",
+    "kn",
+    "ml",
+    "uz"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core26_editorial_source",
+  "stage": "core31_editorial_source",
   "appStoreConnectModified": false
 }

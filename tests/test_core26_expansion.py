@@ -21,7 +21,7 @@ def desktop():
 
 def test_registry_and_rtl():
     langs=json.loads((R/'localization/apl-locales.json').read_text())['languages']
-    assert len(langs)==26 and langs[-5:]==list(LANGS)
+    assert len(langs)>=26 and langs[21:26]==list(LANGS)
     src=(R/'mobile/ios/App/AppLocalization.swift').read_text()
     assert all(f'case {code}' in src for code in LANGS)
     for name in ('اردو','বাংলা','ਪੰਜਾਬੀ','தமிழ்','తెలుగు'):

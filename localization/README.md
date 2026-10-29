@@ -1,8 +1,8 @@
-# APL localization — Core-26 source coverage
+# APL localization — Core-31 source coverage
 
-The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **26**, not all 50 target languages.
+The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **31**, not all 50 target languages.
 
-`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**, **`nl`, `id`, `tr`**, **`hi`, `ar`, `vi`, `pl`, `th`**, **`ur`, `bn`, `pa`, `ta`, `te`**.
+`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**, **`nl`, `id`, `tr`**, **`hi`, `ar`, `vi`, `pl`, `th`**, **`ur`, `bn`, `pa`, `ta`, `te`**, **`mr`, `gu`, `kn`, `ml`, `uz`**.
 
 - iOS: localized UI, setup, privacy and errors via `mobile/ios/Resources/*.lproj/Localizable.strings`; the app's language picker supports all 12 plus iOS language. No production Apple version or submission is modified.
 - Android: standard resource folders, automatic Android locale selection, and display messages are localized; internal Russian routing/status protocol literals remain unchanged to protect behavior.
@@ -27,3 +27,7 @@ Five complete source catalogs for iOS, Android and desktop (2260 additional UI v
 ## Core-26: Urdu, Bengali, Punjabi (Gurmukhi), Tamil, Telugu
 
 Five complete locale catalogs added for iOS, Android and desktop (2260 strings). Urdu RTL is enabled across relevant UI frameworks; Punjabi Gurmukhi has a script-specific Android qualifier. 80 high-impact setup/automation help texts and 20 diagnostic/network recovery warnings copyedited. Full validation: `docs/APL_CORE26_LOCALIZATION_QA_2026-10-29.md`. Independent native editorial/physical accessibility QA remains before release.
+
+## Core-31: Marathi, Gujarati, Kannada, Malayalam and Uzbek (Latin)
+
+Five complete source catalogs on iOS, Android and desktop (2260 new values), 80 long setup/automation explanations and 20 critical desktop warnings reviewed, 28 glossary terms per new language. Script-qualified Android Uzbek `values-b+uz+Latn`, with explicit Cyrillic exclusion on iOS/desktop. Validation and remaining native-device QA: `docs/APL_CORE31_LOCALIZATION_QA_2026-10-29.md`.
