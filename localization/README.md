@@ -1,8 +1,8 @@
-# APL localization — Core-12 + Persian (13 source locales)
+# APL localization — Core-16 source coverage
 
-The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **13**, not all 50 target languages.
+The source baseline follows the first 12 Arvectum Tools Core *source* locales; Persian (`fa`), listed as tier 2 in the Core 50-language registry, is added as a fully populated priority language by direct owner request. This is **16**, not all 50 target languages.
 
-`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**.
+`en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant`, **`fa` (فارسی)**, **`nl`, `id`, `tr`**.
 
 - iOS: localized UI, setup, privacy and errors via `mobile/ios/Resources/*.lproj/Localizable.strings`; the app's language picker supports all 12 plus iOS language. No production Apple version or submission is modified.
 - Android: standard resource folders, automatic Android locale selection, and display messages are localized; internal Russian routing/status protocol literals remain unchanged to protect behavior.
@@ -15,3 +15,7 @@ Run `python3 -m pytest -q tests/test_core12_localization.py` and the platform-sp
 ## Second editorial sweep + Persian (29 Oct 2026)
 
 Added a second copyediting pass on the original 12 languages (67 further complete onboarding/automations/connection-mode corrections), plus complete 452-entry Persian source catalog. iOS and Android use native RTL; desktop uses right-justified Tk copy rather than complete grid mirroring. Details: `docs/APL_CORE13_PERSIAN_EDITORIAL_QA_2026-10-29.md`. Do not ship RTL layouts without device UI approval.
+
+## Core-16: Dutch, Indonesian, Turkish
+
+Added 1356 new source UI translations across the three platforms, bringing the catalog to 7232 entries. Language selection includes NL/ID/TR. Manual source copyediting covers 54 long UI instructions, 21 high-risk recovery messages, plus 28 standardized technical terms. See `docs/APL_CORE16_LOCALIZATION_QA_2026-10-29.md`. Neither an App Store release nor independent human native-speaker approval is claimed.

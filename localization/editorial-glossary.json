@@ -14,7 +14,10 @@
     "ko",
     "zh-Hans",
     "zh-Hant",
-    "fa"
+    "fa",
+    "nl",
+    "id",
+    "tr"
   ],
   "terms": {
     "Прокси": {
@@ -30,7 +33,10 @@
       "ko": "프록시",
       "zh-Hans": "代理",
       "zh-Hant": "代理",
-      "fa": "پروکسی"
+      "fa": "پروکسی",
+      "nl": "Proxy",
+      "id": "Proksi",
+      "tr": "Proxy"
     },
     "Порт": {
       "en": "Port",
@@ -45,7 +51,10 @@
       "ko": "포트",
       "zh-Hans": "端口",
       "zh-Hant": "連接埠",
-      "fa": "پورت"
+      "fa": "پورت",
+      "nl": "Poort",
+      "id": "Port",
+      "tr": "Bağlantı noktası"
     },
     "Хост": {
       "en": "Host",
@@ -60,7 +69,10 @@
       "ko": "호스트",
       "zh-Hans": "主机",
       "zh-Hant": "主機",
-      "fa": "میزبان"
+      "fa": "میزبان",
+      "nl": "Host",
+      "id": "Host",
+      "tr": "Sunucu adresi"
     },
     "Тип": {
       "en": "Type",
@@ -75,7 +87,10 @@
       "ko": "유형",
       "zh-Hans": "类型",
       "zh-Hant": "類型",
-      "fa": "نوع"
+      "fa": "نوع",
+      "nl": "Type",
+      "id": "Jenis",
+      "tr": "Tür"
     },
     "Журнал": {
       "en": "Log",
@@ -90,7 +105,10 @@
       "ko": "로그",
       "zh-Hans": "日志",
       "zh-Hant": "記錄",
-      "fa": "گزارش"
+      "fa": "گزارش",
+      "nl": "Logboek",
+      "id": "Log",
+      "tr": "Günlük"
     },
     "Главная": {
       "en": "Home",
@@ -105,7 +123,10 @@
       "ko": "홈",
       "zh-Hans": "首页",
       "zh-Hant": "首頁",
-      "fa": "خانه"
+      "fa": "خانه",
+      "nl": "Start",
+      "id": "Beranda",
+      "tr": "Ana sayfa"
     },
     "Профили": {
       "en": "Profiles",
@@ -120,7 +141,10 @@
       "ko": "프로필",
       "zh-Hans": "配置文件",
       "zh-Hant": "設定檔",
-      "fa": "پروفایل‌ها"
+      "fa": "پروفایل‌ها",
+      "nl": "Profielen",
+      "id": "Profil",
+      "tr": "Profiller"
     },
     "Русский": {
       "en": "Русский",
@@ -135,7 +159,10 @@
       "ko": "Русский",
       "zh-Hans": "Русский",
       "zh-Hant": "Русский",
-      "fa": "Русский"
+      "fa": "Русский",
+      "nl": "Русский",
+      "id": "Русский",
+      "tr": "Русский"
     },
     "Светлая": {
       "en": "Light",
@@ -150,7 +177,10 @@
       "ko": "라이트",
       "zh-Hans": "浅色",
       "zh-Hant": "淺色",
-      "fa": "روشن"
+      "fa": "روشن",
+      "nl": "Licht",
+      "id": "Terang",
+      "tr": "Açık"
     },
     "Тёмная": {
       "en": "Dark",
@@ -165,7 +195,10 @@
       "ko": "다크",
       "zh-Hans": "深色",
       "zh-Hant": "深色",
-      "fa": "تیره"
+      "fa": "تیره",
+      "nl": "Donker",
+      "id": "Gelap",
+      "tr": "Koyu"
     },
     "Ошибка": {
       "en": "Error",
@@ -180,7 +213,10 @@
       "ko": "오류",
       "zh-Hans": "错误",
       "zh-Hant": "錯誤",
-      "fa": "خطا"
+      "fa": "خطا",
+      "nl": "Fout",
+      "id": "Kesalahan",
+      "tr": "Hata"
     },
     "Проверка": {
       "en": "Check",
@@ -195,7 +231,10 @@
       "ko": "확인",
       "zh-Hans": "检查",
       "zh-Hant": "檢查",
-      "fa": "بررسی"
+      "fa": "بررسی",
+      "nl": "Controleren",
+      "id": "Periksa",
+      "tr": "Kontrol et"
     },
     "Проверяется": {
       "en": "Checking",
@@ -210,7 +249,10 @@
       "ko": "확인 중…",
       "zh-Hans": "检查中…",
       "zh-Hant": "檢查中…",
-      "fa": "در حال بررسی…"
+      "fa": "در حال بررسی…",
+      "nl": "Controleren…",
+      "id": "Memeriksa…",
+      "tr": "Kontrol ediliyor…"
     },
     "проверяется": {
       "en": "Checking",
@@ -225,7 +267,10 @@
       "ko": "확인 중…",
       "zh-Hans": "检查中…",
       "zh-Hant": "檢查中…",
-      "fa": "در حال بررسی…"
+      "fa": "در حال بررسی…",
+      "nl": "Controleren…",
+      "id": "Memeriksa…",
+      "tr": "Kontrol ediliyor…"
     },
     "Авто": {
       "en": "Auto",
@@ -240,7 +285,10 @@
       "ko": "자동",
       "zh-Hans": "自动",
       "zh-Hant": "自動",
-      "fa": "خودکار"
+      "fa": "خودکار",
+      "nl": "Automatisch",
+      "id": "Otomatis",
+      "tr": "Otomatik"
     },
     "Выберите прокси": {
       "en": "Select a proxy",
@@ -255,7 +303,10 @@
       "ko": "프록시 선택",
       "zh-Hans": "选择代理",
       "zh-Hant": "選擇代理",
-      "fa": "انتخاب پروکسی"
+      "fa": "انتخاب پروکسی",
+      "nl": "Selecteer een proxy",
+      "id": "Pilih proksi",
+      "tr": "Proxy seç"
     },
     "Новый прокси": {
       "en": "New proxy",
@@ -270,7 +321,10 @@
       "ko": "새 프록시",
       "zh-Hans": "新建代理",
       "zh-Hant": "新增代理",
-      "fa": "پروکسی جدید"
+      "fa": "پروکسی جدید",
+      "nl": "Nieuwe proxy",
+      "id": "Proksi baru",
+      "tr": "Yeni proxy"
     },
     "Приоритетный прокси": {
       "en": "Preferred proxy",
@@ -285,7 +339,10 @@
       "ko": "우선 프록시",
       "zh-Hans": "首选代理",
       "zh-Hant": "首選代理",
-      "fa": "پروکسی اولویت‌دار"
+      "fa": "پروکسی اولویت‌دار",
+      "nl": "Voorkeursproxy",
+      "id": "Proksi utama",
+      "tr": "Öncelikli proxy"
     },
     "Подключиться": {
       "en": "Connect",
@@ -300,7 +357,10 @@
       "ko": "연결",
       "zh-Hans": "连接",
       "zh-Hant": "連線",
-      "fa": "اتصال"
+      "fa": "اتصال",
+      "nl": "Verbinden",
+      "id": "Hubungkan",
+      "tr": "Bağlan"
     },
     "Подключитесь": {
       "en": "Connect",
@@ -315,7 +375,10 @@
       "ko": "연결",
       "zh-Hans": "连接",
       "zh-Hant": "連線",
-      "fa": "اتصال"
+      "fa": "اتصال",
+      "nl": "Verbinden",
+      "id": "Hubungkan",
+      "tr": "Bağlan"
     },
     "Подключено": {
       "en": "Connected",
@@ -330,7 +393,10 @@
       "ko": "연결됨",
       "zh-Hans": "已连接",
       "zh-Hant": "已連線",
-      "fa": "متصل است"
+      "fa": "متصل است",
+      "nl": "Verbonden",
+      "id": "Terhubung",
+      "tr": "Bağlandı"
     },
     "Отключено": {
       "en": "Disconnected",
@@ -345,7 +411,10 @@
       "ko": "연결 끊김",
       "zh-Hans": "已断开",
       "zh-Hant": "已中斷連線",
-      "fa": "قطع است"
+      "fa": "قطع است",
+      "nl": "Verbinding verbroken",
+      "id": "Terputus",
+      "tr": "Bağlantı kesildi"
     },
     "Системная": {
       "en": "System",
@@ -360,7 +429,10 @@
       "ko": "시스템",
       "zh-Hans": "系统",
       "zh-Hant": "系統",
-      "fa": "سیستم"
+      "fa": "سیستم",
+      "nl": "Systeem",
+      "id": "Sistem",
+      "tr": "Sistem"
     },
     "Настройки": {
       "en": "Settings",
@@ -375,7 +447,10 @@
       "ko": "설정",
       "zh-Hans": "设置",
       "zh-Hant": "設定",
-      "fa": "تنظیمات"
+      "fa": "تنظیمات",
+      "nl": "Instellingen",
+      "id": "Pengaturan",
+      "tr": "Ayarlar"
     },
     "Готово": {
       "en": "Done",
@@ -390,7 +465,10 @@
       "ko": "완료",
       "zh-Hans": "完成",
       "zh-Hant": "完成",
-      "fa": "انجام شد"
+      "fa": "انجام شد",
+      "nl": "Gereed",
+      "id": "Selesai",
+      "tr": "Bitti"
     },
     "Далее": {
       "en": "Next",
@@ -405,7 +483,10 @@
       "ko": "다음",
       "zh-Hans": "下一步",
       "zh-Hant": "下一步",
-      "fa": "بعدی"
+      "fa": "بعدی",
+      "nl": "Volgende",
+      "id": "Berikutnya",
+      "tr": "İleri"
     },
     "Пароль": {
       "en": "Password",
@@ -420,7 +501,10 @@
       "ko": "비밀번호",
       "zh-Hans": "密码",
       "zh-Hant": "密碼",
-      "fa": "گذرواژه"
+      "fa": "گذرواژه",
+      "nl": "Wachtwoord",
+      "id": "Kata sandi",
+      "tr": "Parola"
     },
     "Протокол": {
       "en": "Protocol",
@@ -435,7 +519,10 @@
       "ko": "프로토콜",
       "zh-Hans": "协议",
       "zh-Hant": "協定",
-      "fa": "پروتکل"
+      "fa": "پروتکل",
+      "nl": "Protocol",
+      "id": "Protokol",
+      "tr": "Protokol"
     }
   }
 }

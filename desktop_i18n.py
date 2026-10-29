@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Desktop UI localization — Core-13 source coverage, includes Persian RTL text.
+"""Desktop UI localization — Core-16 source coverage, includes Persian RTL text.
 
 This module is bundled as Python source in packaged desktop apps; it does not
 require runtime network requests or separate data resource bundling.
@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-SUPPORTED = ("en", "ru", "es", "fr", "de", "pt-BR", "pt-PT", "it", "ja", "ko", "fa", "zh-Hans", "zh-Hant")
+SUPPORTED = ("en", "ru", "es", "fr", "de", "pt-BR", "pt-PT", "it", "ja", "ko", "fa", "nl", "id", "tr", "zh-Hans", "zh-Hant")
 
 
 def normalize(code):
@@ -22,7 +22,7 @@ def normalize(code):
         return "pt-PT"
     if code.startswith("pt-br"):
         return "pt-BR"
-    for lang in ("en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa"):
+    for lang in ("en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr"):
         if code == lang or code.startswith(lang + "-"):
             return lang
     return None
@@ -5607,6 +5607,929 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                        'ouvrez '
                                                                                                        'Diagnostics ou '
                                                                                                        'Historique.'},
+ 'id': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'Peluncur '
+                                                                                                                 'dibiarkan '
+                                                                                                                 'terbuka '
+                                                                                                                 'dari '
+                                                                                                                 'folder '
+                                                                                                                 'saat '
+                                                                                                                 'ini. '
+                                                                                                                 'Tutup '
+                                                                                                                 'salinan '
+                                                                                                                 'lama '
+                                                                                                                 'aplikasi '
+                                                                                                                 'dan '
+                                                                                                                 'luncurkan '
+                                                                                                                 'lagi.',
+        '\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию.': 'Pengaturan milik aplikasi lain '
+                                                                                    'tidak diubah. Periksa Log lalu '
+                                                                                    'coba lagi.',
+        '  %s:%s  (логин: %s)': '%s:%s (masuk: %s)',
+        '  <не настроено — заполни поля ниже>': '<tidak dikonfigurasi - isi kolom di bawah>',
+        '%s\n\nЧужие или неподтверждённые записи автозапуска не изменялись.': '%s\n'
+                                                                              '\n'
+                                                                              'Entri startup orang lain atau yang '
+                                                                              'belum dikonfirmasi tidak diubah.',
+        '%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить ': '%s masih menggunakan '
+                                                                                                 'pengaturan Arvectum, '
+                                                                                                 'namun Peluncur tidak '
+                                                                                                 'dapat mengonfirmasi '
+                                                                                                 'dengan aman',
+        '%s использует локальные настройки Arvectum от предыдущего сеанса, ': '%s menggunakan pengaturan Arvectum '
+                                                                              'lokal dari sesi sebelumnya,',
+        'Arvectum Proxy Launcher будет запускаться при входе в macOS.': 'Arvectum Proxy Launcher akan diluncurkan saat '
+                                                                        'Anda masuk ke macOS.',
+        'HTTP, SOCKS5 и PAC должны использовать три разных локальных порта.': 'HTTP, SOCKS5 dan PAC harus menggunakan '
+                                                                              'tiga port lokal yang berbeda.',
+        'IP адрес': 'alamat IP',
+        'LaunchAgent не прошёл проверку после записи': 'LaunchAgent gagal verifikasi setelah ditulis',
+        'LaunchAgent остался после удаления': 'LaunchAgent tetap ada setelah dihapus',
+        'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
+                                                                                                     'saat ini tidak '
+                                                                                                     'tersedia untuk '
+                                                                                                     'modifikasi yang '
+                                                                                                     'aman. Jaringan '
+                                                                                                     'dibiarkan tidak '
+                                                                                                     'berubah.',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Proses proksi masih berjalan. Lihat "catatan".',
+        'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
+                                                                                                                                              'belum '
+                                                                                                                                              'mengonfirmasi '
+                                                                                                                                              'entri '
+                                                                                                                                              'autostart '
+                                                                                                                                              'Peluncur '
+                                                                                                                                              'yang '
+                                                                                                                                              'tepat. '
+                                                                                                                                              'Perubahan '
+                                                                                                                                              'dibatalkan; '
+                                                                                                                                              'jalankan '
+                                                                                                                                              'aplikasi '
+                                                                                                                                              'secara '
+                                                                                                                                              'manual '
+                                                                                                                                              'dan '
+                                                                                                                                              'centang '
+                                                                                                                                              '"Log".',
+        'legacy-задача Task Scheduler осталась после удаления': 'tugas lama Penjadwal Tugas tetap ada setelah '
+                                                                'penghapusan',
+        'legacy-задачу Task Scheduler не удалось удалить': 'tugas Penjadwal Tugas lama tidak dapat dihapus',
+        'owned Run-запись не была удалена': 'Catatan Jalankan yang dimiliki tidak dihapus',
+        'owned Run-запись осталась после удаления': 'Catatan Jalankan yang dimiliki tetap ada setelah penghapusan',
+        'Автозапуск включён для текущего пользователя.\n\nПри следующем входе в графическую сессию Arvectum попробует подключить прокси без повышения привилегий. Если NetworkManager потребует новое разрешение PolicyKit, автоподключение завершится безопасно без изменения сети — подключите прокси из окна приложения.': 'Autorun '
+                                                                                                                                                                                                                                                                                                                              'diaktifkan '
+                                                                                                                                                                                                                                                                                                                              'untuk '
+                                                                                                                                                                                                                                                                                                                              'pengguna '
+                                                                                                                                                                                                                                                                                                                              'saat '
+                                                                                                                                                                                                                                                                                                                              'ini.\n'
+                                                                                                                                                                                                                                                                                                                              '\n'
+                                                                                                                                                                                                                                                                                                                              'Saat '
+                                                                                                                                                                                                                                                                                                                              'berikutnya '
+                                                                                                                                                                                                                                                                                                                              'Anda '
+                                                                                                                                                                                                                                                                                                                              'masuk '
+                                                                                                                                                                                                                                                                                                                              'ke '
+                                                                                                                                                                                                                                                                                                                              'sesi '
+                                                                                                                                                                                                                                                                                                                              'grafis, '
+                                                                                                                                                                                                                                                                                                                              'Arvectum '
+                                                                                                                                                                                                                                                                                                                              'akan '
+                                                                                                                                                                                                                                                                                                                              'mencoba '
+                                                                                                                                                                                                                                                                                                                              'menghubungkan '
+                                                                                                                                                                                                                                                                                                                              'proxy '
+                                                                                                                                                                                                                                                                                                                              'tanpa '
+                                                                                                                                                                                                                                                                                                                              'meningkatkan '
+                                                                                                                                                                                                                                                                                                                              'hak '
+                                                                                                                                                                                                                                                                                                                              'istimewa. '
+                                                                                                                                                                                                                                                                                                                              'Jika '
+                                                                                                                                                                                                                                                                                                                              'NetworkManager '
+                                                                                                                                                                                                                                                                                                                              'memerlukan '
+                                                                                                                                                                                                                                                                                                                              'izin '
+                                                                                                                                                                                                                                                                                                                              'PolicyKit '
+                                                                                                                                                                                                                                                                                                                              'baru, '
+                                                                                                                                                                                                                                                                                                                              'koneksi '
+                                                                                                                                                                                                                                                                                                                              'otomatis '
+                                                                                                                                                                                                                                                                                                                              'akan '
+                                                                                                                                                                                                                                                                                                                              'selesai '
+                                                                                                                                                                                                                                                                                                                              'dengan '
+                                                                                                                                                                                                                                                                                                                              'aman '
+                                                                                                                                                                                                                                                                                                                              'tanpa '
+                                                                                                                                                                                                                                                                                                                              'mengubah '
+                                                                                                                                                                                                                                                                                                                              'jaringan '
+                                                                                                                                                                                                                                                                                                                              '- '
+                                                                                                                                                                                                                                                                                                                              'sambungkan '
+                                                                                                                                                                                                                                                                                                                              'proxy '
+                                                                                                                                                                                                                                                                                                                              'dari '
+                                                                                                                                                                                                                                                                                                                              'jendela '
+                                                                                                                                                                                                                                                                                                                              'aplikasi.',
+        'Автозапуск временно недоступен: Windows не запустила постоянную копию Launcher. Текущую portable-версию можно использовать вручную; не переносите её и не удаляйте, пока proxy работает.': 'Autorun '
+                                                                                                                                                                                                    'untuk '
+                                                                                                                                                                                                    'sementara '
+                                                                                                                                                                                                    'tidak '
+                                                                                                                                                                                                    'tersedia: '
+                                                                                                                                                                                                    'Windows '
+                                                                                                                                                                                                    'belum '
+                                                                                                                                                                                                    'meluncurkan '
+                                                                                                                                                                                                    'salinan '
+                                                                                                                                                                                                    'permanen '
+                                                                                                                                                                                                    'Launcher. '
+                                                                                                                                                                                                    'Versi '
+                                                                                                                                                                                                    'portabel '
+                                                                                                                                                                                                    'saat '
+                                                                                                                                                                                                    'ini '
+                                                                                                                                                                                                    'dapat '
+                                                                                                                                                                                                    'digunakan '
+                                                                                                                                                                                                    'secara '
+                                                                                                                                                                                                    'manual; '
+                                                                                                                                                                                                    'jangan '
+                                                                                                                                                                                                    'mentransfer '
+                                                                                                                                                                                                    'atau '
+                                                                                                                                                                                                    'menghapusnya '
+                                                                                                                                                                                                    'saat '
+                                                                                                                                                                                                    'proxy '
+                                                                                                                                                                                                    'sedang '
+                                                                                                                                                                                                    'berjalan.',
+        'Автозапуск временно недоступен: постоянная копия Launcher не была подтверждена как запускаемая Windows. Текущий portable Launcher можно использовать вручную.': 'Jalan '
+                                                                                                                                                                         'Otomatis '
+                                                                                                                                                                         'untuk '
+                                                                                                                                                                         'sementara '
+                                                                                                                                                                         'tidak '
+                                                                                                                                                                         'tersedia: '
+                                                                                                                                                                         'Salinan '
+                                                                                                                                                                         'tetap '
+                                                                                                                                                                         'Peluncur '
+                                                                                                                                                                         'belum '
+                                                                                                                                                                         'diverifikasi '
+                                                                                                                                                                         'untuk '
+                                                                                                                                                                         'dijalankan '
+                                                                                                                                                                         'oleh '
+                                                                                                                                                                         'Windows. '
+                                                                                                                                                                         'Launcher '
+                                                                                                                                                                         'portabel '
+                                                                                                                                                                         'saat '
+                                                                                                                                                                         'ini '
+                                                                                                                                                                         'dapat '
+                                                                                                                                                                         'digunakan '
+                                                                                                                                                                         'secara '
+                                                                                                                                                                         'manual.',
+        'Автозапуск выключен не полностью:\n• ': 'Autorun tidak sepenuhnya dinonaktifkan:\n•',
+        'Автоматическая диагностика завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'Diagnostik '
+                                                                                                                                      'otomatis '
+                                                                                                                                      'gagal '
+                                                                                                                                      'karena '
+                                                                                                                                      'kesalahan '
+                                                                                                                                      'internal. '
+                                                                                                                                      'Status '
+                                                                                                                                      'jaringan '
+                                                                                                                                      'tidak '
+                                                                                                                                      'berubah. '
+                                                                                                                                      'Detailnya '
+                                                                                                                                      'disimpan '
+                                                                                                                                      'di '
+                                                                                                                                      '"log".',
+        'Автоподключение прокси при входе в %s': 'Koneksi proxy otomatis saat masuk ke %s',
+        'Активность': 'Aktivitas',
+        'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'PROXY EKSTERNAL TIDAK TERSEDIA',
+        'Введи IP адрес внешнего прокси.': 'Masukkan alamat IP proxy eksternal.',
+        'Включение PAC…': 'Mengaktifkan PAC...',
+        'Внешние прокси-серверы (по порядку, с запасным):': 'Server proxy eksternal (secara berurutan, dengan '
+                                                            'cadangan):',
+        'Восстановить исходные настройки сети Windows и остановить proxy?': 'Kembalikan pengaturan jaringan Windows '
+                                                                            'asli dan hentikan proxy?',
+        'Восстановить исходные настройки сети и остановить proxy?': 'Pulihkan pengaturan jaringan asli dan hentikan '
+                                                                    'proksi?',
+        'Восстановить настройки сети': 'Pulihkan pengaturan jaringan',
+        'Восстановить сеть': 'Pulihkan jaringan',
+        'Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?': 'Pulihkan '
+                                                                                                          'pengaturan '
+                                                                                                          'NetworkManager '
+                                                                                                          'dan proksi '
+                                                                                                          'desktop '
+                                                                                                          'asli yang '
+                                                                                                          'disimpan '
+                                                                                                          'dan '
+                                                                                                          'hentikan '
+                                                                                                          'proksi?',
+        'Восстановление сети не завершено. Файлы резервной копии сохранены; повторите восстановление и не удаляйте приложение до успешного результата.': 'Pemulihan '
+                                                                                                                                                         'jaringan '
+                                                                                                                                                         'belum '
+                                                                                                                                                         'selesai. '
+                                                                                                                                                         'Berkas '
+                                                                                                                                                         'cadangan '
+                                                                                                                                                         'masih '
+                                                                                                                                                         'disimpan. '
+                                                                                                                                                         'Ulangi '
+                                                                                                                                                         'pemulihan '
+                                                                                                                                                         'dan '
+                                                                                                                                                         'jangan '
+                                                                                                                                                         'hapus '
+                                                                                                                                                         'aplikasi '
+                                                                                                                                                         'sampai '
+                                                                                                                                                         'berhasil.',
+        'Восстановление сети…': 'Pemulihan jaringan...',
+        'Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси.': 'Semua server '
+                                                                                                     'yang '
+                                                                                                     'dikonfigurasi '
+                                                                                                     'untuk sementara '
+                                                                                                     'tidak responsif. '
+                                                                                                     'APL akan mencoba '
+                                                                                                     'kembali koneksi '
+                                                                                                     'tanpa melewati '
+                                                                                                     'proxy.',
+        'Вставить': 'Pasta',
+        'Встроенная проверка соединения завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'Tes '
+                                                                                                                                          'koneksi '
+                                                                                                                                          'internal '
+                                                                                                                                          'gagal '
+                                                                                                                                          'karena '
+                                                                                                                                          'kesalahan '
+                                                                                                                                          'internal. '
+                                                                                                                                          'Status '
+                                                                                                                                          'jaringan '
+                                                                                                                                          'tidak '
+                                                                                                                                          'berubah. '
+                                                                                                                                          'Detailnya '
+                                                                                                                                          'disimpan '
+                                                                                                                                          'di '
+                                                                                                                                          '"log".',
+        'Выберите приложение': 'Pilih aplikasi',
+        'Выключить прокси и восстановить исходные настройки сети?': 'Matikan proxy dan pulihkan pengaturan jaringan '
+                                                                    'asli?',
+        'Главная': 'Beranda',
+        'Готово: выбранные приложения будут обходить прокси.': 'Selesai: aplikasi yang dipilih akan melewati proxy.',
+        'Диагностика': 'Diagnostik',
+        'Диагностика завершена.': 'Diagnostik selesai.',
+        'Диагностика: есть предупреждения.': 'Diagnostik: ada peringatan.',
+        'Диагностика: локальных проблем не обнаружено.': 'Diagnostik: tidak ditemukan masalah lokal.',
+        'Диагностика: требуется действие.': 'Diagnosis: Diperlukan tindakan.',
+        'Диагностика…': 'Diagnostik…',
+        'Для end-to-end проверки используйте «Проверка соединения».': 'Untuk pengujian ujung ke ujung, gunakan “Tes '
+                                                                      'Koneksi”.',
+        'Добавить': 'Menambahkan',
+        'Добавить .exe…': 'Tambahkan .exe…',
+        'Добавьте .exe, которые должны ходить в интернет напрямую. Исключения сайтов no_proxy при этом остаются без изменений.': 'Tambahkan '
+                                                                                                                                 '.exe '
+                                                                                                                                 'yang '
+                                                                                                                                 'seharusnya '
+                                                                                                                                 'langsung '
+                                                                                                                                 'terhubung '
+                                                                                                                                 'ke '
+                                                                                                                                 'Internet. '
+                                                                                                                                 'Pengecualian '
+                                                                                                                                 'situs '
+                                                                                                                                 'No_proxy '
+                                                                                                                                 'tetap '
+                                                                                                                                 'tidak '
+                                                                                                                                 'berubah.',
+        'Доступность внешнего proxy и целевого сайта здесь не проверяется.': 'Ketersediaan proxy eksternal dan situs '
+                                                                             'target tidak dicentang di sini.',
+        'Журнал': 'Log',
+        'Журнал пока пуст.': 'Lognya masih kosong.',
+        'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Tugas '
+                                                                                                                                                                        'Windows '
+                                                                                                                                                                        'bernama '
+                                                                                                                                                                        'ArvectumProxyLauncher '
+                                                                                                                                                                        'sudah '
+                                                                                                                                                                        'ada, '
+                                                                                                                                                                        'namun '
+                                                                                                                                                                        'tindakan '
+                                                                                                                                                                        'Exec-nya '
+                                                                                                                                                                        'bukan '
+                                                                                                                                                                        'milik '
+                                                                                                                                                                        'Arvectum '
+                                                                                                                                                                        'Proxy '
+                                                                                                                                                                        'Launcher. '
+                                                                                                                                                                        'Itu '
+                                                                                                                                                                        'tidak '
+                                                                                                                                                                        'akan '
+                                                                                                                                                                        'diubah '
+                                                                                                                                                                        'atau '
+                                                                                                                                                                        'dihapus.',
+        'Запись автозапуска Windows с именем ArvectumProxyLauncher уже принадлежит другой команде. Она не будет перезаписана.': 'Entri '
+                                                                                                                                'startup '
+                                                                                                                                'Windows '
+                                                                                                                                'bernama '
+                                                                                                                                'ArvectumProxyLauncher '
+                                                                                                                                'sudah '
+                                                                                                                                'dimiliki '
+                                                                                                                                'oleh '
+                                                                                                                                'tim '
+                                                                                                                                'lain. '
+                                                                                                                                'Itu '
+                                                                                                                                'tidak '
+                                                                                                                                'akan '
+                                                                                                                                'ditimpa.',
+        'Запускать Arvectum Proxy Launcher при входе в %s': 'Luncurkan Peluncur Proksi Arvectum saat masuk ke %s',
+        'Запускать прокси при входе в Windows': 'Mulai proksi saat masuk ke Windows',
+        'Запуск…': 'Meluncurkan…',
+        'Изменить': 'Sunting',
+        'Исключения (no_proxy)': 'Pengecualian (no_proxy)',
+        'Исключения (no_proxy) · ': 'Pengecualian (no_proxy) ·',
+        'Исключения приложений': 'Pengecualian aplikasi',
+        'Исключения приложений в этой версии доступны только в Windows.': 'Pengecualian aplikasi dalam versi ini hanya '
+                                                                          'tersedia di Windows.',
+        'Исключения приложений — ': 'Pengecualian aplikasi -',
+        'Исключения приложений…': 'Pengecualian aplikasi...',
+        'Исключения сайтов…': 'Pengecualian situs...',
+        'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': 'Pengecualian '
+                                                                                                                                                           'telah '
+                                                                                                                                                           'disimpan, '
+                                                                                                                                                           'tetapi '
+                                                                                                                                                           'profil '
+                                                                                                                                                           'NetworkManager '
+                                                                                                                                                           'yang '
+                                                                                                                                                           'aktif '
+                                                                                                                                                           'tidak '
+                                                                                                                                                           'dapat '
+                                                                                                                                                           'diperbarui. '
+                                                                                                                                                           'Jaringan '
+                                                                                                                                                           'tidak '
+                                                                                                                                                           'dimasukkan '
+                                                                                                                                                           'ke '
+                                                                                                                                                           'dalam '
+                                                                                                                                                           'kondisi '
+                                                                                                                                                           'yang '
+                                                                                                                                                           'tidak '
+                                                                                                                                                           'diketahui; '
+                                                                                                                                                           'centang '
+                                                                                                                                                           '"catatan".',
+        'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Pengecualian '
+                                                                                                                       'telah '
+                                                                                                                       'disimpan, '
+                                                                                                                       'tetapi '
+                                                                                                                       'sistem '
+                                                                                                                       'NO_PROXY '
+                                                                                                                       'tidak '
+                                                                                                                       'dapat '
+                                                                                                                       'diperbarui. '
+                                                                                                                       'Mulai '
+                                                                                                                       'ulang '
+                                                                                                                       'proxy '
+                                                                                                                       'dan '
+                                                                                                                       'periksa '
+                                                                                                                       '"Log".',
+        'Исключения сохранены. Для изменения активного профиля NetworkManager нужно отдельное разрешение; они будут применены при следующем явном подключении прокси.': 'Pengecualian '
+                                                                                                                                                                        'disimpan. '
+                                                                                                                                                                        'Mengubah '
+                                                                                                                                                                        'profil '
+                                                                                                                                                                        'NetworkManager '
+                                                                                                                                                                        'yang '
+                                                                                                                                                                        'aktif '
+                                                                                                                                                                        'memerlukan '
+                                                                                                                                                                        'izin '
+                                                                                                                                                                        'terpisah; '
+                                                                                                                                                                        'mereka '
+                                                                                                                                                                        'akan '
+                                                                                                                                                                        'diterapkan '
+                                                                                                                                                                        'saat '
+                                                                                                                                                                        'proxy '
+                                                                                                                                                                        'terhubung '
+                                                                                                                                                                        'secara '
+                                                                                                                                                                        'eksplisit '
+                                                                                                                                                                        'lagi.',
+        'Каноническая запись Run создана, но старую задачу автозапуска не удалось безопасно удалить. Новый Run откатан, если он был создан сейчас. Проверьте права Task Scheduler и повторите.': 'Entri '
+                                                                                                                                                                                                 'Run '
+                                                                                                                                                                                                 'kanonik '
+                                                                                                                                                                                                 'telah '
+                                                                                                                                                                                                 'dibuat, '
+                                                                                                                                                                                                 'tetapi '
+                                                                                                                                                                                                 'tugas '
+                                                                                                                                                                                                 'autorun '
+                                                                                                                                                                                                 'yang '
+                                                                                                                                                                                                 'lama '
+                                                                                                                                                                                                 'tidak '
+                                                                                                                                                                                                 'dapat '
+                                                                                                                                                                                                 'dihapus '
+                                                                                                                                                                                                 'dengan '
+                                                                                                                                                                                                 'aman. '
+                                                                                                                                                                                                 'Proses '
+                                                                                                                                                                                                 'baru '
+                                                                                                                                                                                                 'akan '
+                                                                                                                                                                                                 'dibatalkan '
+                                                                                                                                                                                                 'jika '
+                                                                                                                                                                                                 'dibuat '
+                                                                                                                                                                                                 'sekarang. '
+                                                                                                                                                                                                 'Periksa '
+                                                                                                                                                                                                 'izin '
+                                                                                                                                                                                                 'Penjadwal '
+                                                                                                                                                                                                 'Tugas '
+                                                                                                                                                                                                 'dan '
+                                                                                                                                                                                                 'coba '
+                                                                                                                                                                                                 'lagi.',
+        'Компонент автозапуска macOS недоступен.': 'Komponen autostart macOS tidak tersedia.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Fitur mulai otomatis saat masuk ke '
+                                                                                  'macOS tidak tersedia. Jalankan '
+                                                                                  'aplikasi secara manual.',
+        'Логин': 'Nama belakang',
+        'Локальные порты должны быть числами от 1 до 65535.': 'Port lokal harus berupa angka dari 1 hingga 65535.',
+        'Локальные порты приложения': 'Port aplikasi lokal',
+        'Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена.': 'Proksi lokal diaktifkan, '
+                                                                                          'namun ketersediaan server '
+                                                                                          'eksternal belum '
+                                                                                          'dikonfirmasi.',
+        'Локальный прокси-процесс работает, но %s пока не направляет через него трафик. ': 'Proses proksi lokal sedang '
+                                                                                           'berjalan, namun %s belum '
+                                                                                           'merutekan lalu lintas '
+                                                                                           'melalui proses tersebut.',
+        'М': 'M',
+        'Маршрутизация и восстановление': 'Perutean dan pemulihan',
+        'Механизм маршрутизации пока не готов: %s': 'Mesin perutean belum siap: %s',
+        'Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы.': 'Aman '
+                                                                                                             'untuk '
+                                                                                                             'menghapus '
+                                                                                                             'hanya '
+                                                                                                             'pengaturan '
+                                                                                                             'Arvectum '
+                                                                                                             'yang '
+                                                                                                             'lama '
+                                                                                                             'tanpa '
+                                                                                                             'mengubah '
+                                                                                                             'pengaturan '
+                                                                                                             'sistem '
+                                                                                                             'lainnya.',
+        'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'KONEKSI TIDAK STABIL',
+        'НУЖНА ДИАГНОСТИКА СЕТИ': 'MEMBUTUHKAN DIAGNOSTIK JARINGAN',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'DIPERLUKAN PEMULIHAN JARINGAN',
+        'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'ANDA PERLU MENGHAPUS PENGATURAN LAMA',
+        'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Klik "Aktifkan Proxy" untuk mengaktifkan '
+                                                                         'proksi sistem.',
+        'Настройки': 'Pengaturan',
+        'Настройки и сервис': 'Pengaturan dan layanan',
+        'Настройки прокси': 'Pengaturan proksi',
+        'Настройки прокси · ': 'Pengaturan proksi ·',
+        'Настройки сохранены. Прокси сейчас работает — перезапустить, чтобы применить?': 'Pengaturan disimpan. Proxy '
+                                                                                         'sedang berjalan - mulai '
+                                                                                         'ulang untuk menerapkan?',
+        'Не удалось безопасно определить готовность NetworkManager. Сеть оставлена без изменений.': 'Kesiapan '
+                                                                                                    'NetworkManager '
+                                                                                                    'tidak dapat '
+                                                                                                    'dipastikan dengan '
+                                                                                                    'aman. Pengaturan '
+                                                                                                    'jaringan tidak '
+                                                                                                    'diubah.',
+        'Не удалось безопасно прочитать запись автозапуска Windows: %s': 'Entri startup Windows tidak dapat dibaca '
+                                                                         'dengan aman: %s',
+        'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': 'Pengaturan '
+                                                                                                                      'proksi '
+                                                                                                                      'gagal '
+                                                                                                                      'disimpan '
+                                                                                                                      'dengan '
+                                                                                                                      'aman. '
+                                                                                                                      'Kata '
+                                                                                                                      'sandi '
+                                                                                                                      'tidak '
+                                                                                                                      'disimpan '
+                                                                                                                      'sebagai '
+                                                                                                                      'teks '
+                                                                                                                      'biasa. '
+                                                                                                                      'Detailnya '
+                                                                                                                      'ada '
+                                                                                                                      'di '
+                                                                                                                      'Log.',
+        'Не удалось включить автозапуск: %s': 'Gagal mengaktifkan autorun: %s',
+        'Не удалось выключить автозапуск macOS: %s': 'Gagal menonaktifkan mulai otomatis macOS: %s',
+        'Не удалось добавить Launcher в автозапуск macOS: %s': 'Gagal menambahkan Peluncur ke startup macOS: %s',
+        'Не удалось запустить постоянную копию Launcher в Documents.\n\nТекущая portable-версия продолжит работать в этом сеансе. Автозапуск временно отключён: запускайте этот EXE вручную.': 'Gagal '
+                                                                                                                                                                                               'meluncurkan '
+                                                                                                                                                                                               'salinan '
+                                                                                                                                                                                               'tetap '
+                                                                                                                                                                                               'Peluncur '
+                                                                                                                                                                                               'di '
+                                                                                                                                                                                               'Dokumen.\n'
+                                                                                                                                                                                               '\n'
+                                                                                                                                                                                               'Versi '
+                                                                                                                                                                                               'portabel '
+                                                                                                                                                                                               'saat '
+                                                                                                                                                                                               'ini '
+                                                                                                                                                                                               'akan '
+                                                                                                                                                                                               'terus '
+                                                                                                                                                                                               'berfungsi '
+                                                                                                                                                                                               'di '
+                                                                                                                                                                                               'sesi '
+                                                                                                                                                                                               'ini. '
+                                                                                                                                                                                               'Autorun '
+                                                                                                                                                                                               'untuk '
+                                                                                                                                                                                               'sementara '
+                                                                                                                                                                                               'dinonaktifkan: '
+                                                                                                                                                                                               'jalankan '
+                                                                                                                                                                                               'EXE '
+                                                                                                                                                                                               'ini '
+                                                                                                                                                                                               'secara '
+                                                                                                                                                                                               'manual.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'Gagal memulai proksi. Detail tersedia di log.',
+        'Не удалось определить готовность NetworkManager.': 'Kesiapan NetworkManager tidak dapat ditentukan.',
+        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Gagal menghentikan proses lama untuk '
+                                                                               'memulai kembali. Lihat "catatan".',
+        'Не удалось остановить старый процесс. См. «Журнал».': 'Gagal menghentikan proses lama. Lihat "catatan".',
+        'Не удалось открыть журнал: %s': 'Gagal membuka log: %s',
+        'Не удалось подготовить маршрутизацию приложений. %s': 'Gagal menyiapkan perutean aplikasi. %s',
+        'Не удалось подготовить постоянную копию Launcher.': 'Gagal menyiapkan salinan permanen Peluncur.',
+        'Не удалось прочитать список исключений: %s': 'Gagal membaca daftar pengecualian: %s',
+        'Не удалось сохранить исключения приложений. %s': 'Gagal menyimpan pengecualian aplikasi. %s',
+        'Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер.': 'Beberapa '
+                                                                                                                 'koneksi '
+                                                                                                                 'melalui '
+                                                                                                                 'proxy '
+                                                                                                                 'eksternal '
+                                                                                                                 'gagal. '
+                                                                                                                 'Periksa '
+                                                                                                                 'log '
+                                                                                                                 'atau '
+                                                                                                                 'server '
+                                                                                                                 'cadangan.',
+        'Новое исключение:': 'Pengecualian baru:',
+        'Нужно восстановить настройки': 'Perlu memulihkan pengaturan',
+        'Нужно восстановить сеть': 'Kita perlu memulihkan jaringan',
+        'ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM': 'ARVECTUM PAC LAMA TERDETEKSI',
+        'Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.': 'Biasanya tidak '
+                                                                                                    'perlu diubah. '
+                                                                                                    'Jika diagnostik '
+                                                                                                    'melaporkan port '
+                                                                                                    'yang sibuk, pilih '
+                                                                                                    'port yang kosong.',
+        'Ожидание системного разрешения…': 'Menunggu izin sistem...',
+        'Окно можно закрыть — прокси продолжит работать в фоне.': 'Anda dapat menutup jendela - proxy akan terus '
+                                                                  'bekerja di latar belakang.',
+        'Остановка…': 'Berhenti…',
+        'Отключить': 'Memutuskan',
+        'Отмена': 'Membatalkan',
+        'Очистить': 'Jernih',
+        'Очистить всё': 'Hapus semuanya',
+        'ПРОКСИ ВЫКЛЮЧЕН': 'PROXY DONAKTIFKAN',
+        'ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН': 'PROXY BERJALAN · TIDAK TERHUBUNG',
+        'ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА': 'PROXY DIMULAI · MEMERIKSA',
+        'ПРОКСИ РАБОТАЕТ': 'PROKSI AKTIF',
+        'Пароль': 'Kata sandi',
+        'Перезапуск…': 'Mulai ulang...',
+        'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': 'Koneksi '
+                                                                                                                                                                   'gagal. '
+                                                                                                                                                                   'Jika '
+                                                                                                                                                                   'jendela '
+                                                                                                                                                                   'sistem '
+                                                                                                                                                                   'PolicyKit '
+                                                                                                                                                                   'dibatalkan '
+                                                                                                                                                                   'atau '
+                                                                                                                                                                   'izin '
+                                                                                                                                                                   'ditolak, '
+                                                                                                                                                                   'jaringan '
+                                                                                                                                                                   'tetap '
+                                                                                                                                                                   'tidak '
+                                                                                                                                                                   'berubah. '
+                                                                                                                                                                   'Detailnya '
+                                                                                                                                                                   'ada '
+                                                                                                                                                                   'di '
+                                                                                                                                                                   'log.',
+        'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Koneksi '
+                                                                                                                                                         'tidak '
+                                                                                                                                                         'dikonfirmasi. '
+                                                                                                                                                         'Status '
+                                                                                                                                                         'NetworkManager '
+                                                                                                                                                         'dapat '
+                                                                                                                                                         'diperiksa '
+                                                                                                                                                         'melalui '
+                                                                                                                                                         '"Diagnostik"; '
+                                                                                                                                                         'perubahan '
+                                                                                                                                                         'jaringan '
+                                                                                                                                                         'baru '
+                                                                                                                                                         'tidak '
+                                                                                                                                                         'diterapkan '
+                                                                                                                                                         'secara '
+                                                                                                                                                         'otomatis.',
+        'Подключение недоступно': 'Koneksi tidak tersedia',
+        'Подключиться': 'Hubungkan',
+        'Порт': 'Port',
+        'Порт должен быть числом от 1 до 65535.': 'Port harus berupa angka antara 1 dan 65535.',
+        'Превью готово: выбранные приложения будут обходить прокси.': 'Pratinjau sudah siap: aplikasi yang dipilih '
+                                                                      'akan melewati proxy.',
+        'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': 'Sesi '
+                                                                                                                                                               'sebelumnya '
+                                                                                                                                                               '%s '
+                                                                                                                                                               'tidak '
+                                                                                                                                                               'diakhiri '
+                                                                                                                                                               'dengan '
+                                                                                                                                                               'benar. '
+                                                                                                                                                               'Pertama, '
+                                                                                                                                                               'pulihkan '
+                                                                                                                                                               'pengaturan '
+                                                                                                                                                               'NetworkManager '
+                                                                                                                                                               'dan '
+                                                                                                                                                               'proxy '
+                                                                                                                                                               'desktop '
+                                                                                                                                                               'yang '
+                                                                                                                                                               'disimpan, '
+                                                                                                                                                               'lalu '
+                                                                                                                                                               'aktifkan '
+                                                                                                                                                               'kembali '
+                                                                                                                                                               'proxy '
+                                                                                                                                                               'tersebut.',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nПеред новым подключением нужно восстановить сохранённые сетевые настройки.\n\nВосстановить сеть сейчас?': 'Sesi '
+                                                                                                                                                                     'proksi '
+                                                                                                                                                                     'sebelumnya '
+                                                                                                                                                                     'tidak '
+                                                                                                                                                                     'berakhir '
+                                                                                                                                                                     'dengan '
+                                                                                                                                                                     'benar.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Sebelum '
+                                                                                                                                                                     'membuat '
+                                                                                                                                                                     'sambungan '
+                                                                                                                                                                     'baru, '
+                                                                                                                                                                     'Anda '
+                                                                                                                                                                     'perlu '
+                                                                                                                                                                     'memulihkan '
+                                                                                                                                                                     'pengaturan '
+                                                                                                                                                                     'jaringan '
+                                                                                                                                                                     'yang '
+                                                                                                                                                                     'disimpan.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Pulihkan '
+                                                                                                                                                                     'jaringan '
+                                                                                                                                                                     'sekarang?',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nЧтобы сеть не осталась с устаревшими настройками proxy, сначала нужно восстановить исходные настройки сети.\n\nВосстановить сеть сейчас?': 'Sesi '
+                                                                                                                                                                                                      'proksi '
+                                                                                                                                                                                                      'sebelumnya '
+                                                                                                                                                                                                      'tidak '
+                                                                                                                                                                                                      'berakhir '
+                                                                                                                                                                                                      'dengan '
+                                                                                                                                                                                                      'benar.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Untuk '
+                                                                                                                                                                                                      'mencegah '
+                                                                                                                                                                                                      'jaringan '
+                                                                                                                                                                                                      'dibiarkan '
+                                                                                                                                                                                                      'dengan '
+                                                                                                                                                                                                      'pengaturan '
+                                                                                                                                                                                                      'proxy '
+                                                                                                                                                                                                      'yang '
+                                                                                                                                                                                                      'ketinggalan '
+                                                                                                                                                                                                      'jaman, '
+                                                                                                                                                                                                      'Anda '
+                                                                                                                                                                                                      'harus '
+                                                                                                                                                                                                      'memulihkan '
+                                                                                                                                                                                                      'pengaturan '
+                                                                                                                                                                                                      'jaringan '
+                                                                                                                                                                                                      'asli '
+                                                                                                                                                                                                      'terlebih '
+                                                                                                                                                                                                      'dahulu.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Pulihkan '
+                                                                                                                                                                                                      'jaringan '
+                                                                                                                                                                                                      'sekarang?',
+        'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': 'Sesi '
+                                                                                                                                                                  'sebelumnya '
+                                                                                                                                                                  'berhenti '
+                                                                                                                                                                  'secara '
+                                                                                                                                                                  'tidak '
+                                                                                                                                                                  'normal. '
+                                                                                                                                                                  'Klik '
+                                                                                                                                                                  '“Pulihkan '
+                                                                                                                                                                  'jaringan”, '
+                                                                                                                                                                  'tunggu '
+                                                                                                                                                                  'sampai '
+                                                                                                                                                                  'pengaturan '
+                                                                                                                                                                  'semula '
+                                                                                                                                                                  'dipulihkan, '
+                                                                                                                                                                  'lalu '
+                                                                                                                                                                  'hubungkan '
+                                                                                                                                                                  'lagi '
+                                                                                                                                                                  'proksi.',
+        'Проверить': 'Memeriksa',
+        'Проверка подключения': 'Tes koneksi',
+        'Проверка соединения': 'Tes koneksi',
+        'Проверка соединения…': 'Memeriksa koneksi...',
+        'Проверки, требующие внимания:': 'Pemeriksaan yang memerlukan perhatian:',
+        'Прокси будет запускаться автоматически при входе в Windows.': 'Proksi akan dimulai secara otomatis saat Anda '
+                                                                       'masuk ke Windows.',
+        'Прокси выключен': 'Proksi dinonaktifkan',
+        'Прокси выключен, исходные настройки сети восстановлены.': 'Proksi dimatikan, pengaturan jaringan asli telah '
+                                                                   'dipulihkan.',
+        'Прокси запущен, но не подключён': 'Proksi berjalan tetapi tidak terhubung',
+        'Прокси недоступен': 'Proksi tidak tersedia',
+        'Прокси остановлен, но настройки сети восстановлены не полностью. Не удаляйте приложение: нажмите «Восстановить настройки сети» ещё раз и проверьте «Журнал».': 'Proksi '
+                                                                                                                                                                        'telah '
+                                                                                                                                                                        'dihentikan, '
+                                                                                                                                                                        'tetapi '
+                                                                                                                                                                        'pengaturan '
+                                                                                                                                                                        'jaringan '
+                                                                                                                                                                        'belum '
+                                                                                                                                                                        'sepenuhnya '
+                                                                                                                                                                        'dipulihkan. '
+                                                                                                                                                                        'Jangan '
+                                                                                                                                                                        'hapus '
+                                                                                                                                                                        'aplikasi: '
+                                                                                                                                                                        'pilih '
+                                                                                                                                                                        '“Pulihkan '
+                                                                                                                                                                        'pengaturan '
+                                                                                                                                                                        'jaringan” '
+                                                                                                                                                                        'lagi '
+                                                                                                                                                                        'dan '
+                                                                                                                                                                        'periksa '
+                                                                                                                                                                        'Log.',
+        'Прокси подключен, NetworkManager и desktop proxy применены.\n\nПриложения, которые кэшируют настройки сети, может потребоваться перезапустить.': 'Proksi '
+                                                                                                                                                          'terhubung, '
+                                                                                                                                                          'NetworkManager '
+                                                                                                                                                          'dan '
+                                                                                                                                                          'proksi '
+                                                                                                                                                          'desktop '
+                                                                                                                                                          'diterapkan.\n'
+                                                                                                                                                          '\n'
+                                                                                                                                                          'Aplikasi '
+                                                                                                                                                          'yang '
+                                                                                                                                                          'menyimpan '
+                                                                                                                                                          'cache '
+                                                                                                                                                          'pengaturan '
+                                                                                                                                                          'jaringan '
+                                                                                                                                                          'mungkin '
+                                                                                                                                                          'perlu '
+                                                                                                                                                          'di-restart.',
+        'Прокси подключён': 'Proksi terhubung',
+        'Прокси подключён.\nСистемные настройки прокси применены.\n\nЕсли отдельное приложение не подхватило новые настройки, полностью закройте его и запустите заново.': 'Proksi '
+                                                                                                                                                                           'terhubung.\n'
+                                                                                                                                                                           'Pengaturan '
+                                                                                                                                                                           'proksi '
+                                                                                                                                                                           'sistem '
+                                                                                                                                                                           'telah '
+                                                                                                                                                                           'diterapkan.\n'
+                                                                                                                                                                           '\n'
+                                                                                                                                                                           'Jika '
+                                                                                                                                                                           'aplikasi '
+                                                                                                                                                                           'tertentu '
+                                                                                                                                                                           'tidak '
+                                                                                                                                                                           'mengambil '
+                                                                                                                                                                           'pengaturan '
+                                                                                                                                                                           'baru, '
+                                                                                                                                                                           'tutup '
+                                                                                                                                                                           'sepenuhnya '
+                                                                                                                                                                           'dan '
+                                                                                                                                                                           'luncurkan '
+                                                                                                                                                                           'lagi.',
+        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'Proses proksi tidak dapat dihentikan. Detail '
+                                                                         'tersedia di log.',
+        'Профили': 'Profil',
+        'Профили прокси': 'Profil proxy',
+        'Профили прокси…': 'Profil proxy...',
+        'Профиль · %s:%s': 'Profil %s:%s',
+        'Профиль · Авто · %d прокси': 'Profil · Otomatis · Proksi %d',
+        'Профиль · не настроен': 'Profil tidak dikonfigurasi',
+        'Рекомендуемые 18080 / 11080 / 18082': 'Direkomendasikan 18080/11080/18082',
+        'Рекомендуемые действия:': 'Tindakan yang disarankan:',
+        'Сайты из списка открываются напрямую (минуя прокси).\nМожно вставлять целиком URL или host:port — само «почистится».\nИзменения применяются сразу, перезапуск не нужен.': 'Situs '
+                                                                                                                                                                                   'dari '
+                                                                                                                                                                                   'daftar '
+                                                                                                                                                                                   'terbuka '
+                                                                                                                                                                                   'secara '
+                                                                                                                                                                                   'langsung '
+                                                                                                                                                                                   '(melewati '
+                                                                                                                                                                                   'proxy).\n'
+                                                                                                                                                                                   'Anda '
+                                                                                                                                                                                   'dapat '
+                                                                                                                                                                                   'menempelkan '
+                                                                                                                                                                                   'seluruh '
+                                                                                                                                                                                   'URL '
+                                                                                                                                                                                   'atau '
+                                                                                                                                                                                   'host:port '
+                                                                                                                                                                                   '- '
+                                                                                                                                                                                   'ini '
+                                                                                                                                                                                   'akan '
+                                                                                                                                                                                   '“membersihkan” '
+                                                                                                                                                                                   'dirinya '
+                                                                                                                                                                                   'sendiri.\n'
+                                                                                                                                                                                   'Perubahan '
+                                                                                                                                                                                   'segera '
+                                                                                                                                                                                   'diterapkan, '
+                                                                                                                                                                                   'tidak '
+                                                                                                                                                                                   'perlu '
+                                                                                                                                                                                   'memulai '
+                                                                                                                                                                                   'ulang.',
+        'Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. Нажмите «Включить прокси», когда он понадобится.': 'Sesi '
+                                                                                                                                              'Arvectum '
+                                                                                                                                              'tidak '
+                                                                                                                                              'aktif. '
+                                                                                                                                              'Pengaturan '
+                                                                                                                                              'jaringan '
+                                                                                                                                              'asli '
+                                                                                                                                              'digunakan '
+                                                                                                                                              'tanpa '
+                                                                                                                                              'perubahan. '
+                                                                                                                                              'Klik '
+                                                                                                                                              '"Aktifkan '
+                                                                                                                                              'Proxy" '
+                                                                                                                                              'saat '
+                                                                                                                                              'Anda '
+                                                                                                                                              'membutuhkannya.',
+        'Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.': 'Tindakan '
+                                                                                                   'pemeliharaan '
+                                                                                                   'lanjutan tidak '
+                                                                                                   'dilakukan di Rumah '
+                                                                                                   'untuk mempermudah '
+                                                                                                   'koneksi '
+                                                                                                   'sehari-hari.',
+        'Сеть восстановлена. Теперь можно снова включить прокси.': 'Jaringan telah dipulihkan. Sekarang Anda dapat '
+                                                                   'mengaktifkan kembali proxy tersebut.',
+        'Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит работать в фоне.': 'Pengaturan '
+                                                                                                                                                                                  'sistem '
+                                                                                                                                                                                  'Linux '
+                                                                                                                                                                                  '(NetworkManager '
+                                                                                                                                                                                  'dan '
+                                                                                                                                                                                  'proksi '
+                                                                                                                                                                                  'desktop) '
+                                                                                                                                                                                  'diaktifkan '
+                                                                                                                                                                                  'dan '
+                                                                                                                                                                                  'dirutekan '
+                                                                                                                                                                                  'melalui '
+                                                                                                                                                                                  'Arvectum '
+                                                                                                                                                                                  'Proxy '
+                                                                                                                                                                                  'Launcher. '
+                                                                                                                                                                                  'Anda '
+                                                                                                                                                                                  'dapat '
+                                                                                                                                                                                  'menutup '
+                                                                                                                                                                                  'jendela '
+                                                                                                                                                                                  '- '
+                                                                                                                                                                                  'proxy '
+                                                                                                                                                                                  'akan '
+                                                                                                                                                                                  'terus '
+                                                                                                                                                                                  'bekerja '
+                                                                                                                                                                                  'di '
+                                                                                                                                                                                  'latar '
+                                                                                                                                                                                  'belakang.',
+        'Системный прокси %s включён и направлен через Arvectum Proxy Launcher. ': 'Proksi sistem %s diaktifkan dan '
+                                                                                   'dirutekan melalui Peluncur Proksi '
+                                                                                   'Arvectum.',
+        'Сначала настройте внешний прокси, затем включайте автозапуск.': 'Pertama siapkan proxy eksternal, lalu '
+                                                                         'aktifkan autorun.',
+        'Сначала укажи IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'Pertama, tentukan '
+                                                                                    'IP/port/login/kata sandi proxy '
+                                                                                    'eksternal di “Pengaturan Proxy”.',
+        'Сначала укажите IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'Pertama, tentukan '
+                                                                                      'IP/port/login/kata sandi proxy '
+                                                                                      'eksternal di “Pengaturan '
+                                                                                      'Proxy”.',
+        'Соединение нестабильно': 'Koneksi tidak stabil',
+        'Сохранить': 'Menyimpan',
+        'Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. Теперь можно снова включить прокси.': 'PAC '
+                                                                                                                      'Arvectum '
+                                                                                                                      'lama '
+                                                                                                                      'telah '
+                                                                                                                      'dihapus. '
+                                                                                                                      'Pengaturan '
+                                                                                                                      'sistem '
+                                                                                                                      'lainnya '
+                                                                                                                      'tidak '
+                                                                                                                      'diubah. '
+                                                                                                                      'Sekarang '
+                                                                                                                      'Anda '
+                                                                                                                      'dapat '
+                                                                                                                      'mengaktifkan '
+                                                                                                                      'kembali '
+                                                                                                                      'proxy '
+                                                                                                                      'tersebut.',
+        'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': 'PAC '
+                                                                                                                   'lama '
+                                                                                                                   'tidak '
+                                                                                                                   'dihapus: '
+                                                                                                                   'status '
+                                                                                                                   'jaringan '
+                                                                                                                   'berubah '
+                                                                                                                   'atau '
+                                                                                                                   'kepemilikannya '
+                                                                                                                   'tidak '
+                                                                                                                   'dapat '
+                                                                                                                   'dipastikan. '
+                                                                                                                   'Periksa '
+                                                                                                                   'Log.',
+        'Требуется диагностика': 'Diagnostik diperlukan',
+        'Удаление старого PAC…': 'Menghapus PAC lama...',
+        'Удалить': 'Menghapus',
+        'Удалить выбранное': 'Hapus yang dipilih',
+        'Удалить старый PAC и продолжить': 'Hapus PAC lama dan lanjutkan',
+        'Укажи URL для проверки.': 'Tentukan URL yang akan diperiksa.',
+        'Укажи данные внешнего прокси: IP адрес, порт, логин и пароль.': 'Tentukan detail proxy eksternal: alamat IP, '
+                                                                         'port, login dan kata sandi.',
+        'Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения.': 'Kelola proxy '
+                                                                                                        'dan '
+                                                                                                        'prioritasnya. '
+                                                                                                        'Hanya konteks '
+                                                                                                        'koneksi saat '
+                                                                                                        'ini yang '
+                                                                                                        'tersisa di '
+                                                                                                        'halaman '
+                                                                                                        'Beranda.',
+        'Файл LaunchAgent существует, но не принадлежит Arvectum. Он не будет изменён или удалён.': 'File LaunchAgent '
+                                                                                                    'ada, tetapi tidak '
+                                                                                                    'dimiliki oleh '
+                                                                                                    'Arvectum. Itu '
+                                                                                                    'tidak akan diubah '
+                                                                                                    'atau dihapus.',
+        'Файл не найден.': 'Berkas tidak ditemukan.',
+        'м': 'M',
+        'не удалось безопасно проверить/удалить Run: %s': 'Gagal memeriksa/menghapus Jalankan: %s dengan aman',
+        'неизвестная ошибка': 'kesalahan yang tidak diketahui',
+        'неизвестно': 'tidak dikenal',
+        'но прокси-процесс уже не работает и резервная копия недоступна. ': 'namun proses proxy sudah tidak berjalan '
+                                                                            'dan backup tidak tersedia.',
+        'предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал».': 'sesi '
+                                                                                                       'sebelumnya. '
+                                                                                                       'Reset otomatis '
+                                                                                                       'tidak terjadi: '
+                                                                                                       'Buka '
+                                                                                                       'Diagnostik '
+                                                                                                       'atau log.'},
  'it': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'Il '
                                                                                                                  'Launcher '
                                                                                                                  'viene '
@@ -7804,6 +8727,1079 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
         'предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал».': '이전 세션. 자동 재설정이 '
                                                                                                        '발생하지 않습니다. 진단 '
                                                                                                        '또는 기록을 엽니다.'},
+ 'nl': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'Launcher '
+                                                                                                                 'blijft '
+                                                                                                                 'open '
+                                                                                                                 'vanuit '
+                                                                                                                 'de '
+                                                                                                                 'huidige '
+                                                                                                                 'map. '
+                                                                                                                 'Sluit '
+                                                                                                                 'het '
+                                                                                                                 'oude '
+                                                                                                                 'exemplaar '
+                                                                                                                 'van '
+                                                                                                                 'de '
+                                                                                                                 'applicatie '
+                                                                                                                 'en '
+                                                                                                                 'start '
+                                                                                                                 'deze '
+                                                                                                                 'opnieuw.',
+        '\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию.': 'Instellingen van andere '
+                                                                                    'programma’s zijn niet gewijzigd. '
+                                                                                    'Controleer het Logboek en probeer '
+                                                                                    'het opnieuw.',
+        '  %s:%s  (логин: %s)': '%s:%s (inloggen: %s)',
+        '  <не настроено — заполни поля ниже>': '<niet geconfigureerd - vul onderstaande velden in>',
+        '%s\n\nЧужие или неподтверждённые записи автозапуска не изменялись.': '%s\n'
+                                                                              '\n'
+                                                                              'De opstartgegevens van anderen of '
+                                                                              'onbevestigde opstartgegevens zijn niet '
+                                                                              'gewijzigd.',
+        '%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить ': '%s gebruikt nog '
+                                                                                                 'steeds de '
+                                                                                                 'Arvectum-instellingen, '
+                                                                                                 'maar Launcher kan '
+                                                                                                 'dit niet veilig '
+                                                                                                 'bevestigen',
+        '%s использует локальные настройки Arvectum от предыдущего сеанса, ': '%s gebruikt lokale '
+                                                                              'Arvectum-instellingen uit de vorige '
+                                                                              'sessie,',
+        'Arvectum Proxy Launcher будет запускаться при входе в macOS.': 'Arvectum Proxy Launcher wordt gestart wanneer '
+                                                                        'u zich aanmeldt bij macOS.',
+        'HTTP, SOCKS5 и PAC должны использовать три разных локальных порта.': 'HTTP, SOCKS5 en PAC moeten drie '
+                                                                              'verschillende lokale poorten gebruiken.',
+        'IP адрес': 'IP-adres',
+        'LaunchAgent не прошёл проверку после записи': 'LaunchAgent mislukte verificatie na schrijven',
+        'LaunchAgent остался после удаления': 'LaunchAgent blijft na verwijdering achter',
+        'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
+                                                                                                     'is momenteel '
+                                                                                                     'niet beschikbaar '
+                                                                                                     'voor veilige '
+                                                                                                     'aanpassing. Het '
+                                                                                                     'netwerk blijft '
+                                                                                                     'ongewijzigd.',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Het proxyproces is nog steeds actief. Zie "logboek".',
+        'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows '
+                                                                                                                                              'heeft '
+                                                                                                                                              'de '
+                                                                                                                                              'exacte '
+                                                                                                                                              'autostartinvoer '
+                                                                                                                                              'van '
+                                                                                                                                              'Launcher '
+                                                                                                                                              'niet '
+                                                                                                                                              'bevestigd. '
+                                                                                                                                              'Wijziging '
+                                                                                                                                              'geannuleerd; '
+                                                                                                                                              'voer '
+                                                                                                                                              'de '
+                                                                                                                                              'applicatie '
+                                                                                                                                              'handmatig '
+                                                                                                                                              'uit '
+                                                                                                                                              'en '
+                                                                                                                                              'vink '
+                                                                                                                                              '"Log" '
+                                                                                                                                              'aan.',
+        'legacy-задача Task Scheduler осталась после удаления': 'verouderde taak Taakplanner blijft na verwijdering '
+                                                                'bestaan',
+        'legacy-задачу Task Scheduler не удалось удалить': 'verouderde Taakplanner-taak kan niet worden verwijderd',
+        'owned Run-запись не была удалена': 'eigen runrecord is niet verwijderd',
+        'owned Run-запись осталась после удаления': 'Eigen Run-record blijft na verwijdering bestaan',
+        'Автозапуск включён для текущего пользователя.\n\nПри следующем входе в графическую сессию Arvectum попробует подключить прокси без повышения привилегий. Если NetworkManager потребует новое разрешение PolicyKit, автоподключение завершится безопасно без изменения сети — подключите прокси из окна приложения.': 'Autorun '
+                                                                                                                                                                                                                                                                                                                              'is '
+                                                                                                                                                                                                                                                                                                                              'ingeschakeld '
+                                                                                                                                                                                                                                                                                                                              'voor '
+                                                                                                                                                                                                                                                                                                                              'de '
+                                                                                                                                                                                                                                                                                                                              'huidige '
+                                                                                                                                                                                                                                                                                                                              'gebruiker.\n'
+                                                                                                                                                                                                                                                                                                                              '\n'
+                                                                                                                                                                                                                                                                                                                              'De '
+                                                                                                                                                                                                                                                                                                                              'volgende '
+                                                                                                                                                                                                                                                                                                                              'keer '
+                                                                                                                                                                                                                                                                                                                              'dat '
+                                                                                                                                                                                                                                                                                                                              'u '
+                                                                                                                                                                                                                                                                                                                              'zich '
+                                                                                                                                                                                                                                                                                                                              'aanmeldt '
+                                                                                                                                                                                                                                                                                                                              'bij '
+                                                                                                                                                                                                                                                                                                                              'een '
+                                                                                                                                                                                                                                                                                                                              'grafische '
+                                                                                                                                                                                                                                                                                                                              'sessie, '
+                                                                                                                                                                                                                                                                                                                              'zal '
+                                                                                                                                                                                                                                                                                                                              'Arvectum '
+                                                                                                                                                                                                                                                                                                                              'proberen '
+                                                                                                                                                                                                                                                                                                                              'verbinding '
+                                                                                                                                                                                                                                                                                                                              'te '
+                                                                                                                                                                                                                                                                                                                              'maken '
+                                                                                                                                                                                                                                                                                                                              'met '
+                                                                                                                                                                                                                                                                                                                              'een '
+                                                                                                                                                                                                                                                                                                                              'proxy '
+                                                                                                                                                                                                                                                                                                                              'zonder '
+                                                                                                                                                                                                                                                                                                                              'de '
+                                                                                                                                                                                                                                                                                                                              'rechten '
+                                                                                                                                                                                                                                                                                                                              'te '
+                                                                                                                                                                                                                                                                                                                              'verhogen. '
+                                                                                                                                                                                                                                                                                                                              'Als '
+                                                                                                                                                                                                                                                                                                                              'NetworkManager '
+                                                                                                                                                                                                                                                                                                                              'een '
+                                                                                                                                                                                                                                                                                                                              'nieuwe '
+                                                                                                                                                                                                                                                                                                                              'PolicyKit-toestemming '
+                                                                                                                                                                                                                                                                                                                              'vereist, '
+                                                                                                                                                                                                                                                                                                                              'wordt '
+                                                                                                                                                                                                                                                                                                                              'de '
+                                                                                                                                                                                                                                                                                                                              'automatische '
+                                                                                                                                                                                                                                                                                                                              'verbinding '
+                                                                                                                                                                                                                                                                                                                              'veilig '
+                                                                                                                                                                                                                                                                                                                              'voltooid '
+                                                                                                                                                                                                                                                                                                                              'zonder '
+                                                                                                                                                                                                                                                                                                                              'het '
+                                                                                                                                                                                                                                                                                                                              'netwerk '
+                                                                                                                                                                                                                                                                                                                              'te '
+                                                                                                                                                                                                                                                                                                                              'wijzigen '
+                                                                                                                                                                                                                                                                                                                              '- '
+                                                                                                                                                                                                                                                                                                                              'sluit '
+                                                                                                                                                                                                                                                                                                                              'de '
+                                                                                                                                                                                                                                                                                                                              'proxy '
+                                                                                                                                                                                                                                                                                                                              'aan '
+                                                                                                                                                                                                                                                                                                                              'vanuit '
+                                                                                                                                                                                                                                                                                                                              'het '
+                                                                                                                                                                                                                                                                                                                              'toepassingsvenster.',
+        'Автозапуск временно недоступен: Windows не запустила постоянную копию Launcher. Текущую portable-версию можно использовать вручную; не переносите её и не удаляйте, пока proxy работает.': 'Autorun '
+                                                                                                                                                                                                    'is '
+                                                                                                                                                                                                    'tijdelijk '
+                                                                                                                                                                                                    'niet '
+                                                                                                                                                                                                    'beschikbaar: '
+                                                                                                                                                                                                    'Windows '
+                                                                                                                                                                                                    'heeft '
+                                                                                                                                                                                                    'geen '
+                                                                                                                                                                                                    'permanente '
+                                                                                                                                                                                                    'kopie '
+                                                                                                                                                                                                    'van '
+                                                                                                                                                                                                    'Launcher '
+                                                                                                                                                                                                    'gelanceerd. '
+                                                                                                                                                                                                    'De '
+                                                                                                                                                                                                    'huidige '
+                                                                                                                                                                                                    'draagbare '
+                                                                                                                                                                                                    'versie '
+                                                                                                                                                                                                    'kan '
+                                                                                                                                                                                                    'handmatig '
+                                                                                                                                                                                                    'worden '
+                                                                                                                                                                                                    'gebruikt; '
+                                                                                                                                                                                                    'breng '
+                                                                                                                                                                                                    'het '
+                                                                                                                                                                                                    'niet '
+                                                                                                                                                                                                    'over '
+                                                                                                                                                                                                    'en '
+                                                                                                                                                                                                    'verwijder '
+                                                                                                                                                                                                    'het '
+                                                                                                                                                                                                    'niet '
+                                                                                                                                                                                                    'terwijl '
+                                                                                                                                                                                                    'de '
+                                                                                                                                                                                                    'proxy '
+                                                                                                                                                                                                    'actief '
+                                                                                                                                                                                                    'is.',
+        'Автозапуск временно недоступен: постоянная копия Launcher не была подтверждена как запускаемая Windows. Текущий portable Launcher можно использовать вручную.': 'Autorun '
+                                                                                                                                                                         'is '
+                                                                                                                                                                         'tijdelijk '
+                                                                                                                                                                         'niet '
+                                                                                                                                                                         'beschikbaar: '
+                                                                                                                                                                         'de '
+                                                                                                                                                                         'persistente '
+                                                                                                                                                                         'kopie '
+                                                                                                                                                                         'van '
+                                                                                                                                                                         'Launcher '
+                                                                                                                                                                         'is '
+                                                                                                                                                                         'niet '
+                                                                                                                                                                         'geverifieerd '
+                                                                                                                                                                         'om '
+                                                                                                                                                                         'te '
+                                                                                                                                                                         'worden '
+                                                                                                                                                                         'uitgevoerd '
+                                                                                                                                                                         'door '
+                                                                                                                                                                         'Windows. '
+                                                                                                                                                                         'De '
+                                                                                                                                                                         'huidige '
+                                                                                                                                                                         'draagbare '
+                                                                                                                                                                         'Launcher '
+                                                                                                                                                                         'kan '
+                                                                                                                                                                         'handmatig '
+                                                                                                                                                                         'worden '
+                                                                                                                                                                         'gebruikt.',
+        'Автозапуск выключен не полностью:\n• ': 'Autorun is niet volledig uitgeschakeld:\n•',
+        'Автоматическая диагностика завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'Automatische '
+                                                                                                                                      'diagnostiek '
+                                                                                                                                      'is '
+                                                                                                                                      'mislukt '
+                                                                                                                                      'vanwege '
+                                                                                                                                      'een '
+                                                                                                                                      'interne '
+                                                                                                                                      'fout. '
+                                                                                                                                      'De '
+                                                                                                                                      'netwerkstatus '
+                                                                                                                                      'is '
+                                                                                                                                      'niet '
+                                                                                                                                      'veranderd. '
+                                                                                                                                      'De '
+                                                                                                                                      'gegevens '
+                                                                                                                                      'worden '
+                                                                                                                                      'opgeslagen '
+                                                                                                                                      'in '
+                                                                                                                                      'het '
+                                                                                                                                      '"logboek".',
+        'Автоподключение прокси при входе в %s': 'Automatische proxyverbinding bij inloggen op %s',
+        'Активность': 'Activiteit',
+        'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'EXTERNE PROXY IS NIET BESCHIKBAAR',
+        'Введи IP адрес внешнего прокси.': 'Voer het IP-adres van de externe proxy in.',
+        'Включение PAC…': 'PAC inschakelen...',
+        'Внешние прокси-серверы (по порядку, с запасным):': 'Externe proxyservers (in volgorde, met een reserve):',
+        'Восстановить исходные настройки сети Windows и остановить proxy?': 'De originele Windows-netwerkinstellingen '
+                                                                            'herstellen en de proxy stoppen?',
+        'Восстановить исходные настройки сети и остановить proxy?': 'Originele netwerkinstellingen herstellen en proxy '
+                                                                    'stoppen?',
+        'Восстановить настройки сети': 'Herstel netwerkinstellingen',
+        'Восстановить сеть': 'Herstel netwerk',
+        'Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?': 'De '
+                                                                                                          'opgeslagen '
+                                                                                                          'originele '
+                                                                                                          'NetworkManager- '
+                                                                                                          'en '
+                                                                                                          'desktopproxy-instellingen '
+                                                                                                          'herstellen '
+                                                                                                          'en de proxy '
+                                                                                                          'stoppen?',
+        'Восстановление сети не завершено. Файлы резервной копии сохранены; повторите восстановление и не удаляйте приложение до успешного результата.': 'Het '
+                                                                                                                                                         'netwerk '
+                                                                                                                                                         'is '
+                                                                                                                                                         'nog '
+                                                                                                                                                         'niet '
+                                                                                                                                                         'volledig '
+                                                                                                                                                         'hersteld. '
+                                                                                                                                                         'De '
+                                                                                                                                                         'back-upbestanden '
+                                                                                                                                                         'zijn '
+                                                                                                                                                         'bewaard. '
+                                                                                                                                                         'Probeer '
+                                                                                                                                                         'het '
+                                                                                                                                                         'herstel '
+                                                                                                                                                         'opnieuw '
+                                                                                                                                                         'en '
+                                                                                                                                                         'verwijder '
+                                                                                                                                                         'de '
+                                                                                                                                                         'app '
+                                                                                                                                                         'niet '
+                                                                                                                                                         'voordat '
+                                                                                                                                                         'dit '
+                                                                                                                                                         'is '
+                                                                                                                                                         'gelukt.',
+        'Восстановление сети…': 'Netwerkherstel...',
+        'Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси.': 'Alle '
+                                                                                                     'geconfigureerde '
+                                                                                                     'servers reageren '
+                                                                                                     'tijdelijk niet. '
+                                                                                                     'APL zal opnieuw '
+                                                                                                     'proberen '
+                                                                                                     'verbinding te '
+                                                                                                     'maken zonder de '
+                                                                                                     'proxy te '
+                                                                                                     'omzeilen.',
+        'Вставить': 'Plakken',
+        'Встроенная проверка соединения завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'De '
+                                                                                                                                          'ingebouwde '
+                                                                                                                                          'verbindingstest '
+                                                                                                                                          'is '
+                                                                                                                                          'mislukt '
+                                                                                                                                          'vanwege '
+                                                                                                                                          'een '
+                                                                                                                                          'interne '
+                                                                                                                                          'fout. '
+                                                                                                                                          'De '
+                                                                                                                                          'netwerkstatus '
+                                                                                                                                          'is '
+                                                                                                                                          'niet '
+                                                                                                                                          'veranderd. '
+                                                                                                                                          'De '
+                                                                                                                                          'gegevens '
+                                                                                                                                          'worden '
+                                                                                                                                          'opgeslagen '
+                                                                                                                                          'in '
+                                                                                                                                          'het '
+                                                                                                                                          '"logboek".',
+        'Выберите приложение': 'Selecteer een applicatie',
+        'Выключить прокси и восстановить исходные настройки сети?': 'De proxy uitschakelen en de oorspronkelijke '
+                                                                    'netwerkinstellingen herstellen?',
+        'Главная': 'Start',
+        'Готово: выбранные приложения будут обходить прокси.': 'Klaar: de geselecteerde applicaties zullen de proxy '
+                                                               'omzeilen.',
+        'Диагностика': 'Diagnostiek',
+        'Диагностика завершена.': 'Diagnostiek voltooid.',
+        'Диагностика: есть предупреждения.': 'Diagnostiek: er zijn waarschuwingen.',
+        'Диагностика: локальных проблем не обнаружено.': 'Diagnostiek: geen lokale problemen gevonden.',
+        'Диагностика: требуется действие.': 'Diagnose: Actie vereist.',
+        'Диагностика…': 'Diagnostiek…',
+        'Для end-to-end проверки используйте «Проверка соединения».': 'Voor end-to-end testen gebruikt u '
+                                                                      '“Verbindingstest”.',
+        'Добавить': 'Toevoegen',
+        'Добавить .exe…': 'Voeg .exe toe…',
+        'Добавьте .exe, которые должны ходить в интернет напрямую. Исключения сайтов no_proxy при этом остаются без изменений.': 'Voeg '
+                                                                                                                                 '.exe '
+                                                                                                                                 'toe '
+                                                                                                                                 'dat '
+                                                                                                                                 'rechtstreeks '
+                                                                                                                                 'naar '
+                                                                                                                                 'internet '
+                                                                                                                                 'moet '
+                                                                                                                                 'gaan. '
+                                                                                                                                 'No_proxy '
+                                                                                                                                 'site-uitzonderingen '
+                                                                                                                                 'blijven '
+                                                                                                                                 'ongewijzigd.',
+        'Доступность внешнего proxy и целевого сайта здесь не проверяется.': 'De beschikbaarheid van de externe proxy '
+                                                                             'en de doelsite wordt hier niet '
+                                                                             'gecontroleerd.',
+        'Журнал': 'Logboek',
+        'Журнал пока пуст.': 'Het logboek is nog leeg.',
+        'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'Er '
+                                                                                                                                                                        'bestaat '
+                                                                                                                                                                        'al '
+                                                                                                                                                                        'een '
+                                                                                                                                                                        'Windows-taak '
+                                                                                                                                                                        'met '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'naam '
+                                                                                                                                                                        'ArvectumProxyLauncher, '
+                                                                                                                                                                        'maar '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'Exec-actie '
+                                                                                                                                                                        'ervan '
+                                                                                                                                                                        'behoort '
+                                                                                                                                                                        'niet '
+                                                                                                                                                                        'tot '
+                                                                                                                                                                        'Arvectum '
+                                                                                                                                                                        'Proxy '
+                                                                                                                                                                        'Launcher. '
+                                                                                                                                                                        'Het '
+                                                                                                                                                                        'wordt '
+                                                                                                                                                                        'niet '
+                                                                                                                                                                        'gewijzigd '
+                                                                                                                                                                        'of '
+                                                                                                                                                                        'verwijderd.',
+        'Запись автозапуска Windows с именем ArvectumProxyLauncher уже принадлежит другой команде. Она не будет перезаписана.': 'De '
+                                                                                                                                'Windows-opstartvermelding '
+                                                                                                                                'met '
+                                                                                                                                'de '
+                                                                                                                                'naam '
+                                                                                                                                'ArvectumProxyLauncher '
+                                                                                                                                'is '
+                                                                                                                                'al '
+                                                                                                                                'eigendom '
+                                                                                                                                'van '
+                                                                                                                                'een '
+                                                                                                                                'ander '
+                                                                                                                                'team. '
+                                                                                                                                'Het '
+                                                                                                                                'wordt '
+                                                                                                                                'niet '
+                                                                                                                                'overschreven.',
+        'Запускать Arvectum Proxy Launcher при входе в %s': 'Start Arvectum Proxy Launcher wanneer u zich aanmeldt bij '
+                                                            '%s',
+        'Запускать прокси при входе в Windows': 'Start proxy bij inloggen op Windows',
+        'Запуск…': 'Launch…',
+        'Изменить': 'Bewerking',
+        'Исключения (no_proxy)': 'Uitzonderingen (no_proxy)',
+        'Исключения (no_proxy) · ': 'Uitzonderingen (no_proxy) ·',
+        'Исключения приложений': 'App-uitsluitingen',
+        'Исключения приложений в этой версии доступны только в Windows.': 'Applicatie-uitsluitingen in deze versie '
+                                                                          'zijn alleen beschikbaar op Windows.',
+        'Исключения приложений — ': 'Toepassingsuitzonderingen -',
+        'Исключения приложений…': 'Toepassingsuitzonderingen...',
+        'Исключения сайтов…': 'Uitzonderingen voor sites...',
+        'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': 'Uitzonderingen '
+                                                                                                                                                           'zijn '
+                                                                                                                                                           'opgeslagen, '
+                                                                                                                                                           'maar '
+                                                                                                                                                           'het '
+                                                                                                                                                           'actieve '
+                                                                                                                                                           'NetworkManager-profiel '
+                                                                                                                                                           'kan '
+                                                                                                                                                           'niet '
+                                                                                                                                                           'worden '
+                                                                                                                                                           'bijgewerkt. '
+                                                                                                                                                           'Het '
+                                                                                                                                                           'netwerk '
+                                                                                                                                                           'is '
+                                                                                                                                                           'niet '
+                                                                                                                                                           'in '
+                                                                                                                                                           'een '
+                                                                                                                                                           'onbekende '
+                                                                                                                                                           'staat '
+                                                                                                                                                           'gebracht; '
+                                                                                                                                                           'vink '
+                                                                                                                                                           '"logboek" '
+                                                                                                                                                           'aan.',
+        'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'Uitzonderingen '
+                                                                                                                       'zijn '
+                                                                                                                       'opgeslagen, '
+                                                                                                                       'maar '
+                                                                                                                       'systeem '
+                                                                                                                       'NO_PROXY '
+                                                                                                                       'kan '
+                                                                                                                       'niet '
+                                                                                                                       'worden '
+                                                                                                                       'bijgewerkt. '
+                                                                                                                       'Start '
+                                                                                                                       'de '
+                                                                                                                       'proxy '
+                                                                                                                       'opnieuw '
+                                                                                                                       'en '
+                                                                                                                       'controleer '
+                                                                                                                       'het '
+                                                                                                                       '"Logboek".',
+        'Исключения сохранены. Для изменения активного профиля NetworkManager нужно отдельное разрешение; они будут применены при следующем явном подключении прокси.': 'Uitzonderingen '
+                                                                                                                                                                        'opgeslagen. '
+                                                                                                                                                                        'Voor '
+                                                                                                                                                                        'het '
+                                                                                                                                                                        'wijzigen '
+                                                                                                                                                                        'van '
+                                                                                                                                                                        'het '
+                                                                                                                                                                        'actieve '
+                                                                                                                                                                        'NetworkManager-profiel '
+                                                                                                                                                                        'is '
+                                                                                                                                                                        'een '
+                                                                                                                                                                        'afzonderlijke '
+                                                                                                                                                                        'toestemming '
+                                                                                                                                                                        'vereist; '
+                                                                                                                                                                        'ze '
+                                                                                                                                                                        'worden '
+                                                                                                                                                                        'toegepast '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'volgende '
+                                                                                                                                                                        'keer '
+                                                                                                                                                                        'dat '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'proxy '
+                                                                                                                                                                        'expliciet '
+                                                                                                                                                                        'wordt '
+                                                                                                                                                                        'verbonden.',
+        'Каноническая запись Run создана, но старую задачу автозапуска не удалось безопасно удалить. Новый Run откатан, если он был создан сейчас. Проверьте права Task Scheduler и повторите.': 'De '
+                                                                                                                                                                                                 'canonieke '
+                                                                                                                                                                                                 'Run-vermelding '
+                                                                                                                                                                                                 'is '
+                                                                                                                                                                                                 'gemaakt, '
+                                                                                                                                                                                                 'maar '
+                                                                                                                                                                                                 'de '
+                                                                                                                                                                                                 'oude '
+                                                                                                                                                                                                 'autorun-taak '
+                                                                                                                                                                                                 'kan '
+                                                                                                                                                                                                 'niet '
+                                                                                                                                                                                                 'veilig '
+                                                                                                                                                                                                 'worden '
+                                                                                                                                                                                                 'verwijderd. '
+                                                                                                                                                                                                 'De '
+                                                                                                                                                                                                 'nieuwe '
+                                                                                                                                                                                                 'run '
+                                                                                                                                                                                                 'wordt '
+                                                                                                                                                                                                 'teruggedraaid '
+                                                                                                                                                                                                 'als '
+                                                                                                                                                                                                 'deze '
+                                                                                                                                                                                                 'nu '
+                                                                                                                                                                                                 'is '
+                                                                                                                                                                                                 'gemaakt. '
+                                                                                                                                                                                                 'Controleer '
+                                                                                                                                                                                                 'de '
+                                                                                                                                                                                                 'machtigingen '
+                                                                                                                                                                                                 'voor '
+                                                                                                                                                                                                 'Taakplanner '
+                                                                                                                                                                                                 'en '
+                                                                                                                                                                                                 'probeer '
+                                                                                                                                                                                                 'het '
+                                                                                                                                                                                                 'opnieuw.',
+        'Компонент автозапуска macOS недоступен.': 'macOS autostart-component is niet beschikbaar.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'Automatisch starten bij aanmelden '
+                                                                                  'op macOS is niet beschikbaar. Start '
+                                                                                  'de app handmatig.',
+        'Логин': 'Gebruikersnaam',
+        'Локальные порты должны быть числами от 1 до 65535.': 'Lokale poorten moeten nummers van 1 tot 65535 zijn.',
+        'Локальные порты приложения': 'Lokale applicatiepoorten',
+        'Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена.': 'De lokale proxy is '
+                                                                                          'ingeschakeld, maar de '
+                                                                                          'beschikbaarheid van de '
+                                                                                          'externe server is nog niet '
+                                                                                          'bevestigd.',
+        'Локальный прокси-процесс работает, но %s пока не направляет через него трафик. ': 'Het lokale proxyproces is '
+                                                                                           'actief, maar %s leidt er '
+                                                                                           'nog geen verkeer doorheen.',
+        'М': 'M',
+        'Маршрутизация и восстановление': 'Routing en herstel',
+        'Механизм маршрутизации пока не готов: %s': 'Routing-engine is nog niet klaar: %s',
+        'Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы.': 'Het is '
+                                                                                                             'veilig '
+                                                                                                             'om '
+                                                                                                             'alleen '
+                                                                                                             'de oude '
+                                                                                                             'Arvectum-instelling '
+                                                                                                             'te '
+                                                                                                             'verwijderen '
+                                                                                                             'zonder '
+                                                                                                             'andere '
+                                                                                                             'systeeminstellingen '
+                                                                                                             'te '
+                                                                                                             'wijzigen.',
+        'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'ONSTABIELE VERBINDING',
+        'НУЖНА ДИАГНОСТИКА СЕТИ': 'NETWERKDIAGNOSTIEK NODIG',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'NETWERKHERSTEL VEREIST',
+        'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'U MOET OUDE INSTELLINGEN VERWIJDEREN',
+        'Нажмите «Включить прокси», чтобы подключить системный прокси.': 'Klik op "Proxy inschakelen" om de '
+                                                                         'systeemproxy in te schakelen.',
+        'Настройки': 'Instellingen',
+        'Настройки и сервис': 'Instellingen en service',
+        'Настройки прокси': 'Proxy-instellingen',
+        'Настройки прокси · ': 'Proxy-instellingen ·',
+        'Настройки сохранены. Прокси сейчас работает — перезапустить, чтобы применить?': 'De instellingen worden '
+                                                                                         'opgeslagen. Proxy is nu '
+                                                                                         'actief. Opnieuw opstarten om '
+                                                                                         'toe te passen?',
+        'Не удалось безопасно определить готовность NetworkManager. Сеть оставлена без изменений.': 'De '
+                                                                                                    'beschikbaarheid '
+                                                                                                    'van '
+                                                                                                    'NetworkManager '
+                                                                                                    'kon niet veilig '
+                                                                                                    'worden '
+                                                                                                    'vastgesteld. De '
+                                                                                                    'netwerkinstellingen '
+                                                                                                    'zijn niet '
+                                                                                                    'gewijzigd.',
+        'Не удалось безопасно прочитать запись автозапуска Windows: %s': 'Opstartinvoer Windows kan niet veilig worden '
+                                                                         'gelezen: %s',
+        'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': 'De '
+                                                                                                                      'proxy-instellingen '
+                                                                                                                      'konden '
+                                                                                                                      'niet '
+                                                                                                                      'veilig '
+                                                                                                                      'worden '
+                                                                                                                      'opgeslagen. '
+                                                                                                                      'Het '
+                                                                                                                      'wachtwoord '
+                                                                                                                      'is '
+                                                                                                                      'niet '
+                                                                                                                      'als '
+                                                                                                                      'leesbare '
+                                                                                                                      'tekst '
+                                                                                                                      'opgeslagen. '
+                                                                                                                      'Details '
+                                                                                                                      'staan '
+                                                                                                                      'in '
+                                                                                                                      'het '
+                                                                                                                      'Logboek.',
+        'Не удалось включить автозапуск: %s': 'Kan autorun niet inschakelen: %s',
+        'Не удалось выключить автозапуск macOS: %s': 'Kan automatisch starten van macOS niet uitschakelen: %s',
+        'Не удалось добавить Launcher в автозапуск macOS: %s': 'Kan Launcher niet toevoegen aan het opstarten van '
+                                                               'macOS: %s',
+        'Не удалось запустить постоянную копию Launcher в Documents.\n\nТекущая portable-версия продолжит работать в этом сеансе. Автозапуск временно отключён: запускайте этот EXE вручную.': 'Kan '
+                                                                                                                                                                                               'persistente '
+                                                                                                                                                                                               'kopie '
+                                                                                                                                                                                               'van '
+                                                                                                                                                                                               'Launcher '
+                                                                                                                                                                                               'niet '
+                                                                                                                                                                                               'starten '
+                                                                                                                                                                                               'in '
+                                                                                                                                                                                               'Documenten.\n'
+                                                                                                                                                                                               '\n'
+                                                                                                                                                                                               'De '
+                                                                                                                                                                                               'huidige '
+                                                                                                                                                                                               'draagbare '
+                                                                                                                                                                                               'versie '
+                                                                                                                                                                                               'blijft '
+                                                                                                                                                                                               'in '
+                                                                                                                                                                                               'deze '
+                                                                                                                                                                                               'sessie '
+                                                                                                                                                                                               'werken. '
+                                                                                                                                                                                               'Autorun '
+                                                                                                                                                                                               'is '
+                                                                                                                                                                                               'tijdelijk '
+                                                                                                                                                                                               'uitgeschakeld: '
+                                                                                                                                                                                               'voer '
+                                                                                                                                                                                               'deze '
+                                                                                                                                                                                               'EXE '
+                                                                                                                                                                                               'handmatig '
+                                                                                                                                                                                               'uit.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'Kan proxy niet starten. Details zijn beschikbaar in '
+                                                                'het logboek.',
+        'Не удалось определить готовность NetworkManager.': 'De gereedheid voor NetworkManager kan niet worden '
+                                                            'vastgesteld.',
+        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Kan het oude proces niet stoppen om '
+                                                                               'opnieuw te starten. Zie "logboek".',
+        'Не удалось остановить старый процесс. См. «Журнал».': 'Kan het oude proces niet stoppen. Zie "logboek".',
+        'Не удалось открыть журнал: %s': 'Kan logboek niet openen: %s',
+        'Не удалось подготовить маршрутизацию приложений. %s': 'Kan applicatieroutering niet voorbereiden. %s',
+        'Не удалось подготовить постоянную копию Launcher.': 'Het is niet gelukt een permanente kopie van Launcher '
+                                                             'voor te bereiden.',
+        'Не удалось прочитать список исключений: %s': 'Kan uitzonderingenlijst niet lezen: %s',
+        'Не удалось сохранить исключения приложений. %s': 'Kan applicatie-uitzonderingen niet opslaan. %s',
+        'Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер.': 'Sommige '
+                                                                                                                 'verbindingen '
+                                                                                                                 'via '
+                                                                                                                 'de '
+                                                                                                                 'externe '
+                                                                                                                 'proxy '
+                                                                                                                 'zijn '
+                                                                                                                 'mislukt. '
+                                                                                                                 'Controleer '
+                                                                                                                 'het '
+                                                                                                                 'logboek '
+                                                                                                                 'of '
+                                                                                                                 'de '
+                                                                                                                 'back-upserver.',
+        'Новое исключение:': 'Nieuwe uitzondering:',
+        'Нужно восстановить настройки': 'Instellingen moeten worden hersteld',
+        'Нужно восстановить сеть': 'We moeten het netwerk herstellen',
+        'ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM': 'OUDE PAC ARVECTUM GEDETECTEERD',
+        'Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.': 'Meestal is het '
+                                                                                                    'niet nodig om te '
+                                                                                                    'veranderen. Als '
+                                                                                                    'de diagnose '
+                                                                                                    'drukke poorten '
+                                                                                                    'meldt, selecteer '
+                                                                                                    'dan vrije '
+                                                                                                    'poorten.',
+        'Ожидание системного разрешения…': 'Wachten op systeemtoestemming...',
+        'Окно можно закрыть — прокси продолжит работать в фоне.': 'U kunt het venster sluiten - de proxy blijft op de '
+                                                                  'achtergrond werken.',
+        'Остановка…': 'Stop…',
+        'Отключить': 'Verbreek de verbinding',
+        'Отмена': 'Annuleren',
+        'Очистить': 'Duidelijk',
+        'Очистить всё': 'Alles wissen',
+        'ПРОКСИ ВЫКЛЮЧЕН': 'PROXY IS UITGESCHAKELD',
+        'ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН': 'PROXY ACTIEF · NIET VERBONDEN',
+        'ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА': 'PROXY IS GESTART · CONTROLEREN',
+        'ПРОКСИ РАБОТАЕТ': 'PROXY ACTIEF',
+        'Пароль': 'Wachtwoord',
+        'Перезапуск…': 'Opnieuw opstarten...',
+        'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': 'Verbinding '
+                                                                                                                                                                   'mislukt. '
+                                                                                                                                                                   'Als '
+                                                                                                                                                                   'het '
+                                                                                                                                                                   'PolicyKit-systeemvenster '
+                                                                                                                                                                   'werd '
+                                                                                                                                                                   'geannuleerd '
+                                                                                                                                                                   'of '
+                                                                                                                                                                   'de '
+                                                                                                                                                                   'toestemming '
+                                                                                                                                                                   'werd '
+                                                                                                                                                                   'geweigerd, '
+                                                                                                                                                                   'bleef '
+                                                                                                                                                                   'het '
+                                                                                                                                                                   'netwerk '
+                                                                                                                                                                   'ongewijzigd. '
+                                                                                                                                                                   'Details '
+                                                                                                                                                                   'staan '
+                                                                                                                                                                   '\u200b\u200bin '
+                                                                                                                                                                   'het '
+                                                                                                                                                                   'logboek.',
+        'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Verbinding '
+                                                                                                                                                         'niet '
+                                                                                                                                                         'bevestigd. '
+                                                                                                                                                         'De '
+                                                                                                                                                         'status '
+                                                                                                                                                         'van '
+                                                                                                                                                         'NetworkManager '
+                                                                                                                                                         'kan '
+                                                                                                                                                         'worden '
+                                                                                                                                                         'gecontroleerd '
+                                                                                                                                                         'via '
+                                                                                                                                                         '"Diagnostiek"; '
+                                                                                                                                                         'nieuwe '
+                                                                                                                                                         'netwerkwijzigingen '
+                                                                                                                                                         'werden '
+                                                                                                                                                         'niet '
+                                                                                                                                                         'automatisch '
+                                                                                                                                                         'doorgevoerd.',
+        'Подключение недоступно': 'Verbinding niet beschikbaar',
+        'Подключиться': 'Verbinden',
+        'Порт': 'Poort',
+        'Порт должен быть числом от 1 до 65535.': 'De poort moet een nummer tussen 1 en 65535 zijn.',
+        'Превью готово: выбранные приложения будут обходить прокси.': 'Preview is klaar: geselecteerde applicaties '
+                                                                      "zullen proxy's omzeilen.",
+        'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': 'De '
+                                                                                                                                                               'vorige '
+                                                                                                                                                               'sessie '
+                                                                                                                                                               '%s '
+                                                                                                                                                               'is '
+                                                                                                                                                               'niet '
+                                                                                                                                                               'correct '
+                                                                                                                                                               'beëindigd. '
+                                                                                                                                                               'Herstel '
+                                                                                                                                                               'eerst '
+                                                                                                                                                               'de '
+                                                                                                                                                               'opgeslagen '
+                                                                                                                                                               'NetworkManager- '
+                                                                                                                                                               'en '
+                                                                                                                                                               'desktopproxy-instellingen '
+                                                                                                                                                               'en '
+                                                                                                                                                               'schakel '
+                                                                                                                                                               'vervolgens '
+                                                                                                                                                               'de '
+                                                                                                                                                               'proxy '
+                                                                                                                                                               'opnieuw '
+                                                                                                                                                               'in.',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nПеред новым подключением нужно восстановить сохранённые сетевые настройки.\n\nВосстановить сеть сейчас?': 'De '
+                                                                                                                                                                     'vorige '
+                                                                                                                                                                     'proxysessie '
+                                                                                                                                                                     'is '
+                                                                                                                                                                     'niet '
+                                                                                                                                                                     'correct '
+                                                                                                                                                                     'beëindigd.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Voordat '
+                                                                                                                                                                     'u '
+                                                                                                                                                                     'een '
+                                                                                                                                                                     'nieuwe '
+                                                                                                                                                                     'verbinding '
+                                                                                                                                                                     'maakt, '
+                                                                                                                                                                     'moet '
+                                                                                                                                                                     'u '
+                                                                                                                                                                     'de '
+                                                                                                                                                                     'opgeslagen '
+                                                                                                                                                                     'netwerkinstellingen '
+                                                                                                                                                                     'herstellen.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Het '
+                                                                                                                                                                     'netwerk '
+                                                                                                                                                                     'nu '
+                                                                                                                                                                     'herstellen?',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nЧтобы сеть не осталась с устаревшими настройками proxy, сначала нужно восстановить исходные настройки сети.\n\nВосстановить сеть сейчас?': 'De '
+                                                                                                                                                                                                      'vorige '
+                                                                                                                                                                                                      'proxysessie '
+                                                                                                                                                                                                      'is '
+                                                                                                                                                                                                      'niet '
+                                                                                                                                                                                                      'correct '
+                                                                                                                                                                                                      'beëindigd.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Om '
+                                                                                                                                                                                                      'te '
+                                                                                                                                                                                                      'voorkomen '
+                                                                                                                                                                                                      'dat '
+                                                                                                                                                                                                      'het '
+                                                                                                                                                                                                      'netwerk '
+                                                                                                                                                                                                      'met '
+                                                                                                                                                                                                      'verouderde '
+                                                                                                                                                                                                      'proxy-instellingen '
+                                                                                                                                                                                                      'blijft '
+                                                                                                                                                                                                      'zitten, '
+                                                                                                                                                                                                      'moet '
+                                                                                                                                                                                                      'u '
+                                                                                                                                                                                                      'eerst '
+                                                                                                                                                                                                      'de '
+                                                                                                                                                                                                      'oorspronkelijke '
+                                                                                                                                                                                                      'netwerkinstellingen '
+                                                                                                                                                                                                      'herstellen.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Het '
+                                                                                                                                                                                                      'netwerk '
+                                                                                                                                                                                                      'nu '
+                                                                                                                                                                                                      'herstellen?',
+        'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': 'De '
+                                                                                                                                                                  'vorige '
+                                                                                                                                                                  'sessie '
+                                                                                                                                                                  'is '
+                                                                                                                                                                  'onverwacht '
+                                                                                                                                                                  'beëindigd. '
+                                                                                                                                                                  'Kies '
+                                                                                                                                                                  '‘Herstel '
+                                                                                                                                                                  'netwerk’, '
+                                                                                                                                                                  'wacht '
+                                                                                                                                                                  'tot '
+                                                                                                                                                                  'de '
+                                                                                                                                                                  'oorspronkelijke '
+                                                                                                                                                                  'instellingen '
+                                                                                                                                                                  'zijn '
+                                                                                                                                                                  'teruggezet '
+                                                                                                                                                                  'en '
+                                                                                                                                                                  'maak '
+                                                                                                                                                                  'daarna '
+                                                                                                                                                                  'opnieuw '
+                                                                                                                                                                  'verbinding '
+                                                                                                                                                                  'met '
+                                                                                                                                                                  'de '
+                                                                                                                                                                  'proxy.',
+        'Проверить': 'Rekening',
+        'Проверка подключения': 'Verbindingstest',
+        'Проверка соединения': 'Verbindingstest',
+        'Проверка соединения…': 'Verbinding controleren...',
+        'Проверки, требующие внимания:': 'Controles die aandacht vereisen:',
+        'Прокси будет запускаться автоматически при входе в Windows.': 'De proxy start automatisch wanneer u zich '
+                                                                       'aanmeldt bij Windows.',
+        'Прокси выключен': 'Proxy uitgeschakeld',
+        'Прокси выключен, исходные настройки сети восстановлены.': 'De proxy is uitgeschakeld, de oorspronkelijke '
+                                                                   'netwerkinstellingen zijn hersteld.',
+        'Прокси запущен, но не подключён': 'Proxy is actief maar niet verbonden',
+        'Прокси недоступен': 'Proxy niet beschikbaar',
+        'Прокси остановлен, но настройки сети восстановлены не полностью. Не удаляйте приложение: нажмите «Восстановить настройки сети» ещё раз и проверьте «Журнал».': 'De '
+                                                                                                                                                                        'proxy '
+                                                                                                                                                                        'is '
+                                                                                                                                                                        'gestopt, '
+                                                                                                                                                                        'maar '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'netwerkinstellingen '
+                                                                                                                                                                        'zijn '
+                                                                                                                                                                        'nog '
+                                                                                                                                                                        'niet '
+                                                                                                                                                                        'volledig '
+                                                                                                                                                                        'hersteld. '
+                                                                                                                                                                        'Verwijder '
+                                                                                                                                                                        'de '
+                                                                                                                                                                        'app '
+                                                                                                                                                                        'niet: '
+                                                                                                                                                                        'kies '
+                                                                                                                                                                        'opnieuw '
+                                                                                                                                                                        '‘Herstel '
+                                                                                                                                                                        'netwerkinstellingen’ '
+                                                                                                                                                                        'en '
+                                                                                                                                                                        'controleer '
+                                                                                                                                                                        'het '
+                                                                                                                                                                        'Logboek.',
+        'Прокси подключен, NetworkManager и desktop proxy применены.\n\nПриложения, которые кэшируют настройки сети, может потребоваться перезапустить.': 'De '
+                                                                                                                                                          'proxy '
+                                                                                                                                                          'is '
+                                                                                                                                                          'verbonden, '
+                                                                                                                                                          'NetworkManager '
+                                                                                                                                                          'en '
+                                                                                                                                                          'desktopproxy '
+                                                                                                                                                          'worden '
+                                                                                                                                                          'toegepast.\n'
+                                                                                                                                                          '\n'
+                                                                                                                                                          'Toepassingen '
+                                                                                                                                                          'die '
+                                                                                                                                                          'netwerkinstellingen '
+                                                                                                                                                          'in '
+                                                                                                                                                          'de '
+                                                                                                                                                          'cache '
+                                                                                                                                                          'opslaan, '
+                                                                                                                                                          'moeten '
+                                                                                                                                                          'mogelijk '
+                                                                                                                                                          'opnieuw '
+                                                                                                                                                          'worden '
+                                                                                                                                                          'opgestart.',
+        'Прокси подключён': 'Proxy is verbonden',
+        'Прокси подключён.\nСистемные настройки прокси применены.\n\nЕсли отдельное приложение не подхватило новые настройки, полностью закройте его и запустите заново.': 'Proxy '
+                                                                                                                                                                           'is '
+                                                                                                                                                                           'verbonden.\n'
+                                                                                                                                                                           'Systeemproxy-instellingen '
+                                                                                                                                                                           'zijn '
+                                                                                                                                                                           'toegepast.\n'
+                                                                                                                                                                           '\n'
+                                                                                                                                                                           'Als '
+                                                                                                                                                                           'een '
+                                                                                                                                                                           'bepaalde '
+                                                                                                                                                                           'applicatie '
+                                                                                                                                                                           'de '
+                                                                                                                                                                           'nieuwe '
+                                                                                                                                                                           'instellingen '
+                                                                                                                                                                           'niet '
+                                                                                                                                                                           'overneemt, '
+                                                                                                                                                                           'sluit '
+                                                                                                                                                                           'deze '
+                                                                                                                                                                           'dan '
+                                                                                                                                                                           'volledig '
+                                                                                                                                                                           'en '
+                                                                                                                                                                           'start '
+                                                                                                                                                                           'hem '
+                                                                                                                                                                           'opnieuw.',
+        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'Het proxyproces kon niet worden gestopt. '
+                                                                         'Details zijn beschikbaar in het logboek.',
+        'Профили': 'Profielen',
+        'Профили прокси': 'Proxy-profielen',
+        'Профили прокси…': 'Proxyprofielen...',
+        'Профиль · %s:%s': 'Profiel %s:%s',
+        'Профиль · Авто · %d прокси': 'Profiel · Automatisch · %d-proxy',
+        'Профиль · не настроен': 'Profiel niet geconfigureerd',
+        'Рекомендуемые 18080 / 11080 / 18082': 'Aanbevolen 18080 / 11080 / 18082',
+        'Рекомендуемые действия:': 'Aanbevolen acties:',
+        'Сайты из списка открываются напрямую (минуя прокси).\nМожно вставлять целиком URL или host:port — само «почистится».\nИзменения применяются сразу, перезапуск не нужен.': 'Sites '
+                                                                                                                                                                                   'uit '
+                                                                                                                                                                                   'de '
+                                                                                                                                                                                   'lijst '
+                                                                                                                                                                                   'worden '
+                                                                                                                                                                                   'rechtstreeks '
+                                                                                                                                                                                   'geopend '
+                                                                                                                                                                                   '(waarbij '
+                                                                                                                                                                                   'een '
+                                                                                                                                                                                   'proxy '
+                                                                                                                                                                                   'wordt '
+                                                                                                                                                                                   'omzeild).\n'
+                                                                                                                                                                                   'U '
+                                                                                                                                                                                   'kunt '
+                                                                                                                                                                                   'de '
+                                                                                                                                                                                   'volledige '
+                                                                                                                                                                                   'URL '
+                                                                                                                                                                                   'of '
+                                                                                                                                                                                   'host:port '
+                                                                                                                                                                                   'plakken '
+                                                                                                                                                                                   '- '
+                                                                                                                                                                                   'deze '
+                                                                                                                                                                                   'zal '
+                                                                                                                                                                                   'zichzelf '
+                                                                                                                                                                                   '"opschonen".\n'
+                                                                                                                                                                                   'Wijzigingen '
+                                                                                                                                                                                   'worden '
+                                                                                                                                                                                   'onmiddellijk '
+                                                                                                                                                                                   'toegepast, '
+                                                                                                                                                                                   'herstarten '
+                                                                                                                                                                                   'is '
+                                                                                                                                                                                   'niet '
+                                                                                                                                                                                   'nodig.',
+        'Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. Нажмите «Включить прокси», когда он понадобится.': 'De '
+                                                                                                                                              'Arvectum-sessie '
+                                                                                                                                              'is '
+                                                                                                                                              'niet '
+                                                                                                                                              'actief. '
+                                                                                                                                              'De '
+                                                                                                                                              'originele '
+                                                                                                                                              'netwerkinstellingen '
+                                                                                                                                              'worden '
+                                                                                                                                              'zonder '
+                                                                                                                                              'wijzigingen '
+                                                                                                                                              'gebruikt. '
+                                                                                                                                              'Klik '
+                                                                                                                                              'op '
+                                                                                                                                              '"Proxy '
+                                                                                                                                              'inschakelen" '
+                                                                                                                                              'wanneer '
+                                                                                                                                              'u '
+                                                                                                                                              'deze '
+                                                                                                                                              'nodig '
+                                                                                                                                              'heeft.',
+        'Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.': 'Geavanceerde '
+                                                                                                   'onderhoudsacties '
+                                                                                                   'worden buiten Home '
+                                                                                                   'gehouden om '
+                                                                                                   'dagelijkse '
+                                                                                                   'verbindingen '
+                                                                                                   'eenvoudig te '
+                                                                                                   'maken.',
+        'Сеть восстановлена. Теперь можно снова включить прокси.': 'Het netwerk is hersteld. Nu kunt u de proxy '
+                                                                   'opnieuw inschakelen.',
+        'Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит работать в фоне.': 'Linux-systeeminstellingen '
+                                                                                                                                                                                  '(NetworkManager '
+                                                                                                                                                                                  'en '
+                                                                                                                                                                                  'desktopproxy) '
+                                                                                                                                                                                  'worden '
+                                                                                                                                                                                  'ingeschakeld '
+                                                                                                                                                                                  'en '
+                                                                                                                                                                                  'gerouteerd '
+                                                                                                                                                                                  'via '
+                                                                                                                                                                                  'Arvectum '
+                                                                                                                                                                                  'Proxy '
+                                                                                                                                                                                  'Launcher. '
+                                                                                                                                                                                  'U '
+                                                                                                                                                                                  'kunt '
+                                                                                                                                                                                  'het '
+                                                                                                                                                                                  'venster '
+                                                                                                                                                                                  'sluiten '
+                                                                                                                                                                                  '- '
+                                                                                                                                                                                  'de '
+                                                                                                                                                                                  'proxy '
+                                                                                                                                                                                  'blijft '
+                                                                                                                                                                                  'op '
+                                                                                                                                                                                  'de '
+                                                                                                                                                                                  'achtergrond '
+                                                                                                                                                                                  'werken.',
+        'Системный прокси %s включён и направлен через Arvectum Proxy Launcher. ': 'Systeemproxy %s is ingeschakeld en '
+                                                                                   'wordt gerouteerd via Arvectum '
+                                                                                   'Proxy Launcher.',
+        'Сначала настройте внешний прокси, затем включайте автозапуск.': 'Stel eerst een externe proxy in en schakel '
+                                                                         'vervolgens autorun in.',
+        'Сначала укажи IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'Geef eerst het '
+                                                                                    'IP/poort/login/wachtwoord van de '
+                                                                                    'externe proxy op in '
+                                                                                    '“Proxy-instellingen”.',
+        'Сначала укажите IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'Geef eerst het '
+                                                                                      'IP/poort/login/wachtwoord van '
+                                                                                      'de externe proxy op in '
+                                                                                      '“Proxy-instellingen”.',
+        'Соединение нестабильно': 'De verbinding is instabiel',
+        'Сохранить': 'Redden',
+        'Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. Теперь можно снова включить прокси.': 'De '
+                                                                                                                      'oude '
+                                                                                                                      'PAC '
+                                                                                                                      'Arvectum '
+                                                                                                                      'is '
+                                                                                                                      'verwijderd. '
+                                                                                                                      'De '
+                                                                                                                      'rest '
+                                                                                                                      'van '
+                                                                                                                      'de '
+                                                                                                                      'systeeminstellingen '
+                                                                                                                      'zijn '
+                                                                                                                      'niet '
+                                                                                                                      'gewijzigd. '
+                                                                                                                      'Nu '
+                                                                                                                      'kunt '
+                                                                                                                      'u '
+                                                                                                                      'de '
+                                                                                                                      'proxy '
+                                                                                                                      'opnieuw '
+                                                                                                                      'inschakelen.',
+        'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': 'De '
+                                                                                                                   'oude '
+                                                                                                                   'PAC '
+                                                                                                                   'is '
+                                                                                                                   'niet '
+                                                                                                                   'verwijderd: '
+                                                                                                                   'de '
+                                                                                                                   'netwerkstatus '
+                                                                                                                   'is '
+                                                                                                                   'gewijzigd '
+                                                                                                                   'of '
+                                                                                                                   'het '
+                                                                                                                   'eigenaarschap '
+                                                                                                                   'kon '
+                                                                                                                   'niet '
+                                                                                                                   'worden '
+                                                                                                                   'bevestigd. '
+                                                                                                                   'Controleer '
+                                                                                                                   'het '
+                                                                                                                   'Logboek.',
+        'Требуется диагностика': 'Diagnostiek vereist',
+        'Удаление старого PAC…': 'Oude PAC verwijderen...',
+        'Удалить': 'Verwijderen',
+        'Удалить выбранное': 'Geselecteerde verwijderen',
+        'Удалить старый PAC и продолжить': 'Verwijder de oude PAC en ga verder',
+        'Укажи URL для проверки.': 'Geef de URL op die u wilt controleren.',
+        'Укажи данные внешнего прокси: IP адрес, порт, логин и пароль.': 'Geef de externe proxygegevens op: IP-adres, '
+                                                                         'poort, login en wachtwoord.',
+        'Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения.': 'Beheer '
+                                                                                                        "proxy's en "
+                                                                                                        'hun '
+                                                                                                        'prioriteit. '
+                                                                                                        'Alleen de '
+                                                                                                        'huidige '
+                                                                                                        'verbindingscontext '
+                                                                                                        'blijft op de '
+                                                                                                        'startpagina '
+                                                                                                        'staan.',
+        'Файл LaunchAgent существует, но не принадлежит Arvectum. Он не будет изменён или удалён.': 'Het '
+                                                                                                    'LaunchAgent-bestand '
+                                                                                                    'bestaat, maar is '
+                                                                                                    'geen eigendom van '
+                                                                                                    'Arvectum. Het '
+                                                                                                    'wordt niet '
+                                                                                                    'gewijzigd of '
+                                                                                                    'verwijderd.',
+        'Файл не найден.': 'Bestand niet gevonden.',
+        'м': 'M',
+        'не удалось безопасно проверить/удалить Run: %s': 'Kan Run: %s niet veilig controleren/verwijderen',
+        'неизвестная ошибка': 'onbekende fout',
+        'неизвестно': 'onbekend',
+        'но прокси-процесс уже не работает и резервная копия недоступна. ': 'maar het proxyproces wordt niet meer '
+                                                                            'uitgevoerd en de back-up is niet '
+                                                                            'beschikbaar.',
+        'предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал».': 'vorige sessie. '
+                                                                                                       'Automatische '
+                                                                                                       'reset vindt '
+                                                                                                       'niet plaats: '
+                                                                                                       'Open '
+                                                                                                       'Diagnostiek of '
+                                                                                                       'log.'},
  'pt-BR': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'O '
                                                                                                                     'Launcher '
                                                                                                                     'fica '
@@ -10958,6 +12954,872 @@ CATALOGS = {'de': {'\n\nLauncher оставлен открытым из теку
                                                                                                        'откройте '
                                                                                                        '«Диагностика» '
                                                                                                        'или «Журнал».'},
+ 'tr': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': 'Başlatıcı '
+                                                                                                                 'geçerli '
+                                                                                                                 'klasörden '
+                                                                                                                 'açık '
+                                                                                                                 'bırakılır. '
+                                                                                                                 'Uygulamanın '
+                                                                                                                 'eski '
+                                                                                                                 'kopyasını '
+                                                                                                                 'kapatın '
+                                                                                                                 've '
+                                                                                                                 'tekrar '
+                                                                                                                 'başlatın.',
+        '\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию.': 'Diğer uygulamalara ait kayıtlar '
+                                                                                    'değiştirilmedi. Günlük bölümünü '
+                                                                                    'kontrol edip yeniden deneyin.',
+        '  %s:%s  (логин: %s)': '%s:%s (oturum açma: %s)',
+        '  <не настроено — заполни поля ниже>': '<yapılandırılmadı - aşağıdaki alanları doldurun>',
+        '%s\n\nЧужие или неподтверждённые записи автозапуска не изменялись.': '%s\n'
+                                                                              '\n'
+                                                                              'Başkalarının veya onaylanmamış '
+                                                                              'başlangıç girişleri değiştirilmedi.',
+        '%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить ': '%s hala Arvectum '
+                                                                                                 'ayarlarını '
+                                                                                                 'kullanıyor ancak '
+                                                                                                 'Başlatıcı güvenli '
+                                                                                                 'bir şekilde '
+                                                                                                 'onaylayamıyor',
+        '%s использует локальные настройки Arvectum от предыдущего сеанса, ': '%s, önceki oturumdaki yerel Arvectum '
+                                                                              'ayarlarını kullanır,',
+        'Arvectum Proxy Launcher будет запускаться при входе в macOS.': "macOS'de oturum açtığınızda Arvectum Proxy "
+                                                                        'Başlatıcı başlatılacaktır.',
+        'HTTP, SOCKS5 и PAC должны использовать три разных локальных порта.': 'HTTP, SOCKS5 ve PAC üç farklı yerel '
+                                                                              'bağlantı noktası kullanmalıdır.',
+        'IP адрес': 'IP adresi',
+        'LaunchAgent не прошёл проверку после записи': 'LaunchAgent yazıldıktan sonra doğrulama başarısız oldu',
+        'LaunchAgent остался после удаления': 'LaunchAgent kaldırıldıktan sonra kalıyor',
+        'NetworkManager сейчас недоступен для безопасного изменения. Сеть оставлена без изменений.': 'NetworkManager '
+                                                                                                     'şu anda güvenli '
+                                                                                                     'modifikasyon '
+                                                                                                     'için mevcut '
+                                                                                                     'değil. Ağ '
+                                                                                                     'değişmeden '
+                                                                                                     'kalır.',
+        'Proxy-процесс всё ещё работает. См. «Журнал».': 'Proxy işlemi hala çalışıyor. Bkz. "günlük".',
+        'Windows не подтвердила точную запись автозапуска Launcher. Изменение отменено; запускайте приложение вручную и проверьте «Журнал».': 'Windows, '
+                                                                                                                                              'Başlatıcı '
+                                                                                                                                              'otomatik '
+                                                                                                                                              'başlatma '
+                                                                                                                                              'girişini '
+                                                                                                                                              'tam '
+                                                                                                                                              'olarak '
+                                                                                                                                              'onaylamadı. '
+                                                                                                                                              'Değişiklik '
+                                                                                                                                              'iptal '
+                                                                                                                                              'edildi; '
+                                                                                                                                              'uygulamayı '
+                                                                                                                                              'manuel '
+                                                                                                                                              'olarak '
+                                                                                                                                              'çalıştırın '
+                                                                                                                                              've '
+                                                                                                                                              '"Günlük" '
+                                                                                                                                              'seçeneğini '
+                                                                                                                                              'kontrol '
+                                                                                                                                              'edin.',
+        'legacy-задача Task Scheduler осталась после удаления': 'eski görev Görev Zamanlayıcı kaldırıldıktan sonra '
+                                                                'kalır',
+        'legacy-задачу Task Scheduler не удалось удалить': 'eski Görev Zamanlayıcı görevi silinemedi',
+        'owned Run-запись не была удалена': 'sahip olunan Çalıştırma kaydı silinmedi',
+        'owned Run-запись осталась после удаления': 'Sahip olunan Çalıştırma kaydı silindikten sonra kalır',
+        'Автозапуск включён для текущего пользователя.\n\nПри следующем входе в графическую сессию Arvectum попробует подключить прокси без повышения привилегий. Если NetworkManager потребует новое разрешение PolicyKit, автоподключение завершится безопасно без изменения сети — подключите прокси из окна приложения.': 'Geçerli '
+                                                                                                                                                                                                                                                                                                                              'kullanıcı '
+                                                                                                                                                                                                                                                                                                                              'için '
+                                                                                                                                                                                                                                                                                                                              'otomatik '
+                                                                                                                                                                                                                                                                                                                              'çalıştırma '
+                                                                                                                                                                                                                                                                                                                              'etkinleştirildi.\n'
+                                                                                                                                                                                                                                                                                                                              '\n'
+                                                                                                                                                                                                                                                                                                                              'Bir '
+                                                                                                                                                                                                                                                                                                                              'sonraki '
+                                                                                                                                                                                                                                                                                                                              'grafiksel '
+                                                                                                                                                                                                                                                                                                                              'oturumda '
+                                                                                                                                                                                                                                                                                                                              'oturum '
+                                                                                                                                                                                                                                                                                                                              'açtığınızda, '
+                                                                                                                                                                                                                                                                                                                              'Arvectum '
+                                                                                                                                                                                                                                                                                                                              'ayrıcalıkları '
+                                                                                                                                                                                                                                                                                                                              'yükseltmeden '
+                                                                                                                                                                                                                                                                                                                              'bir '
+                                                                                                                                                                                                                                                                                                                              "proxy'ye "
+                                                                                                                                                                                                                                                                                                                              'bağlanmayı '
+                                                                                                                                                                                                                                                                                                                              'deneyecektir. '
+                                                                                                                                                                                                                                                                                                                              'NetworkManager '
+                                                                                                                                                                                                                                                                                                                              'yeni '
+                                                                                                                                                                                                                                                                                                                              'bir '
+                                                                                                                                                                                                                                                                                                                              'PolicyKit '
+                                                                                                                                                                                                                                                                                                                              'izni '
+                                                                                                                                                                                                                                                                                                                              'gerektiriyorsa '
+                                                                                                                                                                                                                                                                                                                              'otomatik '
+                                                                                                                                                                                                                                                                                                                              'bağlantı, '
+                                                                                                                                                                                                                                                                                                                              'ağı '
+                                                                                                                                                                                                                                                                                                                              'değiştirmeden '
+                                                                                                                                                                                                                                                                                                                              'güvenli '
+                                                                                                                                                                                                                                                                                                                              'bir '
+                                                                                                                                                                                                                                                                                                                              'şekilde '
+                                                                                                                                                                                                                                                                                                                              'tamamlanacaktır; '
+                                                                                                                                                                                                                                                                                                                              "proxy'yi "
+                                                                                                                                                                                                                                                                                                                              'uygulama '
+                                                                                                                                                                                                                                                                                                                              'penceresinden '
+                                                                                                                                                                                                                                                                                                                              'bağlayın.',
+        'Автозапуск временно недоступен: Windows не запустила постоянную копию Launcher. Текущую portable-версию можно использовать вручную; не переносите её и не удаляйте, пока proxy работает.': 'Otomatik '
+                                                                                                                                                                                                    'çalıştırma '
+                                                                                                                                                                                                    'geçici '
+                                                                                                                                                                                                    'olarak '
+                                                                                                                                                                                                    'kullanılamıyor: '
+                                                                                                                                                                                                    'Windows, '
+                                                                                                                                                                                                    'Başlatıcının '
+                                                                                                                                                                                                    'kalıcı '
+                                                                                                                                                                                                    'bir '
+                                                                                                                                                                                                    'kopyasını '
+                                                                                                                                                                                                    'başlatmadı. '
+                                                                                                                                                                                                    'Mevcut '
+                                                                                                                                                                                                    'taşınabilir '
+                                                                                                                                                                                                    'sürüm '
+                                                                                                                                                                                                    'manuel '
+                                                                                                                                                                                                    'olarak '
+                                                                                                                                                                                                    'kullanılabilir; '
+                                                                                                                                                                                                    'proxy '
+                                                                                                                                                                                                    'çalışırken '
+                                                                                                                                                                                                    'aktarmayın '
+                                                                                                                                                                                                    'veya '
+                                                                                                                                                                                                    'silmeyin.',
+        'Автозапуск временно недоступен: постоянная копия Launcher не была подтверждена как запускаемая Windows. Текущий portable Launcher можно использовать вручную.': 'Otomatik '
+                                                                                                                                                                         'çalıştırma '
+                                                                                                                                                                         'geçici '
+                                                                                                                                                                         'olarak '
+                                                                                                                                                                         'kullanılamıyor: '
+                                                                                                                                                                         'Başlatıcının '
+                                                                                                                                                                         'kalıcı '
+                                                                                                                                                                         'kopyasının '
+                                                                                                                                                                         'Windows '
+                                                                                                                                                                         'tarafından '
+                                                                                                                                                                         'çalıştırılacağı '
+                                                                                                                                                                         'doğrulanmadı. '
+                                                                                                                                                                         'Mevcut '
+                                                                                                                                                                         'taşınabilir '
+                                                                                                                                                                         'Başlatıcı '
+                                                                                                                                                                         'manuel '
+                                                                                                                                                                         'olarak '
+                                                                                                                                                                         'kullanılabilir.',
+        'Автозапуск выключен не полностью:\n• ': 'Otomatik çalıştırma tamamen devre dışı bırakılmadı:\n•',
+        'Автоматическая диагностика завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'Otomatik '
+                                                                                                                                      'tanılama '
+                                                                                                                                      'dahili '
+                                                                                                                                      'bir '
+                                                                                                                                      'hata '
+                                                                                                                                      'nedeniyle '
+                                                                                                                                      'başarısız '
+                                                                                                                                      'oldu. '
+                                                                                                                                      'Ağ '
+                                                                                                                                      'durumu '
+                                                                                                                                      'değişmedi. '
+                                                                                                                                      'Ayrıntılar '
+                                                                                                                                      '"günlüğe" '
+                                                                                                                                      'kaydedilir.',
+        'Автоподключение прокси при входе в %s': "%s'de oturum açarken otomatik proxy bağlantısı",
+        'Активность': 'Etkinlik',
+        'ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН': 'HARİCİ PROXY MEVCUT DEĞİL',
+        'Введи IP адрес внешнего прокси.': "Harici proxy'nin IP adresini girin.",
+        'Включение PAC…': 'PAC etkinleştiriliyor...',
+        'Внешние прокси-серверы (по порядку, с запасным):': 'Harici proxy sunucuları (sırayla, bir yedek ile):',
+        'Восстановить исходные настройки сети Windows и остановить proxy?': 'Orijinal Windows ağ ayarları geri '
+                                                                            'yüklensin ve proxy durdurulsun mu?',
+        'Восстановить исходные настройки сети и остановить proxy?': 'Orijinal ağ ayarları geri yüklensin ve proxy '
+                                                                    'durdurulsun mu?',
+        'Восстановить настройки сети': 'Ağ ayarlarını geri yükle',
+        'Восстановить сеть': 'Ağı geri yükle',
+        'Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?': 'Kaydedilen '
+                                                                                                          'orijinal '
+                                                                                                          'NetworkManager '
+                                                                                                          've masaüstü '
+                                                                                                          'proxy '
+                                                                                                          'ayarları '
+                                                                                                          'geri '
+                                                                                                          'yüklensin '
+                                                                                                          've proxy '
+                                                                                                          'durdurulsun '
+                                                                                                          'mu?',
+        'Восстановление сети не завершено. Файлы резервной копии сохранены; повторите восстановление и не удаляйте приложение до успешного результата.': 'Ağ '
+                                                                                                                                                         'geri '
+                                                                                                                                                         'yükleme '
+                                                                                                                                                         'işlemi '
+                                                                                                                                                         'tamamlanmadı. '
+                                                                                                                                                         'Yedek '
+                                                                                                                                                         'dosyalar '
+                                                                                                                                                         'korundu. '
+                                                                                                                                                         'İşlemi '
+                                                                                                                                                         'tekrar '
+                                                                                                                                                         'deneyin '
+                                                                                                                                                         've '
+                                                                                                                                                         'başarıyla '
+                                                                                                                                                         'tamamlanmadan '
+                                                                                                                                                         'uygulamayı '
+                                                                                                                                                         'silmeyin.',
+        'Восстановление сети…': 'Ağ restorasyonu...',
+        'Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси.': 'Yapılandırılmış '
+                                                                                                     'sunucuların tümü '
+                                                                                                     'geçici olarak '
+                                                                                                     'yanıt vermiyor. '
+                                                                                                     "APL proxy'yi "
+                                                                                                     'atlamadan '
+                                                                                                     'bağlantıyı '
+                                                                                                     'yeniden '
+                                                                                                     'deneyecek.',
+        'Вставить': 'Yapıştır',
+        'Встроенная проверка соединения завершилась внутренней ошибкой. Состояние сети не изменялось. Подробности сохранены в «Журнал».': 'Yerleşik '
+                                                                                                                                          'bağlantı '
+                                                                                                                                          'testi '
+                                                                                                                                          'dahili '
+                                                                                                                                          'bir '
+                                                                                                                                          'hata '
+                                                                                                                                          'nedeniyle '
+                                                                                                                                          'başarısız '
+                                                                                                                                          'oldu. '
+                                                                                                                                          'Ağ '
+                                                                                                                                          'durumu '
+                                                                                                                                          'değişmedi. '
+                                                                                                                                          'Ayrıntılar '
+                                                                                                                                          '"günlüğe" '
+                                                                                                                                          'kaydedilir.',
+        'Выберите приложение': 'Bir uygulama seçin',
+        'Выключить прокси и восстановить исходные настройки сети?': 'Proxy kapatılıp orijinal ağ ayarları geri '
+                                                                    'yüklensin mi?',
+        'Главная': 'Ana sayfa',
+        'Готово: выбранные приложения будут обходить прокси.': "Bitti: seçilen uygulamalar proxy'yi atlayacak.",
+        'Диагностика': 'Teşhis',
+        'Диагностика завершена.': 'Teşhis tamamlandı.',
+        'Диагностика: есть предупреждения.': 'Teşhis: uyarılar var.',
+        'Диагностика: локальных проблем не обнаружено.': 'Teşhis: yerel sorun bulunamadı.',
+        'Диагностика: требуется действие.': 'Teşhis: Eylem gerekli.',
+        'Диагностика…': 'Teşhis…',
+        'Для end-to-end проверки используйте «Проверка соединения».': 'Uçtan uca test için “Bağlantı Testi”ni '
+                                                                      'kullanın.',
+        'Добавить': 'Eklemek',
+        'Добавить .exe…': ".exe'yi ekleyin…",
+        'Добавьте .exe, которые должны ходить в интернет напрямую. Исключения сайтов no_proxy при этом остаются без изменений.': 'Doğrudan '
+                                                                                                                                 "İnternet'e "
+                                                                                                                                 'gitmesi '
+                                                                                                                                 'gereken '
+                                                                                                                                 '.exe '
+                                                                                                                                 'dosyasını '
+                                                                                                                                 'ekleyin. '
+                                                                                                                                 'No_proxy '
+                                                                                                                                 'sitesi '
+                                                                                                                                 'istisnaları '
+                                                                                                                                 'değişmeden '
+                                                                                                                                 'kalır.',
+        'Доступность внешнего proxy и целевого сайта здесь не проверяется.': "Harici proxy'nin ve hedef sitenin "
+                                                                             'kullanılabilirliği burada kontrol '
+                                                                             'edilmez.',
+        'Журнал': 'Günlük',
+        'Журнал пока пуст.': 'Günlük hala boş.',
+        'Задача Windows с именем ArvectumProxyLauncher уже существует, но её Exec-действие не принадлежит Arvectum Proxy Launcher. Она не будет изменена или удалена.': 'ArvectumProxyLauncher '
+                                                                                                                                                                        'adlı '
+                                                                                                                                                                        'bir '
+                                                                                                                                                                        'Windows '
+                                                                                                                                                                        'görevi '
+                                                                                                                                                                        'zaten '
+                                                                                                                                                                        'mevcut '
+                                                                                                                                                                        'ancak '
+                                                                                                                                                                        'bunun '
+                                                                                                                                                                        'Exec '
+                                                                                                                                                                        'eylemi '
+                                                                                                                                                                        'Arvectum '
+                                                                                                                                                                        'Proxy '
+                                                                                                                                                                        'Başlatıcıya '
+                                                                                                                                                                        'ait '
+                                                                                                                                                                        'değil. '
+                                                                                                                                                                        'Değiştirilmeyecek '
+                                                                                                                                                                        'veya '
+                                                                                                                                                                        'silinmeyecektir.',
+        'Запись автозапуска Windows с именем ArvectumProxyLauncher уже принадлежит другой команде. Она не будет перезаписана.': 'ArvectumProxyLauncher '
+                                                                                                                                'adlı '
+                                                                                                                                'Windows '
+                                                                                                                                'başlangıç '
+                                                                                                                                '\u200b\u200bgirişi '
+                                                                                                                                'zaten '
+                                                                                                                                'başka '
+                                                                                                                                'bir '
+                                                                                                                                'takıma '
+                                                                                                                                'ait. '
+                                                                                                                                'Üzerine '
+                                                                                                                                'yazılmayacak.',
+        'Запускать Arvectum Proxy Launcher при входе в %s': "%s'de oturum açarken Arvectum Proxy Başlatıcı'yı başlatın",
+        'Запускать прокси при входе в Windows': "Windows'de oturum açarken proxy'yi başlat",
+        'Запуск…': 'Öğle yemeği…',
+        'Изменить': 'Düzenlemek',
+        'Исключения (no_proxy)': 'İstisnalar (no_proxy)',
+        'Исключения (no_proxy) · ': 'İstisnalar (no_proxy) ·',
+        'Исключения приложений': 'Uygulama hariç tutmalar',
+        'Исключения приложений в этой версии доступны только в Windows.': 'Bu sürümdeki uygulama istisnaları yalnızca '
+                                                                          "Windows'de mevcuttur.",
+        'Исключения приложений — ': 'Uygulama istisnaları -',
+        'Исключения приложений…': 'Uygulama istisnaları...',
+        'Исключения сайтов…': 'Site istisnaları...',
+        'Исключения сохранены, но активный профиль NetworkManager не удалось обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».': 'İstisnalar '
+                                                                                                                                                           'kaydedildi '
+                                                                                                                                                           'ancak '
+                                                                                                                                                           'etkin '
+                                                                                                                                                           'NetworkManager '
+                                                                                                                                                           'profili '
+                                                                                                                                                           'güncellenemedi. '
+                                                                                                                                                           'Ağ '
+                                                                                                                                                           'bilinmeyen '
+                                                                                                                                                           'bir '
+                                                                                                                                                           'duruma '
+                                                                                                                                                           'getirilmedi; '
+                                                                                                                                                           '"günlüğü" '
+                                                                                                                                                           'kontrol '
+                                                                                                                                                           'edin.',
+        'Исключения сохранены, но системный NO_PROXY не удалось обновить. Перезапустите прокси и проверьте «Журнал».': 'İstisnalar '
+                                                                                                                       'kaydedildi '
+                                                                                                                       'ancak '
+                                                                                                                       'NO_PROXY '
+                                                                                                                       'sistemi '
+                                                                                                                       'güncellenemedi. '
+                                                                                                                       "Proxy'yi "
+                                                                                                                       'yeniden '
+                                                                                                                       'başlatın '
+                                                                                                                       've '
+                                                                                                                       '"Günlük"ü '
+                                                                                                                       'kontrol '
+                                                                                                                       'edin.',
+        'Исключения сохранены. Для изменения активного профиля NetworkManager нужно отдельное разрешение; они будут применены при следующем явном подключении прокси.': 'İstisnalar '
+                                                                                                                                                                        'kaydedildi. '
+                                                                                                                                                                        'Etkin '
+                                                                                                                                                                        'NetworkManager '
+                                                                                                                                                                        'profilini '
+                                                                                                                                                                        'değiştirmek '
+                                                                                                                                                                        'ayrı '
+                                                                                                                                                                        'bir '
+                                                                                                                                                                        'izin '
+                                                                                                                                                                        'gerektirir; '
+                                                                                                                                                                        "proxy'nin "
+                                                                                                                                                                        'açıkça '
+                                                                                                                                                                        'bağlandığı '
+                                                                                                                                                                        'bir '
+                                                                                                                                                                        'sonraki '
+                                                                                                                                                                        'sefer '
+                                                                                                                                                                        'uygulanacaktır.',
+        'Каноническая запись Run создана, но старую задачу автозапуска не удалось безопасно удалить. Новый Run откатан, если он был создан сейчас. Проверьте права Task Scheduler и повторите.': 'Kurallı '
+                                                                                                                                                                                                 'Çalıştırma '
+                                                                                                                                                                                                 'girişi '
+                                                                                                                                                                                                 'oluşturuldu '
+                                                                                                                                                                                                 'ancak '
+                                                                                                                                                                                                 'eski '
+                                                                                                                                                                                                 'otomatik '
+                                                                                                                                                                                                 'çalıştırma '
+                                                                                                                                                                                                 'görevi '
+                                                                                                                                                                                                 'güvenli '
+                                                                                                                                                                                                 'bir '
+                                                                                                                                                                                                 'şekilde '
+                                                                                                                                                                                                 'silinemedi. '
+                                                                                                                                                                                                 'Yeni '
+                                                                                                                                                                                                 'Çalıştırma '
+                                                                                                                                                                                                 'şimdi '
+                                                                                                                                                                                                 'oluşturulduysa '
+                                                                                                                                                                                                 'geri '
+                                                                                                                                                                                                 'alınır. '
+                                                                                                                                                                                                 'Görev '
+                                                                                                                                                                                                 'Zamanlayıcı '
+                                                                                                                                                                                                 'izinlerini '
+                                                                                                                                                                                                 'kontrol '
+                                                                                                                                                                                                 'edin '
+                                                                                                                                                                                                 've '
+                                                                                                                                                                                                 'tekrar '
+                                                                                                                                                                                                 'deneyin.',
+        'Компонент автозапуска macOS недоступен.': 'macOS otomatik başlatma bileşeni kullanılamıyor.',
+        'Компонент автозапуска macOS недоступен. Запускайте приложение вручную.': 'macOS oturum açılışında otomatik '
+                                                                                  'başlatma kullanılamıyor. Uygulamayı '
+                                                                                  'elle başlatın.',
+        'Логин': 'Kullanıcı adı',
+        'Локальные порты должны быть числами от 1 до 65535.': "Yerel bağlantı noktaları 1'den 65535'e kadar sayılar "
+                                                              'olmalıdır.',
+        'Локальные порты приложения': 'Yerel uygulama bağlantı noktaları',
+        'Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена.': 'Yerel proxy etkinleştirildi '
+                                                                                          'ancak harici sunucunun '
+                                                                                          'kullanılabilirliği henüz '
+                                                                                          'onaylanmadı.',
+        'Локальный прокси-процесс работает, но %s пока не направляет через него трафик. ': 'Yerel proxy işlemi '
+                                                                                           'çalışıyor ancak %s henüz '
+                                                                                           'trafiği bunun üzerinden '
+                                                                                           'yönlendirmiyor.',
+        'М': 'M',
+        'Маршрутизация и восстановление': 'Yönlendirme ve kurtarma',
+        'Механизм маршрутизации пока не готов: %s': 'Yönlendirme motoru henüz hazır değil: %s',
+        'Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы.': 'Diğer '
+                                                                                                             'sistem '
+                                                                                                             'ayarlarını '
+                                                                                                             'değiştirmeden '
+                                                                                                             'yalnızca '
+                                                                                                             'eski '
+                                                                                                             'Arvectum '
+                                                                                                             'ayarını '
+                                                                                                             'kaldırmak '
+                                                                                                             'güvenlidir.',
+        'НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ': 'KARARSIZ BAĞLANTI',
+        'НУЖНА ДИАГНОСТИКА СЕТИ': 'AĞ TEŞHİSİNE İHTİYAÇ VAR',
+        'НУЖНО ВОССТАНОВИТЬ СЕТЬ': 'AĞ GERİ YÜKLEME GEREKLİ',
+        'НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ': 'ESKİ AYARLARI SİLMENİZ GEREKİR',
+        'Нажмите «Включить прокси», чтобы подключить системный прокси.': "Sistem proxy'sini etkinleştirmek için "
+                                                                         '"Proxy\'yi Etkinleştir"e tıklayın.',
+        'Настройки': 'Ayarlar',
+        'Настройки и сервис': 'Ayarlar ve servis',
+        'Настройки прокси': 'Proxy ayarları',
+        'Настройки прокси · ': 'Proxy ayarları ·',
+        'Настройки сохранены. Прокси сейчас работает — перезапустить, чтобы применить?': 'Ayarlar kaydedilir. Proxy şu '
+                                                                                         'anda çalışıyor - başvurmak '
+                                                                                         'için yeniden başlatılsın mı?',
+        'Не удалось безопасно определить готовность NetworkManager. Сеть оставлена без изменений.': 'NetworkManager '
+                                                                                                    'durumunun güvenli '
+                                                                                                    'olduğu '
+                                                                                                    'doğrulanamadı. Ağ '
+                                                                                                    'ayarları '
+                                                                                                    'değiştirilmedi.',
+        'Не удалось безопасно прочитать запись автозапуска Windows: %s': 'Windows başlangıç \u200b\u200bgirişi güvenli '
+                                                                         'bir şekilde okunamadı: %s',
+        'Не удалось безопасно сохранить настройки proxy. Пароль не записан в открытом виде. Подробности в «Журнал».': 'Proxy '
+                                                                                                                      'ayarları '
+                                                                                                                      'güvenli '
+                                                                                                                      'biçimde '
+                                                                                                                      'kaydedilemedi. '
+                                                                                                                      'Parola '
+                                                                                                                      'düz '
+                                                                                                                      'metin '
+                                                                                                                      'olarak '
+                                                                                                                      'kaydedilmedi. '
+                                                                                                                      'Ayrıntılar '
+                                                                                                                      'Günlük '
+                                                                                                                      'bölümündedir.',
+        'Не удалось включить автозапуск: %s': 'Otomatik çalıştırma etkinleştirilemedi: %s',
+        'Не удалось выключить автозапуск macOS: %s': 'macOS otomatik başlatma devre dışı bırakılamadı: %s',
+        'Не удалось добавить Launcher в автозапуск macOS: %s': 'Başlatıcı macOS başlangıcına eklenemedi: %s',
+        'Не удалось запустить постоянную копию Launcher в Documents.\n\nТекущая portable-версия продолжит работать в этом сеансе. Автозапуск временно отключён: запускайте этот EXE вручную.': 'Başlatıcının '
+                                                                                                                                                                                               'kalıcı '
+                                                                                                                                                                                               'kopyası '
+                                                                                                                                                                                               "Belgeler'de "
+                                                                                                                                                                                               'başlatılamadı.\n'
+                                                                                                                                                                                               '\n'
+                                                                                                                                                                                               'Mevcut '
+                                                                                                                                                                                               'taşınabilir '
+                                                                                                                                                                                               'sürüm '
+                                                                                                                                                                                               'bu '
+                                                                                                                                                                                               'oturumda '
+                                                                                                                                                                                               'çalışmaya '
+                                                                                                                                                                                               'devam '
+                                                                                                                                                                                               'edecek. '
+                                                                                                                                                                                               'Otomatik '
+                                                                                                                                                                                               'çalıştırma '
+                                                                                                                                                                                               'geçici '
+                                                                                                                                                                                               'olarak '
+                                                                                                                                                                                               'devre '
+                                                                                                                                                                                               'dışı '
+                                                                                                                                                                                               'bırakıldı: '
+                                                                                                                                                                                               'bu '
+                                                                                                                                                                                               "EXE'yi "
+                                                                                                                                                                                               'manuel '
+                                                                                                                                                                                               'olarak '
+                                                                                                                                                                                               'çalıştırın.',
+        'Не удалось запустить прокси. Подробности в «Журнал».': 'Proxy başlatılamadı. Ayrıntılar günlükte mevcuttur.',
+        'Не удалось определить готовность NetworkManager.': 'NetworkManager hazırlığı belirlenemedi.',
+        'Не удалось остановить старый процесс для перезапуска. См. «Журнал».': 'Eski işlemin yeniden başlatılması '
+                                                                               'durdurulamadı. Bkz. "günlük".',
+        'Не удалось остановить старый процесс. См. «Журнал».': 'Eski süreç durdurulamadı. Bkz. "günlük".',
+        'Не удалось открыть журнал: %s': 'Günlük açılamadı: %s',
+        'Не удалось подготовить маршрутизацию приложений. %s': 'Uygulama yönlendirmesi hazırlanamadı. %s',
+        'Не удалось подготовить постоянную копию Launcher.': 'Başlatıcının kalıcı bir kopyası hazırlanamadı.',
+        'Не удалось прочитать список исключений: %s': 'İstisna listesi okunamadı: %s',
+        'Не удалось сохранить исключения приложений. %s': 'Uygulama istisnaları kaydedilemedi. %s',
+        'Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер.': 'Harici '
+                                                                                                                 'proxy '
+                                                                                                                 'üzerinden '
+                                                                                                                 'bazı '
+                                                                                                                 'bağlantılar '
+                                                                                                                 'başarısız '
+                                                                                                                 'oldu. '
+                                                                                                                 'Günlüğü '
+                                                                                                                 'veya '
+                                                                                                                 'yedekleme '
+                                                                                                                 'sunucusunu '
+                                                                                                                 'kontrol '
+                                                                                                                 'edin.',
+        'Новое исключение:': 'Yeni istisna:',
+        'Нужно восстановить настройки': 'Ayarları geri yüklemeniz gerekiyor',
+        'Нужно восстановить сеть': 'Ağı geri yüklememiz gerekiyor',
+        'ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM': 'ESKİ PAC ARVECTUM TESPİT EDİLDİ',
+        'Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.': 'Genellikle '
+                                                                                                    'değiştirmeye '
+                                                                                                    'gerek yoktur. '
+                                                                                                    'Tanılama bağlantı '
+                                                                                                    'noktalarının '
+                                                                                                    'meşgul olduğunu '
+                                                                                                    'bildirirse boş '
+                                                                                                    'olanları seçin.',
+        'Ожидание системного разрешения…': 'Sistem izni bekleniyor...',
+        'Окно можно закрыть — прокси продолжит работать в фоне.': 'Pencereyi kapatabilirsiniz; proxy arka planda '
+                                                                  'çalışmaya devam edecektir.',
+        'Остановка…': 'Durmak…',
+        'Отключить': 'Bağlantıyı kes',
+        'Отмена': 'İptal etmek',
+        'Очистить': 'Temizlemek',
+        'Очистить всё': 'Tümünü temizle',
+        'ПРОКСИ ВЫКЛЮЧЕН': 'PROXY DEVRE DIŞI BIRAKILDI',
+        'ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН': 'PROXY ÇALIŞIYOR · BAĞLI DEĞİL',
+        'ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА': 'PROXY BAŞLATILDI · KONTROL EDİLİYOR',
+        'ПРОКСИ РАБОТАЕТ': 'PROXY ÇALIŞIYOR',
+        'Пароль': 'Parola',
+        'Перезапуск…': 'Tekrar başlat...',
+        'Подключение не выполнено. Если системное окно PolicyKit было отменено или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».': 'Bağlantı '
+                                                                                                                                                                   'başarısız '
+                                                                                                                                                                   'oldu. '
+                                                                                                                                                                   'PolicyKit '
+                                                                                                                                                                   'sistem '
+                                                                                                                                                                   'penceresi '
+                                                                                                                                                                   'iptal '
+                                                                                                                                                                   'edilirse '
+                                                                                                                                                                   'veya '
+                                                                                                                                                                   'izin '
+                                                                                                                                                                   'reddedilirse '
+                                                                                                                                                                   'ağ '
+                                                                                                                                                                   'değişmeden '
+                                                                                                                                                                   'kalır. '
+                                                                                                                                                                   'Ayrıntılar '
+                                                                                                                                                                   'günlüktedir.',
+        'Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; новые изменения сети автоматически не выполнялись.': 'Bağlantı '
+                                                                                                                                                         'onaylanmadı. '
+                                                                                                                                                         "NetworkManager'nin "
+                                                                                                                                                         'durumu '
+                                                                                                                                                         '"Tanılama" '
+                                                                                                                                                         'aracılığıyla '
+                                                                                                                                                         'kontrol '
+                                                                                                                                                         'edilebilir; '
+                                                                                                                                                         'yeni '
+                                                                                                                                                         'ağ '
+                                                                                                                                                         'değişiklikleri '
+                                                                                                                                                         'otomatik '
+                                                                                                                                                         'olarak '
+                                                                                                                                                         'uygulanmadı.',
+        'Подключение недоступно': 'Bağlantı kullanılamıyor',
+        'Подключиться': 'Bağlan',
+        'Порт': 'Bağlantı noktası',
+        'Порт должен быть числом от 1 до 65535.': 'Bağlantı noktası 1 ile 65535 arasında bir sayı olmalıdır.',
+        'Превью готово: выбранные приложения будут обходить прокси.': "Önizleme hazır: seçilen uygulamalar proxy'leri "
+                                                                      'atlayacak.',
+        'Предыдущий сеанс %s завершился некорректно. Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, затем снова включите прокси.': 'Önceki '
+                                                                                                                                                               'oturum '
+                                                                                                                                                               '%s '
+                                                                                                                                                               'doğru '
+                                                                                                                                                               'şekilde '
+                                                                                                                                                               'sonlandırılmadı. '
+                                                                                                                                                               'Öncelikle '
+                                                                                                                                                               'kaydedilen '
+                                                                                                                                                               'NetworkManager '
+                                                                                                                                                               've '
+                                                                                                                                                               'masaüstü '
+                                                                                                                                                               'proxy '
+                                                                                                                                                               'ayarlarını '
+                                                                                                                                                               'geri '
+                                                                                                                                                               'yükleyin, '
+                                                                                                                                                               'ardından '
+                                                                                                                                                               "proxy'yi "
+                                                                                                                                                               'yeniden '
+                                                                                                                                                               'etkinleştirin.',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nПеред новым подключением нужно восстановить сохранённые сетевые настройки.\n\nВосстановить сеть сейчас?': 'Önceki '
+                                                                                                                                                                     'proxy '
+                                                                                                                                                                     'oturumu '
+                                                                                                                                                                     'düzgün '
+                                                                                                                                                                     'şekilde '
+                                                                                                                                                                     'sonlandırılmadı.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Yeni '
+                                                                                                                                                                     'bir '
+                                                                                                                                                                     'bağlantı '
+                                                                                                                                                                     'kurmadan '
+                                                                                                                                                                     'önce '
+                                                                                                                                                                     'kayıtlı '
+                                                                                                                                                                     'ağ '
+                                                                                                                                                                     'ayarlarını '
+                                                                                                                                                                     'geri '
+                                                                                                                                                                     'yüklemeniz '
+                                                                                                                                                                     'gerekir.\n'
+                                                                                                                                                                     '\n'
+                                                                                                                                                                     'Ağ '
+                                                                                                                                                                     'şimdi '
+                                                                                                                                                                     'geri '
+                                                                                                                                                                     'yüklensin '
+                                                                                                                                                                     'mi?',
+        'Предыдущий сеанс proxy завершился некорректно.\n\nЧтобы сеть не осталась с устаревшими настройками proxy, сначала нужно восстановить исходные настройки сети.\n\nВосстановить сеть сейчас?': 'Önceki '
+                                                                                                                                                                                                      'proxy '
+                                                                                                                                                                                                      'oturumu '
+                                                                                                                                                                                                      'düzgün '
+                                                                                                                                                                                                      'şekilde '
+                                                                                                                                                                                                      'sonlandırılmadı.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Ağın '
+                                                                                                                                                                                                      'güncel '
+                                                                                                                                                                                                      'olmayan '
+                                                                                                                                                                                                      'proxy '
+                                                                                                                                                                                                      'ayarlarıyla '
+                                                                                                                                                                                                      'kalmasını '
+                                                                                                                                                                                                      'önlemek '
+                                                                                                                                                                                                      'için '
+                                                                                                                                                                                                      'öncelikle '
+                                                                                                                                                                                                      'orijinal '
+                                                                                                                                                                                                      'ağ '
+                                                                                                                                                                                                      'ayarlarını '
+                                                                                                                                                                                                      'geri '
+                                                                                                                                                                                                      'yüklemeniz '
+                                                                                                                                                                                                      'gerekir.\n'
+                                                                                                                                                                                                      '\n'
+                                                                                                                                                                                                      'Ağ '
+                                                                                                                                                                                                      'şimdi '
+                                                                                                                                                                                                      'geri '
+                                                                                                                                                                                                      'yüklensin '
+                                                                                                                                                                                                      'mi?',
+        'Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси.': 'Önceki '
+                                                                                                                                                                  'oturum '
+                                                                                                                                                                  'beklenmedik '
+                                                                                                                                                                  'şekilde '
+                                                                                                                                                                  'sonlandı. '
+                                                                                                                                                                  '“Ağı '
+                                                                                                                                                                  'geri '
+                                                                                                                                                                  'yükle”yi '
+                                                                                                                                                                  'seçin, '
+                                                                                                                                                                  'özgün '
+                                                                                                                                                                  'ayarlar '
+                                                                                                                                                                  'geri '
+                                                                                                                                                                  'yüklendikten '
+                                                                                                                                                                  'sonra '
+                                                                                                                                                                  'proxy '
+                                                                                                                                                                  'bağlantısını '
+                                                                                                                                                                  'yeniden '
+                                                                                                                                                                  'kurun.',
+        'Проверить': 'Kontrol etmek',
+        'Проверка подключения': 'Bağlantı testi',
+        'Проверка соединения': 'Bağlantı testi',
+        'Проверка соединения…': 'Bağlantı kontrol ediliyor...',
+        'Проверки, требующие внимания:': 'Dikkat gerektiren kontroller:',
+        'Прокси будет запускаться автоматически при входе в Windows.': "Windows'de oturum açtığınızda proxy otomatik "
+                                                                       'olarak başlayacaktır.',
+        'Прокси выключен': 'Proxy devre dışı bırakıldı',
+        'Прокси выключен, исходные настройки сети восстановлены.': 'Proxy kapatıldı, orijinal ağ ayarları geri '
+                                                                   'yüklendi.',
+        'Прокси запущен, но не подключён': 'Proxy çalışıyor ancak bağlı değil',
+        'Прокси недоступен': 'Proxy kullanılamıyor',
+        'Прокси остановлен, но настройки сети восстановлены не полностью. Не удаляйте приложение: нажмите «Восстановить настройки сети» ещё раз и проверьте «Журнал».': 'Proxy '
+                                                                                                                                                                        'durduruldu '
+                                                                                                                                                                        'ancak '
+                                                                                                                                                                        'ağ '
+                                                                                                                                                                        'ayarları '
+                                                                                                                                                                        'tam '
+                                                                                                                                                                        'olarak '
+                                                                                                                                                                        'geri '
+                                                                                                                                                                        'yüklenmedi. '
+                                                                                                                                                                        'Uygulamayı '
+                                                                                                                                                                        'silmeyin: '
+                                                                                                                                                                        'yeniden '
+                                                                                                                                                                        '“Ağ '
+                                                                                                                                                                        'ayarlarını '
+                                                                                                                                                                        'geri '
+                                                                                                                                                                        'yükle”yi '
+                                                                                                                                                                        'seçip '
+                                                                                                                                                                        'Günlük '
+                                                                                                                                                                        'bölümünü '
+                                                                                                                                                                        'kontrol '
+                                                                                                                                                                        'edin.',
+        'Прокси подключен, NetworkManager и desktop proxy применены.\n\nПриложения, которые кэшируют настройки сети, может потребоваться перезапустить.': 'Proxy '
+                                                                                                                                                          'bağlandı, '
+                                                                                                                                                          'NetworkManager '
+                                                                                                                                                          've '
+                                                                                                                                                          'masaüstü '
+                                                                                                                                                          'proxy '
+                                                                                                                                                          'uygulandı.\n'
+                                                                                                                                                          '\n'
+                                                                                                                                                          'Ağ '
+                                                                                                                                                          'ayarlarını '
+                                                                                                                                                          'önbelleğe '
+                                                                                                                                                          'alan '
+                                                                                                                                                          'uygulamaların '
+                                                                                                                                                          'yeniden '
+                                                                                                                                                          'başlatılması '
+                                                                                                                                                          'gerekebilir.',
+        'Прокси подключён': 'Proxy bağlandı',
+        'Прокси подключён.\nСистемные настройки прокси применены.\n\nЕсли отдельное приложение не подхватило новые настройки, полностью закройте его и запустите заново.': 'Proxy '
+                                                                                                                                                                           'bağlandı.\n'
+                                                                                                                                                                           'Sistem '
+                                                                                                                                                                           'proxy '
+                                                                                                                                                                           'ayarları '
+                                                                                                                                                                           'uygulandı.\n'
+                                                                                                                                                                           '\n'
+                                                                                                                                                                           'Belirli '
+                                                                                                                                                                           'bir '
+                                                                                                                                                                           'uygulama '
+                                                                                                                                                                           'yeni '
+                                                                                                                                                                           'ayarları '
+                                                                                                                                                                           'kabul '
+                                                                                                                                                                           'etmezse '
+                                                                                                                                                                           'uygulamayı '
+                                                                                                                                                                           'tamamen '
+                                                                                                                                                                           'kapatın '
+                                                                                                                                                                           've '
+                                                                                                                                                                           'yeniden '
+                                                                                                                                                                           'başlatın.',
+        'Прокси-процесс не удалось остановить. Подробности в «Журнал».': 'Proxy işlemi durdurulamadı. Ayrıntılar '
+                                                                         'günlükte mevcuttur.',
+        'Профили': 'Profiller',
+        'Профили прокси': 'Proxy profilleri',
+        'Профили прокси…': 'Proxy profilleri...',
+        'Профиль · %s:%s': 'Profil %s:%s',
+        'Профиль · Авто · %d прокси': 'Profil · Otomatik · %d proxy',
+        'Профиль · не настроен': 'Profil yapılandırılmadı',
+        'Рекомендуемые 18080 / 11080 / 18082': 'Tavsiye edilen 18080/11080/18082',
+        'Рекомендуемые действия:': 'Önerilen eylemler:',
+        'Сайты из списка открываются напрямую (минуя прокси).\nМожно вставлять целиком URL или host:port — само «почистится».\nИзменения применяются сразу, перезапуск не нужен.': 'Listedeki '
+                                                                                                                                                                                   'siteler '
+                                                                                                                                                                                   'doğrudan '
+                                                                                                                                                                                   'açılır '
+                                                                                                                                                                                   '(proxy '
+                                                                                                                                                                                   'atlanarak).\n'
+                                                                                                                                                                                   "URL'nin "
+                                                                                                                                                                                   'tamamını '
+                                                                                                                                                                                   'veya '
+                                                                                                                                                                                   'ana '
+                                                                                                                                                                                   'bilgisayar:bağlantı '
+                                                                                                                                                                                   'noktasını '
+                                                                                                                                                                                   'yapıştırabilirsiniz; '
+                                                                                                                                                                                   'kendisi '
+                                                                                                                                                                                   '"temizlenir".\n'
+                                                                                                                                                                                   'Değişiklikler '
+                                                                                                                                                                                   'anında '
+                                                                                                                                                                                   'uygulanır, '
+                                                                                                                                                                                   'yeniden '
+                                                                                                                                                                                   'başlatmaya '
+                                                                                                                                                                                   'gerek '
+                                                                                                                                                                                   'yoktur.',
+        'Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. Нажмите «Включить прокси», когда он понадобится.': 'Arvectum '
+                                                                                                                                              'oturumu '
+                                                                                                                                              'etkin '
+                                                                                                                                              'değil. '
+                                                                                                                                              'Orijinal '
+                                                                                                                                              'ağ '
+                                                                                                                                              'ayarları '
+                                                                                                                                              'değişiklik '
+                                                                                                                                              'yapılmadan '
+                                                                                                                                              'kullanılır. '
+                                                                                                                                              'İhtiyacınız '
+                                                                                                                                              'olduğunda '
+                                                                                                                                              '"Proxy\'yi '
+                                                                                                                                              'Etkinleştir"i '
+                                                                                                                                              'tıklayın.',
+        'Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.': 'Günlük '
+                                                                                                   'bağlantıları '
+                                                                                                   'kolaylaştırmak '
+                                                                                                   'için gelişmiş '
+                                                                                                   'bakım işlemleri '
+                                                                                                   "Ana Sayfa'nın "
+                                                                                                   'dışında tutulur.',
+        'Сеть восстановлена. Теперь можно снова включить прокси.': "Ağ geri yüklendi. Artık proxy'yi tekrar "
+                                                                   'etkinleştirebilirsiniz.',
+        'Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит работать в фоне.': 'Linux '
+                                                                                                                                                                                  'sistem '
+                                                                                                                                                                                  'ayarları '
+                                                                                                                                                                                  '(NetworkManager '
+                                                                                                                                                                                  've '
+                                                                                                                                                                                  'masaüstü '
+                                                                                                                                                                                  'proxy) '
+                                                                                                                                                                                  'etkinleştirilir '
+                                                                                                                                                                                  've '
+                                                                                                                                                                                  'Arvectum '
+                                                                                                                                                                                  'Proxy '
+                                                                                                                                                                                  'Başlatıcı '
+                                                                                                                                                                                  'aracılığıyla '
+                                                                                                                                                                                  'yönlendirilir. '
+                                                                                                                                                                                  'Pencereyi '
+                                                                                                                                                                                  'kapatabilirsiniz; '
+                                                                                                                                                                                  'proxy '
+                                                                                                                                                                                  'arka '
+                                                                                                                                                                                  'planda '
+                                                                                                                                                                                  'çalışmaya '
+                                                                                                                                                                                  'devam '
+                                                                                                                                                                                  'edecektir.',
+        'Системный прокси %s включён и направлен через Arvectum Proxy Launcher. ': "Sistem proxy'si %s etkinleştirilir "
+                                                                                   've Arvectum Proxy Başlatıcı '
+                                                                                   'aracılığıyla yönlendirilir.',
+        'Сначала настройте внешний прокси, затем включайте автозапуск.': 'Önce harici bir proxy kurun, ardından '
+                                                                         'otomatik çalıştırmayı etkinleştirin.',
+        'Сначала укажи IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'İlk olarak, “Proxy Ayarları”nda '
+                                                                                    "harici proxy'nin IP/port/oturum "
+                                                                                    'açma adı/şifresini belirtin.',
+        'Сначала укажите IP/порт/логин/пароль внешнего прокси в «Настройки прокси».': 'İlk olarak, “Proxy Ayarları”nda '
+                                                                                      "harici proxy'nin IP/port/oturum "
+                                                                                      'açma adı/şifresini belirtin.',
+        'Соединение нестабильно': 'Bağlantı kararsız',
+        'Сохранить': 'Kaydetmek',
+        'Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. Теперь можно снова включить прокси.': 'Eski '
+                                                                                                                      'PAC '
+                                                                                                                      'Arvectum '
+                                                                                                                      'kaldırıldı. '
+                                                                                                                      'Sistem '
+                                                                                                                      'ayarlarının '
+                                                                                                                      'geri '
+                                                                                                                      'kalanı '
+                                                                                                                      'değiştirilmedi. '
+                                                                                                                      'Artık '
+                                                                                                                      "proxy'yi "
+                                                                                                                      'tekrar '
+                                                                                                                      'etkinleştirebilirsiniz.',
+        'Старый PAC не был удалён: состояние сети изменилось или ownership не удалось подтвердить. См. «Журнал».': 'Eski '
+                                                                                                                   'PAC '
+                                                                                                                   'kaldırılmadı: '
+                                                                                                                   'ağ '
+                                                                                                                   'durumu '
+                                                                                                                   'değişti '
+                                                                                                                   'veya '
+                                                                                                                   'sahiplik '
+                                                                                                                   'doğrulanamadı. '
+                                                                                                                   'Günlük '
+                                                                                                                   'bölümünü '
+                                                                                                                   'kontrol '
+                                                                                                                   'edin.',
+        'Требуется диагностика': 'Teşhis gerekli',
+        'Удаление старого PAC…': 'Eski PAC kaldırılıyor...',
+        'Удалить': 'Silmek',
+        'Удалить выбранное': 'Seçileni sil',
+        'Удалить старый PAC и продолжить': "Eski PAC'yi silin ve devam edin",
+        'Укажи URL для проверки.': "Kontrol edilecek URL'yi belirtin.",
+        'Укажи данные внешнего прокси: IP адрес, порт, логин и пароль.': 'Harici proxy ayrıntılarını belirtin: IP '
+                                                                         'adresi, bağlantı noktası, oturum açma adı ve '
+                                                                         'parola.',
+        'Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения.': "Proxy'leri ve "
+                                                                                                        'önceliklerini '
+                                                                                                        'yönetin. Ana '
+                                                                                                        'sayfada '
+                                                                                                        'yalnızca '
+                                                                                                        'geçerli '
+                                                                                                        'bağlantı '
+                                                                                                        'içeriği '
+                                                                                                        'kalır.',
+        'Файл LaunchAgent существует, но не принадлежит Arvectum. Он не будет изменён или удалён.': 'LaunchAgent '
+                                                                                                    'dosyası mevcut '
+                                                                                                    "ancak Arvectum'ye "
+                                                                                                    'ait değil. '
+                                                                                                    'Değiştirilmeyecek '
+                                                                                                    'veya '
+                                                                                                    'silinmeyecektir.',
+        'Файл не найден.': 'Dosya bulunamadı.',
+        'м': 'M',
+        'не удалось безопасно проверить/удалить Run: %s': 'Çalıştırma güvenli bir şekilde kontrol '
+                                                          'edilemedi/silinemedi: %s',
+        'неизвестная ошибка': 'bilinmeyen hata',
+        'неизвестно': 'bilinmiyor',
+        'но прокси-процесс уже не работает и резервная копия недоступна. ': 'ancak proxy işlemi artık çalışmıyor ve '
+                                                                            'yedekleme mevcut değil.',
+        'предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал».': 'önceki oturum. '
+                                                                                                       'Otomatik '
+                                                                                                       'sıfırlama '
+                                                                                                       'gerçekleşmiyor: '
+                                                                                                       "Teşhis'i veya "
+                                                                                                       'günlüğü açın.'},
  'zh-Hans': {'\n\nLauncher оставлен открытым из текущей папки. Закройте старую копию приложения и повторите запуск.': '启动器从当前文件夹保持打开状态。关闭应用程序的旧副本并再次启动它。',
              '\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию.': '其他人的记录没有被改变。检查“日志”并重复操作。',
              '  %s:%s  (логин: %s)': '%s:%s（登录名：%s）',

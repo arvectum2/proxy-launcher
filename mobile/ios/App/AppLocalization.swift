@@ -15,6 +15,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case ja
     case ko
     case fa
+    case nl
+    case indonesian = "id"
+    case tr
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -34,6 +37,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .ja: return "日本語"
         case .ko: return "한국어"
         case .fa: return "فارسی"
+        case .nl: return "Nederlands"
+        case .indonesian: return "Bahasa Indonesia"
+        case .tr: return "Türkçe"
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -60,7 +66,7 @@ enum AppL10n {
         }
         if id == "pt" || id.hasPrefix("pt-pt") { return "pt-PT" }
         if id.hasPrefix("pt-br") { return "pt-BR" }
-        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa"] {
+        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr"] {
             if id == code || id.hasPrefix(code + "-") { return code }
         }
         return nil

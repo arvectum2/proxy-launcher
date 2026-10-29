@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">Voer een website in en tik op ‘Toevoegen’. Elke website staat op een eigen regel. U kunt een URL, host:poort of IP-adres plakken.</string>
+    <string name="apl_connection_828dd" formatted="false">Verbinding</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL-status en actief profiel</string>
+    <string name="apl_profile_cc3f0" formatted="false">Profiel · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">Beheer profielen</string>
+    <string name="apl_profiles_30c61" formatted="false">Profielen</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Proxyservers kiezen, toevoegen en prioriteit geven</string>
+    <string name="apl_activity_85f08" formatted="false">Activiteit</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">Verbindingsstatus en recente activiteit</string>
+    <string name="apl_disconnected_3e958" formatted="false">Verbinding verbroken</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">Logboek openen</string>
+    <string name="apl_settings_985b5" formatted="false">Instellingen</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Routering en APL-gedrag</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">Uitsluitingen van websites</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">App-uitsluitingen</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">Automatische instellingen</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">Geavanceerde acties staan ​​los van de dagelijkse verbinding.</string>
+    <string name="apl_home_d328e" formatted="false">Start</string>
+    <string name="apl_close_a7a40" formatted="false">Dichtbij</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Keer terug naar de voorkeursproxy na een fout</string>
+    <string name="apl_connect_36b4c" formatted="false">Verbinden</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">Selecteer een proxy</string>
+    <string name="apl_new_4460b" formatted="false">+ Nieuw</string>
+    <string name="apl_edit_b8b15" formatted="false">Bewerking</string>
+    <string name="apl_websites_54646" formatted="false">Websites</string>
+    <string name="apl_applications_39c4b" formatted="false">Toepassingen</string>
+    <string name="apl_log_97c45" formatted="false">Logboek</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Kan opgeslagen profielen niet lezen</string>
+    <string name="apl_auto_8dca2" formatted="false">Automatisch</string>
+    <string name="apl_checked_6a779" formatted="false">· controleren</string>
+    <string name="apl_available_c75e3" formatted="false">· beschikbaar</string>
+    <string name="apl_unavailable_bee71" formatted="false">· niet beschikbaar</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">Voeg een proxy toe</string>
+    <string name="apl_profile_309fc" formatted="false">Profiel ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">niet geconfigureerd</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">Geen uitsluitingen toegevoegd</string>
+    <string name="apl_delete_be99b" formatted="false">Verwijderen</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">Controleer het locatieadres</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">Voer het locatieadres in</string>
+    <string name="apl_add_71038" formatted="false">Toevoegen</string>
+    <string name="apl_exclusions_f4f81" formatted="false">Uitsluitingen</string>
+    <string name="apl_cancel_8fbe9" formatted="false">Annuleren</string>
+    <string name="apl_save_b4d30" formatted="false">Redden</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">Bekijk de lijst met uitzonderingen</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">Kan uitzonderingen niet opslaan</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">Uitsluitingen toepassen…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">Uitzonderingen gewist</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">App-lijst laden</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">App-lijst laden…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">Kan geen lijst met geïnstalleerde applicaties ophalen.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">Kan applicatie-uitzonderingen niet opslaan</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">Applicatie-uitzonderingen toepassen...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">Applicatie-uitzonderingen gewist</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">Het logboek is leeg</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">proxy niet beschikbaar</string>
+    <string name="apl_switched_4c72e" formatted="false">geschakeld</string>
+    <string name="apl_main_restored_290c9" formatted="false">belangrijkste hersteld</string>
+    <string name="apl_network_change_50fc1" formatted="false">netwerk verandering</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Voeg eerst minimaal één proxy toe</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">Kan proxy niet selecteren</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Nieuwe proxy</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">Profiel bewerken</string>
+    <string name="apl_name_0918b" formatted="false">Naam</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">Bijvoorbeeld Primair</string>
+    <string name="apl_proxy_address_ef480" formatted="false">Proxy-adres</string>
+    <string name="apl_port_90947" formatted="false">Poort</string>
+    <string name="apl_username_5be12" formatted="false">Gebruikersnaam</string>
+    <string name="apl_optional_f6d95" formatted="false">Optioneel</string>
+    <string name="apl_password_cb1a2" formatted="false">Wachtwoord</string>
+    <string name="apl_protocol_b3680" formatted="false">Protocol</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">Automatisch protocol</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">HTTPS-proxy met TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">Prioriteit voor automatische modus</string>
+    <string name="apl_delete_profile_b745f" formatted="false">Profiel verwijderen?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">Voer een proxyadres in</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">Poort 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">Kan profiel niet veilig opslaan</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">Profielwijzigingen toepassen...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">Kan profiel niet verwijderen</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">Profiel verwijderd</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">Voeg eerst een proxy toe</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Sta het maken van een VPN-verbinding toe</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android heeft de toestemming voor VPN ingetrokken. Tik op Verbinden.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN is uitgeschakeld. U kunt opnieuw verbinding maken.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">Proxy controleren...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">Verbinding verbreken…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">VPN toestemming niet verleend</string>
+    <string name="apl_switching_b0760" formatted="false">Schakelen</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">Verbreek de verbinding</string>
+    <string name="apl_connecting_e2449" formatted="false">Verbinden…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">De actieve proxy wijzigen</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">Verbinding actief</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">De geselecteerde proxy controleren</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">De verbinding beëindigen</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Selecteer een proxy</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">Uitsluitingen opgeslagen: %1$d</string>
+    <string name="apl_apps_bypassing_count">Apps die de proxy omzeilen: %1$d</string>
+    <string name="apl_switching_to_profile">Overstappen naar %1$s...</string>
+    <string name="apl_profile_saved">Opgeslagen: %1$s</string>
+    <string name="apl_error_detail">Fout: %1$s</string>
+    <string name="apl_cannot_connect">Kon geen verbinding maken</string>
+</resources>

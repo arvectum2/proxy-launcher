@@ -71,6 +71,7 @@
 		0FE6C179D53398282FC43E83 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
+		1C70CD5C33236647B0F5E8A7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
 		2F4FCA25B746417DA30EF17E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,10 +86,12 @@
 		6B6111701DABA6167BA25D76 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
 		7930444C0EAA48D618BAA227 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7F61CB5A4850AED0A4445C82 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		84D5D2F89875F606C37AB587 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
 		87885BE6123FF783E8126F72 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
 		8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
 		8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		9402FCE65792B5E8A47BF4DD /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
 		97289884E2BC264E1928499B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9ADE40E1415BE281B3E223B7 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -296,12 +299,15 @@
 				es,
 				fa,
 				fr,
+				id,
 				it,
 				ja,
 				ko,
+				nl,
 				"pt-BR",
 				"pt-PT",
 				ru,
+				tr,
 				"zh-Hans",
 				"zh-Hant",
 			);
@@ -400,12 +406,15 @@
 				F9B570BA33B4DA173321D277 /* es */,
 				40D6F885512E0D4307BFD2F3 /* fa */,
 				FF516E2D4071DAEF8513A99F /* fr */,
+				84D5D2F89875F606C37AB587 /* id */,
 				0569245A357CCCDF1ECAA7A0 /* it */,
 				7F61CB5A4850AED0A4445C82 /* ja */,
 				7930444C0EAA48D618BAA227 /* ko */,
+				9402FCE65792B5E8A47BF4DD /* nl */,
 				D22A7AC7C830AA8F90843E55 /* pt-BR */,
 				0FE6C179D53398282FC43E83 /* pt-PT */,
 				9ADE40E1415BE281B3E223B7 /* ru */,
+				1C70CD5C33236647B0F5E8A7 /* tr */,
 				C0DD7FD033993A09C93D6574 /* zh-Hans */,
 				BACDBE610B2263D79F3BCCA7 /* zh-Hant */,
 			);

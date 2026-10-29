@@ -15,13 +15,16 @@
     "ko",
     "zh-Hans",
     "zh-Hant",
-    "fa"
+    "fa",
+    "nl",
+    "id",
+    "tr"
   ],
   "platforms": [
     "ios",
     "android",
     "desktop"
   ],
-  "stage": "core13_persian_editorial_source",
+  "stage": "core16_editorial_source",
   "appStoreConnectModified": false
 }

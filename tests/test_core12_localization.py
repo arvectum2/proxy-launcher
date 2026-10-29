@@ -12,7 +12,7 @@ ANDROID = {
     'en': 'values-en', 'ru': 'values', 'es': 'values-es', 'fr': 'values-fr',
     'de': 'values-de', 'it': 'values-it', 'pt-BR': 'values-pt-rBR',
     'pt-PT': 'values-pt-rPT', 'ja': 'values-ja', 'ko': 'values-ko',
-    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant', 'fa': 'values-fa',
+    'zh-Hans': 'values-b+zh+Hans', 'zh-Hant': 'values-b+zh+Hant', 'fa': 'values-fa', 'nl': 'values-nl', 'id': 'values-in', 'tr': 'values-tr',
 }
 STRING = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 FORMAT = re.compile(r'%(?:\d+\$)?(?:@|s|d|f)')
@@ -39,10 +39,10 @@ def android_catalog(code):
 
 
 def test_core_baseline_languages_and_registry():
-    assert len(LANGS) == len(set(LANGS)) == 13
+    assert len(LANGS) == len(set(LANGS)) == 16
     assert LANGS == ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt-BR', 'pt-PT',
-                     'ja', 'ko', 'zh-Hans', 'zh-Hant', 'fa']
-    assert MANIFEST['stage'] == 'core13_persian_editorial_source'
+                     'ja', 'ko', 'zh-Hans', 'zh-Hant', 'fa', 'nl', 'id', 'tr']
+    assert MANIFEST['stage'] == 'core16_editorial_source'
     assert MANIFEST['fallback'] == 'en'
     assert MANIFEST['appStoreConnectModified'] is False
 
@@ -64,7 +64,7 @@ def test_app_language_picker_lists_all_core_languages():
     source = (ROOT / 'mobile/ios/App/AppLocalization.swift').read_text()
     assert 'case system' in source
     for code in LANGS:
-        if '-' in code:
+        if '-' in code or code == 'id':
             assert f'= "{code}"' in source, code
         else:
             assert re.search(r'\bcase\s+' + code + r'\b', source), code
