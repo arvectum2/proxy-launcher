@@ -15,17 +15,17 @@ completed:
   - "Yandex SDK docs confirm wrong adaptive banner constraints may prevent rendering; real device Yandex load result is not yet known."
   - "Changed banner placement from Settings scroll bottom to iOS TabView bottom safe-area inset; removed 1pt view clamp/opacity, added 50pt minimum height and OSLog error/success/impression logging."
   - "Changed iOS version to 0.1.40 (45) with XcodeGen regenerated project and revised contract tests."
-  - "Swift 12 tests PASS; Python iOS contracts 14 PASS; unsigned iPhoneOS Debug and Release builds PASS. Simulator full-app build blocked because tun2proxy.xcframework lacks iOS Simulator slice."
-current: "Source fix implemented; XcodeGen, Debug/Release unsigned iPhone builds and 26 tests passed. Commit/PR/release candidate next."
+  - "Swift 12 tests PASS; Python iOS contracts 14 PASS; unsigned iPhoneOS Debug and Release builds PASS. Simulator full-app build blocked because tun2proxy.xcframework lacks iOS Simulator slice."\n  - "GitHub stacked PR #273 opened, head e0c7732ab23968daaa12bd8d3da090ddf97995d9."\n  - "30 Oct: signed Xcode 0.1.40 build45 archive r2 PASS, App Store IPA export PASS, codesign verify PASS, IPA CRC PASS, SHA256 d8bef00497a2976268bcc648715abba88ae662cf1700757883ea8a105876a6b1."\n  - "Apple altool validate PASS: VERIFY SUCCEEDED with no errors; Apple IPA upload started."
+current: "PR #273 opened. Signed iOS 0.1.40 (45) archive/export and Apple altool validation PASS; Apple IPA upload executing; App Review not yet submitted."
 pending:
   - "Validate visual ad display on physical device; simulator XCFramework unavailable."
-  - "Prepare signed release candidate 0.1.40 (45) and verify App Store validation; avoid claiming physical creative test without device evidence."
+  - "Await altool upload completion for 0.1.40 (45); process VALID, create App Store version/localizations, submit for review when Apple accepts the build."\n  - "Avoid claiming physical creative/impression test without device evidence. Review eventual Apple decision."
   - "Update GitHub branch/PR and checkpoint; report exact status."
-last_verified_commit: "d0044b7f (checkpoint branch creation; new source edits not committed yet)"
+last_verified_commit: "e0c7732ab23968daaa12bd8d3da090ddf97995d9 (GitHub PR #273, iOS Debug/Release and 26 tests PASS)"
 test_results:
   - "Existing source branch iOS contract tests: 13 PASS before change."
   - "Apple confirmed publicly distributed 0.1.39 build 44."
   - "iOS 0.1.40 (45) XcodeGen PASS, Python contracts 14 PASS, Swift 12 PASS, iPhoneOS Debug and Release unsigned BUILD SUCCEEDED."
-  - "iOS simulator build unavailable: tun2proxy.xcframework lacks iOS Simulator slice (known packaging constraint)."
+  - "iOS simulator build unavailable: tun2proxy.xcframework lacks iOS Simulator slice (known packaging constraint)."\n  - "Signed iOS 0.1.40 (45) archive/export/Apple altool validation: PASS. Apple upload: IN PROGRESS, not yet confirmed."
 blocker: null
-resume_instruction: "Do not reactivate Proxy Launcher Watchdog. Worktree /Users/master/Arvectum/worktrees/apl-ios-rsya-visibility-20261030, branch fix/ios-rsya-visibility-20261030, based on released ad source commit 31a44b5c. Fix banner collapsed to 1pt and hidden under Settings scroll; include OSLog diagnostics and a stable visible placement. Build/test and consider distinct next iOS version because 0.1.39 published. Do not edit App Store privacy metadata."
+resume_instruction: "Do not reactivate Proxy Launcher Watchdog. Branch fix/ios-rsya-visibility-20261030, PR #273, based on published ad source, contains signed and locally validated iOS 0.1.40 (45). Mac mini archive /Users/master/Arvectum/releases/APL-iOS-0.1.40-45-rsya-20261030-r2.xcarchive, IPA /Users/master/Arvectum/releases/APL-iOS-0.1.40-45-rsya-20261030-export/Arvectum Proxy Launcher.ipa. Check ARC job 0e21fcae-e864-41a7-a697-8cfc6df785a1 and /tmp/apl-rsya-45-apple-upload.log for Apple upload. On success run /tmp/apl_rsya_45_release.py with ASC env to wait for build45 VALID, create version 0.1.40, localize ru/en-US and submit review (without modifying privacy declarations); independently verify Apple API. If upload fails, investigate and retry safely without duplicate submissions. SDK live no-fill and real impression not yet verified; do not claim those. PR #271 and #273 still need governance-aware merge. Preserve published 0.1.39 until Apple approves 0.1.40."
