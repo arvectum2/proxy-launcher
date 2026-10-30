@@ -12,12 +12,13 @@ IOS = ROOT / "mobile" / "ios"
 class IOSAppearanceContractTests(unittest.TestCase):
     def test_persisted_system_default_and_three_modes(self):
         app = (IOS / "App" / "ArvectumProxyLauncherApp.swift").read_text(encoding="utf-8")
+        appearance = (IOS / "App" / "AppearanceMode.swift").read_text(encoding="utf-8")
         view = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn('case system, light, dark', app)
+        self.assertIn('case system, light, dark', appearance)
         self.assertIn('@AppStorage("appearanceMode.v1")', app)
         self.assertIn('@AppStorage("appearanceMode.v1")', view)
         self.assertIn('.preferredColorScheme(AppearanceMode(rawValue: appearanceMode)?.colorScheme)', app)
-        self.assertIn('case .system: return nil', app)
+        self.assertIn('case .system: return nil', appearance)
         self.assertIn('Picker("Тема оформления"', view)
 
     def test_no_fixed_dark_palette_on_main_screens(self):
