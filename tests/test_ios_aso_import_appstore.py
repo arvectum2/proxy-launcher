@@ -35,7 +35,7 @@ class ImportContractTests(unittest.TestCase):
             def list(self,path):
                 calls.append(('GET',path))
                 if '/appStoreVersions?' in path:
-                    return [{'id':'version40','attributes':{'platform':'IOS','versionString':'0.1.40','appStoreState':'WAITING_FOR_REVIEW'}}]
+                    return [{'id':'version41','attributes':{'platform':'IOS','versionString':'0.1.41','appStoreState':'PREPARE_FOR_SUBMISSION'}}, {'id':'version40','attributes':{'platform':'IOS','versionString':'0.1.40','appStoreState':'WAITING_FOR_REVIEW'}}]
                 if '/appStoreVersionLocalizations?' in path:
                     return [{'id':'r','attributes':{'locale':'ru'}},{'id':'e','attributes':{'locale':'en-US'}}]
                 raise AssertionError(path)
@@ -44,8 +44,8 @@ class ImportContractTests(unittest.TestCase):
                 raise AssertionError('No API writes or further requests should happen')
         with patch.object(imp,'ASC',FakeApple):
             with self.assertRaises(imp.ImportErrorASC):
-                imp.main(['--execute','--version','0.1.40','--confirm-version','0.1.40'])
-        self.assertEqual(['GET','GET'],[c[0] for c in calls])
+                imp.main(['--execute','--version','0.1.41','--confirm-version','0.1.41'])
+        self.assertEqual(['GET','GET','GET'],[c[0] for c in calls])
 
     def test_screenshot_reservation_uses_apple_required_md5_and_upload_blocks(self):
         uploads=[]

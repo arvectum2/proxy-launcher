@@ -45,3 +45,53 @@ python3 mobile/ios/ASO/import_appstore.py --execute --version 0.1.41 --confirm-v
 The tool supports idempotent locale creation/update and screenshot asset reservations, byte-range image uploads, MD5 commits and local verification of matching locales. It never changes App Store review submissions, build attachment, app privacy metadata, or published versions. Each locale's `appInfoLocalization` and `appStoreVersionLocalization` are created together to avoid mismatched version and app locale sets. Existing screenshot file names are reused rather than overwritten. It fails closed for noneditable Apple states. On a new version, verify Apple's exact screenshot-set display type `APP_IPHONE_61` compatibility with the accepted 1206 × 2622 medium iPhone asset on the first locale before the full import; the asset API only validates it during actual uploading.
 
 **Current real App Store state (30 October 2026):** iOS `0.1.40` = `WAITING_FOR_REVIEW`, with only `ru` and `en-US` card localizations; it is not currently editable for screenshots. Apple explicitly forbids new screenshot uploads while Waiting for Review. To deploy the prepared ASO package, either the owner must explicitly choose to withdraw and resubmit that version or we can import into a later editable iOS version after Apple's current review completes. No cancellation or App Store Connect write was performed.
+
+## Next release 0.1.41: prepared without changing 0.1.40 (30 Oct 2026)
+
+**Owner choice is to preserve the current Apple review of 0.1.40.** It is `WAITING_FOR_REVIEW` with submitted build **45**. Apple's version-creation workflow requires the current version to become *Ready for Distribution* (App Store Connect API `READY_FOR_SALE`) before a new version can be created.
+
+### Durable signed candidate on Mac mini
+
+A complete 0.1.41 (**build 46**) signed Apple Distribution archive and IPA, prepared from PR #272 iOS source in a separate staging directory, are stored at:
+
+`/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-20261030/`
+
+- IPA: `exported/Arvectum Proxy Launcher.ipa`
+- Archive: `APL-0.1.41-46.xcarchive`
+- Integrity manifest: `candidate-manifest.json`
+- SHA-256: `eae05d373e6b3547618df4340fe3cfc7fbde1f70fde560b1095b34cef13a3916`
+- 50 iOS localizations + PacketTunnel, valid deep code signature. The candidate was **not uploaded to Apple** and is not in Git.
+- Rebuild reproducibly from a new isolated directory with `python3 mobile/ios/ASO/build_release_041.py --output /path/to/new/output`. The script **does not modify the source checkout**. Build number 46 was valid when prepared; verify no later upload has consumed that number before submitting.
+
+### When 0.1.40 finishes review and is Ready for Sale
+
+Run in the checked-out repository on Mac mini. The first commands are **read-only**:
+
+```bash
+python3 mobile/ios/ASO/prepare_version_041.py --live-check
+python3 mobile/ios/ASO/upload_release_041.py --live-check
+python3 mobile/ios/ASO/import_appstore.py --live-check --version 0.1.40
+```
+
+When those show 0.1.40 `READY_FOR_SALE`, a new, explicitly authorized iOS release workflow can proceed. **Do not create 0.1.41 earlier or withdraw 0.1.40**.
+
+```bash
+# CREATE 0.1.41 (Apple POST only once; repeat is idempotent)
+python3 mobile/ios/ASO/prepare_version_041.py --create --confirm-version 0.1.41
+
+# STAGE ASO: upload one new market first, verify Apple's processed assets
+python3 mobile/ios/ASO/import_appstore.py --execute --version 0.1.41 --confirm-version 0.1.41 --only-locale en-GB
+python3 mobile/ios/ASO/import_appstore.py --verify-only --version 0.1.41 --only-locale en-GB
+
+# Remaining ASO; repeated runs reuse existing locale/image filenames
+python3 mobile/ios/ASO/import_appstore.py --execute --version 0.1.41 --confirm-version 0.1.41
+python3 mobile/ios/ASO/import_appstore.py --verify-only --version 0.1.41
+
+# UPLOAD signed build to Apple processing, then attach after VALID status
+python3 mobile/ios/ASO/upload_release_041.py --upload --confirm-version 0.1.41
+python3 mobile/ios/ASO/upload_release_041.py --attach --confirm-version 0.1.41
+```
+
+The verify command fails closed if Apple is still processing a screenshot (`UPLOAD_COMPLETE`), has failed processing it (`FAILED`) or returns a different MD5. Retry the read-only verify later; **do not blindly duplicate** a processing image. The binary upload uses Xcode's authenticated altool and needs Apple to finish processing before the attach command. No script automatically submits a review or releases the app; submit 0.1.41 only after validating all 47 locale records, 94 screenshots, a VALID build 46 and owner release instructions. The new-version creation, upload, and attachment code paths have unit-test coverage but have **not** been executed against the Apple write API, so the first live locale must be explicitly verified.
+
+Source references: [Apple — Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version), [Create an App Store version API](https://developer.apple.com/documentation/appstoreconnectapi/post-v1-appstoreversions), [Upload and verify assets](https://developer.apple.com/documentation/appstoreconnectapi/uploading-assets-to-app-store-connect), [Upload builds](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).

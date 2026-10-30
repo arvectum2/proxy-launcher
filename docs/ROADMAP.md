@@ -1,3 +1,12 @@
+## 30.10.2026 — Подготовка iOS 0.1.41 (46) с полным ASO без изменения проверки 0.1.40
+
+- [x] Проверены Apple API и действующая проверка: 0.1.40 WAITING_FOR_REVIEW, build 45; 0.1.41 ещё не создана.
+- [x] Подписанная локальная 0.1.41 (46) с PacketTunnel и 50 языками, архив+IPA сохранены на ArvectumSSD, SHA256 в `docs/APL_IOS_041_ASO_RELEASE_PREPARATION_2026-10-30.md`.
+- [x] Готовы 47 ASO-локализаций и 94 скриншота, сценарии read-only проверки, создания 0.1.41 после публикации 0.1.40, поэтапного импорта ASO и проверки Apple COMPLETE/MD5, доставки IPA и привязки VALID build 46.
+- [x] Добавлены unit-тесты безопасности: отказ при 0.1.40 в App Review, защита от дубликатов и подмены версий/сборок, повторная проверка состояний.
+- [ ] Внешнее условие: Apple завершит рассмотрение 0.1.40 и версия станет READY_FOR_SALE. Только после этого можно выполнить записывающие Apple API операции по подготовленному runbook.
+- [ ] После создания новой версии и проверки импорта отправка 0.1.41 на App Review — отдельный явный этап выпуска; текущая проверка не затронута.
+
 ## 30.10.2026 — iOS 50 UI languages: editorial ASO package complete
 
 - [x] GPT multilingual editorial + automated 50×155 iOS UI catalog consistency review; corrected erroneous bypass-exception terminology in 17 languages and disconnect action wording in three, plus literal `host:port` in eight.

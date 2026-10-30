@@ -21,6 +21,8 @@ BASE = 'https://api.appstoreconnect.apple.com/v1'
 APP_ID = '6816013574'
 EDITABLE = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'METADATA_REJECTED', 'REJECTED', 'INVALID_BINARY'}
 SCREEN_TYPE = 'APP_IPHONE_61'
+PREVIOUS_VERSION = '0.1.40'
+TARGET_VERSION = '0.1.41'
 
 class ImportErrorASC(Exception):
     pass
@@ -102,6 +104,11 @@ def assert_editable(version):
     if state not in EDITABLE:
         raise ImportErrorASC(f'BLOCKED: Apple iOS {version["attributes"]["versionString"]} is {state}. No App Store mutations allowed while under review.')
 
+def assert_predecessor_released(api):
+    previous=existing_version(api, PREVIOUS_VERSION)
+    if previous['attributes']['appStoreState']!='READY_FOR_SALE':
+        raise ImportErrorASC('Current 0.1.40 review is not finished; it remains protected')
+
 def matching_appinfo(api, state):
     infos=api.list(f'/apps/{APP_ID}/appInfos?limit=100')
     eligible=[x for x in infos if x['attributes'].get('appStoreState')==state]
@@ -149,29 +156,78 @@ def upsert_locale(api, version_id, info_id, row):
             ident=upload_image(api,target['id'],ROOT/'screenshots'/lang/name)
             print('UPLOADED_IMAGE',lang,name,ident,flush=True)
 
+def verify_asset_processing(api, version_id, rows):
+    """Read-only: require Apple to report COMPLETE, not just uploaded bytes."""
+    available = {x['attributes']['locale']: x for x in api.list(
+        f'/appStoreVersions/{version_id}/appStoreVersionLocalizations?limit=200')}
+    errors=[]
+    for row in rows:
+        locale=row['locale']
+        entry=available.get(locale)
+        if entry is None:
+            errors.append((locale,'missing localization'))
+            continue
+        sets=api.list(f'/appStoreVersionLocalizations/{entry["id"]}/appScreenshotSets?limit=100')
+        target=next((x for x in sets if x['attributes']['screenshotDisplayType']==SCREEN_TYPE),None)
+        if target is None:
+            errors.append((locale,'missing iPhone screenshots'))
+            continue
+        shots={x['attributes'].get('fileName'):x for x in api.list(
+            f'/appScreenshotSets/{target["id"]}/appScreenshots?limit=100')}
+        for file in ('01-first-connection.jpg','02-local-privacy.jpg'):
+            item=shots.get(file)
+            if not item:
+                errors.append((locale,file,'missing image'))
+                continue
+            source=ROOT/'screenshots'/locale/file
+            expected=hashlib.md5(source.read_bytes()).hexdigest()
+            got=(item['attributes'].get('sourceFileChecksum') or '').lower()
+            state=item['attributes'].get('assetDeliveryState') or {}
+            state=state.get('state') if isinstance(state,dict) else state
+            if state!='COMPLETE' or got!=expected:
+                errors.append((locale,file,'state '+str(state),'checksum matches '+str(got==expected)))
+    if errors:
+        raise ImportErrorASC('Apple image verification incomplete: '+repr(errors[:8])+
+                             f' ({len(errors)} incomplete assets)')
+    print('ASSET_VERIFICATION_PASS',len(rows),'LOCALES',2*len(rows),'PROCESSED_IMAGES')
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version',help='Existing App Store Connect iOS version')
     parser.add_argument('--live-check',action='store_true',help='Read-only query Apple state and locale counts')
     parser.add_argument('--execute',action='store_true',help='Import to an EDITABLE version only')
     parser.add_argument('--confirm-version',help='Mandatory exact --version repeat for any write')
+    parser.add_argument('--only-locale',help='Stage one Apple locale first to verify API image uploads')
+    parser.add_argument('--verify-only',action='store_true',help='Read-only processing/MD5 verification of Apple screenshots')
     args=parser.parse_args(argv)
     rows=load_rows()
-    if not args.live_check and not args.execute:
+    if not args.live_check and not args.execute and not args.verify_only:
         print('DRY_RUN ASO_LOCALES',len(rows),'SCREENSHOTS',len(rows)*2,'WRITE_OPERATIONS',0)
         print('SUPPORTED_APP_STORE_LOCALES',','.join(r['locale'] for r in rows))
         return 0
     if not args.version: parser.error('Specify --version')
+    if args.execute and args.verify_only:parser.error('Choose either --execute or --verify-only')
     if args.execute and args.confirm_version != args.version:
         parser.error('Writing requires --confirm-version equal to --version')
+    if args.execute and args.version != TARGET_VERSION:
+        parser.error('Write scope is strictly limited to future iOS 0.1.41')
+    if args.only_locale:
+        rows = [row for row in rows if row['locale']==args.only_locale]
+        if len(rows)!=1:parser.error('Unknown Apple locale: '+args.only_locale)
     api=ASC()
     version=existing_version(api,args.version)
     localizations=api.list(f'/appStoreVersions/{version["id"]}/appStoreVersionLocalizations?limit=200')
     print('APP_STORE_STATE',args.version,version['attributes']['appStoreState'],'LOCALES',len(localizations),flush=True)
+    if args.verify_only:
+        verify_asset_processing(api,version['id'],rows)
+        print('READ_ONLY: NO_APP_STORE_WRITES')
+        return 0
     if not args.execute:
         print('READ_ONLY: NO_APP_STORE_WRITES')
         return 0
     assert_editable(version)
+    assert_predecessor_released(api)
     appinfo=matching_appinfo(api,version['attributes']['appStoreState'])
     for row in rows:
         # Fail before each locale if Apple state changed during a long upload.
@@ -181,7 +237,8 @@ def main(argv=None):
     actual=api.list(f'/appStoreVersions/{version["id"]}/appStoreVersionLocalizations?limit=200')
     if not {r['locale'] for r in rows}.issubset({x['attributes']['locale'] for x in actual}):
         raise ImportErrorASC('Some App Store localizations are missing after import')
-    print('COMPLETE',len(rows),'APP_STORE_LOCALES')
+    print('LOCALE_METADATA_IMPORTED',len(rows),'APP_STORE_LOCALES')
+    verify_asset_processing(api,version['id'],rows)
     return 0
 
 if __name__=='__main__':
