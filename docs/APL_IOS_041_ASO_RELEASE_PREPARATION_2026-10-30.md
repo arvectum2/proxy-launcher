@@ -10,8 +10,8 @@
 
 ## Prepared deliverables
 
-1. **Signed iOS 0.1.41 (46) candidate**: full Xcode archive + locally exported 4,191,594-byte IPA, Apple Distribution signature verified, PacketTunnel extension included, all **50 language** bundles present. SHA256 `eae05d373e6b3547618df4340fe3cfc7fbde1f70fde560b1095b34cef13a3916`.
-2. **Durable artifact storage** `/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-20261030/` (candidate-manifest.json, export/archive logs, IPA, archive, isolated build source). Git source files remain unchanged by the version bump.
+1. **Signed iOS 0.1.41 (46) candidate**: full Xcode archive + locally exported 4,216,515-byte IPA, Apple Distribution signature verified, PacketTunnel extension included, all **50 language** bundles present. SHA256 `e81f2b9bb7ec7990ae01a4ab5dc2ebf6564a889cd2162108c465af3f043e0151`.
+2. **Durable artifact storage** `/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030/` (candidate-manifest.json, export/archive logs, IPA, archive, isolated build source). Git source files remain unchanged by the version bump.
 3. **47 App Store localizations** in `mobile/ios/ASO/metadata/` and `localizations.json`; **94** native-language original iPhone screenshots in `screenshots/`, 1206×2622 JPEG.
 4. `mobile/ios/ASO/build_release_041.py`: reproducibly stages *separate* signed iOS 0.1.41 build without altering repository source or App Store Connect.
 5. `mobile/ios/ASO/prepare_version_041.py`: read-only future version check; can create exactly 0.1.41 (POST) only after 0.1.40 reaches `READY_FOR_SALE`. Preserves release policy `AFTER_APPROVAL` from last version and refuses duplicates.

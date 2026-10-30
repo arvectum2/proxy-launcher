@@ -35,7 +35,10 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('@AppStorage("appLanguage.v1")', app)
         self.assertIn('.environment(\\.locale,', app)
         self.assertIn('Picker("Язык приложения"', view)
-        self.assertIn('Text(AppL10n.tr(model.vpn.detail))', view)
+        # The Simulator-only status fixture delegates to the real VPN detail
+        # when no -aplHomeStatusQA argument is present.
+        self.assertIn('Text(AppL10n.tr(qaStatusTitle))', view)
+        self.assertIn('default: return model.vpn.detail', view)
         self.assertIn('Text(AppL10n.tr(type.label))', view)
 
     def test_onboarding_is_skippable_and_reopenable(self):
