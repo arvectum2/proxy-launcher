@@ -1,0 +1,1 @@
+Więcej języków interfejsu i czytelniejsze instrukcje konfiguracji.

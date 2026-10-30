@@ -1,0 +1,9 @@
+Connecta l’iPhone mitjançant un servidor intermediari propi amb controls senzills.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Diversos perfils, prioritats i canvi automàtic al servidor de reserva
+• Exclusions per a llocs web que necessiten connexió directa
+• Automatitzacions per a apps seleccionades amb Dreceres d’iOS
+• Les dades queden al dispositiu i les contrasenyes al clauer
+
+Has de configurar el teu servidor intermediari; APL no en proporciona.

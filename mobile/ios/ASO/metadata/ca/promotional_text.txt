@@ -1,0 +1,1 @@
+Connecta l’iPhone mitjançant un servidor intermediari propi amb controls senzills.

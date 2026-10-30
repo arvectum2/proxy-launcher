@@ -1,0 +1,1 @@
+xarxa,encaminament,perfils,reserva,exclusions

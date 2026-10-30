@@ -1,0 +1,9 @@
+Forbind din iPhone via en proxy, du selv konfigurerer, med enkel styring.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Flere profiler, prioritering og automatisk skift til reserveproxy
+• Webstedsundtagelser til direkte forbindelser
+• Automatisering af valgte apps via iOS Genveje
+• Proxyoplysninger bliver på enheden, og adgangskoder opbevares i nøgleringen
+
+Du skal bruge din egen proxyserver; APL leverer ikke servere.

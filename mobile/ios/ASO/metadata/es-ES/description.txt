@@ -1,0 +1,9 @@
+Conecta tu iPhone a través del proxy que tú configuras, con controles claros y rutas flexibles.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Varios perfiles, prioridades y cambio automático al servidor de reserva
+• Exclusiones para sitios web que necesitan conexión directa
+• Automatizaciones para apps seleccionadas mediante Atajos de iOS
+• Los datos del proxy quedan en tu dispositivo y la contraseña se guarda en el llavero
+
+Necesitas tu propio servidor proxy; APL no vende ni proporciona servidores.

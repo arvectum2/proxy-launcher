@@ -72,7 +72,7 @@
 "Оставаться на текущем после сбоя" = "Tetap menggunakan proxy saat ini setelah kegagalan";
 "Отключение…" = "Memutuskan sambungan…";
 "Отключено" = "Terputus";
-"Отключить" = "Memutuskan";
+"Отключить" = "Putuskan sambungan";
 "Отключить системный прокси-туннель" = "Putuskan sambungan terowongan proksi sistem";
 "Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Buka “Profil” dan ketuk “Tambah proksi pertama” (atau “Baru” jika sudah ada profil). Masukkan host server, port, dan protokol (HTTP, HTTPS, atau SOCKS5). Nama pengguna serta kata sandi hanya diperlukan jika diminta penyedia proksi.";
 "Открыть создание первого прокси" = "Buka formulir untuk menambahkan proksi pertama Anda";

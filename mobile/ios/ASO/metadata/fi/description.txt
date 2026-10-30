@@ -1,0 +1,9 @@
+Yhdistä iPhone itse määrittämääsi välityspalvelimeen ja hallitse yhteyksiä helposti.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Useita profiileja, prioriteetit ja automaattinen varayhteys
+• Poikkeukset sivustoille, joihin yhdistetään suoraan
+• Valittujen sovellusten automaatiot iOS:n Pikakomennoilla
+• Yhteystiedot pysyvät laitteessa ja salasanat avainnipussa
+
+Tarvitset oman välityspalvelimen; APL ei tarjoa palvelimia.

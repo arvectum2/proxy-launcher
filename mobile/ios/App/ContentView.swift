@@ -45,6 +45,15 @@ enum Brand {
         dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
     )
     // The original wordmark has light lettering.
+    // Load the bundled PNG explicitly: SwiftUI named-image lookup can fail for
+    // a standalone resource PNG not registered in an asset catalog.
+    static var wordmark: Image {
+        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            return Image(uiImage: image)
+        }
+        return Image(systemName: "network")
+    }
     static let logoBacking = adaptive(
         light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
         dark: .clear
@@ -259,7 +268,7 @@ struct ContentView: View {
     private var header: some View {
 #if targetEnvironment(macCatalyst)
         VStack(alignment: .leading, spacing: 5) {
-            Image("ArvectumWordmark")
+            Brand.wordmark
                 .resizable()
                 .scaledToFit()
                 .frame(width: 144, height: 28, alignment: .leading)
@@ -275,7 +284,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
 #else
         HStack(alignment: .center, spacing: 8) {
-            Image("ArvectumWordmark")
+            Brand.wordmark
                 .resizable()
                 .scaledToFit()
                 .frame(width: 112, height: 24)

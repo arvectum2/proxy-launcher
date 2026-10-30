@@ -37,9 +37,9 @@
 "Изменения вступят в силу после нажатия «Сохранить»." = "Zmiany zaczną obowiązywać po dotknięciu przycisku Zapisz.";
 "Изменить" = "Redagować";
 "Изменить прокси" = "Edytuj serwer proxy";
-"Исключения" = "Wyłączenia";
-"Исключения приложений" = "Wyłączenia aplikacji";
-"Исключения сайтов" = "Wyłączenia witryn";
+"Исключения" = "Wyjątki";
+"Исключения приложений" = "Wyjątki aplikacji";
+"Исключения сайтов" = "Wyjątki witryn";
 "Используется выбранный профиль." = "Korzystanie z wybranego profilu.";
 "Используется системный VPN-механизм iOS" = "Wykorzystuje framework VPN systemu iOS";
 "Как в системе" = "Zgodnie z ustawieniami systemu";
@@ -72,7 +72,7 @@
 "Оставаться на текущем после сбоя" = "Pozostań przy obecnym serwerze proxy po awarii";
 "Отключение…" = "Rozłączam…";
 "Отключено" = "Rozłączono";
-"Отключить" = "Odłączyć";
+"Отключить" = "Rozłącz";
 "Отключить системный прокси-туннель" = "Odłącz systemowy tunel proxy";
 "Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Otwórz „Profile” i stuknij „Dodaj pierwszy serwer proxy” (lub „Nowy”, jeśli masz już profile). Podaj adres serwera, port i protokół (HTTP, HTTPS lub SOCKS5). Nazwę użytkownika i hasło wpisz tylko wtedy, gdy są wymagane.";
 "Открыть создание первого прокси" = "Otwórz formularz, aby dodać swój pierwszy serwer proxy";

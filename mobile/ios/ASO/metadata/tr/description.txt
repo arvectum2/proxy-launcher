@@ -1,0 +1,9 @@
+iPhone’unuzu kendi yapılandırdığınız proxy üzerinden bağlayın ve bağlantıyı yönetin.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Birden çok profil, öncelikler ve yedek proxy’ye otomatik geçiş
+• Doğrudan bağlantı gerektiren siteler için istisnalar
+• iOS Kestirmeler ile seçili uygulamalarda otomasyon
+• Bilgiler cihazda kalır, parolalar Anahtar Zinciri’nde saklanır
+
+Kendi proxy sunucunuz gerekir; APL sunucu sağlamaz.

@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Manage multiple profiles and automatic fallback",
+  "02_direct_exceptions": "Exclude websites that should use a direct connection",
+  "03_app_automation": "Set up app-triggered automations in iOS Shortcuts"
+}

@@ -1,0 +1,1 @@
+Más idiomas de interfaz y explicaciones más claras para configurar el proxy.

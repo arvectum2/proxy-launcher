@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Multiple proxy profiles, priorities and backup switching",
+  "02_direct_exceptions": "Website bypass rules for direct connections",
+  "03_app_automation": "Automations for selected apps using iOS Shortcuts"
+}

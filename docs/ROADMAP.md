@@ -1,3 +1,12 @@
+## 30.10.2026 — iOS 50 UI languages: editorial ASO package complete
+
+- [x] GPT multilingual editorial + automated 50×155 iOS UI catalog consistency review; corrected erroneous bypass-exception terminology in 17 languages and disconnect action wording in three, plus literal `host:port` in eight.
+- [x] Restored correct visible Arvectum wordmark in three iOS app UI placements; screenshot checked on Simulator.
+- [x] Full editable App Store ASO corpus for 47 official Apple locales / 42 relevant iOS source languages: localized name, subtitle, description, keywords, promotional text, update text, and screenshot feature copy. Regional English/French/Spanish variants reviewed independently.
+- [x] Real iOS Simulator screenshot pairs per locale: 94 Apple-compliant 1206×2622 opaque JPEG files; no fabricated product states.
+- [x] Apple metadata/UTF-8 byte validation, 30 iOS/localization tests, all 50 `.strings` lint, signed full iOS archive and IPA export passed. App Store Connect remains unchanged.
+- [ ] Optional external human linguistic certification, wider device/a11y QA and keyword ranking measurement can supplement the completed source package before a new ASO campaign.
+
 ## 30.10.2026 · iOS-only release localization: 50 source languages complete
 
 - [x] 50/50 full **iOS** `.lproj` catalogs (155 translated UI strings per language); 10 new: ha, am, sv, da, fi, nb, bg, sr, hr, ca. Android/desktop not changed; cross-platform registry remains 40/50.

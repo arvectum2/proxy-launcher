@@ -12,7 +12,7 @@
 "Без аналитики и рекламы" = "Geen analyses of advertenties";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "U kunt geen verbinding maken zonder een proxyprofiel. Voeg er een toe om aan de slag te gaan.";
 "В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Deze versie bevat geen advertentie SDK, analyses, tracking, registratie of cloud-backend.";
-"Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Voer een website in en tik op ‘Toevoegen’. Elke website staat op een eigen regel. U kunt een URL, host:poort of IP-adres plakken.";
+"Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Voer een website in en tik op ‘Toevoegen’. Elke website staat op een eigen regel. U kunt een URL, host:port of IP-adres plakken.";
 "Версия" = "Versie";
 "Возврат к приоритетному включён" = "Terug naar voorkeursproxy ingeschakeld";
 "Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить»." = "Alle uitsluitingen worden uit de lijst verwijderd. Wijzigingen worden pas toegepast nadat u op Opslaan tikt.";

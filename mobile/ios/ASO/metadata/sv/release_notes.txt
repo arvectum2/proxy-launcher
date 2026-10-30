@@ -1,0 +1,1 @@
+Fler gränssnittsspråk och tydligare hjälp vid konfigurering.

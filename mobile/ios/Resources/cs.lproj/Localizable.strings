@@ -37,9 +37,9 @@
 "Изменения вступят в силу после нажатия «Сохранить»." = "Změny se projeví, když klepnete na Uložit.";
 "Изменить" = "Upravit";
 "Изменить прокси" = "Upravit proxy";
-"Исключения" = "Výluky";
-"Исключения приложений" = "Vyloučení aplikací";
-"Исключения сайтов" = "Vyloučení webových stránek";
+"Исключения" = "Výjimky";
+"Исключения приложений" = "Výjimky pro aplikace";
+"Исключения сайтов" = "Výjimky pro weby";
 "Используется выбранный профиль." = "Pomocí vybraného profilu.";
 "Используется системный VPN-механизм iOS" = "Používá systém iOS framework VPN";
 "Как в системе" = "Podle nastavení systému";
