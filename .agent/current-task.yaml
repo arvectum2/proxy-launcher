@@ -1,36 +1,35 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-HOME-BANNER-FIT-20261030
+task_id: APL-IOS-041-RELEASE-READINESS-20261030
 status: completed
-goal: "Ensure the iPhone APL Home dashboard fits entirely above the tab bar, without vertical scrolling, across all 50 iOS languages and with a 90/100-pt banner footprint."
+goal: "Audit iOS 0.1.41 publication readiness after 0.1.40 approval, identify and repair PR CI regressions, verify all iOS localizations/ASO and the signed release candidate, and report remaining gates without modifying Apple."
 definition_of_done:
-  - "iPhone Home has no vertical ScrollView and cannot force the connection or profile cards under the bottom tab bar."
-  - "All 50 iOS language UI variants checked on compact and large iPhone Simulators with a visible 90pt banner test slot; compact device also tested with 100pt slot, dark appearance and enlarged fonts."
-  - "Main actions and profile picker remain accessible, 50 source language catalogs unchanged, real Apple version/review untouched."
-  - "Simulator UI regression + iOS signed 0.1.41(46) candidate validated; full QA matrix and evidence preserved, committed and pushed to PR #272."
+  - "Read-only Apple confirmation 0.1.40 READY_FOR_SALE and 0.1.41 absent; build numbers verified."
+  - "All 50 iOS UI locale catalogs and 47 ASO records/94 screenshots verified technically, plus signed candidate inspected."
+  - "Investigate nine PR failed CI jobs; repair actual source/regression contracts, preserve Mac Catalyst dashboard and no iPhone layout regressions."
+  - "Run local unit tests and iOS build, create up-to-date signed IPA, push fixes, report precise next release blockers without Apple writes."
 completed:
-  - "Resumed using ARC Mac mini and reviewed source: old iPhone Home was a vertical ScrollView with oversized cards; project source had no actual iOS advertisement banner view/SDK."
-  - "Replaced only iPhone Home ScrollView with geometry-bound, non-scrolling adaptive VStack; compact layout for height <680pt, tighter for <510pt, main tap action 56pt, native tab bar always visible. Mac Catalyst, other iOS tabs and Android/desktop left unchanged."
-  - "Fixed explicit localization of connection/selection headers and compact translated controls, long-label scaling and two-line explanatory help. Removed redundant compact secondary actions (still reachable from Home main button and Profiles tab), retained compact 44pt profile picker target."
-  - "Added DEBUG-only 90/100-pt banner layout preview and fake profile/VPN states used solely for QA; no fabricated ad or fake connection appears in release. Added SwiftUI frame instrumentation and persisted real geometric evidence."
-  - "Ran 150 tests on iPhone SE3 (50 languages * empty/connected/connecting), 50 on iPhone13mini, 50 on iPhone17ProMax, 100 on SE2 dark Accessibility Medium with 100pt banner, 20 on SE2 dark Accessibility Extra Large high-risk languages; ALL 370/370 PASS, no overlap or off-screen widgets."
-  - "After refining the compact menu to a 44pt hit target, reran 10 high-risk SE2 Extra Large connected cases on final code; 10/10 pass, total 380/380 measured cases."
-  - "Minimum measured profile-to-banner clearance 18pt in stress baseline; bottom viewport clearance 9pt; no banner/tabbar overlap."
-  - "Committed docs/APL_IOS_HOME_BANNER_QA_MATRIX_2026-10-30.csv (50 rows), detailed QA report docs/APL_IOS_HOME_BANNER_FIT_QA_2026-10-30.md, all 438 simulator JSON/image evidence files on Mac mini SSD."
-  - "Generated Xcode project including new HomeLayoutProbe.swift and validated iOS unsigned simulator UI BUILD SUCCEEDED."
-  - "Locally rebuilt signed Apple Distribution iOS 0.1.41(46) archive and IPA at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030, with all 50 locales and PacketTunnel; codesign --verify --deep --strict PASS."
-  - "Updated ASO README and upload_release_041.py default path to correct newest IPA candidate."
-  - "49 focused iOS/ASO/QA tests PASS, 50 iOS .strings plutil lint PASS, Swift iOS localization typecheck PASS; git diff --check PASS."
-  - "Code/tests/report commit 56110479c0fe6d6ded002936293bc529a119e611; completion checkpoint commit follows."
-current: "Completed iOS Home 50-language 90/100pt banner layout acceptance, code and signed local next-version candidate prepared."
+  - "Authenticated Apple API: 0.1.40 READY_FOR_SALE, 0.1.41 does not exist, last uploaded build 45 VALID; candidate 0.1.41 build 46 available."
+  - "Source 50/50 UI localizations x 155 values; mobile/ios/ASO/audit_ios_copy.py zero technical parity/placeholder/English-fallback/Unicode errors; 47 metadata localizations and 94 simulator screenshots pass source checks."
+  - "Existing 380/380 real iOS geometry tests including 90/100pt QA banner; actual banner SDK/view is NOT linked in current candidate, a known feature-release gap."
+  - "Investigated nine PR CI jobs: Doctor (Ubuntu/Windows), Windows clean/installer, macOS package and acceptance fail due to two stale source-contract assertions in tests/test_macos_appstore_contract.py; verified via GitHub job logs."
+  - "Updated stale contract tests to match compact iOS Home; restored explicit equal-height macOS Catalyst dashboard stretch (dashboardCardMaxHeight is .infinity on Catalyst and nil on iOS)."
+  - "Full unittest discover through Python 3.12/Tk: 1073 passed, 6 skipped. Focused pytest: 38 passed. New unsigned iOS Simulator build succeeded."
+  - "Rebuilt signed Apple Distribution release candidate iOS 0.1.41(46) on SSD at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030; 50 .lproj, PacketTunnel and deep codesign verified. IPA SHA256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2, size 4216469 bytes."
+  - "Updated ASO importer default candidate path, release docs and docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md; pushed code/test fixes commit 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721 to PR #272."
+  - "New GitHub CI started on commit 4243bcb; initial 9 workflows completed successfully, 11 running, 3 queued when sampled. No new failures observed at that moment, but final green results not yet confirmed."
+current: "Audit complete: technical iOS localization/ASO checks clean and signed IPA ready; app not yet fully approved for release due to real banner gap and ongoing CI, independent human linguistic review not certified."
 pending:
-  - "Future actual banner SDK integration, if/when present in iOS source, must connect its real adaptive view into the verified bottom area and be accepted with the actual loaded creative size. Current code has QA banner preview only."
-  - "Preserve Apple 0.1.40 review. After it becomes READY_FOR_SALE, use the previously prepared 0.1.41 ASO release workflow and the superseding signed homefit-final IPA. Do not upload or change Apple metadata until the next authorized release stage."
-last_verified_commit: 56110479c0fe6d6ded002936293bc529a119e611
+  - "Read final GitHub CI PR #272 status when jobs complete; investigate any newly failing checks before merge or publication."
+  - "If actual banner is required for 0.1.41, integrate real SDK/ad view and verify adaptive banner on iOS hardware/simulator; QA banner preview alone is not release banner."
+  - "Independently certify native-speaker language quality if required; technical source parity alone cannot prove 50 perfect translations."
+  - "Under explicit user instruction, create Apple version 0.1.41, first-locale ASC import verification, bulk 47-localization/94-image import, upload latest signed IPA, attach build 46, verify and submit review; no Apple write yet."
+last_verified_commit: 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721
 test_results:
-  - "380/380 real Simulator geometry cases PASS: 50 iOS languages + risk screens/RTL and enlarged fonts, 90/100pt banner area."
-  - "49 targeted Python tests PASS; 50 iOS .strings plutil PASS; unsigned UI-only Simulator and signed Apple Distribution archive/IPA build PASS."
-  - "Final IPA SHA256 e81f2b9bb7ec7990ae01a4ab5dc2ebf6564a889cd2162108c465af3f043e0151, 4216515 bytes, 50 lproj and 1 PacketTunnel."
-  - "No App Store Connect writes, iOS 0.1.40 review untouched, disabled watchdog untouched, no Android/desktop changes."
-blocker: null
-resume_instruction: "iOS Home with a reserved QA 90/100pt banner is now non-scroll and verified across all 50 languages. Do not redo QA. The next Apple release uses docs/APL_IOS_HOME_BANNER_FIT_QA_2026-10-30.md and signed IPA at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030; wait for 0.1.40 READY_FOR_SALE and follow mobile/ios/ASO/README.md. Actual ad-view provider is not in this iOS source checkout; ensure the real ad integration is validated at SDK-reported height before claiming actual ad delivered. Leave Apple privacy submission and Watchdog unchanged."
+  - "Apple 0.1.40 READY_FOR_SALE, 0.1.41 absent, build 45 VALID."
+  - "1073 Python unittest PASS, 6 skipped; 38 targeted pytest PASS; new iOS simulator build PASS."
+  - "50 iOS UI catalogs audit 0 errors; 47 ASO locale and 94 screenshot source checks PASS."
+  - "Signed IPA sha256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2 and deep code signature PASS."
+  - "PR GitHub CI on latest code pending at last observation; old failures traced to fixed tests."
+blocker: "Relase publication decision: live banner SDK view is absent from source despite QA-only 90/100pt banner footprint, PR latest CI still pending, Apple 0.1.41 is not created/uploaded."
+resume_instruction: "Read docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md and this checkpoint; code commit 4243bcb fixes CI stale Mac contracts and signed IPA is /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030. Check PR #272 latest CI. Do not claim production banner is present: only Debug banner QA preview exists in iOS. If user authorizes publishing despite identified feature gap, explicitly confirm release requirements, then create Apple 0.1.41, verify initial ASO locale and bulk 47/94, upload build46, submit. Do not alter live 0.1.40, privacy or Watchdog."
