@@ -1,37 +1,26 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-EDITORIAL-ASO-20261030
-status: completed
-goal: "Review 50 iOS interface languages using ChatGPT multilingual editorial capabilities; produce complete, validated, regional App Store ASO packages and real localized iOS screenshots."
+task_id: APL-IOS-ASO-ASC-CONTINUATION-20261030
+status: in_progress
+goal: "Finish iOS ASO publication readiness and reconcile live App Store Connect version/review status; fix relevant QA without impacting the existing Apple review."
 definition_of_done:
-  - "Review all 50 iOS UI catalogs for source parity, technical terms, UI actions and obvious semantic inconsistencies, correct actual source defects."
-  - "47 Apple-supported ASO locale variants covering 42 supported iOS languages; full localized metadata fields and regional keyword adaptation."
-  - "Actual iOS Simulator screenshots in a supported Apple iPhone size, localized per ASO market."
-  - "Automated Apple limits, full screenshot and source tests, verified iOS signed archive plus IPA, committed/pushed PR272."
-  - "No changes to other product platforms, the live App Store Connect record, submitted releases or disabled Watchdog."
+  - "Read actual ASC latest version and status; no review interruption or live changes without an appropriate editable state."
+  - "Verify all ASO assets and release artifacts; prepare tested and documented repeatable ASC import workflow for 47 localizations and screenshot upload."
+  - "Investigate relevant iOS/ASO PR CI blockers and fix attributable issues only."
+  - "If Apple permits immediate safe writes to an editable new version, import and verify all; otherwise record precise Apple review blocker and wait for owner's choice to withdraw review or next editable release."
+  - "Commit/push relevant changes and update checkpoint to completed/blocked accurately."
 completed:
-  - "Archived predecessor completed APL-IOS-RELEASE-LOCALES-20261030 checkpoint and used a fresh independent iOS-only checkout."
-  - "Full audit of 50 x 155 iOS UI values: exact keys, no missing/duplicate translations, no unexpected long English fallbacks or placeholder errors."
-  - "Native ChatGPT editorial correction of bypass-exclusion labels in 17 languages, disconnection labels in 3, and literal host:port in 8 languages; 18 distinct corrected UI locales."
-  - "Fixed Arvectum wordmark blank image bug by reading bundled UIImage in iOS Brand; visually confirmed logo on Simulator."
-  - "Created 47 real Apple App Store locales mapped to 42 iOS languages, including 5 regional English/French/Spanish variations, official India/South Asia BCP47 locale codes."
-  - "Authored localized app title, subtitle, description, UTF8-limited keywords, promotional text, update notes, feature screenshot copy, and support/marketing URL fields for all 47 locales. Created 329 export-ready metadata files + JSON source/generator."
-  - "Captured and saved 94 actual local iOS Simulator screenshots at 1206x2622 JPEG no alpha: first-connection onboarding and the first-use information page, 2 per Apple locale. Visually checked Arabic RTL, Hindi, Japanese and previously baseline Amharic/Hausa/Serbian/Hebrew. No invented successful proxy state."
-  - "Tests: 30 passed; Apple plutil 50/50 passed; automated 50-language lexical audit unresolved issues 0; 47 ASO records passed field limits (keywords <=100 UTF8 bytes); 94 screenshots passed image format/dimension tests."
-  - "Apple Distribution full Release archive including 50 localizations and PacketTunnel ARCHIVE SUCCEEDED, deep codesign PASS, IPA EXPORT SUCCEEDED. Final IPA SHA256 cb36676ee4dc760edbff62cd5af7a1189e00e57cdcadfad6437234c37cb59804."
-  - "Temporary cached framework symlink used only for local build and cleaned from checkout."
-  - "iOS code/ASO/screenshots commit 91ef6dd978fe97828d3e32527208801bd27b6bcf and QA report docs/APL_IOS_50_EDITORIAL_ASO_QA_2026-10-30.md, roadmap updated."
-current: "Completed editorial/ASO asset package. Separate Apple publication decision belongs to a new task."
+  - "Read previous completed editorial/ASO checkpoint and verified PR #272 at 38ba76246799cd9e5e7cc5822a279e3293ca72e9."
+  - "Apple API verified latest 0.1.40 state WAITING_FOR_REVIEW, two current localization records ru and en-US; 0.1.39 READY_FOR_SALE."
+  - "Apple docs confirm screenshot uploads and edits prohibited while WAITING_FOR_REVIEW; do not cancel an active review without explicit owner decision."
+  - "Official Apple confirms 1206x2622 screenshots valid for iPhone Dynamic Island medium."
+current: "Diagnose CI and prepare tested Apple import workflow without modifying review."
 pending:
-  - "Optional external human native-speaker certification was NOT performed; ChatGPT authored the language editorial pass. Broader physical-device large-text accessibility validation may supplement it."
-  - "Next release submission: create/edit an Apple version and import ASO/screenshot metadata only after an explicit user request."
-last_verified_commit: 91ef6dd978fe97828d3e32527208801bd27b6bcf
-test_results:
-  - "30 Python iOS/localization/ASO and image checks PASS."
-  - "50 iOS Localizable.strings plutil PASS; 50-language lexical audit ZERO unresolved issues."
-  - "47/47 App Store ASO locale metadata records comply with field-size/UTF-8 limits."
-  - "94/94 screenshots are 1206x2622 opaque JPEGs with non-duplicate native app captures."
-  - "Signed Apple Distribution full iOS archive and IPA export PASS; 50 lproj and 1 PacketTunnel."
-  - "No Android/desktop or live App Store Connect changes."
-blocker: null
-resume_instruction: "APL iOS 50-language ChatGPT editorial and 47-locale ASO metadata + 94 native screenshots are ready locally and in GitHub PR272. Do not redo. For any App Store release/new version, import from mobile/ios/ASO/localizations.json and metadata/screenshots only following explicit user submission request. No changes to other platforms and do not enable disabled Watchdog."
+  - "Inspect version metadata and build relationships for 0.1.40, assess Apple API editability."
+  - "Implement and validate importer for 47 ASO localizations and 94 screenshots with safe dry-run and operation logging."
+  - "Check relevant CI and source QA; commit/push if changes."
+  - "Mark blocked if Apple review cannot safely be changed now; request explicit choice only then."
+last_verified_commit: 38ba76246799cd9e5e7cc5822a279e3293ca72e9
+test_results: []
+blocker: "Apple iOS version 0.1.40 is WAITING_FOR_REVIEW, screenshot mutations are disallowed until review completes or user expressly authorizes withdrawal."
+resume_instruction: "Continue iOS only from /tmp/apl-ios-aso50-editorial-20261030. Preserve current 0.1.40 WAITING_FOR_REVIEW, never withdraw without owner consent. Complete importer tests and CI analysis then request user choice when unavoidable."

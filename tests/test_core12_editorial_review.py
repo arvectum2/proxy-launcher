@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GLOSSARY = json.loads((ROOT / 'localization/editorial-glossary.json').read_text())
+GLOSSARY = json.loads((ROOT / 'localization/editorial-glossary.json').read_text(encoding='utf-8'))
 LANGS = GLOSSARY['languages']
 IOS = ROOT / 'mobile/ios/Resources'
 ANDROID = ROOT / 'mobile/android/app/src/main/res'
@@ -17,7 +17,7 @@ PAT = re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 
 
 def ios(lang):
-    return {m.group(1):m.group(2) for line in (IOS / f'{lang}.lproj/Localizable.strings').read_text().splitlines()
+    return {m.group(1):m.group(2) for line in (IOS / f'{lang}.lproj/Localizable.strings').read_text(encoding='utf-8').splitlines()
             if (m:=PAT.fullmatch(line))}
 
 
@@ -26,7 +26,7 @@ def android(lang):
 
 
 def desktop():
-    tree=ast.parse((ROOT / 'desktop_i18n.py').read_text())
+    tree=ast.parse((ROOT / 'desktop_i18n.py').read_text(encoding='utf-8'))
     node=next(x.value for x in tree.body if isinstance(x,ast.Assign) and
               any(isinstance(t,ast.Name) and t.id=='CATALOGS' for t in x.targets))
     return ast.literal_eval(node)
