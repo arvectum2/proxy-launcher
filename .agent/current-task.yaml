@@ -26,13 +26,14 @@ pending:
   - "Separate release task: reconcile on-device 'no advertising/no ad SDK' claims with actual 0.1.39 advertising settings before owner release approval; do not change privacy disclosure without product/legal decision."
   - "Separate release task: independent native-speaker and physical-device accessibility QA for all locales, especially Hausa, Amharic, localized Shortcuts labels, long strings and mixed-direction URLs."
   - "Separate release task: choose next iOS version and build numbers, review ASO listings (currently only ru/en-US), export new signed release and submit through Apple only with explicit authorization."
-last_verified_commit: "5ae58b3e146fe6539a0d7de82de76c327f52054b (iOS code + QA report; completion checkpoint commit follows)"
+last_verified_commit: "c7e9733efc3178d98807887418aa13e63bfb9246 (GitHub PR #272 head verified; subsequent checkpoint documentation only)"
 test_results:
   - "11 iOS localization/onboarding/RTL tests passed."
   - "21 Swift language runtime mappings passed, picker count 51 (50 + system)."
   - "50/50 plutil lint PASS, iOS UI-only Simulator BUILD SUCCEEDED and 50 lproj bundled."
   - "Apple Distribution iOS full archive and IPA export succeeded, deep codesign PASS, 50 lproj, 1 PacketTunnel."
   - "IPA SHA256 23873d2f3f707747dbc5c2852bd54e56adfb1d64b0887a12f18c2d50abe1d68c."
+  - "GitHub PR #272 iOS source head c7e9733efc3178d98807887418aa13e63bfb9246 verified; initial checks: 3 passed, 30 pending, PR OPEN/BLOCKED."
   - "No Android, desktop, ASC or Watchdog changes."
 blocker: null
 resume_instruction: "iOS source 50/50 and full signed archive/IPA done. Do not redo translations. For next iOS release task, use docs/APL_IOS_RELEASE50_LOCALIZATION_QA_2026-10-30.md, first review advertising disclosure inconsistency and physical native/accessible QA. Do not alter ASC privacy, submitted app/build or disabled watchdog without explicit owner release instruction."
