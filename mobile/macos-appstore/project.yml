@@ -6,8 +6,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.2.19"
-    CURRENT_PROJECT_VERSION: "8"
+    MARKETING_VERSION: "0.2.20"
+    CURRENT_PROJECT_VERSION: "9"
     DEVELOPMENT_TEAM: "VML75VY94V"
     CODE_SIGN_STYLE: Manual
     SUPPORTS_MACCATALYST: YES
@@ -24,6 +24,9 @@ targets:
       - App/HelpView.swift
       - ../ios/App/AppViewModel.swift
       - ../ios/App/ContentView.swift
+      - ../ios/App/AppearanceMode.swift
+      - ../ios/App/AppLocalization.swift
+      - ../ios/App/SetupGuideView.swift
       - App/VPNController.swift
       - App/PrivacyDisclosureView.swift
       - ../ios/Shared/ProfileStore.swift
