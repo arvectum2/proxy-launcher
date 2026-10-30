@@ -85,7 +85,7 @@
     <string name="apl_first_add_a_proxy_aefe9" formatted="false">Ajoutez d\'abord un proxy</string>
     <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Autoriser la création d\'une connexion VPN</string>
     <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android a révoqué l\'autorisation VPN. Appuyez sur Connecter.</string>
-    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN is disabled. You can connect again.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">Le VPN est désactivé. Vous pouvez vous reconnecter.</string>
     <string name="apl_checking_the_proxy_fc59b" formatted="false">Vérification du proxy…</string>
     <string name="apl_disconnecting_6a55f" formatted="false">Déconnexion…</string>
     <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">Autorisation VPN non accordée</string>

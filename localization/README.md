@@ -39,3 +39,7 @@ Five complete 155 iOS / 104 Android / 193 desktop catalogs (+2260 UI source valu
 ## Core-40: Czech, Slovak, Greek and Hebrew
 
 Four full source catalogs (1808 values) with Hebrew RTL; edited 64 high-impact instructions, 16 desktop safety warnings, and 28 technical terms per language. All Tier-2 languages are now complete in source. See `docs/APL_CORE40_LOCALIZATION_QA_2026-10-29.md`.
+
+## Tier-3 direct ChatGPT editorial drafts (30 Oct 2026)
+
+`drafts/tier3-glossary.json` (28 × 10 terms) and `drafts/tier3-critical-ios.json` (16 × 10 high-impact instructions) are original ChatGPT-editor-authored drafts using ARC only for repository I/O. They are **not active** localizations and **do not change** the Core-40 40/50 status. A separate semantic correction sweep fixed an autostart registry-warning across 40 source catalogs, four Uzbek desktop English leftovers and one French Android English leftover. See `docs/APL_TIER3_CHATGPT_EDITORIAL_REVIEW_2026-10-30.md`.

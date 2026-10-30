@@ -1,26 +1,35 @@
+version: 2
+repository: arvectum2/proxy-launcher
 task_id: APL-CORE50-LOCALES-20261029
-status: blocked
-goal: Complete final 10 Tier-3 source locales ha am sv da fi nb bg sr hr ca for iOS Android desktop.
+status: in_progress
+goal: "Finish Tier-3 languages ha am sv da fi nb bg sr hr ca as complete editor-reviewed UI source catalogs for APL iOS/Android/desktop."
 definition_of_done:
-  - All 10 catalogs complete with source key and placeholder parity (155/104/193 per locale).
-  - Correct iOS/Android/desktop language matching, script qualifiers for sr, nb, and RTL/literal fields.
-  - Technical glossary and editorial correction of risky setup and network-safety messages.
-  - Full Python regressions, iOS unsigned UI-only build, Android public/private build and unit tests.
-  - Update 50-language source matrix, push to existing PR272, preserve Apple submission and disabled watchdog.
+  - "10 complete catalogs: each 155 iOS, 104 Android and 193 desktop entries, exact source key and parameter parity."
+  - "Native iOS/desktop language picker, Android script-correct locale qualifiers including Serbian Cyrillic, Norwegian Bokmal, Ethiopic Amharic."
+  - "Manual editor-authored technical glossary, key setup/Shortcuts/website exceptions, network recovery and autorun warnings."
+  - "Full Python and iOS/Android builds, 50/50 coverage matrix, push to existing PR #272 without App Store Connect or Watchdog changes."
 completed:
-  - Verified prior Core40 completed, GitHub PR272 head 19e187d6219158090be97df93bbc3f4d4757c2b7.
-  - Archived predecessor checkpoint and created /tmp/apl-core50-work-20261029 checkout.
-  - Prepared ten iOS/desktop language selectors and registry in UNCOMMITTED WIP only; catalogs are NOT yet produced and the changes must NOT be published until source parity passes.
-  - Confirmed local Qwen2.5 14B model translates a sample; no batch translation performed.
-current: Blocked on complete source translation. Existing 40 language release source remains intact.
-blocker: Translation provider returns HTTP 429 and remote command safety blocks writing batch translator; no complete Tier3 source catalogs exist.
+  - "Verified Core40 40/50 complete at 19e187d6219158090be97df93bbc3f4d4757c2b7 and archived predecessor checkpoint."
+  - "User clarified ChatGPT must author/edit translations directly; ARC is repository transport, not engine. No local LLM or online translation services used for current new editorial files."
+  - "Reverted three incomplete staged selector files to prevent accidental release of unsupported languages; saved uncommitted selector patch at /tmp/apl50-selector-wip.patch."
+  - "Audited 40 production locales across 155 iOS, 104 Android and 193 desktop values. After corrections zero identical long multiword English sentences in non-English catalogs."
+  - "Fixed four source untranslated Uzbek desktop warnings/instructions and one untranslated French Android VPN-disabled error."
+  - "Located Windows autostart deletion warning call site in proxy_gui.py; corrected dangerous semantics in all 40 existing language catalogs to mean other apps' autostart entries, not other people's records or other programs' network settings. Exact translated log labels and leading whitespace preserved."
+  - "ChatGPT authored 28 terminology entries each for final ten Tier-3 languages (280 reviewed DRAFT values) in localization/drafts/tier3-glossary.json."
+  - "ChatGPT authored 16 high-impact iOS onboarding/Shortcuts/proxy/exclusions/VPN messages each for 10 languages (160 reviewed DRAFT strings) in localization/drafts/tier3-critical-ios.json."
+  - "Added source/audit regression tests: 6 focused passed, full Python 1305 passed 6 skipped and 3 inherited unrelated Windows tests deselected, 113 subtests passed. Android Public/Private build and unit tests SUCCESSFUL after French fix; desktop string-only edits after this do not affect Gradle."
+  - "Documented source editorial QA in docs/APL_TIER3_CHATGPT_EDITORIAL_REVIEW_2026-10-30.md and roadmap; no active new languages and published Apple build, ASC privacy and disabled watchdog untouched."
+current: "Complete remaining 10 x 452 source values using native ChatGPT editorial translation, reusing reviewed critical/terminology draft as translation memory."
 pending:
-  - Review critical translated UI instructions and network recovery/diagnostics warnings.
-  - Validate Python/iOS/Android, update QA and roadmap.
-  - Commit, push PR272, set checkpoint completed.
-last_verified_commit: 19e187d6219158090be97df93bbc3f4d4757c2b7
+  - "Fill remaining 10 complete iOS/Android/desktop catalogs; use native ChatGPT language capabilities, not Qwen, Google Translate or false English fallback."
+  - "Wire script-qualified iOS/Android/desktop language matching only after catalogs complete; preserve LTR network literals."
+  - "Editorially inspect all new high-risk network recovery, autostart, Shortcuts text; run full source equality, format, native and regression tests."
+  - "Update 50-language status matrix to 50/50 only when complete, commit/push final PR #272, mark checkpoint completed."
+last_verified_commit: "93dac6e9b8884e572982912dc73219e5591c4a48 (prior checkpoint; editorial commit follows)"
 test_results:
-  - Verified previous 40-language source and GitHub PR272 head.
-  - Qwen2.5 14B single translation test works, output requires editorial QA.
-  - No final Tier3 tests or native builds attempted; do not claim 50/50.
-resume_instruction: Resume /tmp/apl-core50-work-20261029 if present; verify PR272 head and 40-language baseline. Find a permitted reliable translation route (Google quota HTTP429, local batch runner tool currently blocked). Finish 10 real catalogs, technical glossary and editorial corrections, run all tests then push PR272. Do not publish selectors with missing strings; no ASC privacy or Watchdog changes.
+  - "6/6 new focused editorial tests PASS."
+  - "Full Python: 1305 passed, 6 skipped, 3 deselected, 113 subtests passed."
+  - "Android Public/Private Kotlin compile and unit tests BUILD SUCCESSFUL (49 tasks), after French Android correction."
+  - "No signed iOS PacketTunnel archive or physical device QA in this stage."
+blocker: null
+resume_instruction: "Resume from /tmp/apl-core50-work-20261029 and inspect latest PR272 head. Keep 40 existing locales, reuse new reviewed Tier3 drafts 280 terminology + 160 iOS critical strings. Fill remaining 10 *452 complete catalogs via ChatGPT text authoring over ARC, without external/local LLM. Avoid enabling languages until complete. Preserve current Apple submission/ASC privacy/disabled Watchdog, complete QA then checkpoint completed."
