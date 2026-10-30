@@ -1,7 +1,7 @@
 import Foundation
 
 /// The locale preference is independent of the color-scheme preference.
-/// The cases cover the 40 fully populated APL source languages.
+/// The cases cover the 50 fully populated APL iOS source languages.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case en
@@ -42,6 +42,16 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case sk
     case el
     case he
+    case ha
+    case am
+    case sv
+    case da
+    case fi
+    case nb
+    case bg
+    case sr
+    case hr
+    case ca
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -88,6 +98,16 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .sk: return "Slovenčina"
         case .el: return "Ελληνικά"
         case .he: return "עברית"
+        case .ha: return "Hausa"
+        case .am: return "አማርኛ"
+        case .sv: return "Svenska"
+        case .da: return "Dansk"
+        case .fi: return "Suomi"
+        case .nb: return "Norsk bokmål"
+        case .bg: return "Български"
+        case .sr: return "Српски (ћирилица)"
+        case .hr: return "Hrvatski"
+        case .ca: return "Català"
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -116,7 +136,10 @@ enum AppL10n {
         if id.hasPrefix("pt-br") { return "pt-BR" }
         if id == "pa-pk" || id.hasPrefix("pa-arab") { return nil }
         if id == "uz-cyrl" || id.hasPrefix("uz-cyrl-") { return nil }
-        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz", "ms", "fil", "sw", "ro", "hu", "cs", "sk", "el", "he"] {
+        if id == "sr-latn" || id.hasPrefix("sr-latn-") { return nil }
+        if id == "ha-arab" || id.hasPrefix("ha-arab-") { return nil }
+        if id == "no" || id.hasPrefix("no-") { return "nb" }
+        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz", "ms", "fil", "sw", "ro", "hu", "cs", "sk", "el", "he", "ha", "am", "sv", "da", "fi", "nb", "bg", "sr", "hr", "ca"] {
             if id == code || id.hasPrefix(code + "-") { return code }
         }
         return nil

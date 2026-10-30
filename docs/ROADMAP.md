@@ -1,3 +1,10 @@
+## 30.10.2026 · iOS-only release localization: 50 source languages complete
+
+- [x] 50/50 full **iOS** `.lproj` catalogs (155 translated UI strings per language); 10 new: ha, am, sv, da, fi, nb, bg, sr, hr, ca. Android/desktop not changed; cross-platform registry remains 40/50.
+- [x] iOS native language picker and system scripts; 21 runtime mappings PASS, 50 plutil PASS; unsigned UI-only iOS Simulator bundle and signed App Store archive with PacketTunnel PASS; local QA IPA exported, **not uploaded**.
+- [x] Default-size iOS simulator visual review: English, Amharic, Hausa, Serbian Cyrillic, Finnish and Hebrew RTL; retained source QA evidence in `/tmp`.
+- [ ] Release signoff: review user-facing “no advertising/no ad SDK” claim versus advertising configured in published app; independent native language & device accessibility QA; choose new version/build number and submit only after owner's explicit approval.
+
 ## 30.10.2026 · Редакторская вычитка ChatGPT / Tier-3 черновики
 
 - [x] В 40 полных локализациях исправлен контекст предупреждения Windows-автозапуска: чужие записи автозапуска, а не «записи других людей» или «сетевые настройки других программ»; сохранено название кнопки журнала.
