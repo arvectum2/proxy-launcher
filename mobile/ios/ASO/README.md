@@ -26,3 +26,22 @@ This directory contains **47 Apple-supported App Store localization records** th
 4. If editing screenshots, preserve actual application content. All visible UI must reflect real features; do not invent successful proxy connections or add product claims unsupported by the app.
 
 **Sources**: Apple App Store localization and screenshot specifications, and App Store Connect metadata property limits (2026-10-30). See `docs/APL_IOS_50_EDITORIAL_ASO_QA_2026-10-30.md` for local test evidence.
+
+## Repeatable App Store Connect import (review-safe)
+
+`import_appstore.py` uses only Python standard library, Xcode's `altool` and the existing local App Store Connect credentials. It was tested against Apple with **GET requests only** on 30 October 2026. Its execute path has an explicit confirmation gate and checks the app version state *before any write* and again before each locale.
+
+```bash
+# Fully offline validation: 47 ASO locales, 94 screenshots, zero writes
+python3 mobile/ios/ASO/import_appstore.py
+
+# Read current version and localization count directly from Apple; no writes
+python3 mobile/ios/ASO/import_appstore.py --live-check --version 0.1.40
+
+# ONLY when a new/current version has an Apple-editable status and is authorized
+python3 mobile/ios/ASO/import_appstore.py --execute --version 0.1.41 --confirm-version 0.1.41
+```
+
+The tool supports idempotent locale creation/update and screenshot asset reservations, byte-range image uploads, MD5 commits and local verification of matching locales. It never changes App Store review submissions, build attachment, app privacy metadata, or published versions. Each locale's `appInfoLocalization` and `appStoreVersionLocalization` are created together to avoid mismatched version and app locale sets. Existing screenshot file names are reused rather than overwritten. It fails closed for noneditable Apple states. On a new version, verify Apple's exact screenshot-set display type `APP_IPHONE_61` compatibility with the accepted 1206 × 2622 medium iPhone asset on the first locale before the full import; the asset API only validates it during actual uploading.
+
+**Current real App Store state (30 October 2026):** iOS `0.1.40` = `WAITING_FOR_REVIEW`, with only `ru` and `en-US` card localizations; it is not currently editable for screenshots. Apple explicitly forbids new screenshot uploads while Waiting for Review. To deploy the prepared ASO package, either the owner must explicitly choose to withdraw and resubmit that version or we can import into a later editable iOS version after Apple's current review completes. No cancellation or App Store Connect write was performed.
