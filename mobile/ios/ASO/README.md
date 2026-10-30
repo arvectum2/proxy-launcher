@@ -54,12 +54,12 @@ The tool supports idempotent locale creation/update and screenshot asset reserva
 
 A complete 0.1.41 (**build 46**) signed Apple Distribution archive and IPA, prepared from PR #272 iOS source in a separate staging directory, are stored at:
 
-`/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030/`
+`/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030/`
 
 - IPA: `exported/Arvectum Proxy Launcher.ipa`
 - Archive: `APL-0.1.41-46.xcarchive`
 - Integrity manifest: `candidate-manifest.json`
-- SHA-256: `e81f2b9bb7ec7990ae01a4ab5dc2ebf6564a889cd2162108c465af3f043e0151`
+- SHA-256: `a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2`
 - 50 iOS localizations + PacketTunnel, valid deep code signature. The candidate was **not uploaded to Apple** and is not in Git.
 - Rebuild reproducibly from a new isolated directory with `python3 mobile/ios/ASO/build_release_041.py --output /path/to/new/output`. The script **does not modify the source checkout**. Build number 46 was valid when prepared; verify no later upload has consumed that number before submitting.
 

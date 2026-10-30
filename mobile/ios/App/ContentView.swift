@@ -425,6 +425,16 @@ struct ContentView: View {
             }
         }
     }
+    // Preserve equal-height macOS Catalyst cards while iPhone Home measures
+    // intrinsic card heights to leave space for the bottom banner footprint.
+    private var dashboardCardMaxHeight: CGFloat? {
+#if targetEnvironment(macCatalyst)
+        .infinity
+#else
+        nil
+#endif
+    }
+
     private func connectionCard(compact: Bool) -> some View {
         VStack(spacing: compact ? 9 : 18) {
             HStack(spacing: compact ? 5 : 10) {
@@ -501,7 +511,7 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
         }
         .padding(compact ? 11 : 18)
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)
         .background(Brand.graphite)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -567,7 +577,7 @@ struct ContentView: View {
             }
         }
         .padding(compact ? 9 : 18)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .topLeading)
         .background(Brand.surface)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
