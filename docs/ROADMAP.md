@@ -119,7 +119,7 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - [x] Apple TestFlight build 9 (0.2.20) processed as VALID; internal group active; saved profiles retained on MacBook.
 - [x] Exact pinned patched tun2proxy rebuilt; Debug/Release/extension compiled; CI checks green; PR #274.
 - [x] macOS Packet Tunnel bounds CLOSE_WAIT/TCP pressure and TLS relay releases closed connections; legacy external guard unloaded and autostart disabled on QA MacBook.
-- [ ] Physical one-hour soak under ordinary load, verify resilience and realistic primary/backup routing, then decide on PR merge/public macOS review. Do not infer App Store public release from TestFlight distribution.
+- [ ] Physical one-hour soak under ordinary load (6-minute smoke: 12 TCP / 0 CLOSE_WAIT, VPN and ARC healthy), verify resilience and realistic primary/backup routing, then decide on PR merge/public macOS review. Do not infer App Store public release from TestFlight distribution.
 
 ## 6. macOS
 
