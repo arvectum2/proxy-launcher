@@ -1,0 +1,35 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-041-RELEASE-READINESS-20261030
+status: completed
+goal: "Audit iOS 0.1.41 publication readiness after 0.1.40 approval, identify and repair PR CI regressions, verify all iOS localizations/ASO and the signed release candidate, and report remaining gates without modifying Apple."
+definition_of_done:
+  - "Read-only Apple confirmation 0.1.40 READY_FOR_SALE and 0.1.41 absent; build numbers verified."
+  - "All 50 iOS UI locale catalogs and 47 ASO records/94 screenshots verified technically, plus signed candidate inspected."
+  - "Investigate nine PR failed CI jobs; repair actual source/regression contracts, preserve Mac Catalyst dashboard and no iPhone layout regressions."
+  - "Run local unit tests and iOS build, create up-to-date signed IPA, push fixes, report precise next release blockers without Apple writes."
+completed:
+  - "Authenticated Apple API: 0.1.40 READY_FOR_SALE, 0.1.41 does not exist, last uploaded build 45 VALID; candidate 0.1.41 build 46 available."
+  - "Source 50/50 UI localizations x 155 values; mobile/ios/ASO/audit_ios_copy.py zero technical parity/placeholder/English-fallback/Unicode errors; 47 metadata localizations and 94 simulator screenshots pass source checks."
+  - "Existing 380/380 real iOS geometry tests including 90/100pt QA banner; actual banner SDK/view is NOT linked in current candidate, a known feature-release gap."
+  - "Investigated nine PR CI jobs: Doctor (Ubuntu/Windows), Windows clean/installer, macOS package and acceptance fail due to two stale source-contract assertions in tests/test_macos_appstore_contract.py; verified via GitHub job logs."
+  - "Updated stale contract tests to match compact iOS Home; restored explicit equal-height macOS Catalyst dashboard stretch (dashboardCardMaxHeight is .infinity on Catalyst and nil on iOS)."
+  - "Full unittest discover through Python 3.12/Tk: 1073 passed, 6 skipped. Focused pytest: 38 passed. New unsigned iOS Simulator build succeeded."
+  - "Rebuilt signed Apple Distribution release candidate iOS 0.1.41(46) on SSD at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030; 50 .lproj, PacketTunnel and deep codesign verified. IPA SHA256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2, size 4216469 bytes."
+  - "Updated ASO importer default candidate path, release docs and docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md; pushed code/test fixes commit 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721 to PR #272."
+  - "New GitHub CI started on commit 4243bcb; initial 9 workflows completed successfully, 11 running, 3 queued when sampled. No new failures observed at that moment, but final green results not yet confirmed."
+current: "Audit complete: technical iOS localization/ASO checks clean and signed IPA ready; app not yet fully approved for release due to real banner gap and ongoing CI, independent human linguistic review not certified."
+pending:
+  - "Read final GitHub CI PR #272 status when jobs complete; investigate any newly failing checks before merge or publication."
+  - "If actual banner is required for 0.1.41, integrate real SDK/ad view and verify adaptive banner on iOS hardware/simulator; QA banner preview alone is not release banner."
+  - "Independently certify native-speaker language quality if required; technical source parity alone cannot prove 50 perfect translations."
+  - "Under explicit user instruction, create Apple version 0.1.41, first-locale ASC import verification, bulk 47-localization/94-image import, upload latest signed IPA, attach build 46, verify and submit review; no Apple write yet."
+last_verified_commit: 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721
+test_results:
+  - "Apple 0.1.40 READY_FOR_SALE, 0.1.41 absent, build 45 VALID."
+  - "1073 Python unittest PASS, 6 skipped; 38 targeted pytest PASS; new iOS simulator build PASS."
+  - "50 iOS UI catalogs audit 0 errors; 47 ASO locale and 94 screenshot source checks PASS."
+  - "Signed IPA sha256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2 and deep code signature PASS."
+  - "PR GitHub CI on latest code pending at last observation; old failures traced to fixed tests."
+blocker: "Relase publication decision: live banner SDK view is absent from source despite QA-only 90/100pt banner footprint, PR latest CI still pending, Apple 0.1.41 is not created/uploaded."
+resume_instruction: "Read docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md and this checkpoint; code commit 4243bcb fixes CI stale Mac contracts and signed IPA is /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030. Check PR #272 latest CI. Do not claim production banner is present: only Debug banner QA preview exists in iOS. If user authorizes publishing despite identified feature gap, explicitly confirm release requirements, then create Apple 0.1.41, verify initial ASO locale and bulk 47/94, upload build46, submit. Do not alter live 0.1.40, privacy or Watchdog."

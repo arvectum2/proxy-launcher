@@ -1,35 +1,36 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-041-RELEASE-READINESS-20261030
+task_id: APL-IOS-050-EDITORIAL-PUBLISHED-BANNER-20261030
 status: completed
-goal: "Audit iOS 0.1.41 publication readiness after 0.1.40 approval, identify and repair PR CI regressions, verify all iOS localizations/ASO and the signed release candidate, and report remaining gates without modifying Apple."
+goal: "Restore exact proven published 0.1.40 Yandex banner integration to iOS 0.1.41; editorially review all 50 iOS UI languages and ASO; validate actual creative plus native tab bar and signed next release."
 definition_of_done:
-  - "Read-only Apple confirmation 0.1.40 READY_FOR_SALE and 0.1.41 absent; build numbers verified."
-  - "All 50 iOS UI locale catalogs and 47 ASO records/94 screenshots verified technically, plus signed candidate inspected."
-  - "Investigate nine PR failed CI jobs; repair actual source/regression contracts, preserve Mac Catalyst dashboard and no iPhone layout regressions."
-  - "Run local unit tests and iOS build, create up-to-date signed IPA, push fixes, report precise next release blockers without Apple writes."
+  - "Published 0.1.40 binary/source banner compared, SDK and release behavior restored to 0.1.41."
+  - "All 50 iOS UI languages editorially audited and corrected; ASO 47 locale packages and screenshots remain valid."
+  - "Real Yandex demo creative visible without scroll or native tab bar occlusion on compact iPhone in LTR and RTL locales."
+  - "Full relevant tests and signed Apple IPA pass; PR updated; existing App Store version/privacy and disabled Watchdog untouched."
 completed:
-  - "Authenticated Apple API: 0.1.40 READY_FOR_SALE, 0.1.41 does not exist, last uploaded build 45 VALID; candidate 0.1.41 build 46 available."
-  - "Source 50/50 UI localizations x 155 values; mobile/ios/ASO/audit_ios_copy.py zero technical parity/placeholder/English-fallback/Unicode errors; 47 metadata localizations and 94 simulator screenshots pass source checks."
-  - "Existing 380/380 real iOS geometry tests including 90/100pt QA banner; actual banner SDK/view is NOT linked in current candidate, a known feature-release gap."
-  - "Investigated nine PR CI jobs: Doctor (Ubuntu/Windows), Windows clean/installer, macOS package and acceptance fail due to two stale source-contract assertions in tests/test_macos_appstore_contract.py; verified via GitHub job logs."
-  - "Updated stale contract tests to match compact iOS Home; restored explicit equal-height macOS Catalyst dashboard stretch (dashboardCardMaxHeight is .infinity on Catalyst and nil on iOS)."
-  - "Full unittest discover through Python 3.12/Tk: 1073 passed, 6 skipped. Focused pytest: 38 passed. New unsigned iOS Simulator build succeeded."
-  - "Rebuilt signed Apple Distribution release candidate iOS 0.1.41(46) on SSD at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030; 50 .lproj, PacketTunnel and deep codesign verified. IPA SHA256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2, size 4216469 bytes."
-  - "Updated ASO importer default candidate path, release docs and docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md; pushed code/test fixes commit 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721 to PR #272."
-  - "New GitHub CI started on commit 4243bcb; initial 9 workflows completed successfully, 11 running, 3 queued when sampled. No new failures observed at that moment, but final green results not yet confirmed."
-current: "Audit complete: technical iOS localization/ASO checks clean and signed IPA ready; app not yet fully approved for release due to real banner gap and ongoing CI, independent human linguistic review not certified."
+  - "Located signed published App Store 0.1.40 build45 with YandexMobileAds.framework and AppMetrica; matched exact working source at /Users/master/Arvectum/worktrees/apl-ios-rsya-visibility-20261030."
+  - "Restored real SettingsBannerView.swift, SPM YandexMobileAds 8.6.0/AppMetrica 6.7.1, production R-M-20288304-1 and DEBUG demo-banner-yandex."
+  - "Restored required -ObjC linker flag. Real simulator crash from missing AppMetrica adapter resolved."
+  - "Fetched current official Yandex SKAdNetwork ID JSON and added 228 entries to iOS Info.plist; Yandex SDK error Code 12 resolved."
+  - "Replaced TabView safeAreaInset ad with bounded native TabView + sibling sticky SettingsBannerView in VStack; reserves SDK-measured ad height and preserves all four native tabs. Added initial 50pt placeholder to ensure host view can initialize."
+  - "Loaded genuine Yandex SDK creative on iPhone SE 3 iOS27 Simulator in German LTR and Hebrew RTL; saved screenshot pixel-verified real ad + native selected tab evidence to SSD qa-live-demo/verified/ (2 actual images)."
+  - "Editorially revised 50 catalogues x155 original keys (7750 values); 2 onboarding information strings per language improved (100 values), 22 critical UI action/terminology corrections in 15 languages; 50 native ad marker labels added separately without catalog key schema changes."
+  - "All 50 plutil Localizable.strings PASS, 50-language lexical audit issues 0; ASO metadata 47 Apple locale records and 94 original screenshots preserved, generated limits checked."
+  - "Full Python 3.12/Tk unittest discover: 1073 tests PASS, 6 skipped; 24 targeted iOS/editorial tests pass; full iOS Simulator Yandex SDK UI-only build succeeded."
+  - "Apple Distribution signed iOS 0.1.41 build46 final archive+IPA with 50 lproj/PacketTunnel/Yandex SDK wrapper and 228 SKAD entries: /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rsya-final-20261030/; deep codesign PASS; IPA 12012342 bytes SHA256 fb533576654ebbf2de0f4bfc120d76bebbfaae8f426ecd03b848f78614de3bf1."
+  - "Updated ASO upload script default path, README, roadmap, full QA matrix docs/APL_IOS_REAL_BANNER_EDITORIAL50_QA_2026-10-30.md. Code commit ab04efff7ce74cc12720f9606fe514277fd31a26, this checkpoint completion commit follows."
+current: "COMPLETED: technical iOS real banner and language review with next Apple signed candidate preserved on SSD; ASC publication separate."
 pending:
-  - "Read final GitHub CI PR #272 status when jobs complete; investigate any newly failing checks before merge or publication."
-  - "If actual banner is required for 0.1.41, integrate real SDK/ad view and verify adaptive banner on iOS hardware/simulator; QA banner preview alone is not release banner."
-  - "Independently certify native-speaker language quality if required; technical source parity alone cannot prove 50 perfect translations."
-  - "Under explicit user instruction, create Apple version 0.1.41, first-locale ASC import verification, bulk 47-localization/94-image import, upload latest signed IPA, attach build 46, verify and submit review; no Apple write yet."
-last_verified_commit: 4243bcb00a54ed6df2c11b4e60cb8ff6467d0721
+  - "Apple App Store Connect 0.1.41 creation, 47 ASO metadata/94 original screenshots import, real IPA upload, attach and Review submission are NOT done; require subsequent explicitly requested release workflow."
+  - "Real production ad fill after Apple review is network-dependent. SDK demo loaded and rendered in 2 visually verified language cases; no guarantee of fill for all locales or regions."
+  - "Independent third-party/native human language certification was not commissioned; language review was performed with ChatGPT multilingual capabilities."
+last_verified_commit: ab04efff7ce74cc12720f9606fe514277fd31a26
 test_results:
-  - "Apple 0.1.40 READY_FOR_SALE, 0.1.41 absent, build 45 VALID."
-  - "1073 Python unittest PASS, 6 skipped; 38 targeted pytest PASS; new iOS simulator build PASS."
-  - "50 iOS UI catalogs audit 0 errors; 47 ASO locale and 94 screenshot source checks PASS."
-  - "Signed IPA sha256 a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2 and deep code signature PASS."
-  - "PR GitHub CI on latest code pending at last observation; old failures traced to fixed tests."
-blocker: "Relase publication decision: live banner SDK view is absent from source despite QA-only 90/100pt banner footprint, PR latest CI still pending, Apple 0.1.41 is not created/uploaded."
-resume_instruction: "Read docs/APL_IOS_041_RELEASE_READINESS_AUDIT_2026-10-30.md and this checkpoint; code commit 4243bcb fixes CI stale Mac contracts and signed IPA is /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030. Check PR #272 latest CI. Do not claim production banner is present: only Debug banner QA preview exists in iOS. If user authorizes publishing despite identified feature gap, explicitly confirm release requirements, then create Apple 0.1.41, verify initial ASO locale and bulk 47/94, upload build46, submit. Do not alter live 0.1.40, privacy or Watchdog."
+  - "1073 unittest passed; 6 skipped; 24 targeted pytest passed."
+  - "50 iOS Localizable.strings plutil PASS, lexical audit 0 issues, 47 ASO packages and 94 screenshots preserved."
+  - "iPhone SE actual Yandex SDK demo creative with all native tabs fully visible in German and Hebrew; visual pixel verification PASS."
+  - "Final IPA SHA256 fb533576654ebbf2de0f4bfc120d76bebbfaae8f426ecd03b848f78614de3bf1, deep codesign PASS, 50 localized bundles and PacketTunnel."
+  - "No App Store Connect mutations, no Android/desktop/Watchdog changes."
+blocker: null
+resume_instruction: "iOS editorials and true Yandex banner restoration done, don't redo. Use docs/APL_IOS_REAL_BANNER_EDITORIAL50_QA_2026-10-30.md and signed IPA /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rsya-final-20261030/exported/Arvectum Proxy Launcher.ipa. On explicit release command check Apple iOS 0.1.40 READY_FOR_SALE and 0.1.41 build46 availability; follow mobile/ios/ASO/README.md first-locale import, then 47 ASO and 94 screenshots, real signed IPA upload, attach, verify and submit. Do not modify existing ASC privacy declaration or disable watchdog settings."
