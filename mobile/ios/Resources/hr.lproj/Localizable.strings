@@ -10,9 +10,9 @@
 "Авторизация" = "Autentifikacija";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Adresa proxyja, port i korisničko ime pohranjuju se lokalno. Lozinka se čuva u iOS privjesku ključeva. Arvectum ne prima te podatke.";
 "Активность" = "Aktivnost";
-"Без аналитики и рекламы" = "Bez analitike i oglasa";
+"Без аналитики и рекламы" = "Bez korisničkog računa";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Nije se moguće povezati bez proxy profila. Dodajte profil za početak.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Ova verzija ne sadrži oglasni SDK, analitiku, praćenje, registraciju ni poslužiteljski sustav u oblaku.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Postavite vlastiti proxy bez registracije. Podaci o vezi ostaju na uređaju.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Unesite adresu web-mjesta i dodirnite „Dodaj”. Svako web-mjesto prikazuje se u zasebnom retku. Možete zalijepiti URL, host:port ili IP adresu.";
 "Версия" = "Verzija";
 "Возврат к приоритетному включён" = "Povratak na preferirani proxy je uključen";

@@ -11,7 +11,7 @@ The previous `ContentView.swift` rendered the iPhone Home through a **vertical `
 - Long translated action/status labels use single-line fitting with a minimum scale; explanatory text uses a two-line limit in compact mode. The connection and proxy section headings are explicitly passed through `AppL10n.tr` for all 50 languages.
 - Removed duplicate secondary **Add proxy** / **Manage profiles** buttons from the *compact* Home card. Add remains the large primary action when no profile exists; profile management remains available in the persistent Profiles tab. A configured profile retains its in-card selection menu with a **44-pt compact touch target** (the final 10 extra-large accessibility checks were rerun after this adjustment).
 - QA-only simulated states (`empty`, `connecting`, `connected`) and measured frame rects are enabled by dedicated Debug launch arguments. **These test switches do not change the real VPN/controller state** and do not display a fake advertisement in release builds.
-- The source repository currently has no actual iOS banner component to exercise live ad-network loading. Tests use a real SwiftUI footprint **90 pt** (normal) and **100 pt** (large-banner stress), positioned immediately above the tab bar. The same constrained footer area must be used when the real banner host is connected; this audit verifies layout geometry, not live ad SDK delivery.
+- At the time of the original geometry audit, the localization branch had temporarily lost the production banner component. The subsequent audit restored the Yandex SDK and captured real demo ads; this original matrix used a SwiftUI test footprint **90 pt** (normal) and **100 pt** (large-banner stress), positioned immediately above the tab bar. The same constrained footer area must be used when the real banner host is connected; this audit verifies layout geometry, not live ad SDK delivery.
 
 ## Acceptance results on iOS 27.0 Simulators
 
@@ -42,3 +42,7 @@ Only iOS Home UI, the Debug geometry probe and iOS-specific QA/tests/docs change
 ## Final release artifact
 
 Updated 0.1.41 (46) signed local archive and IPA after compact touch-target refinement: `/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030/`. IPA SHA256: `a0b3e773f7f4be024c4b9e627251cb08799b5d923d9b52bf745dff65c6f27df2`, size 4,216,469 bytes, `codesign --verify --deep --strict` PASS; archive/IPA contain 50 iOS `.lproj` and one PacketTunnel. It supersedes the earlier unsigned-layout candidate and was **not uploaded** to Apple. The 10 highest-risk extra-large accessibility connected-state cases were rerun on this final build: **10/10 pass**. Total executed frame probes **380/380** including this final recheck.
+
+## 30 October 2026 addendum — actual production banner restored
+
+The iOS Yandex Mobile Ads integration from published 0.1.40 was restored in 0.1.41 after this initial placeholder-only audit. SDK 8.6.0, ObjC linker flag and current SKAdNetwork IDs are included. The layout uses a `VStack` with the native `TabView` and a sibling sticky ad footer, which lets the view measure the ad height without pushing the native tab bar out of the screen. Two visual iPhone SE SDK demo captures (German and Hebrew RTL) show the real creative, all controls, and visible navigation. See `docs/APL_IOS_REAL_BANNER_EDITORIAL50_QA_2026-10-30.md`.

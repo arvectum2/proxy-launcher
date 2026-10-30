@@ -10,6 +10,7 @@
 		01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
+		1692281A8D63E7B66C59D142 /* YandexMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */; };
 		1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
@@ -33,6 +34,7 @@
 		9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87885BE6123FF783E8126F72 /* AppViewModel.swift */; };
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */; };
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
@@ -136,6 +138,7 @@
 		D22A7AC7C830AA8F90843E55 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		E3799421C408860D4BF72E04 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsBannerView.swift; sourceTree = "<group>"; };
 		EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
 		F12FD05262B2DEE6D3850135 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLayoutProbe.swift; sourceTree = "<group>"; };
@@ -152,6 +155,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				43AA5F682830BDF4F00C9DEB /* tun2proxy.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E14CBDE94320AFD827F77440 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1692281A8D63E7B66C59D142 /* YandexMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +260,7 @@
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
+				E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */,
 				CB04057014F01C39512BA98A /* SetupGuideView.swift */,
 				89A9D0427123A9620FB1C3DE /* VPNController.swift */,
 				CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */,
@@ -274,6 +286,7 @@
 			buildPhases = (
 				9D6E75C14E16823EE2CFB35A /* Sources */,
 				EC376EA4F229E146F744F80A /* Resources */,
+				E14CBDE94320AFD827F77440 /* Frameworks */,
 				A71EF1F191128AEE468E1E46 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -283,6 +296,7 @@
 			);
 			name = ArvectumProxyLauncher;
 			packageProductDependencies = (
+				AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */,
 			);
 			productName = ArvectumProxyLauncher;
 			productReference = 16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */;
@@ -384,6 +398,9 @@
 			);
 			mainGroup = A0BA0E0CA9A9D537ECE8F8AE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2044A622CD2E2C9F9C254E73 /* XCRemoteSwiftPackageReference "yandex-ads-sdk-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4E8152EC2F383D3ABDAA68C /* Products */;
 			projectDirPath = "";
@@ -451,6 +468,7 @@
 				0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */,
 				24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */,
 				D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */,
+				A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */,
 				FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */,
 				01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
@@ -602,6 +620,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "$(inherited) -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios;
 				PRODUCT_NAME = "Arvectum Proxy Launcher";
 				PROVISIONING_PROFILE_SPECIFIER = "APL App Store";
@@ -622,6 +641,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = "$(inherited) -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios;
 				PRODUCT_NAME = "Arvectum Proxy Launcher";
 				PROVISIONING_PROFILE_SPECIFIER = "APL Development";
@@ -776,6 +796,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2044A622CD2E2C9F9C254E73 /* XCRemoteSwiftPackageReference "yandex-ads-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yandexmobile/yandex-ads-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2044A622CD2E2C9F9C254E73 /* XCRemoteSwiftPackageReference "yandex-ads-sdk-ios" */;
+			productName = YandexMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B03F839F8939F6B9DD935E2F /* Project object */;
 }

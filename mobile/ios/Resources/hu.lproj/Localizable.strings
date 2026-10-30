@@ -9,9 +9,9 @@
 "Авторизация" = "Hitelesítés";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "A proxy címét, portját és felhasználónevét a rendszer helyileg tárolja. Jelszavát a iOS Keychain tárolja. A Arvectum nem kapja meg ezt az információt.";
 "Активность" = "Tevékenység";
-"Без аналитики и рекламы" = "Nincs elemzés vagy reklám";
+"Без аналитики и рекламы" = "Nincs szükség fiókra";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Proxyprofil nélkül nem tud csatlakozni. A kezdéshez adjon hozzá egyet.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Ez a verzió nem tartalmaz SDK hirdetést, elemzést, nyomkövetést, regisztrációt vagy felhőalapú háttérprogramot.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Regisztráció nélkül állíthatod be a proxyt. A kapcsolati adatok a készüléken maradnak.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Add meg a webhely címét, majd koppints a „Hozzáadás” gombra. Minden webhely külön sorban jelenik meg. URL, host:port vagy IP-cím is beilleszthető.";
 "Версия" = "Verzió";
 "Возврат к приоритетному включён" = "Visszatérés az előnyben részesített proxyhoz engedélyezve";
@@ -37,7 +37,7 @@
 "Изменения вступят в силу после нажатия «Сохранить»." = "A módosítások a Mentés elemre koppintva lépnek életbe.";
 "Изменить" = "Szerkesztés";
 "Изменить прокси" = "Proxy szerkesztése";
-"Исключения" = "Kizárások";
+"Исключения" = "Kivételek";
 "Исключения приложений" = "Alkalmazáskizárások";
 "Исключения сайтов" = "Webhely-kizárások";
 "Используется выбранный профиль." = "A kiválasztott profil használata.";

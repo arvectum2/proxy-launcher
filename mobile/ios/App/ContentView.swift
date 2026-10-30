@@ -195,7 +195,8 @@ struct ContentView: View {
     }
 
     private var mobileShell: some View {
-        TabView(selection: $destination) {
+        VStack(spacing: 0) {
+            TabView(selection: $destination) {
             homeScreen
                 .tag(AppDestination.home)
                 .tabItem { Label(AppDestination.home.title, systemImage: AppDestination.home.icon) }
@@ -209,7 +210,16 @@ struct ContentView: View {
                 .tag(AppDestination.settings)
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
-        .tint(Brand.mint)
+            .tint(Brand.mint)
+            // A sibling rather than an inset on TabView. The actual ad SDK's
+            // sticky height is measured by the stack; it must not displace
+            // or obscure the native tab bar on compact iPhones.
+            SettingsBannerView()
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .background(Brand.canvas)
+        }
+        .background(Brand.canvas)
     }
 
 #if targetEnvironment(macCatalyst)

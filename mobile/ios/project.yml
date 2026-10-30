@@ -3,6 +3,10 @@ options:
   bundleIdPrefix: ru.arvectum.proxylauncher
   deploymentTarget:
     iOS: "15.0"
+packages:
+  YandexMobileAds:
+    url: https://github.com/yandexmobile/yandex-ads-sdk-ios
+    from: "8.6.0"
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -25,6 +29,8 @@ targets:
     dependencies:
       - target: PacketTunnel
         embed: true
+      - package: YandexMobileAds
+        product: YandexMobileAds
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios
@@ -33,6 +39,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Config/App.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1"
+        OTHER_LDFLAGS: "$(inherited) -ObjC"
       configs:
         Debug:
           CODE_SIGN_STYLE: Manual

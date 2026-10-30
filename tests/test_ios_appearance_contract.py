@@ -39,10 +39,16 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.39;'), 2)
         self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 43;'), 2)
 
-    def test_no_ad_sdk_added_to_this_release(self):
+    def test_shipped_banner_sdk_retained_in_future_ios_source(self):
         config = (IOS / "project.yml").read_text(encoding="utf-8")
-        self.assertNotIn('YandexMobileAds', config)
-        self.assertNotIn('AppMetrica', config)
+        banner = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
+        home = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        self.assertIn('https://github.com/yandexmobile/yandex-ads-sdk-ios', config)
+        self.assertIn('product: YandexMobileAds', config)
+        self.assertIn('R-M-20288304-1', banner)
+        self.assertIn('SettingsBannerView()', home)
+        self.assertIn('VStack(spacing: 0)', home)
+        self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', home)
 
 
 if __name__ == "__main__":

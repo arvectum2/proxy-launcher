@@ -13,7 +13,7 @@ import subprocess
 import sys
 from import_appstore import ASC, APP_ID, ImportErrorASC, assert_editable, assert_predecessor_released, existing_version
 
-DEFAULT_ASSET=Path('/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rc-audit-20261030')
+DEFAULT_ASSET=Path('/Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rsya-final-20261030')
 VERSION='0.1.41'
 BUILD='46'
 

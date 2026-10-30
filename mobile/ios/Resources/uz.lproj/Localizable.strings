@@ -9,9 +9,9 @@
 "Авторизация" = "Autentifikatsiya";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Sizning proksi-serveringiz, port va foydalanuvchi nomingiz mahalliy sifatida saqlanadi. Sizning parolingiz iOS Keychain da saqlanadi. Arvectum bu ma'lumotni olmaydi.";
 "Активность" = "Faoliyat";
-"Без аналитики и рекламы" = "Hech qanday tahlil yoki reklama yo'q";
+"Без аналитики и рекламы" = "Hisob kerak emas";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Proksi-profilsiz ulana olmaysiz. Boshlash uchun bitta qo'shing.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Ushbu versiyada hech qanday reklama SDK, tahlil, kuzatuv, ro'yxatdan o'tish yoki bulutli backend mavjud emas.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Roʻyxatdan oʻtmasdan proksingizni sozlang. Ulanish maʼlumotlari shu qurilmada saqlanadi.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Sayt manzilini kiriting va “Qoʻshish” tugmasini bosing. Har bir sayt alohida qatorda koʻrinadi. URL, host:port yoki IP manzilni kiritishingiz mumkin.";
 "Версия" = "Versiya";
 "Возврат к приоритетному включён" = "Tanlangan proksi-server yoqilgan";

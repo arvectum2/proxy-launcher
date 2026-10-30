@@ -9,9 +9,9 @@
 "Авторизация" = "Autentificare";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Adresa proxy, portul și numele de utilizator sunt stocate local. Parola dvs. este păstrată în iOS Keychain. Arvectum nu primește aceste informații.";
 "Активность" = "Activitate";
-"Без аналитики и рекламы" = "Fără analize sau publicitate";
+"Без аналитики и рекламы" = "Nu este necesar un cont";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Nu vă puteți conecta fără un profil proxy. Adăugați unul pentru a începe.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Această versiune nu conține anunțuri SDK, analize, urmărire, înregistrare sau backend cloud.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Configurează propriul proxy fără înregistrare. Datele conexiunii rămân pe dispozitiv.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Introdu adresa site-ului și atinge „Adaugă”. Fiecare site apare pe un rând separat. Poți lipi un URL, host:port sau o adresă IP.";
 "Версия" = "Versiune";
 "Возврат к приоритетному включён" = "Reveniți la proxy preferat activat";
@@ -72,7 +72,7 @@
 "Оставаться на текущем после сбоя" = "Rămâneți cu proxy-ul actual după un eșec";
 "Отключение…" = "Se deconectează…";
 "Отключено" = "Deconectat";
-"Отключить" = "Deconectați-vă";
+"Отключить" = "Deconectează";
 "Отключить системный прокси-туннель" = "Deconectați tunelul proxy de sistem";
 "Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Deschide „Profiluri” și atinge „Adaugă primul proxy” (sau „Nou” dacă ai deja profiluri). Introdu gazda serverului, portul și protocolul (HTTP, HTTPS sau SOCKS5). Completează numele de utilizator și parola numai dacă sunt necesare.";
 "Открыть создание первого прокси" = "Deschideți formularul pentru a adăuga primul dvs. proxy";
@@ -90,7 +90,7 @@
 "Подключение…" = "Se conectează…";
 "Подключено" = "Conectat";
 "Подключитесь" = "Conectare";
-"Подключиться" = "Conectare";
+"Подключиться" = "Conectează";
 "Подключиться через выбранный прокси" = "Conectați-vă folosind proxy-ul selectat";
 "Политика конфиденциальности" = "Politica de confidențialitate";
 "Понятно, продолжить" = "Am înțeles, continuă";

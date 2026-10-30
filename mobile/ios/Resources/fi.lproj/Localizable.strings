@@ -10,9 +10,9 @@
 "Авторизация" = "Todennus";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Välityspalvelimen osoite, portti ja käyttäjätunnus tallennetaan paikallisesti. Salasana säilytetään iOS:n avainnipussa. Arvectum ei saa näitä tietoja.";
 "Активность" = "Toiminta";
-"Без аналитики и рекламы" = "Ei analytiikkaa eikä mainoksia";
+"Без аналитики и рекламы" = "Ei käyttäjätiliä";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Et voi muodostaa yhteyttä ilman välityspalvelinprofiilia. Lisää profiili aloittaaksesi.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Tämä versio ei sisällä mainos-SDK:ta, analytiikkaa, seurantaa, rekisteröintiä eikä pilvipalvelinta.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Määritä oma välityspalvelimesi ilman rekisteröitymistä. Yhteystiedot pysyvät laitteessa.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Anna verkkosivuston osoite ja napauta ”Lisää”. Jokainen sivusto näkyy omalla rivillään. Voit liittää URL-osoitteen, host:port-tiedon tai IP-osoitteen.";
 "Версия" = "Versio";
 "Возврат к приоритетному включён" = "Paluu ensisijaiseen välityspalvelimeen käytössä";

@@ -10,9 +10,9 @@
 "Авторизация" = "Autenticació";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "L'adreça, el port i el nom d'usuari del servidor intermediari es desen localment. La contrasenya es guarda al clauer d'iOS. Arvectum no rep aquestes dades.";
 "Активность" = "Activitat";
-"Без аналитики и рекламы" = "Sense analítica ni publicitat";
+"Без аналитики и рекламы" = "Sense compte";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "No et pots connectar sense un perfil de servidor intermediari. Afegeix-ne un per començar.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Aquesta versió no incorpora cap SDK publicitari, analítica, seguiment, registre ni servidor al núvol.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Configura el teu servidor intermediari sense registrar-te. Les dades de connexió es queden al dispositiu.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Introdueix l’adreça d’un lloc web i toca «Afegeix». Cada lloc apareix en una línia diferent. Pots enganxar un URL, host:port o una adreça IP.";
 "Версия" = "Versió";
 "Возврат к приоритетному включён" = "Activat el retorn al servidor intermediari preferit";
@@ -133,7 +133,7 @@
 "Удалить профиль" = "Elimina el perfil";
 "Управление профилями" = "Gestiona els perfils";
 "Успешно" = "Fet";
-"Хост" = "Amfitrió";
+"Хост" = "Servidor";
 "Хост — адрес сервера, порт — его номер. Тип уточните у поставщика." = "L'amfitrió és l'adreça del servidor i el port n'és el número de port. Consulta el proveïdor per saber quin protocol has d'utilitzar.";
 "Что произойдёт" = "Què passarà?";
 "Шаг" = "Pas";

@@ -10,9 +10,9 @@
 "Авторизация" = "Autenticação";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "O seu endereço proxy, porta e nome de utilizador são armazenados localmente. A sua palavra-passe é mantida no iOS Keychain. O Arvectum não recebe esta informação.";
 "Активность" = "Atividade";
-"Без аналитики и рекламы" = "Sem análises ou publicidade";
+"Без аналитики и рекламы" = "Sem necessidade de conta";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Não se pode ligar sem um perfil de proxy. Adicione um para começar.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Esta versão não contém SDK de anúncios, análises, rastreio, registo ou back-end na nuvem.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Configure o seu próprio proxy sem registo. Os dados da ligação ficam no dispositivo.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Introduza um site e toque em Adicionar. Cada site aparece na sua própria linha. Pode colar um URL, host:porta ou endereço IP.";
 "Версия" = "Versão";
 "Возврат к приоритетному включён" = "Regressar ao proxy preferencial ativado";
@@ -73,7 +73,7 @@
 "Оставаться на текущем после сбоя" = "Permaneça com o proxy atual após uma falha";
 "Отключение…" = "Desligando…";
 "Отключено" = "Desligado";
-"Отключить" = "Desconectar";
+"Отключить" = "Desligar";
 "Отключить системный прокси-туннель" = "Desligue o túnel proxy do sistema";
 "Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Abra Perfis e toque em Adicionar o seu primeiro proxy (ou Novo se já tiver perfis). Introduza o host do servidor, a porta e o protocolo (HTTP, HTTPS ou SOCKS5). Utilize um nome de utilizador e palavra-passe apenas se necessário.";
 "Открыть создание первого прокси" = "Abra o formulário para adicionar o seu primeiro proxy";

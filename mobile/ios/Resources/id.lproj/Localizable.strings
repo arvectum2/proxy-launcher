@@ -9,9 +9,9 @@
 "Авторизация" = "Otentikasi";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Alamat proxy Anda, port dan nama pengguna disimpan secara lokal. Kata sandi Anda disimpan di iOS Keychain. Arvectum tidak menerima informasi ini.";
 "Активность" = "Aktivitas";
-"Без аналитики и рекламы" = "Tidak ada analitik atau iklan";
+"Без аналитики и рекламы" = "Tanpa akun";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Anda tidak dapat terhubung tanpa profil proxy. Tambahkan satu untuk memulai.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Versi ini tidak mengandung iklan SDK, analitik, pelacakan, registrasi, atau backend cloud.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Atur proxy sendiri tanpa mendaftar. Data koneksi tetap tersimpan di perangkat ini.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Masukkan alamat situs, lalu ketuk “Tambah”. Setiap situs akan berada pada baris tersendiri. Anda dapat menempelkan URL, host:port, atau alamat IP.";
 "Версия" = "Versi";
 "Возврат к приоритетному включён" = "Kembali ke proksi pilihan yang diaktifkan";
@@ -120,7 +120,7 @@
 "Создайте профиль" = "Buat profil";
 "Создать профиль" = "Buat profil";
 "Состояние соединения и последние события" = "Status koneksi dan aktivitas terkini";
-"Сохранить" = "Menyimpan";
+"Сохранить" = "Simpan";
 "Список пока пуст" = "Tidak ada pengecualian yang ditambahkan";
 "Текущий профиль" = "Profil saat ini";
 "Тема оформления" = "Penampilan";

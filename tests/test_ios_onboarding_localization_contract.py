@@ -62,7 +62,9 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('Localizable.strings in Resources', pbx)
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
-        self.assertNotIn("YandexMobileAds", project)
+        self.assertIn("YandexMobileAds", project)
+        self.assertIn("YandexMobileAds", pbx)
+        self.assertIn("SettingsBannerView.swift in Sources", pbx)
 
 if __name__ == "__main__":
     unittest.main()

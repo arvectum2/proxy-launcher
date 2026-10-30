@@ -9,9 +9,9 @@
 "Авторизация" = "Authenticatie";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Uw proxyadres, poort en gebruikersnaam worden lokaal opgeslagen. Uw wachtwoord wordt bewaard in de iOS Keychain. Arvectum ontvangt deze informatie niet.";
 "Активность" = "Activiteit";
-"Без аналитики и рекламы" = "Geen analyses of advertenties";
+"Без аналитики и рекламы" = "Geen account nodig";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "U kunt geen verbinding maken zonder een proxyprofiel. Voeg er een toe om aan de slag te gaan.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Deze versie bevat geen advertentie SDK, analyses, tracking, registratie of cloud-backend.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Stel je eigen proxy in zonder registratie. Verbindingsgegevens blijven op dit apparaat.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Voer een website in en tik op ‘Toevoegen’. Elke website staat op een eigen regel. U kunt een URL, host:port of IP-adres plakken.";
 "Версия" = "Versie";
 "Возврат к приоритетному включён" = "Terug naar voorkeursproxy ingeschakeld";
@@ -37,7 +37,7 @@
 "Изменения вступят в силу после нажатия «Сохранить»." = "Wijzigingen worden van kracht wanneer u op Opslaan tikt.";
 "Изменить" = "Bewerking";
 "Изменить прокси" = "Proxy bewerken";
-"Исключения" = "Uitsluitingen";
+"Исключения" = "Uitzonderingen";
 "Исключения приложений" = "App-uitsluitingen";
 "Исключения сайтов" = "Uitsluitingen van websites";
 "Используется выбранный профиль." = "Het geselecteerde profiel gebruiken.";
@@ -72,7 +72,7 @@
 "Оставаться на текущем после сбоя" = "Blijf bij de huidige proxy na een storing";
 "Отключение…" = "Verbinding verbreken…";
 "Отключено" = "Verbinding verbroken";
-"Отключить" = "Verbreek de verbinding";
+"Отключить" = "Verbinding verbreken";
 "Отключить системный прокси-туннель" = "Ontkoppel de systeemproxytunnel";
 "Откройте «Профили» и нажмите «Добавить первый прокси» (или «Новый», если профили уже есть). Укажите адрес сервера, порт и тип (HTTP, HTTPS или SOCKS5). Логин и пароль нужны только при авторизации." = "Open ‘Profielen’ en tik op ‘Eerste proxy toevoegen’ (of ‘Nieuw’ als u al profielen hebt). Voer het serveradres, de poort en het protocol (HTTP, HTTPS of SOCKS5) in. Een gebruikersnaam en wachtwoord zijn alleen nodig als uw provider dit vereist.";
 "Открыть создание первого прокси" = "Open het formulier om uw eerste proxy toe te voegen";
@@ -120,7 +120,7 @@
 "Создайте профиль" = "Maak een profiel aan";
 "Создать профиль" = "Profiel aanmaken";
 "Состояние соединения и последние события" = "Verbindingsstatus en recente activiteit";
-"Сохранить" = "Redden";
+"Сохранить" = "Opslaan";
 "Список пока пуст" = "Geen uitsluitingen toegevoegd";
 "Текущий профиль" = "Huidig ​​profiel";
 "Тема оформления" = "Verschijning";

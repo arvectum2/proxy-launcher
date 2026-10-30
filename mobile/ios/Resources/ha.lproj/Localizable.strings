@@ -10,9 +10,9 @@
 "Авторизация" = "Tabbatar da shaidar mai amfani";
 "Адрес, порт и логин сохраняются локально. Пароль хранится в системной Связке ключей iOS. Arvectum не получает эти данные." = "Ana adana adireshin proksi, tashar sadarwa da sunan mai amfani a na'urarka. Ana ajiye kalmar sirri a iOS Keychain. Arvectum ba ya karɓar waɗannan bayanan.";
 "Активность" = "Ayyuka";
-"Без аналитики и рекламы" = "Babu nazarin bayanai ko tallace-tallace";
+"Без аналитики и рекламы" = "Ba a buƙatar asusu";
 "Без профиля подключение невозможно. Добавьте прокси для начала работы." = "Ba za ka iya haɗawa ba tare da bayanin proksi ba. Ƙara ɗaya domin farawa.";
-"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Wannan sigar ba ta ƙunshi SDK na talla, nazarin bayanai, bin diddigi, rajista ko sabar girgije ba.";
+"В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Saita proksinka ba tare da rajista ba. Bayanan haɗi suna nan a kan wannan na'urar.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Shigar da adireshin gidan yanar gizo, sannan danna “Ƙara”. Kowane shafi zai kasance a layi dabam. Za ka iya manna URL, host:port ko adireshin IP.";
 "Версия" = "Siga";
 "Возврат к приоритетному включён" = "An kunna komawa ga proksi da aka fi so";
