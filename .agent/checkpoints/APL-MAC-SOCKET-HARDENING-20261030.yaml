@@ -1,0 +1,35 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-SOCKET-HARDENING-20261030
+status: blocked
+goal: "Finish the APL macOS 0.2.20 socket pressure guard release, with physical MacBook acceptance and Apple distribution."
+definition_of_done:
+  - "Prevent indefinite CLOSE_WAIT retention in TLS relay and proactively bound tun2proxy socket pressure."
+  - "Build full Mac Catalyst app with exact pinned patched tun2proxy framework and sign release archive."
+  - "Export Apple-validated non-revoked Mac App Store installer package."
+  - "Install/test on physical MacBook, observe 60+ minutes of real traffic and failover, keep Tailscale/ARC working."
+  - "Publish after successful acceptance, retain rollback; do not touch iOS 0.1.40 App Review."
+completed:
+  - "Implemented process-local upstream socket counts, CLOSE_WAIT detection, 30s monitor, 90/35 soft & 150/85 hard thresholds, 15min cooldown, and fixed TLS relay connection cleanup."
+  - "Targeted policy smoke assertions PASS; Swift typecheck PASS; Mac PacketTunnelMac compilation PASS."
+  - "Fixed macOS Xcode target source dependencies for AppearanceMode/AppLanguage/SetupGuideView; full Mac Catalyst Debug build PASS."
+  - "Rebuilt pinned patched tun2proxy v0.8.3 for macCatalyst: SHA-256 8a5393aaa0730c3f1e74b6163afd96bcb5b8db637bb14bd81a4eabcf4747e175."
+  - "macOS 0.2.20 build 9 signed Debug QA app and signed Release archive PASS, signed app verified."
+  - "Manually built a signed Mac App Store PKG using login-keychain installer identity 80C07; Apple altool validation REJECTED it with 90721 Certificate Revoked."
+  - "Alternate installer identity 365749 from special appstore-release keychain requires interactive authorization (timed out). Identity 7D367 from appstore-installer keychain has mismatched archived keychain password; direct Xcode export failed."
+  - "MacBook 0.2.19 remains working with temporary local socket-guard LaunchAgent; available developer profile for QA does not include that MacBook."
+  - "Changes pushed to feat/apl-socket-hardening-20261030, draft PR #274 open; iOS submission untouched."
+current: "BLOCKED on usable non-revoked Apple Mac Installer signing private key and physical MacBook acceptance."
+pending:
+  - "Authorize/recreate valid installer signing identity and keychain access on Mac mini without leaking private keys."
+  - "Rebuild macOS PKG, run Apple server-side altool validation and upload to TestFlight (do not reuse revoked-cert package)."
+  - "Install signed QA on MacBook via TestFlight, physical 60+ minute socket/close_wait, recovery and Tailscale/ARC acceptance."
+  - "Remove temporary MacBook socket guard only after built-in recovery verified; review/merge PR #274; distribute macOS 0.2.20."
+last_verified_commit: "4ad39033db5bcb7e7b25f1aa8fbdd84ac3ed90ec (draft PR #274, release archive PASS, Apple package validation blocked)."
+test_results:
+  - "Full Mac Catalyst debug build PASS with exact Rust framework; signed release archive PASS, codesign --verify PASS."
+  - "Policy smoke PASS; compiler/typecheck PASS; unit tests authored but full XCTest physical run still pending."
+  - "PKG local signing PASS with login identity 80C07; Apple validation FAIL 90721 Certificate Revoked."
+  - "MacBook remains APL Connected, independent Tailscale ARC unaffected; no 0.2.20 QA installed."
+blocker: "Valid Apple Mac Installer private key not accessible noninteractively; existing alternative managed keychain password is stale or requires user authorization. Physical acceptance cannot be claimed until valid test distribution."
+resume_instruction: "In /Volumes/ArvectumSSD/Arvectum/worktrees/apl-socket-hardening-20261030, start from PR #274 and commit 4ad39033. Resolve Apple Mac Installer certificate/keychain authorization with user's approval if required. Do NOT use PKG signed with revoked 80C07 (Apple 90721). Rebuild/validate signed PKG with a non-revoked installer, upload to TestFlight, physically QA on MacBook for >=60 minutes and verify failover and ARC/Tailscale. Then remove legacy local socket guard, merge/release only after acceptance. Do not touch iOS 0.1.40 pending review."
