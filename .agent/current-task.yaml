@@ -13,14 +13,19 @@ completed:
   - "App Store Connect and public iTunes Lookup on 30 Oct 2026 confirm iOS 0.1.39 ready for distribution; attached build 44 (9005e8d1-0376-449e-b04d-2df33806f7dc)."
   - "Code inspection: banner is below Version at end of Settings ScrollView, not on main screen; preloaded view height artificially forced to 1pt and failures silently hide ad."
   - "Yandex SDK docs confirm wrong adaptive banner constraints may prevent rendering; real device Yandex load result is not yet known."
-current: "Create isolated fix branch and implement placement, correct layout and SDK event logging."
+  - "Changed banner placement from Settings scroll bottom to iOS TabView bottom safe-area inset; removed 1pt view clamp/opacity, added 50pt minimum height and OSLog error/success/impression logging."
+  - "Changed iOS version to 0.1.40 (45) with XcodeGen regenerated project and revised contract tests."
+  - "Swift 12 tests PASS; Python iOS contracts 14 PASS; unsigned iPhoneOS Debug and Release builds PASS. Simulator full-app build blocked because tun2proxy.xcframework lacks iOS Simulator slice."
+current: "Source fix implemented; XcodeGen, Debug/Release unsigned iPhone builds and 26 tests passed. Commit/PR/release candidate next."
 pending:
-  - "Implement UI changes and version 0.1.40 (45); contract tests and visual QA."
-  - "Build and test signed candidate; only upload/review if authorized and validated."
+  - "Validate visual ad display on physical device; simulator XCFramework unavailable."
+  - "Prepare signed release candidate 0.1.40 (45) and verify App Store validation; avoid claiming physical creative test without device evidence."
   - "Update GitHub branch/PR and checkpoint; report exact status."
-last_verified_commit: "31a44b5c2796bcdb523a70d871a375f772f8eb09"
+last_verified_commit: "d0044b7f (checkpoint branch creation; new source edits not committed yet)"
 test_results:
   - "Existing source branch iOS contract tests: 13 PASS before change."
   - "Apple confirmed publicly distributed 0.1.39 build 44."
+  - "iOS 0.1.40 (45) XcodeGen PASS, Python contracts 14 PASS, Swift 12 PASS, iPhoneOS Debug and Release unsigned BUILD SUCCEEDED."
+  - "iOS simulator build unavailable: tun2proxy.xcframework lacks iOS Simulator slice (known packaging constraint)."
 blocker: null
 resume_instruction: "Do not reactivate Proxy Launcher Watchdog. Worktree /Users/master/Arvectum/worktrees/apl-ios-rsya-visibility-20261030, branch fix/ios-rsya-visibility-20261030, based on released ad source commit 31a44b5c. Fix banner collapsed to 1pt and hidden under Settings scroll; include OSLog diagnostics and a stable visible placement. Build/test and consider distinct next iOS version because 0.1.39 published. Do not edit App Store privacy metadata."

@@ -1,5 +1,6 @@
 #if !targetEnvironment(macCatalyst)
 import SwiftUI
+import OSLog
 import YandexMobileAds
 
 /// The unit is registered for the iOS app; the Android App Open unit is separate.
@@ -19,12 +20,13 @@ enum IOSAdsConfig {
 #endif
 }
 
-/// Non-blocking bottom-of-Settings banner; never appears in the tunnel extension.
+/// Non-blocking banner above the iPhone tab bar; never appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
 struct SettingsBannerView: View {
     @State private var bannerState: BannerState?
     @State private var loaded = false
     @State private var failed = false
+    private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")
 
     var body: some View {
         Group {
@@ -36,13 +38,22 @@ struct SettingsBannerView: View {
                             .foregroundStyle(Brand.softGray)
                     }
                     Banner(state: bannerState)
-                        .onAdLoad { _ in loaded = true }
-                        .onAdFailure { _ in
-                            loaded = false
-                            failed = true  // No retry loop, no empty placeholder.
+                        .onAdLoad { _ in
+                            loaded = true
+                            logger.info("RSYA banner loaded")
                         }
-                        .opacity(loaded ? 1 : 0)
-                        .frame(height: loaded ? nil : 1) // Keep the view mounted while loading.
+                        .onAdFailure { error in
+                            logger.error("RSYA banner load failed: \(String(describing: error), privacy: .public)")
+                            loaded = false
+                            failed = true  // No retry storm; hide failed request.
+                        }
+                        .onAdImpression { _ in
+                            logger.info("RSYA banner impression")
+                        }
+                        // Yandex sticky banners need their full adaptive area
+                        // (at least 50pt) even *before* loading succeeds.
+                        .frame(minHeight: 50)
+                        .frame(maxWidth: .infinity)
                         .accessibilityHidden(!loaded)
                 }
                 .frame(maxWidth: .infinity)

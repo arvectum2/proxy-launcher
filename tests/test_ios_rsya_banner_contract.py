@@ -16,10 +16,15 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('activeBannerUnitID = demoBannerUnitID', ads)
         self.assertIn('activeBannerUnitID = productionBannerUnitID', ads)
 
-    def test_banner_in_settings_not_tunnel_or_connect_screen(self):
+    def test_banner_visible_in_tab_safe_area_not_buried_in_settings(self):
         main = (IOS / "App" / "ContentView.swift").read_text()
         self.assertEqual(main.count('SettingsBannerView()'), 1)
-        self.assertGreater(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
+        self.assertLess(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
+        mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
+        self.assertIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
+        self.assertIn('SettingsBannerView()', mobile_shell)
+        settings = main.split('private var settingsScreen:', 1)[1].split('private var profileSelectionMenu', 1)[0]
+        self.assertNotIn('SettingsBannerView()', settings)
         self.assertNotIn('SettingsBannerView', (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text())
         project = (IOS / "project.yml").read_text()
         main_target = project.split('  ArvectumProxyLauncher:', 1)[1].split('  PacketTunnel:', 1)[0]
@@ -33,6 +38,15 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('failed = true', ads)
         self.assertIn('if IOSAdsConfig.isEnabled, !failed', ads)
         self.assertEqual(ads.count('BannerState('), 1)
+
+    def test_no_collapsed_banner_and_failure_is_logged(self):
+        ads = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        self.assertNotIn('.frame(height: loaded ? nil : 1)', ads)
+        self.assertNotIn('.opacity(loaded ? 1 : 0)', ads)
+        self.assertIn('.frame(minHeight: 50)', ads)
+        self.assertIn('Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")', ads)
+        self.assertIn('logger.error("RSYA banner load failed:', ads)
+        self.assertIn('logger.info("RSYA banner impression")', ads)
 
     def test_ad_label_respects_new_app_language_setting(self):
         view = (IOS / "App" / "SettingsBannerView.swift").read_text()

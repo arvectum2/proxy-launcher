@@ -77,3 +77,11 @@ Official references:
 - Source flag enabled for Release, production banner `R-M-20288304-1`, allocated iOS `0.1.39 (44)` for a distinct build from the already-uploaded build 43.
 - Existing App Store privacy fields, privacy policy and `PrivacyInfo.xcprivacy` unchanged at owner's request; no claim of SDK data-flow compliance is made.
 - No signed ad-enabled IPA or App Store submission has been verified. GitHub branch/PR is source staging only. Any Apple approval/rejection must be reported as an actual portal result rather than assumed.
+
+## 30.10.2026: published 0.1.39 (44) banner visibility regression
+
+- Apple App Store Connect verified published 0.1.39 uses build 44 with production RSYA enabled; public iTunes Lookup confirmed 0.1.39.
+- The banner was only below Version at the very bottom of the Settings ScrollView; no ad was presented on Home. Its own SwiftUI view artificially imposed a height of **1 pt until `onAdLoad`**, and a failure was silently hidden. This placement/constraint was a concrete source-level defect; the exact Yandex ad delivery result on the owner's physical iPhone is **not yet known**.
+- Fix candidate 0.1.40 (45): place one banner via `safeAreaInset(edge: .bottom)` on iOS tab shell (not PacketTunnel), remove artificial 1pt height and pre-load opacity suppression, preserve Yandex adaptive min 50 pt, add OSLog `subsystem=ru.arvectum.proxylauncher.ios,category=RSYA` success/failure/impression events. No retry storm.
+- Yandex official sticky-banner guide confirms adaptive sizing and warns incorrectly constrained dimensions can break rendering. Real creative/no-fill and actual impression must be tested on a physical device. `tun2proxy.xcframework` in repository does not include an iOS Simulator slice; simulator full-app build therefore fails on the tunnel binary, while generic iPhone builds work.
+- Existing App Store Connect privacy declarations and main/tunnel privacy manifests unchanged. This is a next-version candidate, not evidence of an already updated App Store listing.

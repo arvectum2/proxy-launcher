@@ -201,6 +201,14 @@ struct ContentView: View {
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
         .tint(Brand.mint)
+        // Keep the ad visible across iPhone tabs, above safe-area controls.
+        // Never place it over the VPN Connect/Disconnect action.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            SettingsBannerView()
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .background(Brand.canvas)
+        }
     }
 
 #if targetEnvironment(macCatalyst)
@@ -617,9 +625,6 @@ struct ContentView: View {
                     .foregroundStyle(Brand.text)
                     .background(Brand.graphite)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
-#if !targetEnvironment(macCatalyst)
-                    SettingsBannerView()
-#endif
                 }
                 .padding(18)
                 .frame(maxWidth: 760)
