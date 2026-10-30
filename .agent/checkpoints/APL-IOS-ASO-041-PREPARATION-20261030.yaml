@@ -1,0 +1,33 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-ASO-041-PREPARATION-20261030
+status: completed
+goal: "Prepare a signed iOS 0.1.41(46) candidate and complete the safe future ASO publication workflow while preserving Apple App Review of 0.1.40."
+definition_of_done:
+  - "No App Store Connect writes, withdrawals or changes to 0.1.40; Apple status and current build verified read-only."
+  - "Signed, exported, durable local candidate 0.1.41(46) with PacketTunnel and 50 iOS language bundles; validate signature and checksum."
+  - "47 localized ASO packages and 94 screenshots retained; scripts for guard-gated version creation, incremental locale upload+verification and signed IPA delivery/attachment."
+  - "Relevant iOS/ASO tests pass; publish source to existing PR #272; document exact commands and external prerequisite."
+completed:
+  - "Inherited verified PR272 50 iOS locales, 47 Apple ASO localizations, 94 images; respected owner decision to preserve 0.1.40 review."
+  - "Read Apple API: iOS 0.1.40 WAITING_FOR_REVIEW, build 45, 0.1.41 not yet created, 0.1.39 READY_FOR_SALE. Only authenticated GET calls made."
+  - "Verified Apple says current version must be Ready for Distribution to create the next version; scripts require 0.1.40 READY_FOR_SALE."
+  - "Prepared signed Apple Distribution 0.1.41 build 46 on persistent SSD, successful archive and IPA export, 50 localization bundles, one PacketTunnel; deep codesign verified."
+  - "Candidate path /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-20261030; IPA sha256 eae05d373e6b3547618df4340fe3cfc7fbde1f70fde560b1095b34cef13a3916, 4191594 bytes. Not uploaded to Apple."
+  - "Implemented build_release_041.py for isolated reproducible signing, prepare_version_041.py for state-gated create-once version, enhanced import_appstore.py with future-only 0.1.41 writes/single-locale preflight/MD5 and Apple COMPLETE verification, upload_release_041.py with build version+SHA checks and duplicate-safe altool delivery/attachment."
+  - "Created docs/APL_IOS_041_ASO_RELEASE_PREPARATION_2026-10-30.md, updated iOS ASO/README.md and roadmap with exact staged commands and release barriers."
+  - "44 targeted iOS/ASO tests passed; read-only live version check still WAITING_FOR_REVIEW, all 47 ASO locale files and 94 images retained; no Android/desktop or Watchdog changes."
+  - "Source/workflow code committed as d401cf1614e56b8351bbe6c3270eaaa9068145fd; completion checkpoint commit follows."
+current: "Preparation completed; awaiting Apple 0.1.40 to finish review and reach READY_FOR_SALE. Future upload/review is a separate external release phase."
+pending:
+  - "EXTERNAL TRIGGER: after Apple version 0.1.40 becomes READY_FOR_SALE, recheck app version and latest build numbers."
+  - "Then run documented 0.1.41 version creation, first single-locale import and verification, full 47 ASO/94 screenshot import and processing verification, deliver and attach VALID signed IPA build 46."
+  - "Actual Apple submission of 0.1.41 must be a separately authorized release action; code paths that write to Apple have only mocked validation, no live write test performed."
+last_verified_commit: d401cf1614e56b8351bbe6c3270eaaa9068145fd
+test_results:
+  - "44 targeted pytest cases passed, zero failures."
+  - "iOS signed 0.1.41(46) archive BUILD SUCCEEDED, IPA EXPORT SUCCEEDED, codesign --verify --deep --strict PASS."
+  - "Local IPA SHA256 eae05d373e6b3547618df4340fe3cfc7fbde1f70fde560b1095b34cef13a3916."
+  - "Live Apple API: 0.1.40 WAITING_FOR_REVIEW, 0.1.41 absent; zero Apple mutations."
+blocker: "No remaining blocker to PREPARATION. Actual ASO import and Apple submission are gated on 0.1.40 READY_FOR_SALE and future explicit release workflow."
+resume_instruction: "Do not repeat preparation or withdraw 0.1.40. On user's future 'continue/доделай' read this checkpoint and docs/APL_IOS_041_ASO_RELEASE_PREPARATION_2026-10-30.md. Read Apple current 0.1.40 status using prepare_version_041.py --live-check. Only after READY_FOR_SALE confirm build number 46 still free, then follow ASO/README.md staged 0.1.41 creation, first-locale verification, 47-localization/94-screenshot import, signed IPA delivery and association. Do not alter ASC privacy questionnaire, published 0.1.40 before approval, Android/desktop or disabled watchdog. No automation was created."
