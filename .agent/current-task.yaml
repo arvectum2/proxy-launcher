@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-ASO-ASC-CONTINUATION-20261030
-status: in_progress
+status: blocked
 goal: "Finish iOS ASO publication readiness and reconcile live App Store Connect version/review status; fix relevant QA without impacting the existing Apple review."
 definition_of_done:
   - "Read actual ASC latest version and status; no review interruption or live changes without an appropriate editable state."
@@ -14,13 +14,17 @@ completed:
   - "Apple API verified latest 0.1.40 state WAITING_FOR_REVIEW, two current localization records ru and en-US; 0.1.39 READY_FOR_SALE."
   - "Apple docs confirm screenshot uploads and edits prohibited while WAITING_FOR_REVIEW; do not cancel an active review without explicit owner decision."
   - "Official Apple confirms 1206x2622 screenshots valid for iPhone Dynamic Island medium."
-current: "Diagnose CI and prepare tested Apple import workflow without modifying review."
+current: "BLOCKED only by active Apple App Review 0.1.40; the 47-localization/94-screenshot ASC importer and CI repairs are committed and locally verified."
 pending:
-  - "Inspect version metadata and build relationships for 0.1.40, assess Apple API editability."
-  - "Implement and validate importer for 47 ASO localizations and 94 screenshots with safe dry-run and operation logging."
-  - "Check relevant CI and source QA; commit/push if changes."
-  - "Mark blocked if Apple review cannot safely be changed now; request explicit choice only then."
-last_verified_commit: 38ba76246799cd9e5e7cc5822a279e3293ca72e9
-test_results: []
+  - "COMPLETED: live Apple API verified iOS 0.1.40 WAITING_FOR_REVIEW, 2 locales, screenshot changes prohibited."
+  - "COMPLETED: import_appstore.py offline plan, read-only live check, real API fail-closed execution guard, and 5 import tests."
+  - "COMPLETED: fixed Pillow missing in CI and Windows UTF-8 test issue. PR checks improved; 35 targeted tests pass. CI packaging failures on Linux/macOS are outside iOS localization scope."
+  - "OWNER DECISION REQUIRED: preserve 0.1.40 review and import later into 0.1.41, or explicitly withdraw 0.1.40 from review and immediately import/resubmit."
+last_verified_commit: 9bedf8aeb694c6072fb97e35bf3f1955a68f9058
+test_results:
+  - "35 relevant iOS/ASO tests PASSED; 50 iOS language audit 0 issues, 94 screenshots present."
+  - "Apple API --live-check 0.1.40 WAITING_FOR_REVIEW with 2 locales; no writes."
+  - "Importer execution against real version exits 2 before any write, confirmed; 5 importer tests passed."
+  - "After earlier CI repairs Doctor checks pass, broader workflow still has unrelated Linux/macOS packaging failures."
 blocker: "Apple iOS version 0.1.40 is WAITING_FOR_REVIEW, screenshot mutations are disallowed until review completes or user expressly authorizes withdrawal."
-resume_instruction: "Continue iOS only from /tmp/apl-ios-aso50-editorial-20261030. Preserve current 0.1.40 WAITING_FOR_REVIEW, never withdraw without owner consent. Complete importer tests and CI analysis then request user choice when unavoidable."
+resume_instruction: "After user decides: if preserving Apple review, wait for 0.1.40 approval then make next editable 0.1.41 and run mobile/ios/ASO/import_appstore.py --execute --version 0.1.41 --confirm-version 0.1.41; if explicitly authorized to withdraw 0.1.40, remove that submission via Apple API then run same importer against editable 0.1.40 and resubmit. Do not touch privacy declarations or disabled watchdog. Importer has live GET tests and fail-closed guard but write path must be verified incrementally with first locale. Only iOS scope. Full evidence in docs/APL_IOS_ASO_APPLE_IMPORT_STATUS_2026-10-30.md."
