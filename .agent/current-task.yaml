@@ -1,36 +1,31 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-050-EDITORIAL-PUBLISHED-BANNER-20261030
+task_id: APL-IOS-041-APPLE-RELEASE-20261030
 status: completed
-goal: "Restore exact proven published 0.1.40 Yandex banner integration to iOS 0.1.41; editorially review all 50 iOS UI languages and ASO; validate actual creative plus native tab bar and signed next release."
+goal: "Release iOS APL 0.1.41 build 46 to Apple App Review with real Yandex mobile banner, 50 UI languages, 47 ASO market locales and 94 screenshots; keep published 0.1.40 and privacy declarations unchanged."
 definition_of_done:
-  - "Published 0.1.40 binary/source banner compared, SDK and release behavior restored to 0.1.41."
-  - "All 50 iOS UI languages editorially audited and corrected; ASO 47 locale packages and screenshots remain valid."
-  - "Real Yandex demo creative visible without scroll or native tab bar occlusion on compact iPhone in LTR and RTL locales."
-  - "Full relevant tests and signed Apple IPA pass; PR updated; existing App Store version/privacy and disabled Watchdog untouched."
+  - "Create 0.1.41 after 0.1.40 READY_FOR_SALE; upload signed build 46, await Apple VALID and attach."
+  - "Import all 47 Apple ASO locales and 94 screenshots and verify Apple COMPLETE states."
+  - "Use existing published privacy URL unchanged for new required ASO locale records; leave privacy questionnaire untouched."
+  - "Submit version to Apple App Review and verify server state; document version, build, submission, QA, commit and resume."
 completed:
-  - "Located signed published App Store 0.1.40 build45 with YandexMobileAds.framework and AppMetrica; matched exact working source at /Users/master/Arvectum/worktrees/apl-ios-rsya-visibility-20261030."
-  - "Restored real SettingsBannerView.swift, SPM YandexMobileAds 8.6.0/AppMetrica 6.7.1, production R-M-20288304-1 and DEBUG demo-banner-yandex."
-  - "Restored required -ObjC linker flag. Real simulator crash from missing AppMetrica adapter resolved."
-  - "Fetched current official Yandex SKAdNetwork ID JSON and added 228 entries to iOS Info.plist; Yandex SDK error Code 12 resolved."
-  - "Replaced TabView safeAreaInset ad with bounded native TabView + sibling sticky SettingsBannerView in VStack; reserves SDK-measured ad height and preserves all four native tabs. Added initial 50pt placeholder to ensure host view can initialize."
-  - "Loaded genuine Yandex SDK creative on iPhone SE 3 iOS27 Simulator in German LTR and Hebrew RTL; saved screenshot pixel-verified real ad + native selected tab evidence to SSD qa-live-demo/verified/ (2 actual images)."
-  - "Editorially revised 50 catalogues x155 original keys (7750 values); 2 onboarding information strings per language improved (100 values), 22 critical UI action/terminology corrections in 15 languages; 50 native ad marker labels added separately without catalog key schema changes."
-  - "All 50 plutil Localizable.strings PASS, 50-language lexical audit issues 0; ASO metadata 47 Apple locale records and 94 original screenshots preserved, generated limits checked."
-  - "Full Python 3.12/Tk unittest discover: 1073 tests PASS, 6 skipped; 24 targeted iOS/editorial tests pass; full iOS Simulator Yandex SDK UI-only build succeeded."
-  - "Apple Distribution signed iOS 0.1.41 build46 final archive+IPA with 50 lproj/PacketTunnel/Yandex SDK wrapper and 228 SKAD entries: /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rsya-final-20261030/; deep codesign PASS; IPA 12012342 bytes SHA256 fb533576654ebbf2de0f4bfc120d76bebbfaae8f426ecd03b848f78614de3bf1."
-  - "Updated ASO upload script default path, README, roadmap, full QA matrix docs/APL_IOS_REAL_BANNER_EDITORIAL50_QA_2026-10-30.md. Code commit ab04efff7ce74cc12720f9606fe514277fd31a26, this checkpoint completion commit follows."
-current: "COMPLETED: technical iOS real banner and language review with next Apple signed candidate preserved on SSD; ASC publication separate."
+  - "Apple iOS 0.1.41 created id bef9d70e-a8e1-432e-b18b-090636321758; 0.1.40 remains READY_FOR_SALE, unchanged."
+  - "Signed real-ad IPA sha256 fb533576654ebbf2de0f4bfc120d76bebbfaae8f426ecd03b848f78614de3bf1 (12,012,342 bytes), 50 .lproj, PacketTunnel; Apple buildUpload id 1cfa1339-ce4d-4bbf-8351-758e4a7e01fe processed VALID, attached to 0.1.41."
+  - "Apple import of 47/47 official ASO locales in both version and app info, and 94/94 actual iPhone screenshots COMPLETE. Fixed auto-created version locale and expired Apple JWT handling in importer."
+  - "Reviewed Apple 409 associated errors: all 45 new locale records needed privacyPolicyUrl; copied byte-identical original published ru/en-US URL without changing either existing locale or privacy questionnaire."
+  - "Set build46 usesNonExemptEncryption false, matching approved build45; updated version-specific App Review instructions without altering earlier approved review data."
+  - "1077 full Python 3.12/Tk unittest cases pass (6 skipped), targeted iOS/ASO submission tests pass; real Yandex SDK demonstration source validated in prior checkpoint."
+  - "Apple created/reused review draft and successful submission via reviewSubmissions/ReviewSubmissionItems."
+current: "Completed Apple submission. Pending external Apple review/approval/publication, not controlled by this task."
 pending:
-  - "Apple App Store Connect 0.1.41 creation, 47 ASO metadata/94 original screenshots import, real IPA upload, attach and Review submission are NOT done; require subsequent explicitly requested release workflow."
-  - "Real production ad fill after Apple review is network-dependent. SDK demo loaded and rendered in 2 visually verified language cases; no guarantee of fill for all locales or regions."
-  - "Independent third-party/native human language certification was not commissioned; language review was performed with ChatGPT multilingual capabilities."
-last_verified_commit: ab04efff7ce74cc12720f9606fe514277fd31a26
+  - "Monitor Apple review result as a separate user-requested continuation; on acceptance verify iOS 0.1.41 READY_FOR_SALE."
+  - "If rejected, inspect resolution and fix in next build."
+  - "PR #272 remains separate from actual Apple submission; unrelated Linux AppImage checksum CI acceptance may prevent merging until fixed in Linux task."
+last_verified_commit: "07335e8c4756693a6c22d86f8e10489f70ec6dd7 (release execution source; final checkpoint commit follows)"
 test_results:
-  - "1073 unittest passed; 6 skipped; 24 targeted pytest passed."
-  - "50 iOS Localizable.strings plutil PASS, lexical audit 0 issues, 47 ASO packages and 94 screenshots preserved."
-  - "iPhone SE actual Yandex SDK demo creative with all native tabs fully visible in German and Hebrew; visual pixel verification PASS."
-  - "Final IPA SHA256 fb533576654ebbf2de0f4bfc120d76bebbfaae8f426ecd03b848f78614de3bf1, deep codesign PASS, 50 localized bundles and PacketTunnel."
-  - "No App Store Connect mutations, no Android/desktop/Watchdog changes."
+  - "1077 full unittest passed, 6 skipped, no errors."
+  - "Apple version 0.1.41 build46 VALID/attached; 47 ASO locales and 94 screenshots COMPLETE."
+  - "App Review submission id 57577081-0511-42b1-b05c-c01e26c27b9c state WAITING_FOR_REVIEW submittedDate 2026-10-30T20:51:48.942Z; iOS state WAITING_FOR_REVIEW."
+  - "Existing privacy URLs for published ru/en-US and App Store privacy questionnaire unchanged; original URL reused for new locales."
 blocker: null
-resume_instruction: "iOS editorials and true Yandex banner restoration done, don't redo. Use docs/APL_IOS_REAL_BANNER_EDITORIAL50_QA_2026-10-30.md and signed IPA /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-rsya-final-20261030/exported/Arvectum Proxy Launcher.ipa. On explicit release command check Apple iOS 0.1.40 READY_FOR_SALE and 0.1.41 build46 availability; follow mobile/ios/ASO/README.md first-locale import, then 47 ASO and 94 screenshots, real signed IPA upload, attach, verify and submit. Do not modify existing ASC privacy declaration or disable watchdog settings."
+resume_instruction: "iOS 0.1.41 build46 was submitted to Apple App Review (submission 57577081-0511-42b1-b05c-c01e26c27b9c); do not resubmit or alter current application/review. When user asks to continue, check Apple appStoreVersion 0.1.41 state and this submission by API, and address only actual review problems. On Apple approval verify READY_FOR_SALE and record public release. User instructed Watchdog remain disabled; do not enable it."

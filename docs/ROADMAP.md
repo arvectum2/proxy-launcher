@@ -1,3 +1,11 @@
+## 30.10.2026 — iOS 0.1.41 (46): App Review submission
+
+- [x] Apple created 0.1.41, processed signed build 46 to VALID and attached it; contains all 50 UI locales, PacketTunnel and real Yandex mobile banner integration.
+- [x] Imported all 47 localized App Store ASO cards and 94 actual iPhone screenshots; every screenshot reached Apple COMPLETE state.
+- [x] Preserved original privacy-policy URL exactly in all newly added market locales, without changing existing ru/en-US links or privacy questionnaire.
+- [x] Submitted App Store version to Apple's review workflow; submission ID `57577081-0511-42b1-b05c-c01e26c27b9c`.
+- [ ] External: await Apple review and publish automatically if accepted; verify App Store Connect READY_FOR_SALE.
+
 ## 30.10.2026 — iOS 0.1.41: восстановлен реальный баннер РСЯ, вычитаны 50 языков
 
 - [x] По реальному опубликованному архиву 0.1.40 (45) восстановлены YandexMobileAds 8.6.0, блок R-M-20288304-1, флаг `-ObjC`, 228 официальных SKAdNetwork ID.

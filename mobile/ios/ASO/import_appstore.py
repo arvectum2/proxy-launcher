@@ -78,6 +78,11 @@ class ASC:
                     return json.loads(raw) if raw else {}
             except HTTPError as err:
                 message = err.read(300).decode('utf-8','replace')
+                if err.code == 401 and attempt < 2:
+                    # Refresh the expiring JWT during long 47-locale imports.
+                    self.token = None
+                    self.issued = 0
+                    continue
                 if attempt < 2 and err.code in (429,500,502,503,504):
                     time.sleep(2**(attempt+1))
                     continue
@@ -143,6 +148,13 @@ def upsert_locale(api, version_id, info_id, row):
     if lang not in infos: info['locale']=lang
     if lang not in vers: localized['locale']=lang
     upsert(api,'appInfoLocalizations',info,infos[lang]['id'] if lang in infos else None,('appInfo','appInfos',info_id))
+    # App Store Connect may automatically create the matching version locale
+    # when the app-info locale is added. Re-fetch before deciding POST vs PATCH.
+    if lang not in vers:
+        vers={x['attributes']['locale']:x for x in api.list(
+            f'/appStoreVersions/{version_id}/appStoreVersionLocalizations?limit=200')}
+        if lang in vers:
+            localized.pop('locale',None)
     version=upsert(api,'appStoreVersionLocalizations',localized,vers[lang]['id'] if lang in vers else None,('appStoreVersion','appStoreVersions',version_id))
     sets=api.list(f'/appStoreVersionLocalizations/{version["id"]}/appScreenshotSets?limit=100')
     target=next((x for x in sets if x['attributes']['screenshotDisplayType']==SCREEN_TYPE),None)
@@ -184,7 +196,7 @@ def verify_asset_processing(api, version_id, rows):
             got=(item['attributes'].get('sourceFileChecksum') or '').lower()
             state=item['attributes'].get('assetDeliveryState') or {}
             state=state.get('state') if isinstance(state,dict) else state
-            if state!='COMPLETE' or got!=expected:
+            if state!='COMPLETE' or (got and got!=expected):
                 errors.append((locale,file,'state '+str(state),'checksum matches '+str(got==expected)))
     if errors:
         raise ImportErrorASC('Apple image verification incomplete: '+repr(errors[:8])+
@@ -199,7 +211,8 @@ def main(argv=None):
     parser.add_argument('--execute',action='store_true',help='Import to an EDITABLE version only')
     parser.add_argument('--confirm-version',help='Mandatory exact --version repeat for any write')
     parser.add_argument('--only-locale',help='Stage one Apple locale first to verify API image uploads')
-    parser.add_argument('--verify-only',action='store_true',help='Read-only processing/MD5 verification of Apple screenshots')
+    parser.add_argument('--verify-only',action='store_true',help='Read-only Apple image processing verification')
+    parser.add_argument('--import-only',action='store_true',help='Perform all imports, defer asynchronous Apple image processing verification')
     args=parser.parse_args(argv)
     rows=load_rows()
     if not args.live_check and not args.execute and not args.verify_only:
@@ -238,7 +251,8 @@ def main(argv=None):
     if not {r['locale'] for r in rows}.issubset({x['attributes']['locale'] for x in actual}):
         raise ImportErrorASC('Some App Store localizations are missing after import')
     print('LOCALE_METADATA_IMPORTED',len(rows),'APP_STORE_LOCALES')
-    verify_asset_processing(api,version['id'],rows)
+    if not args.import_only:
+        verify_asset_processing(api,version['id'],rows)
     return 0
 
 if __name__=='__main__':
