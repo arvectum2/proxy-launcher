@@ -87,6 +87,7 @@ targets:
       - SharedCore/ProxyModel.swift
       - SharedCore/ProxyFailureReason.swift
       - SharedCore/ProxyImport.swift
+      - SharedCore/ProxyImportStructured.swift
     dependencies:
       - target: ArvectumProxyLauncher
     settings:
