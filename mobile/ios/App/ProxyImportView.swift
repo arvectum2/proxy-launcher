@@ -67,7 +67,7 @@ struct ProxyImportView: View {
                             let item = preview[index]
                             VStack(alignment: .leading) {
                                 Text(item.name)
-                                Text("\(item.type.rawValue) · \(item.host):\(item.port)")
+                                Text(verbatim: "\(item.type.rawValue) · \(item.host):\(item.port)")
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                         }

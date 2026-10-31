@@ -1,0 +1,24 @@
+task_id: APL-IOS-QR-OPTICAL-PORT-20261031
+status: completed
+goal: 'Accept real optical QR scan on iPhone 0.1.42 (47) and fix localized digit-grouping of proxy port in preview.'
+definition_of_done:
+  - 'Independently verify user-assisted real optical QR scan on physical iPhone via read-only CoreDevice screenshot, without saving test proxy.'
+  - 'Correct preview UI to display exact port 8080 instead of locale-grouped 8 080.'
+  - 'Run targeted regression and simulator build; document acceptance and remaining Apple release gate.'
+  - 'Commit and merge tested implementation via protected PR with green CI.'
+completed:
+  - 'User performed real optical QR scan on separate screen, then assistant independently inspected iPhone 13 screenshot (1170x2532) using CoreDevice.'
+  - 'Screen showed preview (1): APL QR check, HTTP, qr-check.invalid:8080; test proxy not imported. Installed iOS APL 0.1.42 (47).'
+  - 'Found cosmetic SwiftUI localization grouping: 8080 displayed as 8 080. Changed Text rendering to Text(verbatim:) to preserve exact network port formatting.'
+  - 'Updated release readiness report and roadmap to optical QR accepted, while maintaining Apple 0.1.41 review as separate gate.'
+  - 'Focused Python port-preview regression test PASS 1/1; Xcode iOS Simulator Debug BUILD SUCCEEDED; git diff --check PASS.'
+  - 'Product source/documentation commit 0eceefab; no iPhone app reinstall, stored profiles, Apple metadata or VPN core changed.'
+current: 'Implementation, verification and documentation complete; shipping change to protected main through PR/green CI.'
+pending: []
+last_verified_commit: '0eceefab (exact-port preview, physical optical QR acceptance; targeted test and iOS Simulator build PASS)'
+test_results:
+  - 'Optical QR: PASS on physical iPhone based on screenshot; one HTTP proxy APL QR check with correct host/port and no saved fixture.'
+  - 'Visual defect: port group separator verified on old iPhone screen, corrected in new source using Text(verbatim:).'
+  - 'Python regression: 1/1 PASS.'
+  - 'Xcode iOS Simulator Debug: BUILD SUCCEEDED.'
+resume_instruction: 'This focused optical QR/port task is done. Verify PR green/merged into main; avoid relaunching camera or saving fixture proxy. The signed iPhone 0.1.42 (47) still has the old cosmetic port display until next in-place build. Apple 0.1.41 review and future 0.1.42 release remain separate: do not modify privacy/ad fields or send new release automatically.'
