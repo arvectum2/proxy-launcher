@@ -18,11 +18,12 @@ completed:
   - "Refactored candidate filtering into tested SharedCore helper; bounded JS HTML extraction and deduplicated WebKit teardown."
   - "Audited navigation policy, candidate bounds, explicit selection and reconnect rollback; no additional release-blocking static defect identified."
   - "Fixed scanner cancellation on Save/disappear and rejected stale asynchronous WebKit results; added cancel/restart XCUITest."
-current: "Extended audit/refactor: stale WebKit callbacks and cancellation fixed, 22 Swift and 4 simulator UI tests pass; physical iPhone VPN QA blocked by unavailable device."
+  - "Replaced brittle 500ms VPN reconnect delay with bounded disconnect-state wait and cancellation handling; simulator build passed."
+current: "VPN reconnect fix verified: 22 Swift and 4 simulator UI tests PASS, iOS Simulator BUILD SUCCEEDED. Physical iPhone VPN DNS/route QA remains pending."
 pending:
   - "Verify physical-iPhone VPN bypass and reconnect behavior with a signed app."
   - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
-last_verified_commit: "98d4ebc7 (prior verified; next commit pending)"
+last_verified_commit: "8083ee62"
 test_results:
   - "swift test --parallel PASS (20 test cases)."
   - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
@@ -32,4 +33,5 @@ test_results:
   - "3/3 XCUITests PASS on iOS 27 simulator (navigation, invalid host, add/delete/cancel, live WebKit scan)."
   - "Audit/refactor: 22/22 Swift tests PASS, 3/3 XCUITests PASS, iOS Simulator BUILD SUCCEEDED, git diff --check PASS."
   - "Extended audit: 22/22 Swift tests PASS, 4/4 XCUITests PASS including cancel/restart, git diff --check PASS."
+  - "VPN reconnect change: 22/22 Swift tests PASS, 4/4 XCUITests PASS, iOS Simulator BUILD SUCCEEDED."
 resume_instruction: "Audit/refactor complete. Next run signed physical-iPhone VPN DNS/route and reconnect QA when a device is available. No release or PR merge."
