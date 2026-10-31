@@ -1,5 +1,5 @@
 task_id: APL-IOS-PHYSICAL-QA-20261031
-status: in_progress
+status: blocked
 goal: 'Physical iPhone 13 acceptance and defect repair of merged APL iOS import/QR, Smart Exclusions, quick actions, localization and proxy networking without changing App Store submissions or user data.'
 definition_of_done:
   - 'Signed iOS physical build/install/launch, real phone UI coverage and locally isolated actual Network.framework protocol tests.'
@@ -17,10 +17,10 @@ completed:
   - 'Latest signed physical app build installed and launched, home-screen screenshot manually inspected, VPN still OFF, data retained.'
   - 'After final source changes: Swift 60/60 PASS; Python 1096 tests PASS, 1 skipped; simulator UI 10/10 PASS; physical signed build PASS.'
   - 'Source and acceptance report committed as 8c99af40 in isolated feature worktree.'
-current: 'Last attempt at physical accessibility retest; push PR and merge after CI.'
+current: 'PR #286 must be merged when green; hardware final XCUITest remains BLOCKED by iOS automation mode initialization, although signed install/launch works.'
 pending:
-  - 'Check /tmp/apl-last-hardware-a11y.rc and its test log; Xcode hardware UI automation had twice timed out enabling automation mode.'
-  - 'Push branch, PR, wait for green CI and merge into main.'
+  - 'Hardware UI automation requires repair/re-authorization: 3 attempts ended Timed out while enabling automation mode; device remains paired and signed build launches.'
+  - 'PR #286 checks underway; merge on green CI without modifying the current Store review.'
   - 'Close this checkpoint truthfully: hardware UI after latest changes, full VoiceOver/7 issues, real VPN tunnel through working proxy and QR optical decoding remain separate acceptance gates.'
 last_verified_commit: '8c99af40 (feature branch; physical signed build, 60 Swift, 1096 Python, 10 simulator UI passed)'
 test_results:
@@ -29,5 +29,5 @@ test_results:
   - 'Latest Swift package 60/60 PASS.'
   - 'Latest Python suite 1096 PASS (1 skipped).'
   - 'Latest iOS Simulator 10/10 UI tests PASS; accessibility 7 outstanding reports, 15 initial baseline.'
-  - 'Latest physical XCUITest attempt underway; previous attempts could not enable iOS UI automation mode.'
-resume_instruction: 'In /tmp/apl-ios-physical-20261031 check /tmp/apl-last-hardware-a11y.rc/log and latest origin/main. If hardware retest works, record findings. Push test/ios-physical-acceptance-20261031 and GH PR, monitor CI, merge only green. Update .agent/current-task.yaml to blocked if physical automation/real VPN E2E still unavailable, or completed if all DoD evidence gathered. Never publish to App Store or reset iPhone profiles.'
+  - 'Latest physical XCUITest attempt blocked: iOS UI automation could not initialize; programmatic app install and launch still succeed.'
+resume_instruction: 'PR #286 (test/ios-physical-acceptance-20261031) contains tested source fixes and this blocked checkpoint. If open, merge only after green CI. To unblock physical QA, restore XCTest UI automation service on iPhone 13 (3 attempts timed out enabling automation mode), then rerun physical Smart Exclusions accessibility and full UI on latest installed build. Outstanding: 7 accessibility findings on simulator, real working proxy/VPN E2E and optical QR acquisition. Do not reset device profiles or touch App Store submissions.'
