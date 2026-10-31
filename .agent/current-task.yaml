@@ -1,28 +1,27 @@
-task_id: APL-IOS-DIAGNOSTICS-20261031
-status: completed
-goal: "Add safe, classified per-profile iOS connection diagnostics (offline/DNS/TCP/TLS/proxy auth 407/tunnel) rather than a generic unavailable status, preserving 50-localization support and redacting secrets."
+task_id: APL-IOS-SMART2-20261031
+status: in_progress
+goal: 'Next iOS roadmap sequence beginning with Smart Exclusions 2.0, followed by localization/accessibility, quick actions and commercial preparation, postponing physical iPhone acceptance until new build.'
 definition_of_done:
-  - "Pure/testable failure classification uses typed NSError domains/codes or explicit own proxy errors; no leaking host, username or password."
-  - "Profile list surfaces human-understandable failure category while keeping existing localized status and 50-locale catalog parity."
-  - "Handle network offline, DNS, TCP, TLS, HTTP 407, tunnel errors; no false success or automatic VPN state changes."
-  - "Run Swift/iOS builds and focused tests; commit and push isolated PR after previous consolidation PR merged."
+  - 'Create bounded, auditable per-parent first-party dependency graph with confidence, source, TTL and per-child approval; never silently route cross-site traffic direct.'
+  - 'Integrate graph persistence and manage/delete/undo flows with atomic verified VPN reconnect and safe fallback.'
+  - 'Document and test correctness limits of IP-based split routing, DNS, shared IPs, and dynamic routing feasibility; avoid unjustified claims of full enforcement.'
+  - 'Complete autonomously testable parts of next localization/UX milestones; document any genuinely blocked commercial/OS decisions.'
+  - 'Run Swift, Python, simulator build/UI verification, update roadmap and merge through green CI without changing App Store submission.'
 completed:
-  - "Merged 36-GitHub-check successful PR #278 into main b4e8a9fd; PR #279 post-merge checkpoint closure merged to main 18b101fb after 13 successful checks."
-  - "Added typed diagnosis codes NET/DNS/TCP/TLS/AUTH/HTTP 407/PROXY/TIMEOUT/PROTOCOL/VPN/UNKNOWN without exposing remote details."
-  - "HTTP 407 (including Digest) and unsupported SOCKS5 methods now fail closed; connection timeout and one-shot continuation gate avoid silent hangs/double-resume."
-  - "Added scan-generation guards to prevent old async results from overwriting current profile health; menu uses existing localized unavailable key from all 50 iOS locales."
-  - "Reconciled iOS Simulator no-camera behavior in existing QR UI test, without weakening physical camera readiness requirement."
-  - "Focused Swift 38 PASS, Python 1086 PASS (1 skipped), iOS Simulator import UI 3/3 PASS, iOS Simulator Debug BUILD SUCCEEDED, git diff --check PASS."
-  - "Code committed as 98509111; prepared isolated feature branch and PR for GitHub merge without Apple Store upload."
-current: "COMPLETED SOURCE IMPLEMENTATION: connection diagnostics classified and tested, physical routing QA separate."
+  - 'Read canonical main checkpoint 59351643 and iOS Smart Exclusions baseline with WebKit scanner, per-host editing and static route resolution.'
+  - 'Built bounded on-device SmartExclusionGraph with parent evidence, 7-day expiry, explicit approve/reject, protected migration, undo/delete and third-party warning.'
+  - 'Added best-effort restore of previously active VPN after reconnect failure; validated persistence and rollback before state changes.'
+  - 'Source Phase A/B tested: 46 Swift core PASS, 1088 Python unittest PASS (1 skipped), 5/5 iOS simulator Smart Exclusions UI PASS, iOS Simulator Debug build PASS.'
+  - 'Documented genuine iOS per-domain routing Phase C limitations shared IP/DoH/QUIC without shipping unverified new tun2proxy.'
+current: 'Smart Exclusions A/B source verified; Phase C is a safe dry-run prototype pending hardware. Finish CI merge then move to localization and UX.'
 pending:
-  - "Optional physical proxy fault-injection (DNS/TCP/HTTP 407/SOCKS5) and live Packet Tunnel QA before iOS publication."
-  - "Review GitHub CI/merge for this change; does not constitute authorization to publish a new App Store binary."
-last_verified_commit: "98509111 (source/test commit; feature branch)"
+  - 'Phase C real domain-aware per-flow engine remains separate hardware-gated, current IP routes cannot guarantee no shared-CDN bypass.'
+  - 'Localization/UX and other roadmap milestones; tests.'
+  - 'Commit, CI, merge and final checkpoint.'
+last_verified_commit: '9cd1c0f1 (Smart Exclusions source commit; Phase C prototype pending)'
 test_results:
-  - "38/38 Swift package tests PASS."
-  - "1086/1086 Python unittest PASS (1 skipped)."
-  - "3/3 iOS Simulator import XCUITests PASS; virtual camera graceful unavailability checked."
-  - "iOS Simulator Debug BUILD SUCCEEDED with no new ProxyProbe concurrency warnings."
-  - "git diff --check PASS."
-resume_instruction: "Implementation complete; verify PR status for feat/ios-connection-diagnostics-20261031, run CI, merge to main if clean and authorized; physical proxy fault-injection remains separate. Never touch dirty local main or publish Apple binaries without release instruction."
+  - 'Swift package 49/49 PASS including isolated per-domain/shared-IP prototype.'
+  - 'Python unittest 1088 PASS, 1 skipped.'
+  - 'iOS Simulator Smart Exclusions UI 5/5 PASS.'
+  - 'iOS Simulator Debug BUILD SUCCEEDED; final source rerun before PR.'
+resume_instruction: 'Resume /tmp/apl-ios-smart2-20261031; finish source tests and PR, then proceed to iOS localization/UX in next clean worktree, then quick actions. Phase C dynamic per-flow requires hardware QA; no App Store changes.'

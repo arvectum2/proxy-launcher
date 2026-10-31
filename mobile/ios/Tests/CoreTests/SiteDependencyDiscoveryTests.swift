@@ -39,6 +39,15 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
         XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(["x.example.com", "-bad.example.com", "x.example.com:443", "x.other.com"], for: "example.com"), ["x.example.com"])
         XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(["x.example.com"], for: "127.0.0.1"), [])
     }
+    func testExternalDependenciesAreDisplayOnlyAndBounded() {
+        let resources = ["https://gu-st.ru/app.js", "https://track.example.org/pixel", "http://insecure.test/a",
+                         "https://foo.gosuslugi.ru/page", "https://gosuslugi.ru/"]
+        XCTAssertEqual(SiteDependencyDiscovery.externalCandidates(urls: resources, for: "gosuslugi.ru"),
+                       ["gu-st.ru", "track.example.org"])
+        let many = (0..<80).map { "https://cdn\($0).test/file.js" }
+        XCTAssertEqual(SiteDependencyDiscovery.externalCandidates(urls: many, for: "example.com").count, 12)
+    }
+
     func testScannableHostRejectsIPAndMalformedDomain() {
         XCTAssertTrue(SiteDependencyDiscovery.isScannableHost("www.example.com"))
         XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("127.0.0.1"))

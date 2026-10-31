@@ -117,14 +117,16 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
         self.assertIn('AppL10n.tr("Удалить исключение")', exclusion_view)
         self.assertIn('\\(host)', exclusion_view)
-        self.assertIn('.onDelete { entries.remove(atOffsets: $0) }', exclusion_view)
+        self.assertIn('.onDelete { offsets in', exclusion_view)
+        self.assertIn('entries.remove(atOffsets: offsets)', exclusion_view)
+        self.assertIn('for host in removed { graph.remove(parent: host) }', exclusion_view)
         self.assertIn('Button("Очистить все", role: .destructive)', exclusion_view)
         self.assertIn('confirmClearAll = true', exclusion_view)
         self.assertIn('.confirmationDialog(', exclusion_view)
         self.assertIn('isPresented: $confirmClearAll', exclusion_view)
         self.assertIn('entries.removeAll()', exclusion_view)
         self.assertIn('input = ', exclusion_view)
-        self.assertIn('await model.saveExclusions(entries)', exclusion_view)
+        self.assertIn('await model.saveExclusions(entries, graph: graph)', exclusion_view)
         self.assertIn('Button("Отмена") { dismiss() }', exclusion_view)
 
     def test_gosuslugi_site_dependency_gu_st_is_direct_bypassed(self):
