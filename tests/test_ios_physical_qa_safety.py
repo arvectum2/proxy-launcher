@@ -3,10 +3,10 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = (ROOT / 'mobile/ios/App/AppViewModel.swift').read_text()
-MANAGER = (ROOT / 'mobile/ios/App/VPNController.swift').read_text()
-TUNNEL = (ROOT / 'mobile/ios/PacketTunnel/PacketTunnelProvider.swift').read_text()
-RUNNER = (ROOT / 'mobile/ios/Tests/UITests/PhysicalVPNControlledUITests.swift').read_text()
+APP = (ROOT / 'mobile/ios/App/AppViewModel.swift').read_text(encoding="utf-8")
+MANAGER = (ROOT / 'mobile/ios/App/VPNController.swift').read_text(encoding="utf-8")
+TUNNEL = (ROOT / 'mobile/ios/PacketTunnel/PacketTunnelProvider.swift').read_text(encoding="utf-8")
+RUNNER = (ROOT / 'mobile/ios/Tests/UITests/PhysicalVPNControlledUITests.swift').read_text(encoding="utf-8")
 
 class PhysicalQASafety(unittest.TestCase):
     def test_tunnel_requires_explicit_debug_launch_arg(self):
