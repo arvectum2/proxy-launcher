@@ -1,0 +1,18 @@
+task_id: APL-IOS-SMART-20261031
+status: completed
+goal: "Build the first safe Smart Exclusions dependency-discovery core for iOS."
+definition_of_done:
+  - "Bounded on-device extraction of first-party hosts from HTML resource references, without arbitrary third-party bypass."
+  - "Focused Swift tests pass."
+  - "Changes committed on an isolated feature branch; macOS active checkout remains untouched."
+completed:
+  - "Added bounded first-party HTML resource host extraction with explicit non-routing contract."
+  - "Added three focused tests; swift test --parallel PASS."
+current: "Core discovery slice completed; UI preview and live WebKit integration remain separate future tasks."
+pending:
+  - "Implement UI preview and explicit approval in a later iteration."
+  - "Implement live WebKit collection and dynamic routing in a later iteration."
+last_verified_commit: "feature branch commit (see git log); Swift tests PASS"
+test_results:
+  - "swift test --parallel PASS after correcting explicit-port URL handling."
+resume_instruction: "Continue in isolated /tmp/apl-ios-smart-20261031 worktree, do not touch active macOS checkpoint; add explicit-preview UI and bounded WebKit collection before claiming full Smart Exclusions."
