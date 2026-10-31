@@ -30,6 +30,15 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
     func testRuntimeRequestsRejectLookalikeAndInvalidURLs() {
         XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: ["https://notexample.com/a", "ftp://api.example.com/b", "https://foo.example.com:8443/x"], for: "example.com"), ["foo.example.com"])
     }
+    func testAdditionalCandidatesExcludeOriginalWWWAndSavedHosts() {
+        let input = ["example.com", "www.example.com", "api.example.com", "api.example.com", "cdn.example.com", "other.com", "example.com.evil.test"]
+        XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(input, for: "www.example.com", excluding: ["cdn.example.com"]), ["api.example.com"])
+        XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(input, for: "example.com"), ["api.example.com", "cdn.example.com"])
+    }
+    func testAdditionalCandidatesRejectInvalidAndUnrelatedHosts() {
+        XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(["x.example.com", "-bad.example.com", "x.example.com:443", "x.other.com"], for: "example.com"), ["x.example.com"])
+        XCTAssertEqual(SiteDependencyDiscovery.additionalCandidates(["x.example.com"], for: "127.0.0.1"), [])
+    }
     func testScannableHostRejectsIPAndMalformedDomain() {
         XCTAssertTrue(SiteDependencyDiscovery.isScannableHost("www.example.com"))
         XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("127.0.0.1"))

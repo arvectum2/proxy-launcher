@@ -1051,10 +1051,7 @@ struct ExclusionsView: View {
                 scanner = nil
                 switch result {
                 case .success(let hosts):
-                    let root = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
-                    discovered = hosts.filter { candidate in
-                        candidate != root && candidate != "www." + root && !entries.contains(candidate)
-                    }
+                    discovered = SiteDependencyDiscovery.additionalCandidates(hosts, for: host, excluding: entries)
                     if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
                 case .failure(let error): localError = error.localizedDescription
                 }
@@ -1275,6 +1272,10 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
 
     func cancel() {
         completion = nil
+        tearDownWebView()
+    }
+
+    private func tearDownWebView() {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
         webView?.removeFromSuperview()
@@ -1283,8 +1284,8 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let script = """
-        JSON.stringify({html: document.documentElement.outerHTML,
-          resources: performance.getEntriesByType('resource').map(x => x.name).slice(0,512)})
+        JSON.stringify({html: document.documentElement.outerHTML.slice(0,512000),
+          resources: performance.getEntriesByType('resource').slice(0,512).map(x => x.name)})
         """
         webView.evaluateJavaScript(script) { [weak self] value, error in
             guard let self else { return }
@@ -1306,10 +1307,7 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
     private func finish(_ result: Result<[String], Error>) {
         guard let completion else { return }
         self.completion = nil
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.removeFromSuperview()
-        webView = nil
+        tearDownWebView()
         completion(result)
     }
 }

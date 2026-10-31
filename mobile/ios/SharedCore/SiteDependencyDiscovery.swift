@@ -21,6 +21,17 @@ enum SiteDependencyDiscovery {
         }
     }
 
+    /// Candidates must be new first-party subdomains, not the site itself or its www alias.
+    static func additionalCandidates(_ hosts: [String], for site: String, excluding existing: [String] = []) -> [String] {
+        guard let normalized = try? SiteExclusionPolicy.normalize(site),
+              isScannableHost(normalized) else { return [] }
+        let root = normalized.hasPrefix("www.") ? String(normalized.dropFirst(4)) : normalized
+        let excluded = Set(existing + [root, "www." + root])
+        return Array(Set(hosts.filter { host in
+            !excluded.contains(host) && isScannableHost(host) && host.hasSuffix("." + root)
+        })).sorted().prefix(maxCandidates).map { $0 }
+    }
+
     /// Resource Timing exposes requests issued by scripts, CSS, fonts and fetch,
     /// which are not necessarily represented in the final HTML DOM.
     static func resourceCandidates(urls: [String], for site: String) -> [String] {
