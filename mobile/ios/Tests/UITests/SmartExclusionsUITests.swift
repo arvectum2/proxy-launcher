@@ -24,6 +24,27 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertTrue(exclusions.waitForExistence(timeout: 5))
     }
 
+    func testUndoRestoresDeletedEntryBeforeSave() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("example.com")
+        app.buttons["Добавить"].tap()
+        XCTAssertTrue(app.buttons["Удалить исключение example.com"].exists)
+        app.buttons["Удалить исключение example.com"].tap()
+        XCTAssertFalse(app.buttons["Удалить исключение example.com"].exists)
+        let undo = app.buttons["Отменить последнее изменение"]
+        XCTAssertTrue(undo.waitForExistence(timeout: 5))
+        undo.tap()
+        XCTAssertTrue(app.buttons["Удалить исключение example.com"].waitForExistence(timeout: 5))
+        app.buttons["Отмена"].tap()
+    }
+
     func testWebKitScanReturnsResultForExampleCom() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
@@ -38,7 +59,7 @@ final class SmartExclusionsUITests: XCTestCase {
         field.typeText("example.com")
         app.buttons["Найти связанные домены"].tap()
         XCTAssertTrue(app.staticTexts["Анализ ресурсов сайта"].waitForExistence(timeout: 5))
-        let empty = app.staticTexts["Связанные домены не обнаружены"]
+        let empty = app.staticTexts["Новых связанных доменов не обнаружено"]
         XCTAssertTrue(empty.waitForExistence(timeout: 23), "Expected only the original host for example.com; labels: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
     }
 
@@ -61,7 +82,7 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Анализ ресурсов сайта"].exists)
         XCTAssertTrue(app.buttons["Найти связанные домены"].isEnabled)
         app.buttons["Найти связанные домены"].tap()
-        XCTAssertTrue(app.staticTexts["Связанные домены не обнаружены"].waitForExistence(timeout: 23))
+        XCTAssertTrue(app.staticTexts["Новых связанных доменов не обнаружено"].waitForExistence(timeout: 23))
     }
 
     func testExclusionsScreenAndValidation() {

@@ -97,6 +97,23 @@ final class VPNController: ObservableObject {
         try await connect()
     }
 
+    /// Restore the previously active tunnel after reverting an exclusion
+    /// update. The preceding stop may still be asynchronously disconnecting.
+    func restoreAfterFailedExclusionsUpdate() async throws {
+        let deadline = Date().addingTimeInterval(8)
+        while manager?.connection.status == .disconnecting && Date() < deadline {
+            try Task.checkCancellation()
+            try await Task.sleep(nanoseconds: 150_000_000)
+        }
+        guard manager?.connection.status != .disconnecting else {
+            throw NSError(domain: "ArvectumVPN", code: 3,
+                          userInfo: [NSLocalizedDescriptionKey: "VPN ещё отключается; повторите подключение вручную"])
+        }
+        refreshStatus()
+        if isConnectedOrConnecting { try await reconnectIfActive() }
+        else { try await connect() }
+    }
+
     private func refreshStatus() {
         status = manager?.connection.status ?? .invalid
         detail = switch status {

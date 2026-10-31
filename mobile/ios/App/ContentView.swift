@@ -1019,9 +1019,17 @@ struct ExclusionsView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var entries: [String] = []
+    @State private var graph = SmartExclusionGraph()
+    @State private var scannedParent = ""
+    @State private var externalHints: [String] = []
+    @State private var pendingExternalHost: String?
+    @State private var confirmExternal = false
+    @State private var undoEntries: [String]?
+    @State private var undoGraph: SmartExclusionGraph?
     @State private var input = ""
     @State private var localError: String?
     @State private var confirmClearAll = false
+    @State private var saving = false
     @State private var discovered: [String] = []
     @State private var selectedDiscovered: Set<String> = []
     @State private var scanning = false
@@ -1040,9 +1048,11 @@ struct ExclusionsView: View {
                             .autocorrectionDisabled()
                         Button("Добавить") { addEntry() }
                     }
-                    Text("Домен и его вариант с www идут напрямую. Для gosuslugi.ru также исключается gu-st.ru — он нужен для загрузки интерфейса Госуслуг. Другие поддомены добавляйте отдельно. Изменения вступят в силу после переподключения VPN.")
+                    Text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    Text("Совместимость: для gosuslugi.ru пока сохраняется ранее проверенное исключение gu-st.ru. Автоматический поиск других сторонних ресурсов не включает обход без вашего решения.")
+                        .font(.caption2).foregroundStyle(.secondary)
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
                     }
@@ -1066,14 +1076,97 @@ struct ExclusionsView: View {
                                 }
                             }
                         }
-                        Button("Добавить выбранные") {
+                        Button("Подтвердить выбранные для обхода") {
                             do {
-                                entries = try SiteExclusionPolicy.normalizeAll(entries + selectedDiscovered.sorted())
+                                snapshotUndo()
+                                var next = graph
+                                for child in selectedDiscovered {
+                                    try next.set(.approved, parent: scannedParent, child: child)
+                                }
+                                let manual = try SiteExclusionPolicy.normalizeAll(entries + [scannedParent])
+                                _ = try next.effective(manual: manual)
+                                graph = next
+                                entries = manual
                                 discovered = []
                                 selectedDiscovered = []
                                 localError = nil
                             } catch { localError = error.localizedDescription }
                         }.disabled(selectedDiscovered.isEmpty)
+                    }
+                }
+                if !externalHints.isEmpty {
+                    Section {
+                        ForEach(externalHints, id: \.self) { host in
+                            HStack {
+                                Text(host).textSelection(.enabled)
+                                Spacer()
+                                Button("Добавить вручную") {
+                                    pendingExternalHost = host
+                                    confirmExternal = true
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    } header: {
+                        Text("Сторонние ресурсы — только вручную")
+                    } footer: {
+                        Text("Сторонние домены могут обслуживать рекламу или использовать общие IP-адреса. Добавление вручную направит все соединения к этим IP мимо VPN. Без явного подтверждения правила не меняются.")
+                    }
+                }
+                if !graph.edges.isEmpty {
+                    Section {
+                        ForEach(Array(Set(graph.edges.map(\.parent))).sorted(), id: \.self) { parent in
+                            DisclosureGroup(parent) {
+                                ForEach(graph.edges.filter { $0.parent == parent }) { edge in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Text(edge.host).textSelection(.enabled)
+                                            Spacer()
+                                            Text(edge.decision.label)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        Text(edge.evidence.description)
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                        Text(edge.lastSeen, style: .date)
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                        HStack {
+                                            Button(edge.decision == .approved ? "Отозвать" : "Разрешить") {
+                                                do {
+                                                    snapshotUndo()
+                                                    var next = graph
+                                                    try next.set(edge.decision == .approved ? .rejected : .approved,
+                                                                 parent: parent, child: edge.host)
+                                                    let manual = edge.decision == .approved ? entries : try SiteExclusionPolicy.normalizeAll(entries + [parent])
+                                                    _ = try next.effective(manual: manual)
+                                                    graph = next
+                                                    entries = manual
+                                                } catch { localError = error.localizedDescription }
+                                            }
+                                            .buttonStyle(.borderless)
+                                            Button("Удалить", role: .destructive) {
+                                                snapshotUndo()
+                                                graph.remove(parent: parent, child: edge.host)
+                                            }
+                                            .buttonStyle(.borderless)
+                                        }
+                                    }
+                                }
+                                Button("Удалить связи сайта", role: .destructive) {
+                                    snapshotUndo()
+                                    graph.remove(parent: parent)
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Связанные домены (требуют подтверждения)")
+                    } footer: {
+                        Text("Связи хранятся локально 7 дней. Повторный анализ обновляет дату наблюдения, но не меняет ваше решение. Сторонние CDN не обходятся автоматически.")
+                    }
+                }
+                if undoEntries != nil {
+                    Section {
+                        Button("Отменить последнее изменение") { restoreUndo() }
                     }
                 }
                 Section {
@@ -1092,7 +1185,9 @@ struct ExclusionsView: View {
                                 .accessibilityLabel("Найти связанные домены для " + host)
                             }
                             Button(role: .destructive) {
+                                snapshotUndo()
                                 entries.removeAll { $0 == host }
+                                graph.remove(parent: host)
                             } label: {
                                 Image(systemName: "trash")
                                     .foregroundStyle(.red)
@@ -1102,7 +1197,12 @@ struct ExclusionsView: View {
                             .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
                         }
                     }
-                    .onDelete { entries.remove(atOffsets: $0) }
+                    .onDelete { offsets in
+                        snapshotUndo()
+                        let removed = offsets.map { entries[$0] }
+                        entries.remove(atOffsets: offsets)
+                        for host in removed { graph.remove(parent: host) }
+                    }
                 } header: {
                     HStack {
                         Text(entries.isEmpty ? AppL10n.tr("Список пока пуст") : AppL10n.tr("Исключения") + " (\(entries.count))")
@@ -1130,7 +1230,12 @@ struct ExclusionsView: View {
                 titleVisibility: .visible
             ) {
                 Button("Очистить все", role: .destructive) {
+                    snapshotUndo()
                     entries.removeAll()
+                    graph = SmartExclusionGraph()
+                    discovered = []
+                    selectedDiscovered = []
+                    externalHints = []
                     input = ""
                     localError = nil
                 }
@@ -1138,22 +1243,61 @@ struct ExclusionsView: View {
             } message: {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
-            .onAppear { entries = model.exclusions }
+            .confirmationDialog("Разрешить прямой доступ для стороннего домена?",
+                                isPresented: $confirmExternal, titleVisibility: .visible) {
+                Button("Добавить вручную") {
+                    guard let host = pendingExternalHost else { return }
+                    do {
+                        let updated = try SiteExclusionPolicy.normalizeAll(entries + [host])
+                        _ = try graph.effective(manual: updated)
+                        snapshotUndo()
+                        entries = updated
+                        externalHints.removeAll { $0 == host }
+                        localError = nil
+                    } catch { localError = error.localizedDescription }
+                    pendingExternalHost = nil
+                }
+                Button("Отмена", role: .cancel) { pendingExternalHost = nil }
+            } message: {
+                Text("Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена.")
+            }
+            .onAppear {
+                entries = model.manualExclusions
+                graph = model.smartGraph.pruned()
+            }
             .onDisappear { cancelScan() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
+                    Button(saving ? "Сохранение…" : "Сохранить") {
+                        guard !saving else { return }
                         cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
                         guard localError == nil else { return }
+                        saving = true
                         Task {
-                            if await model.saveExclusions(entries) { dismiss() }
+                            let success = await model.saveExclusions(entries, graph: graph)
+                            saving = false
+                            if success { dismiss() }
                         }
-                    }
+                    }.disabled(saving)
                 }
             }
         }
+    }
+
+    private func snapshotUndo() {
+        undoEntries = entries
+        undoGraph = graph
+    }
+
+    private func restoreUndo() {
+        guard let saved = undoEntries, let savedGraph = undoGraph else { return }
+        entries = saved
+        graph = savedGraph
+        undoEntries = nil
+        undoGraph = nil
+        localError = nil
     }
 
     private func cancelScan() {
@@ -1173,6 +1317,7 @@ struct ExclusionsView: View {
             }
             scanning = true
             discovered = []
+            externalHints = []
             selectedDiscovered = []
             localError = nil
             let worker = ExclusionWebScanner()
@@ -1182,9 +1327,17 @@ struct ExclusionsView: View {
                 scanning = false
                 scanner = nil
                 switch result {
-                case .success(let hosts):
-                    discovered = SiteDependencyDiscovery.additionalCandidates(hosts, for: host, excluding: entries)
-                    if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
+                case .success(let observation):
+                    do {
+                        snapshotUndo()
+                        try graph.observe(parent: host, html: observation.html, network: observation.network)
+                        scannedParent = SmartExclusionGraph.root(host) ?? host
+                        externalHints = observation.external.filter { !entries.contains($0) }
+                        discovered = graph.edges.filter {
+                            $0.parent == scannedParent && $0.decision == .pending && !entries.contains($0.host)
+                        }.map(\.host).sorted()
+                        if discovered.isEmpty { localError = "Новых связанных доменов не обнаружено" }
+                    } catch { localError = error.localizedDescription }
                 case .failure(let error): localError = error.localizedDescription
                 }
             }
@@ -1194,7 +1347,10 @@ struct ExclusionsView: View {
     private func addEntry() {
         do {
             if let value = try SiteExclusionPolicy.normalize(input) {
-                if !entries.contains(value) { entries.append(value); entries.sort() }
+                let updated = try SiteExclusionPolicy.normalizeAll(entries + [value])
+                _ = try graph.effective(manual: updated)
+                if updated != entries { snapshotUndo() }
+                entries = updated
             }
             input = ""
             localError = nil
@@ -1360,14 +1516,20 @@ struct JournalView: View {
     }
 }
 
+private struct SiteScanObservation {
+    let html: [String]
+    let network: [String]
+    let external: [String]
+}
+
 /// Ephemeral WebKit scanner; no persistent cookies or implicit VPN changes.
 @MainActor
 final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
     private var webView: WKWebView?
-    private var completion: ((Result<[String], Error>) -> Void)?
+    private var completion: ((Result<SiteScanObservation, Error>) -> Void)?
     private var host = ""
 
-    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {
+    fileprivate func scan(host: String, completion: @escaping (Result<SiteScanObservation, Error>) -> Void) {
         self.host = host
         self.completion = completion
         let configuration = WKWebViewConfiguration()
@@ -1431,12 +1593,13 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
             let resources = payload["resources"] as? [String] ?? []
             let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
             let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
-            self.finish(.success(Array(Set(htmlHosts + networkHosts)).sorted().prefix(SiteDependencyDiscovery.maxCandidates).map { $0 }))
+            let external = SiteDependencyDiscovery.externalCandidates(urls: resources, for: self.host)
+            self.finish(.success(SiteScanObservation(html: htmlHosts, network: networkHosts, external: external)))
         }
     }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
-    private func finish(_ result: Result<[String], Error>) {
+    private func finish(_ result: Result<SiteScanObservation, Error>) {
         guard let completion else { return }
         self.completion = nil
         tearDownWebView()

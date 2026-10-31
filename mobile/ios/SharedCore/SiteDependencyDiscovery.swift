@@ -51,6 +51,26 @@ enum SiteDependencyDiscovery {
         return found.sorted()
     }
 
+    /// Unrelated/sibling domains may host essential assets (e.g. gu-st.ru),
+    /// but IP-based split routing can bypass *other* sites on shared CDN IPs.
+    /// Return display-only hints; callers must never auto-approve them.
+    static func externalCandidates(urls: [String], for site: String) -> [String] {
+        guard let root = try? SiteExclusionPolicy.normalize(site),
+              isScannableHost(root) else { return [] }
+        let apex = root.hasPrefix("www.") ? String(root.dropFirst(4)) : root
+        var found = Set<String>()
+        for raw in urls.prefix(512) {
+            guard raw.count <= 2048,
+                  let components = URLComponents(string: raw),
+                  components.scheme?.lowercased() == "https",
+                  let host = components.host?.lowercased(),
+                  isScannableHost(host),
+                  host != apex && !host.hasSuffix("." + apex) else { continue }
+            found.insert(host)
+        }
+        return Array(found).sorted().prefix(12).map { $0 }
+    }
+
     static func candidates(html: String, for site: String) -> [String] {
         guard let root = try? SiteExclusionPolicy.normalize(site),
               isScannableHost(root) else { return [] }

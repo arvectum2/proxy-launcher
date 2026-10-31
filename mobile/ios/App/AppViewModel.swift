@@ -26,6 +26,8 @@ final class AppViewModel: ObservableObject {
     @Published var primaryProfileID: UUID?
     @Published var returnToPrimary = false
     @Published var exclusions: [String] = []
+    @Published var manualExclusions: [String] = []
+    @Published var smartGraph = SmartExclusionGraph()
     @Published var health: [UUID: ProfileHealth] = [:]
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
@@ -77,6 +79,8 @@ final class AppViewModel: ObservableObject {
         primaryProfileID = store.primaryProfileID
         returnToPrimary = store.restorePolicy == .returnToPrimary
         exclusions = store.siteExclusions
+        manualExclusions = store.manualSiteExclusions
+        smartGraph = store.smartGraph
         refreshEvents()
     }
 
@@ -157,22 +161,43 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    func saveExclusions(_ raw: [String]) async -> Bool {
+    func saveExclusions(_ raw: [String], graph: SmartExclusionGraph? = nil) async -> Bool {
         do {
-            let normalized = try SiteExclusionPolicy.normalizeAll(raw)
-            let previous = store.siteExclusions
-            store.siteExclusions = normalized
+            let manual = try SiteExclusionPolicy.normalizeAll(raw)
+            let nextGraph = (graph ?? smartGraph).pruned()
+            let effective = try nextGraph.effective(manual: manual)
+            let previousManual = store.manualSiteExclusions
+            let previousGraph = store.smartGraph
+            let previouslyActive = vpn.isConnectedOrConnecting
+            try store.saveSmartExclusions(manual: manual, graph: nextGraph)
             do {
                 try await vpn.reconnectIfActive()
             } catch {
-                // Do not persist a configuration that failed to activate.
-                store.siteExclusions = previous
-                exclusions = previous
-                // Best-effort recovery of the previous active tunnel settings.
-                try? await vpn.reconnectIfActive()
-                throw error
+                // Do not leave the new bypass rules persisted after a failed
+                // activation; preserve both previous manual and graph state.
+                let activationError = error
+                do {
+                    try store.saveSmartExclusions(manual: previousManual, graph: previousGraph)
+                } catch {
+                    errorMessage = "VPN: не удалось восстановить прежние исключения. " + error.localizedDescription
+                    return false
+                }
+                exclusions = store.siteExclusions
+                manualExclusions = previousManual
+                smartGraph = previousGraph
+                if previouslyActive {
+                    do {
+                        try await vpn.restoreAfterFailedExclusionsUpdate()
+                    } catch {
+                        errorMessage = "Прежние исключения восстановлены, но VPN нужно подключить заново: " + error.localizedDescription
+                        return false
+                    }
+                }
+                throw activationError
             }
-            exclusions = normalized
+            exclusions = effective
+            manualExclusions = manual
+            smartGraph = nextGraph
             return true
         } catch {
             errorMessage = error.localizedDescription
