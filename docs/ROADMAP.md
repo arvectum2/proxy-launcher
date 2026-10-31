@@ -5,12 +5,12 @@
 - **PUBLIC / VERIFIED:** Apple iTunes Lookup RU, app ID `6816013574`: **iOS 0.1.40 (build 45)** published **2026-10-30T17:04:45Z**. Historical 0.1.37–0.1.39 status claims below are not current.
 - **0.1.38 PUBLISHED:** System/Light/Dark themes; arvectum.com support and marketing URLs.
 - **0.1.39 PUBLISHED:** skippable onboarding, proxy-field help, System/Russian/English language selection, Yandex RSYA banner integration `R-M-20288304-1`.
-- **0.1.40 PUBLISHED:** moved banner into TabView safe area; removed collapsed 1px/opacity layout; added ad-load/failure/impression diagnostics. Physical iPhone display and confirmed ad impressions **NOT YET VERIFIED**.
+- **0.1.40 PUBLISHED / ADS ACCEPTED:** moved banner into TabView safe area; added ad diagnostics. Owner confirms the RSYA banner is visible in published **0.1.40 and 0.1.41**; the 0.1.40 App Store review passed with the existing no-data-collected privacy declaration. Treat advertising implementation as **DONE**, not an open product blocker. The 0.1.41 public status is owner-reported (not independently Apple-Lookup-verified in this documentation update).
 - **SOURCE INTEGRATION OPEN:** [PR #271](https://github.com/arvectum2/proxy-launcher/pull/271) (ads) and stacked [PR #273](https://github.com/arvectum2/proxy-launcher/pull/273) (banner fix) remain open, unmerged. Public Apple release is not proof that `main` contains their code. Review diffs/stack, CI and branch protection before merging; do not duplicate commits.
 - **NEXT RELEASE, NOT PUBLIC:** [PR #272](https://github.com/arvectum2/proxy-launcher/pull/272) (50 iOS localization catalogs, 47 ASO locales, 94 simulator screenshots) remains open/unmerged; needs integration, physical/localization QA and separate App Store release.
 - **P1 OPEN:** Smart Exclusions automatic dependency discovery (gosuslugi.ru/gu-st.ru), universal profile import (clipboard/QR/deep links), failure diagnostics (offline/DNS/TCP/HTTP 407/tunnel), physical VoiceOver/accessibility QA.
 - **P2 / RESEARCH:** widgets/quick actions, managed profiles and marketplace, advanced VPN transports, GOST VPN feasibility.
-- **COMPLIANCE REVIEW OPEN:** Apple VPN Guideline 5.4 and ad-vendor privacy/consent; do not modify published App Store privacy declarations without separate authorization.
+- **OWNER DECISION / ADS CLOSED:** do not repeatedly reopen speculative Apple VPN-advertising or privacy-declaration warnings. Preserve the accepted App Store privacy declaration; revisit only on material new evidence or explicit owner request. Apple approval is recorded for the submitted version, not as a blanket future ruling.
 - **WORKTREE SAFETY:** Mac mini local `main` is diverged and dirty with active macOS 0.2.20 QA. Do not reset/rebase/overwrite its checkpoint or working files for this documentation sync.
 
 ## 28.10.2026 · C19 — macOS wake guard безопасное автоматическое восстановление UI
