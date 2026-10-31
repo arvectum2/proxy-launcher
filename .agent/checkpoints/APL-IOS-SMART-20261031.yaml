@@ -8,13 +8,13 @@ definition_of_done:
 completed:
   - "Added bounded first-party HTML resource host extraction with explicit non-routing contract."
   - "Added three focused tests; swift test --parallel PASS."
-current: "Core, UI, dynamic resource collection and device-target Xcode build verified; simulator runtime and live tunnel QA remain unverified."
+current: "Core/UI and device-target build verified; simulator and live iPhone tunnel QA remain unverified."
 pending:
   - "Run simulator UI when simulator-compatible tun2proxy XCFramework is available."
   - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
-last_verified_commit: "pending commit on feat/ios-smart-exclusions-20261031"
+last_verified_commit: "746d8720"
 test_results:
-  - "swift test --parallel PASS (17 test cases)."
+  - "swift test --parallel PASS (19 test cases)."
   - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
   - "iOS Simulator build blocked: existing tun2proxy XCFramework has ios-arm64 only, no simulator slice."
 resume_instruction: "Obtain simulator-compatible tun2proxy artifact and run iOS simulator UI, then live device DNS/route reconnect QA; no release, no macOS checkout changes."
