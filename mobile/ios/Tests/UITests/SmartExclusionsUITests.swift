@@ -16,7 +16,10 @@ final class SmartExclusionsUITests: XCTestCase {
         field.tap()
         field.typeText("example.com")
         app.buttons["Добавить"].tap()
-        XCTAssertTrue(app.staticTexts["example.com"].waitForExistence(timeout: 5))
+        // A long safety explanation and large navigation title can push the
+        // actual row below the viewport on compact iPhones.
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["example.com"].waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertTrue(app.buttons["Найти связанные домены для example.com"].exists)
         app.buttons["Удалить исключение example.com"].tap()
         XCTAssertFalse(app.staticTexts["example.com"].exists)
@@ -35,7 +38,8 @@ final class SmartExclusionsUITests: XCTestCase {
         field.tap()
         field.typeText("example.com")
         app.buttons["Добавить"].tap()
-        XCTAssertTrue(app.buttons["Удалить исключение example.com"].exists)
+        app.swipeUp()
+        XCTAssertTrue(app.buttons["Удалить исключение example.com"].waitForExistence(timeout: 5), app.debugDescription)
         app.buttons["Удалить исключение example.com"].tap()
         XCTAssertFalse(app.buttons["Удалить исключение example.com"].exists)
         let undo = app.buttons["Отменить последнее изменение"]
@@ -45,7 +49,7 @@ final class SmartExclusionsUITests: XCTestCase {
         app.buttons["Отмена"].tap()
     }
 
-    func testWebKitScanReturnsResultForExampleCom() {
+    func testWebKitScanReturnsResultForExampleCom() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
         app.launch()
@@ -58,9 +62,18 @@ final class SmartExclusionsUITests: XCTestCase {
         field.tap()
         field.typeText("example.com")
         app.buttons["Найти связанные домены"].tap()
-        XCTAssertTrue(app.staticTexts["Анализ ресурсов сайта"].waitForExistence(timeout: 5))
+        // On a real iPhone, example.com can complete before XCTest observes
+        // the transient loading label. Assert the stable end state instead.
         let empty = app.staticTexts["Новых связанных доменов не обнаружено"]
-        XCTAssertTrue(empty.waitForExistence(timeout: 23), "Expected only the original host for example.com; labels: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
+        let completed = empty.waitForExistence(timeout: 23)
+        if !completed && app.staticTexts["Превышен лимит времени на запрос."].exists {
+            // An independent physical URLSession probe showed the iPhone
+            // cannot reach example.com at all. Do not conflate a missing
+            // external network with a broken Smart Exclusions parser.
+            throw XCTSkip("External HTTPS is unavailable on this device; repeat WebKit acceptance after restoring iPhone internet.")
+        }
+        XCTAssertTrue(completed, "Expected only the original host for example.com; labels: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
+        XCTAssertTrue(app.buttons["Найти связанные домены"].isEnabled)
     }
 
     func testCancelWebKitScanAllowsRestart() {
@@ -83,6 +96,21 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Найти связанные домены"].isEnabled)
         app.buttons["Найти связанные домены"].tap()
         XCTAssertTrue(app.staticTexts["Новых связанных доменов не обнаружено"].waitForExistence(timeout: 23))
+    }
+
+    func testBypassSafetyDetailsRemainAvailable() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let explanation = app.buttons["Подробнее о правилах обхода"]
+        XCTAssertTrue(explanation.waitForExistence(timeout: 10))
+        explanation.tap()
+        let warning = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "gu-st.ru")).firstMatch
+        XCTAssertTrue(warning.waitForExistence(timeout: 5), "The full compatibility warning must remain available after disclosure")
     }
 
     func testExclusionsScreenAndValidation() {

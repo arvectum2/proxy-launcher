@@ -7,6 +7,12 @@ import Foundation
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
         "Анализ ресурсов сайта": "Checking website resources",
+        "Введите домен, URL или IP и нажмите «Добавить».": "Enter a domain, URL or IP address and tap Add.",
+        "Адрес домена, URL или IP": "Domain, URL or IP address",
+        "Домен или IP": "Domain or IP address",
+        "Можно вставить домен, URL или IP": "Enter a domain, URL or IP address",
+        "VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь.": "Only manually added or approved domains bypass VPN. Save changes and reconnect to apply.",
+        "Подробнее о правилах обхода": "More about bypass rules",
         "В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения.": "Only manually entered sites and explicitly approved related hosts bypass the proxy. Scanning alone does not change routes. Save to apply and reconnect.",
         "Совместимость: для gosuslugi.ru пока сохраняется ранее проверенное исключение gu-st.ru. Автоматический поиск других сторонних ресурсов не включает обход без вашего решения.": "Compatibility: gosuslugi.ru still uses the previously tested gu-st.ru exception. New third-party hosts will not be bypassed without your consent.",
         "Идёт анализ…": "Scanning…",

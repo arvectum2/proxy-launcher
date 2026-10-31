@@ -32,6 +32,25 @@ private final class ProbeCompletionGate<Value>: @unchecked Sendable {
     }
 }
 
+/// Retains the last retryable Network.framework diagnosis while allowing
+/// `.waiting` to recover to `.ready` before the connection deadline.
+private final class ProbeWaitingError: @unchecked Sendable {
+    private let lock = NSLock()
+    private var lastError: Error?
+
+    func record(_ error: Error) {
+        lock.lock()
+        lastError = error
+        lock.unlock()
+    }
+
+    func latest() -> Error? {
+        lock.lock()
+        defer { lock.unlock() }
+        return lastError
+    }
+}
+
 final class ProxyProbe {
     private let queue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.probe")
     private let probeHost = "example.com"
@@ -164,16 +183,23 @@ final class ProxyProbe {
     private func start(_ connection: NWConnection) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let gate = ProbeCompletionGate(continuation)
+            let waiting = ProbeWaitingError()
             connection.stateUpdateHandler = { state in
                 switch state {
                 case .ready: gate.finish(.success(()))
                 case .failed(let error): gate.finish(.failure(error))
+                case .waiting(let error):
+                    // Waiting is retryable and can recover to .ready. Retain
+                    // its DNS/TLS diagnosis for the deadline without falsely
+                    // rejecting a connection which recovered in time.
+                    waiting.record(error)
                 default: break
                 }
             }
             connection.start(queue: queue)
             queue.asyncAfter(deadline: .now() + 3) {
-                if gate.finish(.failure(ProxyDiagnosticError(.timeout))) {
+                let error = waiting.latest() ?? ProxyDiagnosticError(.timeout)
+                if gate.finish(.failure(error)) {
                     connection.cancel()
                 }
             }

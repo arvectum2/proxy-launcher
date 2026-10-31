@@ -1035,6 +1035,8 @@ struct ExclusionsView: View {
     @State private var confirmExternal = false
     @State private var undoEntries: [String]?
     @State private var undoGraph: SmartExclusionGraph?
+    @Environment(\.dynamicTypeSize) private var textSize
+    @FocusState private var isDomainFocused: Bool
     @State private var input = ""
     @State private var localError: String?
     @State private var confirmClearAll = false
@@ -1047,31 +1049,7 @@ struct ExclusionsView: View {
     var body: some View {
         NavigationView {
             List {
-                Section {
-                    Text("Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    HStack {
-                        TextField("example.com", text: $input)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                        Button("Добавить") { addEntry() }
-                    }
-                    Text(SmartExclusionsUX.text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(SmartExclusionsUX.text("Совместимость: для gosuslugi.ru пока сохраняется ранее проверенное исключение gu-st.ru. Автоматический поиск других сторонних ресурсов не включает обход без вашего решения."))
-                        .font(.caption2).foregroundStyle(.secondary)
-                    if let localError {
-                        Text(SmartExclusionsUX.text(localError)).font(.caption).foregroundStyle(.red)
-                    }
-                    Button(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены")) { scanSite() }
-                        .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    if scanning {
-                        ProgressView(SmartExclusionsUX.text("Анализ ресурсов сайта"))
-                        Button(SmartExclusionsUX.text("Отменить анализ")) { cancelScan() }
-                    }
-                }
+                editorSection
                 if !discovered.isEmpty {
                     Section(SmartExclusionsUX.text("Найденные домены — выберите для исключения")) {
                         ForEach(discovered, id: \.self) { host in
@@ -1129,43 +1107,7 @@ struct ExclusionsView: View {
                         ForEach(Array(Set(graph.edges.map(\.parent))).sorted(), id: \.self) { parent in
                             DisclosureGroup(parent) {
                                 ForEach(graph.edges.filter { $0.parent == parent }) { edge in
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Text(edge.host).textSelection(.enabled)
-                                            Spacer()
-                                            Text(SmartExclusionsUX.text(edge.decision.label))
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        Text(SmartExclusionsUX.text(edge.evidence.description))
-                                            .font(.caption2).foregroundStyle(.secondary)
-                                        Text(edge.lastSeen, style: .date)
-                                            .font(.caption2).foregroundStyle(.secondary)
-                                        HStack {
-                                            Button(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить")) {
-                                                do {
-                                                    snapshotUndo()
-                                                    var next = graph
-                                                    try next.set(edge.decision == .approved ? .rejected : .approved,
-                                                                 parent: parent, child: edge.host)
-                                                    let manual = edge.decision == .approved ? entries : try SiteExclusionPolicy.normalizeAll(entries + [parent])
-                                                    _ = try next.effective(manual: manual)
-                                                    graph = next
-                                                    entries = manual
-                                                } catch { localError = error.localizedDescription }
-                                            }
-                                            .buttonStyle(.borderless)
-                                            .frame(minHeight: 44)
-                                            .accessibilityLabel(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить") + " " + edge.host)
-                                            Button(SmartExclusionsUX.text("Удалить"), role: .destructive) {
-                                                snapshotUndo()
-                                                graph.remove(parent: parent, child: edge.host)
-                                            }
-                                            .buttonStyle(.borderless)
-                                            .frame(minHeight: 44)
-                                            .accessibilityLabel(SmartExclusionsUX.text("Удалить") + " " + edge.host)
-                                        }
-                                    }
+                                    graphEdgeRow(edge, parent: parent)
                                 }
                                 Button(SmartExclusionsUX.text("Удалить связи сайта"), role: .destructive) {
                                     snapshotUndo()
@@ -1185,6 +1127,12 @@ struct ExclusionsView: View {
                     }
                 }
                 Section {
+                    if entries.isEmpty {
+                        Text(AppL10n.tr("Список пока пуст"))
+                            .font(.body)
+                            .foregroundStyle(Brand.text)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     ForEach(entries, id: \.self) { host in
                         HStack(spacing: 12) {
                             Text(host)
@@ -1219,10 +1167,11 @@ struct ExclusionsView: View {
                         for host in removed { graph.remove(parent: host) }
                     }
                 } header: {
-                    HStack {
-                        Text(entries.isEmpty ? AppL10n.tr("Список пока пуст") : AppL10n.tr("Исключения") + " (\(entries.count))")
-                        Spacer()
-                        if !entries.isEmpty {
+                    if !entries.isEmpty {
+                        HStack {
+                            Text(AppL10n.tr("Исключения") + " (\(entries.count))")
+                                .font(.subheadline)
+                            Spacer()
                             Button("Очистить все", role: .destructive) {
                                 confirmClearAll = true
                             }
@@ -1238,7 +1187,8 @@ struct ExclusionsView: View {
                 }
             }
             .navigationTitle("Исключения сайтов")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
+            .tint(Brand.mint)
             .confirmationDialog(
                 "Очистить все исключения?",
                 isPresented: $confirmClearAll,
@@ -1282,9 +1232,19 @@ struct ExclusionsView: View {
             }
             .onDisappear { cancelScan() }
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .foregroundStyle(Brand.text)
+                            .frame(width: 44, height: 44)
+                            .background(Color.clear)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(AppL10n.tr("Отмена"))
+                }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить")) {
+                    Button {
                         guard !saving else { return }
                         cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
@@ -1295,9 +1255,151 @@ struct ExclusionsView: View {
                             saving = false
                             if success { dismiss() }
                         }
-                    }.disabled(saving)
+                    } label: {
+                        Text(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
+                            .font(.body.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .foregroundStyle(Brand.actionText)
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 44)
+                            .background(Brand.mint, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(saving)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var editorSection: some View {
+                Section {
+                    Text(SmartExclusionsUX.text("Введите домен, URL или IP и нажмите «Добавить»."))
+                        .font(.body)
+                        .foregroundStyle(Brand.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Group {
+                        if textSize.isAccessibilitySize {
+                            VStack(alignment: .leading, spacing: 8) {
+                                domainField
+                                addDomainButton
+                            }
+                        } else {
+                            HStack {
+                                domainField
+                                addDomainButton
+                            }
+                        }
+                    }
+                    Text(SmartExclusionsUX.text("VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь."))
+                        .font(.body)
+                        .foregroundStyle(Brand.text)
+                        .fixedSize(horizontal: false, vertical: true)
+                    DisclosureGroup(SmartExclusionsUX.text("Подробнее о правилах обхода")) {
+                        Text(SmartExclusionsUX.text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения."))
+                            .font(.body)
+                            .foregroundStyle(Brand.text)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(SmartExclusionsUX.text("Совместимость: для gosuslugi.ru пока сохраняется ранее проверенное исключение gu-st.ru. Автоматический поиск других сторонних ресурсов не включает обход без вашего решения."))
+                            .font(.body)
+                            .foregroundStyle(Brand.text)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .font(.body)
+                    if let localError {
+                        Text(SmartExclusionsUX.text(localError)).font(.caption).foregroundStyle(.red)
+                    }
+                    Button {
+                        guard !scanUnavailable else { return }
+                        scanSite()
+                    } label: {
+                        Text(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(scanUnavailable ? Brand.softGray : Brand.mint)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(scanUnavailable)
+                    if scanning {
+                        ProgressView(SmartExclusionsUX.text("Анализ ресурсов сайта"))
+                        Button(SmartExclusionsUX.text("Отменить анализ")) { cancelScan() }
+                    }
+                }
+    }
+
+    private var scanUnavailable: Bool {
+        scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var domainField: some View {
+        TextField("example.com", text: $input)
+            .focused($isDomainFocused)
+            .font(.body)
+            .frame(minHeight: 44)
+            .accessibilityLabel(SmartExclusionsUX.text("Домен или IP"))
+            .accessibilityHint(SmartExclusionsUX.text("Можно вставить домен, URL или IP"))
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+    }
+
+    private var addDomainButton: some View {
+        Button("Добавить") { addEntry() }
+            .font(.body.weight(.semibold))
+            .frame(minHeight: 44)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func graphEdgeRow(_ edge: SmartDependency, parent: String) -> some View {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Text(edge.host).textSelection(.enabled)
+                                            Spacer()
+                                            Text(SmartExclusionsUX.text(edge.decision.label))
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        Text(SmartExclusionsUX.text(edge.evidence.description))
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                        Text(edge.lastSeen, style: .date)
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                        HStack {
+                                            Button(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить")) {
+                                                toggleGraphEdge(edge, parent: parent)
+                                            }
+                                            .buttonStyle(.borderless)
+                                            .frame(minHeight: 44)
+                                            .accessibilityLabel(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить") + " " + edge.host)
+                                            Button(SmartExclusionsUX.text("Удалить"), role: .destructive) {
+                                                snapshotUndo()
+                                                graph.remove(parent: parent, child: edge.host)
+                                            }
+                                            .buttonStyle(.borderless)
+                                            .frame(minHeight: 44)
+                                            .accessibilityLabel(SmartExclusionsUX.text("Удалить") + " " + edge.host)
+                                        }
+                                    }
+    }
+
+    private func toggleGraphEdge(_ edge: SmartDependency, parent: String) {
+        do {
+            snapshotUndo()
+            var next = graph
+            let action: SmartDecision = edge.decision == .approved ? .rejected : .approved
+            try next.set(action, parent: parent, child: edge.host)
+            let manual: [String]
+            if edge.decision == .approved {
+                manual = entries
+            } else {
+                manual = try SiteExclusionPolicy.normalizeAll(entries + [parent])
+            }
+            _ = try next.effective(manual: manual)
+            graph = next
+            entries = manual
+        } catch {
+            localError = error.localizedDescription
         }
     }
 
@@ -1360,6 +1462,7 @@ struct ExclusionsView: View {
     }
 
     private func addEntry() {
+        isDomainFocused = false
         do {
             if let value = try SiteExclusionPolicy.normalize(input) {
                 let updated = try SiteExclusionPolicy.normalizeAll(entries + [value])

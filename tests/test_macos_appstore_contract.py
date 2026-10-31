@@ -127,7 +127,13 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('entries.removeAll()', exclusion_view)
         self.assertIn('input = ', exclusion_view)
         self.assertIn('await model.saveExclusions(entries, graph: graph)', exclusion_view)
-        self.assertIn('Button("Отмена") { dismiss() }', exclusion_view)
+        # Cancel may use a compact, accessible icon in the navigation toolbar
+        # for Dynamic Type; the dismiss action and VoiceOver name must survive.
+        self.assertTrue(
+            'Button("Отмена") { dismiss() }' in exclusion_view
+            or ('Button { dismiss() } label: {' in exclusion_view
+                and '.accessibilityLabel(AppL10n.tr("Отмена"))' in exclusion_view)
+        )
 
     def test_gosuslugi_site_dependency_gu_st_is_direct_bypassed(self):
         policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
