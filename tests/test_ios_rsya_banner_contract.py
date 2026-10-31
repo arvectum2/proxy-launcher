@@ -8,7 +8,7 @@ IOS = ROOT / "mobile" / "ios"
 
 class IOSRSYABannerTests(unittest.TestCase):
     def test_ids_and_production_enabled(self):
-        ads = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertIn('productionBannerUnitID = "R-M-20288304-1"', ads)
         self.assertIn('demoBannerUnitID = "demo-banner-yandex"', ads)
         self.assertIn('static let isEnabled = true', ads)
@@ -17,7 +17,7 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('activeBannerUnitID = productionBannerUnitID', ads)
 
     def test_banner_visible_in_tab_safe_area_not_buried_in_settings(self):
-        main = (IOS / "App" / "ContentView.swift").read_text()
+        main = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
         self.assertEqual(main.count('SettingsBannerView()'), 1)
         self.assertLess(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
         mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
@@ -26,8 +26,8 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('SettingsBannerView()', mobile_shell)
         settings = main.split('private var settingsScreen:', 1)[1].split('private var profileSelectionMenu', 1)[0]
         self.assertNotIn('SettingsBannerView()', settings)
-        self.assertNotIn('SettingsBannerView', (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text())
-        project = (IOS / "project.yml").read_text()
+        self.assertNotIn('SettingsBannerView', (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8"))
+        project = (IOS / "project.yml").read_text(encoding="utf-8")
         main_target = project.split('  ArvectumProxyLauncher:', 1)[1].split('  PacketTunnel:', 1)[0]
         tunnel_target = project.split('  PacketTunnel:', 1)[1]
         self.assertIn('package: YandexMobileAds', main_target)
@@ -35,13 +35,13 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('OTHER_LDFLAGS: "$(inherited) -ObjC"', main_target)
 
     def test_failed_ad_is_hidden_without_retry(self):
-        ads = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertIn('failed = true', ads)
         self.assertIn('if IOSAdsConfig.isEnabled, !failed', ads)
         self.assertEqual(ads.count('BannerState('), 1)
 
     def test_no_collapsed_banner_and_failure_is_logged(self):
-        ads = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertNotIn('.frame(height: loaded ? nil : 1)', ads)
         self.assertNotIn('.opacity(loaded ? 1 : 0)', ads)
         self.assertIn('.frame(minHeight: 50)', ads)
@@ -50,15 +50,15 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('logger.info("RSYA banner impression")', ads)
 
     def test_ad_label_respects_new_app_language_setting(self):
-        view = (IOS / "App" / "SettingsBannerView.swift").read_text()
+        view = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertIn('Text(IOSAdsConfig.localizedAdLabel)', view)
         self.assertIn('labels[AppL10n.effectiveLanguage]', view)
         for language, value in (("ru", "Реклама"), ("en", "Advertisement")):
-            strings = (IOS / "Resources" / f"{language}.lproj" / "Localizable.strings").read_text()
+            strings = (IOS / "Resources" / f"{language}.lproj" / "Localizable.strings").read_text(encoding="utf-8")
             self.assertIn(f'"Реклама" = "{value}";', strings)
 
     def test_android_placement_preserved(self):
-        gradle = (IOS.parent / "android" / "app" / "build.gradle.kts").read_text()
+        gradle = (IOS.parent / "android" / "app" / "build.gradle.kts").read_text(encoding="utf-8")
         self.assertIn("R-M-20130429-1", gradle)
 
 
