@@ -1,5 +1,5 @@
 task_id: APL-MAIN-CONSOLIDATION-20261031
-status: in_progress
+status: completed
 goal: "Consolidate completed iOS import, Smart Exclusions, RSYA banner, localization and documentation into GitHub main without disturbing macOS 0.2.20 Apple Review or dirty main worktree."
 definition_of_done:
   - "Preserve main macOS signed/review source and existing independent user working-tree modifications."
@@ -20,12 +20,12 @@ completed:
   - "Reconciled 50 iOS UI catalog keys (155 per language), removed obsolete duplicate ad-key only in ru/en; preserved newer iOS editorial variants without altering Android/desktop wording."
   - "Ran full Python 3.12 unittest suite: 1084 tests PASS (1 skipped); pytest editorial 32/32 and iOS release corpus 15/15 PASS."
   - "Verified new AppImage upstream 2026-10-19 runtime against GitHub release digest and successful workflow source commit; renewed checksum and copyright provenance without disabling SHA256 verification."
-current: "All identified integration regressions and CI failures fixed; waiting GitHub PR #278 CI and then fast-forward merge via PR."
+  - "GitHub PR #278 merged; redundant #273/#276 closed after checking head ancestry. #271/#272/#275 auto-merged. Remote main verified, local user dirty main untouched."
+current: "COMPLETED: integration PR #278 merged into origin/main b4e8a9fdfecfd327b37a590f7ad306596cbe5a69."
 pending:
-  - "Review freshly rerun GitHub CI for PR #278 and fix any remaining actionable failures without bypassing integrity checks."
-  - "Merge tested integration PR into origin/main under repository branch protections."
-  - "Verify origin/main, update canonical status completed, and identify next roadmap action."
-last_verified_commit: "ca34e132 (prior pushed integration commit; follow-up fixes pending)"
+  - "Independent next task: classified iOS proxy/tunnel failure diagnostics, to be tracked in its own checkpoint."
+  - "Apple macOS 0.2.20 build 10 review decision remains external; build and submission blockers cleared."
+last_verified_commit: "b4e8a9fdfecfd327b37a590f7ad306596cbe5a69 (origin/main; PR #278 merged, 36 CI pass, 4 skipped)"
 test_results:
   - "Swift package: 32/32 PASS."
   - "Python iOS contract suite: 33/33 PASS."
@@ -33,5 +33,5 @@ test_results:
   - "Full Python 3.12 unittest: 1084 PASS, 1 skipped."
   - "Additional editorial Pytest: 32 PASS; iOS release/ASO Pytest: 15 PASS."
   - "AppImage runtime sha256 matched official GitHub release digest; licensing unittest 9/9 PASS."
-  - "GitHub full CI rerun pending on follow-up fixes."
-resume_instruction: "Continue in /tmp/apl-main-consolidation-20261031; verify current integration PR and CI, fix failing tests without bypassing security, merge into GitHub main if ready, verify remote main and mark completed. Never reset local dirty main worktree."
+  - "GitHub PR #278 CI: 36 pass, 4 skipped, 0 fail, 0 pending. Merge commit b4e8a9fd verified at origin/main."
+resume_instruction: "Task completed. Origin/main includes iOS import/RSYA/Smart Exclusions/50 locales and macOS 0.2.20 build 10 Apple Review evidence. Do not remerge. Begin next P1 connection diagnostics in a separate clean worktree/checkpoint. Never reset local dirty main worktree."
