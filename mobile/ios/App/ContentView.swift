@@ -922,11 +922,7 @@ struct ExclusionsView: View {
                         .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     if scanning {
                         ProgressView("Анализ ресурсов сайта")
-                        Button("Отменить анализ") {
-                            scanner?.cancel()
-                            scanner = nil
-                            scanning = false
-                        }
+                        Button("Отменить анализ") { cancelScan() }
                     }
                 }
                 if !discovered.isEmpty {
@@ -1015,11 +1011,12 @@ struct ExclusionsView: View {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
             .onAppear { entries = model.exclusions }
-            .onDisappear { scanner?.cancel(); scanner = nil }
+            .onDisappear { cancelScan() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Сохранить") {
+                        cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
                         guard localError == nil else { return }
                         Task {
@@ -1029,6 +1026,12 @@ struct ExclusionsView: View {
                 }
             }
         }
+    }
+
+    private func cancelScan() {
+        scanner?.cancel()
+        scanner = nil
+        scanning = false
     }
 
     private func scanSite() { scanSite(input) }
@@ -1047,6 +1050,7 @@ struct ExclusionsView: View {
             let worker = ExclusionWebScanner()
             scanner = worker
             worker.scan(host: host) { result in
+                guard scanner === worker else { return }
                 scanning = false
                 scanner = nil
                 switch result {

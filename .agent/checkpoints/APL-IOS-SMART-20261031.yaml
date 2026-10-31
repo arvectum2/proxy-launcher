@@ -1,6 +1,6 @@
 task_id: APL-IOS-SMART-20261031
 status: in_progress
-goal: "Audit and refactor iOS Smart Exclusions without changing release status; retain physical-iPhone VPN QA as separate pending gate."
+goal: "Complete iOS Smart Exclusions code audit and refactor with regression tests; no release or PR merge."
 definition_of_done:
   - "Audit and refactor scanner/domain filtering with regression tests and passing simulator build/UI checks."
   - "Bounded on-device extraction of first-party hosts from HTML resource references, without arbitrary third-party bypass."
@@ -17,11 +17,12 @@ completed:
   - "Attached hidden WebKit to key window to permit navigation; filtered original root and www from candidate list."
   - "Refactored candidate filtering into tested SharedCore helper; bounded JS HTML extraction and deduplicated WebKit teardown."
   - "Audited navigation policy, candidate bounds, explicit selection and reconnect rollback; no additional release-blocking static defect identified."
-current: "Focused code audit/refactor complete; simulator tests pass. Signed physical-iPhone VPN route/DNS QA still pending."
+  - "Fixed scanner cancellation on Save/disappear and rejected stale asynchronous WebKit results; added cancel/restart XCUITest."
+current: "Extended audit/refactor: stale WebKit callbacks and cancellation fixed, 22 Swift and 4 simulator UI tests pass; physical iPhone VPN QA blocked by unavailable device."
 pending:
   - "Verify physical-iPhone VPN bypass and reconnect behavior with a signed app."
   - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
-last_verified_commit: "fc24d6bb"
+last_verified_commit: "98d4ebc7 (prior verified; next commit pending)"
 test_results:
   - "swift test --parallel PASS (20 test cases)."
   - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
@@ -30,4 +31,5 @@ test_results:
   - "20/20 Swift tests PASS; simulator Xcode BUILD SUCCEEDED; app relaunched without missing-wordmark warning."
   - "3/3 XCUITests PASS on iOS 27 simulator (navigation, invalid host, add/delete/cancel, live WebKit scan)."
   - "Audit/refactor: 22/22 Swift tests PASS, 3/3 XCUITests PASS, iOS Simulator BUILD SUCCEEDED, git diff --check PASS."
+  - "Extended audit: 22/22 Swift tests PASS, 4/4 XCUITests PASS including cancel/restart, git diff --check PASS."
 resume_instruction: "Audit/refactor complete. Next run signed physical-iPhone VPN DNS/route and reconnect QA when a device is available. No release or PR merge."

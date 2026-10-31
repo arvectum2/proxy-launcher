@@ -42,6 +42,28 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertTrue(empty.waitForExistence(timeout: 23), "Expected only the original host for example.com; labels: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
     }
 
+    func testCancelWebKitScanAllowsRestart() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("example.com")
+        app.buttons["Найти связанные домены"].tap()
+        let cancel = app.buttons["Отменить анализ"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 5))
+        cancel.tap()
+        XCTAssertFalse(app.staticTexts["Анализ ресурсов сайта"].exists)
+        XCTAssertTrue(app.buttons["Найти связанные домены"].isEnabled)
+        app.buttons["Найти связанные домены"].tap()
+        XCTAssertTrue(app.staticTexts["Связанные домены не обнаружены"].waitForExistence(timeout: 23))
+    }
+
     func testExclusionsScreenAndValidation() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
