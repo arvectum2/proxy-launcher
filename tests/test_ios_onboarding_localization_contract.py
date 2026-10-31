@@ -54,12 +54,13 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
     def test_next_version_and_packaging(self):
         project = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.1.39"', project)
-        self.assertIn('CURRENT_PROJECT_VERSION: "43"', project)
+        self.assertIn('MARKETING_VERSION: "0.1.40"', project)
+        self.assertIn('CURRENT_PROJECT_VERSION: "45"', project)
         self.assertIn('Localizable.strings in Resources', pbx)
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
-        self.assertNotIn("YandexMobileAds", project)
+        self.assertIn("package: YandexMobileAds", project)
+        self.assertIn("static let isEnabled = true", (IOS / "App/SettingsBannerView.swift").read_text(encoding="utf-8"))
 
 if __name__ == "__main__":
     unittest.main()

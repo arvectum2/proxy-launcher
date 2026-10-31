@@ -1,6 +1,7 @@
 import SwiftUI
 import NetworkExtension
 import UIKit
+import WebKit
 
 /// Semantic iPhone appearance colors that follow dynamic device traits.
 enum Brand {
@@ -116,6 +117,11 @@ private struct EqualHeightDashboardLayout: Layout {
 }
 #endif
 
+private struct ProxyImportRequest: Identifiable {
+    let id = UUID()
+    let source: String
+}
+
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
@@ -126,6 +132,7 @@ struct ContentView: View {
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
+    @State private var importRequest: ProxyImportRequest?
     @State private var showExclusions = false
     @State private var showAppExclusions = false
 
@@ -166,8 +173,16 @@ struct ContentView: View {
         .sheet(isPresented: $showNewProfile) {
             ProfileEditorView(profile: nil).environmentObject(model)
         }
+        .sheet(item: $importRequest) { request in
+            ProxyImportView(initialSource: request.source).environmentObject(model)
+        }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
+        }
+        .onOpenURL { url in
+            do {
+                importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
+            } catch { model.errorMessage = error.localizedDescription }
         }
         .sheet(isPresented: $showExclusions) {
             ExclusionsView().environmentObject(model)
@@ -201,6 +216,14 @@ struct ContentView: View {
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
         .tint(Brand.mint)
+        // Keep the ad visible across iPhone tabs, above safe-area controls.
+        // Never place it over the VPN Connect/Disconnect action.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            SettingsBannerView()
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .background(Brand.canvas)
+        }
     }
 
 #if targetEnvironment(macCatalyst)
@@ -497,6 +520,7 @@ struct ContentView: View {
                     }
                     HStack(spacing: 10) {
                         cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
+                        cardButton("Импортировать прокси", filled: false) { importRequest = ProxyImportRequest(source: "") }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first
@@ -885,6 +909,10 @@ struct ExclusionsView: View {
     @State private var input = ""
     @State private var localError: String?
     @State private var confirmClearAll = false
+    @State private var discovered: [String] = []
+    @State private var selectedDiscovered: Set<String> = []
+    @State private var scanning = false
+    @State private var scanner: ExclusionWebScanner?
 
     var body: some View {
         NavigationView {
@@ -905,6 +933,35 @@ struct ExclusionsView: View {
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
                     }
+                    Button(scanning ? "Идёт анализ…" : "Найти связанные домены") { scanSite() }
+                        .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    if scanning {
+                        ProgressView("Анализ ресурсов сайта")
+                        Button("Отменить анализ") { cancelScan() }
+                    }
+                }
+                if !discovered.isEmpty {
+                    Section("Найденные домены — выберите для исключения") {
+                        ForEach(discovered, id: \.self) { host in
+                            Button {
+                                if !selectedDiscovered.insert(host).inserted { selectedDiscovered.remove(host) }
+                            } label: {
+                                HStack {
+                                    Text(host).foregroundStyle(.primary)
+                                    Spacer()
+                                    Image(systemName: selectedDiscovered.contains(host) ? "checkmark.circle.fill" : "circle")
+                                }
+                            }
+                        }
+                        Button("Добавить выбранные") {
+                            do {
+                                entries = try SiteExclusionPolicy.normalizeAll(entries + selectedDiscovered.sorted())
+                                discovered = []
+                                selectedDiscovered = []
+                                localError = nil
+                            } catch { localError = error.localizedDescription }
+                        }.disabled(selectedDiscovered.isEmpty)
+                    }
                 }
                 Section {
                     ForEach(entries, id: \.self) { host in
@@ -912,6 +969,15 @@ struct ExclusionsView: View {
                             Text(host)
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                            if host.contains(".") && !host.contains(":") {
+                                Button { scanSite(host) } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .frame(minWidth: 36, minHeight: 36)
+                                }
+                                .disabled(scanning)
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel("Найти связанные домены для " + host)
+                            }
                             Button(role: .destructive) {
                                 entries.removeAll { $0 == host }
                             } label: {
@@ -960,10 +1026,12 @@ struct ExclusionsView: View {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
             .onAppear { entries = model.exclusions }
+            .onDisappear { cancelScan() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Сохранить") {
+                        cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
                         guard localError == nil else { return }
                         Task {
@@ -973,6 +1041,41 @@ struct ExclusionsView: View {
                 }
             }
         }
+    }
+
+    private func cancelScan() {
+        scanner?.cancel()
+        scanner = nil
+        scanning = false
+    }
+
+    private func scanSite() { scanSite(input) }
+
+    private func scanSite(_ site: String) {
+        do {
+            guard let host = try SiteExclusionPolicy.normalize(site), !host.isEmpty else { return }
+            guard SiteDependencyDiscovery.isScannableHost(host) else {
+                localError = "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"
+                return
+            }
+            scanning = true
+            discovered = []
+            selectedDiscovered = []
+            localError = nil
+            let worker = ExclusionWebScanner()
+            scanner = worker
+            worker.scan(host: host) { result in
+                guard scanner === worker else { return }
+                scanning = false
+                scanner = nil
+                switch result {
+                case .success(let hosts):
+                    discovered = SiteDependencyDiscovery.additionalCandidates(hosts, for: host, excluding: entries)
+                    if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
+                case .failure(let error): localError = error.localizedDescription
+                }
+            }
+        } catch { localError = error.localizedDescription }
     }
 
     private func addEntry() {
@@ -1141,5 +1244,89 @@ struct JournalView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
             }
         }
+    }
+}
+
+/// Ephemeral WebKit scanner; no persistent cookies or implicit VPN changes.
+@MainActor
+final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
+    private var webView: WKWebView?
+    private var completion: ((Result<[String], Error>) -> Void)?
+    private var host = ""
+
+    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        self.host = host
+        self.completion = completion
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = .nonPersistent()
+        let view = WKWebView(frame: CGRect(x: -1, y: -1, width: 1, height: 1), configuration: configuration)
+        // WebKit may defer navigation for an unattached zero-sized web view.
+        view.isUserInteractionEnabled = false
+        view.alpha = 0.01
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })?
+            .addSubview(view)
+        webView = view
+        view.navigationDelegate = self
+        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
+        view.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 18) { [weak self] in
+            self?.finish(.failure(URLError(.timedOut)))
+        }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let destination = navigationAction.request.url,
+              destination.scheme?.lowercased() == "https",
+              let requested = URL(string: "https://" + host)?.host?.lowercased(),
+              destination.host?.lowercased() == requested else {
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(.allow)
+    }
+
+    func cancel() {
+        completion = nil
+        tearDownWebView()
+    }
+
+    private func tearDownWebView() {
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.removeFromSuperview()
+        webView = nil
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let script = """
+        JSON.stringify({html: document.documentElement.outerHTML.slice(0,512000),
+          resources: performance.getEntriesByType('resource').slice(0,512).map(x => x.name)})
+        """
+        webView.evaluateJavaScript(script) { [weak self] value, error in
+            guard let self else { return }
+            if let error { self.finish(.failure(error)); return }
+            guard let raw = (value as? String)?.data(using: .utf8),
+                  let payload = (try? JSONSerialization.jsonObject(with: raw)) as? [String: Any] else {
+                self.finish(.failure(URLError(.cannotParseResponse)))
+                return
+            }
+            let html = payload["html"] as? String ?? ""
+            let resources = payload["resources"] as? [String] ?? []
+            let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
+            let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
+            self.finish(.success(Array(Set(htmlHosts + networkHosts)).sorted().prefix(SiteDependencyDiscovery.maxCandidates).map { $0 }))
+        }
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    private func finish(_ result: Result<[String], Error>) {
+        guard let completion else { return }
+        self.completion = nil
+        tearDownWebView()
+        completion(result)
     }
 }

@@ -137,6 +137,11 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func deleteProfile(id: UUID) {
+        do { try store.delete(id: id); refresh() }
+        catch { errorMessage = error.localizedDescription }
+    }
+
     func delete(_ profile: ProxyProfile) {
         do {
             try store.delete(id: profile.id)
@@ -149,9 +154,19 @@ final class AppViewModel: ObservableObject {
     func saveExclusions(_ raw: [String]) async -> Bool {
         do {
             let normalized = try SiteExclusionPolicy.normalizeAll(raw)
+            let previous = store.siteExclusions
             store.siteExclusions = normalized
+            do {
+                try await vpn.reconnectIfActive()
+            } catch {
+                // Do not persist a configuration that failed to activate.
+                store.siteExclusions = previous
+                exclusions = previous
+                // Best-effort recovery of the previous active tunnel settings.
+                try? await vpn.reconnectIfActive()
+                throw error
+            }
             exclusions = normalized
-            try await vpn.reconnectIfActive()
             return true
         } catch {
             errorMessage = error.localizedDescription

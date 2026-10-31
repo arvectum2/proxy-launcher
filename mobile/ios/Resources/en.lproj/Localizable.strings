@@ -154,3 +154,4 @@
 "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить." = "iOS rejected the Packet Tunnel configuration. APL restored the configuration, but iOS still could not start it.";
 "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение." = "iOS disabled the VPN configuration and could not re-enable it. Open Settings → VPN, allow Arvectum Proxy Launcher and try again.";
 "Mac Catalyst сохраняет общий раздел Настройки, но не имитирует iOS Shortcuts: на macOS применяются только реально поддерживаемые механизмы маршрутизации." = "Mac Catalyst keeps the same Settings screen, but does not emulate iOS Shortcuts. Only routing supported by macOS is used.";
+"Реклама" = "Advertisement";

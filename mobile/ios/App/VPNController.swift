@@ -80,7 +80,20 @@ final class VPNController: ObservableObject {
     func reconnectIfActive() async throws {
         guard isConnectedOrConnecting else { return }
         disconnect()
-        try await Task.sleep(nanoseconds: 500_000_000)
+        // NetworkExtension shutdown is asynchronous. A fixed sleep can race
+        // the previous tunnel and make startVPNTunnel fail intermittently.
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline {
+            try Task.checkCancellation()
+            let current = manager?.connection.status ?? .invalid
+            if current == .disconnected || current == .invalid { break }
+            try await Task.sleep(nanoseconds: 150_000_000)
+        }
+        let current = manager?.connection.status ?? .invalid
+        guard current == .disconnected || current == .invalid else {
+            throw NSError(domain: "ArvectumVPN", code: 2,
+                          userInfo: [NSLocalizedDescriptionKey: "Не удалось дождаться отключения VPN"])
+        }
         try await connect()
     }
 
