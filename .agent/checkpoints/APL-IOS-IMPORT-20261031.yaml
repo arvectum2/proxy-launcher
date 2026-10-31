@@ -1,5 +1,5 @@
 task_id: APL-IOS-IMPORT-20261031
-status: in_progress
+status: completed
 goal: "Implement universal proxy profile import for APL iOS: link, clipboard, file, QR, deep link; no release."
 definition_of_done:
   - "Safe parsing and preview of supported HTTP, HTTPS and SOCKS5 proxy links and files."
@@ -15,7 +15,7 @@ pending:
   - "Implement QR camera scanning and deep link entry points with security review."
   - "Add UI regression tests and validate import atomicity and duplicate handling."
   - "Run focused tests and simulator build, commit and push."
-last_verified_commit: "cdcf2200 (base; feature commit pending)"
+last_verified_commit: "25be0fa0"
 test_results:
   - "26/26 Swift package tests PASS."
   - "iOS Simulator xcodebuild BUILD SUCCEEDED."
