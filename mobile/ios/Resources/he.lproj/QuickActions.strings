@@ -1,0 +1,4 @@
+/* VPN Shortcuts – human-reviewed action labels, other languages fall back to English. */
+"Подключить APL" = "חיבור APL";
+"Отключить APL" = "ניתוק APL";
+"Переключить APL" = "החלפת מצב APL";

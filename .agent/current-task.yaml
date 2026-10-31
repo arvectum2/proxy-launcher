@@ -1,23 +1,25 @@
-task_id: APL-IOS-UX-20261031
+task_id: APL-IOS-QUICK-ACTIONS-20261031
 status: completed
-goal: 'Roadmap point 3: polish iOS Smart Exclusions 2.0 localization and accessibility while no physical iPhone is available, preserving existing 50 language corpora.'
+goal: 'Implement roadmap P2 quick iOS VPN connect/disconnect/toggle via App Intents/Shortcuts while preserving existing per-application automations.'
 definition_of_done:
-  - 'New Smart Exclusions UI labels and warnings never leak unlocalized Russian to a non-Russian locale; provide proper English fallback and high-priority localized copy.'
-  - 'Improve accessibility controls and error clarity; include regression tests for 50 locale choices, RTL, dynamic type and VoiceOver labels where simulator permits.'
-  - 'Preserve old 155-key core catalogs and 50 languages without changing App Store Connect.'
-  - 'Run Swift/Python/iOS Simulator build and UI tests, commit and merge through CI after source Smart2 PR.'
+  - 'Explicit user-initiated connect, disconnect and toggle App Intents on iOS >=16.0, idempotent and conservative during disconnect races.'
+  - 'Keep SelectedAppOpened/Closed intents behavior unchanged and disallow implicit VPN changes by reading status.'
+  - 'Provide discoverable UX help and safe localization fallback for new copy, without modifying 50x155 Store catalogs.'
+  - 'Run Swift, Python, Xcode simulator build and relevant UI/contract tests; PR and merge after Smart2 UX PR, no release.'
 completed:
-  - 'Smart Exclusions source Phase A/B merged in main PR #281, 49 Swift tests, 1088 Python tests, 5 simulator UI tests passed.'
-  - 'Added safe EN fallback for new Smart2 UI copy on 49 non-RU locales; 14 high-priority locale action/status translations; preserved existing 50x155 catalogs.'
-  - 'Fixed settingsButton to use AppL10n.tr(title); EN and Hebrew RTL navigation/Smart2 UI XCUITests both PASS.'
-  - 'Made sensitive manual third-party actions and graph delete/revoke buttons 44pt and accessible uniquely by host.'
-current: 'COMPLETE source UX phase: 14 priority locale actions, safe EN fallback, Settings language fix and simulator EN/HE RTL test.'
+  - 'Smart2 PR #281 and UX/localization PR #282 merged into main; RTL EN/HE UI tests passed.'
+  - 'Implemented three idempotent user-invoked App Intents with disconnected/connecting/disconnecting handling and one-process reentrancy guard.'
+  - 'Implemented explicit VPN disconnect wait with timeout and isolated pure QuickVPNActionPolicy with XCTest tests.'
+  - 'Preserved SelectedAppOpened/Closed automation and added discoverable iOS16+ QuickActions Help screen.'
+  - 'Added 16 separate QuickActions.strings locale tables for action names, preserving existing 50x155 catalogs and EN help fallback.'
+current: 'SOURCE COMPLETE: explicit connect/disconnect/toggle App Intents, language tables and settings help; hardware execution deferred.'
 pending:
-  - 'Independent native-speaker editorial certification and physical VoiceOver/large-text UI acceptance postponed until upgraded iPhone build.'
-  - '36 locales still use EN fallback for new controls; further native editorial expansion remains optional.'
-last_verified_commit: 'd863fd3c (Smart2 branch base)'
+  - 'Physical Shortcuts/App Intents execution on real iPhone and system VPN permission acceptance in next release QA.'
+  - 'Optional WidgetKit/Control Center extension later: not claimed as implemented.'
+last_verified_commit: 'cc355a05 (UX branch base)'
 test_results:
-  - '3/3 new Python UX/locale contract tests PASS.'
-  - '2/2 iOS Simulator English/Hebrew RTL UI tests PASS.'
-  - 'Full Python/Swift and simulator build recheck before merge.'
-resume_instruction: 'UX implementation source complete in /tmp/apl-ios-smart2-ux-20261031; commit, run CI and merge PR to main. Then create new checkpoint/worktree for iOS quick VPN actions; defer hardware acceptance until upgraded build, no App Store changes.'
+  - '52 Swift package tests PASS (including QuickVPNActionPolicy). '
+  - '3 Python QuickActions source/localization contracts PASS.'
+  - 'English iOS Simulator QuickActions Help UI test PASS.'
+  - 'iOS Simulator Debug build PASS; final tests before PR.'
+resume_instruction: 'Quick Actions source implementation complete in /tmp/apl-ios-quick-actions-20261031. Verify green CI then PR merge to main; continue commercial marketplace design in new checkpoint/worktree without assuming payment/legal decisions; physical iPhone acceptance deferred.'

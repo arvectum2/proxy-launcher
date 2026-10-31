@@ -77,6 +77,22 @@ final class VPNController: ObservableObject {
         refreshStatus()
     }
 
+    /// Explicit Shortcuts disconnection must not report completion before
+    /// NetworkExtension has actually left the connected/connecting states.
+    func disconnectAndWait() async throws {
+        guard isConnectedOrConnecting else { return }
+        disconnect()
+        let deadline = Date().addingTimeInterval(10)
+        while Date() < deadline {
+            try Task.checkCancellation()
+            refreshStatus()
+            if status == .disconnected || status == .invalid { return }
+            try await Task.sleep(nanoseconds: 150_000_000)
+        }
+        throw NSError(domain: "ArvectumVPN", code: 13,
+                      userInfo: [NSLocalizedDescriptionKey: "VPN не успел отключиться. Проверьте состояние подключения."])
+    }
+
     func reconnectIfActive() async throws {
         guard isConnectedOrConnecting else { return }
         disconnect()
