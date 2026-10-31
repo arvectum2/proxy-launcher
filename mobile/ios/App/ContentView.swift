@@ -127,6 +127,7 @@ struct ContentView: View {
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
+    @State private var showProxyImport = false
     @State private var showExclusions = false
     @State private var showAppExclusions = false
 
@@ -166,6 +167,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showNewProfile) {
             ProfileEditorView(profile: nil).environmentObject(model)
+        }
+        .sheet(isPresented: $showProxyImport) {
+            ProxyImportView().environmentObject(model)
         }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
@@ -506,6 +510,7 @@ struct ContentView: View {
                     }
                     HStack(spacing: 10) {
                         cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
+                        cardButton("Импортировать прокси", filled: false) { showProxyImport = true }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first
