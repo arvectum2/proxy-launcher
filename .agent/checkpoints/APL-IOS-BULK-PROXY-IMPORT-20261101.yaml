@@ -1,0 +1,27 @@
+task_id: APL-IOS-BULK-PROXY-IMPORT-20261101
+status: completed
+goal: 'Support provider-formatted proxy imports host:port:login:password, TXT/CSV/XML batches on iOS while preserving existing URLs, QR, credentials and App Store submission.'
+definition_of_done:
+  - 'Accept HTTP/HTTPS/SOCKS5 links and multiline supplier host:port:login:password, including bracketed IPv6 and colons in passwords.'
+  - 'Import UTF-8 TXT, CSV with EN/RU header aliases or positional fields, and structured XML proxy elements/attributes; reject external XML entities and invalid lists wholesale.'
+  - 'Apply selectable HTTP/HTTPS/SOCKS5 default to entries without protocol, limit 200 proxies/256000 bytes, show preview without credentials, preserve duplicate filtering.'
+  - 'Focused Swift and iOS simulator UI tests pass, document behavior and merge PR on green checks.'
+completed:
+  - 'Inspected origin/main 4136d683: prior parser accepted HTTP/HTTPS/SOCKS5 URLs only; TXT supported URLs, CSV/XML and vendor raw strings absent.'
+  - 'Implemented bounded RAW/TXT, CSV with headers/positional entries and quoted fields, XML with attributes/child elements and DTD/entity rejection; old URLs and QR preserved.'
+  - 'Added iOS HTTP/HTTPS/SOCKS5 default protocol picker, CSV/XML files in picker, translated import labels and errors, no password in preview.'
+  - 'Added 11 Swift parser tests; total 71/71 PASS.'
+  - 'iOS Simulator Debug build-for-testing PASS; targeted provider raw preview XCUITest PASS (15.367s), no fake profile saved; existing URL preview UI PASS.'
+  - 'Five focused Python iOS onboarding/preview contract tests PASS; git diff --check PASS.'
+  - 'Documented format examples, 200/256KB limit, XML safety and explicit App Store release exclusion in docs/ROADMAP.md and docs/APL_IOS_042_BULK_PROXY_IMPORT_2026-11-01.md.'
+  - 'Production/source implementation committed as 520411a4 on isolated branch feat/ios-bulk-proxy-import-20261101.'
+current: 'Implementation and targeted QA complete; protected PR/green CI merge is the only remaining mechanical action.'
+pending: []
+last_verified_commit: '520411a4 (71/71 Swift PASS, focused iOS Simulator UI PASS, iOS build-for-testing PASS)'
+test_results:
+  - 'Swift package: 71/71 PASS (11 new importer cases).'
+  - 'iOS Simulator build-for-testing: TEST BUILD SUCCEEDED.'
+  - 'iOS Simulator provider raw preview: PASS 15.367s; old URL preview: PASS; no profiles imported.'
+  - 'Python focused onboarding+format contracts: 5/5 PASS.'
+  - 'Physical iPhone, stored profiles and submitted Apple 0.1.41 (46): unchanged.'
+resume_instruction: 'Source branch /tmp/apl-ios-bulk-proxy-import-20261101, 520411a4, fully implemented and targeted verified; push PR to protected main, merge after all required GitHub CI is green, then verify remote main SHA. Avoid any new VPN test campaign or App Store Connect mutation. iOS 0.1.42 (47) source only; physical iPhone still runs prior build until separate release.'
