@@ -12,12 +12,14 @@ completed:
   - 'Implemented pure Ed25519 signed envelope contract with trusted local key, HTTPS issuer match, strictly allowed manifest fields, bounded size/revision/TTL/profile types.'
   - 'Implemented no-silent-downgrade refresh decisions and fail-closed URL/source validators; 60 Swift core tests PASS.'
   - 'Prepared proposed API/Keychain/backend architecture with Apple IAP/VPN 5.4 and Russian legal/business decision gates, without executing payments or creating accounts.'
-current: 'SOURCE CONTRACT COMPLETE: signed managed manifest validation with refresh decision, backend/commercial architecture; production approvals remain blocked.'
+current: 'COMPLETED AND MERGED: PR #284, 19/19 CI checks pass; hardware and commercial production remain distinct future gates.'
 pending:
   - 'Real client/API/payment and proxy infrastructure only after explicit owner product/legal decisions.'
   - 'Real signed-key provisioning and managed subscriptions on physical iPhone as part of a future authorized release.'
-last_verified_commit: '0c75446a (first managed contract source commit; negative tests follow)'
+last_verified_commit: '997fee3c (merge PR #284 to origin/main; 19/19 GitHub CI green)'
 test_results:
   - '60 Swift package tests PASS (incl. managed manifest signature, source, expiry, revision).'
-  - '2 Python managed-profile source contract tests PASS; full Python and iOS simulator build pending final gate.'
-resume_instruction: 'Source managed-profile contract complete in /tmp/apl-ios-managed-profile-20261031; run final tests, CI and merge PR to main. New paid service, VPS and Apple Store metadata explicitly blocked on business/legal decisions. No iPhone until shared upgraded build.'
+  - 'Python unittest full suite 1096 tests PASS, 1 skipped.'
+  - 'iOS Simulator Debug BUILD SUCCEEDED.'
+  - 'PR #284 GitHub CI 19/19 PASS; merged at 2026-10-31 13:32:22 UTC.'
+resume_instruction: 'All agreed source roadmap stages 2-5 are merged to main (PRs #281-284). Do not restart completed stages. Hardware QA waits for next iPhone build; real managed-service/payments/keys/VPS await explicit owner business/legal decisions, and per-domain live network routing Phase C still needs a separate engine/hardware acceptance. Current Apple submissions remain unchanged.'
