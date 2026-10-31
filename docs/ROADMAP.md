@@ -1,3 +1,11 @@
+## 31.10.2026 — iOS P1: типизированная диагностика недоступности профилей (source QA)
+
+- [x] Выведены безопасные, локально отображаемые причины NET/DNS/TCP/TLS/AUTH/HTTP 407/PROXY/TIMEOUT/PROTOCOL/VPN; UI не отображает исходный текст системной ошибки, адрес/логин/пароль профиля в диагностическом коде.
+- [x] HTTP CONNECT 407 (включая Digest challenge) больше не принимается за успешный CONNECT; неверные методы SOCKS5 отклоняются.
+- [x] Сетевые callback защищены однократным завершением и таймаутом; асинхронный мониторинг профилей — от устаревших результатов.
+- [x] 38 Swift core tests, 1086 Python unittest (1 skipped), 3/3 iOS Simulator UI, Debug build — PASS. Техническое описание: [APL_IOS_CONNECTION_DIAGNOSTICS_2026-10-31.md](APL_IOS_CONNECTION_DIAGNOSTICS_2026-10-31.md).
+- [ ] Протестировать физические сценарии DNS/TCP/HTTP407 с тестовыми прокси и реальным VPN Packet Tunnel; App Store релиз/отправку не выполнять автоматически.
+
 ## 30.10.2026 — iOS 0.1.41 (46): App Review submission
 
 - [x] Apple created 0.1.41, processed signed build 46 to VALID and attached it; contains all 50 UI locales, PacketTunnel and real Yandex mobile banner integration.

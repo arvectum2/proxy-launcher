@@ -132,10 +132,17 @@ extension ProxyImportUITests {
         XCTAssertTrue(scanButton.waitForExistence(timeout: 10))
         scanButton.tap()
         allowCameraPermissionIfPrompted()
+#if targetEnvironment(simulator)
+        // iOS Simulator has no real camera input; the production scanner must
+        // fail gracefully with an explanation, not pretend to scan a code.
+        XCTAssertTrue(app.staticTexts["Камера недоступна"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 8))
+#else
         XCTAssertTrue(app.navigationBars["Сканирование QR"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Камера готова — наведите на QR-код"].waitForExistence(timeout: 20))
         app.buttons["Отмена"].tap()
         XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 8))
+#endif
     }
 
     func testEditingLinkInvalidatesPreview() {

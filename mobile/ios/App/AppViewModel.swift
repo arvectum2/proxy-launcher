@@ -5,13 +5,15 @@ import NetworkExtension
 enum ProfileHealth: Equatable {
     case checking
     case available(Int)
-    case unavailable
+    case unavailable(ProxyFailureReason)
 
     var label: String {
         switch self {
-        case .checking: return "проверяется"
+        case .checking: return AppL10n.tr("проверяется")
         case .available(let latency): return "\(latency) мс"
-        case .unavailable: return "недоступен"
+        case .unavailable(let reason):
+            let status = AppL10n.tr("недоступен")
+            return reason == .unknown ? status : "\(status) · \(reason.code)"
         }
     }
 }
@@ -32,6 +34,7 @@ final class AppViewModel: ObservableObject {
     private let store: ProfileStore
     private let telemetry = TelemetryStore()
     private var cancellables: Set<AnyCancellable> = []
+    private var healthScanGeneration = 0
 
     init() {
         do {
@@ -66,6 +69,9 @@ final class AppViewModel: ObservableObject {
 
     func refresh() {
         profiles = store.listProfiles()
+        // Removing a profile must not leave obsolete diagnostics in memory.
+        let currentIDs = Set(profiles.map(\.id))
+        health = health.filter { currentIDs.contains($0.key) }
         selectedProfileID = store.selectedProfileID
         automaticSelection = store.automaticSelection
         primaryProfileID = store.primaryProfileID
@@ -190,20 +196,33 @@ final class AppViewModel: ObservableObject {
         do {
             try await vpn.connect()
         } catch {
-            errorMessage = error.localizedDescription
+            // Preserve the actionable NetworkExtension explanation but
+            // identify system tunnel failures unambiguously in the alert.
+            let kind = ProxyFailureReason.classify(error)
+            errorMessage = kind == .tunnel
+                ? "VPN: " + error.localizedDescription
+                : error.localizedDescription
         }
     }
 
     func scanProfiles() async {
-        guard !profiles.isEmpty else { return }
+        // Saving another profile while an async network probe is suspended
+        // must not let stale responses overwrite newer health results.
+        healthScanGeneration &+= 1
+        let generation = healthScanGeneration
+        let snapshot = profiles
+        guard !snapshot.isEmpty else { health = [:]; return }
         let probe = ProxyProbe()
-        for profile in profiles {
+        for profile in snapshot {
+            guard generation == healthScanGeneration else { return }
             health[profile.id] = .checking
             do {
                 let result = try await probe.resolveMeasured(profile, password: try store.password(for: profile.id))
+                guard generation == healthScanGeneration else { return }
                 health[profile.id] = .available(result.latencyMs)
             } catch {
-                health[profile.id] = .unavailable
+                guard generation == healthScanGeneration else { return }
+                health[profile.id] = .unavailable(ProxyFailureReason.classify(error))
             }
         }
     }

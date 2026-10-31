@@ -1,0 +1,28 @@
+task_id: APL-IOS-DIAGNOSTICS-20261031
+status: completed
+goal: "Add safe, classified per-profile iOS connection diagnostics (offline/DNS/TCP/TLS/proxy auth 407/tunnel) rather than a generic unavailable status, preserving 50-localization support and redacting secrets."
+definition_of_done:
+  - "Pure/testable failure classification uses typed NSError domains/codes or explicit own proxy errors; no leaking host, username or password."
+  - "Profile list surfaces human-understandable failure category while keeping existing localized status and 50-locale catalog parity."
+  - "Handle network offline, DNS, TCP, TLS, HTTP 407, tunnel errors; no false success or automatic VPN state changes."
+  - "Run Swift/iOS builds and focused tests; commit and push isolated PR after previous consolidation PR merged."
+completed:
+  - "Merged 36-GitHub-check successful PR #278 into main b4e8a9fd; PR #279 post-merge checkpoint closure merged to main 18b101fb after 13 successful checks."
+  - "Added typed diagnosis codes NET/DNS/TCP/TLS/AUTH/HTTP 407/PROXY/TIMEOUT/PROTOCOL/VPN/UNKNOWN without exposing remote details."
+  - "HTTP 407 (including Digest) and unsupported SOCKS5 methods now fail closed; connection timeout and one-shot continuation gate avoid silent hangs/double-resume."
+  - "Added scan-generation guards to prevent old async results from overwriting current profile health; menu uses existing localized unavailable key from all 50 iOS locales."
+  - "Reconciled iOS Simulator no-camera behavior in existing QR UI test, without weakening physical camera readiness requirement."
+  - "Focused Swift 38 PASS, Python 1086 PASS (1 skipped), iOS Simulator import UI 3/3 PASS, iOS Simulator Debug BUILD SUCCEEDED, git diff --check PASS."
+  - "Code committed as 98509111; prepared isolated feature branch and PR for GitHub merge without Apple Store upload."
+current: "COMPLETED SOURCE IMPLEMENTATION: connection diagnostics classified and tested, physical routing QA separate."
+pending:
+  - "Optional physical proxy fault-injection (DNS/TCP/HTTP 407/SOCKS5) and live Packet Tunnel QA before iOS publication."
+  - "Review GitHub CI/merge for this change; does not constitute authorization to publish a new App Store binary."
+last_verified_commit: "98509111 (source/test commit; feature branch)"
+test_results:
+  - "38/38 Swift package tests PASS."
+  - "1086/1086 Python unittest PASS (1 skipped)."
+  - "3/3 iOS Simulator import XCUITests PASS; virtual camera graceful unavailability checked."
+  - "iOS Simulator Debug BUILD SUCCEEDED with no new ProxyProbe concurrency warnings."
+  - "git diff --check PASS."
+resume_instruction: "Implementation complete; verify PR status for feat/ios-connection-diagnostics-20261031, run CI, merge to main if clean and authorized; physical proxy fault-injection remains separate. Never touch dirty local main or publish Apple binaries without release instruction."
