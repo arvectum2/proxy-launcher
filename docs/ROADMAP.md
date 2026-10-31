@@ -1,12 +1,25 @@
 # Arvectum Proxy Launcher — canonical roadmap
 
+## 31.10.2026 · iOS release reconciliation (supersedes dated snapshots below)
+
+- **PUBLIC / VERIFIED:** Apple iTunes Lookup RU, app ID `6816013574`: **iOS 0.1.40 (build 45)** published **2026-10-30T17:04:45Z**. Historical 0.1.37–0.1.39 status claims below are not current.
+- **0.1.38 PUBLISHED:** System/Light/Dark themes; arvectum.com support and marketing URLs.
+- **0.1.39 PUBLISHED:** skippable onboarding, proxy-field help, System/Russian/English language selection, Yandex RSYA banner integration `R-M-20288304-1`.
+- **0.1.40 PUBLISHED:** moved banner into TabView safe area; removed collapsed 1px/opacity layout; added ad-load/failure/impression diagnostics. Physical iPhone display and confirmed ad impressions **NOT YET VERIFIED**.
+- **SOURCE INTEGRATION OPEN:** [PR #271](https://github.com/arvectum2/proxy-launcher/pull/271) (ads) and stacked [PR #273](https://github.com/arvectum2/proxy-launcher/pull/273) (banner fix) remain open, unmerged. Public Apple release is not proof that `main` contains their code. Review diffs/stack, CI and branch protection before merging; do not duplicate commits.
+- **NEXT RELEASE, NOT PUBLIC:** [PR #272](https://github.com/arvectum2/proxy-launcher/pull/272) (50 iOS localization catalogs, 47 ASO locales, 94 simulator screenshots) remains open/unmerged; needs integration, physical/localization QA and separate App Store release.
+- **P1 OPEN:** Smart Exclusions automatic dependency discovery (gosuslugi.ru/gu-st.ru), universal profile import (clipboard/QR/deep links), failure diagnostics (offline/DNS/TCP/HTTP 407/tunnel), physical VoiceOver/accessibility QA.
+- **P2 / RESEARCH:** widgets/quick actions, managed profiles and marketplace, advanced VPN transports, GOST VPN feasibility.
+- **COMPLIANCE REVIEW OPEN:** Apple VPN Guideline 5.4 and ad-vendor privacy/consent; do not modify published App Store privacy declarations without separate authorization.
+- **WORKTREE SAFETY:** Mac mini local `main` is diverged and dirty with active macOS 0.2.20 QA. Do not reset/rebase/overwrite its checkpoint or working files for this documentation sync.
+
 ## 28.10.2026 · C19 — macOS wake guard безопасное автоматическое восстановление UI
 
 - [x] Текущий macOS GUI автоматически обновляет recovery controls после истечения wake guard без focus/click, повторный сон продлевает guard до безопасного expiry, а обычный Off остаётся доступным. 47/47 `test_proxy_gui` PASS (Python 3.12 + Tk 9.1); исходники в отдельном PR. [C19 QA](APL_MAC_WAKE_GUARD_C19_QA_2026-10-28.md).
 - [ ] Реальная проверка сна/пробуждения MacBook, статуса proxy worker и Safari/ChatGPT, обновлённая подписанная сборка — не пройдены и не заявляются.
 
 
-Updated: 2026-10-28 (published iOS 0.1.38, 0.1.39 beginner onboarding and genuine language selection; other statuses retain prior observation dates)
+Updated: 2026-10-31 (iOS 0.1.40 public release verified; dated sections below are historical snapshots)
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
