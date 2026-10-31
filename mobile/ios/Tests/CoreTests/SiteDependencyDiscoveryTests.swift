@@ -30,4 +30,12 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
     func testRuntimeRequestsRejectLookalikeAndInvalidURLs() {
         XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: ["https://notexample.com/a", "ftp://api.example.com/b", "https://foo.example.com:8443/x"], for: "example.com"), ["foo.example.com"])
     }
+    func testScannableHostRejectsIPAndMalformedDomain() {
+        XCTAssertTrue(SiteDependencyDiscovery.isScannableHost("www.example.com"))
+        XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("127.0.0.1"))
+        XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("2001:db8::1"))
+        XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("a..example.com"))
+        XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("-bad.example.com"))
+        XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("example.com@evil.test"))
+    }
 }

@@ -1036,6 +1036,10 @@ struct ExclusionsView: View {
     private func scanSite(_ site: String) {
         do {
             guard let host = try SiteExclusionPolicy.normalize(site), !host.isEmpty else { return }
+            guard SiteDependencyDiscovery.isScannableHost(host) else {
+                localError = "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"
+                return
+            }
             scanning = true
             discovered = []
             selectedDiscovered = []

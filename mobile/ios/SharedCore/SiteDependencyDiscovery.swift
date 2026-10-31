@@ -1,16 +1,31 @@
 import Foundation
+import Darwin
 
 /// Conservative first-party discovery. This does not authorize routing changes:
 /// callers must show candidates to the user before adding exclusions.
 enum SiteDependencyDiscovery {
     static let maxHTMLBytes = 512_000
     static let maxCandidates = 24
+    static func isScannableHost(_ host: String) -> Bool {
+        guard host.contains("."), !host.hasPrefix("."), !host.hasSuffix("."),
+              host.utf8.count <= 253, !host.contains(":"),
+              host.utf8.allSatisfy({ $0 < 128 }) else { return false }
+        var ipv4 = in_addr()
+        if host.withCString({ inet_pton(AF_INET, $0, &ipv4) }) == 1 { return false }
+        return host.split(separator: ".", omittingEmptySubsequences: false).allSatisfy { label in
+            !label.isEmpty && label.count <= 63 &&
+            label.first != "-" && label.last != "-" &&
+            label.utf8.allSatisfy { byte in
+                (byte >= 97 && byte <= 122) || (byte >= 48 && byte <= 57) || byte == 45
+            }
+        }
+    }
 
     /// Resource Timing exposes requests issued by scripts, CSS, fonts and fetch,
     /// which are not necessarily represented in the final HTML DOM.
     static func resourceCandidates(urls: [String], for site: String) -> [String] {
         guard let normalized = try? SiteExclusionPolicy.normalize(site),
-              normalized.contains("."), !normalized.contains(":") else { return [] }
+              isScannableHost(normalized) else { return [] }
         let apex = normalized.hasPrefix("www.") ? String(normalized.dropFirst(4)) : normalized
         var found = Set<String>()
         for raw in urls.prefix(512) {
@@ -27,7 +42,7 @@ enum SiteDependencyDiscovery {
 
     static func candidates(html: String, for site: String) -> [String] {
         guard let root = try? SiteExclusionPolicy.normalize(site),
-              !root.isEmpty, !root.contains(":") else { return [] }
+              isScannableHost(root) else { return [] }
         let apex = root.hasPrefix("www.") ? String(root.dropFirst(4)) : root
         let text = String(html.prefix(maxHTMLBytes))
         let pattern = #"(?i)(?:src|href|action|poster|data-src)\s*=\s*["'](https?:)?//([^/\s"'?#:]+)(?=[/\s"'?#]|$)"#
