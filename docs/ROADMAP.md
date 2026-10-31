@@ -120,7 +120,8 @@ Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/
 - [x] Implement HTTPS TLS relay cap (90 connections), 90-second idle reaper / 15-minute max age, guaranteed stop cleanup; signed Release build 10 archived, focused tests PASS.
 - [x] Apple server validation/upload: build 10 VALID; Internal TestFlight IN_BETA_TESTING; 0.2.20 draft linked to build 10; Russian release notes ready.
 - [x] Live TLS-relay integration: 105 local TCP clients, 90 upstream max, 0 after 90-second inactivity cutoff (PASS).
-- [ ] Install build 10 through TestFlight on MacBook (GUI screen needs unlocking) and repeat full one-hour physical QA, including ARC/Tailscale independence. Submit only after passing. Existing public macOS 0.2.19 unchanged.
+- [x] Build 10 installed on MacBook; 65-minute soak complete (66 samples): zero HTTPS/VPN/Tailscale failures, stable tunnel PID; 81 TCP max, transient CLOSE_WAIT peak 40 early, draining to 24 TCP/3 CLOSE_WAIT at the end. Human QA accepted with documented threshold warning (raw automatic REVIEW retained).
+- [ ] After green PR CI and metadata validation, merge PR #274 and submit build 10 to macOS App Review with MANUAL release. Do not change live macOS 0.2.19 or pending iOS review.
 
 ## 30.10.2026 · macOS 0.2.20 / build 9 — socket-pressure hardening, INTERNAL QA
 
