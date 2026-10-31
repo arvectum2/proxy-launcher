@@ -13,4 +13,11 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
     func testNoImplicitCrossSiteExclusions() {
         XCTAssertEqual(SiteDependencyDiscovery.candidates(html: #"<script src="https://gu-st.ru/a.js">"#, for: "gosuslugi.ru"), [])
     }
+    func testRuntimeRequestsFindDynamicResourcesAndRejectThirdParty() {
+        let urls = ["https://api.example.com/v1", "https://cdn.example.com/a.css", "https://tracker.test/x", "https://evil-example.com/x", "file:///tmp/x", "https://api.example.com/v2"]
+        XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: urls, for: "example.com"), ["api.example.com", "cdn.example.com"])
+    }
+    func testRuntimeRequestsRejectLookalikeAndInvalidURLs() {
+        XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: ["https://notexample.com/a", "ftp://api.example.com/b", "https://foo.example.com:8443/x"], for: "example.com"), ["foo.example.com"])
+    }
 }

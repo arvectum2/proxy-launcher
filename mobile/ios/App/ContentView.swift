@@ -951,6 +951,15 @@ struct ExclusionsView: View {
                             Text(host)
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                            if host.contains(".") && !host.contains(":") {
+                                Button { scanSite(host) } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .frame(minWidth: 36, minHeight: 36)
+                                }
+                                .disabled(scanning)
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel("Найти связанные домены для " + host)
+                            }
                             Button(role: .destructive) {
                                 entries.removeAll { $0 == host }
                             } label: {
@@ -1014,9 +1023,11 @@ struct ExclusionsView: View {
         }
     }
 
-    private func scanSite() {
+    private func scanSite() { scanSite(input) }
+
+    private func scanSite(_ site: String) {
         do {
-            guard let host = try SiteExclusionPolicy.normalize(input), !host.isEmpty else { return }
+            guard let host = try SiteExclusionPolicy.normalize(site), !host.isEmpty else { return }
             scanning = true
             discovered = []
             selectedDiscovered = []
@@ -1204,4 +1215,54 @@ struct JournalView: View {
         }
     }
 }
-\n/// Ephemeral WebKit scanner. Never persists cookies or modifies VPN routes.\n@MainActor\nfinal class ExclusionWebScanner: NSObject, WKNavigationDelegate {\n    private var webView: WKWebView?\n    private var completion: ((Result<[String], Error>) -> Void)?\n    private var host = ""\n\n    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {\n        self.host = host\n        self.completion = completion\n        let configuration = WKWebViewConfiguration()\n        configuration.websiteDataStore = .nonPersistent()\n        let webView = WKWebView(frame: .zero, configuration: configuration)\n        self.webView = webView\n        webView.navigationDelegate = self\n        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }\n        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))\n    }\n\n    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {\n        webView.evaluateJavaScript("document.documentElement.outerHTML") { [weak self] value, error in\n            guard let self else { return }\n            if let error { self.finish(.failure(error)); return }\n            let html = value as? String ?? ""\n            self.finish(.success(SiteDependencyDiscovery.candidates(html: html, for: self.host)))\n        }\n    }\n\n    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }\n    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }\n\n    private func finish(_ result: Result<[String], Error>) {\n        guard let completion else { return }\n        self.completion = nil\n        webView?.stopLoading()\n        webView?.navigationDelegate = nil\n        webView = nil\n        completion(result)\n    }\n}\n
+
+/// Ephemeral WebKit scanner; no persistent cookies or implicit VPN changes.
+@MainActor
+final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
+    private var webView: WKWebView?
+    private var completion: ((Result<[String], Error>) -> Void)?
+    private var host = ""
+
+    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        self.host = host
+        self.completion = completion
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = .nonPersistent()
+        let view = WKWebView(frame: .zero, configuration: configuration)
+        webView = view
+        view.navigationDelegate = self
+        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
+        view.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let script = """
+        JSON.stringify({html: document.documentElement.outerHTML,
+          resources: performance.getEntriesByType('resource').map(x => x.name).slice(0,512)})
+        """
+        webView.evaluateJavaScript(script) { [weak self] value, error in
+            guard let self else { return }
+            if let error { self.finish(.failure(error)); return }
+            guard let raw = (value as? String)?.data(using: .utf8),
+                  let payload = (try? JSONSerialization.jsonObject(with: raw)) as? [String: Any] else {
+                self.finish(.failure(URLError(.cannotParseResponse)))
+                return
+            }
+            let html = payload["html"] as? String ?? ""
+            let resources = payload["resources"] as? [String] ?? []
+            let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
+            let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
+            self.finish(.success(Array(Set(htmlHosts + networkHosts)).sorted().prefix(SiteDependencyDiscovery.maxCandidates).map { $0 }))
+        }
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    private func finish(_ result: Result<[String], Error>) {
+        guard let completion else { return }
+        self.completion = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView = nil
+        completion(result)
+    }
+}

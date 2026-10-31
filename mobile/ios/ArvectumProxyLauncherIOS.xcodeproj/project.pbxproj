@@ -37,6 +37,8 @@
 		A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */; };
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */; };
+		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
+		CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
@@ -88,6 +90,7 @@
 		96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
 		97289884E2BC264E1928499B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9ADE40E1415BE281B3E223B7 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDependencyDiscovery.swift; sourceTree = "<group>"; };
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		BEA603A59EEC8463F7514A12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -196,6 +199,7 @@
 				2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */,
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
 				B266784C8D84E9CAEB06097B /* ProxyModel.swift */,
+				A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */,
 				96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */,
 			);
 			path = SharedCore;
@@ -347,6 +351,7 @@
 				61C2D8CDC6BFA305A20537E6 /* ProfileStore.swift in Sources */,
 				1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */,
 				A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */,
+				CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */,
 				7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */,
 				48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */,
 				60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */,
@@ -370,6 +375,7 @@
 				D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */,
 				A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */,
 				FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */,
+				BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */,
 				01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
 				FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */,

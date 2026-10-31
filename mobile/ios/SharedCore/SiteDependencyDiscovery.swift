@@ -6,6 +6,25 @@ enum SiteDependencyDiscovery {
     static let maxHTMLBytes = 512_000
     static let maxCandidates = 24
 
+    /// Resource Timing exposes requests issued by scripts, CSS, fonts and fetch,
+    /// which are not necessarily represented in the final HTML DOM.
+    static func resourceCandidates(urls: [String], for site: String) -> [String] {
+        guard let normalized = try? SiteExclusionPolicy.normalize(site),
+              normalized.contains("."), !normalized.contains(":") else { return [] }
+        let apex = normalized.hasPrefix("www.") ? String(normalized.dropFirst(4)) : normalized
+        var found = Set<String>()
+        for raw in urls.prefix(512) {
+            guard raw.count <= 2048, let components = URLComponents(string: raw),
+                  ["http", "https"].contains(components.scheme?.lowercased() ?? ""),
+                  let host = components.host?.lowercased(),
+                  (host == apex || host.hasSuffix("." + apex)),
+                  (try? SiteExclusionPolicy.normalize(host)) == host else { continue }
+            found.insert(host)
+            if found.count >= maxCandidates { break }
+        }
+        return found.sorted()
+    }
+
     static func candidates(html: String, for site: String) -> [String] {
         guard let root = try? SiteExclusionPolicy.normalize(site),
               !root.isEmpty, !root.contains(":") else { return [] }

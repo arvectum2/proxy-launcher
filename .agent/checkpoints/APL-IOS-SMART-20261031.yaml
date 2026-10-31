@@ -1,6 +1,6 @@
 task_id: APL-IOS-SMART-20261031
-status: completed
-goal: "Build the first safe Smart Exclusions dependency-discovery core for iOS."
+status: in_progress
+goal: "Finish Smart Exclusions UI, WebKit discovery, VPN route integration and regression checks; no release."
 definition_of_done:
   - "Bounded on-device extraction of first-party hosts from HTML resource references, without arbitrary third-party bypass."
   - "Focused Swift tests pass."
@@ -8,11 +8,13 @@ definition_of_done:
 completed:
   - "Added bounded first-party HTML resource host extraction with explicit non-routing contract."
   - "Added three focused tests; swift test --parallel PASS."
-current: "Core discovery slice completed; UI preview and live WebKit integration remain separate future tasks."
+current: "Core, UI, dynamic resource collection and device-target Xcode build verified; simulator runtime and live tunnel QA remain unverified."
 pending:
-  - "Implement UI preview and explicit approval in a later iteration."
-  - "Implement live WebKit collection and dynamic routing in a later iteration."
-last_verified_commit: "feature branch commit (see git log); Swift tests PASS"
+  - "Run simulator UI when simulator-compatible tun2proxy XCFramework is available."
+  - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
+last_verified_commit: "pending commit on feat/ios-smart-exclusions-20261031"
 test_results:
-  - "swift test --parallel PASS after correcting explicit-port URL handling."
-resume_instruction: "Continue in isolated /tmp/apl-ios-smart-20261031 worktree, do not touch active macOS checkpoint; add explicit-preview UI and bounded WebKit collection before claiming full Smart Exclusions."
+  - "swift test --parallel PASS (17 test cases)."
+  - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
+  - "iOS Simulator build blocked: existing tun2proxy XCFramework has ios-arm64 only, no simulator slice."
+resume_instruction: "Obtain simulator-compatible tun2proxy artifact and run iOS simulator UI, then live device DNS/route reconnect QA; no release, no macOS checkout changes."
