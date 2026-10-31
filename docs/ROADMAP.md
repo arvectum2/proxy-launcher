@@ -114,6 +114,24 @@ This is an active compliance/filing workstream, but repository dossier preparati
 - **HARD STOP** — automation must not sign or submit the Ministry/registry application or ingest УКЭП/private-key material.
 
 Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md.
+## 31.10.2026 · macOS 0.2.20 build 10 — corrective TLS relay resource lifetime (QA)
+
+- [x] One-hour TestFlight build 9 run FAILED: 101 TCP, 81 CLOSE_WAIT, 9 HTTPS failures, later VPN disconnected. Do not publish build 9.
+- [x] Implement HTTPS TLS relay cap (90 connections), 90-second idle reaper / 15-minute max age, guaranteed stop cleanup; signed Release build 10 archived, focused tests PASS.
+- [x] Apple server validation/upload: build 10 VALID; Internal TestFlight IN_BETA_TESTING; 0.2.20 draft linked to build 10; Russian release notes ready.
+- [x] Live TLS-relay integration: 105 local TCP clients, 90 upstream max, 0 after 90-second inactivity cutoff (PASS).
+- [x] Build 10 installed on MacBook; 65-minute soak complete (66 samples): zero HTTPS/VPN/Tailscale failures, stable tunnel PID; 81 TCP max, transient CLOSE_WAIT peak 40 early, draining to 24 TCP/3 CLOSE_WAIT at the end. Human QA accepted with documented threshold warning (raw automatic REVIEW retained).
+- [ ] After green PR CI and metadata validation, merge PR #274 and submit build 10 to macOS App Review with MANUAL release. Do not change live macOS 0.2.19 or pending iOS review.
+
+## 30.10.2026 · macOS 0.2.20 / build 9 — socket-pressure hardening, INTERNAL QA
+
+- [x] Apple TestFlight build 9 (0.2.20) processed as VALID; internal group active; saved profiles retained on MacBook.
+- [x] Exact pinned patched tun2proxy rebuilt; Debug/Release/extension compiled; CI checks green; PR #274.
+- [x] macOS Packet Tunnel bounds CLOSE_WAIT/TCP pressure and TLS relay releases closed connections; legacy external guard unloaded and autostart disabled on QA MacBook.
+- [ ] Physical one-hour soak under ordinary load (passive MacBook JSONL monitor launched; first ~18 min stable), verify resilience and real primary recovery when PX6 becomes reachable.
+- [x] Deterministic primary/backup/failback policy smoke 10 assertions PASS; PR #274 CI previous run 19 PASS / 4 skipped. Created macOS 0.2.20 App Store draft; current public 0.2.19 untouched.
+- [ ] Apple Developer Program License Agreement updated: Account Holder must accept before new public review submission; Admin session cannot accept. Once both physical QA and Apple agreement gates pass, associate TestFlight build 9, finalize ru What's New and submit macOS review.
+
 ## 6. macOS
 
 - **DONE** — APL-MAC-001..008 engineering/acceptance track and Gate R9 evidence retained.

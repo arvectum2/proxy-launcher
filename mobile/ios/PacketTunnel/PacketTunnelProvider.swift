@@ -26,6 +26,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var store: ProfileStore?
     private var tlsRelay: TLSProxyRelay?
     private var monitorTask: Task<Void, Never>?
+    private var socketPressureTask: Task<Void, Never>?
+    private var connectionPressurePolicy = ConnectionPressurePolicy()
     private var active: PreparedProxy?
     private var consecutiveFailures = 0
     private var switching = false
@@ -48,6 +50,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 let prepared = try await selectProxy()
                 try await apply(prepared)
                 active = prepared
+                connectionPressurePolicy = ConnectionPressurePolicy()
+                startSocketPressureMonitor()
                 telemetry.append(TunnelEvent(
                     type: "connected",
                     profileName: prepared.storedProfile.name,
@@ -69,6 +73,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         stopping = true
         monitorTask?.cancel()
         monitorTask = nil
+        socketPressureTask?.cancel()
+        socketPressureTask = nil
         _ = tun2proxy_stop()
         tlsRelay?.stop()
         tlsRelay = nil
@@ -176,6 +182,39 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         try await Task.sleep(nanoseconds: 350_000_000)
     }
 
+    // Runs even for manually selected profiles; the ordinary failover monitor
+    // is enabled only for Auto mode. This is process-local resource protection.
+    private func startSocketPressureMonitor() {
+        socketPressureTask?.cancel()
+        socketPressureTask = Task { [weak self] in
+            guard let self else { return }
+            while !Task.isCancelled, !self.stopping {
+                try? await Task.sleep(nanoseconds: 30_000_000_000)
+                if Task.isCancelled || self.stopping { break }
+                await self.socketPressureIteration()
+            }
+        }
+    }
+
+    private func socketPressureIteration() async {
+        guard !stopping, !switching, let current = active else { return }
+        let measured = UpstreamSocketDiagnostics.sample(
+            host: current.resolvedProfile.host,
+            port: current.resolvedProfile.port
+        )
+        guard connectionPressurePolicy.shouldRecover(
+            sample: measured, at: Date(), tunnelIsSwitching: switching
+        ) else { return }
+        telemetry.append(TunnelEvent(
+            type: "connection pressure",
+            profileName: current.storedProfile.name,
+            detail: "upstream sockets: \(measured.upstreamSockets), CLOSE_WAIT: \(measured.closeWaitSockets)"
+        ))
+        // Recycle only tun2proxy within this Packet Tunnel; do not disconnect
+        // the system VPN, start GUI Tailscale, or change any other proxy settings.
+        await switchTo(current, reason: "connection pressure")
+    }
+
     private func startMonitor() {
         monitorTask?.cancel()
         monitorTask = Task { [weak self] in
@@ -236,7 +275,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             active = prepared
             consecutiveFailures = 0
             store?.lastAutoProfileID = prepared.storedProfile.id
-            store?.lastFailoverAt = Date()
+            if reason != "connection pressure" {
+                store?.lastFailoverAt = Date()
+                connectionPressurePolicy = ConnectionPressurePolicy()
+            }
             if reason == "primary restored" { store?.clearRecentlyFailed() }
             telemetry.append(TunnelEvent(
                 type: reason,

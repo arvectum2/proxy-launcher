@@ -72,8 +72,8 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("with_bypass", patch)
         self.assertIn("RecordType::AAAA", patch)
 
-    def test_store_release_is_0_2_19_and_uses_mac_specific_entrypoint(self):
-        self.assertIn('MARKETING_VERSION: "0.2.19"', PROJECT)
+    def test_store_release_is_0_2_20_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.20"', PROJECT)
         self.assertIn('CFBundleShortVersionString', APP_SHARED)
         self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
         self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
@@ -108,7 +108,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "8"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "10"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
