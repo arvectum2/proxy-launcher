@@ -103,6 +103,20 @@
 
 # Arvectum Proxy Launcher — canonical roadmap
 
+## 31.10.2026 · iOS/macOS release reconciliation (supersedes dated snapshots below)
+
+- **PUBLIC / VERIFIED:** Apple iTunes Lookup RU, app ID `6816013574`: **iOS 0.1.40 (build 45)** published **2026-10-30T17:04:45Z**. Historical 0.1.37–0.1.39 status claims below are not current.
+- **0.1.38 PUBLISHED:** System/Light/Dark themes; arvectum.com support and marketing URLs.
+- **0.1.39 PUBLISHED:** skippable onboarding, proxy-field help, System/Russian/English language selection, Yandex RSYA banner integration `R-M-20288304-1`.
+- **0.1.40 PUBLISHED / ADS ACCEPTED:** moved banner into TabView safe area; added ad diagnostics. Owner confirms the RSYA banner is visible in published **0.1.40 and 0.1.41**; the 0.1.40 App Store review passed with the existing no-data-collected privacy declaration. Treat advertising implementation as **DONE**, not an open product blocker. The 0.1.41 public status is owner-reported (not independently Apple-Lookup-verified in this documentation update).
+- **SOURCE INTEGRATION:** iOS ads, Smart Exclusions, universal profile import and locale source were combined in an isolated, tested integration worktree on 31 October; publication on GitHub `main` must be confirmed against the remote ref after merge. Do not equate Apple binary approval with source merges.
+- **iOS 0.1.41 (build 46):** 50 locale catalogs, 47 App Store ASO localizations and 94 iPhone screenshots were prepared and 0.1.41 submitted for Apple review; distinguish review submission from independently verified public availability. Source merged into integration worktree pending final GitHub main confirmation.
+- **P1 IMPLEMENTED SOURCE / VALIDATED:** Smart Exclusions dependency scan and universal import (clipboard/files/QR/deep link) have Swift/simulator tests; iPhone 13 import UI tests 3/3 PASS and camera readiness confirmed. Real QR acquisition remains optional before release. **P1 OPEN:** failure diagnostics (offline/DNS/TCP/HTTP 407/tunnel), physical VoiceOver/accessibility QA.
+- **P2 / RESEARCH:** widgets/quick actions, managed profiles and marketplace, advanced VPN transports, GOST VPN feasibility.
+- **OWNER DECISION / ADS CLOSED:** do not repeatedly reopen speculative Apple VPN-advertising or privacy-declaration warnings. Preserve the accepted App Store privacy declaration; revisit only on material new evidence or explicit owner request. Apple approval is recorded for the submitted version, not as a blanket future ruling.
+- **macOS 0.2.20:** signed build 10 was submitted for App Review; the build/upload obstacle is closed. Apple approval and publication are separate pending external results.
+- **WORKTREE SAFETY:** Mac mini local `main` has uncommitted user changes. Do not reset/rebase/overwrite its checkpoint or working files; use a clean integration worktree.
+
 ## 29.10.2026 · Core-12 редакторский проход (PR #272)
 
 - [x] Вычитка смысла и технических терминов на 12 языках для iOS/Android/desktop: 5424 записей проверены структурно, 425 переводов исправлены; каталог из 28 терминов и регрессионные проверки введены в source. См. [редакторский QA](APL_CORE12_EDITORIAL_QA_2026-10-29.md).
@@ -126,7 +140,7 @@
 - [ ] Реальная проверка сна/пробуждения MacBook, статуса proxy worker и Safari/ChatGPT, обновлённая подписанная сборка — не пройдены и не заявляются.
 
 
-Updated: 2026-10-28 (published iOS 0.1.38, 0.1.39 beginner onboarding and genuine language selection; other statuses retain prior observation dates)
+Updated: 2026-10-31 (iOS 0.1.40 public release verified; dated sections below are historical snapshots)
 Canonical GitHub repository: `arvectum2/proxy-launcher`  
 Canonical branch: `main`  
 Current stable product line: 0.2.16 — public release for Windows x64, Astra Linux 1.8 x86-64, RED OS 8.0.3 x86-64, generic Linux x86-64 AppImage and Developer ID-signed/notarized macOS Apple Silicon/Intel DMGs
