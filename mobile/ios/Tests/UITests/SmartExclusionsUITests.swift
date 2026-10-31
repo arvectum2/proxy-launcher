@@ -186,3 +186,32 @@ extension ProxyImportUITests {
         XCTAssertFalse(app.buttons["Импортировать профили"].exists)
     }
 }
+
+final class SmartExclusionsLocaleUITests: XCTestCase {
+    private func assertLocalizedSmartExclusions(language: String, settings: String,
+                                                exclusions: String, scan: String) {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", language]
+        app.launch()
+        let tab = app.tabBars.buttons[settings]
+        XCTAssertTrue(tab.waitForExistence(timeout: 20), "Settings tab absent for \(language)")
+        tab.tap()
+        let section = app.buttons[exclusions]
+        XCTAssertTrue(section.waitForExistence(timeout: 10), "Exclusions item absent for \(language)")
+        section.tap()
+        XCTAssertTrue(app.buttons[scan].waitForExistence(timeout: 10),
+                      "Localized Smart Exclusions CTA absent for \(language)")
+        XCTAssertTrue(app.textFields["example.com"].exists)
+    }
+
+    func testEnglishSmartExclusionsScreenUsesEnglishLabels() {
+        assertLocalizedSmartExclusions(language: "en", settings: "Settings",
+                                       exclusions: "Website exclusions", scan: "Find related domains")
+    }
+
+    func testHebrewSmartExclusionsScreenUsesRTLLanguageLabels() {
+        assertLocalizedSmartExclusions(language: "he", settings: "הגדרות",
+                                       exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים")
+    }
+}
