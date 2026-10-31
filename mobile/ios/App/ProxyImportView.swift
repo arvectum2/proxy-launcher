@@ -7,17 +7,20 @@ struct ProxyImportView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var source = ""
     @State private var candidates: [ImportedProxy] = []
+    @State private var parsedSource = ""
     @State private var importError: String?
     @State private var chooseFile = false
     @State private var scanQR = false
+    @State private var cameraReady = false
     var initialSource: String = ""
+    private var preview: [ImportedProxy] { parsedSource == source ? candidates : [] }
 
     var body: some View {
         NavigationView {
             Form {
                 Section("Ссылка или список прокси") {
                     TextEditor(text: $source).frame(minHeight: 110)
-                        .onChange(of: source) { _ in candidates = []; importError = nil }
+                        .onChange(of: source) { _ in if parsedSource != source { importError = nil } }
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     Button("Вставить из буфера") {
@@ -25,14 +28,14 @@ struct ProxyImportView: View {
                         parse()
                     }
                     Button("Выбрать файл") { chooseFile = true }
-                    Button("Сканировать QR-код") { scanQR = true }
+                    Button("Сканировать QR-код") { cameraReady = false; scanQR = true }
                     Button("Проверить") { parse() }
                 }
                 if let message = importError { Section { Text(message).foregroundStyle(.red) } }
-                if !candidates.isEmpty {
-                    Section("Предпросмотр (\(candidates.count))") {
-                        ForEach(candidates.indices, id: \.self) { index in
-                            let item = candidates[index]
+                if !preview.isEmpty {
+                    Section("Предпросмотр (\(preview.count))") {
+                        ForEach(preview.indices, id: \.self) { index in
+                            let item = preview[index]
                             VStack(alignment: .leading) {
                                 Text(item.name)
                                 Text("\(item.type.rawValue) · \(item.host):\(item.port)")
@@ -42,7 +45,7 @@ struct ProxyImportView: View {
                     }
                     Section {
                         Button("Импортировать профили") {
-                            let pending = ProxyImport.withoutDuplicates(candidates, existing: model.profiles)
+                            let pending = ProxyImport.withoutDuplicates(preview, existing: model.profiles)
                             if pending.isEmpty { importError = "Все профили уже добавлены"; return }
                             var added: [UUID] = []
                             for item in pending {
@@ -74,7 +77,15 @@ struct ProxyImportView: View {
                     }, onError: { message in
                         scanQR = false
                         importError = message
-                    })
+                    }, onReady: { cameraReady = true })
+                    .overlay(alignment: .bottom) {
+                        Text(cameraReady ? "Камера готова — наведите на QR-код" : "Запуск камеры...")
+                            .font(.footnote)
+                            .padding(12)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding(.bottom, 18)
+                    }
                     .navigationTitle("Сканирование QR")
                     .toolbar { ToolbarItem(placement: .cancellationAction) {
                         Button("Отмена") { scanQR = false }
@@ -98,6 +109,7 @@ struct ProxyImportView: View {
     }
 
     private func parse() {
+        parsedSource = source
         do { candidates = try ProxyImport.parse(source); importError = nil }
         catch let caught { candidates = []; importError = caught.localizedDescription }
     }

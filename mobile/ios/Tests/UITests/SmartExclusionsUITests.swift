@@ -88,7 +88,7 @@ final class SmartExclusionsUITests: XCTestCase {
 
 
 final class ProxyImportUITests: XCTestCase {
-    func testImportPreviewAndRejectInvalidLink() {
+    func testImportPreviewForValidLink() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
         app.launch()
@@ -106,5 +106,55 @@ final class ProxyImportUITests: XCTestCase {
         app.buttons["Проверить"].tap()
         XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Импортировать профили"].exists)
+    }
+}
+
+extension ProxyImportUITests {
+    private func allowCameraPermissionIfPrompted() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allow = springboard.buttons.matching(identifier: "kTCCServiceCamera-allow-button").firstMatch
+        if allow.waitForExistence(timeout: 2) { allow.tap() }
+    }
+
+    func testQRScannerOpensAndCanBeClosed() {
+        let app = XCUIApplication()
+        allowCameraPermissionIfPrompted()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        allowCameraPermissionIfPrompted()
+        let profiles = app.tabBars.buttons["Профили"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 20))
+        profiles.tap()
+        let importButton = app.buttons["Импортировать прокси"]
+        XCTAssertTrue(importButton.waitForExistence(timeout: 10))
+        importButton.tap()
+        let scanButton = app.buttons["Сканировать QR-код"]
+        XCTAssertTrue(scanButton.waitForExistence(timeout: 10))
+        scanButton.tap()
+        allowCameraPermissionIfPrompted()
+        XCTAssertTrue(app.navigationBars["Сканирование QR"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Камера готова — наведите на QR-код"].waitForExistence(timeout: 20))
+        app.buttons["Отмена"].tap()
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 8))
+    }
+
+    func testEditingLinkInvalidatesPreview() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let profiles = app.tabBars.buttons["Профили"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 20))
+        profiles.tap()
+        app.buttons["Импортировать прокси"].tap()
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 10))
+        editor.tap()
+        editor.typeText("http://proxy.example:8080")
+        app.buttons["Проверить"].tap()
+        XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 5))
+        editor.tap()
+        editor.typeText("broken")
+        XCTAssertFalse(app.staticTexts["Предпросмотр (1)"].exists)
+        XCTAssertFalse(app.buttons["Импортировать профили"].exists)
     }
 }

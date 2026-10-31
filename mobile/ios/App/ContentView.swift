@@ -117,6 +117,11 @@ private struct EqualHeightDashboardLayout: Layout {
 }
 #endif
 
+private struct ProxyImportRequest: Identifiable {
+    let id = UUID()
+    let source: String
+}
+
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
@@ -127,8 +132,7 @@ struct ContentView: View {
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
-    @State private var showProxyImport = false
-    @State private var importSource = ""
+    @State private var importRequest: ProxyImportRequest?
     @State private var showExclusions = false
     @State private var showAppExclusions = false
 
@@ -169,16 +173,15 @@ struct ContentView: View {
         .sheet(isPresented: $showNewProfile) {
             ProfileEditorView(profile: nil).environmentObject(model)
         }
-        .sheet(isPresented: $showProxyImport) {
-            ProxyImportView(initialSource: importSource).environmentObject(model)
+        .sheet(item: $importRequest) { request in
+            ProxyImportView(initialSource: request.source).environmentObject(model)
         }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
         }
         .onOpenURL { url in
             do {
-                importSource = try ProxyImport.fromDeepLink(url)
-                showProxyImport = true
+                importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
             } catch { model.errorMessage = error.localizedDescription }
         }
         .sheet(isPresented: $showExclusions) {
@@ -517,7 +520,7 @@ struct ContentView: View {
                     }
                     HStack(spacing: 10) {
                         cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
-                        cardButton("Импортировать прокси", filled: false) { showProxyImport = true }
+                        cardButton("Импортировать прокси", filled: false) { importRequest = ProxyImportRequest(source: "") }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first

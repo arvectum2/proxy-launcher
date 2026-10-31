@@ -87,7 +87,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios.UITests
         GENERATE_INFOPLIST_FILE: YES
-        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_ALLOWED: YES
 schemes:
   ArvectumProxyLauncher:
     build:

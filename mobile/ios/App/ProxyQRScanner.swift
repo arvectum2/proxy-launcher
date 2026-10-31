@@ -1,12 +1,21 @@
 import AVFoundation
 import SwiftUI
 
+final class ProxyCameraPreviewController: UIViewController {
+    var previewLayer: AVCaptureVideoPreviewLayer?
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        previewLayer?.frame = view.bounds
+    }
+}
+
 struct ProxyQRScanner: UIViewControllerRepresentable {
     let onCode: (String) -> Void
     let onError: (String) -> Void
-    func makeCoordinator() -> Coordinator { Coordinator(onCode: onCode, onError: onError) }
-    func makeUIViewController(context: Context) -> UIViewController {
-        let controller = UIViewController()
+    let onReady: () -> Void
+    func makeCoordinator() -> Coordinator { Coordinator(onCode: onCode, onError: onError, onReady: onReady) }
+    func makeUIViewController(context: Context) -> ProxyCameraPreviewController {
+        let controller = ProxyCameraPreviewController()
         controller.view.backgroundColor = .black
         let coordinator = context.coordinator
         AVCaptureDevice.requestAccess(for: .video) { granted in
@@ -17,8 +26,8 @@ struct ProxyQRScanner: UIViewControllerRepresentable {
         }
         return controller
     }
-    func updateUIViewController(_ controller: UIViewController, context: Context) {}
-    static func dismantleUIViewController(_ controller: UIViewController, coordinator: Coordinator) {
+    func updateUIViewController(_ controller: ProxyCameraPreviewController, context: Context) {}
+    static func dismantleUIViewController(_ controller: ProxyCameraPreviewController, coordinator: Coordinator) {
         if let session = coordinator.session {
             DispatchQueue.global(qos: .userInitiated).async { session.stopRunning() }
         }
@@ -26,12 +35,13 @@ struct ProxyQRScanner: UIViewControllerRepresentable {
     final class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         let onCode: (String) -> Void
         let onError: (String) -> Void
+        let onReady: () -> Void
         var session: AVCaptureSession?
         private var finished = false
-        init(onCode: @escaping (String) -> Void, onError: @escaping (String) -> Void) {
-            self.onCode = onCode; self.onError = onError
+        init(onCode: @escaping (String) -> Void, onError: @escaping (String) -> Void, onReady: @escaping () -> Void) {
+            self.onCode = onCode; self.onError = onError; self.onReady = onReady
         }
-        func configure(in controller: UIViewController) {
+        func configure(in controller: ProxyCameraPreviewController) {
             guard session == nil, let device = AVCaptureDevice.default(for: .video) else {
                 onError("Камера недоступна"); return
             }
@@ -49,8 +59,13 @@ struct ProxyQRScanner: UIViewControllerRepresentable {
                 preview.videoGravity = .resizeAspectFill
                 preview.frame = controller.view.bounds
                 controller.view.layer.addSublayer(preview)
+                controller.previewLayer = preview
+                controller.view.setNeedsLayout()
                 session = capture
-                DispatchQueue.global(qos: .userInitiated).async { capture.startRunning() }
+                DispatchQueue.global(qos: .userInitiated).async {
+                    capture.startRunning()
+                    if capture.isRunning { DispatchQueue.main.async { self.onReady() } }
+                }
             } catch { onError(error.localizedDescription) }
         }
         func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {

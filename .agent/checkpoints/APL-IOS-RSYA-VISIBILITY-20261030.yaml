@@ -1,0 +1,31 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-RSYA-VISIBILITY-20261030
+status: completed
+goal: "Investigate invisible Yandex RSYA banner in published iOS 0.1.39 (44) and deliver a visible, diagnosable fix without changing store privacy declarations."
+definition_of_done:
+  - "Confirm exact published binary and source cause, distinguish proven facts from unverified Yandex no-fill/network behavior."
+  - "Place banner visibly in iPhone main navigation without hiding or moving VPN Connect controls or breaking proxy/tunnel."
+  - "Do not constrain adaptive banner to 1pt height; log SDK loading errors and impressions, with no unbounded retries or data leakage."
+  - "Bump iOS version/build for next release, update tests, compile iOS Debug/Release and perform simulator/ad smoke test if feasible."
+  - "Save commits, tests, and release results; do not claim banner impressions or public release without verification."
+completed:
+  - "App Store Connect and public iTunes Lookup on 30 Oct 2026 confirm iOS 0.1.39 ready for distribution; attached build 44 (9005e8d1-0376-449e-b04d-2df33806f7dc)."
+  - "Code inspection: banner is below Version at end of Settings ScrollView, not on main screen; preloaded view height artificially forced to 1pt and failures silently hide ad."
+  - "Yandex SDK docs confirm wrong adaptive banner constraints may prevent rendering; real device Yandex load result is not yet known."
+  - "Changed banner placement from Settings scroll bottom to iOS TabView bottom safe-area inset; removed 1pt view clamp/opacity, added 50pt minimum height and OSLog error/success/impression logging."
+  - "Changed iOS version to 0.1.40 (45) with XcodeGen regenerated project and revised contract tests."
+  - "Swift 12 tests PASS; Python iOS contracts 14 PASS; unsigned iPhoneOS Debug and Release builds PASS. Simulator full-app build blocked because tun2proxy.xcframework lacks iOS Simulator slice."\n  - "GitHub stacked PR #273 opened, head e0c7732ab23968daaa12bd8d3da090ddf97995d9."\n  - "30 Oct: signed Xcode 0.1.40 build45 archive r2 PASS, App Store IPA export PASS, codesign verify PASS, IPA CRC PASS, SHA256 d8bef00497a2976268bcc648715abba88ae662cf1700757883ea8a105876a6b1."\n  - "Apple altool validate PASS: VERIFY SUCCEEDED with no errors; Apple upload PASS: UPLOAD SUCCEEDED, Delivery UUID 4e6c4077-4f34-4d7c-8443-cf6341fb8b87."\n  - "Apple processing VALID; appStoreVersion 0.1.40 id 7b1296c9-9825-474c-a3ff-2c350bf35af5; attached build 45 id 4e6c4077-4f34-4d7c-8443-cf6341fb8b87."\n  - "Russian and en-US release notes/supportUrl/marketingUrl set to arvectum.com; App Store privacy declarations and manifest unchanged."\n  - "Review submission eaba3375-2ae3-4305-99ca-941cf14fa176 submitted. Independent ASC API GET verified 0.1.40 (45) appVersionState and review state WAITING_FOR_REVIEW."
+current: "COMPLETED: iOS 0.1.40 (45) RSYA visibility fix signed, Apple validated, uploaded, attached, and App Review verified WAITING_FOR_REVIEW."
+pending:
+  - "Validate visual ad display on physical device; simulator XCFramework unavailable."
+  - "Wait for Apple review decision (separate post-submission process, no background monitoring or Watchdog)."\n  - "Avoid claiming physical creative/impression test without device evidence. Review eventual Apple decision."
+  - "Update GitHub branch/PR and checkpoint; report exact status."
+last_verified_commit: "e0c7732ab23968daaa12bd8d3da090ddf97995d9 (GitHub PR #273, iOS Debug/Release and 26 tests PASS)"
+test_results:
+  - "Existing source branch iOS contract tests: 13 PASS before change."
+  - "Apple confirmed publicly distributed 0.1.39 build 44."
+  - "iOS 0.1.40 (45) XcodeGen PASS, Python contracts 14 PASS, Swift 12 PASS, iPhoneOS Debug and Release unsigned BUILD SUCCEEDED."
+  - "iOS simulator build unavailable: tun2proxy.xcframework lacks iOS Simulator slice (known packaging constraint)."\n  - "Signed iOS 0.1.40 (45) archive/export/Apple altool validation/upload: PASS. Apple processing VALID. Review WAITING_FOR_REVIEW independently verified."
+blocker: null
+resume_instruction: "Task completed: do not rebuild, reupload, resubmit or reactivate Proxy Launcher Watchdog. iOS 0.1.40 (45) reviewed submission eaba3375-2ae3-4305-99ca-941cf14fa176 independently verified WAITING_FOR_REVIEW. When user requests next action, verify Apple review outcome; do not claim new storefront publication or real Yandex creative/impressions before independent verification. Follow up separately on device logs filtered subsystem ru.arvectum.proxylauncher.ios, category RSYA, and original PR #271 and fix PR #273 governance-aware merge. Preserve unchanged App Store privacy declarations."
