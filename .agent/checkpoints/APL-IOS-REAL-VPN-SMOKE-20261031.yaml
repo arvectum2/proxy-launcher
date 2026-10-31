@@ -1,0 +1,27 @@
+task_id: APL-IOS-REAL-VPN-SMOKE-20261031
+status: completed
+goal: 'User-authorized temporary real iPhone APL system VPN connection test using 0.1.42(47), live HTTPS and verified OFF restoration; no Apple Store changes.'
+definition_of_done:
+  - 'Verify device and currently stored APL VPN OFF state; preserve profiles, credentials, privacy settings and App Store review.'
+  - 'Verify DEBUG-only 20 second app and 25 second PacketTunnel independent kill switches, opt-in XCTest gating and signed correct build.'
+  - 'Execute only the physical VPN opt-in smoke; evaluate actual connection and HTTPS independently of UI status and capture failures accurately.'
+  - 'After test, verify VPN OFF, phone reachable; investigate safely and fix actionable defects and repeat if possible.'
+  - 'Document verified results, test status, exact branch/commit, any blocked E2E; run relevant tests and merge improvements if any.'
+completed:
+  - 'Explicit user approval received for brief temporary iPhone system VPN switch despite possible interruption to other VPN.'
+  - 'Verified prior main b93020f3; iPhone 13 connected and APL 0.1.42 (47) installed.'
+  - 'Compiled and signed DEBUG-only physical app plus opt-in XCTRunner; DEBUG and APL_RUN_EXPLICIT_VPN_QA active for named physical test; Xcode TEST BUILD SUCCEEDED.'
+  - 'Preflight read-only physical XCTest PASS: VPN OFF, saved profiles present.'
+  - 'User-authorized real iOS Packet Tunnel activated: UI ON; separate physical URLSession HTTPS example.com returned HTTP 200, one XCUITest 0 failures, 0 skips (22.252s). Manually disconnected within test.'
+  - 'Postflight independent physical XCTest PASS: VPN OFF, saved profiles present, phone reconnects in CoreDevice and app version remains 0.1.42 (47).'
+  - 'Documented limitations: no verified proxy egress IP/packet counters; other VPN restoration and optical QR not attested. No Apple Connect or user profile mutation.'
+current: 'COMPLETED: bounded real iPhone VPN ON + HTTPS 200 + OFF restoration, with two independent physical read-only checks.'
+pending: []
+last_verified_commit: 'b93020f3 (main baseline)'
+test_results:
+  - 'Xcode 27.1 iPhone Debug opt-in TEST BUILD SUCCEEDED.'
+  - 'Physical preflight PhysicalVPNStateUITests: PASS 7.545s, OFF, profiles present.'
+  - 'Physical controlled VPN with HTTPS: PASS 22.252s, 0 fails, 0 skips; connected, external HTTP 200, disconnected.'
+  - 'Physical postflight PhysicalVPNStateUITests: PASS 5.859s, OFF, profiles present.'
+  - 'iPhone still connected and APL 0.1.42 (47); no App Store submissions changed.'
+resume_instruction: 'THIS TASK IS COMPLETED. Do not re-run system VPN automatically: user-approved 2026-10-31 single smoke passed and APL was independently verified OFF afterward. Future separate work could prove packet counters/egress IP and restoration of other VPN, optical QR, VoiceOver. Preserve actual iPhone profiles and Apple 0.1.41 review; report in docs/APL_IOS_042_LIVE_VPN_SMOKE_2026-10-31.md.'
