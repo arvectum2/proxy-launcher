@@ -1,0 +1,29 @@
+task_id: APL-IOS-PRODUCT-POLISH-042-20261031
+status: blocked
+goal: 'Prepare iOS 0.1.42 (47) user-facing import, QR and onboarding for next release without touching Apple 0.1.41 review or VPN core.'
+definition_of_done:
+  - 'Check Apple 0.1.41 (46) review status via authenticated read-only API.'
+  - 'Improve confusing import/QR/onboarding workflow without exposing credentials or changing existing Apple privacy/ad metadata.'
+  - 'Build and test representative RU/EN import and first-use scenarios, deploy signed Debug 0.1.42 to paired iPhone without deleting profiles.'
+  - 'Document QA, release notes and remaining optical QR/Apple gates; commit, PR and green CI merge.'
+completed:
+  - 'Apple API GET on 2026-10-31 ~19:49 UTC: iOS 0.1.41 (46) WAITING_FOR_REVIEW; review submission 57577081-0511-42b1-b05c-c01e26c27b9c WAITING_FOR_REVIEW. No Apple writes.'
+  - 'Added direct import-link/QR option to first-use guide; dedicated Import screen localization with priority ES/FR/DE/HE/AR/FA and English fallback for all other languages; preserved existing 50 catalogs.'
+  - 'Fixed clipboard empty paste preserving input, localized validation/camera-denied errors and Settings shortcut, duplicate profile messaging and hidden redundant Import button.'
+  - 'Improved profile action layout for small phone screens and safe QR camera teardown after permission/dismissal races.'
+  - 'Simulator build-for-testing PASS; focused importer EN and RU UI PASS 2/2; onboarding -> importer UI PASS; onboarding localization Python contract PASS 4/4.'
+  - 'Signed physical Debug-iphoneos 0.1.42(47) build PASS, in-place install PASS and app launch PASS; CoreDevice still connected.'
+  - 'Physical camera recheck hit native XCTest Enable UI Automation passcode prompt; canceled test with exit 143, not claimed to pass; independently relaunched iPhone app afterward.'
+  - 'Prepared release readiness report and draft RU/EN What is New. The existing 0.1.41 review/privacy/ad card remains unchanged.'
+current: 'Source and focused QA complete; PR/CI merge pending. Apple review outcome and a person physically pointing camera at QR are external release gates.'
+pending:
+  - 'Commit/push product UX and documentation, merge PR only after green CI.'
+  - 'Before iOS 0.1.42 Release submission: Apple 0.1.41 review result and one manual optical QR scan; localize the actual App Store What's New copy.'
+last_verified_commit: 'b8e33731 (origin/main baseline; source change tested but not committed yet)'
+test_results:
+  - 'Simulator Xcode build-for-testing PASS.'
+  - 'Simulator targeted import UI RU/EN PASS 2/2 after correcting duplicate-aware test expectations.'
+  - 'Simulator onboarding-to-import UI PASS 1/1.'
+  - 'Python onboarding/localization contract PASS 4/4.'
+  - 'Physical signed 0.1.42/47 install and launch PASS; QR UI test blocked by iOS XCTest passcode (canceled, not a PASS).'
+resume_instruction: 'In /tmp/apl-ios-product-polish-20261031 finish PR/CI green merge. Product importer/onboarding code compiled and simulator targeted UI passed; signed 0.1.42/47 installed on iPhone. Do not repeat all VPN/core tests. Physical camera XCUITest was blocked by iOS passcode, so optical QR still requires user to point phone camera at a real code. Apple 0.1.41 WAITING_FOR_REVIEW as of 2026-10-31 ~19:49 UTC. Do not alter Apple privacy, ads or submit 0.1.42 without separate release decision.'

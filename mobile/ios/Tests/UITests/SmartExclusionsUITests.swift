@@ -151,10 +151,57 @@ final class ProxyImportUITests: XCTestCase {
         let editor = app.textViews.firstMatch
         XCTAssertTrue(editor.exists)
         editor.tap()
-        editor.typeText("http://proxy.example:8080")
+        editor.typeText("http://proxy-import-preview.invalid:47931")
         app.buttons["Проверить"].tap()
         XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Импортировать профили"].exists)
+        app.swipeUp()
+        XCTAssertTrue(app.buttons["Импортировать профили"].waitForExistence(timeout: 5) ||
+                      app.staticTexts["Все найденные профили уже добавлены"].exists,
+                      app.debugDescription)
+    }
+}
+
+extension ProxyImportUITests {
+    func testEnglishImportIsReadableAndParsesLink() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "en"]
+        app.launch()
+        let profiles = app.tabBars.buttons["Profiles"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 20))
+        profiles.tap()
+        app.buttons["Import proxies"].tap()
+        XCTAssertTrue(app.navigationBars["Import proxies"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Scan QR code"].exists)
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.exists)
+        XCTAssertEqual(editor.label, "Proxy link text")
+        editor.tap()
+        editor.typeText("http://en-import-preview.invalid:47932")
+        app.buttons["Preview"].tap()
+        XCTAssertTrue(app.staticTexts["Preview (1)"].waitForExistence(timeout: 6))
+        app.swipeUp()
+        XCTAssertTrue(app.buttons["Import profiles"].waitForExistence(timeout: 5) ||
+                      app.staticTexts["All these profiles are already saved"].exists,
+                      app.debugDescription)
+        // This is a preview-only test, never saves a test proxy to user data.
+    }
+
+    func testOnboardingCanOpenLinkAndQRImport() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let guide = app.buttons["Первое подключение"]
+        XCTAssertTrue(guide.waitForExistence(timeout: 10))
+        guide.tap()
+        app.buttons["Далее"].tap()
+        let importLink = app.buttons["Импортировать по ссылке или QR-коду"]
+        XCTAssertTrue(importLink.waitForExistence(timeout: 8))
+        importLink.tap()
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Сканировать QR-код"].exists)
     }
 }
 
