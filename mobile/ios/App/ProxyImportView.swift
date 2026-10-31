@@ -17,6 +17,7 @@ struct ProxyImportView: View {
             Form {
                 Section("Ссылка или список прокси") {
                     TextEditor(text: $source).frame(minHeight: 110)
+                        .onChange(of: source) { _ in candidates = []; importError = nil }
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     Button("Вставить из буфера") {
@@ -80,7 +81,7 @@ struct ProxyImportView: View {
                     } }
                 }
             }
-            .fileImporter(isPresented: $chooseFile, allowedContentTypes: [.plainText, .json], allowsMultipleSelection: false) { result in
+            .fileImporter(isPresented: $chooseFile, allowedContentTypes: [.plainText], allowsMultipleSelection: false) { result in
                 do {
                     guard let url = try result.get().first else { return }
                     let access = url.startAccessingSecurityScopedResource()
