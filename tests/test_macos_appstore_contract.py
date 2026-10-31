@@ -108,7 +108,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "9"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "10"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")

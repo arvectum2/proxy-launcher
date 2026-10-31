@@ -114,6 +114,12 @@ This is an active compliance/filing workstream, but repository dossier preparati
 - **HARD STOP** — automation must not sign or submit the Ministry/registry application or ingest УКЭП/private-key material.
 
 Canonical dossier: docs/registry/. Canonical pre-submission gate: docs/registry/APL_REG_001F_PRE_SUBMISSION_AUDIT.md.
+## 31.10.2026 · macOS 0.2.20 build 10 — corrective TLS relay resource lifetime (QA)
+
+- [x] One-hour TestFlight build 9 run FAILED: 101 TCP, 81 CLOSE_WAIT, 9 HTTPS failures, later VPN disconnected. Do not publish build 9.
+- [x] Implement HTTPS TLS relay cap (90 connections), 90-second idle reaper / 15-minute max age, guaranteed stop cleanup; signed Release build 10 archived, focused tests PASS.
+- [ ] Install build 10 from TestFlight and repeat full one-hour physical QA. Submit only after passing and actual Apple review acceptance. Existing public macOS 0.2.19 unchanged.
+
 ## 30.10.2026 · macOS 0.2.20 / build 9 — socket-pressure hardening, INTERNAL QA
 
 - [x] Apple TestFlight build 9 (0.2.20) processed as VALID; internal group active; saved profiles retained on MacBook.

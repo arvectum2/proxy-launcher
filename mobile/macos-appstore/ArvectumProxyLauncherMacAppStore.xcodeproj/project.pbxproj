@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		06AAFBE4EBBD09D51BF3A87C /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */; };
+		0A6A39D5DCD9333B70A34706 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF66BA19AF04BFDE317108 /* RelayConnectionPolicy.swift */; };
 		14564C2B465A2F490E668A38 /* PacketTunnelMac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 39C4223C11057F0C1181B131 /* PacketTunnelMac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		14C95F5135F84D57E060BF73 /* PrivacyDisclosureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920EBC6E89A95627BE44A605 /* PrivacyDisclosureView.swift */; };
 		198061DB62CA9402B9F5C64E /* tun2proxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CAE6FE1231A7397DBF24E85 /* tun2proxy.xcframework */; };
@@ -30,6 +31,7 @@
 		90B3F4125ECCC842678E769F /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792C71DC5532DBFE7C0A391B /* ProxyProbe.swift */; };
 		9274808A167F2FD4668BF099 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDF8C18F2B0CDE13A4691A3B /* AppViewModel.swift */; };
 		95F1EFC0E89005BB11BE7741 /* SetupGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E6B592C9978BCB3CE0F5DB /* SetupGuideView.swift */; };
+		98E01DC47A483D939788791D /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF66BA19AF04BFDE317108 /* RelayConnectionPolicy.swift */; };
 		9DEA37A7AE556CAAC4B0B719 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8721E1A7BB35D248C67BB14E /* ContentView.swift */; };
 		A29A58B5C6F0AEC51AFD4164 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A44089EC10BD39A03A2FF659 /* ProfileStore.swift */; };
 		A453C2B4F6FF365368DD151E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EC0C5563910637AC4B5E75FF /* PrivacyInfo.xcprivacy */; };
@@ -94,6 +96,7 @@
 		B6B036C04CE1BE2A33405154 /* ArvectumProxyLauncherMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherMacApp.swift; sourceTree = "<group>"; };
 		BE5B7E4468C7AE6A73600D6D /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
 		CA66D25C28E9164DB6A564F5 /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
+		DCFF66BA19AF04BFDE317108 /* RelayConnectionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConnectionPolicy.swift; sourceTree = "<group>"; };
 		EC0C5563910637AC4B5E75FF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F0E6B592C9978BCB3CE0F5DB /* SetupGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupGuideView.swift; sourceTree = "<group>"; };
 		FDC8C72DBE66AE704AD7AFA0 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 				7C95FD4AB3B4477C6D3FA0F2 /* ConnectionPressurePolicy.swift */,
 				985BFACF62558D9697E50718 /* FailoverPolicy.swift */,
 				AFC9B05544D5C4BAC6126AE9 /* ProxyModel.swift */,
+				DCFF66BA19AF04BFDE317108 /* RelayConnectionPolicy.swift */,
 				56A318F5D68F49644B03E26D /* SiteExclusionPolicy.swift */,
 			);
 			name = SharedCore;
@@ -355,6 +359,7 @@
 				55934ACA2742B63BBDD05B26 /* ProfileStore.swift in Sources */,
 				DCAC9FBC09F4B11C0257CE11 /* ProxyModel.swift in Sources */,
 				4BDAFB7E915954D62B3F34C2 /* ProxyProbe.swift in Sources */,
+				0A6A39D5DCD9333B70A34706 /* RelayConnectionPolicy.swift in Sources */,
 				DB0E9BE19FB28CD9F0AC17C9 /* SiteExclusionPolicy.swift in Sources */,
 				52516AC62DA238B7D161229E /* TLSProxyRelay.swift in Sources */,
 				1ED95C41564B9A881F120E9A /* TelemetryStore.swift in Sources */,
@@ -380,6 +385,7 @@
 				A29A58B5C6F0AEC51AFD4164 /* ProfileStore.swift in Sources */,
 				46389FE165D0693BEDD372A8 /* ProxyModel.swift in Sources */,
 				90B3F4125ECCC842678E769F /* ProxyProbe.swift in Sources */,
+				98E01DC47A483D939788791D /* RelayConnectionPolicy.swift in Sources */,
 				95F1EFC0E89005BB11BE7741 /* SetupGuideView.swift in Sources */,
 				06AAFBE4EBBD09D51BF3A87C /* SiteExclusionPolicy.swift in Sources */,
 				69331A0787C2559368AE159F /* TelemetryStore.swift in Sources */,
@@ -453,7 +459,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
@@ -567,7 +573,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO;
 				DEVELOPMENT_TEAM = VML75VY94V;
