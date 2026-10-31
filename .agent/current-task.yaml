@@ -1,33 +1,22 @@
-version: 2
-repository: arvectum2/proxy-launcher
-task_id: APL-MAC-SOCKET-HARDENING-20261030
-status: completed
-goal: "Stabilize APL macOS 0.2.20 TLS relay, accept physical TestFlight build and submit to Apple App Review."
+task_id: APL-MAIN-CONSOLIDATION-20261031
+status: in_progress
+goal: "Consolidate completed iOS import, Smart Exclusions, RSYA banner, localization and documentation into GitHub main without disturbing macOS 0.2.20 Apple Review or dirty main worktree."
 definition_of_done:
-  - "Bound TLS relay resources and eliminate persistent CLOSE_WAIT accumulation."
-  - "Build 10 passes App Store server validation, signed Xcode builds and native network integration tests."
-  - "Physical MacBook TestFlight build 10 operates at least 60 minutes without HTTPS/VPN/Tailscale outage."
-  - "PR passes CI and merges; build 10 submitted to Apple App Review without new agreements or changes to iOS."
+  - "Preserve main macOS signed/review source and existing independent user working-tree modifications."
+  - "Integrate completed iOS branches with correct final iOS version, no lost imports/locales/RSYA functionality."
+  - "Fix any actionable merge conflicts and failing regression/contract checks; run relevant Swift/iOS builds and tests."
+  - "Safely merge tested integration into origin/main and verify remote commit and clean integration checkout."
+  - "Refresh canonical checkpoint and roadmap; distinguish pending macOS Apple review from cleared build blocker."
 completed:
-  - "Build 9 failed one-hour QA with 101 TCP / 81 CLOSE_WAIT, nine HTTPS failures, and eventual VPN disconnect; not released."
-  - "Built TLS relay 90-pair cap, 90-second idle reaper every 15 seconds, 15-minute maximum age and reliable shutdown cleanup."
-  - "Xcode 27.1 signed Release 0.2.20 build 10, server-side Apple validation/upload SUCCESS, App Store build VALID."
-  - "Network.framework real integration PASS: 105 local clients, 90 upstream maximum, zero after idle timeout; additional targeted tests PASS."
-  - "TestFlight build 10 on MacBook retained both profiles; backup USA 200.0.60.91 egress confirmed; independent ARC/Tailscale online."
-  - "65-minute MacBook soak, 66 samples: zero HTTPS/VPN/Tailscale failures, stable PID; 81 max TCP and one early transient 40 CLOSE_WAIT, declining to 24 TCP/3 CLOSE_WAIT at the end."
-  - "Raw automatic QA verdict REVIEW due to an instantaneous alert threshold 35; engineering accepted with transient spike explicitly documented (no sustained growth or functional errors)."
-  - "PR #274 CI 19 PASS, 4 skipped, merged into main at 2cdef67688c21de8c63273cec5ee6dbe683f18b5."
-  - "Apple macOS 0.2.20 build 10 submitted 2026-10-31T10:20:04Z; submission 2fe83c58-b851-4ea2-a375-d6eaee39fa54 WAITING_FOR_REVIEW."
-  - "Did not accept new Apple Developer legal terms or change the existing iOS submission; public macOS 0.2.19 remains READY_FOR_SALE."
-current: "Engineering completed, App Review submission accepted; waiting on Apple external review decision and then manual store release."
+  - "Read prior import checkpoint, verified physical iPhone 3/3 UI tests, 28 Swift tests and QR camera acceptance."
+  - "Fetched origin/main abdb0dd8 and reviewed stacked PRs and current CI failures."
+  - "Preserved completed macOS review checkpoint before changing canonical current task."
+current: "Merge iOS import/RSYA/Smart Exclusions stack into isolated integration worktree from origin/main."
 pending:
-  - "EXTERNAL: Apple App Review to approve macOS submission 2fe83c58-b851-4ea2-a375-d6eaee39fa54."
-  - "AFTER APPROVAL: releaseType MANUAL; explicitly release version 0.2.20 when PENDING_DEVELOPER_RELEASE, verify READY_FOR_SALE before calling publicly published."
-  - "Optionally verify physical return-to-primary when PX6 68.209.60.141:8000 recovers."
-last_verified_commit: "2cdef67688c21de8c63273cec5ee6dbe683f18b5 (PR #274 merged; Apple review WAITING_FOR_REVIEW)."
-test_results:
-  - "MacBook 65min build 10: 66 observations; max 81 TCP, transient max 40 CLOSE_WAIT, final 24/3, zero outage, stable PID; manual acceptance documented."
-  - "GitHub CI: 19 PASS, 4 skipped, no failures."
-  - "App Store Connect API: version 0.2.20 WAITING_FOR_REVIEW linked to build ccf7c707-4cb3-437c-82c6-8d03d98164e8, manual release."
-  - "Previous public 0.2.19 READY_FOR_SALE."
-resume_instruction: "Engineering is complete. To finalize PUBLIC release after Apple approves, check App Store Connect app 6816223569, macOS version 5da17b37-3505-4a34-ac2f-849b533f8ceb, submission 2fe83c58-b851-4ea2-a375-d6eaee39fa54, build10 ccf7c707-4cb3-437c-82c6-8d03d98164e8. If Apple changes status to PENDING_DEVELOPER_RELEASE, explicitly release the MANUAL version and verify READY_FOR_SALE. Do not claim public availability while WAITING_FOR_REVIEW. If rejected, read review feedback. Do not accept new Apple legal terms, modify pending iOS review, or reenable scheduled Proxy Launcher Watchdog."
+  - "Merge import stack while preserving macOS hardening and review evidence."
+  - "Integrate localization branch and docs PR, repair conflicts."
+  - "Test, push, PR/merge to main under repository branch protections."
+  - "Update roadmap and checkpoint for next engineering task."
+last_verified_commit: "abdb0dd8 (origin/main base)"
+test_results: []
+resume_instruction: "Resume at /tmp/apl-main-consolidation-20261031 from origin/main abdb0dd8; inspect git status before merging. Keep original /Volumes/ArvectumSSD/Arvectum/repos/proxy-launcher worktree dirty files untouched."
