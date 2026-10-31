@@ -1,0 +1,25 @@
+task_id: APL-IOS-QUICK-ACTIONS-20261031
+status: completed
+goal: 'Implement roadmap P2 quick iOS VPN connect/disconnect/toggle via App Intents/Shortcuts while preserving existing per-application automations.'
+definition_of_done:
+  - 'Explicit user-initiated connect, disconnect and toggle App Intents on iOS >=16.0, idempotent and conservative during disconnect races.'
+  - 'Keep SelectedAppOpened/Closed intents behavior unchanged and disallow implicit VPN changes by reading status.'
+  - 'Provide discoverable UX help and safe localization fallback for new copy, without modifying 50x155 Store catalogs.'
+  - 'Run Swift, Python, Xcode simulator build and relevant UI/contract tests; PR and merge after Smart2 UX PR, no release.'
+completed:
+  - 'Smart2 PR #281 and UX/localization PR #282 merged into main; RTL EN/HE UI tests passed.'
+  - 'Implemented three idempotent user-invoked App Intents with disconnected/connecting/disconnecting handling and one-process reentrancy guard.'
+  - 'Implemented explicit VPN disconnect wait with timeout and isolated pure QuickVPNActionPolicy with XCTest tests.'
+  - 'Preserved SelectedAppOpened/Closed automation and added discoverable iOS16+ QuickActions Help screen.'
+  - 'Added 16 separate QuickActions.strings locale tables for action names, preserving existing 50x155 catalogs and EN help fallback.'
+current: 'SOURCE COMPLETE: explicit connect/disconnect/toggle App Intents, language tables and settings help; hardware execution deferred.'
+pending:
+  - 'Physical Shortcuts/App Intents execution on real iPhone and system VPN permission acceptance in next release QA.'
+  - 'Optional WidgetKit/Control Center extension later: not claimed as implemented.'
+last_verified_commit: 'cc355a05 (UX branch base)'
+test_results:
+  - '52 Swift package tests PASS (including QuickVPNActionPolicy). '
+  - '3 Python QuickActions source/localization contracts PASS.'
+  - 'English iOS Simulator QuickActions Help UI test PASS.'
+  - 'iOS Simulator Debug build PASS; final tests before PR.'
+resume_instruction: 'Quick Actions source implementation complete in /tmp/apl-ios-quick-actions-20261031. Verify green CI then PR merge to main; continue commercial marketplace design in new checkpoint/worktree without assuming payment/legal decisions; physical iPhone acceptance deferred.'

@@ -1,0 +1,4 @@
+/* VPN Shortcuts – human-reviewed action labels, other languages fall back to English. */
+"Подключить APL" = "APLに接続";
+"Отключить APL" = "APLを切断";
+"Переключить APL" = "APLを切り替え";

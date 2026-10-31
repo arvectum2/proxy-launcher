@@ -215,3 +215,22 @@ final class SmartExclusionsLocaleUITests: XCTestCase {
                                        exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים")
     }
 }
+
+final class QuickActionsUITests: XCTestCase {
+    func testEnglishQuickActionsHelp() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "en"]
+        app.launch()
+        let settings = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let quick = app.buttons["settings.quickActions"]
+        XCTAssertTrue(quick.waitForExistence(timeout: 10))
+        quick.tap()
+        XCTAssertTrue(app.navigationBars["VPN quick actions"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Connect APL"].exists)
+        XCTAssertTrue(app.staticTexts["Disconnect APL"].exists)
+        XCTAssertTrue(app.staticTexts["Toggle APL"].exists)
+        XCTAssertTrue(app.links["quickActions.openShortcuts"].exists)
+    }
+}

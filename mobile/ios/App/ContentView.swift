@@ -143,6 +143,7 @@ struct ContentView: View {
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
     @State private var showExclusions = false
+    @State private var showQuickActions = false
     @State private var showAppExclusions = false
 
     var body: some View {
@@ -192,6 +193,9 @@ struct ContentView: View {
             do {
                 importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
             } catch { model.errorMessage = error.localizedDescription }
+        }
+        .sheet(isPresented: $showQuickActions) {
+            QuickActionsHelpView()
         }
         .sheet(isPresented: $showExclusions) {
             ExclusionsView().environmentObject(model)
@@ -739,6 +743,11 @@ struct ContentView: View {
                         showSetupGuide = true
                     }
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
+                    if #available(iOS 16.0, *) {
+                        settingsButton(QuickActionsCopy.text("Быстрые команды VPN", en: "VPN quick actions"),
+                                       icon: "bolt.circle") { showQuickActions = true }
+                            .accessibilityIdentifier("settings.quickActions")
+                    }
 #if !targetEnvironment(macCatalyst)
                     settingsButton("Автоматизация приложений", icon: "app.badge") { showAppExclusions = true }
 #endif
