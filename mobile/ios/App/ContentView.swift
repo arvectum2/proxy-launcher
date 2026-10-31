@@ -1,6 +1,7 @@
 import SwiftUI
 import NetworkExtension
 import UIKit
+import WebKit
 
 /// Semantic iPhone appearance colors that follow dynamic device traits.
 enum Brand {
@@ -893,6 +894,10 @@ struct ExclusionsView: View {
     @State private var input = ""
     @State private var localError: String?
     @State private var confirmClearAll = false
+    @State private var discovered: [String] = []
+    @State private var selectedDiscovered: Set<String> = []
+    @State private var scanning = false
+    @State private var scanner: ExclusionWebScanner?
 
     var body: some View {
         NavigationView {
@@ -912,6 +917,32 @@ struct ExclusionsView: View {
                         .foregroundStyle(.secondary)
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
+                    }
+                    Button(scanning ? "Идёт анализ…" : "Найти связанные домены") { scanSite() }
+                        .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    if scanning { ProgressView("Анализ ресурсов сайта") }
+                }
+                if !discovered.isEmpty {
+                    Section("Найденные домены — выберите для исключения") {
+                        ForEach(discovered, id: \.self) { host in
+                            Button {
+                                if !selectedDiscovered.insert(host).inserted { selectedDiscovered.remove(host) }
+                            } label: {
+                                HStack {
+                                    Text(host).foregroundStyle(.primary)
+                                    Spacer()
+                                    Image(systemName: selectedDiscovered.contains(host) ? "checkmark.circle.fill" : "circle")
+                                }
+                            }
+                        }
+                        Button("Добавить выбранные") {
+                            do {
+                                entries = try SiteExclusionPolicy.normalizeAll(entries + selectedDiscovered.sorted())
+                                discovered = []
+                                selectedDiscovered = []
+                                localError = nil
+                            } catch { localError = error.localizedDescription }
+                        }.disabled(selectedDiscovered.isEmpty)
                     }
                 }
                 Section {
@@ -981,6 +1012,28 @@ struct ExclusionsView: View {
                 }
             }
         }
+    }
+
+    private func scanSite() {
+        do {
+            guard let host = try SiteExclusionPolicy.normalize(input), !host.isEmpty else { return }
+            scanning = true
+            discovered = []
+            selectedDiscovered = []
+            localError = nil
+            let worker = ExclusionWebScanner()
+            scanner = worker
+            worker.scan(host: host) { result in
+                scanning = false
+                scanner = nil
+                switch result {
+                case .success(let hosts):
+                    discovered = hosts.filter { !entries.contains($0) }
+                    if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
+                case .failure(let error): localError = error.localizedDescription
+                }
+            }
+        } catch { localError = error.localizedDescription }
     }
 
     private func addEntry() {
@@ -1151,3 +1204,4 @@ struct JournalView: View {
         }
     }
 }
+\n/// Ephemeral WebKit scanner. Never persists cookies or modifies VPN routes.\n@MainActor\nfinal class ExclusionWebScanner: NSObject, WKNavigationDelegate {\n    private var webView: WKWebView?\n    private var completion: ((Result<[String], Error>) -> Void)?\n    private var host = ""\n\n    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {\n        self.host = host\n        self.completion = completion\n        let configuration = WKWebViewConfiguration()\n        configuration.websiteDataStore = .nonPersistent()\n        let webView = WKWebView(frame: .zero, configuration: configuration)\n        self.webView = webView\n        webView.navigationDelegate = self\n        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }\n        webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))\n    }\n\n    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {\n        webView.evaluateJavaScript("document.documentElement.outerHTML") { [weak self] value, error in\n            guard let self else { return }\n            if let error { self.finish(.failure(error)); return }\n            let html = value as? String ?? ""\n            self.finish(.success(SiteDependencyDiscovery.candidates(html: html, for: self.host)))\n        }\n    }\n\n    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }\n    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }\n\n    private func finish(_ result: Result<[String], Error>) {\n        guard let completion else { return }\n        self.completion = nil\n        webView?.stopLoading()\n        webView?.navigationDelegate = nil\n        webView = nil\n        completion(result)\n    }\n}\n
