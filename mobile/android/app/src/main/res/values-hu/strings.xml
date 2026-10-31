@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">Add meg a webhely címét, majd koppints a „Hozzáadás” gombra. Minden webhely külön sorban jelenik meg. URL, host:port vagy IP-cím is beilleszthető.</string>
+    <string name="apl_connection_828dd" formatted="false">Csatlakozás</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL állapot és aktív profil</string>
+    <string name="apl_profile_cc3f0" formatted="false">Profil · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">Profilok kezelése</string>
+    <string name="apl_profiles_30c61" formatted="false">Profilok</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Proxyk kiválasztása, hozzáadása és rangsorolása</string>
+    <string name="apl_activity_85f08" formatted="false">Tevékenység</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">A kapcsolat állapota és a legutóbbi tevékenység</string>
+    <string name="apl_disconnected_3e958" formatted="false">Leválasztva</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">Napló megnyitása</string>
+    <string name="apl_settings_985b5" formatted="false">Beállítások</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Útválasztás és APL viselkedés</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">Webhely-kizárások</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">Alkalmazáskizárások</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">Automatikus beállítások</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">A speciális műveletek elkülönülnek a napi kapcsolattól.</string>
+    <string name="apl_home_d328e" formatted="false">Kezdőlap</string>
+    <string name="apl_close_a7a40" formatted="false">Bezárás</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Hiba után térjen vissza a preferált proxyhoz</string>
+    <string name="apl_connect_36b4c" formatted="false">Csatlakozás</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">Válasszon proxyt</string>
+    <string name="apl_new_4460b" formatted="false">+ Új</string>
+    <string name="apl_edit_b8b15" formatted="false">Szerkesztés</string>
+    <string name="apl_websites_54646" formatted="false">Weboldalak</string>
+    <string name="apl_applications_39c4b" formatted="false">Alkalmazások</string>
+    <string name="apl_log_97c45" formatted="false">Napló</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Nem sikerült beolvasni a mentett profilokat</string>
+    <string name="apl_auto_8dca2" formatted="false">Automatikus</string>
+    <string name="apl_checked_6a779" formatted="false">· ellenőrzés</string>
+    <string name="apl_available_c75e3" formatted="false">· elérhető</string>
+    <string name="apl_unavailable_bee71" formatted="false">· nem elérhető</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">Adjon hozzá proxyt</string>
+    <string name="apl_profile_309fc" formatted="false">Profil ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">nincs konfigurálva</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">Nincsenek hozzáadva kizárások</string>
+    <string name="apl_delete_be99b" formatted="false">Törölje</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">Ellenőrizze a webhely címét</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">Írja be a webhely címét</string>
+    <string name="apl_add_71038" formatted="false">Hozzáadás</string>
+    <string name="apl_exclusions_f4f81" formatted="false">Kizárások</string>
+    <string name="apl_cancel_8fbe9" formatted="false">Mégse</string>
+    <string name="apl_save_b4d30" formatted="false">Mentés</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">Ellenőrizze a kivételek listáját</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">Nem sikerült menteni a kivételeket</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">Kizárások alkalmazása…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">A kivételek törölve</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">Alkalmazáslista betöltése</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">Alkalmazáslista betöltése…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">Nem sikerült lekérni a telepített alkalmazások listáját.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">Nem sikerült menteni az alkalmazáskivételeket</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">Alkalmazáskivételek alkalmazása...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">Az alkalmazás kivételei törölve</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">A napló üres</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">proxy nem elérhető</string>
+    <string name="apl_switched_4c72e" formatted="false">váltott</string>
+    <string name="apl_main_restored_290c9" formatted="false">fő helyreállították</string>
+    <string name="apl_network_change_50fc1" formatted="false">hálózatváltás</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Először adjon hozzá legalább egy proxyt</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">Nem sikerült kiválasztani a proxyt</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Új proxy</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">Profil szerkesztése</string>
+    <string name="apl_name_0918b" formatted="false">Név</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">pl. Elsődleges</string>
+    <string name="apl_proxy_address_ef480" formatted="false">Proxy címe</string>
+    <string name="apl_port_90947" formatted="false">Port</string>
+    <string name="apl_username_5be12" formatted="false">Felhasználónév</string>
+    <string name="apl_optional_f6d95" formatted="false">Nem kötelező</string>
+    <string name="apl_password_cb1a2" formatted="false">Jelszó</string>
+    <string name="apl_protocol_b3680" formatted="false">Protokoll</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">Automatikus protokoll</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">HTTPS proxy TLS-vel</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">Az automatikus mód elsőbbsége</string>
+    <string name="apl_delete_profile_b745f" formatted="false">Törli a profilt?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">Adja meg a proxy címét</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">1-65535 port</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">Nem sikerült biztonságosan menteni a profilt</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">Profilmódosítások alkalmazása...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">Nem sikerült törölni a profilt</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">Profil törölve</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">Először adjon hozzá proxyt</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Engedélyezze a VPN kapcsolat létrehozását</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">A Android visszavonta a VPN engedélyt. Koppintson a Csatlakozás elemre.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">A VPN le van tiltva. Újra csatlakozhat.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">Proxy ellenőrzése…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">Leválasztás…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">A VPN engedély nem adott</string>
+    <string name="apl_switching_b0760" formatted="false">Váltás</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">Leválasztás</string>
+    <string name="apl_connecting_e2449" formatted="false">Csatlakozás…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">Az aktív proxy módosítása</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">A kapcsolat aktív</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">A kiválasztott proxy ellenőrzése</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">A kapcsolat befejezése</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Válasszon proxyt</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">Mentett kizárások: %1$d</string>
+    <string name="apl_apps_bypassing_count">A proxyt megkerülő alkalmazások: %1$d</string>
+    <string name="apl_switching_to_profile">Váltás a %1$s-re…</string>
+    <string name="apl_profile_saved">Mentve: %1$s</string>
+    <string name="apl_error_detail">Hiba: %1$s</string>
+    <string name="apl_cannot_connect">Nem sikerült csatlakozni</string>
+</resources>

@@ -1,0 +1,9 @@
+Conectează iPhone-ul printr-un proxy configurat de tine și controlează ușor conexiunea.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Profiluri multiple, priorități și comutare automată la proxy de rezervă
+• Excepții pentru site-urile care necesită conectare directă
+• Automatizări pentru aplicații selectate prin Scurtături iOS
+• Datele rămân pe dispozitiv, iar parolele în portchei
+
+Folosește propriul server proxy; APL nu furnizează servere.

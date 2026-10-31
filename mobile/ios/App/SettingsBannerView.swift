@@ -9,6 +9,62 @@ enum IOSAdsConfig {
     static let productionBannerUnitID = "R-M-20288304-1"
     static let demoBannerUnitID = "demo-banner-yandex"
 
+    static let labels: [String: String] = [
+        "ru": "Реклама",
+        "en": "Ad",
+        "es": "Publicidad",
+        "fr": "Publicité",
+        "de": "Anzeige",
+        "it": "Pubblicità",
+        "pt-BR": "Publicidade",
+        "pt-PT": "Publicidade",
+        "ja": "広告",
+        "ko": "광고",
+        "zh-Hans": "广告",
+        "zh-Hant": "廣告",
+        "fa": "تبلیغ",
+        "nl": "Advertentie",
+        "id": "Iklan",
+        "tr": "Reklam",
+        "hi": "विज्ञापन",
+        "ar": "إعلان",
+        "vi": "Quảng cáo",
+        "pl": "Reklama",
+        "th": "โฆษณา",
+        "ur": "اشتہار",
+        "bn": "বিজ্ঞাপন",
+        "pa": "ਇਸ਼ਤਿਹਾਰ",
+        "ta": "விளம்பரம்",
+        "te": "ప్రకటన",
+        "mr": "जाहिरात",
+        "gu": "જાહેરાત",
+        "kn": "ಜಾಹೀರಾತು",
+        "ml": "പരസ്യം",
+        "uz": "Reklama",
+        "ms": "Iklan",
+        "fil": "Ad",
+        "sw": "Tangazo",
+        "ro": "Publicitate",
+        "hu": "Hirdetés",
+        "cs": "Reklama",
+        "sk": "Reklama",
+        "el": "Διαφήμιση",
+        "he": "פרסומת",
+        "ha": "Talla",
+        "am": "ማስታወቂያ",
+        "sv": "Annons",
+        "da": "Annonce",
+        "fi": "Mainos",
+        "nb": "Annonse",
+        "bg": "Реклама",
+        "sr": "Оглас",
+        "hr": "Oglas",
+        "ca": "Anunci",
+    ]
+    static var localizedAdLabel: String {
+        labels[AppL10n.effectiveLanguage] ?? labels["en"] ?? "Ad"
+    }
+
 #if DEBUG
     // Explicit opt-in for local QA. Never contact production RSYA in debug builds.
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER")
@@ -20,7 +76,7 @@ enum IOSAdsConfig {
 #endif
 }
 
-/// Non-blocking banner above the iPhone tab bar; never appears in the tunnel extension.
+/// Non-blocking native ad footer alongside the iPhone TabView; never appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
 struct SettingsBannerView: View {
     @State private var bannerState: BannerState?
@@ -30,10 +86,11 @@ struct SettingsBannerView: View {
 
     var body: some View {
         Group {
-            if IOSAdsConfig.isEnabled, !failed, let bannerState {
+            if IOSAdsConfig.isEnabled, !failed {
+                if let bannerState {
                 VStack(alignment: .leading, spacing: 4) {
                     if loaded {
-                        Text(AppL10n.tr("Реклама"))
+                        Text(IOSAdsConfig.localizedAdLabel)
                             .font(.caption)
                             .foregroundStyle(Brand.softGray)
                     }
@@ -57,6 +114,9 @@ struct SettingsBannerView: View {
                         .accessibilityHidden(!loaded)
                 }
                 .frame(maxWidth: .infinity)
+                } else {
+                    Color.clear.frame(height: 50)
+                }
             }
         }
         .onAppear {

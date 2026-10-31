@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Meerdere profielen, prioriteit en automatisch overschakelen naar een reserveproxy",
+  "02_direct_exceptions": "Uitzonderingen voor websites met een rechtstreekse verbinding",
+  "03_app_automation": "Automatiseringen voor geselecteerde apps via iOS Opdrachten"
+}

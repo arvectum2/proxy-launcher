@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">הזינו כתובת אתר והקישו על ״הוספה״. כל אתר יופיע בשורה נפרדת. אפשר להדביק URL, host:port או כתובת IP.</string>
+    <string name="apl_connection_828dd" formatted="false">חיבור</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">מצב APL ופרופיל פעיל</string>
+    <string name="apl_profile_cc3f0" formatted="false">פרופיל · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">נהל פרופילים</string>
+    <string name="apl_profiles_30c61" formatted="false">פרופילים</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">בחר, הוסף ותעדף פרוקסי</string>
+    <string name="apl_activity_85f08" formatted="false">פעילות</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">מצב חיבור ופעילות אחרונה</string>
+    <string name="apl_disconnected_3e958" formatted="false">מנותק</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">פתח יומן</string>
+    <string name="apl_settings_985b5" formatted="false">הגדרות</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">ניתוב והתנהגות APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">אי הכללות אתרים</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">אי הכללות של אפליקציות</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">הגדרות אוטומטיות</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">פעולות מתקדמות נפרדות מהחיבור היומיומי.</string>
+    <string name="apl_home_d328e" formatted="false">בית</string>
+    <string name="apl_close_a7a40" formatted="false">סגור</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">חזור ל-proxy המועדף לאחר כשל</string>
+    <string name="apl_connect_36b4c" formatted="false">התחברות</string>
+    <string name="apl_proxy_a5677" formatted="false">פרוקסי</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">בחר פרוקסי</string>
+    <string name="apl_new_4460b" formatted="false">+ חדש</string>
+    <string name="apl_edit_b8b15" formatted="false">ערוך</string>
+    <string name="apl_websites_54646" formatted="false">אתרי אינטרנט</string>
+    <string name="apl_applications_39c4b" formatted="false">יישומים</string>
+    <string name="apl_log_97c45" formatted="false">יומן</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">קריאת הפרופילים השמורים נכשלה</string>
+    <string name="apl_auto_8dca2" formatted="false">אוטומטי</string>
+    <string name="apl_checked_6a779" formatted="false">· בדיקה</string>
+    <string name="apl_available_c75e3" formatted="false">· זמין</string>
+    <string name="apl_unavailable_bee71" formatted="false">· לא זמין</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">הוסף פרוקסי</string>
+    <string name="apl_profile_309fc" formatted="false">פרופיל ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">לא מוגדר</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">לא נוספו אי הכללות</string>
+    <string name="apl_delete_be99b" formatted="false">מחק</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">בדוק את כתובת האתר</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">הזן את כתובת האתר</string>
+    <string name="apl_add_71038" formatted="false">הוסף</string>
+    <string name="apl_exclusions_f4f81" formatted="false">אי הכללות</string>
+    <string name="apl_cancel_8fbe9" formatted="false">בטל</string>
+    <string name="apl_save_b4d30" formatted="false">שמור</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">בדוק את רשימת החריגים</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">שמירת חריגים נכשלה</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">מחיל אי הכללות...</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">חריגים נוקו</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">טוען רשימת אפליקציות</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">טוען רשימת אפליקציות...</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">נכשל קבלת רשימת היישומים המותקנים.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">שמירת חריגות האפליקציה נכשלה</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">מחיל חריגים ביישום...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">חריגות היישום נוקו</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">היומן ריק</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">פרוקסי לא זמין</string>
+    <string name="apl_switched_4c72e" formatted="false">התחלף</string>
+    <string name="apl_main_restored_290c9" formatted="false">עיקרי משוחזר</string>
+    <string name="apl_network_change_50fc1" formatted="false">שינוי רשת</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">הוסף קודם פרוקסי אחד לפחות</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">בחירת ה-proxy נכשלה</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">פרוקסי חדש</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">ערוך פרופיל</string>
+    <string name="apl_name_0918b" formatted="false">שם</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">למשל ראשוני</string>
+    <string name="apl_proxy_address_ef480" formatted="false">כתובת פרוקסי</string>
+    <string name="apl_port_90947" formatted="false">פורט</string>
+    <string name="apl_username_5be12" formatted="false">שם משתמש</string>
+    <string name="apl_optional_f6d95" formatted="false">אופציונלי</string>
+    <string name="apl_password_cb1a2" formatted="false">סיסמה</string>
+    <string name="apl_protocol_b3680" formatted="false">פרוטוקול</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">פרוטוקול אוטומטי</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">פרוקסי HTTPS עם TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">עדיפות למצב אוטומטי</string>
+    <string name="apl_delete_profile_b745f" formatted="false">למחוק את הפרופיל?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">הזן כתובת פרוקסי</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">נמל 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">שמירת הפרופיל נכשלה בצורה מאובטחת</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">מחיל שינויים בפרופיל...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">מחיקת הפרופיל נכשלה</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">הפרופיל נמחק</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">הוסף קודם פרוקסי</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">אפשר יצירת חיבור VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android ביטל את הרשאת VPN. הקש על התחבר.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN מושבת. אתה יכול להתחבר שוב.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">בודק פרוקסי...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">מתנתק...</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">הרשאת VPN לא ניתנה</string>
+    <string name="apl_switching_b0760" formatted="false">מיתוג</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">התנתק</string>
+    <string name="apl_connecting_e2449" formatted="false">מתחבר...</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">שינוי ה-proxy הפעיל</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">חיבור פעיל</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">בודק את ה-proxy שנבחר</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">סיום הקשר</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">בחר פרוקסי</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">החרגות שנשמרו: %1$d</string>
+    <string name="apl_apps_bypassing_count">אפליקציות עוקפות את ה-proxy: %1$d</string>
+    <string name="apl_switching_to_profile">עובר ל-%1$s...</string>
+    <string name="apl_profile_saved">נשמר: %1$s</string>
+    <string name="apl_error_detail">שגיאה: %1$s</string>
+    <string name="apl_cannot_connect">לא ניתן להתחבר</string>
+</resources>

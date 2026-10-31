@@ -1,0 +1,9 @@
+Połącz iPhone’a z własnym serwerem proxy i łatwo zarządzaj połączeniem.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Wiele profili, priorytety i automatyczne przełączenie na zapasowy proxy
+• Wyjątki dla witryn wymagających połączenia bezpośredniego
+• Automatyzacje wybranych aplikacji przez Skróty iOS
+• Dane proxy pozostają na urządzeniu, a hasła w Pęku kluczy
+
+Dodaj własne dane serwera proxy; APL nie udostępnia serwerów.

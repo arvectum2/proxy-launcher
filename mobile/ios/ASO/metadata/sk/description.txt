@@ -1,0 +1,9 @@
+Pripojte iPhone cez vlastný proxy server a jednoducho spravujte spojenia.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Viaceré profily, priority a automatické prepnutie na záložné proxy
+• Výnimky pre weby vyžadujúce priame pripojenie
+• Automatizácie vybraných aplikácií cez Skratky v iOS
+• Údaje zostávajú v zariadení, heslá v Kľúčenke
+
+Potrebujete vlastný proxy server; APL žiadne proxy servery neposkytuje.

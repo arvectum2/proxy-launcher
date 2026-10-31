@@ -1,0 +1,1 @@
+Pripojte iPhone cez vlastný proxy server a jednoducho spravujte spojenia.

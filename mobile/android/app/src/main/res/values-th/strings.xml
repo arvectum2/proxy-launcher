@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">ป้อนที่อยู่เว็บไซต์แล้วแตะ “เพิ่ม” เว็บไซต์แต่ละรายการจะแสดงคนละบรรทัด สามารถวาง URL, host:port หรือที่อยู่ IP ได้</string>
+    <string name="apl_connection_828dd" formatted="false">การเชื่อมต่อ</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">สถานะ APL และโปรไฟล์ที่ใช้งานอยู่</string>
+    <string name="apl_profile_cc3f0" formatted="false">ประวัติโดยย่อ · -</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">จัดการโปรไฟล์</string>
+    <string name="apl_profiles_30c61" formatted="false">โปรไฟล์</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">เลือก เพิ่ม และจัดลำดับความสำคัญของพรอกซี</string>
+    <string name="apl_activity_85f08" formatted="false">กิจกรรม</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">สถานะการเชื่อมต่อและกิจกรรมล่าสุด</string>
+    <string name="apl_disconnected_3e958" formatted="false">ตัดการเชื่อมต่อแล้ว</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">เปิดบันทึก</string>
+    <string name="apl_settings_985b5" formatted="false">การตั้งค่า</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">การกำหนดเส้นทางและพฤติกรรม APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">การยกเว้นเว็บไซต์</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">การยกเว้นแอป</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">การตั้งค่าอัตโนมัติ</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">การดำเนินการขั้นสูงจะแยกจากการเชื่อมต่อรายวัน</string>
+    <string name="apl_home_d328e" formatted="false">หน้าหลัก</string>
+    <string name="apl_close_a7a40" formatted="false">ปิด</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">กลับสู่พร็อกซีที่ต้องการหลังจากเกิดความล้มเหลว</string>
+    <string name="apl_connect_36b4c" formatted="false">เชื่อมต่อ</string>
+    <string name="apl_proxy_a5677" formatted="false">พร็อกซี</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">เลือกพร็อกซี</string>
+    <string name="apl_new_4460b" formatted="false">+ ใหม่</string>
+    <string name="apl_edit_b8b15" formatted="false">แก้ไข</string>
+    <string name="apl_websites_54646" formatted="false">เว็บไซต์</string>
+    <string name="apl_applications_39c4b" formatted="false">การใช้งาน</string>
+    <string name="apl_log_97c45" formatted="false">บันทึก</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">ไม่สามารถอ่านโปรไฟล์ที่บันทึกไว้</string>
+    <string name="apl_auto_8dca2" formatted="false">อัตโนมัติ</string>
+    <string name="apl_checked_6a779" formatted="false">· การตรวจสอบ</string>
+    <string name="apl_available_c75e3" formatted="false">· มีอยู่</string>
+    <string name="apl_unavailable_bee71" formatted="false">·ไม่พร้อมใช้งาน</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">เพิ่มพรอกซี</string>
+    <string name="apl_profile_309fc" formatted="false">ประวัติโดยย่อ ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">ไม่ได้กำหนดค่า</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">ไม่มีการเพิ่มข้อยกเว้น</string>
+    <string name="apl_delete_be99b" formatted="false">ลบ</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">ตรวจสอบที่อยู่เว็บไซต์</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">ป้อนที่อยู่เว็บไซต์</string>
+    <string name="apl_add_71038" formatted="false">เพิ่ม</string>
+    <string name="apl_exclusions_f4f81" formatted="false">ข้อยกเว้น</string>
+    <string name="apl_cancel_8fbe9" formatted="false">ยกเลิก</string>
+    <string name="apl_save_b4d30" formatted="false">บันทึก</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">ตรวจสอบรายการข้อยกเว้น</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">ไม่สามารถบันทึกข้อยกเว้น</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">กำลังใช้การยกเว้น...</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">ล้างข้อยกเว้นแล้ว</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">กำลังโหลดรายการแอป</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">กำลังโหลดรายการแอป...</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">ไม่สามารถรับรายการแอปพลิเคชันที่ติดตั้งได้</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">ไม่สามารถบันทึกข้อยกเว้นของแอปพลิเคชัน</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">กำลังใช้ข้อยกเว้นของแอปพลิเคชัน...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">ล้างข้อยกเว้นแอปพลิเคชันแล้ว</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">บันทึกว่างเปล่า</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">พร็อกซีไม่พร้อมใช้งาน</string>
+    <string name="apl_switched_4c72e" formatted="false">เปลี่ยนแล้ว</string>
+    <string name="apl_main_restored_290c9" formatted="false">หลักได้รับการบูรณะแล้ว</string>
+    <string name="apl_network_change_50fc1" formatted="false">การเปลี่ยนแปลงเครือข่าย</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">เพิ่มพรอกซีอย่างน้อยหนึ่งรายการก่อน</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">ไม่สามารถเลือกพร็อกซีได้</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">พร็อกซีใหม่</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">แก้ไขโปรไฟล์</string>
+    <string name="apl_name_0918b" formatted="false">ชื่อ</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">เช่น หลัก</string>
+    <string name="apl_proxy_address_ef480" formatted="false">ที่อยู่พร็อกซี</string>
+    <string name="apl_port_90947" formatted="false">พอร์ต</string>
+    <string name="apl_username_5be12" formatted="false">ชื่อผู้ใช้</string>
+    <string name="apl_optional_f6d95" formatted="false">ไม่จำเป็น</string>
+    <string name="apl_password_cb1a2" formatted="false">รหัสผ่าน</string>
+    <string name="apl_protocol_b3680" formatted="false">โปรโตคอล</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">โปรโตคอลอัตโนมัติ</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">พร็อกซี HTTPS พร้อม TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">ลำดับความสำคัญสำหรับโหมดอัตโนมัติ</string>
+    <string name="apl_delete_profile_b745f" formatted="false">ลบโปรไฟล์ใช่ไหม</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">ป้อนที่อยู่พร็อกซี</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">พอร์ต 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">ไม่สามารถบันทึกโปรไฟล์อย่างปลอดภัย</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">กำลังใช้การเปลี่ยนแปลงโปรไฟล์...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">ลบโปรไฟล์ไม่สำเร็จ</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">ลบโปรไฟล์แล้ว</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">เพิ่มพรอกซีก่อน</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">อนุญาตให้สร้างการเชื่อมต่อ VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android เพิกถอนการอนุญาต VPN แตะเชื่อมต่อ</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN ถูกปิดใช้งาน คุณสามารถเชื่อมต่อได้อีกครั้ง</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">กำลังตรวจสอบพร็อกซี...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">กำลังยกเลิกการเชื่อมต่อ...</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">ไม่ได้รับอนุญาต VPN</string>
+    <string name="apl_switching_b0760" formatted="false">การสลับ</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">ตัดการเชื่อมต่อ</string>
+    <string name="apl_connecting_e2449" formatted="false">กำลังเชื่อมต่อ...</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">การเปลี่ยนพร็อกซีที่ใช้งานอยู่</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">การเชื่อมต่อใช้งานอยู่</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">กำลังตรวจสอบพรอกซีที่เลือก</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">การสิ้นสุดการเชื่อมต่อ</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">เลือกพร็อกซี</string>
+    <string name="apl_latency_milliseconds">· %1$d มิลลิวินาที</string>
+    <string name="apl_exclusions_saved_count">บันทึกการยกเว้นแล้ว: %1$d</string>
+    <string name="apl_apps_bypassing_count">แอปที่เลี่ยงผ่านพร็อกซี: %1$d</string>
+    <string name="apl_switching_to_profile">กำลังเปลี่ยนเป็น %1$s...</string>
+    <string name="apl_profile_saved">บันทึกแล้ว: %1$s</string>
+    <string name="apl_error_detail">ข้อผิดพลาด: %1$s</string>
+    <string name="apl_cannot_connect">ไม่สามารถเชื่อมต่อได้</string>
+</resources>

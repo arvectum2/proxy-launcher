@@ -1,0 +1,1 @@
+More interface languages and clearer guidance for proxy profiles and connections.

@@ -1,0 +1,36 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-HOME-BANNER-FIT-20261030
+status: completed
+goal: "Ensure the iPhone APL Home dashboard fits entirely above the tab bar, without vertical scrolling, across all 50 iOS languages and with a 90/100-pt banner footprint."
+definition_of_done:
+  - "iPhone Home has no vertical ScrollView and cannot force the connection or profile cards under the bottom tab bar."
+  - "All 50 iOS language UI variants checked on compact and large iPhone Simulators with a visible 90pt banner test slot; compact device also tested with 100pt slot, dark appearance and enlarged fonts."
+  - "Main actions and profile picker remain accessible, 50 source language catalogs unchanged, real Apple version/review untouched."
+  - "Simulator UI regression + iOS signed 0.1.41(46) candidate validated; full QA matrix and evidence preserved, committed and pushed to PR #272."
+completed:
+  - "Resumed using ARC Mac mini and reviewed source: old iPhone Home was a vertical ScrollView with oversized cards; project source had no actual iOS advertisement banner view/SDK."
+  - "Replaced only iPhone Home ScrollView with geometry-bound, non-scrolling adaptive VStack; compact layout for height <680pt, tighter for <510pt, main tap action 56pt, native tab bar always visible. Mac Catalyst, other iOS tabs and Android/desktop left unchanged."
+  - "Fixed explicit localization of connection/selection headers and compact translated controls, long-label scaling and two-line explanatory help. Removed redundant compact secondary actions (still reachable from Home main button and Profiles tab), retained compact 44pt profile picker target."
+  - "Added DEBUG-only 90/100-pt banner layout preview and fake profile/VPN states used solely for QA; no fabricated ad or fake connection appears in release. Added SwiftUI frame instrumentation and persisted real geometric evidence."
+  - "Ran 150 tests on iPhone SE3 (50 languages * empty/connected/connecting), 50 on iPhone13mini, 50 on iPhone17ProMax, 100 on SE2 dark Accessibility Medium with 100pt banner, 20 on SE2 dark Accessibility Extra Large high-risk languages; ALL 370/370 PASS, no overlap or off-screen widgets."
+  - "After refining the compact menu to a 44pt hit target, reran 10 high-risk SE2 Extra Large connected cases on final code; 10/10 pass, total 380/380 measured cases."
+  - "Minimum measured profile-to-banner clearance 18pt in stress baseline; bottom viewport clearance 9pt; no banner/tabbar overlap."
+  - "Committed docs/APL_IOS_HOME_BANNER_QA_MATRIX_2026-10-30.csv (50 rows), detailed QA report docs/APL_IOS_HOME_BANNER_FIT_QA_2026-10-30.md, all 438 simulator JSON/image evidence files on Mac mini SSD."
+  - "Generated Xcode project including new HomeLayoutProbe.swift and validated iOS unsigned simulator UI BUILD SUCCEEDED."
+  - "Locally rebuilt signed Apple Distribution iOS 0.1.41(46) archive and IPA at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030, with all 50 locales and PacketTunnel; codesign --verify --deep --strict PASS."
+  - "Updated ASO README and upload_release_041.py default path to correct newest IPA candidate."
+  - "49 focused iOS/ASO/QA tests PASS, 50 iOS .strings plutil lint PASS, Swift iOS localization typecheck PASS; git diff --check PASS."
+  - "Code/tests/report commit 56110479c0fe6d6ded002936293bc529a119e611; completion checkpoint commit follows."
+current: "Completed iOS Home 50-language 90/100pt banner layout acceptance, code and signed local next-version candidate prepared."
+pending:
+  - "Future actual banner SDK integration, if/when present in iOS source, must connect its real adaptive view into the verified bottom area and be accepted with the actual loaded creative size. Current code has QA banner preview only."
+  - "Preserve Apple 0.1.40 review. After it becomes READY_FOR_SALE, use the previously prepared 0.1.41 ASO release workflow and the superseding signed homefit-final IPA. Do not upload or change Apple metadata until the next authorized release stage."
+last_verified_commit: 56110479c0fe6d6ded002936293bc529a119e611
+test_results:
+  - "380/380 real Simulator geometry cases PASS: 50 iOS languages + risk screens/RTL and enlarged fonts, 90/100pt banner area."
+  - "49 targeted Python tests PASS; 50 iOS .strings plutil PASS; unsigned UI-only Simulator and signed Apple Distribution archive/IPA build PASS."
+  - "Final IPA SHA256 e81f2b9bb7ec7990ae01a4ab5dc2ebf6564a889cd2162108c465af3f043e0151, 4216515 bytes, 50 lproj and 1 PacketTunnel."
+  - "No App Store Connect writes, iOS 0.1.40 review untouched, disabled watchdog untouched, no Android/desktop changes."
+blocker: null
+resume_instruction: "iOS Home with a reserved QA 90/100pt banner is now non-scroll and verified across all 50 languages. Do not redo QA. The next Apple release uses docs/APL_IOS_HOME_BANNER_FIT_QA_2026-10-30.md and signed IPA at /Volumes/ArvectumSSD/Arvectum/releases/APL-iOS-0.1.41-46-homefit-final-20261030; wait for 0.1.40 READY_FOR_SALE and follow mobile/ios/ASO/README.md. Actual ad-view provider is not in this iOS source checkout; ensure the real ad integration is validated at SDK-reported height before claiming actual ad delivered. Leave Apple privacy submission and Watchdog unchanged."

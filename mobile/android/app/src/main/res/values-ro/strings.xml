@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">Introdu adresa site-ului și atinge „Adaugă”. Fiecare site apare pe un rând separat. Poți lipi un URL, host:port sau o adresă IP.</string>
+    <string name="apl_connection_828dd" formatted="false">Conexiune</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">Stare APL și profil activ</string>
+    <string name="apl_profile_cc3f0" formatted="false">Profil · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">Gestionați profilurile</string>
+    <string name="apl_profiles_30c61" formatted="false">Profiluri</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Selectați, adăugați și prioritizați proxy-urile</string>
+    <string name="apl_activity_85f08" formatted="false">Activitate</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">Starea conexiunii și activitatea recentă</string>
+    <string name="apl_disconnected_3e958" formatted="false">Deconectat</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">Deschideți jurnalul</string>
+    <string name="apl_settings_985b5" formatted="false">Setări</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Rutarea și comportamentul APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">Excluderi de site-uri web</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">Excluderi de aplicații</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">Setări automate</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">Acțiunile avansate sunt separate de conexiunea zilnică.</string>
+    <string name="apl_home_d328e" formatted="false">Acasă</string>
+    <string name="apl_close_a7a40" formatted="false">Închide</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Reveniți la proxy preferat după o eroare</string>
+    <string name="apl_connect_36b4c" formatted="false">Conectare</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">Selectați un proxy</string>
+    <string name="apl_new_4460b" formatted="false">+ Nou</string>
+    <string name="apl_edit_b8b15" formatted="false">Editați</string>
+    <string name="apl_websites_54646" formatted="false">Site-uri web</string>
+    <string name="apl_applications_39c4b" formatted="false">Aplicații</string>
+    <string name="apl_log_97c45" formatted="false">Jurnal</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Nu s-au putut citi profilurile salvate</string>
+    <string name="apl_auto_8dca2" formatted="false">Automat</string>
+    <string name="apl_checked_6a779" formatted="false">· verificarea</string>
+    <string name="apl_available_c75e3" formatted="false">· disponibil</string>
+    <string name="apl_unavailable_bee71" formatted="false">· indisponibil</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">Adăugați un proxy</string>
+    <string name="apl_profile_309fc" formatted="false">Profil ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">neconfigurat</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">Nu s-au adăugat excluderi</string>
+    <string name="apl_delete_be99b" formatted="false">Ștergeți</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">Verificați adresa site-ului</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">Introdu adresa site-ului</string>
+    <string name="apl_add_71038" formatted="false">Adăugați</string>
+    <string name="apl_exclusions_f4f81" formatted="false">Excluderile</string>
+    <string name="apl_cancel_8fbe9" formatted="false">Anulează</string>
+    <string name="apl_save_b4d30" formatted="false">Salvați</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">Verificați lista de excepții</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">Nu s-au salvat excepțiile</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">Se aplică excluderi...</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">Excepțiile eliminate</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">Se încarcă lista de aplicații</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">Se încarcă lista de aplicații...</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">Nu s-a putut obține lista de aplicații instalate.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">Nu s-au salvat excepțiile aplicației</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">Se aplică excepții de la aplicație...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">Excepțiile aplicației au fost eliminate</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">Jurnalul este gol</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">proxy indisponibil</string>
+    <string name="apl_switched_4c72e" formatted="false">comutat</string>
+    <string name="apl_main_restored_290c9" formatted="false">principal restaurat</string>
+    <string name="apl_network_change_50fc1" formatted="false">schimbarea rețelei</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Adăugați mai întâi cel puțin un proxy</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">Nu s-a putut selecta proxy</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Proxy nou</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">Editați profilul</string>
+    <string name="apl_name_0918b" formatted="false">Nume</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">de ex. Primar</string>
+    <string name="apl_proxy_address_ef480" formatted="false">Adresa proxy</string>
+    <string name="apl_port_90947" formatted="false">Port</string>
+    <string name="apl_username_5be12" formatted="false">Nume de utilizator</string>
+    <string name="apl_optional_f6d95" formatted="false">Opțional</string>
+    <string name="apl_password_cb1a2" formatted="false">Parolă</string>
+    <string name="apl_protocol_b3680" formatted="false">Protocol</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">Protocol automat</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">HTTPS proxy cu TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">Prioritate pentru modul automat</string>
+    <string name="apl_delete_profile_b745f" formatted="false">Ștergeți profilul?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">Introduceți adresa proxy</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">Portul 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">Nu s-a putut salva profilul în siguranță</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">Se aplică modificările profilului...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">Nu s-a șters profilul</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">Profil șters</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">Adăugați mai întâi un proxy</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Permiteți crearea unei conexiuni VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android a revocat permisiunea VPN. Atinge Conectare.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN este dezactivat. Vă puteți conecta din nou.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">Se verifică proxy-ul...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">Se deconectează…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">Permisiunea VPN nu a fost acordată</string>
+    <string name="apl_switching_b0760" formatted="false">Comutare</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">Deconectați-vă</string>
+    <string name="apl_connecting_e2449" formatted="false">Se conectează…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">Schimbarea proxy-ului activ</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">Conexiune activă</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">Verificarea proxy-ului selectat</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">Încheierea conexiunii</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Alegeți proxy-ul</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">Excluderi salvate: %1$d</string>
+    <string name="apl_apps_bypassing_count">Aplicații care ocolesc proxy-ul: %1$d</string>
+    <string name="apl_switching_to_profile">Se comută la %1$s...</string>
+    <string name="apl_profile_saved">Salvat: %1$s</string>
+    <string name="apl_error_detail">Eroare: %1$s</string>
+    <string name="apl_cannot_connect">Nu s-a putut conecta</string>
+</resources>

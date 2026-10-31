@@ -1,0 +1,9 @@
+Hubungkan iPhone melalui proxy yang Anda atur sendiri, dengan kontrol yang mudah.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Beberapa profil, prioritas, dan perpindahan otomatis ke proxy cadangan
+• Pengecualian situs yang memerlukan koneksi langsung
+• Otomatisasi aplikasi terpilih melalui Pintasan iOS
+• Pengaturan tersimpan di perangkat dan kata sandi dalam Keychain
+
+Gunakan server proxy milik Anda; APL tidak menyediakan layanan proxy.

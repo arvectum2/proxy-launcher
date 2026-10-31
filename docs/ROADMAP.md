@@ -1,4 +1,124 @@
+## 30.10.2026 — iOS 0.1.41 (46): App Review submission
+
+- [x] Apple created 0.1.41, processed signed build 46 to VALID and attached it; contains all 50 UI locales, PacketTunnel and real Yandex mobile banner integration.
+- [x] Imported all 47 localized App Store ASO cards and 94 actual iPhone screenshots; every screenshot reached Apple COMPLETE state.
+- [x] Preserved original privacy-policy URL exactly in all newly added market locales, without changing existing ru/en-US links or privacy questionnaire.
+- [x] Submitted App Store version to Apple's review workflow; submission ID `57577081-0511-42b1-b05c-c01e26c27b9c`.
+- [ ] External: await Apple review and publish automatically if accepted; verify App Store Connect READY_FOR_SALE.
+
+## 30.10.2026 — iOS 0.1.41: восстановлен реальный баннер РСЯ, вычитаны 50 языков
+
+- [x] По реальному опубликованному архиву 0.1.40 (45) восстановлены YandexMobileAds 8.6.0, блок R-M-20288304-1, флаг `-ObjC`, 228 официальных SKAdNetwork ID.
+- [x] Исправлено соседнее расположение `TabView` и sticky-баннера: реальная демо-реклама с 50-ю переводами подписи отображается на iPhone SE, нижняя навигация не вытесняется. Проверены немецкий и иврит RTL с загруженным SDK-баннером.
+- [x] Редакторская проверка 50 iOS-локалей: заменены два неактуальных поясняющих значения в каждой из 50 локализаций; 22 UI-термина исправлены вручную; 50 подписей рекламы локализованы; ключи/плейсхолдеры сохранены.
+- [x] Полная техническая проверка всех 50 iOS-каталогов и 47 App Store ASO / 94 скриншотов; подписанный iOS 0.1.41(46) кандидат сохранён на SSD, не загружен в Apple.
+- [ ] Релиз 0.1.41: после завершения CI и решения пользователя импортировать ASO, загрузить свежий IPA и отправить на Apple Review. Опубликованную 0.1.40 не менять.
+
+## 30.10.2026 — iOS Home: гарантированно без прокрутки с местом под баннер
+
+- [x] Исправлен `ContentView.swift`: iPhone Home больше не `ScrollView`, адаптивная компактная компоновка с кнопкой 56 pt, корректные переводы заголовков, приоритет управления подключением и видимый таббар.
+- [x] Полная UI-матрица **50 языков × 7 сценариев = 350** проверок на SE 3, 13 mini, 17 Pro Max и SE 2 с увеличенным шрифтом, с баннерами 90/100 pt; дополнительно 20 проверок в Accessibility Extra Large. **370/370 pass** (+ 10/10 финальных проверок после увеличения области нажатия до 44 pt).
+- [x] Сохранены 370 реальных SwiftUI геометрических измерений, 50 снимков симулятора и матрица в `docs/APL_IOS_HOME_BANNER_QA_MATRIX_2026-10-30.csv` (QA-артефакты на ArvectumSSD).
+- [x] Подписан новый локальный iOS 0.1.41 (46) архив с PacketTunnel и 50 языками. Текущую отправленную заявку Apple 0.1.40 не менять.
+- [ ] При реальном подключении баннерного компонента проверить фактический размер адаптивного баннера (текущие измерения выполнены с отладочной областью 90/100 pt), не менять текущую заявку Apple.
+
+## 30.10.2026 — Подготовка iOS 0.1.41 (46) с полным ASO без изменения проверки 0.1.40
+
+- [x] Проверены Apple API и действующая проверка: 0.1.40 WAITING_FOR_REVIEW, build 45; 0.1.41 ещё не создана.
+- [x] Подписанная локальная 0.1.41 (46) с PacketTunnel и 50 языками, архив+IPA сохранены на ArvectumSSD, SHA256 в `docs/APL_IOS_041_ASO_RELEASE_PREPARATION_2026-10-30.md`.
+- [x] Готовы 47 ASO-локализаций и 94 скриншота, сценарии read-only проверки, создания 0.1.41 после публикации 0.1.40, поэтапного импорта ASO и проверки Apple COMPLETE/MD5, доставки IPA и привязки VALID build 46.
+- [x] Добавлены unit-тесты безопасности: отказ при 0.1.40 в App Review, защита от дубликатов и подмены версий/сборок, повторная проверка состояний.
+- [ ] Внешнее условие: Apple завершит рассмотрение 0.1.40 и версия станет READY_FOR_SALE. Только после этого можно выполнить записывающие Apple API операции по подготовленному runbook.
+- [ ] После создания новой версии и проверки импорта отправка 0.1.41 на App Review — отдельный явный этап выпуска; текущая проверка не затронута.
+
+## 30.10.2026 — iOS 50 UI languages: editorial ASO package complete
+
+- [x] GPT multilingual editorial + automated 50×155 iOS UI catalog consistency review; corrected erroneous bypass-exception terminology in 17 languages and disconnect action wording in three, plus literal `host:port` in eight.
+- [x] Restored correct visible Arvectum wordmark in three iOS app UI placements; screenshot checked on Simulator.
+- [x] Full editable App Store ASO corpus for 47 official Apple locales / 42 relevant iOS source languages: localized name, subtitle, description, keywords, promotional text, update text, and screenshot feature copy. Regional English/French/Spanish variants reviewed independently.
+- [x] Real iOS Simulator screenshot pairs per locale: 94 Apple-compliant 1206×2622 opaque JPEG files; no fabricated product states.
+- [x] Apple metadata/UTF-8 byte validation, 30 iOS/localization tests, all 50 `.strings` lint, signed full iOS archive and IPA export passed. App Store Connect remains unchanged.
+- [ ] Optional external human linguistic certification, wider device/a11y QA and keyword ranking measurement can supplement the completed source package before a new ASO campaign.
+
+## 30.10.2026 · iOS-only release localization: 50 source languages complete
+
+- [x] 50/50 full **iOS** `.lproj` catalogs (155 translated UI strings per language); 10 new: ha, am, sv, da, fi, nb, bg, sr, hr, ca. Android/desktop not changed; cross-platform registry remains 40/50.
+- [x] iOS native language picker and system scripts; 21 runtime mappings PASS, 50 plutil PASS; unsigned UI-only iOS Simulator bundle and signed App Store archive with PacketTunnel PASS; local QA IPA exported, **not uploaded**.
+- [x] Default-size iOS simulator visual review: English, Amharic, Hausa, Serbian Cyrillic, Finnish and Hebrew RTL; retained source QA evidence in `/tmp`.
+- [ ] Release signoff: review user-facing “no advertising/no ad SDK” claim versus advertising configured in published app; independent native language & device accessibility QA; choose new version/build number and submit only after owner's explicit approval.
+
+## 30.10.2026 · Редакторская вычитка ChatGPT / Tier-3 черновики
+
+- [x] В 40 полных локализациях исправлен контекст предупреждения Windows-автозапуска: чужие записи автозапуска, а не «записи других людей» или «сетевые настройки других программ»; сохранено название кнопки журнала.
+- [x] Исправлены четыре английские строки узбекского desktop и одна французского Android; тест против длинных английских пропусков по всем 40 языкам.
+- [x] Черновой редакторский материал для остающихся 10 языков: 280 переводов терминов (28×10) и 160 ключевых инструкций iOS (16×10) — ChatGPT-авторство, не локальная модель/внешний переводчик.
+- [ ] Для статуса 50/50 заполнить весь корпус 155 iOS + 104 Android + 193 desktop на каждый язык, включая ошибки, сетевую диагностику, все сообщения автозапуска, редактуру и тесты.
+- [ ] До релиза независимая носительская проверка и QA на устройствах; не менять Apple Connect и выключенный Watchdog.
+
+## 29.10.2026 · APL Core-40: cs, sk, el, he (Tier-2 завершён)
+
+- [x] Добавлены полные исходные каталоги чешского, словацкого, греческого и иврита: по 155 iOS / 104 Android / 193 desktop значения, всего 40/50 языков.
+- [x] Для иврита добавлен RTL; 64 ключевые инструкции и 16 предупреждений сети отредактированы. Проверки Python и iOS/Android сборки прошли.
+- [x] В таблице `docs/APL_LOCALIZATION_COVERAGE_2026-10-29.md`: Tier-1 — 20/20, Tier-2 — 20/20, Tier-3 — 0/10.
+- [ ] Следом Tier-3: `ha`, `am`, `sv`, `da`, `fi`, `nb`, `bg`, `sr`, `hr`, `ca`.
+- [ ] До релиза: носительская вычитка, реальное устройство, проверка RTL/доступности и подписанный PacketTunnel archive.
+
+## 29.10.2026 · APL Core-36 — ms, fil, sw, ro, hu
+
+- [x] Пять полных языков второго приоритета: малайский, филиппинский, суахили, румынский, венгерский (155 iOS / 104 Android / 193 desktop на язык). Всего 36/50.
+- [x] Редакторские правки 80 ключевых инструкций и 20 предупреждений восстановления сети; 28 терминов × 5. Source parity, Python/iOS/Android тесты и сборки пройдены.
+- [x] Таблица 50 языков, готовых и запланированных: `docs/APL_LOCALIZATION_COVERAGE_2026-10-29.md`.
+- [ ] Следующие Tier-2: `cs`, `sk`, `el`, `he` (иврит RTL); Tier-3 после этого: `ha`, `am`, `sv`, `da`, `fi`, `nb`, `bg`, `sr`, `hr`, `ca`.
+- [ ] Отдельные релизные проверки: независимая редактура носителями, физические устройства, переполнения/доступность, signed PacketTunnel.
+
+## 29.10.2026 · APL Core-31: mr, gu, kn, ml, uz-Latn
+
+- [x] Полные исходные локализации маратхи, гуджарати, каннада, малаялам и узбекского (латиница): по 155 iOS / 104 Android / 193 desktop строки, всего 31 язык.
+- [x] Вычитаны 80 инструкций и 20 предупреждений сети; 28 терминов × 5; системный выбор локали, script-specific Uzbek Latin, source parity, Python и iOS/Android сборки.
+- [ ] Отдельный QA перед релизом: независимая языковая редактура и физические устройства, доступность, длинные подписи, шрифты и названия Shortcuts.
+
+## 29.10.2026 · APL Core-26 / ur, bn, pa-Guru, ta, te
+
+- [x] Полные каталоги Tier-2 (урду, бенгальский, панджаби гурмукхи, тамильский, телугу), 155 iOS/104 Android/193 desktop на язык, итого 26 языков.
+- [x] 28 терминов × 5, редактура 80 инструкций и 20 сетевых предупреждений, защита урду RTL; уточнение script-specific Punjabi Gurmukhi; tests, iOS Simulator UI-only и Android Public/Private.
+- [ ] В отдельном QA: native-speaker proofread, физические устройства, VoiceOver/TalkBack, LTR IP/URL и полное зеркалирование Tk при необходимости.
+
+## 29.10.2026 · APL Core-21 — hi/ar/vi/pl/th
+
+- [x] Полные локализации хинди, арабского, вьетнамского, польского, тайского: 155 iOS + 104 Android + 193 desktop строк для каждого языка; всего 21 язык.
+- [x] Терминологическая вычитка, исправление 80 инструкций и 5 сообщений восстановления сети; арабский RTL, LTR поля адресов/IP; 21 языковой тест, проверки Python/iOS/Android.
+- [ ] До следующего релиза: визуальная QA на реальных устройствах, имена локализованных Shortcuts и корректная геометрия RTL в desktop; независимая носительская редактура при необходимости.
+
+## 29.10.2026 · APL Core-16 / NL, ID, TR
+
+- [x] Добавлено 3 полных языка из Core: нидерландский `nl`, индонезийский `id`, турецкий `tr`, по 452 строки/язык (iOS 155, Android 104, desktop 193).
+- [x] Внедрены языковые селекторы и 28 терминов глоссария; вычитаны 54 длинные инструкции и 21 предупреждение о восстановлении сети; регрессионные тесты добавлены.
+- [ ] Реальная UI/VoiceOver/TalkBack проверка всех трёх локалей перед включением в релиз. Документ QA: `docs/APL_CORE16_LOCALIZATION_QA_2026-10-29.md`.
+
+## 29.10.2026 · Core-13: редактура + фарси (PR #272)
+
+- [x] Повторная вычитка 12 существующих языков: 67 дополнительно исправленных текстов автоматизации, режимов и инструкций.
+- [x] Полный корпус `fa` — 155 iOS, 104 Android, 193 настольные строки; iOS picker + RTL, Android RTL и desktop-поддержка текста справа налево; добавлены тесты.
+- [ ] Приёмка персидского RTL на реальных устройствах и зеркалирование сетки Tk, если потребуется. См. `docs/APL_CORE13_PERSIAN_EDITORIAL_QA_2026-10-29.md`.
+
 # Arvectum Proxy Launcher — canonical roadmap
+
+## 29.10.2026 · Core-12 редакторский проход (PR #272)
+
+- [x] Вычитка смысла и технических терминов на 12 языках для iOS/Android/desktop: 5424 записей проверены структурно, 425 переводов исправлены; каталог из 28 терминов и регрессионные проверки введены в source. См. [редакторский QA](APL_CORE12_EDITORIAL_QA_2026-10-29.md).
+- [ ] Независимая редактура носителями, проверка точных названий Shortcut actions и UI на устройствах, VoiceOver/TalkBack, privacy/ads соответствие фактическому бинарнику — отдельные обязательные гейты до релиза.
+- [ ] В исходном iOS тексте остаются старые фактические утверждения «Без аналитики и рекламы»; при появлении рекламного SDK они не должны попасть в новую сборку без сверки. **Текущую Apple карточку/подачу не менять этой задачей.**
+
+## 29.10.2026 · APL localization / Core-12 — первая исходная волна
+
+- [x] Из канонического реестра Arvectum Tools Core перенесена базовая 12-язычная матрица: `en`, `ru`, `es`, `fr`, `de`, `it`, `pt-BR`, `pt-PT`, `ja`, `ko`, `zh-Hans`, `zh-Hant` (источники, не магазинные карточки).
+- [x] iOS: по 155 существующих UI/онбординг/приватность ключей на язык, 12 вариантов в переключателе и корректный системный fallback; Android: штатные ресурсы для 12 языков, статические надписи и динамические сообщения; desktop (macOS/Windows/Linux): 193 локализованные исходные фразы Tk и выбор по языку ОС.
+- [ ] Следующая волна — расширять реестр только реально переведёнными каталожными наборами, начиная с `nl` (в Core пока частично), далее Tier 1 `hi, ar, id, tr, vi, pl, th`; задача будущей волны, не часть текущего релиза.
+- [ ] Профессиональная редактура, реальный device/simulator GUI QA, экранные переполнения, accessibility, App Store локализованные карточки/скриншоты и отдельное разрешение публикации. Структурная полнота **не означает публикацию**.
+- [ ] Полная iOS-сборка требует штатного patched `tun2proxy.xcframework` для CI/подписанного архива; локализации проверяются отдельно. Последняя версия в App Store Connect/проверке, карточки приватности и текущие бинарники этой задачей **не изменяются**.
+
+[Матрица и условия приёмки](../localization/README.md).
+
 
 ## 28.10.2026 · C19 — macOS wake guard безопасное автоматическое восстановление UI
 

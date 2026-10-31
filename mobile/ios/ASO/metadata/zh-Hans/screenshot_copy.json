@@ -1,0 +1,5 @@
+{
+  "01_profiles": "多个配置文件、优先级与备用代理自动切换",
+  "02_direct_exceptions": "为需要直连的网站设置例外",
+  "03_app_automation": "通过 iOS 快捷指令自动控制所选 App"
+}

@@ -202,7 +202,7 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
             setPadding(dp(2), dp(10), dp(2), dp(12))
 
-            addView(screenTitle("Соединение", "Состояние APL и активный профиль"))
+            addView(screenTitle(getString(R.string.apl_connection_828dd), getString(R.string.apl_apl_status_and_active_profile_ef65f)))
 
             connectButton = buildPowerButton()
             addView(
@@ -224,7 +224,7 @@ class MainActivity : Activity() {
             addView(connectionDetail)
 
             homeProfileText = TextView(this@MainActivity).apply {
-                text = "Профиль · —"
+                text = getString(R.string.apl_profile_cc3f0)
                 textSize = 15f
                 setTypeface(typeface, Typeface.BOLD)
                 setTextColor(WHITE)
@@ -240,7 +240,7 @@ class MainActivity : Activity() {
             )
 
             addView(
-                brandSmallButton("Управление профилями", ButtonTone.GHOST).apply {
+                brandSmallButton(getString(R.string.apl_manage_profiles_ec69b), ButtonTone.GHOST).apply {
                     setOnClickListener { showDestination(Destination.PROFILES) }
                 },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
@@ -256,7 +256,7 @@ class MainActivity : Activity() {
                 LinearLayout(this@MainActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     setPadding(0, dp(10), 0, dp(12))
-                    addView(screenTitle("Профили", "Выбор, добавление и приоритет прокси"))
+                    addView(screenTitle(getString(R.string.apl_profiles_30c61), getString(R.string.apl_select_add_and_prioritize_proxi_43980)))
                     addView(
                         buildProfilePanel(),
                         LinearLayout.LayoutParams(
@@ -275,9 +275,9 @@ class MainActivity : Activity() {
                 LinearLayout(this@MainActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     setPadding(0, dp(10), 0, dp(12))
-                    addView(screenTitle("Активность", "Состояние соединения и последние события"))
+                    addView(screenTitle(getString(R.string.apl_activity_85f08), getString(R.string.apl_connection_status_and_recent_ac_019e8)))
                     activityStateText = TextView(this@MainActivity).apply {
-                        text = "Отключено"
+                        text = getString(R.string.apl_disconnected_3e958)
                         textSize = 14f
                         setTextColor(SOFT_GRAY)
                         setPadding(dp(14), dp(14), dp(14), dp(14))
@@ -291,7 +291,7 @@ class MainActivity : Activity() {
                         ).apply { topMargin = dp(12) },
                     )
                     addView(
-                        brandSmallButton("Открыть журнал", ButtonTone.GHOST).apply {
+                        brandSmallButton(getString(R.string.apl_open_magazine_9ebce), ButtonTone.GHOST).apply {
                             setOnClickListener { showPoolEventsDialog() }
                         },
                         LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)).apply {
@@ -309,13 +309,13 @@ class MainActivity : Activity() {
                 LinearLayout(this@MainActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     setPadding(0, dp(10), 0, dp(12))
-                    addView(screenTitle("Настройки", "Маршрутизация и поведение APL"))
-                    addView(settingsDestinationButton("Исключения сайтов") { showSiteExclusionsDialog() })
-                    addView(settingsDestinationButton("Исключения приложений") { showAppExclusionsDialog() })
-                    addView(settingsDestinationButton("Настройки Auto") { showAutoSettingsDialog() })
+                    addView(screenTitle(getString(R.string.apl_settings_985b5), getString(R.string.apl_routing_and_apl_behavior_2e5e0)))
+                    addView(settingsDestinationButton(getString(R.string.apl_website_exclusions_bd616)) { showSiteExclusionsDialog() })
+                    addView(settingsDestinationButton(getString(R.string.apl_app_exclusions_7910b)) { showAppExclusionsDialog() })
+                    addView(settingsDestinationButton(getString(R.string.apl_auto_settings_b61a2)) { showAutoSettingsDialog() })
                     addView(
                         TextView(this@MainActivity).apply {
-                            text = "Расширенные действия отделены от ежедневного подключения."
+                            text = getString(R.string.apl_advanced_actions_are_separate_f_a86aa)
                             textSize = 12f
                             setTextColor(SOFT_GRAY)
                             setPadding(dp(2), dp(14), dp(2), 0)
@@ -411,17 +411,17 @@ class MainActivity : Activity() {
                 )
             }
 
-        destination(Destination.HOME, "Главная")
-        destination(Destination.PROFILES, "Профили")
-        destination(Destination.ACTIVITY, "Активность", 1.15f)
-        destination(Destination.SETTINGS, "Настройки", 1.15f)
+        destination(Destination.HOME, getString(R.string.apl_home_d328e))
+        destination(Destination.PROFILES, getString(R.string.apl_profiles_30c61))
+        destination(Destination.ACTIVITY, getString(R.string.apl_activity_85f08), 1.15f)
+        destination(Destination.SETTINGS, getString(R.string.apl_settings_985b5), 1.15f)
         return bar
     }
 
     private fun showSettingsHubDialog() {
-        val labels = arrayOf("Исключения сайтов", "Исключения приложений", "Настройки Auto")
+        val labels = arrayOf(getString(R.string.apl_website_exclusions_bd616), getString(R.string.apl_app_exclusions_7910b), getString(R.string.apl_auto_settings_b61a2))
         AlertDialog.Builder(this)
-            .setTitle("Настройки")
+            .setTitle(getString(R.string.apl_settings_985b5))
             .setItems(labels) { _, which ->
                 when (which) {
                     0 -> showSiteExclusionsDialog()
@@ -429,16 +429,16 @@ class MainActivity : Activity() {
                     2 -> showAutoSettingsDialog()
                 }
             }
-            .setNegativeButton("Закрыть", null)
+            .setNegativeButton(getString(R.string.apl_close_a7a40), null)
             .show()
     }
 
     private fun showAutoSettingsDialog() {
         val checked = store.getRestorePolicy() == PrimaryRestorePolicy.RETURN_TO_PRIMARY
         AlertDialog.Builder(this)
-            .setTitle("Настройки Auto")
+            .setTitle(getString(R.string.apl_auto_settings_b61a2))
             .setMultiChoiceItems(
-                arrayOf("Возвращаться к приоритетному прокси после сбоя"),
+                arrayOf(getString(R.string.apl_revert_to_priority_proxy_after_d9b06)),
                 booleanArrayOf(checked),
             ) { dialog, _, enabled ->
                 runCatching {
@@ -449,7 +449,7 @@ class MainActivity : Activity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Закрыть", null)
+            .setNegativeButton(getString(R.string.apl_close_a7a40), null)
             .show()
     }
 
@@ -518,7 +518,7 @@ class MainActivity : Activity() {
     private fun buildPowerButton(): Button =
         Button(this).apply {
             isAllCaps = false
-            text = "Подключиться"
+            text = getString(R.string.apl_connect_36b4c)
             textSize = 21f
             setTypeface(typeface, Typeface.BOLD)
             gravity = Gravity.CENTER
@@ -537,7 +537,7 @@ class MainActivity : Activity() {
             elevation = dp(9).toFloat()
             background = powerRipple(GRAPHITE, SOFT_GRAY, MINT)
             setTextColor(WHITE)
-            contentDescription = "Подключиться"
+            contentDescription = getString(R.string.apl_connect_36b4c)
             setOnClickListener {
                 when (currentState) {
                     ProxyVpnService.STATE_CONNECTED,
@@ -596,7 +596,7 @@ class MainActivity : Activity() {
         }
 
         panel.addView(TextView(this).apply {
-            text = "Прокси"
+            text = getString(R.string.apl_proxy_a5677)
             textSize = 13f
             setTextColor(MINT_LIGHT)
             setTypeface(typeface, Typeface.BOLD)
@@ -610,7 +610,7 @@ class MainActivity : Activity() {
             background = roundedRipple(NAVY, MINT_RIPPLE, 14f, SOFT_GRAY)
             isClickable = true
             isFocusable = true
-            contentDescription = "Выбрать прокси"
+            contentDescription = getString(R.string.apl_select_a_proxy_43c2e)
             setOnClickListener {
                 if (isEnabled) showProfileMenu()
             }
@@ -653,14 +653,14 @@ class MainActivity : Activity() {
             clipToPadding = false
         }
         newProfileButton = profilePanelAction(
-            text = "＋ Новый",
+            text = getString(R.string.apl_new_4460b),
             tone = ButtonTone.MINT,
             metrics = actionMetrics,
         ).apply {
             setOnClickListener { showProfileEditor(null) }
         }
         editProfileButton = profilePanelAction(
-            text = "Изменить",
+            text = getString(R.string.apl_edit_b8b15),
             tone = ButtonTone.GHOST,
             metrics = actionMetrics,
         ).apply {
@@ -757,15 +757,15 @@ class MainActivity : Activity() {
                 }
             }
         quickActions.addView(
-            quickAction("Сайты") { showSiteExclusionsDialog() },
+            quickAction(getString(R.string.apl_websites_54646)) { showSiteExclusionsDialog() },
             LinearLayout.LayoutParams(0, dp(48), 0.8f),
         )
         quickActions.addView(
-            quickAction("Приложения") { showAppExclusionsDialog() },
+            quickAction(getString(R.string.apl_applications_39c4b)) { showAppExclusionsDialog() },
             LinearLayout.LayoutParams(0, dp(48), 1.4f).apply { leftMargin = dp(6) },
         )
         quickActions.addView(
-            quickAction("Журнал") { showPoolEventsDialog() },
+            quickAction(getString(R.string.apl_log_97c45)) { showPoolEventsDialog() },
             LinearLayout.LayoutParams(0, dp(48), 0.8f).apply { leftMargin = dp(6) },
         )
         quickActions.visibility = View.GONE
@@ -813,7 +813,7 @@ class MainActivity : Activity() {
         })
 
         val restoreToggle = CheckBox(this).apply {
-            text = "Возвращаться к приоритетному прокси после сбоя"
+            text = getString(R.string.apl_revert_to_priority_proxy_after_d9b06)
             textSize = 13.5f
             setTextColor(WHITE)
             buttonTintList = ColorStateList(
@@ -846,23 +846,23 @@ class MainActivity : Activity() {
 
     private fun refreshProfileChoices(selectedKey: String?) {
         val profiles = runCatching { store.listProfiles() }.getOrElse {
-            renderState(ProxyVpnService.STATE_ERROR, "Не удалось прочитать сохранённые профили")
+            renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_failed_to_read_saved_profiles_64a09))
             emptyList()
         }
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
         val now = System.currentTimeMillis()
         profileChoices = buildList {
             if (profiles.isNotEmpty()) {
-                add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, "Авто", "Авто"))
+                add(ProfileChoice(AUTO_KEY, ChoiceKind.AUTO, null, getString(R.string.apl_auto_8dca2), getString(R.string.apl_auto_8dca2)))
             }
             profiles.forEach { profile ->
                 val health = runCatching { poolUiStore.getHealth(profile.id) }.getOrNull()
                 val fresh = health?.takeIf { now - it.checkedAtMs <= HEALTH_STALE_AFTER_MS }
                 val prefix = if (profile.id == primaryId) "★ " else ""
                 val suffix = when (fresh?.status) {
-                    ProxyHealthStatus.CHECKING -> " · проверяется"
-                    ProxyHealthStatus.AVAILABLE -> fresh.latencyMs?.let { " · ${it} мс" } ?: " · доступен"
-                    ProxyHealthStatus.UNAVAILABLE -> " · недоступен"
+                    ProxyHealthStatus.CHECKING -> getString(R.string.apl_checked_6a779)
+                    ProxyHealthStatus.AVAILABLE -> fresh.latencyMs?.let { getString(R.string.apl_latency_milliseconds, it) } ?: getString(R.string.apl_available_c75e3)
+                    ProxyHealthStatus.UNAVAILABLE -> getString(R.string.apl_unavailable_bee71)
                     else -> ""
                 }
                 add(
@@ -880,14 +880,14 @@ class MainActivity : Activity() {
         val choice = profileChoices.firstOrNull { it.key == selectedKey }
             ?: profileChoices.firstOrNull()
         if (choice == null) {
-            profileSelectionText.text = "Добавьте прокси"
+            profileSelectionText.text = getString(R.string.apl_add_a_proxy_31af8)
             currentProfileId = null
         } else {
             profileSelectionText.text = choice.label
             currentProfileId = choice.profileId
         }
         if (::homeProfileText.isInitialized) {
-            homeProfileText.text = "Профиль · " + (choice?.label ?: "не настроен")
+            homeProfileText.text = getString(R.string.apl_profile_309fc) + (choice?.label ?: getString(R.string.apl_not_configured_6153e))
         }
         updateProfileControls()
     }
@@ -930,6 +930,9 @@ class MainActivity : Activity() {
         val input = EditText(this).apply {
             hint = "example.com"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            // Domain/IP input remains LTR inside the Arabic RTL interface.
+            textDirection = View.TEXT_DIRECTION_LTR
+            layoutDirection = View.LAYOUT_DIRECTION_LTR
             setSingleLine(true)
             textSize = 15f
             setTextColor(NAVY)
@@ -943,7 +946,7 @@ class MainActivity : Activity() {
             list.removeAllViews()
             if (entries.isEmpty()) {
                 list.addView(TextView(this).apply {
-                    text = "Список пока пуст"
+                    text = getString(R.string.apl_no_exclusions_added_ed689)
                     textSize = 13f
                     setTextColor(DISABLED_FG)
                     setPadding(dp(4), dp(8), dp(4), dp(4))
@@ -962,7 +965,7 @@ class MainActivity : Activity() {
                     setTextColor(NAVY)
                 }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 row.addView(Button(this).apply {
-                    text = "Удалить"
+                    text = getString(R.string.apl_delete_be99b)
                     isAllCaps = false
                     setOnClickListener {
                         entries.remove(host)
@@ -979,11 +982,11 @@ class MainActivity : Activity() {
             val normalized = try {
                 SiteExclusionPolicy.normalize(raw)
             } catch (e: IllegalArgumentException) {
-                input.error = e.message ?: "Проверьте адрес сайта"
+                input.error = e.message ?: getString(R.string.apl_check_the_site_address_cfb0f)
                 return
             }
             if (normalized == null) {
-                input.error = "Введите адрес сайта"
+                input.error = getString(R.string.apl_enter_site_address_6948f)
                 return
             }
             if (normalized !in entries) {
@@ -996,7 +999,7 @@ class MainActivity : Activity() {
         }
 
         val addButton = Button(this).apply {
-            text = "Добавить"
+            text = getString(R.string.apl_add_71038)
             isAllCaps = false
             setOnClickListener { addEntry() }
         }
@@ -1025,10 +1028,10 @@ class MainActivity : Activity() {
         renderEntries()
 
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Исключения")
+            .setTitle(getString(R.string.apl_exclusions_f4f81))
             .setView(content)
-            .setNegativeButton("Отмена", null)
-            .setPositiveButton("Сохранить", null)
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+            .setPositiveButton(getString(R.string.apl_save_b4d30), null)
             .create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
@@ -1036,23 +1039,23 @@ class MainActivity : Activity() {
                 val normalized = try {
                     SiteExclusionPolicy.normalizeAll(entries)
                 } catch (e: IllegalArgumentException) {
-                    input.error = e.message ?: "Проверьте список исключений"
+                    input.error = e.message ?: getString(R.string.apl_check_the_list_of_exceptions_7e571)
                     return@setOnClickListener
                 }
                 try {
                     store.setSiteExclusions(normalized)
                 } catch (_: Exception) {
-                    input.error = "Не удалось сохранить исключения"
+                    input.error = getString(R.string.apl_failed_to_save_exceptions_1877d)
                     return@setOnClickListener
                 }
                 dialog.dismiss()
                 if (currentState == ProxyVpnService.STATE_CONNECTED ||
                     currentState == ProxyVpnService.STATE_CONNECTING
                 ) {
-                    selectedChoice()?.let { requestLiveSwitch(it, "Применяем исключения…") }
+                    selectedChoice()?.let { requestLiveSwitch(it, getString(R.string.apl_we_apply_exceptions_66519)) }
                 } else {
-                    val detail = if (normalized.isEmpty()) "Исключения очищены"
-                    else "Сохранено исключений: ${normalized.size}"
+                    val detail = if (normalized.isEmpty()) getString(R.string.apl_exceptions_cleared_7e206)
+                    else getString(R.string.apl_exclusions_saved_count, normalized.size)
                     renderState(currentState, detail)
                 }
             }
@@ -1068,13 +1071,13 @@ class MainActivity : Activity() {
             addView(
                 ProgressBar(this@MainActivity).apply {
                     isIndeterminate = true
-                    contentDescription = "Загрузка списка приложений"
+                    contentDescription = getString(R.string.apl_loading_a_list_of_applications_92b3a)
                 },
                 LinearLayout.LayoutParams(dp(32), dp(32)),
             )
             addView(
                 TextView(this@MainActivity).apply {
-                    text = "Загружаем список приложений…"
+                    text = getString(R.string.apl_loading_the_list_of_application_8f04d)
                     textSize = 15f
                     setTextColor(NAVY)
                     setPadding(dp(16), 0, 0, 0)
@@ -1083,9 +1086,9 @@ class MainActivity : Activity() {
             )
         }
         val loadingDialog = AlertDialog.Builder(this)
-            .setTitle("Исключения приложений")
+            .setTitle(getString(R.string.apl_app_exclusions_7910b))
             .setView(loadingContent)
-            .setNegativeButton("Отмена", null)
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
             .create()
         appExclusionLoadingDialog?.dismiss()
         appExclusionLoadingDialog = loadingDialog
@@ -1145,9 +1148,9 @@ class MainActivity : Activity() {
     private fun showAppExclusionsLoadError() {
         if (isFinishing || isDestroyed) return
         AlertDialog.Builder(this)
-            .setTitle("Исключения приложений")
-            .setMessage("Не удалось получить список установленных приложений.")
-            .setPositiveButton("Закрыть", null)
+            .setTitle(getString(R.string.apl_app_exclusions_7910b))
+            .setMessage(getString(R.string.apl_failed_to_get_list_of_installed_4db23))
+            .setPositiveButton(getString(R.string.apl_close_a7a40), null)
             .show()
     }
 
@@ -1158,13 +1161,13 @@ class MainActivity : Activity() {
         val labels = apps.map { it.label }.toTypedArray()
         val checked = BooleanArray(apps.size) { apps[it].packageId in selected }
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Исключения приложений")
+            .setTitle(getString(R.string.apl_app_exclusions_7910b))
             .setMultiChoiceItems(labels, checked) { _, index, enabled ->
                 val packageId = apps[index].packageId
                 if (enabled) selected.add(packageId) else selected.remove(packageId)
             }
-            .setNegativeButton("Отмена", null)
-            .setPositiveButton("Сохранить", null)
+            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+            .setPositiveButton(getString(R.string.apl_save_b4d30), null)
             .create()
 
         dialog.setOnShowListener {
@@ -1174,7 +1177,7 @@ class MainActivity : Activity() {
                 } catch (_: Exception) {
                     renderState(
                         ProxyVpnService.STATE_ERROR,
-                        "Не удалось сохранить исключения приложений",
+                        getString(R.string.apl_failed_to_save_application_exce_43bab),
                     )
                     return@setOnClickListener
                 }
@@ -1183,14 +1186,14 @@ class MainActivity : Activity() {
                     currentState == ProxyVpnService.STATE_CONNECTING
                 ) {
                     selectedChoice()?.let {
-                        requestLiveSwitch(it, "Применяем исключения приложений…")
+                        requestLiveSwitch(it, getString(R.string.apl_applying_application_exceptions_fb591))
                     }
                 } else {
                     val count = store.getAppExclusions().size
                     val detail = if (count == 0) {
-                        "Исключения приложений очищены"
+                        getString(R.string.apl_application_exceptions_cleared_2d716)
                     } else {
-                        "Приложений в обход прокси: $count"
+                        getString(R.string.apl_apps_bypassing_count, count)
                     }
                     renderState(currentState, detail)
                 }
@@ -1203,7 +1206,7 @@ class MainActivity : Activity() {
         val events = runCatching { poolUiStore.listEvents(20) }.getOrDefault(emptyList())
         val formatter = SimpleDateFormat("dd.MM HH:mm:ss", Locale.getDefault())
         val message = if (events.isEmpty()) {
-            "Журнал пока пуст"
+            getString(R.string.apl_the_magazine_is_still_empty_b5bab)
         } else {
             events.joinToString("\n") { event ->
                 val time = formatter.format(Date(event.timestampMs))
@@ -1212,17 +1215,17 @@ class MainActivity : Activity() {
             }
         }
         AlertDialog.Builder(this)
-            .setTitle("Журнал")
+            .setTitle(getString(R.string.apl_log_97c45))
             .setMessage(message)
-            .setPositiveButton("Закрыть", null)
+            .setPositiveButton(getString(R.string.apl_close_a7a40), null)
             .show()
     }
 
     private fun poolEventLabel(type: String): String = when (type) {
-        "proxy unavailable" -> "прокси недоступен"
-        "switched" -> "переключено"
-        "restored" -> "основной восстановлен"
-        "network changed" -> "смена сети"
+        "proxy unavailable" -> getString(R.string.apl_proxy_unavailable_35b04)
+        "switched" -> getString(R.string.apl_switched_4c72e)
+        "restored" -> getString(R.string.apl_main_restored_290c9)
+        "network changed" -> getString(R.string.apl_network_change_50fc1)
         else -> type
     }
 
@@ -1231,7 +1234,7 @@ class MainActivity : Activity() {
             when (choice.kind) {
                 ChoiceKind.AUTO -> {
                     if (store.listProfiles().isEmpty()) {
-                        renderState(ProxyVpnService.STATE_ERROR, "Сначала добавьте хотя бы один прокси")
+                        renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_add_at_least_one_proxy_first_a29bb))
                         return false
                     }
                     store.setAutoProfileSelection(true)
@@ -1247,7 +1250,7 @@ class MainActivity : Activity() {
             updateProfileControls()
             true
         } catch (_: Exception) {
-            renderState(ProxyVpnService.STATE_ERROR, "Не удалось выбрать прокси")
+            renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_failed_to_select_proxy_c4629))
             refreshProfileChoices(currentSelectionKey())
             false
         }
@@ -1255,7 +1258,7 @@ class MainActivity : Activity() {
 
     private fun requestLiveSwitch(
         choice: ProfileChoice,
-        detail: String = "Переключаемся на ${choice.label}…",
+        detail: String = getString(R.string.apl_switching_to_profile, choice.label),
     ) {
         pendingSwitchChoice = choice
         pendingSwitchDetail = detail
@@ -1275,7 +1278,7 @@ class MainActivity : Activity() {
                 updateProfileControls()
                 return
             }
-            val reconnectDetail = pendingSwitchDetail ?: "Переключаемся на ${choice.label}…"
+            val reconnectDetail = pendingSwitchDetail ?: getString(R.string.apl_switching_to_profile, choice.label)
             mainHandler.postDelayed({
                 if (!switchInProgress || pendingSwitchChoice?.key != choice.key) return@postDelayed
                 if (applySelection(choice)) {
@@ -1334,7 +1337,7 @@ class MainActivity : Activity() {
         }
 
         outer.addView(TextView(this).apply {
-            text = if (existing == null) "Новый прокси" else "Изменить профиль"
+            text = if (existing == null) getString(R.string.apl_new_proxy_29c0e) else getString(R.string.apl_edit_profile_4bc58)
             textSize = 20f
             setTextColor(NAVY)
             setTypeface(typeface, Typeface.BOLD)
@@ -1346,32 +1349,36 @@ class MainActivity : Activity() {
             setPadding(0, dp(7), 0, 0)
         }
 
-        val nameField = editorField(fields, "Название", "Например: Основной")
-        val hostField = editorField(fields, "Адрес прокси", "proxy.example.com")
+        val nameField = editorField(fields, getString(R.string.apl_name_0918b), getString(R.string.apl_for_example_basic_1589d))
+        val hostField = editorField(fields, getString(R.string.apl_proxy_address_ef480), "proxy.example.com")
+        hostField.textDirection = View.TEXT_DIRECTION_LTR
+        hostField.layoutDirection = View.LAYOUT_DIRECTION_LTR
         val portField = editorField(
             fields,
-            "Порт",
+            getString(R.string.apl_port_90947),
             "8000",
             InputType.TYPE_CLASS_NUMBER,
         )
-        val usernameField = editorField(fields, "Логин", "Необязательно")
+        portField.textDirection = View.TEXT_DIRECTION_LTR
+        portField.layoutDirection = View.LAYOUT_DIRECTION_LTR
+        val usernameField = editorField(fields, getString(R.string.apl_username_5be12), getString(R.string.apl_optional_f6d95))
         val passwordField = editorField(
             fields,
-            "Пароль",
-            "Необязательно",
+            getString(R.string.apl_password_cb1a2),
+            getString(R.string.apl_optional_f6d95),
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD,
         )
 
-        fields.addView(editorLabel("Протокол"))
+        fields.addView(editorLabel(getString(R.string.apl_protocol_b3680)))
         val typeSpinner = Spinner(this, Spinner.MODE_DROPDOWN).apply {
             adapter = ArrayAdapter(
                 this@MainActivity,
                 android.R.layout.simple_spinner_dropdown_item,
                 listOf(
-                    "Авто-протокол",
+                    getString(R.string.apl_auto_protocol_56dd3),
                     "HTTP/HTTPS (CONNECT)",
                     "SOCKS5",
-                    "HTTPS-proxy с TLS",
+                    getString(R.string.apl_https_proxy_with_tls_93526),
                 ),
             )
             setPadding(dp(12), 0, dp(10), 0)
@@ -1389,7 +1396,7 @@ class MainActivity : Activity() {
 
         val primaryId = runCatching { store.getPrimaryProfileId() }.getOrNull()
         val primaryCheck = CheckBox(this).apply {
-            text = "Приоритетный для режима «Авто»"
+            text = getString(R.string.apl_priority_for_auto_mode_b65c0)
             textSize = 13.5f
             setTextColor(NAVY)
             buttonTintList = ColorStateList(
@@ -1434,15 +1441,15 @@ class MainActivity : Activity() {
 
         if (existing != null) {
             actions.addView(
-                brandSmallButton("Удалить", ButtonTone.DANGER).apply {
+                brandSmallButton(getString(R.string.apl_delete_be99b), ButtonTone.DANGER).apply {
                     isEnabled = !editingWhileConnected
                     alpha = if (isEnabled) 1f else 0.5f
                     setOnClickListener {
                         AlertDialog.Builder(this@MainActivity)
-                            .setTitle("Удалить профиль?")
+                            .setTitle(getString(R.string.apl_delete_profile_b745f))
                             .setMessage(existing.profile.name)
-                            .setNegativeButton("Отмена", null)
-                            .setPositiveButton("Удалить") { _, _ ->
+                            .setNegativeButton(getString(R.string.apl_cancel_8fbe9), null)
+                            .setPositiveButton(getString(R.string.apl_delete_be99b)) { _, _ ->
                                 deleteProfile(existing.profile.id)
                                 dialog.dismiss()
                             }
@@ -1462,7 +1469,7 @@ class MainActivity : Activity() {
         )
 
         actions.addView(
-            brandSmallButton("Отмена", ButtonTone.GHOST).apply {
+            brandSmallButton(getString(R.string.apl_cancel_8fbe9), ButtonTone.GHOST).apply {
                 setOnClickListener { dialog.dismiss() }
             },
             LinearLayout.LayoutParams(
@@ -1471,16 +1478,16 @@ class MainActivity : Activity() {
             ),
         )
         actions.addView(
-            brandSmallButton("Сохранить", ButtonTone.MINT).apply {
+            brandSmallButton(getString(R.string.apl_save_b4d30), ButtonTone.MINT).apply {
                 setOnClickListener {
                     val host = hostField.text.toString().trim()
                     val port = portField.text.toString().toIntOrNull()
                     if (host.isBlank()) {
-                        hostField.error = "Введите адрес прокси"
+                        hostField.error = getString(R.string.apl_enter_proxy_address_6ecda)
                         return@setOnClickListener
                     }
                     if (port == null || port !in 1..65535) {
-                        portField.error = "Порт 1–65535"
+                        portField.error = getString(R.string.apl_port_1_65535_ea034)
                         return@setOnClickListener
                     }
 
@@ -1520,7 +1527,7 @@ class MainActivity : Activity() {
                             }
                         }
                     } catch (_: Exception) {
-                        hostField.error = "Не удалось безопасно сохранить профиль"
+                        hostField.error = getString(R.string.apl_failed_to_save_profile_securely_c836f)
                         return@setOnClickListener
                     } finally {
                         password?.fill('\u0000')
@@ -1533,10 +1540,10 @@ class MainActivity : Activity() {
                         refreshProfileChoices(id)
                         if (editingWhileConnected) {
                             profileChoices.firstOrNull { it.key == id }?.let {
-                                requestLiveSwitch(it, "Применяем изменения профиля…")
+                                requestLiveSwitch(it, getString(R.string.apl_applying_profile_changes_79c0c))
                             }
                         } else {
-                            renderState(ProxyVpnService.STATE_DISCONNECTED, "Сохранено: $name")
+                            renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_profile_saved, name))
                         }
                     }
                     dialog.dismiss()
@@ -1608,17 +1615,17 @@ class MainActivity : Activity() {
             store.deleteProfile(id)
             poolUiStore.removeHealth(id)
         } catch (_: Exception) {
-            renderState(ProxyVpnService.STATE_ERROR, "Не удалось удалить профиль")
+            renderState(ProxyVpnService.STATE_ERROR, getString(R.string.apl_failed_to_delete_profile_838f1))
             return
         }
         refreshProfileChoices(currentSelectionKey())
-        renderState(ProxyVpnService.STATE_DISCONNECTED, "Профиль удалён")
+        renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_profile_deleted_925ef))
     }
 
     private fun saveSelectionAndRequestVpnPermission() {
         val choice = selectedChoice()
         if (choice == null) {
-            renderState(ProxyVpnService.STATE_DISCONNECTED, "Сначала добавьте прокси")
+            renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_first_add_a_proxy_aefe9))
             showProfileEditor(null)
             return
         }
@@ -1629,7 +1636,7 @@ class MainActivity : Activity() {
     private fun requestVpnPermissionOrConnect() {
         val permissionIntent = VpnService.prepare(this)
         if (permissionIntent != null) {
-            renderState(ProxyVpnService.STATE_DISCONNECTED, "Разрешите создание VPN-подключения")
+            renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_allow_the_creation_of_a_vpn_con_d0338))
             @Suppress("DEPRECATION")
             startActivityForResult(permissionIntent, VPN_REQUEST)
         } else {
@@ -1660,19 +1667,19 @@ class MainActivity : Activity() {
                 startVpnService(ProxyVpnService.ACTION_RECONCILE)
             }
             TunnelResumeAction.RESET_FOR_PERMISSION -> {
-                val detail = "Android сбросил разрешение VPN. Нажмите «Подключиться»."
+                val detail = getString(R.string.apl_android_reset_vpn_permission_cl_6add7)
                 poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
             }
             TunnelResumeAction.RESET_STALE_DISCONNECT -> {
-                val detail = "VPN отключён. Можно подключиться снова."
+                val detail = getString(R.string.apl_vpn_is_disabled_you_can_connect_65e75)
                 poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTED, detail)
                 renderState(ProxyVpnService.STATE_DISCONNECTED, detail)
             }
         }
     }
 
-    private fun connectVpn(detail: String = "Проверяем прокси…") {
+    private fun connectVpn(detail: String = getString(R.string.apl_checking_the_proxy_fc59b)) {
         poolUiStore.setTunnelState(ProxyVpnService.STATE_CONNECTING, detail)
         renderState(ProxyVpnService.STATE_CONNECTING, detail)
         startVpnService(ProxyVpnService.ACTION_CONNECT)
@@ -1683,7 +1690,7 @@ class MainActivity : Activity() {
         startForegroundService(intent)
     }
 
-    private fun disconnectVpn(detail: String = "Отключение…") {
+    private fun disconnectVpn(detail: String = getString(R.string.apl_disconnecting_6a55f)) {
         poolUiStore.setTunnelState(ProxyVpnService.STATE_DISCONNECTING, detail)
         renderState(ProxyVpnService.STATE_DISCONNECTING, detail)
         startService(Intent(this, ProxyVpnService::class.java).setAction(ProxyVpnService.ACTION_DISCONNECT))
@@ -1696,7 +1703,7 @@ class MainActivity : Activity() {
         if (resultCode == RESULT_OK) {
             connectVpn()
         } else {
-            renderState(ProxyVpnService.STATE_DISCONNECTED, "Разрешение VPN не выдано")
+            renderState(ProxyVpnService.STATE_DISCONNECTED, getString(R.string.apl_vpn_permission_not_granted_c24a8))
         }
     }
 
@@ -1732,11 +1739,11 @@ class MainActivity : Activity() {
         )
 
         connectButton.text = when {
-            switchInProgress -> "Переключение"
-            state == ProxyVpnService.STATE_CONNECTED -> "Отключить"
-            state == ProxyVpnService.STATE_CONNECTING -> "Подключение…"
-            state == ProxyVpnService.STATE_DISCONNECTING -> "Отключение…"
-            else -> "Подключиться"
+            switchInProgress -> getString(R.string.apl_switching_b0760)
+            state == ProxyVpnService.STATE_CONNECTED -> getString(R.string.apl_disconnect_bb5bd)
+            state == ProxyVpnService.STATE_CONNECTING -> getString(R.string.apl_connecting_e2449)
+            state == ProxyVpnService.STATE_DISCONNECTING -> getString(R.string.apl_disconnecting_6a55f)
+            else -> getString(R.string.apl_connect_36b4c)
         }
 
         connectButton.contentDescription = connectButton.text
@@ -1772,10 +1779,10 @@ class MainActivity : Activity() {
     }
 
     private fun compactConnectionDetail(state: String, detail: String?): String {
-        if (switchInProgress) return "Меняем активный прокси"
+        if (switchInProgress) return getString(R.string.apl_changing_the_active_proxy_f5b3e)
 
         if (state == ProxyVpnService.STATE_ERROR) {
-            return "Ошибка: ${detail ?: "не удалось подключиться"}"
+            return getString(R.string.apl_error_detail, detail ?: getString(R.string.apl_cannot_connect))
         }
 
         if (state == ProxyVpnService.STATE_CONNECTED && detail != null) {
@@ -1785,22 +1792,23 @@ class MainActivity : Activity() {
             } else {
                 parts
             }
-            return useful.take(2).joinToString(" · ").ifBlank { "Соединение активно" }
+            return useful.take(2).joinToString(" · ").ifBlank { getString(R.string.apl_connection_active_6cfc7) }
         }
 
         if (state == ProxyVpnService.STATE_CONNECTING && !detail.isNullOrBlank()) {
             return simplifyConnectionDetail(detail)
                 .removePrefix("Проверяем прокси…")
+                .removePrefix(getString(R.string.apl_checking_the_proxy_fc59b))
                 .trim()
-                .ifBlank { "Проверяем выбранный прокси" }
+                .ifBlank { getString(R.string.apl_checking_the_selected_proxy_8dcaa) }
         }
 
         if (state == ProxyVpnService.STATE_DISCONNECTING) {
-            return "Завершаем соединение"
+            return getString(R.string.apl_ending_the_connection_170ca)
         }
 
         val choice = profileChoices.firstOrNull { it.key == currentSelectionKey() }
-        return choice?.label ?: "Выберите прокси"
+        return choice?.label ?: getString(R.string.apl_select_a_proxy_f0954)
     }
 
     private fun simplifyConnectionDetail(detail: String): String =

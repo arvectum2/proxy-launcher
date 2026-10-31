@@ -16,6 +16,7 @@ PT Sans / JetBrains Mono, фирменный знак и горизонталь�
 """
 
 import atexit
+from desktop_i18n import tr
 import os
 import subprocess
 import sys
@@ -87,8 +88,8 @@ def _platform_label():
 def _autostart_label():
     platform_name = _platform_label()
     if platform_name == "Windows":
-        return "Запускать прокси при входе в Windows"
-    return "Запускать Arvectum Proxy Launcher при входе в %s" % platform_name
+        return tr("Запускать прокси при входе в Windows")
+    return tr("Запускать Arvectum Proxy Launcher при входе в %s") % platform_name
 
 
 def _center_window(root):
@@ -286,7 +287,7 @@ def _bind_clipboard_paste(entry):
     entry.bind("<Shift-Insert>", paste)
 
     menu = tk.Menu(entry, tearoff=False)
-    menu.add_command(label="Вставить", command=paste)
+    menu.add_command(label=tr("Вставить"), command=paste)
 
     def show_menu(event):
         try:
@@ -385,13 +386,13 @@ def _autostart_target():
     if getattr(sys, "frozen", False):
         if _portable_fallback_active():
             raise RuntimeError(
-                "Автозапуск временно недоступен: постоянная копия Launcher "
+                tr("Автозапуск временно недоступен: постоянная копия Launcher "
                 "не была подтверждена как запускаемая Windows. Текущий portable "
-                "Launcher можно использовать вручную."
+                "Launcher можно использовать вручную.")
             )
         target = core.managed_executable()
         if not target:
-            raise RuntimeError(core.self_heal_error() or "Не удалось подготовить постоянную копию Launcher.")
+            raise RuntimeError(core.self_heal_error() or tr("Не удалось подготовить постоянную копию Launcher."))
         return '"%s" --start' % target
     return '"%s" "%s" --start' % (sys.executable, os.path.join(core.app_dir(), "proxy_core.py"))
 
@@ -443,7 +444,7 @@ class SettingsDialog(tk.Toplevel):
 
     def __init__(self, master, settings):
         super().__init__(master)
-        self.title("Настройки прокси · " + APP_NAME)
+        self.title(tr("Настройки прокси · ") + APP_NAME)
         self.settings = settings
         self.result = None
         self.configure(bg=_window_bg())
@@ -462,13 +463,13 @@ class SettingsDialog(tk.Toplevel):
             pass
 
     def _build(self):
-        _header_title(self, "Настройки прокси")
+        _header_title(self, tr("Настройки прокси"))
 
         frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
                        pady=16 if _is_macos() else 14)
         frm.pack(fill="both", expand=True)
 
-        tk.Label(frm, text="Внешние прокси-серверы (по порядку, с запасным):",
+        tk.Label(frm, text=tr("Внешние прокси-серверы (по порядку, с запасным):"),
                  bg=_window_bg(), fg=_text_color(), font=B["font_bold"]).grid(
             row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
 
@@ -486,15 +487,15 @@ class SettingsDialog(tk.Toplevel):
 
         btns = tk.Frame(frm, bg=_window_bg())
         btns.grid(row=2, column=0, columnspan=4, sticky="w", pady=(8, 8))
-        b_add = ttk.Button(btns, text="Добавить", style=_button_style(compact=True), command=self._add)
+        b_add = ttk.Button(btns, text=tr("Добавить"), style=_button_style(compact=True), command=self._add)
         b_add.grid(row=0, column=0, padx=3)
-        b_edit = ttk.Button(btns, text="Изменить", style=_button_style(compact=True), command=self._edit)
+        b_edit = ttk.Button(btns, text=tr("Изменить"), style=_button_style(compact=True), command=self._edit)
         b_edit.grid(row=0, column=1, padx=3)
-        b_del = ttk.Button(btns, text="Удалить", style=_button_style(compact=True), command=self._delete)
+        b_del = ttk.Button(btns, text=tr("Удалить"), style=_button_style(compact=True), command=self._delete)
         b_del.grid(row=0, column=2, padx=3)
 
         self._fields = {}
-        labels = ("IP адрес", "Порт", "Логин", "Пароль")
+        labels = (tr("IP адрес"), tr("Порт"), tr("Логин"), tr("Пароль"))
         keys = ("host", "port", "username", "password")
         shows = (None, None, None, "*")
         for i, (label, key, show) in enumerate(zip(labels, keys, shows)):
@@ -520,13 +521,13 @@ class SettingsDialog(tk.Toplevel):
         local_head.grid(row=8, column=0, columnspan=4, sticky="ew")
         tk.Label(
             local_head,
-            text="Локальные порты приложения",
+            text=tr("Локальные порты приложения"),
             bg=_window_bg(), fg=_text_color(), font=B["font_bold"],
         ).pack(side="left")
         if _is_macos():
             ttk.Button(
                 local_head,
-                text="Рекомендуемые 18080 / 11080 / 18082",
+                text=tr("Рекомендуемые 18080 / 11080 / 18082"),
                 style=_button_style(compact=True),
                 command=self._set_recommended_local_ports,
             ).pack(side="right")
@@ -558,17 +559,17 @@ class SettingsDialog(tk.Toplevel):
 
         tk.Label(
             frm,
-            text="Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные.",
+            text=tr("Обычно менять не нужно. Если диагностика сообщает о занятых портах — выберите свободные."),
             bg=_window_bg(), fg=_secondary_text_color(), font=B["font_small"],
         ).grid(row=10, column=0, columnspan=4, sticky="w", pady=(5, 0))
 
         foot = tk.Frame(frm, bg=_window_bg())
         foot.grid(row=11, column=0, columnspan=4, sticky="e", pady=(12, 0))
         ttk.Button(
-            foot, text="Сохранить", style=_button_style(primary=True), command=self._ok
+            foot, text=tr("Сохранить"), style=_button_style(primary=True), command=self._ok
         ).grid(row=0, column=0, padx=4)
         ttk.Button(
-            foot, text="Отмена", style=_button_style(), command=self.destroy
+            foot, text=tr("Отмена"), style=_button_style(), command=self.destroy
         ).grid(row=0, column=1)
 
         self._refresh_list()
@@ -578,10 +579,10 @@ class SettingsDialog(tk.Toplevel):
         for up in self.settings.get("upstream") or []:
             host = up.get("host") or ""
             if not host:
-                self.listbox.insert(tk.END, "  <не настроено — заполни поля ниже>")
+                self.listbox.insert(tk.END, tr("  <не настроено — заполни поля ниже>"))
             else:
                 self.listbox.insert(
-                    tk.END, "  %s:%s  (логин: %s)" % (host, up.get("port"), up.get("username")))
+                    tk.END, tr("  %s:%s  (логин: %s)") % (host, up.get("port"), up.get("username")))
 
     def _fill(self, up):
         for key in self._fields:
@@ -608,10 +609,10 @@ class SettingsDialog(tk.Toplevel):
     def _check_and_get(self):
         v = self._values()
         if not v["host"]:
-            messagebox.showwarning("Настройки", "Введи IP адрес внешнего прокси.", parent=self)
+            messagebox.showwarning(tr("Настройки"), tr("Введи IP адрес внешнего прокси."), parent=self)
             return None
         if v["port"] is None or not (0 < v["port"] < 65536):
-            messagebox.showwarning("Настройки", "Порт должен быть числом от 1 до 65535.", parent=self)
+            messagebox.showwarning(tr("Настройки"), tr("Порт должен быть числом от 1 до 65535."), parent=self)
             return None
         return v
 
@@ -667,10 +668,10 @@ class SettingsDialog(tk.Toplevel):
             except (TypeError, ValueError):
                 value = None
             if value is None or not (1 <= value <= 65535):
-                return None, "Локальные порты должны быть числами от 1 до 65535."
+                return None, tr("Локальные порты должны быть числами от 1 до 65535.")
             values[key] = value
         if len(set(values.values())) != 3:
-            return None, "HTTP, SOCKS5 и PAC должны использовать три разных локальных порта."
+            return None, tr("HTTP, SOCKS5 и PAC должны использовать три разных локальных порта.")
         return values, ""
 
     def _ok(self):
@@ -692,7 +693,7 @@ class SettingsDialog(tk.Toplevel):
                 ups[empty_idx] = v
         local_ports, port_error = self._local_ports_values()
         if local_ports is None:
-            messagebox.showwarning("Настройки", port_error, parent=self)
+            messagebox.showwarning(tr("Настройки"), port_error, parent=self)
             return
 
         self.settings["upstream"] = [u for u in ups if u.get("host")]
@@ -706,7 +707,7 @@ class ExceptionsDialog(tk.Toplevel):
 
     def __init__(self, master):
         super().__init__(master)
-        self.title("Исключения (no_proxy) · " + APP_NAME)
+        self.title(tr("Исключения (no_proxy) · ") + APP_NAME)
         self.domains = core.load_no_proxy()
         self.configure(bg=_window_bg())
         self.grab_set()
@@ -724,16 +725,16 @@ class ExceptionsDialog(tk.Toplevel):
             pass
 
     def _build(self):
-        _header_title(self, "Исключения (no_proxy)")
+        _header_title(self, tr("Исключения (no_proxy)"))
 
         frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
                        pady=16 if _is_macos() else 14)
         frm.pack(fill="both", expand=True)
 
         tk.Label(frm,
-                 text="Сайты из списка открываются напрямую (минуя прокси).\n"
+                 text=tr("Сайты из списка открываются напрямую (минуя прокси).\n"
                       "Можно вставлять целиком URL или host:port — само «почистится».\n"
-                      "Изменения применяются сразу, перезапуск не нужен.",
+                      "Изменения применяются сразу, перезапуск не нужен."),
                  bg=_window_bg(), fg=_secondary_text_color(),
                  font=B["font_small"], justify="left").grid(
             row=0, column=0, columnspan=3, sticky="w", pady=(0, 8))
@@ -750,7 +751,7 @@ class ExceptionsDialog(tk.Toplevel):
         scroll.grid(row=1, column=3, sticky="ns")
         self.listbox.configure(yscrollcommand=scroll.set)
 
-        tk.Label(frm, text="Новое исключение:", bg=_window_bg(), fg=_text_color(),
+        tk.Label(frm, text=tr("Новое исключение:"), bg=_window_bg(), fg=_text_color(),
                  font=B["font"]).grid(row=2, column=0, sticky="e", pady=(8, 0), padx=(0, 6))
         if _is_macos():
             self.entry = ttk.Entry(frm, width=32, font=B["font"])
@@ -762,25 +763,25 @@ class ExceptionsDialog(tk.Toplevel):
         self.entry.bind("<Return>", lambda e: self._add())
         _bind_clipboard_paste(self.entry)
         ttk.Button(
-            frm, text="Добавить", style=_button_style(primary=True, compact=True),
+            frm, text=tr("Добавить"), style=_button_style(primary=True, compact=True),
             command=self._add).grid(row=2, column=2, pady=(8, 0), padx=(6, 0))
 
         btns = tk.Frame(frm, bg=_window_bg())
         btns.grid(row=3, column=0, columnspan=4, sticky="w", pady=(8, 0))
         ttk.Button(
-            btns, text="Удалить выбранное", style=_button_style(compact=True),
+            btns, text=tr("Удалить выбранное"), style=_button_style(compact=True),
             command=self._remove).grid(row=0, column=0, padx=3)
         ttk.Button(
-            btns, text="Очистить всё", style=_button_style(compact=True),
+            btns, text=tr("Очистить всё"), style=_button_style(compact=True),
             command=self._clear).grid(row=0, column=1, padx=3)
 
         foot = tk.Frame(frm, bg=_window_bg())
         foot.grid(row=4, column=0, columnspan=4, sticky="e", pady=(10, 0))
         ttk.Button(
-            foot, text="Сохранить", style=_button_style(primary=True), command=self._save
+            foot, text=tr("Сохранить"), style=_button_style(primary=True), command=self._save
         ).grid(row=0, column=0, padx=4)
         ttk.Button(
-            foot, text="Отмена", style=_button_style(), command=self.destroy
+            foot, text=tr("Отмена"), style=_button_style(), command=self.destroy
         ).grid(row=0, column=1)
 
         self._refresh()
@@ -817,8 +818,8 @@ class ExceptionsDialog(tk.Toplevel):
             if not core.sync_client_no_proxy():
                 messagebox.showwarning(
                     APP_NAME,
-                    "Исключения сохранены, но системный NO_PROXY не удалось обновить. "
-                    "Перезапустите прокси и проверьте «Журнал».",
+                    tr("Исключения сохранены, но системный NO_PROXY не удалось обновить. "
+                    "Перезапустите прокси и проверьте «Журнал»."),
                     parent=self)
             core._refresh_internet()
         self.destroy()
@@ -829,7 +830,7 @@ class ApplicationExclusionsDialog(tk.Toplevel):
 
     def __init__(self, master):
         super().__init__(master)
-        self.title("\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u2014 " + APP_NAME)
+        self.title(tr("\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u2014 ") + APP_NAME)
         self.configure(bg=_window_bg())
         self.grab_set()
         self.resizable(True, True)
@@ -840,7 +841,7 @@ class ApplicationExclusionsDialog(tk.Toplevel):
             self.identities = []
             messagebox.showerror(
                 APP_NAME,
-                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u0440\u043e\u0447\u0438\u0442\u0430\u0442\u044c \u0441\u043f\u0438\u0441\u043e\u043a \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0439: %s" % exc,
+                tr("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u0440\u043e\u0447\u0438\u0442\u0430\u0442\u044c \u0441\u043f\u0438\u0441\u043e\u043a \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0439: %s") % exc,
                 parent=self,
             )
         self._build()
@@ -856,7 +857,7 @@ class ApplicationExclusionsDialog(tk.Toplevel):
             pass
 
     def _build(self):
-        _header_title(self, "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439")
+        _header_title(self, tr("\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439"))
         frm = tk.Frame(self, bg=_window_bg(), padx=18 if _is_macos() else 16,
                        pady=16 if _is_macos() else 14)
         frm.pack(fill="both", expand=True)
@@ -868,18 +869,18 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         if capability.get("live_enforcement_supported"):
             if state == "preview_ready":
                 status_text = (
-                    "\u041f\u0440\u0435\u0432\u044c\u044e \u0433\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
-                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438."
+                    tr("\u041f\u0440\u0435\u0432\u044c\u044e \u0433\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
+                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438.")
                 )
             else:
                 status_text = (
-                    "\u0413\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
-                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438."
+                    tr("\u0413\u043e\u0442\u043e\u0432\u043e: \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u044f "
+                    "\u0431\u0443\u0434\u0443\u0442 \u043e\u0431\u0445\u043e\u0434\u0438\u0442\u044c \u043f\u0440\u043e\u043a\u0441\u0438.")
                 )
         else:
             status_text = (
-                "\u041c\u0435\u0445\u0430\u043d\u0438\u0437\u043c \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438 \u043f\u043e\u043a\u0430 \u043d\u0435 \u0433\u043e\u0442\u043e\u0432: %s"
-                % (capability.get("reason") or state or "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e")
+                tr("\u041c\u0435\u0445\u0430\u043d\u0438\u0437\u043c \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438 \u043f\u043e\u043a\u0430 \u043d\u0435 \u0433\u043e\u0442\u043e\u0432: %s")
+                % (capability.get("reason") or state or tr("\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e"))
             )
 
         tk.Label(
@@ -895,8 +896,8 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         tk.Label(
             frm,
             text=(
-                "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 .exe, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0434\u043e\u043b\u0436\u043d\u044b \u0445\u043e\u0434\u0438\u0442\u044c \u0432 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e. "
-                "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u0441\u0430\u0439\u0442\u043e\u0432 no_proxy \u043f\u0440\u0438 \u044d\u0442\u043e\u043c \u043e\u0441\u0442\u0430\u044e\u0442\u0441\u044f \u0431\u0435\u0437 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u0439."
+                tr("\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 .exe, \u043a\u043e\u0442\u043e\u0440\u044b\u0435 \u0434\u043e\u043b\u0436\u043d\u044b \u0445\u043e\u0434\u0438\u0442\u044c \u0432 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u043d\u0430\u043f\u0440\u044f\u043c\u0443\u044e. "
+                "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u0441\u0430\u0439\u0442\u043e\u0432 no_proxy \u043f\u0440\u0438 \u044d\u0442\u043e\u043c \u043e\u0441\u0442\u0430\u044e\u0442\u0441\u044f \u0431\u0435\u0437 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u0439.")
             ),
             bg=_window_bg(),
             fg=_text_color(),
@@ -927,19 +928,19 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         actions.grid(row=3, column=0, columnspan=3, sticky="ew", pady=(10, 0))
         ttk.Button(
             actions,
-            text="\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c .exe\u2026",
+            text=tr("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c .exe\u2026"),
             style=_button_style(primary=True, compact=True),
             command=self._add,
         ).grid(row=0, column=0, padx=(0, 6))
         ttk.Button(
             actions,
-            text="\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u043e\u0435",
+            text=tr("\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u043e\u0435"),
             style=_button_style(compact=True),
             command=self._remove,
         ).grid(row=0, column=1, padx=(0, 6))
         ttk.Button(
             actions,
-            text="\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c",
+            text=tr("\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c"),
             style=_button_style(compact=True),
             command=self._clear,
         ).grid(row=0, column=2)
@@ -948,13 +949,13 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         foot.grid(row=4, column=0, columnspan=3, sticky="e", pady=(12, 0))
         ttk.Button(
             foot,
-            text="\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+            text=tr("\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c"),
             style=_button_style(primary=True),
             command=self._save,
         ).grid(row=0, column=0, padx=(0, 6))
         ttk.Button(
             foot,
-            text="\u041e\u0442\u043c\u0435\u043d\u0430",
+            text=tr("\u041e\u0442\u043c\u0435\u043d\u0430"),
             style=_button_style(),
             command=self.destroy,
         ).grid(row=0, column=1)
@@ -971,13 +972,13 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         if os.name != "nt":
             messagebox.showwarning(
                 APP_NAME,
-                "\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u0432 \u044d\u0442\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b \u0442\u043e\u043b\u044c\u043a\u043e \u0432 Windows.",
+                tr("\u0418\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439 \u0432 \u044d\u0442\u043e\u0439 \u0432\u0435\u0440\u0441\u0438\u0438 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b \u0442\u043e\u043b\u044c\u043a\u043e \u0432 Windows."),
                 parent=self,
             )
             return
         path = filedialog.askopenfilename(
             parent=self,
-            title="\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435",
+            title=tr("\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435"),
             filetypes=[
                 ("Windows applications", "*.exe"),
                 ("All files", "*.*"),
@@ -987,7 +988,7 @@ class ApplicationExclusionsDialog(tk.Toplevel):
             return
         path = os.path.normpath(os.path.abspath(path))
         if not os.path.isfile(path):
-            messagebox.showerror(APP_NAME, "\u0424\u0430\u0439\u043b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d.", parent=self)
+            messagebox.showerror(APP_NAME, tr("\u0424\u0430\u0439\u043b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d."), parent=self)
             return
         try:
             identity = ApplicationIdentity(
@@ -1032,11 +1033,11 @@ class ApplicationExclusionsDialog(tk.Toplevel):
                     messagebox.showerror(
                         APP_NAME,
                         (
-                            "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u0438\u0442\u044c "
-                            "\u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u044e \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s"
+                            tr("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u0438\u0442\u044c "
+                            "\u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u044e \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s")
                             % (
                                 capability.get("reason")
-                                or "\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f \u043e\u0448\u0438\u0431\u043a\u0430"
+                                or tr("\u043d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u0430\u044f \u043e\u0448\u0438\u0431\u043a\u0430")
                             )
                         ),
                         parent=self,
@@ -1052,14 +1053,14 @@ class ApplicationExclusionsDialog(tk.Toplevel):
         if not saved:
             messagebox.showerror(
                 APP_NAME,
-                "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s" % error,
+                tr("\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0439. %s") % error,
                 parent=self,
             )
             return
         self.result = True
         self.destroy()
 
-LEGACY_ORPHANED_PAC_DIAGNOSTIC = "ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM"
+LEGACY_ORPHANED_PAC_DIAGNOSTIC = tr("ОБНАРУЖЕН СТАРЫЙ PAC ARVECTUM")
 
 
 def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
@@ -1073,16 +1074,16 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if running and enabled and transport_health in ("unavailable", "degraded", "unknown"):
         messages = {
             "unavailable": (
-                "ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН",
-                "Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси.",
+                tr("ВНЕШНИЙ ПРОКСИ НЕДОСТУПЕН"),
+                tr("Все настроенные серверы временно не отвечают. APL повторит подключение без обхода прокси."),
             ),
             "degraded": (
-                "НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ",
-                "Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер.",
+                tr("НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ"),
+                tr("Некоторые соединения через внешний прокси завершились ошибкой. Проверьте журнал или резервный сервер."),
             ),
             "unknown": (
-                "ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА",
-                "Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена.",
+                tr("ПРОКСИ ЗАПУЩЕН · ПРОВЕРКА"),
+                tr("Локальный прокси включён, но доступность внешнего сервера ещё не подтверждена."),
             ),
         }
         label, hint = messages[transport_health]
@@ -1095,11 +1096,11 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if running and enabled:
         return {
             "key": "active",
-            "label": "ПРОКСИ РАБОТАЕТ",
+            "label": tr("ПРОКСИ РАБОТАЕТ"),
             "color": MINT,
             "hint": (
-                "Системный прокси %s включён и направлен через Arvectum Proxy Launcher. " % platform_label
-                + "Окно можно закрыть — прокси продолжит работать в фоне."
+                tr("Системный прокси %s включён и направлен через Arvectum Proxy Launcher. ") % platform_label
+                + tr("Окно можно закрыть — прокси продолжит работать в фоне.")
             ),
             "can_on": False,
             "can_off": True,
@@ -1110,11 +1111,11 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if running:
         return {
             "key": "engine_only",
-            "label": "ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН",
+            "label": tr("ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН"),
             "color": MINT_LIGHT,
             "hint": (
-                "Локальный прокси-процесс работает, но %s пока не направляет через него трафик. " % platform_label
-                + "Нажмите «Включить прокси», чтобы подключить системный прокси."
+                tr("Локальный прокси-процесс работает, но %s пока не направляет через него трафик. ") % platform_label
+                + tr("Нажмите «Включить прокси», чтобы подключить системный прокси.")
             ),
             "can_on": True,
             "can_off": True,
@@ -1125,12 +1126,12 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if pending:
         return {
             "key": "recovery_required",
-            "label": "НУЖНО ВОССТАНОВИТЬ СЕТЬ",
+            "label": tr("НУЖНО ВОССТАНОВИТЬ СЕТЬ"),
             "color": MINT_LIGHT,
             "hint": (
-                "Предыдущий сеанс завершился некорректно. Нажмите "
+                tr("Предыдущий сеанс завершился некорректно. Нажмите "
                 "«Восстановить сеть» прямо здесь, дождитесь успешного восстановления, "
-                "а затем снова подключите прокси."
+                "а затем снова подключите прокси.")
             ),
             "can_on": False,
             "can_off": False,
@@ -1141,12 +1142,12 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if orphaned_pac:
         return {
             "key": "orphaned_arvectum_pac",
-            "label": "НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ",
+            "label": tr("НУЖНО УДАЛИТЬ СТАРЫЕ НАСТРОЙКИ"),
             "color": MINT_LIGHT,
             "hint": (
-                "%s использует локальные настройки Arvectum от предыдущего сеанса, " % platform_label
-                + "но прокси-процесс уже не работает и резервная копия недоступна. "
-                + "Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы."
+                tr("%s использует локальные настройки Arvectum от предыдущего сеанса, ") % platform_label
+                + tr("но прокси-процесс уже не работает и резервная копия недоступна. ")
+                + tr("Можно безопасно удалить только старую настройку Arvectum, не изменяя остальные настройки системы.")
             ),
             "can_on": False,
             "can_off": False,
@@ -1157,11 +1158,11 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
     if stale_proxy:
         return {
             "key": "diagnostics_required",
-            "label": "НУЖНА ДИАГНОСТИКА СЕТИ",
+            "label": tr("НУЖНА ДИАГНОСТИКА СЕТИ"),
             "color": MINT_LIGHT,
             "hint": (
-                "%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить " % platform_label
-                + "предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал»."
+                tr("%s всё ещё использует настройки Arvectum, но Launcher не может безопасно подтвердить ") % platform_label
+                + tr("предыдущий сеанс. Автоматический сброс не выполняется: откройте «Диагностика» или «Журнал».")
             ),
             "can_on": False,
             "can_off": False,
@@ -1171,11 +1172,11 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
         }
     return {
         "key": "off",
-        "label": "ПРОКСИ ВЫКЛЮЧЕН",
+        "label": tr("ПРОКСИ ВЫКЛЮЧЕН"),
         "color": SOFT_GRAY,
         "hint": (
-            "Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. "
-            "Нажмите «Включить прокси», когда он понадобится."
+            tr("Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. "
+            "Нажмите «Включить прокси», когда он понадобится.")
         ),
         "can_on": True,
         "can_off": False,
@@ -1188,6 +1189,12 @@ def _final_status_view(running, enabled, pending, orphaned_pac, stale_proxy,
 class Launcher:
     def __init__(self, root):
         self.root = root
+        # Tk has no automatic full widget mirroring. Use right-justified
+        # Persian labels while keeping IP/host/port entry fields LTR.
+        if __import__("desktop_i18n").LANGUAGE in ("fa", "ar", "ur", "he"):
+            root.option_add("*Label.justify", "right")
+            root.option_add("*Label.anchor", "e")
+            ttk.Style(root).configure("TLabel", anchor="e", justify="right")
         self._mac_ui = _is_macos()
         root.title(APP_NAME)
         root.resizable(False, False)
@@ -1274,10 +1281,10 @@ class Launcher:
         notebook.pack(fill="both", expand=True)
         tabs = {}
         for key, title in (
-            ("home", "Главная"),
-            ("profiles", "Профили"),
-            ("activity", "Активность"),
-            ("settings", "Настройки"),
+            ("home", tr("Главная")),
+            ("profiles", tr("Профили")),
+            ("activity", tr("Активность")),
+            ("settings", tr("Настройки")),
         ):
             frame = ttk.Frame(notebook, padding=(18, 18, 18, 16))
             notebook.add(frame, text=title)
@@ -1316,14 +1323,14 @@ class Launcher:
         self.status_hint.grid(row=2, column=0, sticky="ew", pady=(8, 0))
         self.btn_primary = ttk.Button(
             home,
-            text="Подключиться",
+            text=tr("Подключиться"),
             style="MacPrimary.TButton" if native_macos else "Mint.TButton",
             command=self.on,
         )
         self.btn_primary.grid(row=3, column=0, sticky="ew", pady=(22, 0), ipady=3)
         self.btn_orphan_pac = ttk.Button(
             home,
-            text="Удалить старый PAC и продолжить",
+            text=tr("Удалить старый PAC и продолжить"),
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.clear_orphaned_pac,
         )
@@ -1333,24 +1340,24 @@ class Launcher:
         profiles = tabs["profiles"]
         profiles.columnconfigure(0, weight=1)
         ttk.Label(
-            profiles, text="Профили прокси",
+            profiles, text=tr("Профили прокси"),
             style="MacSection.TLabel" if native_macos else "TLabel",
         ).grid(row=0, column=0, sticky="w")
         ttk.Label(
             profiles,
-            text="Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения.",
+            text=tr("Управляйте прокси и их приоритетом. На Главной остаётся только текущий контекст подключения."),
             justify="left", wraplength=650,
             style="MacSecondary.TLabel" if native_macos else "TLabel",
         ).grid(row=1, column=0, sticky="ew", pady=(7, 14))
         ttk.Button(
-            profiles, text="Профили прокси…",
+            profiles, text=tr("Профили прокси…"),
             style="MacPrimary.TButton" if native_macos else "Mint.TButton",
             command=self.settings,
         ).grid(row=2, column=0, sticky="ew")
         activity = tabs["activity"]
         activity.columnconfigure(0, weight=1)
         ttk.Label(
-            activity, text="Проверка соединения",
+            activity, text=tr("Проверка соединения"),
             style="MacSection.TLabel" if native_macos else "TLabel",
         ).grid(row=0, column=0, sticky="w")
         check_row = ttk.Frame(activity)
@@ -1361,7 +1368,7 @@ class Launcher:
         check_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
         _bind_clipboard_paste(check_entry)
         self.btn_check = ttk.Button(
-            check_row, text="Проверить",
+            check_row, text=tr("Проверить"),
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.check,
         )
@@ -1371,12 +1378,12 @@ class Launcher:
         activity_actions.columnconfigure(0, weight=1)
         activity_actions.columnconfigure(1, weight=1)
         ttk.Button(
-            activity_actions, text="Журнал",
+            activity_actions, text=tr("Журнал"),
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.show_log,
         ).grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.btn_doctor = ttk.Button(
-            activity_actions, text="Диагностика",
+            activity_actions, text=tr("Диагностика"),
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.doctor,
         )
@@ -1385,25 +1392,25 @@ class Launcher:
         settings = tabs["settings"]
         settings.columnconfigure(0, weight=1)
         ttk.Label(
-            settings, text="Настройки",
+            settings, text=tr("Настройки"),
             style="MacSection.TLabel" if native_macos else "TLabel",
         ).grid(row=0, column=0, sticky="w")
         ttk.Label(
-            settings, text="Настройки и сервис",
+            settings, text=tr("Настройки и сервис"),
             style="MacSecondary.TLabel" if native_macos else "TLabel",
         ).grid(row=1, column=0, sticky="w", pady=(4, 0))
         ttk.Label(
-            settings, text="Маршрутизация и восстановление",
+            settings, text=tr("Маршрутизация и восстановление"),
             style="MacSecondary.TLabel" if native_macos else "TLabel",
         ).grid(row=2, column=0, sticky="w", pady=(10, 0))
         ttk.Button(
-            settings, text="Исключения сайтов…",
+            settings, text=tr("Исключения сайтов…"),
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.exceptions,
         ).grid(row=3, column=0, sticky="ew", pady=(10, 7))
         self.btn_app_exclusions = ttk.Button(
             settings,
-            text="Исключения приложений…",
+            text=tr("Исключения приложений…"),
             style="MacCompact.TButton" if native_macos else "Ghost.TButton",
             command=self.application_exclusions,
         )
@@ -1411,7 +1418,7 @@ class Launcher:
         if os.name != "nt":
             self.btn_app_exclusions.state(["disabled"])
         self.btn_restore = ttk.Button(
-            settings, text="Восстановить настройки сети",
+            settings, text=tr("Восстановить настройки сети"),
             style="MacSecondary.TButton" if native_macos else "Ghost.TButton",
             command=self.restore_network,
         )
@@ -1433,7 +1440,7 @@ class Launcher:
             self.autostart_check.state(["disabled"])
         ttk.Label(
             settings,
-            text="Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым.",
+            text=tr("Сервисные действия вынесены с Главной, чтобы ежедневное подключение оставалось простым."),
             justify="left", wraplength=650,
             style="MacFooter.TLabel" if native_macos else "TLabel",
         ).grid(row=7, column=0, sticky="w", pady=(9, 0))
@@ -1454,33 +1461,33 @@ class Launcher:
             if str(item.get("host") or "").strip()
         ]
         if not configured:
-            return "Профиль · не настроен"
+            return tr("Профиль · не настроен")
         if len(configured) == 1:
             item = configured[0]
-            return "Профиль · %s:%s" % (item.get("host"), item.get("port"))
-        return "Профиль · Авто · %d прокси" % len(configured)
+            return tr("Профиль · %s:%s") % (item.get("host"), item.get("port"))
+        return tr("Профиль · Авто · %d прокси") % len(configured)
 
     def _apply_primary_action(self, view):
         can_off = bool(view.get("can_off"))
         can_on = bool(view.get("can_on"))
         restore_primary = bool(view.get("restore_primary"))
         if restore_primary:
-            text = "Восстановить сеть"
+            text = tr("Восстановить сеть")
             command = self.restore_network
             style = "MacPrimary.TButton" if self._mac_ui else "Mint.TButton"
             enabled = True
         elif can_off:
-            text = "Отключить"
+            text = tr("Отключить")
             command = self.off
             style = "MacSecondary.TButton" if self._mac_ui else "Navy.TButton"
             enabled = True
         elif can_on:
-            text = "Подключиться"
+            text = tr("Подключиться")
             command = self.on
             style = "MacPrimary.TButton" if self._mac_ui else "Mint.TButton"
             enabled = True
         else:
-            text = "Подключение недоступно"
+            text = tr("Подключение недоступно")
             command = self.on
             style = "MacSecondary.TButton" if self._mac_ui else "Ghost.TButton"
             enabled = False
@@ -1746,15 +1753,15 @@ class Launcher:
 
         if self._mac_ui:
             display_labels = {
-                "active": "Прокси подключён",
-                "upstream_unknown": "Проверка подключения",
-                "upstream_degraded": "Соединение нестабильно",
-                "upstream_unavailable": "Прокси недоступен",
-                "engine_only": "Прокси запущен, но не подключён",
-                "recovery_required": "Нужно восстановить сеть",
-                "orphaned_arvectum_pac": "Нужно восстановить настройки",
-                "diagnostics_required": "Требуется диагностика",
-                "off": "Прокси выключен",
+                "active": tr("Прокси подключён"),
+                "upstream_unknown": tr("Проверка подключения"),
+                "upstream_degraded": tr("Соединение нестабильно"),
+                "upstream_unavailable": tr("Прокси недоступен"),
+                "engine_only": tr("Прокси запущен, но не подключён"),
+                "recovery_required": tr("Нужно восстановить сеть"),
+                "orphaned_arvectum_pac": tr("Нужно восстановить настройки"),
+                "diagnostics_required": tr("Требуется диагностика"),
+                "off": tr("Прокси выключен"),
             }
             dot_colors = {
                 "active": MINT,
@@ -1807,10 +1814,10 @@ class Launcher:
         self._recovery_prompt_shown = True
         if messagebox.askyesno(
                 APP_NAME,
-                "Предыдущий сеанс proxy завершился некорректно.\n\n"
+                tr("Предыдущий сеанс proxy завершился некорректно.\n\n"
                 "Чтобы сеть не осталась с устаревшими настройками proxy, "
                 "сначала нужно восстановить исходные настройки сети.\n\n"
-                "Восстановить сеть сейчас?",
+                "Восстановить сеть сейчас?"),
                 icon="warning"):
             self.restore_network(confirm=False)
 
@@ -1820,7 +1827,7 @@ class Launcher:
         s = core.load_settings()
         ok = any((u.get("host") or "").strip() for u in s.get("upstream") or [])
         if not ok:
-            messagebox.showwarning(APP_NAME, "Сначала укажи IP/порт/логин/пароль внешнего прокси в «Настройки прокси».")
+            messagebox.showwarning(APP_NAME, tr("Сначала укажи IP/порт/логин/пароль внешнего прокси в «Настройки прокси»."))
             self.settings()
             return
         if core.is_running():
@@ -1828,12 +1835,12 @@ class Launcher:
                 self.refresh_status()
                 return
             self._begin_lifecycle_action("start")
-            self._set_busy("Включение PAC…", MINT_LIGHT)
+            self._set_busy(tr("Включение PAC…"), MINT_LIGHT)
             _run_headless("--start")
             self.root.after(250, self._after_start)
             return
         self._begin_lifecycle_action("start")
-        self._set_busy("Запуск…", MINT_LIGHT)
+        self._set_busy(tr("Запуск…"), MINT_LIGHT)
         _run_headless("--start")
         # Фоновому процессу нужно время на запуск и открытие трёх сокетов.
         self.root.after(250, self._after_start)
@@ -1850,11 +1857,11 @@ class Launcher:
         if ok:
             messagebox.showinfo(
                 APP_NAME,
-                "Прокси подключён.\nСистемные настройки прокси применены.\n\n"
+                tr("Прокси подключён.\nСистемные настройки прокси применены.\n\n"
                 "Если отдельное приложение не подхватило новые настройки, "
-                "полностью закройте его и запустите заново.")
+                "полностью закройте его и запустите заново."))
         else:
-            messagebox.showerror(APP_NAME, "Не удалось запустить прокси. Подробности в «Журнал».")
+            messagebox.showerror(APP_NAME, tr("Не удалось запустить прокси. Подробности в «Журнал»."))
 
     def off(self):
         if self._mac_ui:
@@ -1884,7 +1891,7 @@ class Launcher:
         self._off_confirmation_pending = False
         confirmed = messagebox.askyesno(
             APP_NAME,
-            "Выключить прокси и восстановить исходные настройки сети?",
+            tr("Выключить прокси и восстановить исходные настройки сети?"),
             icon="warning",
             default="no",
         )
@@ -1906,7 +1913,7 @@ class Launcher:
 
     def _execute_stop(self):
         self._begin_lifecycle_action("stop")
-        self._set_busy("Остановка…", SOFT_GRAY)
+        self._set_busy(tr("Остановка…"), SOFT_GRAY)
         _run_headless("--stop")
         self.root.after(250, self._after_stop)
 
@@ -1920,45 +1927,45 @@ class Launcher:
         self._clear_lifecycle_action("stop")
         self.refresh_status()
         if core.is_running():
-            messagebox.showerror(APP_NAME, "Прокси-процесс не удалось остановить. Подробности в «Журнал».")
+            messagebox.showerror(APP_NAME, tr("Прокси-процесс не удалось остановить. Подробности в «Журнал»."))
         elif core.network_restore_pending():
             messagebox.showerror(
                 APP_NAME,
-                "Прокси остановлен, но настройки сети восстановлены не полностью. "
-                "Не удаляйте приложение: нажмите «Восстановить настройки сети» ещё раз и проверьте «Журнал».")
+                tr("Прокси остановлен, но настройки сети восстановлены не полностью. "
+                "Не удаляйте приложение: нажмите «Восстановить настройки сети» ещё раз и проверьте «Журнал»."))
         else:
-            messagebox.showinfo(APP_NAME, "Прокси выключен, исходные настройки сети восстановлены.")
+            messagebox.showinfo(APP_NAME, tr("Прокси выключен, исходные настройки сети восстановлены."))
 
     def restore_network(self, confirm=True):
         if getattr(self, "_lifecycle_action_pending", None):
             return
         if self._block_destructive_wake_action("rollback"):
             return
-        msg = "Восстановить исходные настройки сети и остановить proxy?" if os.name != "nt" else "Восстановить исходные настройки сети Windows и остановить proxy?"
+        msg = tr("Восстановить исходные настройки сети и остановить proxy?") if os.name != "nt" else tr("Восстановить исходные настройки сети Windows и остановить proxy?")
         if confirm and not messagebox.askyesno(
                 APP_NAME,
                 msg,
                 icon="warning"):
             return
         self._begin_lifecycle_action("rollback")
-        self._set_busy("Восстановление сети…", MINT_LIGHT)
+        self._set_busy(tr("Восстановление сети…"), MINT_LIGHT)
         _run_headless("--rollback")
         self.root.after(250, self._after_restore_network)
 
     def clear_orphaned_pac(self):
-        self._set_busy("Удаление старого PAC…", MINT_LIGHT)
+        self._set_busy(tr("Удаление старого PAC…"), MINT_LIGHT)
         if core.clear_orphaned_arvectum_pac():
             self.refresh_status()
             messagebox.showinfo(
                 APP_NAME,
-                "Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. "
-                "Теперь можно снова включить прокси.")
+                tr("Старый PAC Arvectum удалён. Остальные настройки системы не изменялись. "
+                "Теперь можно снова включить прокси."))
         else:
             self.refresh_status()
             messagebox.showerror(
                 APP_NAME,
-                "Старый PAC не был удалён: состояние сети изменилось или ownership "
-                "не удалось подтвердить. См. «Журнал».")
+                tr("Старый PAC не был удалён: состояние сети изменилось или ownership "
+                "не удалось подтвердить. См. «Журнал»."))
 
     def _after_restore_network(self, attempt=0):
         if getattr(self, "_lifecycle_action_pending", None) != "rollback":
@@ -1970,14 +1977,14 @@ class Launcher:
         self._clear_lifecycle_action("rollback")
         self.refresh_status()
         if core.is_running():
-            messagebox.showerror(APP_NAME, "Proxy-процесс всё ещё работает. См. «Журнал».")
+            messagebox.showerror(APP_NAME, tr("Proxy-процесс всё ещё работает. См. «Журнал»."))
         elif core.network_restore_pending():
             messagebox.showerror(
                 APP_NAME,
-                "Восстановление сети не завершено. Файлы резервной копии сохранены; "
-                "повторите восстановление и не удаляйте приложение до успешного результата.")
+                tr("Восстановление сети не завершено. Файлы резервной копии сохранены; "
+                "повторите восстановление и не удаляйте приложение до успешного результата."))
         else:
-            messagebox.showinfo(APP_NAME, "Сеть восстановлена. Теперь можно снова включить прокси.")
+            messagebox.showinfo(APP_NAME, tr("Сеть восстановлена. Теперь можно снова включить прокси."))
 
     def _set_busy(self, text, color):
         if self._mac_ui:
@@ -1999,12 +2006,12 @@ class Launcher:
     def check(self):
         url = self.check_url_var.get().strip()
         if not url:
-            messagebox.showwarning(APP_NAME, "Укажи URL для проверки.")
+            messagebox.showwarning(APP_NAME, tr("Укажи URL для проверки."))
             return
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
 
-        self._set_busy("Проверка соединения…", MINT_LIGHT)
+        self._set_busy(tr("Проверка соединения…"), MINT_LIGHT)
         threading.Thread(target=self._do_check, args=(url,), daemon=True).start()
 
     def _do_check(self, url):
@@ -2024,8 +2031,8 @@ class Launcher:
                 self.refresh_status()
                 messagebox.showerror(
                     APP_NAME,
-                    "Встроенная проверка соединения завершилась внутренней ошибкой. "
-                    "Состояние сети не изменялось. Подробности сохранены в «Журнал».",
+                    tr("Встроенная проверка соединения завершилась внутренней ошибкой. "
+                    "Состояние сети не изменялось. Подробности сохранены в «Журнал»."),
                 )
 
             self.root.after(0, show_error)
@@ -2054,8 +2061,8 @@ class Launcher:
             if not core.save_settings(dlg.result):
                 messagebox.showerror(
                     APP_NAME,
-                    "Не удалось безопасно сохранить настройки proxy. "
-                    "Пароль не записан в открытом виде. Подробности в «Журнал».")
+                    tr("Не удалось безопасно сохранить настройки proxy. "
+                    "Пароль не записан в открытом виде. Подробности в «Журнал»."))
                 return
             self._maybe_restart_after_settings()
 
@@ -2066,9 +2073,9 @@ class Launcher:
             return
         if messagebox.askyesno(
                 APP_NAME,
-                "Настройки сохранены. Прокси сейчас работает — перезапустить, чтобы применить?",
+                tr("Настройки сохранены. Прокси сейчас работает — перезапустить, чтобы применить?"),
                 icon="question"):
-            self._set_busy("Перезапуск…", MINT_LIGHT)
+            self._set_busy(tr("Перезапуск…"), MINT_LIGHT)
             _run_headless("--stop")
             self.root.after(250, self._restart_after_stop)
         else:
@@ -2080,7 +2087,7 @@ class Launcher:
                 self.root.after(250, lambda: self._restart_after_stop(attempt + 1))
                 return
             self.refresh_status()
-            messagebox.showerror(APP_NAME, "Не удалось остановить старый процесс для перезапуска. См. «Журнал».")
+            messagebox.showerror(APP_NAME, tr("Не удалось остановить старый процесс для перезапуска. См. «Журнал»."))
             return
         _run_headless("--start")
         self.root.after(250, self._after_start)
@@ -2102,13 +2109,13 @@ class Launcher:
             try:
                 os.startfile(path) if os.name == "nt" else subprocess.run(["open", path])
             except Exception as e:
-                messagebox.showerror(APP_NAME, "Не удалось открыть журнал: %s" % e)
+                messagebox.showerror(APP_NAME, tr("Не удалось открыть журнал: %s") % e)
         else:
-            messagebox.showinfo(APP_NAME, "Журнал пока пуст.")
+            messagebox.showinfo(APP_NAME, tr("Журнал пока пуст."))
 
     def doctor(self):
         """Run read-only support-bundle diagnostics checks without blocking the Tk event loop."""
-        self._set_busy("Диагностика…", MINT_LIGHT)
+        self._set_busy(tr("Диагностика…"), MINT_LIGHT)
         threading.Thread(target=self._do_doctor, daemon=True).start()
 
     def _do_doctor(self):
@@ -2128,8 +2135,8 @@ class Launcher:
                 self.refresh_status()
                 messagebox.showerror(
                     APP_NAME,
-                    "Автоматическая диагностика завершилась внутренней ошибкой. "
-                    "Состояние сети не изменялось. Подробности сохранены в «Журнал».")
+                    tr("Автоматическая диагностика завершилась внутренней ошибкой. "
+                    "Состояние сети не изменялось. Подробности сохранены в «Журнал»."))
             self.root.after(0, show_error)
             return
 
@@ -2142,10 +2149,10 @@ class Launcher:
                 if item.get("status") != doctor_module.PASS
             ]
             title = {
-                doctor_module.PASS: "Диагностика: локальных проблем не обнаружено.",
-                doctor_module.WARN: "Диагностика: есть предупреждения.",
-                doctor_module.FAIL: "Диагностика: требуется действие.",
-            }.get(overall, "Диагностика завершена.")
+                doctor_module.PASS: tr("Диагностика: локальных проблем не обнаружено."),
+                doctor_module.WARN: tr("Диагностика: есть предупреждения."),
+                doctor_module.FAIL: tr("Диагностика: требуется действие."),
+            }.get(overall, tr("Диагностика завершена."))
             lines = [
                 title,
                 "PASS %s · WARN %s · FAIL %s" % (
@@ -2157,12 +2164,12 @@ class Launcher:
             if overall == doctor_module.PASS:
                 lines.extend([
                     "",
-                    "Доступность внешнего proxy и целевого сайта здесь не проверяется.",
-                    "Для end-to-end проверки используйте «Проверка соединения».",
+                    tr("Доступность внешнего proxy и целевого сайта здесь не проверяется."),
+                    tr("Для end-to-end проверки используйте «Проверка соединения»."),
                 ])
             if problem_checks:
                 lines.append("")
-                lines.append("Проверки, требующие внимания:")
+                lines.append(tr("Проверки, требующие внимания:"))
                 for item in problem_checks[:8]:
                     summary = str(item.get("summary") or "").strip()
                     if summary:
@@ -2173,7 +2180,7 @@ class Launcher:
             actions = report.get("recommended_actions") or []
             if actions:
                 lines.append("")
-                lines.append("Рекомендуемые действия:")
+                lines.append(tr("Рекомендуемые действия:"))
                 for action in actions[:5]:
                     lines.append("• %s" % action)
             text = "\n".join(lines)
@@ -2206,7 +2213,7 @@ class Launcher:
             return None
         except OSError as exc:
             raise RuntimeError(
-                "Не удалось безопасно прочитать запись автозапуска Windows: %s" % exc
+                tr("Не удалось безопасно прочитать запись автозапуска Windows: %s") % exc
             ) from exc
 
     def _autostart_run_is_ours(self, value=None):
@@ -2333,39 +2340,39 @@ class Launcher:
                 self.auto_var.set(False)
                 messagebox.showerror(
                     APP_NAME,
-                    "Компонент автозапуска macOS недоступен. Запускайте приложение вручную."
+                    tr("Компонент автозапуска macOS недоступен. Запускайте приложение вручную.")
                 )
                 return False
             try:
                 target = macos_autostart_module.enable_autostart()
                 if not macos_autostart_module.is_autostart_enabled(target):
-                    raise RuntimeError("LaunchAgent не прошёл проверку после записи")
+                    raise RuntimeError(tr("LaunchAgent не прошёл проверку после записи"))
             except Exception as exc:
                 self.auto_var.set(False)
                 messagebox.showerror(
                     APP_NAME,
-                    "Не удалось добавить Launcher в автозапуск macOS: %s" % exc
+                    tr("Не удалось добавить Launcher в автозапуск macOS: %s") % exc
                 )
                 return False
             messagebox.showinfo(
                 APP_NAME,
-                "Arvectum Proxy Launcher будет запускаться при входе в macOS."
+                tr("Arvectum Proxy Launcher будет запускаться при входе в macOS.")
             )
             return True
 
         settings = core.load_settings()
         configured = any((u.get("host") or "").strip() for u in settings.get("upstream") or [])
         if not configured:
-            messagebox.showwarning(APP_NAME, "Сначала настройте внешний прокси, затем включайте автозапуск.")
+            messagebox.showwarning(APP_NAME, tr("Сначала настройте внешний прокси, затем включайте автозапуск."))
             return False
         if _portable_fallback_active():
             self.auto_var.set(False)
             messagebox.showwarning(
                 APP_NAME,
-                "Автозапуск временно недоступен: Windows не запустила "
+                tr("Автозапуск временно недоступен: Windows не запустила "
                 "постоянную копию Launcher. Текущую portable-версию можно "
                 "использовать вручную; не переносите её и не удаляйте, пока "
-                "proxy работает."
+                "proxy работает.")
             )
             return False
 
@@ -2380,8 +2387,8 @@ class Launcher:
             self.auto_var.set(False)
             messagebox.showerror(
                 APP_NAME,
-                "Запись автозапуска Windows с именем ArvectumProxyLauncher уже "
-                "принадлежит другой команде. Она не будет перезаписана.")
+                tr("Запись автозапуска Windows с именем ArvectumProxyLauncher уже "
+                "принадлежит другой команде. Она не будет перезаписана."))
             return False
 
         existing_task = self._autostart_task_xml()
@@ -2389,9 +2396,9 @@ class Launcher:
             self.auto_var.set(False)
             messagebox.showerror(
                 APP_NAME,
-                "Задача Windows с именем ArvectumProxyLauncher уже существует, "
+                tr("Задача Windows с именем ArvectumProxyLauncher уже существует, "
                 "но её Exec-действие не принадлежит Arvectum Proxy Launcher. "
-                "Она не будет изменена или удалена.")
+                "Она не будет изменена или удалена."))
             return False
 
         try:
@@ -2405,7 +2412,7 @@ class Launcher:
                 except Exception:
                     pass
             self.auto_var.set(False)
-            messagebox.showerror(APP_NAME, "Не удалось включить автозапуск: %s" % exc)
+            messagebox.showerror(APP_NAME, tr("Не удалось включить автозапуск: %s") % exc)
             return False
 
         if verified != target or not self._autostart_run_is_ours(verified):
@@ -2417,8 +2424,8 @@ class Launcher:
             self.auto_var.set(False)
             messagebox.showerror(
                 APP_NAME,
-                "Windows не подтвердила точную запись автозапуска Launcher. "
-                "Изменение отменено; запускайте приложение вручную и проверьте «Журнал».")
+                tr("Windows не подтвердила точную запись автозапуска Launcher. "
+                "Изменение отменено; запускайте приложение вручную и проверьте «Журнал»."))
             return False
 
         # Migrate a provably-owned legacy task only after the canonical Run
@@ -2440,18 +2447,18 @@ class Launcher:
                         pass
                 messagebox.showerror(
                     APP_NAME,
-                    "Каноническая запись Run создана, но старую задачу автозапуска "
+                    tr("Каноническая запись Run создана, но старую задачу автозапуска "
                     "не удалось безопасно удалить. Новый Run откатан, если он был "
-                    "создан сейчас. Проверьте права Task Scheduler и повторите.")
+                    "создан сейчас. Проверьте права Task Scheduler и повторите."))
                 return False
 
-        messagebox.showinfo(APP_NAME, "Прокси будет запускаться автоматически при входе в Windows.")
+        messagebox.showinfo(APP_NAME, tr("Прокси будет запускаться автоматически при входе в Windows."))
         return True
 
     def _disable_autostart(self):
         if _is_macos():
             if macos_autostart_module is None:
-                messagebox.showerror(APP_NAME, "Компонент автозапуска macOS недоступен.")
+                messagebox.showerror(APP_NAME, tr("Компонент автозапуска macOS недоступен."))
                 return False
             target = macos_autostart_module.default_launchagent_path()
             if not os.path.exists(target):
@@ -2459,19 +2466,19 @@ class Launcher:
             if not macos_autostart_module.is_autostart_enabled(target):
                 messagebox.showerror(
                     APP_NAME,
-                    "Файл LaunchAgent существует, но не принадлежит Arvectum. "
-                    "Он не будет изменён или удалён."
+                    tr("Файл LaunchAgent существует, но не принадлежит Arvectum. "
+                    "Он не будет изменён или удалён.")
                 )
                 return False
             try:
                 removed = macos_autostart_module.disable_autostart(target)
                 if not removed or os.path.exists(target):
-                    raise RuntimeError("LaunchAgent остался после удаления")
+                    raise RuntimeError(tr("LaunchAgent остался после удаления"))
                 return True
             except Exception as exc:
                 messagebox.showerror(
                     APP_NAME,
-                    "Не удалось выключить автозапуск macOS: %s" % exc
+                    tr("Не удалось выключить автозапуск macOS: %s") % exc
                 )
                 return False
 
@@ -2481,13 +2488,13 @@ class Launcher:
             current = self._autostart_run_value()
             if self._autostart_run_is_ours(current):
                 if not self._delete_owned_autostart_run_value():
-                    errors.append("owned Run-запись не была удалена")
+                    errors.append(tr("owned Run-запись не была удалена"))
                 else:
                     remaining = self._autostart_run_value()
                     if self._autostart_run_is_ours(remaining):
-                        errors.append("owned Run-запись осталась после удаления")
+                        errors.append(tr("owned Run-запись осталась после удаления"))
         except Exception as exc:
-            errors.append("не удалось безопасно проверить/удалить Run: %s" % exc)
+            errors.append(tr("не удалось безопасно проверить/удалить Run: %s") % exc)
 
         # Do not return after Run cleanup: old releases may have both mechanisms.
         task_xml = self._autostart_task_xml()
@@ -2498,15 +2505,15 @@ class Launcher:
                 text=True,
             )
             if result.returncode != 0:
-                errors.append("legacy-задачу Task Scheduler не удалось удалить")
+                errors.append(tr("legacy-задачу Task Scheduler не удалось удалить"))
             elif self._autostart_task_is_ours(self._autostart_task_xml()):
-                errors.append("legacy-задача Task Scheduler осталась после удаления")
+                errors.append(tr("legacy-задача Task Scheduler осталась после удаления"))
 
         if errors:
             messagebox.showerror(
                 APP_NAME,
-                "Автозапуск выключен не полностью:\n• " + "\n• ".join(errors) +
-                "\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию."
+                tr("Автозапуск выключен не полностью:\n• ") + "\n• ".join(errors) +
+                tr("\n\nЧужие записи не изменялись. Проверьте «Журнал» и повторите операцию.")
             )
             return False
         return True
@@ -2519,7 +2526,7 @@ class Launcher:
         if not configured:
             messagebox.showinfo(
                 APP_NAME,
-                "Укажи данные внешнего прокси: IP адрес, порт, логин и пароль.")
+                tr("Укажи данные внешнего прокси: IP адрес, порт, логин и пароль."))
             self.settings()
 
 
@@ -2580,15 +2587,15 @@ def main():
     if handoff_error:
         messagebox.showerror(
             APP_NAME,
-            handoff_error + "\n\nLauncher оставлен открытым из текущей папки. "
-            "Закройте старую копию приложения и повторите запуск.",
+            handoff_error + tr("\n\nLauncher оставлен открытым из текущей папки. "
+            "Закройте старую копию приложения и повторите запуск."),
         )
     elif portable_fallback:
         messagebox.showwarning(
             APP_NAME,
-            "Не удалось запустить постоянную копию Launcher в Documents.\n\n"
+            tr("Не удалось запустить постоянную копию Launcher в Documents.\n\n"
             "Текущая portable-версия продолжит работать в этом сеансе. "
-            "Автозапуск временно отключён: запускайте этот EXE вручную."
+            "Автозапуск временно отключён: запускайте этот EXE вручную.")
         )
     _app = Launcher(root)
     _poll_single_instance_activation(root, instance)

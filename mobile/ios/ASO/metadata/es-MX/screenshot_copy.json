@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Administra varios perfiles con respaldo y cambio automático",
+  "02_direct_exceptions": "Excluye sitios web que deben conectarse directamente",
+  "03_app_automation": "Activa automatizaciones para ciertas apps con Atajos de iOS"
+}

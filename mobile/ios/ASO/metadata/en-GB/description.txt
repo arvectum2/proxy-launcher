@@ -1,0 +1,9 @@
+Route your iPhone traffic through a proxy you choose, with straightforward controls.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Multiple proxy profiles, priorities and backup switching
+• Website bypass rules for direct connections
+• Automations for selected apps using iOS Shortcuts
+• Connection details stay on the device; passwords use Keychain
+
+Enter your own proxy details. APL does not supply proxy servers.

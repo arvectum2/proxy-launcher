@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Multiple proxy profiles and automatic backup selection",
+  "02_direct_exceptions": "Site exclusions for destinations that need direct access",
+  "03_app_automation": "Open and close automations using iOS Shortcuts"
+}

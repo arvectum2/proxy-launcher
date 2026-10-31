@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">أدخل عنوان الموقع واضغط «إضافة». يظهر كل موقع في سطر مستقل. يمكنك لصق URL أو عنوان host:port أو عنوان IP.</string>
+    <string name="apl_connection_828dd" formatted="false">اتصال</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">حالة APL والملف الشخصي النشط</string>
+    <string name="apl_profile_cc3f0" formatted="false">حساب تعريفي · -</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">إدارة الملفات الشخصية</string>
+    <string name="apl_profiles_30c61" formatted="false">الملفات الشخصية</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">تحديد الوكلاء وإضافتهم وتحديد أولوياتهم</string>
+    <string name="apl_activity_85f08" formatted="false">نشاط</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">حالة الاتصال والنشاط الأخير</string>
+    <string name="apl_disconnected_3e958" formatted="false">غير متصل</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">فتح السجل</string>
+    <string name="apl_settings_985b5" formatted="false">الإعدادات</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">التوجيه وسلوك APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">استثناءات مواقع الويب</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">استثناءات التطبيق</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">الإعدادات التلقائية</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">الإجراءات المتقدمة منفصلة عن الاتصال اليومي.</string>
+    <string name="apl_home_d328e" formatted="false">الرئيسية</string>
+    <string name="apl_close_a7a40" formatted="false">يغلق</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">العودة إلى الوكيل المفضل بعد الفشل</string>
+    <string name="apl_connect_36b4c" formatted="false">اتصال</string>
+    <string name="apl_proxy_a5677" formatted="false">بروكسي</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">حدد الوكيل</string>
+    <string name="apl_new_4460b" formatted="false">+ جديد</string>
+    <string name="apl_edit_b8b15" formatted="false">يحرر</string>
+    <string name="apl_websites_54646" formatted="false">المواقع الإلكترونية</string>
+    <string name="apl_applications_39c4b" formatted="false">التطبيقات</string>
+    <string name="apl_log_97c45" formatted="false">السجل</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">فشل في قراءة الملفات الشخصية المحفوظة</string>
+    <string name="apl_auto_8dca2" formatted="false">تلقائي</string>
+    <string name="apl_checked_6a779" formatted="false">· التدقيق</string>
+    <string name="apl_available_c75e3" formatted="false">· متاح</string>
+    <string name="apl_unavailable_bee71" formatted="false">· غير متوفر</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">إضافة وكيل</string>
+    <string name="apl_profile_309fc" formatted="false">حساب تعريفي ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">لم يتم تكوينه</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">لم تتم إضافة أي استثناءات</string>
+    <string name="apl_delete_be99b" formatted="false">يمسح</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">تحقق من عنوان الموقع</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">أدخل عنوان الموقع</string>
+    <string name="apl_add_71038" formatted="false">يضيف</string>
+    <string name="apl_exclusions_f4f81" formatted="false">الاستثناءات</string>
+    <string name="apl_cancel_8fbe9" formatted="false">يلغي</string>
+    <string name="apl_save_b4d30" formatted="false">يحفظ</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">تحقق من قائمة الاستثناءات</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">فشل في حفظ الاستثناءات</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">جارٍ تطبيق الاستثناءات…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">تم مسح الاستثناءات</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">جارٍ تحميل قائمة التطبيقات</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">جارٍ تحميل قائمة التطبيقات…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">فشل في الحصول على قائمة التطبيقات المثبتة.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">فشل في حفظ استثناءات التطبيق</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">جارٍ تطبيق استثناءات التطبيق...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">تم مسح استثناءات التطبيق</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">السجل فارغ</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">الوكيل غير متوفر</string>
+    <string name="apl_switched_4c72e" formatted="false">تحولت</string>
+    <string name="apl_main_restored_290c9" formatted="false">استعادة الرئيسية</string>
+    <string name="apl_network_change_50fc1" formatted="false">تغيير الشبكة</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">قم بإضافة وكيل واحد على الأقل أولاً</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">فشل في تحديد الوكيل</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">بروكسي جديد</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">تحرير الملف الشخصي</string>
+    <string name="apl_name_0918b" formatted="false">اسم</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">على سبيل المثال أساسي</string>
+    <string name="apl_proxy_address_ef480" formatted="false">عنوان الوكيل</string>
+    <string name="apl_port_90947" formatted="false">المنفذ</string>
+    <string name="apl_username_5be12" formatted="false">اسم المستخدم</string>
+    <string name="apl_optional_f6d95" formatted="false">خياري</string>
+    <string name="apl_password_cb1a2" formatted="false">كلمة المرور</string>
+    <string name="apl_protocol_b3680" formatted="false">البروتوكول</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">بروتوكول السيارات</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">وكيل HTTPS مع TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">الأولوية للوضع التلقائي</string>
+    <string name="apl_delete_profile_b745f" formatted="false">هل تريد حذف الملف الشخصي؟</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">أدخل عنوان الوكيل</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">المنفذ 1-65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">فشل في حفظ الملف الشخصي بشكل آمن</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">جارٍ تطبيق تغييرات الملف الشخصي...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">فشل في حذف الملف الشخصي</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">تم حذف الملف الشخصي</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">قم بإضافة وكيل أولاً</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">السماح بإنشاء اتصال VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">ألغى Android إذن VPN. اضغط على اتصال.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">تم تعطيل VPN. يمكنك الاتصال مرة أخرى.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">جارٍ التحقق من الوكيل…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">جارٍ قطع الاتصال…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">لم يتم منح إذن VPN</string>
+    <string name="apl_switching_b0760" formatted="false">التبديل</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">قطع الاتصال</string>
+    <string name="apl_connecting_e2449" formatted="false">جارٍ الاتصال…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">تغيير الوكيل النشط</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">الاتصال نشط</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">التحقق من الوكيل المحدد</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">إنهاء الاتصال</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">اختر بروكسي</string>
+    <string name="apl_latency_milliseconds">· %1$d مللي ثانية</string>
+    <string name="apl_exclusions_saved_count">تم حفظ الاستثناءات: %1$d</string>
+    <string name="apl_apps_bypassing_count">تطبيقات تجاوز الوكيل: %1$d</string>
+    <string name="apl_switching_to_profile">التبديل إلى %1$s...</string>
+    <string name="apl_profile_saved">تم الحفظ: %1$s</string>
+    <string name="apl_error_detail">خطأ: %1$s</string>
+    <string name="apl_cannot_connect">لا يمكن الاتصال</string>
+</resources>

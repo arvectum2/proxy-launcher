@@ -35,7 +35,7 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('@AppStorage("appLanguage.v1")', app)
         self.assertIn('.environment(\\.locale,', app)
         self.assertIn('Picker("Язык приложения"', view)
-        self.assertIn('Text(AppL10n.tr(model.vpn.detail))', view)
+        self.assertIn('Text(AppL10n.tr(qaStatusTitle))', view)
         self.assertIn('Text(AppL10n.tr(type.label))', view)
 
     def test_onboarding_is_skippable_and_reopenable(self):
@@ -60,6 +60,8 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)
         self.assertIn("package: YandexMobileAds", project)
+        self.assertIn("YandexMobileAds", pbx)
+        self.assertIn("SettingsBannerView.swift in Sources", pbx)
         self.assertIn("static let isEnabled = true", (IOS / "App/SettingsBannerView.swift").read_text(encoding="utf-8"))
 
 if __name__ == "__main__":

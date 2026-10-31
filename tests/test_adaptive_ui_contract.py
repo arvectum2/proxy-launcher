@@ -24,16 +24,16 @@ class AdaptiveUiContractTests(unittest.TestCase):
 
     def test_navigation_order_is_shared(self):
         desktop_items = (
-            '("home", "Главная")',
-            '("profiles", "Профили")',
-            '("activity", "Активность")',
-            '("settings", "Настройки")',
+            '("home", tr("Главная"))',
+            '("profiles", tr("Профили"))',
+            '("activity", tr("Активность"))',
+            '("settings", tr("Настройки"))',
         )
         android_items = (
-            'destination(Destination.HOME, "Главная")',
-            'destination(Destination.PROFILES, "Профили")',
-            'destination(Destination.ACTIVITY, "Активность"',
-            'destination(Destination.SETTINGS, "Настройки"',
+            'destination(Destination.HOME, getString(R.string.apl_home_',
+            'destination(Destination.PROFILES, getString(R.string.apl_profiles_',
+            'destination(Destination.ACTIVITY, getString(R.string.apl_activity_',
+            'destination(Destination.SETTINGS, getString(R.string.apl_settings_',
         )
         ios_items = (
             'case .home: return AppL10n.tr("Главная")',
@@ -49,15 +49,15 @@ class AdaptiveUiContractTests(unittest.TestCase):
         self.assertIn('self.btn_primary = ttk.Button(', DESKTOP)
         self.assertNotIn("self.btn_on =", DESKTOP)
         self.assertNotIn("self.btn_off =", DESKTOP)
-        self.assertIn('STATE_CONNECTED -> "Отключить"', ANDROID)
+        self.assertIn('state == ProxyVpnService.STATE_CONNECTED -> getString(R.string.apl_disconnect_', ANDROID)
         self.assertIn('case .connected, .reasserting: return "Отключить"', IOS)
         self.assertIn('case .connecting: return "Подключение…"', IOS)
 
     def test_advanced_actions_are_progressively_disclosed(self):
-        self.assertIn('("activity", "Активность")', DESKTOP)
-        self.assertIn('("settings", "Настройки")', DESKTOP)
-        self.assertIn('text="Диагностика"', DESKTOP)
-        self.assertIn('text="Восстановить настройки сети"', DESKTOP)
+        self.assertIn('("activity", tr("Активность"))', DESKTOP)
+        self.assertIn('("settings", tr("Настройки"))', DESKTOP)
+        self.assertIn('text=tr("Диагностика")', DESKTOP)
+        self.assertIn('text=tr("Восстановить настройки сети")', DESKTOP)
         self.assertIn('showSettingsHubDialog()', ANDROID)
         self.assertIn('private var settingsScreen: some View', IOS)
 

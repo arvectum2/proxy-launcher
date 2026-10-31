@@ -1,0 +1,9 @@
+Sambungkan iPhone melalui proksi pilihan anda dengan kawalan yang mudah.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Berbilang profil, keutamaan dan pertukaran automatik ke proksi sandaran
+• Pengecualian laman web yang memerlukan sambungan terus
+• Automasi aplikasi terpilih menggunakan Pintasan iOS
+• Tetapan kekal pada peranti dan kata laluan dalam Rantai Kunci
+
+Gunakan pelayan proksi anda sendiri; APL tidak menyediakan pelayan.

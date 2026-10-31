@@ -1,0 +1,37 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CORE26-LOCALES-20261029
+status: completed
+goal: "Add full Urdu, Bengali, Gurmukhi Punjabi, Tamil and Telugu localization to APL on iOS, Android, desktop with Urdu RTL."
+definition_of_done:
+  - "All five languages: 155 iOS, 104 Android, 193 desktop source entries with exact key and format parity."
+  - "Native language picker/system matching, correct Urdu RTL, distinct Punjabi Gurmukhi script."
+  - "Correct technical/proxy vocabulary and safety instructions without English placeholders."
+  - "Verify Python regression, iOS unsigned UI-only Simulator build, Android public/private compile and unit tests."
+  - "Document QA, commit/push to existing PR #272 and checkpoint completion without touching Apple review binary/metadata or watchdog."
+completed:
+  - "Verified predecessor Core-21 checkpoint and PR #272 at 4f928dbd73d311f93bb6a3508dcb18e03b087798."
+  - "Archived prior checkpoint in .agent/checkpoints/APL-CORE21-LOCALES-20261029.yaml."
+  - "Added 5 complete catalogs ur, bn, pa-Guru, ta, te; each has iOS 155, Android 104, desktop 193 values, total 2260 added and 11752 in 26 languages."
+  - "Source strings translated from original EN/RU, 80 long onboarding/Shortcuts/exclusions/VPN instructions edited for meaning, 28 terminology items per new locale."
+  - "Edited 15 network recovery and safety messages, five diagnostic hints and matching button texts; preserved concatenation whitespace to pass fail-closed UX contract."
+  - "SwiftUI right-to-left now fa/ar/ur; Android RTL + LTR address/host/port; Tk right aligned fa/ar/ur. Punjabi explicitly Gurmukhi on Android via values-b+pa+Guru and iOS pa-PK/pa-Arab not mapped to Gurmukhi."
+  - "Added tests/test_core26_expansion.py, updated all prior parity and RTL tests, localization glossary, README and docs/ROADMAP.md."
+  - "Focused source tests 23 passed for each new locale, original source string syntax 26 plutil PASS, iOS AppLocalization Swift typecheck PASS."
+  - "Python full regression with APL_UI_LANGUAGE=ur: 1293 passed, 6 skipped, 3 prior unrelated Windows maintenance contracts deselected, 113 subtests passed."
+  - "iOS unsigned UI-only Simulator BUILD SUCCEEDED and 26 .lproj included; full signed PacketTunnel archive not attempted."
+  - "Android JDK17 Gradle Public/Private Kotlin compile and both unit test suites BUILD SUCCESSFUL, 49 actions executed."
+  - "git diff --check PASS, Python syntax PASS, QA details in docs/APL_CORE26_LOCALIZATION_QA_2026-10-29.md. Code commit c2b1fdc691d5fc7a0c88b0546c52de3a776a9438."
+current: "COMPLETED for Core-26 localization source authoring and static/native UI-only verification."
+pending:
+  - "Future separate QA: independent native-speaker review, physical iOS/Android/macOS devices, Urdu RTL accessibility, localized Shortcuts nomenclature and desktop Tk layout mirroring."
+  - "Separate later release gate: signed PacketTunnel archive and App Store Connect submission, never implied by source success."
+  - "Next Tier-2 wave: Marathi, Gujarati, Kannada, Malayalam and Uzbek (select from Core registry)."
+last_verified_commit: c2b1fdc691d5fc7a0c88b0546c52de3a776a9438
+test_results:
+  - "23/23 focused localization and RTL tests PASS with each of ur/bn/pa/ta/te."
+  - "1293 Python tests PASS, 6 skipped, 3 inherited Windows tests deselected, 113 subtests passed."
+  - "iOS UI-only unsigned Simulator build PASS, 26 .lproj bundled, 26 plutil and Swift typecheck PASS."
+  - "Android Public/Private Kotlin + unit tests BUILD SUCCESSFUL, 49 tasks."
+blocker: null
+resume_instruction: "This Core-26 wave is completed. On next continue, check PR #272 exact head, read checkpoint, and start NEW Core next wave on fresh task checkpoint; do not redo 26 locales. Keep Apple submitted binary/ASC privacy fields and disabled watchdog unchanged."

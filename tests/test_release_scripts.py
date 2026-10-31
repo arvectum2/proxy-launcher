@@ -485,9 +485,9 @@ class ReleaseScriptTests(unittest.TestCase):
         self.assertIn('style.configure("Navy.TButton"', text)
         self.assertIn('style.configure("MacPrimary.TButton"', text)
         self.assertIn('style="MacStatus.TLabel"', text)
-        self.assertIn('text="Проверка соединения"', text)
-        self.assertIn('text="Настройки"', text)
-        self.assertIn('text="Настройки и сервис"', text)
+        self.assertIn('text=tr("Проверка соединения")', text)
+        self.assertIn('text=tr("Настройки")', text)
+        self.assertIn('text=tr("Настройки и сервис")', text)
 
 
 if __name__ == "__main__":

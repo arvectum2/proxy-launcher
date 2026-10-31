@@ -51,10 +51,10 @@ class SettingsLocalPortsTests(unittest.TestCase):
     def test_local_ports_reject_collision_and_invalid_values(self):
         values, error = self.dialog(8080, 8080, 8082)._local_ports_values()
         self.assertIsNone(values)
-        self.assertIn("три разных", error)
+        self.assertEqual(error, gui.tr("HTTP, SOCKS5 и PAC должны использовать три разных локальных порта."))
         values, error = self.dialog("bad", 1080, 8082)._local_ports_values()
         self.assertIsNone(values)
-        self.assertIn("1 до 65535", error)
+        self.assertEqual(error, gui.tr("Локальные порты должны быть числами от 1 до 65535."))
 
     def test_macos_recommended_ports_can_be_applied_without_network_change(self):
         dlg = self.dialog()
@@ -462,7 +462,7 @@ class MacOSWakeDestructiveActionGuardTests(unittest.TestCase):
 
         self.assertEqual(
             launcher.btn_primary.configure.call_args.kwargs["text"],
-            "Восстановить сеть",
+            gui.tr("Восстановить сеть"),
         )
         launcher.btn_primary.state.assert_called_with(["disabled"])
         launcher.btn_restore.state.assert_called_with(["disabled"])
@@ -650,7 +650,7 @@ class FinalStatusUxTests(unittest.TestCase):
     def test_active_state_is_unambiguous_and_actionable(self):
         view = self.status(running=True, enabled=True)
         self.assertEqual(view["key"], "active")
-        self.assertEqual(view["label"], "ПРОКСИ РАБОТАЕТ")
+        self.assertEqual(view["label"], gui.tr("ПРОКСИ РАБОТАЕТ"))
         self.assertFalse(view["can_on"])
         self.assertTrue(view["can_off"])
         self.assertTrue(view["can_check"])
@@ -659,7 +659,7 @@ class FinalStatusUxTests(unittest.TestCase):
     def test_engine_only_state_avoids_internal_pac_jargon_in_primary_label(self):
         view = self.status(running=True, enabled=False)
         self.assertEqual(view["key"], "engine_only")
-        self.assertEqual(view["label"], "ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН")
+        self.assertEqual(view["label"], gui.tr("ПРОКСИ ЗАПУЩЕН · НЕ ПОДКЛЮЧЕН"))
         self.assertNotIn("PAC", view["label"])
         self.assertTrue(view["can_on"])
         self.assertTrue(view["can_off"])
@@ -670,7 +670,7 @@ class FinalStatusUxTests(unittest.TestCase):
         self.assertFalse(view["can_on"])
         self.assertFalse(view["can_off"])
         self.assertTrue(view["restore_primary"])
-        self.assertIn("Восстановить сеть", view["hint"])
+        self.assertEqual(view["hint"], gui.tr("Предыдущий сеанс завершился некорректно. Нажмите «Восстановить сеть» прямо здесь, дождитесь успешного восстановления, а затем снова подключите прокси."))
 
     def test_recovery_state_puts_restore_on_home_primary_action(self):
         launcher = gui.Launcher.__new__(gui.Launcher)
@@ -683,7 +683,7 @@ class FinalStatusUxTests(unittest.TestCase):
         launcher._apply_primary_action(self.status(pending=True))
 
         launcher.btn_primary.configure.assert_called_once_with(
-            text="Восстановить сеть",
+            text=gui.tr("Восстановить сеть"),
             command=launcher.restore_network,
             style="MacPrimary.TButton",
         )
@@ -702,15 +702,15 @@ class FinalStatusUxTests(unittest.TestCase):
         self.assertEqual(view["key"], "diagnostics_required")
         self.assertFalse(view["can_on"])
         self.assertFalse(view["can_off"])
-        self.assertIn("Диагностика", view["hint"])
+        self.assertIn(gui.tr("Диагностика"), view["hint"])
 
     def test_off_state_confirms_safe_final_state(self):
         view = self.status()
         self.assertEqual(view["key"], "off")
-        self.assertEqual(view["label"], "ПРОКСИ ВЫКЛЮЧЕН")
+        self.assertEqual(view["label"], gui.tr("ПРОКСИ ВЫКЛЮЧЕН"))
         self.assertTrue(view["can_on"])
         self.assertFalse(view["can_off"])
-        self.assertIn("Исходные сетевые настройки", view["hint"])
+        self.assertIn(gui.tr("Сеанс Arvectum не активен. Исходные сетевые настройки используются без изменений. Нажмите «Включить прокси», когда он понадобится."), view["hint"])
 
     def test_running_state_keeps_precedence_over_recovery_evidence(self):
         view = self.status(running=True, enabled=True, pending=True)

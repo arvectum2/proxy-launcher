@@ -1,0 +1,5 @@
+{
+  "01_profiles": "多組設定檔、優先順序與備援代理自動切換",
+  "02_direct_exceptions": "為需要直接連線的網站設定例外",
+  "03_app_automation": "透過 iOS 捷徑自動控制所選 App"
+}

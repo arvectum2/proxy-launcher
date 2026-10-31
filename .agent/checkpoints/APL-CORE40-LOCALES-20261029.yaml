@@ -1,0 +1,35 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CORE40-LOCALES-20261029
+status: completed
+goal: "Finish all Tier-2 languages by adding Czech, Slovak, Greek and Hebrew source localizations for iOS, Android and desktop APL."
+definition_of_done:
+  - "Four complete catalogs, 155 iOS, 104 Android, 193 desktop values each, source key/parameter parity."
+  - "Hebrew RTL native UI alignment, Android RTL and LTR address fields."
+  - "Copyedit critical setup and network recovery text; terminology glossary."
+  - "Python, iOS unsigned Simulator UI-only, Android public/private compile and unit tests pass."
+  - "Publish new source and updated 50-language map in PR #272; preserve Apple review/ASC privacy and disabled Watchdog."
+completed:
+  - "Verified previous Core36 completed SHA 3871259e1533db519a7db3ed55243b3e48e64484 and matching PR #272 head. Archived Core36 checkpoint."
+  - "Added cs/sk/el/he, each 155 iOS, 104 Android, 193 desktop source translations, 1808 additions, 40/50 total and 18080 source values."
+  - "Implemented iOS language selection/system lookup; Android values-iw Hebrew and standard Greek/Czech/Slovak resources; desktop locale normalization."
+  - "Added Hebrew to SwiftUI RTL fa/ar/ur/he and desktop right-alignment; Android supportsRtl and LTR literal address/host/port fields retained."
+  - "Manually revised 64 long onboarding/Shortcuts/exclusions/mode instructions, 16 desktop diagnostic/network recovery warnings and 28 glossary terms in each new language."
+  - "Updated inherited RTL tests and created tests/test_core40_expansion.py; 29 focused localization tests PASS separately under cs/sk/el/he."
+  - "Full Python APL_UI_LANGUAGE=he regression 1299 passed, 6 skipped, 3 prior unrelated Windows maintenance assertions deselected, 113 subtests passed."
+  - "iOS Swift arm64 Simulator typecheck and 40 plutil lint PASS; unsigned UI-only Simulator BUILD SUCCEEDED with 40 bundled .lproj. No full signed PacketTunnel distribution build."
+  - "Android JDK17 Gradle Public/Private compile and both unit test tasks BUILD SUCCESSFUL, 49 tasks."
+  - "Docs/ROADMAP/README and 50-language coverage matrix updated: Tier1 20/20, Tier2 20/20, Tier3 0/10; details docs/APL_CORE40_LOCALIZATION_QA_2026-10-29.md."
+  - "git diff --check and Python compile PASS. Code commit cd57abb7be320dd14d59f75eaf5f2fe7684ea893."
+current: "COMPLETED — all 40 current UI source catalogs verified locally and code committed."
+pending:
+  - "Next Tier-3 wave: ha am sv da fi nb bg sr hr ca (10 languages); start a NEW canonical task and preserve Core40 checkpoint."
+  - "Separate release gate: professional native-speaker review, physical-device bidirectional Hebrew layout/accessibility, signed PacketTunnel build and explicit publication decision."
+last_verified_commit: cd57abb7be320dd14d59f75eaf5f2fe7684ea893
+test_results:
+  - "29 localization tests pass in each cs/sk/el/he mode."
+  - "Python full: 1299 passed, 6 skipped, 3 inherited Windows tests deselected, 113 subtests passed."
+  - "iOS unsigned UI-only Simulator build succeeded, 40 locales bundled, 40 plutil and Swift typecheck pass."
+  - "Android Public/Private Kotlin+unit tests build successful, 49 Gradle tasks."
+blocker: null
+resume_instruction: "Core40 complete: verify PR #272 latest head, no repeated cs/sk/el/he work. Start new Tier3 wave in new checkpoint. Keep Apple submitted build, App Store privacy/metadata and disabled Watchdog unchanged."

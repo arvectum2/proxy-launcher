@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Varios perfiles, prioridades y cambio automático al servidor de reserva",
+  "02_direct_exceptions": "Exclusiones para sitios web que necesitan conexión directa",
+  "03_app_automation": "Automatizaciones para apps seleccionadas mediante Atajos de iOS"
+}

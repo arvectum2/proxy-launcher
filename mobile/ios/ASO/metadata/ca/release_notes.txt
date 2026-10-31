@@ -1,0 +1,1 @@
+Més idiomes d’interfície i instruccions de connexió millorades.

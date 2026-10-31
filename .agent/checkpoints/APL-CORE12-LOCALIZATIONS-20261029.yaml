@@ -1,0 +1,32 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CORE12-LOCALIZATIONS-20261029
+status: completed
+goal: "Bring APL source localizations into parity with the 12-language baseline from Arvectum Tools Core, without changing current App Store review."
+definition_of_done:
+  - "Twelve language catalogs synchronized with the existing complete Arvectum Tools Core source-language baseline."
+  - "iOS language picker has 12 options plus system and 12 localized source catalogs."
+  - "Android and desktop UI sources have 12-language resources with accurate fallback."
+  - "Source resource/placeholder checks and scoped app compilation/regression tests pass; unrelated inherited failures isolated."
+  - "Changes committed on isolated feature branch; the already-reviewed Apple build and Store privacy card unchanged."
+completed:
+  - "Inspected Core 50-target registry and selected exact 12-language common baseline. NL not yet ready in all Core apps; no placeholder languages added."
+  - "Created worktree feat/apl-core12-locales-20261029 at origin/main 179d74cf; original dirty checkout and live Apple submission untouched."
+  - "iOS: 12 complete-key catalogs, 155 strings each, system+12 native-language picker, pt-BR/pt-PT and zh-Hans/zh-Hant routing; XcodeGen project regenerated."
+  - "Android: 12 resource catalogs (95 static + 7 dynamic UI entries), backend routing literals preserved; localized site exclusion help."
+  - "Desktop: 193 UI strings across 12 locales, OS AppleLanguages detection and APL_UI_LANGUAGE developer override, unlocalized keyboard protocol identifiers retained."
+  - "Scoped tests and language-agnostic UI contract tests updated; branch code committed 53e44e69a86c4eb9ca552d0fe7db6362669b2262."
+  - "Verification evidence: docs/APL_CORE12_LOCALIZATION_QA_2026-10-29.md; roadmap and localization source metadata updated."
+current: "COMPLETE for source-first rollout; editorial/native device QA and any new release are separately gated."
+pending:
+  - "Human editing/proofreading of technical, privacy, and safety strings, native UI overflow/VoiceOver checks, actual VPN iOS compile with patched tun2proxy framework, actual physical devices, and release signoff."
+  - "Three preexisting unrelated Windows App Control script/runbook contract failures need separate maintenance handling; reproduced on origin/main 179d74cf."
+  - "Future expansion wave after editorial signoff: NL and remaining Core tier 1 locales, then other registry languages."
+last_verified_commit: "53e44e69a86c4eb9ca552d0fe7db6362669b2262 (full source implementation and validations)"
+test_results:
+  - "iOS XcodeGen and unsigned iOS Simulator UI-only build: PASS; 12 compiled .lproj resources; AppLocalization.swift arm64 simulator typecheck PASS. Full PacketTunnel build blocked by missing tun2proxy.xcframework in isolated worktree."
+  - "Android Public and Private Debug Kotlin compilation PASS, Public/Private Android unit tests PASS (JDK17/Android SDK)."
+  - "Full Python suite: 1281 PASS, 1 skipped, 3 known baseline Windows failures excluded, 113 subtests PASS; without exclusion same 3 failures as origin/main."
+  - "Desktop/source focused tests: 55 PASS each in EN/system, RU, ES, JA; Core-12 catalog contract 6 PASS; .strings plutil and Python compile PASS; diff --check PASS."
+blocker: null
+resume_instruction: "Task completed: do not repeat source generation, do not modify reviewed Apple build, privacy declaration, or Watchdog. Next independent task is human technical/editorial QA of 12 draft catalogs, physical UI QA and later source expansion to the next full Core language. Existing branch feat/apl-core12-locales-20261029, source commit 53e44e69a86c4eb9ca552d0fe7db6362669b2262. Full verification docs/APL_CORE12_LOCALIZATION_QA_2026-10-29.md."

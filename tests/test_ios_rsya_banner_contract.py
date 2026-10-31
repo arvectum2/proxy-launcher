@@ -21,7 +21,8 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertEqual(main.count('SettingsBannerView()'), 1)
         self.assertLess(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
         mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
-        self.assertIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
+        self.assertIn('VStack(spacing: 0)', mobile_shell)
+        self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
         self.assertIn('SettingsBannerView()', mobile_shell)
         settings = main.split('private var settingsScreen:', 1)[1].split('private var profileSelectionMenu', 1)[0]
         self.assertNotIn('SettingsBannerView()', settings)
@@ -50,7 +51,8 @@ class IOSRSYABannerTests(unittest.TestCase):
 
     def test_ad_label_respects_new_app_language_setting(self):
         view = (IOS / "App" / "SettingsBannerView.swift").read_text()
-        self.assertIn('AppL10n.tr("Реклама")', view)
+        self.assertIn('Text(IOSAdsConfig.localizedAdLabel)', view)
+        self.assertIn('labels[AppL10n.effectiveLanguage]', view)
         for language, value in (("ru", "Реклама"), ("en", "Advertisement")):
             strings = (IOS / "Resources" / f"{language}.lproj" / "Localizable.strings").read_text()
             self.assertIn(f'"Реклама" = "{value}";', strings)

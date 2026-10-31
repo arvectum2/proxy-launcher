@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Birden çok profil, öncelikler ve yedek proxy’ye otomatik geçiş",
+  "02_direct_exceptions": "Doğrudan bağlantı gerektiren siteler için istisnalar",
+  "03_app_automation": "iOS Kestirmeler ile seçili uygulamalarda otomasyon"
+}

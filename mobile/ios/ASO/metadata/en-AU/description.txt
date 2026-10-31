@@ -1,0 +1,9 @@
+Connect your iPhone through your preferred proxy with easy profile management.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Multiple proxy profiles and automatic backup selection
+• Site exclusions for destinations that need direct access
+• Open and close automations using iOS Shortcuts
+• Your connection settings stay on your iPhone
+
+You provide the proxy server; the app does not sell proxy access.
