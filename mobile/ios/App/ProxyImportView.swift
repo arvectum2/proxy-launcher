@@ -6,6 +6,8 @@ struct ProxyImportView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var source = ""
+    @State private var defaultType: ProxyType = .http
+    @State private var parsedType: ProxyType = .http
     @State private var candidates: [ImportedProxy] = []
     @State private var parsedSource = ""
     @State private var importError: String?
@@ -15,7 +17,9 @@ struct ProxyImportView: View {
     @State private var cameraPermissionDenied = false
     @FocusState private var editorFocused: Bool
     var initialSource: String = ""
-    private var preview: [ImportedProxy] { parsedSource == source ? candidates : [] }
+    private var preview: [ImportedProxy] {
+        parsedSource == source && parsedType == defaultType ? candidates : []
+    }
     private var pending: [ImportedProxy] {
         ProxyImport.withoutDuplicates(preview, existing: model.profiles)
     }
@@ -24,6 +28,14 @@ struct ProxyImportView: View {
         NavigationView {
             Form {
                 Section(ProxyImportUX.text("Ссылка или список прокси")) {
+                    Picker(ProxyImportUX.text("Тип прокси по умолчанию"), selection: $defaultType) {
+                        Text("HTTP").tag(ProxyType.http)
+                        Text("HTTPS").tag(ProxyType.https)
+                        Text("SOCKS5").tag(ProxyType.socks5)
+                    }
+                    .onChange(of: defaultType) { _ in
+                        if !source.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { parse() }
+                    }
                     TextEditor(text: $source).frame(minHeight: 110)
                         .focused($editorFocused)
                         .accessibilityLabel(ProxyImportUX.text("Текст ссылок на прокси"))
@@ -47,7 +59,7 @@ struct ProxyImportView: View {
                         scanQR = true
                     }
                     Button(ProxyImportUX.text("Проверить")) { parse() }
-                    Text(ProxyImportUX.text("Вставьте ссылку или несколько ссылок — по одной в строке. HTTP, HTTPS и SOCKS5."))
+                    Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 if let message = importError {
@@ -120,7 +132,9 @@ struct ProxyImportView: View {
                     } }
                 }
             }
-            .fileImporter(isPresented: $chooseFile, allowedContentTypes: [.plainText], allowsMultipleSelection: false) { result in
+            .fileImporter(isPresented: $chooseFile,
+                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml],
+                          allowsMultipleSelection: false) { result in
                 do {
                     guard let url = try result.get().first else { return }
                     let access = url.startAccessingSecurityScopedResource()
@@ -159,8 +173,9 @@ struct ProxyImportView: View {
     private func parse() {
         editorFocused = false
         parsedSource = source
+        parsedType = defaultType
         cameraPermissionDenied = false
-        do { candidates = try ProxyImport.parse(source); importError = nil }
+        do { candidates = try ProxyImport.parse(source, defaultType: defaultType); importError = nil }
         catch { candidates = []; importError = ProxyImportUX.error(error) }
     }
 }

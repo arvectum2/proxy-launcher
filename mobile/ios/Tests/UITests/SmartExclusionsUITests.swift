@@ -162,6 +162,31 @@ final class ProxyImportUITests: XCTestCase {
 }
 
 extension ProxyImportUITests {
+    func testSupplierColonFormatPreviewsWithoutSavingSecrets() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let profiles = app.tabBars.buttons["Профили"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 15))
+        profiles.tap()
+        app.buttons["Импортировать прокси"].tap()
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Тип прокси по умолчанию"].exists)
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.exists)
+        editor.tap()
+        editor.typeText("192.0.2.47:45321:exampleuser:samplepass")
+        app.buttons["Проверить"].tap()
+        XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 8))
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "192.0.2.47")).firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["samplepass"].exists)
+        // Preview-only, no fake profile saved and no device VPN toggled.
+    }
+}
+
+extension ProxyImportUITests {
     func testEnglishImportIsReadableAndParsesLink() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "en"]

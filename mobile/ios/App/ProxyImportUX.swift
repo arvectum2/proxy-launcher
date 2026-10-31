@@ -4,6 +4,8 @@ import Foundation
 /// release catalogs remain unchanged; every language has an English fallback.
 enum ProxyImportUX {
     private static let english: [String: String] = [
+        "Тип прокси по умолчанию": "Default proxy protocol",
+        "Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола.": "Paste proxy links, IP:port:user:password, or import up to 200 proxies from TXT/CSV/XML. The selected protocol only applies to entries without one.",
         "Импорт прокси": "Import proxies",
         "Импортировать прокси": "Import proxies",
         "Ссылка или список прокси": "Proxy link or list",
@@ -33,9 +35,12 @@ enum ProxyImportUX {
         "Открыть настройки камеры": "Open camera settings",
         "Не удалось прочитать файл. Выберите текстовый файл UTF-8.": "Could not read the file. Choose a UTF-8 text file.",
         "Поддерживаются ссылки http://, https:// и socks5://": "Supported links: http://, https:// and socks5://",
+        "Поддерживаются ссылки HTTP/HTTPS/SOCKS5 и IP:порт:логин:пароль": "Supported: HTTP/HTTPS/SOCKS5 links and IP:port:user:password",
+        "Некорректный адрес, порт или формат списка прокси": "Invalid proxy address, port, or list format",
         "Некорректный адрес или порт прокси": "Invalid proxy address or port",
         "Слишком большой файл или список прокси": "Proxy file or list is too large",
         "Не найдены ссылки на прокси": "No proxy links found",
+        "Не найдены ссылки или записи прокси": "No proxy links or entries found",
         "Импортировать по ссылке или QR-коду": "Import from link or QR code",
         "Если у вас есть ссылка или QR-код от поставщика, импортируйте профиль без ручного ввода.": "Have a link or QR code from your provider? Import instead of typing the settings manually.",
     ]
@@ -60,8 +65,8 @@ enum ProxyImportUX {
 
     static func error(_ error: Error) -> String {
         switch error {
-        case ProxyImportError.unsupported: return text("Поддерживаются ссылки http://, https:// и socks5://")
-        case ProxyImportError.invalid: return text("Некорректный адрес или порт прокси")
+        case ProxyImportError.unsupported: return text("Поддерживаются ссылки HTTP/HTTPS/SOCKS5 и IP:порт:логин:пароль")
+        case ProxyImportError.invalid: return text("Некорректный адрес, порт или формат списка прокси")
         case ProxyImportError.tooLarge: return text("Слишком большой файл или список прокси")
         case ProxyImportError.empty: return text("Не найдены ссылки на прокси")
         default: return text("Не удалось прочитать файл. Выберите текстовый файл UTF-8.")
