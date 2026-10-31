@@ -13,14 +13,14 @@ completed:
   - 'Added best-effort restore of previously active VPN after reconnect failure; validated persistence and rollback before state changes.'
   - 'Source Phase A/B tested: 46 Swift core PASS, 1088 Python unittest PASS (1 skipped), 5/5 iOS simulator Smart Exclusions UI PASS, iOS Simulator Debug build PASS.'
   - 'Documented genuine iOS per-domain routing Phase C limitations shared IP/DoH/QUIC without shipping unverified new tun2proxy.'
-current: 'Smart Exclusions A/B complete in source; finalize tests, commit PR and continue next localization/UX milestone.'
+current: 'Smart Exclusions A/B source verified; Phase C is a safe dry-run prototype pending hardware. Finish CI merge then move to localization and UX.'
 pending:
   - 'Phase C real domain-aware per-flow engine remains separate hardware-gated, current IP routes cannot guarantee no shared-CDN bypass.'
   - 'Localization/UX and other roadmap milestones; tests.'
   - 'Commit, CI, merge and final checkpoint.'
-last_verified_commit: '59351643 (origin/main at start)'
+last_verified_commit: '9cd1c0f1 (Smart Exclusions source commit; Phase C prototype pending)'
 test_results:
-  - 'Swift package 46/46 PASS, including graph concurrency/expiry/consent tests.'
+  - 'Swift package 49/49 PASS including isolated per-domain/shared-IP prototype.'
   - 'Python unittest 1088 PASS, 1 skipped.'
   - 'iOS Simulator Smart Exclusions UI 5/5 PASS.'
   - 'iOS Simulator Debug BUILD SUCCEEDED; final source rerun before PR.'
