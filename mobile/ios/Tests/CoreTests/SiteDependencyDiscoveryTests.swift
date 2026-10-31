@@ -17,6 +17,16 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
         let urls = ["https://api.example.com/v1", "https://cdn.example.com/a.css", "https://tracker.test/x", "https://evil-example.com/x", "file:///tmp/x", "https://api.example.com/v2"]
         XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: urls, for: "example.com"), ["api.example.com", "cdn.example.com"])
     }
+    func testRuntimeCandidatesAreBoundedAndSorted() {
+        let urls = (0..<80).map { "https://s\($0).example.com/app.js" }
+        let found = SiteDependencyDiscovery.resourceCandidates(urls: urls, for: "example.com")
+        XCTAssertEqual(found.count, SiteDependencyDiscovery.maxCandidates)
+        XCTAssertEqual(found, found.sorted())
+    }
+    func testCannotTreatSiblingOrUnrelatedDomainsAsFirstParty() {
+        let urls = ["https://example.com.evil.test/x", "https://a-example.com/x", "https://foo.example.com/x", "https://foo.EXAMPLE.com/x"]
+        XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: urls, for: "www.example.com"), ["foo.example.com"])
+    }
     func testRuntimeRequestsRejectLookalikeAndInvalidURLs() {
         XCTAssertEqual(SiteDependencyDiscovery.resourceCandidates(urls: ["https://notexample.com/a", "ftp://api.example.com/b", "https://foo.example.com:8443/x"], for: "example.com"), ["foo.example.com"])
     }

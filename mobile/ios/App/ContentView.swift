@@ -920,7 +920,14 @@ struct ExclusionsView: View {
                     }
                     Button(scanning ? "Идёт анализ…" : "Найти связанные домены") { scanSite() }
                         .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    if scanning { ProgressView("Анализ ресурсов сайта") }
+                    if scanning {
+                        ProgressView("Анализ ресурсов сайта")
+                        Button("Отменить анализ") {
+                            scanner?.cancel()
+                            scanner = nil
+                            scanning = false
+                        }
+                    }
                 }
                 if !discovered.isEmpty {
                     Section("Найденные домены — выберите для исключения") {
@@ -1008,6 +1015,7 @@ struct ExclusionsView: View {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
             .onAppear { entries = model.exclusions }
+            .onDisappear { scanner?.cancel(); scanner = nil }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -1233,6 +1241,28 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         view.navigationDelegate = self
         guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
         view.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 18) { [weak self] in
+            self?.finish(.failure(URLError(.timedOut)))
+        }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let destination = navigationAction.request.url,
+              destination.scheme?.lowercased() == "https",
+              let requested = URL(string: "https://" + host)?.host?.lowercased(),
+              destination.host?.lowercased() == requested else {
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(.allow)
+    }
+
+    func cancel() {
+        completion = nil
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView = nil
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
