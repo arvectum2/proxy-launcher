@@ -33,6 +33,7 @@
 		477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */; };
 		48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */; };
 		563BFF4157A93CA8DE832045 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 558988BBD730E81E42CF9FA6 /* PrivacyInfo.xcprivacy */; };
 		5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
@@ -134,6 +135,7 @@
 		2F07F29870CE1289CA6D9A19 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2F4FCA25B746417DA30EF17E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalProxyEgressUITests.swift; sourceTree = "<group>"; };
 		3202003843F0368D9FEBED74 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/Localizable.strings; sourceTree = "<group>"; };
 		3775CCC840C042E2F1D53CAC /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37C0B875154298B04E4DC8B9 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -284,6 +286,7 @@
 			children = (
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
+				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
 				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
 				A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */,
 				D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */,
@@ -605,6 +608,7 @@
 			files = (
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
+				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
 				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,
 				0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */,
 				8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */,
