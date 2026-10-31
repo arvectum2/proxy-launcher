@@ -1,0 +1,23 @@
+task_id: APL-IOS-UX-20261031
+status: completed
+goal: 'Roadmap point 3: polish iOS Smart Exclusions 2.0 localization and accessibility while no physical iPhone is available, preserving existing 50 language corpora.'
+definition_of_done:
+  - 'New Smart Exclusions UI labels and warnings never leak unlocalized Russian to a non-Russian locale; provide proper English fallback and high-priority localized copy.'
+  - 'Improve accessibility controls and error clarity; include regression tests for 50 locale choices, RTL, dynamic type and VoiceOver labels where simulator permits.'
+  - 'Preserve old 155-key core catalogs and 50 languages without changing App Store Connect.'
+  - 'Run Swift/Python/iOS Simulator build and UI tests, commit and merge through CI after source Smart2 PR.'
+completed:
+  - 'Smart Exclusions source Phase A/B merged in main PR #281, 49 Swift tests, 1088 Python tests, 5 simulator UI tests passed.'
+  - 'Added safe EN fallback for new Smart2 UI copy on 49 non-RU locales; 14 high-priority locale action/status translations; preserved existing 50x155 catalogs.'
+  - 'Fixed settingsButton to use AppL10n.tr(title); EN and Hebrew RTL navigation/Smart2 UI XCUITests both PASS.'
+  - 'Made sensitive manual third-party actions and graph delete/revoke buttons 44pt and accessible uniquely by host.'
+current: 'COMPLETE source UX phase: 14 priority locale actions, safe EN fallback, Settings language fix and simulator EN/HE RTL test.'
+pending:
+  - 'Independent native-speaker editorial certification and physical VoiceOver/large-text UI acceptance postponed until upgraded iPhone build.'
+  - '36 locales still use EN fallback for new controls; further native editorial expansion remains optional.'
+last_verified_commit: 'd863fd3c (Smart2 branch base)'
+test_results:
+  - '3/3 new Python UX/locale contract tests PASS.'
+  - '2/2 iOS Simulator English/Hebrew RTL UI tests PASS.'
+  - 'Full Python/Swift and simulator build recheck before merge.'
+resume_instruction: 'UX implementation source complete in /tmp/apl-ios-smart2-ux-20261031; commit, run CI and merge PR to main. Then create new checkpoint/worktree for iOS quick VPN actions; defer hardware acceptance until upgraded build, no App Store changes.'
