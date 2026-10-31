@@ -6,11 +6,29 @@ struct ProxyProbeResult {
     let latencyMs: Int
 }
 
-enum ProxyProbeError: LocalizedError {
-    case unavailable(String)
-    var errorDescription: String? {
-        if case .unavailable(let detail) = self { return detail }
-        return nil
+/// Network.framework may complete the connection or fire a timeout on
+/// different queues. This gate resumes the Swift continuation exactly once.
+private final class ProbeCompletionGate<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var finished = false
+    private let continuation: CheckedContinuation<Value, Error>
+
+    init(_ continuation: CheckedContinuation<Value, Error>) {
+        self.continuation = continuation
+    }
+
+    @discardableResult
+    func finish(_ result: Result<Value, Error>) -> Bool {
+        lock.lock()
+        let shouldResume = !finished
+        if shouldResume { finished = true }
+        lock.unlock()
+        guard shouldResume else { return false }
+        switch result {
+        case .success(let value): continuation.resume(returning: value)
+        case .failure(let error): continuation.resume(throwing: error)
+        }
+        return true
     }
 }
 
@@ -21,7 +39,7 @@ final class ProxyProbe {
 
     func resolveMeasured(_ profile: ProxyProfile, password: String?) async throws -> ProxyProbeResult {
         let candidates: [ProxyType] = profile.type == .auto ? [.http, .socks5, .https] : [profile.type]
-        var failures: [String] = []
+        var failures: [ProxyFailureReason] = []
         for candidate in candidates {
             let started = DispatchTime.now().uptimeNanoseconds
             do {
@@ -36,15 +54,30 @@ final class ProxyProbe {
                 resolved.type = candidate
                 return ProxyProbeResult(profile: resolved, latencyMs: elapsed)
             } catch {
-                failures.append("\(candidate.label): \(error.localizedDescription)")
+                failures.append(Self.failureReason(for: error))
             }
         }
-        throw ProxyProbeError.unavailable("Не удалось подобрать протокол. " + failures.joined(separator: "; "))
+        throw ProxyDiagnosticError(ProxyFailureReason.mostRelevant(failures))
+    }
+
+    /// Interpret typed Network.framework errors without logging their details.
+    private static func failureReason(for error: Error) -> ProxyFailureReason {
+        if let nw = error as? NWError {
+            switch nw {
+            case .dns: return .dns
+            case .tls: return .tls
+            case .posix(let code):
+                return ProxyFailureReason.classify(NSError(domain: NSPOSIXErrorDomain, code: Int(code.rawValue)))
+            default: return .unknown
+            }
+        }
+        return ProxyFailureReason.classify(error)
     }
 
     private func probeHTTP(_ profile: ProxyProfile, password: String?, tls: Bool) async throws {
         let parameters = tls ? NWParameters(tls: NWProtocolTLS.Options(), tcp: NWProtocolTCP.Options()) : .tcp
         let connection = NWConnection(host: NWEndpoint.Host(profile.host), port: NWEndpoint.Port(rawValue: UInt16(profile.port))!, using: parameters)
+        defer { connection.cancel() }
         try await start(connection)
         var request = "CONNECT \(probeHost):\(probePort) HTTP/1.1\r\nHost: \(probeHost):\(probePort)\r\nProxy-Connection: close\r\n"
         if let username = profile.username, !username.isEmpty {
@@ -59,47 +92,52 @@ final class ProxyProbe {
             if chunk.isEmpty { break }
             response.append(chunk)
         }
-        connection.cancel()
-        guard let text = String(data: response, encoding: .isoLatin1),
+        // A partial HTTP status line without terminating headers is not a
+        // verified CONNECT tunnel, even if it begins with 'HTTP/1.1 200'.
+        guard response.containsHeaderTerminator,
+              let text = String(data: response, encoding: .isoLatin1),
               let firstLine = text.components(separatedBy: "\r\n").first,
               firstLine.hasPrefix("HTTP/"),
               let statusText = firstLine.split(separator: " ").dropFirst().first,
               let status = Int(statusText) else {
-            throw ProxyProbeError.unavailable("ответ не похож на HTTP proxy")
+            throw ProxyDiagnosticError(.protocolMismatch)
         }
-        if (200...299).contains(status) { return }
-        if status == 407, profile.username?.isEmpty != false { throw ProxyProbeError.unavailable("прокси требует логин/пароль") }
-        if status == 407, text.range(of: "Proxy-Authenticate: Digest", options: .caseInsensitive) != nil { return }
-        if status == 407 { throw ProxyProbeError.unavailable("логин/пароль отклонены") }
-        throw ProxyProbeError.unavailable("CONNECT вернул HTTP \(status)")
+        // Even a Digest 407 is only an authentication challenge, not a
+        // successful tunnel; never mark an unverified proxy as available.
+        if let reason = ProxyFailureReason.forHTTPConnectStatus(status) {
+            throw ProxyDiagnosticError(reason)
+        }
     }
 
     private func probeSOCKS5(_ profile: ProxyProfile, password: String?) async throws {
         let connection = NWConnection(host: NWEndpoint.Host(profile.host), port: NWEndpoint.Port(rawValue: UInt16(profile.port))!, using: .tcp)
+        defer { connection.cancel() }
         try await start(connection)
         let hasCredentials = !(profile.username ?? "").isEmpty
         try await send(Data(hasCredentials ? [0x05, 0x02, 0x00, 0x02] : [0x05, 0x01, 0x00]), on: connection)
         let greeting = try await receive(minimum: 2, maximum: 2, on: connection)
         guard greeting.count == 2, greeting[0] == 0x05 else {
-            connection.cancel(); throw ProxyProbeError.unavailable("не SOCKS5")
+            throw ProxyDiagnosticError(.protocolMismatch)
         }
         if greeting[1] == 0x02 {
             guard let username = profile.username, !username.isEmpty else {
-                connection.cancel(); throw ProxyProbeError.unavailable("прокси требует логин/пароль")
+                throw ProxyDiagnosticError(.authentication)
             }
             let user = Data(username.utf8), pass = Data((password ?? "").utf8)
             guard user.count <= 255, pass.count <= 255 else {
-                connection.cancel(); throw ProxyProbeError.unavailable("слишком длинный логин/пароль")
+                throw ProxyDiagnosticError(.authentication)
             }
             var auth = Data([0x01, UInt8(user.count)])
             auth.append(user); auth.append(UInt8(pass.count)); auth.append(pass)
             try await send(auth, on: connection)
             let result = try await receive(minimum: 2, maximum: 2, on: connection)
             guard result.count == 2, result[1] == 0x00 else {
-                connection.cancel(); throw ProxyProbeError.unavailable("логин/пароль отклонены")
+                throw ProxyDiagnosticError(.authentication)
             }
-        } else if greeting[1] == 0xff {
-            connection.cancel(); throw ProxyProbeError.unavailable("нет совместимого способа авторизации")
+        } else if greeting[1] != 0x00 {
+            // SOCKS5 permits only a method the client offered. Other values
+            // must fail closed; do not attempt an unauthenticated CONNECT.
+            throw ProxyDiagnosticError(.protocolMismatch)
         }
         let domain = Data(probeHost.utf8)
         var request = Data([0x05, 0x01, 0x00, 0x03, UInt8(domain.count)])
@@ -107,7 +145,7 @@ final class ProxyProbe {
         try await send(request, on: connection)
         let reply = try await receive(minimum: 4, maximum: 4, on: connection)
         guard reply.count == 4, reply[0] == 0x05, reply[1] == 0x00 else {
-            connection.cancel(); throw ProxyProbeError.unavailable("CONNECT отклонён")
+            throw ProxyDiagnosticError(.rejected)
         }
         let tail: Int
         switch reply[3] {
@@ -117,7 +155,7 @@ final class ProxyProbe {
             let length = try await receive(minimum: 1, maximum: 1, on: connection)
             tail = Int(length.first ?? 0) + 2
         default:
-            connection.cancel(); throw ProxyProbeError.unavailable("неизвестный тип SOCKS5-адреса")
+            throw ProxyDiagnosticError(.protocolMismatch)
         }
         _ = try await receive(minimum: tail, maximum: tail, on: connection)
         connection.cancel()
@@ -125,43 +163,50 @@ final class ProxyProbe {
 
     private func start(_ connection: NWConnection) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let lock = NSLock()
-            var resumed = false
+            let gate = ProbeCompletionGate(continuation)
             connection.stateUpdateHandler = { state in
-                lock.lock(); defer { lock.unlock() }
-                guard !resumed else { return }
                 switch state {
-                case .ready: resumed = true; continuation.resume()
-                case .failed(let error): resumed = true; continuation.resume(throwing: error)
+                case .ready: gate.finish(.success(()))
+                case .failed(let error): gate.finish(.failure(error))
                 default: break
                 }
             }
             connection.start(queue: queue)
             queue.asyncAfter(deadline: .now() + 3) {
-                lock.lock(); defer { lock.unlock() }
-                guard !resumed else { return }
-                resumed = true; connection.cancel()
-                continuation.resume(throwing: ProxyProbeError.unavailable("таймаут"))
+                if gate.finish(.failure(ProxyDiagnosticError(.timeout))) {
+                    connection.cancel()
+                }
             }
         }
     }
 
     private func send(_ data: Data, on connection: NWConnection) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let gate = ProbeCompletionGate(continuation)
             connection.send(content: data, completion: .contentProcessed { error in
-                if let error { continuation.resume(throwing: error) } else { continuation.resume() }
+                if let error { gate.finish(.failure(error)) }
+                else { gate.finish(.success(())) }
             })
+            queue.asyncAfter(deadline: .now() + 5) {
+                if gate.finish(.failure(ProxyDiagnosticError(.timeout))) { connection.cancel() }
+            }
         }
     }
 
     private func receive(minimum: Int, maximum: Int, on connection: NWConnection) async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Error>) in
+            let gate = ProbeCompletionGate(continuation)
             connection.receive(minimumIncompleteLength: minimum, maximumLength: maximum) { data, _, _, error in
-                if let error { continuation.resume(throwing: error) }
-                else { continuation.resume(returning: data ?? Data()) }
+                if let error { gate.finish(.failure(error)) }
+                else { gate.finish(.success(data ?? Data())) }
+            }
+            // An accepting but silent proxy must not hang the entire scan.
+            queue.asyncAfter(deadline: .now() + 5) {
+                if gate.finish(.failure(ProxyDiagnosticError(.timeout))) { connection.cancel() }
             }
         }
     }
+
 }
 
 private extension Data {
