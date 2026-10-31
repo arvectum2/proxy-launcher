@@ -23,3 +23,16 @@ final class ProxyImportTests: XCTestCase {
         XCTAssertThrowsError(try ProxyImport.parse(String(repeating: "a", count: 256_001)))
     }
 }
+
+extension ProxyImportTests {
+    func testDeepLink() throws {
+        let url = URL(string: "arvectum-proxy://import?data=http%3A%2F%2Fproxy.example%3A8080")!
+        XCTAssertEqual(try ProxyImport.fromDeepLink(url), "http://proxy.example:8080")
+        XCTAssertThrowsError(try ProxyImport.fromDeepLink(URL(string: "arvectum-proxy://other?data=x")!))
+    }
+    func testDuplicateFiltering() throws {
+        let items = try ProxyImport.parse("http://EXAMPLE.com:8080\nhttp://example.com:8080\nsocks5://example.com:8080")
+        let existing = [ProxyProfile(name: "Saved", host: "example.com", port: 8080, type: .http)]
+        XCTAssertEqual(ProxyImport.withoutDuplicates(items, existing: existing).count, 1)
+    }
+}

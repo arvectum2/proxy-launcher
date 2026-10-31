@@ -137,6 +137,11 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    func deleteProfile(id: UUID) {
+        do { try store.delete(id: id); refresh() }
+        catch { errorMessage = error.localizedDescription }
+    }
+
     func delete(_ profile: ProxyProfile) {
         do {
             try store.delete(id: profile.id)

@@ -128,6 +128,7 @@ struct ContentView: View {
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
     @State private var showProxyImport = false
+    @State private var importSource = ""
     @State private var showExclusions = false
     @State private var showAppExclusions = false
 
@@ -169,10 +170,16 @@ struct ContentView: View {
             ProfileEditorView(profile: nil).environmentObject(model)
         }
         .sheet(isPresented: $showProxyImport) {
-            ProxyImportView().environmentObject(model)
+            ProxyImportView(initialSource: importSource).environmentObject(model)
         }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
+        }
+        .onOpenURL { url in
+            do {
+                importSource = try ProxyImport.fromDeepLink(url)
+                showProxyImport = true
+            } catch { model.errorMessage = error.localizedDescription }
         }
         .sheet(isPresented: $showExclusions) {
             ExclusionsView().environmentObject(model)

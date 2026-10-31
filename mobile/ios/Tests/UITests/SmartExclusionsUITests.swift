@@ -85,3 +85,26 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"].waitForExistence(timeout: 5))
     }
 }
+
+
+final class ProxyImportUITests: XCTestCase {
+    func testImportPreviewAndRejectInvalidLink() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let profiles = app.tabBars.buttons["Профили"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 20))
+        profiles.tap()
+        let importButton = app.buttons["Импортировать прокси"]
+        XCTAssertTrue(importButton.waitForExistence(timeout: 10))
+        importButton.tap()
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.exists)
+        editor.tap()
+        editor.typeText("http://proxy.example:8080")
+        app.buttons["Проверить"].tap()
+        XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Импортировать профили"].exists)
+    }
+}

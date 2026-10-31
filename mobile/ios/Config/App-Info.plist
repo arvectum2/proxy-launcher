@@ -31,6 +31,10 @@
 	</array>
 	<key>APLKeychainAccessGroup</key>
 	<string>$(AppIdentifierPrefix)ru.arvectum.proxylauncher.ios.shared</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Камера используется для сканирования QR-кодов с настройками прокси.</string>
+	<key>CFBundleURLTypes</key>
+	<array><dict><key>CFBundleURLSchemes</key><array><string>arvectum-proxy</string></array></dict></array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 </dict>

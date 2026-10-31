@@ -22,6 +22,22 @@ enum ProxyImportError: LocalizedError {
 }
 
 enum ProxyImport {
+    static func fromDeepLink(_ url: URL) throws -> String {
+        guard url.scheme?.lowercased() == "arvectum-proxy", url.host?.lowercased() == "import",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let values = components.queryItems?.filter({ $0.name == "data" }),
+              values.count == 1, let value = values.first?.value else { throw ProxyImportError.invalid }
+        _ = try parse(value)
+        return value
+    }
+
+    static func withoutDuplicates(_ items: [ImportedProxy], existing: [ProxyProfile]) -> [ImportedProxy] {
+        var keys = Set(existing.map { "\($0.type.rawValue)|\($0.host.lowercased())|\($0.port)|\($0.username ?? "")" })
+        return items.filter { item in
+            keys.insert("\(item.type.rawValue)|\(item.host.lowercased())|\(item.port)|\(item.username)").inserted
+        }
+    }
+
     static func parse(_ input: String) throws -> [ImportedProxy] {
         guard input.utf8.count <= 256_000 else { throw ProxyImportError.tooLarge }
         let lines = input.components(separatedBy: .newlines)

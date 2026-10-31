@@ -32,6 +32,7 @@
 		66CB3242870370307C0B3730 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
 		6A9EF1A2F1B0ECC9F681DEC5 /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
 		7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
+		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
 		9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87885BE6123FF783E8126F72 /* AppViewModel.swift */; };
 		9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611C8DA174BECA86752E2F06 /* ProxyImportView.swift */; };
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
@@ -97,6 +98,7 @@
 		649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherApp.swift; sourceTree = "<group>"; };
 		6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDisclosureView.swift; sourceTree = "<group>"; };
 		6B6111701DABA6167BA25D76 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
+		835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQRScanner.swift; sourceTree = "<group>"; };
 		87885BE6123FF783E8126F72 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
 		8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				611C8DA174BECA86752E2F06 /* ProxyImportView.swift */,
+				835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */,
 				E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */,
 				CB04057014F01C39512BA98A /* SetupGuideView.swift */,
 				89A9D0427123A9620FB1C3DE /* VPNController.swift */,
@@ -436,6 +439,7 @@
 				9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */,
 				24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */,
 				D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */,
+				83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */,
 				A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */,
 				FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */,
 				BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */,
