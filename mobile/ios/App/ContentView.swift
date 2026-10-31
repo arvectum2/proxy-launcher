@@ -1051,7 +1051,10 @@ struct ExclusionsView: View {
                 scanner = nil
                 switch result {
                 case .success(let hosts):
-                    discovered = hosts.filter { !entries.contains($0) }
+                    let root = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+                    discovered = hosts.filter { candidate in
+                        candidate != root && candidate != "www." + root && !entries.contains(candidate)
+                    }
                     if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
                 case .failure(let error): localError = error.localizedDescription
                 }
@@ -1240,7 +1243,15 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         self.completion = completion
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .nonPersistent()
-        let view = WKWebView(frame: .zero, configuration: configuration)
+        let view = WKWebView(frame: CGRect(x: -1, y: -1, width: 1, height: 1), configuration: configuration)
+        // WebKit may defer navigation for an unattached zero-sized web view.
+        view.isUserInteractionEnabled = false
+        view.alpha = 0.01
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })?
+            .addSubview(view)
         webView = view
         view.navigationDelegate = self
         guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
@@ -1266,6 +1277,7 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         completion = nil
         webView?.stopLoading()
         webView?.navigationDelegate = nil
+        webView?.removeFromSuperview()
         webView = nil
     }
 
@@ -1296,6 +1308,7 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         self.completion = nil
         webView?.stopLoading()
         webView?.navigationDelegate = nil
+        webView?.removeFromSuperview()
         webView = nil
         completion(result)
     }
