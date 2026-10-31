@@ -12,28 +12,57 @@ struct ProxyImportView: View {
     @State private var chooseFile = false
     @State private var scanQR = false
     @State private var cameraReady = false
+    @State private var cameraPermissionDenied = false
+    @FocusState private var editorFocused: Bool
     var initialSource: String = ""
     private var preview: [ImportedProxy] { parsedSource == source ? candidates : [] }
+    private var pending: [ImportedProxy] {
+        ProxyImport.withoutDuplicates(preview, existing: model.profiles)
+    }
 
     var body: some View {
         NavigationView {
             Form {
-                Section("Ссылка или список прокси") {
+                Section(ProxyImportUX.text("Ссылка или список прокси")) {
                     TextEditor(text: $source).frame(minHeight: 110)
+                        .focused($editorFocused)
+                        .accessibilityLabel(ProxyImportUX.text("Текст ссылок на прокси"))
                         .onChange(of: source) { _ in if parsedSource != source { importError = nil } }
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    Button("Вставить из буфера") {
-                        source = UIPasteboard.general.string ?? ""
+                    Button(ProxyImportUX.text("Вставить из буфера")) {
+                        guard let pasted = UIPasteboard.general.string,
+                              !pasted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            importError = ProxyImportUX.text("Буфер обмена не содержит ссылки на прокси")
+                            return
+                        }
+                        source = pasted
                         parse()
                     }
-                    Button("Выбрать файл") { chooseFile = true }
-                    Button("Сканировать QR-код") { cameraReady = false; scanQR = true }
-                    Button("Проверить") { parse() }
+                    Button(ProxyImportUX.text("Выбрать файл")) { chooseFile = true }
+                    Button(ProxyImportUX.text("Сканировать QR-код")) {
+                        editorFocused = false
+                        cameraReady = false
+                        cameraPermissionDenied = false
+                        scanQR = true
+                    }
+                    Button(ProxyImportUX.text("Проверить")) { parse() }
+                    Text(ProxyImportUX.text("Вставьте ссылку или несколько ссылок — по одной в строке. HTTP, HTTPS и SOCKS5."))
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
-                if let message = importError { Section { Text(message).foregroundStyle(.red) } }
+                if let message = importError {
+                    Section {
+                        Text(message).foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if cameraPermissionDenied, let settings = URL(string: UIApplication.openSettingsURLString) {
+                            Button(ProxyImportUX.text("Открыть настройки камеры")) {
+                                UIApplication.shared.open(settings)
+                            }
+                        }
+                    }
+                }
                 if !preview.isEmpty {
-                    Section("Предпросмотр (\(preview.count))") {
+                    Section(ProxyImportUX.text("Предпросмотр") + " (\(preview.count))") {
                         ForEach(preview.indices, id: \.self) { index in
                             let item = preview[index]
                             VStack(alignment: .leading) {
@@ -43,30 +72,28 @@ struct ProxyImportView: View {
                             }
                         }
                     }
-                    Section {
-                        Button("Импортировать профили") {
-                            let pending = ProxyImport.withoutDuplicates(preview, existing: model.profiles)
-                            if pending.isEmpty { importError = "Все профили уже добавлены"; return }
-                            var added: [UUID] = []
-                            for item in pending {
-                                let before = Set(model.profiles.map(\.id))
-                                guard model.saveProfile(editingID: nil, name: item.name,
-                                                        host: item.host, portText: String(item.port),
-                                                        type: item.type, username: item.username,
-                                                        password: item.password) else {
-                                    for id in added { model.deleteProfile(id: id) }
-                                    importError = "Не удалось сохранить профили. Изменения отменены"
-                                    return
-                                }
-                                added += model.profiles.map(\.id).filter { !before.contains($0) }
+                    if !pending.isEmpty {
+                        Section {
+                            Button(ProxyImportUX.text("Импортировать профили")) {
+                                importProfiles()
                             }
-                            dismiss()
                         }
+                    }
+                    if pending.count < preview.count {
+                        Text(ProxyImportUX.text("Повторяющиеся и существующие профили будут пропущены"))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                    if pending.isEmpty {
+                        Text(ProxyImportUX.text("Все найденные профили уже добавлены"))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    } else {
+                        Text(ProxyImportUX.text("Новых профилей к добавлению:") + " \(pending.count)")
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
                 }
             }
-            .navigationTitle("Импорт прокси")
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрыть") { dismiss() } } }
+            .navigationTitle(ProxyImportUX.text("Импорт прокси"))
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
             .sheet(isPresented: $scanQR) {
                 NavigationView {
@@ -76,19 +103,20 @@ struct ProxyImportView: View {
                         parse()
                     }, onError: { message in
                         scanQR = false
-                        importError = message
+                        cameraPermissionDenied = message == "Нет доступа к камере"
+                        importError = ProxyImportUX.text(message)
                     }, onReady: { cameraReady = true })
                     .overlay(alignment: .bottom) {
-                        Text(cameraReady ? "Камера готова — наведите на QR-код" : "Запуск камеры...")
+                        Text(ProxyImportUX.text(cameraReady ? "Камера готова — наведите на QR-код" : "Запуск камеры..."))
                             .font(.footnote)
                             .padding(12)
                             .background(.ultraThinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .padding(.bottom, 18)
                     }
-                    .navigationTitle("Сканирование QR")
+                    .navigationTitle(ProxyImportUX.text("Сканирование QR"))
                     .toolbar { ToolbarItem(placement: .cancellationAction) {
-                        Button("Отмена") { scanQR = false }
+                        Button(ProxyImportUX.text("Отмена")) { scanQR = false }
                     } }
                 }
             }
@@ -103,14 +131,36 @@ struct ProxyImportView: View {
                     }
                     source = text
                     parse()
-                } catch let caught { importError = caught.localizedDescription }
+                } catch let caught { importError = ProxyImportUX.error(caught) }
             }
         }
     }
 
+    private func importProfiles() {
+        editorFocused = false
+        let items = pending
+        guard !items.isEmpty else { return }
+        var added: [UUID] = []
+        for item in items {
+            let before = Set(model.profiles.map(\.id))
+            guard model.saveProfile(editingID: nil, name: item.name,
+                                    host: item.host, portText: String(item.port),
+                                    type: item.type, username: item.username,
+                                    password: item.password) else {
+                for id in added { model.deleteProfile(id: id) }
+                importError = ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
+                return
+            }
+            added += model.profiles.map(\.id).filter { !before.contains($0) }
+        }
+        dismiss()
+    }
+
     private func parse() {
+        editorFocused = false
         parsedSource = source
+        cameraPermissionDenied = false
         do { candidates = try ProxyImport.parse(source); importError = nil }
-        catch let caught { candidates = []; importError = caught.localizedDescription }
+        catch { candidates = []; importError = ProxyImportUX.error(error) }
     }
 }

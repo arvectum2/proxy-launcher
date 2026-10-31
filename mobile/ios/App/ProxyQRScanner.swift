@@ -28,20 +28,28 @@ struct ProxyQRScanner: UIViewControllerRepresentable {
     }
     func updateUIViewController(_ controller: ProxyCameraPreviewController, context: Context) {}
     static func dismantleUIViewController(_ controller: ProxyCameraPreviewController, coordinator: Coordinator) {
-        if let session = coordinator.session {
-            DispatchQueue.global(qos: .userInitiated).async { session.stopRunning() }
-        }
+        coordinator.cancel()
     }
     final class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
         let onCode: (String) -> Void
         let onError: (String) -> Void
         let onReady: () -> Void
         var session: AVCaptureSession?
+        private let captureQueue = DispatchQueue(label: "ru.arvectum.apl.qr.capture", qos: .userInitiated)
         private var finished = false
         init(onCode: @escaping (String) -> Void, onError: @escaping (String) -> Void, onReady: @escaping () -> Void) {
             self.onCode = onCode; self.onError = onError; self.onReady = onReady
         }
+        func cancel() {
+            finished = true
+            if let capture = session {
+                captureQueue.async {
+                    if capture.isRunning { capture.stopRunning() }
+                }
+            }
+        }
         func configure(in controller: ProxyCameraPreviewController) {
+            guard !finished else { return } // Permission may be granted after dismissal.
             guard session == nil, let device = AVCaptureDevice.default(for: .video) else {
                 onError("Камера недоступна"); return
             }
@@ -62,9 +70,13 @@ struct ProxyQRScanner: UIViewControllerRepresentable {
                 controller.previewLayer = preview
                 controller.view.setNeedsLayout()
                 session = capture
-                DispatchQueue.global(qos: .userInitiated).async {
+                captureQueue.async {
                     capture.startRunning()
-                    if capture.isRunning { DispatchQueue.main.async { self.onReady() } }
+                    if capture.isRunning {
+                        DispatchQueue.main.async {
+                            if !self.finished { self.onReady() }
+                        }
+                    }
                 }
             } catch { onError(error.localizedDescription) }
         }

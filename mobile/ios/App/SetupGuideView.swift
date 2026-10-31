@@ -4,6 +4,7 @@ import SwiftUI
 struct SetupGuideView: View {
     let onClose: () -> Void
     let onCreateProfile: () -> Void
+    let onImportProxy: () -> Void
 
     @State private var step = 0
 
@@ -73,6 +74,13 @@ struct SetupGuideView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(Brand.softGray)
                                     .fixedSize(horizontal: false, vertical: true)
+
+                                if item.id == 1 {
+                                    Text(ProxyImportUX.text("Если у вас есть ссылка или QR-код от поставщика, импортируйте профиль без ручного ввода."))
+                                        .font(.subheadline)
+                                        .foregroundStyle(Brand.mintLight)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
                             }
                             .padding(.horizontal, 25)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -98,6 +106,16 @@ struct SetupGuideView: View {
                             .background(Brand.mint, in: RoundedRectangle(cornerRadius: 14))
                     }
                     .buttonStyle(.plain)
+
+                    if step >= 1 {
+                        Button(ProxyImportUX.text("Импортировать по ссылке или QR-коду")) {
+                            onImportProxy()
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Brand.mintLight)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
 
                     Button(AppL10n.tr("Закрыть инструкцию")) { onClose() }
                         .font(.subheadline)

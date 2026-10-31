@@ -138,6 +138,7 @@ struct ContentView: View {
     @AppStorage("setupGuideSeen.v1") private var setupGuideSeen = false
     @State private var showSetupGuide = false
     @State private var openProfileAfterGuide = false
+    @State private var openImportAfterGuide = false
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
@@ -166,6 +167,9 @@ struct ContentView: View {
             if openProfileAfterGuide {
                 openProfileAfterGuide = false
                 showNewProfile = true
+            } else if openImportAfterGuide {
+                openImportAfterGuide = false
+                importRequest = ProxyImportRequest(source: "")
             }
         }) {
             SetupGuideView(
@@ -176,6 +180,11 @@ struct ContentView: View {
                 onCreateProfile: {
                     setupGuideSeen = true
                     openProfileAfterGuide = true
+                    showSetupGuide = false
+                },
+                onImportProxy: {
+                    setupGuideSeen = true
+                    openImportAfterGuide = true
                     showSetupGuide = false
                 }
             )
@@ -192,7 +201,7 @@ struct ContentView: View {
         .onOpenURL { url in
             do {
                 importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
-            } catch { model.errorMessage = error.localizedDescription }
+            } catch { model.errorMessage = ProxyImportUX.error(error) }
         }
         .sheet(isPresented: $showQuickActions) {
             QuickActionsHelpView()
@@ -635,14 +644,21 @@ struct ContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     }
-                    HStack(spacing: 10) {
-                        cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
-                        cardButton("Импортировать прокси", filled: false) { importRequest = ProxyImportRequest(source: "") }
-                        cardButton("Изменить", filled: false) {
-                            editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
-                                ?? model.profiles.first
+                    VStack(spacing: 10) {
+                        HStack(spacing: 10) {
+                            cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) {
+                                showNewProfile = true
+                            }
+                            cardButton(ProxyImportUX.text("Импортировать прокси"), filled: false) {
+                                importRequest = ProxyImportRequest(source: "")
+                            }
                         }
-                        .disabled(model.profiles.isEmpty)
+                        if !model.profiles.isEmpty {
+                            cardButton("Изменить", filled: false) {
+                                editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
+                                    ?? model.profiles.first
+                            }
+                        }
                     }
                     if !model.profiles.isEmpty {
                         autoSettingsCard
@@ -875,6 +891,9 @@ struct ContentView: View {
     private func cardButton(_ title: String, filled: Bool, action: @escaping () -> Void) -> some View {
         Button(AppL10n.tr(title), action: action)
             .font(.subheadline.weight(.bold))
+            .lineLimit(2)
+            .minimumScaleFactor(0.8)
+            .multilineTextAlignment(.center)
             .foregroundStyle(filled ? Brand.actionText : Brand.mintLight)
             .frame(maxWidth: .infinity)
             .frame(height: 46)
