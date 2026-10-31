@@ -36,4 +36,4 @@ the following terms:
   https://zlib.net/zlib_license.html
 
 Upstream source identity used by this repository:
-AppImage/type2-runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12
+AppImage/type2-runtime commit fedfad51acc2860b2916a1eef32ba4a500ff31ef

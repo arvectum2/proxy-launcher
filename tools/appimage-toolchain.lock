@@ -3,6 +3,7 @@
 APPIMAGETOOL_VERSION=1.9.1
 APPIMAGETOOL_URL=https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage
 APPIMAGETOOL_SHA256=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
-APPIMAGE_RUNTIME_SOURCE_COMMIT=75849dce7cc37e4319b633df1f116ca895c71a12
+# Source verified from successful upstream AppImage/type2-runtime action 39320578745 (2026-10-19), official release asset sha256 digest independently matched.
+APPIMAGE_RUNTIME_SOURCE_COMMIT=fedfad51acc2860b2916a1eef32ba4a500ff31ef
 APPIMAGE_RUNTIME_URL=https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64
-APPIMAGE_RUNTIME_SHA256=1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf
+APPIMAGE_RUNTIME_SHA256=617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46

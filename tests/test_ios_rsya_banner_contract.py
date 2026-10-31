@@ -53,9 +53,10 @@ class IOSRSYABannerTests(unittest.TestCase):
         view = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertIn('Text(IOSAdsConfig.localizedAdLabel)', view)
         self.assertIn('labels[AppL10n.effectiveLanguage]', view)
-        for language, value in (("ru", "Реклама"), ("en", "Advertisement")):
-            strings = (IOS / "Resources" / f"{language}.lproj" / "Localizable.strings").read_text(encoding="utf-8")
-            self.assertIn(f'"Реклама" = "{value}";', strings)
+        # The 50-language banner owns these labels independently of the
+        # 155-key product UI catalogs; no two-locale-only extra string key.
+        self.assertIn('"ru": "Реклама"', view)
+        self.assertIn('"en": "Ad"', view)
 
     def test_android_placement_preserved(self):
         gradle = (IOS.parent / "android" / "app" / "build.gradle.kts").read_text(encoding="utf-8")

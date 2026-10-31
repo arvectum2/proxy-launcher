@@ -40,4 +40,9 @@ def test_drafts_not_in_active_language_catalog_or_picker():
     active=json.loads((ROOT/'localization/apl-locales.json').read_text())
     assert not TARGETS.intersection(active['languages'])
     assert len(active['languages'])==40
-    for lang in TARGETS:assert not (ROOT/f'mobile/ios/Resources/{lang}.lproj').exists()
+    # Tier-3 critical text draft remains separate from the iOS 50-language
+    # release catalogs; only cross-platform Android/desktop registry is 40.
+    ios_manifest=json.loads((ROOT/'mobile/ios/ios-locales.json').read_text(encoding='utf-8'))
+    assert TARGETS.issubset(set(ios_manifest['languages']))
+    for lang in TARGETS:
+        assert (ROOT/f'mobile/ios/Resources/{lang}.lproj/Localizable.strings').exists()
