@@ -76,12 +76,28 @@ targets:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: "Apple Distribution"
           PROVISIONING_PROFILE_SPECIFIER: "APL Packet Tunnel App Store"
+  SmartExclusionsUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - Tests/UITests
+    dependencies:
+      - target: ArvectumProxyLauncher
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios.UITests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
 schemes:
   ArvectumProxyLauncher:
     build:
       targets:
         ArvectumProxyLauncher: all
         PacketTunnel: all
+    test:
+      config: Debug
+      targets:
+        - SmartExclusionsUITests
     run:
       config: Debug
     archive:

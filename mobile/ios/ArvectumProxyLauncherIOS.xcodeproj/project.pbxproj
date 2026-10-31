@@ -38,6 +38,7 @@
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */; };
 		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
+		C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */; };
 		CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
@@ -53,6 +54,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E8AD32270232FC1E1DF6E09B;
 			remoteInfo = PacketTunnel;
+		};
+		99045DEE4FECAB74ADCC8DBC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B03F839F8939F6B9DD935E2F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E61DDAFAF71112FF83DBA198;
+			remoteInfo = ArvectumProxyLauncher;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -73,6 +81,7 @@
 /* Begin PBXFileReference section */
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
+		2CE4835A38235A1898FD8E16 /* SmartExclusionsUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SmartExclusionsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TLSProxyRelay.swift; sourceTree = "<group>"; };
@@ -94,6 +103,7 @@
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
 		BEA603A59EEC8463F7514A12 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionsUITests.swift; sourceTree = "<group>"; };
 		CB04057014F01C39512BA98A /* SetupGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupGuideView.swift; sourceTree = "<group>"; };
 		CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNShortcuts.swift; sourceTree = "<group>"; };
 		CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -151,6 +161,15 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		56B035F3FB86E787EE3AA763 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */,
+			);
+			name = UITests;
+			path = Tests/UITests;
+			sourceTree = "<group>";
+		};
 		7193BBEC5C3CD952A6891F76 /* AppPrivacy */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +198,7 @@
 				393ED22990C8B81CA7BF7036 /* Resources */,
 				06BA12DAD2EBF082199884CA /* Shared */,
 				AD4D647FF2618816DB99E52D /* SharedCore */,
+				56B035F3FB86E787EE3AA763 /* UITests */,
 				1F094A6FB7414A605DE1CF10 /* Frameworks */,
 				C4E8152EC2F383D3ABDAA68C /* Products */,
 			);
@@ -226,6 +246,7 @@
 			children = (
 				16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */,
 				30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */,
+				2CE4835A38235A1898FD8E16 /* SmartExclusionsUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -233,6 +254,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6236C8AFD4987A280867FD04 /* SmartExclusionsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E6657975DC9E304A30C73E7A /* Build configuration list for PBXNativeTarget "SmartExclusionsUITests" */;
+			buildPhases = (
+				87586214B7581355BF887116 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2F2BB6C6DD223C4298B45B13 /* PBXTargetDependency */,
+			);
+			name = SmartExclusionsUITests;
+			packageProductDependencies = (
+			);
+			productName = SmartExclusionsUITests;
+			productReference = 2CE4835A38235A1898FD8E16 /* SmartExclusionsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 776726B3194055A397811972 /* Build configuration list for PBXNativeTarget "ArvectumProxyLauncher" */;
@@ -283,6 +322,11 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					6236C8AFD4987A280867FD04 = {
+						DevelopmentTeam = VML75VY94V;
+						ProvisioningStyle = Automatic;
+						TestTargetID = E61DDAFAF71112FF83DBA198;
+					};
 					E61DDAFAF71112FF83DBA198 = {
 						DevelopmentTeam = VML75VY94V;
 						ProvisioningStyle = Manual;
@@ -313,6 +357,7 @@
 			targets = (
 				E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */,
 				E8AD32270232FC1E1DF6E09B /* PacketTunnel */,
+				6236C8AFD4987A280867FD04 /* SmartExclusionsUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -358,6 +403,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		87586214B7581355BF887116 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9D6E75C14E16823EE2CFB35A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -386,6 +439,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2F2BB6C6DD223C4298B45B13 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */;
+			targetProxy = 99045DEE4FECAB74ADCC8DBC /* PBXContainerItemProxy */;
+		};
 		F55362BBA22CAC0FE70CD8E4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E8AD32270232FC1E1DF6E09B /* PacketTunnel */;
@@ -406,6 +464,24 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2FC1D7E403130A65283BE06C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ArvectumProxyLauncher;
+			};
+			name = Debug;
+		};
 		3C213C5398F1BC53ED62CD78 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -532,6 +608,24 @@
 			};
 			name = Debug;
 		};
+		AD8264A5426178F366B9D016 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios.UITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ArvectumProxyLauncher;
+			};
+			name = Release;
+		};
 		B746969BEF700979572DF585 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -640,6 +734,15 @@
 			buildConfigurations = (
 				B746969BEF700979572DF585 /* Debug */,
 				3C213C5398F1BC53ED62CD78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E6657975DC9E304A30C73E7A /* Build configuration list for PBXNativeTarget "SmartExclusionsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2FC1D7E403130A65283BE06C /* Debug */,
+				AD8264A5426178F366B9D016 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
