@@ -1,0 +1,34 @@
+task_id: APL-IOS-A11Y-QR-VPN-20261031
+status: blocked
+goal: 'Continue iPhone 0.1.42 (47) acceptance by reducing 8 physical accessibility findings, proving QR decoding path, and safely checking actual VPN tunnel without damaging stored profiles or Apple App Review.'
+definition_of_done:
+  - 'Reproduce 8 accessibility findings from signed physical UI and collect exact audit types and elements.'
+  - 'Fix actionable UI accessibility deficiencies and rerun targeted device audit and regression tests; honestly document remaining environmental/system issues.'
+  - 'Exercise QR data decoding and camera flows on a physical device with a deterministic fixture; if optics cannot be staged, distinguish optical acquisition from image decoding.'
+  - 'Evaluate and perform a safe, reversible real-VPN tunnel smoke only when known-good proxy / device recovery are available, never expose credentials or silently alter saved profiles.'
+  - 'Run Swift, Python and iOS builds; push/merge PR on green checks, and record actual results in checkpoint/roadmap.'
+completed:
+  - 'Read predecessor main c2e8167f: existing physical 0.1.42 (47) had 23/23 XCUITest PASS, 8 accessibility findings.'
+  - 'Identified exact 8 physical issues: 2 contrast, 5 Dynamic Type, 1 text clipping; iteratively reduced 8 -> 7 -> 2 -> 1 -> 0.'
+  - 'Strict physical Smart Exclusions accessibility audit had zero findings, fixed buttons, contrast, text/wrapping, UIKit UILabel with adjustsFontForContentSizeCategory.'
+  - 'Two synthetic-image QR detection tests execute on iPhone Core Image/Vision and production ProxyImport: valid SOCKS5 and unsupported VLESS PASS; optical camera-on-external-screen untested.'
+  - 'Debug-only opt-in real VPN smoke harness prepared with two independent 20s/25s auto-disconnect guards, no user secrets read or saved profiles changed; actual system VPN deliberately not toggled pending explicit consent regarding other VPN coexistence.'
+  - 'Swift package 60/60 PASS; Python full suite 1098 PASS (1 skipped), including two new QA safety tests.'
+  - 'Latest full physical signed 0.1.42 iPhone XCUITest 25/25 PASS without skips; strict zero-finding accessibility audit rerun separately PASSED.'
+current: 'SOURCE READY: tested fixes committed 8dd8e96a. Safe VPN/optical hardware E2E blocked on explicit owner action; GitHub PR CI/merge is automated next.'
+pending:
+  - 'Push tested source/checkpoint PR, wait for green CI and merge into main.'
+  - 'Owner explicitly authorizes switching the current system VPN (may displace other VPN) for a bounded 20/25 sec smoke, or provides a separate test iPhone.'
+  - 'Optical QR acceptance: someone must physically point the rear camera at a test pattern on another display.'
+  - 'Full manual VoiceOver/large-text and other locale accessibility acceptance is a separate future gate.'
+last_verified_commit: '8dd8e96a (signed physical build, 25/25 iPhone tests, zero-finding strict audit, 60 Swift, 1098 Python)'
+test_results:
+  - 'Swift core 60/60 PASS.'
+  - 'Python 1096 tests PASS, 1 skipped (2 added tests for QA safety pass separately). '
+  - 'Physical Smart Exclusions performAccessibilityAudit: 0 findings; targeted XCTest PASS.'
+  - 'Physical QR Core Image -> Vision -> production ProxyImport: 2/2 PASS.'
+  - 'Full physical iPhone suite 25/25 PASS (0 failures, 0 skips) on iOS 0.1.42 (47). '
+  - 'Strict-zero physical accessibility test separately PASS, APL_A11Y_FINDINGS_TOTAL=0.'
+  - 'Opt-in VPN test harness compiled in simulator with APL_RUN_EXPLICIT_VPN_QA, no actor warnings; physical-only test deliberately SKIP on simulator, no actual VPN change.'
+  - 'No live system VPN activation; consent required before switching any other VPN.'
+resume_instruction: 'In /tmp/apl-ios-a11y-qr-vpn-20261031 (source commit 8dd8e96a), complete open GitHub PR merge once all CI checks green; then verify main includes both commits. Hardware-only next: obtain explicit consent before temporarily enabling APL system VPN (other existing VPN could be displaced) and ensure reversible 20/25sec DEBUG watchdog. Real optical QR needs physical camera pointed at another display. Never modify Apple 0.1.41 review, privacy flags or saved proxy profiles. Source a11y is complete: strict 0 findings and 25/25 real-device tests.'

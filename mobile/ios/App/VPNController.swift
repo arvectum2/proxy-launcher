@@ -150,7 +150,16 @@ final class VPNController: ObservableObject {
                 userInfo: [NSLocalizedDescriptionKey: "Не удалось открыть VPN-сессию"]
             )
         }
-        try session.startTunnel(options: ["requestedByUser": true as NSNumber])
+        var tunnelOptions: [String: NSObject] = ["requestedByUser": NSNumber(value: true)]
+#if DEBUG
+        // An explicit real-device QA run is bounded by two independent kill
+        // switches: one in the app, one in the Packet Tunnel extension.
+        // This option is never used in App Store distribution binaries.
+        if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
+            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: 25)
+        }
+#endif
+        try session.startTunnel(options: tunnelOptions)
     }
 
     private func loadOrCreateManager(forceSave: Bool = false) async throws -> NETunnelProviderManager {

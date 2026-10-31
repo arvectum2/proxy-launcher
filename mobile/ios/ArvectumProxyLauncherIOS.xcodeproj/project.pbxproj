@@ -14,6 +14,7 @@
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		0A7E1E94C6F7C44A05EAE588 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */; };
 		0B6DA474EAA2172857BA559D /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
+		0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		1692281A8D63E7B66C59D142 /* YandexMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */; };
 		1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
@@ -46,6 +47,7 @@
 		7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
+		8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */; };
 		8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */; };
 		8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */; };
 		8F2560F445B3C0392E010605 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
@@ -56,6 +58,7 @@
 		A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */; };
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
+		B081B4BCD93A1355A3196AB3 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
 		B1A715AE3556791C4B2DA777 /* AppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */; };
 		B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */; };
 		B793CF633E29DAB897F62F8F /* ConnectionPressurePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */; };
@@ -122,6 +125,7 @@
 		1C70CD5C33236647B0F5E8A7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FD12EBDAF0F61FEFD629D1C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/QuickActions.strings"; sourceTree = "<group>"; };
 		22FAF50F51A7DB267C2DA8D2 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Localizable.strings; sourceTree = "<group>"; };
+		23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalQRCodeDecodeUITests.swift; sourceTree = "<group>"; };
 		26DCC73C34178F19DD7373EB /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowRoutingPolicy.swift; sourceTree = "<group>"; };
 		2CE2164C5D8E07AF9ACBA242 /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -180,6 +184,7 @@
 		A0B9E74A3CB12102F69E859B /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		A3294AE4EC77031CB55B6D6E /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDependencyDiscovery.swift; sourceTree = "<group>"; };
+		A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNControlledUITests.swift; sourceTree = "<group>"; };
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		AD31613845602AE4C611FE08 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
@@ -279,6 +284,8 @@
 			children = (
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
+				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
+				A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */,
 				D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */,
 				CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */,
 			);
@@ -598,8 +605,11 @@
 			files = (
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
+				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,
+				0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */,
 				8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */,
 				8F2560F445B3C0392E010605 /* ProxyFailureReason.swift in Sources */,
+				B081B4BCD93A1355A3196AB3 /* ProxyImport.swift in Sources */,
 				39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */,
 				5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */,
 				C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */,

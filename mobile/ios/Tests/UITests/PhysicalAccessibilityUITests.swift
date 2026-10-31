@@ -26,9 +26,8 @@ final class PhysicalAccessibilityUITests: XCTestCase {
             return true // Triaging findings, NOT accepting/ignoring them for release.
         }
         print("APL_A11Y_FINDINGS_TOTAL=\(issueCount)")
-        // This is an explicit regression threshold, NOT WCAG certification.
-        // The initial physical iPhone report had 15 issues; residual issues
-        // remain visible in the report and must be fixed separately.
-        XCTAssertLessThan(issueCount, 15, "Accessibility regressed against the initial hardware baseline")
+        // All eight reproducible findings on this screen are fixed. Keep
+        // zero as the strict gate; this is not general WCAG certification.
+        XCTAssertEqual(issueCount, 0, "Smart Exclusions accessibility audit must remain clean")
     }
 }

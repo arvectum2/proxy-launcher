@@ -220,6 +220,14 @@ final class AppViewModel: ObservableObject {
         }
         do {
             try await vpn.connect()
+#if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
+                Task { [weak self] in
+                    try? await Task.sleep(nanoseconds: 20_000_000_000)
+                    self?.vpn.disconnect()
+                }
+            }
+#endif
         } catch {
             // Preserve the actionable NetworkExtension explanation but
             // identify system tunnel failures unambiguously in the alert.

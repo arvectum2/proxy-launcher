@@ -1024,6 +1024,24 @@ struct ProfileEditorView: View {
     }
 }
 
+private struct ScaledEmptyStatus: UIViewRepresentable {
+    var text: String
+    func makeUIView(context: Context) -> UILabel {
+        let view = UILabel()
+        view.numberOfLines = 0
+        view.adjustsFontForContentSizeCategory = true
+        view.font = UIFont.preferredFont(forTextStyle: .body)
+        view.textColor = .label
+        return view
+    }
+    func updateUIView(_ view: UILabel, context: Context) {
+        view.font = UIFont.preferredFont(forTextStyle: .body, compatibleWith: view.traitCollection)
+        view.text = text
+        view.accessibilityLabel = text
+        view.invalidateIntrinsicContentSize()
+    }
+}
+
 struct ExclusionsView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
@@ -1128,10 +1146,13 @@ struct ExclusionsView: View {
                 }
                 Section {
                     if entries.isEmpty {
-                        Text(AppL10n.tr("Список пока пуст"))
-                            .font(.body)
-                            .foregroundStyle(Brand.text)
-                            .fixedSize(horizontal: false, vertical: true)
+                        HStack(spacing: 12) {
+                            Image(systemName: "tray")
+                                .accessibilityHidden(true)
+                            ScaledEmptyStatus(text: AppL10n.tr("Список пока пуст"))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
                     }
                     ForEach(entries, id: \.self) { host in
                         HStack(spacing: 12) {
@@ -1182,7 +1203,7 @@ struct ExclusionsView: View {
                     }
                 } footer: {
                     if !entries.isEmpty {
-                        Text("Изменения вступят в силу после нажатия «Сохранить».")
+                        Text(SmartExclusionsUX.text("Изменения вступят в силу после сохранения и переподключения VPN."))
                     }
                 }
             }
@@ -1256,17 +1277,23 @@ struct ExclusionsView: View {
                             if success { dismiss() }
                         }
                     } label: {
-                        Text(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
-                            .font(.body.weight(.semibold))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .foregroundStyle(Brand.actionText)
-                            .padding(.horizontal, 12)
-                            .frame(minHeight: 44)
-                            .background(Brand.mint, in: Capsule())
+                        Group {
+                            if textSize.isAccessibilitySize {
+                                Image(systemName: "checkmark")
+                                    .font(.title3.weight(.bold))
+                                    .frame(width: 48, height: 48)
+                            } else {
+                                Text(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
+                                    .font(.body.weight(.semibold))
+                                    .padding(.horizontal, 12)
+                                    .frame(minHeight: 44)
+                            }
+                        }
+                        .foregroundStyle(Color.black)
+                        .background(Brand.mintLight, in: Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
                     .disabled(saving)
                 }
             }
@@ -1293,11 +1320,11 @@ struct ExclusionsView: View {
                             }
                         }
                     }
-                    Text(SmartExclusionsUX.text("VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь."))
+                    Text(SmartExclusionsUX.text("Обход VPN — только для разрешённых доменов."))
                         .font(.body)
                         .foregroundStyle(Brand.text)
                         .fixedSize(horizontal: false, vertical: true)
-                    DisclosureGroup(SmartExclusionsUX.text("Подробнее о правилах обхода")) {
+                    DisclosureGroup {
                         Text(SmartExclusionsUX.text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения."))
                             .font(.body)
                             .foregroundStyle(Brand.text)
@@ -1306,8 +1333,21 @@ struct ExclusionsView: View {
                             .font(.body)
                             .foregroundStyle(Brand.text)
                             .fixedSize(horizontal: false, vertical: true)
+                    } label: {
+                        Group {
+                            if textSize.isAccessibilitySize {
+                                Label(SmartExclusionsUX.text("Подробнее о правилах обхода"), systemImage: "info.circle")
+                                    .labelStyle(.iconOnly)
+                                    .font(.title2)
+                                    .frame(minWidth: 44, minHeight: 44)
+                            } else {
+                                Text(SmartExclusionsUX.text("Подробнее о правилах обхода"))
+                                    .font(.body)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .accessibilityLabel(SmartExclusionsUX.text("Подробнее о правилах обхода"))
                     }
-                    .font(.body)
                     if let localError {
                         Text(SmartExclusionsUX.text(localError)).font(.caption).foregroundStyle(.red)
                     }
@@ -1315,13 +1355,23 @@ struct ExclusionsView: View {
                         guard !scanUnavailable else { return }
                         scanSite()
                     } label: {
-                        Text(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(scanUnavailable ? Brand.softGray : Brand.mint)
-                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                            .fixedSize(horizontal: false, vertical: true)
+                        Group {
+                            if textSize.isAccessibilitySize {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.title2.weight(.semibold))
+                                    .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+                            } else {
+                                Text(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
+                                    .font(.body.weight(.semibold))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(minHeight: 44, alignment: .leading)
+                            }
+                        }
+                        .foregroundStyle(scanUnavailable ? Brand.text : Brand.mint)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
                     .disabled(scanUnavailable)
                     if scanning {
                         ProgressView(SmartExclusionsUX.text("Анализ ресурсов сайта"))
@@ -1346,10 +1396,22 @@ struct ExclusionsView: View {
     }
 
     private var addDomainButton: some View {
-        Button("Добавить") { addEntry() }
-            .font(.body.weight(.semibold))
-            .frame(minHeight: 44)
-            .fixedSize(horizontal: false, vertical: true)
+        Button { addEntry() } label: {
+            Group {
+                if textSize.isAccessibilitySize {
+                    Image(systemName: "plus.circle")
+                        .font(.title2)
+                        .frame(minWidth: 44, minHeight: 44)
+                } else {
+                    Text("Добавить")
+                        .font(.body.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minHeight: 44)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel(AppL10n.tr("Добавить"))
     }
 
     private func graphEdgeRow(_ edge: SmartDependency, parent: String) -> some View {
