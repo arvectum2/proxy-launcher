@@ -1,0 +1,23 @@
+task_id: APL-IOS-MANAGED-CONTRACT-20261031
+status: completed
+goal: 'P5 proxy marketplace technical preparation: safe managed-profile subscription manifest/refresh contract and product/legal gates, without integrating payments or unlicensed proxy service.'
+definition_of_done:
+  - 'Versioned strictly bounded and source-pinned HTTPS managed-profile manifest schema, safe validation, no silent transport downgrade and last-known-good decision contract.'
+  - 'Pure parser rejects invalid/untrusted host/credentials in URL, unsupported transports and old/replayed revisions, oversized data and duplicate IDs.'
+  - 'No network fetch, auto-provisioning or payment until owner decisions; no credentials in analytics/logs/UserDefaults.'
+  - 'Architecture document for Russian-ruble sales and Apple IAP/5.4 privacy/legal gates, backend endpoints, inventory and secure provisioning without fictitious compliance claims.'
+  - 'Swift and Python tests, iOS simulator build, PR/CI/merge after QuickActions PR #283; hardware QA deferred.'
+completed:
+  - 'Smart2 PR #281, UX PR #282, Quick Actions PR #283 merged to main, existing App Store reviews unchanged.'
+  - 'Implemented pure Ed25519 signed envelope contract with trusted local key, HTTPS issuer match, strictly allowed manifest fields, bounded size/revision/TTL/profile types.'
+  - 'Implemented no-silent-downgrade refresh decisions and fail-closed URL/source validators; 58 Swift core tests PASS.'
+  - 'Prepared proposed API/Keychain/backend architecture with Apple IAP/VPN 5.4 and Russian legal/business decision gates, without executing payments or creating accounts.'
+current: 'SOURCE CONTRACT COMPLETE: signed managed manifest validation with refresh decision, backend/commercial architecture; production approvals remain blocked.'
+pending:
+  - 'Real client/API/payment and proxy infrastructure only after explicit owner product/legal decisions.'
+  - 'Real signed-key provisioning and managed subscriptions on physical iPhone as part of a future authorized release.'
+last_verified_commit: '97cbcafe (quick actions PR #283 branch base)'
+test_results:
+  - '58 Swift package tests PASS (incl. managed manifest signature, source, expiry, revision).'
+  - '2 Python managed-profile source contract tests PASS; full Python and iOS simulator build pending final gate.'
+resume_instruction: 'Source managed-profile contract complete in /tmp/apl-ios-managed-profile-20261031; run final tests, CI and merge PR to main. New paid service, VPS and Apple Store metadata explicitly blocked on business/legal decisions. No iPhone until shared upgraded build.'
