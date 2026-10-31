@@ -69,6 +69,39 @@ final class ManagedProfileContractTests: XCTestCase {
                                                                 keyID: "provider_2026",
                                                                 trustedKey: key.publicKey.rawRepresentation, now: now))
     }
+    func testDuplicateIDsAndUnexpectedSecretFieldRejectedEvenWhenSigned() throws {
+        let key = Curve25519.Signing.PrivateKey()
+        let original = manifest()
+        let duplicate = ManagedManifestV1(schemaVersion: original.schemaVersion, issuer: original.issuer,
+                                          revision: original.revision, issuedAt: original.issuedAt,
+                                          expiresAt: original.expiresAt,
+                                          profiles: original.profiles + original.profiles)
+        XCTAssertThrowsError(try ManagedProfileContract.verify(signed(duplicate, key: key), from: source,
+                                                                keyID: "provider_2026", trustedKey: key.publicKey.rawRepresentation,
+                                                                now: now))
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        var obj = try JSONSerialization.jsonObject(with: encoder.encode(original)) as! [String: Any]
+        var profiles = obj["profiles"] as! [[String: Any]]
+        profiles[0]["password"] = "should-not-be-in-manifest"
+        obj["profiles"] = profiles
+        let payload = try JSONSerialization.data(withJSONObject: obj)
+        let wrapped = try JSONSerialization.data(withJSONObject: [
+            "version": 1, "keyId": "provider_2026",
+            "payload": payload.base64EncodedString(),
+            "signature": try key.signature(for: payload).base64EncodedString(),
+        ])
+        XCTAssertThrowsError(try ManagedProfileContract.verify(wrapped, from: source,
+                                                                keyID: "provider_2026", trustedKey: key.publicKey.rawRepresentation,
+                                                                now: now))
+    }
+    func testExcessiveEnvelopeRejectedBeforeParsing() {
+        let garbage = Data(repeating: 65, count: 256 * 1024 + 1)
+        XCTAssertThrowsError(try ManagedProfileContract.verify(garbage, from: source,
+                                                                keyID: "provider_2026", trustedKey: Data(repeating: 3, count: 32),
+                                                                now: now))
+    }
+
     func testIPLiteralIssuerRejectedBeforeTLSRequest() {
         XCTAssertFalse(ManagedProfileContract.validSource(URL(string: "https://127.0.0.1/api")!))
         XCTAssertFalse(ManagedProfileContract.validSource(URL(string: "https://10.10.1.8/api")!))
