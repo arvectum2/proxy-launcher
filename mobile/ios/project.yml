@@ -81,6 +81,11 @@ targets:
     platform: iOS
     sources:
       - Tests/UITests
+      # Compile the exact production probe (not a duplicate implementation)
+      # into hardware QA runner for hermetic TCP protocol tests on loopback.
+      - Shared/ProxyProbe.swift
+      - SharedCore/ProxyModel.swift
+      - SharedCore/ProxyFailureReason.swift
     dependencies:
       - target: ArvectumProxyLauncher
     settings:
