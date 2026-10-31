@@ -1,0 +1,29 @@
+task_id: APL-MAIN-CONSOLIDATION-20261031
+status: in_progress
+goal: "Consolidate completed iOS import, Smart Exclusions, RSYA banner, localization and documentation into GitHub main without disturbing macOS 0.2.20 Apple Review or dirty main worktree."
+definition_of_done:
+  - "Preserve main macOS signed/review source and existing independent user working-tree modifications."
+  - "Integrate completed iOS branches with correct final iOS version, no lost imports/locales/RSYA functionality."
+  - "Fix any actionable merge conflicts and failing regression/contract checks; run relevant Swift/iOS builds and tests."
+  - "Safely merge tested integration into origin/main and verify remote commit and clean integration checkout."
+  - "Refresh canonical checkpoint and roadmap; distinguish pending macOS Apple review from cleared build blocker."
+completed:
+  - "Read prior import checkpoint, verified physical iPhone 3/3 UI tests, 28 Swift tests and QR camera acceptance."
+  - "Fetched origin/main abdb0dd8 and reviewed stacked PRs and current CI failures."
+  - "Preserved completed macOS review checkpoint before changing canonical current task."
+  - "Merged Smart Exclusions, RSYA and universal import stack into origin/main baseline (merge d4b51739)."
+  - "Merged 50 editorial iOS locales, 47 ASO localizations and supporting tests (merge 0e8257b1); resolved advertisement placement conflicts retaining release 0.1.41 behavior."
+  - "Merged public iOS docs reconciliation, preserved 0.2.20 build 10 App Review status (merge b742a68f)."
+  - "32 Swift package tests PASS, 33 iOS Python unittest tests PASS, iOS Simulator Debug Xcode build PASS after integration."
+current: "Integration branch ready for GitHub CI/PR review and merge; live main worktree remains untouched."
+pending:
+  - "Run cross-platform source contracts/CI on integrated PR; address actionable failures without lowering integrity gates."
+  - "Merge tested integration PR into origin/main under repository branch protections."
+  - "Verify origin/main, update canonical status completed, and identify next roadmap action."
+last_verified_commit: "b742a68f (integrated; not yet merged to main)"
+test_results:
+  - "Swift package: 32/32 PASS."
+  - "Python iOS contract suite: 33/33 PASS."
+  - "iOS simulator Debug app build: BUILD SUCCEEDED."
+  - "Pending GitHub integration CI and macOS/Windows/Linux relevant checks."
+resume_instruction: "Continue in /tmp/apl-main-consolidation-20261031; verify current integration PR and CI, fix failing tests without bypassing security, merge into GitHub main if ready, verify remote main and mark completed. Never reset local dirty main worktree."
