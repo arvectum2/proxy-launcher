@@ -1,25 +1,23 @@
-task_id: APL-IOS-QUICK-ACTIONS-20261031
+task_id: APL-IOS-MANAGED-CONTRACT-20261031
 status: completed
-goal: 'Implement roadmap P2 quick iOS VPN connect/disconnect/toggle via App Intents/Shortcuts while preserving existing per-application automations.'
+goal: 'P5 proxy marketplace technical preparation: safe managed-profile subscription manifest/refresh contract and product/legal gates, without integrating payments or unlicensed proxy service.'
 definition_of_done:
-  - 'Explicit user-initiated connect, disconnect and toggle App Intents on iOS >=16.0, idempotent and conservative during disconnect races.'
-  - 'Keep SelectedAppOpened/Closed intents behavior unchanged and disallow implicit VPN changes by reading status.'
-  - 'Provide discoverable UX help and safe localization fallback for new copy, without modifying 50x155 Store catalogs.'
-  - 'Run Swift, Python, Xcode simulator build and relevant UI/contract tests; PR and merge after Smart2 UX PR, no release.'
+  - 'Versioned strictly bounded and source-pinned HTTPS managed-profile manifest schema, safe validation, no silent transport downgrade and last-known-good decision contract.'
+  - 'Pure parser rejects invalid/untrusted host/credentials in URL, unsupported transports and old/replayed revisions, oversized data and duplicate IDs.'
+  - 'No network fetch, auto-provisioning or payment until owner decisions; no credentials in analytics/logs/UserDefaults.'
+  - 'Architecture document for Russian-ruble sales and Apple IAP/5.4 privacy/legal gates, backend endpoints, inventory and secure provisioning without fictitious compliance claims.'
+  - 'Swift and Python tests, iOS simulator build, PR/CI/merge after QuickActions PR #283; hardware QA deferred.'
 completed:
-  - 'Smart2 PR #281 and UX/localization PR #282 merged into main; RTL EN/HE UI tests passed.'
-  - 'Implemented three idempotent user-invoked App Intents with disconnected/connecting/disconnecting handling and one-process reentrancy guard.'
-  - 'Implemented explicit VPN disconnect wait with timeout and isolated pure QuickVPNActionPolicy with XCTest tests.'
-  - 'Preserved SelectedAppOpened/Closed automation and added discoverable iOS16+ QuickActions Help screen.'
-  - 'Added 16 separate QuickActions.strings locale tables for action names, preserving existing 50x155 catalogs and EN help fallback.'
-current: 'SOURCE COMPLETE: explicit connect/disconnect/toggle App Intents, language tables and settings help; hardware execution deferred.'
+  - 'Smart2 PR #281, UX PR #282, Quick Actions PR #283 merged to main, existing App Store reviews unchanged.'
+  - 'Implemented pure Ed25519 signed envelope contract with trusted local key, HTTPS issuer match, strictly allowed manifest fields, bounded size/revision/TTL/profile types.'
+  - 'Implemented no-silent-downgrade refresh decisions and fail-closed URL/source validators; 60 Swift core tests PASS.'
+  - 'Prepared proposed API/Keychain/backend architecture with Apple IAP/VPN 5.4 and Russian legal/business decision gates, without executing payments or creating accounts.'
+current: 'SOURCE CONTRACT COMPLETE: signed managed manifest validation with refresh decision, backend/commercial architecture; production approvals remain blocked.'
 pending:
-  - 'Physical Shortcuts/App Intents execution on real iPhone and system VPN permission acceptance in next release QA.'
-  - 'Optional WidgetKit/Control Center extension later: not claimed as implemented.'
-last_verified_commit: 'cc355a05 (UX branch base)'
+  - 'Real client/API/payment and proxy infrastructure only after explicit owner product/legal decisions.'
+  - 'Real signed-key provisioning and managed subscriptions on physical iPhone as part of a future authorized release.'
+last_verified_commit: '0c75446a (first managed contract source commit; negative tests follow)'
 test_results:
-  - '52 Swift package tests PASS (including QuickVPNActionPolicy). '
-  - '3 Python QuickActions source/localization contracts PASS.'
-  - 'English iOS Simulator QuickActions Help UI test PASS.'
-  - 'iOS Simulator Debug build PASS; final tests before PR.'
-resume_instruction: 'Quick Actions source implementation complete in /tmp/apl-ios-quick-actions-20261031. Verify green CI then PR merge to main; continue commercial marketplace design in new checkpoint/worktree without assuming payment/legal decisions; physical iPhone acceptance deferred.'
+  - '60 Swift package tests PASS (incl. managed manifest signature, source, expiry, revision).'
+  - '2 Python managed-profile source contract tests PASS; full Python and iOS simulator build pending final gate.'
+resume_instruction: 'Source managed-profile contract complete in /tmp/apl-ios-managed-profile-20261031; run final tests, CI and merge PR to main. New paid service, VPS and Apple Store metadata explicitly blocked on business/legal decisions. No iPhone until shared upgraded build.'
