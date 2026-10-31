@@ -18,7 +18,7 @@ completed:
 current: "COMPLETED: universal import, cold-start deep-link preview and physical iPhone QR camera readiness verified."
 pending:
   - "Optional real printed/on-screen QR acquisition test with user pointing physical camera at code before release; camera readiness and preview verified."
-last_verified_commit: "0a765036 (previous branch head; final acceptance fix commit pending)"
+last_verified_commit: "250d60a1 (iOS physical device import and QR camera acceptance; 3 UI tests and 28 Swift tests PASS)"
 test_results:
   - "28/28 Swift package tests PASS (previous run)."
   - "Import XCUITest PASS (previous run)."
