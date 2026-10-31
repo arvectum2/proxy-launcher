@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">Inserisci un sito web e tocca Aggiungi. Ogni sito Web appare su una propria riga. Puoi incollare un URL, host:porta o indirizzo IP.</string>
+    <string name="apl_connection_828dd" formatted="false">Connessione</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">Stato APL e profilo attivo</string>
+    <string name="apl_profile_cc3f0" formatted="false">Profilo · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">Gestisci i profili</string>
+    <string name="apl_profiles_30c61" formatted="false">Profili</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">Seleziona, aggiungi e dai priorità ai proxy</string>
+    <string name="apl_activity_85f08" formatted="false">Attività</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">Stato della connessione e attività recente</string>
+    <string name="apl_disconnected_3e958" formatted="false">Disconnesso</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">Apri registro</string>
+    <string name="apl_settings_985b5" formatted="false">Impostazioni</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">Routing e comportamento dell\'APL</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">Esclusioni di siti web</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">Esclusioni di app</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">Impostazioni automatiche</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">Le azioni avanzate sono separate dalla connessione giornaliera.</string>
+    <string name="apl_home_d328e" formatted="false">Home</string>
+    <string name="apl_close_a7a40" formatted="false">Chiudi</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">Ritorno al proxy preferito dopo un errore</string>
+    <string name="apl_connect_36b4c" formatted="false">Connetti</string>
+    <string name="apl_proxy_a5677" formatted="false">Proxy</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">Seleziona un proxy</string>
+    <string name="apl_new_4460b" formatted="false">+ Nuovo</string>
+    <string name="apl_edit_b8b15" formatted="false">Modifica</string>
+    <string name="apl_websites_54646" formatted="false">Siti web</string>
+    <string name="apl_applications_39c4b" formatted="false">Applicazioni</string>
+    <string name="apl_log_97c45" formatted="false">Registro</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">Impossibile leggere i profili salvati</string>
+    <string name="apl_auto_8dca2" formatted="false">Auto</string>
+    <string name="apl_checked_6a779" formatted="false"> · controllo</string>
+    <string name="apl_available_c75e3" formatted="false">· disponibile</string>
+    <string name="apl_unavailable_bee71" formatted="false">· non disponibile</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">Aggiungi un proxy</string>
+    <string name="apl_profile_309fc" formatted="false">Profilo ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">non configurato</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">Nessuna esclusione aggiunta</string>
+    <string name="apl_delete_be99b" formatted="false">Elimina</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">Controlla l\'indirizzo del sito</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">Inserisci l\'indirizzo del sito</string>
+    <string name="apl_add_71038" formatted="false">Aggiungi</string>
+    <string name="apl_exclusions_f4f81" formatted="false">Esclusioni</string>
+    <string name="apl_cancel_8fbe9" formatted="false">Annulla</string>
+    <string name="apl_save_b4d30" formatted="false">Salva</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">Controlla l\'elenco delle eccezioni</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">Impossibile salvare le eccezioni</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">Applicazione delle esclusioni…</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">Eccezioni cancellate</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">Caricamento elenco app</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">Caricamento elenco app…</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">Impossibile ottenere l\'elenco delle applicazioni installate.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">Impossibile salvare le eccezioni dell\'applicazione</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">Applicazione delle eccezioni dell\'applicazione...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">Eccezioni dell\'applicazione cancellate</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">Il registro è vuoto</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">proxy non disponibile</string>
+    <string name="apl_switched_4c72e" formatted="false">commutato</string>
+    <string name="apl_main_restored_290c9" formatted="false">principale restaurato</string>
+    <string name="apl_network_change_50fc1" formatted="false">cambiamento di rete</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">Aggiungi prima almeno un proxy</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">Impossibile selezionare il proxy</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">Nuovo proxy</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">Modifica profilo</string>
+    <string name="apl_name_0918b" formatted="false">Nome</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">Ad es. Primario</string>
+    <string name="apl_proxy_address_ef480" formatted="false">Indirizzo proxy</string>
+    <string name="apl_port_90947" formatted="false">Porta</string>
+    <string name="apl_username_5be12" formatted="false">Nome utente</string>
+    <string name="apl_optional_f6d95" formatted="false">Facoltativo</string>
+    <string name="apl_password_cb1a2" formatted="false">Password</string>
+    <string name="apl_protocol_b3680" formatted="false">Protocollo</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">Protocollo automatico</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">Proxy HTTPS con TLS</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">Priorità per la modalità automatica</string>
+    <string name="apl_delete_profile_b745f" formatted="false">Eliminare il profilo?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">Inserisci l\'indirizzo proxy</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">Porta 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">Impossibile salvare il profilo in modo sicuro</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">Applicazione delle modifiche al profilo...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">Impossibile eliminare il profilo</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">Profilo eliminato</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">Aggiungi prima un proxy</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">Consenti la creazione di una connessione VPN</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android ha revocato l\'autorizzazione VPN. Tocca Connetti.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">La VPN è disabilitata. Puoi connetterti di nuovo.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">Verifica proxy…</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">Disconnessione…</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">Autorizzazione VPN non concessa</string>
+    <string name="apl_switching_b0760" formatted="false">Commutazione</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">Disconnetti</string>
+    <string name="apl_connecting_e2449" formatted="false">Connessione…</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">Modifica del proxy attivo</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">Connessione attiva</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">Controllo del proxy selezionato</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">Fine della connessione</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">Seleziona un proxy</string>
+    <string name="apl_latency_milliseconds"> · %1$d ms</string>
+    <string name="apl_exclusions_saved_count">Esclusioni salvate: %1$d</string>
+    <string name="apl_apps_bypassing_count">App che bypassano il proxy: %1$d</string>
+    <string name="apl_switching_to_profile">Passando a %1$s…</string>
+    <string name="apl_profile_saved">Salvato: %1$s</string>
+    <string name="apl_error_detail">Errore: %1$s</string>
+    <string name="apl_cannot_connect">Impossibile connettersi</string>
+</resources>

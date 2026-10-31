@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Plusieurs profils, priorités et basculement automatique sur un serveur de relève",
+  "02_direct_exceptions": "Exceptions pour les sites qui exigent un accès direct",
+  "03_app_automation": "Automatisations pour certaines apps avec Raccourcis iOS"
+}

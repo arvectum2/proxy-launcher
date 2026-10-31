@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">Arvectum Proxy Launcher</string>
+    <string name="site_exclusions_help">വെബ്‌സൈറ്റ് വിലാസം നൽകി “ചേർക്കുക” അമർത്തുക. ഓരോ സൈറ്റും പ്രത്യേക വരിയിൽ കാണിക്കും. URL, host:port അല്ലെങ്കിൽ IP വിലാസം ഒട്ടിക്കാം.</string>
+    <string name="apl_connection_828dd" formatted="false">കണക്ഷൻ</string>
+    <string name="apl_apl_status_and_active_profile_ef65f" formatted="false">APL നിലയും സജീവ പ്രൊഫൈലും</string>
+    <string name="apl_profile_cc3f0" formatted="false">പ്രൊഫൈൽ · —</string>
+    <string name="apl_manage_profiles_ec69b" formatted="false">പ്രൊഫൈലുകൾ കൈകാര്യം ചെയ്യുക</string>
+    <string name="apl_profiles_30c61" formatted="false">പ്രൊഫൈലുകൾ</string>
+    <string name="apl_select_add_and_prioritize_proxi_43980" formatted="false">പ്രോക്സികൾ തിരഞ്ഞെടുക്കുക, ചേർക്കുക, മുൻഗണന നൽകുക</string>
+    <string name="apl_activity_85f08" formatted="false">പ്രവർത്തനം</string>
+    <string name="apl_connection_status_and_recent_ac_019e8" formatted="false">കണക്ഷൻ നിലയും സമീപകാല പ്രവർത്തനവും</string>
+    <string name="apl_disconnected_3e958" formatted="false">വിച്ഛേദിച്ചു</string>
+    <string name="apl_open_magazine_9ebce" formatted="false">ലോഗ് തുറക്കുക</string>
+    <string name="apl_settings_985b5" formatted="false">ക്രമീകരണങ്ങൾ</string>
+    <string name="apl_routing_and_apl_behavior_2e5e0" formatted="false">റൂട്ടിംഗും APL പെരുമാറ്റവും</string>
+    <string name="apl_website_exclusions_bd616" formatted="false">വെബ്‌സൈറ്റ് ഒഴിവാക്കലുകൾ</string>
+    <string name="apl_app_exclusions_7910b" formatted="false">ആപ്പ് ഒഴിവാക്കലുകൾ</string>
+    <string name="apl_auto_settings_b61a2" formatted="false">യാന്ത്രിക ക്രമീകരണങ്ങൾ</string>
+    <string name="apl_advanced_actions_are_separate_f_a86aa" formatted="false">വിപുലമായ പ്രവർത്തനങ്ങൾ ദൈനംദിന കണക്ഷനിൽ നിന്ന് വ്യത്യസ്തമാണ്.</string>
+    <string name="apl_home_d328e" formatted="false">ഹോം</string>
+    <string name="apl_close_a7a40" formatted="false">അടയ്ക്കുക</string>
+    <string name="apl_revert_to_priority_proxy_after_d9b06" formatted="false">ഒരു പരാജയത്തിന് ശേഷം തിരഞ്ഞെടുത്ത പ്രോക്സിയിലേക്ക് മടങ്ങുക</string>
+    <string name="apl_connect_36b4c" formatted="false">കണക്റ്റുചെയ്യുക</string>
+    <string name="apl_proxy_a5677" formatted="false">പ്രോക്സി</string>
+    <string name="apl_select_a_proxy_43c2e" formatted="false">ഒരു പ്രോക്സി തിരഞ്ഞെടുക്കുക</string>
+    <string name="apl_new_4460b" formatted="false">+ പുതിയത്</string>
+    <string name="apl_edit_b8b15" formatted="false">എഡിറ്റ് ചെയ്യുക</string>
+    <string name="apl_websites_54646" formatted="false">വെബ്സൈറ്റുകൾ</string>
+    <string name="apl_applications_39c4b" formatted="false">അപേക്ഷകൾ</string>
+    <string name="apl_log_97c45" formatted="false">ലോഗ്</string>
+    <string name="apl_failed_to_read_saved_profiles_64a09" formatted="false">സംരക്ഷിച്ച പ്രൊഫൈലുകൾ വായിക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_auto_8dca2" formatted="false">യാന്ത്രികം</string>
+    <string name="apl_checked_6a779" formatted="false">· പരിശോധിക്കുന്നു</string>
+    <string name="apl_available_c75e3" formatted="false">· ലഭ്യമാണ്</string>
+    <string name="apl_unavailable_bee71" formatted="false">· ലഭ്യമല്ല</string>
+    <string name="apl_add_a_proxy_31af8" formatted="false">ഒരു പ്രോക്സി ചേർക്കുക</string>
+    <string name="apl_profile_309fc" formatted="false">പ്രൊഫൈൽ ·</string>
+    <string name="apl_not_configured_6153e" formatted="false">ക്രമീകരിച്ചിട്ടില്ല</string>
+    <string name="apl_no_exclusions_added_ed689" formatted="false">ഒഴിവാക്കലുകളൊന്നും ചേർത്തിട്ടില്ല</string>
+    <string name="apl_delete_be99b" formatted="false">ഇല്ലാതാക്കുക</string>
+    <string name="apl_check_the_site_address_cfb0f" formatted="false">സൈറ്റ് വിലാസം പരിശോധിക്കുക</string>
+    <string name="apl_enter_site_address_6948f" formatted="false">സൈറ്റ് വിലാസം നൽകുക</string>
+    <string name="apl_add_71038" formatted="false">ചേർക്കുക</string>
+    <string name="apl_exclusions_f4f81" formatted="false">ഒഴിവാക്കലുകൾ</string>
+    <string name="apl_cancel_8fbe9" formatted="false">റദ്ദാക്കുക</string>
+    <string name="apl_save_b4d30" formatted="false">സംരക്ഷിക്കുക</string>
+    <string name="apl_check_the_list_of_exceptions_7e571" formatted="false">ഒഴിവാക്കലുകളുടെ പട്ടിക പരിശോധിക്കുക</string>
+    <string name="apl_failed_to_save_exceptions_1877d" formatted="false">ഒഴിവാക്കലുകൾ സംരക്ഷിക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_we_apply_exceptions_66519" formatted="false">ഒഴിവാക്കലുകൾ പ്രയോഗിക്കുന്നു...</string>
+    <string name="apl_exceptions_cleared_7e206" formatted="false">ഒഴിവാക്കലുകൾ മായ്ച്ചു</string>
+    <string name="apl_loading_a_list_of_applications_92b3a" formatted="false">ആപ്പ് ലിസ്റ്റ് ലോഡ് ചെയ്യുന്നു</string>
+    <string name="apl_loading_the_list_of_application_8f04d" formatted="false">ആപ്പ് ലിസ്റ്റ് ലോഡുചെയ്യുന്നു...</string>
+    <string name="apl_failed_to_get_list_of_installed_4db23" formatted="false">ഇൻസ്റ്റാൾ ചെയ്ത ആപ്ലിക്കേഷനുകളുടെ ലിസ്റ്റ് നേടുന്നതിൽ പരാജയപ്പെട്ടു.</string>
+    <string name="apl_failed_to_save_application_exce_43bab" formatted="false">ആപ്ലിക്കേഷൻ ഒഴിവാക്കലുകൾ സംരക്ഷിക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_applying_application_exceptions_fb591" formatted="false">ആപ്ലിക്കേഷൻ ഒഴിവാക്കലുകൾ പ്രയോഗിക്കുന്നു...</string>
+    <string name="apl_application_exceptions_cleared_2d716" formatted="false">അപേക്ഷ ഒഴിവാക്കലുകൾ മായ്ച്ചു</string>
+    <string name="apl_the_magazine_is_still_empty_b5bab" formatted="false">ലോഗ് ശൂന്യമാണ്</string>
+    <string name="apl_proxy_unavailable_35b04" formatted="false">പ്രോക്സി ലഭ്യമല്ല</string>
+    <string name="apl_switched_4c72e" formatted="false">സ്വിച്ച് ചെയ്തു</string>
+    <string name="apl_main_restored_290c9" formatted="false">പ്രധാന പുനഃസ്ഥാപിച്ചു</string>
+    <string name="apl_network_change_50fc1" formatted="false">നെറ്റ്‌വർക്ക് മാറ്റം</string>
+    <string name="apl_add_at_least_one_proxy_first_a29bb" formatted="false">ആദ്യം ഒരു പ്രോക്സി എങ്കിലും ചേർക്കുക</string>
+    <string name="apl_failed_to_select_proxy_c4629" formatted="false">പ്രോക്സി തിരഞ്ഞെടുക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_new_proxy_29c0e" formatted="false">പുതിയ പ്രോക്സി</string>
+    <string name="apl_edit_profile_4bc58" formatted="false">പ്രൊഫൈൽ എഡിറ്റ് ചെയ്യുക</string>
+    <string name="apl_name_0918b" formatted="false">പേര്</string>
+    <string name="apl_for_example_basic_1589d" formatted="false">ഉദാ. പ്രാഥമികം</string>
+    <string name="apl_proxy_address_ef480" formatted="false">പ്രോക്സി വിലാസം</string>
+    <string name="apl_port_90947" formatted="false">പോർട്ട്</string>
+    <string name="apl_username_5be12" formatted="false">ഉപയോക്തൃനാമം</string>
+    <string name="apl_optional_f6d95" formatted="false">ഓപ്ഷണൽ</string>
+    <string name="apl_password_cb1a2" formatted="false">പാസ്‌വേഡ്</string>
+    <string name="apl_protocol_b3680" formatted="false">പ്രോട്ടോക്കോൾ</string>
+    <string name="apl_auto_protocol_56dd3" formatted="false">യാന്ത്രിക പ്രോട്ടോക്കോൾ</string>
+    <string name="apl_https_proxy_with_tls_93526" formatted="false">TLS ഉള്ള HTTPS പ്രോക്സി</string>
+    <string name="apl_priority_for_auto_mode_b65c0" formatted="false">ഓട്ടോ മോഡിനുള്ള മുൻഗണന</string>
+    <string name="apl_delete_profile_b745f" formatted="false">പ്രൊഫൈൽ ഇല്ലാതാക്കണോ?</string>
+    <string name="apl_enter_proxy_address_6ecda" formatted="false">പ്രോക്സി വിലാസം നൽകുക</string>
+    <string name="apl_port_1_65535_ea034" formatted="false">പോർട്ട് 1–65535</string>
+    <string name="apl_failed_to_save_profile_securely_c836f" formatted="false">പ്രൊഫൈൽ സുരക്ഷിതമായി സംരക്ഷിക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_applying_profile_changes_79c0c" formatted="false">പ്രൊഫൈൽ മാറ്റങ്ങൾ പ്രയോഗിക്കുന്നു...</string>
+    <string name="apl_failed_to_delete_profile_838f1" formatted="false">പ്രൊഫൈൽ ഇല്ലാതാക്കുന്നതിൽ പരാജയപ്പെട്ടു</string>
+    <string name="apl_profile_deleted_925ef" formatted="false">പ്രൊഫൈൽ ഇല്ലാതാക്കി</string>
+    <string name="apl_first_add_a_proxy_aefe9" formatted="false">ആദ്യം ഒരു പ്രോക്സി ചേർക്കുക</string>
+    <string name="apl_allow_the_creation_of_a_vpn_con_d0338" formatted="false">ഒരു VPN കണക്ഷൻ സൃഷ്ടിക്കാൻ അനുവദിക്കുക</string>
+    <string name="apl_android_reset_vpn_permission_cl_6add7" formatted="false">Android VPN അനുമതി റദ്ദാക്കി. ബന്ധിപ്പിക്കുക ടാപ്പ് ചെയ്യുക.</string>
+    <string name="apl_vpn_is_disabled_you_can_connect_65e75" formatted="false">VPN പ്രവർത്തനരഹിതമാക്കി. നിങ്ങൾക്ക് വീണ്ടും ബന്ധിപ്പിക്കാൻ കഴിയും.</string>
+    <string name="apl_checking_the_proxy_fc59b" formatted="false">പ്രോക്സി പരിശോധിക്കുന്നു...</string>
+    <string name="apl_disconnecting_6a55f" formatted="false">വിച്ഛേദിക്കുന്നു...</string>
+    <string name="apl_vpn_permission_not_granted_c24a8" formatted="false">VPN അനുമതി നൽകിയിട്ടില്ല</string>
+    <string name="apl_switching_b0760" formatted="false">സ്വിച്ചിംഗ്</string>
+    <string name="apl_disconnect_bb5bd" formatted="false">വിച്ഛേദിക്കുക</string>
+    <string name="apl_connecting_e2449" formatted="false">ബന്ധിപ്പിക്കുന്നു...</string>
+    <string name="apl_changing_the_active_proxy_f5b3e" formatted="false">സജീവ പ്രോക്സി മാറ്റുന്നു</string>
+    <string name="apl_connection_active_6cfc7" formatted="false">കണക്ഷൻ സജീവമാണ്</string>
+    <string name="apl_checking_the_selected_proxy_8dcaa" formatted="false">തിരഞ്ഞെടുത്ത പ്രോക്സി പരിശോധിക്കുന്നു</string>
+    <string name="apl_ending_the_connection_170ca" formatted="false">കണക്ഷൻ അവസാനിപ്പിക്കുന്നു</string>
+    <string name="apl_select_a_proxy_f0954" formatted="false">പ്രോക്സി തിരഞ്ഞെടുക്കുക</string>
+    <string name="apl_latency_milliseconds">· %1$d ms</string>
+    <string name="apl_exclusions_saved_count">ഒഴിവാക്കലുകൾ സംരക്ഷിച്ചു: %1$d</string>
+    <string name="apl_apps_bypassing_count">പ്രോക്സിയെ മറികടക്കുന്ന ആപ്പുകൾ: %1$d</string>
+    <string name="apl_switching_to_profile">%1$s-ലേക്ക് മാറുന്നു...</string>
+    <string name="apl_profile_saved">സംരക്ഷിച്ചു: %1$s</string>
+    <string name="apl_error_detail">പിശക്: %1$s</string>
+    <string name="apl_cannot_connect">ബന്ധിപ്പിക്കാൻ കഴിഞ്ഞില്ല</string>
+</resources>

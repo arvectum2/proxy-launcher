@@ -1,0 +1,807 @@
+{
+  "scope": "App Store Connect metadata for iOS only",
+  "state": "editorial_source_ready_not_uploaded",
+  "appBundleId": "ru.arvectum.proxylauncher.ios",
+  "supportedLocaleCount": 47,
+  "localizations": [
+    {
+      "locale": "ru",
+      "iosLanguage": "ru",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Прокси одним нажатием",
+      "description": "Гибкое подключение iPhone через собственный прокси — с понятной настройкой и управлением.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Профили прокси, приоритеты и автоматическое переключение на резерв\n• Исключения для сайтов, которым нужен прямой доступ\n• Автоматизация подключения для выбранных приложений через «Команды» iOS\n• Параметры прокси сохраняются на устройстве, пароль — в Связке ключей\n\nДобавьте данные своего прокси-сервера: приложение не продаёт и не предоставляет прокси.",
+      "keywords": "сеть,туннель,профили,исключения,резерв",
+      "promotionalText": "Гибкое подключение iPhone через собственный прокси — с понятной настройкой и управлением.",
+      "whatsNew": "Расширены языки интерфейса и улучшена ясность инструкций по настройке прокси.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Профили прокси, приоритеты и автоматическое переключение на резерв",
+        "02_direct_exceptions": "Исключения для сайтов, которым нужен прямой доступ",
+        "03_app_automation": "Автоматизация подключения для выбранных приложений через «Команды» iOS"
+      }
+    },
+    {
+      "locale": "en-US",
+      "iosLanguage": "en",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5, HTTP & HTTPS Client",
+      "description": "Connect your iPhone through a proxy you configure, with clear controls and flexible routing.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Multiple profiles, priorities and automatic backup failover\n• Website exclusions for destinations that should connect directly\n• Open/close automations for selected apps using iOS Shortcuts\n• Proxy settings remain on your device; passwords are kept in Keychain\n\nBring your own proxy server details. APL does not sell or provide proxy servers.",
+      "keywords": "routing,network,tunnel,profiles,failover,exceptions,shortcuts",
+      "promotionalText": "Connect your iPhone through a proxy you configure, with clear controls and flexible routing.",
+      "whatsNew": "More interface languages and clearer guidance for proxy profiles and connections.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Multiple profiles, priorities and automatic backup failover",
+        "02_direct_exceptions": "Website exclusions for destinations that should connect directly",
+        "03_app_automation": "Open/close automations for selected apps using iOS Shortcuts"
+      }
+    },
+    {
+      "locale": "en-GB",
+      "iosLanguage": "en",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy Profiles & Smart Routing",
+      "description": "Route your iPhone traffic through a proxy you choose, with straightforward controls.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Multiple proxy profiles, priorities and backup switching\n• Website bypass rules for direct connections\n• Automations for selected apps using iOS Shortcuts\n• Connection details stay on the device; passwords use Keychain\n\nEnter your own proxy details. APL does not supply proxy servers.",
+      "keywords": "network,routing,tunnel,profiles,backup,exceptions,automation",
+      "promotionalText": "Route your iPhone traffic through a proxy you choose, with straightforward controls.",
+      "whatsNew": "Expanded language support and clearer proxy setup instructions.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Multiple proxy profiles, priorities and backup switching",
+        "02_direct_exceptions": "Website bypass rules for direct connections",
+        "03_app_automation": "Automations for selected apps using iOS Shortcuts"
+      }
+    },
+    {
+      "locale": "en-AU",
+      "iosLanguage": "en",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy Connection & Profiles",
+      "description": "Connect your iPhone through your preferred proxy with easy profile management.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Multiple proxy profiles and automatic backup selection\n• Site exclusions for destinations that need direct access\n• Open and close automations using iOS Shortcuts\n• Your connection settings stay on your iPhone\n\nYou provide the proxy server; the app does not sell proxy access.",
+      "keywords": "routing,network,profiles,backup,exclusions,connection",
+      "promotionalText": "Connect your iPhone through your preferred proxy with easy profile management.",
+      "whatsNew": "Added interface languages and refined connection guidance.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Multiple proxy profiles and automatic backup selection",
+        "02_direct_exceptions": "Site exclusions for destinations that need direct access",
+        "03_app_automation": "Open and close automations using iOS Shortcuts"
+      }
+    },
+    {
+      "locale": "en-CA",
+      "iosLanguage": "en",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "HTTP, HTTPS & SOCKS5 Proxy",
+      "description": "A flexible iPhone proxy client for connections you set up and control.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Manage multiple profiles and automatic fallback\n• Exclude websites that should use a direct connection\n• Set up app-triggered automations in iOS Shortcuts\n• Your proxy credentials are stored locally on the device\n\nProxy service is not included; use a server you already have.",
+      "keywords": "network,routing,profiles,tunnel,backup,shortcuts,proxy",
+      "promotionalText": "A flexible iPhone proxy client for connections you set up and control.",
+      "whatsNew": "More supported interface languages and improved configuration help.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Manage multiple profiles and automatic fallback",
+        "02_direct_exceptions": "Exclude websites that should use a direct connection",
+        "03_app_automation": "Set up app-triggered automations in iOS Shortcuts"
+      }
+    },
+    {
+      "locale": "es-ES",
+      "iosLanguage": "es",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Cliente proxy HTTP y SOCKS5",
+      "description": "Conecta tu iPhone a través del proxy que tú configuras, con controles claros y rutas flexibles.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Varios perfiles, prioridades y cambio automático al servidor de reserva\n• Exclusiones para sitios web que necesitan conexión directa\n• Automatizaciones para apps seleccionadas mediante Atajos de iOS\n• Los datos del proxy quedan en tu dispositivo y la contraseña se guarda en el llavero\n\nNecesitas tu propio servidor proxy; APL no vende ni proporciona servidores.",
+      "keywords": "red,enrutamiento,perfiles,exclusiones,reserva,conexión",
+      "promotionalText": "Conecta tu iPhone a través del proxy que tú configuras, con controles claros y rutas flexibles.",
+      "whatsNew": "Más idiomas de interfaz y explicaciones más claras para configurar el proxy.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Varios perfiles, prioridades y cambio automático al servidor de reserva",
+        "02_direct_exceptions": "Exclusiones para sitios web que necesitan conexión directa",
+        "03_app_automation": "Automatizaciones para apps seleccionadas mediante Atajos de iOS"
+      }
+    },
+    {
+      "locale": "es-MX",
+      "iosLanguage": "es",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy para iPhone y SOCKS5",
+      "description": "Conecta tu iPhone mediante un proxy que tú eliges, con configuración sencilla.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Administra varios perfiles con respaldo y cambio automático\n• Excluye sitios web que deben conectarse directamente\n• Activa automatizaciones para ciertas apps con Atajos de iOS\n• Tus datos de conexión permanecen en el equipo\n\nIngresa los datos de tu propio servidor proxy; no se incluye servicio de proxy.",
+      "keywords": "red,rutas,perfiles,respaldo,excepciones,conexión",
+      "promotionalText": "Conecta tu iPhone mediante un proxy que tú eliges, con configuración sencilla.",
+      "whatsNew": "Se agregaron idiomas y se mejoraron las instrucciones de conexión.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Administra varios perfiles con respaldo y cambio automático",
+        "02_direct_exceptions": "Excluye sitios web que deben conectarse directamente",
+        "03_app_automation": "Activa automatizaciones para ciertas apps con Atajos de iOS"
+      }
+    },
+    {
+      "locale": "fr-FR",
+      "iosLanguage": "fr",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy HTTP, HTTPS et SOCKS5",
+      "description": "Connectez votre iPhone à votre propre proxy et gérez simplement les connexions.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Plusieurs profils, priorités et bascule automatique vers un proxy de secours\n• Exceptions pour les sites nécessitant une connexion directe\n• Automatisations d’ouverture et de fermeture d’apps via Raccourcis iOS\n• Paramètres enregistrés sur l’appareil et mot de passe dans le Trousseau\n\nIndiquez les données de votre proxy : APL ne fournit pas de serveurs proxy.",
+      "keywords": "réseau,routage,profils,secours,exceptions,tunnel",
+      "promotionalText": "Connectez votre iPhone à votre propre proxy et gérez simplement les connexions.",
+      "whatsNew": "Davantage de langues et des conseils de configuration plus clairs.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Plusieurs profils, priorités et bascule automatique vers un proxy de secours",
+        "02_direct_exceptions": "Exceptions pour les sites nécessitant une connexion directe",
+        "03_app_automation": "Automatisations d’ouverture et de fermeture d’apps via Raccourcis iOS"
+      }
+    },
+    {
+      "locale": "fr-CA",
+      "iosLanguage": "fr",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profils proxy et connexion",
+      "description": "Connectez votre iPhone au mandataire de votre choix grâce à des réglages simples.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Plusieurs profils, priorités et basculement automatique sur un serveur de relève\n• Exceptions pour les sites qui exigent un accès direct\n• Automatisations pour certaines apps avec Raccourcis iOS\n• Les renseignements de connexion restent sur votre appareil\n\nUtilisez votre propre serveur mandataire; aucun accès proxy n’est fourni.",
+      "keywords": "réseau,routage,profils,relève,exceptions,connexion",
+      "promotionalText": "Connectez votre iPhone au mandataire de votre choix grâce à des réglages simples.",
+      "whatsNew": "Nouvelles langues d’interface et instructions de connexion améliorées.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Plusieurs profils, priorités et basculement automatique sur un serveur de relève",
+        "02_direct_exceptions": "Exceptions pour les sites qui exigent un accès direct",
+        "03_app_automation": "Automatisations pour certaines apps avec Raccourcis iOS"
+      }
+    },
+    {
+      "locale": "de-DE",
+      "iosLanguage": "de",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy-Profile & SOCKS5",
+      "description": "Verbinde dein iPhone über einen selbst eingerichteten Proxy und steuere die Verbindung gezielt.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Mehrere Profile, Prioritäten und automatischer Wechsel zum Ersatzproxy\n• Website-Ausnahmen für direkte Verbindungen\n• App-Automationen beim Öffnen und Schließen mit iOS Kurzbefehlen\n• Proxy-Daten bleiben auf dem Gerät; Passwörter liegen im Schlüsselbund\n\nDu benötigst einen eigenen Proxy-Server; APL stellt keinen Server bereit.",
+      "keywords": "netzwerk,routing,profile,ersatz,ausnahmen,verbindung",
+      "promotionalText": "Verbinde dein iPhone über einen selbst eingerichteten Proxy und steuere die Verbindung gezielt.",
+      "whatsNew": "Mehr Oberflächensprachen und verständlichere Einrichtungshinweise.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Mehrere Profile, Prioritäten und automatischer Wechsel zum Ersatzproxy",
+        "02_direct_exceptions": "Website-Ausnahmen für direkte Verbindungen",
+        "03_app_automation": "App-Automationen beim Öffnen und Schließen mit iOS Kurzbefehlen"
+      }
+    },
+    {
+      "locale": "it",
+      "iosLanguage": "it",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy SOCKS5 e profili",
+      "description": "Collega il tuo iPhone a un proxy configurato da te e gestisci facilmente le connessioni.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Più profili, priorità e passaggio automatico al proxy di riserva\n• Esclusioni per i siti che richiedono un accesso diretto\n• Automazioni per app selezionate con Comandi Rapidi di iOS\n• Le impostazioni restano sul dispositivo e la password nel Portachiavi\n\nInserisci i dati del tuo server proxy: APL non fornisce servizi proxy.",
+      "keywords": "rete,instradamento,profili,riserva,esclusioni,connessione",
+      "promotionalText": "Collega il tuo iPhone a un proxy configurato da te e gestisci facilmente le connessioni.",
+      "whatsNew": "Altre lingue disponibili e istruzioni di configurazione più chiare.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Più profili, priorità e passaggio automatico al proxy di riserva",
+        "02_direct_exceptions": "Esclusioni per i siti che richiedono un accesso diretto",
+        "03_app_automation": "Automazioni per app selezionate con Comandi Rapidi di iOS"
+      }
+    },
+    {
+      "locale": "pt-BR",
+      "iosLanguage": "pt-BR",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy SOCKS5 para iPhone",
+      "description": "Conecte o iPhone a um proxy configurado por você e controle as rotas com facilidade.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Vários perfis, prioridades e troca automática para proxy reserva\n• Exceções para sites que precisam de conexão direta\n• Automações para apps selecionados pelo app Atalhos do iOS\n• Dados salvos no aparelho e senha protegida nas Chaves do iOS\n\nUse seu próprio servidor proxy: o APL não fornece nem vende proxies.",
+      "keywords": "rede,roteamento,perfis,reserva,exceções,conexão",
+      "promotionalText": "Conecte o iPhone a um proxy configurado por você e controle as rotas com facilidade.",
+      "whatsNew": "Mais idiomas e orientações aprimoradas para configurar perfis.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Vários perfis, prioridades e troca automática para proxy reserva",
+        "02_direct_exceptions": "Exceções para sites que precisam de conexão direta",
+        "03_app_automation": "Automações para apps selecionados pelo app Atalhos do iOS"
+      }
+    },
+    {
+      "locale": "pt-PT",
+      "iosLanguage": "pt-PT",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Cliente proxy HTTP e SOCKS5",
+      "description": "Ligue o iPhone a um proxy configurado por si e controle facilmente as ligações.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Vários perfis, prioridades e mudança automática para proxy de reserva\n• Exceções para sites que requerem acesso direto\n• Automações para aplicações selecionadas na app Atalhos do iOS\n• Dados guardados no dispositivo e palavra-passe no Porta-chaves\n\nUtilize o seu servidor proxy; o APL não fornece nem vende servidores.",
+      "keywords": "rede,encaminhamento,perfis,reserva,exceções,ligação",
+      "promotionalText": "Ligue o iPhone a um proxy configurado por si e controle facilmente as ligações.",
+      "whatsNew": "Mais idiomas e indicações mais claras para configurar o proxy.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Vários perfis, prioridades e mudança automática para proxy de reserva",
+        "02_direct_exceptions": "Exceções para sites que requerem acesso direto",
+        "03_app_automation": "Automações para aplicações selecionadas na app Atalhos do iOS"
+      }
+    },
+    {
+      "locale": "nl-NL",
+      "iosLanguage": "nl",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxyprofielen en SOCKS5",
+      "description": "Verbind je iPhone via een proxy die je zelf instelt, met overzichtelijke bediening.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Meerdere profielen, prioriteit en automatisch overschakelen naar een reserveproxy\n• Uitzonderingen voor websites met een rechtstreekse verbinding\n• Automatiseringen voor geselecteerde apps via iOS Opdrachten\n• Proxygegevens blijven op je apparaat en wachtwoorden in de sleutelhanger\n\nJe hebt eigen proxygegevens nodig: APL levert geen proxyservers.",
+      "keywords": "netwerk,routing,profielen,reserve,uitzonderingen,verbinding",
+      "promotionalText": "Verbind je iPhone via een proxy die je zelf instelt, met overzichtelijke bediening.",
+      "whatsNew": "Meer interfacetalen en duidelijkere uitleg bij het instellen.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Meerdere profielen, prioriteit en automatisch overschakelen naar een reserveproxy",
+        "02_direct_exceptions": "Uitzonderingen voor websites met een rechtstreekse verbinding",
+        "03_app_automation": "Automatiseringen voor geselecteerde apps via iOS Opdrachten"
+      }
+    },
+    {
+      "locale": "sv",
+      "iosLanguage": "sv",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxyprofiler och SOCKS5",
+      "description": "Anslut din iPhone via en proxy du själv konfigurerar, med tydliga inställningar.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Flera profiler, prioriteringar och automatisk reservproxy\n• Webbplatsundantag för direkta anslutningar\n• Automatiseringar för valda appar med iOS Genvägar\n• Proxyuppgifterna stannar på enheten och lösenord lagras i nyckelringen\n\nAnvänd din egen proxyserver: APL tillhandahåller inga servrar.",
+      "keywords": "nätverk,ruttning,profiler,reserv,undantag,anslutning",
+      "promotionalText": "Anslut din iPhone via en proxy du själv konfigurerar, med tydliga inställningar.",
+      "whatsNew": "Fler gränssnittsspråk och tydligare hjälp vid konfigurering.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Flera profiler, prioriteringar och automatisk reservproxy",
+        "02_direct_exceptions": "Webbplatsundantag för direkta anslutningar",
+        "03_app_automation": "Automatiseringar för valda appar med iOS Genvägar"
+      }
+    },
+    {
+      "locale": "da",
+      "iosLanguage": "da",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxyprofiler og SOCKS5",
+      "description": "Forbind din iPhone via en proxy, du selv konfigurerer, med enkel styring.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Flere profiler, prioritering og automatisk skift til reserveproxy\n• Webstedsundtagelser til direkte forbindelser\n• Automatisering af valgte apps via iOS Genveje\n• Proxyoplysninger bliver på enheden, og adgangskoder opbevares i nøgleringen\n\nDu skal bruge din egen proxyserver; APL leverer ikke servere.",
+      "keywords": "netværk,routing,profiler,reserve,undtagelser,forbindelse",
+      "promotionalText": "Forbind din iPhone via en proxy, du selv konfigurerer, med enkel styring.",
+      "whatsNew": "Flere grænsefladesprog og tydeligere vejledning til opsætning.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Flere profiler, prioritering og automatisk skift til reserveproxy",
+        "02_direct_exceptions": "Webstedsundtagelser til direkte forbindelser",
+        "03_app_automation": "Automatisering af valgte apps via iOS Genveje"
+      }
+    },
+    {
+      "locale": "fi",
+      "iosLanguage": "fi",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Välityspalvelin ja SOCKS5",
+      "description": "Yhdistä iPhone itse määrittämääsi välityspalvelimeen ja hallitse yhteyksiä helposti.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Useita profiileja, prioriteetit ja automaattinen varayhteys\n• Poikkeukset sivustoille, joihin yhdistetään suoraan\n• Valittujen sovellusten automaatiot iOS:n Pikakomennoilla\n• Yhteystiedot pysyvät laitteessa ja salasanat avainnipussa\n\nTarvitset oman välityspalvelimen; APL ei tarjoa palvelimia.",
+      "keywords": "verkko,reititys,profiilit,varayhteys,poikkeukset",
+      "promotionalText": "Yhdistä iPhone itse määrittämääsi välityspalvelimeen ja hallitse yhteyksiä helposti.",
+      "whatsNew": "Lisää käyttöliittymäkieliä ja selkeämmät määritysohjeet.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Useita profiileja, prioriteetit ja automaattinen varayhteys",
+        "02_direct_exceptions": "Poikkeukset sivustoille, joihin yhdistetään suoraan",
+        "03_app_automation": "Valittujen sovellusten automaatiot iOS:n Pikakomennoilla"
+      }
+    },
+    {
+      "locale": "no",
+      "iosLanguage": "nb",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxyprofiler og SOCKS5",
+      "description": "Koble iPhone til en proxy du konfigurerer selv, med oversiktlig kontroll.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Flere profiler, prioritering og automatisk reserveproxy\n• Unntak for nettsteder som trenger direkte tilkobling\n• Automatiseringer for valgte apper via iOS Snarveier\n• Proxyopplysninger lagres på enheten og passord i nøkkelringen\n\nDu må bruke din egen proxyserver; APL leverer ikke proxyer.",
+      "keywords": "nettverk,ruting,profiler,reserve,unntak,tilkobling",
+      "promotionalText": "Koble iPhone til en proxy du konfigurerer selv, med oversiktlig kontroll.",
+      "whatsNew": "Flere grensesnittspråk og tydeligere veiledning for oppsett.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Flere profiler, prioritering og automatisk reserveproxy",
+        "02_direct_exceptions": "Unntak for nettsteder som trenger direkte tilkobling",
+        "03_app_automation": "Automatiseringer for valgte apper via iOS Snarveier"
+      }
+    },
+    {
+      "locale": "cs",
+      "iosLanguage": "cs",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy profily a SOCKS5",
+      "description": "Připojte iPhone přes vlastní proxy server a spravujte připojení přehledně.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Více profilů, priority a automatické přepnutí na záložní proxy\n• Výjimky pro weby, které se mají připojovat přímo\n• Automatizace vybraných aplikací přes Zkratky v iOS\n• Údaje zůstávají v zařízení, hesla v Klíčence\n\nPoužijte vlastní proxy server; APL žádné proxy servery neposkytuje.",
+      "keywords": "síť,směrování,profily,záloha,výjimky,připojení",
+      "promotionalText": "Připojte iPhone přes vlastní proxy server a spravujte připojení přehledně.",
+      "whatsNew": "Nové jazyky rozhraní a přehlednější nastavení proxy.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Více profilů, priority a automatické přepnutí na záložní proxy",
+        "02_direct_exceptions": "Výjimky pro weby, které se mají připojovat přímo",
+        "03_app_automation": "Automatizace vybraných aplikací přes Zkratky v iOS"
+      }
+    },
+    {
+      "locale": "sk",
+      "iosLanguage": "sk",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy profily a SOCKS5",
+      "description": "Pripojte iPhone cez vlastný proxy server a jednoducho spravujte spojenia.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Viaceré profily, priority a automatické prepnutie na záložné proxy\n• Výnimky pre weby vyžadujúce priame pripojenie\n• Automatizácie vybraných aplikácií cez Skratky v iOS\n• Údaje zostávajú v zariadení, heslá v Kľúčenke\n\nPotrebujete vlastný proxy server; APL žiadne proxy servery neposkytuje.",
+      "keywords": "sieť,smerovanie,profily,záloha,výnimky,spojenie",
+      "promotionalText": "Pripojte iPhone cez vlastný proxy server a jednoducho spravujte spojenia.",
+      "whatsNew": "Viac jazykov rozhrania a zrozumiteľnejšie návody.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Viaceré profily, priority a automatické prepnutie na záložné proxy",
+        "02_direct_exceptions": "Výnimky pre weby vyžadujúce priame pripojenie",
+        "03_app_automation": "Automatizácie vybraných aplikácií cez Skratky v iOS"
+      }
+    },
+    {
+      "locale": "pl",
+      "iosLanguage": "pl",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profile proxy i SOCKS5",
+      "description": "Połącz iPhone’a z własnym serwerem proxy i łatwo zarządzaj połączeniem.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Wiele profili, priorytety i automatyczne przełączenie na zapasowy proxy\n• Wyjątki dla witryn wymagających połączenia bezpośredniego\n• Automatyzacje wybranych aplikacji przez Skróty iOS\n• Dane proxy pozostają na urządzeniu, a hasła w Pęku kluczy\n\nDodaj własne dane serwera proxy; APL nie udostępnia serwerów.",
+      "keywords": "sieć,routing,profile,zapas,wyjątki,połączenie",
+      "promotionalText": "Połącz iPhone’a z własnym serwerem proxy i łatwo zarządzaj połączeniem.",
+      "whatsNew": "Więcej języków interfejsu i czytelniejsze instrukcje konfiguracji.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Wiele profili, priorytety i automatyczne przełączenie na zapasowy proxy",
+        "02_direct_exceptions": "Wyjątki dla witryn wymagających połączenia bezpośredniego",
+        "03_app_automation": "Automatyzacje wybranych aplikacji przez Skróty iOS"
+      }
+    },
+    {
+      "locale": "ro",
+      "iosLanguage": "ro",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profiluri proxy și SOCKS5",
+      "description": "Conectează iPhone-ul printr-un proxy configurat de tine și controlează ușor conexiunea.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Profiluri multiple, priorități și comutare automată la proxy de rezervă\n• Excepții pentru site-urile care necesită conectare directă\n• Automatizări pentru aplicații selectate prin Scurtături iOS\n• Datele rămân pe dispozitiv, iar parolele în portchei\n\nFolosește propriul server proxy; APL nu furnizează servere.",
+      "keywords": "rețea,rutare,profiluri,rezervă,excepții,conexiune",
+      "promotionalText": "Conectează iPhone-ul printr-un proxy configurat de tine și controlează ușor conexiunea.",
+      "whatsNew": "Mai multe limbi și instrucțiuni de configurare îmbunătățite.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Profiluri multiple, priorități și comutare automată la proxy de rezervă",
+        "02_direct_exceptions": "Excepții pentru site-urile care necesită conectare directă",
+        "03_app_automation": "Automatizări pentru aplicații selectate prin Scurtături iOS"
+      }
+    },
+    {
+      "locale": "hu",
+      "iosLanguage": "hu",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxyprofilok és SOCKS5",
+      "description": "Csatlakoztasd iPhone-odat a saját proxykiszolgálódhoz, egyszerű vezérléssel.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Több profil, prioritások és automatikus váltás tartalék proxyra\n• Kivételek a közvetlenül elérendő webhelyekhez\n• Automatizálás kijelölt appokhoz az iOS Parancsok segítségével\n• A proxyadatok a készüléken maradnak, a jelszavak a Kulcskarikában\n\nSaját proxyszerver szükséges; az APL nem biztosít szervereket.",
+      "keywords": "hálózat,útválasztás,profilok,tartalék,kivételek",
+      "promotionalText": "Csatlakoztasd iPhone-odat a saját proxykiszolgálódhoz, egyszerű vezérléssel.",
+      "whatsNew": "Több kezelőfelületi nyelv és érthetőbb beállítási útmutató.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Több profil, prioritások és automatikus váltás tartalék proxyra",
+        "02_direct_exceptions": "Kivételek a közvetlenül elérendő webhelyekhez",
+        "03_app_automation": "Automatizálás kijelölt appokhoz az iOS Parancsok segítségével"
+      }
+    },
+    {
+      "locale": "el",
+      "iosLanguage": "el",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Προφίλ proxy και SOCKS5",
+      "description": "Συνδέστε το iPhone μέσω δικού σας proxy με εύκολη διαχείριση της σύνδεσης.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Πολλά προφίλ, προτεραιότητες και αυτόματη εναλλαγή σε εφεδρικό proxy\n• Εξαιρέσεις για ιστοτόπους που χρειάζονται άμεση σύνδεση\n• Αυτοματισμοί για επιλεγμένες εφαρμογές μέσω Συντομεύσεων iOS\n• Τα στοιχεία παραμένουν στη συσκευή και οι κωδικοί στο Μπρελόκ\n\nΧρειάζεστε δικό σας διακομιστή proxy· το APL δεν παρέχει διακομιστές.",
+      "keywords": "δίκτυο,δρομολόγηση,προφίλ,εφεδρεία,εξαιρέσεις",
+      "promotionalText": "Συνδέστε το iPhone μέσω δικού σας proxy με εύκολη διαχείριση της σύνδεσης.",
+      "whatsNew": "Περισσότερες γλώσσες και σαφέστερες οδηγίες ρύθμισης.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Πολλά προφίλ, προτεραιότητες και αυτόματη εναλλαγή σε εφεδρικό proxy",
+        "02_direct_exceptions": "Εξαιρέσεις για ιστοτόπους που χρειάζονται άμεση σύνδεση",
+        "03_app_automation": "Αυτοματισμοί για επιλεγμένες εφαρμογές μέσω Συντομεύσεων iOS"
+      }
+    },
+    {
+      "locale": "hr",
+      "iosLanguage": "hr",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Proxy profili i SOCKS5",
+      "description": "Povežite iPhone putem vlastitog proxy poslužitelja uz jednostavno upravljanje.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Više profila, prioriteti i automatski prelazak na pričuvni proxy\n• Iznimke za web-mjesta koja trebaju izravnu vezu\n• Automatizacije odabranih aplikacija putem iOS Prečaca\n• Podaci ostaju na uređaju, a lozinke u privjesku ključeva\n\nPotreban je vaš proxy poslužitelj; APL ne pruža proxy uslugu.",
+      "keywords": "mreža,usmjeravanje,profili,pričuva,iznimke,veza",
+      "promotionalText": "Povežite iPhone putem vlastitog proxy poslužitelja uz jednostavno upravljanje.",
+      "whatsNew": "Dodani su jezici sučelja i poboljšane upute za povezivanje.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Više profila, prioriteti i automatski prelazak na pričuvni proxy",
+        "02_direct_exceptions": "Iznimke za web-mjesta koja trebaju izravnu vezu",
+        "03_app_automation": "Automatizacije odabranih aplikacija putem iOS Prečaca"
+      }
+    },
+    {
+      "locale": "ca",
+      "iosLanguage": "ca",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Perfils proxy i SOCKS5",
+      "description": "Connecta l’iPhone mitjançant un servidor intermediari propi amb controls senzills.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Diversos perfils, prioritats i canvi automàtic al servidor de reserva\n• Exclusions per a llocs web que necessiten connexió directa\n• Automatitzacions per a apps seleccionades amb Dreceres d’iOS\n• Les dades queden al dispositiu i les contrasenyes al clauer\n\nHas de configurar el teu servidor intermediari; APL no en proporciona.",
+      "keywords": "xarxa,encaminament,perfils,reserva,exclusions",
+      "promotionalText": "Connecta l’iPhone mitjançant un servidor intermediari propi amb controls senzills.",
+      "whatsNew": "Més idiomes d’interfície i instruccions de connexió millorades.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Diversos perfils, prioritats i canvi automàtic al servidor de reserva",
+        "02_direct_exceptions": "Exclusions per a llocs web que necessiten connexió directa",
+        "03_app_automation": "Automatitzacions per a apps seleccionades amb Dreceres d’iOS"
+      }
+    },
+    {
+      "locale": "ja",
+      "iosLanguage": "ja",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5・HTTPプロキシ",
+      "description": "自分で設定したプロキシを使ってiPhoneの通信経路を管理できます。\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• 複数プロファイルの優先順位と予備プロキシへの自動切り替え\n• 直接接続したいウェブサイトを除外\n• iOSのショートカットで選択したアプリの開閉時に自動操作\n• 接続情報は端末内に保存し、パスワードはキーチェーンで保護\n\nプロキシサーバーはご自身で用意してください。APLはサーバーを提供しません。",
+      "keywords": "ネットワーク,経路,接続,予備,除外,自動化",
+      "promotionalText": "自分で設定したプロキシを使ってiPhoneの通信経路を管理できます。",
+      "whatsNew": "対応言語を追加し、接続設定の案内を改善しました。",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "複数プロファイルの優先順位と予備プロキシへの自動切り替え",
+        "02_direct_exceptions": "直接接続したいウェブサイトを除外",
+        "03_app_automation": "iOSのショートカットで選択したアプリの開閉時に自動操作"
+      }
+    },
+    {
+      "locale": "ko",
+      "iosLanguage": "ko",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5·HTTP 프록시",
+      "description": "직접 설정한 프록시를 통해 iPhone의 연결을 간편하게 관리하세요.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• 여러 프로필, 우선순위 및 예비 프록시 자동 전환\n• 직접 연결할 사이트에 대한 예외 설정\n• iOS 단축어에서 선택한 앱의 열기·닫기 자동화\n• 설정은 기기에 남고 암호는 키체인에 저장됩니다\n\n본인 소유의 프록시 정보를 입력해야 합니다. APL은 서버를 제공하지 않습니다.",
+      "keywords": "네트워크,라우팅,프로필,백업,예외,연결",
+      "promotionalText": "직접 설정한 프록시를 통해 iPhone의 연결을 간편하게 관리하세요.",
+      "whatsNew": "지원 언어를 늘리고 연결 설정 안내를 개선했습니다.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "여러 프로필, 우선순위 및 예비 프록시 자동 전환",
+        "02_direct_exceptions": "직접 연결할 사이트에 대한 예외 설정",
+        "03_app_automation": "iOS 단축어에서 선택한 앱의 열기·닫기 자동화"
+      }
+    },
+    {
+      "locale": "zh-Hans",
+      "iosLanguage": "zh-Hans",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5 与 HTTP 代理",
+      "description": "通过自己配置的代理连接 iPhone，轻松管理连接和路由。\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• 多个配置文件、优先级与备用代理自动切换\n• 为需要直连的网站设置例外\n• 通过 iOS 快捷指令自动控制所选 App\n• 代理信息保存在本机，密码由钥匙串保护\n\n请自行提供代理服务器。APL 不销售或提供代理服务。",
+      "keywords": "网络,路由,配置,备用,直连,自动化,连接",
+      "promotionalText": "通过自己配置的代理连接 iPhone，轻松管理连接和路由。",
+      "whatsNew": "新增界面语言，并优化了代理连接与配置说明。",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "多个配置文件、优先级与备用代理自动切换",
+        "02_direct_exceptions": "为需要直连的网站设置例外",
+        "03_app_automation": "通过 iOS 快捷指令自动控制所选 App"
+      }
+    },
+    {
+      "locale": "zh-Hant",
+      "iosLanguage": "zh-Hant",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5 與 HTTP 代理",
+      "description": "使用自行設定的代理連接 iPhone，輕鬆管理連線與路由。\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• 多組設定檔、優先順序與備援代理自動切換\n• 為需要直接連線的網站設定例外\n• 透過 iOS 捷徑自動控制所選 App\n• 代理資訊保存在裝置上，密碼由鑰匙圈保護\n\n請自行提供代理伺服器。APL 不銷售或提供代理服務。",
+      "keywords": "網路,路由,設定,備援,直連,自動化,連線",
+      "promotionalText": "使用自行設定的代理連接 iPhone，輕鬆管理連線與路由。",
+      "whatsNew": "新增介面語言並改善代理設定與連線說明。",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "多組設定檔、優先順序與備援代理自動切換",
+        "02_direct_exceptions": "為需要直接連線的網站設定例外",
+        "03_app_automation": "透過 iOS 捷徑自動控制所選 App"
+      }
+    },
+    {
+      "locale": "id",
+      "iosLanguage": "id",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profil proxy dan SOCKS5",
+      "description": "Hubungkan iPhone melalui proxy yang Anda atur sendiri, dengan kontrol yang mudah.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Beberapa profil, prioritas, dan perpindahan otomatis ke proxy cadangan\n• Pengecualian situs yang memerlukan koneksi langsung\n• Otomatisasi aplikasi terpilih melalui Pintasan iOS\n• Pengaturan tersimpan di perangkat dan kata sandi dalam Keychain\n\nGunakan server proxy milik Anda; APL tidak menyediakan layanan proxy.",
+      "keywords": "jaringan,rute,profil,cadangan,pengecualian,koneksi",
+      "promotionalText": "Hubungkan iPhone melalui proxy yang Anda atur sendiri, dengan kontrol yang mudah.",
+      "whatsNew": "Lebih banyak bahasa dan panduan pengaturan yang lebih jelas.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Beberapa profil, prioritas, dan perpindahan otomatis ke proxy cadangan",
+        "02_direct_exceptions": "Pengecualian situs yang memerlukan koneksi langsung",
+        "03_app_automation": "Otomatisasi aplikasi terpilih melalui Pintasan iOS"
+      }
+    },
+    {
+      "locale": "tr",
+      "iosLanguage": "tr",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5 ve HTTP Proxy",
+      "description": "iPhone’unuzu kendi yapılandırdığınız proxy üzerinden bağlayın ve bağlantıyı yönetin.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Birden çok profil, öncelikler ve yedek proxy’ye otomatik geçiş\n• Doğrudan bağlantı gerektiren siteler için istisnalar\n• iOS Kestirmeler ile seçili uygulamalarda otomasyon\n• Bilgiler cihazda kalır, parolalar Anahtar Zinciri’nde saklanır\n\nKendi proxy sunucunuz gerekir; APL sunucu sağlamaz.",
+      "keywords": "ağ,yönlendirme,profiller,yedek,istisnalar,bağlantı",
+      "promotionalText": "iPhone’unuzu kendi yapılandırdığınız proxy üzerinden bağlayın ve bağlantıyı yönetin.",
+      "whatsNew": "Yeni arayüz dilleri ve daha anlaşılır bağlantı yönergeleri.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Birden çok profil, öncelikler ve yedek proxy’ye otomatik geçiş",
+        "02_direct_exceptions": "Doğrudan bağlantı gerektiren siteler için istisnalar",
+        "03_app_automation": "iOS Kestirmeler ile seçili uygulamalarda otomasyon"
+      }
+    },
+    {
+      "locale": "ms",
+      "iosLanguage": "ms",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profil proksi dan SOCKS5",
+      "description": "Sambungkan iPhone melalui proksi pilihan anda dengan kawalan yang mudah.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Berbilang profil, keutamaan dan pertukaran automatik ke proksi sandaran\n• Pengecualian laman web yang memerlukan sambungan terus\n• Automasi aplikasi terpilih menggunakan Pintasan iOS\n• Tetapan kekal pada peranti dan kata laluan dalam Rantai Kunci\n\nGunakan pelayan proksi anda sendiri; APL tidak menyediakan pelayan.",
+      "keywords": "rangkaian,penghalaan,profil,sandaran,pengecualian,sambungan",
+      "promotionalText": "Sambungkan iPhone melalui proksi pilihan anda dengan kawalan yang mudah.",
+      "whatsNew": "Lebih banyak bahasa antara muka dan panduan persediaan yang jelas.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Berbilang profil, keutamaan dan pertukaran automatik ke proksi sandaran",
+        "02_direct_exceptions": "Pengecualian laman web yang memerlukan sambungan terus",
+        "03_app_automation": "Automasi aplikasi terpilih menggunakan Pintasan iOS"
+      }
+    },
+    {
+      "locale": "hi",
+      "iosLanguage": "hi",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "SOCKS5 और HTTP प्रॉक्सी",
+      "description": "अपने चुने हुए प्रॉक्सी से iPhone कनेक्ट करें और नेटवर्क कनेक्शन आसानी से सँभालें।\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• कई प्रोफ़ाइल, प्राथमिकता और बैकअप प्रॉक्सी पर अपने-आप स्विच\n• सीधे खुलने वाली वेबसाइटों के लिए अपवाद\n• iOS शॉर्टकट से चुने गए ऐप्स के लिए ऑटोमेशन\n• जानकारी डिवाइस पर रहती है और पासवर्ड कीचेन में सुरक्षित है\n\nप्रॉक्सी सर्वर का विवरण स्वयं दें; APL सर्वर उपलब्ध नहीं कराता।",
+      "keywords": "नेटवर्क,रूटिंग,प्रोफ़ाइल,बैकअप,अपवाद",
+      "promotionalText": "अपने चुने हुए प्रॉक्सी से iPhone कनेक्ट करें और नेटवर्क कनेक्शन आसानी से सँभालें।",
+      "whatsNew": "इंटरफ़ेस की भाषाएँ बढ़ाई गई हैं और सेटअप निर्देश बेहतर हुए हैं।",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "कई प्रोफ़ाइल, प्राथमिकता और बैकअप प्रॉक्सी पर अपने-आप स्विच",
+        "02_direct_exceptions": "सीधे खुलने वाली वेबसाइटों के लिए अपवाद",
+        "03_app_automation": "iOS शॉर्टकट से चुने गए ऐप्स के लिए ऑटोमेशन"
+      }
+    },
+    {
+      "locale": "ar-SA",
+      "iosLanguage": "ar",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ملفات بروكسي وSOCKS5",
+      "description": "اتصل من iPhone عبر خادم بروكسي تضبطه بنفسك، مع تحكم واضح في الاتصال.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• ملفات متعددة وأولويات وتبديل تلقائي إلى بروكسي احتياطي\n• استثناء المواقع التي تحتاج إلى اتصال مباشر\n• أتمتة تطبيقات محددة عبر الاختصارات في iOS\n• تبقى البيانات على الجهاز وتُحفظ كلمات المرور في سلسلة المفاتيح\n\nأدخل بيانات خادم البروكسي الخاص بك؛ لا يوفر APL خوادم بروكسي.",
+      "keywords": "شبكة,توجيه,ملفات,احتياطي,استثناءات,اتصال",
+      "promotionalText": "اتصل من iPhone عبر خادم بروكسي تضبطه بنفسك، مع تحكم واضح في الاتصال.",
+      "whatsNew": "لغات واجهة إضافية وإرشادات أوضح لإعداد الاتصال.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "ملفات متعددة وأولويات وتبديل تلقائي إلى بروكسي احتياطي",
+        "02_direct_exceptions": "استثناء المواقع التي تحتاج إلى اتصال مباشر",
+        "03_app_automation": "أتمتة تطبيقات محددة عبر الاختصارات في iOS"
+      }
+    },
+    {
+      "locale": "vi",
+      "iosLanguage": "vi",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Cấu hình proxy và SOCKS5",
+      "description": "Kết nối iPhone qua proxy do bạn tự cấu hình, dễ dàng quản lý kết nối.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Nhiều hồ sơ, mức ưu tiên và tự chuyển sang proxy dự phòng\n• Ngoại lệ cho trang web cần kết nối trực tiếp\n• Tự động hóa ứng dụng đã chọn bằng Phím tắt iOS\n• Thông tin lưu trên thiết bị, mật khẩu trong Chuỗi khóa\n\nBạn cần proxy riêng; APL không cung cấp máy chủ proxy.",
+      "keywords": "mạng,định tuyến,hồ sơ,dự phòng,ngoại lệ,kết nối",
+      "promotionalText": "Kết nối iPhone qua proxy do bạn tự cấu hình, dễ dàng quản lý kết nối.",
+      "whatsNew": "Bổ sung ngôn ngữ và cải thiện hướng dẫn cấu hình.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Nhiều hồ sơ, mức ưu tiên và tự chuyển sang proxy dự phòng",
+        "02_direct_exceptions": "Ngoại lệ cho trang web cần kết nối trực tiếp",
+        "03_app_automation": "Tự động hóa ứng dụng đã chọn bằng Phím tắt iOS"
+      }
+    },
+    {
+      "locale": "th",
+      "iosLanguage": "th",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "โปรไฟล์พร็อกซีและ SOCKS5",
+      "description": "เชื่อมต่อ iPhone ผ่านพร็อกซีที่คุณตั้งค่าเอง พร้อมจัดการการเชื่อมต่อได้ง่าย\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• หลายโปรไฟล์ การจัดลำดับ และสลับไปยังพร็อกซีสำรองอัตโนมัติ\n• ยกเว้นเว็บไซต์ที่ต้องเชื่อมต่อตรง\n• ทำงานอัตโนมัติสำหรับแอปที่เลือกผ่านคำสั่งลัด iOS\n• ข้อมูลอยู่ในเครื่อง และรหัสผ่านเก็บไว้ในพวงกุญแจ\n\nต้องใช้เซิร์ฟเวอร์พร็อกซีของคุณเอง APL ไม่ได้ให้บริการเซิร์ฟเวอร์",
+      "keywords": "เครือข่าย,โปรไฟล์,สำรอง,ยกเว้น",
+      "promotionalText": "เชื่อมต่อ iPhone ผ่านพร็อกซีที่คุณตั้งค่าเอง พร้อมจัดการการเชื่อมต่อได้ง่าย",
+      "whatsNew": "เพิ่มภาษาและปรับปรุงคำแนะนำการตั้งค่าพร็อกซี",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "หลายโปรไฟล์ การจัดลำดับ และสลับไปยังพร็อกซีสำรองอัตโนมัติ",
+        "02_direct_exceptions": "ยกเว้นเว็บไซต์ที่ต้องเชื่อมต่อตรง",
+        "03_app_automation": "ทำงานอัตโนมัติสำหรับแอปที่เลือกผ่านคำสั่งลัด iOS"
+      }
+    },
+    {
+      "locale": "ur-PK",
+      "iosLanguage": "ur",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "پراکسی پروفائل اور SOCKS5",
+      "description": "اپنے منتخب کردہ پراکسی کے ذریعے iPhone منسلک کریں اور رابطے آسانی سے سنبھالیں۔\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• متعدد پروفائل، ترجیحات اور متبادل پراکسی پر خودکار منتقلی\n• براہ راست رابطہ چاہنے والی ویب سائٹس کے لیے استثنا\n• iOS شارٹ کٹس کے ذریعے منتخب ایپس کی خودکاری\n• معلومات آلے پر رہتی ہیں اور پاس ورڈ کی چین میں محفوظ ہوتے ہیں\n\nاپنے پراکسی سرور کی تفصیل درج کریں؛ APL سرور فراہم نہیں کرتا۔",
+      "keywords": "نیٹ ورک,راستہ,پروفائل,متبادل,رابطہ",
+      "promotionalText": "اپنے منتخب کردہ پراکسی کے ذریعے iPhone منسلک کریں اور رابطے آسانی سے سنبھالیں۔",
+      "whatsNew": "مزید زبانیں اور پراکسی ترتیب کی واضح ہدایات۔",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "متعدد پروفائل، ترجیحات اور متبادل پراکسی پر خودکار منتقلی",
+        "02_direct_exceptions": "براہ راست رابطہ چاہنے والی ویب سائٹس کے لیے استثنا",
+        "03_app_automation": "iOS شارٹ کٹس کے ذریعے منتخب ایپس کی خودکاری"
+      }
+    },
+    {
+      "locale": "bn-BD",
+      "iosLanguage": "bn",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "প্রক্সি প্রোফাইল ও SOCKS5",
+      "description": "নিজের কনফিগার করা প্রক্সি দিয়ে iPhone সংযুক্ত করুন এবং সংযোগ সহজে নিয়ন্ত্রণ করুন।\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• একাধিক প্রোফাইল, অগ্রাধিকার ও ব্যাকআপ প্রক্সিতে স্বয়ংক্রিয় পরিবর্তন\n• সরাসরি সংযোগের প্রয়োজন এমন সাইটের জন্য ব্যতিক্রম\n• iOS শর্টকাট দিয়ে নির্বাচিত অ্যাপের অটোমেশন\n• তথ্য ডিভাইসে থাকে, পাসওয়ার্ড কীচেইনে সংরক্ষিত\n\nনিজের প্রক্সি সার্ভার ব্যবহার করুন; APL কোনো সার্ভার দেয় না।",
+      "keywords": "নেটওয়ার্ক,রাউটিং,প্রোফাইল,ব্যাকআপ",
+      "promotionalText": "নিজের কনফিগার করা প্রক্সি দিয়ে iPhone সংযুক্ত করুন এবং সংযোগ সহজে নিয়ন্ত্রণ করুন।",
+      "whatsNew": "নতুন ভাষা এবং আরও স্পষ্ট প্রক্সি সেটআপ নির্দেশনা।",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "একাধিক প্রোফাইল, অগ্রাধিকার ও ব্যাকআপ প্রক্সিতে স্বয়ংক্রিয় পরিবর্তন",
+        "02_direct_exceptions": "সরাসরি সংযোগের প্রয়োজন এমন সাইটের জন্য ব্যতিক্রম",
+        "03_app_automation": "iOS শর্টকাট দিয়ে নির্বাচিত অ্যাপের অটোমেশন"
+      }
+    },
+    {
+      "locale": "pa-IN",
+      "iosLanguage": "pa",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ਪ੍ਰੌਕਸੀ ਪ੍ਰੋਫ਼ਾਈਲ ਤੇ SOCKS5",
+      "description": "ਆਪਣੇ ਸੈੱਟ ਕੀਤੇ ਪ੍ਰੌਕਸੀ ਰਾਹੀਂ iPhone ਨੂੰ ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਕਨੈਕਸ਼ਨ ਸੰਭਾਲੋ।\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• ਕਈ ਪ੍ਰੋਫ਼ਾਈਲ, ਤਰਜੀਹਾਂ ਅਤੇ ਬੈਕਅੱਪ ਪ੍ਰੌਕਸੀ ਵੱਲ ਆਪਣੇ-ਆਪ ਬਦਲਣਾ\n• ਸਿੱਧੇ ਕਨੈਕਸ਼ਨ ਵਾਲੀਆਂ ਵੈੱਬਸਾਈਟਾਂ ਲਈ ਛੋਟ\n• iOS ਸ਼ਾਰਟਕੱਟ ਨਾਲ ਚੁਣੀਆਂ ਐਪਾਂ ਲਈ ਆਟੋਮੇਸ਼ਨ\n• ਜਾਣਕਾਰੀ ਡਿਵਾਈਸ ਉੱਤੇ ਰਹਿੰਦੀ ਹੈ, ਪਾਸਵਰਡ ਕੀਚੇਨ ਵਿੱਚ\n\nਆਪਣੇ ਪ੍ਰੌਕਸੀ ਸਰਵਰ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ; APL ਸਰਵਰ ਨਹੀਂ ਦਿੰਦਾ।",
+      "keywords": "ਨੈੱਟਵਰਕ,ਰੂਟਿੰਗ,ਪ੍ਰੋਫ਼ਾਈਲ,ਬੈਕਅੱਪ",
+      "promotionalText": "ਆਪਣੇ ਸੈੱਟ ਕੀਤੇ ਪ੍ਰੌਕਸੀ ਰਾਹੀਂ iPhone ਨੂੰ ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਕਨੈਕਸ਼ਨ ਸੰਭਾਲੋ।",
+      "whatsNew": "ਹੋਰ ਭਾਸ਼ਾਵਾਂ ਅਤੇ ਵਧੀਆ ਕਨੈਕਸ਼ਨ ਹਦਾਇਤਾਂ।",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "ਕਈ ਪ੍ਰੋਫ਼ਾਈਲ, ਤਰਜੀਹਾਂ ਅਤੇ ਬੈਕਅੱਪ ਪ੍ਰੌਕਸੀ ਵੱਲ ਆਪਣੇ-ਆਪ ਬਦਲਣਾ",
+        "02_direct_exceptions": "ਸਿੱਧੇ ਕਨੈਕਸ਼ਨ ਵਾਲੀਆਂ ਵੈੱਬਸਾਈਟਾਂ ਲਈ ਛੋਟ",
+        "03_app_automation": "iOS ਸ਼ਾਰਟਕੱਟ ਨਾਲ ਚੁਣੀਆਂ ਐਪਾਂ ਲਈ ਆਟੋਮੇਸ਼ਨ"
+      }
+    },
+    {
+      "locale": "ta-IN",
+      "iosLanguage": "ta",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ப்ராக்ஸி சுயவிவரங்கள் SOCKS5",
+      "description": "நீங்கள் அமைத்த ப்ராக்ஸி மூலம் iPhone-ஐ இணைத்து, இணைப்புகளை எளிதாக நிர்வகிக்கலாம்.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• பல சுயவிவரங்கள், முன்னுரிமைகள், மாற்று ப்ராக்ஸிக்கு தானியங்குச் செல்லல்\n• நேரடி இணைப்பு தேவைப்படும் இணையதளங்களுக்கு விதிவிலக்குகள்\n• iOS குறுக்குவழிகள் மூலம் தேர்ந்தெடுத்த செயலிகளுக்குத் தானியக்கம்\n• தகவல்கள் சாதனத்திலும் கடவுச்சொற்கள் கீசெயினிலும் சேமிக்கப்படும்\n\nஉங்கள் சொந்த ப்ராக்ஸி சேவையகம் தேவை; APL சேவையகம் வழங்காது.",
+      "keywords": "வலையமைப்பு,சுயவிவரம்,மாற்று,இணைப்பு",
+      "promotionalText": "நீங்கள் அமைத்த ப்ராக்ஸி மூலம் iPhone-ஐ இணைத்து, இணைப்புகளை எளிதாக நிர்வகிக்கலாம்.",
+      "whatsNew": "மேலும் மொழிகளும் தெளிவான ப்ராக்ஸி அமைப்பு வழிகாட்டுதலும்.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "பல சுயவிவரங்கள், முன்னுரிமைகள், மாற்று ப்ராக்ஸிக்கு தானியங்குச் செல்லல்",
+        "02_direct_exceptions": "நேரடி இணைப்பு தேவைப்படும் இணையதளங்களுக்கு விதிவிலக்குகள்",
+        "03_app_automation": "iOS குறுக்குவழிகள் மூலம் தேர்ந்தெடுத்த செயலிகளுக்குத் தானியக்கம்"
+      }
+    },
+    {
+      "locale": "te-IN",
+      "iosLanguage": "te",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ప్రాక్సీ ప్రొఫైల్‌లు SOCKS5",
+      "description": "మీరు సెట్ చేసిన ప్రాక్సీ ద్వారా iPhone కనెక్ట్ చేసి, కనెక్షన్‌లను సులభంగా నిర్వహించండి.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• అనేక ప్రొఫైల్‌లు, ప్రాధాన్యతలు, బ్యాకప్ ప్రాక్సీకి స్వయంచాలక మార్పు\n• నేరుగా కనెక్ట్ కావాల్సిన వెబ్‌సైట్‌లకు మినహాయింపులు\n• iOS షార్ట్‌కట్‌లతో ఎంచుకున్న యాప్‌లకు ఆటోమేషన్\n• వివరాలు పరికరంలో, పాస్‌వర్డ్‌లు కీచెయిన్‌లో ఉంటాయి\n\nమీ సొంత ప్రాక్సీ సర్వర్ వివరాలు అవసరం; APL సర్వర్ ఇవ్వదు.",
+      "keywords": "ప్రొఫైల్,బ్యాకప్,కనెక్షన్",
+      "promotionalText": "మీరు సెట్ చేసిన ప్రాక్సీ ద్వారా iPhone కనెక్ట్ చేసి, కనెక్షన్‌లను సులభంగా నిర్వహించండి.",
+      "whatsNew": "మరిన్ని భాషలు, మెరుగైన ప్రాక్సీ సెటప్ సూచనలు.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "అనేక ప్రొఫైల్‌లు, ప్రాధాన్యతలు, బ్యాకప్ ప్రాక్సీకి స్వయంచాలక మార్పు",
+        "02_direct_exceptions": "నేరుగా కనెక్ట్ కావాల్సిన వెబ్‌సైట్‌లకు మినహాయింపులు",
+        "03_app_automation": "iOS షార్ట్‌కట్‌లతో ఎంచుకున్న యాప్‌లకు ఆటోమేషన్"
+      }
+    },
+    {
+      "locale": "mr-IN",
+      "iosLanguage": "mr",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "प्रॉक्सी प्रोफाइल व SOCKS5",
+      "description": "तुम्ही सेट केलेल्या प्रॉक्सीने iPhone जोडा आणि कनेक्शन सहज व्यवस्थापित करा.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• अनेक प्रोफाइल, प्राधान्यक्रम आणि राखीव प्रॉक्सीवर स्वयंचलित बदल\n• थेट जोडणी आवश्यक असलेल्या साइट्ससाठी अपवाद\n• iOS शॉर्टकटने निवडक ॲप्ससाठी ऑटोमेशन\n• माहिती डिव्हाइसवर राहते आणि पासवर्ड कीचेनमध्ये असतो\n\nस्वतःचा प्रॉक्सी सर्व्हर आवश्यक आहे; APL सर्व्हर पुरवत नाही.",
+      "keywords": "नेटवर्क,प्रोफाइल,राखीव,जोडणी",
+      "promotionalText": "तुम्ही सेट केलेल्या प्रॉक्सीने iPhone जोडा आणि कनेक्शन सहज व्यवस्थापित करा.",
+      "whatsNew": "अधिक भाषा आणि स्पष्ट प्रॉक्सी सेटअप सूचना.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "अनेक प्रोफाइल, प्राधान्यक्रम आणि राखीव प्रॉक्सीवर स्वयंचलित बदल",
+        "02_direct_exceptions": "थेट जोडणी आवश्यक असलेल्या साइट्ससाठी अपवाद",
+        "03_app_automation": "iOS शॉर्टकटने निवडक ॲप्ससाठी ऑटोमेशन"
+      }
+    },
+    {
+      "locale": "gu-IN",
+      "iosLanguage": "gu",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "પ્રોક્સી પ્રોફાઇલ અને SOCKS5",
+      "description": "તમારા પોતાના પ્રોક્સી દ્વારા iPhone જોડો અને જોડાણ સરળતાથી સંચાલિત કરો.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• અનેક પ્રોફાઇલ, પ્રાથમિકતા અને બેકઅપ પ્રોક્સી પર આપમેળે ફેરફાર\n• સીધા જોડાણની જરૂર હોય તેવી સાઇટ માટે અપવાદ\n• iOS શોર્ટકટ દ્વારા પસંદ કરેલી એપ માટે ઓટોમેશન\n• માહિતી ઉપકરણમાં અને પાસવર્ડ કીચેઇનમાં સચવાય છે\n\nતમારા પોતાના પ્રોક્સી સર્વરની વિગતો આપો; APL સર્વર આપતું નથી.",
+      "keywords": "નેટવર્ક,પ્રોફાઇલ,બેકઅપ,જોડાણ",
+      "promotionalText": "તમારા પોતાના પ્રોક્સી દ્વારા iPhone જોડો અને જોડાણ સરળતાથી સંચાલિત કરો.",
+      "whatsNew": "વધુ ભાષાઓ અને વધુ સ્પષ્ટ પ્રોક્સી ગોઠવણી સૂચનાઓ.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "અનેક પ્રોફાઇલ, પ્રાથમિકતા અને બેકઅપ પ્રોક્સી પર આપમેળે ફેરફાર",
+        "02_direct_exceptions": "સીધા જોડાણની જરૂર હોય તેવી સાઇટ માટે અપવાદ",
+        "03_app_automation": "iOS શોર્ટકટ દ્વારા પસંદ કરેલી એપ માટે ઓટોમેશન"
+      }
+    },
+    {
+      "locale": "kn-IN",
+      "iosLanguage": "kn",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ಪ್ರಾಕ್ಸಿ ಪ್ರೊಫೈಲ್‌ಗಳು SOCKS5",
+      "description": "ನೀವೇ ಹೊಂದಿಸಿದ ಪ್ರಾಕ್ಸಿ ಮೂಲಕ iPhone ಸಂಪರ್ಕಿಸಿ, ಸಂಪರ್ಕವನ್ನು ಸುಲಭವಾಗಿ ನಿಯಂತ್ರಿಸಿ.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• ಹಲವು ಪ್ರೊಫೈಲ್‌ಗಳು, ಆದ್ಯತೆಗಳು ಮತ್ತು ಬ್ಯಾಕಪ್ ಪ್ರಾಕ್ಸಿಗೆ ಸ್ವಯಂ ಬದಲಾವಣೆ\n• ನೇರ ಸಂಪರ್ಕ ಅಗತ್ಯವಿರುವ ತಾಣಗಳಿಗೆ ವಿನಾಯಿತಿಗಳು\n• iOS ಶಾರ್ಟ್‌ಕಟ್‌ಗಳ ಮೂಲಕ ಆಯ್ದ ಆ್ಯಪ್‌ಗಳಿಗೆ ಸ್ವಯಂಚಾಲನೆ\n• ವಿವರಗಳು ಸಾಧನದಲ್ಲೇ ಇರುತ್ತವೆ, ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಕೀಚೈನ್‌ನಲ್ಲಿ\n\nನಿಮ್ಮದೇ ಪ್ರಾಕ್ಸಿ ಸರ್ವರ್ ಅಗತ್ಯ; APL ಸರ್ವರ್ ಒದಗಿಸುವುದಿಲ್ಲ.",
+      "keywords": "ಜಾಲ,ಪ್ರೊಫೈಲ್,ಬ್ಯಾಕಪ್,ಸಂಪರ್ಕ",
+      "promotionalText": "ನೀವೇ ಹೊಂದಿಸಿದ ಪ್ರಾಕ್ಸಿ ಮೂಲಕ iPhone ಸಂಪರ್ಕಿಸಿ, ಸಂಪರ್ಕವನ್ನು ಸುಲಭವಾಗಿ ನಿಯಂತ್ರಿಸಿ.",
+      "whatsNew": "ಹೆಚ್ಚಿನ ಭಾಷೆಗಳು ಮತ್ತು ಸುಧಾರಿತ ಸೆಟಪ್ ಸೂಚನೆಗಳು.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "ಹಲವು ಪ್ರೊಫೈಲ್‌ಗಳು, ಆದ್ಯತೆಗಳು ಮತ್ತು ಬ್ಯಾಕಪ್ ಪ್ರಾಕ್ಸಿಗೆ ಸ್ವಯಂ ಬದಲಾವಣೆ",
+        "02_direct_exceptions": "ನೇರ ಸಂಪರ್ಕ ಅಗತ್ಯವಿರುವ ತಾಣಗಳಿಗೆ ವಿನಾಯಿತಿಗಳು",
+        "03_app_automation": "iOS ಶಾರ್ಟ್‌ಕಟ್‌ಗಳ ಮೂಲಕ ಆಯ್ದ ಆ್ಯಪ್‌ಗಳಿಗೆ ಸ್ವಯಂಚಾಲನೆ"
+      }
+    },
+    {
+      "locale": "ml-IN",
+      "iosLanguage": "ml",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "പ്രോക്സി പ്രൊഫൈലുകൾ SOCKS5",
+      "description": "സ്വയം ക്രമീകരിച്ച പ്രോക്സി വഴി iPhone ബന്ധിപ്പിച്ച് കണക്ഷൻ എളുപ്പത്തിൽ നിയന്ത്രിക്കാം.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• ഒന്നിലധികം പ്രൊഫൈലുകൾ, മുൻഗണന, ബാക്കപ്പ് പ്രോക്സിയിലേക്ക് സ്വയം മാറൽ\n• നേരിട്ട് കണക്റ്റ് ചെയ്യേണ്ട വെബ്സൈറ്റുകൾക്ക് ഒഴിവാക്കലുകൾ\n• iOS ഷോർട്ട്കട്ടുകൾ വഴി തിരഞ്ഞെടുത്ത ആപ്പുകൾക്ക് ഓട്ടോമേഷൻ\n• വിവരങ്ങൾ ഉപകരണത്തിലും പാസ്‌വേഡ് കീചെയിനിലും സൂക്ഷിക്കും\n\nസ്വന്തം പ്രോക്സി സെർവർ ആവശ്യമാണ്; APL സെർവർ നൽകുന്നില്ല.",
+      "keywords": "പ്രൊഫൈൽ,ബാക്കപ്പ്,കണക്ഷൻ",
+      "promotionalText": "സ്വയം ക്രമീകരിച്ച പ്രോക്സി വഴി iPhone ബന്ധിപ്പിച്ച് കണക്ഷൻ എളുപ്പത്തിൽ നിയന്ത്രിക്കാം.",
+      "whatsNew": "കൂടുതൽ ഭാഷകളും വ്യക്തമായ പ്രോക്സി ക്രമീകരണ നിർദ്ദേശങ്ങളും.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "ഒന്നിലധികം പ്രൊഫൈലുകൾ, മുൻഗണന, ബാക്കപ്പ് പ്രോക്സിയിലേക്ക് സ്വയം മാറൽ",
+        "02_direct_exceptions": "നേരിട്ട് കണക്റ്റ് ചെയ്യേണ്ട വെബ്സൈറ്റുകൾക്ക് ഒഴിവാക്കലുകൾ",
+        "03_app_automation": "iOS ഷോർട്ട്കട്ടുകൾ വഴി തിരഞ്ഞെടുത്ത ആപ്പുകൾക്ക് ഓട്ടോമേഷൻ"
+      }
+    },
+    {
+      "locale": "he",
+      "iosLanguage": "he",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "פרופילי פרוקסי ו־SOCKS5",
+      "description": "חברו את ה־iPhone דרך שרת פרוקסי שאתם מגדירים בעצמכם ונהלו את החיבור בקלות.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• פרופילים מרובים, סדרי עדיפויות ומעבר אוטומטי לפרוקסי גיבוי\n• חריגים לאתרים שזקוקים לחיבור ישיר\n• אוטומציות לאפליקציות נבחרות דרך קיצורים ב־iOS\n• הנתונים נשארים במכשיר והסיסמאות נשמרות בצרור המפתחות\n\nהזינו פרטים של שרת פרוקסי משלכם; APL אינו מספק שרתים.",
+      "keywords": "רשת,ניתוב,פרופילים,גיבוי,חריגים,חיבור",
+      "promotionalText": "חברו את ה־iPhone דרך שרת פרוקסי שאתם מגדירים בעצמכם ונהלו את החיבור בקלות.",
+      "whatsNew": "שפות ממשק נוספות והוראות הגדרה ברורות יותר.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "פרופילים מרובים, סדרי עדיפויות ומעבר אוטומטי לפרוקסי גיבוי",
+        "02_direct_exceptions": "חריגים לאתרים שזקוקים לחיבור ישיר",
+        "03_app_automation": "אוטומציות לאפליקציות נבחרות דרך קיצורים ב־iOS"
+      }
+    }
+  ]
+}

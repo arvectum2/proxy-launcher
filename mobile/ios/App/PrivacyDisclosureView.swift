@@ -11,7 +11,7 @@ struct PrivacyDisclosureView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    Image("ArvectumWordmark")
+                    Brand.wordmark
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 34)

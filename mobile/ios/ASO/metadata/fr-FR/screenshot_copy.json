@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Plusieurs profils, priorités et bascule automatique vers un proxy de secours",
+  "02_direct_exceptions": "Exceptions pour les sites nécessitant une connexion directe",
+  "03_app_automation": "Automatisations d’ouverture et de fermeture d’apps via Raccourcis iOS"
+}

@@ -1,0 +1,1 @@
+Csatlakoztasd iPhone-odat a saját proxykiszolgálódhoz, egyszerű vezérléssel.

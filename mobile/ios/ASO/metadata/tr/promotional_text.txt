@@ -1,0 +1,1 @@
+iPhone’unuzu kendi yapılandırdığınız proxy üzerinden bağlayın ve bağlantıyı yönetin.

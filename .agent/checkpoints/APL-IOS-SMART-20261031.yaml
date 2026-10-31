@@ -1,0 +1,37 @@
+task_id: APL-IOS-SMART-20261031
+status: in_progress
+goal: "Complete iOS Smart Exclusions code audit and refactor with regression tests; no release or PR merge."
+definition_of_done:
+  - "Audit and refactor scanner/domain filtering with regression tests and passing simulator build/UI checks."
+  - "Bounded on-device extraction of first-party hosts from HTML resource references, without arbitrary third-party bypass."
+  - "Focused Swift tests pass."
+  - "Changes committed on an isolated feature branch; macOS active checkout remains untouched."
+completed:
+  - "Added bounded first-party HTML resource host extraction with explicit non-routing contract."
+  - "Added nine focused discovery tests; swift test --parallel PASS."
+  - "Added rollback of exclusions on reconnect failure and host validation."
+  - "Built pinned patched tun2proxy for arm64 iOS Simulator locally (untracked, not a release artifact)."
+  - "Xcode simulator build succeeded; installed and launched app on APL-HomeFit-SE3 simulator."
+  - "Fixed missing ArvectumWordmark asset-catalog registration; rebuilt/reinstalled, absence warning resolved."
+  - "Added three real XCUITest simulator scenarios including successful live WebKit scan of example.com; all PASS."
+  - "Attached hidden WebKit to key window to permit navigation; filtered original root and www from candidate list."
+  - "Refactored candidate filtering into tested SharedCore helper; bounded JS HTML extraction and deduplicated WebKit teardown."
+  - "Audited navigation policy, candidate bounds, explicit selection and reconnect rollback; no additional release-blocking static defect identified."
+  - "Fixed scanner cancellation on Save/disappear and rejected stale asynchronous WebKit results; added cancel/restart XCUITest."
+  - "Replaced brittle 500ms VPN reconnect delay with bounded disconnect-state wait and cancellation handling; simulator build passed."
+current: "VPN reconnect fix verified: 22 Swift and 4 simulator UI tests PASS, iOS Simulator BUILD SUCCEEDED. Physical iPhone VPN DNS/route QA remains pending."
+pending:
+  - "Verify physical-iPhone VPN bypass and reconnect behavior with a signed app."
+  - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
+last_verified_commit: "8083ee62"
+test_results:
+  - "swift test --parallel PASS (20 test cases)."
+  - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
+  - "Simulator XCFramework built locally from pinned patched source; Xcode simulator BUILD SUCCEEDED, simctl install/launch PASS."
+  - "Simulator log shows NetworkExtension nehelper IPC unavailable; live VPN cannot be validated there."
+  - "20/20 Swift tests PASS; simulator Xcode BUILD SUCCEEDED; app relaunched without missing-wordmark warning."
+  - "3/3 XCUITests PASS on iOS 27 simulator (navigation, invalid host, add/delete/cancel, live WebKit scan)."
+  - "Audit/refactor: 22/22 Swift tests PASS, 3/3 XCUITests PASS, iOS Simulator BUILD SUCCEEDED, git diff --check PASS."
+  - "Extended audit: 22/22 Swift tests PASS, 4/4 XCUITests PASS including cancel/restart, git diff --check PASS."
+  - "VPN reconnect change: 22/22 Swift tests PASS, 4/4 XCUITests PASS, iOS Simulator BUILD SUCCEEDED."
+resume_instruction: "Audit/refactor complete. Next run signed physical-iPhone VPN DNS/route and reconnect QA when a device is available. No release or PR merge."

@@ -1,8 +1,9 @@
 # APL-IOS-ADS-001 — advertising and App Store compliance plan
 
-Status: **RESEARCH APPROVED; SDK INTEGRATION BLOCKED — Apple guideline 5.4 privacy/data-flow assessment.**
+Status: **Owner requested production RSYA banner enabled in source for iOS 0.1.39 (44); App Store upload/review not verified.**
 Updated: 2026-10-28 (preserved #262 research; reconciled against merged #265)
 Owner signal: >100 App Store downloads (owner report, not verified directly).
+RSYA ownership: owner confirmed 2026-10-28 and supplied iOS banner unit `R-M-20288304-1`; dashboard-to-bundle provenance and regional availability remain to be independently verified.
 Tracking: https://github.com/arvectum2/proxy-launcher/issues/261
 
 ## Stable app baseline
@@ -18,9 +19,9 @@ Tracking: https://github.com/arvectum2/proxy-launcher/issues/261
 | Stage | Deliverable | Status |
 | --- | --- | --- |
 | P0 — Apple/legal | Document classification under App Review 5.4, SDK full data-flow/privacy analysis, and acceptable advertising method, obtaining written Apple clarification when necessary | **BLOCKED / REQUIRED BEFORE SDK** |
-| P0 — RСЯ account | Confirm separate iOS app record and banner ad-unit ID tied to exact App Store bundle; determine supported regions/creatives | NOT VERIFIED |
+| P0 — RСЯ account | Owner confirmed ownership and supplied iOS banner `R-M-20288304-1`; verify exact bundle association, supported regions/creatives before activation | OWNER CONFIRMED; ACCOUNT DETAILS UNVERIFIED |
 | P1 — UX | Choose an unobtrusive adaptive banner in Settings or Activity; no banners over connection controls; no interstitial/App Open in MVP | PRODUCT DIRECTION |
-| P1 — Build (conditional) | Integrate Yandex Mobile Ads SDK via Swift Package Manager into iOS **main app only**, feature flag OFF and demo unit in debug until compliance | NOT STARTED |
+| P1 — Build (conditional) | Yandex Mobile Ads SDK 8.6.0 linked into iOS **main app only** on `feat/ios-rsya-banner-20261028`; Settings sticky banner, production ON by owner's explicit request, debug uses demo unit and explicit launch flag | SOURCE INTEGRATED; DEBUG/RELEASE UNSIGNED BUILDS PASS; PR PENDING |
 | P1 — Privacy/ASO | Update policy, onboarding, App Privacy, privacy manifest, age rating/creative reporting, ATT decision, localized listing/links | NOT STARTED |
 | P1 — QA/release | CI + Xcode no-sign build, real-iPhone VPN smoke, ad request/no-fill/offline, accessibility, network egress/privacy audit, TestFlight, App Review, human release decision | NOT STARTED |
 
@@ -62,3 +63,25 @@ Official references:
 - Canonical PR #265 theme work is already merged, and its 0.1.38 release is independently visible in Apple Lookup in 15/16 checked regions. The advertising feature is **not** implemented, enabled, or claimed to be included in that binary.
 - Owner's 100+ downloads report establishes commercial interest, **not** an independently verified number or revenue projection.
 - This document preserves research only; no SDK, ad unit, App Store listing, Store privacy labels, local network, or VPN tunnel code changed. Any installation/publication requires a separate authorized change.
+
+## Owner-supplied ad unit implementation (2026-10-28)
+
+- `R-M-20288304-1` is the owner-supplied iOS banner placement, not a replacement for Android public App Open `R-M-20130429-1`.
+- `App/SettingsBannerView.swift` is a single adaptive sticky banner at the bottom of Settings. It is outside `PacketTunnel`, never blocks VPN controls, has an ad label, and suppresses a failed/no-fill view without retry.
+- The ad runtime is **enabled in Release source** (`IOSAdsConfig.isEnabled = true`); the submitted/published binary does not change until a newly signed ad-enabled build is uploaded and reviewed. Debug displays only Yandex `demo-banner-yandex` when Xcode launch arguments explicitly include `-APL_ENABLE_DEMO_BANNER`.
+- The owner explicitly requested leaving existing App Store privacy answers unchanged. **No privacy declarations were edited in this branch.** Those answers may no longer describe a build that loads the Yandex SDK; Apple 5.4 and data-disclosure concerns remain unresolved and must not be described as verified compliant.
+- The integration's presence in source or an unsigned QA build is not evidence that ads are running in the published App Store app.
+
+## Ad-enabled candidate (explicit owner directive, 2026-10-28)
+
+- Source flag enabled for Release, production banner `R-M-20288304-1`, allocated iOS `0.1.39 (44)` for a distinct build from the already-uploaded build 43.
+- Existing App Store privacy fields, privacy policy and `PrivacyInfo.xcprivacy` unchanged at owner's request; no claim of SDK data-flow compliance is made.
+- No signed ad-enabled IPA or App Store submission has been verified. GitHub branch/PR is source staging only. Any Apple approval/rejection must be reported as an actual portal result rather than assumed.
+
+## 30.10.2026: published 0.1.39 (44) banner visibility regression
+
+- Apple App Store Connect verified published 0.1.39 uses build 44 with production RSYA enabled; public iTunes Lookup confirmed 0.1.39.
+- The banner was only below Version at the very bottom of the Settings ScrollView; no ad was presented on Home. Its own SwiftUI view artificially imposed a height of **1 pt until `onAdLoad`**, and a failure was silently hidden. This placement/constraint was a concrete source-level defect; the exact Yandex ad delivery result on the owner's physical iPhone is **not yet known**.
+- Fix candidate 0.1.40 (45): place one banner via `safeAreaInset(edge: .bottom)` on iOS tab shell (not PacketTunnel), remove artificial 1pt height and pre-load opacity suppression, preserve Yandex adaptive min 50 pt, add OSLog `subsystem=ru.arvectum.proxylauncher.ios,category=RSYA` success/failure/impression events. No retry storm.
+- Yandex official sticky-banner guide confirms adaptive sizing and warns incorrectly constrained dimensions can break rendering. Real creative/no-fill and actual impression must be tested on a physical device. `tun2proxy.xcframework` in repository does not include an iOS Simulator slice; simulator full-app build therefore fails on the tunnel binary, while generic iPhone builds work.
+- Existing App Store Connect privacy declarations and main/tunnel privacy manifests unchanged. This is a next-version candidate, not evidence of an already updated App Store listing.

@@ -1,0 +1,1 @@
+rede,encaminhamento,perfis,reserva,exceções,ligação

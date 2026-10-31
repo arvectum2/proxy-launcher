@@ -8,6 +8,7 @@ per-user production-safe XDG autostart control.
 """
 
 import os
+from desktop_i18n import tr
 import subprocess
 import sys
 import tkinter as tk
@@ -61,16 +62,16 @@ class LinuxExceptionsDialog(shared_gui.ExceptionsDialog):
                 if not core.sync_client_no_proxy():
                     messagebox.showwarning(
                         APP_NAME,
-                        "Исключения сохранены, но активный профиль NetworkManager не удалось "
-                        "обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал».",
+                        tr("Исключения сохранены, но активный профиль NetworkManager не удалось "
+                        "обновить. Сеть не переводилась в неизвестное состояние; проверьте «Журнал»."),
                         parent=self,
                     )
             else:
                 messagebox.showinfo(
                     APP_NAME,
-                    "Исключения сохранены. Для изменения активного профиля NetworkManager "
+                    tr("Исключения сохранены. Для изменения активного профиля NetworkManager "
                     "нужно отдельное разрешение; они будут применены при следующем явном "
-                    "подключении прокси.",
+                    "подключении прокси."),
                     parent=self,
                 )
         self.destroy()
@@ -110,17 +111,17 @@ class LinuxLauncher(shared_gui.Launcher):
             self.auto_var.set(bool(current.enabled))
             messagebox.showerror(
                 APP_NAME,
-                "%s\n\nЧужие или неподтверждённые записи автозапуска не изменялись." % exc,
+                tr("%s\n\nЧужие или неподтверждённые записи автозапуска не изменялись.") % exc,
             )
             return False
         self.auto_var.set(bool(result.enabled))
         if requested:
             messagebox.showinfo(
                 APP_NAME,
-                "Автозапуск включён для текущего пользователя.\n\n"
+                tr("Автозапуск включён для текущего пользователя.\n\n"
                 "При следующем входе в графическую сессию Arvectum попробует подключить прокси "
                 "без повышения привилегий. Если NetworkManager потребует новое разрешение PolicyKit, "
-                "автоподключение завершится безопасно без изменения сети — подключите прокси из окна приложения.",
+                "автоподключение завершится безопасно без изменения сети — подключите прокси из окна приложения."),
             )
         return True
 
@@ -136,7 +137,7 @@ class LinuxLauncher(shared_gui.Launcher):
         except Exception:
             pass
         try:
-            self.autostart_check.configure(text="Автоподключение прокси при входе в %s" % platform_label)
+            self.autostart_check.configure(text=tr("Автоподключение прокси при входе в %s") % platform_label)
             autostart_state = self._autostart_status()
             if autostart_state.managed and not autostart_state.conflict:
                 self.autostart_check.state(["!disabled"])
@@ -146,7 +147,7 @@ class LinuxLauncher(shared_gui.Launcher):
         except Exception:
             pass
         try:
-            self.btn_restore.configure(text="Восстановить настройки сети")
+            self.btn_restore.configure(text=tr("Восстановить настройки сети"))
         except Exception:
             pass
 
@@ -174,9 +175,9 @@ class LinuxLauncher(shared_gui.Launcher):
         if enabled:
             self.status_hint.configure(
                 text=(
-                    "Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через "
+                    tr("Системные настройки Linux (NetworkManager и desktop proxy) включены и направлены через "
                     "Arvectum Proxy Launcher. Окно можно закрыть — прокси продолжит "
-                    "работать в фоне."
+                    "работать в фоне.")
                 ),
             )
             self.status_hint.grid()
@@ -184,9 +185,9 @@ class LinuxLauncher(shared_gui.Launcher):
         if pending:
             self.status_hint.configure(
                 text=(
-                    "Предыдущий сеанс %s завершился некорректно. "
+                    tr("Предыдущий сеанс %s завершился некорректно. "
                     "Сначала восстановите сохранённые настройки NetworkManager и desktop proxy, "
-                    "затем снова включите прокси."
+                    "затем снова включите прокси.")
                 ) % self._platform_label,
             )
             self.status_hint.grid()
@@ -200,8 +201,8 @@ class LinuxLauncher(shared_gui.Launcher):
                 {
                     "state": "unavailable",
                     "message": (
-                        "Не удалось безопасно определить готовность NetworkManager. "
-                        "Сеть оставлена без изменений."
+                        tr("Не удалось безопасно определить готовность NetworkManager. "
+                        "Сеть оставлена без изменений.")
                     ),
                 },
                 running=running,
@@ -227,9 +228,9 @@ class LinuxLauncher(shared_gui.Launcher):
         self._recovery_prompt_shown = True
         if messagebox.askyesno(
             APP_NAME,
-            "Предыдущий сеанс proxy завершился некорректно.\n\n"
+            tr("Предыдущий сеанс proxy завершился некорректно.\n\n"
             "Перед новым подключением нужно восстановить сохранённые сетевые настройки.\n\n"
-            "Восстановить сеть сейчас?",
+            "Восстановить сеть сейчас?"),
             icon="warning",
         ):
             self.restore_network(confirm=False)
@@ -243,7 +244,7 @@ class LinuxLauncher(shared_gui.Launcher):
         if not configured:
             messagebox.showwarning(
                 APP_NAME,
-                "Сначала укажите IP/порт/логин/пароль внешнего прокси в «Настройки прокси».",
+                tr("Сначала укажите IP/порт/логин/пароль внешнего прокси в «Настройки прокси»."),
             )
             self.settings()
             return
@@ -256,7 +257,7 @@ class LinuxLauncher(shared_gui.Launcher):
         except Exception:
             operational = {
                 "state": "unavailable",
-                "message": "Не удалось определить готовность NetworkManager.",
+                "message": tr("Не удалось определить готовность NetworkManager."),
             }
         state = operational.get("state")
         if state == "unavailable":
@@ -264,8 +265,8 @@ class LinuxLauncher(shared_gui.Launcher):
             messagebox.showwarning(
                 APP_NAME,
                 str(operational.get("message") or (
-                    "NetworkManager сейчас недоступен для безопасного изменения. "
-                    "Сеть оставлена без изменений."
+                    tr("NetworkManager сейчас недоступен для безопасного изменения. "
+                    "Сеть оставлена без изменений.")
                 )),
             )
             return
@@ -280,7 +281,7 @@ class LinuxLauncher(shared_gui.Launcher):
             return
 
         self._set_busy(
-            "Ожидание системного разрешения…" if interactive else "Запуск…",
+            tr("Ожидание системного разрешения…") if interactive else tr("Запуск…"),
             MINT_LIGHT,
         )
         self._linux_start_process = _run_linux_headless(
@@ -295,8 +296,8 @@ class LinuxLauncher(shared_gui.Launcher):
             self.refresh_status()
             messagebox.showinfo(
                 APP_NAME,
-                "Прокси подключен, NetworkManager и desktop proxy применены.\n\n"
-                "Приложения, которые кэшируют настройки сети, может потребоваться перезапустить.",
+                tr("Прокси подключен, NetworkManager и desktop proxy применены.\n\n"
+                "Приложения, которые кэшируют настройки сети, может потребоваться перезапустить."),
             )
             return
 
@@ -310,8 +311,8 @@ class LinuxLauncher(shared_gui.Launcher):
             self.refresh_status()
             messagebox.showwarning(
                 APP_NAME,
-                "Подключение не выполнено. Если системное окно PolicyKit было отменено "
-                "или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал».",
+                tr("Подключение не выполнено. Если системное окно PolicyKit было отменено "
+                "или в разрешении отказано, сеть осталась без изменений. Подробности — в «Журнал»."),
             )
             return
         if attempt < 480:
@@ -320,18 +321,18 @@ class LinuxLauncher(shared_gui.Launcher):
         self.refresh_status()
         messagebox.showwarning(
             APP_NAME,
-            "Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; "
-            "новые изменения сети автоматически не выполнялись.",
+            tr("Подключение не подтверждено. Состояние NetworkManager можно проверить через «Диагностика»; "
+            "новые изменения сети автоматически не выполнялись."),
         )
 
     def restore_network(self, confirm=True):
         if confirm and not messagebox.askyesno(
             APP_NAME,
-            "Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?",
+            tr("Восстановить сохранённые исходные настройки NetworkManager и desktop proxy и остановить proxy?"),
             icon="warning",
         ):
             return
-        self._set_busy("Восстановление сети…", MINT_LIGHT)
+        self._set_busy(tr("Восстановление сети…"), MINT_LIGHT)
         _run_linux_headless("--rollback", policykit_interactive=False)
         self.root.after(250, self._after_restore_network)
 
@@ -341,7 +342,7 @@ class LinuxLauncher(shared_gui.Launcher):
                 self.root.after(250, lambda: self._restart_after_stop(attempt + 1))
                 return
             self.refresh_status()
-            messagebox.showerror(APP_NAME, "Не удалось остановить старый процесс. См. «Журнал».")
+            messagebox.showerror(APP_NAME, tr("Не удалось остановить старый процесс. См. «Журнал»."))
             return
         # Re-enter the normal capability gate so a fresh authorization challenge
         # can only follow another explicit user confirmation.

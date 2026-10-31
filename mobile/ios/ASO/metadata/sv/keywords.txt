@@ -1,0 +1,1 @@
+nätverk,ruttning,profiler,reserv,undantag,anslutning

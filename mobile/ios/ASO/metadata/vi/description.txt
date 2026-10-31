@@ -1,0 +1,9 @@
+Kết nối iPhone qua proxy do bạn tự cấu hình, dễ dàng quản lý kết nối.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Nhiều hồ sơ, mức ưu tiên và tự chuyển sang proxy dự phòng
+• Ngoại lệ cho trang web cần kết nối trực tiếp
+• Tự động hóa ứng dụng đã chọn bằng Phím tắt iOS
+• Thông tin lưu trên thiết bị, mật khẩu trong Chuỗi khóa
+
+Bạn cần proxy riêng; APL không cung cấp máy chủ proxy.

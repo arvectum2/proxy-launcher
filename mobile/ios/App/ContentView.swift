@@ -1,6 +1,7 @@
 import SwiftUI
 import NetworkExtension
 import UIKit
+import WebKit
 
 /// Semantic iPhone appearance colors that follow dynamic device traits.
 enum Brand {
@@ -45,6 +46,15 @@ enum Brand {
         dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
     )
     // The original wordmark has light lettering.
+    // Load the bundled PNG explicitly: SwiftUI named-image lookup can fail for
+    // a standalone resource PNG not registered in an asset catalog.
+    static var wordmark: Image {
+        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
+           let image = UIImage(contentsOfFile: path) {
+            return Image(uiImage: image)
+        }
+        return Image(systemName: "network")
+    }
     static let logoBacking = adaptive(
         light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
         dark: .clear
@@ -116,6 +126,11 @@ private struct EqualHeightDashboardLayout: Layout {
 }
 #endif
 
+private struct ProxyImportRequest: Identifiable {
+    let id = UUID()
+    let source: String
+}
+
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
@@ -126,6 +141,7 @@ struct ContentView: View {
     @State private var destination: AppDestination = .home
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
+    @State private var importRequest: ProxyImportRequest?
     @State private var showExclusions = false
     @State private var showAppExclusions = false
 
@@ -166,8 +182,16 @@ struct ContentView: View {
         .sheet(isPresented: $showNewProfile) {
             ProfileEditorView(profile: nil).environmentObject(model)
         }
+        .sheet(item: $importRequest) { request in
+            ProxyImportView(initialSource: request.source).environmentObject(model)
+        }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
+        }
+        .onOpenURL { url in
+            do {
+                importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
+            } catch { model.errorMessage = error.localizedDescription }
         }
         .sheet(isPresented: $showExclusions) {
             ExclusionsView().environmentObject(model)
@@ -186,7 +210,8 @@ struct ContentView: View {
     }
 
     private var mobileShell: some View {
-        TabView(selection: $destination) {
+        VStack(spacing: 0) {
+            TabView(selection: $destination) {
             homeScreen
                 .tag(AppDestination.home)
                 .tabItem { Label(AppDestination.home.title, systemImage: AppDestination.home.icon) }
@@ -200,7 +225,16 @@ struct ContentView: View {
                 .tag(AppDestination.settings)
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
-        .tint(Brand.mint)
+            .tint(Brand.mint)
+            // A sibling rather than an inset on TabView. The actual ad SDK's
+            // sticky height is measured by the stack; it must not displace
+            // or obscure the native tab bar on compact iPhones.
+            SettingsBannerView()
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .background(Brand.canvas)
+        }
+        .background(Brand.canvas)
     }
 
 #if targetEnvironment(macCatalyst)
@@ -259,7 +293,7 @@ struct ContentView: View {
     private var header: some View {
 #if targetEnvironment(macCatalyst)
         VStack(alignment: .leading, spacing: 5) {
-            Image("ArvectumWordmark")
+            Brand.wordmark
                 .resizable()
                 .scaledToFit()
                 .frame(width: 144, height: 28, alignment: .leading)
@@ -275,7 +309,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
 #else
         HStack(alignment: .center, spacing: 8) {
-            Image("ArvectumWordmark")
+            Brand.wordmark
                 .resizable()
                 .scaledToFit()
                 .frame(width: 112, height: 24)
@@ -295,67 +329,157 @@ struct ContentView: View {
 #endif
     }
 
+    // Home must remain fully visible; the large banner test is enabled only
+    // via Simulator launch arguments, never as a fake production ad.
+    private var bannerPreview: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-aplHomeBannerQA")
+#else
+        false
+#endif
+    }
+
+    private var bannerHeightQA: CGFloat {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-aplHomeBannerTallQA") ? 100 : 90
+#else
+        90
+#endif
+    }
+
+    private var qaProfile: Bool {
+#if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-aplHomeProfileQA")
+#else
+        false
+#endif
+    }
+    private var qaState: String? {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-aplHomeStatusQA"), index + 1 < arguments.count else { return nil }
+        return arguments[index + 1]
+#else
+        return nil
+#endif
+    }
+    private var qaStatusTitle: String {
+        switch qaState {
+        case "connected": return "Подключено"
+        case "connecting": return "Подключение…"
+        case "disconnecting": return "Отключение…"
+        default: return model.vpn.detail
+        }
+    }
+    private var qaActionTitle: String {
+        switch qaState {
+        case "connected": return "Отключить"
+        case "connecting": return "Подключение…"
+        case "disconnecting": return "Отключение…"
+        default: return primaryActionTitle
+        }
+    }
+    private var qaHelp: String {
+        switch qaState {
+        case "connected": return "Трафик устройства направляется через выбранный прокси."
+        case "connecting": return "APL устанавливает защищённый системный туннель."
+        case "disconnecting": return "APL возвращает обычное сетевое подключение."
+        default: return connectionHelp
+        }
+    }
+
     private var homeScreen: some View {
         ZStack {
             Brand.canvas.ignoresSafeArea()
             GeometryReader { geometry in
+#if targetEnvironment(macCatalyst)
                 ScrollView {
                     VStack(spacing: 18) {
-#if !targetEnvironment(macCatalyst)
-                        header
-#endif
-                        // Each card needs enough room for its primary actions.
-                        // The profile naturally moves below Connection when the
-                        // window shrinks; on wide windows card heights always match.
-#if targetEnvironment(macCatalyst)
                         if geometry.size.width >= 820 {
                             EqualHeightDashboardLayout(spacing: 18) {
-                                connectionCard
-                                activeProfileCard
+                                connectionCard(compact: false)
+                                activeProfileCard(compact: false)
                             }
                         } else {
-                            connectionCard
-                            activeProfileCard
+                            connectionCard(compact: false)
+                            activeProfileCard(compact: false)
                         }
-#else
-                        if geometry.size.width >= 700 {
-                            HStack(alignment: .top, spacing: 18) {
-                                connectionCard.frame(maxWidth: .infinity)
-                                activeProfileCard.frame(maxWidth: .infinity)
-                            }
-                        } else {
-                            connectionCard
-                            activeProfileCard
-                        }
-#endif
-                    }
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: 920)
-                    .frame(maxWidth: .infinity)
+                    }.padding(18).frame(maxWidth: 920).frame(maxWidth: .infinity)
                 }
+#else
+                let tight = geometry.size.height < 510
+                let compact = geometry.size.height < 680
+                let gap: CGFloat = tight ? 6 : (compact ? 9 : 14)
+                VStack(spacing: gap) {
+                    header.homeMeasured("header")
+                    if geometry.size.width >= 700 {
+                        HStack(alignment: .top, spacing: gap) {
+                            connectionCard(compact: compact)
+                            activeProfileCard(compact: compact)
+                        }
+                    } else {
+                        connectionCard(compact: compact).homeMeasured("connection")
+                        activeProfileCard(compact: compact).homeMeasured("profile")
+                    }
+                    Spacer(minLength: 0)
+                    if bannerPreview {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Brand.surface)
+                            .overlay {
+                                Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
+                                    .font(.caption2).foregroundStyle(Brand.softGray)
+                            }
+                            .frame(height: tight ? 60 : bannerHeightQA)
+                            .homeMeasured("banner")
+                    }
+                }
+                .padding(.horizontal, compact ? 12 : 18)
+                .padding(.vertical, tight ? 6 : (compact ? 9 : 14))
+                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
+                .coordinateSpace(name: "APLHome")
+                .homeMeasured("viewport")
+                .onPreferenceChange(HomeFramePreference.self) { frames in
+#if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("-aplHomeLayoutProbe") {
+                        HomeLayoutProbe.save(frames, language: AppL10n.effectiveLanguage,
+                            width: geometry.size.width, height: geometry.size.height)
+                    }
+#endif
+                }
+#endif
             }
         }
     }
-    private var connectionCard: some View {
-        VStack(spacing: 18) {
-            HStack(spacing: 10) {
-                Text("Соединение")
+    // Preserve equal-height macOS Catalyst cards while iPhone Home measures
+    // intrinsic card heights to leave space for the bottom banner footprint.
+    private var dashboardCardMaxHeight: CGFloat? {
+#if targetEnvironment(macCatalyst)
+        .infinity
+#else
+        nil
+#endif
+    }
+
+    private func connectionCard(compact: Bool) -> some View {
+        VStack(spacing: compact ? 9 : 18) {
+            HStack(spacing: compact ? 5 : 10) {
+                Text(AppL10n.tr("Соединение"))
+                    .lineLimit(1).minimumScaleFactor(0.65)
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(Brand.text)
-                Spacer(minLength: 8)
+                Spacer(minLength: 3)
                 HStack(spacing: 6) {
                     Image(systemName: "circle.fill")
                         .font(.system(size: 9))
                         .accessibilityHidden(true)
-                    Text(AppL10n.tr(model.vpn.detail))
+                    Text(AppL10n.tr(qaStatusTitle))
                         .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .minimumScaleFactor(0.68)
                 }
                 .foregroundStyle(connectionStatusColor)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, compact ? 8 : 12)
+                .padding(.vertical, compact ? 5 : 8)
                 .background(Brand.canvas.opacity(0.7))
                 .clipShape(Capsule())
                 .accessibilityElement(children: .combine)
@@ -367,24 +491,24 @@ struct ContentView: View {
                     Task { await model.toggleVPN() }
                 }
             } label: {
-                HStack(spacing: 14) {
+                HStack(spacing: compact ? 8 : 14) {
                     Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
                         ? "plus.circle.fill" : "power")
-                        .font(.system(size: 25, weight: .bold))
+                        .font(.system(size: compact ? 20 : 25, weight: .bold))
                         .accessibilityHidden(true)
-                    Text(AppL10n.tr(primaryActionTitle))
-                        .font(.system(size: 22, weight: .bold))
+                    Text(AppL10n.tr(qaActionTitle))
+                        .font(.system(size: compact ? 18 : 22, weight: .bold))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .minimumScaleFactor(0.68)
                     Spacer(minLength: 0)
                     Image(systemName: model.vpn.isConnectedOrConnecting ? "checkmark.circle.fill" : "arrow.right.circle.fill")
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(.system(size: compact ? 19 : 24, weight: .semibold))
                         .accessibilityHidden(true)
                 }
-                .padding(.horizontal, 22)
+                .padding(.horizontal, compact ? 12 : 22)
                 .foregroundStyle(Brand.actionText)
                 .frame(maxWidth: .infinity)
-                .frame(height: 80)
+                .frame(height: compact ? 56 : 76)
                 .background(Brand.mint)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
@@ -396,43 +520,50 @@ struct ContentView: View {
             }
             .buttonStyle(.plain)
             .disabled(!model.vpn.canToggle)
-            .accessibilityLabel(AppL10n.tr(primaryActionTitle))
+            .homeMeasured("primaryAction")
+            .accessibilityLabel(AppL10n.tr(qaActionTitle))
             .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
                 ? "Открыть создание первого прокси"
                 : model.vpn.isConnectedOrConnecting
                     ? "Отключить системный прокси-туннель"
                     : "Подключиться через выбранный прокси")
-            Text(AppL10n.tr(connectionHelp))
-                .font(.footnote)
+            Text(AppL10n.tr(qaHelp))
+                .font(compact ? .caption : .footnote)
                 .foregroundStyle(Brand.softGray)
                 .multilineTextAlignment(.center)
+                .lineLimit(compact ? 2 : 3)
+                .minimumScaleFactor(0.72)
                 .frame(maxWidth: .infinity)
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(compact ? 11 : 18)
+        .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)
         .background(Brand.graphite)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 
-    private var activeProfileCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Выбор прокси")
+    private func activeProfileCard(compact: Bool) -> some View {
+        VStack(alignment: .leading, spacing: compact ? 7 : 12) {
+            Text(AppL10n.tr("Выбор прокси"))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Brand.mintLight)
-            Text(model.profiles.isEmpty ? AppL10n.tr("Прокси пока нет") : model.selectedLabel)
-                .font(.title3.weight(.semibold))
+            Text(model.profiles.isEmpty && !qaProfile ? AppL10n.tr("Прокси пока нет") : (qaProfile ? "QA Proxy" : model.selectedLabel))
+                .font(compact ? .subheadline.weight(.semibold) : .title3.weight(.semibold))
                 .foregroundStyle(Brand.text)
                 .lineLimit(1)
-            if !model.profiles.isEmpty {
+            if (!model.profiles.isEmpty || qaProfile) && !compact {
                 Text(AppL10n.tr(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль."))
-                    .font(.footnote)
+                    .font(compact ? .caption : .footnote)
                     .foregroundStyle(Brand.softGray)
             }
-            if model.profiles.isEmpty {
-                Text("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт.")
-                    .font(.footnote)
+            if model.profiles.isEmpty && !qaProfile {
+                Text(AppL10n.tr("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт."))
+                    .font(compact ? .caption : .footnote)
                     .foregroundStyle(Brand.softGray)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(compact ? 2 : 3)
+                    .minimumScaleFactor(0.68)
+                if !compact {
                 Button {
                     showNewProfile = true
                 } label: {
@@ -440,22 +571,26 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(PrimaryBrandButtonStyle())
+                }
             } else {
                 Menu {
                     profileSelectionMenu
                 } label: {
                     HStack {
-                        Text("Выбрать профиль")
+                        Text(AppL10n.tr("Выбрать профиль"))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.68)
                         Spacer()
                         Image(systemName: "chevron.down")
                     }
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Brand.actionText)
                     .padding(.horizontal, 14)
-                    .frame(height: 52)
+                    .frame(height: compact ? 44 : 52)
                     .background(Brand.mint)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                if !compact {
                 Button {
                     destination = .profiles
                 } label: {
@@ -463,10 +598,11 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(SecondaryBrandButtonStyle())
+                }
             }
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(compact ? 9 : 18)
+        .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .topLeading)
         .background(Brand.surface)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
@@ -497,6 +633,7 @@ struct ContentView: View {
                     }
                     HStack(spacing: 10) {
                         cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) { showNewProfile = true }
+                        cardButton("Импортировать прокси", filled: false) { importRequest = ProxyImportRequest(source: "") }
                         cardButton("Изменить", filled: false) {
                             editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
                                 ?? model.profiles.first
@@ -885,6 +1022,10 @@ struct ExclusionsView: View {
     @State private var input = ""
     @State private var localError: String?
     @State private var confirmClearAll = false
+    @State private var discovered: [String] = []
+    @State private var selectedDiscovered: Set<String> = []
+    @State private var scanning = false
+    @State private var scanner: ExclusionWebScanner?
 
     var body: some View {
         NavigationView {
@@ -905,6 +1046,35 @@ struct ExclusionsView: View {
                     if let localError {
                         Text(localError).font(.caption).foregroundStyle(.red)
                     }
+                    Button(scanning ? "Идёт анализ…" : "Найти связанные домены") { scanSite() }
+                        .disabled(scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    if scanning {
+                        ProgressView("Анализ ресурсов сайта")
+                        Button("Отменить анализ") { cancelScan() }
+                    }
+                }
+                if !discovered.isEmpty {
+                    Section("Найденные домены — выберите для исключения") {
+                        ForEach(discovered, id: \.self) { host in
+                            Button {
+                                if !selectedDiscovered.insert(host).inserted { selectedDiscovered.remove(host) }
+                            } label: {
+                                HStack {
+                                    Text(host).foregroundStyle(.primary)
+                                    Spacer()
+                                    Image(systemName: selectedDiscovered.contains(host) ? "checkmark.circle.fill" : "circle")
+                                }
+                            }
+                        }
+                        Button("Добавить выбранные") {
+                            do {
+                                entries = try SiteExclusionPolicy.normalizeAll(entries + selectedDiscovered.sorted())
+                                discovered = []
+                                selectedDiscovered = []
+                                localError = nil
+                            } catch { localError = error.localizedDescription }
+                        }.disabled(selectedDiscovered.isEmpty)
+                    }
                 }
                 Section {
                     ForEach(entries, id: \.self) { host in
@@ -912,6 +1082,15 @@ struct ExclusionsView: View {
                             Text(host)
                                 .textSelection(.enabled)
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                            if host.contains(".") && !host.contains(":") {
+                                Button { scanSite(host) } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .frame(minWidth: 36, minHeight: 36)
+                                }
+                                .disabled(scanning)
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel("Найти связанные домены для " + host)
+                            }
                             Button(role: .destructive) {
                                 entries.removeAll { $0 == host }
                             } label: {
@@ -960,10 +1139,12 @@ struct ExclusionsView: View {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
             .onAppear { entries = model.exclusions }
+            .onDisappear { cancelScan() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Отмена") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Сохранить") {
+                        cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
                         guard localError == nil else { return }
                         Task {
@@ -973,6 +1154,41 @@ struct ExclusionsView: View {
                 }
             }
         }
+    }
+
+    private func cancelScan() {
+        scanner?.cancel()
+        scanner = nil
+        scanning = false
+    }
+
+    private func scanSite() { scanSite(input) }
+
+    private func scanSite(_ site: String) {
+        do {
+            guard let host = try SiteExclusionPolicy.normalize(site), !host.isEmpty else { return }
+            guard SiteDependencyDiscovery.isScannableHost(host) else {
+                localError = "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"
+                return
+            }
+            scanning = true
+            discovered = []
+            selectedDiscovered = []
+            localError = nil
+            let worker = ExclusionWebScanner()
+            scanner = worker
+            worker.scan(host: host) { result in
+                guard scanner === worker else { return }
+                scanning = false
+                scanner = nil
+                switch result {
+                case .success(let hosts):
+                    discovered = SiteDependencyDiscovery.additionalCandidates(hosts, for: host, excluding: entries)
+                    if discovered.isEmpty { localError = "Связанные домены не обнаружены" }
+                case .failure(let error): localError = error.localizedDescription
+                }
+            }
+        } catch { localError = error.localizedDescription }
     }
 
     private func addEntry() {
@@ -1141,5 +1357,89 @@ struct JournalView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
             }
         }
+    }
+}
+
+/// Ephemeral WebKit scanner; no persistent cookies or implicit VPN changes.
+@MainActor
+final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
+    private var webView: WKWebView?
+    private var completion: ((Result<[String], Error>) -> Void)?
+    private var host = ""
+
+    func scan(host: String, completion: @escaping (Result<[String], Error>) -> Void) {
+        self.host = host
+        self.completion = completion
+        let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = .nonPersistent()
+        let view = WKWebView(frame: CGRect(x: -1, y: -1, width: 1, height: 1), configuration: configuration)
+        // WebKit may defer navigation for an unattached zero-sized web view.
+        view.isUserInteractionEnabled = false
+        view.alpha = 0.01
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })?
+            .addSubview(view)
+        webView = view
+        view.navigationDelegate = self
+        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
+        view.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 18) { [weak self] in
+            self?.finish(.failure(URLError(.timedOut)))
+        }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let destination = navigationAction.request.url,
+              destination.scheme?.lowercased() == "https",
+              let requested = URL(string: "https://" + host)?.host?.lowercased(),
+              destination.host?.lowercased() == requested else {
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(.allow)
+    }
+
+    func cancel() {
+        completion = nil
+        tearDownWebView()
+    }
+
+    private func tearDownWebView() {
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView?.removeFromSuperview()
+        webView = nil
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let script = """
+        JSON.stringify({html: document.documentElement.outerHTML.slice(0,512000),
+          resources: performance.getEntriesByType('resource').slice(0,512).map(x => x.name)})
+        """
+        webView.evaluateJavaScript(script) { [weak self] value, error in
+            guard let self else { return }
+            if let error { self.finish(.failure(error)); return }
+            guard let raw = (value as? String)?.data(using: .utf8),
+                  let payload = (try? JSONSerialization.jsonObject(with: raw)) as? [String: Any] else {
+                self.finish(.failure(URLError(.cannotParseResponse)))
+                return
+            }
+            let html = payload["html"] as? String ?? ""
+            let resources = payload["resources"] as? [String] ?? []
+            let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
+            let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
+            self.finish(.success(Array(Set(htmlHosts + networkHosts)).sorted().prefix(SiteDependencyDiscovery.maxCandidates).map { $0 }))
+        }
+    }
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
+    private func finish(_ result: Result<[String], Error>) {
+        guard let completion else { return }
+        self.completion = nil
+        tearDownWebView()
+        completion(result)
     }
 }

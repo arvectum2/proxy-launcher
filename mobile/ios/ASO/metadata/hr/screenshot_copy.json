@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Više profila, prioriteti i automatski prelazak na pričuvni proxy",
+  "02_direct_exceptions": "Iznimke za web-mjesta koja trebaju izravnu vezu",
+  "03_app_automation": "Automatizacije odabranih aplikacija putem iOS Prečaca"
+}

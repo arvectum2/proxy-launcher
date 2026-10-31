@@ -1,0 +1,9 @@
+Csatlakoztasd iPhone-odat a saját proxykiszolgálódhoz, egyszerű vezérléssel.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Több profil, prioritások és automatikus váltás tartalék proxyra
+• Kivételek a közvetlenül elérendő webhelyekhez
+• Automatizálás kijelölt appokhoz az iOS Parancsok segítségével
+• A proxyadatok a készüléken maradnak, a jelszavak a Kulcskarikában
+
+Saját proxyszerver szükséges; az APL nem biztosít szervereket.

@@ -96,7 +96,7 @@ class PromotedArtifactContractTests(unittest.TestCase):
         runtime_notice = (REPO / "APPIMAGE_RUNTIME_LICENSE.txt").read_text(encoding="utf-8")
         roadmap = (REPO / "docs" / "ROADMAP.md").read_text(encoding="utf-8")
         self.assertIn("APPIMAGE_RUNTIME_LICENSE.txt", script)
-        self.assertIn("AppImage/type2-runtime commit 75849dce7cc37e4319b633df1f116ca895c71a12", runtime_notice)
+        self.assertIn("AppImage/type2-runtime commit fedfad51acc2860b2916a1eef32ba4a500ff31ef", runtime_notice)
         self.assertNotIn("EXCLUDED from promoted commercial scope", script)
         self.assertIn("PROMOTED FOR NEXT RELEASE", roadmap)
 

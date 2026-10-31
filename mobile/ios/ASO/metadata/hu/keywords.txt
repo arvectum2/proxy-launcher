@@ -1,0 +1,1 @@
+hálózat,útválasztás,profilok,tartalék,kivételek

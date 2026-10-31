@@ -1,0 +1,9 @@
+Povežite iPhone putem vlastitog proxy poslužitelja uz jednostavno upravljanje.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Više profila, prioriteti i automatski prelazak na pričuvni proxy
+• Iznimke za web-mjesta koja trebaju izravnu vezu
+• Automatizacije odabranih aplikacija putem iOS Prečaca
+• Podaci ostaju na uređaju, a lozinke u privjesku ključeva
+
+Potreban je vaš proxy poslužitelj; APL ne pruža proxy uslugu.

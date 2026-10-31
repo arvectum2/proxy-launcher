@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Multiple profiles, priorities and automatic backup failover",
+  "02_direct_exceptions": "Website exclusions for destinations that should connect directly",
+  "03_app_automation": "Open/close automations for selected apps using iOS Shortcuts"
+}

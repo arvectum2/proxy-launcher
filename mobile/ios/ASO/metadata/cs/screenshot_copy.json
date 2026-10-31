@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Více profilů, priority a automatické přepnutí na záložní proxy",
+  "02_direct_exceptions": "Výjimky pro weby, které se mají připojovat přímo",
+  "03_app_automation": "Automatizace vybraných aplikací přes Zkratky v iOS"
+}

@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Több profil, prioritások és automatikus váltás tartalék proxyra",
+  "02_direct_exceptions": "Kivételek a közvetlenül elérendő webhelyekhez",
+  "03_app_automation": "Automatizálás kijelölt appokhoz az iOS Parancsok segítségével"
+}

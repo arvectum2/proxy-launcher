@@ -1,0 +1,9 @@
+A flexible iPhone proxy client for connections you set up and control.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Manage multiple profiles and automatic fallback
+• Exclude websites that should use a direct connection
+• Set up app-triggered automations in iOS Shortcuts
+• Your proxy credentials are stored locally on the device
+
+Proxy service is not included; use a server you already have.

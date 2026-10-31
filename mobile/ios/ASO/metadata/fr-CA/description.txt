@@ -1,0 +1,9 @@
+Connectez votre iPhone au mandataire de votre choix grâce à des réglages simples.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Plusieurs profils, priorités et basculement automatique sur un serveur de relève
+• Exceptions pour les sites qui exigent un accès direct
+• Automatisations pour certaines apps avec Raccourcis iOS
+• Les renseignements de connexion restent sur votre appareil
+
+Utilisez votre propre serveur mandataire; aucun accès proxy n’est fourni.

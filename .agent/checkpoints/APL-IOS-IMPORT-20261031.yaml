@@ -1,0 +1,29 @@
+task_id: APL-IOS-IMPORT-20261031
+status: completed
+goal: "Implement universal proxy profile import for APL iOS: link, clipboard, file, QR, deep link; no release."
+definition_of_done:
+  - "Safe parsing and preview of supported HTTP, HTTPS and SOCKS5 proxy links and files."
+  - "Clipboard, file, QR and deep link entry points integrated with profile persistence."
+  - "Parser tests and iOS simulator build pass."
+  - "Changes committed to isolated branch; no release or PR merge."
+completed:
+  - "Implemented bounded parser for HTTP/HTTPS/SOCKS5 links, multi-line text, credentials and labels."
+  - "Added clipboard, text/file import UI with preview and profile persistence."
+  - "Added four parser test cases; 26/26 Swift tests passed; iOS Simulator BUILD SUCCEEDED."
+  - "QR scanner, deep link, duplicate filtering and rollback implemented; 28 Swift tests and import UI test passed."
+  - "Cleared stale import preview on source edits; removed unsupported JSON file picker type."
+  - "Fixed cold deep-link launch race by binding source to identifiable import sheet; verified automatic preview on physical iPhone."
+  - "Fixed QR preview layer sizing across layout and proved AVCaptureSession running on physical iPhone; XCTest camera permission auto-granted."
+  - "Physical device final import UI suite 3/3 PASS; 28 Swift core tests PASS; simulator build PASS."
+current: "COMPLETED: universal import, cold-start deep-link preview and physical iPhone QR camera readiness verified."
+pending:
+  - "Optional real printed/on-screen QR acquisition test with user pointing physical camera at code before release; camera readiness and preview verified."
+last_verified_commit: "250d60a1 (iOS physical device import and QR camera acceptance; 3 UI tests and 28 Swift tests PASS)"
+test_results:
+  - "28/28 Swift package tests PASS (previous run)."
+  - "Import XCUITest PASS (previous run)."
+  - "iOS Simulator xcodebuild BUILD SUCCEEDED."
+  - "iPhone 13: signed Xcode build and app installation PASS; app launched by CoreDevice custom URL with populated preview PASS."
+  - "iPhone 13: 3/3 import XCUITests PASS, including source edit invalidation and actual running camera session; camera permission granted through XCTest."
+  - "28/28 Swift package tests PASS; final simulator Debug build PASS; git diff --check PASS."
+resume_instruction: "Implementation and hardware test gate complete; no auto release or PR merge. Only optional live QR code acquisition with physical phone needs user positioning before App Store release."

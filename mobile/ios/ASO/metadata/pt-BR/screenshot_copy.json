@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Vários perfis, prioridades e troca automática para proxy reserva",
+  "02_direct_exceptions": "Exceções para sites que precisam de conexão direta",
+  "03_app_automation": "Automações para apps selecionados pelo app Atalhos do iOS"
+}

@@ -1,0 +1,1 @@
+ağ,yönlendirme,profiller,yedek,istisnalar,bağlantı
