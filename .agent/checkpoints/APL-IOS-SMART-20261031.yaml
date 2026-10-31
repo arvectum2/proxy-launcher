@@ -11,14 +11,16 @@ completed:
   - "Added rollback of exclusions on reconnect failure and host validation."
   - "Built pinned patched tun2proxy for arm64 iOS Simulator locally (untracked, not a release artifact)."
   - "Xcode simulator build succeeded; installed and launched app on APL-HomeFit-SE3 simulator."
-current: "Simulator app launches; interactive exclusions-screen QA and live iPhone VPN DNS/route QA remain unverified."
+  - "Fixed missing ArvectumWordmark asset-catalog registration; rebuilt/reinstalled, absence warning resolved."
+current: "Simulator app launches with fixed wordmark asset; interactive exclusions UI and live iPhone VPN DNS/route QA remain unverified."
 pending:
   - "Perform interactive exclusions UI QA in simulator; app launches but VPN helper unavailable there."
   - "Run live iPhone VPN route/DNS checks and reconnect after selecting exclusions."
-last_verified_commit: "2cf89f19"
+last_verified_commit: "4d5edb29 (prior; new asset fix pending commit)"
 test_results:
   - "swift test --parallel PASS (20 test cases)."
   - "xcodebuild generic/platform=iOS CODE_SIGNING_ALLOWED=NO BUILD SUCCEEDED."
   - "Simulator XCFramework built locally from pinned patched source; Xcode simulator BUILD SUCCEEDED, simctl install/launch PASS."
   - "Simulator log shows NetworkExtension nehelper IPC unavailable; live VPN cannot be validated there."
+  - "20/20 Swift tests PASS; simulator Xcode BUILD SUCCEEDED; app relaunched without missing-wordmark warning."
 resume_instruction: "Continue interactive UI verification on booted iOS simulator; verify actual VPN bypass on a signed physical iPhone. Do not prepare release, do not touch macOS checkout."
