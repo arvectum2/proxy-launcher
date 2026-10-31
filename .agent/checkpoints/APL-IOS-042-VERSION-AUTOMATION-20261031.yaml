@@ -1,5 +1,5 @@
 task_id: APL-IOS-042-VERSION-AUTOMATION-20261031
-status: in_progress
+status: completed
 goal: 'Align the next iOS development candidate with code after the 0.1.41 Apple review submission and restore physical iPhone XCTest automation.'
 definition_of_done:
   - 'Confirm Apple review candidate 0.1.41 (46) versus newer origin/main code, and unambiguously label the next test candidate 0.1.42 (47) without modifying Apple Connect.'
@@ -14,13 +14,14 @@ completed:
   - 'Signed physical iPhone build passed and installed over the existing bundle; devicectl confirms 0.1.42/47, UI screenshot independently shows 0.1.42 and VPN OFF.'
   - 'Swift core 60/60 PASS; Python full suite 1096 PASS (1 skipped).'
   - 'Full physical iPhone 0.1.42 (47) XCUITest 23/23 PASS without failures or skips; actual accessibility reports 8 outstanding findings; no working proxy VPN or optical QR E2E claimed.'
-current: 'All functional checks passed, commit candidate and wait for GitHub protected PR CI/merge.'
-pending:
-  - 'Create PR and merge on green GitHub CI; verify exact main SHA and final checkpoint.'
-last_verified_commit: '1c360258 (origin/main before candidate version update)'
+  - 'PR #287 passed all 19 GitHub CI checks and merged into main as 23be020e; version, Xcode project, test contracts and QA docs included.'
+current: 'COMPLETED: next iOS development candidate labeled 0.1.42 (47), installed and accepted by 23 hardware tests; PR #287 merged.'
+pending: []
+last_verified_commit: '23be020e (main merge PR #287, 19/19 GitHub CI PASS)'
 test_results:
   - 'iPhone 13 automation request re-triggered successfully: PhysicalVPNStateUITests TEST SUCCEEDED.'
   - 'Signed 0.1.42 (47) physical app build/install/launch PASS; version in iPhone UI verified.'
   - 'Swift package 60/60 PASS; Python 1096 PASS (1 skipped).'
   - 'Physical iPhone 0.1.42 XCUITest 23/23 PASS (0 fails, 0 skipped) in 206.359s; 8 accessibility findings remain.'
-resume_instruction: 'Worktree /tmp/apl-ios-next-candidate-20261031, branch chore/ios-next-candidate-042-20261031. Only version source and test/development builds; never change uploaded iOS 0.1.41 (46), Apple App Review or privacy metadata. Finish tests/physical installation, PR and merge on green CI. Find the currently paired iPhone 13 using xcrun devicectl list devices; do not store device identifiers in a public checkpoint.'
+  - 'PR #287 GitHub CI: 19 pass, 0 pending/fail; merged in main commit 23be020e.'
+resume_instruction: 'This version/automation task is completed in main 23be020e. Do not rerun. Next separate QA gates: iOS VoiceOver and 8 accessibility findings, optical QR decoding with physical target, real VPN tunnel through user-authorized working proxy, and future Apple review/release approval for 0.1.42. Submitted Apple 0.1.41 (46) is unchanged; never auto-publish or reset device settings.'
