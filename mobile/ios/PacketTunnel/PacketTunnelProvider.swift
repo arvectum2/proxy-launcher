@@ -38,6 +38,19 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         completionHandler: @escaping (Error?) -> Void
     ) {
         stopping = false
+#if DEBUG
+        if let value = options?["qaStopAfterSeconds"] as? NSNumber,
+           (5...30).contains(value.intValue) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
+                guard let self, !self.stopping else { return }
+                // Last-resort safety net if the UI test / wireless debug link
+                // is interrupted by the VPN network route. Cancellation
+                // returns the device to its previous disconnected state.
+                self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
+                    userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+            }
+        }
+#endif
         do {
             store = try ProfileStore()
         } catch {
