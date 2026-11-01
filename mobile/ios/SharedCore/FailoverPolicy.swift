@@ -53,10 +53,15 @@ struct FailoverPolicy {
     /// The main ranking still honors the user primary, last-good and measured
     /// backup latency; only the first bounded set is tested this round.
     func connectionCandidates(profileIDs: [UUID], primaryID: UUID?, lastSuccessfulID: UUID?, recentlyFailedID: UUID?, latencies: [UUID: Int] = [:]) -> [UUID] {
-        Array(orderCandidates(profileIDs: profileIDs, primaryID: primaryID,
-                              lastSuccessfulID: lastSuccessfulID,
-                              recentlyFailedID: recentlyFailedID,
-                              latencies: latencies).prefix(max(1, tuning.maxConnectionCandidates)))
+        let ordered = orderCandidates(profileIDs: profileIDs, primaryID: primaryID,
+                                      lastSuccessfulID: lastSuccessfulID,
+                                      recentlyFailedID: recentlyFailedID,
+                                      latencies: latencies)
+        // A freshly failed endpoint must not be retried immediately merely
+        // because the imported list has fewer than the six-candidate cap.
+        // Direct manual selection and later recovery probes remain available.
+        let eligible = ordered.filter { $0 != recentlyFailedID }
+        return Array(eligible.prefix(max(1, tuning.maxConnectionCandidates)))
     }
 
     /// A failed primary must not be reprobed on every monitor tick.

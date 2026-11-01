@@ -55,6 +55,12 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - Auto remembers last-successful only after the tunnel is actually applied. A mid-switch engine failure closes the tunnel with a real error instead of leaving a false green Connected state; candidate enumeration respects stop/cancellation.
 - Verification strictly scoped to changes: one new ProfileOrganization unit test, five 0.2 contract tests and one ARM64 Simulator Debug build passed. Previously validated 83-test Swift suite / 53-test iOS contracts / signed UI smoke / iOS Release builds are **not** rerun as part of this stage.
 
+## Diagnostic privacy and short-list retry hardening — 2026-11-01
+
+- New Packet Tunnel event details use stable `ProxyFailureReason` codes instead of arbitrary third-party NSError descriptions; a successful-connect event records transport/latency, not upstream hostname or URL. Auto failure lists use positional indices and stable codes rather than profile name and raw error strings.
+- `connectionCandidates` excludes the currently suppressed recently failed endpoint rather than retrying it merely because a list contains fewer than six profiles. Manual direct connection and separately throttled primary-recovery checks are unaffected.
+- Targeted privacy source contract and new Swift suppression regression cover just these changes; retain earlier green core/UI/CI results without full reruns.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

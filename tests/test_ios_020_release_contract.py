@@ -66,6 +66,14 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('store?.lastAutoProfileID = prepared.storedProfile.id', tunnel)
         self.assertIn('cancelTunnelWithError(error)', tunnel)
 
+    def test_persisted_tunnel_events_exclude_proxy_urls_and_arbitrary_errors(self):
+        tunnel = (IOS / 'PacketTunnel' / 'PacketTunnelProvider.swift').read_text(encoding='utf-8')
+        self.assertNotIn('detail: error.localizedDescription', tunnel)
+        self.assertNotIn(r'failures.append("\(profile.name): \(error.localizedDescription)', tunnel)
+        self.assertNotIn('prepared.storedProfile.host):', tunnel)
+        self.assertIn('ProxyFailureReason.classify(error).code', tunnel)
+        self.assertIn(r'detail: "\(prepared.resolvedProfile.type.label) · \(prepared.latencyMs) мс"', tunnel)
+
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)
         for language in ['ru', 'en']:

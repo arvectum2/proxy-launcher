@@ -81,12 +81,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 telemetry.append(TunnelEvent(
                     type: "connected",
                     profileName: prepared.storedProfile.name,
-                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.storedProfile.host):\(prepared.storedProfile.port)"
+                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.latencyMs) мс"
                 ))
                 if prepared.automaticSelection { startMonitor() }
                 completionHandler(nil)
             } catch {
-                telemetry.append(TunnelEvent(type: "error", detail: error.localizedDescription))
+                telemetry.append(TunnelEvent(type: "error", detail: ProxyFailureReason.classify(error).code))
                 completionHandler(error)
             }
         }
@@ -148,7 +148,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 let prepared = try await prepare(profile, automatic: true)
                 return prepared
             } catch {
-                failures.append("\(profile.name): \(error.localizedDescription)")
+                // Do not persist or propagate arbitrary proxy/library error
+                // strings: they may contain URLs with embedded credentials.
+                failures.append("№\(failures.count + 1): \(ProxyFailureReason.classify(error).code)")
             }
         }
         // An imported 200-entry list must not turn one Connect action into
@@ -307,7 +309,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             telemetry.append(TunnelEvent(
                 type: "proxy unavailable",
                 profileName: current.storedProfile.name,
-                detail: error.localizedDescription
+                detail: ProxyFailureReason.classify(error).code
             ))
             do {
                 let next = try await selectProxy()
@@ -315,7 +317,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 await switchTo(next, reason: "failover")
             } catch {
                 guard !stopping, !Task.isCancelled else { return }
-                telemetry.append(TunnelEvent(type: "failover failed", detail: error.localizedDescription))
+                telemetry.append(TunnelEvent(type: "failover failed", detail: ProxyFailureReason.classify(error).code))
             }
         }
     }
@@ -350,8 +352,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             // tun2proxy_stop() already stopped the old engine. Staying in
             // NEVPNStatus.connected now would silently leak a dead connection.
             // Let NetworkExtension stop the tunnel and show a real error.
-            telemetry.append(TunnelEvent(type: "switch failed", detail: error.localizedDescription))
-            cancelTunnelWithError(error)
+            telemetry.append(TunnelEvent(type: "switch failed", detail: ProxyFailureReason.classify(error).code))
+            cancelTunnelWithError(ProxyDiagnosticError(ProxyFailureReason.classify(error)))
         }
     }
 

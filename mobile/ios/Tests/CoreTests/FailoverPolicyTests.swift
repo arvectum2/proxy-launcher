@@ -38,6 +38,20 @@ final class FailoverPolicyTests: XCTestCase {
         XCTAssertFalse(ranked.contains(ids[50]))
     }
 
+    func testRecentlyFailedProxyIsNotRetriedInSmallOrSingleEntryList() {
+        let failed = UUID(), healthy = UUID()
+        let policy = FailoverPolicy()
+        XCTAssertEqual(policy.connectionCandidates(
+            profileIDs: [failed, healthy], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: failed), [healthy])
+        XCTAssertTrue(policy.connectionCandidates(
+            profileIDs: [failed], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: failed).isEmpty)
+        XCTAssertEqual(policy.connectionCandidates(
+            profileIDs: [failed], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: nil), [failed])
+    }
+
     func testConnectionMonitoringReducesProbeRateWithoutSingleFailureFlapping() {
         let policy = FailoverPolicy()
         XCTAssertEqual(policy.tuning.healthInterval, 10)
