@@ -14,7 +14,7 @@ class IOS020ReleaseContract(unittest.TestCase):
         ads = (IOS / 'App' / 'SettingsBannerView.swift').read_text(encoding="utf-8")
         self.assertIn('MARKETING_VERSION: "0.2.0"', spec)
         self.assertIn('CURRENT_PROJECT_VERSION: "48"', spec)
-        self.assertIn('SettingsBannerView()', home)
+        self.assertIn('SettingsBannerView(', home)
         self.assertIn('Task { await model.toggleVPN() }', home)
         self.assertIn('productionBannerUnitID = "R-M-20288304-1"', ads)
         self.assertIn('static let isEnabled = true', ads)
@@ -114,8 +114,8 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('Label(AppL10n.tr("Действия")', src)
         self.assertIn('profiles.import', src)
         self.assertIn('profiles.encryptedBackup', src)
-        self.assertIn('SettingsBannerView()', src)
-        self.assertEqual(src.count('SettingsBannerView()'), 1)
+        self.assertIn('SettingsBannerView(', src)
+        self.assertEqual(src.count('SettingsBannerView('), 1)
 
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)

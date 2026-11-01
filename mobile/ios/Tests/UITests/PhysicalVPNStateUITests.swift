@@ -7,7 +7,7 @@ final class PhysicalVPNStateUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Главная"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.tabBars.buttons["Домой"].waitForExistence(timeout: 20))
         let states = ["Подключено", "Отключено", "Подключение…", "Отключение…"]
         let found = states.first(where: { app.staticTexts[$0].exists }) ?? "not-ready"
         let noProfiles = app.staticTexts["Прокси пока нет"].exists

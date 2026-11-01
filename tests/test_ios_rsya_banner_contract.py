@@ -18,19 +18,20 @@ class IOSRSYABannerTests(unittest.TestCase):
 
     def test_banner_visible_in_tab_safe_area_not_buried_in_settings(self):
         main = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertEqual(main.count('SettingsBannerView()'), 1)
-        self.assertLess(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
+        self.assertEqual(main.count('SettingsBannerView('), 1)
+        self.assertLess(main.find('SettingsBannerView('), main.find('private var settingsScreen:'))
         mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
         home = main.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
         self.assertIn('TabView(selection: $destination)', mobile_shell)
-        self.assertNotIn('SettingsBannerView()', mobile_shell)
+        self.assertNotIn('SettingsBannerView(', mobile_shell)
         self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
-        self.assertIn('SettingsBannerView()', home)
-        self.assertLess(home.index('homeMeasured("header")'), home.index('SettingsBannerView()'))
-        self.assertLess(home.index('SettingsBannerView()'), home.index('homeConnectControl'))
+        self.assertIn('SettingsBannerView(', home)
+        self.assertIn('maxAdHeight: tight ? 120 : (compact ? 160 : 220)', home)
+        self.assertLess(home.index('homeMeasured("header")'), home.index('SettingsBannerView('))
+        self.assertLess(home.index('SettingsBannerView('), home.index('homeConnectControl'))
         self.assertLess(home.index('homeConnectControl'), home.index('homeProfileControl'))
         settings = main.split('private var settingsScreen:', 1)[1].split('private var profileSelectionMenu', 1)[0]
-        self.assertNotIn('SettingsBannerView()', settings)
+        self.assertNotIn('SettingsBannerView(', settings)
         self.assertNotIn('SettingsBannerView', (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8"))
         project = (IOS / "project.yml").read_text(encoding="utf-8")
         main_target = project.split('  ArvectumProxyLauncher:', 1)[1].split('  PacketTunnel:', 1)[0]
@@ -56,7 +57,7 @@ class IOSRSYABannerTests(unittest.TestCase):
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertNotIn('.frame(height: loaded ? nil : 1)', ads)
         self.assertNotIn('.opacity(loaded ? 1 : 0)', ads)
-        self.assertIn('.frame(minHeight: 50)', ads)
+        self.assertIn('.frame(minHeight: 80, maxHeight: maxAdHeight)', ads)
         self.assertIn('Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")', ads)
         self.assertIn('logger.error("RSYA banner load failed:', ads)
         self.assertIn('logger.info("RSYA banner impression")', ads)

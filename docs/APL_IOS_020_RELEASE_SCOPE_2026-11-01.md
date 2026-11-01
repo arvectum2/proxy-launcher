@@ -92,6 +92,13 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - Removed the redundant Connection and Profile cards on iPhone only; the status is a small non-button label below Connect, and the active profile is one selector button with its name. Existing macOS Catalyst cards remain unchanged. The existing Arvectum bitmap wordmark is preserved; adjacent text uses an optical vertical offset and matching bold weight.
 - Real iPhone UI screenshot and focused source/layout assertions are the acceptance evidence, not a repeated VPN stress suite. Product release/Apple privacy approval remains separate.
 
+## Revised ergonomic Home placement — iPhone device acceptance, 2026-11-01
+
+- The user-requested larger banner uses the SDK's responsive `BannerSize.inline(width:maxHeight:)`, bounded at 120/160/220 points by viewport size, instead of stretching sticky creative. A live, real Yandex Business ad rendered in the larger format and reported an `impression` callback.
+- The Home order is wordmark → inline ad → flexible space → Connect (plus a small status) → one profile selector → native tab bar. `Spacer` precedes both action controls to anchor them immediately above the bottom bar. No scrolling or extra prompts.
+- First tab is explicitly **Домой** (`house.fill`), not a redundant fifth button; other tabs unchanged. macOS Catalyst preserves original `Главная` title and separate desktop layout.
+- Signed physical iPhone 13 0.2.0 (48) installed in place and visually inspected. Three baseline profiles and previous UserDefaults keys remained unchanged. App Store Connect metadata was not touched. Source/layout tests and one device build PASS; earlier VPN suites intentionally not rerun.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

@@ -70,7 +70,12 @@ private enum AppDestination: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .home: return AppL10n.tr("Главная")
+        case .home:
+#if targetEnvironment(macCatalyst)
+            return AppL10n.tr("Главная")
+#else
+            return AppL10n.tr("Домой")
+#endif
         case .profiles: return AppL10n.tr("Профили")
         case .activity: return AppL10n.tr("Активность")
         case .settings: return AppL10n.tr("Настройки")
@@ -78,7 +83,7 @@ private enum AppDestination: String, CaseIterable, Identifiable {
     }
     var icon: String {
         switch self {
-        case .home: return "house"
+        case .home: return "house.fill"
         case .profiles: return "rectangle.stack"
         case .activity: return "waveform.path.ecg"
         case .settings: return "gearshape"
@@ -441,11 +446,18 @@ struct ContentView: View {
                                 }
                                 .frame(height: tight ? 60 : bannerHeightQA)
                         } else {
-                            SettingsBannerView()
+                            // Request a larger inline creative, not a scaled-up
+                            // sticky banner. Small iPhones use a smaller limit.
+                            SettingsBannerView(
+                                adWidth: geometry.size.width,
+                                maxAdHeight: tight ? 120 : (compact ? 160 : 220)
+                            )
                         }
                     }
                     .frame(maxWidth: .infinity)
                     .homeMeasured("banner")
+
+                    Spacer(minLength: tight ? 4 : 12)
 
                     VStack(spacing: gap) {
                         homeConnectControl
@@ -455,10 +467,9 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: 580)
                     .padding(.horizontal, edge)
-
-                    Spacer(minLength: 0)
+                    .padding(.bottom, tight ? 4 : 12)
                 }
-                .padding(.vertical, tight ? 6 : (compact ? 9 : 14))
+                .padding(.top, tight ? 6 : (compact ? 9 : 14))
                 .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
                 .coordinateSpace(name: "APLHome")
                 .homeMeasured("viewport")

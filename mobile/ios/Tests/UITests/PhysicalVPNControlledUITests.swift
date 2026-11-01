@@ -31,7 +31,7 @@ final class PhysicalVPNControlledUITests: XCTestCase {
                                 "-aplEphemeralTunnelQA"]
         app.launch()
         dismissLowBatteryInterruption()
-        XCTAssertTrue(app.tabBars.buttons["Главная"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.tabBars.buttons["Домой"].waitForExistence(timeout: 15))
         // Check the three compact primary actions before starting a bounded
         // live VPN test; no profiles or preferences are modified here.
         app.tabBars.buttons["Профили"].tap()
@@ -41,7 +41,7 @@ final class PhysicalVPNControlledUITests: XCTestCase {
         profileScreenshot.name = "APL 0.2 compact profile actions"
         profileScreenshot.lifetime = .keepAlways
         add(profileScreenshot)
-        app.tabBars.buttons["Главная"].tap()
+        app.tabBars.buttons["Домой"].tap()
         dismissLowBatteryInterruption()
         let off = app.staticTexts["Отключено"]
         guard off.waitForExistence(timeout: 10) else {

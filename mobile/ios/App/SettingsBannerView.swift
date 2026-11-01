@@ -76,9 +76,13 @@ enum IOSAdsConfig {
 #endif
 }
 
-/// Non-blocking native ad footer alongside the iPhone TabView; never appears in the tunnel extension.
+/// Non-blocking, adaptive inline banner directly under the Home wordmark.
+/// Never stretches the ad creative or appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
 struct SettingsBannerView: View {
+    let adWidth: CGFloat
+    let maxAdHeight: CGFloat
+
     @Environment(\.scenePhase) private var scenePhase
     @State private var bannerState: BannerState?
     @State private var loaded = false
@@ -120,13 +124,13 @@ struct SettingsBannerView: View {
                                 UserDefaults.standard.set("impression", forKey: statusKey)
                                 logger.info("RSYA banner impression")
                             }
-                            .frame(minHeight: 50)
+                            .frame(minHeight: 80, maxHeight: maxAdHeight)
                             .frame(maxWidth: .infinity)
                             .accessibilityHidden(!loaded)
                     }
                     .frame(maxWidth: .infinity)
                 } else {
-                    Color.clear.frame(height: 50)
+                    Color.clear.frame(height: 80)
                 }
             }
         }
@@ -150,8 +154,10 @@ struct SettingsBannerView: View {
         loaded = false
         failed = false
         UserDefaults.standard.set("request-\(attempts)", forKey: statusKey)
-        bannerState = BannerState(size: .sticky(),
-                                  request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID))
+        bannerState = BannerState(
+            size: .inline(width: max(1, adWidth), maxHeight: maxAdHeight),
+            request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID)
+        )
     }
 
     private func scheduleRetryIfNeeded() {

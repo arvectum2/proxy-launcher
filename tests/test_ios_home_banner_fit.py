@@ -13,13 +13,13 @@ def test_iphone_home_is_a_fixed_unscrollable_dashboard():
     assert 'ScrollView' not in iphone
     assert 'GeometryReader' in home
     assert '.frame(width: geometry.size.width, height: geometry.size.height' in iphone
-    assert 'Spacer(minLength: 0)' in iphone
+    assert 'Spacer(minLength: tight ? 4 : 12)' in iphone
     assert 'homeMeasured("banner")' in iphone
     assert 'homeMeasured("connection")' in iphone
     assert 'homeMeasured("profile")' in iphone
     assert 'homeMeasured("header")' in iphone
     assert iphone.index('homeMeasured("header")') < iphone.index('homeMeasured("banner")')
-    assert iphone.index('homeMeasured("banner")') < iphone.index('homeMeasured("connection")')
+    assert iphone.index('homeMeasured("banner")') < iphone.index('Spacer(minLength: tight ? 4 : 12)') < iphone.index('homeMeasured("connection")')
     assert iphone.index('homeMeasured("connection")') < iphone.index('homeMeasured("profile")')
 
 
@@ -54,3 +54,15 @@ def test_geometry_probe_is_debug_only_and_does_not_require_external_packages():
     assert 'APLHomeLayoutQA.json' in s
     assert 'JSONSerialization.data' in s
     assert 'HomeFramePreference' in s
+
+
+def test_larger_real_inline_banner_and_bottom_aligned_actions_with_home_tab_first():
+    source = SRC.read_text(encoding='utf-8')
+    home = source.split('    private var homeScreen: some View {', 1)[1].split('    private var homeConnectControl', 1)[0]
+    shell = source.split('    private var mobileShell: some View {', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
+    assert 'maxAdHeight: tight ? 120 : (compact ? 160 : 220)' in home
+    assert home.index('homeMeasured("banner")') < home.index('Spacer(minLength: tight ? 4 : 12)') < home.index('homeConnectControl')
+    assert '.padding(.bottom, tight ? 4 : 12)' in home
+    assert shell.index('homeScreen') < shell.index('profilesScreen') < shell.index('activityScreen')
+    assert 'case .home: return "house.fill"' in source
+    assert 'return AppL10n.tr("Домой")' in source

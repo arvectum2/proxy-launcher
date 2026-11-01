@@ -36,7 +36,7 @@ class AdaptiveUiContractTests(unittest.TestCase):
             'destination(Destination.SETTINGS, getString(R.string.apl_settings_',
         )
         ios_items = (
-            'case .home: return AppL10n.tr("Главная")',
+            'return AppL10n.tr("Домой")',
             'case .profiles: return AppL10n.tr("Профили")',
             'case .activity: return AppL10n.tr("Активность")',
             'case .settings: return AppL10n.tr("Настройки")',

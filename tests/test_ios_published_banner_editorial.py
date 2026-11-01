@@ -29,12 +29,12 @@ def test_shipped_banner_wiring_is_restored_in_ios_release_source():
     assert 'activeBannerUnitID = demoBannerUnitID' in banner
     assert 'TabView(selection: $destination)' in home
     layout=home.split('private var homeScreen: some View {',1)[1].split('private var dashboardCardMaxHeight',1)[0]
-    assert layout.index('homeMeasured("header")') < layout.index('SettingsBannerView()')
-    assert layout.index('SettingsBannerView()') < layout.index('homeConnectControl')
+    assert layout.index('homeMeasured("header")') < layout.index('SettingsBannerView(')
+    assert layout.index('SettingsBannerView(') < layout.index('homeConnectControl')
     assert '.safeAreaInset(edge: .bottom, spacing: 0)' not in home
-    assert 'SettingsBannerView()' in home
-    assert 'size: .sticky()' in banner
-    assert '.frame(minHeight: 50)' in banner
+    assert 'SettingsBannerView(' in home
+    assert 'size: .inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
+    assert '.frame(minHeight: 80, maxHeight: maxAdHeight)' in banner
     assert '.onAdLoad' in banner and '.onAdFailure' in banner
     assert '.onAdImpression' in banner
     plist=plistlib.loads((IOS/'Config/App-Info.plist').read_bytes())

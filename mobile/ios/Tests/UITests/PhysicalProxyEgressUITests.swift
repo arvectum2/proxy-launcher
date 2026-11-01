@@ -66,7 +66,7 @@ final class PhysicalProxyEgressUITests: XCTestCase {
                                 "-appLanguage.v1", "ru",
                                 "-aplEphemeralTunnelQA"]
         app.launch()
-        guard app.tabBars.buttons["Главная"].waitForExistence(timeout: 12),
+        guard app.tabBars.buttons["Домой"].waitForExistence(timeout: 12),
               app.staticTexts["Отключено"].waitForExistence(timeout: 7) else {
             throw XCTSkip("APL was not confirmed OFF; no VPN state will be changed")
         }
