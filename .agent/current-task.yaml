@@ -17,12 +17,14 @@ completed:
   - 'Follow-up: safe visible-only bulk actions + select all/deselect/favorite selected; 1 targeted Swift test, 5 contract checks and targeted Simulator Debug build PASS.'
   - 'Follow-up: bulk import preserves existing Auto/selected profile and reports incomplete rollback.'
   - 'Follow-up: last-good Auto committed only after successful tunnel apply; failed engine switch cancels VPN instead of false connected status.'
-current: 'Finalize targeted safety increment commit, push to PR #296 and verify its CI status without re-running earlier suites locally.'
+  - 'Safety increment committed/pushed as 4020ee64 on existing Draft PR #296.'
+  - 'Existing hourly Proxy Launcher Watchdog resumed (ID 6ae24bd404c48191afbd9049c9267c16); duplicate legacy task remains disabled.'
+current: 'Source safety increment 4020ee64 pushed; finish exact-head CI and keep PR draft pending physical iPhone acceptance.'
 pending:
   - 'Check CI for new commit and fix concrete failures only.'
   - 'On physical iPhone verify upgrade persistence, Keychain, exclusions/Shortcuts, live VPN, failover and Yandex banner impressions.'
   - 'Prepare signing and TestFlight release only after hardware acceptance/explicit release approval.'
-last_verified_commit: 'a104a915 (last pushed) + uncommitted follow-up safety changes verified locally'
+last_verified_commit: '4020ee64 (new safety changes: one Swift focused test, five iOS contracts, ARM64 iOS Simulator Debug build PASS)'
 test_results:
   - 'Earlier release candidate: Swift 83/83; iOS Python 53/53; signed UI smoke 1/1; Simulator Release and unsigned device Release builds PASS.'
   - 'CI 16/16 PASS on a104a915.'
@@ -30,4 +32,4 @@ test_results:
   - 'This increment: focused tests/test_ios_020_release_contract.py 5/5 PASS.'
   - 'This increment: iOS Simulator ARM64 Debug BUILD SUCCEEDED; diff check PASS.'
   - 'Physical iPhone, live proxy, ad impression and TestFlight NOT CHECKED for 0.2.'
-resume_instruction: 'Use /private/tmp/apl-ios-020-product-plan-20261101 on feat/ios-020-product-plan-20261101, PR #296. Finish source hardening commit, check GitHub CI, fix only newly reported failures. Do not duplicate prior successful local test suites. Do not change occupied main checkout; preserve in-app Connect and Yandex RSYA, no widget. Keep PR draft and do not upload to Apple until physical iPhone acceptance.'
+resume_instruction: 'Use /private/tmp/apl-ios-020-product-plan-20261101 on feat/ios-020-product-plan-20261101, PR #296 at code commit 4020ee64. Check exact-head CI, fix only newly reported failures. Do not duplicate prior successful local test suites. Do not change occupied main checkout; preserve in-app Connect and Yandex RSYA, no widget. Keep PR draft and do not upload to Apple until physical iPhone acceptance.'
