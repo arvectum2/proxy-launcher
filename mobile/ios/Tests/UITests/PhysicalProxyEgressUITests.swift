@@ -67,7 +67,7 @@ final class PhysicalProxyEgressUITests: XCTestCase {
                                 "-aplEphemeralTunnelQA"]
         app.launch()
         guard app.tabBars.buttons["Домой"].waitForExistence(timeout: 12),
-              app.staticTexts["Отключено"].waitForExistence(timeout: 7) else {
+              app.buttons["Подключиться"].waitForExistence(timeout: 7) else {
             throw XCTSkip("APL was not confirmed OFF; no VPN state will be changed")
         }
         let before: PublicEgress
@@ -98,9 +98,11 @@ final class PhysicalProxyEgressUITests: XCTestCase {
             let disconnect = app.buttons["Отключить"]
             if disconnect.exists { disconnect.tap() }
         }
-        guard app.staticTexts["Подключено"].waitForExistence(timeout: 14) else {
-            let possibleStates = ["Отключено", "Подключение…", "Отключение…", "Переподключение…"]
-            let visible = possibleStates.first(where: { app.staticTexts[$0].exists }) ?? "unrecognized"
+        guard app.buttons["Отключить"].waitForExistence(timeout: 14) else {
+            let possibleStates = ["Подключиться", "Подключение…", "Отключение…", "Переподключение…"]
+            let visible = possibleStates.first(where: {
+                app.buttons[$0].exists || app.staticTexts[$0].exists
+            }) ?? "unrecognized"
             let hasAlert = app.alerts.firstMatch.exists
             print("APL_EGRESS connect_timeout state=\(visible) alert_present=\(hasAlert) raw_addresses=redacted")
             XCTFail("APL tunnel did not reach Connected within 14 seconds; recorded sanitized status")
@@ -119,7 +121,7 @@ final class PhysicalProxyEgressUITests: XCTestCase {
 
         let disconnect = app.buttons["Отключить"]
         if disconnect.exists { disconnect.tap() }
-        guard app.staticTexts["Отключено"].waitForExistence(timeout: 12) else {
+        guard app.buttons["Подключиться"].waitForExistence(timeout: 12) else {
             XCTFail("APL did not visibly return to OFF after explicit disconnect")
             return
         }

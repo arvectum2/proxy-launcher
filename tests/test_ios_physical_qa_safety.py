@@ -21,7 +21,7 @@ class PhysicalQASafety(unittest.TestCase):
 
     def test_hardware_tunnel_test_is_opt_in(self):
         self.assertIn('#if APL_RUN_EXPLICIT_VPN_QA', RUNNER)
-        self.assertIn('app.staticTexts["Отключено"]', RUNNER)
+        self.assertIn('app.buttons["Подключиться"]', RUNNER)
         self.assertIn('app.buttons["Отключить"]', RUNNER)
         self.assertIn('XCTSkip(', RUNNER)
         self.assertNotIn('saveProfile(', RUNNER)
@@ -32,7 +32,7 @@ class PhysicalQASafety(unittest.TestCase):
         self.assertIn('#if APL_RUN_EXPLICIT_VPN_QA', source)
         self.assertIn('#if targetEnvironment(simulator)', source)
         self.assertIn('"-aplEphemeralTunnelQA"', source)
-        self.assertIn('app.staticTexts["Отключено"]', source)
+        self.assertIn('app.buttons["Подключиться"]', source)
         self.assertIn('app.buttons["Отключить"]', source)
         self.assertIn('throw XCTSkip(', source)
         self.assertIn('https://api.ipify.org', source)

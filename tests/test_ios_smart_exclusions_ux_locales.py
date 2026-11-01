@@ -6,8 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 IOS = ROOT/'mobile'/'ios'
 UX = (IOS/'App'/'SmartExclusionsUX.swift').read_text(encoding='utf-8')
-VIEW = (IOS/'App'/'ContentView.swift').read_text(encoding='utf-8')
-SCREEN = VIEW.split('struct ExclusionsView: View {',1)[1].split('struct ApplicationExclusionsView:',1)[0]
+SCREEN = (IOS/'App'/'ExclusionsView.swift').read_text(encoding='utf-8')
 
 class IOSSmartExclusionsUXLocaleTests(unittest.TestCase):
     def test_all_new_smart_copy_english_or_native_fallback(self):

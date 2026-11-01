@@ -43,7 +43,9 @@ final class PhysicalVPNControlledUITests: XCTestCase {
         add(profileScreenshot)
         app.tabBars.buttons["Домой"].tap()
         dismissLowBatteryInterruption()
-        let off = app.staticTexts["Отключено"]
+        // Home intentionally hides the redundant OFF caption. Button title is
+        // the observable state for physical QA and VoiceOver users.
+        let off = app.buttons["Подключиться"]
         guard off.waitForExistence(timeout: 10) else {
             throw XCTSkip("Existing device VPN is not explicitly OFF; do not interrupt it")
         }
@@ -57,7 +59,7 @@ final class PhysicalVPNControlledUITests: XCTestCase {
             let disconnect = app.buttons["Отключить"]
             if disconnect.exists { disconnect.tap() }
         }
-        guard app.staticTexts["Подключено"].waitForExistence(timeout: 12) else {
+        guard app.buttons["Отключить"].waitForExistence(timeout: 12) else {
             throw XCTSkip("No working device proxy/tunnel authorization for a controlled VPN acceptance run")
         }
         // The system VPN is on at this point. Verify an actual remote HTTPS

@@ -36,7 +36,8 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('.environment(\\.locale,', app)
         self.assertIn('Picker("Язык приложения"', view)
         self.assertIn('Text(AppL10n.tr(qaStatusTitle))', view)
-        self.assertIn('Text(AppL10n.tr(type.label))', view)
+        editor = (IOS / 'App' / 'ProfileEditorView.swift').read_text(encoding='utf-8')
+        self.assertIn('Text(AppL10n.tr(type.label))', editor)
 
     def test_onboarding_is_skippable_and_reopenable(self):
         app = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
