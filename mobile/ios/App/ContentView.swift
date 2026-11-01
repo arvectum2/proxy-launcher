@@ -797,6 +797,16 @@ struct ContentView: View {
                                     }
                                 }
                                 .disabled(selectedVisibleIDs.isEmpty)
+                                Button {
+                                    Task { await model.scanProfiles(manual: true, specificIDs: selectedVisibleIDs) }
+                                } label: {
+                                    Label(AppL10n.tr("Проверить выбранные"), systemImage: "waveform.path.ecg")
+                                }
+                                .disabled(selectedVisibleIDs.isEmpty || selectedVisibleIDs.count > 10 || model.isScanningProfiles)
+                                if selectedVisibleIDs.count > 10 {
+                                    Text(AppL10n.tr("Для одной проверки выберите не более 10 профилей"))
+                                        .font(.caption).foregroundStyle(Brand.softGray)
+                                }
                                 profileGroupMenu(ids: selectedVisibleIDs)
                                     .disabled(selectedVisibleIDs.isEmpty)
                                 Button("\(AppL10n.tr("Удалить выбранные")) (\(selectedVisibleIDs.count))", role: .destructive) {

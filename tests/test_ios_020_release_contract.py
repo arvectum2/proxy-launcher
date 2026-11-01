@@ -93,6 +93,17 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('guard !vpn.isConnectedOrConnecting', model)
         self.assertIn('store.save(entry.profile, password: entry.password, makeActive: false)', model)
 
+    def test_specific_proxy_scan_is_opt_in_and_capped_at_ten(self):
+        policy = (IOS / 'SharedCore' / 'ProfileScanPolicy.swift').read_text(encoding='utf-8')
+        model = (IOS / 'App' / 'AppViewModel.swift').read_text(encoding='utf-8')
+        ui = (IOS / 'App' / 'ContentView.swift').read_text(encoding='utf-8')
+        self.assertIn('func selectedBatch(ids: [UUID], selected: Set<UUID>)', policy)
+        self.assertIn('selected.count <= manualLimit', policy)
+        self.assertIn('specificIDs: Set<UUID>? = nil', model)
+        self.assertIn('if specificIDs == nil { manualScanCursor', model)
+        self.assertIn('specificIDs: selectedVisibleIDs', ui)
+        self.assertIn('selectedVisibleIDs.count > 10', ui)
+
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)
         for language in ['ru', 'en']:

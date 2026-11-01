@@ -70,6 +70,12 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - Backup includes up to 200 profiles with credentials plus favorites and groups. Restore validates content and cumulative quota first, skips duplicates and remaps imported UUIDs; no existing profile/password is overwritten, no automatic VPN reconnect. Partial import failure attempts rollback and reports incomplete cleanup explicitly.
 - Focused Swift codec/restore-plan tests and simulator build completed; device-facing Files export/import interaction and physical Keychain round-trip remain release acceptance gates.
 
+## Explicit checks of selected proxies — 2026-11-01
+
+- In multi-select mode, users can run one on-demand latency/authentication probe for precisely the 1–10 currently selected visible profiles; selections over 10 are rejected before network activity with a clear hint.
+- This check shares the existing global 10-second manual cooldown, no-overlap gate and failure classification, preserving the rotating ten-profile cursor for subsequent bulk checks. No new connections are created by selecting/organizing profiles alone.
+- One new Swift policy test, one iOS source contract and one ARM64 simulator Debug build PASS; all prior successful test suites were deliberately not repeated.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

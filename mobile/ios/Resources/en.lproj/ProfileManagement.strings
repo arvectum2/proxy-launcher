@@ -54,3 +54,6 @@
 "Не удалось безопасно зашифровать резервную копию" = "Could not securely encrypt the backup";
 "Восстановление прервано; часть новых профилей не удалось удалить" = "Restore stopped; some new profiles could not be removed";
 "Отключите VPN перед восстановлением резервной копии" = "Disconnect VPN before restoring the backup";
+"Проверить выбранные" = "Check selected";
+"Выберите от 1 до 10 профилей" = "Select 1–10 profiles";
+"Для одной проверки выберите не более 10 профилей" = "Select at most 10 profiles per check";

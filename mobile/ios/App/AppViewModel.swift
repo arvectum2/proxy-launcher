@@ -362,7 +362,7 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    func scanProfiles(manual: Bool = false) async {
+    func scanProfiles(manual: Bool = false, specificIDs: Set<UUID>? = nil) async {
         // Never launch overlapping network scans. Imported lists can contain
         // 200 paid proxies, so startup only checks 3 prioritized entries.
         guard !isScanningProfiles else { return }
@@ -377,14 +377,23 @@ final class AppViewModel: ObservableObject {
         }
         let snapshot = profiles
         guard !snapshot.isEmpty else { health = [:]; return }
-        let ids = profileScanPolicy.batch(
-            ids: snapshot.map(\.id), selectedID: selectedProfileID,
-            primaryID: primaryProfileID, favorites: profileOrganization.favorites,
-            manualCursor: manual ? manualScanCursor : nil
-        )
+        let ids: [UUID]
+        if let specificIDs {
+            ids = profileScanPolicy.selectedBatch(ids: snapshot.map(\.id), selected: specificIDs)
+            guard !ids.isEmpty else {
+                lastProfileScanSummary = AppL10n.tr("Выберите от 1 до 10 профилей")
+                return
+            }
+        } else {
+            ids = profileScanPolicy.batch(
+                ids: snapshot.map(\.id), selectedID: selectedProfileID,
+                primaryID: primaryProfileID, favorites: profileOrganization.favorites,
+                manualCursor: manual ? manualScanCursor : nil
+            )
+        }
         if manual {
             lastManualScanAt = now
-            manualScanCursor = (manualScanCursor + ids.count) % snapshot.count
+            if specificIDs == nil { manualScanCursor = (manualScanCursor + ids.count) % snapshot.count }
         } else {
             lastAutomaticScanAt = now
         }
@@ -414,7 +423,8 @@ final class AppViewModel: ObservableObject {
         }
         quality.prune(keeping: Set(profiles.map(\.id)))
         store.proxyQuality = quality
-        lastProfileScanSummary = String(format: AppL10n.tr("Проверено %d из %d профилей"), checked, snapshot.count)
+        lastProfileScanSummary = String(format: AppL10n.tr("Проверено %d из %d профилей"),
+                                        checked, specificIDs == nil ? snapshot.count : ids.count)
     }
 
     func refreshEvents() {

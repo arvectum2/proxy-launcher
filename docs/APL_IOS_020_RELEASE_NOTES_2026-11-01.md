@@ -6,7 +6,7 @@
 
 - Массовый импорт прокси из TXT, CSV, XML и строк `IP:порт:логин:пароль`, поддержка HTTP/HTTPS/SOCKS5.
 - Избранные серверы, собственные группы, поиск, массовое назначение и удаление профилей с подтверждением.
-- Экономная диагностика: до трёх автоматических проверок, ручные партии до десяти, индикация доступности и задержки.
+- Экономная диагностика: до трёх автоматических проверок, ручные партии до десяти и проверка конкретных выбранных прокси, индикация доступности и задержки.
 - Режим Auto учитывает свежие результаты задержки при выборе резервного сервера; добавлены ограничения числа попыток подключения и интервала повторных проверок.
 - Улучшена безопасность хранения паролей в Keychain и поведение при ошибках сохранения.
 - Добавлено создание и восстановление **зашифрованных резервных копий** `.aplbackup`: прокси, пароли, избранное, группы, без перезаписи существующих профилей.
@@ -16,7 +16,7 @@
 
 - Bulk import from TXT, CSV, XML and `host:port:username:password` provider lists (HTTP/HTTPS/SOCKS5).
 - Favorites, custom groups, search, bulk organization and confirmed deletion.
-- Metered-aware connection diagnostics with bounded automatic/manual checks and latency display.
+- Metered-aware diagnostics with bounded automatic/manual checks, explicit checks of up to 10 selected proxies, and latency display.
 - Improved Auto backup ranking and bounded retries; stronger Keychain error handling.
 - Password-protected encrypted `.aplbackup` export and restore, including profile credentials, favorites and groups, without overwriting existing servers.
 - Connect/Disconnect stays in the app with its existing ad placement. No quick-connect widget.

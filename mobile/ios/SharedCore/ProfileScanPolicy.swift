@@ -23,6 +23,13 @@ struct ProfileScanPolicy {
         return ordered
     }
 
+    /// Explicit user selection is different from the rotating ten-profile
+    /// page: never silently ignore extra checked items or test hidden rows.
+    func selectedBatch(ids: [UUID], selected: Set<UUID>) -> [UUID] {
+        guard !selected.isEmpty, selected.count <= manualLimit else { return [] }
+        return ids.filter { selected.contains($0) }
+    }
+
     func permitted(now: Date, lastScan: Date?, manual: Bool) -> Bool {
         guard let lastScan else { return true }
         return now.timeIntervalSince(lastScan) >= (manual ? manualCooldown : automaticCooldown)

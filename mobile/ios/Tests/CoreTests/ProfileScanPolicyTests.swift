@@ -20,6 +20,15 @@ final class ProfileScanPolicyTests: XCTestCase {
         XCTAssertEqual(Set(first + second + third), Set(ids))
     }
 
+    func testExplicitSelectionChecksOnlySelectedIDsAndRejectsOversizedBatches() {
+        let ids = (0..<24).map { _ in UUID() }
+        let policy = ProfileScanPolicy()
+        XCTAssertEqual(policy.selectedBatch(ids: ids, selected: [ids[8], ids[2]]), [ids[2], ids[8]])
+        XCTAssertTrue(policy.selectedBatch(ids: ids, selected: Set(ids.prefix(11))).isEmpty)
+        XCTAssertTrue(policy.selectedBatch(ids: ids, selected: []).isEmpty)
+        XCTAssertEqual(policy.selectedBatch(ids: ids, selected: [ids[9], UUID()]), [ids[9]])
+    }
+
     func testCooldownAndEmptyProfiles() {
         let now = Date()
         let policy = ProfileScanPolicy()
