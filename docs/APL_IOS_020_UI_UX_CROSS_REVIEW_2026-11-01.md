@@ -68,3 +68,5 @@
 **Документация SDK:** [Yandex SwiftUI adaptive inline](https://ads.yandex.com/helpcenter/en/dev/ios/swiftui/adaptive-inline-banner), [Yandex SwiftUI adaptive sticky](https://ads.yandex.com/helpcenter/en/dev/ios/swiftui/adaptive-sticky-banner), [Yandex SDK refresh FAQ](https://ads.yandex.com/helpcenter/en/support/faq/sdk-integration).
 
 **Следующий шаг:** при следующем online у физического iPhone установить уже собранный development-signed 0.2.0 (48) поверх существующего приложения, проверить видимые реальные рекламные креативы и сохранить App Group профили 3/3 без изменения. App Store и локализации остаются неизменными.
+
+**Реальный production ad smoke на Simulator:** два RSYA блока загружены с `impression/impression`. Подробности и зафиксированная ожидающая установка на физический iPhone: `docs/APL_IOS_020_SWIPE_ADS_QA_2026-11-01.md`.
