@@ -179,8 +179,9 @@ private final class HomeNativeAdContentView: YandexMobileAds.NativeAdView {
             media.widthAnchor.constraint(equalTo: main.widthAnchor, multiplier: 0.36),
             favicon.widthAnchor.constraint(equalToConstant: 14),
             favicon.heightAnchor.constraint(equalToConstant: 14),
-            feedback.widthAnchor.constraint(equalToConstant: 30),
-            feedback.heightAnchor.constraint(equalToConstant: 24)
+            // Apple's recommended minimum interactive target is 44x44pt.
+            feedback.widthAnchor.constraint(equalToConstant: 44),
+            feedback.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
 }

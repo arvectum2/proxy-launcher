@@ -516,6 +516,12 @@ struct ContentView: View {
         qaState == "connected" || model.vpn.status == .connected || model.vpn.status == .reasserting
     }
 
+    private var homeConnectionIsTransitioning: Bool {
+        qaState == "connecting" || qaState == "disconnecting" ||
+        model.vpn.status == .connecting || model.vpn.status == .disconnecting ||
+        model.vpn.status == .reasserting
+    }
+
     private var homeConnectControl: some View {
         Button {
             if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
@@ -534,9 +540,22 @@ struct ContentView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.68)
                 Spacer(minLength: 0)
-                Image(systemName: "arrow.right.circle.fill")
-                    .font(.system(size: 23, weight: .semibold))
-                    .accessibilityHidden(true)
+                // Directional arrows imply navigation, which Disconnect is not.
+                // An indeterminate indicator stays INSIDE the same 70pt button
+                // so neither the primary action nor either ad changes position.
+                Group {
+                    if homeConnectionIsTransitioning {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(Brand.mintLight)
+                    } else {
+                        Image(systemName: homeConnectionIsEstablished
+                              ? "stop.circle.fill" : "arrow.right.circle.fill")
+                            .font(.system(size: 23, weight: .semibold))
+                    }
+                }
+                .frame(width: 24, height: 24)
+                .accessibilityHidden(true)
             }
             .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
             .padding(.horizontal, 20)
@@ -732,24 +751,6 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                     header
 #endif
-                    Text(AppL10n.tr("Профили"))
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(Brand.text)
-                    if !model.profiles.isEmpty {
-                    Menu { profileSelectionMenu } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("Текущий профиль").font(.caption).foregroundStyle(Brand.softGray)
-                                Text(AppL10n.tr(model.selectedLabel)).font(.headline).foregroundStyle(Brand.text).lineLimit(1)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.down").foregroundStyle(Brand.mint)
-                        }
-                        .padding(16)
-                        .background(Brand.graphite)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    }
                     HStack(spacing: 8) {
                         cardButton("Добавить", filled: true) { showNewProfile = true }
                         cardButton("Импорт", filled: false) {
@@ -757,12 +758,24 @@ struct ContentView: View {
                         }
                         .accessibilityIdentifier("profiles.import")
                         cardButton("Копия", filled: false) { showProfileBackup = true }
+                            .accessibilityLabel(AppL10n.tr("Резервные копии"))
                             .accessibilityIdentifier("profiles.encryptedBackup")
                     }
-                    if !model.profiles.isEmpty {
+                    if model.profiles.isEmpty {
+                        VStack(spacing: 10) {
+                            Image(systemName: "tray")
+                                .font(.system(size: 32, weight: .light))
+                                .accessibilityHidden(true)
+                            Text(AppL10n.tr("Нет прокси"))
+                                .font(.subheadline)
+                        }
+                        .foregroundStyle(Brand.softGray)
+                        .frame(maxWidth: .infinity, minHeight: 150)
+                        .accessibilityIdentifier("profiles.emptyState")
+                    } else {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text(AppL10n.tr("Список прокси")).font(.headline).foregroundStyle(Brand.text)
+                                Text(AppL10n.tr("Профили")).font(.headline).foregroundStyle(Brand.text)
                                 Spacer()
                                 Button(profileBulkMode ? AppL10n.tr("Готово") : AppL10n.tr("Выбрать")) {
                                     profileBulkMode.toggle()
@@ -818,7 +831,16 @@ struct ContentView: View {
                                                     .foregroundStyle(Brand.mint)
                                             }
                                             VStack(alignment: .leading, spacing: 3) {
-                                                Text(profile.name).font(.subheadline.weight(.semibold))
+                                                HStack(spacing: 5) {
+                                                    Text(profile.name)
+                                                        .font(.subheadline.weight(.semibold))
+                                                    if !model.automaticSelection && model.selectedProfileID == profile.id {
+                                                        Image(systemName: "checkmark.circle.fill")
+                                                            .font(.caption)
+                                                            .foregroundStyle(Brand.mintLight)
+                                                            .accessibilityLabel(AppL10n.tr("Текущий профиль"))
+                                                    }
+                                                }
                                                 Text("\(profile.host):\(String(profile.port)) · \(profile.type.rawValue)")
                                                     .font(.caption).foregroundStyle(Brand.softGray)
                                                     // Host, port and protocol are LTR technical
@@ -836,6 +858,7 @@ struct ContentView: View {
                                             Spacer(minLength: 0)
                                         }
                                         .foregroundStyle(Brand.text)
+                                        .frame(minHeight: 44)
                                         .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
@@ -982,9 +1005,16 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                     header
 #endif
-                    sectionTitle("Активность", subtitle: "Состояние соединения и последние события")
+                    Text(AppL10n.tr("Активность"))
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(Brand.text)
                     HStack {
-                        Label(AppL10n.tr(model.vpn.detail), systemImage: "bolt.horizontal.circle")
+                        // Raw NetworkExtension IPC errors are not actionable
+                        // product copy. Keep diagnostics in Journal, display a
+                        // localized explanation on the overview.
+                        Label(AppL10n.tr(model.vpn.detail.contains("IPC failed")
+                                       ? "Не удалось открыть VPN-сессию" : model.vpn.detail),
+                              systemImage: "bolt.horizontal.circle")
                             .foregroundStyle(connectionStatusColor)
                         Spacer()
                         Button("Обновить") { model.refreshEvents() }
@@ -1256,10 +1286,6 @@ struct ContentView: View {
             .tint(Brand.mint)
             .accessibilityIdentifier("settings.returnToPrimary")
             .accessibilityHint(AppL10n.tr("Выкл. — меньше переключений: работаем через резервный, пока он доступен. Действует в режиме Авто."))
-            Text(AppL10n.tr("Выкл. — остаёмся на резервном без лишних переключений."))
-                .font(.caption2)
-                .foregroundStyle(Brand.softGray)
-                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 9)

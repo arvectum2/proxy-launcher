@@ -43,12 +43,17 @@ struct ProfileBackupView: View {
         NavigationView {
             Form {
                 Section {
-                    Text(AppL10n.tr("Копия содержит адреса прокси, логины, пароли, избранное и группы. Файл шифруется до сохранения. Без пароля восстановить его невозможно."))
-                        .font(.footnote)
-                    Text(AppL10n.tr("Ни пароль копии, ни её содержимое не передаются на сервер Arvectum."))
-                        .font(.caption).foregroundStyle(.secondary)
-                } header: {
-                    Text(AppL10n.tr("Зашифрованная резервная копия"))
+                    // Show only the essential label by default; detailed
+                    // backup/security explanations remain available on demand.
+                    DisclosureGroup {
+                        Text(AppL10n.tr("Копия содержит адреса прокси, логины, пароли, избранное и группы. Файл шифруется до сохранения. Без пароля восстановить его невозможно."))
+                            .font(.footnote)
+                        Text(AppL10n.tr("Ни пароль копии, ни её содержимое не передаются на сервер Arvectum."))
+                            .font(.caption).foregroundStyle(.secondary)
+                    } label: {
+                        Label(AppL10n.tr("Зашифрованная резервная копия"), systemImage: "lock.doc")
+                    }
+                    .accessibilityIdentifier("backup.explanation")
                 }
 
                 Section(AppL10n.tr("Сохранить копию")) {

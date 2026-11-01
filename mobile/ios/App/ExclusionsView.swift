@@ -152,7 +152,7 @@ struct ExclusionsView: View {
                             } label: {
                                 Image(systemName: "trash")
                                     .foregroundStyle(.red)
-                                    .frame(minWidth: 36, minHeight: 36)
+                                    .frame(minWidth: 44, minHeight: 44)
                             }
                             .buttonStyle(.borderless)
                             .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
@@ -261,8 +261,12 @@ struct ExclusionsView: View {
                                     .frame(width: 48, height: 48)
                             } else {
                                 Text(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
-                                    .font(.body.weight(.semibold))
-                                    .padding(.horizontal, 12)
+                                    .font(.subheadline.weight(.semibold))
+                                    // Native iOS toolbar buttons compress titles. Keep
+                                    // Save on ONE line instead of 'Сохранит' + 'ь'.
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                                    .padding(.horizontal, 8)
                                     .frame(minHeight: 44)
                             }
                         }

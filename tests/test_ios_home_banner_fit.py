@@ -41,7 +41,7 @@ def test_critical_controls_remain_accessible_and_translated():
     home = source.split('    private var homeConnectControl: some View {', 1)[1].split('    // Preserve equal-height macOS', 1)[0]
     assert '.disabled(!model.vpn.canToggle)' in home
     assert '.accessibilityLabel(AppL10n.tr(qaActionTitle))' in home
-    assert 'if homeConnectionIsTransitioning {' not in home
+    assert 'Text(AppL10n.tr(qaStatusTitle))' not in home
     assert 'Text(AppL10n.tr(qaStatusTitle))' not in home
     assert 'Text(AppL10n.tr(qaActionTitle))' in home
     assert '.homeMeasured("primaryAction")' in home
@@ -79,13 +79,17 @@ def test_two_ads_and_connect_off_is_outlined():
     assert 'NativeHomeAdView(width:' in home
     assert 'if geometry.size.height >= 650' in home
     assert 'homeConnectionIsEstablished ? Brand.mint : Brand.surface' in home
-    assert 'if homeConnectionIsTransitioning {' not in home
+    assert 'Text(AppL10n.tr(qaStatusTitle))' not in home
     assert 'Text(AppL10n.tr(qaActionTitle))' in home
     assert 'homeConnectControl' in home
     assert home.index('NativeHomeAdView(width:') < home.index('homeMeasured("adStack")') < home.index('Spacer(minLength: tight ? 4 : 12)') < home.index('homeConnectControl')
     # Only the button owns the status label; no conditional caption shifts height.
     control = home.split('private var homeConnectControl: some View {', 1)[1].split('private var homeProfileControl:', 1)[0]
-    assert 'if homeConnectionIsTransitioning' not in control
+    assert 'Text(AppL10n.tr(qaStatusTitle))' not in control
+    assert 'if homeConnectionIsTransitioning {' in control
+    assert 'ProgressView()' in control
+    assert 'stop.circle.fill' in control
+    assert '.frame(width: 24, height: 24)' in control
     assert '.frame(height: 70)' in control
     assert 'Text(AppL10n.tr(qaActionTitle))' in control
 
