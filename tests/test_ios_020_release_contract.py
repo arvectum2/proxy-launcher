@@ -115,6 +115,7 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('profiles.import', src)
         self.assertIn('profiles.encryptedBackup', src)
         self.assertIn('SettingsBannerView()', src)
+        self.assertEqual(src.count('SettingsBannerView()'), 1)
 
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)

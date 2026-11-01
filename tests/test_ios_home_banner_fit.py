@@ -18,6 +18,9 @@ def test_iphone_home_is_a_fixed_unscrollable_dashboard():
     assert 'homeMeasured("connection")' in iphone
     assert 'homeMeasured("profile")' in iphone
     assert 'homeMeasured("header")' in iphone
+    assert iphone.index('homeMeasured("header")') < iphone.index('homeMeasured("banner")')
+    assert iphone.index('homeMeasured("banner")') < iphone.index('homeMeasured("connection")')
+    assert iphone.index('homeMeasured("connection")') < iphone.index('homeMeasured("profile")')
 
 
 def test_preview_banner_never_appears_in_release_without_real_ad():
@@ -32,16 +35,17 @@ def test_preview_banner_never_appears_in_release_without_real_ad():
 
 def test_critical_controls_remain_accessible_and_translated():
     source = SRC.read_text(encoding='utf-8')
-    home = source.split('    private func connectionCard(', 1)[1].split('    private var profilesScreen:', 1)[0]
+    home = source.split('    private var homeConnectControl: some View {', 1)[1].split('    // Preserve equal-height macOS', 1)[0]
     assert '.disabled(!model.vpn.canToggle)' in home
     assert '.accessibilityLabel(AppL10n.tr(qaActionTitle))' in home
-    for text in ('Соединение', 'Прокси', 'Сменить', 'Нет прокси'):
-        assert f'AppL10n.tr("{text}")' in home
+    assert 'Text(AppL10n.tr(qaStatusTitle))' in home
+    assert '.homeMeasured("primaryAction")' in home
+    assert 'Menu { profileSelectionMenu }' in home
+    assert 'homeProfileLabel(qaProfile ? "QA Proxy" : model.selectedLabel)' in home
     assert '.minimumScaleFactor(' in home
-    assert 'AppL10n.tr(qaHelp)' not in home
     assert 'showNewProfile = true' in home
-    assert 'destination = .profiles' not in home  # bottom tab already provides navigation
-    assert '.frame(height: compact ? 44 : 52)' in home
+    assert '.frame(height: 70)' in home
+    assert '.frame(height: 58)' in home
 
 
 def test_geometry_probe_is_debug_only_and_does_not_require_external_packages():

@@ -27,7 +27,10 @@ def test_shipped_banner_wiring_is_restored_in_ios_release_source():
     assert 'static let isEnabled = true' in banner
     assert 'activeBannerUnitID = productionBannerUnitID' in banner
     assert 'activeBannerUnitID = demoBannerUnitID' in banner
-    assert 'VStack(spacing: 0)' in home
+    assert 'TabView(selection: $destination)' in home
+    layout=home.split('private var homeScreen: some View {',1)[1].split('private var dashboardCardMaxHeight',1)[0]
+    assert layout.index('homeMeasured("header")') < layout.index('SettingsBannerView()')
+    assert layout.index('SettingsBannerView()') < layout.index('homeConnectControl')
     assert '.safeAreaInset(edge: .bottom, spacing: 0)' not in home
     assert 'SettingsBannerView()' in home
     assert 'size: .sticky()' in banner

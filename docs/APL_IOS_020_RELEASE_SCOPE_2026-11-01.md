@@ -85,6 +85,13 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - Immediately after device XCTest, restored the ad-enabled development-signed 0.2.0 binary. Re-read app group preferences: three profiles and UUIDs still identical to 0.1.42, existing keys preserved; Yandex SDK again reported `impression`. These QA preferences remain privately backed up on Mac mini, not in the repository.
 - App Store distribution and TestFlight still gated on real Files backup/restore acceptance and cross-provider egress/failover checks as appropriate, actual release signing and separate authorization; a locally development-signed device test is not a public release.
 
+## Ergonomic iPhone Home — final layout review, 2026-11-01
+
+- iPhone-only order explicitly specified by owner: wordmark/header, real Yandex production banner, primary Connect/Disconnect, single active-profile selector, native system tab menu anchored at the bottom.
+- Advertising component moved from the global `TabView` sibling/footer to directly under the Home header, with one instance only. No additional ad is inserted on non-home tabs. iPad/compact sizes retain an unscrollable Home and dynamic width with a maximum 580-point action column.
+- Removed the redundant Connection and Profile cards on iPhone only; the status is a small non-button label below Connect, and the active profile is one selector button with its name. Existing macOS Catalyst cards remain unchanged. The existing Arvectum bitmap wordmark is preserved; adjacent text uses an optical vertical offset and matching bold weight.
+- Real iPhone UI screenshot and focused source/layout assertions are the acceptance evidence, not a repeated VPN stress suite. Product release/Apple privacy approval remains separate.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

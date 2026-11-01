@@ -21,9 +21,14 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertEqual(main.count('SettingsBannerView()'), 1)
         self.assertLess(main.find('SettingsBannerView()'), main.find('private var settingsScreen:'))
         mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
-        self.assertIn('VStack(spacing: 0)', mobile_shell)
+        home = main.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
+        self.assertIn('TabView(selection: $destination)', mobile_shell)
+        self.assertNotIn('SettingsBannerView()', mobile_shell)
         self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
-        self.assertIn('SettingsBannerView()', mobile_shell)
+        self.assertIn('SettingsBannerView()', home)
+        self.assertLess(home.index('homeMeasured("header")'), home.index('SettingsBannerView()'))
+        self.assertLess(home.index('SettingsBannerView()'), home.index('homeConnectControl'))
+        self.assertLess(home.index('homeConnectControl'), home.index('homeProfileControl'))
         settings = main.split('private var settingsScreen:', 1)[1].split('private var profileSelectionMenu', 1)[0]
         self.assertNotIn('SettingsBannerView()', settings)
         self.assertNotIn('SettingsBannerView', (IOS / "PacketTunnel" / "PacketTunnelProvider.swift").read_text(encoding="utf-8"))

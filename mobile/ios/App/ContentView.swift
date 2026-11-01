@@ -235,8 +235,10 @@ struct ContentView: View {
     }
 
     private var mobileShell: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $destination) {
+        // The native tab bar is always the last element on screen. Home owns
+        // the banner directly below the wordmark, above both main actions.
+        // Other tabs are not pushed up by an ad footer.
+        TabView(selection: $destination) {
             homeScreen
                 .tag(AppDestination.home)
                 .tabItem { Label(AppDestination.home.title, systemImage: AppDestination.home.icon) }
@@ -250,14 +252,7 @@ struct ContentView: View {
                 .tag(AppDestination.settings)
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
-            .tint(Brand.mint)
-            // A sibling rather than an inset on TabView. The actual ad SDK's
-            // sticky height is measured by the stack; it must not displace
-            // or obscure the native tab bar on compact iPhones.
-            SettingsBannerView()
-                .frame(maxWidth: .infinity)
-                .background(Brand.canvas)
-        }
+        .tint(Brand.mint)
         .background(Brand.canvas)
     }
 
@@ -341,10 +336,13 @@ struct ContentView: View {
                 .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 8))
                 .accessibilityLabel("Arvectum")
             Text("Proxy Launcher")
+                // The bold font matches the baked-in Arvectum wordmark;
+                // offset corrects the two labels' optical baseline.
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Brand.mint)
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
+                .offset(y: 2)
             Spacer(minLength: 4)
             Text(AppShared.version)
                 .font(.caption2)
@@ -425,30 +423,41 @@ struct ContentView: View {
                 let tight = geometry.size.height < 510
                 let compact = geometry.size.height < 680
                 let gap: CGFloat = tight ? 6 : (compact ? 9 : 14)
+                let edge: CGFloat = compact ? 12 : 18
                 VStack(spacing: gap) {
-                    header.homeMeasured("header")
-                    if geometry.size.width >= 700 {
-                        HStack(alignment: .top, spacing: gap) {
-                            connectionCard(compact: compact)
-                            activeProfileCard(compact: compact)
+                    header
+                        .padding(.horizontal, edge)
+                        .homeMeasured("header")
+
+                    // The real ad lives between the header and Connect,
+                    // not beneath the native tab bar. Keep a single instance.
+                    Group {
+                        if bannerPreview {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Brand.surface)
+                                .overlay {
+                                    Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
+                                        .font(.caption2).foregroundStyle(Brand.softGray)
+                                }
+                                .frame(height: tight ? 60 : bannerHeightQA)
+                        } else {
+                            SettingsBannerView()
                         }
-                    } else {
-                        connectionCard(compact: compact).homeMeasured("connection")
-                        activeProfileCard(compact: compact).homeMeasured("profile")
                     }
+                    .frame(maxWidth: .infinity)
+                    .homeMeasured("banner")
+
+                    VStack(spacing: gap) {
+                        homeConnectControl
+                            .homeMeasured("connection")
+                        homeProfileControl
+                            .homeMeasured("profile")
+                    }
+                    .frame(maxWidth: 580)
+                    .padding(.horizontal, edge)
+
                     Spacer(minLength: 0)
-                    if bannerPreview {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Brand.surface)
-                            .overlay {
-                                Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
-                                    .font(.caption2).foregroundStyle(Brand.softGray)
-                            }
-                            .frame(height: tight ? 60 : bannerHeightQA)
-                            .homeMeasured("banner")
-                    }
                 }
-                .padding(.horizontal, compact ? 12 : 18)
                 .padding(.vertical, tight ? 6 : (compact ? 9 : 14))
                 .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
                 .coordinateSpace(name: "APLHome")
@@ -465,6 +474,104 @@ struct ContentView: View {
             }
         }
     }
+    /// iPhone Home: one primary action, one status, one profile selector.
+    /// The larger multi-control cards remain available on macOS Catalyst.
+    private var homeConnectControl: some View {
+        VStack(spacing: 6) {
+            Button {
+                if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                    showNewProfile = true
+                } else {
+                    Task { await model.toggleVPN() }
+                }
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                        ? "plus.circle.fill" : "power")
+                        .font(.system(size: 24, weight: .bold))
+                        .accessibilityHidden(true)
+                    Text(AppL10n.tr(qaActionTitle))
+                        .font(.system(size: 22, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.68)
+                    Spacer(minLength: 0)
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 23, weight: .semibold))
+                        .accessibilityHidden(true)
+                }
+                .foregroundStyle(Brand.actionText)
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
+                .frame(height: 70)
+                .background(Brand.mint, in: RoundedRectangle(cornerRadius: 18))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Brand.mintLight.opacity(0.65), lineWidth: 1.5)
+                }
+                .opacity(model.vpn.canToggle ? 1 : 0.6)
+            }
+            .buttonStyle(.plain)
+            .disabled(!model.vpn.canToggle)
+            .homeMeasured("primaryAction")
+            .accessibilityLabel(AppL10n.tr(qaActionTitle))
+            .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+                ? "Открыть создание первого прокси"
+                : model.vpn.isConnectedOrConnecting
+                    ? "Отключить системный прокси-туннель"
+                    : "Подключиться через выбранный прокси")
+
+            HStack(spacing: 6) {
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 8))
+                    .accessibilityHidden(true)
+                Text(AppL10n.tr(qaStatusTitle))
+                    .font(.caption.weight(.medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(connectionStatusColor)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    private var homeProfileControl: some View {
+        Group {
+            if model.profiles.isEmpty && !qaProfile {
+                Button { showNewProfile = true } label: {
+                    homeProfileLabel(AppL10n.tr("Добавить прокси"))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(AppL10n.tr("Добавить прокси"))
+            } else {
+                Menu { profileSelectionMenu } label: {
+                    homeProfileLabel(qaProfile ? "QA Proxy" : model.selectedLabel)
+                }
+                .accessibilityLabel(AppL10n.tr("Прокси") + ": " + model.selectedLabel)
+            }
+        }
+    }
+
+    private func homeProfileLabel(_ name: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "server.rack")
+                .font(.system(size: 19, weight: .medium))
+                .accessibilityHidden(true)
+            Text(name)
+                .font(.system(size: 17, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.down")
+                .font(.system(size: 14, weight: .semibold))
+                .accessibilityHidden(true)
+        }
+        .foregroundStyle(Brand.text)
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
+        .frame(height: 58)
+        .background(Brand.surface, in: RoundedRectangle(cornerRadius: 16))
+    }
+
     // Preserve equal-height macOS Catalyst cards while iPhone Home measures
     // intrinsic card heights to leave space for the bottom banner footprint.
     private var dashboardCardMaxHeight: CGFloat? {
