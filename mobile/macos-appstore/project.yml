@@ -27,6 +27,13 @@ targets:
       - ../ios/App/AppearanceMode.swift
       - ../ios/App/AppLocalization.swift
       - ../ios/App/SetupGuideView.swift
+      - ../ios/App/ProxyImportUX.swift
+      - ../ios/App/ProxyImportView.swift
+      - ../ios/App/ProxyQRScanner.swift
+      - ../ios/App/SmartExclusionsUX.swift
+      - ../ios/App/QuickActionsHelpView.swift
+      - ../ios/App/HomeLayoutProbe.swift
+      - App/MacSettingsBannerPlaceholder.swift
       - App/VPNController.swift
       - App/PrivacyDisclosureView.swift
       - ../ios/Shared/ProfileStore.swift

@@ -27,15 +27,23 @@ final class TLSProxyRelay: @unchecked Sendable {
     private let upstreamHost: NWEndpoint.Host
     private let upstreamPort: NWEndpoint.Port
     private let queue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tlsrelay")
-    private let policy = RelayConnectionPolicy()
+    private let policy: RelayConnectionPolicy
+    private let sweepIntervalSeconds: TimeInterval
     private var listener: NWListener?
     private var sweepTimer: DispatchSourceTimer?
     private var connections: [UUID: Pair] = [:]
     private var stopped = false
 
-    init(host: String, port: Int) {
+    init(
+        host: String,
+        port: Int,
+        policy: RelayConnectionPolicy = RelayConnectionPolicy(),
+        sweepIntervalSeconds: TimeInterval = 10
+    ) {
         upstreamHost = NWEndpoint.Host(host)
         upstreamPort = NWEndpoint.Port(rawValue: UInt16(port))!
+        self.policy = policy
+        self.sweepIntervalSeconds = sweepIntervalSeconds
     }
 
     func start() async throws -> Int {
@@ -67,7 +75,7 @@ final class TLSProxyRelay: @unchecked Sendable {
         // serial queue. Periodic reaping is independent of the tunnel monitor.
         queue.async { [self] in
             let timer = DispatchSource.makeTimerSource(queue: queue)
-            timer.schedule(deadline: .now() + 15, repeating: 15)
+            timer.schedule(deadline: .now() + sweepIntervalSeconds, repeating: sweepIntervalSeconds)
             timer.setEventHandler { [weak self] in self?.reapIdle() }
             sweepTimer = timer
             timer.resume()
