@@ -1,27 +1,20 @@
-task_id: APL-IOS-BULK-PROXY-IMPORT-20261101
-status: completed
-goal: 'Support provider-formatted proxy imports host:port:login:password, TXT/CSV/XML batches on iOS while preserving existing URLs, QR, credentials and App Store submission.'
+task_id: APL-IOS-020-20261101
+status: in_progress
+goal: 'Deliver substantial iOS 0.2 update with in-app ad-supported connection as the primary user journey.'
 definition_of_done:
-  - 'Accept HTTP/HTTPS/SOCKS5 links and multiline supplier host:port:login:password, including bracketed IPv6 and colons in passwords.'
-  - 'Import UTF-8 TXT, CSV with EN/RU header aliases or positional fields, and structured XML proxy elements/attributes; reject external XML entities and invalid lists wholesale.'
-  - 'Apply selectable HTTP/HTTPS/SOCKS5 default to entries without protocol, limit 200 proxies/256000 bytes, show preview without credentials, preserve duplicate filtering.'
-  - 'Focused Swift and iOS simulator UI tests pass, document behavior and merge PR on green checks.'
+  - 'Implement P0 profile management, bounded health checks, selection/failover, reliability and UX improvements.'
+  - 'Preserve existing Yandex ads and primary in-app Connect/Disconnect; add no new widget or external quick-connect surface.'
+  - 'Pass targeted automated tests and physical iPhone upgrade/advertising acceptance; prepare TestFlight and 0.2 release.'
 completed:
-  - 'Inspected origin/main 4136d683: prior parser accepted HTTP/HTTPS/SOCKS5 URLs only; TXT supported URLs, CSV/XML and vendor raw strings absent.'
-  - 'Implemented bounded RAW/TXT, CSV with headers/positional entries and quoted fields, XML with attributes/child elements and DTD/entity rejection; old URLs and QR preserved.'
-  - 'Added iOS HTTP/HTTPS/SOCKS5 default protocol picker, CSV/XML files in picker, translated import labels and errors, no password in preview.'
-  - 'Added 11 Swift parser tests; total 71/71 PASS.'
-  - 'iOS Simulator Debug build-for-testing PASS; targeted provider raw preview XCUITest PASS (15.367s), no fake profile saved; existing URL preview UI PASS.'
-  - 'Five focused Python iOS onboarding/preview contract tests PASS; git diff --check PASS.'
-  - 'Documented format examples, 200/256KB limit, XML safety and explicit App Store release exclusion in docs/ROADMAP.md and docs/APL_IOS_042_BULK_PROXY_IMPORT_2026-11-01.md.'
-  - 'Production/source implementation committed as 520411a4 on isolated branch feat/ios-bulk-proxy-import-20261101.'
-current: 'Implementation and targeted QA complete; protected PR/green CI merge is the only remaining mechanical action.'
-pending: []
-last_verified_commit: '520411a4 (71/71 Swift PASS, focused iOS Simulator UI PASS, iOS build-for-testing PASS)'
+  - 'Verified existing bulk proxy import checkpoint completed and PR #295 merged.'
+  - 'Captured approved advertising-first scope and P0/P1/deferred release boundaries in docs/APL_IOS_020_RELEASE_SCOPE_2026-11-01.md.'
+current: 'Audit current iOS profile storage and connection selection before implementing P0 profile-management increments.'
+pending:
+  - 'Implement bulk profile management, groups, favorites and search with migration tests.'
+  - 'Implement bounded proxy health checks and selection/failover with focused tests.'
+  - 'Polish Home/onboarding, diagnostics, localization and advertising regression.'
+  - 'Physical iPhone and TestFlight acceptance; release only after explicit authorization.'
+last_verified_commit: 'origin/main baseline before 0.2 scope commit'
 test_results:
-  - 'Swift package: 71/71 PASS (11 new importer cases).'
-  - 'iOS Simulator build-for-testing: TEST BUILD SUCCEEDED.'
-  - 'iOS Simulator provider raw preview: PASS 15.367s; old URL preview: PASS; no profiles imported.'
-  - 'Python focused onboarding+format contracts: 5/5 PASS.'
-  - 'Physical iPhone, stored profiles and submitted Apple 0.1.41 (46): unchanged.'
-resume_instruction: 'Source branch /tmp/apl-ios-bulk-proxy-import-20261101, 520411a4, fully implemented and targeted verified; push PR to protected main, merge after all required GitHub CI is green, then verify remote main SHA. Avoid any new VPN test campaign or App Store Connect mutation. iOS 0.1.42 (47) source only; physical iPhone still runs prior build until separate release.'
+  - 'Planning only; no 0.2 implementation tests executed.'
+resume_instruction: 'Use isolated worktree /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101. Audit existing iOS profile storage, view and connection manager; implement P0 incrementally. Keep in-app ads and Connect as primary journey; no widget. Do not modify occupied canonical main checkout or publish to Apple.'
