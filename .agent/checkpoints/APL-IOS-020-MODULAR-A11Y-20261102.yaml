@@ -1,0 +1,29 @@
+task_id: APL-IOS-020-POSTRELEASE-PREPARATION-20261102
+status: completed
+goal: Continue roadmap without releasing previous Apple build; modularize iOS Settings/Activity and make Dynamic Type UI accessible.
+definition_of_done:
+  - Extract Settings and Activity as separate SwiftUI components while sharing AppViewModel and state bindings.
+  - Clean up independent brand tokens, destination and Catalyst layout and unused styles.
+  - At normal size retain compact Settings; at XXL no clipped labels, controls reachable at >=44 pt including RTL and smaller SE device.
+  - Focused source and iPhone Simulator UI tests PASS; preserve all 50 localizations; report, commit and push to Draft PR only.
+completed:
+  - Extracted CompactSettingsView, ActivityScreenView, BrandTheme, AppDestination, EqualHeightDashboardLayout; ContentView reduced 1500 to 1122 lines, removed dead primary/secondary styles.
+  - @ObservedObject and @Bindings use same AppViewModel and @AppStorage values, no second VPN/proxy state or user data writes.
+  - DynamicTypeSize Accessibility XXL: label/value vertically stacked, segmented theme becomes menu, icons fixed appropriate size, actions and event rows accessible.
+  - Native iPhone13 Simulator normal Settings one-screen 1/1 PASS 10.092s and screenshots verified.
+  - Native iPhone13 Simulator Accessibility XXL de/ar Settings+Activity 1/1 PASS 31.054s; six screenshots inspected.
+  - Small iPhone SE3 Simulator Accessibility XXL de/ar Settings+Activity 1/1 PASS 33.723s; six screenshots inspected; simulator state restored.
+  - ARM64 iOS Simulator build PASS, 71/71 source unittest + 11/11 direct source tests PASS; 50-locale audit zero errors and fallback.
+  - Report docs/APL_IOS_020_MODULAR_A11Y_QA_2026-11-02.md and roadmap updated.
+  - Release checkpoint previously blocked is preserved in separate .agent/checkpoints/APL-IOS-020-RELEASE-BLOCKED-20261102.yaml.
+current: Completed. Await next backlog selection; Apple release untouched.
+pending:
+  - Separate next roadmap milestone: extract Profiles UI, including group/favorites/multiselect, retaining Keychain and user profiles.
+  - Manual full VoiceOver physical acceptance, real upstream egress/failover, and owner Apple submission consent remain distinct.
+last_verified_commit: 90c7080e
+test_results:
+  - Source tests 71/71 unittest, 11/11 module-level direct assertions PASS.
+  - iOS Simulator final ARM64 build PASS.
+  - Signed Simulator UI normal iPhone13 1/1 PASS 10.092s, XXL iPhone13 1/1 PASS 31.054s, XXL small iPhone SE3 1/1 PASS 33.723s.
+  - 50 locales unchanged, source audit errors=0, English fallback=0.
+resume_instruction: Completed; do not redo. Use current roadmap and original blocked release checkpoint when taking next stage; preserve Draft PR #296 and never upload or change Apple metadata without explicit new approval; no watchdog.
