@@ -63,7 +63,12 @@ class AdaptiveUiContractTests(unittest.TestCase):
 
     def test_mobile_and_desktop_composition_is_adaptive_not_pixel_cloned(self):
         self.assertIn("#if targetEnvironment(macCatalyst)", IOS)
-        self.assertIn("if geometry.size.width >= 700", IOS)
+        # iPhone Home is intentionally a vertical header/ad/connect/profile
+        # sequence at every phone size; Catalyst remains adaptive by width.
+        self.assertIn("if geometry.size.width >= 820", IOS)
+        self.assertIn(".frame(maxWidth: 580)", IOS)
+        self.assertIn("homeConnectControl", IOS)
+        self.assertIn("homeProfileControl", IOS)
         self.assertIn("desktopShell", IOS)
         self.assertIn("mobileShell", IOS)
         self.assertIn("self.root.minsize(720, 600)", DESKTOP)
