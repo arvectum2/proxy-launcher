@@ -10,7 +10,7 @@
 - Режим Auto учитывает свежие результаты задержки при выборе резервного сервера; добавлены ограничения числа попыток подключения и интервала повторных проверок.
 - Улучшена безопасность хранения паролей в Keychain и поведение при ошибках сохранения.
 - Добавлено создание и восстановление **зашифрованных резервных копий** `.aplbackup`: прокси, пароли, избранное, группы, без перезаписи существующих профилей.
-- На главном экране изменена компоновка: логотип и название → увеличенный баннер → нижние кнопки подключения и профиля → вкладки (первая — «Домой»). Подписи и действия упрощены, повторные элементы убраны, баннер РСЯ исправлен и проверен на iPhone. Виджет подключения не добавлялся.
+- На главном экране: крупный баннер и нативная реклама РСЯ, ниже — контурная кнопка подключения (яркая при подключении), выбор прокси и вкладки «Домой» и другие. Статус «Отключено» больше не дублирует кнопку. Подписи и действия упрощены, повторные элементы убраны, баннер РСЯ исправлен и проверен на iPhone. Виджет подключения не добавлялся.
 
 ## What's new (en)
 
@@ -19,7 +19,7 @@
 - Metered-aware diagnostics with bounded automatic/manual checks, explicit checks of up to 10 selected proxies, and latency display.
 - Improved Auto backup ranking and bounded retries; stronger Keychain error handling.
 - Password-protected encrypted `.aplbackup` export and restore, including profile credentials, favorites and groups, without overwriting existing servers.
-- Redesigned iPhone Home: brand header, larger inline Yandex banner, bottom-aligned Connect/Disconnect and profile selector, and a native tab bar with Home first. Yandex ad loading was verified on a real iPhone; no quick-connect widget.
+- Redesigned iPhone Home: large Yandex inline banner plus a native ad placement, outlined Connect while disconnected, simple profile selector and a fixed bottom tab bar. Yandex ad loading was verified on a real iPhone; no quick-connect widget.
 
 ## Release gates outstanding
 

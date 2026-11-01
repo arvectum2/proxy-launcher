@@ -8,6 +8,7 @@ import YandexMobileAds
 enum IOSAdsConfig {
     static let productionBannerUnitID = "R-M-20288304-1"
     static let demoBannerUnitID = "demo-banner-yandex"
+    static let nativeAdUnitID = "R-M-20288304-2"
 
     static let labels: [String: String] = [
         "ru": "Реклама",
@@ -79,9 +80,14 @@ enum IOSAdsConfig {
 /// Non-blocking, adaptive inline banner directly under the Home wordmark.
 /// Never stretches the ad creative or appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
+enum IOSBannerPlacement {
+    case primary, secondary
+}
+
 struct SettingsBannerView: View {
     let adWidth: CGFloat
     let maxAdHeight: CGFloat
+    var placement: IOSBannerPlacement = .primary
 
     @Environment(\.scenePhase) private var scenePhase
     @State private var bannerState: BannerState?
@@ -91,7 +97,9 @@ struct SettingsBannerView: View {
     @State private var retryTask: Task<Void, Never>?
 
     private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")
-    private let statusKey = "rsya.bannerStatus.v1"
+    private var statusKey: String {
+        placement == .primary ? "rsya.bannerStatus.v1" : "rsya.bannerStatus.secondary.v1"
+    }
     private let maxAttempts = 2
     private let retryDelayNs: UInt64 = 45_000_000_000
 
@@ -124,13 +132,14 @@ struct SettingsBannerView: View {
                                 UserDefaults.standard.set("impression", forKey: statusKey)
                                 logger.info("RSYA banner impression")
                             }
-                            .frame(minHeight: 80, maxHeight: maxAdHeight)
+                            .frame(minHeight: placement == .primary ? 80 : 42,
+                                   maxHeight: maxAdHeight)
                             .frame(maxWidth: .infinity)
                             .accessibilityHidden(!loaded)
                     }
                     .frame(maxWidth: .infinity)
                 } else {
-                    Color.clear.frame(height: 80)
+                    Color.clear.frame(height: placement == .primary ? 80 : 42)
                 }
             }
         }
@@ -154,8 +163,13 @@ struct SettingsBannerView: View {
         loaded = false
         failed = false
         UserDefaults.standard.set("request-\(attempts)", forKey: statusKey)
+        // Separate instances have separate retry budgets and callback keys.
+        // Use the existing registered Yandex unit until a dedicated second
+        // placement unit is provisioned; never stretch the actual creative.
         bannerState = BannerState(
-            size: .inline(width: max(1, adWidth), maxHeight: maxAdHeight),
+            size: placement == .secondary
+                ? .sticky(width: max(1, adWidth))
+                : .inline(width: max(1, adWidth), maxHeight: maxAdHeight),
             request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID)
         )
     }

@@ -39,6 +39,7 @@
 		43AA5F682830BDF4F00C9DEB /* tun2proxy.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 597A65F5E6A0C37BF25EF4B0 /* tun2proxy.xcframework */; };
 		477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */; };
 		48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */; };
+		48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */; };
 		563BFF4157A93CA8DE832045 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 558988BBD730E81E42CF9FA6 /* PrivacyInfo.xcprivacy */; };
@@ -86,6 +87,7 @@
 		CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		D06A095790028F09C33A550B /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
@@ -139,6 +141,7 @@
 		10E79F53DAC92F937472FCDF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		126719C097CD844E767A8800 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		129C8AB44C8E39E05377DDA3 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/QuickActions.strings"; sourceTree = "<group>"; };
+		1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeHomeAdView.swift; sourceTree = "<group>"; };
 		16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ArvectumProxyLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
 		1C70CD5C33236647B0F5E8A7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -238,6 +241,7 @@
 		CAFE5642EEC59627E7B1D769 /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CB04057014F01C39512BA98A /* SetupGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupGuideView.swift; sourceTree = "<group>"; };
 		CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickVPNActionPolicy.swift; sourceTree = "<group>"; };
+		CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactSettingsUITests.swift; sourceTree = "<group>"; };
 		CE71068BC47835E696E79292 /* ProfileBackupRestorePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupRestorePlan.swift; sourceTree = "<group>"; };
 		CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNShortcuts.swift; sourceTree = "<group>"; };
 		CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -315,6 +319,7 @@
 		56B035F3FB86E787EE3AA763 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
+				CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */,
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
 				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
@@ -408,6 +413,7 @@
 				649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */,
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */,
+				1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				751E6300F0328159413E5DFF /* ProfileBackupView.swift */,
 				9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */,
@@ -654,6 +660,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */,
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
 				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
@@ -686,6 +693,7 @@
 				1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */,
 				FF741EF3C1CFE58537E519DA /* HomeLayoutProbe.swift in Sources */,
 				8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */,
+				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
 				6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */,
 				3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */,
 				0DE07E70231418DFAB188C90 /* ProfileBackupRestorePlan.swift in Sources */,

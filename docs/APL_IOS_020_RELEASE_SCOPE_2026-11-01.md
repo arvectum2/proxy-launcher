@@ -99,6 +99,15 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - First tab is explicitly **Домой** (`house.fill`), not a redundant fifth button; other tabs unchanged. macOS Catalyst preserves original `Главная` title and separate desktop layout.
 - Signed physical iPhone 13 0.2.0 (48) installed in place and visually inspected. Three baseline profiles and previous UserDefaults keys remained unchanged. App Store Connect metadata was not touched. Source/layout tests and one device build PASS; earlier VPN suites intentionally not rerun.
 
+## Native advertising and compact iPhone Settings — 2026-11-01
+
+- Main Connect/Disconnect control is outlined on the disconnected state, bright only on active connection; the redundant OFF label is omitted. Transition status is retained and screen-reader labels still describe the action.
+- A second ad slot between the main inline banner and the primary Connect action prefers **real Yandex native unit `R-M-20288304-2`**. SDK `NativeAdLoader` binds a registered `NativeAdView` including title, media, body, domain, sponsored label, age/disclosure and feedback/CTA assets; clicks and impressions are handled by `NativeAdDelegate`. On SDK failure it falls back to a short regular banner. The second slot is disabled for height under 650 points; the native/Home layout never uses ScrollView.
+- Physical iPhone 13 received in-place a development-signed 0.2.0 build with production Yandex ads. Separate status keys confirmed both primary banner and native ad `impression`. Screenshots were inspected; old profiles remain untouched. Yandex native SDK initially rejected a view missing the domain asset; fixed by binding the domain, favicon, age and other asset outlets. Native load and impression were then directly verified on the iPhone; App Store privacy declarations were not changed.
+- `profile.port` is rendered as an ungrouped decimal string, never a localized numerical quantity; e.g. `8000`, not `8 000`.
+- Settings: compact rows for theme and language; inline dropdown language menu, no redundant heading/subtitles. Automatic backup routing is renamed **Primary proxy / Return to primary** with a right-hand toggle; OFF stays on a working backup and avoids switch churn. All actions remain reachable. Single focused QA test on iPhone 13 Simulator PASS (12.642s), with saved Settings screenshot showing all rows, including toggle and version, on one screen without scrolling. `ViewThatFits` uses a scroll fallback on small devices and large Dynamic Type (iOS 15 remains supported). On physical iPhone, XCTest automation was blocked by iOS's passcode authorization; no passcode was entered and no real credentials or profiles modified.
+- App automation instructions reduced to selectable behavior plus the two required Shortcuts triggers; no duplicated help paragraphs.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

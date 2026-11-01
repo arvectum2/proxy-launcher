@@ -19,6 +19,8 @@ class IOSRSYABannerTests(unittest.TestCase):
     def test_banner_visible_in_tab_safe_area_not_buried_in_settings(self):
         main = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
         self.assertEqual(main.count('SettingsBannerView('), 1)
+        self.assertIn('NativeHomeAdView(width:', main)
+        self.assertIn('R-M-20288304-2', (IOS / 'App' / 'SettingsBannerView.swift').read_text(encoding='utf-8'))
         self.assertLess(main.find('SettingsBannerView('), main.find('private var settingsScreen:'))
         mobile_shell = main.split('private var mobileShell:', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
         home = main.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
@@ -27,6 +29,7 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', mobile_shell)
         self.assertIn('SettingsBannerView(', home)
         self.assertIn('maxAdHeight: tight ? 120 : (compact ? 160 : 220)', home)
+        self.assertIn('NativeHomeAdView(width:', home)
         self.assertLess(home.index('homeMeasured("header")'), home.index('SettingsBannerView('))
         self.assertLess(home.index('SettingsBannerView('), home.index('homeConnectControl'))
         self.assertLess(home.index('homeConnectControl'), home.index('homeProfileControl'))
@@ -49,6 +52,12 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertIn('retryDelayNs: UInt64 = 45_000_000_000', ads)
         self.assertIn('scheduleRetryIfNeeded()', ads)
         self.assertIn('rsya.bannerStatus.v1', ads)
+        self.assertIn('rsya.bannerStatus.secondary.v1', ads)
+        native = (IOS / 'App' / 'NativeHomeAdView.swift').read_text(encoding='utf-8')
+        self.assertIn('NativeAdLoader()', native)
+        self.assertIn('try native.bind(with: adView)', native)
+        self.assertIn('nativeAd(_ ad: NativeAd, didTrackImpression', native)
+        self.assertIn('SettingsBannerView(adWidth: width, maxAdHeight: 76', native)
         self.assertIn('UserDefaults.standard.set("impression"', ads)
         app = (IOS / "App" / "ArvectumProxyLauncherApp.swift").read_text(encoding="utf-8")
         self.assertIn('YandexAds.initializeSDK(completionHandler: nil)', app)
@@ -57,7 +66,7 @@ class IOSRSYABannerTests(unittest.TestCase):
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertNotIn('.frame(height: loaded ? nil : 1)', ads)
         self.assertNotIn('.opacity(loaded ? 1 : 0)', ads)
-        self.assertIn('.frame(minHeight: 80, maxHeight: maxAdHeight)', ads)
+        self.assertIn('.frame(minHeight: placement == .primary ? 80 : 42,', ads)
         self.assertIn('Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")', ads)
         self.assertIn('logger.error("RSYA banner load failed:', ads)
         self.assertIn('logger.info("RSYA banner impression")', ads)

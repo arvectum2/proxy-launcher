@@ -77,3 +77,17 @@
 "В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений." = "The app displays Yandex ads. The Yandex SDK may process device technical data to load ads.";
 "Откройте «Профили» → «Добавить». Укажите адрес, порт и тип прокси. Логин и пароль нужны только при авторизации." = "Open Profiles → Add. Enter the proxy host, port, and protocol. Provide a username and password only if required.";
 "Домой" = "Home";
+"Тема" = "Theme";
+"Язык" = "Language";
+"Команды VPN" = "VPN Shortcuts";
+"Основной прокси" = "Primary proxy";
+"Возвращаться к основному" = "Return to primary";
+"Выкл. — меньше переключений: работаем через резервный, пока он доступен. Действует в режиме Авто." = "Off reduces switches: stay on a working backup. Applies in Auto mode.";
+"Выкл. — остаёмся на резервном без лишних переключений." = "Off: stay on the backup to avoid extra switches.";
+"Как работать с приложениями" = "App behavior";
+"Настроить один раз" = "One-time setup";
+"Открыть «Команды»" = "Open Shortcuts";
+"Создайте две автоматизации для нужных приложений: «Открыто» → APL «Приложение открыто», «Закрыто» → APL «Приложение закрыто». Выберите «Немедленно»." = "Create two automations for selected apps: Opened → APL App Opened, Closed → APL App Closed. Choose Run Immediately.";
+"Автоматизация" = "Automation";
+"APL обычно включён. Для выбранных приложений — временно отключается." = "APL is normally on. It turns off temporarily for selected apps.";
+"APL обычно выключен. Для выбранных приложений — временно включается." = "APL is normally off. It turns on temporarily for selected apps.";

@@ -459,6 +459,19 @@ struct ContentView: View {
 
                     Spacer(minLength: tight ? 4 : 12)
 
+                    // Secondary compact creative: only when the viewport has
+                    // enough room for both ads and the full controls below.
+                    if geometry.size.height >= 650 {
+                        if bannerPreview {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Brand.surface)
+                                .frame(height: 52)
+                        } else {
+                            NativeHomeAdView(width: geometry.size.width,
+                                             height: tight ? 96 : 140)
+                        }
+                    }
+
                     VStack(spacing: gap) {
                         homeConnectControl
                             .homeMeasured("connection")
@@ -487,6 +500,15 @@ struct ContentView: View {
     }
     /// iPhone Home: one primary action, one status, one profile selector.
     /// The larger multi-control cards remain available on macOS Catalyst.
+    private var homeConnectionIsEstablished: Bool {
+        qaState == "connected" || model.vpn.status == .connected || model.vpn.status == .reasserting
+    }
+
+    private var homeConnectionIsTransitioning: Bool {
+        qaState == "connecting" || qaState == "disconnecting" ||
+        model.vpn.status == .connecting || model.vpn.status == .disconnecting
+    }
+
     private var homeConnectControl: some View {
         VStack(spacing: 6) {
             Button {
@@ -510,14 +532,15 @@ struct ContentView: View {
                         .font(.system(size: 23, weight: .semibold))
                         .accessibilityHidden(true)
                 }
-                .foregroundStyle(Brand.actionText)
+                .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
                 .padding(.horizontal, 20)
                 .frame(maxWidth: .infinity)
                 .frame(height: 70)
-                .background(Brand.mint, in: RoundedRectangle(cornerRadius: 18))
+                .background(homeConnectionIsEstablished ? Brand.mint : Brand.surface,
+                            in: RoundedRectangle(cornerRadius: 18))
                 .overlay {
                     RoundedRectangle(cornerRadius: 18)
-                        .stroke(Brand.mintLight.opacity(0.65), lineWidth: 1.5)
+                        .stroke(Brand.mint.opacity(homeConnectionIsEstablished ? 0.9 : 0.7), lineWidth: 1.5)
                 }
                 .opacity(model.vpn.canToggle ? 1 : 0.6)
             }
@@ -531,17 +554,12 @@ struct ContentView: View {
                     ? "Отключить системный прокси-туннель"
                     : "Подключиться через выбранный прокси")
 
-            HStack(spacing: 6) {
-                Image(systemName: "circle.fill")
-                    .font(.system(size: 8))
-                    .accessibilityHidden(true)
+            if homeConnectionIsTransitioning {
                 Text(AppL10n.tr(qaStatusTitle))
                     .font(.caption.weight(.medium))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .foregroundStyle(connectionStatusColor)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
-            .foregroundStyle(connectionStatusColor)
-            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
@@ -803,7 +821,7 @@ struct ContentView: View {
                                             }
                                             VStack(alignment: .leading, spacing: 3) {
                                                 Text(profile.name).font(.subheadline.weight(.semibold))
-                                                Text("\(profile.host):\(profile.port) · \(profile.type.rawValue)")
+                                                Text("\(profile.host):\(String(profile.port)) · \(profile.type.rawValue)")
                                                     .font(.caption).foregroundStyle(Brand.softGray)
                                                 if let group = model.profileOrganization.group(for: profile.id) {
                                                     Text(AppL10n.tr(group)).font(.caption2).foregroundStyle(Brand.mintLight)
@@ -994,6 +1012,7 @@ struct ContentView: View {
     }
 
     private var settingsScreen: some View {
+#if targetEnvironment(macCatalyst)
         ZStack {
             Brand.canvas.ignoresSafeArea()
             ScrollView {
@@ -1069,7 +1088,183 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
             }
         }
+#else
+        compactSettingsScreen
+#endif
     }
+
+#if !targetEnvironment(macCatalyst)
+    /// On regular iPhones the entire Settings overview fits without scrolling.
+    /// Smaller devices and Accessibility text sizes get a scrollable fallback,
+    /// never hidden or clipped controls.
+    private var compactSettingsScreen: some View {
+        ZStack {
+            Brand.canvas.ignoresSafeArea()
+            GeometryReader { geometry in
+                Group {
+                    if #available(iOS 16.0, *) {
+                        ViewThatFits(in: .vertical) {
+                            compactSettingsContent
+                            ScrollView { compactSettingsContent }
+                        }
+                    } else {
+                        // Keep all settings reachable on iOS 15 too.
+                        ScrollView { compactSettingsContent }
+                    }
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height,
+                       alignment: .top)
+            }
+        }
+    }
+
+    private var compactSettingsContent: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            header
+                .padding(.bottom, 4)
+
+            HStack(spacing: 10) {
+                Text(AppL10n.tr("Тема"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.text)
+                Spacer(minLength: 4)
+                Picker("Тема оформления", selection: $appearanceMode) {
+                    ForEach(AppearanceMode.allCases) { mode in
+                        Text(mode.title).tag(mode.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 240)
+                .accessibilityIdentifier("settings.theme")
+            }
+            .modifier(CompactSettingsSurface())
+
+            HStack(spacing: 10) {
+                Text(AppL10n.tr("Язык"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.text)
+                Spacer(minLength: 4)
+                Picker("Язык приложения", selection: $appLanguage) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.title).tag(language.rawValue)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .tint(Brand.mintLight)
+                .accessibilityIdentifier("settings.language")
+            }
+            .modifier(CompactSettingsSurface())
+
+            compactSettingsAction("Первое подключение", icon: "questionmark.circle") {
+                showSetupGuide = true
+            }
+            compactSettingsAction("Исключения сайтов", icon: "globe") {
+                showExclusions = true
+            }
+            if #available(iOS 16.0, *) {
+                compactSettingsAction("Команды VPN", icon: "bolt.circle") {
+                    showQuickActions = true
+                }
+                .accessibilityIdentifier("settings.quickActions")
+            }
+            compactSettingsAction("Автоматизация приложений", icon: "app.badge") {
+                showAppExclusions = true
+            }
+
+            // The existing screenshot QA flag can also preview this row on
+            // a disposable simulator without writing any Keychain profiles.
+            if !model.profiles.isEmpty || qaProfile {
+                compactAutomaticRoutingSettings
+            }
+            HStack {
+                Text(AppL10n.tr("Версия"))
+                Spacer()
+                Text(AppShared.version)
+            }
+            .font(.caption)
+            .foregroundStyle(Brand.softGray)
+            .padding(.horizontal, 10)
+            .padding(.top, 3)
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
+        .frame(maxWidth: 760)
+        .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    private func compactSettingsAction(_ title: String, icon: String,
+                                       action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: icon).frame(width: 21)
+                Text(AppL10n.tr(title))
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Brand.softGray)
+            }
+            .foregroundStyle(Brand.text)
+            .modifier(CompactSettingsSurface())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var compactAutomaticRoutingSettings: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 9) {
+                Text(AppL10n.tr("Основной прокси"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.text)
+                Spacer(minLength: 4)
+                Menu {
+                    ForEach(model.profiles) { profile in
+                        Button { model.setPrimary(profile) } label: {
+                            Label(profile.name,
+                                  systemImage: profile.id == model.primaryProfileID
+                                    ? "checkmark.circle.fill" : "circle")
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(model.profiles.first(where: { $0.id == model.primaryProfileID })?.name
+                             ?? AppL10n.tr("Выбрать"))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(Brand.mintLight)
+                    .font(.subheadline.weight(.medium))
+                    .frame(maxWidth: 170, alignment: .trailing)
+                }
+                .accessibilityIdentifier("settings.primaryProfile")
+            }
+            Toggle(isOn: Binding(
+                get: { model.returnToPrimary },
+                set: { model.setReturnToPrimary($0) }
+            )) {
+                Text(AppL10n.tr("Возвращаться к основному"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.text)
+            }
+            .tint(Brand.mint)
+            .accessibilityIdentifier("settings.returnToPrimary")
+            .accessibilityHint(AppL10n.tr("Выкл. — меньше переключений: работаем через резервный, пока он доступен. Действует в режиме Авто."))
+            Text(AppL10n.tr("Выкл. — остаёмся на резервном без лишних переключений."))
+                .font(.caption2)
+                .foregroundStyle(Brand.softGray)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background(Brand.graphite, in: RoundedRectangle(cornerRadius: 13))
+    }
+#endif
 
     @ViewBuilder
     private var profileSelectionMenu: some View {
@@ -1204,6 +1399,15 @@ struct ContentView: View {
         }
     }
 
+}
+
+private struct CompactSettingsSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, 12)
+            .frame(height: 44)
+            .background(Brand.graphite, in: RoundedRectangle(cornerRadius: 13))
+    }
 }
 
 private struct PrimaryBrandButtonStyle: ButtonStyle {
@@ -1850,39 +2054,24 @@ struct ApplicationExclusionsView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("Обычное состояние") {
+                Section(AppL10n.tr("Как работать с приложениями")) {
                     Picker("Режим", selection: $mode) {
                         ForEach(IOSAppRoutingMode.allCases) { item in
                             Text(AppL10n.tr(item.title)).tag(item)
                         }
                     }
-                    .pickerStyle(.inline)
-                    .onChange(of: mode) { newValue in
-                        saveAndApplyMode(newValue)
-                    }
-                }
-
-                Section("Что произойдёт") {
-                    Text(AppL10n.tr(modeExplanation)).font(.footnote)
-                    Label("После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно.", systemImage: "checkmark.circle")
-                        .font(.footnote)
-                }
-
-                Section("Один раз настроить iPhone") {
-                    Link(destination: URL(string: "shortcuts://create-shortcut")!) {
-                        Label("Продолжить в «Командах»", systemImage: "arrow.up.forward.app")
-                    }
-                    Text("1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто».")
-                        .font(.footnote)
-                    Text("2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто».")
-                        .font(.footnote)
-                    Text("Для обеих выберите запуск «Немедленно». После этого APL сам решает, включать или выключать прокси.")
+                    .pickerStyle(.segmented)
+                    .onChange(of: mode) { saveAndApplyMode($0) }
+                    Text(AppL10n.tr(modeExplanation))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Ограничение iOS") {
-                    Text("Apple не предоставляет приложению публичный API для создания или изменения системного триггера «Приложение открыто/закрыто». Поэтому список приложений выбирается в «Командах». Сам режим работы хранится в APL.")
+                Section(AppL10n.tr("Настроить один раз")) {
+                    Link(destination: URL(string: "shortcuts://create-shortcut")!) {
+                        Label(AppL10n.tr("Открыть «Команды»"), systemImage: "arrow.up.forward.app")
+                    }
+                    Text(AppL10n.tr("Создайте две автоматизации для нужных приложений: «Открыто» → APL «Приложение открыто», «Закрыто» → APL «Приложение закрыто». Выберите «Немедленно»."))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -1891,7 +2080,7 @@ struct ApplicationExclusionsView: View {
                     Section { Text(storageError).font(.footnote).foregroundStyle(.red) }
                 }
             }
-            .navigationTitle("Автоматизация приложений")
+            .navigationTitle(AppL10n.tr("Автоматизация"))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { loadAndApplyMode() }
             .toolbar {
@@ -1903,9 +2092,9 @@ struct ApplicationExclusionsView: View {
     private var modeExplanation: String {
         switch mode {
         case .normallyOn:
-            return "APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно."
+            return "APL обычно включён. Для выбранных приложений — временно отключается."
         case .normallyOff:
-            return "APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно."
+            return "APL обычно выключен. Для выбранных приложений — временно включается."
         }
     }
 

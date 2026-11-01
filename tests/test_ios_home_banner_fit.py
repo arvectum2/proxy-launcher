@@ -38,6 +38,7 @@ def test_critical_controls_remain_accessible_and_translated():
     home = source.split('    private var homeConnectControl: some View {', 1)[1].split('    // Preserve equal-height macOS', 1)[0]
     assert '.disabled(!model.vpn.canToggle)' in home
     assert '.accessibilityLabel(AppL10n.tr(qaActionTitle))' in home
+    assert 'if homeConnectionIsTransitioning {' in home
     assert 'Text(AppL10n.tr(qaStatusTitle))' in home
     assert '.homeMeasured("primaryAction")' in home
     assert 'Menu { profileSelectionMenu }' in home
@@ -66,3 +67,27 @@ def test_larger_real_inline_banner_and_bottom_aligned_actions_with_home_tab_firs
     assert shell.index('homeScreen') < shell.index('profilesScreen') < shell.index('activityScreen')
     assert 'case .home: return "house.fill"' in source
     assert 'return AppL10n.tr("Домой")' in source
+
+
+def test_two_ads_and_connect_off_is_outlined():
+    src = SRC.read_text(encoding='utf-8')
+    home = src.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
+    assert 'NativeHomeAdView(width:' in home
+    assert 'if geometry.size.height >= 650' in home
+    assert 'homeConnectionIsEstablished ? Brand.mint : Brand.surface' in home
+    assert 'if homeConnectionIsTransitioning {' in home
+    assert 'homeConnectControl' in home
+    assert home.index('NativeHomeAdView(width:') < home.index('homeConnectControl')
+
+def test_settings_is_compact_and_ungrouped_port():
+    src = SRC.read_text(encoding='utf-8')
+    settings = src.split('private var compactSettingsContent: some View {',1)[1].split('private func compactSettingsAction',1)[0]
+    assert 'sectionTitle("Настройки", subtitle:' not in settings
+    assert 'Системная тема автоматически следует' not in settings
+    assert 'Выберите язык интерфейса' not in settings
+    assert 'Text(AppL10n.tr("Язык"))' in settings
+    assert 'Picker("Язык приложения"' in settings
+    assert 'compactAutomaticRoutingSettings' in settings
+    assert 'ViewThatFits(in: .vertical)' in src
+    assert 'Toggle(isOn: Binding(' in src
+    assert 'String(profile.port)' in src
