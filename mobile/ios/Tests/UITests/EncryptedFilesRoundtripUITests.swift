@@ -59,7 +59,9 @@ final class EncryptedFilesRoundtripUITests: XCTestCase {
             // iOS 27 exposes the export picker via a remote UI service whose
             // Save control may not be included in the app XCUI hierarchy.
             // This is limited to the disposable simulator, not the user's phone.
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.89, dy: 0.045)).tap()
+            // iOS 27 remote document UI: Save is at x≈0.87, y≈0.11 of
+            // the whole window, not y≈0.045 (which hits the status bar).
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.87, dy: 0.11)).tap()
         }
         XCTAssertTrue(app.staticTexts["Зашифрованная копия сохранена"].waitForExistence(timeout: 15))
 
