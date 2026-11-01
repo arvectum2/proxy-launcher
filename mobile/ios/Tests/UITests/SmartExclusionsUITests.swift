@@ -144,7 +144,7 @@ final class ProxyImportUITests: XCTestCase {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        let importButton = app.buttons["Импортировать прокси"]
+        let importButton = app.buttons["profiles.import"]
         XCTAssertTrue(importButton.waitForExistence(timeout: 10))
         importButton.tap()
         XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
@@ -170,7 +170,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 15))
         profiles.tap()
-        app.buttons["Импортировать прокси"].tap()
+        app.buttons["profiles.import"].tap()
         XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Тип прокси по умолчанию"].exists)
         let editor = app.textViews.firstMatch
@@ -246,7 +246,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        let importButton = app.buttons["Импортировать прокси"]
+        let importButton = app.buttons["profiles.import"]
         XCTAssertTrue(importButton.waitForExistence(timeout: 10))
         importButton.tap()
         let scanButton = app.buttons["Сканировать QR-код"]
@@ -273,7 +273,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        app.buttons["Импортировать прокси"].tap()
+        app.buttons["profiles.import"].tap()
         let editor = app.textViews.firstMatch
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap()

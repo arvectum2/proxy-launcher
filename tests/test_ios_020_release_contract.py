@@ -104,6 +104,18 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('specificIDs: selectedVisibleIDs', ui)
         self.assertIn('selectedVisibleIDs.count > 10', ui)
 
+    def test_home_and_profile_buttons_remain_compact(self):
+        src = (IOS / 'App' / 'ContentView.swift').read_text(encoding='utf-8')
+        home = src.split('private func connectionCard', 1)[1].split('private var profilesScreen', 1)[0]
+        self.assertNotIn('Text(AppL10n.tr(qaHelp))', home)
+        self.assertNotIn('Управление профилями', home)
+        for label in ['Добавить', 'Импорт', 'Копия']:
+            self.assertIn(f'cardButton("{label}"', src)
+        self.assertIn('Label(AppL10n.tr("Действия")', src)
+        self.assertIn('profiles.import', src)
+        self.assertIn('profiles.encryptedBackup', src)
+        self.assertIn('SettingsBannerView()', src)
+
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)
         for language in ['ru', 'en']:

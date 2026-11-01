@@ -255,7 +255,6 @@ struct ContentView: View {
             // sticky height is measured by the stack; it must not displace
             // or obscure the native tab bar on compact iPhones.
             SettingsBannerView()
-                .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
                 .background(Brand.canvas)
         }
@@ -404,15 +403,6 @@ struct ContentView: View {
         default: return primaryActionTitle
         }
     }
-    private var qaHelp: String {
-        switch qaState {
-        case "connected": return "Трафик устройства направляется через выбранный прокси."
-        case "connecting": return "APL устанавливает защищённый системный туннель."
-        case "disconnecting": return "APL возвращает обычное сетевое подключение."
-        default: return connectionHelp
-        }
-    }
-
     private var homeScreen: some View {
         ZStack {
             Brand.canvas.ignoresSafeArea()
@@ -552,13 +542,6 @@ struct ContentView: View {
                 : model.vpn.isConnectedOrConnecting
                     ? "Отключить системный прокси-туннель"
                     : "Подключиться через выбранный прокси")
-            Text(AppL10n.tr(qaHelp))
-                .font(compact ? .caption : .footnote)
-                .foregroundStyle(Brand.softGray)
-                .multilineTextAlignment(.center)
-                .lineLimit(compact ? 2 : 3)
-                .minimumScaleFactor(0.72)
-                .frame(maxWidth: .infinity)
         }
         .padding(compact ? 11 : 18)
         .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)
@@ -568,7 +551,7 @@ struct ContentView: View {
 
     private func activeProfileCard(compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: compact ? 7 : 12) {
-            Text(AppL10n.tr("Выбор прокси"))
+            Text(AppL10n.tr("Прокси"))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .font(.subheadline.weight(.bold))
@@ -577,32 +560,16 @@ struct ContentView: View {
                 .font(compact ? .subheadline.weight(.semibold) : .title3.weight(.semibold))
                 .foregroundStyle(Brand.text)
                 .lineLimit(1)
-            if (!model.profiles.isEmpty || qaProfile) && !compact {
-                Text(AppL10n.tr(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль."))
-                    .font(compact ? .caption : .footnote)
-                    .foregroundStyle(Brand.softGray)
-            }
             if model.profiles.isEmpty && !qaProfile {
-                Text(AppL10n.tr("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт."))
-                    .font(compact ? .caption : .footnote)
+                Text(AppL10n.tr("Нет прокси"))
+                    .font(.footnote)
                     .foregroundStyle(Brand.softGray)
-                    .lineLimit(compact ? 2 : 3)
-                    .minimumScaleFactor(0.68)
-                if !compact {
-                Button {
-                    showNewProfile = true
-                } label: {
-                    Label("Добавить прокси", systemImage: "plus.circle.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PrimaryBrandButtonStyle())
-                }
             } else {
                 Menu {
                     profileSelectionMenu
                 } label: {
                     HStack {
-                        Text(AppL10n.tr("Выбрать профиль"))
+                        Text(AppL10n.tr("Сменить"))
                             .lineLimit(1)
                             .minimumScaleFactor(0.68)
                         Spacer()
@@ -614,15 +581,6 @@ struct ContentView: View {
                     .frame(height: compact ? 44 : 52)
                     .background(Brand.mint)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                if !compact {
-                Button {
-                    destination = .profiles
-                } label: {
-                    Label("Управление профилями", systemImage: "rectangle.stack")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(SecondaryBrandButtonStyle())
                 }
             }
         }
@@ -640,7 +598,9 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                     header
 #endif
-                    sectionTitle("Профили", subtitle: "Выбор, добавление и приоритет прокси")
+                    Text(AppL10n.tr("Профили"))
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(Brand.text)
                     if !model.profiles.isEmpty {
                     Menu { profileSelectionMenu } label: {
                         HStack {
@@ -656,29 +616,14 @@ struct ContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     }
-                    VStack(spacing: 10) {
-                        HStack(spacing: 10) {
-                            cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) {
-                                showNewProfile = true
-                            }
-                            cardButton(ProxyImportUX.text("Импортировать прокси"), filled: false) {
-                                importRequest = ProxyImportRequest(source: "")
-                            }
+                    HStack(spacing: 8) {
+                        cardButton("Добавить", filled: true) { showNewProfile = true }
+                        cardButton("Импорт", filled: false) {
+                            importRequest = ProxyImportRequest(source: "")
                         }
-                        Button {
-                            showProfileBackup = true
-                        } label: {
-                            Label(AppL10n.tr("Резервные копии"), systemImage: "lock.doc")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(SecondaryBrandButtonStyle())
-                        .accessibilityIdentifier("profiles.encryptedBackup")
-                        if !model.profiles.isEmpty {
-                            cardButton("Изменить", filled: false) {
-                                editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
-                                    ?? model.profiles.first
-                            }
-                        }
+                        .accessibilityIdentifier("profiles.import")
+                        cardButton("Копия", filled: false) { showProfileBackup = true }
+                            .accessibilityIdentifier("profiles.encryptedBackup")
                     }
                     if !model.profiles.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
@@ -695,16 +640,17 @@ struct ContentView: View {
                                 Button {
                                     Task { await model.scanProfiles(manual: true) }
                                 } label: {
-                                    Label(model.isScanningProfiles ? AppL10n.tr("Проверка…") : AppL10n.tr("Проверить следующие 10"), systemImage: "waveform.path.ecg")
+                                    Label(model.isScanningProfiles ? AppL10n.tr("Проверка…") : AppL10n.tr("Проверить"), systemImage: "waveform.path.ecg")
                                 }
                                 .disabled(model.isScanningProfiles)
+                                .accessibilityHint(AppL10n.tr("Проверить следующие 10 прокси"))
                                 Spacer()
                                 if model.isScanningProfiles { ProgressView() }
                             }
-                            Text(model.lastProfileScanSummary.isEmpty
-                                 ? AppL10n.tr("Проверка партиями до 10 профилей расходует немного трафика прокси.")
-                                 : model.lastProfileScanSummary)
-                                .font(.caption).foregroundStyle(Brand.softGray)
+                            if !model.lastProfileScanSummary.isEmpty {
+                                Text(model.lastProfileScanSummary)
+                                    .font(.caption).foregroundStyle(Brand.softGray)
+                            }
                             TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
@@ -774,53 +720,44 @@ struct ContentView: View {
                                     .font(.footnote).foregroundStyle(Brand.softGray)
                             }
                             if profileBulkMode {
-                                Text(String(format: AppL10n.tr("Выбрано %d из %d"),
-                                            selectedVisibleIDs.count, visibleProfiles.count))
-                                    .font(.caption).foregroundStyle(Brand.softGray)
-                                HStack {
-                                    Button(AppL10n.tr("Выбрать все видимые")) {
-                                        bulkSelectedIDs = Set(visibleProfiles.map(\.id))
+                                HStack(spacing: 10) {
+                                    Text(String(format: AppL10n.tr("Выбрано: %d"), selectedVisibleIDs.count))
+                                        .font(.footnote).foregroundStyle(Brand.softGray)
+                                    Spacer()
+                                    Menu {
+                                        Button(AppL10n.tr("Выбрать все")) {
+                                            bulkSelectedIDs = Set(visibleProfiles.map(\.id))
+                                        }
+                                        .disabled(visibleProfiles.isEmpty)
+                                        Button(AppL10n.tr("Снять выбор")) { bulkSelectedIDs.removeAll() }
+                                            .disabled(selectedVisibleIDs.isEmpty)
+                                        Divider()
+                                        Button(AppL10n.tr("В избранное")) {
+                                            model.setFavorites(selectedVisibleIDs, enabled: true)
+                                        }
+                                        Button(AppL10n.tr("Убрать из избранного")) {
+                                            model.setFavorites(selectedVisibleIDs, enabled: false)
+                                        }
+                                        profileGroupMenu(ids: selectedVisibleIDs)
+                                        Button(AppL10n.tr("Проверить")) {
+                                            Task { await model.scanProfiles(manual: true, specificIDs: selectedVisibleIDs) }
+                                        }
+                                        .disabled(selectedVisibleIDs.count == 0 || selectedVisibleIDs.count > 10 || model.isScanningProfiles)
+                                    } label: {
+                                        Label(AppL10n.tr("Действия"), systemImage: "ellipsis.circle")
                                     }
                                     .disabled(visibleProfiles.isEmpty)
-                                    Spacer()
-                                    Button(AppL10n.tr("Снять выделение")) {
-                                        bulkSelectedIDs.removeAll()
+                                    Button(AppL10n.tr("Удалить"), role: .destructive) {
+                                        confirmBulkDelete = true
                                     }
-                                    .disabled(selectedVisibleIDs.isEmpty)
+                                    .disabled(selectedVisibleIDs.isEmpty || model.vpn.isConnectedOrConnecting)
+                                    .accessibilityHint(AppL10n.tr("Удаление требует отключить VPN"))
                                 }
-                                HStack {
-                                    Button(AppL10n.tr("В избранное")) {
-                                        model.setFavorites(selectedVisibleIDs, enabled: true)
-                                    }
-                                    Button(AppL10n.tr("Убрать из избранного")) {
-                                        model.setFavorites(selectedVisibleIDs, enabled: false)
-                                    }
-                                }
-                                .disabled(selectedVisibleIDs.isEmpty)
-                                Button {
-                                    Task { await model.scanProfiles(manual: true, specificIDs: selectedVisibleIDs) }
-                                } label: {
-                                    Label(AppL10n.tr("Проверить выбранные"), systemImage: "waveform.path.ecg")
-                                }
-                                .disabled(selectedVisibleIDs.isEmpty || selectedVisibleIDs.count > 10 || model.isScanningProfiles)
-                                if selectedVisibleIDs.count > 10 {
-                                    Text(AppL10n.tr("Для одной проверки выберите не более 10 профилей"))
-                                        .font(.caption).foregroundStyle(Brand.softGray)
-                                }
-                                profileGroupMenu(ids: selectedVisibleIDs)
-                                    .disabled(selectedVisibleIDs.isEmpty)
-                                Button("\(AppL10n.tr("Удалить выбранные")) (\(selectedVisibleIDs.count))", role: .destructive) {
-                                    confirmBulkDelete = true
-                                }
-                                .disabled(selectedVisibleIDs.isEmpty || model.vpn.isConnectedOrConnecting)
-                                Text(AppL10n.tr("Для удаления сначала отключите VPN."))
-                                    .font(.caption).foregroundStyle(Brand.softGray)
                             }
                         }
                         .padding(16)
                         .background(Brand.graphite)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        autoSettingsCard
                     }
                 }
                 .padding(18)
@@ -1027,9 +964,7 @@ struct ContentView: View {
             Button {
                 model.select(profile)
             } label: {
-                let prefix = profile.id == model.primaryProfileID ? "★ " : ""
-                let suffix = model.health[profile.id].map { " · \($0.label)" } ?? ""
-                Label(prefix + profile.name + suffix,
+                Label(profile.name,
                       systemImage: (!model.automaticSelection && model.selectedProfileID == profile.id)
                         ? "checkmark.circle.fill" : "circle")
             }
@@ -1143,18 +1078,6 @@ struct ContentView: View {
         }
     }
 
-    private var connectionHelp: String {
-        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
-            return "Без профиля подключение невозможно. Добавьте прокси для начала работы."
-        }
-        switch model.vpn.status {
-        case .connected: return "Трафик устройства направляется через выбранный прокси."
-        case .connecting, .reasserting: return "APL устанавливает защищённый системный туннель."
-        case .disconnecting: return "APL возвращает обычное сетевое подключение."
-        default: return "Нажмите, чтобы направить трафик через APL."
-        }
-    }
-
     private var connectionStatusColor: Color {
         switch model.vpn.status {
         case .connected: return Brand.mintLight
@@ -1214,9 +1137,6 @@ struct ProfileEditorView: View {
         NavigationView {
             Form {
                 Section("Прокси") {
-                    Text("Данные подключения выдаёт поставщик прокси или администратор сети.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                     TextField("Название", text: $name)
                     TextField("Хост", text: $host)
                         .textInputAutocapitalization(.never)
@@ -1226,18 +1146,13 @@ struct ProfileEditorView: View {
                     Picker("Тип", selection: $type) {
                         ForEach(ProxyType.allCases) { type in Text(AppL10n.tr(type.label)).tag(type) }
                     }
-                    Text("Хост — адрес сервера, порт — его номер. Тип уточните у поставщика.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                 }
                 Section("Авторизация") {
-                    Text("Логин и пароль нужны только для прокси с авторизацией.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                     TextField("Логин", text: $username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    SecureField(profile == nil ? "Пароль" : "Пароль (пусто = оставить прежний)", text: $password)
+                    SecureField(profile == nil ? "Пароль" : "Новый пароль", text: $password)
+                        .accessibilityHint(profile == nil ? "" : "Оставьте пустым, чтобы сохранить прежний пароль")
                 }
                 if let profile {
                     Section {

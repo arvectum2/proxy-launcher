@@ -34,11 +34,18 @@ class IOSRSYABannerTests(unittest.TestCase):
         self.assertNotIn('package: YandexMobileAds', tunnel_target)
         self.assertIn('OTHER_LDFLAGS: "$(inherited) -ObjC"', main_target)
 
-    def test_failed_ad_is_hidden_without_retry(self):
+    def test_failed_ad_retries_once_with_backoff(self):
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")
         self.assertIn('failed = true', ads)
         self.assertIn('if IOSAdsConfig.isEnabled, !failed', ads)
         self.assertEqual(ads.count('BannerState('), 1)
+        self.assertIn('maxAttempts = 2', ads)
+        self.assertIn('retryDelayNs: UInt64 = 45_000_000_000', ads)
+        self.assertIn('scheduleRetryIfNeeded()', ads)
+        self.assertIn('rsya.bannerStatus.v1', ads)
+        self.assertIn('UserDefaults.standard.set("impression"', ads)
+        app = (IOS / "App" / "ArvectumProxyLauncherApp.swift").read_text(encoding="utf-8")
+        self.assertIn('YandexAds.initializeSDK(completionHandler: nil)', app)
 
     def test_no_collapsed_banner_and_failure_is_logged(self):
         ads = (IOS / "App" / "SettingsBannerView.swift").read_text(encoding="utf-8")

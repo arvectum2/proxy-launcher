@@ -8,6 +8,18 @@ import XCTest
 final class PhysicalVPNControlledUITests: XCTestCase {
 #if APL_RUN_EXPLICIT_VPN_QA
     @MainActor
+    private func dismissLowBatteryInterruption() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts["Низкий заряд"]
+        guard alert.exists else { return }
+        let close = alert.buttons["Закрыть"]
+        if close.exists {
+            close.tap()
+            print("APL_PHYSICAL_QA dismissed_system_low_battery_alert=true")
+        }
+    }
+
+    @MainActor
     func testTemporaryTunnelConnectAndRealHTTPS() async throws {
 #if targetEnvironment(simulator)
         throw XCTSkip("System Packet Tunnel VPN acceptance requires an explicitly authorized physical iPhone")
@@ -18,7 +30,19 @@ final class PhysicalVPNControlledUITests: XCTestCase {
                                 "-appLanguage.v1", "ru",
                                 "-aplEphemeralTunnelQA"]
         app.launch()
+        dismissLowBatteryInterruption()
         XCTAssertTrue(app.tabBars.buttons["Главная"].waitForExistence(timeout: 15))
+        // Check the three compact primary actions before starting a bounded
+        // live VPN test; no profiles or preferences are modified here.
+        app.tabBars.buttons["Профили"].tap()
+        XCTAssertTrue(app.buttons["profiles.import"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["profiles.encryptedBackup"].exists)
+        let profileScreenshot = XCTAttachment(screenshot: app.screenshot())
+        profileScreenshot.name = "APL 0.2 compact profile actions"
+        profileScreenshot.lifetime = .keepAlways
+        add(profileScreenshot)
+        app.tabBars.buttons["Главная"].tap()
+        dismissLowBatteryInterruption()
         let off = app.staticTexts["Отключено"]
         guard off.waitForExistence(timeout: 10) else {
             throw XCTSkip("Existing device VPN is not explicitly OFF; do not interrupt it")

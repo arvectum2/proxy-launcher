@@ -79,52 +79,91 @@ enum IOSAdsConfig {
 /// Non-blocking native ad footer alongside the iPhone TabView; never appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
 struct SettingsBannerView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var bannerState: BannerState?
     @State private var loaded = false
     @State private var failed = false
+    @State private var attempts = 0
+    @State private var retryTask: Task<Void, Never>?
+
     private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")
+    private let statusKey = "rsya.bannerStatus.v1"
+    private let maxAttempts = 2
+    private let retryDelayNs: UInt64 = 45_000_000_000
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
             if IOSAdsConfig.isEnabled, !failed {
                 if let bannerState {
-                VStack(alignment: .leading, spacing: 4) {
-                    if loaded {
-                        Text(IOSAdsConfig.localizedAdLabel)
-                            .font(.caption)
-                            .foregroundStyle(Brand.softGray)
+                    VStack(alignment: .leading, spacing: 4) {
+                        if loaded {
+                            Text(IOSAdsConfig.localizedAdLabel)
+                                .font(.caption2)
+                                .foregroundStyle(Brand.softGray)
+                        }
+                        Banner(state: bannerState)
+                            .onAdLoad { _ in
+                                loaded = true
+                                failed = false
+                                UserDefaults.standard.set("loaded", forKey: statusKey)
+                                logger.info("RSYA banner loaded")
+                            }
+                            .onAdFailure { error in
+                                let nsError = error as NSError
+                                logger.error("RSYA banner load failed: code=\(nsError.code) domain=\(nsError.domain, privacy: .public)")
+                                UserDefaults.standard.set("failed: \(nsError.code)", forKey: statusKey)
+                                loaded = false
+                                failed = true
+                                scheduleRetryIfNeeded()
+                            }
+                            .onAdImpression { _ in
+                                UserDefaults.standard.set("impression", forKey: statusKey)
+                                logger.info("RSYA banner impression")
+                            }
+                            .frame(minHeight: 50)
+                            .frame(maxWidth: .infinity)
+                            .accessibilityHidden(!loaded)
                     }
-                    Banner(state: bannerState)
-                        .onAdLoad { _ in
-                            loaded = true
-                            logger.info("RSYA banner loaded")
-                        }
-                        .onAdFailure { error in
-                            logger.error("RSYA banner load failed: \(String(describing: error), privacy: .public)")
-                            loaded = false
-                            failed = true  // No retry storm; hide failed request.
-                        }
-                        .onAdImpression { _ in
-                            logger.info("RSYA banner impression")
-                        }
-                        // Yandex sticky banners need their full adaptive area
-                        // (at least 50pt) even *before* loading succeeds.
-                        .frame(minHeight: 50)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityHidden(!loaded)
-                }
-                .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity)
                 } else {
                     Color.clear.frame(height: 50)
                 }
             }
         }
         .onAppear {
-            guard IOSAdsConfig.isEnabled, bannerState == nil, !failed else { return }
-            bannerState = BannerState(
-                size: .sticky(),
-                request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID)
-            )
+            guard IOSAdsConfig.isEnabled else { return }
+            if bannerState == nil { requestBanner() }
+            else if failed { scheduleRetryIfNeeded() }
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .active, failed { scheduleRetryIfNeeded() }
+        }
+        .onDisappear {
+            retryTask?.cancel()
+            retryTask = nil
+        }
+    }
+
+    private func requestBanner() {
+        guard attempts < maxAttempts else { return }
+        attempts += 1
+        loaded = false
+        failed = false
+        UserDefaults.standard.set("request-\(attempts)", forKey: statusKey)
+        bannerState = BannerState(size: .sticky(),
+                                  request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID))
+    }
+
+    private func scheduleRetryIfNeeded() {
+        guard attempts < maxAttempts, retryTask == nil else { return }
+        retryTask = Task { @MainActor in
+            do { try await Task.sleep(nanoseconds: retryDelayNs) }
+            catch { return }
+            retryTask = nil
+            guard !Task.isCancelled, scenePhase == .active else { return }
+            // One delayed retry after a transient SDK/no-fill failure, never
+            // a request storm. SDK handles normal refresh after a success.
+            requestBanner()
         }
     }
 }

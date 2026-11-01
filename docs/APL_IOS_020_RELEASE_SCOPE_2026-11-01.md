@@ -76,6 +76,15 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - This check shares the existing global 10-second manual cooldown, no-overlap gate and failure classification, preserving the rotating ten-profile cursor for subsequent bulk checks. No new connections are created by selecting/organizing profiles alone.
 - One new Swift policy test, one iOS source contract and one ARM64 simulator Debug build PASS; all prior successful test suites were deliberately not repeated.
 
+## Physical banner and compact UI — 2026-11-01
+
+- Physical iPhone 13 with 0.1.42 (47) lacked visible ads. Source investigation found a first-load `.onAdFailure` that hid the footer permanently. The updated 0.2.0 QA build manually initializes SDK, preserves the production adUnit `R-M-20288304-1`, allows at most one 45-second retry, and uses the available display width. Ads remain non-blocking; no ad-dependent Connect logic or widget.
+- On real device, a production-network Yandex Business creative **rendered** and the local SDK callback reached `impression`. This was not a demo ad or simulated screenshot. The app was updated in place from 0.1.42 to development-signed 0.2.0: three saved profile JSON entries and IDs were byte-for-byte equivalent as objects after update; no uninstall. App Store Connect privacy declarations and product metadata were not modified.
+- Main screen reduced to Connect, connection state and active proxy with Change. Profiles use concise Add/Import/Backup actions, selection options move into an Actions menu, and priority/failback configuration remains in Settings. In-app privacy copy now accurately discloses that the Yandex SDK is present.
+- Controlled live VPN smoke gate completed after triaging an unrelated system low-battery 10% alert that obscured the screen. The physical 0.2.0 test performed actual profile-tab actions, Connected state, an external `https://example.com/` HTTP 200 through the active tunnel, and verified OFF after disconnect. Result: 1/1 PASS with the pre-existing 20/25s temporary-tunnel safeties; this gate does not prove public IP change or multi-proxy failover.
+- Immediately after device XCTest, restored the ad-enabled development-signed 0.2.0 binary. Re-read app group preferences: three profiles and UUIDs still identical to 0.1.42, existing keys preserved; Yandex SDK again reported `impression`. These QA preferences remain privately backed up on Mac mini, not in the repository.
+- App Store distribution and TestFlight still gated on real Files backup/restore acceptance and cross-provider egress/failover checks as appropriate, actual release signing and separate authorization; a locally development-signed device test is not a public release.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

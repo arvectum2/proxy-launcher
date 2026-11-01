@@ -35,13 +35,12 @@ def test_critical_controls_remain_accessible_and_translated():
     home = source.split('    private func connectionCard(', 1)[1].split('    private var profilesScreen:', 1)[0]
     assert '.disabled(!model.vpn.canToggle)' in home
     assert '.accessibilityLabel(AppL10n.tr(qaActionTitle))' in home
-    for text in ('Соединение', 'Выбор прокси', 'Выбрать профиль',
-                 'Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт.'):
+    for text in ('Соединение', 'Прокси', 'Сменить', 'Нет прокси'):
         assert f'AppL10n.tr("{text}")' in home
     assert '.minimumScaleFactor(' in home
-    assert 'if !compact {' in home  # secondary controls move to Profiles tab
+    assert 'AppL10n.tr(qaHelp)' not in home
     assert 'showNewProfile = true' in home
-    assert 'destination = .profiles' in home
+    assert 'destination = .profiles' not in home  # bottom tab already provides navigation
     assert '.frame(height: compact ? 44 : 52)' in home
 
 

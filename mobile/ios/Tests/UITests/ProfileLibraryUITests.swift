@@ -10,7 +10,7 @@ final class ProfileLibraryUITests: XCTestCase {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        let importer = app.buttons["Импортировать прокси"]
+        let importer = app.buttons["profiles.import"]
         XCTAssertTrue(importer.waitForExistence(timeout: 10))
         importer.tap()
         let editor = app.textViews.firstMatch
