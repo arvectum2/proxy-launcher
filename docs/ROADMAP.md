@@ -1,3 +1,14 @@
+## 01.11.2026 — Backlog: Proxifier, QRVPN and Russia-compliant selective egress
+
+- [ ] Clean-room reverse engineering of public/observable Proxifier and QRVPN behavior; evaluate licenses and platform feasibility without copying proprietary code.
+- [ ] Proxifier-style per-app/domain/IP/CIDR/port routing, proxy chains and failover, DNS/IPv6 policy and diagnostics.
+- [ ] QRVPN-style WireGuard client/server, QR enrollment, device revocation, NAT traversal and encrypted relay fallback.
+- [ ] APL Server gateway: centrally route forwarded VPN client traffic via authenticated upstream HTTP/SOCKS5 proxies or direct egress, keeping proxy credentials server-side.
+- [ ] Russian legal feasibility study: 149-FZ art. 15.8, RKN FGIS and interaction, 126-FZ licenses, 152-FZ data processing, advertising restrictions and 2025–2026 amendments; obtain specialist legal opinion and regulator clarification before public launch.
+- [ ] Prototype selective foreign egress for resources not restricted in Russia with mandatory centrally enforced block policy, fail-closed update handling, DNS/UDP/IPv6 leak controls and auditability. Filtering alone is not a guarantee of legality.
+- [ ] Separately assess foreign service terms and geographic restrictions (including OpenAI); do not guarantee access or authorization by third-party providers.
+- [ ] Deliver architecture ADR, threat model, compliance matrix and routing/leak tests before implementation or release. Preserve current iOS 0.1.42 and advertising/privacy metadata.
+
 ## 01.11.2026 — iOS 0.1.42: универсальный импорт файлов поставщиков
 
 - [x] Добавлен приём `IP:порт:логин:пароль` прямо из текста и массового TXT, CSV (с заголовками или без, запятая/точка с запятой/табуляция), а также структурированного XML; прежние HTTP/HTTPS/SOCKS5 URL/QR сохранены.
