@@ -402,6 +402,7 @@ struct ContentView: View {
         case "connected": return "Отключить"
         case "connecting": return "Подключение…"
         case "disconnecting": return "Отключение…"
+        case "off": return "Подключиться" // DEBUG-only Home layout preview
         default: return primaryActionTitle
         }
     }
@@ -428,48 +429,53 @@ struct ContentView: View {
                 let compact = geometry.size.height < 680
                 let gap: CGFloat = tight ? 6 : (compact ? 9 : 14)
                 let edge: CGFloat = compact ? 12 : 18
-                VStack(spacing: gap) {
+                VStack(spacing: 0) {
+                    // Both ads are one top-anchored, zero-gap stack. The only
+                    // flexible space belongs below ads, above the fixed-height
+                    // Connect/profile controls, so VPN state changes cannot
+                    // move a banner or the primary action vertically.
                     header
                         .padding(.horizontal, edge)
                         .homeMeasured("header")
 
-                    // The real ad lives between the header and Connect,
-                    // not beneath the native tab bar. Keep a single instance.
-                    Group {
-                        if bannerPreview {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Brand.surface)
-                                .overlay {
-                                    Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
-                                        .font(.caption2).foregroundStyle(Brand.softGray)
+                    VStack(spacing: 0) {
+                        Group {
+                            if bannerPreview {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Brand.surface)
+                                    .overlay {
+                                        Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
+                                            .font(.caption2).foregroundStyle(Brand.softGray)
+                                    }
+                                    .frame(height: tight ? 60 : bannerHeightQA)
+                            } else {
+                                SettingsBannerView(
+                                    adWidth: geometry.size.width,
+                                    maxAdHeight: tight ? 120 : (compact ? 160 : 220)
+                                )
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .homeMeasured("banner")
+
+                        if geometry.size.height >= 650 {
+                            Group {
+                                if bannerPreview {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Brand.surface)
+                                        .frame(height: 52)
+                                } else {
+                                    NativeHomeAdView(width: geometry.size.width,
+                                                     height: tight ? 96 : 140)
                                 }
-                                .frame(height: tight ? 60 : bannerHeightQA)
-                        } else {
-                            // Request a larger inline creative, not a scaled-up
-                            // sticky banner. Small iPhones use a smaller limit.
-                            SettingsBannerView(
-                                adWidth: geometry.size.width,
-                                maxAdHeight: tight ? 120 : (compact ? 160 : 220)
-                            )
+                            }
+                            .frame(maxWidth: .infinity)
+                            .homeMeasured("nativeAd")
                         }
                     }
-                    .frame(maxWidth: .infinity)
-                    .homeMeasured("banner")
+                    .homeMeasured("adStack")
 
                     Spacer(minLength: tight ? 4 : 12)
-
-                    // Secondary compact creative: only when the viewport has
-                    // enough room for both ads and the full controls below.
-                    if geometry.size.height >= 650 {
-                        if bannerPreview {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Brand.surface)
-                                .frame(height: 52)
-                        } else {
-                            NativeHomeAdView(width: geometry.size.width,
-                                             height: tight ? 96 : 140)
-                        }
-                    }
 
                     VStack(spacing: gap) {
                         homeConnectControl
@@ -497,69 +503,55 @@ struct ContentView: View {
             }
         }
     }
-    /// iPhone Home: one primary action, one status, one profile selector.
+    /// iPhone Home: one fixed-height stateful action and one profile selector.
     /// The larger multi-control cards remain available on macOS Catalyst.
     private var homeConnectionIsEstablished: Bool {
         qaState == "connected" || model.vpn.status == .connected || model.vpn.status == .reasserting
     }
 
-    private var homeConnectionIsTransitioning: Bool {
-        qaState == "connecting" || qaState == "disconnecting" ||
-        model.vpn.status == .connecting || model.vpn.status == .disconnecting
-    }
-
     private var homeConnectControl: some View {
-        VStack(spacing: 6) {
-            Button {
-                if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
-                    showNewProfile = true
-                } else {
-                    Task { await model.toggleVPN() }
-                }
-            } label: {
-                HStack(spacing: 14) {
-                    Image(systemName: model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
-                        ? "plus.circle.fill" : "power")
-                        .font(.system(size: 24, weight: .bold))
-                        .accessibilityHidden(true)
-                    Text(AppL10n.tr(qaActionTitle))
-                        .font(.system(size: 22, weight: .bold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.68)
-                    Spacer(minLength: 0)
-                    Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 23, weight: .semibold))
-                        .accessibilityHidden(true)
-                }
-                .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
-                .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity)
-                .frame(height: 70)
-                .background(homeConnectionIsEstablished ? Brand.mint : Brand.surface,
-                            in: RoundedRectangle(cornerRadius: 18))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(Brand.mint.opacity(homeConnectionIsEstablished ? 0.9 : 0.7), lineWidth: 1.5)
-                }
-                .opacity(model.vpn.canToggle ? 1 : 0.6)
+        Button {
+            if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                showNewProfile = true
+            } else {
+                Task { await model.toggleVPN() }
             }
-            .buttonStyle(.plain)
-            .disabled(!model.vpn.canToggle)
-            .homeMeasured("primaryAction")
-            .accessibilityLabel(AppL10n.tr(qaActionTitle))
-            .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
-                ? "Открыть создание первого прокси"
-                : model.vpn.isConnectedOrConnecting
-                    ? "Отключить системный прокси-туннель"
-                    : "Подключиться через выбранный прокси")
-
-            if homeConnectionIsTransitioning {
-                Text(AppL10n.tr(qaStatusTitle))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(connectionStatusColor)
-                    .frame(maxWidth: .infinity, alignment: .center)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: model.profiles.isEmpty && !qaProfile && !model.vpn.isConnectedOrConnecting
+                    ? "plus.circle.fill" : "power")
+                    .font(.system(size: 24, weight: .bold))
+                    .accessibilityHidden(true)
+                Text(AppL10n.tr(qaActionTitle))
+                    .font(.system(size: 22, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.68)
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.system(size: 23, weight: .semibold))
+                    .accessibilityHidden(true)
             }
+            .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
+            .frame(height: 70)
+            .background(homeConnectionIsEstablished ? Brand.mint : Brand.surface,
+                        in: RoundedRectangle(cornerRadius: 18))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Brand.mint.opacity(homeConnectionIsEstablished ? 0.9 : 0.7), lineWidth: 1.5)
+            }
+            .opacity(model.vpn.canToggle ? 1 : 0.6)
         }
+        .buttonStyle(.plain)
+        .disabled(!model.vpn.canToggle)
+        .homeMeasured("primaryAction")
+        .accessibilityLabel(AppL10n.tr(qaActionTitle))
+        .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+            ? "Открыть создание первого прокси"
+            : model.vpn.isConnectedOrConnecting
+                ? "Отключить системный прокси-туннель"
+                : "Подключиться через выбранный прокси")
     }
 
     private var homeProfileControl: some View {

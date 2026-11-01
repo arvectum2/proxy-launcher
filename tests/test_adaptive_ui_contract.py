@@ -75,13 +75,14 @@ class AdaptiveUiContractTests(unittest.TestCase):
         self.assertIn("private fun buildNavigationBar(): View", ANDROID)
 
     def test_catalyst_does_not_compile_iphone_shortcuts_control(self):
-        view_start = IOS.index("struct ApplicationExclusionsView: View")
-        view_end = IOS.index("struct JournalView: View", view_start)
-        view = IOS[view_start:view_end]
-        self.assertIn("#if targetEnvironment(macCatalyst)", view)
-        self.assertIn("Настройка по открытию и закрытию приложений доступна на iPhone.", view)
-        self.assertIn("#else", view)
-        self.assertIn("AppRoutingVPNControl.applyBaseline", view)
+        # App routing moved out of ContentView during the iOS refactor.
+        # Assert the actual compiled screen rather than its old source range.
+        app_routing = (ROOT / "mobile/ios/App/ApplicationExclusionsView.swift").read_text(encoding="utf-8")
+        self.assertIn("struct ApplicationExclusionsView: View {", app_routing)
+        self.assertIn("#if targetEnvironment(macCatalyst)", app_routing)
+        self.assertIn("Настройка по открытию и закрытию приложений доступна на iPhone.", app_routing)
+        self.assertIn("#else", app_routing)
+        self.assertIn("AppRoutingVPNControl.applyBaseline", app_routing)
 
     def test_linux_reuses_shared_desktop_primary_action(self):
         self.assertIn("self._apply_primary_action(view)", LINUX)

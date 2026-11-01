@@ -14,12 +14,15 @@ def test_iphone_home_is_a_fixed_unscrollable_dashboard():
     assert 'GeometryReader' in home
     assert '.frame(width: geometry.size.width, height: geometry.size.height' in iphone
     assert 'Spacer(minLength: tight ? 4 : 12)' in iphone
+    assert 'VStack(spacing: 0)' in iphone
+    assert '.homeMeasured("nativeAd")' in iphone
+    assert '.homeMeasured("adStack")' in iphone
     assert 'homeMeasured("banner")' in iphone
     assert 'homeMeasured("connection")' in iphone
     assert 'homeMeasured("profile")' in iphone
     assert 'homeMeasured("header")' in iphone
     assert iphone.index('homeMeasured("header")') < iphone.index('homeMeasured("banner")')
-    assert iphone.index('homeMeasured("banner")') < iphone.index('Spacer(minLength: tight ? 4 : 12)') < iphone.index('homeMeasured("connection")')
+    assert iphone.index('homeMeasured("banner")') < iphone.index('homeMeasured("nativeAd")') < iphone.index('Spacer(minLength: tight ? 4 : 12)') < iphone.index('homeMeasured("connection")')
     assert iphone.index('homeMeasured("connection")') < iphone.index('homeMeasured("profile")')
 
 
@@ -38,8 +41,9 @@ def test_critical_controls_remain_accessible_and_translated():
     home = source.split('    private var homeConnectControl: some View {', 1)[1].split('    // Preserve equal-height macOS', 1)[0]
     assert '.disabled(!model.vpn.canToggle)' in home
     assert '.accessibilityLabel(AppL10n.tr(qaActionTitle))' in home
-    assert 'if homeConnectionIsTransitioning {' in home
-    assert 'Text(AppL10n.tr(qaStatusTitle))' in home
+    assert 'if homeConnectionIsTransitioning {' not in home
+    assert 'Text(AppL10n.tr(qaStatusTitle))' not in home
+    assert 'Text(AppL10n.tr(qaActionTitle))' in home
     assert '.homeMeasured("primaryAction")' in home
     assert 'Menu { profileSelectionMenu }' in home
     assert 'homeProfileLabel(qaProfile ? "QA Proxy" : model.selectedLabel)' in home
@@ -75,9 +79,15 @@ def test_two_ads_and_connect_off_is_outlined():
     assert 'NativeHomeAdView(width:' in home
     assert 'if geometry.size.height >= 650' in home
     assert 'homeConnectionIsEstablished ? Brand.mint : Brand.surface' in home
-    assert 'if homeConnectionIsTransitioning {' in home
+    assert 'if homeConnectionIsTransitioning {' not in home
+    assert 'Text(AppL10n.tr(qaActionTitle))' in home
     assert 'homeConnectControl' in home
-    assert home.index('NativeHomeAdView(width:') < home.index('homeConnectControl')
+    assert home.index('NativeHomeAdView(width:') < home.index('homeMeasured("adStack")') < home.index('Spacer(minLength: tight ? 4 : 12)') < home.index('homeConnectControl')
+    # Only the button owns the status label; no conditional caption shifts height.
+    control = home.split('private var homeConnectControl: some View {', 1)[1].split('private var homeProfileControl:', 1)[0]
+    assert 'if homeConnectionIsTransitioning' not in control
+    assert '.frame(height: 70)' in control
+    assert 'Text(AppL10n.tr(qaActionTitle))' in control
 
 def test_settings_is_compact_and_ungrouped_port():
     src = SRC.read_text(encoding='utf-8')
@@ -91,3 +101,11 @@ def test_settings_is_compact_and_ungrouped_port():
     assert 'ViewThatFits(in: .vertical)' in src
     assert 'Toggle(isOn: Binding(' in src
     assert 'String(profile.port)' in src
+
+
+def test_native_ad_reserves_fixed_height_in_loading_and_no_fill():
+    native = SRC.with_name('NativeHomeAdView.swift').read_text(encoding='utf-8')
+    assert '.frame(height: height, alignment: .top)' in native
+    assert 'SettingsBannerView(adWidth: width, maxAdHeight: 76' in native
+    src = SRC.read_text(encoding='utf-8')
+    assert 'case "off": return "Подключиться"' in src

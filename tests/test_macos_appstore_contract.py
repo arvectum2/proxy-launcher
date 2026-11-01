@@ -111,8 +111,9 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('CURRENT_PROJECT_VERSION: "10"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
-        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
+        # ExclusionsView is now a standalone SwiftUI screen, no longer a
+        # string slice between unrelated types in ContentView.swift.
+        exclusion_view = (ROOT / "mobile" / "ios" / "App" / "ExclusionsView.swift").read_text(encoding="utf-8")
         self.assertIn('Button(role: .destructive)', exclusion_view)
         self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
         self.assertIn('AppL10n.tr("Удалить исключение")', exclusion_view)

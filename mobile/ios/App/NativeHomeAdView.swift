@@ -213,6 +213,9 @@ struct NativeHomeAdView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        // Keep the second ad's footprint stable across loading, impressions
+        // and no-fill fallback, independently of the VPN button state.
+        .frame(height: height, alignment: .top)
         .onAppear { controller.load() }
     }
 }
