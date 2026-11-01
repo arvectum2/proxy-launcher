@@ -58,7 +58,10 @@ struct ProxyImportView: View {
                         cameraPermissionDenied = false
                         scanQR = true
                     }
-                    Button(ProxyImportUX.text("Проверить")) { parse() }
+                    Button(ProxyImportUX.text("Проверить")) {
+                        editorFocused = false
+                        parse()
+                    }
                     Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
@@ -105,6 +108,7 @@ struct ProxyImportView: View {
                 }
             }
             .navigationTitle(ProxyImportUX.text("Импорт прокси"))
+            .keyboardDismissToolbar()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
             .sheet(isPresented: $scanQR) {

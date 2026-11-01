@@ -54,6 +54,17 @@ enum Brand {
         }
         return Image(systemName: "network")
     }
+    // Crop only the original brand symbol; the full product title is one text style.
+    static var symbol: Image {
+        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
+           let image = UIImage(contentsOfFile: path),
+           let original = image.cgImage,
+           let cropped = original.cropping(to: CGRect(x: 0, y: 0, width: 182, height: 120)) {
+            return Image(uiImage: UIImage(cgImage: cropped))
+        }
+        return Image(systemName: "network")
+    }
+
     static let logoBacking = adaptive(
         light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
         dark: .clear
@@ -149,6 +160,7 @@ struct ContentView: View {
     @State private var importRequest: ProxyImportRequest?
     @State private var showProfileBackup = false
     @State private var profileSearch = ""
+    @FocusState private var profileSearchFocused: Bool
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
     @State private var customGroupName = ""
@@ -338,27 +350,29 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 #else
-        HStack(alignment: .center, spacing: 8) {
-            Brand.wordmark
+        HStack(alignment: .center, spacing: 7) {
+            Brand.symbol
                 .resizable()
                 .scaledToFit()
-                .frame(width: 112, height: 24)
-                .padding(6)
-                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 8))
-                .accessibilityLabel("Arvectum")
-            Text("Proxy Launcher")
-                // The bold font matches the baked-in Arvectum wordmark;
-                // offset corrects the two labels' optical baseline.
-                .font(.system(size: 18, weight: .bold))
+                .frame(width: 34, height: 25)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 2)
+                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 7))
+                .accessibilityHidden(true)
+
+            Text("Arvectum Proxy Launcher")
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
                 .foregroundStyle(Brand.mint)
                 .lineLimit(1)
-                .minimumScaleFactor(0.82)
-                .offset(y: 2)
-            Spacer(minLength: 4)
+                .minimumScaleFactor(0.72)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
+
             Text(AppShared.version)
                 .font(.caption2)
                 .foregroundStyle(Brand.mintLight.opacity(0.72))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
 #endif
     }
 
@@ -473,7 +487,7 @@ struct ContentView: View {
                                         .frame(height: 52)
                                 } else {
                                     NativeHomeAdView(width: geometry.size.width,
-                                                     height: tight ? 96 : 140)
+                                                     height: compact ? 150 : 205)
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -539,23 +553,16 @@ struct ContentView: View {
                     .font(.system(size: 22, weight: .bold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.68)
-                Spacer(minLength: 0)
-                // Directional arrows imply navigation, which Disconnect is not.
-                // An indeterminate indicator stays INSIDE the same 70pt button
-                // so neither the primary action nor either ad changes position.
-                Group {
-                    if homeConnectionIsTransitioning {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .tint(Brand.mintLight)
-                    } else {
-                        Image(systemName: homeConnectionIsEstablished
-                              ? "stop.circle.fill" : "arrow.right.circle.fill")
-                            .font(.system(size: 23, weight: .semibold))
-                    }
+                // Keep only the left power icon. Progress, when needed,
+                // appears beside the title and never shifts the button.
+                if homeConnectionIsTransitioning {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
+                        .frame(width: 20, height: 20)
+                        .accessibilityHidden(true)
                 }
-                .frame(width: 24, height: 24)
-                .accessibilityHidden(true)
+                Spacer(minLength: 0)
             }
             .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
             .padding(.horizontal, 20)
@@ -798,11 +805,26 @@ struct ContentView: View {
                                 Text(model.lastProfileScanSummary)
                                     .font(.caption).foregroundStyle(Brand.softGray)
                             }
-                            TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .textFieldStyle(.roundedBorder)
-                                .accessibilityIdentifier("profiles.search")
+                            HStack(spacing: 4) {
+                                TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
+                                    .focused($profileSearchFocused)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                                    .submitLabel(.done)
+                                    .onSubmit { profileSearchFocused = false }
+                                    .textFieldStyle(.roundedBorder)
+                                    .accessibilityIdentifier("profiles.search")
+                                if profileSearchFocused {
+                                    Button { profileSearchFocused = false } label: {
+                                        Image(systemName: "keyboard.chevron.compact.down")
+                                            .frame(width: 44, height: 44)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .foregroundStyle(Brand.mintLight)
+                                    .accessibilityLabel(AppL10n.tr("Готово"))
+                                    .accessibilityIdentifier("keyboard.dismiss.search")
+                                }
+                            }
                             Menu {
                                 Button(AppL10n.tr("Все профили")) { profileGroupFilter = "all" }
                                 Button(AppL10n.tr("Избранные")) { profileGroupFilter = "favorites" }

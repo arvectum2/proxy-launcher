@@ -12,8 +12,9 @@ class UXCleanup(unittest.TestCase):
         control=self.home.split('private var homeConnectControl: some View {',1)[1].split('private var homeProfileControl:',1)[0]
         self.assertIn('if homeConnectionIsTransitioning {',control)
         self.assertIn('ProgressView()',control)
-        self.assertIn('stop.circle.fill',control)
-        self.assertIn('.frame(width: 24, height: 24)',control)
+        self.assertNotIn('stop.circle.fill',control)
+        self.assertNotIn('arrow.right.circle.fill',control)
+        self.assertIn('Image(systemName: model.profiles.isEmpty',control)
         self.assertIn('.frame(height: 70)',control)
         self.assertNotIn('Text(AppL10n.tr(qaStatusTitle))',control)
     def test_profiles_manage_in_one_card_without_repeated_selector(self):

@@ -88,8 +88,10 @@ def test_two_ads_and_connect_off_is_outlined():
     assert 'Text(AppL10n.tr(qaStatusTitle))' not in control
     assert 'if homeConnectionIsTransitioning {' in control
     assert 'ProgressView()' in control
-    assert 'stop.circle.fill' in control
-    assert '.frame(width: 24, height: 24)' in control
+    assert 'stop.circle.fill' not in control
+    assert 'arrow.right.circle.fill' not in control
+    assert 'Image(systemName: model.profiles.isEmpty' in control
+    assert 'ProgressView()' in control
     assert '.frame(height: 70)' in control
     assert 'Text(AppL10n.tr(qaActionTitle))' in control
 

@@ -104,6 +104,7 @@ struct ProfileBackupView: View {
                 }
             }
             .navigationTitle(AppL10n.tr("Резервные копии"))
+            .keyboardDismissToolbar()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(AppL10n.tr("Закрыть")) { dismiss() }

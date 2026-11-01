@@ -71,6 +71,7 @@
 		8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */; };
 		8F2560F445B3C0392E010605 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
 		951D250C1BF60644C19BFBDB /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
+		9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */; };
 		9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87885BE6123FF783E8126F72 /* AppViewModel.swift */; };
 		9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611C8DA174BECA86752E2F06 /* ProxyImportView.swift */; };
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
@@ -96,6 +97,7 @@
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
+		EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */; };
 		F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
 		F7898E8D4636D03F5C53E73F /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
@@ -196,6 +198,7 @@
 		7076E4AC5D0DF5C2B96500BE /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		751E6300F0328159413E5DFF /* ProfileBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupView.swift; sourceTree = "<group>"; };
 		7930444C0EAA48D618BAA227 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDismissUITests.swift; sourceTree = "<group>"; };
 		7F61CB5A4850AED0A4445C82 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		80732243101F4F9CC567346E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		8089E4A7AED0FBB4BA0DDF2F /* ProfileBackupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupUITests.swift; sourceTree = "<group>"; };
@@ -203,6 +206,7 @@
 		830ABBEFB957123DBF424C92 /* ProfileScanPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScanPolicy.swift; sourceTree = "<group>"; };
 		835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQRScanner.swift; sourceTree = "<group>"; };
 		8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQualitySnapshot.swift; sourceTree = "<group>"; };
+		83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDismissSupport.swift; sourceTree = "<group>"; };
 		84D5D2F89875F606C37AB587 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8722833D0E497B6866D28263 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/QuickActions.strings"; sourceTree = "<group>"; };
 		87885BE6123FF783E8126F72 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -335,6 +339,7 @@
 			children = (
 				CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */,
 				E98CDCF29B15FFB034E729D9 /* EncryptedFilesRoundtripUITests.swift */,
+				7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */,
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
 				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
@@ -433,6 +438,7 @@
 				D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */,
 				F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */,
 				D3EAE75AFADAFE338F502B8D /* JournalView.swift */,
+				83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */,
 				1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				751E6300F0328159413E5DFF /* ProfileBackupView.swift */,
@@ -683,6 +689,7 @@
 			files = (
 				48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */,
 				6707E9D059150CA2255454C8 /* EncryptedFilesRoundtripUITests.swift in Sources */,
+				EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */,
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
 				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
@@ -719,6 +726,7 @@
 				1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */,
 				FF741EF3C1CFE58537E519DA /* HomeLayoutProbe.swift in Sources */,
 				A70DFE418DD0D380C7D6D088 /* JournalView.swift in Sources */,
+				9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */,
 				8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */,
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
 				6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */,
