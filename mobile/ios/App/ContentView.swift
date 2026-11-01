@@ -143,6 +143,10 @@ struct ContentView: View {
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
+    @State private var profileSearch = ""
+    @State private var profileBulkMode = false
+    @State private var bulkSelectedIDs: Set<UUID> = []
+    @State private var confirmBulkDelete = false
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
@@ -661,6 +665,62 @@ struct ContentView: View {
                         }
                     }
                     if !model.profiles.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("Список прокси").font(.headline).foregroundStyle(Brand.text)
+                                Spacer()
+                                Button(profileBulkMode ? "Готово" : "Выбрать") {
+                                    profileBulkMode.toggle()
+                                    bulkSelectedIDs.removeAll()
+                                }
+                                .foregroundStyle(Brand.mint)
+                            }
+                            TextField("Поиск по названию или адресу", text: $profileSearch)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .textFieldStyle(.roundedBorder)
+                                .accessibilityIdentifier("profiles.search")
+                            ForEach(model.profiles.filter {
+                                profileSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(profileSearch)
+                                    || $0.host.localizedCaseInsensitiveContains(profileSearch)
+                            }) { profile in
+                                HStack(spacing: 12) {
+                                    if profileBulkMode {
+                                        Image(systemName: bulkSelectedIDs.contains(profile.id) ? "checkmark.circle.fill" : "circle")
+                                            .foregroundStyle(Brand.mint)
+                                    }
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(profile.name).font(.subheadline.weight(.semibold))
+                                        Text("\(profile.host):\(profile.port) · \(profile.type.rawValue)")
+                                            .font(.caption).foregroundStyle(Brand.softGray)
+                                    }
+                                    Spacer()
+                                }
+                                .foregroundStyle(Brand.text)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    if profileBulkMode {
+                                        if !bulkSelectedIDs.insert(profile.id).inserted {
+                                            bulkSelectedIDs.remove(profile.id)
+                                        }
+                                    } else {
+                                        editorProfile = profile
+                                    }
+                                }
+                                .padding(.vertical, 7)
+                            }
+                            if profileBulkMode {
+                                Button("Удалить выбранные (\(bulkSelectedIDs.count))", role: .destructive) {
+                                    confirmBulkDelete = true
+                                }
+                                .disabled(bulkSelectedIDs.isEmpty || model.vpn.isConnectedOrConnecting)
+                                Text("Для удаления сначала отключите VPN.")
+                                    .font(.caption).foregroundStyle(Brand.softGray)
+                            }
+                        }
+                        .padding(16)
+                        .background(Brand.graphite)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                         autoSettingsCard
                     }
                 }
@@ -668,6 +728,16 @@ struct ContentView: View {
                 .frame(maxWidth: 760)
                 .frame(maxWidth: .infinity)
             }
+        }
+        .confirmationDialog("Удалить выбранные прокси?", isPresented: $confirmBulkDelete, titleVisibility: .visible) {
+            Button("Удалить \(bulkSelectedIDs.count) профилей", role: .destructive) {
+                guard !model.vpn.isConnectedOrConnecting else { return }
+                for id in bulkSelectedIDs { model.deleteProfile(id: id) }
+                bulkSelectedIDs.removeAll()
+                profileBulkMode = false
+            }
+        } message: {
+            Text("Профили и сохранённые пароли будут удалены без возможности восстановления.")
         }
     }
 

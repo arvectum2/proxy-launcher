@@ -8,13 +8,14 @@ definition_of_done:
 completed:
   - 'Verified existing bulk proxy import checkpoint completed and PR #295 merged.'
   - 'Captured approved advertising-first scope and P0/P1/deferred release boundaries in docs/APL_IOS_020_RELEASE_SCOPE_2026-11-01.md.'
-current: 'Audit current iOS profile storage and connection selection before implementing P0 profile-management increments.'
+  - 'Implemented first profile-management increment: search, multi-selection, deletion confirmation, and block deletion while VPN is active.'
+current: 'First profile-management increment implemented; simulator build running, then continue with groups/favorites.'
 pending:
-  - 'Implement bulk profile management, groups, favorites and search with migration tests.'
+  - 'Finish groups/favorites and migration tests; validate bulk-management UI on simulator.'
   - 'Implement bounded proxy health checks and selection/failover with focused tests.'
   - 'Polish Home/onboarding, diagnostics, localization and advertising regression.'
   - 'Physical iPhone and TestFlight acceptance; release only after explicit authorization.'
-last_verified_commit: 'origin/main baseline before 0.2 scope commit'
+last_verified_commit: '84262c8f planning baseline; UI implementation not yet verified by build'
 test_results:
-  - 'Planning only; no 0.2 implementation tests executed.'
-resume_instruction: 'Use isolated worktree /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101. Audit existing iOS profile storage, view and connection manager; implement P0 incrementally. Keep in-app ads and Connect as primary journey; no widget. Do not modify occupied canonical main checkout or publish to Apple.'
+  - 'git diff --check PASS; simulator build started and result pending.'
+resume_instruction: 'Use isolated worktree /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101. Check /tmp/apl-ios-020-build.log for simulator build result; fix failures, then implement groups/favorites and targeted tests. Keep in-app ads and Connect as primary journey; no widget. Do not modify occupied canonical main checkout or publish to Apple.'
