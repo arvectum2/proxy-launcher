@@ -36,7 +36,7 @@ Status: approved scope, implementation in progress. Baseline: iOS 0.1.41; 0.1.42
 - Existing Home and Yandex banner code untouched; no new widgets or external quick-connect controls.
 - Core module tests and iOS Simulator ARM64 build are gates for each increment. Physical iPhone advertising/VPN validation still pending; no release to Apple yet.
 
-CI note: keep the historical 155-key catalogs unchanged; additional 0.2 UI translations live in separate `ProfileManagement.strings` resources and fall back to English. PR #296 remains Draft. One focused simulator UI test initially exposed a missing row accessibility identifier; code is fixed but the rerun remains pending. Physical iPhone is currently unavailable.
+CI note: keep the historical 155-key catalogs unchanged; additional 0.2 UI translations live in separate `ProfileManagement.strings` resources and fall back to English. PR #296 remains Draft. Signed simulator import/search/favorite/delete UI test passed on 0.2.0 with synthetic credentials. Physical iPhone is currently unavailable.
 
 ## Source-only 0.2.0 (48) continuation
 
@@ -47,6 +47,13 @@ CI note: keep the historical 155-key catalogs unchanged; additional 0.2 UI trans
 - Historical iOS localization catalogs keep their 155-entry contract. New copy lives in ProfileManagement.strings, with an English fallback.
 
 Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PASS, signed simulator UI smoke for synthetic credential import/search/favorite/deletion PASS; ARM64 iOS Simulator and generic iOS device Release builds PASS without distribution signing. Keychain *replacement* is source/build-verified but not separately accepted as a physical credentials-edit scenario. The production Yandex SDK is included in Release, but actual banner impressions still require the physical device.
+
+## Follow-up source hardening — 2026-11-01
+
+- Selection only acts on currently visible proxy rows; search and group-filter changes clear selection. The user can select all visible, deselect all, add/remove favorites in bulk or move selected proxies to a group without affecting hidden entries.
+- Import on an existing installation preserves the currently selected profile and Auto mode. On a fresh install, only the first new profile becomes default. A partially failed import explicitly reports if the best-effort rollback was incomplete.
+- Auto remembers last-successful only after the tunnel is actually applied. A mid-switch engine failure closes the tunnel with a real error instead of leaving a false green Connected state; candidate enumeration respects stop/cancellation.
+- Verification strictly scoped to changes: one new ProfileOrganization unit test, five 0.2 contract tests and one ARM64 Simulator Debug build passed. Previously validated 83-test Swift suite / 53-test iOS contracts / signed UI smoke / iOS Release builds are **not** rerun as part of this stage.
 
 ## Release acceptance
 

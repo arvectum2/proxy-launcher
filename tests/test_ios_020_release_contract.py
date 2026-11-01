@@ -47,6 +47,25 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertIn('startTask?.cancel()', tunnel)
         self.assertIn('guard !stopping', tunnel)
 
+    def test_safe_scoped_bulk_actions_and_import_preserves_active_choice(self):
+        home = (IOS / 'App' / 'ContentView.swift').read_text(encoding='utf-8')
+        model = (IOS / 'App' / 'AppViewModel.swift').read_text(encoding='utf-8')
+        importer = (IOS / 'App' / 'ProxyImportView.swift').read_text(encoding='utf-8')
+        tunnel = (IOS / 'PacketTunnel' / 'PacketTunnelProvider.swift').read_text(encoding='utf-8')
+        self.assertIn('private var selectedVisibleIDs: Set<UUID>', home)
+        self.assertIn('model.deleteProfiles(ids: selectedVisibleIDs)', home)
+        self.assertIn('profileGroupMenu(ids: selectedVisibleIDs)', home)
+        self.assertIn('model.setFavorites(selectedVisibleIDs, enabled: true)', home)
+        self.assertIn(r'bulkSelectedIDs = Set(visibleProfiles.map(\.id))', home)
+        self.assertIn('activateOnCreate: noExistingProfiles && added.isEmpty', importer)
+        self.assertIn('rollbackImportedProfiles(ids: Set(added))', importer)
+        self.assertIn('activateOnCreate: Bool = true', model)
+        # Last-good is committed after the engine is applied, not after a probe.
+        prepare_loop = tunnel.split('private func selectProxy()', 1)[1].split('private func prepare(', 1)[0]
+        self.assertNotIn('store.lastAutoProfileID =', prepare_loop)
+        self.assertIn('store?.lastAutoProfileID = prepared.storedProfile.id', tunnel)
+        self.assertIn('cancelTunnelWithError(error)', tunnel)
+
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)
         for language in ['ru', 'en']:

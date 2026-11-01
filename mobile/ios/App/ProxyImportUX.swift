@@ -23,6 +23,7 @@ enum ProxyImportUX {
         "Импортировать профили": "Import profiles",
         "Все профили уже добавлены": "All profiles have already been added",
         "Не удалось сохранить профили. Изменения отменены": "Could not save profiles. Changes were rolled back.",
+        "Не удалось полностью отменить импорт. Проверьте список профилей": "Import could not be completely rolled back. Check the saved profiles.",
         "Закрыть": "Close",
         "Сканирование QR": "QR scanner",
         "Отмена": "Cancel",

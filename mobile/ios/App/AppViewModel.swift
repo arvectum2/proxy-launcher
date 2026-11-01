@@ -102,6 +102,13 @@ final class AppViewModel: ObservableObject {
         profileOrganization = store.profileOrganization
     }
 
+    func setFavorites(_ ids: Set<UUID>, enabled: Bool) {
+        var updated = profileOrganization
+        updated.setFavorite(enabled, for: ids)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
+    }
+
     func assignProfileGroup(_ name: String?, to ids: Set<UUID>) {
         var updated = profileOrganization
         updated.assignGroup(name, to: ids)
@@ -140,7 +147,8 @@ final class AppViewModel: ObservableObject {
         type: ProxyType,
         username: String,
         password: String,
-        scanAfterSave: Bool = true
+        scanAfterSave: Bool = true,
+        activateOnCreate: Bool = true
     ) -> Bool {
         let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanHost.isEmpty, let port = Int(portText), (1...65535).contains(port) else {
@@ -161,7 +169,7 @@ final class AppViewModel: ObservableObject {
             try store.save(
                 profile,
                 password: password.isEmpty ? nil : password,
-                makeActive: !isEditing || selectedProfileID == editingID,
+                makeActive: (!isEditing && activateOnCreate) || (isEditing && selectedProfileID == editingID),
                 preservePasswordIfNil: isEditing && password.isEmpty
             )
             refresh()
@@ -171,6 +179,19 @@ final class AppViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             return false
         }
+    }
+
+    /// A failed import can roll back only newly created IDs, even if an
+    /// unrelated existing VPN session remains connected. No previous profile
+    /// or Keychain credential is ever changed by this rollback.
+    func rollbackImportedProfiles(ids: Set<UUID>) -> Bool {
+        var allRemoved = true
+        for id in ids where profiles.contains(where: { $0.id == id }) {
+            do { try store.delete(id: id) }
+            catch { allRemoved = false }
+        }
+        refresh()
+        return allRemoved
     }
 
     /// Returns only IDs that were actually removed; failed deletions stay
@@ -198,17 +219,16 @@ final class AppViewModel: ObservableObject {
     }
 
     func deleteProfile(id: UUID) {
+        guard !vpn.isConnectedOrConnecting else {
+            errorMessage = "Отключите VPN перед удалением профилей"
+            return
+        }
         do { try store.delete(id: id); refresh() }
         catch { errorMessage = error.localizedDescription }
     }
 
     func delete(_ profile: ProxyProfile) {
-        do {
-            try store.delete(id: profile.id)
-            refresh()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        deleteProfile(id: profile.id)
     }
 
     func saveExclusions(_ raw: [String], graph: SmartExclusionGraph? = nil) async -> Bool {

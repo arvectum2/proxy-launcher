@@ -71,6 +71,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 try Task.checkCancellation()
                 guard !stopping else { throw CancellationError() }
                 active = prepared
+                // A successful handshake is not a successfully applied VPN.
+                // Remember last-good only after the actual tunnel starts.
+                if prepared.automaticSelection {
+                    store?.lastAutoProfileID = prepared.storedProfile.id
+                }
                 connectionPressurePolicy = ConnectionPressurePolicy()
                 startSocketPressureMonitor()
                 telemetry.append(TunnelEvent(
@@ -136,10 +141,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let byID = Dictionary(uniqueKeysWithValues: profiles.map { ($0.id, $0) })
         var failures: [String] = []
         for id in orderedIDs {
+            try Task.checkCancellation()
+            guard !stopping else { throw CancellationError() }
             guard let profile = byID[id] else { continue }
             do {
                 let prepared = try await prepare(profile, automatic: true)
-                store.lastAutoProfileID = profile.id
                 return prepared
             } catch {
                 failures.append("\(profile.name): \(error.localizedDescription)")
@@ -340,7 +346,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 detail: prepared.resolvedProfile.type.label
             ))
         } catch {
+            guard !stopping, !Task.isCancelled else { return }
+            // tun2proxy_stop() already stopped the old engine. Staying in
+            // NEVPNStatus.connected now would silently leak a dead connection.
+            // Let NetworkExtension stop the tunnel and show a real error.
             telemetry.append(TunnelEvent(type: "switch failed", detail: error.localizedDescription))
+            cancelTunnelWithError(error)
         }
     }
 

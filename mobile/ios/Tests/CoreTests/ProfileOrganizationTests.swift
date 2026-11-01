@@ -24,6 +24,22 @@ final class ProfileOrganizationTests: XCTestCase {
         XCTAssertEqual(value.groupNames, ["Резервные"])
     }
 
+    func testBulkFavoritesAreIdempotentAndDoNotTouchOtherProfiles() {
+        let first = UUID(), second = UUID(), untouched = UUID()
+        var value = ProfileOrganization()
+        value.toggleFavorite(untouched)
+        value.setFavorite(true, for: [first, second])
+        value.setFavorite(true, for: [first, second])
+        XCTAssertTrue(value.isFavorite(first))
+        XCTAssertTrue(value.isFavorite(second))
+        XCTAssertTrue(value.isFavorite(untouched))
+        value.setFavorite(false, for: [first, second])
+        value.setFavorite(false, for: [first, second])
+        XCTAssertFalse(value.isFavorite(first))
+        XCTAssertFalse(value.isFavorite(second))
+        XCTAssertTrue(value.isFavorite(untouched))
+    }
+
     func testEmptyGroupUnassignsAndTruncatesName() {
         let id = UUID()
         var value = ProfileOrganization()

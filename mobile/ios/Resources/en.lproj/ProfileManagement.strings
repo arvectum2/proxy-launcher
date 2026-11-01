@@ -28,3 +28,6 @@
 "Проверено %d из %d профилей" = "Checked %d of %d profiles";
 "Между ручными проверками подождите 10 секунд." = "Wait 10 seconds between manual checks.";
 "Удалить безвозвратно" = "Delete permanently";
+"Выбрано %d из %d" = "Selected %d of %d";
+"Выбрать все видимые" = "Select all visible";
+"Снять выделение" = "Clear selection";

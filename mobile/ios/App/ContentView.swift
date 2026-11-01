@@ -762,12 +762,35 @@ struct ContentView: View {
                                     .font(.footnote).foregroundStyle(Brand.softGray)
                             }
                             if profileBulkMode {
-                                profileGroupMenu(ids: bulkSelectedIDs)
-                                    .disabled(bulkSelectedIDs.isEmpty)
-                                Button("\(AppL10n.tr("Удалить выбранные")) (\(bulkSelectedIDs.count))", role: .destructive) {
+                                Text(String(format: AppL10n.tr("Выбрано %d из %d"),
+                                            selectedVisibleIDs.count, visibleProfiles.count))
+                                    .font(.caption).foregroundStyle(Brand.softGray)
+                                HStack {
+                                    Button(AppL10n.tr("Выбрать все видимые")) {
+                                        bulkSelectedIDs = Set(visibleProfiles.map(\.id))
+                                    }
+                                    .disabled(visibleProfiles.isEmpty)
+                                    Spacer()
+                                    Button(AppL10n.tr("Снять выделение")) {
+                                        bulkSelectedIDs.removeAll()
+                                    }
+                                    .disabled(selectedVisibleIDs.isEmpty)
+                                }
+                                HStack {
+                                    Button(AppL10n.tr("В избранное")) {
+                                        model.setFavorites(selectedVisibleIDs, enabled: true)
+                                    }
+                                    Button(AppL10n.tr("Убрать из избранного")) {
+                                        model.setFavorites(selectedVisibleIDs, enabled: false)
+                                    }
+                                }
+                                .disabled(selectedVisibleIDs.isEmpty)
+                                profileGroupMenu(ids: selectedVisibleIDs)
+                                    .disabled(selectedVisibleIDs.isEmpty)
+                                Button("\(AppL10n.tr("Удалить выбранные")) (\(selectedVisibleIDs.count))", role: .destructive) {
                                     confirmBulkDelete = true
                                 }
-                                .disabled(bulkSelectedIDs.isEmpty || model.vpn.isConnectedOrConnecting)
+                                .disabled(selectedVisibleIDs.isEmpty || model.vpn.isConnectedOrConnecting)
                                 Text(AppL10n.tr("Для удаления сначала отключите VPN."))
                                     .font(.caption).foregroundStyle(Brand.softGray)
                             }
@@ -783,6 +806,8 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
             }
         }
+        .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
+        .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }
         .alert(AppL10n.tr("Новая группа"), isPresented: $showNewProfileGroup) {
             TextField(AppL10n.tr("Название группы"), text: $customGroupName)
             Button(AppL10n.tr("Сохранить")) {
@@ -797,13 +822,19 @@ struct ContentView: View {
         .confirmationDialog(AppL10n.tr("Удалить выбранные прокси?"), isPresented: $confirmBulkDelete, titleVisibility: .visible) {
             Button(AppL10n.tr("Удалить безвозвратно"), role: .destructive) {
                 guard !model.vpn.isConnectedOrConnecting else { return }
-                let removed = model.deleteProfiles(ids: bulkSelectedIDs)
+                let removed = model.deleteProfiles(ids: selectedVisibleIDs)
                 bulkSelectedIDs.subtract(removed)
                 if bulkSelectedIDs.isEmpty { profileBulkMode = false }
             }
         } message: {
             Text(AppL10n.tr("Профили и сохранённые пароли будут удалены без возможности восстановления."))
         }
+    }
+
+    /// Destructive operations never act on profiles hidden by search or a
+    /// group filter, even if the selection was made before filtering.
+    private var selectedVisibleIDs: Set<UUID> {
+        bulkSelectedIDs.intersection(Set(visibleProfiles.map(\.id)))
     }
 
     private var visibleProfiles: [ProxyProfile] {

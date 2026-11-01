@@ -17,6 +17,13 @@ struct ProfileOrganization: Codable, Equatable {
         if !favorites.insert(id).inserted { favorites.remove(id) }
     }
 
+    /// Bulk favorites are idempotent: repeating the action never toggles
+    /// profiles into the opposite state by accident.
+    mutating func setFavorite(_ enabled: Bool, for ids: Set<UUID>) {
+        if enabled { favorites.formUnion(ids) }
+        else { favorites.subtract(ids) }
+    }
+
     mutating func assignGroup(_ group: String?, to ids: Set<UUID>) {
         let cleaned = group?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let name = String(cleaned.prefix(40))

@@ -154,15 +154,22 @@ struct ProxyImportView: View {
         editorFocused = false
         let items = pending
         guard !items.isEmpty else { return }
+        // Importing into an existing installation must not unexpectedly
+        // disconnect Auto or replace the user's manually selected server.
+        // For a fresh install, only the first profile becomes the default.
+        let noExistingProfiles = model.profiles.isEmpty
         var added: [UUID] = []
         for item in items {
             let before = Set(model.profiles.map(\.id))
             guard model.saveProfile(editingID: nil, name: item.name,
                                     host: item.host, portText: String(item.port),
                                     type: item.type, username: item.username,
-                                    password: item.password, scanAfterSave: false) else {
-                for id in added { model.deleteProfile(id: id) }
-                importError = ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
+                                    password: item.password, scanAfterSave: false,
+                                    activateOnCreate: noExistingProfiles && added.isEmpty) else {
+                let rolledBack = model.rollbackImportedProfiles(ids: Set(added))
+                importError = rolledBack
+                    ? ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
+                    : ProxyImportUX.text("Не удалось полностью отменить импорт. Проверьте список профилей")
                 return
             }
             added += model.profiles.map(\.id).filter { !before.contains($0) }
