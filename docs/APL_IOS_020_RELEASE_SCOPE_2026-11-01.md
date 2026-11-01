@@ -30,6 +30,7 @@ Status: approved scope, implementation in progress. Baseline: iOS 0.1.41; 0.1.42
 ## Implementation checkpoint — 2026-11-01
 
 - Profile organization: separate versioned shared-defaults metadata for favorites and freeform groups (no changes to `profiles.v1` or Keychain format), filters/search, batch assignment and guarded multi-delete with per-item error reporting.
+- Batch import triggers a single bounded diagnostics scan after persistence, rather than one asynchronous network check for every imported proxy.
 - Metered connection protection: at most three prioritized sequential probes during automatic scans; manual explicit batches of up to ten, 180s/10s cooldowns and no concurrent scans; small handshake/CONNECT probes rather than speed-test downloads.
 - Auto: existing primary and last-good priority preserved; remaining backups use recent (10-minute) locally stored latency samples, failed proxies still suppressed; no credentials in snapshots.
 - Existing Home and Yandex banner code untouched; no new widgets or external quick-connect controls.

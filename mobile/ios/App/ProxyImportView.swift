@@ -160,13 +160,16 @@ struct ProxyImportView: View {
             guard model.saveProfile(editingID: nil, name: item.name,
                                     host: item.host, portText: String(item.port),
                                     type: item.type, username: item.username,
-                                    password: item.password) else {
+                                    password: item.password, scanAfterSave: false) else {
                 for id in added { model.deleteProfile(id: id) }
                 importError = ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
                 return
             }
             added += model.profiles.map(\.id).filter { !before.contains($0) }
         }
+        // One bounded scan after the whole import, not up to 200 network
+        // probe tasks and repeated connection attempts during the loop.
+        Task { await model.scanProfiles() }
         dismiss()
     }
 

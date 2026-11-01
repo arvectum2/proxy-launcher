@@ -139,7 +139,8 @@ final class AppViewModel: ObservableObject {
         portText: String,
         type: ProxyType,
         username: String,
-        password: String
+        password: String,
+        scanAfterSave: Bool = true
     ) -> Bool {
         let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanHost.isEmpty, let port = Int(portText), (1...65535).contains(port) else {
@@ -164,7 +165,7 @@ final class AppViewModel: ObservableObject {
                 preservePasswordIfNil: isEditing && password.isEmpty
             )
             refresh()
-            Task { await scanProfiles() }
+            if scanAfterSave { Task { await scanProfiles() } }
             return true
         } catch {
             errorMessage = error.localizedDescription
