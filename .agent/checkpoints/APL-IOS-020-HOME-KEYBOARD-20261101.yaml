@@ -1,0 +1,29 @@
+task_id: APL-IOS-020-HOME-KEYBOARD-20261101
+status: completed
+goal: Incorporate owner feedback: full brand title, taller native ad, remove duplicate VPN icon and make every text keyboard dismissible.
+definition_of_done:
+  - Uniform full Arvectum Proxy Launcher header in original brand style, aligned to left.
+  - Native ad taller than previous 140pt without covering bottom Connect/profile/tabbar.
+  - Connect/Disconnect without redundant right-hand arrow/stop; in-button spinner remains.
+  - Explicit dismiss keyboard action for every main text entry form and profile search.
+  - Simulator keyboard interaction QA then signed physical iPhone in-place update; preserved saved profiles.
+completed:
+  - Cropped original Arvectum logo symbol, unified one-line rounded heavy product title on Home/all iPhone tabs.
+  - Native placement 205pt, compact 150pt; two real RSYA creatives checked on physical iPhone.
+  - Removed rightmost Connect/Stop glyph; indicator appears within fixed-height 70pt button during transition.
+  - Shared keyboard toolbar Done with keyboard down icon for profile editor, port numberPad, import TextEditor, backup SecureField and domain exclusions; iOS16+ interactive scroll dismissal.
+  - Profiles search has own 44pt keyboard-down button when focused; group creation native Alert has Cancel/Save.
+  - Signed iPhone 13 Simulator UI verification 1/1 PASS in 42.889s, five distinct keyboard scenarios.
+  - 21 Python contracts and 8 Home geometry contracts PASS; signed device build passed.
+  - In-place physical iPhone 13 0.2.0(48) install and actual Home visual inspected; 3/3 existing profiles, UUIDs and 10 preference keys unchanged.
+current: Completed. Await owner inspection and feedback.
+pending:
+  - User visually approves final UI and keyboard usability on iPhone.
+  - Later separate task: translate 95 new 0.2 strings for 48 additional languages.
+last_verified_commit: 4a0a596b
+test_results:
+  - Simulator dedicated KeyboardDismissUITests 1/1 PASS, 42.889 seconds, five input contexts including numberPad, secure/password, multiline, domain.
+  - Targeted Python 21/21 and eight Home layout test functions PASS.
+  - Physical dev-signed 0.2.0(48) build and in-place install PASS, actual Yandex banner/native screenshot inspected.
+  - App Group profiles 3/3, details and ID hashes, ten preference keys unchanged after install.
+resume_instruction: Complete. Await user feedback; do not redo past QA or modify localization/Apple metadata. See docs/APL_IOS_020_UI_UX_CROSS_REVIEW_2026-11-01.md and .agent/current-task.yaml.

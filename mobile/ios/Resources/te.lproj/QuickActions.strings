@@ -1,0 +1,4 @@
+/* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
+"Подключить APL" = "APLకి కనెక్ట్ చేయండి";
+"Отключить APL" = "APLని డిస్‌కనెక్ట్ చేయండి";
+"Переключить APL" = "APLని టోగుల్ చేయండి";

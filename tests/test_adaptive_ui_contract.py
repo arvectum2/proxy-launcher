@@ -9,6 +9,8 @@ ANDROID = (
     / "mobile/android/app/src/main/java/ru/arvectum/proxylauncher/MainActivity.kt"
 ).read_text(encoding="utf-8")
 IOS = (ROOT / "mobile/ios/App/ContentView.swift").read_text(encoding="utf-8")
+IOS_BRAND = (ROOT / "mobile/ios/App/BrandTheme.swift").read_text(encoding="utf-8")
+IOS_NAV = (ROOT / "mobile/ios/App/AppDestination.swift").read_text(encoding="utf-8")
 
 
 class AdaptiveUiContractTests(unittest.TestCase):
@@ -17,10 +19,10 @@ class AdaptiveUiContractTests(unittest.TestCase):
             self.assertIn(token, DESKTOP)
             self.assertIn(token, ANDROID)
 
-        self.assertIn("static let navy = Color(red: 0, green: 20/255, blue: 50/255)", IOS)
+        self.assertIn("static let navy = Color(red: 0, green: 20/255, blue: 50/255)", IOS_BRAND)
         # Light mode adds a semantic palette; preserve the original dark-mode brand mint.
-        self.assertIn("static let mint = adaptive(", IOS)
-        self.assertIn("dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)", IOS)
+        self.assertIn("static let mint = adaptive(", IOS_BRAND)
+        self.assertIn("dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)", IOS_BRAND)
 
     def test_navigation_order_is_shared(self):
         desktop_items = (
@@ -36,12 +38,12 @@ class AdaptiveUiContractTests(unittest.TestCase):
             'destination(Destination.SETTINGS, getString(R.string.apl_settings_',
         )
         ios_items = (
-            'case .home: return AppL10n.tr("Главная")',
+            'return AppL10n.tr("Домой")',
             'case .profiles: return AppL10n.tr("Профили")',
             'case .activity: return AppL10n.tr("Активность")',
             'case .settings: return AppL10n.tr("Настройки")',
         )
-        for source, fragments in ((DESKTOP, desktop_items), (ANDROID, android_items), (IOS, ios_items)):
+        for source, fragments in ((DESKTOP, desktop_items), (ANDROID, android_items), (IOS_NAV, ios_items)):
             positions = [source.index(fragment) for fragment in fragments]
             self.assertEqual(positions, sorted(positions))
 
@@ -63,20 +65,26 @@ class AdaptiveUiContractTests(unittest.TestCase):
 
     def test_mobile_and_desktop_composition_is_adaptive_not_pixel_cloned(self):
         self.assertIn("#if targetEnvironment(macCatalyst)", IOS)
-        self.assertIn("if geometry.size.width >= 700", IOS)
+        # iPhone Home is intentionally a vertical header/ad/connect/profile
+        # sequence at every phone size; Catalyst remains adaptive by width.
+        self.assertIn("if geometry.size.width >= 820", IOS)
+        self.assertIn(".frame(maxWidth: 580)", IOS)
+        self.assertIn("homeConnectControl", IOS)
+        self.assertIn("homeProfileControl", IOS)
         self.assertIn("desktopShell", IOS)
         self.assertIn("mobileShell", IOS)
         self.assertIn("self.root.minsize(720, 600)", DESKTOP)
         self.assertIn("private fun buildNavigationBar(): View", ANDROID)
 
     def test_catalyst_does_not_compile_iphone_shortcuts_control(self):
-        view_start = IOS.index("struct ApplicationExclusionsView: View")
-        view_end = IOS.index("struct JournalView: View", view_start)
-        view = IOS[view_start:view_end]
-        self.assertIn("#if targetEnvironment(macCatalyst)", view)
-        self.assertIn("Настройка по открытию и закрытию приложений доступна на iPhone.", view)
-        self.assertIn("#else", view)
-        self.assertIn("AppRoutingVPNControl.applyBaseline", view)
+        # App routing moved out of ContentView during the iOS refactor.
+        # Assert the actual compiled screen rather than its old source range.
+        app_routing = (ROOT / "mobile/ios/App/ApplicationExclusionsView.swift").read_text(encoding="utf-8")
+        self.assertIn("struct ApplicationExclusionsView: View {", app_routing)
+        self.assertIn("#if targetEnvironment(macCatalyst)", app_routing)
+        self.assertIn("Настройка по открытию и закрытию приложений доступна на iPhone.", app_routing)
+        self.assertIn("#else", app_routing)
+        self.assertIn("AppRoutingVPNControl.applyBaseline", app_routing)
 
     def test_linux_reuses_shared_desktop_primary_action(self):
         self.assertIn("self._apply_primary_action(view)", LINUX)

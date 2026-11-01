@@ -4,12 +4,14 @@ import Security
 enum ProfileStoreError: LocalizedError {
     case noSharedDefaults
     case encodeFailed
+    case corruptProfiles
     case keychain(OSStatus)
 
     var errorDescription: String? {
         switch self {
         case .noSharedDefaults: return "Не удалось открыть общее хранилище приложения"
         case .encodeFailed: return "Не удалось сохранить профиль"
+        case .corruptProfiles: return "Хранилище профилей повреждено. Данные сохранены; изменение отменено."
         case .keychain(let status): return "Keychain error: \(status)"
         }
     }
@@ -32,6 +34,8 @@ enum IOSAppRoutingMode: String, CaseIterable, Identifiable {
 final class ProfileStore {
     private enum Key {
         static let profiles = "profiles.v1"
+        static let organization = "profile_organization.v1"
+        static let quality = "profile_quality.v1"
         static let selectedProfileID = "selected_profile_id"
         static let automaticSelection = "automatic_selection"
         static let primaryProfileID = "primary_profile_id"
@@ -66,6 +70,42 @@ final class ProfileStore {
         }
     }
 
+    var profileOrganization: ProfileOrganization {
+        get {
+            guard let data = defaults.data(forKey: Key.organization),
+                  var value = try? decoder.decode(ProfileOrganization.self, from: data) else {
+                return ProfileOrganization()
+            }
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            return value
+        }
+        set {
+            var value = newValue
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            if let data = try? encoder.encode(value) {
+                defaults.set(data, forKey: Key.organization)
+            }
+        }
+    }
+
+    var proxyQuality: ProxyQualitySnapshot {
+        get {
+            guard let data = defaults.data(forKey: Key.quality),
+                  var value = try? decoder.decode(ProxyQualitySnapshot.self, from: data) else {
+                return ProxyQualitySnapshot()
+            }
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            return value
+        }
+        set {
+            var value = newValue
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            if let data = try? encoder.encode(value) {
+                defaults.set(data, forKey: Key.quality)
+            }
+        }
+    }
+
     func profile(id: UUID) -> ProxyProfile? {
         listProfiles().first { $0.id == id }
     }
@@ -83,13 +123,25 @@ final class ProfileStore {
         return String(data: data, encoding: .utf8)
     }
 
+    /// A damaged on-disk list must never look like an empty installation to
+    /// a writer. Otherwise saving one new profile would erase all old metadata.
+    private func profilesForMutation() throws -> [ProxyProfile] {
+        guard let bytes = defaults.data(forKey: Key.profiles) else { return [] }
+        guard let entries = try? decoder.decode([ProxyProfile].self, from: bytes) else {
+            throw ProfileStoreError.corruptProfiles
+        }
+        return entries
+    }
+
     func save(_ profile: ProxyProfile, password: String?, makeActive: Bool = true, preservePasswordIfNil: Bool = false) throws {
-        var profiles = listProfiles()
+        var profiles = try profilesForMutation()
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }
         else { profiles.append(profile) }
         guard let data = try? encoder.encode(profiles) else { throw ProfileStoreError.encodeFailed }
-        defaults.set(data, forKey: Key.profiles)
+        // Persist the Keychain secret first. A permission or storage failure
+        // must not leave a new/edited profile pointing to missing credentials.
         if !(preservePasswordIfNil && password == nil) { try setPassword(password, for: profile.id) }
+        defaults.set(data, forKey: Key.profiles)
         if makeActive {
             defaults.set(profile.id.uuidString, forKey: Key.selectedProfileID)
             defaults.set(false, forKey: Key.automaticSelection)
@@ -98,14 +150,25 @@ final class ProfileStore {
     }
 
     func delete(id: UUID) throws {
-        let remaining = listProfiles().filter { $0.id != id }
+        let remaining = try profilesForMutation().filter { $0.id != id }
         guard let data = try? encoder.encode(remaining) else { throw ProfileStoreError.encodeFailed }
+        // Validate and delete the Keychain entry before committing the profile
+        // removal. A Keychain failure must not strand saved proxy metadata.
+        let keychainStatus = SecItemDelete(baseKeychainQuery(id: id) as CFDictionary)
+        guard keychainStatus == errSecSuccess || keychainStatus == errSecItemNotFound else {
+            throw ProfileStoreError.keychain(keychainStatus)
+        }
         defaults.set(data, forKey: Key.profiles)
-        try setPassword(nil, for: id)
         if selectedProfileID == id { selectedProfileID = remaining.first?.id }
         if primaryProfileID == id { primaryProfileID = remaining.first?.id }
         if lastAutoProfileID == id { lastAutoProfileID = nil }
         if recentlyFailedProfileID == id { clearRecentlyFailed() }
+        var organization = profileOrganization
+        organization.prune(keeping: Set(remaining.map(\.id)))
+        profileOrganization = organization
+        var quality = proxyQuality
+        quality.prune(keeping: Set(remaining.map(\.id)))
+        proxyQuality = quality
     }
 
     var selectedProfileID: UUID? {
@@ -219,10 +282,25 @@ final class ProfileStore {
 
     private func setPassword(_ password: String?, for id: UUID) throws {
         let query = baseKeychainQuery(id: id)
-        SecItemDelete(query as CFDictionary)
-        guard let password, !password.isEmpty else { return }
+        guard let password, !password.isEmpty else {
+            let status = SecItemDelete(query as CFDictionary)
+            guard status == errSecSuccess || status == errSecItemNotFound else {
+                throw ProfileStoreError.keychain(status)
+            }
+            return
+        }
+
+        let value = Data(password.utf8)
+        // Updating in place preserves the previously valid secret if the
+        // replacement fails, unlike delete-then-add (which loses it).
+        let updates: [String: Any] = [kSecValueData as String: value]
+        let updateStatus = SecItemUpdate(query as CFDictionary, updates as CFDictionary)
+        if updateStatus == errSecSuccess { return }
+        guard updateStatus == errSecItemNotFound else {
+            throw ProfileStoreError.keychain(updateStatus)
+        }
         var add = query
-        add[kSecValueData as String] = Data(password.utf8)
+        add[kSecValueData as String] = value
         add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         let status = SecItemAdd(add as CFDictionary, nil)
         guard status == errSecSuccess else { throw ProfileStoreError.keychain(status) }

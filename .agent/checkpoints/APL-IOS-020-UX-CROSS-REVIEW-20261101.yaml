@@ -1,0 +1,25 @@
+task_id: APL-IOS-020-UX-CROSS-REVIEW-20261101
+status: completed
+goal: In-place install of current APL 0.2 on iPhone, UX design review, UI cleanup, final in-place install.
+definition_of_done:
+  - Preserve existing profiles during initial and final physical installs.
+  - Review according to Apple HIG, accessibility and Nielsen heuristics.
+  - Implement and verify UX changes on all main screens.
+  - Install updated build on iPhone for owner feedback with production ads.
+completed:
+  - Two signed development in-place physical iPhone installs, 0.2.0(48); 3/3 profiles unchanged.
+  - Home spinner/action state, Profiles/Activity/Settings simplification, native touch targets >=44pt, backup progressive disclosure, Exclusions Save no wrap.
+  - 25 focused source assertions PASS; signed Simulator seven-screen UI smoke 1/1 PASS.
+  - Final real iPhone screenshot: two live ad creatives, Connect/Profile/tabbar unobstructed.
+  - Physical XCTest UI automation required local passcode, not bypassed.
+current: Completed. Await owner visual feedback for next iteration.
+pending:
+  - Owner approval, then 48-language localization and eventual release acceptance.
+last_verified_commit: f6a1fc5c
+test_results:
+  - Python focus contracts 25/25 PASS.
+  - Simulator UI 1/1 PASS, seven screens, 36.551 seconds.
+  - Signed iPhone device build PASS; two in-place installs PASS.
+  - Real banner impression, native loaded, secondary banner impression.
+  - All three stored profiles and all App Group preference keys unchanged.
+resume_instruction: Four-stage UX task completed; wait owner UI feedback. See docs/APL_IOS_020_UI_UX_CROSS_REVIEW_2026-11-01.md. Never rerun old QA without changes.

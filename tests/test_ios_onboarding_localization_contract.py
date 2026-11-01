@@ -36,7 +36,8 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('.environment(\\.locale,', app)
         self.assertIn('Picker("Язык приложения"', view)
         self.assertIn('Text(AppL10n.tr(qaStatusTitle))', view)
-        self.assertIn('Text(AppL10n.tr(type.label))', view)
+        editor = (IOS / 'App' / 'ProfileEditorView.swift').read_text(encoding='utf-8')
+        self.assertIn('Text(AppL10n.tr(type.label))', editor)
 
     def test_onboarding_is_skippable_and_reopenable(self):
         app = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
@@ -49,13 +50,13 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('onCreateProfile: () -> Void', guide)
         self.assertIn('onCreateProfile()', guide)
         self.assertIn("APL не продаёт и не предоставляет прокси-серверы", guide)
-        self.assertIn('Хост — адрес сервера, порт — его номер.', app)
+        self.assertIn('Откройте «Профили» → «Добавить».', guide)
 
     def test_next_version_and_packaging(self):
         project = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.1.42"', project)
-        self.assertIn('CURRENT_PROJECT_VERSION: "47"', project)
+        self.assertIn('MARKETING_VERSION: "0.2.0"', project)
+        self.assertIn('CURRENT_PROJECT_VERSION: "48"', project)
         self.assertIn('Localizable.strings in Resources', pbx)
         self.assertIn('AppLocalization.swift in Sources', pbx)
         self.assertIn('SetupGuideView.swift in Sources', pbx)

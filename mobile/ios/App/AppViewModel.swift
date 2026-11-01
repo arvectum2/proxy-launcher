@@ -21,6 +21,7 @@ enum ProfileHealth: Equatable {
 @MainActor
 final class AppViewModel: ObservableObject {
     @Published var profiles: [ProxyProfile] = []
+    @Published var profileOrganization = ProfileOrganization()
     @Published var selectedProfileID: UUID?
     @Published var automaticSelection = true
     @Published var primaryProfileID: UUID?
@@ -29,6 +30,8 @@ final class AppViewModel: ObservableObject {
     @Published var manualExclusions: [String] = []
     @Published var smartGraph = SmartExclusionGraph()
     @Published var health: [UUID: ProfileHealth] = [:]
+    @Published var isScanningProfiles = false
+    @Published var lastProfileScanSummary = ""
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
 
@@ -37,10 +40,26 @@ final class AppViewModel: ObservableObject {
     private let telemetry = TelemetryStore()
     private var cancellables: Set<AnyCancellable> = []
     private var healthScanGeneration = 0
+    private let profileScanPolicy = ProfileScanPolicy()
+    private var lastAutomaticScanAt: Date?
+    private var lastManualScanAt: Date?
+    private var manualScanCursor = 0
 
     init() {
         do {
             store = try ProfileStore()
+#if DEBUG && targetEnvironment(simulator)
+            // Explicit disposable-simulator fixture for the system Files
+            // export/import QA. Never compiled into Release or a real iPhone,
+            // never creates a live proxy or exercises a paid endpoint.
+            if ProcessInfo.processInfo.arguments.contains("-aplBackupFilesQA"),
+               !store.listProfiles().contains(where: { $0.name == "Synthetic Files QA" }) {
+                let fixture = ProxyProfile(name: "Synthetic Files QA",
+                    host: "apl-files-qa.invalid", port: 8181, type: .http,
+                    username: "synthetic")
+                try store.save(fixture, password: "test-only-secret", makeActive: false)
+            }
+#endif
 
             // VPNController is its own ObservableObject. Forward its changes
             // through AppViewModel so SwiftUI refreshes controls that read
@@ -71,9 +90,13 @@ final class AppViewModel: ObservableObject {
 
     func refresh() {
         profiles = store.listProfiles()
+        profileOrganization = store.profileOrganization
         // Removing a profile must not leave obsolete diagnostics in memory.
         let currentIDs = Set(profiles.map(\.id))
         health = health.filter { currentIDs.contains($0.key) }
+        for (id, latency) in store.proxyQuality.freshLatencies(for: currentIDs) where health[id] == nil {
+            health[id] = .available(latency)
+        }
         selectedProfileID = store.selectedProfileID
         automaticSelection = store.automaticSelection
         primaryProfileID = store.primaryProfileID
@@ -82,6 +105,27 @@ final class AppViewModel: ObservableObject {
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
         refreshEvents()
+    }
+
+    func toggleFavorite(_ id: UUID) {
+        var updated = profileOrganization
+        updated.toggleFavorite(id)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
+    }
+
+    func setFavorites(_ ids: Set<UUID>, enabled: Bool) {
+        var updated = profileOrganization
+        updated.setFavorite(enabled, for: ids)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
+    }
+
+    func assignProfileGroup(_ name: String?, to ids: Set<UUID>) {
+        var updated = profileOrganization
+        updated.assignGroup(name, to: ids)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
     }
 
     func selectAuto() {
@@ -114,7 +158,9 @@ final class AppViewModel: ObservableObject {
         portText: String,
         type: ProxyType,
         username: String,
-        password: String
+        password: String,
+        scanAfterSave: Bool = true,
+        activateOnCreate: Bool = true
     ) -> Bool {
         let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanHost.isEmpty, let port = Int(portText), (1...65535).contains(port) else {
@@ -135,11 +181,11 @@ final class AppViewModel: ObservableObject {
             try store.save(
                 profile,
                 password: password.isEmpty ? nil : password,
-                makeActive: !isEditing || selectedProfileID == editingID,
+                makeActive: (!isEditing && activateOnCreate) || (isEditing && selectedProfileID == editingID),
                 preservePasswordIfNil: isEditing && password.isEmpty
             )
             refresh()
-            Task { await scanProfiles() }
+            if scanAfterSave { Task { await scanProfiles() } }
             return true
         } catch {
             errorMessage = error.localizedDescription
@@ -147,18 +193,108 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    /// Export is all-or-nothing: an inaccessible Keychain item aborts the
+    /// operation rather than silently omitting a password from the backup.
+    func createEncryptedProfileBackup(password: String) throws -> Data {
+        let snapshot = store.listProfiles()
+        let entries = try snapshot.map { profile in
+            BackupProfile(profile: profile, password: try store.password(for: profile.id))
+        }
+        let organization = store.profileOrganization
+        return try ProfileBackupCodec.seal(
+            ProfileBackupPayload(profiles: entries, favorites: organization.favorites,
+                                 groups: organization.groups), password: password
+        )
+    }
+
+    /// Only new UUIDs are inserted. The current VPN, selected server, Auto
+    /// preference and every existing Keychain secret remain untouched.
+    func restoreEncryptedProfileBackup(data: Data, password: String) throws -> Int {
+        guard !vpn.isConnectedOrConnecting else {
+            throw ProfileBackupError.vpnActive
+        }
+        let payload = try ProfileBackupCodec.open(data, password: password)
+        let existing = store.listProfiles()
+        let plan = try ProfileBackupRestorePlan(payload: payload, existing: existing)
+        guard !plan.entries.isEmpty else { return 0 }
+        var createdIDs: [UUID] = []
+        do {
+            for entry in plan.entries {
+                try store.save(entry.profile, password: entry.password, makeActive: false)
+                createdIDs.append(entry.profile.id)
+            }
+        } catch {
+            var rollbackComplete = true
+            for id in createdIDs.reversed() {
+                do { try store.delete(id: id) }
+                catch { rollbackComplete = false }
+            }
+            refresh()
+            if !rollbackComplete { throw ProfileBackupError.partialRollback }
+            throw error
+        }
+        var updated = store.profileOrganization
+        updated.setFavorite(true, for: plan.favorites)
+        for (id, group) in plan.groups {
+            updated.assignGroup(group, to: [id])
+        }
+        store.profileOrganization = updated
+        if existing.isEmpty, let firstID = createdIDs.first {
+            store.selectedProfileID = firstID
+            store.automaticSelection = false
+        }
+        refresh()
+        return createdIDs.count
+    }
+
+    /// A failed import can roll back only newly created IDs, even if an
+    /// unrelated existing VPN session remains connected. No previous profile
+    /// or Keychain credential is ever changed by this rollback.
+    func rollbackImportedProfiles(ids: Set<UUID>) -> Bool {
+        var allRemoved = true
+        for id in ids where profiles.contains(where: { $0.id == id }) {
+            do { try store.delete(id: id) }
+            catch { allRemoved = false }
+        }
+        refresh()
+        return allRemoved
+    }
+
+    /// Returns only IDs that were actually removed; failed deletions stay
+    /// selected in the UI so partial failures are visible and retryable.
+    func deleteProfiles(ids: Set<UUID>) -> Set<UUID> {
+        guard !vpn.isConnectedOrConnecting else {
+            errorMessage = "Отключите VPN перед удалением профилей"
+            return []
+        }
+        var removed: Set<UUID> = []
+        var firstError: Error?
+        for id in ids.sorted(by: { $0.uuidString < $1.uuidString }) where profiles.contains(where: { $0.id == id }) {
+            do {
+                try store.delete(id: id)
+                removed.insert(id)
+            } catch {
+                if firstError == nil { firstError = error }
+            }
+        }
+        refresh()
+        if let firstError {
+            errorMessage = AppL10n.tr("Не все профили удалены:") + " " + firstError.localizedDescription
+        }
+        return removed
+    }
+
     func deleteProfile(id: UUID) {
+        guard !vpn.isConnectedOrConnecting else {
+            errorMessage = "Отключите VPN перед удалением профилей"
+            return
+        }
         do { try store.delete(id: id); refresh() }
         catch { errorMessage = error.localizedDescription }
     }
 
     func delete(_ profile: ProxyProfile) {
-        do {
-            try store.delete(id: profile.id)
-            refresh()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        deleteProfile(id: profile.id)
     }
 
     func saveExclusions(_ raw: [String], graph: SmartExclusionGraph? = nil) async -> Bool {
@@ -179,7 +315,7 @@ final class AppViewModel: ObservableObject {
                 do {
                     try store.saveSmartExclusions(manual: previousManual, graph: previousGraph)
                 } catch {
-                    errorMessage = "VPN: не удалось восстановить прежние исключения. " + error.localizedDescription
+                    errorMessage = AppL10n.tr("VPN: не удалось восстановить прежние исключения.") + " " + error.localizedDescription
                     return false
                 }
                 exclusions = store.siteExclusions
@@ -189,7 +325,7 @@ final class AppViewModel: ObservableObject {
                     do {
                         try await vpn.restoreAfterFailedExclusionsUpdate()
                     } catch {
-                        errorMessage = "Прежние исключения восстановлены, но VPN нужно подключить заново: " + error.localizedDescription
+                        errorMessage = AppL10n.tr("Прежние исключения восстановлены, но VPN нужно подключить заново:") + " " + error.localizedDescription
                         return false
                     }
                 }
@@ -238,26 +374,69 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    func scanProfiles() async {
-        // Saving another profile while an async network probe is suspended
-        // must not let stale responses overwrite newer health results.
-        healthScanGeneration &+= 1
-        let generation = healthScanGeneration
+    func scanProfiles(manual: Bool = false, specificIDs: Set<UUID>? = nil) async {
+        // Never launch overlapping network scans. Imported lists can contain
+        // 200 paid proxies, so startup only checks 3 prioritized entries.
+        guard !isScanningProfiles else { return }
+        let now = Date()
+        guard profileScanPolicy.permitted(
+            now: now,
+            lastScan: manual ? lastManualScanAt : lastAutomaticScanAt,
+            manual: manual
+        ) else {
+            if manual { lastProfileScanSummary = AppL10n.tr("Между ручными проверками подождите 10 секунд.") }
+            return
+        }
         let snapshot = profiles
         guard !snapshot.isEmpty else { health = [:]; return }
-        let probe = ProxyProbe()
-        for profile in snapshot {
-            guard generation == healthScanGeneration else { return }
-            health[profile.id] = .checking
-            do {
-                let result = try await probe.resolveMeasured(profile, password: try store.password(for: profile.id))
-                guard generation == healthScanGeneration else { return }
-                health[profile.id] = .available(result.latencyMs)
-            } catch {
-                guard generation == healthScanGeneration else { return }
-                health[profile.id] = .unavailable(ProxyFailureReason.classify(error))
+        let ids: [UUID]
+        if let specificIDs {
+            ids = profileScanPolicy.selectedBatch(ids: snapshot.map(\.id), selected: specificIDs)
+            guard !ids.isEmpty else {
+                lastProfileScanSummary = AppL10n.tr("Выберите от 1 до 10 профилей")
+                return
             }
+        } else {
+            ids = profileScanPolicy.batch(
+                ids: snapshot.map(\.id), selectedID: selectedProfileID,
+                primaryID: primaryProfileID, favorites: profileOrganization.favorites,
+                manualCursor: manual ? manualScanCursor : nil
+            )
         }
+        if manual {
+            lastManualScanAt = now
+            if specificIDs == nil { manualScanCursor = (manualScanCursor + ids.count) % snapshot.count }
+        } else {
+            lastAutomaticScanAt = now
+        }
+        isScanningProfiles = true
+        defer { isScanningProfiles = false }
+        healthScanGeneration &+= 1
+        let generation = healthScanGeneration
+        let probe = ProxyProbe()
+        var quality = store.proxyQuality
+        var checked = 0
+        for id in ids {
+            guard generation == healthScanGeneration, !Task.isCancelled else { break }
+            guard let profile = snapshot.first(where: { $0.id == id }),
+                  profiles.contains(where: { $0.id == id }) else { continue }
+            health[id] = .checking
+            do {
+                let result = try await probe.resolveMeasured(profile, password: try store.password(for: id))
+                guard generation == healthScanGeneration, profiles.contains(where: { $0.id == id }) else { break }
+                health[id] = .available(result.latencyMs)
+                quality.markAvailable(id, latencyMs: result.latencyMs)
+            } catch {
+                guard generation == healthScanGeneration, profiles.contains(where: { $0.id == id }) else { break }
+                health[id] = .unavailable(ProxyFailureReason.classify(error))
+                quality.markUnavailable(id)
+            }
+            checked += 1
+        }
+        quality.prune(keeping: Set(profiles.map(\.id)))
+        store.proxyQuality = quality
+        lastProfileScanSummary = String(format: AppL10n.tr("Проверено %d из %d профилей"),
+                                        checked, specificIDs == nil ? snapshot.count : ids.count)
     }
 
     func refreshEvents() {

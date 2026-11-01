@@ -1,27 +1,28 @@
-task_id: APL-IOS-BULK-PROXY-IMPORT-20261101
+task_id: APL-IOS-020-POSTRELEASE-PREPARATION-20261102
 status: completed
-goal: 'Support provider-formatted proxy imports host:port:login:password, TXT/CSV/XML batches on iOS while preserving existing URLs, QR, credentials and App Store submission.'
+goal: Continue the iOS 0.2 roadmap safely while previous Apple release is pending; do NOT publish, merge or modify Apple metadata.
 definition_of_done:
-  - 'Accept HTTP/HTTPS/SOCKS5 links and multiline supplier host:port:login:password, including bracketed IPv6 and colons in passwords.'
-  - 'Import UTF-8 TXT, CSV with EN/RU header aliases or positional fields, and structured XML proxy elements/attributes; reject external XML entities and invalid lists wholesale.'
-  - 'Apply selectable HTTP/HTTPS/SOCKS5 default to entries without protocol, limit 200 proxies/256000 bytes, show preview without credentials, preserve duplicate filtering.'
-  - 'Focused Swift and iOS simulator UI tests pass, document behavior and merge PR on green checks.'
+  - Extract independent compact iPhone Settings and Activity screens from overloaded ContentView into coherent testable SwiftUI components with unchanged behavior.
+  - Address known Dynamic Type and VoiceOver controls: usable settings at accessibility text sizes, clear localized labels and no clipped primary actions.
+  - Validate 50-localization resources remain intact; signed simulator build and focused source/UX tests PASS, screenshot evidence for normal/large text and RTL if relevant.
+  - Update source contracts, roadmap and completion checkpoint, commit and push only to existing Draft PR #296, preserve release state.
+  - Do not install, alter or activate a physical VPN, user profiles, or upload/submit release to Apple.
 completed:
-  - 'Inspected origin/main 4136d683: prior parser accepted HTTP/HTTPS/SOCKS5 URLs only; TXT supported URLs, CSV/XML and vendor raw strings absent.'
-  - 'Implemented bounded RAW/TXT, CSV with headers/positional entries and quoted fields, XML with attributes/child elements and DTD/entity rejection; old URLs and QR preserved.'
-  - 'Added iOS HTTP/HTTPS/SOCKS5 default protocol picker, CSV/XML files in picker, translated import labels and errors, no password in preview.'
-  - 'Added 11 Swift parser tests; total 71/71 PASS.'
-  - 'iOS Simulator Debug build-for-testing PASS; targeted provider raw preview XCUITest PASS (15.367s), no fake profile saved; existing URL preview UI PASS.'
-  - 'Five focused Python iOS onboarding/preview contract tests PASS; git diff --check PASS.'
-  - 'Documented format examples, 200/256KB limit, XML safety and explicit App Store release exclusion in docs/ROADMAP.md and docs/APL_IOS_042_BULK_PROXY_IMPORT_2026-11-01.md.'
-  - 'Production/source implementation committed as 520411a4 on isolated branch feat/ios-bulk-proxy-import-20261101.'
-current: 'Implementation and targeted QA complete; protected PR/green CI merge is the only remaining mechanical action.'
-pending: []
-last_verified_commit: '520411a4 (71/71 Swift PASS, focused iOS Simulator UI PASS, iOS build-for-testing PASS)'
+  - Snapshot prior blocked release checkpoint to .agent/checkpoints/APL-IOS-020-RELEASE-BLOCKED-20261102.yaml.
+  - Feature commit 90c7080e extracted CompactSettingsView, ActivityScreenView, BrandTheme, AppDestination and EqualHeightDashboardLayout, with one shared model and no VPN state duplication; ContentView from 1500 to 1122 lines, two dead styles removed.
+  - iPhone normal Settings still one screen; at Accessibility XXL, theme/language stack vertically, theme uses a menu, icons do not overlap texts, activity status is above 44pt Refresh, event row combined for VoiceOver.
+  - iPhone13 signed Simulator Accessibility XXL de+ar UI 1/1 PASS in 31.054 sec, iPhone SE3 signed Simulator Accessibility XXL de+ar UI 1/1 PASS in 33.723 sec, iPhone13 normal Settings/Home UI 1/1 PASS in 10.092 sec. Screenshots on both devices inspected, simulator content-size/boot state restored.
+  - ARM64 signed iOS Simulator BUILD SUCCEEDED after final refactor; 71/71 source unittest + 11/11 direct source tests PASS; 50/50 locale audit zero errors and fallback.
+  - No Apple App Store/TestFlight upload, no physical iPhone operation, VPN switch or alteration of stored user data, no merge or watchdog.
+current: Completed first modular UI/accessibility milestone. Previous-release gate remains blocked in saved release checkpoint; next optional stage is profiles screen extraction and further focused UX/source QA.
+pending:
+  - Next roadmap task: extract large Profiles screen and its selection/group/favorites state into a cohesive component, retaining existing ProfileStore/Keychain/VPN behavior; scope and tests for next stage.
+  - Full manual VoiceOver narration/gestures on physical iPhone and agreed source for physical egress/failover tests remain separate backlog items, not part of this completed source refactor.
+  - Owner decides when to release prior iOS version; distribution IPA created before this UI-only commit must be rebuilt from accepted source before any future authorized Apple upload.
+last_verified_commit: 90c7080e
 test_results:
-  - 'Swift package: 71/71 PASS (11 new importer cases).'
-  - 'iOS Simulator build-for-testing: TEST BUILD SUCCEEDED.'
-  - 'iOS Simulator provider raw preview: PASS 15.367s; old URL preview: PASS; no profiles imported.'
-  - 'Python focused onboarding+format contracts: 5/5 PASS.'
-  - 'Physical iPhone, stored profiles and submitted Apple 0.1.41 (46): unchanged.'
-resume_instruction: 'Source branch /tmp/apl-ios-bulk-proxy-import-20261101, 520411a4, fully implemented and targeted verified; push PR to protected main, merge after all required GitHub CI is green, then verify remote main SHA. Avoid any new VPN test campaign or App Store Connect mutation. iOS 0.1.42 (47) source only; physical iPhone still runs prior build until separate release.'
+  - '2026-11-02 final ARM64 iOS Simulator xcodebuild build SUCCESS; ContentView 1500->1122 lines and all 5 extracted components compile.'
+  - '71 Python unittest + 11 direct-source tests PASS, incl macOS desktop layout, 50-locale audit, Home/Yandex and a11y source contracts.'
+  - 'Signed iPhone13 Simulator Accessibility XXL de/ar Settings+Activity 1/1 PASS 31.054s, signed small iPhone SE3 1/1 PASS 33.723s, normal iPhone13 Home+Settings 1/1 PASS 10.092s. Normal and large screenshots visually inspected; simulator state restored.'
+  - 'No real iPhone or VPN actions, no Apple upload, no changed App Store metadata, PR kept Draft.'
+resume_instruction: 'THIS TASK COMPLETED. Code verified at 90c7080e on feat/ios-020-product-plan-20261101 worktree /private/tmp/apl-ios-020-product-plan-20261101 Draft PR #296. Original blocked release checkpoint preserved in .agent/checkpoints/APL-IOS-020-RELEASE-BLOCKED-20261102.yaml. On next autonomous roadmap continuation choose next safe backlog stage: profiles screen decomposition and selected VoiceOver/a11y QA, not repeat this already-green work. DO NOT alter/merge/publish Apple release, change Apple privacy/ad declarations, install on real iPhone, switch VPN, or create Watchdog. Existing Apple Distribution IPA predates this source refactor, rebuild only on future authorized release. Human VoiceOver full testing and real upstream egress remain separate tasks.'

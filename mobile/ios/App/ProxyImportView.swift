@@ -58,7 +58,10 @@ struct ProxyImportView: View {
                         cameraPermissionDenied = false
                         scanQR = true
                     }
-                    Button(ProxyImportUX.text("Проверить")) { parse() }
+                    Button(ProxyImportUX.text("Проверить")) {
+                        editorFocused = false
+                        parse()
+                    }
                     Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
@@ -105,6 +108,7 @@ struct ProxyImportView: View {
                 }
             }
             .navigationTitle(ProxyImportUX.text("Импорт прокси"))
+            .keyboardDismissOnSwipeUp()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
             .sheet(isPresented: $scanQR) {
@@ -154,19 +158,29 @@ struct ProxyImportView: View {
         editorFocused = false
         let items = pending
         guard !items.isEmpty else { return }
+        // Importing into an existing installation must not unexpectedly
+        // disconnect Auto or replace the user's manually selected server.
+        // For a fresh install, only the first profile becomes the default.
+        let noExistingProfiles = model.profiles.isEmpty
         var added: [UUID] = []
         for item in items {
             let before = Set(model.profiles.map(\.id))
             guard model.saveProfile(editingID: nil, name: item.name,
                                     host: item.host, portText: String(item.port),
                                     type: item.type, username: item.username,
-                                    password: item.password) else {
-                for id in added { model.deleteProfile(id: id) }
-                importError = ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
+                                    password: item.password, scanAfterSave: false,
+                                    activateOnCreate: noExistingProfiles && added.isEmpty) else {
+                let rolledBack = model.rollbackImportedProfiles(ids: Set(added))
+                importError = rolledBack
+                    ? ProxyImportUX.text("Не удалось сохранить профили. Изменения отменены")
+                    : ProxyImportUX.text("Не удалось полностью отменить импорт. Проверьте список профилей")
                 return
             }
             added += model.profiles.map(\.id).filter { !before.contains($0) }
         }
+        // One bounded scan after the whole import, not up to 200 network
+        // probe tasks and repeated connection attempts during the loop.
+        Task { await model.scanProfiles() }
         dismiss()
     }
 

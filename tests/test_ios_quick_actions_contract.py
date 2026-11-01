@@ -25,7 +25,8 @@ class QuickActionsContract(unittest.TestCase):
         self.assertIn('applySelectedAppEvent(opened:',SWIFT)
 
     def test_quick_action_localizations_are_separate_from_source_catalog(self):
-        codes=['en','ru','ar','de','es','fa','fr','he','hi','it','ja','ko','pt-BR','pt-PT','zh-Hans','zh-Hant']
+        codes=sorted(path.name.removesuffix('.lproj') for path in (ROOT/'Resources').glob('*.lproj'))
+        self.assertEqual(len(codes),50)
         for code in codes:
             path=ROOT/'Resources'/f'{code}.lproj'/'QuickActions.strings'
             self.assertTrue(path.is_file(),path)
@@ -41,6 +42,7 @@ class QuickActionsContract(unittest.TestCase):
 
     def test_ui_opens_shortcuts_only_via_explicit_link(self):
         content=(ROOT/'App'/'ContentView.swift').read_text(encoding='utf-8')
+        self.assertIn('settings.quickActions',(ROOT/'App'/'CompactSettingsView.swift').read_text(encoding='utf8'))
         self.assertIn('settings.quickActions',content)
         self.assertIn('if #available(iOS 16.0, *)',content)
         self.assertIn('QuickActionsHelpView()',content)

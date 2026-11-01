@@ -124,6 +124,16 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 enum AppL10n {
     static let storageKey = "appLanguage.v1"
 
+    // 0.2 uses shorter iPhone labels. Reuse the existing *native* 0.1.x
+    // translations of semantically equivalent labels before falling back to
+    // English. This keeps Home and Settings localized in all 50 catalogs.
+    private static let legacyLabelAliases: [String: String] = [
+        "Домой": "Главная",
+        "Тема": "Тема оформления",
+        "Язык": "Язык приложения",
+        "Автоматизация": "Автоматизация приложений",
+    ]
+
     static func supportedLanguage(_ identifier: String) -> String? {
         let id = identifier.replacingOccurrences(of: "_", with: "-").lowercased()
         if id == "zh" || id.hasPrefix("zh-hans") || id.hasPrefix("zh-cn") || id.hasPrefix("zh-sg") {
@@ -161,16 +171,40 @@ enum AppL10n {
         return systemLanguage
     }
 
+    /// Feature-specific localization tables avoid ambiguous common keys.
+    /// For example, import's «Проверить» means Preview, while the primary
+    /// profile action «Проверить» means Check.
+    static func tr(_ key: String, table: String) -> String {
+        let missing = "__APL_020_MISSING_TRANSLATION__"
+        for code in [effectiveLanguage, "en"] {
+            guard let path = Bundle.main.path(forResource: code, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            let value = bundle.localizedString(forKey: key, value: missing, table: table)
+            if value != missing { return value }
+        }
+        return key
+    }
+
     static func tr(_ key: String) -> String {
-        let language = effectiveLanguage
-        for name in [language, "en"] {
-            if let path = Bundle.main.path(forResource: name, ofType: "lproj"),
-               let bundle = Bundle(path: path) {
-                // All shipped catalogs are key-complete, and Russian values
-                // legitimately equal the Russian lookup keys.
-                return bundle.localizedString(forKey: key, value: key, table: "Localizable")
+        // Preserve the reviewed 155-key legacy catalog. The 0.2 ProfileManagement
+        // strings now have native values for all 50 languages; English remains
+        // a defensive fallback for any future missing/optional source key.
+        let missing = "__APL_020_MISSING_TRANSLATION__"
+        for name in [effectiveLanguage, "en"] {
+            guard let path = Bundle.main.path(forResource: name, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            for table in ["Localizable", "ProfileManagement"] {
+                let value = bundle.localizedString(forKey: key, value: missing, table: table)
+                if value != missing { return value }
+            }
+            if let previousKey = legacyLabelAliases[key] {
+                let previousValue = bundle.localizedString(
+                    forKey: previousKey, value: missing, table: "Localizable"
+                )
+                if previousValue != missing { return previousValue }
             }
         }
         return key
+
     }
 }

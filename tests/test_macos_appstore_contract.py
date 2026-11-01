@@ -111,8 +111,9 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('CURRENT_PROJECT_VERSION: "10"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
-        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
+        # ExclusionsView is now a standalone SwiftUI screen, no longer a
+        # string slice between unrelated types in ContentView.swift.
+        exclusion_view = (ROOT / "mobile" / "ios" / "App" / "ExclusionsView.swift").read_text(encoding="utf-8")
         self.assertIn('Button(role: .destructive)', exclusion_view)
         self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
         self.assertIn('AppL10n.tr("Удалить исключение")', exclusion_view)
@@ -214,13 +215,14 @@ class MacOSAppStoreContractTests(unittest.TestCase):
 
     def test_mac_dashboard_matches_card_heights_and_stacks_on_narrow_windows(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn("private struct EqualHeightDashboardLayout: Layout", content)
+        catalyst_layout=(ROOT / "mobile" / "ios" / "App" / "EqualHeightDashboardLayout.swift").read_text(encoding="utf-8")
+        self.assertIn("struct EqualHeightDashboardLayout: Layout", catalyst_layout)
         self.assertIn("geometry.size.width >= 820", content)
         self.assertIn("EqualHeightDashboardLayout(spacing: 18)", content)
         self.assertIn("connectionCard(compact: false)\n                                activeProfileCard(compact: false)", content)
         self.assertIn("} else {\n                            connectionCard(compact: false)\n                            activeProfileCard(compact: false)", content)
-        self.assertIn("let tallest = subviews.map", content)
-        self.assertIn("height: bounds.height", content)
+        self.assertIn("let tallest = subviews.map", catalyst_layout)
+        self.assertIn("height: bounds.height", catalyst_layout)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)", content)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .topLeading)", content)
         self.assertIn("VStack(alignment: .leading, spacing: 5)", content)

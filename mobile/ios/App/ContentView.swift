@@ -1,130 +1,6 @@
 import SwiftUI
-import NetworkExtension
-import UIKit
-import WebKit
 
-/// Semantic iPhone appearance colors that follow dynamic device traits.
-enum Brand {
-    static let navy = Color(red: 0, green: 20/255, blue: 50/255)
 
-    private static func adaptive(light: UIColor, dark: UIColor) -> Color {
-        Color(uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark ? dark : light
-        })
-    }
-
-    static let canvas = adaptive(
-        light: UIColor(red: 0.957, green: 0.973, blue: 0.988, alpha: 1),
-        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
-    )
-    static let graphite = adaptive(
-        light: .white,
-        dark: UIColor(red: 40/255, green: 50/255, blue: 70/255, alpha: 1)
-    )
-    static let surface = adaptive(
-        light: UIColor(red: 0.918, green: 0.949, blue: 0.970, alpha: 1),
-        dark: UIColor(red: 16/255, green: 40/255, blue: 70/255, alpha: 1)
-    )
-    static let text = adaptive(
-        light: UIColor(red: 0.075, green: 0.133, blue: 0.220, alpha: 1),
-        dark: .white
-    )
-    static let softGray = adaptive(
-        light: UIColor(red: 0.290, green: 0.344, blue: 0.410, alpha: 1),
-        dark: UIColor(red: 200/255, green: 210/255, blue: 220/255, alpha: 1)
-    )
-    static let mint = adaptive(
-        light: UIColor(red: 0, green: 0.43, blue: 0.34, alpha: 1),
-        dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)
-    )
-    static let mintLight = adaptive(
-        light: UIColor(red: 0.008, green: 0.40, blue: 0.36, alpha: 1),
-        dark: UIColor(red: 120/255, green: 250/255, blue: 230/255, alpha: 1)
-    )
-    static let actionText = adaptive(
-        light: .white,
-        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
-    )
-    // The original wordmark has light lettering.
-    // Load the bundled PNG explicitly: SwiftUI named-image lookup can fail for
-    // a standalone resource PNG not registered in an asset catalog.
-    static var wordmark: Image {
-        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
-           let image = UIImage(contentsOfFile: path) {
-            return Image(uiImage: image)
-        }
-        return Image(systemName: "network")
-    }
-    static let logoBacking = adaptive(
-        light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
-        dark: .clear
-    )
-}
-
-private enum AppDestination: String, CaseIterable, Identifiable {
-    case home
-    case profiles
-    case activity
-    case settings
-
-    var id: String { rawValue }
-    var title: String {
-        switch self {
-        case .home: return AppL10n.tr("Главная")
-        case .profiles: return AppL10n.tr("Профили")
-        case .activity: return AppL10n.tr("Активность")
-        case .settings: return AppL10n.tr("Настройки")
-        }
-    }
-    var icon: String {
-        switch self {
-        case .home: return "house"
-        case .profiles: return "rectangle.stack"
-        case .activity: return "waveform.path.ecg"
-        case .settings: return "gearshape"
-        }
-    }
-}
-
-#if targetEnvironment(macCatalyst)
-/// Gives both desktop home cards the height of the taller card at the
-/// available column width. Unlike a hard-coded height this also accommodates
-/// longer localized copy, font scaling and window resizing.
-private struct EqualHeightDashboardLayout: Layout {
-    let spacing: CGFloat
-
-    func sizeThatFits(
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) -> CGSize {
-        let width = max(0, proposal.width ?? 0)
-        guard !subviews.isEmpty else { return CGSize(width: width, height: 0) }
-        let cardWidth = max(0, (width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
-        let tallest = subviews.map {
-            $0.sizeThatFits(ProposedViewSize(width: cardWidth, height: nil)).height
-        }.max() ?? 0
-        return CGSize(width: width, height: tallest)
-    }
-
-    func placeSubviews(
-        in bounds: CGRect,
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) {
-        guard !subviews.isEmpty else { return }
-        let cardWidth = max(0, (bounds.width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
-        for (index, card) in subviews.enumerated() {
-            card.place(
-                at: CGPoint(x: bounds.minX + CGFloat(index) * (cardWidth + spacing), y: bounds.minY),
-                anchor: .topLeading,
-                proposal: ProposedViewSize(width: cardWidth, height: bounds.height)
-            )
-        }
-    }
-}
-#endif
 
 private struct ProxyImportRequest: Identifiable {
     let id = UUID()
@@ -133,6 +9,7 @@ private struct ProxyImportRequest: Identifiable {
 
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("setupGuideSeen.v1") private var setupGuideSeen = false
@@ -143,9 +20,22 @@ struct ContentView: View {
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
+    @State private var showProfileBackup = false
+    @State private var profileSearch = ""
+    @FocusState private var profileSearchFocused: Bool
+    @State private var profileGroupFilter = "all"
+    @State private var pendingGroupIDs: Set<UUID> = []
+    @State private var customGroupName = ""
+    @State private var showNewProfileGroup = false
+    @State private var profileBulkMode = false
+    @State private var bulkSelectedIDs: Set<UUID> = []
+    @State private var confirmBulkDelete = false
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
+#if !targetEnvironment(macCatalyst)
+    @StateObject private var homeNativeAdController = HomeNativeAdController()
+#endif
 
     var body: some View {
         Group {
@@ -156,7 +46,20 @@ struct ContentView: View {
 #endif
         }
         .task {
+#if !targetEnvironment(macCatalyst)
+            // SDK is initialized in App.init. Request native ad as soon as the
+            // home experience is created; do not render it offscreen to force
+            // an impression. Hold this controller across tab switches.
+            homeNativeAdController.load()
+#endif
             await model.prepare()
+#if DEBUG && !targetEnvironment(macCatalyst)
+            // Safe screenshot-only localization QA on a disposable simulator.
+            // No VPN or saved profile mutation and compiled out of Release.
+            if ProcessInfo.processInfo.arguments.contains("-aplSettingsLocaleQA") {
+                destination = .settings
+            }
+#endif
 #if !targetEnvironment(macCatalyst)
             if !setupGuideSeen && model.profiles.isEmpty {
                 showSetupGuide = true
@@ -198,6 +101,9 @@ struct ContentView: View {
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
         }
+        .sheet(isPresented: $showProfileBackup) {
+            ProfileBackupView().environmentObject(model)
+        }
         .onOpenURL { url in
             do {
                 importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
@@ -223,8 +129,10 @@ struct ContentView: View {
     }
 
     private var mobileShell: some View {
-        VStack(spacing: 0) {
-            TabView(selection: $destination) {
+        // The native tab bar is always the last element on screen. Home owns
+        // the banner directly below the wordmark, above both main actions.
+        // Other tabs are not pushed up by an ad footer.
+        TabView(selection: $destination) {
             homeScreen
                 .tag(AppDestination.home)
                 .tabItem { Label(AppDestination.home.title, systemImage: AppDestination.home.icon) }
@@ -238,15 +146,7 @@ struct ContentView: View {
                 .tag(AppDestination.settings)
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
         }
-            .tint(Brand.mint)
-            // A sibling rather than an inset on TabView. The actual ad SDK's
-            // sticky height is measured by the stack; it must not displace
-            // or obscure the native tab bar on compact iPhones.
-            SettingsBannerView()
-                .padding(.horizontal, 16)
-                .frame(maxWidth: .infinity)
-                .background(Brand.canvas)
-        }
+        .tint(Brand.mint)
         .background(Brand.canvas)
     }
 
@@ -321,24 +221,33 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 #else
-        HStack(alignment: .center, spacing: 8) {
-            Brand.wordmark
+        HStack(alignment: .center, spacing: 7) {
+            Brand.symbol
                 .resizable()
                 .scaledToFit()
-                .frame(width: 112, height: 24)
-                .padding(6)
-                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 8))
-                .accessibilityLabel("Arvectum")
-            Text("Proxy Launcher")
-                .font(.system(size: 18, weight: .bold))
+                .frame(width: 34, height: 25)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 2)
+                .background(Brand.logoBacking, in: RoundedRectangle(cornerRadius: 7))
+                .accessibilityHidden(true)
+
+            Text("Arvectum Proxy Launcher")
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
                 .foregroundStyle(Brand.mint)
                 .lineLimit(1)
-                .minimumScaleFactor(0.82)
-            Spacer(minLength: 4)
-            Text(AppShared.version)
-                .font(.caption2)
-                .foregroundStyle(Brand.mintLight.opacity(0.72))
+                .minimumScaleFactor(0.72)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityAddTraits(.isHeader)
+
+            // The version is always available in Settings. At Accessibility
+            // sizes the full product name has priority over this metadata.
+            if !dynamicTypeSize.isAccessibilitySize {
+                Text(AppShared.version)
+                    .font(.caption2)
+                    .foregroundStyle(Brand.mintLight.opacity(0.72))
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
 #endif
     }
 
@@ -389,18 +298,10 @@ struct ContentView: View {
         case "connected": return "Отключить"
         case "connecting": return "Подключение…"
         case "disconnecting": return "Отключение…"
+        case "off": return "Подключиться" // DEBUG-only Home layout preview
         default: return primaryActionTitle
         }
     }
-    private var qaHelp: String {
-        switch qaState {
-        case "connected": return "Трафик устройства направляется через выбранный прокси."
-        case "connecting": return "APL устанавливает защищённый системный туннель."
-        case "disconnecting": return "APL возвращает обычное сетевое подключение."
-        default: return connectionHelp
-        }
-    }
-
     private var homeScreen: some View {
         ZStack {
             Brand.canvas.ignoresSafeArea()
@@ -423,31 +324,83 @@ struct ContentView: View {
                 let tight = geometry.size.height < 510
                 let compact = geometry.size.height < 680
                 let gap: CGFloat = tight ? 6 : (compact ? 9 : 14)
-                VStack(spacing: gap) {
-                    header.homeMeasured("header")
-                    if geometry.size.width >= 700 {
-                        HStack(alignment: .top, spacing: gap) {
-                            connectionCard(compact: compact)
-                            activeProfileCard(compact: compact)
-                        }
-                    } else {
-                        connectionCard(compact: compact).homeMeasured("connection")
-                        activeProfileCard(compact: compact).homeMeasured("profile")
-                    }
-                    Spacer(minLength: 0)
-                    if bannerPreview {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Brand.surface)
-                            .overlay {
-                                Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
-                                    .font(.caption2).foregroundStyle(Brand.softGray)
+                let edge: CGFloat = compact ? 12 : 18
+                // Share the whole available ad footprint equally. The *creative*
+                // is still adaptive: Yandex .inline(width:maxHeight:) chooses
+                // its own dimensions inside this flexible, screen-sized slot.
+                // Reserve enough for both bottom actions and the native tab bar.
+                let topInset = tight ? 6.0 : (compact ? 9.0 : 14.0)
+                let controlsHeight = 70.0 + 58.0 + gap + (tight ? 4.0 : 12.0)
+                let minimumGap = tight ? 4.0 : 12.0
+                let headerBudget = 47.0
+                let roomForAds = max(0, geometry.size.height - controlsHeight
+                    - minimumGap - headerBudget - topInset)
+                // On very short screens the native slot is omitted, so allow
+                // the surviving inline banner to use the whole safe budget.
+                let visibleAdSlots: CGFloat = geometry.size.height >= 650 ? 2 : 1
+                let equalAdHeight = min(236.0, floor(roomForAds / visibleAdSlots))
+                let inlineCreativeMax = max(1.0, equalAdHeight - 18.0)
+                VStack(spacing: 0) {
+                    // Both ads are one top-anchored, zero-gap stack. The only
+                    // flexible space belongs below ads, above the fixed-height
+                    // Connect/profile controls, so VPN state changes cannot
+                    // move a banner or the primary action vertically.
+                    header
+                        .padding(.horizontal, edge)
+                        .homeMeasured("header")
+
+                    VStack(spacing: 0) {
+                        Group {
+                            if bannerPreview {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Brand.surface)
+                                    .overlay {
+                                        Label("\(Int(equalAdHeight)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
+                                            .font(.caption2).foregroundStyle(Brand.softGray)
+                                    }
+                                    .frame(height: equalAdHeight)
+                            } else {
+                                SettingsBannerView(
+                                    adWidth: geometry.size.width,
+                                    maxAdHeight: inlineCreativeMax
+                                )
                             }
-                            .frame(height: tight ? 60 : bannerHeightQA)
-                            .homeMeasured("banner")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: equalAdHeight, alignment: .top)
+                        .homeMeasured("banner")
+
+                        if geometry.size.height >= 650 {
+                            Group {
+                                if bannerPreview {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Brand.surface)
+                                        .frame(height: equalAdHeight)
+                                } else {
+                                    NativeHomeAdView(width: geometry.size.width,
+                                                     height: equalAdHeight,
+                                                     controller: homeNativeAdController)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .homeMeasured("nativeAd")
+                        }
                     }
+                    .homeMeasured("adStack")
+
+                    Spacer(minLength: tight ? 4 : 12)
+
+                    VStack(spacing: gap) {
+                        homeConnectControl
+                            .homeMeasured("connection")
+                        homeProfileControl
+                            .homeMeasured("profile")
+                    }
+                    .frame(maxWidth: 580)
+                    .padding(.horizontal, edge)
+                    .padding(.bottom, tight ? 4 : 12)
                 }
-                .padding(.horizontal, compact ? 12 : 18)
-                .padding(.vertical, tight ? 6 : (compact ? 9 : 14))
+                .padding(.top, tight ? 6 : (compact ? 9 : 14))
                 .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
                 .coordinateSpace(name: "APLHome")
                 .homeMeasured("viewport")
@@ -463,6 +416,107 @@ struct ContentView: View {
             }
         }
     }
+    /// iPhone Home: one fixed-height stateful action and one profile selector.
+    /// The larger multi-control cards remain available on macOS Catalyst.
+    private var homeConnectionIsEstablished: Bool {
+        qaState == "connected" || model.vpn.status == .connected || model.vpn.status == .reasserting
+    }
+
+    private var homeConnectionIsTransitioning: Bool {
+        qaState == "connecting" || qaState == "disconnecting" ||
+        model.vpn.status == .connecting || model.vpn.status == .disconnecting ||
+        model.vpn.status == .reasserting
+    }
+
+    private var homeConnectControl: some View {
+        Button {
+            if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+                showNewProfile = true
+            } else {
+                Task { await model.toggleVPN() }
+            }
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: model.profiles.isEmpty && !qaProfile && !model.vpn.isConnectedOrConnecting
+                    ? "plus.circle.fill" : "power")
+                    .font(.system(size: 24, weight: .bold))
+                    .accessibilityHidden(true)
+                Text(AppL10n.tr(qaActionTitle))
+                    .font(.system(size: 22, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.68)
+                // Keep only the left power icon. Progress, when needed,
+                // appears beside the title and never shifts the button.
+                if homeConnectionIsTransitioning {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
+                        .frame(width: 20, height: 20)
+                        .accessibilityHidden(true)
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(homeConnectionIsEstablished ? Brand.actionText : Brand.mintLight)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
+            .frame(height: 70)
+            .background(homeConnectionIsEstablished ? Brand.mint : Brand.surface,
+                        in: RoundedRectangle(cornerRadius: 18))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Brand.mint.opacity(homeConnectionIsEstablished ? 0.9 : 0.7), lineWidth: 1.5)
+            }
+            .opacity(model.vpn.canToggle ? 1 : 0.6)
+        }
+        .buttonStyle(.plain)
+        .disabled(!model.vpn.canToggle)
+        .homeMeasured("primaryAction")
+        .accessibilityLabel(AppL10n.tr(qaActionTitle))
+        .accessibilityHint(model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting
+            ? "Открыть создание первого прокси"
+            : model.vpn.isConnectedOrConnecting
+                ? "Отключить системный прокси-туннель"
+                : "Подключиться через выбранный прокси")
+    }
+
+    private var homeProfileControl: some View {
+        Group {
+            if model.profiles.isEmpty && !qaProfile {
+                Button { showNewProfile = true } label: {
+                    homeProfileLabel(AppL10n.tr("Добавить прокси"))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(AppL10n.tr("Добавить прокси"))
+            } else {
+                Menu { profileSelectionMenu } label: {
+                    homeProfileLabel(qaProfile ? "QA Proxy" : model.selectedLabel)
+                }
+                .accessibilityLabel(AppL10n.tr("Прокси") + ": " + model.selectedLabel)
+            }
+        }
+    }
+
+    private func homeProfileLabel(_ name: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "server.rack")
+                .font(.system(size: 19, weight: .medium))
+                .accessibilityHidden(true)
+            Text(name)
+                .font(.system(size: 17, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.down")
+                .font(.system(size: 14, weight: .semibold))
+                .accessibilityHidden(true)
+        }
+        .foregroundStyle(Brand.text)
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
+        .frame(height: 58)
+        .background(Brand.surface, in: RoundedRectangle(cornerRadius: 16))
+    }
+
     // Preserve equal-height macOS Catalyst cards while iPhone Home measures
     // intrinsic card heights to leave space for the bottom banner footprint.
     private var dashboardCardMaxHeight: CGFloat? {
@@ -540,13 +594,6 @@ struct ContentView: View {
                 : model.vpn.isConnectedOrConnecting
                     ? "Отключить системный прокси-туннель"
                     : "Подключиться через выбранный прокси")
-            Text(AppL10n.tr(qaHelp))
-                .font(compact ? .caption : .footnote)
-                .foregroundStyle(Brand.softGray)
-                .multilineTextAlignment(.center)
-                .lineLimit(compact ? 2 : 3)
-                .minimumScaleFactor(0.72)
-                .frame(maxWidth: .infinity)
         }
         .padding(compact ? 11 : 18)
         .frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)
@@ -556,7 +603,7 @@ struct ContentView: View {
 
     private func activeProfileCard(compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: compact ? 7 : 12) {
-            Text(AppL10n.tr("Выбор прокси"))
+            Text(AppL10n.tr("Прокси"))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .font(.subheadline.weight(.bold))
@@ -565,32 +612,16 @@ struct ContentView: View {
                 .font(compact ? .subheadline.weight(.semibold) : .title3.weight(.semibold))
                 .foregroundStyle(Brand.text)
                 .lineLimit(1)
-            if (!model.profiles.isEmpty || qaProfile) && !compact {
-                Text(AppL10n.tr(model.automaticSelection ? "APL выбирает доступный профиль автоматически." : "Используется выбранный профиль."))
-                    .font(compact ? .caption : .footnote)
-                    .foregroundStyle(Brand.softGray)
-            }
             if model.profiles.isEmpty && !qaProfile {
-                Text(AppL10n.tr("Добавьте первый прокси, чтобы начать. Понадобятся адрес и порт."))
-                    .font(compact ? .caption : .footnote)
+                Text(AppL10n.tr("Нет прокси"))
+                    .font(.footnote)
                     .foregroundStyle(Brand.softGray)
-                    .lineLimit(compact ? 2 : 3)
-                    .minimumScaleFactor(0.68)
-                if !compact {
-                Button {
-                    showNewProfile = true
-                } label: {
-                    Label("Добавить прокси", systemImage: "plus.circle.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PrimaryBrandButtonStyle())
-                }
             } else {
                 Menu {
                     profileSelectionMenu
                 } label: {
                     HStack {
-                        Text(AppL10n.tr("Выбрать профиль"))
+                        Text(AppL10n.tr("Сменить"))
                             .lineLimit(1)
                             .minimumScaleFactor(0.68)
                         Spacer()
@@ -602,15 +633,6 @@ struct ContentView: View {
                     .frame(height: compact ? 44 : 52)
                     .background(Brand.mint)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                if !compact {
-                Button {
-                    destination = .profiles
-                } label: {
-                    Label("Управление профилями", systemImage: "rectangle.stack")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(SecondaryBrandButtonStyle())
                 }
             }
         }
@@ -628,88 +650,262 @@ struct ContentView: View {
 #if !targetEnvironment(macCatalyst)
                     header
 #endif
-                    sectionTitle("Профили", subtitle: "Выбор, добавление и приоритет прокси")
-                    if !model.profiles.isEmpty {
-                    Menu { profileSelectionMenu } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("Текущий профиль").font(.caption).foregroundStyle(Brand.softGray)
-                                Text(AppL10n.tr(model.selectedLabel)).font(.headline).foregroundStyle(Brand.text).lineLimit(1)
+                    HStack(spacing: 8) {
+                        cardButton("Добавить", filled: true) { showNewProfile = true }
+                        cardButton("Импорт", filled: false) {
+                            importRequest = ProxyImportRequest(source: "")
+                        }
+                        .accessibilityIdentifier("profiles.import")
+                        cardButton("Копия", filled: false) { showProfileBackup = true }
+                            .accessibilityLabel(AppL10n.tr("Резервные копии"))
+                            .accessibilityIdentifier("profiles.encryptedBackup")
+                    }
+                    if model.profiles.isEmpty {
+                        VStack(spacing: 10) {
+                            Image(systemName: "tray")
+                                .font(.system(size: 32, weight: .light))
+                                .accessibilityHidden(true)
+                            Text(AppL10n.tr("Нет прокси"))
+                                .font(.subheadline)
+                        }
+                        .foregroundStyle(Brand.softGray)
+                        .frame(maxWidth: .infinity, minHeight: 150)
+                        .accessibilityIdentifier("profiles.emptyState")
+                    } else {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text(AppL10n.tr("Профили")).font(.headline).foregroundStyle(Brand.text)
+                                Spacer()
+                                Button(profileBulkMode ? AppL10n.tr("Готово") : AppL10n.tr("Выбрать")) {
+                                    profileBulkMode.toggle()
+                                    bulkSelectedIDs.removeAll()
+                                }
+                                .foregroundStyle(Brand.mint)
                             }
-                            Spacer()
-                            Image(systemName: "chevron.down").foregroundStyle(Brand.mint)
+                            HStack {
+                                Button {
+                                    Task { await model.scanProfiles(manual: true) }
+                                } label: {
+                                    Label(model.isScanningProfiles ? AppL10n.tr("Проверка…") : AppL10n.tr("Проверить"), systemImage: "waveform.path.ecg")
+                                }
+                                .disabled(model.isScanningProfiles)
+                                .accessibilityHint(AppL10n.tr("Проверить следующие 10 прокси"))
+                                Spacer()
+                                if model.isScanningProfiles { ProgressView() }
+                            }
+                            if !model.lastProfileScanSummary.isEmpty {
+                                Text(model.lastProfileScanSummary)
+                                    .font(.caption).foregroundStyle(Brand.softGray)
+                            }
+                            TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
+                                .focused($profileSearchFocused)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .submitLabel(.done)
+                                .onSubmit { profileSearchFocused = false }
+                                .textFieldStyle(.roundedBorder)
+                                .accessibilityIdentifier("profiles.search")
+                            Menu {
+                                Button(AppL10n.tr("Все профили")) { profileGroupFilter = "all" }
+                                Button(AppL10n.tr("Избранные")) { profileGroupFilter = "favorites" }
+                                ForEach(model.profileOrganization.groupNames, id: \.self) { group in
+                                    Button(AppL10n.tr(group)) { profileGroupFilter = "group:" + group }
+                                }
+                            } label: {
+                                Label(profileGroupFilter == "all" ? AppL10n.tr("Все профили") :
+                                      profileGroupFilter == "favorites" ? AppL10n.tr("Избранные") :
+                                      AppL10n.tr(String(profileGroupFilter.dropFirst(6))),
+                                      systemImage: "line.3.horizontal.decrease.circle")
+                                    .foregroundStyle(Brand.mintLight)
+                            }
+                            ForEach(visibleProfiles) { profile in
+                                HStack(spacing: 10) {
+                                    Button {
+                                        if profileBulkMode {
+                                            if !bulkSelectedIDs.insert(profile.id).inserted {
+                                                bulkSelectedIDs.remove(profile.id)
+                                            }
+                                        } else { editorProfile = profile }
+                                    } label: {
+                                        HStack(spacing: 10) {
+                                            if profileBulkMode {
+                                                Image(systemName: bulkSelectedIDs.contains(profile.id) ? "checkmark.circle.fill" : "circle")
+                                                    .foregroundStyle(Brand.mint)
+                                            }
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                HStack(spacing: 5) {
+                                                    Text(profile.name)
+                                                        .font(.subheadline.weight(.semibold))
+                                                    if !model.automaticSelection && model.selectedProfileID == profile.id {
+                                                        Image(systemName: "checkmark.circle.fill")
+                                                            .font(.caption)
+                                                            .foregroundStyle(Brand.mintLight)
+                                                            .accessibilityLabel(AppL10n.tr("Текущий профиль"))
+                                                    }
+                                                }
+                                                Text("\(profile.host):\(String(profile.port)) · \(profile.type.rawValue)")
+                                                    .font(.caption).foregroundStyle(Brand.softGray)
+                                                    // Host, port and protocol are LTR technical
+                                                    // identifiers even inside Arabic/Hebrew UI.
+                                                    .environment(\.layoutDirection, .leftToRight)
+                                                if let group = model.profileOrganization.group(for: profile.id) {
+                                                    Text(AppL10n.tr(group)).font(.caption2).foregroundStyle(Brand.mintLight)
+                                                }
+                                                if let state = model.health[profile.id] {
+                                                    Label(state.label, systemImage: "waveform.path.ecg")
+                                                        .font(.caption2)
+                                                        .foregroundStyle(Brand.softGray)
+                                                }
+                                            }
+                                            Spacer(minLength: 0)
+                                        }
+                                        .foregroundStyle(Brand.text)
+                                        .frame(minHeight: 44)
+                                        .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityIdentifier("profiles.row.\(profile.id.uuidString)")
+                                    if !profileBulkMode {
+                                        Button { model.toggleFavorite(profile.id) } label: {
+                                            Image(systemName: model.profileOrganization.isFavorite(profile.id) ? "star.fill" : "star")
+                                                .foregroundStyle(Brand.mint)
+                                                .frame(minWidth: 44, minHeight: 44)
+                                        }
+                                        .accessibilityLabel(model.profileOrganization.isFavorite(profile.id) ? AppL10n.tr("Убрать из избранного") : AppL10n.tr("В избранное"))
+                                        profileGroupMenu(ids: [profile.id])
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            if visibleProfiles.isEmpty {
+                                Text(AppL10n.tr("Нет профилей по выбранному фильтру"))
+                                    .font(.footnote).foregroundStyle(Brand.softGray)
+                            }
+                            if profileBulkMode {
+                                HStack(spacing: 10) {
+                                    Text(String(format: AppL10n.tr("Выбрано: %d"), selectedVisibleIDs.count))
+                                        .font(.footnote).foregroundStyle(Brand.softGray)
+                                    Spacer()
+                                    Menu {
+                                        Button(AppL10n.tr("Выбрать все")) {
+                                            bulkSelectedIDs = Set(visibleProfiles.map(\.id))
+                                        }
+                                        .disabled(visibleProfiles.isEmpty)
+                                        Button(AppL10n.tr("Снять выбор")) { bulkSelectedIDs.removeAll() }
+                                            .disabled(selectedVisibleIDs.isEmpty)
+                                        Divider()
+                                        Button(AppL10n.tr("В избранное")) {
+                                            model.setFavorites(selectedVisibleIDs, enabled: true)
+                                        }
+                                        Button(AppL10n.tr("Убрать из избранного")) {
+                                            model.setFavorites(selectedVisibleIDs, enabled: false)
+                                        }
+                                        profileGroupMenu(ids: selectedVisibleIDs)
+                                        Button(AppL10n.tr("Проверить")) {
+                                            Task { await model.scanProfiles(manual: true, specificIDs: selectedVisibleIDs) }
+                                        }
+                                        .disabled(selectedVisibleIDs.count == 0 || selectedVisibleIDs.count > 10 || model.isScanningProfiles)
+                                    } label: {
+                                        Label(AppL10n.tr("Действия"), systemImage: "ellipsis.circle")
+                                    }
+                                    .disabled(visibleProfiles.isEmpty)
+                                    Button(AppL10n.tr("Удалить"), role: .destructive) {
+                                        confirmBulkDelete = true
+                                    }
+                                    .disabled(selectedVisibleIDs.isEmpty || model.vpn.isConnectedOrConnecting)
+                                    .accessibilityHint(AppL10n.tr("Удаление требует отключить VPN"))
+                                }
+                            }
                         }
                         .padding(16)
                         .background(Brand.graphite)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
-                    }
-                    VStack(spacing: 10) {
-                        HStack(spacing: 10) {
-                            cardButton(model.profiles.isEmpty ? "＋ Добавить первый прокси" : "＋ Новый", filled: true) {
-                                showNewProfile = true
-                            }
-                            cardButton(ProxyImportUX.text("Импортировать прокси"), filled: false) {
-                                importRequest = ProxyImportRequest(source: "")
-                            }
-                        }
-                        if !model.profiles.isEmpty {
-                            cardButton("Изменить", filled: false) {
-                                editorProfile = model.profiles.first { $0.id == model.selectedProfileID }
-                                    ?? model.profiles.first
-                            }
-                        }
-                    }
-                    if !model.profiles.isEmpty {
-                        autoSettingsCard
-                    }
                 }
                 .padding(18)
                 .frame(maxWidth: 760)
                 .frame(maxWidth: .infinity)
             }
+            .keyboardDismissOnSwipeUp()
         }
+        .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
+        .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }
+        .alert(AppL10n.tr("Новая группа"), isPresented: $showNewProfileGroup) {
+            TextField(AppL10n.tr("Название группы"), text: $customGroupName)
+            Button(AppL10n.tr("Сохранить")) {
+                let name = customGroupName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !name.isEmpty { model.assignProfileGroup(name, to: pendingGroupIDs) }
+                pendingGroupIDs.removeAll()
+            }
+            Button(AppL10n.tr("Отмена"), role: .cancel) { pendingGroupIDs.removeAll() }
+        } message: {
+            Text(AppL10n.tr("Группы изменяют только организацию списка, не маршрутизацию VPN."))
+        }
+        .confirmationDialog(AppL10n.tr("Удалить выбранные прокси?"), isPresented: $confirmBulkDelete, titleVisibility: .visible) {
+            Button(AppL10n.tr("Удалить безвозвратно"), role: .destructive) {
+                guard !model.vpn.isConnectedOrConnecting else { return }
+                let removed = model.deleteProfiles(ids: selectedVisibleIDs)
+                bulkSelectedIDs.subtract(removed)
+                if bulkSelectedIDs.isEmpty { profileBulkMode = false }
+            }
+        } message: {
+            Text(AppL10n.tr("Профили и сохранённые пароли будут удалены без возможности восстановления."))
+        }
+    }
+
+    /// Destructive operations never act on profiles hidden by search or a
+    /// group filter, even if the selection was made before filtering.
+    private var selectedVisibleIDs: Set<UUID> {
+        bulkSelectedIDs.intersection(Set(visibleProfiles.map(\.id)))
+    }
+
+    private var visibleProfiles: [ProxyProfile] {
+        model.profiles.filter { profile in
+            let matchesSearch = profileSearch.isEmpty ||
+                profile.name.localizedCaseInsensitiveContains(profileSearch) ||
+                profile.host.localizedCaseInsensitiveContains(profileSearch)
+            let matchesGroup: Bool
+            switch profileGroupFilter {
+            case "all": matchesGroup = true
+            case "favorites": matchesGroup = model.profileOrganization.isFavorite(profile.id)
+            default:
+                matchesGroup = profileGroupFilter.hasPrefix("group:") &&
+                    model.profileOrganization.group(for: profile.id) == String(profileGroupFilter.dropFirst(6))
+            }
+            return matchesSearch && matchesGroup
+        }.sorted { lhs, rhs in
+            let leftFavorite = model.profileOrganization.isFavorite(lhs.id)
+            let rightFavorite = model.profileOrganization.isFavorite(rhs.id)
+            if leftFavorite != rightFavorite { return leftFavorite }
+            return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+        }
+    }
+
+    private func profileGroupMenu(ids: Set<UUID>) -> some View {
+        Menu {
+            Button(AppL10n.tr("Без группы")) { model.assignProfileGroup(nil, to: ids) }
+            ForEach(Array(Set(["Основные", "Рабочие", "Резервные"] + model.profileOrganization.groupNames)).sorted(), id: \.self) { group in
+                Button(AppL10n.tr(group)) { model.assignProfileGroup(group, to: ids) }
+            }
+            Button(AppL10n.tr("Новая группа…")) {
+                pendingGroupIDs = ids
+                customGroupName = ""
+                showNewProfileGroup = true
+            }
+        } label: {
+            Label(AppL10n.tr("Группа"), systemImage: "folder.badge.plus")
+                .foregroundStyle(Brand.mintLight)
+                .frame(minHeight: 44)
+        }
+        .accessibilityLabel(AppL10n.tr("Группа профиля"))
     }
 
     private var activityScreen: some View {
-        ZStack {
-            Brand.canvas.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-#if !targetEnvironment(macCatalyst)
-                    header
-#endif
-                    sectionTitle("Активность", subtitle: "Состояние соединения и последние события")
-                    HStack {
-                        Label(AppL10n.tr(model.vpn.detail), systemImage: "bolt.horizontal.circle")
-                            .foregroundStyle(connectionStatusColor)
-                        Spacer()
-                        Button("Обновить") { model.refreshEvents() }
-                            .foregroundStyle(Brand.mint)
-                    }
-                    .padding(16)
-                    .background(Brand.graphite)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                    if model.events.isEmpty {
-                        Text("Событий пока нет")
-                            .foregroundStyle(Brand.softGray)
-                            .padding(16)
-                    } else {
-                        ForEach(model.events) { event in
-                            eventRow(event)
-                        }
-                    }
-                }
-                .padding(18)
-                .frame(maxWidth: 760)
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .onAppear { model.refreshEvents() }
+        ActivityScreenView(model: model, statusColor: connectionStatusColor, header: header)
     }
 
     private var settingsScreen: some View {
+#if targetEnvironment(macCatalyst)
         ZStack {
             Brand.canvas.ignoresSafeArea()
             ScrollView {
@@ -785,7 +981,26 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
             }
         }
+#else
+        compactSettingsScreen
+#endif
     }
+
+#if !targetEnvironment(macCatalyst)
+    private var compactSettingsScreen: some View {
+        CompactSettingsView(
+            model: model,
+            appearanceMode: $appearanceMode,
+            appLanguage: $appLanguage,
+            showSetupGuide: $showSetupGuide,
+            showExclusions: $showExclusions,
+            showQuickActions: $showQuickActions,
+            showAppExclusions: $showAppExclusions,
+            qaProfile: qaProfile,
+            header: header
+        )
+    }
+#endif
 
     @ViewBuilder
     private var profileSelectionMenu: some View {
@@ -798,9 +1013,7 @@ struct ContentView: View {
             Button {
                 model.select(profile)
             } label: {
-                let prefix = profile.id == model.primaryProfileID ? "★ " : ""
-                let suffix = model.health[profile.id].map { " · \($0.label)" } ?? ""
-                Label(prefix + profile.name + suffix,
+                Label(profile.name,
                       systemImage: (!model.automaticSelection && model.selectedProfileID == profile.id)
                         ? "checkmark.circle.fill" : "circle")
             }
@@ -849,22 +1062,6 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    private func eventRow(_ event: TunnelEvent) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text(AppL10n.tr(event.type)).font(.headline)
-                Spacer()
-                Text(event.timestamp, style: .time).font(.caption).foregroundStyle(Brand.softGray)
-            }
-            if let name = event.profileName { Text(name).font(.subheadline) }
-            if let detail = event.detail { Text(detail).font(.caption).foregroundStyle(Brand.softGray) }
-        }
-        .foregroundStyle(Brand.text)
-        .padding(14)
-        .background(Brand.graphite)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
     private func sectionTitle(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(AppL10n.tr(title)).font(.title2.weight(.bold)).foregroundStyle(Brand.text)
@@ -896,7 +1093,7 @@ struct ContentView: View {
             .multilineTextAlignment(.center)
             .foregroundStyle(filled ? Brand.actionText : Brand.mintLight)
             .frame(maxWidth: .infinity)
-            .frame(height: 46)
+            .frame(minHeight: 46)
             .background(filled ? Brand.mint : Brand.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Brand.mint.opacity(filled ? 0 : 0.6)))
@@ -914,18 +1111,6 @@ struct ContentView: View {
         }
     }
 
-    private var connectionHelp: String {
-        if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
-            return "Без профиля подключение невозможно. Добавьте прокси для начала работы."
-        }
-        switch model.vpn.status {
-        case .connected: return "Трафик устройства направляется через выбранный прокси."
-        case .connecting, .reasserting: return "APL устанавливает защищённый системный туннель."
-        case .disconnecting: return "APL возвращает обычное сетевое подключение."
-        default: return "Нажмите, чтобы направить трафик через APL."
-        }
-    }
-
     private var connectionStatusColor: Color {
         switch model.vpn.status {
         case .connected: return Brand.mintLight
@@ -934,874 +1119,4 @@ struct ContentView: View {
         }
     }
 
-}
-
-private struct PrimaryBrandButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.subheadline.weight(.bold))
-            .foregroundStyle(Brand.actionText)
-            .frame(height: 52)
-            .background(Brand.mint.opacity(configuration.isPressed ? 0.78 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct SecondaryBrandButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Brand.mintLight)
-            .padding(.horizontal, 14)
-            .frame(height: 44)
-            .background(Brand.canvas.opacity(configuration.isPressed ? 0.72 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Brand.mint.opacity(0.55)))
-    }
-}
-
-struct ProfileEditorView: View {
-    @EnvironmentObject private var model: AppViewModel
-    @Environment(\.dismiss) private var dismiss
-    let profile: ProxyProfile?
-
-    @State private var name: String
-    @State private var host: String
-    @State private var port: String
-    @State private var type: ProxyType
-    @State private var username: String
-    @State private var password = ""
-
-    init(profile: ProxyProfile?) {
-        self.profile = profile
-        _name = State(initialValue: profile?.name ?? "")
-        _host = State(initialValue: profile?.host ?? "")
-        _port = State(initialValue: profile.map { String($0.port) } ?? "")
-        _type = State(initialValue: profile?.type ?? .auto)
-        _username = State(initialValue: profile?.username ?? "")
-    }
-
-    var body: some View {
-        NavigationView {
-            Form {
-                Section("Прокси") {
-                    Text("Данные подключения выдаёт поставщик прокси или администратор сети.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    TextField("Название", text: $name)
-                    TextField("Хост", text: $host)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    TextField("Порт", text: $port)
-                        .keyboardType(.numberPad)
-                    Picker("Тип", selection: $type) {
-                        ForEach(ProxyType.allCases) { type in Text(AppL10n.tr(type.label)).tag(type) }
-                    }
-                    Text("Хост — адрес сервера, порт — его номер. Тип уточните у поставщика.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                Section("Авторизация") {
-                    Text("Логин и пароль нужны только для прокси с авторизацией.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    TextField("Логин", text: $username)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    SecureField(profile == nil ? "Пароль" : "Пароль (пусто = оставить прежний)", text: $password)
-                }
-                if let profile {
-                    Section {
-                        Button("Удалить профиль", role: .destructive) {
-                            model.delete(profile)
-                            dismiss()
-                        }
-                    }
-                }
-            }
-            .navigationTitle(AppL10n.tr(profile == nil ? "Новый прокси" : "Изменить прокси"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Отмена") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Сохранить") {
-                        if model.saveProfile(
-                            editingID: profile?.id,
-                            name: name,
-                            host: host,
-                            portText: port,
-                            type: type,
-                            username: username,
-                            password: password
-                        ) { dismiss() }
-                    }
-                }
-            }
-        }
-    }
-}
-
-private struct ScaledEmptyStatus: UIViewRepresentable {
-    var text: String
-    func makeUIView(context: Context) -> UILabel {
-        let view = UILabel()
-        view.numberOfLines = 0
-        view.adjustsFontForContentSizeCategory = true
-        view.font = UIFont.preferredFont(forTextStyle: .body)
-        view.textColor = .label
-        return view
-    }
-    func updateUIView(_ view: UILabel, context: Context) {
-        view.font = UIFont.preferredFont(forTextStyle: .body, compatibleWith: view.traitCollection)
-        view.text = text
-        view.accessibilityLabel = text
-        view.invalidateIntrinsicContentSize()
-    }
-}
-
-struct ExclusionsView: View {
-    @EnvironmentObject private var model: AppViewModel
-    @Environment(\.dismiss) private var dismiss
-    @State private var entries: [String] = []
-    @State private var graph = SmartExclusionGraph()
-    @State private var scannedParent = ""
-    @State private var externalHints: [String] = []
-    @State private var pendingExternalHost: String?
-    @State private var confirmExternal = false
-    @State private var undoEntries: [String]?
-    @State private var undoGraph: SmartExclusionGraph?
-    @Environment(\.dynamicTypeSize) private var textSize
-    @FocusState private var isDomainFocused: Bool
-    @State private var input = ""
-    @State private var localError: String?
-    @State private var confirmClearAll = false
-    @State private var saving = false
-    @State private var discovered: [String] = []
-    @State private var selectedDiscovered: Set<String> = []
-    @State private var scanning = false
-    @State private var scanner: ExclusionWebScanner?
-
-    var body: some View {
-        NavigationView {
-            List {
-                editorSection
-                if !discovered.isEmpty {
-                    Section(SmartExclusionsUX.text("Найденные домены — выберите для исключения")) {
-                        ForEach(discovered, id: \.self) { host in
-                            Button {
-                                if !selectedDiscovered.insert(host).inserted { selectedDiscovered.remove(host) }
-                            } label: {
-                                HStack {
-                                    Text(host).foregroundStyle(.primary)
-                                    Spacer()
-                                    Image(systemName: selectedDiscovered.contains(host) ? "checkmark.circle.fill" : "circle")
-                                }
-                            }
-                        }
-                        Button(SmartExclusionsUX.text("Подтвердить выбранные для обхода")) {
-                            do {
-                                snapshotUndo()
-                                var next = graph
-                                for child in selectedDiscovered {
-                                    try next.set(.approved, parent: scannedParent, child: child)
-                                }
-                                let manual = try SiteExclusionPolicy.normalizeAll(entries + [scannedParent])
-                                _ = try next.effective(manual: manual)
-                                graph = next
-                                entries = manual
-                                discovered = []
-                                selectedDiscovered = []
-                                localError = nil
-                            } catch { localError = error.localizedDescription }
-                        }.disabled(selectedDiscovered.isEmpty)
-                    }
-                }
-                if !externalHints.isEmpty {
-                    Section {
-                        ForEach(externalHints, id: \.self) { host in
-                            HStack {
-                                Text(host).textSelection(.enabled)
-                                Spacer()
-                                Button(SmartExclusionsUX.text("Добавить вручную")) {
-                                    pendingExternalHost = host
-                                    confirmExternal = true
-                                }
-                                .buttonStyle(.borderless)
-                                .frame(minHeight: 44)
-                                .accessibilityLabel(SmartExclusionsUX.text("Добавить вручную") + " " + host)
-                            }
-                        }
-                    } header: {
-                        Text(SmartExclusionsUX.text("Сторонние ресурсы — только вручную"))
-                    } footer: {
-                        Text(SmartExclusionsUX.text("Сторонние домены могут обслуживать рекламу или использовать общие IP-адреса. Добавление вручную направит все соединения к этим IP мимо VPN. Без явного подтверждения правила не меняются."))
-                    }
-                }
-                if !graph.edges.isEmpty {
-                    Section {
-                        ForEach(Array(Set(graph.edges.map(\.parent))).sorted(), id: \.self) { parent in
-                            DisclosureGroup(parent) {
-                                ForEach(graph.edges.filter { $0.parent == parent }) { edge in
-                                    graphEdgeRow(edge, parent: parent)
-                                }
-                                Button(SmartExclusionsUX.text("Удалить связи сайта"), role: .destructive) {
-                                    snapshotUndo()
-                                    graph.remove(parent: parent)
-                                }
-                            }
-                        }
-                    } header: {
-                        Text(SmartExclusionsUX.text("Связанные домены (требуют подтверждения)"))
-                    } footer: {
-                        Text(SmartExclusionsUX.text("Связи хранятся локально 7 дней. Повторный анализ обновляет дату наблюдения, но не меняет ваше решение. Сторонние CDN не обходятся автоматически."))
-                    }
-                }
-                if undoEntries != nil {
-                    Section {
-                        Button(SmartExclusionsUX.text("Отменить последнее изменение")) { restoreUndo() }
-                    }
-                }
-                Section {
-                    if entries.isEmpty {
-                        HStack(spacing: 12) {
-                            Image(systemName: "tray")
-                                .accessibilityHidden(true)
-                            ScaledEmptyStatus(text: AppL10n.tr("Список пока пуст"))
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
-                    }
-                    ForEach(entries, id: \.self) { host in
-                        HStack(spacing: 12) {
-                            Text(host)
-                                .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if host.contains(".") && !host.contains(":") {
-                                Button { scanSite(host) } label: {
-                                    Image(systemName: "magnifyingglass")
-                                        .frame(minWidth: 44, minHeight: 44)
-                                }
-                                .disabled(scanning)
-                                .buttonStyle(.borderless)
-                                .accessibilityLabel(SmartExclusionsUX.text("Найти связанные домены для ") + host)
-                            }
-                            Button(role: .destructive) {
-                                snapshotUndo()
-                                entries.removeAll { $0 == host }
-                                graph.remove(parent: host)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(.red)
-                                    .frame(minWidth: 36, minHeight: 36)
-                            }
-                            .buttonStyle(.borderless)
-                            .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
-                        }
-                    }
-                    .onDelete { offsets in
-                        snapshotUndo()
-                        let removed = offsets.map { entries[$0] }
-                        entries.remove(atOffsets: offsets)
-                        for host in removed { graph.remove(parent: host) }
-                    }
-                } header: {
-                    if !entries.isEmpty {
-                        HStack {
-                            Text(AppL10n.tr("Исключения") + " (\(entries.count))")
-                                .font(.subheadline)
-                            Spacer()
-                            Button("Очистить все", role: .destructive) {
-                                confirmClearAll = true
-                            }
-                            .font(.subheadline)
-                            .buttonStyle(.borderless)
-                            .accessibilityHint("Удалить все исключения после подтверждения")
-                        }
-                    }
-                } footer: {
-                    if !entries.isEmpty {
-                        Text(SmartExclusionsUX.text("Изменения вступят в силу после сохранения и переподключения VPN."))
-                    }
-                }
-            }
-            .navigationTitle("Исключения сайтов")
-            .navigationBarTitleDisplayMode(.large)
-            .tint(Brand.mint)
-            .confirmationDialog(
-                "Очистить все исключения?",
-                isPresented: $confirmClearAll,
-                titleVisibility: .visible
-            ) {
-                Button("Очистить все", role: .destructive) {
-                    snapshotUndo()
-                    entries.removeAll()
-                    graph = SmartExclusionGraph()
-                    discovered = []
-                    selectedDiscovered = []
-                    externalHints = []
-                    input = ""
-                    localError = nil
-                }
-                Button("Отмена", role: .cancel) {}
-            } message: {
-                Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
-            }
-            .confirmationDialog(SmartExclusionsUX.text("Разрешить прямой доступ для стороннего домена?"),
-                                isPresented: $confirmExternal, titleVisibility: .visible) {
-                Button(SmartExclusionsUX.text("Добавить вручную")) {
-                    guard let host = pendingExternalHost else { return }
-                    do {
-                        let updated = try SiteExclusionPolicy.normalizeAll(entries + [host])
-                        _ = try graph.effective(manual: updated)
-                        snapshotUndo()
-                        entries = updated
-                        externalHints.removeAll { $0 == host }
-                        localError = nil
-                    } catch { localError = error.localizedDescription }
-                    pendingExternalHost = nil
-                }
-                Button("Отмена", role: .cancel) { pendingExternalHost = nil }
-            } message: {
-                Text(SmartExclusionsUX.text("Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."))
-            }
-            .onAppear {
-                entries = model.manualExclusions
-                graph = model.smartGraph.pruned()
-            }
-            .onDisappear { cancelScan() }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: {
-                        Image(systemName: "xmark")
-                            .foregroundStyle(Brand.text)
-                            .frame(width: 44, height: 44)
-                            .background(Color.clear)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(AppL10n.tr("Отмена"))
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        guard !saving else { return }
-                        cancelScan()
-                        if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
-                        guard localError == nil else { return }
-                        saving = true
-                        Task {
-                            let success = await model.saveExclusions(entries, graph: graph)
-                            saving = false
-                            if success { dismiss() }
-                        }
-                    } label: {
-                        Group {
-                            if textSize.isAccessibilitySize {
-                                Image(systemName: "checkmark")
-                                    .font(.title3.weight(.bold))
-                                    .frame(width: 48, height: 48)
-                            } else {
-                                Text(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
-                                    .font(.body.weight(.semibold))
-                                    .padding(.horizontal, 12)
-                                    .frame(minHeight: 44)
-                            }
-                        }
-                        .foregroundStyle(Color.black)
-                        .background(Brand.mintLight, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
-                    .disabled(saving)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var editorSection: some View {
-                Section {
-                    Text(SmartExclusionsUX.text("Введите домен, URL или IP и нажмите «Добавить»."))
-                        .font(.body)
-                        .foregroundStyle(Brand.text)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Group {
-                        if textSize.isAccessibilitySize {
-                            VStack(alignment: .leading, spacing: 8) {
-                                domainField
-                                addDomainButton
-                            }
-                        } else {
-                            HStack {
-                                domainField
-                                addDomainButton
-                            }
-                        }
-                    }
-                    Text(SmartExclusionsUX.text("Обход VPN — только для разрешённых доменов."))
-                        .font(.body)
-                        .foregroundStyle(Brand.text)
-                        .fixedSize(horizontal: false, vertical: true)
-                    DisclosureGroup {
-                        Text(SmartExclusionsUX.text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения."))
-                            .font(.body)
-                            .foregroundStyle(Brand.text)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text(SmartExclusionsUX.text("Совместимость: для gosuslugi.ru пока сохраняется ранее проверенное исключение gu-st.ru. Автоматический поиск других сторонних ресурсов не включает обход без вашего решения."))
-                            .font(.body)
-                            .foregroundStyle(Brand.text)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } label: {
-                        Group {
-                            if textSize.isAccessibilitySize {
-                                Label(SmartExclusionsUX.text("Подробнее о правилах обхода"), systemImage: "info.circle")
-                                    .labelStyle(.iconOnly)
-                                    .font(.title2)
-                                    .frame(minWidth: 44, minHeight: 44)
-                            } else {
-                                Text(SmartExclusionsUX.text("Подробнее о правилах обхода"))
-                                    .font(.body)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }
-                        .accessibilityLabel(SmartExclusionsUX.text("Подробнее о правилах обхода"))
-                    }
-                    if let localError {
-                        Text(SmartExclusionsUX.text(localError)).font(.caption).foregroundStyle(.red)
-                    }
-                    Button {
-                        guard !scanUnavailable else { return }
-                        scanSite()
-                    } label: {
-                        Group {
-                            if textSize.isAccessibilitySize {
-                                Image(systemName: "magnifyingglass")
-                                    .font(.title2.weight(.semibold))
-                                    .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-                            } else {
-                                Text(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
-                                    .font(.body.weight(.semibold))
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .frame(minHeight: 44, alignment: .leading)
-                            }
-                        }
-                        .foregroundStyle(scanUnavailable ? Brand.text : Brand.mint)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(SmartExclusionsUX.text(scanning ? "Идёт анализ…" : "Найти связанные домены"))
-                    .disabled(scanUnavailable)
-                    if scanning {
-                        ProgressView(SmartExclusionsUX.text("Анализ ресурсов сайта"))
-                        Button(SmartExclusionsUX.text("Отменить анализ")) { cancelScan() }
-                    }
-                }
-    }
-
-    private var scanUnavailable: Bool {
-        scanning || input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    private var domainField: some View {
-        TextField("example.com", text: $input)
-            .focused($isDomainFocused)
-            .font(.body)
-            .frame(minHeight: 44)
-            .accessibilityLabel(SmartExclusionsUX.text("Домен или IP"))
-            .accessibilityHint(SmartExclusionsUX.text("Можно вставить домен, URL или IP"))
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
-    }
-
-    private var addDomainButton: some View {
-        Button { addEntry() } label: {
-            Group {
-                if textSize.isAccessibilitySize {
-                    Image(systemName: "plus.circle")
-                        .font(.title2)
-                        .frame(minWidth: 44, minHeight: 44)
-                } else {
-                    Text("Добавить")
-                        .font(.body.weight(.semibold))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(minHeight: 44)
-                }
-            }
-            .contentShape(Rectangle())
-        }
-        .accessibilityLabel(AppL10n.tr("Добавить"))
-    }
-
-    private func graphEdgeRow(_ edge: SmartDependency, parent: String) -> some View {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Text(edge.host).textSelection(.enabled)
-                                            Spacer()
-                                            Text(SmartExclusionsUX.text(edge.decision.label))
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        Text(SmartExclusionsUX.text(edge.evidence.description))
-                                            .font(.caption2).foregroundStyle(.secondary)
-                                        Text(edge.lastSeen, style: .date)
-                                            .font(.caption2).foregroundStyle(.secondary)
-                                        HStack {
-                                            Button(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить")) {
-                                                toggleGraphEdge(edge, parent: parent)
-                                            }
-                                            .buttonStyle(.borderless)
-                                            .frame(minHeight: 44)
-                                            .accessibilityLabel(SmartExclusionsUX.text(edge.decision == .approved ? "Отозвать" : "Разрешить") + " " + edge.host)
-                                            Button(SmartExclusionsUX.text("Удалить"), role: .destructive) {
-                                                snapshotUndo()
-                                                graph.remove(parent: parent, child: edge.host)
-                                            }
-                                            .buttonStyle(.borderless)
-                                            .frame(minHeight: 44)
-                                            .accessibilityLabel(SmartExclusionsUX.text("Удалить") + " " + edge.host)
-                                        }
-                                    }
-    }
-
-    private func toggleGraphEdge(_ edge: SmartDependency, parent: String) {
-        do {
-            snapshotUndo()
-            var next = graph
-            let action: SmartDecision = edge.decision == .approved ? .rejected : .approved
-            try next.set(action, parent: parent, child: edge.host)
-            let manual: [String]
-            if edge.decision == .approved {
-                manual = entries
-            } else {
-                manual = try SiteExclusionPolicy.normalizeAll(entries + [parent])
-            }
-            _ = try next.effective(manual: manual)
-            graph = next
-            entries = manual
-        } catch {
-            localError = error.localizedDescription
-        }
-    }
-
-    private func snapshotUndo() {
-        undoEntries = entries
-        undoGraph = graph
-    }
-
-    private func restoreUndo() {
-        guard let saved = undoEntries, let savedGraph = undoGraph else { return }
-        entries = saved
-        graph = savedGraph
-        undoEntries = nil
-        undoGraph = nil
-        localError = nil
-    }
-
-    private func cancelScan() {
-        scanner?.cancel()
-        scanner = nil
-        scanning = false
-    }
-
-    private func scanSite() { scanSite(input) }
-
-    private func scanSite(_ site: String) {
-        do {
-            guard let host = try SiteExclusionPolicy.normalize(site), !host.isEmpty else { return }
-            guard SiteDependencyDiscovery.isScannableHost(host) else {
-                localError = "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"
-                return
-            }
-            scanning = true
-            discovered = []
-            externalHints = []
-            selectedDiscovered = []
-            localError = nil
-            let worker = ExclusionWebScanner()
-            scanner = worker
-            worker.scan(host: host) { result in
-                guard scanner === worker else { return }
-                scanning = false
-                scanner = nil
-                switch result {
-                case .success(let observation):
-                    do {
-                        snapshotUndo()
-                        try graph.observe(parent: host, html: observation.html, network: observation.network)
-                        scannedParent = SmartExclusionGraph.root(host) ?? host
-                        externalHints = observation.external.filter { !entries.contains($0) }
-                        discovered = graph.edges.filter {
-                            $0.parent == scannedParent && $0.decision == .pending && !entries.contains($0.host)
-                        }.map(\.host).sorted()
-                        if discovered.isEmpty { localError = "Новых связанных доменов не обнаружено" }
-                    } catch { localError = error.localizedDescription }
-                case .failure(let error): localError = error.localizedDescription
-                }
-            }
-        } catch { localError = error.localizedDescription }
-    }
-
-    private func addEntry() {
-        isDomainFocused = false
-        do {
-            if let value = try SiteExclusionPolicy.normalize(input) {
-                let updated = try SiteExclusionPolicy.normalizeAll(entries + [value])
-                _ = try graph.effective(manual: updated)
-                if updated != entries { snapshotUndo() }
-                entries = updated
-            }
-            input = ""
-            localError = nil
-        } catch {
-            localError = error.localizedDescription
-        }
-    }
-}
-
-
-struct ApplicationExclusionsView: View {
-    @Environment(\.dismiss) private var dismiss
-
-#if targetEnvironment(macCatalyst)
-    var body: some View {
-        NavigationView {
-            List {
-                Section("Исключения приложений") {
-                    Label("Настройка по открытию и закрытию приложений доступна на iPhone.", systemImage: "iphone")
-                    Text("Mac Catalyst сохраняет общий раздел Настройки, но не имитирует iOS Shortcuts: на macOS применяются только реально поддерживаемые механизмы маршрутизации.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .navigationTitle("Исключения приложений")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
-            }
-        }
-    }
-#else
-    @State private var mode: IOSAppRoutingMode = .normallyOn
-    @State private var storageError: String?
-
-    var body: some View {
-        NavigationView {
-            List {
-                Section("Обычное состояние") {
-                    Picker("Режим", selection: $mode) {
-                        ForEach(IOSAppRoutingMode.allCases) { item in
-                            Text(AppL10n.tr(item.title)).tag(item)
-                        }
-                    }
-                    .pickerStyle(.inline)
-                    .onChange(of: mode) { newValue in
-                        saveAndApplyMode(newValue)
-                    }
-                }
-
-                Section("Что произойдёт") {
-                    Text(AppL10n.tr(modeExplanation)).font(.footnote)
-                    Label("После первоначальной настройки режим меняется здесь, в APL. Системные автоматизации переделывать не нужно.", systemImage: "checkmark.circle")
-                        .font(.footnote)
-                }
-
-                Section("Один раз настроить iPhone") {
-                    Link(destination: URL(string: "shortcuts://create-shortcut")!) {
-                        Label("Продолжить в «Командах»", systemImage: "arrow.up.forward.app")
-                    }
-                    Text("1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто».")
-                        .font(.footnote)
-                    Text("2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто».")
-                        .font(.footnote)
-                    Text("Для обеих выберите запуск «Немедленно». После этого APL сам решает, включать или выключать прокси.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-
-                Section("Ограничение iOS") {
-                    Text("Apple не предоставляет приложению публичный API для создания или изменения системного триггера «Приложение открыто/закрыто». Поэтому список приложений выбирается в «Командах». Сам режим работы хранится в APL.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let storageError {
-                    Section { Text(storageError).font(.footnote).foregroundStyle(.red) }
-                }
-            }
-            .navigationTitle("Автоматизация приложений")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear { loadAndApplyMode() }
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
-            }
-        }
-    }
-
-    private var modeExplanation: String {
-        switch mode {
-        case .normallyOn:
-            return "APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно."
-        case .normallyOff:
-            return "APL выключен, устройство работает напрямую. Открыли выбранное приложение — APL временно включился. Вышли — выключился обратно."
-        }
-    }
-
-    private func loadAndApplyMode() {
-        do {
-            let storedMode = try ProfileStore().iosAppRoutingMode
-            mode = storedMode
-            storageError = nil
-            Task { @MainActor in
-                do {
-                    try await AppRoutingVPNControl.applyBaseline(storedMode)
-                } catch {
-                    storageError = error.localizedDescription
-                }
-            }
-        } catch {
-            storageError = error.localizedDescription
-        }
-    }
-
-    private func saveAndApplyMode(_ newValue: IOSAppRoutingMode) {
-        do {
-            let store = try ProfileStore()
-            store.iosAppRoutingMode = newValue
-            storageError = nil
-            Task { @MainActor in
-                do {
-                    try await AppRoutingVPNControl.applyBaseline(newValue)
-                } catch {
-                    storageError = error.localizedDescription
-                }
-            }
-        } catch {
-            storageError = error.localizedDescription
-        }
-    }
-#endif
-}
-
-struct JournalView: View {
-    @EnvironmentObject private var model: AppViewModel
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationView {
-            List {
-                if model.events.isEmpty {
-                    Text("Событий пока нет").foregroundStyle(.secondary)
-                } else {
-                    ForEach(model.events) { event in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(event.type).font(.headline)
-                                Spacer()
-                                Text(event.timestamp, style: .time).font(.caption).foregroundStyle(.secondary)
-                            }
-                            if let name = event.profileName { Text(name).font(.subheadline) }
-                            if let detail = event.detail { Text(detail).font(.caption).foregroundStyle(.secondary) }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Журнал")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } }
-            }
-        }
-    }
-}
-
-private struct SiteScanObservation {
-    let html: [String]
-    let network: [String]
-    let external: [String]
-}
-
-/// Ephemeral WebKit scanner; no persistent cookies or implicit VPN changes.
-@MainActor
-final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
-    private var webView: WKWebView?
-    private var completion: ((Result<SiteScanObservation, Error>) -> Void)?
-    private var host = ""
-
-    fileprivate func scan(host: String, completion: @escaping (Result<SiteScanObservation, Error>) -> Void) {
-        self.host = host
-        self.completion = completion
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = .nonPersistent()
-        let view = WKWebView(frame: CGRect(x: -1, y: -1, width: 1, height: 1), configuration: configuration)
-        // WebKit may defer navigation for an unattached zero-sized web view.
-        view.isUserInteractionEnabled = false
-        view.alpha = 0.01
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first(where: { $0.isKeyWindow })?
-            .addSubview(view)
-        webView = view
-        view.navigationDelegate = self
-        guard let url = URL(string: "https://" + host) else { finish(.failure(URLError(.badURL))); return }
-        view.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 18) { [weak self] in
-            self?.finish(.failure(URLError(.timedOut)))
-        }
-    }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
-                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard let destination = navigationAction.request.url,
-              destination.scheme?.lowercased() == "https",
-              let requested = URL(string: "https://" + host)?.host?.lowercased(),
-              destination.host?.lowercased() == requested else {
-            decisionHandler(.cancel)
-            return
-        }
-        decisionHandler(.allow)
-    }
-
-    func cancel() {
-        completion = nil
-        tearDownWebView()
-    }
-
-    private func tearDownWebView() {
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.removeFromSuperview()
-        webView = nil
-    }
-
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        let script = """
-        JSON.stringify({html: document.documentElement.outerHTML.slice(0,512000),
-          resources: performance.getEntriesByType('resource').slice(0,512).map(x => x.name)})
-        """
-        webView.evaluateJavaScript(script) { [weak self] value, error in
-            guard let self else { return }
-            if let error { self.finish(.failure(error)); return }
-            guard let raw = (value as? String)?.data(using: .utf8),
-                  let payload = (try? JSONSerialization.jsonObject(with: raw)) as? [String: Any] else {
-                self.finish(.failure(URLError(.cannotParseResponse)))
-                return
-            }
-            let html = payload["html"] as? String ?? ""
-            let resources = payload["resources"] as? [String] ?? []
-            let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
-            let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
-            let external = SiteDependencyDiscovery.externalCandidates(urls: resources, for: self.host)
-            self.finish(.success(SiteScanObservation(html: htmlHosts, network: networkHosts, external: external)))
-        }
-    }
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish(.failure(error)) }
-    private func finish(_ result: Result<SiteScanObservation, Error>) {
-        guard let completion else { return }
-        self.completion = nil
-        tearDownWebView()
-        completion(result)
-    }
 }

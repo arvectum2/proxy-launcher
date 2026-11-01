@@ -26,10 +26,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var store: ProfileStore?
     private var tlsRelay: TLSProxyRelay?
     private var monitorTask: Task<Void, Never>?
+    private var startTask: Task<Void, Never>?
     private var socketPressureTask: Task<Void, Never>?
     private var connectionPressurePolicy = ConnectionPressurePolicy()
     private var active: PreparedProxy?
     private var consecutiveFailures = 0
+    private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
 
@@ -38,6 +40,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         completionHandler: @escaping (Error?) -> Void
     ) {
         stopping = false
+        lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
         if let value = options?["qaStopAfterSeconds"] as? NSNumber,
            (5...30).contains(value.intValue) {
@@ -58,22 +61,32 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             return
         }
 
-        Task {
+        startTask?.cancel()
+        startTask = Task {
             do {
                 let prepared = try await selectProxy()
+                try Task.checkCancellation()
+                guard !stopping else { throw CancellationError() }
                 try await apply(prepared)
+                try Task.checkCancellation()
+                guard !stopping else { throw CancellationError() }
                 active = prepared
+                // A successful handshake is not a successfully applied VPN.
+                // Remember last-good only after the actual tunnel starts.
+                if prepared.automaticSelection {
+                    store?.lastAutoProfileID = prepared.storedProfile.id
+                }
                 connectionPressurePolicy = ConnectionPressurePolicy()
                 startSocketPressureMonitor()
                 telemetry.append(TunnelEvent(
                     type: "connected",
                     profileName: prepared.storedProfile.name,
-                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.storedProfile.host):\(prepared.storedProfile.port)"
+                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.latencyMs) мс"
                 ))
                 if prepared.automaticSelection { startMonitor() }
                 completionHandler(nil)
             } catch {
-                telemetry.append(TunnelEvent(type: "error", detail: error.localizedDescription))
+                telemetry.append(TunnelEvent(type: "error", detail: ProxyFailureReason.classify(error).code))
                 completionHandler(error)
             }
         }
@@ -84,6 +97,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         completionHandler: @escaping () -> Void
     ) {
         stopping = true
+        startTask?.cancel()
+        startTask = nil
+        lastPrimaryRecoveryProbeAt = nil
         monitorTask?.cancel()
         monitorTask = nil
         socketPressureTask?.cancel()
@@ -115,25 +131,34 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let failedID = policy.recentlyFailedStillSuppressed(now: now, failedAt: store.recentlyFailedAt)
             ? store.recentlyFailedProfileID
             : nil
-        let orderedIDs = policy.orderCandidates(
+        let orderedIDs = policy.connectionCandidates(
             profileIDs: profiles.map(\.id),
             primaryID: store.primaryProfileID,
             lastSuccessfulID: store.lastAutoProfileID,
-            recentlyFailedID: failedID
+            recentlyFailedID: failedID,
+            latencies: store.proxyQuality.freshLatencies(for: Set(profiles.map(\.id)), at: now)
         )
         let byID = Dictionary(uniqueKeysWithValues: profiles.map { ($0.id, $0) })
         var failures: [String] = []
         for id in orderedIDs {
+            try Task.checkCancellation()
+            guard !stopping else { throw CancellationError() }
             guard let profile = byID[id] else { continue }
             do {
                 let prepared = try await prepare(profile, automatic: true)
-                store.lastAutoProfileID = profile.id
                 return prepared
             } catch {
-                failures.append("\(profile.name): \(error.localizedDescription)")
+                // Do not persist or propagate arbitrary proxy/library error
+                // strings: they may contain URLs with embedded credentials.
+                failures.append("№\(failures.count + 1): \(ProxyFailureReason.classify(error).code)")
             }
         }
-        throw tunnelError("Нет доступных прокси. " + failures.joined(separator: "; "))
+        // An imported 200-entry list must not turn one Connect action into
+        // hundreds of paid network handshakes or an unbounded spinner.
+        let limitHint = orderedIDs.count < profiles.count
+            ? " Проверено \(orderedIDs.count) из \(profiles.count); остальные можно проверить партиями в Профилях."
+            : ""
+        throw tunnelError("Нет доступных прокси." + limitHint + " " + failures.joined(separator: "; "))
     }
 
     private func prepare(_ profile: ProxyProfile, automatic: Bool) async throws -> PreparedProxy {
@@ -150,6 +175,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func apply(_ prepared: PreparedProxy) async throws {
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
         tlsRelay?.stop()
         tlsRelay = nil
 
@@ -166,6 +193,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let exclusions = try resolveExclusions(for: prepared)
         let settings = networkSettings(excludedAddresses: exclusions.addresses)
         try await setSettings(settings)
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
         guard let tunFD = tunnelFileDescriptor(forAddress: "192.0.2.1"), tunFD >= 0 else {
             throw tunnelError("Не удалось получить файловый дескриптор Packet Tunnel")
         }
@@ -180,10 +209,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
         let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
         engineQueue.async { [weak self] in
+            guard let self, !self.stopping else { return }
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
             }
-            guard let self, !self.stopping else { return }
+            guard !self.stopping else { return }
             if result != 0 {
                 self.telemetry.append(TunnelEvent(
                     type: "engine stopped",
@@ -193,6 +223,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         try await Task.sleep(nanoseconds: 350_000_000)
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
     }
 
     // Runs even for manually selected profiles; the ordinary failover monitor
@@ -241,36 +273,51 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func monitorIteration() async {
-        guard !switching, let current = active, current.automaticSelection, let store else { return }
+        guard !stopping, !switching, let current = active,
+              current.automaticSelection, let store else { return }
 
+        let now = Date()
         if store.restorePolicy == .returnToPrimary,
            let primaryID = store.primaryProfileID,
            primaryID != current.storedProfile.id,
-           policy.cooldownElapsed(now: Date(), lastSwitch: store.lastFailoverAt),
            let primary = store.profile(id: primaryID),
-           let prepared = try? await prepare(primary, automatic: true) {
-            await switchTo(prepared, reason: "primary restored")
-            return
+           policy.shouldProbePrimary(now: now, lastAttempt: lastPrimaryRecoveryProbeAt,
+                                     lastSwitch: store.lastFailoverAt) {
+            // Record the attempt *before* awaiting Network.framework; failed
+            // primary checks must also be throttled to at most once / 30s.
+            lastPrimaryRecoveryProbeAt = now
+            if let prepared = try? await prepare(primary, automatic: true) {
+                guard !stopping, !Task.isCancelled else { return }
+                await switchTo(prepared, reason: "primary restored")
+                return
+            }
         }
 
         do {
             _ = try await probe.resolveMeasured(current.resolvedProfile, password: current.password)
+            guard !stopping, !Task.isCancelled else { return }
             consecutiveFailures = 0
         } catch {
+            guard !stopping, !Task.isCancelled else { return }
             consecutiveFailures += 1
             guard policy.failureConfirmed(consecutiveFailures) else { return }
-            store.markRecentlyFailed(current.storedProfile.id)
-            store.lastFailoverAt = Date()
+            // Avoid retrying a failed Auto transition every monitoring tick.
+            let failureAt = Date()
+            guard policy.cooldownElapsed(now: failureAt, lastSwitch: store.lastFailoverAt) else { return }
+            store.markRecentlyFailed(current.storedProfile.id, at: failureAt)
+            store.lastFailoverAt = failureAt
             telemetry.append(TunnelEvent(
                 type: "proxy unavailable",
                 profileName: current.storedProfile.name,
-                detail: error.localizedDescription
+                detail: ProxyFailureReason.classify(error).code
             ))
             do {
                 let next = try await selectProxy()
+                guard !stopping, !Task.isCancelled else { return }
                 await switchTo(next, reason: "failover")
             } catch {
-                telemetry.append(TunnelEvent(type: "failover failed", detail: error.localizedDescription))
+                guard !stopping, !Task.isCancelled else { return }
+                telemetry.append(TunnelEvent(type: "failover failed", detail: ProxyFailureReason.classify(error).code))
             }
         }
     }
@@ -283,8 +330,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         tlsRelay?.stop()
         tlsRelay = nil
         try? await Task.sleep(nanoseconds: 300_000_000)
+        guard !stopping, !Task.isCancelled else { return }
         do {
             try await apply(prepared)
+            guard !stopping, !Task.isCancelled else { return }
             active = prepared
             consecutiveFailures = 0
             store?.lastAutoProfileID = prepared.storedProfile.id
@@ -299,7 +348,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 detail: prepared.resolvedProfile.type.label
             ))
         } catch {
-            telemetry.append(TunnelEvent(type: "switch failed", detail: error.localizedDescription))
+            guard !stopping, !Task.isCancelled else { return }
+            // tun2proxy_stop() already stopped the old engine. Staying in
+            // NEVPNStatus.connected now would silently leak a dead connection.
+            // Let NetworkExtension stop the tunnel and show a real error.
+            telemetry.append(TunnelEvent(type: "switch failed", detail: ProxyFailureReason.classify(error).code))
+            cancelTunnelWithError(ProxyDiagnosticError(ProxyFailureReason.classify(error)))
         }
     }
 
