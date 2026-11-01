@@ -91,3 +91,9 @@
 "Автоматизация" = "Automation";
 "APL обычно включён. Для выбранных приложений — временно отключается." = "APL is normally on. It turns off temporarily for selected apps.";
 "APL обычно выключен. Для выбранных приложений — временно включается." = "APL is normally off. It turns on temporarily for selected apps.";
+"Закрыть" = "Close";
+"Отключите VPN перед удалением профилей" = "Disconnect VPN before deleting profiles";
+"Сначала добавьте хотя бы один прокси" = "Add a proxy profile before connecting";
+"Не все профили удалены:" = "Some profiles could not be deleted:";
+"VPN: не удалось восстановить прежние исключения." = "VPN: Could not restore the previous exclusions.";
+"Прежние исключения восстановлены, но VPN нужно подключить заново:" = "Previous exclusions were restored, but VPN must be reconnected:";

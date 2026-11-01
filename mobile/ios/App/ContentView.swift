@@ -170,6 +170,13 @@ struct ContentView: View {
         }
         .task {
             await model.prepare()
+#if DEBUG && !targetEnvironment(macCatalyst)
+            // Safe screenshot-only localization QA on a disposable simulator.
+            // No VPN or saved profile mutation and compiled out of Release.
+            if ProcessInfo.processInfo.arguments.contains("-aplSettingsLocaleQA") {
+                destination = .settings
+            }
+#endif
 #if !targetEnvironment(macCatalyst)
             if !setupGuideSeen && model.profiles.isEmpty {
                 showSetupGuide = true
@@ -814,6 +821,9 @@ struct ContentView: View {
                                                 Text(profile.name).font(.subheadline.weight(.semibold))
                                                 Text("\(profile.host):\(String(profile.port)) · \(profile.type.rawValue)")
                                                     .font(.caption).foregroundStyle(Brand.softGray)
+                                                    // Host, port and protocol are LTR technical
+                                                    // identifiers even inside Arabic/Hebrew UI.
+                                                    .environment(\.layoutDirection, .leftToRight)
                                                 if let group = model.profileOrganization.group(for: profile.id) {
                                                     Text(AppL10n.tr(group)).font(.caption2).foregroundStyle(Brand.mintLight)
                                                 }

@@ -124,6 +124,16 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 enum AppL10n {
     static let storageKey = "appLanguage.v1"
 
+    // 0.2 uses shorter iPhone labels. Reuse the existing *native* 0.1.x
+    // translations of semantically equivalent labels before falling back to
+    // English. This keeps Home and Settings localized in all 50 catalogs.
+    private static let legacyLabelAliases: [String: String] = [
+        "Домой": "Главная",
+        "Тема": "Тема оформления",
+        "Язык": "Язык приложения",
+        "Автоматизация": "Автоматизация приложений",
+    ]
+
     static func supportedLanguage(_ identifier: String) -> String? {
         let id = identifier.replacingOccurrences(of: "_", with: "-").lowercased()
         if id == "zh" || id.hasPrefix("zh-hans") || id.hasPrefix("zh-cn") || id.hasPrefix("zh-sg") {
@@ -172,6 +182,12 @@ enum AppL10n {
             for table in ["Localizable", "ProfileManagement"] {
                 let value = bundle.localizedString(forKey: key, value: missing, table: table)
                 if value != missing { return value }
+            }
+            if let previousKey = legacyLabelAliases[key] {
+                let previousValue = bundle.localizedString(
+                    forKey: previousKey, value: missing, table: "Localizable"
+                )
+                if previousValue != missing { return previousValue }
             }
         }
         return key
