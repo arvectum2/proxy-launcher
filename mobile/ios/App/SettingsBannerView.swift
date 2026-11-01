@@ -132,8 +132,9 @@ struct SettingsBannerView: View {
                                 UserDefaults.standard.set("impression", forKey: statusKey)
                                 logger.info("RSYA banner impression")
                             }
-                            .frame(minHeight: placement == .primary ? 80 : 42,
-                                   maxHeight: maxAdHeight)
+                            // SDK .inline(width:maxHeight:) computes the
+                            // creative height. Do not impose a second fixed
+                            // frame that can distort the winning ad.
                             .frame(maxWidth: .infinity)
                             .accessibilityHidden(!loaded)
                     }

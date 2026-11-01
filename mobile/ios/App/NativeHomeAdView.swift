@@ -8,10 +8,10 @@ import YandexMobileAds
 /// through the SDK so clicks, attribution and impression tracking remain valid.
 /// No proxy, VPN, profile or user identity data is added to the request.
 @MainActor
-private final class HomeNativeAdController: NSObject, ObservableObject, NativeAdDelegate {
+final class HomeNativeAdController: NSObject, ObservableObject, NativeAdDelegate {
     enum State { case idle, loading, ready, unavailable }
     @Published private(set) var state: State = .idle
-    let adView = HomeNativeAdContentView()
+    fileprivate let adView = HomeNativeAdContentView()
 
     private let loader = NativeAdLoader()
     private var ad: NativeAd?
@@ -195,7 +195,9 @@ private struct HomeNativeAdUIView: UIViewRepresentable {
 struct NativeHomeAdView: View {
     let width: CGFloat
     let height: CGFloat
-    @StateObject private var controller = HomeNativeAdController()
+    // Owned by the app's ContentView rather than recreated per Home visit.
+    // The ad preloads at startup and is retained across tab navigation.
+    @ObservedObject var controller: HomeNativeAdController
 
     var body: some View {
         Group {
@@ -217,7 +219,7 @@ struct NativeHomeAdView: View {
         // Keep the second ad's footprint stable across loading, impressions
         // and no-fill fallback, independently of the VPN button state.
         .frame(height: height, alignment: .top)
-        .onAppear { controller.load() }
+        .onAppear { controller.load() } // Idempotent if preloaded already.
     }
 }
 #endif

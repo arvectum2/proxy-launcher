@@ -229,7 +229,7 @@ struct ExclusionsView: View {
                 graph = model.smartGraph.pruned()
             }
             .onDisappear { cancelScan() }
-            .keyboardDismissToolbar()
+            .keyboardDismissOnSwipeUp()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button { dismiss() } label: {

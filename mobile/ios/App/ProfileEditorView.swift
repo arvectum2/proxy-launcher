@@ -53,7 +53,7 @@ struct ProfileEditorView: View {
             }
             .navigationTitle(AppL10n.tr(profile == nil ? "Новый прокси" : "Изменить прокси"))
             .navigationBarTitleDisplayMode(.inline)
-            .keyboardDismissToolbar()
+            .keyboardDismissOnSwipeUp()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Отмена") { dismiss() }

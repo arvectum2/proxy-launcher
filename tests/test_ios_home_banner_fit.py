@@ -65,7 +65,8 @@ def test_larger_real_inline_banner_and_bottom_aligned_actions_with_home_tab_firs
     source = SRC.read_text(encoding='utf-8')
     home = source.split('    private var homeScreen: some View {', 1)[1].split('    private var homeConnectControl', 1)[0]
     shell = source.split('    private var mobileShell: some View {', 1)[1].split('#if targetEnvironment(macCatalyst)', 1)[0]
-    assert 'maxAdHeight: tight ? 120 : (compact ? 160 : 220)' in home
+    assert 'maxAdHeight: inlineCreativeMax' in home
+    assert '.frame(height: equalAdHeight, alignment: .top)' in home
     assert home.index('homeMeasured("banner")') < home.index('Spacer(minLength: tight ? 4 : 12)') < home.index('homeConnectControl')
     assert '.padding(.bottom, tight ? 4 : 12)' in home
     assert shell.index('homeScreen') < shell.index('profilesScreen') < shell.index('activityScreen')

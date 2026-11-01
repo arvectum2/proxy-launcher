@@ -171,6 +171,9 @@ struct ContentView: View {
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
+#if !targetEnvironment(macCatalyst)
+    @StateObject private var homeNativeAdController = HomeNativeAdController()
+#endif
 
     var body: some View {
         Group {
@@ -181,6 +184,12 @@ struct ContentView: View {
 #endif
         }
         .task {
+#if !targetEnvironment(macCatalyst)
+            // SDK is initialized in App.init. Request native ad as soon as the
+            // home experience is created; do not render it offscreen to force
+            // an impression. Hold this controller across tab switches.
+            homeNativeAdController.load()
+#endif
             await model.prepare()
 #if DEBUG && !targetEnvironment(macCatalyst)
             // Safe screenshot-only localization QA on a disposable simulator.
@@ -450,6 +459,21 @@ struct ContentView: View {
                 let compact = geometry.size.height < 680
                 let gap: CGFloat = tight ? 6 : (compact ? 9 : 14)
                 let edge: CGFloat = compact ? 12 : 18
+                // Share the whole available ad footprint equally. The *creative*
+                // is still adaptive: Yandex .inline(width:maxHeight:) chooses
+                // its own dimensions inside this flexible, screen-sized slot.
+                // Reserve enough for both bottom actions and the native tab bar.
+                let topInset = tight ? 6.0 : (compact ? 9.0 : 14.0)
+                let controlsHeight = 70.0 + 58.0 + gap + (tight ? 4.0 : 12.0)
+                let minimumGap = tight ? 4.0 : 12.0
+                let headerBudget = 47.0
+                let roomForAds = max(0, geometry.size.height - controlsHeight
+                    - minimumGap - headerBudget - topInset)
+                // On very short screens the native slot is omitted, so allow
+                // the surviving inline banner to use the whole safe budget.
+                let visibleAdSlots: CGFloat = geometry.size.height >= 650 ? 2 : 1
+                let equalAdHeight = min(236.0, floor(roomForAds / visibleAdSlots))
+                let inlineCreativeMax = max(1.0, equalAdHeight - 18.0)
                 VStack(spacing: 0) {
                     // Both ads are one top-anchored, zero-gap stack. The only
                     // flexible space belongs below ads, above the fixed-height
@@ -465,18 +489,19 @@ struct ContentView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Brand.surface)
                                     .overlay {
-                                        Label("\(Int(bannerHeightQA)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
+                                        Label("\(Int(equalAdHeight)) pt banner layout QA", systemImage: "rectangle.on.rectangle")
                                             .font(.caption2).foregroundStyle(Brand.softGray)
                                     }
-                                    .frame(height: tight ? 60 : bannerHeightQA)
+                                    .frame(height: equalAdHeight)
                             } else {
                                 SettingsBannerView(
                                     adWidth: geometry.size.width,
-                                    maxAdHeight: tight ? 120 : (compact ? 160 : 220)
+                                    maxAdHeight: inlineCreativeMax
                                 )
                             }
                         }
                         .frame(maxWidth: .infinity)
+                        .frame(height: equalAdHeight, alignment: .top)
                         .homeMeasured("banner")
 
                         if geometry.size.height >= 650 {
@@ -484,10 +509,11 @@ struct ContentView: View {
                                 if bannerPreview {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(Brand.surface)
-                                        .frame(height: 52)
+                                        .frame(height: equalAdHeight)
                                 } else {
                                     NativeHomeAdView(width: geometry.size.width,
-                                                     height: compact ? 150 : 205)
+                                                     height: equalAdHeight,
+                                                     controller: homeNativeAdController)
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -805,26 +831,14 @@ struct ContentView: View {
                                 Text(model.lastProfileScanSummary)
                                     .font(.caption).foregroundStyle(Brand.softGray)
                             }
-                            HStack(spacing: 4) {
-                                TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
-                                    .focused($profileSearchFocused)
-                                    .textInputAutocapitalization(.never)
-                                    .autocorrectionDisabled()
-                                    .submitLabel(.done)
-                                    .onSubmit { profileSearchFocused = false }
-                                    .textFieldStyle(.roundedBorder)
-                                    .accessibilityIdentifier("profiles.search")
-                                if profileSearchFocused {
-                                    Button { profileSearchFocused = false } label: {
-                                        Image(systemName: "keyboard.chevron.compact.down")
-                                            .frame(width: 44, height: 44)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .foregroundStyle(Brand.mintLight)
-                                    .accessibilityLabel(AppL10n.tr("Готово"))
-                                    .accessibilityIdentifier("keyboard.dismiss.search")
-                                }
-                            }
+                            TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
+                                .focused($profileSearchFocused)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .submitLabel(.done)
+                                .onSubmit { profileSearchFocused = false }
+                                .textFieldStyle(.roundedBorder)
+                                .accessibilityIdentifier("profiles.search")
                             Menu {
                                 Button(AppL10n.tr("Все профили")) { profileGroupFilter = "all" }
                                 Button(AppL10n.tr("Избранные")) { profileGroupFilter = "favorites" }
@@ -946,6 +960,7 @@ struct ContentView: View {
                 .frame(maxWidth: 760)
                 .frame(maxWidth: .infinity)
             }
+            .keyboardDismissOnSwipeUp()
         }
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }

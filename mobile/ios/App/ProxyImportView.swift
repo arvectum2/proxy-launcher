@@ -108,7 +108,7 @@ struct ProxyImportView: View {
                 }
             }
             .navigationTitle(ProxyImportUX.text("Импорт прокси"))
-            .keyboardDismissToolbar()
+            .keyboardDismissOnSwipeUp()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
             .sheet(isPresented: $scanQR) {

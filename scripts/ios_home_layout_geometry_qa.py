@@ -26,6 +26,8 @@ def check(paths: list[Path]) -> dict:
         if abs(bottom('header') - frames['banner']['y']) > TOLERANCE:
             raise AssertionError(f'{path.name}: blank gap between header and banner')
         if 'nativeAd' in frames:
+            if abs(frames['banner']['height'] - frames['nativeAd']['height']) > TOLERANCE:
+                raise AssertionError(f'{path.name}: banner and native ad container heights differ')
             if abs(bottom('banner') - frames['nativeAd']['y']) > TOLERANCE:
                 raise AssertionError(f'{path.name}: blank gap between the two ads')
             if abs(bottom('nativeAd') - bottom('adStack')) > TOLERANCE:
@@ -56,6 +58,9 @@ def check(paths: list[Path]) -> dict:
         'buttonHeight': baseline['primaryAction']['height'],
         'buttonY': baseline['primaryAction']['y'],
         'nativeAdPresent': 'nativeAd' in baseline,
+        'adHeightsEqual': ('nativeAd' in baseline and
+                           abs(baseline['banner']['height'] - baseline['nativeAd']['height']) <= TOLERANCE),
+        'adHeight': round(baseline['banner']['height'], 2),
     }
 
 
