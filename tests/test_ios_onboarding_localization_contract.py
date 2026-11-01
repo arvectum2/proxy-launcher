@@ -49,7 +49,7 @@ class IOSOnboardingLocalizationContractTests(unittest.TestCase):
         self.assertIn('onCreateProfile: () -> Void', guide)
         self.assertIn('onCreateProfile()', guide)
         self.assertIn("APL не продаёт и не предоставляет прокси-серверы", guide)
-        self.assertIn('Хост — адрес сервера, порт — его номер.', app)
+        self.assertIn('Откройте «Профили» → «Добавить».', guide)
 
     def test_next_version_and_packaging(self):
         project = (IOS / "project.yml").read_text(encoding="utf-8")

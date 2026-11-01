@@ -75,3 +75,4 @@
 "Оставьте пустым, чтобы сохранить прежний пароль" = "Leave blank to keep existing password";
 "Реклама в приложении" = "In-app advertising";
 "В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений." = "The app displays Yandex ads. The Yandex SDK may process device technical data to load ads.";
+"Откройте «Профили» → «Добавить». Укажите адрес, порт и тип прокси. Логин и пароль нужны только при авторизации." = "Open Profiles → Add. Enter the proxy host, port, and protocol. Provide a username and password only if required.";
