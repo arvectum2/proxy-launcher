@@ -38,6 +38,16 @@ Status: approved scope, implementation in progress. Baseline: iOS 0.1.41; 0.1.42
 
 CI note: keep the historical 155-key catalogs unchanged; additional 0.2 UI translations live in separate `ProfileManagement.strings` resources and fall back to English. PR #296 remains Draft. One focused simulator UI test initially exposed a missing row accessibility identifier; code is fixed but the rerun remains pending. Physical iPhone is currently unavailable.
 
+## Source-only 0.2.0 (48) continuation
+
+- Marketing/build version set to 0.2.0 (48), no Apple submission or metadata changes.
+- A real ad-supported production build is not the same as the signed simulator UI pass; the latter verified credentials import, Keychain, favorites, and confirmed deletion of a synthetic test profile.
+- Failover selection is bounded to six candidates per attempt to avoid dozens/hundreds of paid handshakes. The user primary and last-good are first; unavailable primary re-probes are throttled and consecutive failures/cooldown prevent flapping. Physical proxy/failover acceptance remains open.
+- Tunnel startup tasks are cancelled on disconnect to reduce late starts after VPN stops. Password updates use atomic-in-place Keychain updates and commit profile metadata after the successful secret operation.
+- Historical iOS localization catalogs keep their 155-entry contract. New copy lives in ProfileManagement.strings, with an English fallback.
+
+Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PASS, signed simulator UI smoke for synthetic credential import/search/favorite/deletion PASS; ARM64 iOS Simulator and generic iOS device Release builds PASS without distribution signing. Keychain *replacement* is source/build-verified but not separately accepted as a physical credentials-edit scenario. The production Yandex SDK is included in Release, but actual banner impressions still require the physical device.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

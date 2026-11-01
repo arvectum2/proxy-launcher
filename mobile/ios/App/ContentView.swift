@@ -795,7 +795,7 @@ struct ContentView: View {
             Text(AppL10n.tr("Группы изменяют только организацию списка, не маршрутизацию VPN."))
         }
         .confirmationDialog(AppL10n.tr("Удалить выбранные прокси?"), isPresented: $confirmBulkDelete, titleVisibility: .visible) {
-            Button("\(AppL10n.tr("Удалить выбранные")) (\(bulkSelectedIDs.count))", role: .destructive) {
+            Button(AppL10n.tr("Удалить безвозвратно"), role: .destructive) {
                 guard !model.vpn.isConnectedOrConnecting else { return }
                 let removed = model.deleteProfiles(ids: bulkSelectedIDs)
                 bulkSelectedIDs.subtract(removed)

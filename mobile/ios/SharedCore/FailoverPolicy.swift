@@ -1,11 +1,13 @@
 import Foundation
 
 struct FailoverTuning {
-    var failureThreshold = 3
+    var failureThreshold = 2
     var switchCooldown: TimeInterval = 20
     var recentlyFailedSuppression: TimeInterval = 60
-    var healthInterval: TimeInterval = 6
+    var healthInterval: TimeInterval = 10
     var backupScanInterval: TimeInterval = 30
+    // Limit paid proxy handshakes and startup latency for 200-profile lists.
+    var maxConnectionCandidates = 6
 }
 
 struct FailoverPolicy {
@@ -45,6 +47,25 @@ struct FailoverPolicy {
             result.append(recentlyFailedID)
         }
         return result
+    }
+
+    /// Starting or failing over must not probe every imported paid endpoint.
+    /// The main ranking still honors the user primary, last-good and measured
+    /// backup latency; only the first bounded set is tested this round.
+    func connectionCandidates(profileIDs: [UUID], primaryID: UUID?, lastSuccessfulID: UUID?, recentlyFailedID: UUID?, latencies: [UUID: Int] = [:]) -> [UUID] {
+        Array(orderCandidates(profileIDs: profileIDs, primaryID: primaryID,
+                              lastSuccessfulID: lastSuccessfulID,
+                              recentlyFailedID: recentlyFailedID,
+                              latencies: latencies).prefix(max(1, tuning.maxConnectionCandidates)))
+    }
+
+    /// A failed primary must not be reprobed on every monitor tick.
+    /// Cooldown after switching and the independent backup probe interval
+    /// both apply, including to unsuccessful checks.
+    func shouldProbePrimary(now: Date, lastAttempt: Date?, lastSwitch: Date?) -> Bool {
+        guard cooldownElapsed(now: now, lastSwitch: lastSwitch) else { return false }
+        guard let lastAttempt else { return true }
+        return now.timeIntervalSince(lastAttempt) >= tuning.backupScanInterval
     }
 
     func shouldRestorePrimary(

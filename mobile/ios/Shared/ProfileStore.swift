@@ -126,8 +126,10 @@ final class ProfileStore {
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }
         else { profiles.append(profile) }
         guard let data = try? encoder.encode(profiles) else { throw ProfileStoreError.encodeFailed }
-        defaults.set(data, forKey: Key.profiles)
+        // Persist the Keychain secret first. A permission or storage failure
+        // must not leave a new/edited profile pointing to missing credentials.
         if !(preservePasswordIfNil && password == nil) { try setPassword(password, for: profile.id) }
+        defaults.set(data, forKey: Key.profiles)
         if makeActive {
             defaults.set(profile.id.uuidString, forKey: Key.selectedProfileID)
             defaults.set(false, forKey: Key.automaticSelection)
@@ -268,10 +270,25 @@ final class ProfileStore {
 
     private func setPassword(_ password: String?, for id: UUID) throws {
         let query = baseKeychainQuery(id: id)
-        SecItemDelete(query as CFDictionary)
-        guard let password, !password.isEmpty else { return }
+        guard let password, !password.isEmpty else {
+            let status = SecItemDelete(query as CFDictionary)
+            guard status == errSecSuccess || status == errSecItemNotFound else {
+                throw ProfileStoreError.keychain(status)
+            }
+            return
+        }
+
+        let value = Data(password.utf8)
+        // Updating in place preserves the previously valid secret if the
+        // replacement fails, unlike delete-then-add (which loses it).
+        let updates: [String: Any] = [kSecValueData as String: value]
+        let updateStatus = SecItemUpdate(query as CFDictionary, updates as CFDictionary)
+        if updateStatus == errSecSuccess { return }
+        guard updateStatus == errSecItemNotFound else {
+            throw ProfileStoreError.keychain(updateStatus)
+        }
         var add = query
-        add[kSecValueData as String] = Data(password.utf8)
+        add[kSecValueData as String] = value
         add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         let status = SecItemAdd(add as CFDictionary, nil)
         guard status == errSecSuccess else { throw ProfileStoreError.keychain(status) }
