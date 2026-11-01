@@ -46,6 +46,11 @@ final class ProfileBackupTests: XCTestCase {
         XCTAssertThrowsError(try ProfileBackupCodec.open(altered, password: testPassphrase))
     }
 
+    func testUnboundedImportPassphraseIsRejectedBeforeDerivation() throws {
+        let data = try ProfileBackupCodec.seal(fixture(), password: testPassphrase)
+        XCTAssertThrowsError(try ProfileBackupCodec.open(data, password: String(repeating: "a", count: 513)))
+    }
+
     func testInputBounds() throws {
         XCTAssertThrowsError(try ProfileBackupCodec.seal(fixture(), password: "short"))
         XCTAssertThrowsError(try ProfileBackupCodec.open(Data(repeating: 0, count: 1_048_577), password: testPassphrase))

@@ -61,6 +61,8 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - `connectionCandidates` excludes the currently suppressed recently failed endpoint rather than retrying it merely because a list contains fewer than six profiles. Manual direct connection and separately throttled primary-recovery checks are unaffected.
 - Targeted privacy source contract and new Swift suppression regression cover just these changes; retain earlier green core/UI/CI results without full reruns.
 
+[Полный контракт зашифрованной резервной копии](APL_IOS_020_ENCRYPTED_BACKUP_FORMAT.md).
+
 ## P1 encrypted profile backup — source implementation 2026-11-01
 
 - User-initiated `.aplbackup` FileDocument export and system Files import, with a passphrase (at least 12 characters), confirmation before encryption, and explicit warning that the passphrase cannot be recovered. The only file written is an encrypted AES-256-GCM container; source profile hosts and Keychain credentials are not present in readable JSON.

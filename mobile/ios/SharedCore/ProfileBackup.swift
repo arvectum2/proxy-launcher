@@ -79,6 +79,9 @@ enum ProfileBackupCodec {
               (28...maxFileBytes).contains(envelope.ciphertext.count) else {
             throw ProfileBackupError.invalidFile
         }
+        // A pasted import passphrase is untrusted user input as well. Bound it
+        // before running PBKDF2, just like the export path.
+        try validatePassword(password)
         let key = try deriveKey(password: password, salt: envelope.salt)
         let plaintext: Data
         do {
