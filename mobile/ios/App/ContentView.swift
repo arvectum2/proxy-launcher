@@ -143,6 +143,7 @@ struct ContentView: View {
     @State private var editorProfile: ProxyProfile?
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
+    @State private var showProfileBackup = false
     @State private var profileSearch = ""
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
@@ -205,6 +206,9 @@ struct ContentView: View {
         }
         .sheet(item: $editorProfile) { profile in
             ProfileEditorView(profile: profile).environmentObject(model)
+        }
+        .sheet(isPresented: $showProfileBackup) {
+            ProfileBackupView().environmentObject(model)
         }
         .onOpenURL { url in
             do {
@@ -661,6 +665,14 @@ struct ContentView: View {
                                 importRequest = ProxyImportRequest(source: "")
                             }
                         }
+                        Button {
+                            showProfileBackup = true
+                        } label: {
+                            Label(AppL10n.tr("Резервные копии"), systemImage: "lock.doc")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(SecondaryBrandButtonStyle())
+                        .accessibilityIdentifier("profiles.encryptedBackup")
                         if !model.profiles.isEmpty {
                             cardButton("Изменить", filled: false) {
                                 editorProfile = model.profiles.first { $0.id == model.selectedProfileID }

@@ -181,6 +181,60 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    /// Export is all-or-nothing: an inaccessible Keychain item aborts the
+    /// operation rather than silently omitting a password from the backup.
+    func createEncryptedProfileBackup(password: String) throws -> Data {
+        let snapshot = store.listProfiles()
+        let entries = try snapshot.map { profile in
+            BackupProfile(profile: profile, password: try store.password(for: profile.id))
+        }
+        let organization = store.profileOrganization
+        return try ProfileBackupCodec.seal(
+            ProfileBackupPayload(profiles: entries, favorites: organization.favorites,
+                                 groups: organization.groups), password: password
+        )
+    }
+
+    /// Only new UUIDs are inserted. The current VPN, selected server, Auto
+    /// preference and every existing Keychain secret remain untouched.
+    func restoreEncryptedProfileBackup(data: Data, password: String) throws -> Int {
+        guard !vpn.isConnectedOrConnecting else {
+            throw ProfileBackupError.vpnActive
+        }
+        let payload = try ProfileBackupCodec.open(data, password: password)
+        let existing = store.listProfiles()
+        let plan = try ProfileBackupRestorePlan(payload: payload, existing: existing)
+        guard !plan.entries.isEmpty else { return 0 }
+        var createdIDs: [UUID] = []
+        do {
+            for entry in plan.entries {
+                try store.save(entry.profile, password: entry.password, makeActive: false)
+                createdIDs.append(entry.profile.id)
+            }
+        } catch {
+            var rollbackComplete = true
+            for id in createdIDs.reversed() {
+                do { try store.delete(id: id) }
+                catch { rollbackComplete = false }
+            }
+            refresh()
+            if !rollbackComplete { throw ProfileBackupError.partialRollback }
+            throw error
+        }
+        var updated = store.profileOrganization
+        updated.setFavorite(true, for: plan.favorites)
+        for (id, group) in plan.groups {
+            updated.assignGroup(group, to: [id])
+        }
+        store.profileOrganization = updated
+        if existing.isEmpty, let firstID = createdIDs.first {
+            store.selectedProfileID = firstID
+            store.automaticSelection = false
+        }
+        refresh()
+        return createdIDs.count
+    }
+
     /// A failed import can roll back only newly created IDs, even if an
     /// unrelated existing VPN session remains connected. No previous profile
     /// or Keychain credential is ever changed by this rollback.

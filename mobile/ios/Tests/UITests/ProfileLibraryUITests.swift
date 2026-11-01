@@ -40,8 +40,9 @@ final class ProfileLibraryUITests: XCTestCase {
         let bulkDelete = app.buttons["Удалить выбранные (1)"]
         XCTAssertTrue(bulkDelete.waitForExistence(timeout: 10))
         bulkDelete.tap()
-        XCTAssertTrue(app.buttons["Удалить выбранные (1)"].waitForExistence(timeout: 10))
-        app.buttons["Удалить выбранные (1)"].lastMatch.tap()
+        let confirmDeletion = app.buttons["Удалить безвозвратно"]
+        XCTAssertTrue(confirmDeletion.waitForExistence(timeout: 10))
+        confirmDeletion.tap()
         XCTAssertTrue(app.staticTexts["Нет профилей по выбранному фильтру"].waitForExistence(timeout: 10) ||
                       !rows.firstMatch.exists)
     }

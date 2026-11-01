@@ -61,6 +61,13 @@ Source QA summary (no iPhone): 83 Swift Core tests PASS, 53 iOS Python tests PAS
 - `connectionCandidates` excludes the currently suppressed recently failed endpoint rather than retrying it merely because a list contains fewer than six profiles. Manual direct connection and separately throttled primary-recovery checks are unaffected.
 - Targeted privacy source contract and new Swift suppression regression cover just these changes; retain earlier green core/UI/CI results without full reruns.
 
+## P1 encrypted profile backup — source implementation 2026-11-01
+
+- User-initiated `.aplbackup` FileDocument export and system Files import, with a passphrase (at least 12 characters), confirmation before encryption, and explicit warning that the passphrase cannot be recovered. The only file written is an encrypted AES-256-GCM container; source profile hosts and Keychain credentials are not present in readable JSON.
+- Derivation: CommonCrypto PBKDF2-HMAC-SHA256 (210,000 iterations, 128-bit unique salt), CryptoKit AES-GCM with randomized nonce and authenticated ciphertext. Format/method/iteration count and file size checked before KDF, authenticity verified before JSON decode. Password is never saved in UserDefaults.
+- Backup includes up to 200 profiles with credentials plus favorites and groups. Restore validates content and cumulative quota first, skips duplicates and remaps imported UUIDs; no existing profile/password is overwritten, no automatic VPN reconnect. Partial import failure attempts rollback and reports incomplete cleanup explicitly.
+- Focused Swift codec/restore-plan tests and simulator build completed; device-facing Files export/import interaction and physical Keychain round-trip remain release acceptance gates.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

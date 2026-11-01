@@ -64,7 +64,7 @@ class IOS020ReleaseContract(unittest.TestCase):
         prepare_loop = tunnel.split('private func selectProxy()', 1)[1].split('private func prepare(', 1)[0]
         self.assertNotIn('store.lastAutoProfileID =', prepare_loop)
         self.assertIn('store?.lastAutoProfileID = prepared.storedProfile.id', tunnel)
-        self.assertIn('cancelTunnelWithError(error)', tunnel)
+        self.assertIn('cancelTunnelWithError(ProxyDiagnosticError(ProxyFailureReason.classify(error)))', tunnel)
 
     def test_persisted_tunnel_events_exclude_proxy_urls_and_arbitrary_errors(self):
         tunnel = (IOS / 'PacketTunnel' / 'PacketTunnelProvider.swift').read_text(encoding='utf-8')
@@ -73,6 +73,25 @@ class IOS020ReleaseContract(unittest.TestCase):
         self.assertNotIn('prepared.storedProfile.host):', tunnel)
         self.assertIn('ProxyFailureReason.classify(error).code', tunnel)
         self.assertIn(r'detail: "\(prepared.resolvedProfile.type.label) · \(prepared.latencyMs) мс"', tunnel)
+
+    def test_encrypted_backup_never_exports_plaintext_and_restores_additively(self):
+        codec = (IOS / 'SharedCore' / 'ProfileBackup.swift').read_text(encoding='utf-8')
+        restored = (IOS / 'SharedCore' / 'ProfileBackupRestorePlan.swift').read_text(encoding='utf-8')
+        view = (IOS / 'App' / 'ProfileBackupView.swift').read_text(encoding='utf-8')
+        model = (IOS / 'App' / 'AppViewModel.swift').read_text(encoding='utf-8')
+        info = (IOS / 'Config' / 'App-Info.plist').read_text(encoding='utf-8')
+        self.assertIn('AES.GCM.seal(', codec)
+        self.assertIn('AES.GCM.open(', codec)
+        self.assertIn('CCKeyDerivationPBKDF(', codec)
+        self.assertIn('PBKDF2-HMAC-SHA256', codec)
+        self.assertIn('envelope.iterations == iterations', codec)
+        self.assertIn('FileWrapper(regularFileWithContents: encryptedData)', view)
+        self.assertIn('allowedContentTypes: [.aplBackup, .json]', view)
+        self.assertIn('UTExportedTypeDeclarations', info)
+        self.assertIn('ru.arvectum.proxylauncher.aplbackup', info)
+        self.assertIn('var seen = Set(existing.map(fingerprint))', restored)
+        self.assertIn('guard !vpn.isConnectedOrConnecting', model)
+        self.assertIn('store.save(entry.profile, password: entry.password, makeActive: false)', model)
 
     def test_old_localizations_stay_unchanged_new_copy_is_isolated(self):
         pattern = re.compile(r'^".*" = ".*";$', re.M)

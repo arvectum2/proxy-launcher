@@ -9,6 +9,7 @@
 - Экономная диагностика: до трёх автоматических проверок, ручные партии до десяти, индикация доступности и задержки.
 - Режим Auto учитывает свежие результаты задержки при выборе резервного сервера; добавлены ограничения числа попыток подключения и интервала повторных проверок.
 - Улучшена безопасность хранения паролей в Keychain и поведение при ошибках сохранения.
+- Добавлено создание и восстановление **зашифрованных резервных копий** `.aplbackup`: прокси, пароли, избранное, группы, без перезаписи существующих профилей.
 - Основное подключение остаётся в приложении, рекламный баннер РСЯ сохранён. Виджет подключения не добавлялся.
 
 ## What's new (en)
@@ -17,11 +18,13 @@
 - Favorites, custom groups, search, bulk organization and confirmed deletion.
 - Metered-aware connection diagnostics with bounded automatic/manual checks and latency display.
 - Improved Auto backup ranking and bounded retries; stronger Keychain error handling.
+- Password-protected encrypted `.aplbackup` export and restore, including profile credentials, favorites and groups, without overwriting existing servers.
 - Connect/Disconnect stays in the app with its existing ad placement. No quick-connect widget.
 
 ## Release gates outstanding
 
 - Real-device upgrade preserves 0.1.41 profiles, Keychain secrets, exclusions, Shortcuts and VPN settings.
+- Real-device encrypted backup export/import round-trip through Files without plaintext credential exposure.
 - Real proxy reachability, Auto failover and paid-proxy traffic usage checks on physical iPhone.
 - Actual Yandex Mobile Ads banner loading/impressions on physical device; appropriate App Store privacy review.
 - TestFlight install/smoke and explicit decision before Apple App Review submission.
