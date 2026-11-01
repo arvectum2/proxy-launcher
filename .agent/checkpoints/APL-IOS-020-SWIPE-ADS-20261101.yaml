@@ -25,7 +25,10 @@ test_results:
   - iPhone13 Home probe 4/4 PASS, 236/236pt ad containers with no clipping.
   - Python source contracts 24/24 plus Home 8/8 PASS.
   - Signed development iOS build success, no source build errors.
+  - Signed Simulator production ad visual inspection: primary inline real unit impression, native real unit impression, no fallback; screenshot /tmp/apl-020-live-ads-equal-sim.jpg.
+  - Signed .app staged on /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/ux-swipe-ads-20261101/Arvectum Proxy Launcher.app, codesign verified.
   - Real production inline and native impressions on iPhone 13 Simulator: both SDK callbacks impression and both real creatives visible.
   - Apple Development signed 0.2.0(48) app stored at /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/ux-swipe-ads-20261101/Arvectum Proxy Launcher.app, codesign verified.
   - CoreDevice iPhone unavailable on Mac mini, absent on MacBook, physical installation not completed.
+  - Two real Yandex production creatives loaded in isolated iPhone Simulator; rsya.bannerStatus.v1 and rsya.nativeStatus.v1 both impression confirmed from app plist.
 resume_instruction: Read .agent/current-task.yaml and docs/APL_IOS_020_SWIPE_ADS_QA_2026-11-01.md; when iPhone Nikita UDID 00008110-001C51810A12401E returns available, record current profile hash/count, in-place install staged signed app from /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/ux-swipe-ads-20261101/Arvectum Proxy Launcher.app, screenshot true Yandex native+banner and verify all 3 existing profiles remain unchanged. No code rewrite or repeat of passed tests while blocked, no watchdog.
