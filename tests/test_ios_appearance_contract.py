@@ -59,7 +59,12 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertIn('product: YandexMobileAds', config)
         self.assertIn('R-M-20288304-1', banner)
         self.assertIn('SettingsBannerView()', home)
-        self.assertIn('VStack(spacing: 0)', home)
+        self.assertIn('TabView(selection: $destination)', home)
+        mobile_home = home.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
+        self.assertLess(mobile_home.index('homeMeasured("header")'),
+                        mobile_home.index('SettingsBannerView()'))
+        self.assertLess(mobile_home.index('SettingsBannerView()'),
+                        mobile_home.index('homeConnectControl'))
         self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', home)
 
 
