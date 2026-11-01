@@ -35,6 +35,8 @@ Status: approved scope, implementation in progress. Baseline: iOS 0.1.41; 0.1.42
 - Existing Home and Yandex banner code untouched; no new widgets or external quick-connect controls.
 - Core module tests and iOS Simulator ARM64 build are gates for each increment. Physical iPhone advertising/VPN validation still pending; no release to Apple yet.
 
+CI note: keep the historical 155-key catalogs unchanged; additional 0.2 UI translations live in separate `ProfileManagement.strings` resources and fall back to English. PR #296 remains Draft. One focused simulator UI test initially exposed a missing row accessibility identifier; code is fixed but the rerun remains pending. Physical iPhone is currently unavailable.
+
 ## Release acceptance
 
 - Physical iPhone upgrade from 0.1.41 retains every saved profile, exclusions, credentials and existing Shortcuts workflows.

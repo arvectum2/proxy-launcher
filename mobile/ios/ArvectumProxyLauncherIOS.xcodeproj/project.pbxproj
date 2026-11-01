@@ -53,6 +53,7 @@
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
 		851706D3307B653CC5F96F6B /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
+		86047547E3BE97C89D5581ED /* ProfileLibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */; };
 		882C0FD013288E96F42DDBC4 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
 		8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */; };
 		8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */; };
@@ -65,6 +66,7 @@
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */; };
+		A3AB954D4D2ECCECD2A3ED8D /* ProfileManagement.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2DC6C5630E272E25E14496CD /* ProfileManagement.strings */; };
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		B081B4BCD93A1355A3196AB3 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
 		B1A715AE3556791C4B2DA777 /* AppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */; };
@@ -135,6 +137,7 @@
 		1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArvectumWordmark.png; sourceTree = "<group>"; };
 		1C70CD5C33236647B0F5E8A7 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		1FD12EBDAF0F61FEFD629D1C /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/QuickActions.strings"; sourceTree = "<group>"; };
+		20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryUITests.swift; sourceTree = "<group>"; };
 		22FAF50F51A7DB267C2DA8D2 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Localizable.strings; sourceTree = "<group>"; };
 		23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalQRCodeDecodeUITests.swift; sourceTree = "<group>"; };
 		26DCC73C34178F19DD7373EB /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -187,6 +190,7 @@
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
 		8C7F9954567C7546C97C3579 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProbe.swift; sourceTree = "<group>"; };
+		8D4F7E725EE606D6538837AB /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		8DF585C7AF2CC4DEF6F188EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		91CEB48728663D12CBF37303 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/Localizable.strings; sourceTree = "<group>"; };
 		936D79342A99DFA707F424C9 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -201,6 +205,7 @@
 		A3294AE4EC77031CB55B6D6E /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDependencyDiscovery.swift; sourceTree = "<group>"; };
 		A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNControlledUITests.swift; sourceTree = "<group>"; };
+		A70E715C3D0BDDFCCCE64AF3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		A79C5342A3CC26650B7A943A /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		AD31613845602AE4C611FE08 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B266784C8D84E9CAEB06097B /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
@@ -291,6 +296,7 @@
 				1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */,
 				CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */,
 				D748F899748BE88389DBC47E /* Localizable.strings */,
+				2DC6C5630E272E25E14496CD /* ProfileManagement.strings */,
 				05F7FA145FBA431606749B23 /* QuickActions.strings */,
 			);
 			path = Resources;
@@ -305,6 +311,7 @@
 				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
 				A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */,
 				D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */,
+				20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */,
 				CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */,
 			);
 			name = UITests;
@@ -588,6 +595,7 @@
 				E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */,
 				4315411C0DF25F13EDD974C4 /* Localizable.strings in Resources */,
 				B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */,
+				A3AB954D4D2ECCECD2A3ED8D /* ProfileManagement.strings in Resources */,
 				669A173A74A2114A37244A9D /* QuickActions.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -636,6 +644,7 @@
 				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,
 				0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */,
 				8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */,
+				86047547E3BE97C89D5581ED /* ProfileLibraryUITests.swift in Sources */,
 				8F2560F445B3C0392E010605 /* ProxyFailureReason.swift in Sources */,
 				B081B4BCD93A1355A3196AB3 /* ProxyImport.swift in Sources */,
 				18C38F96F9E31B711586C7A0 /* ProxyImportStructured.swift in Sources */,
@@ -726,6 +735,15 @@
 				8722833D0E497B6866D28263 /* zh-Hant */,
 			);
 			name = QuickActions.strings;
+			sourceTree = "<group>";
+		};
+		2DC6C5630E272E25E14496CD /* ProfileManagement.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A70E715C3D0BDDFCCCE64AF3 /* en */,
+				8D4F7E725EE606D6538837AB /* ru */,
+			);
+			name = ProfileManagement.strings;
 			sourceTree = "<group>";
 		};
 		D748F899748BE88389DBC47E /* Localizable.strings */ = {

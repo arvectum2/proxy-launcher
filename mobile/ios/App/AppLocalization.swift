@@ -162,19 +162,19 @@ enum AppL10n {
     }
 
     static func tr(_ key: String) -> String {
-        let language = effectiveLanguage
-        for name in [language, "en"] {
-            if let path = Bundle.main.path(forResource: name, ofType: "lproj"),
-               let bundle = Bundle(path: path) {
-                // All shipped catalogs are key-complete, and Russian values
-                // legitimately equal the Russian lookup keys.
-                let translated = bundle.localizedString(forKey: key, value: key, table: "Localizable")
-                // New feature strings may be absent from older language
-                // catalogs. Fall back to English rather than showing Russian
-                // source keys, but preserve intentional Russian originals.
-                if translated != key || language == "ru" { return translated }
+        // Keep the reviewed 155-key Localizable.strings catalogs untouched.
+        // Feature-specific strings may exist only in RU/EN; older languages
+        // fall back to English, including when a Russian key equals its value.
+        let missing = "__APL_020_MISSING_TRANSLATION__"
+        for name in [effectiveLanguage, "en"] {
+            guard let path = Bundle.main.path(forResource: name, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            for table in ["Localizable", "ProfileManagement"] {
+                let value = bundle.localizedString(forKey: key, value: missing, table: table)
+                if value != missing { return value }
             }
         }
         return key
+
     }
 }

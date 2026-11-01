@@ -744,6 +744,7 @@ struct ContentView: View {
                                         .contentShape(Rectangle())
                                     }
                                     .buttonStyle(.plain)
+                                    .accessibilityIdentifier("profiles.row.\(profile.id.uuidString)")
                                     if !profileBulkMode {
                                         Button { model.toggleFavorite(profile.id) } label: {
                                             Image(systemName: model.profileOrganization.isFavorite(profile.id) ? "star.fill" : "star")
