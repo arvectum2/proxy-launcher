@@ -168,7 +168,11 @@ enum AppL10n {
                let bundle = Bundle(path: path) {
                 // All shipped catalogs are key-complete, and Russian values
                 // legitimately equal the Russian lookup keys.
-                return bundle.localizedString(forKey: key, value: key, table: "Localizable")
+                let translated = bundle.localizedString(forKey: key, value: key, table: "Localizable")
+                // New feature strings may be absent from older language
+                // catalogs. Fall back to English rather than showing Russian
+                // source keys, but preserve intentional Russian originals.
+                if translated != key || language == "ru" { return translated }
             }
         }
         return key

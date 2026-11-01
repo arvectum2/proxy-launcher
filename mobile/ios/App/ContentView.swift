@@ -144,6 +144,10 @@ struct ContentView: View {
     @State private var showNewProfile = false
     @State private var importRequest: ProxyImportRequest?
     @State private var profileSearch = ""
+    @State private var profileGroupFilter = "all"
+    @State private var pendingGroupIDs: Set<UUID> = []
+    @State private var customGroupName = ""
+    @State private var showNewProfileGroup = false
     @State private var profileBulkMode = false
     @State private var bulkSelectedIDs: Set<UUID> = []
     @State private var confirmBulkDelete = false
@@ -667,54 +671,103 @@ struct ContentView: View {
                     if !model.profiles.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("Список прокси").font(.headline).foregroundStyle(Brand.text)
+                                Text(AppL10n.tr("Список прокси")).font(.headline).foregroundStyle(Brand.text)
                                 Spacer()
-                                Button(profileBulkMode ? "Готово" : "Выбрать") {
+                                Button(profileBulkMode ? AppL10n.tr("Готово") : AppL10n.tr("Выбрать")) {
                                     profileBulkMode.toggle()
                                     bulkSelectedIDs.removeAll()
                                 }
                                 .foregroundStyle(Brand.mint)
                             }
-                            TextField("Поиск по названию или адресу", text: $profileSearch)
+                            HStack {
+                                Button {
+                                    Task { await model.scanProfiles(manual: true) }
+                                } label: {
+                                    Label(model.isScanningProfiles ? AppL10n.tr("Проверка…") : AppL10n.tr("Проверить следующие 10"), systemImage: "waveform.path.ecg")
+                                }
+                                .disabled(model.isScanningProfiles)
+                                Spacer()
+                                if model.isScanningProfiles { ProgressView() }
+                            }
+                            Text(model.lastProfileScanSummary.isEmpty
+                                 ? AppL10n.tr("Проверка партиями до 10 профилей расходует немного трафика прокси.")
+                                 : model.lastProfileScanSummary)
+                                .font(.caption).foregroundStyle(Brand.softGray)
+                            TextField(AppL10n.tr("Поиск по названию или адресу"), text: $profileSearch)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .textFieldStyle(.roundedBorder)
                                 .accessibilityIdentifier("profiles.search")
-                            ForEach(model.profiles.filter {
-                                profileSearch.isEmpty || $0.name.localizedCaseInsensitiveContains(profileSearch)
-                                    || $0.host.localizedCaseInsensitiveContains(profileSearch)
-                            }) { profile in
-                                HStack(spacing: 12) {
-                                    if profileBulkMode {
-                                        Image(systemName: bulkSelectedIDs.contains(profile.id) ? "checkmark.circle.fill" : "circle")
-                                            .foregroundStyle(Brand.mint)
-                                    }
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(profile.name).font(.subheadline.weight(.semibold))
-                                        Text("\(profile.host):\(profile.port) · \(profile.type.rawValue)")
-                                            .font(.caption).foregroundStyle(Brand.softGray)
-                                    }
-                                    Spacer()
+                            Menu {
+                                Button(AppL10n.tr("Все профили")) { profileGroupFilter = "all" }
+                                Button(AppL10n.tr("Избранные")) { profileGroupFilter = "favorites" }
+                                ForEach(model.profileOrganization.groupNames, id: \.self) { group in
+                                    Button(AppL10n.tr(group)) { profileGroupFilter = "group:" + group }
                                 }
-                                .foregroundStyle(Brand.text)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    if profileBulkMode {
-                                        if !bulkSelectedIDs.insert(profile.id).inserted {
-                                            bulkSelectedIDs.remove(profile.id)
+                            } label: {
+                                Label(profileGroupFilter == "all" ? AppL10n.tr("Все профили") :
+                                      profileGroupFilter == "favorites" ? AppL10n.tr("Избранные") :
+                                      AppL10n.tr(String(profileGroupFilter.dropFirst(6))),
+                                      systemImage: "line.3.horizontal.decrease.circle")
+                                    .foregroundStyle(Brand.mintLight)
+                            }
+                            ForEach(visibleProfiles) { profile in
+                                HStack(spacing: 10) {
+                                    Button {
+                                        if profileBulkMode {
+                                            if !bulkSelectedIDs.insert(profile.id).inserted {
+                                                bulkSelectedIDs.remove(profile.id)
+                                            }
+                                        } else { editorProfile = profile }
+                                    } label: {
+                                        HStack(spacing: 10) {
+                                            if profileBulkMode {
+                                                Image(systemName: bulkSelectedIDs.contains(profile.id) ? "checkmark.circle.fill" : "circle")
+                                                    .foregroundStyle(Brand.mint)
+                                            }
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text(profile.name).font(.subheadline.weight(.semibold))
+                                                Text("\(profile.host):\(profile.port) · \(profile.type.rawValue)")
+                                                    .font(.caption).foregroundStyle(Brand.softGray)
+                                                if let group = model.profileOrganization.group(for: profile.id) {
+                                                    Text(AppL10n.tr(group)).font(.caption2).foregroundStyle(Brand.mintLight)
+                                                }
+                                                if let state = model.health[profile.id] {
+                                                    Label(state.label, systemImage: "waveform.path.ecg")
+                                                        .font(.caption2)
+                                                        .foregroundStyle(Brand.softGray)
+                                                }
+                                            }
+                                            Spacer(minLength: 0)
                                         }
-                                    } else {
-                                        editorProfile = profile
+                                        .foregroundStyle(Brand.text)
+                                        .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    if !profileBulkMode {
+                                        Button { model.toggleFavorite(profile.id) } label: {
+                                            Image(systemName: model.profileOrganization.isFavorite(profile.id) ? "star.fill" : "star")
+                                                .foregroundStyle(Brand.mint)
+                                                .frame(minWidth: 44, minHeight: 44)
+                                        }
+                                        .accessibilityLabel(model.profileOrganization.isFavorite(profile.id) ? AppL10n.tr("Убрать из избранного") : AppL10n.tr("В избранное"))
+                                        profileGroupMenu(ids: [profile.id])
                                     }
                                 }
-                                .padding(.vertical, 7)
+                                .padding(.vertical, 4)
+                            }
+                            if visibleProfiles.isEmpty {
+                                Text(AppL10n.tr("Нет профилей по выбранному фильтру"))
+                                    .font(.footnote).foregroundStyle(Brand.softGray)
                             }
                             if profileBulkMode {
-                                Button("Удалить выбранные (\(bulkSelectedIDs.count))", role: .destructive) {
+                                profileGroupMenu(ids: bulkSelectedIDs)
+                                    .disabled(bulkSelectedIDs.isEmpty)
+                                Button("\(AppL10n.tr("Удалить выбранные")) (\(bulkSelectedIDs.count))", role: .destructive) {
                                     confirmBulkDelete = true
                                 }
                                 .disabled(bulkSelectedIDs.isEmpty || model.vpn.isConnectedOrConnecting)
-                                Text("Для удаления сначала отключите VPN.")
+                                Text(AppL10n.tr("Для удаления сначала отключите VPN."))
                                     .font(.caption).foregroundStyle(Brand.softGray)
                             }
                         }
@@ -729,16 +782,68 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .confirmationDialog("Удалить выбранные прокси?", isPresented: $confirmBulkDelete, titleVisibility: .visible) {
-            Button("Удалить \(bulkSelectedIDs.count) профилей", role: .destructive) {
+        .alert(AppL10n.tr("Новая группа"), isPresented: $showNewProfileGroup) {
+            TextField(AppL10n.tr("Название группы"), text: $customGroupName)
+            Button(AppL10n.tr("Сохранить")) {
+                let name = customGroupName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !name.isEmpty { model.assignProfileGroup(name, to: pendingGroupIDs) }
+                pendingGroupIDs.removeAll()
+            }
+            Button(AppL10n.tr("Отмена"), role: .cancel) { pendingGroupIDs.removeAll() }
+        } message: {
+            Text(AppL10n.tr("Группы изменяют только организацию списка, не маршрутизацию VPN."))
+        }
+        .confirmationDialog(AppL10n.tr("Удалить выбранные прокси?"), isPresented: $confirmBulkDelete, titleVisibility: .visible) {
+            Button("\(AppL10n.tr("Удалить выбранные")) (\(bulkSelectedIDs.count))", role: .destructive) {
                 guard !model.vpn.isConnectedOrConnecting else { return }
-                for id in bulkSelectedIDs { model.deleteProfile(id: id) }
-                bulkSelectedIDs.removeAll()
-                profileBulkMode = false
+                let removed = model.deleteProfiles(ids: bulkSelectedIDs)
+                bulkSelectedIDs.subtract(removed)
+                if bulkSelectedIDs.isEmpty { profileBulkMode = false }
             }
         } message: {
-            Text("Профили и сохранённые пароли будут удалены без возможности восстановления.")
+            Text(AppL10n.tr("Профили и сохранённые пароли будут удалены без возможности восстановления."))
         }
+    }
+
+    private var visibleProfiles: [ProxyProfile] {
+        model.profiles.filter { profile in
+            let matchesSearch = profileSearch.isEmpty ||
+                profile.name.localizedCaseInsensitiveContains(profileSearch) ||
+                profile.host.localizedCaseInsensitiveContains(profileSearch)
+            let matchesGroup: Bool
+            switch profileGroupFilter {
+            case "all": matchesGroup = true
+            case "favorites": matchesGroup = model.profileOrganization.isFavorite(profile.id)
+            default:
+                matchesGroup = profileGroupFilter.hasPrefix("group:") &&
+                    model.profileOrganization.group(for: profile.id) == String(profileGroupFilter.dropFirst(6))
+            }
+            return matchesSearch && matchesGroup
+        }.sorted { lhs, rhs in
+            let leftFavorite = model.profileOrganization.isFavorite(lhs.id)
+            let rightFavorite = model.profileOrganization.isFavorite(rhs.id)
+            if leftFavorite != rightFavorite { return leftFavorite }
+            return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+        }
+    }
+
+    private func profileGroupMenu(ids: Set<UUID>) -> some View {
+        Menu {
+            Button(AppL10n.tr("Без группы")) { model.assignProfileGroup(nil, to: ids) }
+            ForEach(Array(Set(["Основные", "Рабочие", "Резервные"] + model.profileOrganization.groupNames)).sorted(), id: \.self) { group in
+                Button(AppL10n.tr(group)) { model.assignProfileGroup(group, to: ids) }
+            }
+            Button(AppL10n.tr("Новая группа…")) {
+                pendingGroupIDs = ids
+                customGroupName = ""
+                showNewProfileGroup = true
+            }
+        } label: {
+            Label(AppL10n.tr("Группа"), systemImage: "folder.badge.plus")
+                .foregroundStyle(Brand.mintLight)
+                .frame(minHeight: 44)
+        }
+        .accessibilityLabel(AppL10n.tr("Группа профиля"))
     }
 
     private var activityScreen: some View {

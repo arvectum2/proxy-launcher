@@ -18,6 +18,15 @@ final class FailoverPolicyTests: XCTestCase {
         XCTAssertEqual(ordered, [b, c, a])
     }
 
+    func testHealthyBackupsUseMeasuredSpeedButRespectPrimaryAndFailure() {
+        let a = UUID(), b = UUID(), c = UUID(), d = UUID()
+        let policy = FailoverPolicy()
+        XCTAssertEqual(policy.orderCandidates(profileIDs: [a,b,c,d], primaryID: a,
+            lastSuccessfulID: b, recentlyFailedID: nil, latencies: [c: 120, d: 35]), [a,b,d,c])
+        XCTAssertEqual(policy.orderCandidates(profileIDs: [a,b,c,d], primaryID: a,
+            lastSuccessfulID: b, recentlyFailedID: d, latencies: [c: 120, d: 35]), [a,b,c,d])
+    }
+
     func testRestorePolicyHonorsCooldown() {
         let a = UUID(), b = UUID()
         XCTAssertFalse(FailoverPolicy().shouldRestorePrimary(

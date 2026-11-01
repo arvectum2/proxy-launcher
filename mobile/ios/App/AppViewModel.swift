@@ -21,6 +21,7 @@ enum ProfileHealth: Equatable {
 @MainActor
 final class AppViewModel: ObservableObject {
     @Published var profiles: [ProxyProfile] = []
+    @Published var profileOrganization = ProfileOrganization()
     @Published var selectedProfileID: UUID?
     @Published var automaticSelection = true
     @Published var primaryProfileID: UUID?
@@ -29,6 +30,8 @@ final class AppViewModel: ObservableObject {
     @Published var manualExclusions: [String] = []
     @Published var smartGraph = SmartExclusionGraph()
     @Published var health: [UUID: ProfileHealth] = [:]
+    @Published var isScanningProfiles = false
+    @Published var lastProfileScanSummary = ""
     @Published var events: [TunnelEvent] = []
     @Published var errorMessage: String?
 
@@ -37,6 +40,10 @@ final class AppViewModel: ObservableObject {
     private let telemetry = TelemetryStore()
     private var cancellables: Set<AnyCancellable> = []
     private var healthScanGeneration = 0
+    private let profileScanPolicy = ProfileScanPolicy()
+    private var lastAutomaticScanAt: Date?
+    private var lastManualScanAt: Date?
+    private var manualScanCursor = 0
 
     init() {
         do {
@@ -71,9 +78,13 @@ final class AppViewModel: ObservableObject {
 
     func refresh() {
         profiles = store.listProfiles()
+        profileOrganization = store.profileOrganization
         // Removing a profile must not leave obsolete diagnostics in memory.
         let currentIDs = Set(profiles.map(\.id))
         health = health.filter { currentIDs.contains($0.key) }
+        for (id, latency) in store.proxyQuality.freshLatencies(for: currentIDs) where health[id] == nil {
+            health[id] = .available(latency)
+        }
         selectedProfileID = store.selectedProfileID
         automaticSelection = store.automaticSelection
         primaryProfileID = store.primaryProfileID
@@ -82,6 +93,20 @@ final class AppViewModel: ObservableObject {
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
         refreshEvents()
+    }
+
+    func toggleFavorite(_ id: UUID) {
+        var updated = profileOrganization
+        updated.toggleFavorite(id)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
+    }
+
+    func assignProfileGroup(_ name: String?, to ids: Set<UUID>) {
+        var updated = profileOrganization
+        updated.assignGroup(name, to: ids)
+        store.profileOrganization = updated
+        profileOrganization = store.profileOrganization
     }
 
     func selectAuto() {
@@ -145,6 +170,30 @@ final class AppViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             return false
         }
+    }
+
+    /// Returns only IDs that were actually removed; failed deletions stay
+    /// selected in the UI so partial failures are visible and retryable.
+    func deleteProfiles(ids: Set<UUID>) -> Set<UUID> {
+        guard !vpn.isConnectedOrConnecting else {
+            errorMessage = "Отключите VPN перед удалением профилей"
+            return []
+        }
+        var removed: Set<UUID> = []
+        var firstError: Error?
+        for id in ids.sorted(by: { $0.uuidString < $1.uuidString }) where profiles.contains(where: { $0.id == id }) {
+            do {
+                try store.delete(id: id)
+                removed.insert(id)
+            } catch {
+                if firstError == nil { firstError = error }
+            }
+        }
+        refresh()
+        if let firstError {
+            errorMessage = "Не все профили удалены: " + firstError.localizedDescription
+        }
+        return removed
     }
 
     func deleteProfile(id: UUID) {
@@ -238,26 +287,59 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    func scanProfiles() async {
-        // Saving another profile while an async network probe is suspended
-        // must not let stale responses overwrite newer health results.
-        healthScanGeneration &+= 1
-        let generation = healthScanGeneration
+    func scanProfiles(manual: Bool = false) async {
+        // Never launch overlapping network scans. Imported lists can contain
+        // 200 paid proxies, so startup only checks 3 prioritized entries.
+        guard !isScanningProfiles else { return }
+        let now = Date()
+        guard profileScanPolicy.permitted(
+            now: now,
+            lastScan: manual ? lastManualScanAt : lastAutomaticScanAt,
+            manual: manual
+        ) else {
+            if manual { lastProfileScanSummary = AppL10n.tr("Между ручными проверками подождите 10 секунд.") }
+            return
+        }
         let snapshot = profiles
         guard !snapshot.isEmpty else { health = [:]; return }
-        let probe = ProxyProbe()
-        for profile in snapshot {
-            guard generation == healthScanGeneration else { return }
-            health[profile.id] = .checking
-            do {
-                let result = try await probe.resolveMeasured(profile, password: try store.password(for: profile.id))
-                guard generation == healthScanGeneration else { return }
-                health[profile.id] = .available(result.latencyMs)
-            } catch {
-                guard generation == healthScanGeneration else { return }
-                health[profile.id] = .unavailable(ProxyFailureReason.classify(error))
-            }
+        let ids = profileScanPolicy.batch(
+            ids: snapshot.map(\.id), selectedID: selectedProfileID,
+            primaryID: primaryProfileID, favorites: profileOrganization.favorites,
+            manualCursor: manual ? manualScanCursor : nil
+        )
+        if manual {
+            lastManualScanAt = now
+            manualScanCursor = (manualScanCursor + ids.count) % snapshot.count
+        } else {
+            lastAutomaticScanAt = now
         }
+        isScanningProfiles = true
+        defer { isScanningProfiles = false }
+        healthScanGeneration &+= 1
+        let generation = healthScanGeneration
+        let probe = ProxyProbe()
+        var quality = store.proxyQuality
+        var checked = 0
+        for id in ids {
+            guard generation == healthScanGeneration, !Task.isCancelled else { break }
+            guard let profile = snapshot.first(where: { $0.id == id }),
+                  profiles.contains(where: { $0.id == id }) else { continue }
+            health[id] = .checking
+            do {
+                let result = try await probe.resolveMeasured(profile, password: try store.password(for: id))
+                guard generation == healthScanGeneration, profiles.contains(where: { $0.id == id }) else { break }
+                health[id] = .available(result.latencyMs)
+                quality.markAvailable(id, latencyMs: result.latencyMs)
+            } catch {
+                guard generation == healthScanGeneration, profiles.contains(where: { $0.id == id }) else { break }
+                health[id] = .unavailable(ProxyFailureReason.classify(error))
+                quality.markUnavailable(id)
+            }
+            checked += 1
+        }
+        quality.prune(keeping: Set(profiles.map(\.id)))
+        store.proxyQuality = quality
+        lastProfileScanSummary = String(format: AppL10n.tr("Проверено %d из %d профилей"), checked, snapshot.count)
     }
 
     func refreshEvents() {

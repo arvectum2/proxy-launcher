@@ -154,3 +154,33 @@
 "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить." = "iOS rejected the Packet Tunnel configuration. APL restored the configuration, but iOS still could not start it.";
 "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение." = "iOS disabled the VPN configuration and could not re-enable it. Open Settings → VPN, allow Arvectum Proxy Launcher and try again.";
 "Mac Catalyst сохраняет общий раздел Настройки, но не имитирует iOS Shortcuts: на macOS применяются только реально поддерживаемые механизмы маршрутизации." = "Mac Catalyst keeps the same Settings screen, but does not emulate iOS Shortcuts. Only routing supported by macOS is used.";
+
+/* APL iOS 0.2 profile management and bounded diagnostics */
+"Список прокси" = "Proxy list";
+"Все профили" = "All profiles";
+"Избранные" = "Favorites";
+"Выбрать" = "Select";
+"Проверка…" = "Checking…";
+"Проверить следующие 10" = "Check next 10";
+"Проверка партиями до 10 профилей расходует немного трафика прокси." = "Checks run in batches of up to 10 proxies and use a small amount of traffic.";
+"Поиск по названию или адресу" = "Search by name or address";
+"Нет профилей по выбранному фильтру" = "No profiles match the filter";
+"Удалить выбранные" = "Delete selected";
+"Для удаления сначала отключите VPN." = "Disconnect VPN before deleting profiles.";
+"Группа профиля" = "Profile group";
+"Группа" = "Group";
+"Без группы" = "No group";
+"Основные" = "Primary";
+"Рабочие" = "Work";
+"Резервные" = "Backups";
+"Новая группа…" = "New group…";
+"Убрать из избранного" = "Remove from favorites";
+"В избранное" = "Add to favorites";
+"Новая группа" = "New group";
+"Название группы" = "Group name";
+"Группы изменяют только организацию списка, не маршрутизацию VPN." = "Groups only organize your list and do not affect VPN routing.";
+"Удалить выбранные прокси?" = "Delete selected proxies?";
+"Удалить %d профилей" = "Delete %d profiles";
+"Профили и сохранённые пароли будут удалены без возможности восстановления." = "Profiles and saved passwords will be permanently deleted.";
+"Проверено %d из %d профилей" = "Checked %d of %d profiles";
+"Между ручными проверками подождите 10 секунд." = "Wait 10 seconds between manual checks.";

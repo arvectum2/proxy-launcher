@@ -25,9 +25,19 @@ struct FailoverPolicy {
         return now.timeIntervalSince(failedAt) < tuning.recentlyFailedSuppression
     }
 
-    func orderCandidates(profileIDs: [UUID], primaryID: UUID?, lastSuccessfulID: UUID?, recentlyFailedID: UUID?) -> [UUID] {
+    func orderCandidates(profileIDs: [UUID], primaryID: UUID?, lastSuccessfulID: UUID?, recentlyFailedID: UUID?, latencies: [UUID: Int] = [:]) -> [UUID] {
         var result: [UUID] = []
-        for id in [primaryID, lastSuccessfulID].compactMap({ $0 }) + profileIDs {
+        // User priority and last successful route remain authoritative. Rank
+        // only the remaining backups by fresh observed latency, with unknown
+        // entries retaining stable order. Failed candidates always go last.
+        let backups = profileIDs.enumerated().sorted { left, right in
+            let lhs = latencies[left.element], rhs = latencies[right.element]
+            if lhs != nil && rhs == nil { return true }
+            if lhs == nil && rhs != nil { return false }
+            if let lhs, let rhs, lhs != rhs { return lhs < rhs }
+            return left.offset < right.offset
+        }.map(\.element)
+        for id in [primaryID, lastSuccessfulID].compactMap({ $0 }) + backups {
             if profileIDs.contains(id), !result.contains(id) { result.append(id) }
         }
         if let recentlyFailedID, let index = result.firstIndex(of: recentlyFailedID) {

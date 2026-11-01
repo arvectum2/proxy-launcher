@@ -32,6 +32,8 @@ enum IOSAppRoutingMode: String, CaseIterable, Identifiable {
 final class ProfileStore {
     private enum Key {
         static let profiles = "profiles.v1"
+        static let organization = "profile_organization.v1"
+        static let quality = "profile_quality.v1"
         static let selectedProfileID = "selected_profile_id"
         static let automaticSelection = "automatic_selection"
         static let primaryProfileID = "primary_profile_id"
@@ -63,6 +65,42 @@ final class ProfileStore {
         return profiles.sorted {
             let lhs = $0.name.localizedCaseInsensitiveCompare($1.name)
             return lhs == .orderedSame ? $0.id.uuidString < $1.id.uuidString : lhs == .orderedAscending
+        }
+    }
+
+    var profileOrganization: ProfileOrganization {
+        get {
+            guard let data = defaults.data(forKey: Key.organization),
+                  var value = try? decoder.decode(ProfileOrganization.self, from: data) else {
+                return ProfileOrganization()
+            }
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            return value
+        }
+        set {
+            var value = newValue
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            if let data = try? encoder.encode(value) {
+                defaults.set(data, forKey: Key.organization)
+            }
+        }
+    }
+
+    var proxyQuality: ProxyQualitySnapshot {
+        get {
+            guard let data = defaults.data(forKey: Key.quality),
+                  var value = try? decoder.decode(ProxyQualitySnapshot.self, from: data) else {
+                return ProxyQualitySnapshot()
+            }
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            return value
+        }
+        set {
+            var value = newValue
+            value.prune(keeping: Set(listProfiles().map(\.id)))
+            if let data = try? encoder.encode(value) {
+                defaults.set(data, forKey: Key.quality)
+            }
         }
     }
 
@@ -100,12 +138,23 @@ final class ProfileStore {
     func delete(id: UUID) throws {
         let remaining = listProfiles().filter { $0.id != id }
         guard let data = try? encoder.encode(remaining) else { throw ProfileStoreError.encodeFailed }
+        // Validate and delete the Keychain entry before committing the profile
+        // removal. A Keychain failure must not strand saved proxy metadata.
+        let keychainStatus = SecItemDelete(baseKeychainQuery(id: id) as CFDictionary)
+        guard keychainStatus == errSecSuccess || keychainStatus == errSecItemNotFound else {
+            throw ProfileStoreError.keychain(keychainStatus)
+        }
         defaults.set(data, forKey: Key.profiles)
-        try setPassword(nil, for: id)
         if selectedProfileID == id { selectedProfileID = remaining.first?.id }
         if primaryProfileID == id { primaryProfileID = remaining.first?.id }
         if lastAutoProfileID == id { lastAutoProfileID = nil }
         if recentlyFailedProfileID == id { clearRecentlyFailed() }
+        var organization = profileOrganization
+        organization.prune(keeping: Set(remaining.map(\.id)))
+        profileOrganization = organization
+        var quality = proxyQuality
+        quality.prune(keeping: Set(remaining.map(\.id)))
+        proxyQuality = quality
     }
 
     var selectedProfileID: UUID? {

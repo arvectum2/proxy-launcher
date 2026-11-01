@@ -119,7 +119,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             profileIDs: profiles.map(\.id),
             primaryID: store.primaryProfileID,
             lastSuccessfulID: store.lastAutoProfileID,
-            recentlyFailedID: failedID
+            recentlyFailedID: failedID,
+            latencies: store.proxyQuality.freshLatencies(for: Set(profiles.map(\.id)), at: now)
         )
         let byID = Dictionary(uniqueKeysWithValues: profiles.map { ($0.id, $0) })
         var failures: [String] = []
