@@ -4,12 +4,14 @@ import Security
 enum ProfileStoreError: LocalizedError {
     case noSharedDefaults
     case encodeFailed
+    case corruptProfiles
     case keychain(OSStatus)
 
     var errorDescription: String? {
         switch self {
         case .noSharedDefaults: return "Не удалось открыть общее хранилище приложения"
         case .encodeFailed: return "Не удалось сохранить профиль"
+        case .corruptProfiles: return "Хранилище профилей повреждено. Данные сохранены; изменение отменено."
         case .keychain(let status): return "Keychain error: \(status)"
         }
     }
@@ -121,8 +123,18 @@ final class ProfileStore {
         return String(data: data, encoding: .utf8)
     }
 
+    /// A damaged on-disk list must never look like an empty installation to
+    /// a writer. Otherwise saving one new profile would erase all old metadata.
+    private func profilesForMutation() throws -> [ProxyProfile] {
+        guard let bytes = defaults.data(forKey: Key.profiles) else { return [] }
+        guard let entries = try? decoder.decode([ProxyProfile].self, from: bytes) else {
+            throw ProfileStoreError.corruptProfiles
+        }
+        return entries
+    }
+
     func save(_ profile: ProxyProfile, password: String?, makeActive: Bool = true, preservePasswordIfNil: Bool = false) throws {
-        var profiles = listProfiles()
+        var profiles = try profilesForMutation()
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }
         else { profiles.append(profile) }
         guard let data = try? encoder.encode(profiles) else { throw ProfileStoreError.encodeFailed }
@@ -138,7 +150,7 @@ final class ProfileStore {
     }
 
     func delete(id: UUID) throws {
-        let remaining = listProfiles().filter { $0.id != id }
+        let remaining = try profilesForMutation().filter { $0.id != id }
         guard let data = try? encoder.encode(remaining) else { throw ProfileStoreError.encodeFailed }
         // Validate and delete the Keychain entry before committing the profile
         // removal. A Keychain failure must not strand saved proxy metadata.

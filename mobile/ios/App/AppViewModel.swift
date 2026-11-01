@@ -48,6 +48,18 @@ final class AppViewModel: ObservableObject {
     init() {
         do {
             store = try ProfileStore()
+#if DEBUG && targetEnvironment(simulator)
+            // Explicit disposable-simulator fixture for the system Files
+            // export/import QA. Never compiled into Release or a real iPhone,
+            // never creates a live proxy or exercises a paid endpoint.
+            if ProcessInfo.processInfo.arguments.contains("-aplBackupFilesQA"),
+               !store.listProfiles().contains(where: { $0.name == "Synthetic Files QA" }) {
+                let fixture = ProxyProfile(name: "Synthetic Files QA",
+                    host: "apl-files-qa.invalid", port: 8181, type: .http,
+                    username: "synthetic")
+                try store.save(fixture, password: "test-only-secret", makeActive: false)
+            }
+#endif
 
             // VPNController is its own ObservableObject. Forward its changes
             // through AppViewModel so SwiftUI refreshes controls that read

@@ -72,6 +72,24 @@ final class FailoverPolicyTests: XCTestCase {
             lastAttempt: now.addingTimeInterval(-31), lastSwitch: now.addingTimeInterval(-35)))
     }
 
+    func testReturnToPrimaryToggleOffKeepsWorkingBackup() {
+        let primary = UUID(), backup = UUID()
+        let now = Date()
+        let policy = FailoverPolicy()
+        // No automatic switch-back when the owner disables the toggle.
+        XCTAssertFalse(policy.shouldRestorePrimary(
+            policy: .stayOnCurrent, currentID: backup, primaryID: primary,
+            primaryAvailable: true, now: now, lastSwitch: nil))
+        // With the toggle enabled the available preferred route is eligible.
+        XCTAssertTrue(policy.shouldRestorePrimary(
+            policy: .returnToPrimary, currentID: backup, primaryID: primary,
+            primaryAvailable: true, now: now, lastSwitch: nil))
+        // Even with the toggle enabled, do not switch to an unavailable route.
+        XCTAssertFalse(policy.shouldRestorePrimary(
+            policy: .returnToPrimary, currentID: backup, primaryID: primary,
+            primaryAvailable: false, now: now, lastSwitch: nil))
+    }
+
     func testRestorePolicyHonorsCooldown() {
         let a = UUID(), b = UUID()
         XCTAssertFalse(FailoverPolicy().shouldRestorePrimary(

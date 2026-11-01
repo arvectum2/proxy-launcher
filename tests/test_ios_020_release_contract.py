@@ -8,6 +8,23 @@ IOS = ROOT / 'mobile' / 'ios'
 
 
 class IOS020ReleaseContract(unittest.TestCase):
+    def test_files_picker_hardware_qa_is_explicit_and_never_runs_in_default_ci(self):
+        qa = (IOS / 'Tests' / 'UITests' / 'EncryptedFilesRoundtripUITests.swift').read_text(encoding='utf-8')
+        self.assertIn('#if APL_RUN_EXPLICIT_FILES_QA', qa)
+        self.assertIn('targetEnvironment(simulator)', qa)
+        self.assertIn('-aplBackupFilesQA', qa)
+        self.assertIn('qaBackup2026Safe', qa)
+
+    def test_corrupt_profile_store_cannot_be_overwritten_by_save_or_delete(self):
+        store = (IOS / 'Shared' / 'ProfileStore.swift').read_text(encoding='utf-8')
+        self.assertIn('private func profilesForMutation() throws -> [ProxyProfile]', store)
+        self.assertIn('throw ProfileStoreError.corruptProfiles', store)
+        self.assertIn('var profiles = try profilesForMutation()', store)
+        self.assertIn('let remaining = try profilesForMutation().filter', store)
+        self.assertLess(store.index('var profiles = try profilesForMutation()'),
+                        store.index('if !(preservePasswordIfNil && password == nil)'))
+
+
     def test_version_and_ad_supported_primary_connection(self):
         spec = (IOS / 'project.yml').read_text(encoding="utf-8")
         home = (IOS / 'App' / 'ContentView.swift').read_text(encoding="utf-8")
