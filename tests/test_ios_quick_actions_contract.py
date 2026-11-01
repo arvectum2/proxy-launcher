@@ -25,7 +25,8 @@ class QuickActionsContract(unittest.TestCase):
         self.assertIn('applySelectedAppEvent(opened:',SWIFT)
 
     def test_quick_action_localizations_are_separate_from_source_catalog(self):
-        codes=['en','ru','ar','de','es','fa','fr','he','hi','it','ja','ko','pt-BR','pt-PT','zh-Hans','zh-Hant']
+        codes=sorted(path.name.removesuffix('.lproj') for path in (ROOT/'Resources').glob('*.lproj'))
+        self.assertEqual(len(codes),50)
         for code in codes:
             path=ROOT/'Resources'/f'{code}.lproj'/'QuickActions.strings'
             self.assertTrue(path.is_file(),path)

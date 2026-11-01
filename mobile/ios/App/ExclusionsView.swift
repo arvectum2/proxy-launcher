@@ -184,8 +184,11 @@ struct ExclusionsView: View {
                     }
                 }
             }
-            .navigationTitle("Исключения сайтов")
-            .navigationBarTitleDisplayMode(.large)
+            // Short, already localized in all 50 legacy catalogs. The former
+            // large 'Website exclusions' heading truncated on narrow iPhones
+            // (notably Amharic/French) and forced the form below the fold.
+            .navigationTitle("Исключения")
+            .navigationBarTitleDisplayMode(.inline)
             .tint(Brand.mint)
             .confirmationDialog(
                 "Очистить все исключения?",

@@ -10,13 +10,22 @@ class AllLocalesAudit(unittest.TestCase):
         self.assertEqual((x['count'],x['old_keys']),(50,155))
         self.assertFalse(x['resource_errors'])
         for lang in x['locales']:
-            self.assertEqual((lang['legacy'],lang['missing_old']),(155,0),lang['locale'])
-    def test_additive_fallback_complete_and_native_short_aliases(self):
+            self.assertEqual((lang['legacy'],lang['legacy_missing']),(155,0),lang['locale'])
+    def test_all_50_locales_translate_all_additive_and_feature_tables(self):
         x=analyze()
         self.assertFalse(x['unhandled_dynamic'])
         self.assertEqual(x['en_supp'],x['ru_supp'])
+        self.assertEqual(x['new_keys'],98)
+        self.assertEqual(x['quickactions_locales'],50)
+        self.assertFalse(x['unchanged_english'])
         for lang in x['locales']:
             self.assertEqual(lang['native_core_short'],4,lang['locale'])
+            self.assertEqual(lang['new_native'],98,lang['locale'])
+            self.assertEqual(lang['new_english'],0,lang['locale'])
+            self.assertEqual(lang['ProfileManagement_entries'],101,lang['locale'])
+            self.assertEqual(lang['ProxyImport_entries'],40,lang['locale'])
+            self.assertEqual(lang['SmartExclusions_entries'],45,lang['locale'])
+            self.assertEqual(lang['QuickActions_entries'],3,lang['locale'])
         swift=(ROOT/'mobile/ios/App/AppLocalization.swift').read_text(encoding='utf-8')
         for frag in ('"Домой": "Главная"','"Тема": "Тема оформления"','"Язык": "Язык приложения"','"Автоматизация": "Автоматизация приложений"'):
             self.assertIn(frag,swift)

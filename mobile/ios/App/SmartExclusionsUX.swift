@@ -1,9 +1,8 @@
 import Foundation
 
-/// Product copy for the new Smart Exclusions surface. The existing 50 complete
-/// 155-key catalogs are immutable for the submitted release; new feature copy
-/// uses a clearly specified English fallback until each locale is reviewed.
-/// Never present Russian-only technical warnings in a non-Russian locale.
+/// Safety-sensitive Smart Exclusions copy has its own 50-language table,
+/// to avoid confusing website bypass rules with ordinary profile actions.
+/// The English dictionary remains a defensive fallback for missing keys.
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
         "Анализ ресурсов сайта": "Checking website resources",
@@ -57,6 +56,8 @@ enum SmartExclusionsUX {
         let language = AppL10n.effectiveLanguage
         if language == "ru" { return russian }
         if let translated = priority[language]?[russian] { return translated }
+        let contextual = AppL10n.tr(russian, table: "SmartExclusions")
+        if contextual != russian { return contextual }
         if let fallback = english[russian] { return fallback }
         let existing = AppL10n.tr(russian)
         if existing != russian { return existing }

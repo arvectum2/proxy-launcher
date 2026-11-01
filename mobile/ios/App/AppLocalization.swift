@@ -171,10 +171,24 @@ enum AppL10n {
         return systemLanguage
     }
 
+    /// Feature-specific localization tables avoid ambiguous common keys.
+    /// For example, import's «Проверить» means Preview, while the primary
+    /// profile action «Проверить» means Check.
+    static func tr(_ key: String, table: String) -> String {
+        let missing = "__APL_020_MISSING_TRANSLATION__"
+        for code in [effectiveLanguage, "en"] {
+            guard let path = Bundle.main.path(forResource: code, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            let value = bundle.localizedString(forKey: key, value: missing, table: table)
+            if value != missing { return value }
+        }
+        return key
+    }
+
     static func tr(_ key: String) -> String {
-        // Keep the reviewed 155-key Localizable.strings catalogs untouched.
-        // Feature-specific strings may exist only in RU/EN; older languages
-        // fall back to English, including when a Russian key equals its value.
+        // Preserve the reviewed 155-key legacy catalog. The 0.2 ProfileManagement
+        // strings now have native values for all 50 languages; English remains
+        // a defensive fallback for any future missing/optional source key.
         let missing = "__APL_020_MISSING_TRANSLATION__"
         for name in [effectiveLanguage, "en"] {
             guard let path = Bundle.main.path(forResource: name, ofType: "lproj"),

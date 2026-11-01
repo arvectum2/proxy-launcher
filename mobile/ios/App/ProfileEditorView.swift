@@ -39,8 +39,8 @@ struct ProfileEditorView: View {
                     TextField("Логин", text: $username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    SecureField(profile == nil ? "Пароль" : "Новый пароль", text: $password)
-                        .accessibilityHint(profile == nil ? "" : "Оставьте пустым, чтобы сохранить прежний пароль")
+                    SecureField(AppL10n.tr(profile == nil ? "Пароль" : "Новый пароль"), text: $password)
+                        .accessibilityHint(profile == nil ? "" : AppL10n.tr("Оставьте пустым, чтобы сохранить прежний пароль"))
                 }
                 if let profile {
                     Section {

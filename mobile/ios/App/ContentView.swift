@@ -1230,6 +1230,7 @@ struct ContentView: View {
             compactSettingsAction("Исключения сайтов", icon: "globe") {
                 showExclusions = true
             }
+            .accessibilityIdentifier("settings.siteExclusions")
             if #available(iOS 16.0, *) {
                 compactSettingsAction("Команды VPN", icon: "bolt.circle") {
                     showQuickActions = true
