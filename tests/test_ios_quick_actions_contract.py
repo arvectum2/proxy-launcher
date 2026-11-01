@@ -42,6 +42,7 @@ class QuickActionsContract(unittest.TestCase):
 
     def test_ui_opens_shortcuts_only_via_explicit_link(self):
         content=(ROOT/'App'/'ContentView.swift').read_text(encoding='utf-8')
+        self.assertIn('settings.quickActions',(ROOT/'App'/'CompactSettingsView.swift').read_text(encoding='utf8'))
         self.assertIn('settings.quickActions',content)
         self.assertIn('if #available(iOS 16.0, *)',content)
         self.assertIn('QuickActionsHelpView()',content)

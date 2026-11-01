@@ -33,8 +33,11 @@ def test_shipped_banner_wiring_is_restored_in_ios_release_source():
     assert layout.index('SettingsBannerView(') < layout.index('homeConnectControl')
     assert '.safeAreaInset(edge: .bottom, spacing: 0)' not in home
     assert 'SettingsBannerView(' in home
-    assert 'size: .inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
-    assert '.frame(minHeight: 80, maxHeight: maxAdHeight)' in banner
+    assert '.inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
+    # The SDK manages actual inline creative size; forcing a second frame
+    # would distort it. Home separately controls the adaptive ad slot.
+    assert '.frame(minHeight: 80, maxHeight: maxAdHeight)' not in banner
+    assert '.inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
     assert '.onAdLoad' in banner and '.onAdFailure' in banner
     assert '.onAdImpression' in banner
     plist=plistlib.loads((IOS/'Config/App-Info.plist').read_bytes())

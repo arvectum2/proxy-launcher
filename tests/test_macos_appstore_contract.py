@@ -215,13 +215,14 @@ class MacOSAppStoreContractTests(unittest.TestCase):
 
     def test_mac_dashboard_matches_card_heights_and_stacks_on_narrow_windows(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn("private struct EqualHeightDashboardLayout: Layout", content)
+        catalyst_layout=(ROOT / "mobile" / "ios" / "App" / "EqualHeightDashboardLayout.swift").read_text(encoding="utf-8")
+        self.assertIn("struct EqualHeightDashboardLayout: Layout", catalyst_layout)
         self.assertIn("geometry.size.width >= 820", content)
         self.assertIn("EqualHeightDashboardLayout(spacing: 18)", content)
         self.assertIn("connectionCard(compact: false)\n                                activeProfileCard(compact: false)", content)
         self.assertIn("} else {\n                            connectionCard(compact: false)\n                            activeProfileCard(compact: false)", content)
-        self.assertIn("let tallest = subviews.map", content)
-        self.assertIn("height: bounds.height", content)
+        self.assertIn("let tallest = subviews.map", catalyst_layout)
+        self.assertIn("height: bounds.height", catalyst_layout)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)", content)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .topLeading)", content)
         self.assertIn("VStack(alignment: .leading, spacing: 5)", content)

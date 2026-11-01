@@ -29,6 +29,9 @@
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		26C09B6D8411877AB0EC8994 /* UpstreamSocketDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50D7CFCE3DD739FD75C2060 /* UpstreamSocketDiagnostics.swift */; };
 		28CA215B9CC00B00AC46EC71 /* ProfileScanPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830ABBEFB957123DBF424C92 /* ProfileScanPolicy.swift */; };
+		3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */; };
+		34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */; };
+		36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253B0C12F0347B26073794E0 /* AppDestination.swift */; };
 		36C8485C979A28BB15CBFD46 /* ProxyImport.strings in Resources */ = {isa = PBXBuildFile; fileRef = BB11E773C4C15B602BA581E8 /* ProxyImport.strings */; };
 		39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */; };
@@ -50,6 +53,7 @@
 		5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
 		60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		61C2D8CDC6BFA305A20537E6 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
+		645A2958E91971A18AC6D971 /* EqualHeightDashboardLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */; };
 		6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */; };
 		669A173A74A2114A37244A9D /* QuickActions.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05F7FA145FBA431606749B23 /* QuickActions.strings */; };
 		66CB3242870370307C0B3730 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
@@ -65,6 +69,7 @@
 		86047547E3BE97C89D5581ED /* ProfileLibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */; };
 		86ACC1EA0C3824246A6E1FE2 /* ApplicationExclusionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB42E08381B2F76A208511BC /* ApplicationExclusionsView.swift */; };
 		86B362B39BE774756AF3DB5F /* ProfileBackupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8089E4A7AED0FBB4BA0DDF2F /* ProfileBackupUITests.swift */; };
+		8759DEE6EAB8EF17EFCE9408 /* AccessibilityLargeTextUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C7E466BA2E49F15CD4CDBC /* AccessibilityLargeTextUITests.swift */; };
 		87F716E21F2F2A81CA6D4A29 /* ExclusionWebScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */; };
 		882C0FD013288E96F42DDBC4 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
 		8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */; };
@@ -107,6 +112,7 @@
 		F890A6F4BEE992C0C3DA7A7B /* ProfileBackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751E6300F0328159413E5DFF /* ProfileBackupView.swift */; };
 		F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */; };
 		FA3307F0564A6C56BE393F69 /* VPNController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A9D0427123A9620FB1C3DE /* VPNController.swift */; };
+		FB52493F346AB26C8062A06D /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */; };
 		FC7DAC5F4EDAD359D78EF662 /* SmartExclusionsUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88FA65A6768406583504159F /* SmartExclusionsUX.swift */; };
 		FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB04057014F01C39512BA98A /* SetupGuideView.swift */; };
 		FF2FF6FD4FE32378C4794669 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
@@ -151,6 +157,7 @@
 		0468D4E5D9133973E411F923 /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		0569245A357CCCDF1ECAA7A0 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		058B604CEFA9CD13812132F4 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityScreenView.swift; sourceTree = "<group>"; };
 		095FBF3E481E0423C623C5B7 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		0A0F59290BF4EBAC1D3621D3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		0AA68C9D6FB9BA1A89C46E80 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -181,6 +188,7 @@
 		22FAF50F51A7DB267C2DA8D2 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Localizable.strings; sourceTree = "<group>"; };
 		23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalQRCodeDecodeUITests.swift; sourceTree = "<group>"; };
 		23715333F0F3BCDE8480389C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/ProfileManagement.strings"; sourceTree = "<group>"; };
+		253B0C12F0347B26073794E0 /* AppDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDestination.swift; sourceTree = "<group>"; };
 		25C76619383D5CDD974DCD76 /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		26DCC73C34178F19DD7373EB /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowRoutingPolicy.swift; sourceTree = "<group>"; };
@@ -315,6 +323,7 @@
 		8857DDBDB0D232A6C9F7D66D /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
 		8880F42D2AC0A5285C57E51C /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		88FA65A6768406583504159F /* SmartExclusionsUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionsUX.swift; sourceTree = "<group>"; };
+		896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
 		898B8102A419789666AE1674 /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
 		8A412DA7976F384FD76DAD0A /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -420,6 +429,7 @@
 		D2DDA8AE67E241AED750AAA8 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		D3885E4514ABCB68197C474B /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		D3978B7EAB6B981E7A769FAC /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
+		D3C7E466BA2E49F15CD4CDBC /* AccessibilityLargeTextUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityLargeTextUITests.swift; sourceTree = "<group>"; };
 		D3EAE75AFADAFE338F502B8D /* JournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JournalView.swift; sourceTree = "<group>"; };
 		D457E55F2C207B629ECA6A86 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusionWebScanner.swift; sourceTree = "<group>"; };
@@ -433,6 +443,7 @@
 		DB42E08381B2F76A208511BC /* ApplicationExclusionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionsView.swift; sourceTree = "<group>"; };
 		DC7030C5038262C784F7AF44 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		DF0B6489FE918955AB153C82 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/ProxyImport.strings; sourceTree = "<group>"; };
+		E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactSettingsView.swift; sourceTree = "<group>"; };
 		E3799421C408860D4BF72E04 /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E383A6D8D037D2F992FB2841 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		E75F6DE03A39F6268BEE3026 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -464,6 +475,7 @@
 		FA7F9CDAEB62EFF95D3FC8C6 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		FABCC235174815FAD26EE4C9 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB8DD933BB650BEF6E85C591 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualHeightDashboardLayout.swift; sourceTree = "<group>"; };
 		FBEC266F92E292376D2F487E /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceMode.swift; sourceTree = "<group>"; };
 		FF516E2D4071DAEF8513A99F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -525,6 +537,7 @@
 		56B035F3FB86E787EE3AA763 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
+				D3C7E466BA2E49F15CD4CDBC /* AccessibilityLargeTextUITests.swift */,
 				CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */,
 				E98CDCF29B15FFB034E729D9 /* EncryptedFilesRoundtripUITests.swift */,
 				7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */,
@@ -617,12 +630,17 @@
 		B36CC5CE120606BD58EA5D89 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */,
+				253B0C12F0347B26073794E0 /* AppDestination.swift */,
 				FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */,
 				DB42E08381B2F76A208511BC /* ApplicationExclusionsView.swift */,
 				4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */,
 				87885BE6123FF783E8126F72 /* AppViewModel.swift */,
 				649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */,
+				896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */,
+				E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */,
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
+				FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */,
 				3CF04293CB0940352CE500AA /* ExclusionsView.swift */,
 				D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */,
 				F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */,
@@ -878,6 +896,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8759DEE6EAB8EF17EFCE9408 /* AccessibilityLargeTextUITests.swift in Sources */,
 				48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */,
 				6707E9D059150CA2255454C8 /* EncryptedFilesRoundtripUITests.swift in Sources */,
 				EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */,
@@ -904,6 +923,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */,
+				36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */,
 				477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */,
 				6A9EF1A2F1B0ECC9F681DEC5 /* AppShared.swift in Sources */,
 				9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */,
@@ -911,8 +932,11 @@
 				1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */,
 				86ACC1EA0C3824246A6E1FE2 /* ApplicationExclusionsView.swift in Sources */,
 				1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */,
+				FB52493F346AB26C8062A06D /* BrandTheme.swift in Sources */,
+				34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */,
 				B793CF633E29DAB897F62F8F /* ConnectionPressurePolicy.swift in Sources */,
 				11464251962C1B3FA454A316 /* ContentView.swift in Sources */,
+				645A2958E91971A18AC6D971 /* EqualHeightDashboardLayout.swift in Sources */,
 				87F716E21F2F2A81CA6D4A29 /* ExclusionWebScanner.swift in Sources */,
 				CAAA0278E7D38A25D8D4E1B0 /* ExclusionsView.swift in Sources */,
 				1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */,

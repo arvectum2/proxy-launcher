@@ -1,145 +1,6 @@
 import SwiftUI
-import NetworkExtension
-import UIKit
 
-/// Semantic iPhone appearance colors that follow dynamic device traits.
-enum Brand {
-    static let navy = Color(red: 0, green: 20/255, blue: 50/255)
 
-    private static func adaptive(light: UIColor, dark: UIColor) -> Color {
-        Color(uiColor: UIColor { traits in
-            traits.userInterfaceStyle == .dark ? dark : light
-        })
-    }
-
-    static let canvas = adaptive(
-        light: UIColor(red: 0.957, green: 0.973, blue: 0.988, alpha: 1),
-        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
-    )
-    static let graphite = adaptive(
-        light: .white,
-        dark: UIColor(red: 40/255, green: 50/255, blue: 70/255, alpha: 1)
-    )
-    static let surface = adaptive(
-        light: UIColor(red: 0.918, green: 0.949, blue: 0.970, alpha: 1),
-        dark: UIColor(red: 16/255, green: 40/255, blue: 70/255, alpha: 1)
-    )
-    static let text = adaptive(
-        light: UIColor(red: 0.075, green: 0.133, blue: 0.220, alpha: 1),
-        dark: .white
-    )
-    static let softGray = adaptive(
-        light: UIColor(red: 0.290, green: 0.344, blue: 0.410, alpha: 1),
-        dark: UIColor(red: 200/255, green: 210/255, blue: 220/255, alpha: 1)
-    )
-    static let mint = adaptive(
-        light: UIColor(red: 0, green: 0.43, blue: 0.34, alpha: 1),
-        dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)
-    )
-    static let mintLight = adaptive(
-        light: UIColor(red: 0.008, green: 0.40, blue: 0.36, alpha: 1),
-        dark: UIColor(red: 120/255, green: 250/255, blue: 230/255, alpha: 1)
-    )
-    static let actionText = adaptive(
-        light: .white,
-        dark: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1)
-    )
-    // The original wordmark has light lettering.
-    // Load the bundled PNG explicitly: SwiftUI named-image lookup can fail for
-    // a standalone resource PNG not registered in an asset catalog.
-    static var wordmark: Image {
-        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
-           let image = UIImage(contentsOfFile: path) {
-            return Image(uiImage: image)
-        }
-        return Image(systemName: "network")
-    }
-    // Crop only the original brand symbol; the full product title is one text style.
-    static var symbol: Image {
-        if let path = Bundle.main.path(forResource: "ArvectumWordmark", ofType: "png"),
-           let image = UIImage(contentsOfFile: path),
-           let original = image.cgImage,
-           let cropped = original.cropping(to: CGRect(x: 0, y: 0, width: 182, height: 120)) {
-            return Image(uiImage: UIImage(cgImage: cropped))
-        }
-        return Image(systemName: "network")
-    }
-
-    static let logoBacking = adaptive(
-        light: UIColor(red: 0, green: 20/255, blue: 50/255, alpha: 1),
-        dark: .clear
-    )
-}
-
-private enum AppDestination: String, CaseIterable, Identifiable {
-    case home
-    case profiles
-    case activity
-    case settings
-
-    var id: String { rawValue }
-    var title: String {
-        switch self {
-        case .home:
-#if targetEnvironment(macCatalyst)
-            return AppL10n.tr("Главная")
-#else
-            return AppL10n.tr("Домой")
-#endif
-        case .profiles: return AppL10n.tr("Профили")
-        case .activity: return AppL10n.tr("Активность")
-        case .settings: return AppL10n.tr("Настройки")
-        }
-    }
-    var icon: String {
-        switch self {
-        case .home: return "house.fill"
-        case .profiles: return "rectangle.stack"
-        case .activity: return "waveform.path.ecg"
-        case .settings: return "gearshape"
-        }
-    }
-}
-
-#if targetEnvironment(macCatalyst)
-/// Gives both desktop home cards the height of the taller card at the
-/// available column width. Unlike a hard-coded height this also accommodates
-/// longer localized copy, font scaling and window resizing.
-private struct EqualHeightDashboardLayout: Layout {
-    let spacing: CGFloat
-
-    func sizeThatFits(
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) -> CGSize {
-        let width = max(0, proposal.width ?? 0)
-        guard !subviews.isEmpty else { return CGSize(width: width, height: 0) }
-        let cardWidth = max(0, (width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
-        let tallest = subviews.map {
-            $0.sizeThatFits(ProposedViewSize(width: cardWidth, height: nil)).height
-        }.max() ?? 0
-        return CGSize(width: width, height: tallest)
-    }
-
-    func placeSubviews(
-        in bounds: CGRect,
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) {
-        guard !subviews.isEmpty else { return }
-        let cardWidth = max(0, (bounds.width - spacing * CGFloat(subviews.count - 1)) / CGFloat(subviews.count))
-        for (index, card) in subviews.enumerated() {
-            card.place(
-                at: CGPoint(x: bounds.minX + CGFloat(index) * (cardWidth + spacing), y: bounds.minY),
-                anchor: .topLeading,
-                proposal: ProposedViewSize(width: cardWidth, height: bounds.height)
-            )
-        }
-    }
-}
-#endif
 
 private struct ProxyImportRequest: Identifiable {
     let id = UUID()
@@ -148,6 +9,7 @@ private struct ProxyImportRequest: Identifiable {
 
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("setupGuideSeen.v1") private var setupGuideSeen = false
@@ -377,9 +239,13 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
 
-            Text(AppShared.version)
-                .font(.caption2)
-                .foregroundStyle(Brand.mintLight.opacity(0.72))
+            // The version is always available in Settings. At Accessibility
+            // sizes the full product name has priority over this metadata.
+            if !dynamicTypeSize.isAccessibilitySize {
+                Text(AppShared.version)
+                    .font(.caption2)
+                    .foregroundStyle(Brand.mintLight.opacity(0.72))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
 #endif
@@ -1035,48 +901,7 @@ struct ContentView: View {
     }
 
     private var activityScreen: some View {
-        ZStack {
-            Brand.canvas.ignoresSafeArea()
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-#if !targetEnvironment(macCatalyst)
-                    header
-#endif
-                    Text(AppL10n.tr("Активность"))
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(Brand.text)
-                    HStack {
-                        // Raw NetworkExtension IPC errors are not actionable
-                        // product copy. Keep diagnostics in Journal, display a
-                        // localized explanation on the overview.
-                        Label(AppL10n.tr(model.vpn.detail.contains("IPC failed")
-                                       ? "Не удалось открыть VPN-сессию" : model.vpn.detail),
-                              systemImage: "bolt.horizontal.circle")
-                            .foregroundStyle(connectionStatusColor)
-                        Spacer()
-                        Button("Обновить") { model.refreshEvents() }
-                            .foregroundStyle(Brand.mint)
-                    }
-                    .padding(16)
-                    .background(Brand.graphite)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                    if model.events.isEmpty {
-                        Text("Событий пока нет")
-                            .foregroundStyle(Brand.softGray)
-                            .padding(16)
-                    } else {
-                        ForEach(model.events) { event in
-                            eventRow(event)
-                        }
-                    }
-                }
-                .padding(18)
-                .frame(maxWidth: 760)
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .onAppear { model.refreshEvents() }
+        ActivityScreenView(model: model, statusColor: connectionStatusColor, header: header)
     }
 
     private var settingsScreen: some View {
@@ -1162,172 +987,18 @@ struct ContentView: View {
     }
 
 #if !targetEnvironment(macCatalyst)
-    /// On regular iPhones the entire Settings overview fits without scrolling.
-    /// Smaller devices and Accessibility text sizes get a scrollable fallback,
-    /// never hidden or clipped controls.
     private var compactSettingsScreen: some View {
-        ZStack {
-            Brand.canvas.ignoresSafeArea()
-            GeometryReader { geometry in
-                Group {
-                    if #available(iOS 16.0, *) {
-                        ViewThatFits(in: .vertical) {
-                            compactSettingsContent
-                            ScrollView { compactSettingsContent }
-                        }
-                    } else {
-                        // Keep all settings reachable on iOS 15 too.
-                        ScrollView { compactSettingsContent }
-                    }
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height,
-                       alignment: .top)
-            }
-        }
-    }
-
-    private var compactSettingsContent: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            header
-                .padding(.bottom, 4)
-
-            HStack(spacing: 10) {
-                Text(AppL10n.tr("Тема"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.text)
-                Spacer(minLength: 4)
-                Picker("Тема оформления", selection: $appearanceMode) {
-                    ForEach(AppearanceMode.allCases) { mode in
-                        Text(mode.title).tag(mode.rawValue)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 240)
-                .accessibilityIdentifier("settings.theme")
-            }
-            .modifier(CompactSettingsSurface())
-
-            HStack(spacing: 10) {
-                Text(AppL10n.tr("Язык"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.text)
-                Spacer(minLength: 4)
-                Picker("Язык приложения", selection: $appLanguage) {
-                    ForEach(AppLanguage.allCases) { language in
-                        Text(language.title).tag(language.rawValue)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .tint(Brand.mintLight)
-                .accessibilityIdentifier("settings.language")
-            }
-            .modifier(CompactSettingsSurface())
-
-            compactSettingsAction("Первое подключение", icon: "questionmark.circle") {
-                showSetupGuide = true
-            }
-            compactSettingsAction("Исключения сайтов", icon: "globe") {
-                showExclusions = true
-            }
-            .accessibilityIdentifier("settings.siteExclusions")
-            if #available(iOS 16.0, *) {
-                compactSettingsAction("Команды VPN", icon: "bolt.circle") {
-                    showQuickActions = true
-                }
-                .accessibilityIdentifier("settings.quickActions")
-            }
-            compactSettingsAction("Автоматизация приложений", icon: "app.badge") {
-                showAppExclusions = true
-            }
-
-            // The existing screenshot QA flag can also preview this row on
-            // a disposable simulator without writing any Keychain profiles.
-            if !model.profiles.isEmpty || qaProfile {
-                compactAutomaticRoutingSettings
-            }
-            HStack {
-                Text(AppL10n.tr("Версия"))
-                Spacer()
-                Text(AppShared.version)
-            }
-            .font(.caption)
-            .foregroundStyle(Brand.softGray)
-            .padding(.horizontal, 10)
-            .padding(.top, 3)
-        }
-        .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
-        .frame(maxWidth: 760)
-        .frame(maxWidth: .infinity, alignment: .top)
-    }
-
-    private func compactSettingsAction(_ title: String, icon: String,
-                                       action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: icon).frame(width: 21)
-                Text(AppL10n.tr(title))
-                    .font(.subheadline.weight(.medium))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                Spacer(minLength: 4)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(Brand.softGray)
-            }
-            .foregroundStyle(Brand.text)
-            .modifier(CompactSettingsSurface())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var compactAutomaticRoutingSettings: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 9) {
-                Text(AppL10n.tr("Основной прокси"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.text)
-                Spacer(minLength: 4)
-                Menu {
-                    ForEach(model.profiles) { profile in
-                        Button { model.setPrimary(profile) } label: {
-                            Label(profile.name,
-                                  systemImage: profile.id == model.primaryProfileID
-                                    ? "checkmark.circle.fill" : "circle")
-                        }
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Text(model.profiles.first(where: { $0.id == model.primaryProfileID })?.name
-                             ?? AppL10n.tr("Выбрать"))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Image(systemName: "chevron.down")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(Brand.mintLight)
-                    .font(.subheadline.weight(.medium))
-                    .frame(maxWidth: 170, alignment: .trailing)
-                }
-                .accessibilityIdentifier("settings.primaryProfile")
-            }
-            Toggle(isOn: Binding(
-                get: { model.returnToPrimary },
-                set: { model.setReturnToPrimary($0) }
-            )) {
-                Text(AppL10n.tr("Возвращаться к основному"))
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.text)
-            }
-            .tint(Brand.mint)
-            .accessibilityIdentifier("settings.returnToPrimary")
-            .accessibilityHint(AppL10n.tr("Выкл. — меньше переключений: работаем через резервный, пока он доступен. Действует в режиме Авто."))
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 9)
-        .background(Brand.graphite, in: RoundedRectangle(cornerRadius: 13))
+        CompactSettingsView(
+            model: model,
+            appearanceMode: $appearanceMode,
+            appLanguage: $appLanguage,
+            showSetupGuide: $showSetupGuide,
+            showExclusions: $showExclusions,
+            showQuickActions: $showQuickActions,
+            showAppExclusions: $showAppExclusions,
+            qaProfile: qaProfile,
+            header: header
+        )
     }
 #endif
 
@@ -1391,22 +1062,6 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    private func eventRow(_ event: TunnelEvent) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text(AppL10n.tr(event.type)).font(.headline)
-                Spacer()
-                Text(event.timestamp, style: .time).font(.caption).foregroundStyle(Brand.softGray)
-            }
-            if let name = event.profileName { Text(name).font(.subheadline) }
-            if let detail = event.detail { Text(detail).font(.caption).foregroundStyle(Brand.softGray) }
-        }
-        .foregroundStyle(Brand.text)
-        .padding(14)
-        .background(Brand.graphite)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
     private func sectionTitle(_ title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(AppL10n.tr(title)).font(.title2.weight(.bold)).foregroundStyle(Brand.text)
@@ -1438,7 +1093,7 @@ struct ContentView: View {
             .multilineTextAlignment(.center)
             .foregroundStyle(filled ? Brand.actionText : Brand.mintLight)
             .frame(maxWidth: .infinity)
-            .frame(height: 46)
+            .frame(minHeight: 46)
             .background(filled ? Brand.mint : Brand.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Brand.mint.opacity(filled ? 0 : 0.6)))
@@ -1464,37 +1119,4 @@ struct ContentView: View {
         }
     }
 
-}
-
-private struct CompactSettingsSurface: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding(.horizontal, 12)
-            .frame(height: 44)
-            .background(Brand.graphite, in: RoundedRectangle(cornerRadius: 13))
-    }
-}
-
-private struct PrimaryBrandButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.subheadline.weight(.bold))
-            .foregroundStyle(Brand.actionText)
-            .frame(height: 52)
-            .background(Brand.mint.opacity(configuration.isPressed ? 0.78 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct SecondaryBrandButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Brand.mintLight)
-            .padding(.horizontal, 14)
-            .frame(height: 44)
-            .background(Brand.canvas.opacity(configuration.isPressed ? 0.72 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Brand.mint.opacity(0.55)))
-    }
 }

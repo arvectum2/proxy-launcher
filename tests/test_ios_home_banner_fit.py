@@ -70,8 +70,9 @@ def test_larger_real_inline_banner_and_bottom_aligned_actions_with_home_tab_firs
     assert home.index('homeMeasured("banner")') < home.index('Spacer(minLength: tight ? 4 : 12)') < home.index('homeConnectControl')
     assert '.padding(.bottom, tight ? 4 : 12)' in home
     assert shell.index('homeScreen') < shell.index('profilesScreen') < shell.index('activityScreen')
-    assert 'case .home: return "house.fill"' in source
-    assert 'return AppL10n.tr("Домой")' in source
+    nav = SRC.with_name('AppDestination.swift').read_text(encoding='utf8')
+    assert 'case .home: return "house.fill"' in nav
+    assert 'return AppL10n.tr("Домой")' in nav
 
 
 def test_two_ads_and_connect_off_is_outlined():
@@ -97,17 +98,17 @@ def test_two_ads_and_connect_off_is_outlined():
     assert 'Text(AppL10n.tr(qaActionTitle))' in control
 
 def test_settings_is_compact_and_ungrouped_port():
-    src = SRC.read_text(encoding='utf-8')
-    settings = src.split('private var compactSettingsContent: some View {',1)[1].split('private func compactSettingsAction',1)[0]
+    settings = SRC.with_name('CompactSettingsView.swift').read_text(encoding='utf-8')
+    profile_editor = SRC.with_name('ProfileEditorView.swift').read_text(encoding='utf-8')
     assert 'sectionTitle("Настройки", subtitle:' not in settings
     assert 'Системная тема автоматически следует' not in settings
     assert 'Выберите язык интерфейса' not in settings
-    assert 'Text(AppL10n.tr("Язык"))' in settings
+    assert 'settingsRow("Язык")' in settings
     assert 'Picker("Язык приложения"' in settings
     assert 'compactAutomaticRoutingSettings' in settings
-    assert 'ViewThatFits(in: .vertical)' in src
-    assert 'Toggle(isOn: Binding(' in src
-    assert 'String(profile.port)' in src
+    assert 'ViewThatFits(in: .vertical)' in settings
+    assert 'Toggle(isOn: Binding(' in settings
+    assert 'String($0.port)' in profile_editor
 
 
 def test_native_ad_reserves_fixed_height_in_loading_and_no_fill():

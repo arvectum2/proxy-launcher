@@ -9,6 +9,8 @@ ANDROID = (
     / "mobile/android/app/src/main/java/ru/arvectum/proxylauncher/MainActivity.kt"
 ).read_text(encoding="utf-8")
 IOS = (ROOT / "mobile/ios/App/ContentView.swift").read_text(encoding="utf-8")
+IOS_BRAND = (ROOT / "mobile/ios/App/BrandTheme.swift").read_text(encoding="utf-8")
+IOS_NAV = (ROOT / "mobile/ios/App/AppDestination.swift").read_text(encoding="utf-8")
 
 
 class AdaptiveUiContractTests(unittest.TestCase):
@@ -17,10 +19,10 @@ class AdaptiveUiContractTests(unittest.TestCase):
             self.assertIn(token, DESKTOP)
             self.assertIn(token, ANDROID)
 
-        self.assertIn("static let navy = Color(red: 0, green: 20/255, blue: 50/255)", IOS)
+        self.assertIn("static let navy = Color(red: 0, green: 20/255, blue: 50/255)", IOS_BRAND)
         # Light mode adds a semantic palette; preserve the original dark-mode brand mint.
-        self.assertIn("static let mint = adaptive(", IOS)
-        self.assertIn("dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)", IOS)
+        self.assertIn("static let mint = adaptive(", IOS_BRAND)
+        self.assertIn("dark: UIColor(red: 0, green: 200/255, blue: 160/255, alpha: 1)", IOS_BRAND)
 
     def test_navigation_order_is_shared(self):
         desktop_items = (
@@ -41,7 +43,7 @@ class AdaptiveUiContractTests(unittest.TestCase):
             'case .activity: return AppL10n.tr("Активность")',
             'case .settings: return AppL10n.tr("Настройки")',
         )
-        for source, fragments in ((DESKTOP, desktop_items), (ANDROID, android_items), (IOS, ios_items)):
+        for source, fragments in ((DESKTOP, desktop_items), (ANDROID, android_items), (IOS_NAV, ios_items)):
             positions = [source.index(fragment) for fragment in fragments]
             self.assertEqual(positions, sorted(positions))
 

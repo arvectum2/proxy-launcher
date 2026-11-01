@@ -26,9 +26,13 @@ class UXCleanup(unittest.TestCase):
         self.assertIn('.frame(minHeight: 44)',s)
         self.assertIn('showProfileBackup = true',s)
     def test_activity_settings_and_destructive_taps_are_clutter_free(self):
-        s=self.home.split('private var activityScreen: some View {',1)[1].split('private var settingsScreen:',1)[0]
+        s=(APP/'ActivityScreenView.swift').read_text(encoding='utf8')
+        self.assertIn('ActivityScreenView<Header: View>',s)
         self.assertNotIn('Состояние соединения и последние события',s)
-        settings=self.home.split('private var compactAutomaticRoutingSettings: some View {',1)[1].split('private var profileSelectionMenu:',1)[0]
+        self.assertIn('ActivityScreenView(model: model, statusColor:',self.home)
+        settings=(APP/'CompactSettingsView.swift').read_text(encoding='utf8')
+        self.assertIn('CompactSettingsView<Header: View>',settings)
+        self.assertIn('model.setReturnToPrimary($0)',settings)
         self.assertNotIn('Text(AppL10n.tr("Выкл. — остаёмся',settings)
         self.assertIn('.accessibilityHint(AppL10n.tr("Выкл. — меньше переключений',settings)
         exclusions=(APP/'ExclusionsView.swift').read_text(encoding='utf-8')
@@ -39,7 +43,7 @@ class UXCleanup(unittest.TestCase):
         self.assertIn('.fixedSize(horizontal: true, vertical: false)',exclusions)
         self.assertIn('"profiles.emptyState"',self.home)
         self.assertIn('"Нет прокси"',self.home)
-        self.assertIn('Не удалось открыть VPN-сессию',self.home)
+        self.assertIn('Не удалось открыть VPN-сессию',(APP/'ActivityScreenView.swift').read_text(encoding='utf8'))
         backup=(APP/'ProfileBackupView.swift').read_text(encoding='utf-8')
         self.assertIn('DisclosureGroup {',backup)
         self.assertIn('backup.explanation',backup)
