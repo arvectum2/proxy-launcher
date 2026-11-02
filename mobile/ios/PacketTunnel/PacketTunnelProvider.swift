@@ -234,7 +234,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         socketPressureTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled, !self.stopping {
-                try? await Task.sleep(nanoseconds: 30_000_000_000)
+                try? await Task.sleep(nanoseconds: 10_000_000_000)
                 if Task.isCancelled || self.stopping { break }
                 await self.socketPressureIteration()
             }

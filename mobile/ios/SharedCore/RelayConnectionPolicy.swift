@@ -8,7 +8,7 @@ struct RelayConnectionPolicy {
     let maximumAgeSeconds: TimeInterval
 
     init(maximumPairs: Int = 90,
-         maximumIdleSeconds: TimeInterval = 90,
+         maximumIdleSeconds: TimeInterval = 75,
          maximumAgeSeconds: TimeInterval = 15 * 60) {
         self.maximumPairs = maximumPairs
         self.maximumIdleSeconds = maximumIdleSeconds

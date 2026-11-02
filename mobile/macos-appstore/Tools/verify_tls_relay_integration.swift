@@ -47,7 +47,14 @@ struct TLSRelayIntegration {
                 else { break }
             }
         }
-        let relay = TLSProxyRelay(host: "127.0.0.1", port: upstreamPort)
+        // Same production relay, accelerated policy only for this test:
+        // 6-second idle TTL and 1-second sweep avoid a 107-second wait.
+        let relay = TLSProxyRelay(
+            host: "127.0.0.1",
+            port: upstreamPort,
+            policy: RelayConnectionPolicy(maximumIdleSeconds: 6),
+            sweepIntervalSeconds: 1
+        )
         let relayPort = try await relay.start()
         var relayAddress = upstream
         relayAddress.sin_port = UInt16(relayPort).bigEndian
@@ -70,8 +77,8 @@ struct TLSRelayIntegration {
         precondition(before.upstreamSockets > 0, "No upstream TLS handshakes created")
         precondition(before.upstreamSockets <= 90, "Relay pair ceiling not enforced")
         // The upstream accepts TCP but never completes TLS handshake. No data
-        // can update lastActivityAt; the 15s sweeper must release every pair.
-        try await Task.sleep(nanoseconds: 107_000_000_000)
+        // can update lastActivityAt; the accelerated sweeper must release pairs.
+        try await Task.sleep(nanoseconds: 8_000_000_000)
         let after = UpstreamSocketDiagnostics.sample(host: "127.0.0.1", port: upstreamPort)
         print("After TTL: \(after.upstreamSockets) upstream TCP, \(after.closeWaitSockets) CLOSE_WAIT")
         precondition(after.upstreamSockets == 0, "Relay did not reap stale TLS handshakes")
