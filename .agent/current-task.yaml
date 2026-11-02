@@ -8,6 +8,7 @@ definition_of_done:
   - "Physical iPhone 13 A->B->A failover/public IP/DNS and real VoiceOver accepted, original data/settings restored."
   - "Record verified source commit, tests, blockers and resume instruction. Do not merge/publish without separate authorization."
 completed:
+  - "Merged macOS DNS/socket-pressure recovery into iOS via 31d5cdc5; source changed from previous approved tree. New 106 Swift, 44 Python PASS and new signed archive/export/ZIP/signatures verified for ee4d2479."
   - "Recovered correct 0.2.0(48) branch feat/ios-020-product-plan-20261101, Draft PR #296. Prior task checkpoint archived in .agent/checkpoints/APL-IOS-020-ENGINE-HANDOFF-20261102.yaml."
   - "Implemented bounded tun2proxy serial engine drain and timeout failure; app source tests PASS."
   - "Fixed UI-test target dependency on TunnelEngineHandoff.swift and stale short Exclusions navigation title."
@@ -23,14 +24,17 @@ completed:
   - "Updated docs/ROADMAP.md, docs/APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md and Draft PR description with factual acceptance status."
 current: "Latest iOS runtime tree ee4d247944aff9d6c97a9ce146f23768c1f1e1ff after DNS merge accepted locally; signed IPA from b8650a77 verified. Exact-source hosted CI run 41413811197 still QUEUED; physical A->B->A and real VoiceOver require explicit owner authorization and controlled proxies."
 pending:
+  - "Check hosted Mobile iOS personal run 41413811197 for merged source ee4d2479, still queued; fix any failure before release."
   - "Explicit owner consent for in-place install on iPhone Nikita and temporary VPN/VoiceOver changes, with restoration of original state; choose two known-good upstreams and safe way to temporarily fail/recover primary."
   - "Snapshot physical device current VPN/profiles/settings; verify public egress with two independent HTTPS services; test A->B->A failover/recovery and no DNS hang; restore and verify unchanged user profiles."
   - "Physical VoiceOver navigation with actual screen reader; restore original setting. Then request separate signoff before App Store/TestFlight upload or merge."
 last_verified_commit: "b8650a77 (exact iOS tree ee4d247944aff9d6c97a9ce146f23768c1f1e1ff: Swift 106/106, Python 44/44, signed archive/IPA PASS; docs-only 9775879a is newer)"
 test_results:
+  - "After DNS merge source ee4d2479: 106/106 Swift and 44/44 Python PASS; fresh IPA SHA256 afa930e1542d1d758f64ea47b1fa66cddc37e42cfe346588b7cd462a2cb409d7, Apple Distribution app/PacketTunnel 0.2.0(48), ZIP and 50 languages PASS."
+  - "Old 41412264592 CI 3/3 SUCCESS applies only to source 2a1e4e9c; new run 41413811197 QUEUED for source ee4d2479."
   - "Earlier GitHub run 41412264592 3/3 SUCCESS for pre-merge 6b38f6a3. Current post-merge Mobile iOS personal run 41413811197 QUEUED; do not claim green for merged runtime yet."
   - "104/104 Swift Core PASS; 44/44 Python iOS 0.2 PASS; 250/250 .strings PASS."
   - "5/5 targeted signed iOS Simulator UI PASS, accessibility 0 findings; pinned Rust iPhone+Simulator build PASS; local Simulator TEST BUILD SUCCEEDED."
   - "Signed archive/export PASS, app+extension codesign PASS, IPA ZIP PASS, 50 locales and Yandex SDK present."
   - "Real physical A->B->A/egress and VoiceOver NOT TESTED on latest signed binary."
-resume_instruction: "Continue APL iOS 0.2.0 Draft PR #296 on clean canonical worktree. Latest post-DNS merge runtime tree ee4d247944aff9d6c97a9ce146f23768c1f1e1ff, signed IPA at /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/final-source-b8650a77-20261102/exported/Arvectum Proxy Launcher.ipa (SHA256 afa930e1542d1d758f64ea47b1fa66cddc37e42cfe346588b7cd462a2cb409d7). Swift 106/106, Python 44/44, Simulator target compilation, archive/export, signatures and ZIP PASS. Confirm hosted GitHub run 41413811197 for merged source when macOS runners complete; fix any failures. Physical A->B->A independent egress and real VoiceOver only after explicit iPhone Nikita permission and controlled working upstreams, preserving and restoring original VPN/Keychain/profiles. No Apple upload, merge, privacy/ads changes or Watchdog."
+resume_instruction: "Read canonical checkpoint first. Current Draft PR #296 on feat/ios-020-product-plan-20261101, source mobile/ios tree ee4d247944aff9d6c97a9ce146f23768c1f1e1ff includes merge(main) 31d5cdc5 DNS/socket recovery. Old CI 41412264592 3/3 SUCCESS predates merge. Latest merged-source CI 41413811197 queued; check it once run and fix failures. New local 106 Swift and 44 Python PASS; previous 5 signed Simulator UI tests valid for unchanged interface. Fresh signed IPA on Mac mini /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/final-source-b8650a77-20261102/exported/Arvectum Proxy Launcher.ipa SHA256 afa930e1542d1d758f64ea47b1fa66cddc37e42cfe346588b7cd462a2cb409d7, codesign/ZIP/50 locales PASS. Do not rerun verified local suites or rebuild IPA unless source changes. Physical iPhone 13 A->B->A/egress/VoiceOver needs explicit owner permission for in-place install and temporary VPN/VoiceOver changes and approved working primary/backup; restore user state, never print secrets. Do not touch Apple metadata/ads/privacy, main, Watchdog, TestFlight or App Store, or merge PR before separate approval. Set status completed only after physical and CI gates pass; otherwise blocked."
