@@ -1,25 +1,50 @@
 task_id: APL-IOS-020-LOCALIZATION-POSTSOVIET-64-20261102
-status: in_progress
-goal: "Complete native UI language coverage for every former Soviet republic: add Belarusian, Baltic, Caucasus, and Central Asian missing locales to APL iOS 0.2.0."
+status: completed
+goal: >-
+  Complete the national UI language coverage for all 15 former Soviet republics
+  in APL iOS 0.2.0 while keeping live Apple App Store Connect unchanged.
 definition_of_done:
-  - "Add 11 missing BCP47 UI locales be, et, lv, lt, ka, hy, az, kk, tk, ky, tg: all 5 complete .strings tables (344 keys), picker and manifest, no fake English fills. Preserve ru, uk, uz, ro for existing former USSR languages."
-  - "Verify terminology, immutable identifiers, format placeholders, native script, no untranslated long lines; caveat machine-assisted translations require independent human editorial check."
-  - "All UI localizations compile in Xcode, signed out of scope, targeted resource/locale ASO tests pass; Apple App Store metadata stays unchanged at 50 supported locales and 100 existing screenshots."
-  - "Update documented language-to-country mapping, roadmap, CI tests and canonical checkpoint; commit/push PR branch without App Store, production iPhone, Watchdog or Apple metadata changes."
+  - Add 11 UI language codes be/et/lv/lt/ka/hy/az/kk/tk/ky/tg with all five complete resource tables and native picker entries.
+  - Preserve 4 existing national languages ru/uk/uz/ro and all previous iOS UI functionality.
+  - Check all new technical identifiers, string placeholders, language scripts, ad labels, and UI resource lint.
+  - Build real arm64 iOS Simulator application with all 64 localized resource bundles and complete relevant tests.
+  - Keep Apple 50 supported ASO locales, 100 screenshots, Apple review 0.1.41, production iPhone, ads and privacy unchanged.
+  - Record results in roadmap, commit and push to existing Draft PR branch without merge or publication.
 completed:
-  - "Verified repo HEAD 6013c0c5 clean, current 53 UI languages, all 50 Apple ASO metadata locales, and existing 0.1.41 Apple review preserved."
-  - "Determined 15 former USSR republics require 11 additional primary UI languages. Existing ru/uk/uz/ro count for Russia/Ukraine/Uzbekistan/Moldova; add be/et/lv/lt/ka/hy/az/kk/tk/ky/tg."
-  - "Wired 64 AppLanguage picker cases/native labels and system-locale match, 64 RSYA advertisement labels (including prior or/sl/uk), iOS language manifest and 64-aware tests. Swift Foundation typecheck PASS."
-  - "First five new resource sets be/et/lv/lt/ka 5 tables × 344 entries done and audited 0 format/technical identifier regressions, manual corrections applied."
-  - "Further complete 4 sets hy/az/tk/ky: now 9/11 total each five tables/344 values; curated high-risk actions (connect/disconnect/primary vs Home), removed model text repetition, fixed format placeholders/immutable URL/protocol/Keychain labels; source tech audit 0 errors for all 9."
-  - "Final source generations kk and tg still active from private SSD Apache-2.0 MADLAD-400 cache, two local CPU workers using cached partial progress and logs. All changes so far remain in dirty worktree until 11/11 finished and verified."
-  - "Documented exact mapping of 15 countries to 15 native languages, Apple ASO stays at 50 and screenshots 100 unchanged; no Apple or user device actions."
-current: "9/11 new language catalogs (be et lv lt ka hy az tk ky) all pass targeted formatting/technical ID checks, custom semantic actions reviewed; remaining kk and tg generated with local MADLAD-400 cached translation. Working source intentionally uncommitted pending complete bundle and QA."
-pending:
-  - "Generate and QA 11 localization catalogs with all keys and immutable token safety."
-  - "Wire 64-language picker, manifest, build and platform-aware code; update tests and roadmap."
-  - "Run resource and build checks, correct failures, commit and close checkpoint."
-last_verified_commit: "6013c0c5"
+  - All 11 new national language catalog sets present, 5 .strings files and 344 source keys each.
+  - All 15 former republics covered by one primary local language via 64 total AppLanguage cases.
+  - Curated vital actions, primary-versus-Home semantics, URL and protocol identifiers, Keychain, system labels, and model-generated repetition.
+  - Updated iOS Swift language selection/automatic locale lookup, 64 advertisement labels, 64-code manifest, XcodeGen target resource inputs and locale-aware tests.
+  - All 11 new locales pass critical technical token and placeholder count checks with zero outstanding errors.
+  - Full localization audit and 320/320 plutil lint PASS.
+  - Targeted pytest contract suites 44/44 PASS; iOS active release preflight PASS.
+  - arm64 iOS Simulator build SUCCESS with exactly 64 .lproj in built app; isolated Simulator launch PASS for be/ka/kk/tg, four 1206x2622 QA screenshots.
+  - Prepared source QA report and updated docs/ROADMAP.md, with ASO 50/50 metadata and 100 screenshots unchanged and no Apple writes.
+current: >-
+  COMPLETED. The code implementation, targeted verification, simulator build and
+  source-only documentation/push are done. Independent native-speaker editorial
+  certification is a separate future publication gate and was not performed.
+pending: []
+future_release_gates:
+  - Independent native-speaker editorial review for the eleven machine-assisted draft locales, especially low-resource tk/tg/ky/ka/hy, before publicly describing them as professionally localized.
+  - Additional optional UI accessibility/visual checks across dynamic text sizes for all eleven language menus.
+  - New signed Apple Distribution IPA built from newer source; 0.1.41 still under Apple review according to owner.
+  - App Store Connect upload/merge/release and all commercial infrastructure changes require owner authorization.
+last_verified_commit: 4d557eb4
 test_results:
-  - "Swift typecheck mobile/ios/App/AppLocalization.swift PASS with 64 cases. Nine completed new language catalogs 344/344 entries each, placeholders/critical tokens 0 issues. 0 Apple metadata edits. 64 advertisement labels match 64 language manifest codes."
-resume_instruction: "9/11 new post-Soviet iOS locale catalogs done and technically audited PASS (be et lv lt ka hy az tk ky), 5 .strings/344 keys each. Finish final kk and tg from local MADLAD-400 cached translation under /Volumes/ArvectumSSD/Arvectum/tmp/apl-madlad400-20261102/cache: active optimized logs translation-optimized-remaining.log (kk) and translation-optimized-central.log (tg). After BOTH workers finish, run /tmp/apl64_curate_actions.py, /tmp/apl64_curate_navigation.py, /tmp/apl64_clean_repetition.py with kk tg, then /tmp/apl64_all_missing_tokens.py kk tg; correct any %d/URLs/technical labels with patch(lang,table,key_prefix,native_text) from /tmp/apl64_patch_translations.py. Regenerate xcodegen project, run 64 UI and ASO50 tests, plutil 320, simulator build, commit full code, close checkpoint. Do not edit Apple ASC 0.1.41, existing iPhone, privacy/ads, or Watchdog."
+  - Targeted language + ASO mock/screenshot + iOS source regressions 44/44 PASS.
+  - All 320 iOS .strings source files pass plutil and all 64 locale audit passes.
+  - iOS 0.2.0 (48) arm64 Simulator build succeeded, bundle 64 .lproj present.
+  - Four isolated iPhone Simulator launches be/ka/kk/tg PASS, 1206x2622 screenshots collected locally only.
+  - Apple ASO localizations source 50/50 and existing 100 App Store screenshots unchanged.
+  - Initial generic x86_64 Simulator link unsupported for existing tun2proxy library; arm64 target-specific build PASS.
+resume_instruction: >-
+  Task completed in code commit 4d557eb4. Do not repeat machine translation or
+  tests unless source changes. All 15 former Soviet republics have a native primary
+  iOS UI language; eleven added be/et/lv/lt/ka/hy/az/kk/tk/ky/tg, 64 total
+  .lproj, 320 .strings, 44 tests PASS and arm64 simulator build succeeded.
+  All 11 languages are machine-assisted with technical corrections, not independently
+  native-speaker-certified. Human editorial QA remains a separate release gate.
+  Preserve iOS 0.1.41 under Apple Review, existing Draft PR #296, live Apple metadata,
+  iPhone VPN/user profiles, ads/privacy, disabled Watchdog. No Apple submission or
+  merge was authorized. See docs/APL_IOS_020_64_POSTSOVIET_UI_LOCALIZATIONS_2026-11-02.md.
