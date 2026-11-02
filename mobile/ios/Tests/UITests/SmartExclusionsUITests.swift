@@ -181,11 +181,11 @@ extension ProxyImportUITests {
         editor.typeText("http://swipe-test.invalid:47891")
         let keyboard = app.keyboards.firstMatch
         XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
-        // Drag across the form margin, not inside the text editor; no Done button
-        // and no proxy import / VPN connection should be necessary.
-        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.78))
-        let finish = app.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.28))
-        start.press(forDuration: 0.1, thenDragTo: finish)
+        // Swipe over a form row above the keyboard, not inside the nested
+        // TextEditor or across the system keyboard area.
+        let pasteRow = app.buttons["Вставить из буфера"]
+        XCTAssertTrue(pasteRow.exists)
+        pasteRow.swipeUp()
         let hidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: keyboard)
         wait(for: [hidden], timeout: 6)
         XCTAssertTrue(editor.exists)
