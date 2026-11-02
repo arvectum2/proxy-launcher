@@ -1,5 +1,5 @@
 task_id: APL-SMART-EXCL-020-REAL-ROUTING-20261102
-status: blocked
+status: in_progress
 goal: "Ensure APL iOS Smart Exclusions 2.0 performs actual validated dependent-domain direct routing without leaking third-party traffic through a shared CDN IP."
 definition_of_done:
   - "Trace actual iOS PacketTunnel DNS/excludedRoutes and dependency graph, document shared-IP risk and design safe enforceable policy."
@@ -7,7 +7,7 @@ definition_of_done:
   - "Implement safe narrow routing with fail-closed semantics; test positive linked-site bypass and negative unapproved same-IP hostname, IPv4/IPv6/DNS corner cases, rollback."
   - "Build current iOS source and run targeted Rust/Swift/Simulator QA, honestly documenting limits of what cannot be verified without a physical tunnel."
   - "Update technical roadmap, commit/push, close or accurately block checkpoint. Do not touch Apple 0.1.41 review or current ads/privacy/ASO."
-current: "PARTIAL implementation committed bd4c5e7f: known pending/rejected domain shared-IP guard is wired into PacketTunnel and real localhost TCP lab reproduces/mitigates detected overlap. Full exact-host bypass safety needs per-flow engine and physical iPhone VPN E2E, not achieved."
+current: "Resume APL-SMART-FLOW-001: independently implement source-pinned tun2proxy virtual-DNS-bound per-flow policy/classifier (no uncontrolled physical DIRECT), compile/test host/iOS. Apple TN3120 explicitly discourages Packet Tunnel acting as local proxy or forwarding to another interface: no unsupported listener or unproven bypass in App Store build."
 completed:
   - "Baseline 844358c8 clean; archived prior roadmap checkpoint."
   - "Read NE PacketTunnel excludedRoutes + pinned tun2proxy virtual DNS patch; confirmed IP-wide global bypass of unrelated raw-IP or independently resolved host. Apple documentation confirms excludedRoutes are destinations, not hostnames."
@@ -24,7 +24,7 @@ blockers:
   - "Apple NE excludedRoutes is IP-only; unknown domain on same CDN IP cannot be excluded by a DNS collision guard that only sees approved/pending/rejected first-party graph. No exact-host per-flow engine currently integrated in PacketTunnel."
   - "No actual updated iPhone PacketTunnel VPN egress/pcap proof from real site+related asset vs unapproved same-IP site: live lab is localhost TCP/HTTP model, not physical NE test. Existing app on iPhone is older signed 0.2.0(48) and does not include bd4c5e7f; in-place install + active VPN/profile mutation is nontrivial external side effect."
 
-last_verified_commit: "bd4c5e7f (partial implementation, iOS source tree 2eee919904ba807f9a900245dfc75e1d7e58fd9b; checkpoint-only commit follows)"
+last_verified_commit: "32ee0f01 (known collision guard verified, no exact per-flow routing yet)"
 test_results:
   - "113/113 full Swift Core tests PASS, including 7 new exact shared-IP collision and graph approval tests; iOS simulator ARM64 BUILD SUCCEEDED."
   - "8/8 specialized Python guard/source contracts PASS; live controlled loopback TCP server + proxy demonstrates direct IP leak before guard and proxy-only when conflict detected."
