@@ -17,8 +17,8 @@
 "Все найденные профили уже добавлены" = "Visi šie profiliai jau yra išsaugoti.";
 "Импортировать профили" = "Importuoti profilius.";
 "Все профили уже добавлены" = "Visi profiliai jau buvo pridėti.";
-"Не удалось сохранить профили. Изменения отменены" = "Nepavyko įrašyti profilių. Pakeitimai buvo atšaukti. Nepavyko įrašyti profilių.";
-"Не удалось полностью отменить импорт. Проверьте список профилей" = "Importo nebuvo galima visiškai atšaukti. Patikrinkite išsaugotus profilius. Patikrinkite išsaugotus profilius.";
+"Не удалось сохранить профили. Изменения отменены" = "Nepavyko išsaugoti profilių. Pakeitimai atšaukti.";
+"Не удалось полностью отменить импорт. Проверьте список профилей" = "Nepavyko visiškai atšaukti importavimo. Patikrinkite išsaugotų profilių sąrašą.";
 "Закрыть" = "Close Uždaryti";
 "Сканирование QR" = "QR kodų skaitytuvas.";
 "Отмена" = "Atšaukti";
@@ -29,7 +29,7 @@
 "Не удалось открыть камеру" = "Nepavyko atidaryti fotoaparato.";
 "Не удалось запустить сканирование" = "Nepavyko paleisti QR nuskaitymo.";
 "Открыть настройки камеры" = "Atidarykite fotoaparato nustatymus.";
-"Не удалось прочитать файл. Выберите текстовый файл UTF-8." = "Nepavyko nuskaityti failo. Pasirinkite UTF-8 teksto failą. Nepavyko nuskaityti failo. Pasirinkite UTF-8 teksto failą.";
+"Не удалось прочитать файл. Выберите текстовый файл UTF-8." = "Nepavyko perskaityti failo. Pasirinkite UTF-8 tekstinį failą.";
 "Поддерживаются ссылки http://, https:// и socks5://" = "Palaikomi saitai: http://, https:// ir socks5://.";
 "Поддерживаются ссылки HTTP/HTTPS/SOCKS5 и IP:порт:логин:пароль" = "Palaikomos: HTTP/HTTPS/SOCKS5 nuorodos ir IP:port:user:password.";
 "Некорректный адрес, порт или формат списка прокси" = "Netinkamas tarpinio serverio adresas, prievadas ar sąrašo formatas.";

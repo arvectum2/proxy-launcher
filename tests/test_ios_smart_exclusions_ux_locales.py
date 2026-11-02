@@ -1,4 +1,4 @@
-"""Check safety copy, RTL and 50-language fallback for Smart Exclusions 2."""
+"""Check safety copy, RTL and 64-language fallback for Smart Exclusions 2."""
 from pathlib import Path
 import re
 import unittest
@@ -28,7 +28,7 @@ class IOSSmartExclusionsUXLocaleTests(unittest.TestCase):
             self.assertIn('"'+lang+'": [',UX)
         self.assertIn('"Найти связанные домены": "חיפוש דומיינים קשורים"',UX)
         catalogs=list((IOS/'Resources').glob('*.lproj/Localizable.strings'))
-        self.assertEqual(len(catalogs),50)
+        self.assertEqual(len(catalogs),64)
         for p in catalogs:
             self.assertEqual(sum(line.startswith('"') and ' = ' in line for line in p.read_text(encoding='utf-8').splitlines()),155,p)
 

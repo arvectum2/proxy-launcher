@@ -17,8 +17,8 @@
 "Все найденные профили уже добавлены" = "Visi šie profili jau ir saglabāti.";
 "Импортировать профили" = "Importēt profilus";
 "Все профили уже добавлены" = "Visi profili jau ir pievienoti.";
-"Не удалось сохранить профили. Изменения отменены" = "Nevar saglabāt profilus. Izmaiņas tika atceltas. Nevar saglabāt profilus.";
-"Не удалось полностью отменить импорт. Проверьте список профилей" = "Importu nevar pilnībā atsaukt. Pārbaudiet saglabātos profilus. Importu nevar pilnībā atsaukt.";
+"Не удалось сохранить профили. Изменения отменены" = "Neizdevās saglabāt profilus. Izmaiņas tika atsauktas.";
+"Не удалось полностью отменить импорт. Проверьте список профилей" = "Importu neizdevās pilnībā atsaukt. Pārbaudiet saglabāto profilu sarakstu.";
 "Закрыть" = "Close Aizvērt";
 "Сканирование QR" = "QR kods skeneris.";
 "Отмена" = "Atcelt Cancel";
@@ -29,7 +29,7 @@
 "Не удалось открыть камеру" = "Nevar atvērt kameru.";
 "Не удалось запустить сканирование" = "Nevarēja sākt QR skenēšanu.";
 "Открыть настройки камеры" = "Atveriet kameras iestatījumus.";
-"Не удалось прочитать файл. Выберите текстовый файл UTF-8." = "Nevar nolasīt failu. Izvēlieties UTF-8 teksta failu. Nevar nolasīt failu. Izvēlieties UTF-8 teksta failu.";
+"Не удалось прочитать файл. Выберите текстовый файл UTF-8." = "Neizdevās nolasīt failu. Izvēlieties UTF-8 teksta failu.";
 "Поддерживаются ссылки http://, https:// и socks5://" = "Atbalstītās saites: http://, https:// un socks5://.";
 "Поддерживаются ссылки HTTP/HTTPS/SOCKS5 и IP:порт:логин:пароль" = "Atbalsta: HTTP/HTTPS/SOCKS5 saites un IP:port:user:password.";
 "Некорректный адрес, порт или формат списка прокси" = "Nederīga starpniekservera adrese, ports vai saraksta formāts.";

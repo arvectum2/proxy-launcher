@@ -4,11 +4,11 @@
 "Адрес домена, URL или IP" = "Domen, URL və ya IP ünvanı.";
 "Домен или IP" = "Domen və ya IP ünvanı.";
 "Можно вставить домен, URL или IP" = "Domenin, URL-i və ya IP ünvanını daxil edin.";
-"VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь." = "Yalnız əl ilə əlavə edilmiş və ya təsdiq edilmiş domenlər VPN-i keçər. Dəyişənləri qeyd edin və tətbiq etmək üçün yenidən əlaqə qurun.";
+"VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь." = "Yalnız əl ilə əlavə edilmiş və ya təsdiqlənmiş domenlər VPN-dən yan keçir. Dəyişiklikləri yadda saxlayın və tətbiq etmək üçün VPN-ə yenidən qoşulun.";
 "Добавленные вручную или подтверждённые домены обходят VPN. Сохраните изменения и переподключитесь." = "Yalnız əllə əlavə edilmiş və ya təsdiq edilmiş domenlər VPN-i keçər. Dəyişiklikləri qeyd edin və yenidən əlaqə qurun.";
 "Только вручную добавленные или подтверждённые домены обходят VPN." = "Yalnız əl ilə əlavə edilmiş və ya təsdiq edilmiş domenlər VPN-i keçər.";
 "Сохраните изменения и переподключитесь." = "Dəyişiklikləri qeyd edin və yenidən bağlanın.";
-"Обход VPN — только для разрешённых доменов." = "VPN bypass yalnız rəsmi domenlərə aiddir. VPN bypass yalnız rəsmi domenlərə aiddir.";
+"Обход VPN — только для разрешённых доменов." = "VPN-dən yan keçmək yalnız icazə verilmiş domenlər üçün mümkündür.";
 "Сохраните и переподключитесь." = "Qeyd edin və yenidən qoşun.";
 "Изменения вступят в силу после сохранения и переподключения VPN." = "Dəyişənlər VPN-i qeyd edib yenidən bağladıqdan sonra qüvvəyə minir.";
 "Подробнее о правилах обхода" = "Bypass qaydaları haqqında daha çox məlumat əldə edin.";
@@ -26,7 +26,7 @@
 "Связанные домены (требуют подтверждения)" = "Bağlı domenlər (təsdiq tələb olunur)";
 "Связи хранятся локально 7 дней. Повторный анализ обновляет дату наблюдения, но не меняет ваше решение. Сторонние CDN не обходятся автоматически." = "Gözləmələr bu cihazda yeddi gün qalır. Yenidən skan etmək heç vaxt sizin razılığınızı dəyişmir. Üçüncü tərəf CDN-ləri heç vaxt avtomatik olaraq keçilmir.";
 "Прямой" = "Düzgün və doğrudan.";
-"Ожидает" = "Dəyişdirilməyən gözlənilir.";
+"Ожидает" = "Gözləyir";
 "Отклонён" = "Rədd olundu.";
 "HTML и сеть · высокая уверенность" = "HTML və şəbəkələr · yüksək etibarlılıq";
 "Ресурс HTML · средняя уверенность" = "HTML resursu · orta etibarlılıq";

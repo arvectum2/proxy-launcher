@@ -7,8 +7,8 @@
 "VPN обходят только добавленные вручную или подтверждённые домены. Для применения сохраните изменения и переподключитесь." = "Tik rankiniu būdu pridėti arba patvirtinti domenai apeina VPN. Išsaugokite pakeitimus ir prisijunkite iš naujo, kad jie būtų taikomi.";
 "Добавленные вручную или подтверждённые домены обходят VPN. Сохраните изменения и переподключитесь." = "Tik rankiniu būdu pridėti arba patvirtinti domenai apeina VPN. Išsaugokite pakeitimus ir prisijunkite iš naujo.";
 "Только вручную добавленные или подтверждённые домены обходят VPN." = "Tik rankiniu būdu pridėti arba patvirtinti domenai apeina VPN.";
-"Сохраните изменения и переподключитесь." = "Išsaugokite pakeitimus ir vėl prisijunkite. Išsaugokite pakeitimus ir vėl prisijunkite.";
-"Обход VPN — только для разрешённых доменов." = "VPN apeigų funkcija taikoma tik įgaliotiems domenams.";
+"Сохраните изменения и переподключитесь." = "Išsaugokite pakeitimus ir vėl prisijunkite.";
+"Обход VPN — только для разрешённых доменов." = "VPN apeinamas tik leidžiamiems domenams.";
 "Сохраните и переподключитесь." = "Išsaugokite ir vėl prisijunkite. Išsaugoti ir vėl prisijungti.";
 "Изменения вступят в силу после сохранения и переподключения VPN." = "Pakeitimai įsigalioja išsaugojus ir iš naujo prisijungus VPN.";
 "Подробнее о правилах обхода" = "Daugiau apie apeigų taisykles.";

@@ -17,8 +17,8 @@
 "Все найденные профили уже добавлены" = "Bütün bu profillər artıq qeyd edilmişdir.";
 "Импортировать профили" = "Proqramları idxal profilləri.";
 "Все профили уже добавлены" = "Bütün profillər artıq əlavə edilmişdir.";
-"Не удалось сохранить профили. Изменения отменены" = "Proqramlar qeyd edilə bilmədi. Dəyişənlər geri qaytarıldı. Proqramlar qeyd edilə bilmədi.";
-"Не удалось полностью отменить импорт. Проверьте список профилей" = "İdxal tamamilə geri qaytarıla bilmədi. Qeyd edilmiş profilləri yoxlayın. Qeyd edilmiş profilləri yoxlayın.";
+"Не удалось сохранить профили. Изменения отменены" = "Profilləri saxlamaq mümkün olmadı. Dəyişikliklər geri qaytarıldı.";
+"Не удалось полностью отменить импорт. Проверьте список профилей" = "İdxalı tam geri qaytarmaq mümkün olmadı. Saxlanmış profillərin siyahısını yoxlayın.";
 "Закрыть" = "Bağlayın.";
 "Сканирование QR" = "QR skaner";
 "Отмена" = "Cancel";

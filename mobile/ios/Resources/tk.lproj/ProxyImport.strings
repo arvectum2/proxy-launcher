@@ -4,7 +4,7 @@
 "Импорт прокси" = "Proksileri import ediň";
 "Импортировать прокси" = "Proksileri import ediň";
 "Ссылка или список прокси" = "Proksi baglanyşygy ýa-da sanawy";
-"Вставьте ссылку или несколько ссылок — по одной в строке. HTTP, HTTPS и SOCKS5." = "Hatda bir proksi baglanyşygyny goşuň. HTTP, HTTPS we SOCKS5 goldanylýar. HTTP, HTTPS we SOCKS5 goldanylýar.";
+"Вставьте ссылку или несколько ссылок — по одной в строке. HTTP, HTTPS и SOCKS5." = "Hatda bir proksi baglanyşygyny goşuň. HTTP, HTTPS we SOCKS5 goldanylýar.";
 "Текст ссылок на прокси" = "Proksi baglanyşyk metinde.";
 "Вставить из буфера" = "Buferiň içinden ýap";
 "Буфер обмена не содержит ссылки на прокси" = "Buferde hiç hili proksi baglanyşygy tapylmady.";
@@ -13,12 +13,12 @@
 "Проверить" = "Öňünden görmek";
 "Предпросмотр" = "Öňki görmek Preview";
 "Новых профилей к добавлению:" = "Eklenjek täze profiller:: new profiles to add:";
-"Повторяющиеся и существующие профили будут пропущены" = "Ikinji gezek we bar bolan profiller geçmeli däldir.";
+"Повторяющиеся и существующие профили будут пропущены" = "Gaýtalanýan we öňden bar bolan profiller geçirilýär.";
 "Все найденные профили уже добавлены" = "Bu profilleriň ählisi öňden gaýdypdyr.";
 "Импортировать профили" = "Profiles import profiles";
 "Все профили уже добавлены" = "Bu profilleriň ählisi öňden hem goşuldy.";
-"Не удалось сохранить профили. Изменения отменены" = "Profiller gaýd edilip bilmedi. Düýpli üýtgetmeler gaýtaryldy. Profiller gaýd edilip bilmedi.";
-"Не удалось полностью отменить импорт. Проверьте список профилей" = "Daşamak doly gaýtarylmady. Gaýd edilen profilleri barlaň.";
+"Не удалось сохранить профили. Изменения отменены" = "Profilleri saklap bolmady. Üýtgeşmeler yzyna gaýtaryldy.";
+"Не удалось полностью отменить импорт. Проверьте список профилей" = "Importy doly yzyna gaýtaryp bolmady. Saklanan profilleriň sanawyny barlaň.";
 "Закрыть" = "Jaň et";
 "Сканирование QR" = "QR skaner";
 "Отмена" = "Berjaý etmäni bes et";

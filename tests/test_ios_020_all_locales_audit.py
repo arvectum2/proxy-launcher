@@ -1,4 +1,4 @@
-"""Source-only localization release checks for all 50 iOS languages."""
+"""Source-only localization release checks for all 64 iOS languages."""
 import sys, unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -7,16 +7,16 @@ from ios_020_locale_audit import analyze, read_strings
 class AllLocalesAudit(unittest.TestCase):
     def test_complete_legacy_catalogs_and_safe_placeholders(self):
         x=analyze()
-        self.assertEqual((x['count'],x['old_keys']),(50,155))
+        self.assertEqual((x['count'],x['old_keys']),(64,155))
         self.assertFalse(x['resource_errors'])
         for lang in x['locales']:
             self.assertEqual((lang['legacy'],lang['legacy_missing']),(155,0),lang['locale'])
-    def test_all_50_locales_translate_all_additive_and_feature_tables(self):
+    def test_all_64_locales_translate_all_additive_and_feature_tables(self):
         x=analyze()
         self.assertFalse(x['unhandled_dynamic'])
         self.assertEqual(x['en_supp'],x['ru_supp'])
         self.assertEqual(x['new_keys'],98)
-        self.assertEqual(x['quickactions_locales'],50)
+        self.assertEqual(x['quickactions_locales'],64)
         self.assertFalse(x['unchanged_english'])
         for lang in x['locales']:
             self.assertEqual(lang['native_core_short'],4,lang['locale'])

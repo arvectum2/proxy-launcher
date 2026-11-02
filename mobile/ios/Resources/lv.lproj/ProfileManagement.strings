@@ -21,12 +21,12 @@
 "В избранное" = "Pievienot favorītiem";
 "Новая группа" = "Jauna grupa.";
 "Название группы" = "Grupas nosaukums";
-"Группы изменяют только организацию списка, не маршрутизацию VPN." = "Grupas tikai kārto jūsu sarakstu un neietekmē VPN maršrutēšanu.Grupas tikai organizē jūsu sarakstu un neietekmē VPN maršrutēšanu.";
-"Удалить выбранные прокси?" = "Dzēst izvēlētos starpniekserverus? Dzēst izvēlētos starpniekserverus?";
+"Группы изменяют только организацию списка, не маршрутизацию VPN." = "Grupas maina tikai saraksta kārtojumu, nevis VPN maršrutēšanu.";
+"Удалить выбранные прокси?" = "Dzēst izvēlētos starpniekserverus?";
 "Удалить %d профилей" = "Dzēst %d profilus";
 "Профили и сохранённые пароли будут удалены без возможности восстановления." = "Profili un saglabātās paroles tiks neatgriezeniski izdzēsti.";
 "Проверено %d из %d профилей" = "Pārbaudītas %d no %d profiliem.";
-"Между ручными проверками подождите 10 секунд." = "Uzgaidiet 10 sekundes starp manuālām pārbaudēm. Manuālas pārbaudes jāveic 10 sekundes pēc kārtas.";
+"Между ручными проверками подождите 10 секунд." = "Starp manuālām pārbaudēm uzgaidiet 10 sekundes.";
 "Удалить безвозвратно" = "Neatgriezeniski dzēst.";
 "Выбрано %d из %d" = "Izvēlēts %d no %d";
 "Выбрать все видимые" = "Atlasiet visu redzamo.";
@@ -70,7 +70,7 @@
 "Снять выбор" = "Notīrīt skaidru.";
 "Действия" = "Darbības";
 "Удалить" = "Dzēst";
-"Удаление требует отключить VPN" = "Atvienojiet VPN, lai dzēstu, lai dzēstu VPN, lai dzēstu";
+"Удаление требует отключить VPN" = "Pirms profilu dzēšanas atvienojiet VPN.";
 "Новый пароль" = "Jauna parole";
 "Оставьте пустым, чтобы сохранить прежний пароль" = "Atstājiet tukšu, lai saglabātu esošo paroli.";
 "Реклама в приложении" = "In-app reklāma lietotnēs.";
@@ -94,9 +94,9 @@
 "Закрыть" = "Close Aizvērt";
 "Отключите VPN перед удалением профилей" = "Pirms profilu dzēšanas atvienojiet VPN.";
 "Сначала добавьте хотя бы один прокси" = "Pirms savienojuma izveides pievienojiet starpniekservera profilu.";
-"Не все профили удалены:" = "Dažus profilus neizdevās izdzēst: daži profili netika dzēsti.";
-"VPN: не удалось восстановить прежние исключения." = "VPN: Nevar atjaunot iepriekšējos izņēmumus. VPN: Nevar atjaunot iepriekšējos izņēmumus.";
-"Прежние исключения восстановлены, но VPN нужно подключить заново:" = "Iepriekšējie izņēmumi tika atjaunoti, bet VPN ir jāatjauno savienojums: jāatjauno savienojums: jāatjauno savienojums: jāatjauno savienojums: jāatjauno savienojums: jāatjauno savienojums:";
+"Не все профили удалены:" = "Dažus profilus neizdevās izdzēst:";
+"VPN: не удалось восстановить прежние исключения." = "VPN: Nevar atjaunot iepriekšējos izņēmumus.";
+"Прежние исключения восстановлены, но VPN нужно подключить заново:" = "Iepriekšējie izņēmumi ir atjaunoti, taču VPN ir jāpievieno no jauna:";
 "Быстрые команды VPN" = "VPN ātrās darbības ir ātras darbības.";
 "В приложении «Команды» добавьте любое из трёх действий APL. Они выполняются только по вашему запуску и используют сохранённые настройки прокси." = "Pievienojiet jebkuru no šīm APL darbībām saīsnēm. Tās tiek palaistas tikai tad, kad jūs tās aktivizējat, un izmanto jūsu saglabātos starpniekservera iestatījumus.";
 "Доступно с iOS 16. При отключении сети или неготовности VPN команда сообщит об ошибке. Команды не добавляют и не покупают прокси." = "Nepieciešama operētājsistēma iOS 16. Komandas ziņo par kļūdu, ja VPN nav pieejams. Tās neveido vai neiegādājas starpniekserverus.";

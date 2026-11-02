@@ -5,7 +5,7 @@
 "Выбрать" = "Valige";
 "Проверка…" = "Kontrollimine...";
 "Проверить следующие 10" = "Kontrollige järgmise 10.";
-"Проверка партиями до 10 профилей расходует немного трафика прокси." = "Kontrollid käivitatakse kuni 10 puhverserveri partiidena ja kasutavad vähe liiklust. Kontrollid käivad kuni 10 puhverserveri partiidena ja kasutavad vähe liiklust. Kontrollid kasutavad vähe liiklust.";
+"Проверка партиями до 10 профилей расходует немного трафика прокси." = "Kuni kümne profiili kaupa kontrollimine kasutab väikest hulka puhverserveri liiklust.";
 "Поиск по названию или адресу" = "Otsi nime või aadressi järgi.";
 "Нет профилей по выбранному фильтру" = "Filtrile ei vasta ükski profiil.";
 "Удалить выбранные" = "Kustuta valitud";
@@ -26,7 +26,7 @@
 "Удалить %d профилей" = "Kustuta %d profiili";
 "Профили и сохранённые пароли будут удалены без возможности восстановления." = "Profiilid ja salvestatud paroolid kustutatakse jäädavalt.";
 "Проверено %d из %d профилей" = "Kontrolliti %d profiili %d profiilist.";
-"Между ручными проверками подождите 10 секунд." = "Oodake käsitsi kontrollide vahel 10 sekundit. Oodake 10 sekundit.";
+"Между ручными проверками подождите 10 секунд." = "Oodake käsitsi kontrollide vahel 10 sekundit.";
 "Удалить безвозвратно" = "Kustutage jäädavalt.";
 "Выбрано %d из %d" = "Valitud %d %d-st";
 "Выбрать все видимые" = "Valige kõik nähtavad.";
@@ -44,7 +44,7 @@
 "Зашифрованный файл выбран" = "Valitud krüptitud fail.";
 "Пароль резервной копии" = "Varundusparoollause";
 "Добавить профили из копии" = "Lisa profiilid varukoopiast.";
-"Существующие профили не перезаписываются. Совпадающие пропускаются. Перед восстановлением отключите VPN." = "Olemasolevad profiilid ei kirjutata kunagi üle. Duplikaadid jäetakse vahele. Katkestage enne taastamise alustamist VPN-ühendus.";
+"Существующие профили не перезаписываются. Совпадающие пропускаются. Перед восстановлением отключите VPN." = "Olemasolevaid profiile ei kirjutata üle. Duplikaadid jäetakse vahele. Enne taastamist katkestage VPN-ühendus.";
 "Зашифрованная копия сохранена" = "Krüptitud varukoopia salvestatakse krüptitud varundusse.";
 "Добавлено профилей: %d" = "Lisatud profiilid: %d";
 "Пароль резервной копии должен содержать не менее 12 символов" = "Varundusparool peab olema vähemalt 12 tähemärki pikk.";
@@ -57,9 +57,9 @@
 "Проверить выбранные" = "Märkige valitud märkeruut.";
 "Выберите от 1 до 10 профилей" = "Valige 1–10 profiili.";
 "Для одной проверки выберите не более 10 профилей" = "Valige kontrolli kohta maksimaalselt 10 profiili.";
-"Добавить" = "Lisage oma lemmikud Lisage lemmikud";
+"Добавить" = "Lisa";
 "Импорт" = "Impordi importimine";
-"Копия" = "Varundamine Backup";
+"Копия" = "Varukoopia";
 "Нет прокси" = "Puhverservereid pole.";
 "Сменить" = "Muuda";
 "Прокси" = "Puhverserver (Proxy)";
@@ -70,7 +70,7 @@
 "Снять выбор" = "Tühjendage selge.";
 "Действия" = "Tegevused Actions";
 "Удалить" = "Kustuta";
-"Удаление требует отключить VPN" = "VPN-i kustutamiseks katkestage ühendus VPN-iga.";
+"Удаление требует отключить VPN" = "Enne profiilide kustutamist katkestage VPN-ühendus.";
 "Новый пароль" = "Uus salasõna";
 "Оставьте пустым, чтобы сохранить прежний пароль" = "Olemasoleva parooli säilitamiseks jätke see tühjaks.";
 "Реклама в приложении" = "Rakendusesisene reklaam";
@@ -94,7 +94,7 @@
 "Закрыть" = "Sulge";
 "Отключите VPN перед удалением профилей" = "Enne profiilide kustutamist katkestage VPN-ühendus.";
 "Сначала добавьте хотя бы один прокси" = "Enne ühenduse loomist lisage puhverserveri profiil.";
-"Не все профили удалены:" = "Mõned profiilid ei saanud kustutada: mõned profiilid ei saanud kustutada.";
+"Не все профили удалены:" = "Mõnda profiili ei õnnestunud kustutada:";
 "VPN: не удалось восстановить прежние исключения." = "VPN: eelmisi välistusi ei õnnestunud taastada. VPN: eelmiste välistuste taastamine nurjus.";
 "Прежние исключения восстановлены, но VPN нужно подключить заново:" = "Eelmised välistused taastati, kuid VPN tuleb uuesti ühendada: ühendus tuleb uuesti luua.";
 "Быстрые команды VPN" = "VPN kiired toimingud";

@@ -26,7 +26,7 @@
 "Удалить %d профилей" = "Ištrinkite %d profilius.";
 "Профили и сохранённые пароли будут удалены без возможности восстановления." = "Profiliai ir išsaugoti slaptažodžiai bus visam laikui ištrinti.";
 "Проверено %d из %d профилей" = "Patikrinta %d iš %d profilių.";
-"Между ручными проверками подождите 10 секунд." = "Palaukite 10 sekundžių tarp patikrinimų rankiniu būdu. Palaukite 10 sekundžių tarp patikrinimų rankiniu būdu.";
+"Между ручными проверками подождите 10 секунд." = "Tarp rankinių patikrinimų palaukite 10 sekundžių.";
 "Удалить безвозвратно" = "Visam laikui ištrinkite visam laikui.";
 "Выбрано %d из %d" = "Pasirinkta %d iš %d";
 "Выбрать все видимые" = "Pažymėkite visus matomus elementus.";
@@ -44,13 +44,13 @@
 "Зашифрованный файл выбран" = "Pasirinktas užšifruotas failas.";
 "Пароль резервной копии" = "Atsarginė slaptafrazė";
 "Добавить профили из копии" = "Pridėti profilius iš atsarginės kopijos.";
-"Существующие профили не перезаписываются. Совпадающие пропускаются. Перед восстановлением отключите VPN." = "Esami profiliai niekada neperrašomi. Dublikatai praleidžiami. Prieš atkurdami atjunkite VPN. Prieš atkurdami atjunkite VPN.";
+"Существующие профили не перезаписываются. Совпадающие пропускаются. Перед восстановлением отключите VPN." = "Esami profiliai neperrašomi. Dublikatai praleidžiami. Prieš atkurdami atjunkite VPN.";
 "Зашифрованная копия сохранена" = "Išsaugota užšifruota atsarginė kopija.";
 "Добавлено профилей: %d" = "Pridėta profilių: %d";
 "Пароль резервной копии должен содержать не менее 12 символов" = "Atsarginę slaptafrazę turi sudaryti bent 12 simbolių.";
 "Файл резервной копии повреждён или имеет неподдерживаемый формат" = "Atsarginė kopija sugadinta arba jos formatas nepalaikomas.";
 "Неверный пароль или повреждённая резервная копия" = "Neteisinga slaptafrazė arba sugadinta atsarginė kopija.";
-"Слишком много прокси для резервной копии (максимум 200)" = "Per daug profilių (ne daugiau kaip 200) Per daug profilių (ne daugiau kaip 200)";
+"Слишком много прокси для резервной копии (максимум 200)" = "Per daug profilių atsarginei kopijai (daugiausia 200).";
 "Не удалось безопасно зашифровать резервную копию" = "Nepavyko saugiai užšifruoti atsarginės kopijos.";
 "Восстановление прервано; часть новых профилей не удалось удалить" = "Atkūrimas sustabdytas; kai kurių naujų profilių nebuvo galima pašalinti.";
 "Отключите VPN перед восстановлением резервной копии" = "Atjunkite VPN prieš atkurdami atsarginę kopiją.";
@@ -59,7 +59,7 @@
 "Для одной проверки выберите не более 10 профилей" = "Pasirinkite ne daugiau kaip 10 profilių vienam patikrinimui.";
 "Добавить" = "Pridėti";
 "Импорт" = "Importas";
-"Копия" = "Atsarginės kopijos kūrimas";
+"Копия" = "Atsarginė kopija";
 "Нет прокси" = "Nėra tarpinių serverių.";
 "Сменить" = "Keisti";
 "Прокси" = "Įgaliotasis serveris (proxy)";
@@ -74,7 +74,7 @@
 "Новый пароль" = "Naujas slaptažodis";
 "Оставьте пустым, чтобы сохранить прежний пароль" = "Palikite tuščią, jei norite išsaugoti esamą slaptažodį.";
 "Реклама в приложении" = "Reklama programėlėse";
-"В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений." = "Programoje rodomi „Yandex“ skelbimai. „Yandex“ SDK gali apdoroti įrenginio techninius duomenis, kad įkeltų skelbimus. „Yandex“ SDK gali apdoroti įrenginio techninius duomenis, kad įkeltų skelbimus.";
+"В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений." = "Programoje rodomi „Yandex“ skelbimai. „Yandex“ SDK gali apdoroti įrenginio techninius duomenis, kad įkeltų skelbimus.";
 "Откройте «Профили» → «Добавить». Укажите адрес, порт и тип прокси. Логин и пароль нужны только при авторизации." = "Atidarykite Profiliai → Pridėti. Įveskite tarpinį kompiuterį, prievadą ir protokolą. Įveskite vartotojo vardą ir slaptažodį tik jei reikia.";
 "Домой" = "Pradžia";
 "Тема" = "Tema";
@@ -94,8 +94,8 @@
 "Закрыть" = "Close Uždaryti";
 "Отключите VPN перед удалением профилей" = "Prieš ištrindami profilius, atjunkite VPN.";
 "Сначала добавьте хотя бы один прокси" = "Prieš prisijungdami pridėkite tarpinio serverio profilį.";
-"Не все профили удалены:" = "Kai kurių profilių nebuvo galima ištrinti: kai kurie profiliai buvo ištrinti.";
-"VPN: не удалось восстановить прежние исключения." = "VPN: Nepavyko atkurti ankstesnių išimčių. VPN: Nepavyko atkurti ankstesnių išimčių.";
+"Не все профили удалены:" = "Nepavyko ištrinti kai kurių profilių:";
+"VPN: не удалось восстановить прежние исключения." = "VPN: Nepavyko atkurti ankstesnių išimčių.";
 "Прежние исключения восстановлены, но VPN нужно подключить заново:" = "Ankstesni išskyrimai buvo atkurti, bet VPN turi būti iš naujo prijungtas: reikia iš naujo prisijungti.";
 "Быстрые команды VPN" = "VPN greiti veiksmai";
 "В приложении «Команды» добавьте любое из трёх действий APL. Они выполняются только по вашему запуску и используют сохранённые настройки прокси." = "Pridėkite bet kurį iš šių APL veiksmų į nuorodas. Jie paleidžiami tik tada, kai juos suaktyvinate, ir naudoja išsaugotus tarpinio serverio nustatymus.";

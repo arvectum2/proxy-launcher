@@ -8,8 +8,8 @@
 "Добавленные вручную или подтверждённые домены обходят VPN. Сохраните изменения и переподключитесь." = "Ainult käsitsi lisatud või heaks kiidetud domeenid mööduvad VPN-ist. Salvestage muudatused ja looge uuesti ühendus.";
 "Только вручную добавленные или подтверждённые домены обходят VPN." = "Ainult käsitsi lisatud või kinnitatud domeenid mööduvad VPN-ist.";
 "Сохраните изменения и переподключитесь." = "Salvestage muudatused ja looge uuesti ühendus.";
-"Обход VPN — только для разрешённых доменов." = "VPN-i ümbersõit kehtib ainult volitatud domeenidele.";
-"Сохраните и переподключитесь." = "Salvestage ja ühendage uuesti. Salvestage ja ühendage uuesti.";
+"Обход VPN — только для разрешённых доменов." = "VPN-ist möödumine on lubatud ainult kinnitatud domeenidele.";
+"Сохраните и переподключитесь." = "Salvestage ja ühendage uuesti.";
 "Изменения вступят в силу после сохранения и переподключения VPN." = "Muudatused jõustuvad pärast salvestamist ja uuesti ühendamist VPN.";
 "Подробнее о правилах обхода" = "Lisateave möödahiilimisreeglite kohta.";
 "В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения." = "Ainult käsitsi sisestatud saidid ja selgesõnaliselt heaks kiidetud seotud hostid mööduvad puhverserverist. Ainuüksi skannimine ei muuda marsruute. Salvesta rakendamiseks ja ühenda uuesti.";
