@@ -9,11 +9,15 @@ definition_of_done:
 completed:
   - "Verified repo HEAD 6013c0c5 clean, current 53 UI languages, all 50 Apple ASO metadata locales, and existing 0.1.41 Apple review preserved."
   - "Determined 15 former USSR republics require 11 additional primary UI languages. Existing ru/uk/uz/ro count for Russia/Ukraine/Uzbekistan/Moldova; add be/et/lv/lt/ka/hy/az/kk/tk/ky/tg."
-current: "Prepare 11 full catalog drafts and integrate UI/locales, run dedicated safety, language and build audits."
+  - "Wired 64 AppLanguage picker cases/native labels and system-locale match, 64 RSYA advertisement labels (including prior or/sl/uk), iOS language manifest and 64-aware tests. Swift Foundation typecheck PASS."
+  - "First five new resource sets be/et/lv/lt/ka 5 tables × 344 entries done and audited 0 format/technical identifier regressions, manual corrections applied. Remaining hy/az/kk/tk/ky/tg translating locally on Mac mini using Apache-2.0 MADLAD400 3B int8; cache persisted under private SSD temporary directory."
+  - "Documented exact mapping of 15 countries to 15 native languages, Apple ASO stays at 50 and screenshots 100 unchanged; no Apple or user device actions."
+current: "5/11 new source languages be, et, lv, lt, ka fully generated and technical/syntax QA PASS; 6/11 more being generated using two local translation workers; metadata/source UI changes remain uncommitted until all 11 present. Continue new language QA then XcodeGen build."
 pending:
   - "Generate and QA 11 localization catalogs with all keys and immutable token safety."
   - "Wire 64-language picker, manifest, build and platform-aware code; update tests and roadmap."
   - "Run resource and build checks, correct failures, commit and close checkpoint."
 last_verified_commit: "6013c0c5"
-test_results: []
-resume_instruction: "Continue with 11 UI locale translations and tests. Do not add invented 11 ASO locale codes: App Store Connect supports exactly 50 metadata locales. Do not change Apple review 0.1.41, distribution, existing iPhone, privacy/ads or disabled Watchdog."
+test_results:
+  - "Swift typecheck mobile/ios/App/AppLocalization.swift PASS with 64 cases. First five completed new language catalogs 344/344 entries each, placeholders/critical tokens 0 issues. 0 Apple metadata edits."
+resume_instruction: "Resume 64-language expansion from cached local Apache-2.0 MADLAD400 translators: worker logs /Volumes/ArvectumSSD/Arvectum/tmp/apl-madlad400-20261102/translation-remaining.log and translation-central.log; do not duplicate already completed be/et/lv/lt/ka catalogs (audited PASS). Remaining hy/az/kk/tk/ky/tg in progress, 344×5 resources. Finish token/format/native script QA and correct; re-generate Xcode project after all 11 .lproj present; iOS Simulator build and targeted suite; update roadmap and mark completed only after all pass. Apple ASO 50 and screenshots 100 must remain unchanged. Do not change current iOS 0.1.41 review, App Store metadata, iPhone, privacy/ads or disabled Watchdog."
