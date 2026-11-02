@@ -1,0 +1,36 @@
+task_id: APL-IOS-020-FINAL-64-UIUX-20261102
+status: completed
+goal: "Final cross-locale iOS 0.2.0 UI/UX acceptance of all 64 existing languages, including 11 newly localized former Soviet republic languages."
+definition_of_done:
+  - "Build current iOS 0.2.0 (48) debug bundle for isolated iPhone simulator; prove all 64 UI locale bundles are included, no user device or Apple server mutation."
+  - "Exercise all 64 language variants through rendered Settings, Home, Profiles and Exclusions navigation and collect evidence; include RTL, longer scripts and language picker." 
+  - "Assess layout, clipping risk, text wrapping, tab bar, scroll reachability, tap targets, Dynamic Type and keyboard behavior at representative devices/sizes."
+  - "Fix reproducible source-localization/UI layout defects when safely feasible, run targeted UI and localization tests, document residual issues instead of inventing pass."
+  - "Update roadmap, commit and push source and results, finalize checkpoint; keep Draft PR #296, Apple 0.1.41 review, privacy/ads and live iPhone unchanged."
+completed:
+  - "Restored repo baseline 05f7e696 clean; prior 11-language semantic edit complete; 64 UI languages/320 .strings and 50 offline ASO variants verified."
+  - "Captured 128 nonblank actual compact iPhone SE screenshots (Home + Settings for all 64 languages); initial fast splash captures excluded and recaptured after full render (smallest screenshot 75 KB)."
+  - "First physical UI automation test on isolated iOS Simulator: 64/64 localized tabs and Settings reachability PASS (482.722s); deep test harness needed modal dismissal and was corrected for retest."
+  - "Visual review identified overlong bottom tabs in both existing and new locales; added compact native tab labels for 28 locales, source contract verifies all 64x4 names and bounds."
+  - "Implemented full-height accessibility-aware language/theme menus with preserved model bindings and accessibility identifiers, normal compact theme auto-menu for >9-character segment options; corrected malformed settings and theme strings."
+  - "All-64 XCUITest tabs/settings navigation PASS (482.722s); deeper 16-language Settings->Exclusions->Profiles->Import UI test PASS (253.256s), after correcting modal close in test fixture."
+  - "11 post-Soviet locale Accessibility XXL XCTest PASS (99.215s) plus German/Arabic LTR/RTL XXL PASS (30.422s); 11 final XXL screenshots after full-height menu change show properly wrapped selected values."
+  - "Keyboard secure/numeric/multiline/domain, CompactSettings and UXReadOnlyNavigation XCUITest PASS (3/3). 8 real dark-theme Home+Settings QA screenshots of ru, tg, ka, ar verified."
+  - "Final evidence written docs/APL_IOS_020_FINAL_64_LOCALE_UIUX_QA_2026-11-02.md; two real 11-language screenshot contact sheets in docs/qa/ios020; 50 ASO locales/100 screenshots unchanged. Code and QA commit c46af289."
+current: "COMPLETE: iOS 0.2.0 all-64 UI/UX visual and functional locale acceptance. All representative deep, XXL, dark-theme and keyboard QA pass; implementation and evidence committed c46af289."
+pending: []
+future_release_gates:
+  - "Independent native-speaker editorial signoff for low-resource translations is separate from functional UI/UX acceptance."
+  - "Create new signed production IPA only when owner approves iOS 0.2.0 submission and 0.1.41 Apple review status allows it; do not use previous signed IPA."
+
+last_verified_commit: "c46af289 (verified iOS source tree a95f3171f2abed80a9cf05197314f276fcb45146; checkpoint-only completion commit comes next)"
+test_results:
+  - "iPhone SE 3 iOS 27.0: 128/128 full-rendered genuine Home/Settings screenshots covering 64/64 languages. Initial 25KB splash captures discarded; retake smallest 75KB."
+  - "64/64 XCUITest navigation tab labels, visibility and Settings PASS (482.722 sec); initial separate deep test harness fixed to dismiss sheet before navigation."
+  - "16/16 deep XCUITest Settings/Exclusions/Profiles/Import PASS (253.256 sec) after fixing harness."
+  - "11/11 new locale Accessibility XXL plus de/ar LTR/RTL XCUITest PASS (99.215 sec + 30.422 sec); 11 final XXL pictures show full selected language/theme text."
+  - "3/3 KeyboardDismiss, CompactSettings and UXReadOnlyNavigation XCUITest PASS, 8 dark-theme captures visually inspected."
+  - "39/39 targeted Python tests PASS, 320/320 plutil -lint PASS, 64-language ios_020_locale_audit PASS and ios_active_release_preflight PASS; ARM64 iOS Simulator build 64 .lproj PASS."
+  - "All Apple App Store metadata/100 screenshots, privacy label, Yandex advertising, Apple 0.1.41 review, real iPhone and VPN data unchanged. No upload, merge or Watchdog change."
+
+resume_instruction: "Task COMPLETE at code commit c46af289 (iOS 0.2.0 48, source a95f3171f2abed80a9cf05197314f276fcb45146), comprehensive report docs/APL_IOS_020_FINAL_64_LOCALE_UIUX_QA_2026-11-02.md. 64/64 UI tab+Settings XCTest PASS; 16 deep locale screens PASS, 11 XXL plus RTL de/ar PASS, 3 keyboard/settings/navigation PASS, 39 Python tests and 320 .strings lint PASS; 128 valid SE screenshots, 11 post-fix XXL, dark-mode samples. Original all64 invocation had test-harness modal dismissal error but deep test rerun independently PASS. Do not repeat unless UI source changes. Remaining separate publication gates: independent human native-language copy QA, owner authorization for fresh signed 0.2.0 IPA, review Apple 0.1.41 status. No live Apple, privacy/ads, user device, Watchdog or merge actions performed."
