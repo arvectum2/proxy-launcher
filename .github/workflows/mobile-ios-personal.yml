@@ -15,6 +15,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate active iOS source identity
+        run: python3 scripts/ios_active_release_preflight.py
+      - name: Active source negative regression tests
+        run: python3 -m unittest discover -s tests -p 'test_ios_020_active_release_preflight.py'
       - name: Core policy tests
         run: swift test --package-path mobile/ios
 
@@ -22,6 +26,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate active iOS source identity
+        run: python3 scripts/ios_active_release_preflight.py
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Build pinned patched tun2proxy XCFramework
@@ -52,6 +58,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate active iOS source identity
+        run: python3 scripts/ios_active_release_preflight.py
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Build pinned patched tun2proxy XCFramework
