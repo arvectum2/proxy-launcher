@@ -1,0 +1,26 @@
+task_id: APL-ROADMAP-RECONCILIATION-20261102
+status: completed
+goal: "Reconcile current Proxy Launcher engineering and release roadmap with completed iOS 64-language UI/UX acceptance and remaining mobile, desktop, Proxifier and QRVPN work; publish a clear ordered next-step backlog."
+definition_of_done:
+  - "Read authoritative current checkpoint, active iOS branch and roadmap/release documents, distinguish historical notes from actual tasks and the status of already completed work."
+  - "Create a single concise current prioritized status and execution plan, with task IDs, per-release boundaries, dependencies, Definition of Done and owner/Apple gates."
+  - "Update docs/ROADMAP.md and the formerly stale iOS 0.2.0 Proxifier/QRVPN/markets plan to consistently state 64 UI/50 ASO completion and Windows per-app implementation baseline."
+  - "Validate edited files, cross-references and unchanged app source, commit/push clean Draft PR branch, and mark completed checkpoint."
+completed:
+  - "Verified clean branch feat/ios-020-product-plan-20261101 at de803464 and completed 64-locale UI/UX checkpoint; archived it to .agent/checkpoints."
+  - "Read current ROADMAP, global-feature plan, Smart Exclusions 2.0 and mobile/desktop release sections. Confirmed stale historic 50/53 UI locale todo is now completed at 64 UI/50 ASO."
+current: "COMPLETE: canonical ROADMAP top index and 63-line execution plan reconciled with 64 UI/50 ASO, 0.2.0 release gates, Windows WinDivert and merged macOS PR #274. Historical plan explicitly annotated; source code unchanged."
+pending: []
+future_execution:
+  - "Start APL-IOS-UPGRADE-020: obtain genuine 0.1.41 build artifact and run isolated 0.1.41 to 0.2.0 migration data-preservation matrix, without Apple upload."
+  - "In parallel create critical-string native editorial review package and begin clean-room Proxifier/QRVPN technical ADRs, separate from iOS release."
+  - "Read-only recheck Apple/RuStore review state and agreement before owner-authorized releases; no live state was inferred from historical documentation."
+
+last_verified_commit: "8dcab66e (roadmap docs verified; app source tree unchanged a95f3171f2abed80a9cf05197314f276fcb45146; completion checkpoint commit follows)"
+test_results:
+  - "Updated docs/ROADMAP.md canonical top queue, docs/APL_EXECUTION_PLAN_AFTER_IOS_64_UIUX_2026-11-02.md (63 lines), and annotated historical global features plan."
+  - "All local Markdown target references resolve (39+4+1 paths/links checked), 10 next-step task IDs present; 64 UI locales/320 .strings/50 ASO variants/100 screenshots inventory PASS."
+  - "Source preflight iOS 0.2.0 (48) PASS; no app code changes; git diff --check PASS and remote GitHub PR #296 OPEN/DRAFT and #274 MERGED confirmed."
+  - "No app testing needed: documentation-only update; no Apple App Review/RuStore live status assertions, device, production or watchdog change."
+
+resume_instruction: "Task COMPLETE. Updated current roadmap docs in docs/ROADMAP.md and docs/APL_EXECUTION_PLAN_AFTER_IOS_64_UIUX_2026-11-02.md at implementation-doc commit 8dcab66e. First next substantive task APL-IOS-UPGRADE-020: confirm genuine 0.1.41 release artifact and test isolated 0.1.41→0.2.0 migration incl Keychain/profiles/App Group/exclusions/backup; simultaneously safe preparatory native-editor review pack and clean-room APL-PROX-001 / APL-QRG-001 R&D if requested. macOS PR #274 is merged; verify live ASC before further action. Do not repeat 64-language and physical A→B→A tests, or touch Apple review 0.1.41, metadata, ads/privacy, iPhone/proxies, Watchdog, submit or merge without separate authorization."
