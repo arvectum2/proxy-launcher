@@ -8,8 +8,8 @@ CORE = ROOT / 'mobile/ios/SharedCore'
 
 class ProfilesRefactor(unittest.TestCase):
     def test_main_view_keeps_only_one_model_and_existing_sheets(self):
-        main = (APP / 'ContentView.swift').read_text()
-        library = (APP / 'ProfilesScreenView.swift').read_text()
+        main = (APP / 'ContentView.swift').read_text(encoding='utf-8')
+        library = (APP / 'ProfilesScreenView.swift').read_text(encoding='utf-8')
         self.assertIn('ProfilesScreenView(', main)
         self.assertIn('onImport: { importRequest = ProxyImportRequest(source: "") }', main)
         self.assertIn('editorProfile: $editorProfile', main)
@@ -23,7 +23,7 @@ class ProfilesRefactor(unittest.TestCase):
         self.assertLess(len(main.splitlines()), 900)
 
     def test_policy_filters_without_secret_access(self):
-        policy = (CORE / 'ProfileLibrarySelectionPolicy.swift').read_text()
+        policy = (CORE / 'ProfileLibrarySelectionPolicy.swift').read_text(encoding='utf-8')
         for fragment in ('localizedCaseInsensitiveContains(search)',
                          'switch groupFilter', 'case "favorites":',
                          'group(for: profile.id)', 'leftFavorite != rightFavorite',
@@ -31,7 +31,7 @@ class ProfilesRefactor(unittest.TestCase):
             self.assertIn(fragment, policy)
         self.assertNotIn('ProfileStore(', policy)
         self.assertNotIn('password', policy.lower())
-        tests=(ROOT/'mobile/ios/Tests/CoreTests/ProfileLibrarySelectionPolicyTests.swift').read_text()
+        tests=(ROOT/'mobile/ios/Tests/CoreTests/ProfileLibrarySelectionPolicyTests.swift').read_text(encoding='utf-8')
         for fragment in ('testFavoritesFirstWithoutChangingStorageOrder',
                          'testSearchMatchesCaseInsensitiveNameOrHost',
                          'testFavoritesGroupAndCombinedSearch',
@@ -39,8 +39,8 @@ class ProfilesRefactor(unittest.TestCase):
             self.assertIn(fragment, tests)
 
     def test_visible_selection_and_fail_safe_delete_guards(self):
-        library = (APP / 'ProfilesScreenView.swift').read_text()
-        bulk = (APP / 'ProfileLibraryBulkActionsView.swift').read_text()
+        library = (APP / 'ProfilesScreenView.swift').read_text(encoding='utf-8')
+        bulk = (APP / 'ProfileLibraryBulkActionsView.swift').read_text(encoding='utf-8')
         self.assertIn('ProfileLibrarySelectionPolicy.selectedVisibleIDs(bulkSelectedIDs, from: visibleProfiles)', library)
         self.assertIn('model.deleteProfiles(ids: selectedVisibleIDs)', library)
         self.assertIn('guard !model.vpn.isConnectedOrConnecting else { return }', library)
@@ -52,9 +52,9 @@ class ProfilesRefactor(unittest.TestCase):
         self.assertIn('specificIDs: selectedVisibleIDs', bulk)
 
     def test_accessibility_rows_groups_favorites_filter(self):
-        row = (APP/'ProfileLibraryRowView.swift').read_text()
-        filters=(APP/'ProfileLibraryFiltersView.swift').read_text()
-        library=(APP/'ProfilesScreenView.swift').read_text()
+        row = (APP/'ProfileLibraryRowView.swift').read_text(encoding='utf-8')
+        filters=(APP/'ProfileLibraryFiltersView.swift').read_text(encoding='utf-8')
+        library=(APP/'ProfilesScreenView.swift').read_text(encoding='utf-8')
         for id_ in ('profiles.row.', 'profiles.favorite.', 'Группа профиля'):
             self.assertIn(id_, row)
         for id_ in ('profiles.search', 'profiles.groupFilter', 'profiles.bulk.toggle'):
@@ -62,12 +62,12 @@ class ProfilesRefactor(unittest.TestCase):
         self.assertIn('.environment(\\.layoutDirection, .leftToRight)', row)
         self.assertIn('.frame(minWidth: 44, minHeight: 44)', row)
         self.assertIn('.keyboardDismissOnSwipeUp()', library)
-        self.assertIn('ProfileLibraryGroupMenu(model: model, ids: selectedVisibleIDs', (APP/'ProfileLibraryBulkActionsView.swift').read_text())
+        self.assertIn('ProfileLibraryGroupMenu(model: model, ids: selectedVisibleIDs', (APP/'ProfileLibraryBulkActionsView.swift').read_text(encoding='utf-8'))
 
     def test_large_text_profile_actions_are_full_width_not_clipped(self):
-        library=(APP/'ProfilesScreenView.swift').read_text()
-        filters=(APP/'ProfileLibraryFiltersView.swift').read_text()
-        bulk=(APP/'ProfileLibraryBulkActionsView.swift').read_text()
+        library=(APP/'ProfilesScreenView.swift').read_text(encoding='utf-8')
+        filters=(APP/'ProfileLibraryFiltersView.swift').read_text(encoding='utf-8')
+        bulk=(APP/'ProfileLibraryBulkActionsView.swift').read_text(encoding='utf-8')
         self.assertIn('if dynamicTypeSize.isAccessibilitySize {',library)
         self.assertIn('VStack(spacing: 8) { profileActionLabels }',library)
         self.assertIn('HStack(spacing: 8) { profileActionLabels }',library)
@@ -76,12 +76,12 @@ class ProfilesRefactor(unittest.TestCase):
         self.assertIn('VStack(alignment: .leading, spacing: 9)',bulk)
 
     def test_no_localization_or_release_metadata_rewrites(self):
-        project=(ROOT/'mobile/ios/project.yml').read_text()
+        project=(ROOT/'mobile/ios/project.yml').read_text(encoding='utf-8')
         self.assertIn('MARKETING_VERSION: "0.2.0"', project)
         self.assertIn('CURRENT_PROJECT_VERSION: "48"',project)
         self.assertIn('YandexMobileAds',project)
         for module in ('ProfilesScreenView.swift','ProfileLibraryFiltersView.swift','ProfileLibraryRowView.swift','ProfileLibraryBulkActionsView.swift'):
-            self.assertIn('AppL10n.tr(', (APP/module).read_text())
+            self.assertIn('AppL10n.tr(', (APP/module).read_text(encoding='utf-8'))
 
 if __name__=='__main__':
     unittest.main()

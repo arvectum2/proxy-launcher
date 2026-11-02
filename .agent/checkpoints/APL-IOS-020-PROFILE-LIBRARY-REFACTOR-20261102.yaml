@@ -18,6 +18,7 @@ completed:
   - Signed small iPhone SE3 Simulator Accessibility XXL German + Arabic library UI after fix 1/1 PASS 21.475 seconds (first baseline PASS 21.727 seconds revealed visible clipping). Two fixed screenshots inspected, no truncated top actions, scrolling works; simulator font and boot state restored.
   - Signed seven-screen read-only navigation UI 1/1 PASS 23.409 seconds including existing import/backup sheet paths, no VPN/profile edits.
   - Roadmap and docs/APL_IOS_020_PROFILE_LIBRARY_REFACTOR_QA_2026-11-02.md updated; no release artifact or Apple metadata changes.
+  - '2026-11-02 GitHub Windows P0 portable CI build exposed a new test-only UnicodeDecodeError: Windows default cp1252 on .read_text() for the moved UTF-8 Swift source. Fixed all 18 implicit-decoding reads across three relevant Python source-contract files with explicit encoding=utf-8. No runtime Swift files changed; focused 13 unit checks and full 73 Python tests PASS locally. Exact-head Windows CI rerun after fix required.'
 current: Profiles refactor completed and locally verified at d48e37c1; checkpoint commit and external PR #296 exact-head CI verification follow. This stage stays completed while asynchronous CI settles.
 pending:
   - Manual real VoiceOver physical device testing remains separate; tests here validate accessible elements and touch targets, not spoken assistive technology.
@@ -33,4 +34,5 @@ test_results:
   - Signed small iPhone SE3 Accessibility XXL de+ar library XCUITest PASS 21.475 seconds, both screenshot clipping fixes visually confirmed; simulator restored.
   - Signed 7-screen navigation-only simulator XCUITest PASS 23.409 seconds; all 50 localization resources present, no English fallback/regressions.
   - No real device/App Store/TestFlight/merge, no user profile or VPN mutation; only disposable synthetic Simulator test data.
+  - Windows CI initial build failed due test-only CP1252 default-decoding; 18 .read_text calls changed to explicit UTF-8, full Python 73/73 PASS before CI rerun.
 resume_instruction: 'TASK COMPLETED at feature commit d48e37c1 in /private/tmp/apl-ios-020-product-plan-20261101 branch feat/ios-020-product-plan-20261101 and Draft PR #296. When resumed, first inspect latest .agent/current-task.yaml and PR CI; do not repeat already passed Profiles refactor, Swift 100/100, Python 73/73 and signed simulator 4 UI flows. Next separate milestone should be agreed real proxy egress/failover acceptance or manual VoiceOver, or owner-prioritized roadmap item; user approval needed before modifying physical VPN/Apple metadata/release. Never publish/merge automatically, never reuse old pre-refactor IPA as current, no CloudKit entitlements or watchdog.'

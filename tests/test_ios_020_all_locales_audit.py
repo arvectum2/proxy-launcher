@@ -39,6 +39,6 @@ class AllLocalesAudit(unittest.TestCase):
             entries,_=read_strings(ROOT/f'mobile/ios/Resources/{lang}.lproj/ProfileManagement.strings')
             self.assertEqual(entries['Закрыть'],expected)
         content=(ROOT/'mobile/ios/App/ContentView.swift').read_text(encoding='utf-8')
-        self.assertIn('.environment(\\.layoutDirection, .leftToRight)',(ROOT/'mobile/ios/App/ProfileLibraryRowView.swift').read_text())
+        self.assertIn('.environment(\\.layoutDirection, .leftToRight)',(ROOT/'mobile/ios/App/ProfileLibraryRowView.swift').read_text(encoding='utf-8'))
         self.assertIn('"-aplSettingsLocaleQA"',content)
 if __name__=='__main__':unittest.main()
