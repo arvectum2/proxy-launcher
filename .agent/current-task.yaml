@@ -1,21 +1,28 @@
 task_id: APL-SMART-ROUTE-LEARNING-20261102
-status: in_progress
-goal: "Autonomously diagnose failing newly encountered hosts under APL VPN, validate proxy-vs-no-proxy evidence, learn expiring host-specific exclusions with reliable rollback, without unknown-host shared-IP leakage or violating iOS Network Extension supported flows."
+status: blocked
+goal: "Automatically detect host-specific proxy failures in live APL traffic, perform independently verified no-proxy test, and temporarily remember safe exact-host DIRECT for auth.example.com-like redirects."
 definition_of_done:
-  - "Verify what iOS Packet Tunnel can observe: TCP/CONNECT failure vs opaque TLS application errors; confirm Network Extension route capabilities against official Apple docs."
-  - "Implement and test platform-neutral adaptive learning policy: repeat proxy failure, proven alternative egress, bounded TTL/quota, privacy, cooldown, expiring rules, user deny overrides and shared-IP failsafe."
-  - "Where safely implementable, surface actual per-host proxy connection failures from pinned Rust tunnel as sanitized structured events, without changing production routing or sending domains to third parties."
-  - "Test deterministic A/B and negative failure scenarios; document exactly which steps work on iOS and which are blocked by unsupported direct per-flow egress."
-  - "Update roadmap, commit/push in Draft PR #296; checkpoint completed if code/spec stage done, blocked if original full auto-direct acceptance cannot be achieved. No Apple publish, user device, VPN/proxy mutation or Watchdog."
+  - "On iOS PacketTunnel observe real per-host TCP CONNECT failure with proxy healthy; do not claim to see encrypted HTTPS UI errors."
+  - "Require 2 distinct proxy errors, independent direct A/B verification, no global shared-CDN IP bypass, 24h expiry and rollback."
+  - "Persist bounded local evidence and user denials without changing manual exclusions or Apple privacy metadata."
+  - "Physical iPhone E2E verifies A→auth.A, correct proxy-vs-direct egress, shared-IP safety, Wi-Fi/LTE and recovery."
 completed:
-  - "Baseline clean at 9d2abc73. Archived completed A→B/C discovery checkpoint."
-  - "Read Apple TN3120, Routing your VPN network traffic, NEPacketTunnelProvider: tunnel sees packet/CONNECT failures but not the browser's HTTPS UI failures; excludedRoutes is global IP-based, unsupported direct per-flow alternate physical egress from iOS Packet Tunnel."
-  - "Inspected pinned tun2proxy v0.8.3, Swift SharedCore/SmartGraph/PacketTunnel; existing Rust has virtual DNS per-flow hostname attribution and TCP error hook, but no native direct-probe egress."
-current: "Build evidence-gated adaptive policy and safe on-device failure signal; no unproven network bypass."
+  - "Baseline 9d2abc73 clean; archived completed auto-dependency-discovery task into .agent/checkpoints."
+  - "Verified Apple TN3120 and Routing your VPN network traffic: per-flow physical rerouting unsupported/not recommended inside iOS Packet Tunnel; excludedRoutes is global IP; TLS page errors are opaque."
+  - "Implemented local-only AdaptiveRouteLearning.swift with unique TCP failure tracking, 60s probe throttle, independent A/B validation gate, 2 direct successes, 24h TTL, network-change expiry, denial and rollback, memory/route limits."
+  - "Added iOS false-by-default AdaptiveRouteCapabilities and optional ProfileStore smart_route_evidence.v1 bounded 64 KiB; current production VPN routes are not altered."
+  - "Source commit aec23c5b; 125/125 Swift Core PASS (6 new policy tests), 14/14 targeted Python contracts PASS, iOS ARM64 Simulator BUILD SUCCEEDED and iOS 0.2.0(48) source preflight PASS."
+  - "Updated docs/APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md and top docs/ROADMAP.md with clear exact TODOs and platform restrictions."
+current: "Phase A (learning/persistence core) verified and committed; full auto-detection plus auto DIRECT on iPhone NOT implemented due sensor and platform egress blockers."
 pending:
-  - "Create policy, write tests for repeated failure+direct success evidence+TTL+same-IP denial."
-  - "Implement host failure event capture on tun2proxy boundary as allowed; compile host+iOS, Swift build."
-  - "Reconcile docs, status with honest hardware/platform gate; commit/push."
-last_verified_commit: "9d2abc73"
-test_results: []
-resume_instruction: "Continue Smart 3.0 failure-triggered automatic route-learning, NOT remote gateway: Mac mini /tmp/apl-ios-020-product-plan-20261101. Do not silently add /32 shared CDN exclusions after one timeout. Implement verified independent DIRECT path candidate core, Rust TCP failure signal and tests; no direct outbound from NEPacketTunnel (Apple TN3120). Preserve 0.1.41 Apple review, iPhone VPN/profile, proxy credentials, ads/privacy and Draft PR #296. Distinguish TCP proxy error from hidden HTTPS UI status."
+  - "APL-SMART3-SENSOR-001: source-pinned tun2proxy VirtualDns exact-host TCP CONNECT timeout/refused/success signal safely bridged to Swift/App Group; distinguish global proxy outage from host-specific failure."
+  - "APL-SMART3-EGRESS-001: Apple-supported independent no-proxy probe and exact-host per-flow physical DIRECT, not global NE excludedRoutes or unsupported local listener. Without feasibility, offer user-confirmed IP-wide alternative and prioritize native desktop policy."
+  - "APL-SMART3-DEVICE-001: iPhone real Safari A→auth.A physical proxy/direct egress, DNS IPv4/IPv6, shared CDN, TTL rollback, Wi-Fi/LTE, QUIC verification and safe restoration."
+blockers:
+  - "Current tun2proxy has no structured per-host TCP failure callback wired into iOS; AdaptiveRouteLearning state is not fed live browsing events."
+  - "Apple iOS Network Extension Packet Tunnel lacks verified independent precise hostname-level DIRECT transport, IP excludedRoutes are shared-IP/global; hidden TLS page load timeout cannot be observed as HTTP status."
+last_verified_commit: "aec23c5b (source implementation; checkpoint-only commit follows)"
+test_results:
+  - "125 Swift Core unit tests PASS; 14 Python contracts PASS; iOS ARM64 Simulator BUILD SUCCEEDED; 0.2.0(48) preflight PASS; markdown local links verified (44)."
+  - "No real iPhone, proxy credentials, live VPN, Apple App Review 0.1.41, ads, privacy metadata or Watchdog touched."
+resume_instruction: "BLOCKED for complete Smart 3.0 user flow. Reuse aec23c5b AdaptiveRouteLearning policy + ProfileStore local evidence; do NOT claim automated Safari diagnosis or no-proxy egress now works. Next implement APL-SMART3-SENSOR-001 typed structured per-flow failure event in pinned tun2proxy and APL-SMART3-EGRESS-001 Apple-supported independent direct test/accurate per-host route. Do not make global IP excludedRoutes automatic (unrelated CDN leak), nor put unsupported local proxy listener in NEPacketTunnel. If iOS route is impossible, user-confirmed IP-wide recommendation with clear warning, and autonomous Windows/macOS. Read docs/APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md. PR #296 Draft, no merge/upload/App Store or iPhone/proxy changes, no Watchdog."
