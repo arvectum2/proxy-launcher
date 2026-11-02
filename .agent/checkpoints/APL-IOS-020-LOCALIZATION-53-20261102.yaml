@@ -1,0 +1,24 @@
+task_id: APL-IOS-020-LOCALIZATION-53-20261102
+status: completed
+goal: "Complete the three missing Apple App Store languages in APL iOS 0.2.0: add or/sl/uk app languages, or-IN/sl-SI/uk ASO metadata and three pairs of real simulator screenshots, with localization tests."
+definition_of_done:
+  - "53 supported iOS UI languages and 265 complete .strings source files (5 per language); correct placeholders and critical technical tokens, readable native strings and picker." 
+  - "All 50 Apple ASO localizations prepared offline from canonical source, three new region variants with native text, no mutation of review 0.1.41."
+  - "100 genuine iOS UI screenshots from simulator, two for each Apple ASO locale (no fabricated/mock screenshot), all required dimensions/validation."
+  - "Update inventories and tests (iOS and ASO), iOS build pass, all targeted contracts pass, docs and clean PR branch pushed."
+completed:
+  - "Verified official Apple list of 50 ASO locales, against actual repo inventory 47 ASO and 50 iOS UI: only or-IN, sl-SI, uk missing. Apple 175 storefronts is separate geography dimension."
+current: "COMPLETED: 53 iOS UI languages, 265 .strings, full Apple ASO 50/50, 100 genuine Simulator screenshots, built 53-language app, all 38/38 relevant tests and 265/265 plutil lint PASS. New texts are machine-assisted drafts with technical review; native-speaker editorial certification not claimed."
+pending: []
+future_release_gates:
+  - "Independent native-language editorial verification for Odia, Slovenian and Ukrainian, especially safety-critical Odia copy, is recommended before public release. It is NOT claimed complete."
+  - "Rebuild and sign a new production Apple Distribution IPA from commit f49317ae or later; old signed IPA does not include 3 new languages. Apple iOS 0.1.41 is still under review according to owner; never edit, cancel or submit until owner authorizes release separately."
+  - "Apple App Store 175 storefront region availability requires separate decision; 50 localization variants do not imply worldwide availability."
+
+last_verified_commit: "f49317ae (verified iOS runtime/source tree 680a64e2c5c72ca1ee4ea60444503e2afa8dfba6; next commit updates checkpoint only)"
+test_results: []
+  - "3 UI source languages (or, sl, uk) created with all 5 .strings catalogs per locale (344 keys each), 53/53 UI and 265/265 files. 3 Apple ASO locales or-IN/sl-SI/uk: 50/50 ASO metadata with 100 genuine screenshots."
+  - "iOS Simulator iPhone 16 Pro / iOS 27.0 signed-independent source compile: BUILD SUCCEEDED, 53 .lproj inside .app; 6 new screenshots generated using real simctl app launch, 1206x2622 JPEG and distinct pairs."
+  - "38/38 targeted pytest checks PASS (ASO editorial/import mocks/screenshots + new 53 locale contracts + contextual localization + onboarding); ios_020_locale_audit.py PASS, 265/265 plutil lint PASS, ios_active_release_preflight.py PASS."
+  - "Apple 0.1.41 review and live metadata unchanged; PR #296 stays Draft, existing physical iPhone and VPN untouched. New translations machine-assisted and technically edited; independent native-speaker editorial review NOT verified."
+resume_instruction: "Task COMPLETED in f49317ae: iOS 0.2.0 source 53 languages/265 .strings, all 50 Apple ASO metadata variants and 100 genuine simulator screenshots, 38 targeted tests + source audits + iOS Simulator build PASS. This checkpoint update does not change production code. Do NOT repeat localization generation. Next task, only after separate owner approval: obtain independent native-speaker editorial review of or/sl/uk, especially Odia; rebuild signed Apple Distribution IPA; wait for iOS 0.1.41 App Review completion then decide on 0.2.0 release. No Apple metadata/upload/merge or Watchdog changes were performed. See docs/APL_IOS_020_53_LANGUAGE_COMPLETION_2026-11-02.md and Draft PR #296."
