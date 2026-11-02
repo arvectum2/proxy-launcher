@@ -29,6 +29,7 @@ final class AppViewModel: ObservableObject {
     @Published var exclusions: [String] = []
     @Published var manualExclusions: [String] = []
     @Published var smartGraph = SmartExclusionGraph()
+    @Published var adaptiveRouteLearning = AdaptiveRouteLearning()
     @Published var health: [UUID: ProfileHealth] = [:]
     @Published var isScanningProfiles = false
     @Published var lastProfileScanSummary = ""
@@ -49,6 +50,17 @@ final class AppViewModel: ObservableObject {
         do {
             store = try ProfileStore()
 #if DEBUG && targetEnvironment(simulator)
+            if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") {
+                // Synthetic, isolated UI-only fixture. This does not create a
+                // proxy, send traffic, or change any live VPN route.
+                let now = Date()
+                var evidence = AdaptiveRouteLearning()
+                for id in ["a", "b"] {
+                    _ = evidence.proxyFailure(host: "auth.qa-example.test", connectionID: id,
+                        type: .proxyTimeout, proxyHealthy: true, networkID: "qa", at: now)
+                }
+                store.adaptiveRouteLearning = evidence
+            }
             // Explicit disposable-simulator fixture for the system Files
             // export/import QA. Never compiled into Release or a real iPhone,
             // never creates a live proxy or exercises a paid endpoint.
@@ -104,6 +116,7 @@ final class AppViewModel: ObservableObject {
         exclusions = store.siteExclusions
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
+        adaptiveRouteLearning = store.adaptiveRouteLearning
         refreshEvents()
     }
 

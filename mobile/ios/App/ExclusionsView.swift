@@ -26,6 +26,7 @@ struct ExclusionsView: View {
     @State private var graph = SmartExclusionGraph()
     @State private var scannedParent = ""
     @State private var externalHints: [String] = []
+    @State private var diagnosticHints: [String] = []
     @State private var pendingExternalHost: String?
     @State private var confirmExternal = false
     @State private var undoEntries: [String]?
@@ -91,6 +92,29 @@ struct ExclusionsView: View {
                                 localError = nil
                             } catch { localError = error.localizedDescription }
                         }.disabled(selectedDiscovered.isEmpty)
+                    }
+                }
+                if !diagnosticHints.isEmpty {
+                    Section {
+                        ForEach(diagnosticHints.filter { !entries.contains($0) }, id: \.self) { host in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(host).textSelection(.enabled)
+                                    Text(SmartExclusionsUX.text("Повторные ошибки соединения через прокси"))
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button(SmartExclusionsUX.text("Проверить исключение")) {
+                                    pendingExternalHost = host
+                                    confirmExternal = true
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    } header: {
+                        Text(SmartExclusionsUX.text("Проблемные сайты"))
+                    } footer: {
+                        Text(SmartExclusionsUX.text("APL заметила ошибки подключения, но ещё не доказала, что прямой путь безопасен. Решение об исключении принимает пользователь."))
                     }
                 }
                 if !externalHints.isEmpty {
@@ -229,8 +253,11 @@ struct ExclusionsView: View {
             } message: {
                 Text("Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить».")
             }
-            .confirmationDialog(SmartExclusionsUX.text("Разрешить прямой доступ для стороннего домена?"),
-                                isPresented: $confirmExternal, titleVisibility: .visible) {
+            .confirmationDialog(
+                SmartExclusionsUX.text(pendingExternalHost.map { diagnosticHints.contains($0) }
+                    == true ? "Добавить проблемный сайт в обход VPN?"
+                    : "Разрешить прямой доступ для стороннего домена?"),
+                isPresented: $confirmExternal, titleVisibility: .visible) {
                 Button(SmartExclusionsUX.text("Добавить вручную")) {
                     guard let host = pendingExternalHost else { return }
                     do {
@@ -249,8 +276,10 @@ struct ExclusionsView: View {
                 Text(SmartExclusionsUX.text("Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."))
             }
             .onAppear {
+                model.refresh()
                 entries = model.manualExclusions
                 graph = model.smartGraph.pruned()
+                diagnosticHints = model.adaptiveRouteLearning.diagnosticCandidates()
             }
             .onDisappear { cancelScan() }
             .keyboardDismissOnSwipeUp()

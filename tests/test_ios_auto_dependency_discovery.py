@@ -24,7 +24,9 @@ def test_scan_both_html_actual_network_and_external_assets_without_auto_approval
     assert 'DispatchQueue.main.asyncAfter(deadline: .now() + 1.2)' in SCANNER
     assert 'destinationHost == "www." + requested' in SCANNER
     assert 'externalCandidates(html: String, urls: [String], for site: String)' in DISCOVERY
-    assert '.confirmationDialog(SmartExclusionsUX.text("Разрешить прямой доступ для стороннего домена?")' in VIEW
+    assert '.confirmationDialog(' in VIEW
+    assert 'Разрешить прямой доступ для стороннего домена?' in VIEW
+    assert 'Добавить проблемный сайт в обход VPN?' in VIEW
 
 
 def test_auto_approval_is_strong_only_bounded_and_rejection_preserving():

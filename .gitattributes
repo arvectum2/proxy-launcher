@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# Unified diff context markers may be a single space; not file whitespace.
+mobile/ios/Tools/tun2proxy-flow-intent.patch whitespace=-blank-at-eol

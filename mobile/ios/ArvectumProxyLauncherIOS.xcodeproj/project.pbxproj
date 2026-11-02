@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00734EFC5452D24061D99E40 /* SmartExclusionGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */; };
+		0093FCB03F0776140C87A6ED /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */; };
 		01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
 		05ACEE232AEE8294F12358BF /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
 		05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */; };
@@ -38,6 +39,7 @@
 		39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */; };
 		3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
+		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
 		4094EADFA3204613599ECCFD /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
 		415FE0C43C74F8997BF96AA7 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */; };
@@ -121,6 +123,7 @@
 		EEE20757BFB04653A5E9E336 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */; };
 		EF2109211FDC6650620B1C4C /* Final64LocaleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBF8F652AE2EBC7FF26F402 /* Final64LocaleUITests.swift */; };
 		F05175729FE0D0257BA05F13 /* SmartExclusions.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E56A2C5CB23E7453CCB3DD9 /* SmartExclusions.strings */; };
+		F1AF265179F650329F6A8242 /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */; };
 		F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
 		F7898E8D4636D03F5C53E73F /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
@@ -381,6 +384,7 @@
 		8729160F278DEED4B11CA039 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = et; path = et.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		87885BE6123FF783E8126F72 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		87CA18C20E4F8688D0FE0D25 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteCapabilities.swift; sourceTree = "<group>"; };
 		8857DDBDB0D232A6C9F7D66D /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
 		8880F42D2AC0A5285C57E51C /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		88FA65A6768406583504159F /* SmartExclusionsUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionsUX.swift; sourceTree = "<group>"; };
@@ -541,6 +545,7 @@
 		EA086C2784D43BE6CD2A2CE1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		EA27FA282DE2867FB8F05E67 /* lv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lv; path = lv.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
+		EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowEventCollector.swift; sourceTree = "<group>"; };
 		EB2FAF44FD51DBD2778B69A0 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		EB4BD1E88767A4DFC13ACE41 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		ECD24223C3044B4C0F33BC36 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/ProxyImport.strings; sourceTree = "<group>"; };
@@ -667,6 +672,7 @@
 			isa = PBXGroup;
 			children = (
 				E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */,
+				EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */,
 				39AA1379F2875E167DB3E499 /* TLSProxyRelay.swift */,
 				F50D7CFCE3DD739FD75C2060 /* UpstreamSocketDiagnostics.swift */,
 			);
@@ -701,6 +707,7 @@
 		AD4D647FF2618816DB99E52D /* SharedCore */ = {
 			isa = PBXGroup;
 			children = (
+				87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */,
 				6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */,
 				2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */,
 				B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */,
@@ -982,6 +989,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0093FCB03F0776140C87A6ED /* AdaptiveRouteCapabilities.swift in Sources */,
 				9A08D8FD8C32C6CCEDA5A29E /* AdaptiveRouteLearning.swift in Sources */,
 				5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */,
 				9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */,
@@ -1007,6 +1015,7 @@
 				CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */,
 				7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */,
 				00734EFC5452D24061D99E40 /* SmartExclusionGraph.swift in Sources */,
+				3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */,
 				0A7E1E94C6F7C44A05EAE588 /* SmartFlowRoutingPolicy.swift in Sources */,
 				48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */,
 				60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */,
@@ -1050,6 +1059,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */,
+				F1AF265179F650329F6A8242 /* AdaptiveRouteCapabilities.swift in Sources */,
 				0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */,
 				36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */,
 				477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */,

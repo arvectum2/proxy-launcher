@@ -5,6 +5,11 @@ import Foundation
 /// The English dictionary remains a defensive fallback for missing keys.
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
+        "Добавить проблемный сайт в обход VPN?": "Bypass the VPN for this failing site?",
+        "Проблемные сайты": "Connection problems",
+        "Повторные ошибки соединения через прокси": "Repeated proxy connection failures",
+        "Проверить исключение": "Review bypass",
+        "APL заметила ошибки подключения, но ещё не доказала, что прямой путь безопасен. Решение об исключении принимает пользователь.": "APL detected connection failures but has not verified a safe direct route. You decide whether to bypass.",
         "Анализ ресурсов сайта": "Checking website resources",
         "Добавлены автоматически": "Added automatically",
         "Связанные домены": "Related domains",

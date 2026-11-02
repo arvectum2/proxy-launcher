@@ -104,6 +104,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         monitorTask = nil
         socketPressureTask?.cancel()
         socketPressureTask = nil
+        SmartFlowEventCollector.shared.stop()
         _ = tun2proxy_stop()
         tlsRelay?.stop()
         tlsRelay = nil
@@ -208,6 +209,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // to the patched virtual DNS; other hosts keep proxy-side name lookup.
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
         let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+        if let store { SmartFlowEventCollector.shared.start(store: store) }
         engineQueue.async { [weak self] in
             guard let self, !self.stopping else { return }
             let result = args.withCString {

@@ -1,6 +1,26 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    func testAdaptiveConnectionSuggestionRequiresManualConsent() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmart3FailureFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let host = app.staticTexts["auth.qa-example.test"].firstMatch
+        for _ in 0..<6 where !host.exists { app.swipeUp() }
+        XCTAssertTrue(host.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["Повторные ошибки соединения через прокси"].exists)
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+        app.buttons["Проверить исключение"].tap()
+        XCTAssertTrue(app.staticTexts["Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."].waitForExistence(timeout: 5))
+        app.buttons["Отмена"].firstMatch.tap()
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+    }
+
     func testAddAutoDiscoversStrongSubdomainsAndOffersExternalHosts() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",

@@ -169,6 +169,23 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     return result
 
 
+def install_flow_event_header(framework: Path) -> None:
+    """Expose the added pinned Rust C ABI consistently across device/sim."""
+    header = framework / "ios-arm64" / "Headers" / "tun2proxy.h"
+    value = header.read_text(encoding="utf-8")
+    signature = "void tun2proxy_set_flow_event_callback("
+    if signature not in value:
+        anchor = "int tun2proxy_stop(void);"
+        if value.count(anchor) != 1:
+            raise SystemExit("tun2proxy public header anchor changed")
+        value = value.replace(anchor, anchor + "\n\n" +
+            "/* 0=CONNECT_OK, 1=TIMEOUT, 2=REFUSED, 3=OTHER, 4=UPSTREAM_DOWN */\n" +
+            "void tun2proxy_set_flow_event_callback(\n" +
+            "    void (*callback)(const char *host, uint64_t connection_id, int32_t event, void *ctx),\n" +
+            "    void *ctx);", 1)
+    header.write_text(value, encoding="utf-8")
+
+
 def add_simulator_slice(framework: Path, library: Path) -> None:
     """Attach a *patched*, source-pinned ARM64 simulator slice for UI-target CI.
 
@@ -230,6 +247,7 @@ def main() -> None:
         patched_libraries = build_patched_libraries(tmpdir, include_simulator=args.with_simulator)
         shutil.copy2(patched_libraries["aarch64-apple-ios"], upstream_library)
         patched_sha256 = digest(upstream_library)
+        install_flow_event_header(source_framework)
         if args.with_simulator:
             add_simulator_slice(source_framework, patched_libraries["aarch64-apple-ios-sim"])
 
@@ -247,7 +265,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-exact-host-split-dns-and-flow-intent\n"
+            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-and-per-flow-events\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n"
             + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"

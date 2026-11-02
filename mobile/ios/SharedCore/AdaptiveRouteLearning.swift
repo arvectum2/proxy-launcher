@@ -91,6 +91,16 @@ struct AdaptiveRouteLearning: Codable, Equatable {
         return e.expires != nil ? .temporaryDirect(host) : .verifyDirect(host)
     }
 
+    /// Current suggestions for user-approved explicit IP-wide exceptions on
+    /// iOS, never automatic policy. A 2-minute rolling diagnostic only.
+    func diagnosticCandidates(at now: Date = Date()) -> [String] {
+        hosts.compactMap { host, record in
+            record.sessionIDs.count >= 2 && now >= record.last &&
+            now.timeIntervalSince(record.last) <= Self.window &&
+            !rejected.contains(host) ? host : nil
+        }.sorted()
+    }
+
     func directHosts(networkID: String, exactHostTransport: Bool, at now: Date) -> [String] {
         guard exactHostTransport else { return [] }
         return hosts.compactMap { host, entry in

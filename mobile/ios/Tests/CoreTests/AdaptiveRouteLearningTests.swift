@@ -81,6 +81,20 @@ final class AdaptiveRouteLearningTests: XCTestCase {
         XCTAssertTrue(l.directHosts(networkID: network, exactHostTransport: true, at: start).isEmpty)
     }
 
+    func testDiagnosedHostSuggestionIsShortLivedAndRejectable() {
+        var learning = AdaptiveRouteLearning()
+        XCTAssertTrue(learning.diagnosticCandidates(at: start).isEmpty)
+        _ = learning.proxyFailure(host: "auth.example.com", connectionID: "id-1", type: .proxyTimeout,
+                                  proxyHealthy: true, networkID: network, at: start)
+        XCTAssertTrue(learning.diagnosticCandidates(at: start).isEmpty)
+        _ = learning.proxyFailure(host: "auth.example.com", connectionID: "id-2", type: .proxyTimeout,
+                                  proxyHealthy: true, networkID: network, at: start.addingTimeInterval(2))
+        XCTAssertEqual(learning.diagnosticCandidates(at: start.addingTimeInterval(3)), ["auth.example.com"])
+        XCTAssertTrue(learning.diagnosticCandidates(at: start.addingTimeInterval(124)).isEmpty)
+        learning.reject("auth.example.com")
+        XCTAssertTrue(learning.diagnosticCandidates(at: start.addingTimeInterval(3)).isEmpty)
+    }
+
     func testBoundedSerializableAndResetOnNetworkChange() throws {
         var l = AdaptiveRouteLearning(); repeated(&l)
         let data = try JSONEncoder().encode(l)
