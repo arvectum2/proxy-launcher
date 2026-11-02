@@ -1,3 +1,14 @@
+# Текущий финальный source candidate — после DNS merge (02.11.2026)
+
+**Эта запись имеет приоритет над более ранними фактами и путями к IPA ниже.** Источники iOS были изменены в `31d5cdc5` (DNS recovery, socket pressure, TLS relay) после того, как CI `41412264592` завершился успешно для старого дерева. Новое дерево `mobile/ios`: `ee4d247944aff9d6c97a9ce146f23768c1f1e1ff`. Последний проверенный source checkout commit `9775879a` (включает merge), архивация начата с текущего дерева.
+
+- Swift Core **106/106 PASS**, Python iOS 0.2 **44/44 PASS** после merge; ранее 5/5 подписанных Simulator UI тестов PASS (UI/локализации в merge не затронуты), 50 языков.
+- Архив: `/Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/final-source-b8650a77-20261102/APL-0.2.0-48.xcarchive`. IPA: `/Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/final-source-b8650a77-20261102/exported/Arvectum Proxy Launcher.ipa`. `ARCHIVE SUCCEEDED`, `EXPORT SUCCEEDED`, app/PacketTunnel codesign PASS, идентификаторы и версии 0.2.0 (48), 50 языков, ZIP PASS. SHA256 `afa930e1542d1d758f64ea47b1fa66cddc37e42cfe346588b7cd462a2cb409d7`.
+- **Текущий GitHub CI не считать зелёным до подтверждения:** Mobile iOS personal run `41413811197` для нового кода QUEUED на macOS runner. Предыдущий run `41412264592` PASS 3/3 относится к старому исходному дереву `2a1e4e9c...`, не к DNS merge.
+- Физические egress/Auto failover A→B→A и VoiceOver на iPhone не проводились на последнем бинарнике; требуется разрешение на in-place install/временную смену VPN и VoiceOver и пара контролируемых рабочих прокси. Исходные настройки/профили должны быть восстановлены. App Store, TestFlight, main и Apple privacy/ads не изменены.
+
+---
+
 # Финальное дополнение — iOS 0.2.0, 02.11.2026
 
 **Этот раздел заменяет предыдущие сведения ниже о QUEUED CI и старом IPA `5ce33b9b`.**

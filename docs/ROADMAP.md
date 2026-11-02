@@ -1,3 +1,10 @@
+## 02.11.2026 — iOS 0.2.0: DNS-recovery merge, новый source tree и подписанная IPA
+
+- [x] После успешного CI 3/3 на `6b38f6a3` в ветку 0.2.0 объединено исправление socket/DNS recovery (`31d5cdc5`). Актуальное дерево `mobile/ios`: `ee4d247944aff9d6c97a9ce146f23768c1f1e1ff`. Перепроверены **106/106 Swift Core** и **44/44 Python** PASS. Предыдущие UI-локализационные тесты остаются актуальными для неизменённого интерфейса.
+- [x] Новый подписанный архив и App Store export из дерева `ee4d2479`: `ARCHIVE SUCCEEDED`, `EXPORT SUCCEEDED`, две подписи PASS, версия обеих целей **0.2.0 (48)**, все 50 `.lproj`, IPA ZIP PASS. SHA256 **`afa930e1542d1d758f64ea47b1fa66cddc37e42cfe346588b7cd462a2cb409d7`**. Путь и details в [отчёте](APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md).
+- [ ] GitHub `Mobile iOS personal` run `41413811197` для исходников после merge пока **QUEUED**; старый 3/3 SUCCESS `41412264592` действителен для `6b38f6a3`, не для нового DNS-кода.
+- [ ] Физические A→B→A failover / независимый egress / VoiceOver — ждут разрешения на временные изменения iPhone и согласованной пары тестовых прокси. Без merge/publish, Apple metadata и пользовательские настройки не трогать.
+
 ## 02.11.2026 — iOS 0.2.0: CI и финальная подписанная IPA — PASS
 
 - [x] Source commit `6b38f6a3` (iOS tree `2a1e4e9c28768a77f9761cad4d69ec42fba9c772`), GitHub `Mobile iOS personal` [run 41412264592](https://github.com/arvectum2/proxy-launcher/actions/runs/41412264592): **3/3 SUCCESS** (Core, Debug с iOS Simulator UI-test target, Release).
