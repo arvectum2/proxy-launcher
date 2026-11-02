@@ -162,6 +162,37 @@ final class ProxyImportUITests: XCTestCase {
 }
 
 extension ProxyImportUITests {
+    func testImportKeyboardDismissesWithNativeScrollGesture() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("Interactive scroll keyboard dismissal requires iOS 16+")
+        }
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        let profiles = app.tabBars.buttons["Профили"]
+        XCTAssertTrue(profiles.waitForExistence(timeout: 15))
+        profiles.tap()
+        app.buttons["Импортировать прокси"].tap()
+        XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.exists)
+        editor.tap()
+        editor.typeText("http://swipe-test.invalid:47891")
+        let keyboard = app.keyboards.firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
+        // Drag across the form margin, not inside the text editor; no Done button
+        // and no proxy import / VPN connection should be necessary.
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.78))
+        let finish = app.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.28))
+        start.press(forDuration: 0.1, thenDragTo: finish)
+        let hidden = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: keyboard)
+        wait(for: [hidden], timeout: 6)
+        XCTAssertTrue(editor.exists)
+    }
+}
+
+extension ProxyImportUITests {
     func testSupplierColonFormatPreviewsWithoutSavingSecrets() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
