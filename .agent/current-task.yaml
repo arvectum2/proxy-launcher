@@ -1,32 +1,21 @@
-task_id: APL-SMART-DEPENDENCIES-AUTO-20261102
-status: completed
-goal: "Original product scenario: adding site A automatically scans its actual HTML/network dependencies B and C, safely includes high-confidence first-party dependencies, and suggests ambiguous/external hosts for explicit approval; no gateway/server."
+task_id: APL-SMART-ROUTE-LEARNING-20261102
+status: in_progress
+goal: "Autonomously diagnose failing newly encountered hosts under APL VPN, validate proxy-vs-no-proxy evidence, learn expiring host-specific exclusions with reliable rollback, without unknown-host shared-IP leakage or violating iOS Network Extension supported flows."
 definition_of_done:
-  - "Remove unrequested Gateway from active branch (keep archive reference), preserve existing iOS VPN and Apple review."
-  - "Automatic one-shot WebKit resource scan upon adding any new scannable domain; show progress, results and safe cancel/Save behavior."
-  - "Auto-approve exact, high-confidence first-party dependencies observed in both HTML and runtime requests, while preserving rejected/expired decisions and maxEntries; external and uncertain hosts require explicit approval."
-  - "Discover cross-domain HTML and runtime dependencies (including gu-st.ru-like assets), handle apex/www redirect, distinguish unrelated tracker/ad hosts, show auto additions and manual proposals."
-  - "Focused Swift/Core and simulator UI tests plus source audit, honest physical limitations; update docs/ROADMAP, checkpoint, commit+push without Apple upload or real iPhone changes."
+  - "Verify what iOS Packet Tunnel can observe: TCP/CONNECT failure vs opaque TLS application errors; confirm Network Extension route capabilities against official Apple docs."
+  - "Implement and test platform-neutral adaptive learning policy: repeat proxy failure, proven alternative egress, bounded TTL/quota, privacy, cooldown, expiring rules, user deny overrides and shared-IP failsafe."
+  - "Where safely implementable, surface actual per-host proxy connection failures from pinned Rust tunnel as sanitized structured events, without changing production routing or sending domains to third parties."
+  - "Test deterministic A/B and negative failure scenarios; document exactly which steps work on iOS and which are blocked by unsupported direct per-flow egress."
+  - "Update roadmap, commit/push in Draft PR #296; checkpoint completed if code/spec stage done, blocked if original full auto-direct acceptance cannot be achieved. No Apple publish, user device, VPN/proxy mutation or Watchdog."
 completed:
-  - "Confirmed existing WebKit scanner is manual-only; SmartGraph has approved/pending/rejected and first-party candidates, but pressing Add does NOT scan dependencies automatically."
-  - "Completed reversal of off-scope Gateway commit df0f11c3; original APL profiles preserved."
-  - "Added automatic scan queue on Add, 1.2s runtime resource settle, apex/www redirect, external HTML/script/link/form and actual network suggestion, first-party .both auto approval with tracker/rejected/cap guard, automatic aliases visible, Save blocked until scan ends."
-  - "Added deterministic DEBUG-only UI dependency fixture and tests proving auto discovered B, pending weak/tracker and proposed cross-domain C, persisted graph after Save plus Undo/Delete regression."
-  - "Passed 119 Swift, 11 Python, 4 Simulator UI, 64/64 locale catalog audit, iOS Simulator BUILD and 0.2.0(48) preflight."
-  - "Code+docs commit 207d14af and archived rejected Gateway checkpoint."
-current: "COMPLETE: original A→B/C automatic dependency discovery, suggestion and save/rollback implemented; misplaced Gateway removed. New manual first-party auto-on-Add UX and regression tests passed."
-pending: []
-future_execution:
-  - "Optional physical iPhone test on a real site requiring login/interactive flows; WebKit scan captures initial render and delayed resources only, and cannot guarantee every future dependency. Do not treat this as blocking code completion."
-  - "Optional native-localized text review of three newly introduced SmartExclusionsUX strings for the 64 locales; current safe non-Russian fallback is English."
-  - "Separate old IP-wide excludedRoutes CDN-collision caveat remains a routing-engine concern, not this dependency-discovery requirement."
-
-last_verified_commit: "207d14af (auto dependency implementation, simulator UX and 64-language catalog audit; completion checkpoint follows)"
-test_results:
-  - "119/119 Swift Core unit tests PASS, including first-party both-signal auto approval, www/apex parent equivalence, tracking labels pending, rejected decision preservation, 32-rule cap, and cross-domain HTML assets."
-  - "11/11 targeted Python source contracts PASS; iOS source preflight 0.2.0(48) PASS; localization catalog inventory/audit 64/64 PASS."
-  - "4/4 selected iOS Simulator UI tests PASS across two xcodebuild runs: Add automatically discovers strong A->B, weak/tracker pending and external proposed; auto-approved B persists after Save and reopening; existing Add/Delete/Cancel/Undo regressions PASS."
-  - "iOS Simulator BUILD SUCCEEDED with post-Gateway-revert source; git diff --check, markdown crosslinks PASS; app iPhone and Apple uploads untouched."
-  - "Code commit 207d14af; Gateway core and docs removed from branch (archived prior task checkpoint), new docs/APL_IOS_SMART_EXCLUSIONS_AUTODISCOVERY_2026-11-02.md and current ROADMAP updated."
-
-resume_instruction: "Task COMPLETED at implementation commit 207d14af. User requested ONLY Add-site-A auto-detect related B/C, not Gateway. iOS Add auto-starts bounded ephemeral WebKit HTML+actual request scan, high-confidence first-party .both auto approved unless tracking or previously rejected, weak/external hosts suggested with user approval, undo/persist/revoke works; verified 119 Swift/11 Python/4 simulator UI plus 64 locale audit. Gateway detour df0f11c3 reverted. New changes only upon new request; physical real-site login QA and native translation of 3 new strings are optional follow-on. Do not relaunch Gateway/Watchdog or touch iPhone/proxies, Apple 0.1.41 Review, ads/privacy, or publish until authorized."
+  - "Baseline clean at 9d2abc73. Archived completed A→B/C discovery checkpoint."
+  - "Read Apple TN3120, Routing your VPN network traffic, NEPacketTunnelProvider: tunnel sees packet/CONNECT failures but not the browser's HTTPS UI failures; excludedRoutes is global IP-based, unsupported direct per-flow alternate physical egress from iOS Packet Tunnel."
+  - "Inspected pinned tun2proxy v0.8.3, Swift SharedCore/SmartGraph/PacketTunnel; existing Rust has virtual DNS per-flow hostname attribution and TCP error hook, but no native direct-probe egress."
+current: "Build evidence-gated adaptive policy and safe on-device failure signal; no unproven network bypass."
+pending:
+  - "Create policy, write tests for repeated failure+direct success evidence+TTL+same-IP denial."
+  - "Implement host failure event capture on tun2proxy boundary as allowed; compile host+iOS, Swift build."
+  - "Reconcile docs, status with honest hardware/platform gate; commit/push."
+last_verified_commit: "9d2abc73"
+test_results: []
+resume_instruction: "Continue Smart 3.0 failure-triggered automatic route-learning, NOT remote gateway: Mac mini /tmp/apl-ios-020-product-plan-20261101. Do not silently add /32 shared CDN exclusions after one timeout. Implement verified independent DIRECT path candidate core, Rust TCP failure signal and tests; no direct outbound from NEPacketTunnel (Apple TN3120). Preserve 0.1.41 Apple review, iPhone VPN/profile, proxy credentials, ads/privacy and Draft PR #296. Distinguish TCP proxy error from hidden HTTPS UI status."
