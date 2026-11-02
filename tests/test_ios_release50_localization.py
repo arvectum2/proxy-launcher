@@ -1,9 +1,9 @@
-"""iOS-only Core-53 source catalogs, locale selection, script and editor contracts."""
+"""iOS-only Core-64 source catalogs, locale selection, script and editor contracts."""
 from pathlib import Path
 import json, re, unicodedata
 ROOT=Path(__file__).resolve().parents[1]
 IOS=ROOT/'mobile/ios'
-CODES=('en','ru','es','fr','de','it','pt-BR','pt-PT','ja','ko','zh-Hans','zh-Hant','fa','nl','id','tr','hi','ar','vi','pl','th','ur','bn','pa','ta','te','mr','gu','kn','ml','uz','ms','fil','sw','ro','hu','cs','sk','el','he','ha','am','sv','da','fi','nb','bg','sr','hr','ca','or','sl','uk')
+CODES=('en','ru','es','fr','de','it','pt-BR','pt-PT','ja','ko','zh-Hans','zh-Hant','fa','nl','id','tr','hi','ar','vi','pl','th','ur','bn','pa','ta','te','mr','gu','kn','ml','uz','ms','fil','sw','ro','hu','cs','sk','el','he','ha','am','sv','da','fi','nb','bg','sr','hr','ca','or','sl','uk','be','et','lv','lt','ka','hy','az','kk','tk','ky','tg')
 NEW=('ha','am','sv','da','fi','nb','bg','sr','hr','ca','or','sl','uk')
 PAT=re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 FMT=re.compile(r'%(?:\d+\$)?(?:@|s|d|f)')
@@ -16,12 +16,12 @@ def pairs(code):
     assert len(found)==len(d),(code,'duplicate source keys')
     return d
 
-def test_all_53_ios_catalogs_complete_and_placeholders():
+def test_all_64_ios_catalogs_complete_and_placeholders():
     source=pairs('en')
     manifest=json.loads((IOS/'ios-locales.json').read_text())
     assert manifest['scope']=='ios-only' and manifest['languages']==list(CODES)
     assert manifest['sourceEntriesPerLanguage']==155
-    assert len(CODES)==53 and len(source)==155
+    assert len(CODES)==64 and len(source)==155
     for c in CODES:
         catalog=pairs(c)
         assert len(catalog)==155 and set(catalog)==set(source),c
@@ -47,9 +47,9 @@ def test_new_locales_are_actual_translations_and_written_in_right_script():
         assert written>=60,(c,written)
     # Hausa uses Latin; Amharic and Serbian Cyrillic do not need RTL layout.
 
-def test_iOS_system_locale_script_protection_and_53_picker_labels():
+def test_iOS_system_locale_script_protection_and_64_picker_labels():
     swift=(IOS/'App/AppLocalization.swift').read_text()
-    assert '53 fully populated APL iOS source languages' in swift
+    assert '64 fully populated APL iOS source languages' in swift
     for code in NEW:
         if code in ('or','sl','uk'):
             assert 'case '+code+'\n' in swift and 'case .'+code+': return "' in swift

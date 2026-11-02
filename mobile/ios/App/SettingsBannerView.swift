@@ -61,6 +61,20 @@ enum IOSAdsConfig {
         "sr": "Оглас",
         "hr": "Oglas",
         "ca": "Anunci",
+        "or": "ବିଜ୍ଞାପନ",
+        "sl": "Oglas",
+        "uk": "Реклама",
+        "be": "Рэклама",
+        "et": "Reklaam",
+        "lv": "Reklāma",
+        "lt": "Reklama",
+        "ka": "რეკლამა",
+        "hy": "Գովազդ",
+        "az": "Reklam",
+        "kk": "Жарнама",
+        "tk": "Mahabat",
+        "ky": "Жарнама",
+        "tg": "Реклама",
     ]
     static var localizedAdLabel: String {
         labels[AppL10n.effectiveLanguage] ?? labels["en"] ?? "Ad"

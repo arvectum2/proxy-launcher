@@ -1,4 +1,4 @@
-"""Preserve shipped Yandex banner and validate native UI editorial across 50 iOS locales."""
+"""Preserve shipped Yandex banner and validate native UI editorial across 64 iOS locales."""
 import json
 import plistlib
 import re
@@ -51,7 +51,7 @@ def test_ad_disclosure_label_is_present_in_every_ios_language():
     banner=(IOS/'App/SettingsBannerView.swift').read_text(encoding='utf-8')
     segment=banner.split('static let labels: [String: String] = [',1)[1].split('\n    ]',1)[0]
     found=dict(re.findall(r'^\s*"([^\"]+)": "([^\"]+)",$',segment,re.M))
-    assert len(found)==len(CODES)==50
+    assert len(found)==len(CODES)==64
     assert set(found)==set(CODES)
     assert all(value.strip() and len(value.strip())<35 for value in found.values())
     assert found['ru']=='Реклама' and found['en']=='Ad'

@@ -1,4 +1,4 @@
-"""New 0.2 feature texts must be genuinely localized in ALL 53 languages."""
+"""New 0.2 feature texts must be genuinely localized in ALL 64 languages."""
 import re
 import sys
 import unittest
@@ -68,7 +68,7 @@ class IOS020ContextualLocalization(unittest.TestCase):
 
     def test_all_new_strings_are_complete_and_have_safe_formatting(self):
         data=analyze()
-        self.assertEqual(data['count'],53)
+        self.assertEqual(data['count'],64)
         self.assertFalse(data['resource_errors'])
         self.assertFalse(data['unchanged_english'])
         for lang in data['locales']:

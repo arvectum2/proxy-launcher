@@ -1,7 +1,7 @@
 import Foundation
 
 /// The locale preference is independent of the color-scheme preference.
-/// The cases cover the 53 fully populated APL iOS source languages.
+/// The cases cover the 64 fully populated APL iOS source languages.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case en
@@ -55,6 +55,17 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case or
     case sl
     case uk
+    case be
+    case et
+    case lv
+    case lt
+    case ka
+    case hy
+    case az
+    case kk
+    case tk
+    case ky
+    case tg
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -114,6 +125,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .or: return "ଓଡ଼ିଆ"
         case .sl: return "Slovenščina"
         case .uk: return "Українська"
+        case .be: return "Беларуская"
+        case .et: return "Eesti"
+        case .lv: return "Latviešu"
+        case .lt: return "Lietuvių"
+        case .ka: return "ქართული"
+        case .hy: return "Հայերեն"
+        case .az: return "Azərbaycanca"
+        case .kk: return "Қазақша"
+        case .tk: return "Türkmençe"
+        case .ky: return "Кыргызча"
+        case .tg: return "Тоҷикӣ"
+
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -132,7 +155,7 @@ enum AppL10n {
 
     // 0.2 uses shorter iPhone labels. Reuse the existing *native* 0.1.x
     // translations of semantically equivalent labels before falling back to
-    // English. This keeps Home and Settings localized in all 50 catalogs.
+    // English. This keeps Home and Settings localized in all 64 catalogs.
     private static let legacyLabelAliases: [String: String] = [
         "Домой": "Главная",
         "Тема": "Тема оформления",
@@ -152,10 +175,13 @@ enum AppL10n {
         if id.hasPrefix("pt-br") { return "pt-BR" }
         if id == "pa-pk" || id.hasPrefix("pa-arab") { return nil }
         if id == "uz-cyrl" || id.hasPrefix("uz-cyrl-") { return nil }
+        if id == "az-cyrl" || id.hasPrefix("az-cyrl-") { return nil }
+        if id == "kk-latn" || id.hasPrefix("kk-latn-") { return nil }
+        if id == "tg-arab" || id.hasPrefix("tg-arab-") { return nil }
         if id == "sr-latn" || id.hasPrefix("sr-latn-") { return nil }
         if id == "ha-arab" || id.hasPrefix("ha-arab-") { return nil }
         if id == "no" || id.hasPrefix("no-") { return "nb" }
-        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz", "ms", "fil", "sw", "ro", "hu", "cs", "sk", "el", "he", "ha", "am", "sv", "da", "fi", "nb", "bg", "sr", "hr", "ca"] {
+        for code in ["en", "ru", "es", "fr", "de", "it", "ja", "ko", "fa", "nl", "id", "tr", "hi", "ar", "vi", "pl", "th", "ur", "bn", "pa", "ta", "te", "mr", "gu", "kn", "ml", "uz", "ms", "fil", "sw", "ro", "hu", "cs", "sk", "el", "he", "ha", "am", "sv", "da", "fi", "nb", "bg", "sr", "hr", "ca", "or", "sl", "uk", "be", "et", "lv", "lt", "ka", "hy", "az", "kk", "tk", "ky", "tg"] {
             if id == code || id.hasPrefix(code + "-") { return code }
         }
         return nil
@@ -193,7 +219,7 @@ enum AppL10n {
 
     static func tr(_ key: String) -> String {
         // Preserve the reviewed 155-key legacy catalog. The 0.2 ProfileManagement
-        // strings now have native values for all 53 languages; English remains
+        // strings now have native values for all 64 languages; English remains
         // a defensive fallback for any future missing/optional source key.
         let missing = "__APL_020_MISSING_TRANSLATION__"
         for name in [effectiveLanguage, "en"] {

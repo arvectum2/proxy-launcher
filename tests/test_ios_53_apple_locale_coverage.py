@@ -1,4 +1,4 @@
-"""Apple-50 App Store metadata vs iOS-53 in-app locale coverage for APL 0.2.0.
+"""Apple-50 App Store metadata vs iOS-64 in-app locale coverage for APL 0.2.0.
 
 Offline source contract only; never accesses App Store Connect or device secrets.
 """
@@ -21,9 +21,9 @@ TABLES = {'Localizable': 155, 'ProfileManagement': 101,
 def test_53_ui_languages_all_have_five_complete_catalogs():
     manifest = json.loads((IOS / 'ios-locales.json').read_text())
     languages = manifest['languages']
-    assert len(languages) == len(set(languages)) == 53
+    assert len(languages) == len(set(languages)) == 64
     assert set(languages) == {p.name[:-6] for p in RES.glob('*.lproj')}
-    assert len(list(RES.glob('*.lproj/*.strings'))) == 53 * len(TABLES) == 265
+    assert len(list(RES.glob('*.lproj/*.strings'))) == 64 * len(TABLES) == 320
     for code in NEW:
         folder = RES / f'{code}.lproj'
         for table, count in TABLES.items():

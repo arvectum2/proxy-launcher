@@ -1,9 +1,11 @@
 # Arvectum Proxy Launcher — iOS App Store localization package
 
+> **02.11.2026 / former-USSR expansion:** APL iOS now targets **64 in-app languages** (including 11 new languages `be`, `et`, `lv`, `lt`, `ka`, `hy`, `az`, `kk`, `tk`, `ky`, `tg`). App Store Connect metadata **remains 50/50 official variants** and the existing 100 screenshots remain intact; Apple does not expose a separate listing language for these 11 new UI locales. New UI catalogs are machine-assisted, with independent human editorial quality gate before public shipping.
+
 > **02.11.2026 / iOS 0.2.0 only:** This offline package now targets **50/50 official Apple ASO locales**, **53 UI languages** and **100 real Simulator screenshots**. The newly added `or-IN`, `sl-SI`, `uk` UI/ASO copy was machine-assisted and received targeted technical/terminology edits; **independent native-speaker editorial certification is not claimed**. Existing submitted iOS **0.1.41 remains on Apple review per the owner**. Do not run any Apple write/upload/submit command below against 0.1.41; historical instructions are preserved only as previous release records. A future authorized 0.2.0 submission will require a new editable version and owner approval. No app privacy or ad metadata changed.
 
 
-This directory contains **50 Apple-supported App Store localization records** that map to **45 of the 53 shipped iOS UI languages**, with genuine regional variants for English, French and Spanish. It does **not** represent 50 separate binary languages; the iOS app itself has **53** complete source catalogs.
+This directory contains **50 Apple-supported App Store localization records** that map to **45 of the 64 shipped iOS UI languages**, with genuine regional variants for English, French and Spanish. It does **not** represent 50 separate binary languages; the iOS app itself has **64** complete source catalogs.
 
 ## Editorial sources and export files
 
