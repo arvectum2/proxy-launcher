@@ -1,5 +1,5 @@
 task_id: APL-SMART-EXCL-020-REAL-ROUTING-20261102
-status: blocked
+status: in_progress
 goal: "Ensure APL iOS Smart Exclusions 2.0 performs actual validated dependent-domain direct routing without leaking third-party traffic through a shared CDN IP."
 definition_of_done:
   - "Trace actual iOS PacketTunnel DNS/excludedRoutes and dependency graph, document shared-IP risk and design safe enforceable policy."
@@ -7,7 +7,7 @@ definition_of_done:
   - "Implement safe narrow routing with fail-closed semantics; test positive linked-site bypass and negative unapproved same-IP hostname, IPv4/IPv6/DNS corner cases, rollback."
   - "Build current iOS source and run targeted Rust/Swift/Simulator QA, honestly documenting limits of what cannot be verified without a physical tunnel."
   - "Update technical roadmap, commit/push, close or accurately block checkpoint. Do not touch Apple 0.1.41 review or current ads/privacy/ASO."
-current: "PHASE A COMPLETE: source-pinned tun2proxy v0.8.3 flow intent at actual TCP ingress, exact virtual-DNS-host identity, fail-closed PROXY fallback. Phase B BLOCKED by Apple TN3120 platform feasibility and physical split-egress proof; no unsupported packet-tunnel listener/proxy activated."
+current: "Implement optional APL Smart Gateway using supported iOS HTTP CONNECT upstream: single server routes explicit approved exact-host directly from gateway ISP and all others via configured supplier proxy, no per-IP routing on iPhone in gateway mode. Reuse existing free_gateway relay, protect policy sync and auth, run real two-host shared-IP proxy/direct E2E."
 completed:
   - "Baseline 844358c8 clean; archived prior roadmap checkpoint."
   - "Read NE PacketTunnel excludedRoutes + pinned tun2proxy virtual DNS patch; confirmed IP-wide global bypass of unrelated raw-IP or independently resolved host. Apple documentation confirms excludedRoutes are destinations, not hostnames."
@@ -21,7 +21,7 @@ completed:
   - "Rust aarch64-apple-ios and aarch64-apple-ios-sim release static libraries compiled; locally refreshed XCFramework slices and iOS simulator app BUILD SUCCEEDED without production direct activation."
   - "All Swift Core 113/113 PASS, Python 11/11 PASS, ios_active_release_preflight 0.2.0(48) PASS, roadmap/ADR updated, implementation commit 11896f01. No real hardware/Apple/ads/privacy changes."
 pending:
-  - "APL-SMART-FLOW-002 PLATFORM FEASIBILITY: obtain Apple Developer Technical Support guidance or identify supported iOS architecture for per-flow *physical* DIRECT without unsupported local listener/alternate forwarding in NEPacketTunnelProvider; only then design transport."
+  - "Implement optional server-side Smart Gateway exact-host CONNECT router with a strictly authenticated policy update and upstream fail-closed, integrated as an HTTPS proxy profile on iOS (no unsupported local tunnel listener)."
   - "Before changing legacy domain IP-wide routes, obtain product choice about compatibility vs strict no-leak mode (strict mode would conservatively proxy and can break user exclusions); currently not changed."
   - "After platform gate, implement isolated per-flow transport and remove IP-wide /32-/128 domain exceptions, then validate exact DNS→flow identity and same-CDN TLS A/B egress on real iPhone."
   - "Test on controlled iPhone VPN with two independent TLS hostnames at same physical IP and a working egress proxy, proving approved HTML/CSS/JS/API DIRECT and unrelated shared-IP HTTPS/UDP via PROXY simultaneously; verify IPv6/UDP, DNS TTL changes, Wi-Fi/LTE, rollback and no credentials leakage."
@@ -30,7 +30,7 @@ blockers:
   - "Apple excludedRoutes is IP-only. Apple TN3120 explicitly discourages packet-tunnel-hosted local listener/proxy and routing claimed packets over alternative interface; a supported physical direct egress mechanism has not been established. Current Rust classifier makes intent decisions only, never actually routes DIRECT."
   - "No actual updated iPhone PacketTunnel VPN egress/pcap proof from real site+related asset vs unapproved same-IP site: live lab is localhost TCP/HTTP model, not physical NE test. Existing app on iPhone is older signed 0.2.0(48) and does not include bd4c5e7f; in-place install + active VPN/profile mutation is nontrivial external side effect."
 
-last_verified_commit: "11896f01 (pinned tun2proxy experimental per-flow classifier; checkpoint-only commit follows)"
+last_verified_commit: "819ea440 (smart-flow prototype checked; gateway implementation begins)"
 test_results:
   - "113/113 full Swift Core tests PASS, including 7 new exact shared-IP collision and graph approval tests; iOS simulator ARM64 BUILD SUCCEEDED."
   - "8/8 specialized Python guard/source contracts PASS; live controlled loopback TCP server + proxy demonstrates direct IP leak before guard and proxy-only when conflict detected."
