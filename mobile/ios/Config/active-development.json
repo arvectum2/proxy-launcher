@@ -1,0 +1,9 @@
+{
+  "platform": "ios",
+  "marketing_version": "0.2.0",
+  "build_number": "48",
+  "active_source_branch": "feat/ios-020-product-plan-20261101",
+  "draft_pull_request": 296,
+  "release_state": "source_candidate_not_uploaded",
+  "app_store_submission_authorized": false
+}
