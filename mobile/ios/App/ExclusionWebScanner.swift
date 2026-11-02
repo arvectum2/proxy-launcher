@@ -18,6 +18,21 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
     func scan(host: String, completion: @escaping (Result<SiteScanObservation, Error>) -> Void) {
         self.host = host
         self.completion = completion
+#if DEBUG
+        // Deterministic test-only network observation: prove Add -> scan ->
+        // auto approval + manual third-party proposal without external DNS.
+        if ProcessInfo.processInfo.arguments.contains("-qaSmartDependenciesFixture"),
+           host == "qa.example.test" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.finish(.success(SiteScanObservation(
+                    html: ["api.qa.example.test", "analytics.qa.example.test"],
+                    network: ["api.qa.example.test", "analytics.qa.example.test", "cdn.qa.example.test"],
+                    external: ["assets.partner.test"]
+                )))
+            }
+            return
+        }
+#endif
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .nonPersistent()
         let view = WKWebView(frame: CGRect(x: -1, y: -1, width: 1, height: 1), configuration: configuration)
@@ -43,7 +58,10 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         guard let destination = navigationAction.request.url,
               destination.scheme?.lowercased() == "https",
               let requested = URL(string: "https://" + host)?.host?.lowercased(),
-              destination.host?.lowercased() == requested else {
+              let destinationHost = destination.host?.lowercased(),
+              (destinationHost == requested ||
+               (requested.hasPrefix("www.") && destinationHost == String(requested.dropFirst(4))) ||
+               (destinationHost == "www." + requested)) else {
             decisionHandler(.cancel)
             return
         }
@@ -63,6 +81,16 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // ResourceTiming entries from scripts, fonts and XHR may arrive after
+        // DOM load. One bounded settling delay captures more than initial HTML
+        // without turning exclusions into a persistent browsing monitor.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self, weak webView] in
+            guard let self, let webView, self.completion != nil else { return }
+            self.collectResources(from: webView)
+        }
+    }
+
+    private func collectResources(from webView: WKWebView) {
         let script = """
         JSON.stringify({html: document.documentElement.outerHTML.slice(0,512000),
           resources: performance.getEntriesByType('resource').slice(0,512).map(x => x.name)})
@@ -79,7 +107,7 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
             let resources = payload["resources"] as? [String] ?? []
             let htmlHosts = SiteDependencyDiscovery.candidates(html: html, for: self.host)
             let networkHosts = SiteDependencyDiscovery.resourceCandidates(urls: resources, for: self.host)
-            let external = SiteDependencyDiscovery.externalCandidates(urls: resources, for: self.host)
+            let external = SiteDependencyDiscovery.externalCandidates(html: html, urls: resources, for: self.host)
             self.finish(.success(SiteScanObservation(html: htmlHosts, network: networkHosts, external: external)))
         }
     }

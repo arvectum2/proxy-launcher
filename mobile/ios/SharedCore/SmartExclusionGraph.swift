@@ -106,6 +106,31 @@ struct SmartExclusionGraph: Codable, Equatable {
         proposed.edges.sort { $0.id < $1.id }
         self = proposed
     }
+    /// Automatically include only first-party hosts observed in BOTH the
+    /// rendered page and actual runtime resource requests. An unobserved,
+    /// rejected, cross-site or ambiguous host is never granted DIRECT.
+    /// Preserve both existing user decisions and the 32-rule hard limit.
+    @discardableResult
+    mutating func approveStrongFirstParty(parent raw: String, manual: [String],
+                                          at now: Date = Date()) -> [String] {
+        guard let parent = Self.root(raw),
+              (try? SiteExclusionPolicy.normalizeAll(manual))?
+                  .contains(where: { Self.root($0) == parent }) == true else { return [] }
+        var approved: [String] = []
+        for i in edges.indices where edges[i].parent == parent &&
+                edges[i].decision == .pending && edges[i].evidence == .both &&
+                Self.validChild(edges[i].host, for: parent) &&
+                SiteDependencyDiscovery.eligibleForAutomaticBypass(edges[i].host) {
+            edges[i].decision = .approved
+            if (try? effective(manual: manual, at: now)) != nil {
+                approved.append(edges[i].host)
+            } else {
+                edges[i].decision = .pending
+            }
+        }
+        return approved.sorted()
+    }
+
     mutating func set(_ decision: SmartDecision, parent raw: String, child: String) throws {
         guard let root = Self.root(raw), Self.validChild(child, for: root),
               let i = edges.firstIndex(where: { $0.parent == root && $0.host == child }) else {

@@ -48,6 +48,14 @@ final class SiteDependencyDiscoveryTests: XCTestCase {
         XCTAssertEqual(SiteDependencyDiscovery.externalCandidates(urls: many, for: "example.com").count, 12)
     }
 
+    func testCrossDomainActualAssetsOfferedWithoutNavigationLinkNoise() {
+        let html = #"<script src="https://gu-st.ru/a.js"></script><link href="//assets.partner.test/a.css"><a href="https://unrelated.example.com/">Go</a><img src="https://static.example.com/x.png">"#
+        XCTAssertEqual(SiteDependencyDiscovery.externalCandidates(html: html,
+                       urls: ["https://api.partner.test/v1", "https://tracker.bad.test/pixel"],
+                       for: "example.com"),
+                       ["api.partner.test", "assets.partner.test", "gu-st.ru", "tracker.bad.test"])
+    }
+
     func testScannableHostRejectsIPAndMalformedDomain() {
         XCTAssertTrue(SiteDependencyDiscovery.isScannableHost("www.example.com"))
         XCTAssertFalse(SiteDependencyDiscovery.isScannableHost("127.0.0.1"))

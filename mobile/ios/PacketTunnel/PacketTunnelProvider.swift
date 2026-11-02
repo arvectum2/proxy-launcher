@@ -28,7 +28,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var monitorTask: Task<Void, Never>?
     private var startTask: Task<Void, Never>?
     private var socketPressureTask: Task<Void, Never>?
-    private var gatewayPolicyTask: Task<Void, Never>?
     private var connectionPressurePolicy = ConnectionPressurePolicy()
     private var active: PreparedProxy?
     private var consecutiveFailures = 0
@@ -72,7 +71,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 try Task.checkCancellation()
                 guard !stopping else { throw CancellationError() }
                 active = prepared
-                startGatewayPolicyRefresh(prepared)
                 // A successful handshake is not a successfully applied VPN.
                 // Remember last-good only after the actual tunnel starts.
                 if prepared.automaticSelection {
@@ -106,8 +104,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         monitorTask = nil
         socketPressureTask?.cancel()
         socketPressureTask = nil
-        gatewayPolicyTask?.cancel()
-        gatewayPolicyTask = nil
         _ = tun2proxy_stop()
         tlsRelay?.stop()
         tlsRelay = nil
@@ -185,7 +181,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         tlsRelay = nil
 
         var effective = prepared.resolvedProfile
-        if effective.type == .https || effective.type == .gateway {
+        if effective.type == .https {
             let relay = TLSProxyRelay(host: effective.host, port: effective.port)
             let localPort = try await relay.start()
             tlsRelay = relay
@@ -194,15 +190,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             effective.type = .http
         }
 
-        if prepared.resolvedProfile.type == .gateway {
-            // Authenticated server-side exact-host routing. Never expose
-            // domain-wide /32 or /128 routes on the local device.
-            try await SmartGatewayPolicySync.push(
-                profile: prepared.resolvedProfile,
-                password: prepared.password,
-                effectiveExclusions: store?.siteExclusions ?? []
-            )
-        }
         let exclusions = try resolveExclusions(for: prepared)
         let settings = networkSettings(excludedAddresses: exclusions.addresses)
         try await setSettings(settings)
@@ -238,31 +225,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         try await Task.sleep(nanoseconds: 350_000_000)
         try Task.checkCancellation()
         guard !stopping else { throw CancellationError() }
-    }
-
-    /// Server-side policy is intentionally short lived. Refresh at 60s;
-    /// when gateway sync fails, server expires it and proxies everything.
-    /// Revoking exclusions triggers VPN reconnect and immediate policy PUT.
-    private func startGatewayPolicyRefresh(_ prepared: PreparedProxy) {
-        gatewayPolicyTask?.cancel()
-        guard prepared.resolvedProfile.type == .gateway else { return }
-        gatewayPolicyTask = Task { [weak self] in
-            while !Task.isCancelled {
-                do { try await Task.sleep(nanoseconds: 60_000_000_000) }
-                catch { break }
-                guard let self, !self.stopping, !Task.isCancelled else { break }
-                do {
-                    try await SmartGatewayPolicySync.push(
-                        profile: prepared.resolvedProfile,
-                        password: prepared.password,
-                        effectiveExclusions: self.store?.siteExclusions ?? []
-                    )
-                } catch {
-                    // No credentials, URLs or user-defined hosts in logs.
-                    self.telemetry.append(TunnelEvent(type: "gateway sync", detail: "Повторная синхронизация недоступна"))
-                }
-            }
-        }
     }
 
     // Runs even for manually selected profiles; the ordinary failover monitor
@@ -401,15 +363,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func resolveExclusions(for prepared: PreparedProxy) throws -> SplitDNSExclusions {
         guard let store else { return SplitDNSExclusions(addresses: [], dnsBypass: []) }
-        if prepared.resolvedProfile.type == .gateway {
-            // The gateway is the ONLY physical peer; domain routing happens
-            // after TLS CONNECT authentication, on the server. Require that
-            // endpoint to have a dedicated public address at deployment.
-            return SplitDNSExclusions(
-                addresses: try resolveHost(prepared.storedProfile.host),
-                dnsBypass: []
-            )
-        }
         // The active graph can include previously rejected or not-yet-approved
         // subdomains. Their DNS answers are evidence of IP collisions, never
         // authorization to bypass the proxy. Do not grant a new excludedRoute
@@ -503,7 +456,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         switch profile.type {
         case .http: components.scheme = "http"
         case .socks5: components.scheme = "socks5"
-        case .https, .gateway, .auto: throw tunnelError("Прокси-протокол не разрешён перед запуском движка")
+        case .https, .auto: throw tunnelError("Прокси-протокол не разрешён перед запуском движка")
         }
         components.host = profile.host
         components.port = profile.port

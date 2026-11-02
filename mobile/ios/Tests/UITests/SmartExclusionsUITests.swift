@@ -1,6 +1,72 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    func testAddAutoDiscoversStrongSubdomainsAndOffersExternalHosts() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("qa.example.test")
+        // No manual Find action: Add alone must start the scan and classify.
+        app.buttons["Добавить"].tap()
+        let auto = app.staticTexts["api.qa.example.test"].firstMatch
+        // List cells below the first fold are lazily created; scroll until
+        // the new auto-included section appears instead of assuming viewport.
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.waitForExistence(timeout: 8), app.debugDescription)
+        // Single-signal CDN and tracking endpoint are offered, not silently
+        // approved. A different registered domain is also only a suggestion.
+        let pending = app.staticTexts["cdn.qa.example.test"].firstMatch
+        let tracker = app.staticTexts["analytics.qa.example.test"].firstMatch
+        let external = app.staticTexts["assets.partner.test"].firstMatch
+        for item in [pending, tracker, external] {
+            for _ in 0..<5 where !item.exists { app.swipeUp() }
+            XCTAssertTrue(item.exists, app.debugDescription)
+        }
+        XCTAssertFalse(app.buttons["Удалить исключение assets.partner.test"].exists)
+        app.buttons["Отмена"].tap()
+    }
+
+    func testAutomaticallyDiscoveredDomainPersistsAfterSave() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Настройки"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let auto = app.staticTexts["api.qa.example.test"].firstMatch
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.waitForExistence(timeout: 8), app.debugDescription)
+        let save = app.buttons["Сохранить"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        XCTAssertTrue(save.isEnabled)
+        save.tap()
+        XCTAssertTrue(app.buttons["Исключения сайтов"].waitForExistence(timeout: 10))
+        app.buttons["Исключения сайтов"].tap()
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.exists, "Auto-approved domain must survive Save and re-open")
+        // Remove fixture root before leaving so this test cannot pollute
+        // other tests or the simulator's saved app state.
+        let remove = app.buttons["Удалить исключение qa.example.test"]
+        for _ in 0..<6 where !remove.exists { app.swipeUp() }
+        XCTAssertTrue(remove.exists)
+        remove.tap()
+        app.buttons["Сохранить"].tap()
+    }
+
     func testAddDeleteAndCancelWithoutSaving() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]

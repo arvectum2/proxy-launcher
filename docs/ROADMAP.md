@@ -1,9 +1,9 @@
 ## 02.11.2026 — ТЕКУЩАЯ ОЧЕРЕДЬ APL (после финальной UI/UX-приёмки 64 языков)
 
-### 02.11 — Smart Exclusions 2.0: точный обход через APL Gateway (опционально)
+### 02.11 — Возврат к исходной задаче Smart Exclusions: A → B/C автоматически
 
-- [x] **`APL-SMART-GW-CORE-001`:** в исходниках добавлен самостоятельный authenticated Gateway с exact-host per-connection split: 3 связанных разрешённых HTTPS host идут DIRECT с gateway, посторонний HTTPS host на том же IP — supplier proxy. Настоящий TCP/TLS lab, 17/17 серверных тестов; отдельный iOS proxy type `APL Gateway (TLS)`, verified HTTPS policy sync, TTL 180/refresh 60, 115/115 Swift Core, Simulator build PASS. [Техническая приёмка и ограничения](APL_SMART_GATEWAY_SHARED_IP_E2E_2026-11-02.md).
-- [ ] **`APL-SMART-GW-DEPLOY-001`:** публичный dedicated-IP Gateway с валидным TLS-сертификатом и настоящим исходным прокси, физический iPhone split-egress E2E. Пока НЕ развернули, не объявлять задачу end-to-end завершённой. **DIRECT с сервера, а не с iPhone.** Старые режимы untouched; iOS 0.1.41 Review/ads/privacy untouched.
+- [x] **`APL-SMART-DEPENDENCIES-AUTO-20261102`** — 119/119 Swift, 11/11 Python, 4/4 selected UI XCTest PASS: при добавлении домена APL автоматически сканирует HTML + реальные запросы WebKit, автоматически включает только подтверждённые двумя источниками безопасные first-party поддомены, предлагает слабые связи и сторонние B/C на подтверждение; UI показывает включённые автоматически, доступны повторный поиск и Undo. [Логика, доказательства и ограничения](APL_IOS_SMART_EXCLUSIONS_AUTODISCOVERY_2026-11-02.md).
+- [x] **Отмена нежелательного Gateway**: отдельный сервер/новый тип iOS профиля удалён из текущей ветки, потому что это не соответствует запросу пользователя. Старые сетевые профили и Apple релизы не затронуты.
 
 
 ### 02.11 — Smart Exclusions 2.0: обнаруженные shared-IP конфликты закрыты, точное доменное исключение ещё нет

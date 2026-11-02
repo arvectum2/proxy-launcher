@@ -6,6 +6,9 @@ import Foundation
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
         "Анализ ресурсов сайта": "Checking website resources",
+        "Добавлены автоматически": "Added automatically",
+        "Связанные домены": "Related domains",
+        "Найденные в HTML и сетевых запросах поддомены добавляются автоматически. Остальные связи требуют подтверждения. Сохраните изменения и переподключитесь.": "Subdomains observed in both HTML and network requests are added automatically. Other related hosts need approval. Save changes and reconnect.",
         "Введите домен, URL или IP и нажмите «Добавить».": "Enter a domain, URL or IP address and tap Add.",
         "Адрес домена, URL или IP": "Domain, URL or IP address",
         "Домен или IP": "Domain or IP address",

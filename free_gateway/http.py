@@ -15,7 +15,7 @@ def response(status: int, payload: dict | list) -> bytes:
     ).encode("ascii") + body
 
 
-async def read_request(reader, max_header=16384, max_body=65536):
+async def read_request(reader, max_header=16384):
     data = await reader.readuntil(b"\r\n\r\n")
     if len(data) > max_header:
         raise ValueError("request headers too large")
@@ -29,7 +29,5 @@ async def read_request(reader, max_header=16384, max_body=65536):
         name, value = line.split(":", 1)
         headers[name.lower().strip()] = value.strip()
     length = int(headers.get("content-length", "0"))
-    if length < 0 or length > max_body:
-        raise ValueError("request body too large")
     body = await reader.readexactly(length) if length else b""
     return method, target, version, headers, body

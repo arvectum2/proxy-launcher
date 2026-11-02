@@ -6,6 +6,15 @@ import Darwin
 enum SiteDependencyDiscovery {
     static let maxHTMLBytes = 512_000
     static let maxCandidates = 24
+    /// A loaded analytics pixel is not necessarily required for the site to
+    /// function. Never silently bypass obvious tracking/ads endpoints, even
+    /// when both HTML and PerformanceTiming mention the same host.
+    static func eligibleForAutomaticBypass(_ host: String) -> Bool {
+        guard isScannableHost(host) else { return false }
+        let trackingLabels: Set<String> = ["ads", "ad", "advertising", "analytics", "tracking",
+            "tracker", "metrics", "telemetry", "pixel", "beacon", "collect", "stats"]
+        return !host.split(separator: ".").contains(where: { trackingLabels.contains(String($0)) })
+    }
     static func isScannableHost(_ host: String) -> Bool {
         guard host.contains("."), !host.hasPrefix("."), !host.hasSuffix("."),
               host.utf8.count <= 253, !host.contains(":"),
@@ -54,6 +63,25 @@ enum SiteDependencyDiscovery {
     /// Unrelated/sibling domains may host essential assets (e.g. gu-st.ru),
     /// but IP-based split routing can bypass *other* sites on shared CDN IPs.
     /// Return display-only hints; callers must never auto-approve them.
+    /// External asset hosts visible in HTML, including those whose fetch was
+    /// blocked or has not yet completed. Never interpret navigation links or
+    /// remote CDN assets as automatic permissions: show for confirmation.
+    static func externalCandidates(html: String, urls: [String], for site: String) -> [String] {
+        let markup = String(html.prefix(maxHTMLBytes))
+        let pattern = #"(?i)<(?:script|link|img|iframe|source|form|video|audio)\b[^>]*?\b(?:src|href|action|poster|data-src)\s*=\s*["']((?:https?:)?//[^"'\s<>]+)["']"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return externalCandidates(urls: urls, for: site)
+        }
+        let ns = markup as NSString
+        var referenced = [String]()
+        for match in regex.matches(in: markup, range: NSRange(location: 0, length: ns.length)).prefix(512) {
+            guard match.range(at: 1).location != NSNotFound else { continue }
+            let source = ns.substring(with: match.range(at: 1))
+            referenced.append(source.hasPrefix("//") ? "https:" + source : source)
+        }
+        return externalCandidates(urls: referenced + urls, for: site)
+    }
+
     static func externalCandidates(urls: [String], for site: String) -> [String] {
         guard let root = try? SiteExclusionPolicy.normalize(site),
               isScannableHost(root) else { return [] }

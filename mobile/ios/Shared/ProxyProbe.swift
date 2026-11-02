@@ -64,7 +64,7 @@ final class ProxyProbe {
             do {
                 switch candidate {
                 case .http: try await probeHTTP(profile, password: password, tls: false)
-                case .https, .gateway: try await probeHTTP(profile, password: password, tls: true)
+                case .https: try await probeHTTP(profile, password: password, tls: true)
                 case .socks5: try await probeSOCKS5(profile, password: password)
                 case .auto: continue
                 }

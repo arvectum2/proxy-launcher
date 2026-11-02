@@ -4,6 +4,64 @@ import XCTest
 final class SmartExclusionGraphTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
+    func testAutoApprovesOnlyStrongObservedFirstPartyNotUnrelatedOrWeak() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com",
+                          html: ["cdn.example.com", "weak.example.com", "third-party.test"],
+                          network: ["cdn.example.com", "xhr.example.com", "third-party.test"], at: now)
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com", manual: ["example.com"], at: now),
+                       ["cdn.example.com"])
+        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now),
+                       ["cdn.example.com", "example.com"])
+        XCTAssertEqual(Set(graph.edges.filter { $0.decision == .pending }.map(\.host)),
+                       Set(["weak.example.com", "xhr.example.com"]))
+    }
+
+    func testFirstPartyTrackingEndpointsAreSuggestedButNotAutomaticallyBypassed() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com",
+                          html: ["api.example.com", "analytics.example.com", "pixel.example.com"],
+                          network: ["api.example.com", "analytics.example.com", "pixel.example.com"], at: now)
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com", manual: ["example.com"], at: now),
+                       ["api.example.com"])
+        XCTAssertEqual(Set(graph.edges.filter { $0.decision == .pending }.map(\.host)),
+                       Set(["analytics.example.com", "pixel.example.com"]))
+    }
+
+    func testWWWManualRootAlsoAllowsSameSiteStrongAutoApprovals() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "www.example.com", html: ["api.example.com"],
+                          network: ["api.example.com"], at: now)
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "www.example.com",
+                                                      manual: ["www.example.com"], at: now),
+                       ["api.example.com"])
+        XCTAssertEqual(try graph.effective(manual: ["www.example.com"], at: now),
+                       ["api.example.com", "www.example.com"])
+    }
+
+    func testAutoApprovalNeverOverwritesRejectedOrRemovesExplicitDecision() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com", html: ["blocked.example.com", "ok.example.com"],
+                          network: ["blocked.example.com", "ok.example.com"], at: now)
+        try graph.set(.rejected, parent: "example.com", child: "blocked.example.com")
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com", manual: ["example.com"], at: now),
+                       ["ok.example.com"])
+        try graph.observe(parent: "example.com", html: ["blocked.example.com"],
+                          network: ["blocked.example.com"], at: now.addingTimeInterval(2))
+        XCTAssertTrue(graph.approveStrongFirstParty(parent: "example.com", manual: ["example.com"], at: now.addingTimeInterval(2)).isEmpty)
+        XCTAssertEqual(graph.edges.first(where: { $0.host == "blocked.example.com" })?.decision, .rejected)
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com", manual: ["other.test"], at: now), [])
+    }
+
+    func testAutoApprovalBoundedByThirtyTwoActiveExclusions() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com", html: ["cdn.example.com"],
+                          network: ["cdn.example.com"], at: now)
+        let manual = ["example.com"] + (0..<31).map { "site\($0).test" }
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com", manual: manual, at: now), [])
+        XCTAssertEqual(graph.edges.first?.decision, .pending)
+    }
+
     func testNoImplicitApprovalAndUnrelatedBlocked() throws {
         var graph = SmartExclusionGraph()
         try graph.observe(parent: "www.example.com", html: ["cdn.example.com", "tracking.bad.com"],

@@ -40,11 +40,28 @@ struct ExclusionsView: View {
     @State private var selectedDiscovered: Set<String> = []
     @State private var scanning = false
     @State private var scanner: ExclusionWebScanner?
+    @State private var queuedScans: [String] = []
+    @State private var activeScanHost: String?
+
+    /// Include derived www aliases, known compatibility hosts and already
+    /// approved observed dependencies in the visible list before saving.
+    private var automaticallyIncluded: [String] {
+        let effective = (try? graph.effective(manual: entries)) ?? entries
+        let expanded = effective.flatMap { SiteExclusionPolicy.routingHosts(for: $0) }
+        return Array(Set(expanded).subtracting(Set(entries))).sorted()
+    }
 
     var body: some View {
         NavigationView {
             List {
                 editorSection
+                if !automaticallyIncluded.isEmpty {
+                    Section(SmartExclusionsUX.text("Добавлены автоматически")) {
+                        ForEach(automaticallyIncluded, id: \.self) { host in
+                            Text(host).textSelection(.enabled)
+                        }
+                    }
+                }
                 if !discovered.isEmpty {
                     Section(SmartExclusionsUX.text("Найденные домены — выберите для исключения")) {
                         ForEach(discovered, id: \.self) { host in
@@ -111,7 +128,7 @@ struct ExclusionsView: View {
                             }
                         }
                     } header: {
-                        Text(SmartExclusionsUX.text("Связанные домены (требуют подтверждения)"))
+                        Text(SmartExclusionsUX.text("Связанные домены"))
                     } footer: {
                         Text(SmartExclusionsUX.text("Связи хранятся локально 7 дней. Повторный анализ обновляет дату наблюдения, но не меняет ваше решение. Сторонние CDN не обходятся автоматически."))
                     }
@@ -149,6 +166,8 @@ struct ExclusionsView: View {
                                 snapshotUndo()
                                 entries.removeAll { $0 == host }
                                 graph.remove(parent: host)
+                                queuedScans.removeAll { $0 == host }
+                                if activeScanHost == host { cancelScan() }
                             } label: {
                                 Image(systemName: "trash")
                                     .foregroundStyle(.red)
@@ -196,6 +215,7 @@ struct ExclusionsView: View {
                 titleVisibility: .visible
             ) {
                 Button("Очистить все", role: .destructive) {
+                    cancelScan()
                     snapshotUndo()
                     entries.removeAll()
                     graph = SmartExclusionGraph()
@@ -219,6 +239,7 @@ struct ExclusionsView: View {
                         snapshotUndo()
                         entries = updated
                         externalHints.removeAll { $0 == host }
+                        if SiteDependencyDiscovery.isScannableHost(host) { queueScan(host) }
                         localError = nil
                     } catch { localError = error.localizedDescription }
                     pendingExternalHost = nil
@@ -251,6 +272,9 @@ struct ExclusionsView: View {
                         cancelScan()
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { addEntry() }
                         guard localError == nil else { return }
+                        // The first tap with an unsaved hostname adds and
+                        // scans it; a later Save persists completed results.
+                        guard !scanning && queuedScans.isEmpty else { return }
                         saving = true
                         Task {
                             let success = await model.saveExclusions(entries, graph: graph)
@@ -279,7 +303,7 @@ struct ExclusionsView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
-                    .disabled(saving)
+                    .disabled(saving || scanning || !queuedScans.isEmpty)
                 }
             }
         }
@@ -310,7 +334,7 @@ struct ExclusionsView: View {
                         .foregroundStyle(Brand.text)
                         .fixedSize(horizontal: false, vertical: true)
                     DisclosureGroup {
-                        Text(SmartExclusionsUX.text("В обход VPN идут только вручную добавленные домены и связанные домены, которые вы подтвердили. Обнаружение других сайтов само по себе не меняет маршруты. Изменения применятся после сохранения и переподключения."))
+                        Text(SmartExclusionsUX.text("Найденные в HTML и сетевых запросах поддомены добавляются автоматически. Остальные связи требуют подтверждения. Сохраните изменения и переподключитесь."))
                             .font(.body)
                             .foregroundStyle(Brand.text)
                             .fixedSize(horizontal: false, vertical: true)
@@ -468,6 +492,23 @@ struct ExclusionsView: View {
         scanner?.cancel()
         scanner = nil
         scanning = false
+        activeScanHost = nil
+        queuedScans = []
+    }
+
+    private func queueScan(_ host: String) {
+        guard SiteDependencyDiscovery.isScannableHost(host) else { return }
+        if scanning {
+            if activeScanHost != host && !queuedScans.contains(host) { queuedScans.append(host) }
+        } else { scanSite(host) }
+    }
+
+    private func scanNextQueuedSite() {
+        guard !queuedScans.isEmpty else { return }
+        let next = queuedScans.removeFirst()
+        // Start immediately to avoid a brief Save-enabled race between
+        // queued scans after adding multiple domains.
+        scanSite(next)
     }
 
     private func scanSite() { scanSite(input) }
@@ -479,7 +520,9 @@ struct ExclusionsView: View {
                 localError = "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес"
                 return
             }
+            guard !scanning else { queueScan(host); return }
             scanning = true
+            activeScanHost = host
             discovered = []
             externalHints = []
             selectedDiscovered = []
@@ -489,21 +532,28 @@ struct ExclusionsView: View {
             worker.scan(host: host) { result in
                 guard scanner === worker else { return }
                 scanning = false
+                activeScanHost = nil
                 scanner = nil
                 switch result {
                 case .success(let observation):
                     do {
                         snapshotUndo()
                         try graph.observe(parent: host, html: observation.html, network: observation.network)
+                        let autoAdded = graph.approveStrongFirstParty(parent: host, manual: entries)
                         scannedParent = SmartExclusionGraph.root(host) ?? host
-                        externalHints = observation.external.filter { !entries.contains($0) }
+                        externalHints = observation.external.filter {
+                            !entries.contains($0) && !automaticallyIncluded.contains($0)
+                        }
                         discovered = graph.edges.filter {
                             $0.parent == scannedParent && $0.decision == .pending && !entries.contains($0.host)
                         }.map(\.host).sorted()
-                        if discovered.isEmpty { localError = "Новых связанных доменов не обнаружено" }
+                        if discovered.isEmpty && externalHints.isEmpty && autoAdded.isEmpty {
+                            localError = "Новых связанных доменов не обнаружено"
+                        }
                     } catch { localError = error.localizedDescription }
                 case .failure(let error): localError = error.localizedDescription
                 }
+                scanNextQueuedSite()
             }
         } catch { localError = error.localizedDescription }
     }
@@ -514,8 +564,12 @@ struct ExclusionsView: View {
             if let value = try SiteExclusionPolicy.normalize(input) {
                 let updated = try SiteExclusionPolicy.normalizeAll(entries + [value])
                 _ = try graph.effective(manual: updated)
-                if updated != entries { snapshotUndo() }
+                let newlyAdded = updated != entries
+                if newlyAdded { snapshotUndo() }
                 entries = updated
+                // This is the core user flow: Add A automatically initiates
+                // one bounded HTML + runtime request scan for B/C.
+                if newlyAdded { queueScan(value) }
             }
             input = ""
             localError = nil
