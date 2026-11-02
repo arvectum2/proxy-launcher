@@ -16,7 +16,8 @@ final class ProfileLibraryUITests: XCTestCase {
         let editor = app.textViews.firstMatch
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap()
-        editor.typeText("proxy-020-qa.invalid:47936")
+        let uniqueHost = "proxy-" + UUID().uuidString.prefix(8).lowercased() + ".invalid"
+        editor.typeText(uniqueHost + ":47936")
         app.buttons["Проверить"].tap()
         XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 10))
         app.swipeUp()
@@ -27,18 +28,38 @@ final class ProfileLibraryUITests: XCTestCase {
         let search = app.textFields["profiles.search"]
         XCTAssertTrue(search.waitForExistence(timeout: 15))
         search.tap()
-        search.typeText("proxy-020-qa.invalid")
+        search.typeText(uniqueHost)
         let favorite = app.buttons["В избранное"].firstMatch
         XCTAssertTrue(favorite.waitForExistence(timeout: 10))
         favorite.tap()
         XCTAssertTrue(app.buttons["Убрать из избранного"].firstMatch.exists)
 
-        app.buttons["Выбрать"].tap()
+        // Assign a group using the same menu used by bulk actions.
+        let group = app.buttons["Группа профиля"].firstMatch
+        XCTAssertTrue(group.waitForExistence(timeout: 10))
+        group.tap()
+        app.buttons["Рабочие"].tap()
+        XCTAssertTrue(app.staticTexts["Рабочие"].waitForExistence(timeout: 10))
+
+        // Filtering must never expose a hidden profile to bulk deletion.
+        let groupFilter = app.buttons["profiles.groupFilter"]
+        XCTAssertTrue(groupFilter.exists)
+        groupFilter.tap()
+        app.buttons["Избранные"].tap()
         let rows = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "profiles.row."))
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 10))
+        XCTAssertEqual(rows.count, 1, "Only the uniquely imported synthetic profile is visible")
+
+        app.buttons["profiles.bulk.toggle"].tap()
         rows.firstMatch.tap()
-        let bulkDelete = app.buttons["Удалить выбранные (1)"]
+        let bulkDelete = app.buttons["profiles.bulk.delete"]
+        if !bulkDelete.isHittable { app.swipeUp() }
         XCTAssertTrue(bulkDelete.waitForExistence(timeout: 10))
+        XCTAssertTrue(bulkDelete.isEnabled)
+        let snapshot = XCTAttachment(screenshot: app.screenshot())
+        snapshot.name = "Profile library filtered bulk actions (synthetic .invalid)"
+        snapshot.lifetime = .keepAlways
+        add(snapshot)
         bulkDelete.tap()
         let confirmDeletion = app.buttons["Удалить безвозвратно"]
         XCTAssertTrue(confirmDeletion.waitForExistence(timeout: 10))

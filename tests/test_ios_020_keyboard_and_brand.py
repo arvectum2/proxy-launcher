@@ -30,18 +30,19 @@ class KeyboardAndBrand(unittest.TestCase):
         for name in ['ProfileEditorView.swift','ProxyImportView.swift','ProfileBackupView.swift','ExclusionsView.swift']:
             self.assertIn('.keyboardDismissOnSwipeUp()', (APP/name).read_text(encoding='utf-8'),name)
     def test_main_profile_search_closes_on_upward_swipe(self):
-        home=(APP/'ContentView.swift').read_text(encoding='utf-8')
-        self.assertIn('.focused($profileSearchFocused)',home)
-        self.assertIn('profileSearchFocused = false',home)
-        self.assertNotIn('"keyboard.dismiss.search"',home)
-        self.assertIn('.keyboardDismissOnSwipeUp()',home)
-        self.assertIn('.submitLabel(.done)',home)
+        filters=(APP/'ProfileLibraryFiltersView.swift').read_text(encoding='utf-8')
+        library=(APP/'ProfilesScreenView.swift').read_text(encoding='utf-8')
+        self.assertIn('.focused($searchFocused)',filters)
+        self.assertIn('searchFocused = false',filters)
+        self.assertNotIn('"keyboard.dismiss.search"',library+filters)
+        self.assertIn('.keyboardDismissOnSwipeUp()',library)
+        self.assertIn('.submitLabel(.done)',filters)
     def test_inputs_are_all_covered_and_alert_has_close_buttons(self):
-        entry_files=['ContentView.swift','ProfileEditorView.swift','ProxyImportView.swift','ProfileBackupView.swift','ExclusionsView.swift']
+        entry_files=['ProfileLibraryFiltersView.swift','ProfilesScreenView.swift','ProfileEditorView.swift','ProxyImportView.swift','ProfileBackupView.swift','ExclusionsView.swift']
         for name in entry_files:
             text=(APP/name).read_text(encoding='utf-8')
             self.assertTrue(any(x in text for x in ('TextField(', 'TextEditor(', 'SecureField(')))
-        text=(APP/'ContentView.swift').read_text(encoding='utf-8')
+        text=(APP/'ProfilesScreenView.swift').read_text(encoding='utf-8')
         self.assertIn('customGroupName',text)
         self.assertIn('Button(AppL10n.tr("Отмена"), role: .cancel)',text)
 if __name__=='__main__':unittest.main()

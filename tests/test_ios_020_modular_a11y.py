@@ -68,7 +68,7 @@ class ModularAccessibility(unittest.TestCase):
         self.assertIn('Не удалось открыть VPN-сессию',activity)
         self.assertNotIn('ProfileStore()',activity)
         self.assertNotIn('toggleVPN()',activity)
-        self.assertIn('.frame(minHeight: 46)',main)
-        self.assertNotIn('.frame(height: 46)',main)
+        self.assertIn('.frame(minHeight: 46)',(APP/'ProfilesScreenView.swift').read_text())
+        self.assertNotIn('.frame(height: 46)',(APP/'ProfilesScreenView.swift').read_text())
 
 if __name__=='__main__': unittest.main()
