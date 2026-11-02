@@ -1,22 +1,18 @@
-task_id: APL-ROADMAP-QRVPN-PROXIFIER-GLOBAL-I18N-20261102
-status: completed
-goal: "Audit and expand the APL iOS 0.2.0 product roadmap: Proxifier and QRVPN clean-room research and feature implementation milestones; full current Apple App Store localization/territory coverage planning."
+task_id: APL-IOS-020-LOCALIZATION-53-20261102
+status: in_progress
+goal: "Complete the three missing Apple App Store languages in APL iOS 0.2.0: add or/sl/uk app languages, or-IN/sl-SI/uk ASO metadata and three pairs of real simulator screenshots, with localization tests."
 definition_of_done:
-  - "Ground actual repository and iOS/ASO localization inventories, compare with Apple's official list of 50 supported App Store metadata locales and 175 storefront regions."
-  - "Document bounded stages and acceptance for Proxifier and QRVPN studies and future APL implementation, with OS/Apple/legal constraints."
-  - "Plan missing UI, ASO metadata, screenshots, cross-platform consistency and country coverage, with automated QA and no claim of upload."
-  - "Update canonical docs/ROADMAP.md with prioritized 0.2.0 work and links; verify docs and make a clean Git commit/push, leaving previous 0.1.41 Apple review and PR #296 Draft untouched."
+  - "53 supported iOS UI languages and 265 complete .strings source files (5 per language); correct placeholders and critical technical tokens, readable native strings and picker." 
+  - "All 50 Apple ASO localizations prepared offline from canonical source, three new region variants with native text, no mutation of review 0.1.41."
+  - "100 genuine iOS UI screenshots from simulator, two for each Apple ASO locale (no fabricated/mock screenshot), all required dimensions/validation."
+  - "Update inventories and tests (iOS and ASO), iOS build pass, all targeted contracts pass, docs and clean PR branch pushed."
 completed:
-  - "Read current canonical roadmap: Proxifier/QRVPN present only as two late-backlog research entries, not implementation milestones."
-  - "Verified 50 iOS UI .lproj, 47/50 prepared App Store locales, missing or-IN / sl-SI / uk and UI languages or / sl / uk. Current App Store locales 50, storefront regions 175 per official Apple developer documentation; 47 metadata only prepared offline, not uploaded."
-  - "Created docs/APL_IOS_020_GLOBAL_FEATURES_AND_MARKETS_ROADMAP_2026-11-02.md: staged Apple i18n 53 UI/50 ASO/100 screenshots; geographies 175; Proxifier milestones APL-PROX-001..005; QRVPN milestones APL-QRG-001..006; detailed acceptance/security/legal boundaries and release phasing."
-  - "Updated docs/ROADMAP.md authoritative top-of-file priorities and replaced stale late QRVPN/Proxifier research notes with implementation-plan pointer."
-  - "Ran targeted actual code/ASO/Apple catalog comparison, links and milestone checks PASS; existing iOS locale audit PASS and git diff --check PASS. No production app code, Apple metadata, Watchdog, release or PR merge modified."
-current: "Completed roadmap update: priority P0 53 UI/50 ASO Apple locale coverage; staged legal Proxifier/QRVPN research and original feature implementation; 175 storefront fallback plan. No iOS code/device/Apple changes."
-pending: []
-last_verified_commit: "1313a576 (last checked iOS source; documentation-only update based on clean worktree; final roadmap commit recorded in repository log)"
-test_results:
-  - "Repo worktree was clean; exact locale inventory 50 UI, ASO registry 47/50, missing 3 Apple locales."
-  - "Official Apple supported 50 locales compared with 47 ASO source locales: exactly or-IN, sl-SI and uk missing, no extras; iOS UI 50 distinct, missing or/sl/uk."
-  - "Existing scripts/ios_020_locale_audit.py PASS for 50 locales; docs references, milestone IDs and git diff --check PASS."
-resume_instruction: "Task COMPLETE: roadmap has priorities for iOS 0.2.0, Proxifier and QRVPN clean-room R&D/implementation, 53 UI and 50/50 Apple ASO plan, and 175 region matrix. Next separate authorized engineering task is APL-I18N-050: implement or/sl/uk UI, or-IN/sl-SI/uk ASO and new screenshots + QA in 0.2.0 Draft. Then optional APL-PROX-001 and APL-QRG-001 research. Do not modify iOS 0.1.41 currently on Apple review; no App Store/TestFlight upload, privacy/ads edits, new Watchdog or merge without permission. Previous acceptance checkpoint archived in .agent/checkpoints/APL-IOS-020-FINAL-ACCEPTANCE-20261102.yaml."
+  - "Verified official Apple list of 50 ASO locales, against actual repo inventory 47 ASO and 50 iOS UI: only or-IN, sl-SI, uk missing. Apple 175 storefronts is separate geography dimension."
+current: "Create native source translations, add app language enum and resources, build full ASO pipeline and three simulator screenshot pairs; then verify."
+pending:
+  - "Translate source catalog entries and add or/sl/uk bundles."
+  - "Add three ASO metadata records + two genuine screenshots each; update tests/manifests and documentation."
+  - "Run targeted tests and iOS build, fix failures, commit/push, set checkpoint completed."
+last_verified_commit: "b27f0557"
+test_results: []
+resume_instruction: "Continue from first pending. No Apple upload/merge, no edits to iPhone/Keychain/ads/privacy, do not touch 0.1.41 review and don't re-enable Watchdog."
