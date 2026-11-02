@@ -1,5 +1,5 @@
 task_id: APL-IOS-020-FINAL-ACCEPTANCE-20261102
-status: in_progress
+status: completed
 goal: "Finalize iOS 0.2.0 (48) with verified source, localization, signed IPA, physical dual-proxy egress, VoiceOver, original user-state restoration, and controlled real Auto failover."
 definition_of_done:
   - "50/50 locales, target iOS Simulator A11y/RTL, Swift/Python and source preflight green."
@@ -21,12 +21,21 @@ completed:
   - "iPhone Nikita A(Нидерланды 2)->B(Резерв США)->A automatic VPN egress under controlled DEBUG-only health-probe fault PASSED 1/1 (91.998 s): 2 independent HTTPS services saw both switches, OFF baseline restored. Not actual upstream TCP transport outage."
   - "Removed all temporary QA Swift modifications and test flags; ordinary signed Debug 0.2.0(48) installed over QA build, test-only code absent from extension; no Git runtime source changes."
   - "Original App Group baseline 3 profiles and 10 settings byte-identical after restoration, checked repeatedly by CoreDevice; Keychain untouched and LAN test server stopped. Temporary CoreDevice Preferences directory overwrite detected/repaired immediately from baseline before VPN test."
-current: "Designing isolated on-device DEBUG-only TCP proxy listener that forwards HTTP CONNECT to existing real A; stop/start actual listener while live VPN automatically selects saved Резерв США, verify IP A->B->A, then remove test injection and restore state."
-pending:
-  - "Use existing saved profile Резерв США as the sole automatic backup, with a temporary locally controlled primary; validate A->B->A without disabling commercial upstreams."
-  - "After true controlled failover and CI pass, mark checkpoint completed. App Store/TestFlight upload, Draft PR merge and Apple privacy/ads edits require separate explicit owner decision."
-last_verified_commit: "3e3445a0 (production iOS source tree unchanged after test-only injection removed; physical test result and clean signed Debug install verified; docs/checkpoint commit to follow)"
+  - "Owner-approved saved Резерв США used as backup and live commercial Нидерланды 2 as A for the real on-device TCP listener shutdown/restart scenario; never interrupted either paid provider."
+  - "True physical iPhone TCP-listener failure/recovery 1/1 XCUITest PASS 110.281s: 2 independent HTTPS sources verified A->US reserve->A and direct baseline after OFF. Private PacketTunnel telemetry confirms listener stopped / proxy unavailable / failover / listener restarted / primary restored."
+  - "Restored all 4 uncommitted DEBUG-only Swift injections, clean signed Debug iOS 0.2.0(48) rebuilt/reinstalled over QA; test-only markers absent in app and extension, repo runtime source unmodified."
+  - "3/3 saved profiles and 10/10 App Group settings restored byte-identical, SHA256 280dd3bacb6d94bec47e06b114999218ffca781f7ee63f74fef8a3322d294022. Keychain untouched. Final read-only iPhone VPN test 1/1 PASS (VPN OFF). No production Tailscale route or paid upstream modifications."
+current: "COMPLETED: Physical iPhone live VPN egress A(Нидерланды 2)->B(Резерв США)->A survived genuine on-device TCP listener shutdown/restart (1/1 PASS, 110.281s). Device, app, backups, tunnel state restored and checked; no Apple upload. Separate remote WAN outage remains future chaos QA."
+pending: []
+future_qa:
+  - "Optional external WAN chaos test (remote independent proxy outage/Wi-Fi/LTE switch), distinct from tested local TCP upstream listener failure. Provision test VPS/port only with explicit authorization; do not disrupt commercial providers/Tailscale Funnels."
+  - "Apple TestFlight/App Store upload, PR merge, ads/privacy metadata changes require explicit separate owner decision."
+
+last_verified_commit: "7b5fba5b (last committed canonical source/checkpoint before QA), iOS runtime source tree ee9e4e313bbdc219ddf9ca34cc6c0840a817c897; all temporary Swift changes restored and ordinary signed Debug device build verified; final docs/checkpoint commit follows."
 test_results:
+  - "Genuine temporary local TCP transport outage iPhone 13: PhysicalProxyEgressUITests.testLocalTCPListenerOutageFallbackUSAndReturn PASS 1/1 in 110.281s, external HTTPS IP providers 2/2 across A->B->A, VPN OFF baseline restored."
+  - "Post-cleanup normal signed Debug iPhone build/install PASS; app+extension signatures PASS, temporary QA code markers absent; final read-only iPhone VPN state UITest PASS 1/1."
+  - "Final original App Group prefs bytes SHA256 matched before/after (3 profiles/10 keys), no Keychain or third-party proxy changes."
   - "After DNS merge Swift 106/106, Python 44/44, Simulator UI build-for-testing PASS; 50/50 locale, 250/250 strings, 5/5 targeted signed Simulator UI PASS."
   - "Physical iPhone read-only VPN initial and final OFF 1/1 PASS each; A egress IP providers_changed=2/2, restore=2/2 PASS; B providers_changed=2/2 restore=2/2 PASS."
   - "Physical VoiceOver enabled verification + accessible Settings/Exclusions navigation + 0 a11y findings PASS; disabled verification PASS."
@@ -34,4 +43,4 @@ test_results:
   - "Signed distribution archive/export, codesign app+extension, ZIP integrity, version 0.2.0(48), 50 locales PASS; no distribution upload."
   - "Hosted merged-runtime CI 41413811197 3/3 SUCCESS and final VoiceOver test-only CI 41416211778 3/3 SUCCESS, all jobs complete."
   - "Physical controlled health-loss A->Резерв США->A PASS 1/1 in 91.998s with 2 HTTPS IP sources, VPN OFF baseline restored; normal signed Debug installed, original App Group byte-identical (3 profiles/10 fields), no test source remains."
-resume_instruction: "Continue only genuine upstream transport outage if possible via separate iPhone-reachable controlled test proxy. Real iPhone 13 automatic A(Нидерланды 2)->B(Резерв США)->A with DEBUG health-probe fault already 1/1 PASS at 91.998s and verified 2 public IP sources. All temporary source changes removed, standard signed Debug app reinstalled, original 3 user profiles/10 preferences byte-identical, VPN OFF and Keychain untouched. Do not repeat this QA. Genuine TCP outage not yet proven and status remains blocked. See docs/APL_IOS_020_MANAGED_US_FAILOVER_2026-11-02.md. No App Store/TestFlight upload, merge, metadata changes or Watchdog without separate approval."
+resume_instruction: "Task COMPLETED. Physical iPhone production-core automatic failover A(Нидерланды 2)->B(Резерв США)->A verified with actual shutdown/restart of isolated TCP listener inside DEBUG PacketTunnel, true socket loss and 2 public IP checks, 110.281s 1/1 PASS. Source restored, normal signed Debug 0.2.0(48) installed, original 3 profiles/10 App Group keys byte-identical, VPN OFF; no Apple upload/merge. Detailed report docs/APL_IOS_020_REAL_TCP_FAILOVER_2026-11-02.md. Only optional external remote WAN failure chaos QA remains and requires a separate independent externally hosted test proxy and owner approval; do not conflate it with tested local TCP outage or run release unapproved."
