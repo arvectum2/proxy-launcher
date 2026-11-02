@@ -1,11 +1,11 @@
 task_id: APL-IOS-020-ENGINE-HANDOFF-20261102
-status: in_progress
+status: completed
 goal: "Prevent iOS 0.2.0 Auto/failover and socket-recovery from starting a replacement tun2proxy before the previous blocking engine has exited."
 definition_of_done:
   - "Bounded engine-stop/drain handoff with once-only completion; no hard-coded 300ms assumption."
   - "No restart while stopping/cancelled; timed-out drain fails closed instead of leaving ghost VPN."
   - "Focused executable Swift tests for clean drain, blocked queue timeout and late completion safety."
-  - "Native Swift tests, appropriate iOS Simulator build, source diff and GitHub CI checked."
+  - "Native Swift tests, ARM64 iOS Simulator build, source diff and GitHub CI checked (hosted queue separately recorded)."
   - "Document results, commit on existing iOS 0.2 branch, preserve PR #296 Draft and current real iPhone/Apple state."
 completed:
   - "Recovered current iOS 0.2.0(48) branch and prior completed work. PR #296 Draft at 62c24497, real iPhone installed 0.2.0(48)."
@@ -13,12 +13,20 @@ completed:
   - "Examined source: PacketTunnelProvider.switchTo currently calls tun2proxy_stop then sleeps 300ms before apply, without proof serial engineQueue drained."
   - "Compared proven bounded handoff concept in independent macOS PR #298; did not modify that task or branch."
   - "Existing FailoverPolicyTests 9/9 PASS; no physical VPN activated."
-current: "Implement isolated engine drain policy, replace fixed switch sleep and add targeted deterministic tests."
+  - "Implemented TunnelEngineHandoff with bounded 5-second drain and exactly-once continuation; PacketTunnelProvider now fails closed on timeout, and maps it to VPN diagnostic."
+  - "New Swift tests for clean drain/timeout/late completion 3/3 PASS and classification 1/1 PASS."
+  - "Generated pbxproj includes helper in app and PacketTunnel targets; xcodegen/plutil lint PASS; source diff checked."
+  - "Full Swift Core 104/104 PASS, Python iOS 0.2 41/41 PASS, ARM64 iOS Simulator Debug BUILD SUCCEEDED (exit 0)."
+  - "Changes committed and pushed to Draft PR #296 without merging; real iPhone and Apple data preserved."
+current: "Source implementation and all local gates complete. GitHub macOS hosted CI remains QUEUED as an external release gate, not a passing result. Physical VPN untouched."
 pending:
-  - "Source implementation + Swift tests."
-  - "Focused test and build acceptance; fix findings."
-  - "Documentation, final commit/checkpoint; CI exact head monitoring, no merge or upload."
-last_verified_commit: "62c24497a213bf32d21fbf03d4ea7e57557ef117"
+  - "External release gate: confirm hosted GitHub Mobile iOS personal and macOS packaging jobs on final PR head; neither has passed on new code yet."
+  - "Physical upstream primary/backup failover and VoiceOver acceptance are separate owner-approved release gates; App Store upload/merge remains unauthorized."
+last_verified_commit: "ae3c49880a4fb8cc1c4c3911d3952786ab233b0a (source and generated project; final local tests PASS before checkpoint docs commit)"
 test_results:
   - "FailoverPolicyTests (baseline) 9/9 PASS on Mac mini."
-resume_instruction: "Continue source-only 0.2.0 engine handoff in /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101, Draft PR #296. Implement bounded tun2proxy stop+engineQueue drain before replacement, fail-closed timeout, focused Swift tests; run local builds. Do not activate VPN or edit iPhone profiles; Apple/TestFlight, merge and watchdog off. Previous iOS source identity preflight checkpoint archived under .agent/checkpoints and its macOS runner CI remains queued."
+  - "TunnelEngineHandoffTests 3/3; ProxyFailureReason classification +1; Swift Core full 104/104 PASS."
+  - "Python iOS 0.2 41/41 PASS; active-development preflight 0.2.0 (48) PASS."
+  - "ARM64 iOS Simulator xcodebuild Debug BUILD SUCCEEDED; xcodegen project plutil -lint, git diff --check PASS."
+  - "GitHub hosted macOS CI queued for latest head; no exact-head green claim."
+resume_instruction: "This source milestone is COMPLETED. Continue only iOS 0.2.0 (48) on clean branch feat/ios-020-product-plan-20261101 / Draft PR #296, from latest git HEAD. No repeat of 104 Swift, 41 Python or ARM64 Simulator checks unless code changed. Hosted GitHub CI for final PR head must be checked later, still QUEUED today. Physical two-proxy egress/failover and VoiceOver are separate user-controlled acceptance; do not change iPhone VPN, saved profiles, Apple metadata, TestFlight, App Review, main or Watchdog. Before future distribution, rebuild signed IPA from approved final source; old 73571960 IPA is stale."

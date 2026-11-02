@@ -17,10 +17,16 @@
 
 - New executable Core tests: queued runner drains after stop, blocked runner times out, and late queued completion does not double-resume; **3/3 PASS**.
 - New reason-classification unit: timeout maps to stable `VPN` code; **1/1 PASS**.
-- Entire Swift Core suite **103/103 PASS** before the extra classification case; final total must be verified after all changes.
-- Python iOS 0.2 source contracts **41/41 PASS** before latest diagnostic adjustment.
+- Entire Swift Core suite **104/104 PASS**, including the new drain and diagnostic tests, after all changes.
+- Python iOS 0.2 source contracts **41/41 PASS** after the final changes.
 - XcodeGen regenerate adds exactly six references in generated pbxproj, and `plutil -lint` / `git diff --check` PASS.
-- An unconstrained generic Simulator build initially attempted x86_64 against the ARM64-only `tun2proxy` static library and failed at linker architecture selection; **not** a Swift source failure. A distinct `ARCHS=arm64 ONLY_ACTIVE_ARCH=YES` Simulator build is the relevant acceptance gate.
+- An unconstrained generic Simulator build initially attempted x86_64 against the ARM64-only `tun2proxy` static library and failed at linker architecture selection; **not** a Swift source failure. An isolated `ARCHS=arm64 ONLY_ACTIVE_ARCH=YES` Simulator Debug build subsequently **SUCCEEDED** (exit 0). The generated Xcode project includes the new core file in both the app and PacketTunnel targets; `plutil -lint` PASS.
 - Real iPhone VPN/failover, public egress IP, third-party VPN state and traffic accounting have **not** been changed or retested in this source-only task. Physical two-proxy acceptance is a separate owner-controlled release gate.
 
 **Release boundary:** Draft PR #296 remains open; no merge, TestFlight/App Store upload or changes to physical iPhone/user profiles. This document is not a certification of live upstream failover.
+
+## Final local result (02.11.2026)
+
+- Swift Core: 104/104 PASS; iOS 0.2 Python: 41/41 PASS; xcodebuild ARM64 iOS Simulator: BUILD SUCCEEDED; source identity 0.2.0 (48), generated pbxproj lint and diff check PASS.
+- Source/generator changes are committed to Draft PR #296. GitHub exact-head Mobile iOS personal and macOS packaging workflows are queued on hosted runners; do not call them PASS until they complete.
+- This is not a signed Release archive and was not installed on the physical iPhone.
