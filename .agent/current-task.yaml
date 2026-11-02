@@ -1,5 +1,5 @@
 task_id: APL-IOS-020-FINAL-ACCEPTANCE-20261102
-status: blocked
+status: in_progress
 goal: "Finalize iOS 0.2.0 (48) with verified source, localization, signed IPA, physical dual-proxy egress, VoiceOver, original user-state restoration, and controlled real Auto failover."
 definition_of_done:
   - "50/50 locales, target iOS Simulator A11y/RTL, Swift/Python and source preflight green."
@@ -20,7 +20,7 @@ completed:
   - "Final physical read-only VPN state XCUITest PASS: OFF. Entire original App Group preferences restored after device app stopped, 10/10 dictionary fields and raw SHA256 EXACT MATCH, 3/3 profiles, original selection and Auto mode. Temporary private QA UI helper and XcodeGen changes removed from repository worktree."
 current: "All source builds/CI, locales, both physical saved proxies independently changing real external IP, real VoiceOver and 100% iPhone state restoration PASS. Only true automatic failover A->B->A under a deliberately controllable primary outage/recovery remains unverified; owner-controlled test infrastructure needed. No Apple upload or merge authorized."
 pending:
-  - "For automatic failover: provision/test a controlled upstream primary that can be safely stopped and restarted, with known working backup; run iPhone sustained VPN A->B->A including DNS and IP, restore exact original profile/user prefs. Do not change paid provider service or user saved endpoints merely to induce failure."
+  - "Use existing saved profile Резерв США as the sole automatic backup, with a temporary locally controlled primary; validate A->B->A without disabling commercial upstreams."
   - "After true controlled failover and CI pass, mark checkpoint completed. App Store/TestFlight upload, Draft PR merge and Apple privacy/ads edits require separate explicit owner decision."
 last_verified_commit: "6d6bb4c31140f7291029acb1792d25ab8b8d879a (final iOS test source; GitHub run 41416211778 3/3 SUCCESS, product app IPA from b8650a77 same production code; checkpoint/documentation commits do not affect iOS source)"
 test_results:
