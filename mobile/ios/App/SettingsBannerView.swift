@@ -93,6 +93,8 @@ struct SettingsBannerView: View {
                         Text(IOSAdsConfig.localizedAdLabel)
                             .font(.caption)
                             .foregroundStyle(Brand.softGray)
+                            // Inset only the disclosure label, not the adaptive ad.
+                            .padding(.horizontal, 16)
                     }
                     Banner(state: bannerState)
                         .onAdLoad { _ in
