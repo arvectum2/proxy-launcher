@@ -5,7 +5,7 @@
 - [x] **Реальный VoiceOver на физическом iPhone**: обнаружен и исправлен тестовый жест (focus vs activate); Settings → Exclusions открываются, Accessibility Audit 0 ошибок, тест PASS. VoiceOver возвращён в исходное состояние OFF.
 - [x] Полное восстановление пользовательских данных по завершении: оригинальный App Group prefs **10/10 байт-эквивалент**, 3/3 профиля, SHA256 исходного и финального plist совпали; учётные данные не читали. [Подробности](APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md).
 - [ ] **Auto failover A→B→A при живом отказе провайдера** ещё НЕ проверен: нужны подконтрольный primary-upstream и возможность безопасно его остановить/восстановить. Ручное переключение двух работающих прокси не считается этой проверкой.
-- [ ] Exact-head GitHub CI после тестовой VoiceOver-правки `6d6bb4c3` подтвердить отдельно; до release/merge/upload требуется утверждение владельца.
+- [x] Exact-head Mobile iOS CI после исправления VoiceOver `6d6bb4c3` **SUCCESS 3/3** — [run 41416211778](https://github.com/arvectum2/proxy-launcher/actions/runs/41416211778). Release/merge/upload остаются отдельно не разрешёнными.
 
 ## 02.11.2026 — iOS 0.2.0: DNS-recovery merge, новый source tree и подписанная IPA
 
