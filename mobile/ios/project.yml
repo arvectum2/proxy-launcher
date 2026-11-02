@@ -89,6 +89,9 @@ targets:
       - SharedCore/TunnelEngineHandoff.swift
       - SharedCore/ProxyImport.swift
       - SharedCore/ProxyImportStructured.swift
+      - App/AdaptiveDirectProbe.swift
+      - SharedCore/SiteDependencyDiscovery.swift
+      - SharedCore/SiteExclusionPolicy.swift
     dependencies:
       - target: ArvectumProxyLauncher
     settings:

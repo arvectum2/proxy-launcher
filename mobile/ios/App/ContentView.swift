@@ -260,7 +260,9 @@ struct ContentView: View {
 
     private var qaProfile: Bool {
 #if DEBUG
-        ProcessInfo.processInfo.arguments.contains("-aplHomeProfileQA")
+        ProcessInfo.processInfo.arguments.contains("-aplHomeProfileQA") ||
+            (ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+             ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA"))
 #else
         false
 #endif
@@ -419,7 +421,7 @@ struct ContentView: View {
 
     private var homeConnectControl: some View {
         Button {
-            if model.profiles.isEmpty && !model.vpn.isConnectedOrConnecting {
+            if model.profiles.isEmpty && !qaProfile && !model.vpn.isConnectedOrConnecting {
                 showNewProfile = true
             } else {
                 Task { await model.toggleVPN() }

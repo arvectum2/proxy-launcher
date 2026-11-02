@@ -157,6 +157,11 @@ final class VPNController: ObservableObject {
         // This option is never used in App Store distribution binaries.
         if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
             tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: 25)
+            if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") {
+                // Disposable physical QA only; no saved credentials/profiles.
+                tunnelOptions["qaSmart3ProxyHost"] = "192.168.1.80" as NSString
+                tunnelOptions["qaSmart3ProxyPort"] = NSNumber(value: 18081)
+            }
         }
 #endif
         try session.startTunnel(options: tunnelOptions)

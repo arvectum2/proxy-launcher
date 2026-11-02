@@ -64,7 +64,22 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         startTask?.cancel()
         startTask = Task {
             do {
+#if DEBUG
+                let prepared: PreparedProxy
+                if let value = options?["qaStopAfterSeconds"] as? NSNumber,
+                   (5...30).contains(value.intValue),
+                   options?["qaSmart3ProxyHost"] as? String == "192.168.1.80",
+                   (options?["qaSmart3ProxyPort"] as? NSNumber)?.intValue == 18081 {
+                    let qa = ProxyProfile(name: "APL Smart3 Disposable QA", host: "192.168.1.80",
+                                          port: 18081, type: .http)
+                    prepared = PreparedProxy(storedProfile: qa, resolvedProfile: qa,
+                                             password: nil, automaticSelection: false, latencyMs: 0)
+                } else {
+                    prepared = try await selectProxy()
+                }
+#else
                 let prepared = try await selectProxy()
+#endif
                 try Task.checkCancellation()
                 guard !stopping else { throw CancellationError() }
                 try await apply(prepared)

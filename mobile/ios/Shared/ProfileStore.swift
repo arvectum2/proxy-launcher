@@ -228,6 +228,22 @@ final class ProfileStore {
         }
     }
 
+#if DEBUG
+    /// Delete only synthetic QA host evidence after a physical test. Never
+    /// clear a user's observations, exclusions, credentials or profile.
+    @discardableResult
+    func clearSyntheticSmart3QAEvidence() -> Bool {
+        let state = adaptiveRouteLearning
+        guard !state.hosts.isEmpty,
+              state.rejected.isEmpty,
+              state.hosts.keys.allSatisfy({ $0.hasSuffix(".qa-example.test") }) else {
+            return false
+        }
+        defaults.removeObject(forKey: Key.adaptiveLearning)
+        return true
+    }
+#endif
+
     var siteExclusions: [String] {
         get {
             // Fail closed on corrupt graph, expired evidence and overload.

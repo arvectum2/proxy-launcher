@@ -6,6 +6,10 @@ import Foundation
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
         "Добавить проблемный сайт в обход VPN?": "Bypass the VPN for this failing site?",
+        "Проверяется TLS-соединение…": "Checking TLS connection…",
+        "TLS через Wi-Fi доступен (маршрут не подтверждён)": "TLS over Wi-Fi available (route unverified)",
+        "TLS через мобильную сеть доступен (маршрут не подтверждён)": "TLS over cellular available (route unverified)",
+        "Проверка TLS не удалась": "TLS check failed",
         "Проблемные сайты": "Connection problems",
         "Повторные ошибки соединения через прокси": "Repeated proxy connection failures",
         "Проверить исключение": "Review bypass",

@@ -49,18 +49,12 @@ final class AppViewModel: ObservableObject {
     init() {
         do {
             store = try ProfileStore()
-#if DEBUG && targetEnvironment(simulator)
-            if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") {
-                // Synthetic, isolated UI-only fixture. This does not create a
-                // proxy, send traffic, or change any live VPN route.
-                let now = Date()
-                var evidence = AdaptiveRouteLearning()
-                for id in ["a", "b"] {
-                    _ = evidence.proxyFailure(host: "auth.qa-example.test", connectionID: id,
-                        type: .proxyTimeout, proxyHealthy: true, networkID: "qa", at: now)
-                }
-                store.adaptiveRouteLearning = evidence
+#if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-aplSmart3CleanQAOnlyEvidence") {
+                _ = store.clearSyntheticSmart3QAEvidence()
             }
+#endif
+#if DEBUG && targetEnvironment(simulator)
             // Explicit disposable-simulator fixture for the system Files
             // export/import QA. Never compiled into Release or a real iPhone,
             // never creates a live proxy or exercises a paid endpoint.
@@ -116,7 +110,26 @@ final class AppViewModel: ObservableObject {
         exclusions = store.siteExclusions
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") ||
+           ProcessInfo.processInfo.arguments.contains("-qaSmart3ProbeFixture") {
+            // In-memory fixture on physical iPhone and Simulator. No fake
+            // observations saved to the user's App Group or VPN.
+            let probe = ProcessInfo.processInfo.arguments.contains("-qaSmart3ProbeFixture")
+            let host = probe ? "www.apple.com" : "auth.qa-example.test"
+            var evidence = AdaptiveRouteLearning()
+            let now = Date()
+            for id in ["a", "b"] {
+                _ = evidence.proxyFailure(host: host, connectionID: id,
+                    type: .proxyTimeout, proxyHealthy: true, networkID: "qa", at: now)
+            }
+            adaptiveRouteLearning = evidence
+        } else {
+            adaptiveRouteLearning = store.adaptiveRouteLearning
+        }
+#else
         adaptiveRouteLearning = store.adaptiveRouteLearning
+#endif
         refreshEvents()
     }
 
@@ -360,16 +373,29 @@ final class AppViewModel: ObservableObject {
             vpn.disconnect()
             return
         }
-        guard !profiles.isEmpty else {
+#if DEBUG
+        let ephemeralQA = ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+            ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA")
+#else
+        let ephemeralQA = false
+#endif
+        guard !profiles.isEmpty || ephemeralQA else {
             errorMessage = "Сначала добавьте хотя бы один прокси"
             return
         }
-        if !automaticSelection, selectedProfileID == nil {
+        if !automaticSelection, selectedProfileID == nil, !ephemeralQA {
             select(profiles[0])
         }
         do {
             try await vpn.connect()
 #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+               ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
+                Task {
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    Smart3PhysicalTrafficQA.begin()
+                }
+            }
             if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
                 Task { [weak self] in
                     try? await Task.sleep(nanoseconds: 20_000_000_000)

@@ -2,10 +2,14 @@
 
 ### 02.11 — Smart Exclusions 3.0: обучение по ошибкам сайтов (новая задача)
 
+- [x] **`APL-SMART3-DEVICE-TCP-001`:** 02.11 на физическом iPhone подтверждён **реальный** local-network TCP/CONNECT → `tun2proxy` → Swift event callback → App Group evidence (2 раздельных timeout sessions для синтетического `auth.qa-example.test`), нет silent DIRECT; UI probe/consent hardware XCTest PASS, исходный user app и профиль сохранены. [Аппаратный QA-протокол](APL_SMART3_PHYSICAL_IPHONE_QA_2026-11-02.md). Это **не снимает** отдельный egress gate.
+- [ ] **`APL-SMART3-IPHONE-DIRECT-GATE`:** Apple-supported независимый DIRECT для конкретного домена и доказательство двух разных egress/IP на общем CDN-IP **не выполнены**. `NWParameters.requiredInterfaceType`/TLS не являются доказательством исключения из VPN. Apple App Proxy режим на iOS требует управляемого MDM per-app VPN и не заменяет наш consumer client. 0.2.0 HOLD.
+
 - [x] **`APL-SMART3-LEARNING-CORE`**: модель 2 ошибки разных TCP соединений при исправном proxy → independent noproxy A/B → 2 успешных сравнения → правило 24h, throttle 60 с, user deny, rollback и локальная bounded App Group память. iOS exact-domain DIRECT capability **false**, IP-wide маршруты автоматически не добавляем. [Проверка и ограничения](APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md).
 - [x] **`APL-SMART3-SENSOR-001`**: реальные сигналы proxy timeout/refused + успешного CONNECT для каждого host из pinned Rust `tun2proxy`, без расшифровки TLS и сбора данных.
 - [ ] **`APL-IOS-020-RELEASE-GATE`**: iOS 0.2.0 **НЕ отправлять** до закрытия Smart 3.0: подключённые TCP-сигналы ≠ безопасный independent exact-host DIRECT, без него нет полной автоматизации A→auth.A. Тестовый UI предлагает ручное подтверждение с предупреждением общего IP. Источники: Apple TN3120 + NE excludedRoutes IP-only; подробности [Smart 3.0](APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md).
 - [ ] **`APL-SMART3-EGRESS-001`**: Apple-supported independent noproxy probe и per-flow exact-host DIRECT без общих CDN-IP. Apple TN3120 не рекомендует подменять это локальным VPN-proxy listener или alternate-interface forwarding.
+- [x] **`APL-SMART3-PHYSICAL-DIAGNOSTICS-001`**: iPhone 13, iOS 27.2: live PacketTunnel получил 1 healthy + 2 blocked CONNECT к реальным DNS host, Swift collector записал 2 сессии; при включённом VPN TLS через Wi-Fi независим от mock proxy, физический XCUITest PASS, VPN автоматически отключился, оригинальная `.app` восстановлена. [Протокол](APL_IOS_SMART3_PHYSICAL_EGRESS_QA_2026-11-02.md). **Это не per-host Safari DIRECT!**
 - [ ] **`APL-SMART3-DEVICE-001`**: физический iPhone, пример A→auth.A, два подтверждённых выхода, смена сети и rollback. Не выдавать Core-подготовку за готовую автоматизацию сайта.
 
 

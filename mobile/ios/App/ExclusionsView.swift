@@ -27,6 +27,9 @@ struct ExclusionsView: View {
     @State private var scannedParent = ""
     @State private var externalHints: [String] = []
     @State private var diagnosticHints: [String] = []
+    @State private var diagnosticProbeStatus: [String: String] = [:]
+    @State private var diagnosticProbeTask: Task<Void, Never>?
+
     @State private var pendingExternalHost: String?
     @State private var confirmExternal = false
     @State private var undoEntries: [String]?
@@ -102,6 +105,11 @@ struct ExclusionsView: View {
                                     Text(host).textSelection(.enabled)
                                     Text(SmartExclusionsUX.text("Повторные ошибки соединения через прокси"))
                                         .font(.caption).foregroundStyle(.secondary)
+                                    if let diagnosis = diagnosticProbeStatus[host] {
+                                        Text(SmartExclusionsUX.text(diagnosis))
+                                            .font(.caption).foregroundStyle(.secondary)
+                                    }
+
                                 }
                                 Spacer()
                                 Button(SmartExclusionsUX.text("Проверить исключение")) {
@@ -280,8 +288,14 @@ struct ExclusionsView: View {
                 entries = model.manualExclusions
                 graph = model.smartGraph.pruned()
                 diagnosticHints = model.adaptiveRouteLearning.diagnosticCandidates()
+                diagnosticProbeTask?.cancel()
+                diagnosticProbeTask = Task { await checkDiagnosticHosts() }
             }
-            .onDisappear { cancelScan() }
+            .onDisappear {
+                cancelScan()
+                diagnosticProbeTask?.cancel()
+                diagnosticProbeTask = nil
+            }
             .keyboardDismissOnSwipeUp()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -515,6 +529,30 @@ struct ExclusionsView: View {
         undoEntries = nil
         undoGraph = nil
         localError = nil
+    }
+
+    @MainActor
+    private func checkDiagnosticHosts() async {
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") {
+            // No live hostname or user connection under the DEBUG fixture.
+            return
+        }
+#endif
+        for host in diagnosticHints.prefix(3) {
+            if Task.isCancelled { return }
+            diagnosticProbeStatus[host] = "Проверяется TLS-соединение…"
+            let result = await AdaptiveDirectProbe.checkTLS(host: host)
+            if Task.isCancelled { return }
+            switch result {
+            case .tlsReadyViaWiFi:
+                diagnosticProbeStatus[host] = "TLS через Wi-Fi доступен (маршрут не подтверждён)"
+            case .tlsReadyViaCellular:
+                diagnosticProbeStatus[host] = "TLS через мобильную сеть доступен (маршрут не подтверждён)"
+            case .unavailable:
+                diagnosticProbeStatus[host] = "Проверка TLS не удалась"
+            }
+        }
     }
 
     private func cancelScan() {
