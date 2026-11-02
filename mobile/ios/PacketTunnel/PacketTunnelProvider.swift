@@ -19,6 +19,21 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let dnsBypass: [String]
     }
 
+    /// Guarantees that the old blocking tun2proxy runner has exited before a
+    /// replacement is submitted to the same serial queue.
+    private final class EngineDrainGate: @unchecked Sendable {
+        private let lock = NSLock()
+        private var finished = false
+
+        func claim() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            guard !finished else { return false }
+            finished = true
+            return true
+        }
+    }
+
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
@@ -202,7 +217,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         socketPressureTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled, !self.stopping {
-                try? await Task.sleep(nanoseconds: 30_000_000_000)
+                try? await Task.sleep(nanoseconds: 10_000_000_000)
                 if Task.isCancelled || self.stopping { break }
                 await self.socketPressureIteration()
             }
@@ -275,15 +290,37 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
+    /// tun2proxy_run_with_cli_args blocks engineQueue. A fixed sleep cannot
+    /// prove the old runner has exited; queuing a replacement too early makes
+    /// macOS report "Connected" while DNS requests remain unanswered.
+    private func stopEngineAndWait() async throws {
+        _ = tun2proxy_stop()
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let gate = EngineDrainGate()
+            engineQueue.async {
+                if gate.claim() { continuation.resume() }
+            }
+            DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 5) {
+                if gate.claim() {
+                    continuation.resume(throwing: NSError(
+                        domain: "ArvectumTunnelEngine", code: 2,
+                        userInfo: [NSLocalizedDescriptionKey:
+                            "Предыдущий сетевой движок не остановился за 5 секунд"]
+                    ))
+                }
+            }
+        }
+    }
+
     private func switchTo(_ prepared: PreparedProxy, reason: String) async {
         guard !switching, !stopping else { return }
         switching = true
         defer { switching = false }
-        _ = tun2proxy_stop()
-        tlsRelay?.stop()
-        tlsRelay = nil
-        try? await Task.sleep(nanoseconds: 300_000_000)
         do {
+            try await stopEngineAndWait()
+            guard !stopping else { return }
+            tlsRelay?.stop()
+            tlsRelay = nil
             try await apply(prepared)
             active = prepared
             consecutiveFailures = 0
@@ -300,6 +337,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             ))
         } catch {
             telemetry.append(TunnelEvent(type: "switch failed", detail: error.localizedDescription))
+            // A failed engine handoff must not leave a ghost VPN that appears
+            // connected but silently starves DNS. Let macOS show the failure.
+            cancelTunnelWithError(error)
         }
     }
 

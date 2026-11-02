@@ -17,11 +17,11 @@ struct ConnectionPressurePolicy {
     let minimumRecoveryInterval: TimeInterval
 
     init(softSocketLimit: Int = 90,
-         softCloseWaitLimit: Int = 35,
+         softCloseWaitLimit: Int = 25,
          hardSocketLimit: Int = 150,
-         hardCloseWaitLimit: Int = 85,
+         hardCloseWaitLimit: Int = 55,
          requiredConsecutiveSamples: Int = 2,
-         minimumRecoveryInterval: TimeInterval = 15 * 60) {
+         minimumRecoveryInterval: TimeInterval = 2 * 60) {
         self.softSocketLimit = softSocketLimit
         self.softCloseWaitLimit = softCloseWaitLimit
         self.hardSocketLimit = hardSocketLimit
@@ -30,6 +30,9 @@ struct ConnectionPressurePolicy {
         self.minimumRecoveryInterval = minimumRecoveryInterval
     }
 
+    /// Recover proactively before DNS requests stall as TCP sockets accumulate.
+/// Two consecutive 10-second samples debounce transient traffic bursts.
+/// Hard limits bypass the debounce, but not the minimum recovery interval.
     /// Recover only the embedded tun2proxy engine after sustained pressure.
     mutating func shouldRecover(sample: Sample, at now: Date, tunnelIsSwitching: Bool) -> Bool {
         guard !tunnelIsSwitching else {

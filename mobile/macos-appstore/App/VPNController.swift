@@ -83,8 +83,38 @@ final class VPNController: ObservableObject {
     func reconnectIfActive() async throws {
         guard isConnectedOrConnecting else { return }
         disconnect()
-        try await Task.sleep(nanoseconds: 500_000_000)
+        // NetworkExtension may still be tearing down the old provider after
+        // stopVPNTunnel returns. Reconnecting before .disconnected causes a
+        // stale "Connected" UI with DNS still wired to the previous session.
+        let deadline = Date().addingTimeInterval(8)
+        while Date() < deadline {
+            try Task.checkCancellation()
+            let current = manager?.connection.status ?? .invalid
+            if current == .disconnected || current == .invalid { break }
+            try await Task.sleep(nanoseconds: 150_000_000)
+        }
+        let current = manager?.connection.status ?? .invalid
+        guard current == .disconnected || current == .invalid else {
+            throw NSError(domain: "ArvectumVPN", code: 2,
+                          userInfo: [NSLocalizedDescriptionKey: "Не удалось дождаться отключения VPN"])
+        }
         try await connect()
+    }
+
+    /// Retry the previous settings only after NetworkExtension actually stops.
+    func restoreAfterFailedExclusionsUpdate() async throws {
+        let deadline = Date().addingTimeInterval(8)
+        while manager?.connection.status == .disconnecting && Date() < deadline {
+            try Task.checkCancellation()
+            try await Task.sleep(nanoseconds: 150_000_000)
+        }
+        guard manager?.connection.status != .disconnecting else {
+            throw NSError(domain: "ArvectumVPN", code: 3,
+                          userInfo: [NSLocalizedDescriptionKey: "VPN ещё отключается; повторите подключение вручную"])
+        }
+        refreshStatus()
+        if isConnectedOrConnecting { try await reconnectIfActive() }
+        else { try await connect() }
     }
 
     private func refreshStatus() {
