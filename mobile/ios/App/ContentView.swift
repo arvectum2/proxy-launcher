@@ -1228,6 +1228,7 @@ struct ExclusionsView: View {
                     }
                 }
             }
+            .modifier(APLInteractiveKeyboardDismissal())
             .navigationTitle("Исключения сайтов")
             .navigationBarTitleDisplayMode(.large)
             .tint(Brand.mint)
