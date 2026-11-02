@@ -1,0 +1,50 @@
+task_id: APL-IOS-020-LOCALIZATION-POSTSOVIET-64-20261102
+status: completed
+goal: >-
+  Complete the national UI language coverage for all 15 former Soviet republics
+  in APL iOS 0.2.0 while keeping live Apple App Store Connect unchanged.
+definition_of_done:
+  - Add 11 UI language codes be/et/lv/lt/ka/hy/az/kk/tk/ky/tg with all five complete resource tables and native picker entries.
+  - Preserve 4 existing national languages ru/uk/uz/ro and all previous iOS UI functionality.
+  - Check all new technical identifiers, string placeholders, language scripts, ad labels, and UI resource lint.
+  - Build real arm64 iOS Simulator application with all 64 localized resource bundles and complete relevant tests.
+  - Keep Apple 50 supported ASO locales, 100 screenshots, Apple review 0.1.41, production iPhone, ads and privacy unchanged.
+  - Record results in roadmap, commit and push to existing Draft PR branch without merge or publication.
+completed:
+  - All 11 new national language catalog sets present, 5 .strings files and 344 source keys each.
+  - All 15 former republics covered by one primary local language via 64 total AppLanguage cases.
+  - Curated vital actions, primary-versus-Home semantics, URL and protocol identifiers, Keychain, system labels, and model-generated repetition.
+  - Updated iOS Swift language selection/automatic locale lookup, 64 advertisement labels, 64-code manifest, XcodeGen target resource inputs and locale-aware tests.
+  - All 11 new locales pass critical technical token and placeholder count checks with zero outstanding errors.
+  - Full localization audit and 320/320 plutil lint PASS.
+  - Targeted pytest contract suites 44/44 PASS; iOS active release preflight PASS.
+  - arm64 iOS Simulator build SUCCESS with exactly 64 .lproj in built app; isolated Simulator launch PASS for be/ka/kk/tg, four 1206x2622 QA screenshots.
+  - Prepared source QA report and updated docs/ROADMAP.md, with ASO 50/50 metadata and 100 screenshots unchanged and no Apple writes.
+current: >-
+  COMPLETED. The code implementation, targeted verification, simulator build and
+  source-only documentation/push are done. Independent native-speaker editorial
+  certification is a separate future publication gate and was not performed.
+pending: []
+future_release_gates:
+  - Independent native-speaker editorial review for the eleven machine-assisted draft locales, especially low-resource tk/tg/ky/ka/hy, before publicly describing them as professionally localized.
+  - Additional optional UI accessibility/visual checks across dynamic text sizes for all eleven language menus.
+  - New signed Apple Distribution IPA built from newer source; 0.1.41 still under Apple review according to owner.
+  - App Store Connect upload/merge/release and all commercial infrastructure changes require owner authorization.
+last_verified_commit: 4d557eb4
+test_results:
+  - Targeted language + ASO mock/screenshot + iOS source regressions 44/44 PASS.
+  - All 320 iOS .strings source files pass plutil and all 64 locale audit passes.
+  - iOS 0.2.0 (48) arm64 Simulator build succeeded, bundle 64 .lproj present.
+  - Four isolated iPhone Simulator launches be/ka/kk/tg PASS, 1206x2622 screenshots collected locally only.
+  - Apple ASO localizations source 50/50 and existing 100 App Store screenshots unchanged.
+  - Initial generic x86_64 Simulator link unsupported for existing tun2proxy library; arm64 target-specific build PASS.
+resume_instruction: >-
+  Task completed in code commit 4d557eb4. Do not repeat machine translation or
+  tests unless source changes. All 15 former Soviet republics have a native primary
+  iOS UI language; eleven added be/et/lv/lt/ka/hy/az/kk/tk/ky/tg, 64 total
+  .lproj, 320 .strings, 44 tests PASS and arm64 simulator build succeeded.
+  All 11 languages are machine-assisted with technical corrections, not independently
+  native-speaker-certified. Human editorial QA remains a separate release gate.
+  Preserve iOS 0.1.41 under Apple Review, existing Draft PR #296, live Apple metadata,
+  iPhone VPN/user profiles, ads/privacy, disabled Watchdog. No Apple submission or
+  merge was authorized. See docs/APL_IOS_020_64_POSTSOVIET_UI_LOCALIZATIONS_2026-11-02.md.
