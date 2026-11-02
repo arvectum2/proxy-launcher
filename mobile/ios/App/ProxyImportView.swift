@@ -1,4 +1,6 @@
 import SwiftUI
+import UniformTypeIdentifiers
+import UIKit
 
 /// Retain the native iOS 15 form behavior while enabling interactive keyboard
 /// dismissal on iOS 16+ when the user scrolls instead of finding a toolbar key.
@@ -11,9 +13,6 @@ struct APLInteractiveKeyboardDismissal: ViewModifier {
         }
     }
 }
-
-import UniformTypeIdentifiers
-import UIKit
 
 struct ProxyImportView: View {
     @EnvironmentObject private var model: AppViewModel
