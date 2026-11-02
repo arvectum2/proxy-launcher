@@ -1,5 +1,5 @@
 task_id: APL-SMART-EXCL-020-REAL-ROUTING-20261102
-status: in_progress
+status: blocked
 goal: "Ensure APL iOS Smart Exclusions 2.0 performs actual validated dependent-domain direct routing without leaking third-party traffic through a shared CDN IP."
 definition_of_done:
   - "Trace actual iOS PacketTunnel DNS/excludedRoutes and dependency graph, document shared-IP risk and design safe enforceable policy."
@@ -7,7 +7,7 @@ definition_of_done:
   - "Implement safe narrow routing with fail-closed semantics; test positive linked-site bypass and negative unapproved same-IP hostname, IPv4/IPv6/DNS corner cases, rollback."
   - "Build current iOS source and run targeted Rust/Swift/Simulator QA, honestly documenting limits of what cannot be verified without a physical tunnel."
   - "Update technical roadmap, commit/push, close or accurately block checkpoint. Do not touch Apple 0.1.41 review or current ads/privacy/ASO."
-current: "Implement optional APL Smart Gateway using supported iOS HTTP CONNECT upstream: single server routes explicit approved exact-host directly from gateway ISP and all others via configured supplier proxy, no per-IP routing on iPhone in gateway mode. Reuse existing free_gateway relay, protect policy sync and auth, run real two-host shared-IP proxy/direct E2E."
+current: "SMART GATEWAY CORE COMPLETED at df0f11c3: authenticated standalone server-side exact-host DIRECT/proxy routing, real TLS same-IP A/B proof, iOS APL Gateway TLS profile + policy sync before tunnel, TTL refresh, only gateway endpoint excluded from local VPN. Overall release/physical E2E still BLOCKED by dedicated public IP/cert, supplier credentials and consented device QA."
 completed:
   - "Baseline 844358c8 clean; archived prior roadmap checkpoint."
   - "Read NE PacketTunnel excludedRoutes + pinned tun2proxy virtual DNS patch; confirmed IP-wide global bypass of unrelated raw-IP or independently resolved host. Apple documentation confirms excludedRoutes are destinations, not hostnames."
@@ -20,17 +20,20 @@ completed:
   - "Rust cargo 1.98.1 host library 8/8 tests PASS including distinct same-CDN IP site/API/CSS vs tracker, no wildcard/raw IP, CLI opt-in absent by default; external patch cleanly reproducible after prior split-DNS patch."
   - "Rust aarch64-apple-ios and aarch64-apple-ios-sim release static libraries compiled; locally refreshed XCFramework slices and iOS simulator app BUILD SUCCEEDED without production direct activation."
   - "All Swift Core 113/113 PASS, Python 11/11 PASS, ios_active_release_preflight 0.2.0(48) PASS, roadmap/ADR updated, implementation commit 11896f01. No real hardware/Apple/ads/privacy changes."
+  - "Implemented optional standalone SmartGateway: authenticated per-account policy PUT, exact-host allowlist, public-IP-only DIRECT, otherwise supplier CONNECT, no fallback to wrong egress, policy expiry 180s, iOS refresh 60s, TLS-required external bind. All supplier secrets stay server-side."
+  - "Integrated new iOS APL_GATEWAY HTTPS proxy profile, Keychain Basic token policy sync before VPN startup, empty domain excludedRoutes/dns-bypass in Gateway mode, existing legacy profiles left untouched. Core commit df0f11c3."
+  - "Real lab TLS origins at identical 127.0.0.1 demonstrate site/api/static DIRECT from gateway and unrelated tracker SUPPLIER egress; existing Free Gateway unaffected. 31/31 targeted Python PASS, 115/115 Swift Core PASS, iOS simulator BUILD SUCCEEDED, source preflight PASS; docs and deployment guide added."
 pending:
-  - "Implement optional server-side Smart Gateway exact-host CONNECT router with a strictly authenticated policy update and upstream fail-closed, integrated as an HTTPS proxy profile on iOS (no unsupported local tunnel listener)."
-  - "Before changing legacy domain IP-wide routes, obtain product choice about compatibility vs strict no-leak mode (strict mode would conservatively proxy and can break user exclusions); currently not changed."
-  - "After platform gate, implement isolated per-flow transport and remove IP-wide /32-/128 domain exceptions, then validate exact DNS→flow identity and same-CDN TLS A/B egress on real iPhone."
-  - "Test on controlled iPhone VPN with two independent TLS hostnames at same physical IP and a working egress proxy, proving approved HTML/CSS/JS/API DIRECT and unrelated shared-IP HTTPS/UDP via PROXY simultaneously; verify IPv6/UDP, DNS TTL changes, Wi-Fi/LTE, rollback and no credentials leakage."
-  - "Only with physical proof and signoff can we mark Smart Exclusions 2.0 complete or submit a new signed IPA. Owner approval required before mutating real iPhone/profiles or Apple review."
-blockers:
-  - "Apple excludedRoutes is IP-only. Apple TN3120 explicitly discourages packet-tunnel-hosted local listener/proxy and routing claimed packets over alternative interface; a supported physical direct egress mechanism has not been established. Current Rust classifier makes intent decisions only, never actually routes DIRECT."
-  - "No actual updated iPhone PacketTunnel VPN egress/pcap proof from real site+related asset vs unapproved same-IP site: live lab is localhost TCP/HTTP model, not physical NE test. Existing app on iPhone is older signed 0.2.0(48) and does not include bd4c5e7f; in-place install + active VPN/profile mutation is nontrivial external side effect."
+  - "APL-SMART-GW-DEPLOY-001: choose owner-authorized VPS with dedicated public IP, DNS+valid TLS cert, production rate/connection quotas and paid supplier HTTP CONNECT credentials; provision per-user client token without storing supplier credentials on device."
+  - "APL-SMART-GW-IPHONE-QA: consented real iPhone installation and VPN/profile baseline preserving, prove approved site/API/CSS DIRECT from server vs unrelated hostname on same IP SUPPLIER, IPv4/IPv6/UDP/QUIC limitations, failover, TTL, Wi-Fi/LTE and rollback."
+  - "If owner requires DIRECT from local iPhone ISP rather than gateway egress, this alternate product architecture does NOT meet that narrower goal; Apple-supported physical per-flow direct remains separate unresolved work."
+  - "Do not change/release Apple 0.1.41 review, submit 0.2.0 IPA, merge Draft PR #296 or use production hardware/proxies without authorization."
 
-last_verified_commit: "819ea440 (smart-flow prototype checked; gateway implementation begins)"
+blockers:
+  - "Original on-device local-IP direct split remains unsupported via NE excludedRoutes. Implemented alternative routes DIRECT from separately hosted gateway public IP (not iPhone); production requires a dedicated non-shared-IP gateway endpoint. Legacy non-gateway profiles still have IP-wide exclusion risk."
+  - "No dedicated public VPS with TLS and supplier egress was provisioned; real user iPhone updated Packet Tunnel exact-host egress not tested. Local real HTTPS/TLS two-origin proof confirms gateway path logic, not published production readiness."
+
+last_verified_commit: "df0f11c3 (Smart Gateway backend + iOS TLS proxy integration, 31 Python/115 Swift/simulator PASS; checkpoint commit follows)"
 test_results:
   - "113/113 full Swift Core tests PASS, including 7 new exact shared-IP collision and graph approval tests; iOS simulator ARM64 BUILD SUCCEEDED."
   - "8/8 specialized Python guard/source contracts PASS; live controlled loopback TCP server + proxy demonstrates direct IP leak before guard and proxy-only when conflict detected."
@@ -39,5 +42,7 @@ test_results:
   - "Rust cargo +1.98.1 test --lib --locked: 8/8 PASS; patch applies cleanly after baseline split-DNS patch and reproducibly recreates tested source."
   - "Rust cross compile aarch64-apple-ios and aarch64-apple-ios-sim: PASS; locally rebuilt XCFramework-linked iOS Simulator BUILD SUCCEEDED."
   - "Swift Core 113/113 and targeted Python 11/11 PASS. Remote system's current iPhone, its VPN/profiles, Apple review 0.1.41, two ad formats and privacy labels unchanged."
+  - "Gateway E2E real local HTTPS+TLS: direct site.test/api.site.test/static.site.test, shared-IP unapproved tracker.other.test supplier HTTP CONNECT; auth failure, deny wildcard, token expiry/revoke, supplier failure fail-closed; 31/31 Python tests PASS."
+  - "Mobile Swift Core 115/115 PASS, new PolicySync/Profile type source tests PASS, iOS Simulator BUILD SUCCEEDED, 0.2.0(48) source preflight PASS; prior application sources unchanged outside Gateway opt-in."
 
-resume_instruction: "Task BLOCKED at Rust classifier commit 11896f01 (previous known shared-IP guard bd4c5e7f). Reproduce from pinned tun2proxy v0.8.3 plus patches via mobile/ios/Tools/fetch_tun2proxy.py. Existing per-flow intent is classification ONLY, all TCP including authorized candidates still PROXY; no unverified physical DIRECT, no new local listener in PacketTunnel. Apple TN3120 platform feasibility and owner decision (strict fail-closed vs legacy manual IP-wide exclusions) are prerequisites for real direct implementation. Need Apple-supported transport decision, then build/verify real iPhone same-IP TLS approved HTML/API/CSS DIRECT vs unknown PROXY with IPv4/IPv6/UDP/TTL/rollback. No Apple 0.1.41 review, ads/privacy, device/VPN/profile changes or Watchdog, no publication. Docs: docs/APL_SMART_FLOW_PER_CONNECTION_ADR_2026-11-02.md. Do not claim Smart Exclusions 2.0 fully complete."
+resume_instruction: "Smart Gateway source milestone IMPLEMENTED and verified at df0f11c3, docs/APL_SMART_GATEWAY_SHARED_IP_E2E_2026-11-02.md and free_gateway/SMART_GATEWAY.md. User requested approved site+dependencies DIRECT but unknown same-IP host PROXY: local real TLS dual-origin test PASS; on iOS choose APL Gateway (TLS) profile to send all traffic via HTTPS remote server and sync exact-host policy, only gateway IP excluded, legacy profiles unchanged. BLOCKED for production: owner-approved dedicated-public-IP VPS, valid TLS certificate, paid HTTP CONNECT upstream credential and user-approved physical iPhone QA (backup current profiles/VPN, live dual-egress proof, rollback). Explicitly explain DIRECT originates on remote gateway, NOT local iPhone ISP. 31 Python + 115 Swift PASS, Simulator BUILD PASS; no Apple 0.1.41/0.2.0 submissions, ads/privacy, actual iPhone/proxy changes or Watchdog. Next task APL-SMART-GW-DEPLOY-001 after owner decision; no false completed product claim."
