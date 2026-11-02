@@ -1,3 +1,10 @@
+## 02.11.2026 — iOS 0.2.0: защита от работы с устаревшей версией
+
+- [x] Подтверждено, что исходная ветка разработки — `feat/ios-020-product-plan-20261101` (Draft PR #296), XcodeGen и Xcode project — **0.2.0 (48)**, установленная на iPhone версия по CoreDevice тоже **0.2.0 (48)**. GitHub `main` исторически ещё содержит 0.1.42 и не является базой для следующих этапов 0.2.
+- [x] Ошибочный PR #299 по 0.1.42 закрыт без merge. Жесты клавиатуры и два адаптивных рекламных слота уже реализованы в 0.2; прежние правки повторно не переносим.
+- [x] Добавлен `mobile/ios/Config/active-development.json` и read-only preflight в CI, сверяющий `project.yml`, generated Xcode version/build и отсутствие разрешения на Apple upload; отрицательные тесты предотвращают тихий откат к 0.1.42/47.
+- [ ] Сохраняем Draft PR #296; актуальный exact-head CI проверяем после preflight-коммитов. Никаких публикаций, merge, изменений карточки Apple или пользовательских прокси.
+
 ## 02.11.2026 — Продолжение без релиза: модульная библиотека прокси-профилей
 
 - [x] `ContentView.swift` сокращён ещё с **1122 до 850 строк**. Выделены `ProfilesScreenView`, `ProfileLibraryFiltersView`, `ProfileLibraryRowView` с группами/избранным и `ProfileLibraryBulkActionsView`. Используется исходная `AppViewModel`, все import/edit/backup sheets сохранены.
