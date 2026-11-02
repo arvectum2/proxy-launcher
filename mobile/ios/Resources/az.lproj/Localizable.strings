@@ -4,7 +4,7 @@
 "1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. Proqram → Açılmışdır: Proqramları və APL Proqram Açılmışdır hərəkətini seçin.";
 "2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. App → Is Closed: eyni tətbiqləri və APL App Closed hərəkətini seçin.";
 "Авто" = "Avtomatik";
-"Автоматизация приложений" = "İdarəetmə proqramlarının avtomatlaşdırılması";
+"Автоматизация приложений" = "Tətbiq avtomatlaşdırması";
 "Автоматическая" = "Avtomatik";
 "Автоматический" = "Avtomatik";
 "Авторизация" = "Tanıtma";
@@ -15,7 +15,7 @@
 "В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Hesab yaratmadan öz proksi serverinizi quraşdırın. Bağlantı məlumatları bu cihazda qalır.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Veb saytı daxil edin və Əlavə et düyməsini basın. Hər bir veb sayt öz sətirində görünür. URL, host:port və ya IP ünvanını yerləşdirə bilərsiniz.";
 "Версия" = "Versiya";
-"Возврат к приоритетному включён" = "İstənilən proksi işə salınmış vəziyyətə qayıdın.";
+"Возврат к приоритетному включён" = "Əsas proksiyə qayıtma aktivdir";
 "Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить»." = "Bütün istisnalar siyahıdan silinəcək. Dəyişikliklər yalnız Qeyd et düyməsini basdıqdan sonra tətbiq ediləcək. Qeyd et düyməsini basdıqdan sonra dəyişikliklər tətbiq ediləcək.";
 "Выберите прокси" = "Proksi seçin.";
 "Выберите язык интерфейса или используйте язык iPhone." = "İdarəetmə dilini seçin və ya iPhone-unuzun dilini izləyin. iPhone-unuzun dilini izləyin.";
@@ -84,7 +84,7 @@
 "Ошибка" = "Xəta";
 "Пароль" = "Şifrəni unutmusunuz?";
 "Пароль (пусто = оставить прежний)" = "Şifrə (olduğu kimi saxlamaq üçün boş buraxın)";
-"Первое подключение" = "İlk əlaqə ilk bağlantıdır.";
+"Первое подключение" = "İlk qoşulma";
 "Перед первым подключением" = "Bağlanmadan əvvəl əlaqə qurmadan əvvəl əlaqə qurmalısınız.";
 "Переподключение…" = "Yenidən bağlantı qurulur...";
 "Подготовьте данные прокси" = "Proksi məlumatlarınızı əldə edin.";
@@ -110,8 +110,8 @@
 "Профили" = "Profillər";
 "Режим" = "Mode";
 "Русский" = "Rus dili";
-"Светлая" = "Işıq işıqdır.";
-"Системная" = "Sistemin quruluşu:";
+"Светлая" = "Açıq";
+"Системная" = "Sistem";
 "Системная тема автоматически следует настройкам iPhone." = "Sistem görünüşü sizin iPhone parametrlərinizi izləyir. Sistem görünüşü iPhone parametrlərinizi izləyir.";
 "Системный" = "Sistemin quruluşu:";
 "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные." = "Bağlantı vəziyyətini yoxlayın. Bağlantı uğursuz olarsa, qovşağı, portu, protokolu və şifrəni yoxlayın.";
@@ -137,7 +137,7 @@
 "Хост — адрес сервера, порт — его номер. Тип уточните у поставщика." = "Host serverin ünvanı, port isə onun port nömrəsidir. İstifadə edəcəyiniz protokolu provayderinizdən soruşun.";
 "Что произойдёт" = "Nə baş verir?";
 "Шаг" = "Step";
-"Язык приложения" = "App dili";
+"Язык приложения" = "Tətbiqin dili";
 "APL включён для всего устройства. Открыли выбранное приложение — APL временно выключился. Вышли — включился обратно." = "APL normal olaraq cihaz üçün işə salınmışdır. Seçili tətbiqi açmaqla APL müvəqqəti olaraq bağlantısını kəsir; onu bağlamaqla APL yenidən bağlanır.";
 "APL возвращает обычное сетевое подключение." = "APL normal şəbəkəyə qoşulmanızı bərpa edir. APL normal şəbəkəyə qoşulmanı bərpa edir.";
 "APL выбирает доступный профиль автоматически." = "APL avtomatik olaraq mövcud proksi profilini seçir. Proksi profili avtomatik olaraq seçilir.";

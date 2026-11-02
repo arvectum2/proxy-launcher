@@ -45,6 +45,7 @@ struct CompactSettingsView<Header: View>: View {
                 Text(mode.title).tag(mode.rawValue)
             }
         }
+        .labelsHidden() // The row already labels the control; menu shows current mode.
         .accessibilityLabel(AppL10n.tr("Тема оформления"))
         .accessibilityIdentifier("settings.theme")
     }
@@ -52,10 +53,78 @@ struct CompactSettingsView<Header: View>: View {
     @ViewBuilder
     private var adaptiveThemePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
+            Menu {
+                ForEach(AppearanceMode.allCases) { mode in
+                    Button {
+                        appearanceMode = mode.rawValue
+                    } label: {
+                        if mode.rawValue == appearanceMode {
+                            Label(mode.title, systemImage: "checkmark")
+                        } else {
+                            Text(mode.title)
+                        }
+                    }
+                }
+            } label: {
+                accessibilityMenuLabel(AppearanceMode(rawValue: appearanceMode)?.title
+                                       ?? AppearanceMode.system.title)
+            }
+            .accessibilityLabel(AppL10n.tr("Тема оформления"))
+            .accessibilityIdentifier("settings.theme")
+        } else if AppearanceMode.allCases.contains(where: { $0.title.count > 9 }) {
+            // iPhone SE: use menu instead of three clipped native segments.
             themePicker.pickerStyle(.menu)
         } else {
             themePicker.pickerStyle(.segmented)
                 .frame(maxWidth: 240)
+        }
+    }
+
+    private func accessibilityMenuLabel(_ value: String) -> some View {
+        HStack(alignment: .center, spacing: 7) {
+            Text(value)
+                .font(.body)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.subheadline)
+        }
+        .foregroundStyle(Brand.mintLight)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    @ViewBuilder
+    private var adaptiveLanguagePicker: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            Menu {
+                ForEach(AppLanguage.allCases) { language in
+                    Button {
+                        appLanguage = language.rawValue
+                    } label: {
+                        if language.rawValue == appLanguage {
+                            Label(language.title, systemImage: "checkmark")
+                        } else {
+                            Text(language.title)
+                        }
+                    }
+                }
+            } label: {
+                accessibilityMenuLabel(AppLanguage(rawValue: appLanguage)?.title
+                                       ?? AppLanguage.system.title)
+            }
+            .accessibilityLabel(AppL10n.tr("Язык приложения"))
+            .accessibilityIdentifier("settings.language")
+        } else {
+            Picker("Язык приложения", selection: $appLanguage) {
+                ForEach(AppLanguage.allCases) { language in
+                    Text(language.title).tag(language.rawValue)
+                }
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .tint(Brand.mintLight)
+            .accessibilityLabel(AppL10n.tr("Язык приложения"))
+            .accessibilityIdentifier("settings.language")
         }
     }
 
@@ -99,16 +168,7 @@ struct CompactSettingsView<Header: View>: View {
             }
 
             settingsRow("Язык") {
-                Picker("Язык приложения", selection: $appLanguage) {
-                    ForEach(AppLanguage.allCases) { language in
-                        Text(language.title).tag(language.rawValue)
-                    }
-                }
-                .labelsHidden()
-                .pickerStyle(.menu)
-                .tint(Brand.mintLight)
-                .accessibilityLabel(AppL10n.tr("Язык приложения"))
-                .accessibilityIdentifier("settings.language")
+                adaptiveLanguagePicker
             }
 
             compactSettingsAction("Первое подключение", icon: "questionmark.circle") {

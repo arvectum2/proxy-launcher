@@ -78,8 +78,8 @@
 "Откройте «Профили» → «Добавить». Укажите адрес, порт и тип прокси. Логин и пароль нужны только при авторизации." = "Proqramları Aç → Əlavə Et. Proksi qovşağını, portu və protokolu daxil edin. İstifadəçi adını və şifrəni yalnız lazım olduqda daxil edin.";
 "Домой" = "Ana səhifə";
 "Тема" = "Mövzu";
-"Язык" = "Language";
-"Команды VPN" = "VPN Kısayolları";
+"Язык" = "Dil";
+"Команды VPN" = "VPN əmrləri";
 "Основной прокси" = "Əsas proksi";
 "Возвращаться к основному" = "Əsas proksiyə qayıt";
 "Выкл. — меньше переключений: работаем через резервный, пока он доступен. Действует в режиме Авто." = "Söndürülüb — daha az keçid: ehtiyat proksi əlçatan olduqca ondan istifadə edirik. Avtomatik rejimdə işləyir.";

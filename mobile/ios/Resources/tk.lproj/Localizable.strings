@@ -4,7 +4,7 @@
 "1. «Приложение → Открыто»: выберите нужные приложения и действие APL «Приложение открыто»." = "1. Programma → Açyldy: programmalary we APL App Opened hereketini saýlaň. 2.";
 "2. «Приложение → Закрыто»: тот же список и действие APL «Приложение закрыто»." = "2. Programma → Ýapyldy: şol bir programmalary we APL App Closed hereketini saýlaň.";
 "Авто" = "Awtomatiki";
-"Автоматизация приложений" = "Programma üpjünçiliginiň awtomatlaşdyrylyşy";
+"Автоматизация приложений" = "Programmalaryň awtomatlaşdyrylmagy";
 "Автоматическая" = "Automatic";
 "Автоматический" = "Automatic";
 "Авторизация" = "Tanyşdyryş";
@@ -15,7 +15,7 @@
 "В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Hasabyňyzy döretmezden öz proksiňizi gurnaň. Baglanyşyk maglumatlary bu enjamda galýar. Hasabyňyzy döretmezden proksiňizi gurnaň.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Bir web sahypasyny giriziň we Ekle düwmä basyň. Her bir web sahypasy özbaşdak hatda görüner. URL, host:port ýa-da IP adresini girizip bilersiňiz.";
 "Версия" = "Wersiýa";
-"Возврат к приоритетному включён" = "Saýlanan proksi işlenip goýlan ýagdaýyna gaýdyň.";
+"Возврат к приоритетному включён" = "Esasy proksä dolanmak işledildi";
 "Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить»." = "Tüýs çykarmalar sanawa çykarylar. Düzgünler diňe Gaýd et düwmä basandan soňra güýje girer. Gaýd et düwmesine basandan soňra üýtgemeler güýje girer.";
 "Выберите прокси" = "Proksini saýlaň.";
 "Выберите язык интерфейса или используйте язык iPhone." = "Interfeýs dilini saýlaň ýa-da iPhone-yňyzyň dilini berjaý ediň.";
@@ -84,7 +84,7 @@
 "Ошибка" = "Hata: 0x00000000";
 "Пароль" = "Hassl: Hassl";
 "Пароль (пусто = оставить прежний)" = "Passwort (bar bolsa saklamak üçin boş goý)";
-"Первое подключение" = "Ilkinji baglanyşyk.";
+"Первое подключение" = "Ilkinji birikme";
 "Перед первым подключением" = "Ilkinji birikmezden öň";
 "Переподключение…" = "Baglanyşyk täzeden baglanýar...";
 "Подготовьте данные прокси" = "Proksi maglumatlaryňyzy alyň.";
@@ -110,7 +110,7 @@
 "Профили" = "Profiles Profiller";
 "Режим" = "Režim";
 "Русский" = "Rus dili";
-"Светлая" = "Ýagny, ýagtylyk, ýagtylyk.";
+"Светлая" = "Ýagty";
 "Системная" = "Ulgamlaýyn";
 "Системная тема автоматически следует настройкам iPhone." = "Sistemiň görünişi siziň iPhone-yňyzyň setirlerine laýyklykda bolup durýar.";
 "Системный" = "Ulgamlaýyn";

@@ -15,7 +15,7 @@
 "В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend." = "Nustatykite savo tarpinį serverį nesukūrę paskyros. Išsami ryšio informacija lieka šiame įrenginyje.";
 "Введите сайт и нажмите «Добавить». Каждый сайт появится отдельной строкой. Можно вставить URL, host:port или IP." = "Įveskite svetainę ir paspauskite „Pridėti“. Kiekviena svetainė bus atskiroje eilutėje. Galite įklijuoti URL, host:port arba IP adresą.";
 "Версия" = "Versija";
-"Возврат к приоритетному включён" = "Grįžti į įjungtą pageidaujamą tarpinį serverį";
+"Возврат к приоритетному включён" = "Įjungtas grįžimas prie pagrindinio tarpinio serverio";
 "Все исключения будут удалены из списка. Изменения применятся только после нажатия «Сохранить»." = "Visos išimtys bus pašalintos iš sąrašo. Pakeitimai bus taikomi tik tada, kai paliesite Išsaugoti.";
 "Выберите прокси" = "Pasirinkite tarpinį serverį";
 "Выберите язык интерфейса или используйте язык iPhone." = "Pasirinkite sąsajos kalbą arba vadovaukitės savo iPhone kalba.";
@@ -110,8 +110,8 @@
 "Профили" = "Profiliai";
 "Режим" = "Režimas";
 "Русский" = "Rusų kalba";
-"Светлая" = "Šviesa";
-"Системная" = "Sistema";
+"Светлая" = "Šviesi";
+"Системная" = "Sistemos";
 "Системная тема автоматически следует настройкам iPhone." = "Sistemos išvaizda atitinka jūsų iPhone nustatymus.";
 "Системный" = "Sistema";
 "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные." = "Patikrinkite ryšio būseną. Jei nepavyksta, patikrinkite pagrindinį kompiuterį, prievadą, protokolą ir kredencialus.";
@@ -125,7 +125,7 @@
 "Список пока пуст" = "Jokių išimčių nepridėta";
 "Текущий профиль" = "Dabartinis profilis";
 "Тема оформления" = "Išvaizda";
-"Тёмная" = "Tamsus";
+"Тёмная" = "Tamsi";
 "Тип" = "Tipas";
 "Трафик устройства направляется через выбранный прокси." = "Įrenginio srautas nukreipiamas per pasirinktą tarpinį serverį.";
 "Удалить все исключения после подтверждения" = "Po patvirtinimo pašalinkite kiekvieną išimtį";

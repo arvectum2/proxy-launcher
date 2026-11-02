@@ -110,8 +110,8 @@
 "Профили" = "Profili";
 "Режим" = "Režīms";
 "Русский" = "Krievu valoda";
-"Светлая" = "Gaisma";
-"Системная" = "Sistēma";
+"Светлая" = "Gaiša";
+"Системная" = "Sistēmas";
 "Системная тема автоматически следует настройкам iPhone." = "Sistēmas izskats atbilst jūsu iPhone iestatījumiem.";
 "Системный" = "Sistēma";
 "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные." = "Pārbaudiet savienojuma statusu. Ja tas neizdodas, pārbaudiet resursdatoru, portu, protokolu un akreditācijas datus.";
@@ -125,7 +125,7 @@
 "Список пока пуст" = "Neviens izņēmums nav pievienots.";
 "Текущий профиль" = "Pašreizējais profils";
 "Тема оформления" = "Izskats";
-"Тёмная" = "Dark";
+"Тёмная" = "Tumša";
 "Тип" = "Tips";
 "Трафик устройства направляется через выбранный прокси." = "Ierīces datplūsma tiek maršrutēta caur izvēlēto starpniekserveri.";
 "Удалить все исключения после подтверждения" = "Pēc apstiprināšanas noņemiet katru izslēgšanu.";
