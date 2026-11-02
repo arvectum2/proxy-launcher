@@ -326,12 +326,16 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         guard !switching, !stopping else { return }
         switching = true
         defer { switching = false }
-        _ = tun2proxy_stop()
-        tlsRelay?.stop()
-        tlsRelay = nil
-        try? await Task.sleep(nanoseconds: 300_000_000)
-        guard !stopping, !Task.isCancelled else { return }
         do {
+            // A blocking tun2proxy runner owns engineQueue until it exits.
+            // Waiting for the queue barrier prevents starting a replacement
+            // while the old runner is still draining its virtual DNS sockets.
+            try await TunnelEngineHandoff.stopAndDrain(engineQueue: engineQueue) {
+                _ = tun2proxy_stop()
+            }
+            guard !stopping, !Task.isCancelled else { return }
+            tlsRelay?.stop()
+            tlsRelay = nil
             try await apply(prepared)
             guard !stopping, !Task.isCancelled else { return }
             active = prepared
