@@ -9,11 +9,15 @@ definition_of_done:
   - "Update roadmap, commit and push source and results, finalize checkpoint; keep Draft PR #296, Apple 0.1.41 review, privacy/ads and live iPhone unchanged."
 completed:
   - "Restored repo baseline 05f7e696 clean; prior 11-language semantic edit complete; 64 UI languages/320 .strings and 50 offline ASO variants verified."
-current: "Construct all-locale simulator visual/navigation smoke and targeted accessibility checks using current iOS project and isolated Simulator."
+  - "Captured 128 nonblank actual compact iPhone SE screenshots (Home + Settings for all 64 languages); initial fast splash captures excluded and recaptured after full render (smallest screenshot 75 KB)."
+  - "First physical UI automation test on isolated iOS Simulator: 64/64 localized tabs and Settings reachability PASS (482.722s); deep test harness needed modal dismissal and was corrected for retest."
+  - "Visual review discovered long/overlapping tab labels, truncated segmented appearance controls, machine-mistranslated labels in new locales; 28-locale compact tab overrides and adaptive appearance menu plus targeted translations implemented; source tests 35/35 PASS."
+current: "All64 standard navigation PASS, 128 original SE screenshots reviewed. Source fixes in worktree. Retesting 16-language deep Settings/Exclusions/Import and 11-language post-fix compact/XXL screenshots, then Accessibility XXL and keyboard tests."
 pending:
-  - "Implement and run per-language UX navigation and screenshot checks; verify new language paths, RTL and layout." 
   - "Fix any observed regressions and re-run checks at standard/XXL and compact display sizes."
   - "Prepare evidence and QA report, run final build/tests, commit/push, close checkpoint."
 last_verified_commit: "05f7e696"
-test_results: []
+test_results:
+  - "Initial 64-locale UI navigation smoke: 64/64 PASS (482.722 sec); 128 valid pre-fix SE rendered screenshots; no apple/device mutations."
+  - "Source localization audit PASS and 35 focused Python tests PASS; post-fix deep UI and XXL currently running."
 resume_instruction: "Resume with all-64 iOS rendered UI/UX simulator verification, not old language translation test. May create local QA test on isolated Simulator and drive offline UI; do not launch VPN, touch real iPhone/Keychain, Apple App Review 0.1.41, live metadata, ads/privacy, Watchdog or merge Draft PR #296."
