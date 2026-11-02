@@ -1,0 +1,1 @@
+Dodani so novi jeziki in preglednejše upravljanje profilov.

@@ -13,14 +13,15 @@ APP_CODES={
 'hi':'hi','ar-SA':'ar','vi':'vi','pl':'pl','th':'th','ur-PK':'ur','bn-BD':'bn',
 'pa-IN':'pa','ta-IN':'ta','te-IN':'te','mr-IN':'mr','gu-IN':'gu','kn-IN':'kn','ml-IN':'ml','ms':'ms',
 'ro':'ro','hu':'hu','cs':'cs','sk':'sk','el':'el','he':'he',
-'sv':'sv','da':'da','fi':'fi','no':'nb','hr':'hr','ca':'ca'}
+'sv':'sv','da':'da','fi':'fi','no':'nb','hr':'hr','ca':'ca',
+'or-IN':'or','sl-SI':'sl','uk':'uk'}
 REQUIRED=('locale','subtitle','intro','profiles','exclusions','shortcuts','privacy','disclaimer','keywords','whatsNew')
 rows=[]
 with SOURCE.open(encoding='utf-8') as stream:
  for parts in csv.reader((line for line in stream if not line.startswith('#')),delimiter='|'):
   assert len(parts)==len(REQUIRED),(len(parts),parts[:2])
   rows.append(dict(zip(REQUIRED,parts)))
-assert len(rows)==len(APP_CODES)==47
+assert len(rows)==len(APP_CODES)==50
 assert {r['locale'] for r in rows}==set(APP_CODES)
 for row in rows:
  locale=row['locale'];name=CANONICAL

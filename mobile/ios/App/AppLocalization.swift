@@ -1,7 +1,7 @@
 import Foundation
 
 /// The locale preference is independent of the color-scheme preference.
-/// The cases cover the 50 fully populated APL iOS source languages.
+/// The cases cover the 53 fully populated APL iOS source languages.
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
     case en
@@ -52,6 +52,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case sr
     case hr
     case ca
+    case or
+    case sl
+    case uk
     case zhHans = "zh-Hans"
     case zhHant = "zh-Hant"
 
@@ -108,6 +111,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .sr: return "Српски (ћирилица)"
         case .hr: return "Hrvatski"
         case .ca: return "Català"
+        case .or: return "ଓଡ଼ିଆ"
+        case .sl: return "Slovenščina"
+        case .uk: return "Українська"
         case .zhHans: return "简体中文"
         case .zhHant: return "繁體中文"
         }
@@ -187,7 +193,7 @@ enum AppL10n {
 
     static func tr(_ key: String) -> String {
         // Preserve the reviewed 155-key legacy catalog. The 0.2 ProfileManagement
-        // strings now have native values for all 50 languages; English remains
+        // strings now have native values for all 53 languages; English remains
         // a defensive fallback for any future missing/optional source key.
         let missing = "__APL_020_MISSING_TRANSLATION__"
         for name in [effectiveLanguage, "en"] {

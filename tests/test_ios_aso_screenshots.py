@@ -38,7 +38,7 @@ def _jpeg_info(path):
 
 def test_all_supported_apple_locales_have_two_opaque_real_ios_screenshots():
     entries = json.loads((ROOT / 'localizations.json').read_text(encoding='utf-8'))['localizations']
-    assert len(entries) == 47
+    assert len(entries) == 50
     for row in entries:
         locale = row['locale']
         folder = ROOT / 'screenshots' / locale
@@ -53,5 +53,5 @@ def test_all_supported_apple_locales_have_two_opaque_real_ios_screenshots():
 def test_screenshots_are_not_replaced_with_invented_product_mockups():
     metadata = json.loads((ROOT / 'localizations.json').read_text(encoding='utf-8'))['localizations']
     screenshots = set((ROOT / 'screenshots').glob('*/*.jpg'))
-    assert len(screenshots) == 94
+    assert len(screenshots) == 100
     assert {p.parent.name for p in screenshots} == {r['locale'] for r in metadata}

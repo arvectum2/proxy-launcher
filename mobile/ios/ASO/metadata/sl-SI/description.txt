@@ -1,0 +1,9 @@
+Povežite iPhone prek lastnega posredniškega strežnika in preprosto upravljajte povezavo.
+
+• HTTP, HTTPS CONNECT, SOCKS5
+• Več profilov, prednostne naloge in samodejni preklop na rezervni proxy
+• Izjeme za spletna mesta, ki potrebujejo neposredno povezavo
+• Avtomatizacije izbranih aplikacij z bližnjicami iOS
+• Nastavitve ostanejo v napravi, gesla pa v Keychainu
+
+Potreben je lasten proxy strežnik; APL ne zagotavlja proxy storitve.

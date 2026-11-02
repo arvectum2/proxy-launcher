@@ -38,7 +38,7 @@ def payload(kind, attrs, id=None, relation=None):
 
 def load_rows():
     rows = json.loads((ROOT/'localizations.json').read_text(encoding='utf-8'))['localizations']
-    assert len(rows) == 47
+    assert len(rows) == 50
     for row in rows:
         assert len(row['name']) <= 30 and len(row['subtitle']) <= 30
         assert len(row['keywords'].encode('utf-8')) <= 100
@@ -79,7 +79,7 @@ class ASC:
             except HTTPError as err:
                 message = err.read(300).decode('utf-8','replace')
                 if err.code == 401 and attempt < 2:
-                    # Refresh the expiring JWT during long 47-locale imports.
+                    # Refresh the expiring JWT during long 50-locale imports.
                     self.token = None
                     self.issued = 0
                     continue

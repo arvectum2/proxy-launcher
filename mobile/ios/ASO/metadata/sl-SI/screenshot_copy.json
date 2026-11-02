@@ -1,0 +1,5 @@
+{
+  "01_profiles": "Več profilov, prednostne naloge in samodejni preklop na rezervni proxy",
+  "02_direct_exceptions": "Izjeme za spletna mesta, ki potrebujejo neposredno povezavo",
+  "03_app_automation": "Avtomatizacije izbranih aplikacij z bližnjicami iOS"
+}
