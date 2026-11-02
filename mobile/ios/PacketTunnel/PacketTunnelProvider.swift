@@ -363,38 +363,52 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func resolveExclusions(for prepared: PreparedProxy) throws -> SplitDNSExclusions {
         guard let store else { return SplitDNSExclusions(addresses: [], dnsBypass: []) }
-        var addresses = Set<String>()
-        var domainMappings = Set<String>()
+        // The active graph can include previously rejected or not-yet-approved
+        // subdomains. Their DNS answers are evidence of IP collisions, never
+        // authorization to bypass the proxy. Do not grant a new excludedRoute
+        // solely because an allowed host was seen on the same IP.
+        let refused = store.smartGraph.pruned().edges
+            .filter { $0.decision != .approved }
+            .map(\.host)
+        var approved: [String: [String]] = [:]
         for entry in store.siteExclusions {
-            let candidateHosts = SiteExclusionPolicy.routingHosts(for: entry)
-            for host in candidateHosts {
-                // The explicitly entered host must be resolvable; the implied
-                // www/apex alias is optional (many hosts have no www entry).
-                // Do not let an absent alias make a valid VPN configuration fail.
-                let resolved: [String]
+            for host in SiteExclusionPolicy.routingHosts(for: entry) {
+                // Explicit manual root is required; its automatically derived
+                // www/apex alias is optional when it does not have DNS.
                 if host == entry {
-                    resolved = try resolveHost(host)
-                } else {
-                    guard let aliasAddresses = try? resolveHost(host) else { continue }
-                    resolved = aliasAddresses
-                }
-                for address in resolved {
-                    addresses.insert(address)
-                    // Both the virtual DNS answer and /32-/128 excluded route
-                    // must use the same real IP. Otherwise www gets a fake
-                    // 198.18/15 address and silently falls back to the proxy.
-                    if !resolved.contains(host) {
-                        domainMappings.insert("\(host)=\(address)")
-                    }
+                    approved[host] = try resolveHost(host)
+                } else if let addresses = try? resolveHost(host) {
+                    approved[host] = addresses
                 }
             }
         }
-        // Always preserve a physical route to the upstream proxy.
+        var denied: [String: [String]?] = [:]
+        let candidates = Set(refused).subtracting(approved.keys)
+        // 32 sites x 24 candidates could otherwise add 768 blocking DNS
+        // lookups to a VPN start. If verification exceeds a bounded budget,
+        // withhold all optional domain routes instead of trusting the rest.
+        if candidates.count > SiteExclusionPolicy.maxEntries {
+            denied["unverified-over-cap.example.invalid"] = nil
+        } else {
+            for host in candidates.sorted() {
+                denied[host] = try? resolveHost(host)
+            }
+        }
+        let guarded = SharedIPRouteGuard.plan(approved: approved, nonApproved: denied)
+        if !guarded.withheldAddresses.isEmpty {
+            // Use only counts, never hostnames, IPs or usernames in telemetry.
+            telemetry.append(TunnelEvent(type: "shared IP guarded", detail:
+                "\(guarded.withheldAddresses.count) адресов исключены из прямых маршрутов"))
+        }
+        var addresses = Set(guarded.allowedAddresses)
+        // The proxy upstream is a deliberately excluded transport endpoint;
+        // it must remain accessible or the tunnel cannot work. Its IP cannot
+        // safely be used to infer an unrelated domain's bypass permission.
         for address in try resolveHost(prepared.storedProfile.host) { addresses.insert(address) }
         if addresses.count > SiteExclusionPolicy.maxResolvedAddresses {
             throw tunnelError("Слишком много IP-адресов в исключениях")
         }
-        return SplitDNSExclusions(addresses: addresses.sorted(), dnsBypass: domainMappings.sorted())
+        return SplitDNSExclusions(addresses: addresses.sorted(), dnsBypass: guarded.dnsBypass)
     }
 
     private func networkSettings(excludedAddresses: [String]) -> NEPacketTunnelNetworkSettings {

@@ -27,6 +27,10 @@
 | **P1 — `APL-PROX-001`** | Начать legal/clean-room сравнение Proxifier и текущего APL: сопоставить процессные правила, приоритеты, direct/proxy/block, DNS, логи, chains, backup, реальные платформенные API | Доказательная матрица `implemented / partial / blocked / proposed` для Windows/macOS/Linux/iOS/Android и ограничения платформ; учесть готовый WinDivert Windows. Ни копирования закрытого кода, ни обещаний per-app iOS | **Исследование сейчас**, унификация/разработка в следующих итерациях |
 | **P1 — `APL-QRG-001`** | Спроектировать **оригинальный APL Gateway**: клиент → шифрованное соединение → APL Gateway → rules → покупной upstream; server-only proxy credentials; QR и отзыв, приватность/правовая модель | Архитектурный ADR, trust boundaries, threat model/STRIDE, WireGuard-vs-other protocol decision, IPv4/IPv6/DNS egress, отсутствие upstream secrets в клиентском QR/конфиге/логах, список feasibility gates | **Исследование сейчас**; непубличный PoC `APL-QRG-002` после архитектуры, публичный SaaS отдельно |
 
+### Smart Exclusions — обновление 02.11 после практического TCP-теста
+
+**`APL-SMART-SHAREDIP-GUARD-020` реализован:** выявленные IP-конфликты с pending/rejected доменами теперь fail-closed; Swift 113/113, Python 8/8, iOS Simulator BUILD PASS, реальный localhost TCP/HTTP/proxy стенд доказал прежний shared-IP leak и отказ от DIRECT при известной коллизии. [Детальная приёмка и IP/HTTPS evidence](APL_IOS_SMART_EXCLUSIONS_SHARED_IP_GUARD_2026-11-02.md). **`APL-SMART-FLOW-001` остаётся обязательным blocker для полной гарантии**: неизвестные имена на общем IP нельзя исключить средствами Network Extension `excludedRoutes`, нужен защищённый domain-aware per-flow engine + физический iPhone E2E, безопасная маршрутизация UDP/IPv6/DNS и управляемая сеть. Не отмечать всю Smart Exclusions 2.0 как DONE.
+
 ## 3. Следующие этапы — не подменять ими релиз 0.2.0
 
 | Приоритет / ID | Состояние на дату последнего записанного факта | Следующий проверяемый результат |

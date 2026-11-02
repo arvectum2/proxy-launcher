@@ -1,5 +1,7 @@
 # Smart Exclusions 2.0 — iOS, 31 октября 2026
 
+> **Актуализация 02.11:** [новый shared-IP collision guard, loopback TCP доказательство и незакрытый per-flow gate](APL_IOS_SMART_EXCLUSIONS_SHARED_IP_GUARD_2026-11-02.md). Пункт «Phase C» по точному маршруту по домену **ещё не выполнен**.
+
 ## Реализовано в source
 
 - Добровольный WebKit-анализ, непостоянное хранилище, ограничения времени (18 с), HTML (512 КБ) и сетевых ресурсов (512).
