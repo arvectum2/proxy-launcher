@@ -89,6 +89,7 @@
 		9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611C8DA174BECA86752E2F06 /* ProxyImportView.swift */; };
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		A34734FFD18528856CEB0DA0 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */; };
 		A3632748F1B7846D74362538 /* SettingsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8300FD2584F5D85CDF2C613 /* SettingsBannerView.swift */; };
 		A3AB954D4D2ECCECD2A3ED8D /* ProfileManagement.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2DC6C5630E272E25E14496CD /* ProfileManagement.strings */; };
 		A70DFE418DD0D380C7D6D088 /* JournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EAE75AFADAFE338F502B8D /* JournalView.swift */; };
@@ -941,6 +942,7 @@
 				39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */,
 				5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */,
 				C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */,
+				A34734FFD18528856CEB0DA0 /* TunnelEngineHandoff.swift in Sources */,
 				4AAEE6BA73131A6B82667784 /* UXReadOnlyNavigationUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
