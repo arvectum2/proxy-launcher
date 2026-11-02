@@ -1,38 +1,27 @@
-task_id: APL-IOS-020-PROFILE-LIBRARY-REFACTOR-20261102
-status: completed
-goal: Continue iOS 0.2 roadmap by safely extracting Profiles search/filter, group/favorites and bulk action UI into independent components without a release.
+task_id: APL-IOS-020-ACTIVE-RELEASE-PREFLIGHT-20261102
+status: in_progress
+goal: "Continue the actual iOS 0.2.0 (48) source in PR #296 and prevent future work from accidentally using stale main/0.1.42."
 definition_of_done:
-  - Profile library screen and reusable search/filter, row/group/favorite and bulk action components extracted from ContentView; navigation and state remain functional.
-  - Pure filter/visible-selection policy retains favorites-first sorting, localized case-insensitive search and group filtering; destructive actions operate only on visible selected IDs, are rejected with active VPN, and selected scan is capped at ten.
-  - AppViewModel, ProfileStore, Keychain, tunneling, Yandex ads and all 50 localization catalogs unchanged; import/backup/edit sheet actions remain intact.
-  - Targeted source and executable Swift policy tests, ARM64 iOS simulator signed UI flows, accessibility/RTL screenshots PASS.
-  - Roadmap/QA report updated, checkpoint completed, changes committed and pushed only to existing Draft PR #296; no merge or Apple/TestFlight/App Store submission.
+  - "Verify canonical 0.2 source worktree, installed physical app identity and exact-head CI."
+  - "Close obsolete 0.1.42 PR #299 without merge and preserve all concurrent worktrees."
+  - "Add machine-readable iOS active release identity and source-only preflight rejecting stale project/Xcode version drift."
+  - "Run targeted positive and negative tests and GitHub iOS CI; preserve App Store/installed iPhone unchanged."
+  - "Record final verified commit and checkpoint, keeping PR #296 Draft pending owner release decision."
 completed:
-  - Recovered prior completed modular UI task a512117c; clean worktree and Draft PR #296 confirmed.
-  - Feature commit d48e37c1 extracted ProfilesScreenView, ProfileLibraryFiltersView, ProfileLibraryRowView, ProfileLibraryGroupMenu and ProfileLibraryBulkActionsView. ContentView shrank 1122 -> 850 lines, shared AppViewModel bindings/import, edit and encrypted backup sheets preserved.
-  - Added pure SharedCore ProfileLibrarySelectionPolicy retaining original search, favorites first, group filtering and selected-visible UUID intersection. Selection resets on search/filter, prunes deleted IDs; final deletion checks VPN inactive, selected health scan <=10.
-  - iPhone SE3 Accessibility XXL screenshots exposed cropped German/Arabic top action labels. Fixed with vertically stacked full-width action buttons, adaptive selection heading and bulk controls; normal iPhone compact row preserved.
-  - Swift package full CoreTests 100/100 PASS, including four executable policy tests. Source Python unittest 73/73 PASS and 11/11 direct checks PASS; 50 locale audit clean, resources unchanged.
-  - Signed iPhone13 Simulator import/search/favorite/group/favorites-filter/bulk-delete synthetic .invalid profile UI 1/1 PASS 48.459 seconds; only the newly imported test fixture removed, no VPN switched.
-  - Signed iPhone13 Simulator German + Arabic read-only library UI 1/1 PASS 20.996 seconds, screenshots inspected and host:port LTR in RTL UI.
-  - Signed small iPhone SE3 Simulator Accessibility XXL German + Arabic library UI after fix 1/1 PASS 21.475 seconds (first baseline PASS 21.727 seconds revealed visible clipping). Two fixed screenshots inspected, no truncated top actions, scrolling works; simulator font and boot state restored.
-  - Signed seven-screen read-only navigation UI 1/1 PASS 23.409 seconds including existing import/backup sheet paths, no VPN/profile edits.
-  - Roadmap and docs/APL_IOS_020_PROFILE_LIBRARY_REFACTOR_QA_2026-11-02.md updated; no release artifact or Apple metadata changes.
-  - '2026-11-02 GitHub Windows P0 portable CI build exposed a new test-only UnicodeDecodeError: Windows default cp1252 on .read_text() for the moved UTF-8 Swift source. Fixed all 18 implicit-decoding reads across three relevant Python source-contract files with explicit encoding=utf-8. No runtime Swift files changed; focused 13 unit checks and full 73 Python tests PASS locally. Exact-head Windows CI rerun after fix required.'
-current: Profiles refactor completed and locally verified at d48e37c1; checkpoint commit and external PR #296 exact-head CI verification follow. This stage stays completed while asynchronous CI settles.
+  - "Confirmed active clean worktree /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101 and Draft PR #296 at 9f71c190."
+  - "Inspected roadmap and previous completed checkpoints: keyboard swipes, two adaptive ad slots and 50-language localization already DONE in 0.2."
+  - "Closed erroneous PR #299 unmerged; its 0.1.42 implementation is superseded and must not be ported."
+  - "Verified iOS XcodeGen marketing version 0.2.0 and build 48, generated Xcode project counts match."
+  - "CoreDevice read-only verified physical iPhone 13 has ru.arvectum.proxylauncher.ios 0.2.0 (48)."
+  - "GitHub exact-head PR #296 all 13 workflow runs completed SUCCESS at 9f71c190."
+current: "Add branch-specific release identity preflight to prevent stale-source mistakes; test and retain draft."
 pending:
-  - Manual real VoiceOver physical device testing remains separate; tests here validate accessible elements and touch targets, not spoken assistive technology.
-  - Real upstream egress/failover and traffic counters require agreed reliable proxies and a separately authorized bounded VPN physical test; not part of this completed refactor.
-  - CloudKit/iCloud exclusions syncing remains P2 future backlog; no entitlements or development started.
-  - Prior Apple release remains owner-gated; do not upload or release and never use previous distribution IPA for this newer source without rebuilding on separate authorization.
-last_verified_commit: d48e37c1
+  - "Implement release identity manifest, read-only script, unit regression tests and workflow preflight."
+  - "Run focused tests and inspect exact-head CI after change."
+  - "Record completion with new commit/hash; do not merge/upload."
+last_verified_commit: "9f71c190efbe76393bdc43b7398126ceb66accad (CI 13/13 success)"
 test_results:
-  - macOS Swift Package CoreTests 100/100 PASS, including 4/4 new ProfileLibrarySelectionPolicyTests.
-  - Python targeted source unit 73/73 PASS and 11 direct home/ad functions PASS.
-  - Signed iPhone13 Simulator synthetic import/search/group/favorite/filter/bulk safe deletion XCUITest PASS 48.459 seconds.
-  - Signed iPhone13 Simulator de+ar localized library read-only XCUITest PASS 20.996 seconds; screenshot review PASS.
-  - Signed small iPhone SE3 Accessibility XXL de+ar library XCUITest PASS 21.475 seconds, both screenshot clipping fixes visually confirmed; simulator restored.
-  - Signed 7-screen navigation-only simulator XCUITest PASS 23.409 seconds; all 50 localization resources present, no English fallback/regressions.
-  - No real device/App Store/TestFlight/merge, no user profile or VPN mutation; only disposable synthetic Simulator test data.
-  - Windows CI initial build failed due test-only CP1252 default-decoding; 18 .read_text calls changed to explicit UTF-8, full Python 73/73 PASS before CI rerun.
-resume_instruction: 'TASK COMPLETED at feature commit d48e37c1 in /private/tmp/apl-ios-020-product-plan-20261101 branch feat/ios-020-product-plan-20261101 and Draft PR #296. When resumed, first inspect latest .agent/current-task.yaml and PR CI; do not repeat already passed Profiles refactor, Swift 100/100, Python 73/73 and signed simulator 4 UI flows. Next separate milestone should be agreed real proxy egress/failover acceptance or manual VoiceOver, or owner-prioritized roadmap item; user approval needed before modifying physical VPN/Apple metadata/release. Never publish/merge automatically, never reuse old pre-refactor IPA as current, no CloudKit entitlements or watchdog.'
+  - "Prior 0.2 worktree: 100/100 Swift Core, 73/73 Python and targeted Simulator UI verified in completed profile library milestone."
+  - "CoreDevice: physical iPhone 13 installed iOS 0.2.0 (48) confirmed read-only; no system mutation."
+  - "GitHub 0.2 source head 9f71c190: all 13 workflow runs SUCCESS."
+resume_instruction: "Only continue iOS 0.2.0 build 48 in clean /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101 (Draft PR #296); GitHub main still has obsolete iOS 0.1.42. Add source identity preflight, tests and CI, then update checkpoint. Do not resurrect PR #299, merge #296, change installed iPhone VPN, Apple metadata/privacy or release. Main Mac mini worktree has separate in-progress macOS DNS task; leave untouched. No watchdog."
