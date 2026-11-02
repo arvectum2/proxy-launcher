@@ -3,7 +3,7 @@
 2026-11-02. Source-only UX and advertising layout refinement.
 
 ## Behavior
-- On iOS 16+, scrolling either the proxy import Form or the create/edit proxy Form dismisses the software keyboard interactively. This uses SwiftUI's native `scrollDismissesKeyboard(.interactively)`, not a custom gesture that could intercept text editing, scrolling or system back navigation. iOS 15 retains the original Form behavior.
+- On iOS 16+, scrolling the import Form, create/edit proxy Form, or site exclusions List dismisses the software keyboard interactively. This uses SwiftUI's native `scrollDismissesKeyboard(.interactively)`, not a custom gesture that could intercept text editing, scrolling or system back navigation. iOS 15 retains the original Form behavior.
 - The only production RSYA placement is the existing sticky banner below the TabView. Removed a 16pt horizontal inset from its outer host so `BannerSize.sticky()` receives the entire available safe-area width. The SDK calculates the banner height; no forced `320×50` dimensions or artificial equal-height wrapper are introduced.
 - Yandex SDK 8.x handles adaptive sticky auto-refresh. No app-owned refresh timer is added, avoiding duplicate requests and ad-load retry storms. The existing fallback suppresses repeated loading after failure.
 - No change to banner unit ID, App Store metadata, privacy declarations, entitlement profiles, VPN engine or saved profiles.
