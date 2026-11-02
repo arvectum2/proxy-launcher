@@ -1,5 +1,5 @@
 task_id: APL-IOS-020-ACTIVE-RELEASE-PREFLIGHT-20261102
-status: in_progress
+status: blocked
 goal: "Continue the actual iOS 0.2.0 (48) source in PR #296 and prevent future work from accidentally using stale main/0.1.42."
 definition_of_done:
   - "Verify canonical 0.2 source worktree, installed physical app identity and exact-head CI."
@@ -14,14 +14,20 @@ completed:
   - "Verified iOS XcodeGen marketing version 0.2.0 and build 48, generated Xcode project counts match."
   - "CoreDevice read-only verified physical iPhone 13 has ru.arvectum.proxylauncher.ios 0.2.0 (48)."
   - "GitHub exact-head PR #296 all 13 workflow runs completed SUCCESS at 9f71c190."
-current: "Add branch-specific release identity preflight to prevent stale-source mistakes; test and retain draft."
+completed:
+  - "Preflight manifest mobile/ios/Config/active-development.json, script scripts/ios_active_release_preflight.py and four regression tests committed; GitHub iOS workflow checks identity before Core/Debug/Release builds."
+  - "At 8ac20d59 Mac mini isolated 0.2 worktree: preflight 0.2.0 (48) PASS, four positive/negative tests 4/4 PASS, git diff --check PASS, working tree clean."
+  - "Draft PR #296 body and release-readiness doc reconciled: older distribution IPA from 73571960 is not same as latest source; no upload or merge."
+current: "Source preflight implementation and local tests PASS; hosted macOS GitHub runners remain queued, so exact-head mobile CI is not yet verified. Do not merge or publish."
 pending:
-  - "Implement release identity manifest, read-only script, unit regression tests and workflow preflight."
-  - "Run focused tests and inspect exact-head CI after change."
-  - "Record completion with new commit/hash; do not merge/upload."
-last_verified_commit: "9f71c190efbe76393bdc43b7398126ceb66accad (CI 13/13 success)"
+  - "Implement release identity manifest, read-only script, unit regression tests and workflow preflight. DONE."
+  - "Run focused tests DONE; inspect exact-head mobile CI when GitHub macos-latest runners run."
+  - "Only after green exact-head CI record completion with final commit/hash; do not merge/upload."
+last_verified_commit: "6d9ae94b1083a0c245790c8450bc0304f4521ad3 (new source preflight locally PASS; exact-head mobile CI queued). Last fully green prior source head: 9f71c190 (13/13 CI success)."
 test_results:
   - "Prior 0.2 worktree: 100/100 Swift Core, 73/73 Python and targeted Simulator UI verified in completed profile library milestone."
   - "CoreDevice: physical iPhone 13 installed iOS 0.2.0 (48) confirmed read-only; no system mutation."
   - "GitHub 0.2 source head 9f71c190: all 13 workflow runs SUCCESS."
-resume_instruction: "Only continue iOS 0.2.0 build 48 in clean /private/tmp/apl-ios-020-product-plan-20261101, branch feat/ios-020-product-plan-20261101 (Draft PR #296); GitHub main still has obsolete iOS 0.1.42. Add source identity preflight, tests and CI, then update checkpoint. Do not resurrect PR #299, merge #296, change installed iPhone VPN, Apple metadata/privacy or release. Main Mac mini worktree has separate in-progress macOS DNS task; leave untouched. No watchdog."
+  - "Mac mini local 0.2 preflight source 8ac20d59: version identity PASS; negative tests 4/4 PASS in 0.008s; git diff --check PASS."
+  - "At last check GitHub Mobile iOS personal and macOS packaging hosted macos-latest jobs QUEUED on 8ac20d59; Windows installer older run CANCELLED by superseding push, no reported test failure."
+resume_instruction: "Read this checkpoint and PR #296. Source identity manifest/script and 4/4 negative tests are committed; do not redo. Inspect GitHub Mobile iOS personal/macOS packaging hosted macos-latest jobs for commit 8ac20d59 and exact latest PR head 6d9ae94b (or newer). On CI failure fix only the failing scope; on green record PASS and mark this checkpoint completed. Draft PR #296 MUST remain unmerged and no App Store/TestFlight upload; final release archive built from older 73571960 is NOT up to date after new UI refactor. Current source remains iOS 0.2.0 (48), main is stale 0.1.42. Never revive PR #299. Do not mutate iPhone/VPN, macOS concurrent dirty main, Apple metadata/privacy, or Watchdog."
