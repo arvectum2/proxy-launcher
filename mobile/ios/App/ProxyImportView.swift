@@ -1,4 +1,17 @@
 import SwiftUI
+
+/// Retain the native iOS 15 form behavior while enabling interactive keyboard
+/// dismissal on iOS 16+ when the user scrolls instead of finding a toolbar key.
+struct APLInteractiveKeyboardDismissal: ViewModifier {
+    @ViewBuilder func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content.scrollDismissesKeyboard(.interactively)
+        } else {
+            content
+        }
+    }
+}
+
 import UniformTypeIdentifiers
 import UIKit
 
@@ -104,6 +117,7 @@ struct ProxyImportView: View {
                     }
                 }
             }
+            .modifier(APLInteractiveKeyboardDismissal())
             .navigationTitle(ProxyImportUX.text("Импорт прокси"))
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
