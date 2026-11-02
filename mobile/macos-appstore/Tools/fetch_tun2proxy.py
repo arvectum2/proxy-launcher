@@ -101,7 +101,29 @@ def main() -> None:
         text = general_api.read_text(encoding="utf-8")
         if text.count(FORCED_EXIT_BLOCK) != 1:
             raise SystemExit("tun2proxy forced-exit patch anchor mismatch")
-        general_api.write_text(text.replace(FORCED_EXIT_BLOCK, PATCHED_BLOCK, 1), encoding="utf-8")
+        # The upstream API implicitly drops Tokio's runtime after block_on.
+        # Runtime::drop waits indefinitely for blocking workers; during active
+        # HTTP keep-alive sessions this could stall NE engine shutdown forever.
+        # Bound worker draining while allowing a fresh runtime to start.
+        shutdown_anchor = "    let res = match res {"
+        if text.count(shutdown_anchor) != 1:
+            raise SystemExit("tun2proxy Tokio shutdown anchor mismatch")
+        text = text.replace(FORCED_EXIT_BLOCK, PATCHED_BLOCK, 1)
+        text = text.replace(shutdown_anchor,
+            "    rt.shutdown_timeout(std::time::Duration::from_secs(2));\n\n" + shutdown_anchor, 1)
+        stop_anchor = "        let ret = general_run_async(args_clone, tun_mtu, packet_information, shutdown_token).await;"
+        if text.count(stop_anchor) != 1:
+            raise SystemExit("tun2proxy cancellation anchor mismatch")
+        bounded_stop = """        let stop_watch = shutdown_token.clone();
+        let ret = tokio::select! {
+            result = general_run_async(args_clone, tun_mtu, packet_information, shutdown_token) => result,
+            _ = async {
+                stop_watch.cancelled().await;
+                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            } => Err(std::io::Error::other("tun2proxy stopped with pending sessions")),
+        };"""
+        text = text.replace(stop_anchor, bounded_stop, 1)
+        general_api.write_text(text, encoding="utf-8")
 
         # Exact-domain real-IP DNS responses must match Network Extension
         # excludedRoutes; keep default virtual DNS for all other hosts.
@@ -136,7 +158,7 @@ def main() -> None:
         (TARGET.parent / ".tun2proxy-version").write_text(
             f"{VERSION}\nsource_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"rust_target={RUST_TARGET}\npatch=disable-api-forced-exit-and-exact-host-split-dns\n"
+            f"rust_target={RUST_TARGET}\npatch=bounded-tokio-shutdown-and-exact-host-split-dns\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\npatched_library_sha256={sha}\n",
             encoding="utf-8",
         )

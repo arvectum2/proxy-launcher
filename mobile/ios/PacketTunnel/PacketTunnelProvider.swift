@@ -106,6 +106,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         _ = tun2proxy_stop()
         tlsRelay?.stop()
         tlsRelay = nil
+        if reason == .userInitiated {
+            // System Settings can stop the VPN without going through the app UI.
+            // That is an explicit user action, not an engine crash to recover.
+            telemetry.append(TunnelEvent(type: "manual stop"))
+        }
         if let active {
             telemetry.append(TunnelEvent(type: "disconnected", profileName: active.storedProfile.name))
         }
