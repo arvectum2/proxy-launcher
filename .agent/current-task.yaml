@@ -1,5 +1,5 @@
 task_id: APL-IOS-020-FINAL-ACCEPTANCE-20261102
-status: in_progress
+status: blocked
 goal: "Finalize iOS 0.2.0 (48) source, localization/accessibility QA and signed IPA; perform final device checks only with specific owner authorization and controlled test proxies."
 definition_of_done:
   - "Complete 50-locale source audit and targeted high-risk Simulator UI/Accessibility checks."
@@ -20,20 +20,21 @@ completed:
   - "Signed IPA SHA256 96c32d9935d59834fbbf2b7a77f843e0929a6868ab609e87f41fc2d2047ca8fe; path /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/final-source-5ce33b9b-20261102/exported/Arvectum Proxy Launcher.ipa."
   - "Confirmed read-only iPhone Nikita available, installed app remains 0.2.0(48) older binary; no iPhone/VPN/user-profile changes."
   - "Added explicit future Proxifier/QRVPN research backlog; does not alter current release scope."
+  - "Patched iPhoneOS and ARM64 Simulator Rust libraries reproducible locally, XCFramework lint and simulator UI target build-for-testing PASS."
+  - "Hosted GitHub Mobile iOS personal run 41412264592 3/3 SUCCESS. Physical two-proxy failover/VoiceOver not attempted."
+  - "New Apple Distribution signed archive and IPA from 6b38f6a3 PASS: app+PacketTunnel signatures, versions 0.2.0(48), 50 locales, ZIP integrity; SHA256 a775f666d3e3886a56b7db6d07aa9426ac4fddd617475500b0a7ab190949830b."
   - "GitHub run 41410464336 exact failure inspected: iPhone device/Release and core PASS; Simulator UI-target compilation had no patched iOS Simulator library in pinned upstream framework."
   - "Implemented optional pinned Rust simulator build in fetch_tun2proxy.py, Info.plist slice insertion and headers copying; 2 new Python regression tests PASS; no app/proxy runtime behavior changed."
-current: "Added optional source-pinned aarch64-apple-ios-sim Rust library to XCFramework builder and enabled it only in UI-target CI job; deterministic slice/manifest regression tests PASS. Next exact-head CI and local patched simulator build remain to verify."
+current: "Source, new signed IPA and hosted GitHub CI 3/3 SUCCESS. Blocked only on explicit physical iPhone permissions, controlled proxy pair, A->B->A egress and real VoiceOver QA."
 pending:
-  - "Run exact-head GitHub Mobile iOS personal CI after optional simulator library fix and prove 3/3 jobs green, or diagnose new failures."
-  - "Validate pinned patched simulator library build on Mac mini to ensure no fragile environment assumptions."
   - "Owner explicitly authorizes in-place updating iPhone Nikita, temporarily changing its VPN and VoiceOver setting, restoring original state; supplies or approves two known-good proxies and a safe way to fail/recover primary, without exposing credentials."
   - "On physical iPhone: snapshot app/VPN/selected profiles and settings, test egress A via two independent HTTPS services, fail over A->B, restore A after recovery, verify no DNS deadlocks, OFF baseline restored and data unchanged; record only redacted results."
   - "Real physical VoiceOver navigation and controls checked/restored; only then accept physical gate and seek separate TestFlight/App Store submission authorization."
-last_verified_commit: "d02085ce529e19ae6bfeb4f39369879b8f734a13 (tested iOS source and CI; documentation/checkpoint commit will follow; mobile/ios tree a786dfe086309d6281e60266845c150ed0238d87)."
+last_verified_commit: "6b38f6a355bb0d804adf7ca0c33cdc6026a72d56 (GitHub run 41412264592 3/3 SUCCESS; signed IPA from same source; iOS tree 2a1e4e9c28768a77f9761cad4d69ec42fba9c772)"
 test_results:
   - "104/104 Swift Core PASS on code tree before tool change, 44/44 Python iOS 0.2 PASS including 2 new simulator-slice contract tests, 250/250 strings plutil PASS."
   - "Five focused signed Simulator UI tests across large text, accessibility and 10 locale screens PASS, zero a11y findings."
   - "Unsigned Simulator UI test target build-for-testing TEST BUILD SUCCEEDED; ARM64 Simulator app build PASS."
   - "Distribution Archive/Export PASS, app+extension signatures PASS, IPA ZIP integrity PASS, 50 locales present."
   - "Hosted GitHub Mobile iOS personal for d02085ce QUEUED (not a failure and not green); physical two-proxy/VoiceOver not attempted."
-resume_instruction: "CI fix source committed: verify pinned simulator Rust library local build and exact-head GitHub CI; fix failures autonomously. Then continue acceptance. Continue iOS 0.2.0 on canonical clean branch feat/ios-020-product-plan-20261101 / Draft PR #296, using .agent/current-task.yaml and docs/APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md. Verify GitHub CI run 41410464336 when hosted macOS runner finishes. DO NOT repeat 104 Swift, 42 Python, 5 signed Simulator UI cases or rebuild IPA unless mobile/ios source tree changes (currently a786dfe086309d6281e60266845c150ed0238d87). Before changing physical iPhone Nikita (including app install, VPN failover or VoiceOver), obtain explicit device-specific owner permission and controlled primary/backup endpoints; restore original state and protect Keychain/profiles. Keep Apple metadata/privacy/ads unchanged; no App Store/TestFlight upload, merge or Watchdog without separate instruction. Once external device/CI gates pass mark checkpoint completed."
+resume_instruction: "CI and signed IPA gates complete for source commit 6b38f6a3. Continue only after explicit permission to install current test build and temporarily toggle VPN/VoiceOver on iPhone Nikita with controlled working primary/backup proxies. Preserve user profiles and original VPN state; test A->B->A, independent public IP and actual VoiceOver, and restore state. If success mark completed; otherwise remain blocked. Do not rebuild source, re-test all Swift/Python or upload Apple/merge until a code change or release authorization."

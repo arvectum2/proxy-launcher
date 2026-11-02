@@ -1,9 +1,16 @@
+## 02.11.2026 — iOS 0.2.0: CI и финальная подписанная IPA — PASS
+
+- [x] Source commit `6b38f6a3` (iOS tree `2a1e4e9c28768a77f9761cad4d69ec42fba9c772`), GitHub `Mobile iOS personal` [run 41412264592](https://github.com/arvectum2/proxy-launcher/actions/runs/41412264592): **3/3 SUCCESS** (Core, Debug с iOS Simulator UI-test target, Release).
+- [x] Полнота локализаций 50/50, Swift Core 104/104, Python iOS **44/44**, 5/5 signed Simulator UI, Accessibility Audit 0 ошибок. Сборщик `tun2proxy` исправлен: два патченных pinned Rust slice для iPhone и ARM64 Simulator, локальная компиляция `build-for-testing` PASS.
+- [x] Свежая Apple Distribution IPA экспортирована и отдельно проверена: `0.2.0 (48)`, app+PacketTunnel подписи и ZIP PASS, 50 локализаций, SHA256 `a775f666d3e3886a56b7db6d07aa9426ac4fddd617475500b0a7ab190949830b`. [Финальный отчёт](APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md).
+- [ ] Только физические гейты: основной→резерв→основной на двух согласованных upstream и реальный VoiceOver на iPhone. Без изменения текущих профилей, VPN, карточки Apple и без релиза до отдельного разрешения. **Исторические пометки QUEUED ниже устарели.**
+
 ## 02.11.2026 — iOS 0.2.0: финальная исходниковая приёмка и релизный кандидат
 
-- [x] Source version 0.2.0 (48) в PR #296; Swift **104/104**, Python iOS **42/42**, все **50/50** языков и **250/250** файлов корректны, 0 новых English fallback.
+- [x] Source version 0.2.0 (48) в PR #296; Swift **104/104**, Python iOS **44/44**, все **50/50** языков и **250/250** файлов корректны, 0 новых English fallback.
 - [x] Исправлена компиляция `SmartExclusionsUITests` после добавления `TunnelEngineHandoff` и устаревшее имя экрана в a11y тесте; 4/4 адресных signed Simulator XCUITest PASS (включая 10 языков, XXL немецкий/арабский и Accessibility Audit 0 замечаний). Отдельная `build-for-testing` PASS, новый шаг теперь обязателен в CI.
-- [x] Новая Apple Distribution IPA из кода `5ce33b9b` (дерево `mobile/ios` не менялось в CI-коммите `d02085ce`): archive/export PASS, обе подписи и 50 локализаций PASS, SHA256 и путь в [отчёте](APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md).
-- [ ] Hosted GitHub iOS CI для обновлённого workflow **QUEUED**, не зелёный.
+- [x] Новый Apple Distribution IPA из `6b38f6a3`: обе подписи и версии 0.2.0(48), 50 локализаций, целостность ZIP, SHA-256 PASS. [Отчёт](APL_IOS_020_FINAL_ACCEPTANCE_2026-11-02.md).
+- [x] GitHub Mobile iOS personal CI **3/3 SUCCESS** для `6b38f6a3`, [run 41412264592](https://github.com/arvectum2/proxy-launcher/actions/runs/41412264592); оба патченных среза Rust XCFramework воспроизводимы, UI-target CI собирается.
 - [ ] Физический двухпрокси failover и независимый egress + реальный VoiceOver на iPhone не выполнены на новом бинарнике: нужны согласованные временные изменения пользовательского устройства и контролируемый тестовый primary/backup. Никаких изменений iPhone/App Store/merge.
 
 ## Поздний бэклог — анализ совместимости Proxifier и QRVPN
