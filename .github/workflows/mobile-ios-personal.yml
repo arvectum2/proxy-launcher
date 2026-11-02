@@ -31,7 +31,7 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Build pinned patched tun2proxy XCFramework
-        run: python3 mobile/ios/Tools/fetch_tun2proxy.py
+        run: python3 mobile/ios/Tools/fetch_tun2proxy.py --with-simulator
       - name: Generate Xcode project
         run: xcodegen generate --spec mobile/ios/project.yml
       - name: Build unsigned iPhone app
