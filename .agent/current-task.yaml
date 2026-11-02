@@ -14,13 +14,11 @@ completed:
   - "Verified iOS XcodeGen marketing version 0.2.0 and build 48, generated Xcode project counts match."
   - "CoreDevice read-only verified physical iPhone 13 has ru.arvectum.proxylauncher.ios 0.2.0 (48)."
   - "GitHub exact-head PR #296 all 13 workflow runs completed SUCCESS at 9f71c190."
-completed:
   - "Preflight manifest mobile/ios/Config/active-development.json, script scripts/ios_active_release_preflight.py and four regression tests committed; GitHub iOS workflow checks identity before Core/Debug/Release builds."
   - "At 8ac20d59 Mac mini isolated 0.2 worktree: preflight 0.2.0 (48) PASS, four positive/negative tests 4/4 PASS, git diff --check PASS, working tree clean."
   - "Draft PR #296 body and release-readiness doc reconciled: older distribution IPA from 73571960 is not same as latest source; no upload or merge."
 current: "Source preflight implementation and local tests PASS; hosted macOS GitHub runners remain queued, so exact-head mobile CI is not yet verified. Do not merge or publish."
 pending:
-  - "Implement release identity manifest, read-only script, unit regression tests and workflow preflight. DONE."
   - "Run focused tests DONE; inspect exact-head mobile CI when GitHub macos-latest runners run."
   - "Only after green exact-head CI record completion with final commit/hash; do not merge/upload."
 last_verified_commit: "6d9ae94b1083a0c245790c8450bc0304f4521ad3 (new source preflight locally PASS; exact-head mobile CI queued). Last fully green prior source head: 9f71c190 (13/13 CI success)."
