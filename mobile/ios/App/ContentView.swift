@@ -242,8 +242,9 @@ struct ContentView: View {
             // A sibling rather than an inset on TabView. The actual ad SDK's
             // sticky height is measured by the stack; it must not displace
             // or obscure the native tab bar on compact iPhones.
+            // Let Yandex's native sticky size use the full safe-area width.
+            // Do not clamp its height or trigger custom refresh requests.
             SettingsBannerView()
-                .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
                 .background(Brand.canvas)
         }
@@ -1019,6 +1020,7 @@ struct ProfileEditorView: View {
                     }
                 }
             }
+            .modifier(APLInteractiveKeyboardDismissal())
             .navigationTitle(AppL10n.tr(profile == nil ? "Новый прокси" : "Изменить прокси"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
