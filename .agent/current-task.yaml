@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-KEYBOARD-ADAPTIVE-BANNER-20261102
-status: in_progress
+status: blocked
 goal: "Improve the iOS profile/import keyboard gesture and maximize native adaptive Yandex banner width without custom refresh or new release."
 definition_of_done:
   - "Use native interactive scroll keyboard dismissal in iOS 16+ import and profile forms; retain iOS 15 compatibility."
@@ -17,7 +17,7 @@ completed:
   - "Verified supplier TXT/CSV/XML import PR #295 merged into main at 315e0086."
   - "Read canonical roadmap and inspected existing SwiftUI forms, native Yandex SDK sticky banner and automatic SDK refresh."
   - "Created isolated GitHub branch from 315e0086; preserved Mac mini local main's separate in-progress macOS task."
-current: "PR #299 code and documentation ready. GitHub Actions security/source checks successful; hosted macOS Mobile iOS personal workflow queued, Windows installer in progress. Await full CI before merging."
+current: "Source patch and PR #299 complete; all 11 non-iOS workflows passed at source commit 1b75bfb, but Mobile iOS personal remains QUEUED on hosted macos-latest (3 jobs), blocking verification and merge. No product/device/Apple release changes."
 pending:
   - "Wait for GitHub Actions on PR #299 to finish, especially Mobile iOS personal (Swift core tests and unsigned Debug/Release app builds); address failures, if any."
   - "Merge PR #299 into main after all relevant checks pass; do not submit Apple release."
@@ -25,6 +25,7 @@ pending:
 last_verified_commit: "1b75bfb2890b20af897b4f604f9d96aa25f724ed (source patch and PR #299; CI partially green at 2026-11-02)"
 test_results:
   - "Baseline: supplier importer 71/71 Swift tests documented in merged PR #295."
-  - "PR #299 at 1b75bfb: 10/12 GitHub workflows SUCCESS; Mobile iOS personal QUEUED, Windows installer IN_PROGRESS; no failures at last read."
+  - "PR #299 source head 1b75bfb: 11/12 GitHub workflows SUCCESS; Mobile iOS personal QUEUED on macos-latest at last read, no failures. New checkpoint-only commits may show a newer GitHub PR HEAD."
+  - "No local device test or Xcode build attempted; user/device state preserved."
   - "New XCUITest committed but not yet executed on simulator; real iPhone QA held for separate prerelease gate."
-resume_instruction: "Start at https://github.com/arvectum2/proxy-launcher/pull/299 (branch feat/ios-keyboard-adaptive-banner-20261102, source head 1b75bfb); inspect GitHub Actions for latest PR HEAD, particularly Mobile iOS personal core-tests/unsigned Debug/Release, which were queued on 2026-11-02. If all relevant CI pass, merge PR into main without Apple submission, then update .agent/current-task.yaml to completed with merge SHA and tests. If CI fails, fix only the failure. Never reset or modify Mac mini local main or concurrent macOS task APL-MAC-DNS-SOCKET-RECOVERY-20261101."
+resume_instruction: "Start at https://github.com/arvectum2/proxy-launcher/pull/299 (branch feat/ios-keyboard-adaptive-banner-20261102, source change at 1b75bfb, later checkpoint-only commits); inspect GitHub Actions for latest PR HEAD, particularly Mobile iOS personal core-tests/unsigned Debug/Release, which were queued on 2026-11-02. If all relevant CI pass, merge PR into main without Apple submission, then update .agent/current-task.yaml to completed with merge SHA and tests. If CI fails, fix only the failure. Never reset or modify Mac mini local main or concurrent macOS task APL-MAC-DNS-SOCKET-RECOVERY-20261101."
