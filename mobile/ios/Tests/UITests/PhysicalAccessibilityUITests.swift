@@ -10,7 +10,8 @@ final class PhysicalAccessibilityUITests: XCTestCase {
         XCTAssertTrue(settings.waitForExistence(timeout: 20))
         settings.tap()
         app.buttons["Исключения сайтов"].tap()
-        XCTAssertTrue(app.navigationBars["Исключения сайтов"].waitForExistence(timeout: 10))
+        // Settings action has the full label, but the content screen uses the short title.
+        XCTAssertTrue(app.navigationBars["Исключения"].waitForExistence(timeout: 10))
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "APL Smart Exclusions physical baseline"
         attachment.lifetime = .keepAlways
