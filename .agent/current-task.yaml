@@ -1,28 +1,36 @@
-task_id: APL-IOS-020-POSTRELEASE-PREPARATION-20261102
+task_id: APL-IOS-020-PROFILE-LIBRARY-REFACTOR-20261102
 status: completed
-goal: Continue the iOS 0.2 roadmap safely while previous Apple release is pending; do NOT publish, merge or modify Apple metadata.
+goal: Continue iOS 0.2 roadmap by safely extracting Profiles search/filter, group/favorites and bulk action UI into independent components without a release.
 definition_of_done:
-  - Extract independent compact iPhone Settings and Activity screens from overloaded ContentView into coherent testable SwiftUI components with unchanged behavior.
-  - Address known Dynamic Type and VoiceOver controls: usable settings at accessibility text sizes, clear localized labels and no clipped primary actions.
-  - Validate 50-localization resources remain intact; signed simulator build and focused source/UX tests PASS, screenshot evidence for normal/large text and RTL if relevant.
-  - Update source contracts, roadmap and completion checkpoint, commit and push only to existing Draft PR #296, preserve release state.
-  - Do not install, alter or activate a physical VPN, user profiles, or upload/submit release to Apple.
+  - Profile library screen and reusable search/filter, row/group/favorite and bulk action components extracted from ContentView; navigation and state remain functional.
+  - Pure filter/visible-selection policy retains favorites-first sorting, localized case-insensitive search and group filtering; destructive actions operate only on visible selected IDs, are rejected with active VPN, and selected scan is capped at ten.
+  - AppViewModel, ProfileStore, Keychain, tunneling, Yandex ads and all 50 localization catalogs unchanged; import/backup/edit sheet actions remain intact.
+  - Targeted source and executable Swift policy tests, ARM64 iOS simulator signed UI flows, accessibility/RTL screenshots PASS.
+  - Roadmap/QA report updated, checkpoint completed, changes committed and pushed only to existing Draft PR #296; no merge or Apple/TestFlight/App Store submission.
 completed:
-  - Snapshot prior blocked release checkpoint to .agent/checkpoints/APL-IOS-020-RELEASE-BLOCKED-20261102.yaml.
-  - Feature commit 90c7080e extracted CompactSettingsView, ActivityScreenView, BrandTheme, AppDestination and EqualHeightDashboardLayout, with one shared model and no VPN state duplication; ContentView from 1500 to 1122 lines, two dead styles removed.
-  - iPhone normal Settings still one screen; at Accessibility XXL, theme/language stack vertically, theme uses a menu, icons do not overlap texts, activity status is above 44pt Refresh, event row combined for VoiceOver.
-  - iPhone13 signed Simulator Accessibility XXL de+ar UI 1/1 PASS in 31.054 sec, iPhone SE3 signed Simulator Accessibility XXL de+ar UI 1/1 PASS in 33.723 sec, iPhone13 normal Settings/Home UI 1/1 PASS in 10.092 sec. Screenshots on both devices inspected, simulator content-size/boot state restored.
-  - ARM64 signed iOS Simulator BUILD SUCCEEDED after final refactor; 71/71 source unittest + 11/11 direct source tests PASS; 50/50 locale audit zero errors and fallback.
-  - No Apple App Store/TestFlight upload, no physical iPhone operation, VPN switch or alteration of stored user data, no merge or watchdog.
-current: Completed first modular UI/accessibility milestone. Previous-release gate remains blocked in saved release checkpoint; next optional stage is profiles screen extraction and further focused UX/source QA.
+  - Recovered prior completed modular UI task a512117c; clean worktree and Draft PR #296 confirmed.
+  - Feature commit d48e37c1 extracted ProfilesScreenView, ProfileLibraryFiltersView, ProfileLibraryRowView, ProfileLibraryGroupMenu and ProfileLibraryBulkActionsView. ContentView shrank 1122 -> 850 lines, shared AppViewModel bindings/import, edit and encrypted backup sheets preserved.
+  - Added pure SharedCore ProfileLibrarySelectionPolicy retaining original search, favorites first, group filtering and selected-visible UUID intersection. Selection resets on search/filter, prunes deleted IDs; final deletion checks VPN inactive, selected health scan <=10.
+  - iPhone SE3 Accessibility XXL screenshots exposed cropped German/Arabic top action labels. Fixed with vertically stacked full-width action buttons, adaptive selection heading and bulk controls; normal iPhone compact row preserved.
+  - Swift package full CoreTests 100/100 PASS, including four executable policy tests. Source Python unittest 73/73 PASS and 11/11 direct checks PASS; 50 locale audit clean, resources unchanged.
+  - Signed iPhone13 Simulator import/search/favorite/group/favorites-filter/bulk-delete synthetic .invalid profile UI 1/1 PASS 48.459 seconds; only the newly imported test fixture removed, no VPN switched.
+  - Signed iPhone13 Simulator German + Arabic read-only library UI 1/1 PASS 20.996 seconds, screenshots inspected and host:port LTR in RTL UI.
+  - Signed small iPhone SE3 Simulator Accessibility XXL German + Arabic library UI after fix 1/1 PASS 21.475 seconds (first baseline PASS 21.727 seconds revealed visible clipping). Two fixed screenshots inspected, no truncated top actions, scrolling works; simulator font and boot state restored.
+  - Signed seven-screen read-only navigation UI 1/1 PASS 23.409 seconds including existing import/backup sheet paths, no VPN/profile edits.
+  - Roadmap and docs/APL_IOS_020_PROFILE_LIBRARY_REFACTOR_QA_2026-11-02.md updated; no release artifact or Apple metadata changes.
+current: Profiles refactor completed and locally verified at d48e37c1; checkpoint commit and external PR #296 exact-head CI verification follow. This stage stays completed while asynchronous CI settles.
 pending:
-  - Next roadmap task: extract large Profiles screen and its selection/group/favorites state into a cohesive component, retaining existing ProfileStore/Keychain/VPN behavior; scope and tests for next stage.
-  - Full manual VoiceOver narration/gestures on physical iPhone and agreed source for physical egress/failover tests remain separate backlog items, not part of this completed source refactor.
-  - Owner decides when to release prior iOS version; distribution IPA created before this UI-only commit must be rebuilt from accepted source before any future authorized Apple upload.
-last_verified_commit: 90c7080e
+  - Manual real VoiceOver physical device testing remains separate; tests here validate accessible elements and touch targets, not spoken assistive technology.
+  - Real upstream egress/failover and traffic counters require agreed reliable proxies and a separately authorized bounded VPN physical test; not part of this completed refactor.
+  - CloudKit/iCloud exclusions syncing remains P2 future backlog; no entitlements or development started.
+  - Prior Apple release remains owner-gated; do not upload or release and never use previous distribution IPA for this newer source without rebuilding on separate authorization.
+last_verified_commit: d48e37c1
 test_results:
-  - '2026-11-02 final ARM64 iOS Simulator xcodebuild build SUCCESS; ContentView 1500->1122 lines and all 5 extracted components compile.'
-  - '71 Python unittest + 11 direct-source tests PASS, incl macOS desktop layout, 50-locale audit, Home/Yandex and a11y source contracts.'
-  - 'Signed iPhone13 Simulator Accessibility XXL de/ar Settings+Activity 1/1 PASS 31.054s, signed small iPhone SE3 1/1 PASS 33.723s, normal iPhone13 Home+Settings 1/1 PASS 10.092s. Normal and large screenshots visually inspected; simulator state restored.'
-  - 'No real iPhone or VPN actions, no Apple upload, no changed App Store metadata, PR kept Draft.'
-resume_instruction: 'THIS TASK COMPLETED. Code verified at 90c7080e on feat/ios-020-product-plan-20261101 worktree /private/tmp/apl-ios-020-product-plan-20261101 Draft PR #296. Original blocked release checkpoint preserved in .agent/checkpoints/APL-IOS-020-RELEASE-BLOCKED-20261102.yaml. On next autonomous roadmap continuation choose next safe backlog stage: profiles screen decomposition and selected VoiceOver/a11y QA, not repeat this already-green work. DO NOT alter/merge/publish Apple release, change Apple privacy/ad declarations, install on real iPhone, switch VPN, or create Watchdog. Existing Apple Distribution IPA predates this source refactor, rebuild only on future authorized release. Human VoiceOver full testing and real upstream egress remain separate tasks.'
+  - macOS Swift Package CoreTests 100/100 PASS, including 4/4 new ProfileLibrarySelectionPolicyTests.
+  - Python targeted source unit 73/73 PASS and 11 direct home/ad functions PASS.
+  - Signed iPhone13 Simulator synthetic import/search/group/favorite/filter/bulk safe deletion XCUITest PASS 48.459 seconds.
+  - Signed iPhone13 Simulator de+ar localized library read-only XCUITest PASS 20.996 seconds; screenshot review PASS.
+  - Signed small iPhone SE3 Accessibility XXL de+ar library XCUITest PASS 21.475 seconds, both screenshot clipping fixes visually confirmed; simulator restored.
+  - Signed 7-screen navigation-only simulator XCUITest PASS 23.409 seconds; all 50 localization resources present, no English fallback/regressions.
+  - No real device/App Store/TestFlight/merge, no user profile or VPN mutation; only disposable synthetic Simulator test data.
+resume_instruction: 'TASK COMPLETED at feature commit d48e37c1 in /private/tmp/apl-ios-020-product-plan-20261101 branch feat/ios-020-product-plan-20261101 and Draft PR #296. When resumed, first inspect latest .agent/current-task.yaml and PR CI; do not repeat already passed Profiles refactor, Swift 100/100, Python 73/73 and signed simulator 4 UI flows. Next separate milestone should be agreed real proxy egress/failover acceptance or manual VoiceOver, or owner-prioritized roadmap item; user approval needed before modifying physical VPN/Apple metadata/release. Never publish/merge automatically, never reuse old pre-refactor IPA as current, no CloudKit entitlements or watchdog.'
