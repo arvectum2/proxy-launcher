@@ -1,5 +1,11 @@
 ## 02.11.2026 — ТЕКУЩАЯ ОЧЕРЕДЬ APL (после финальной UI/UX-приёмки 64 языков)
 
+### 02.11 — Smart Exclusions 2.0: точный обход через APL Gateway (опционально)
+
+- [x] **`APL-SMART-GW-CORE-001`:** в исходниках добавлен самостоятельный authenticated Gateway с exact-host per-connection split: 3 связанных разрешённых HTTPS host идут DIRECT с gateway, посторонний HTTPS host на том же IP — supplier proxy. Настоящий TCP/TLS lab, 17/17 серверных тестов; отдельный iOS proxy type `APL Gateway (TLS)`, verified HTTPS policy sync, TTL 180/refresh 60, 115/115 Swift Core, Simulator build PASS. [Техническая приёмка и ограничения](APL_SMART_GATEWAY_SHARED_IP_E2E_2026-11-02.md).
+- [ ] **`APL-SMART-GW-DEPLOY-001`:** публичный dedicated-IP Gateway с валидным TLS-сертификатом и настоящим исходным прокси, физический iPhone split-egress E2E. Пока НЕ развернули, не объявлять задачу end-to-end завершённой. **DIRECT с сервера, а не с iPhone.** Старые режимы untouched; iOS 0.1.41 Review/ads/privacy untouched.
+
+
 ### 02.11 — Smart Exclusions 2.0: обнаруженные shared-IP конфликты закрыты, точное доменное исключение ещё нет
 
 - [x] **`APL-SMART-FLOW-001A` (Rust classifier / эксперимент, НЕ DIRECT egress):** добавлен и pin-версионирован `tun2proxy-flow-intent.patch` к существующему `tun2proxy v0.8.3`: exact QNAME, привязанный к виртуальному IP конкретной TCP-сессии, исключение raw IP/wildcard/неразрешённого SNI. Новый CLI `--flow-direct-candidate` **не активирован в iOS**, кандидат остаётся на прежнем прокси; 8/8 Rust tests PASS, reproducible patch apply и cross-compile iPhoneOS+Simulator, ARM64 simulator app BUILD. [Платформенное архитектурное решение / Apple TN3120](APL_SMART_FLOW_PER_CONNECTION_ADR_2026-11-02.md).

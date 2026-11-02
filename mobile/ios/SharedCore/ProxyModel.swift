@@ -3,6 +3,7 @@ import Foundation
 enum ProxyType: String, Codable, CaseIterable, Identifiable {
     case auto = "AUTO"
     case https = "HTTPS"
+    case gateway = "APL_GATEWAY"
     case http = "HTTP"
     case socks5 = "SOCKS5"
 
@@ -12,6 +13,7 @@ enum ProxyType: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .auto: return "Авто"
         case .https: return "HTTPS-proxy (TLS)"
+        case .gateway: return "APL Gateway (TLS)"
         case .http: return "HTTP/HTTPS (CONNECT)"
         case .socks5: return "SOCKS5"
         }
