@@ -29,6 +29,8 @@
 
 **Коррекция исходного scope:** [Smart Exclusions: auto dependency A → B/C](APL_IOS_SMART_EXCLUSIONS_AUTODISCOVERY_2026-11-02.md) — это главная функция: автоматический поиск после Add, автоматическое включение высокодостоверных first-party, подтверждение внешних B/C. Gateway отклонён и удалён из ветки, его схема не нужна для обнаружения зависимостей.
 
+**Новая цель Smart 3.0:** [самообучение на proxy timeout с независимым DIRECT A/B](APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md). Swift Core policy и локальное хранилище готовы, реальные TCP host failure callback и iOS exact-host direct-пробник/маршрутизатор пока не реализованы. Это отдельная задача после завершённого auto-discovery A→B/C, не включать как готовую функциональность в 0.2.0.
+
 ### Smart Exclusions — обновление 02.11 после практического TCP-теста
 
 **Следующая итерация:** [experimental per-flow intent patch и Apple TN3120 feasibility gate](APL_SMART_FLOW_PER_CONNECTION_ADR_2026-11-02.md): cross-compiled host policy, production DIRECT не активирован; platform gate остаётся blocked.

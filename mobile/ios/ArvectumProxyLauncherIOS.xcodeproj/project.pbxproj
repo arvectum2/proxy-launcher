@@ -17,6 +17,7 @@
 		0B6DA474EAA2172857BA559D /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
 		0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */; };
 		0DE07E70231418DFAB188C90 /* ProfileBackupRestorePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71068BC47835E696E79292 /* ProfileBackupRestorePlan.swift */; };
+		0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		14B2C9154CB78BAEE14F4149 /* ProxyImportUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */; };
 		1692281A8D63E7B66C59D142 /* YandexMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */; };
@@ -87,6 +88,7 @@
 		951D250C1BF60644C19BFBDB /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */; };
 		99FD1F7DA6F75945EA94003C /* ProfileLibraryBulkActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */; };
+		9A08D8FD8C32C6CCEDA5A29E /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
 		9A5CA5C40BDD0C7792720546 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87885BE6123FF783E8126F72 /* AppViewModel.swift */; };
 		9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611C8DA174BECA86752E2F06 /* ProxyImportView.swift */; };
 		9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
@@ -330,6 +332,7 @@
 		6B09926B7F90715E90A394FF /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		6B6111701DABA6167BA25D76 /* AppShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShared.swift; sourceTree = "<group>"; };
 		6BF7E38E0D18F2E813B186A2 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
+		6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteLearning.swift; sourceTree = "<group>"; };
 		6CF789F184DAB8FE71B872AF /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		70419422C2B9C02B9F2B4D3B /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		7076E4AC5D0DF5C2B96500BE /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -698,6 +701,7 @@
 		AD4D647FF2618816DB99E52D /* SharedCore */ = {
 			isa = PBXGroup;
 			children = (
+				6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */,
 				2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */,
 				B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */,
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
@@ -978,6 +982,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A08D8FD8C32C6CCEDA5A29E /* AdaptiveRouteLearning.swift in Sources */,
 				5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */,
 				9D785A344FB8AA40E90F5F6B /* ApplicationExclusionCapability.swift in Sources */,
 				70AF24A28FCAA4C704936223 /* ConnectionPressurePolicy.swift in Sources */,
@@ -1045,6 +1050,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */,
+				0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */,
 				36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */,
 				477FAF94B39F2236B6EFCFDF /* AppLocalization.swift in Sources */,
 				6A9EF1A2F1B0ECC9F681DEC5 /* AppShared.swift in Sources */,

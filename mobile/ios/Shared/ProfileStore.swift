@@ -43,6 +43,7 @@ final class ProfileStore {
         static let exclusions = "site_exclusions"
         static let manualExclusions = "manual_site_exclusions.v2"
         static let smartGraph = "smart_dependency_graph.v1"
+        static let adaptiveLearning = "smart_route_evidence.v1"
         static let lastAutoProfileID = "last_auto_profile_id"
         static let recentlyFailedProfileID = "recently_failed_profile_id"
         static let recentlyFailedAt = "recently_failed_at"
@@ -204,6 +205,27 @@ final class ProfileStore {
             return SmartExclusionGraph()
         }
         return graph.pruned()
+    }
+
+    /// Diagnostics are local App Group data. No automatic IP or VPN route is
+    /// created from these observations on iOS; exact-host direct transport is
+    /// unsupported until a separately validated platform mechanism exists.
+    var adaptiveRouteLearning: AdaptiveRouteLearning {
+        get {
+            guard let data = defaults.data(forKey: Key.adaptiveLearning),
+                  data.count <= 65_536,
+                  let model = try? decoder.decode(AdaptiveRouteLearning.self, from: data),
+                  model.hosts.count <= AdaptiveRouteLearning.maxHosts,
+                  model.rejected.count <= 128 else { return AdaptiveRouteLearning() }
+            return model
+        }
+        set {
+            guard newValue.hosts.count <= AdaptiveRouteLearning.maxHosts,
+                  newValue.rejected.count <= 128,
+                  let data = try? encoder.encode(newValue),
+                  data.count <= 65_536 else { return }
+            defaults.set(data, forKey: Key.adaptiveLearning)
+        }
     }
 
     var siteExclusions: [String] {
