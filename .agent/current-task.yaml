@@ -1,5 +1,5 @@
 task_id: APL-SMART-EXCL-020-REAL-ROUTING-20261102
-status: in_progress
+status: blocked
 goal: "Ensure APL iOS Smart Exclusions 2.0 performs actual validated dependent-domain direct routing without leaking third-party traffic through a shared CDN IP."
 definition_of_done:
   - "Trace actual iOS PacketTunnel DNS/excludedRoutes and dependency graph, document shared-IP risk and design safe enforceable policy."
@@ -7,14 +7,28 @@ definition_of_done:
   - "Implement safe narrow routing with fail-closed semantics; test positive linked-site bypass and negative unapproved same-IP hostname, IPv4/IPv6/DNS corner cases, rollback."
   - "Build current iOS source and run targeted Rust/Swift/Simulator QA, honestly documenting limits of what cannot be verified without a physical tunnel."
   - "Update technical roadmap, commit/push, close or accurately block checkpoint. Do not touch Apple 0.1.41 review or current ads/privacy/ASO."
+current: "PARTIAL implementation committed bd4c5e7f: known pending/rejected domain shared-IP guard is wired into PacketTunnel and real localhost TCP lab reproduces/mitigates detected overlap. Full exact-host bypass safety needs per-flow engine and physical iPhone VPN E2E, not achieved."
 completed:
-  - "Baseline branch clean at 844358c8; prior roadmap checkpoint completed and archived."
-  - "Current Smart Exclusions 2.0 graph supports explicit approval/revoke/undo, but PacketTunnel NE excludedRoutes applies to destination IP, risking cross-domain direct egress on shared CDN IP."
-current: "Inspect actual flow/DNS routing and design default-safe shared-IP behavior."
+  - "Baseline 844358c8 clean; archived prior roadmap checkpoint."
+  - "Read NE PacketTunnel excludedRoutes + pinned tun2proxy virtual DNS patch; confirmed IP-wide global bypass of unrelated raw-IP or independently resolved host. Apple documentation confirms excludedRoutes are destinations, not hostnames."
+  - "Added SharedIPRouteGuard.swift: reject known shared IPv4/IPv6 collisions between approved and pending/rejected graph names, normalize IPv6, fail closed when known-negative DNS fails or lookup budget exceeds 32."
+  - "Wired guard to PacketTunnelProvider; preserved upstream proxy required transport exclusion and all existing user SmartGraph approval/undo data. Added telemetry counts only, not proxy secrets."
+  - "Controlled real loopback HTTP+TCP+proxy experiment: legacy /32 leaked tracker.site.test DIRECT; known-shared-IP guard proxies all conflicted hosts, and allowed first-party HTML/API/CSS works DIRECT with no collision. Public DNS/HTTPS read-only sampled gosuslugi.ru, gu-st.ru and arvectum.com."
+  - "Swift Core 113/113 PASS, seven new SharedIPRouteGuardTests PASS, 8/8 specialized Python contracts PASS, iOS ARM64 simulator BUILD SUCCEEDED, preflight 0.2.0(48) PASS."
+  - "Updated ROADMAP and Smart Exclusions spec with explicit unresolved unknown-host risk and per-flow physical E2E gate; code commit bd4c5e7f."
 pending:
-  - "Source + tests forensic inspection, choose safe implementable enforcement."
-  - "Implement code and isolated real-network shared-IP proof."
-  - "Run focused compilation/tests and update docs/checkpoint/release gates."
-last_verified_commit: "844358c8"
-test_results: []
-resume_instruction: "Continue Smart Exclusions 2.0 actual dependent-domain and shared-IP isolation investigation. Inspect mobile/ios/PacketTunnel/PacketTunnelProvider.swift, SharedCore/SiteExclusionPolicy.swift, SmartExclusionGraph.swift, Tools/tun2proxy-split-dns.patch, native Rust integration. Avoid IP-wide excludedRoutes for multi-tenant/CDN; tests must distinguish two HTTP Host/SNI names at identical IP. Use isolated simulator/localhost controlled network; do not change actual iPhone/proxies/Apple app review."
+  - "APL-SMART-FLOW-001: eliminate domain /32-/128 global IP exceptions by implementing and proving safe exact-host per-connection routing in tun2proxy with authenticated virtual-DNS QNAME and physical-interface-scoped direct outbound sockets; do not trust raw IP/SNI/DoH-only origin."
+  - "Test on controlled iPhone VPN with two independent TLS hostnames at same physical IP and a working egress proxy, proving approved HTML/CSS/JS/API DIRECT and unrelated shared-IP HTTPS/UDP via PROXY simultaneously; verify IPv6/UDP, DNS TTL changes, Wi-Fi/LTE, rollback and no credentials leakage."
+  - "Only with physical proof and signoff can we mark Smart Exclusions 2.0 complete or submit a new signed IPA. Owner approval required before mutating real iPhone/profiles or Apple review."
+blockers:
+  - "Apple NE excludedRoutes is IP-only; unknown domain on same CDN IP cannot be excluded by a DNS collision guard that only sees approved/pending/rejected first-party graph. No exact-host per-flow engine currently integrated in PacketTunnel."
+  - "No actual updated iPhone PacketTunnel VPN egress/pcap proof from real site+related asset vs unapproved same-IP site: live lab is localhost TCP/HTTP model, not physical NE test. Existing app on iPhone is older signed 0.2.0(48) and does not include bd4c5e7f; in-place install + active VPN/profile mutation is nontrivial external side effect."
+
+last_verified_commit: "bd4c5e7f (partial implementation, iOS source tree 2eee919904ba807f9a900245dfc75e1d7e58fd9b; checkpoint-only commit follows)"
+test_results:
+  - "113/113 full Swift Core tests PASS, including 7 new exact shared-IP collision and graph approval tests; iOS simulator ARM64 BUILD SUCCEEDED."
+  - "8/8 specialized Python guard/source contracts PASS; live controlled loopback TCP server + proxy demonstrates direct IP leak before guard and proxy-only when conflict detected."
+  - "External public DNS resolved gosuslugi.ru/www/gu-st.ru and arvectum.com; direct www.gosuslugi.ru unreachable, gu-st.ru HTTP 403, arvectum.com HTTP 200; no physical iOS VPN proof."
+  - "iOS release preflight 0.2.0 (48) PASS; docs links checked; no App Store/production user hardware changes."
+
+resume_instruction: "Task BLOCKED after partial source commit bd4c5e7f: SharedIPRouteGuard protects only *observed* pending/rejected host/IP overlaps, not unknown hosts sharing a CDN IP. To fully meet user demand, implement APL-SMART-FLOW-001 as domain-aware per-flow routing in the pinned tun2proxy with safe physical-interface-scoped direct sockets and no global /32-/128 for DNS hostnames, then controlled real iPhone TLS shared-IP two-host split-egress acceptance with CSS/API and independent proxy/egress observations. Do not claim complete based on loopback simulation, DNS or simulator build. Require explicit authorized physical device/config changes; preserve 0.1.41 Apple review, user profiles/proxy creds, ads/privacy and Draft PR #296. See docs/APL_IOS_SMART_EXCLUSIONS_SHARED_IP_GUARD_2026-11-02.md. A blocked checkpoint is deliberate: strict host-level safety is objectively absent. No Watchdog reactivation."
