@@ -24,6 +24,7 @@ TOOLS = Path(__file__).resolve().parent
 TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = TOOLS / "tun2proxy-v0.8.3.Cargo.lock"
 SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
+FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -129,6 +130,11 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
 
     run("git", "apply", "--check", str(SPLIT_DNS_PATCH), cwd=source)
     run("git", "apply", str(SPLIT_DNS_PATCH), cwd=source)
+    # Separate, additive patch: classifies individual TCP connections by
+    # virtual-DNS host identity, but deliberately does not enable alternate
+    # physical egress in the iOS packet tunnel (Apple TN3120).
+    run("git", "apply", "--check", str(FLOW_INTENT_PATCH), cwd=source)
+    run("git", "apply", str(FLOW_INTENT_PATCH), cwd=source)
 
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
@@ -241,7 +247,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-exact-host-split-dns\n"
+            f"patch=disable-api-forced-exit-and-exact-host-split-dns-and-flow-intent\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n"
             + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"

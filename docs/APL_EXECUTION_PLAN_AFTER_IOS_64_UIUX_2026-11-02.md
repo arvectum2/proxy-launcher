@@ -29,6 +29,9 @@
 
 ### Smart Exclusions — обновление 02.11 после практического TCP-теста
 
+**Следующая итерация:** [experimental per-flow intent patch и Apple TN3120 feasibility gate](APL_SMART_FLOW_PER_CONNECTION_ADR_2026-11-02.md): cross-compiled host policy, production DIRECT не активирован; platform gate остаётся blocked.
+
+
 **`APL-SMART-SHAREDIP-GUARD-020` реализован:** выявленные IP-конфликты с pending/rejected доменами теперь fail-closed; Swift 113/113, Python 8/8, iOS Simulator BUILD PASS, реальный localhost TCP/HTTP/proxy стенд доказал прежний shared-IP leak и отказ от DIRECT при известной коллизии. [Детальная приёмка и IP/HTTPS evidence](APL_IOS_SMART_EXCLUSIONS_SHARED_IP_GUARD_2026-11-02.md). **`APL-SMART-FLOW-001` остаётся обязательным blocker для полной гарантии**: неизвестные имена на общем IP нельзя исключить средствами Network Extension `excludedRoutes`, нужен защищённый domain-aware per-flow engine + физический iPhone E2E, безопасная маршрутизация UDP/IPv6/DNS и управляемая сеть. Не отмечать всю Smart Exclusions 2.0 как DONE.
 
 ## 3. Следующие этапы — не подменять ими релиз 0.2.0
