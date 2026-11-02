@@ -1,5 +1,5 @@
 task_id: APL-IOS-020-FINAL-ACCEPTANCE-20261102
-status: blocked
+status: in_progress
 goal: "Finalize iOS 0.2.0 (48) with verified source, localization, signed IPA, physical dual-proxy egress, VoiceOver, original user-state restoration, and controlled real Auto failover."
 definition_of_done:
   - "50/50 locales, target iOS Simulator A11y/RTL, Swift/Python and source preflight green."
@@ -21,7 +21,7 @@ completed:
   - "iPhone Nikita A(Нидерланды 2)->B(Резерв США)->A automatic VPN egress under controlled DEBUG-only health-probe fault PASSED 1/1 (91.998 s): 2 independent HTTPS services saw both switches, OFF baseline restored. Not actual upstream TCP transport outage."
   - "Removed all temporary QA Swift modifications and test flags; ordinary signed Debug 0.2.0(48) installed over QA build, test-only code absent from extension; no Git runtime source changes."
   - "Original App Group baseline 3 profiles and 10 settings byte-identical after restoration, checked repeatedly by CoreDevice; Keychain untouched and LAN test server stopped. Temporary CoreDevice Preferences directory overwrite detected/repaired immediately from baseline before VPN test."
-current: "Controlled DEBUG-only iPhone health-loss A->saved Резерв США->A with real public egress PASS. Clean ordinary Debug app reinstalled, original profiles/settings byte-identical, VPN OFF. Strict real upstream TCP outage+recovery not tested; App Store untouched."
+current: "Designing isolated on-device DEBUG-only TCP proxy listener that forwards HTTP CONNECT to existing real A; stop/start actual listener while live VPN automatically selects saved Резерв США, verify IP A->B->A, then remove test injection and restore state."
 pending:
   - "Use existing saved profile Резерв США as the sole automatic backup, with a temporary locally controlled primary; validate A->B->A without disabling commercial upstreams."
   - "After true controlled failover and CI pass, mark checkpoint completed. App Store/TestFlight upload, Draft PR merge and Apple privacy/ads edits require separate explicit owner decision."
