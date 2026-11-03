@@ -1,0 +1,23 @@
+task_id: APL-IOS-020-AUTO-GROUPS-20261103
+status: in_progress
+goal: "iOS 0.2.0: automatic default first-party exception expansion, manual toggle, editable per-site dependency groups, no silent shared-IP bypass."
+definition_of_done:
+  - "Settings auto-expansion switch defaults true and persists; manual mode blocks auto-approval."
+  - "One parent site visibly groups aliases and observed children; users can add/revoke/remove linked domains without changing other groups."
+  - "Explicit rejects survive re-scans; automatic mode respects first-party confidence, rules cap, TTL and existing routes."
+  - "Core and relevant UI regressions pass; CI/preflight reviewed; unresolved exact-host direct-egress blocker reported."
+  - "Source and checkpoint committed in an isolated branch; no Apple submissions, VPN/device/proxy changes."
+completed:
+  - "2026-11-03: Recovered iOS 0.2.0(48) PR #296 source from 0a855c93 and reviewed existing Smart Exclusions and iOS network limitations."
+  - "Archived previous blocked Smart3 egress checkpoint without loosening its release gate."
+current: "Implement persisted default-on mode and grouped editable iOS exception UI in isolated branch."
+pending:
+  - "Code changes and localized copy."
+  - "Core and UI tests."
+  - "Create draft PR, review checks and record results."
+last_verified_commit: "0a855c93ebf4262c9fc97f7912367dafe67bfc22 (base of isolated branch)"
+test_results:
+  - "Inherited Smart3 QA: 126 Swift core, 23 Python, 2 simulator UI and 1 physical badge UI PASS at 0a855c93; no checks for current changes yet."
+blockers:
+  - "Independent physical exact-host DIRECT egress is not supported/proven by current consumer iOS Packet Tunnel; separate Smart3 release gate remains."
+resume_instruction: "From branch feat/ios-020-auto-expansion-groups-20261103 implement first-party default-on/ manual switch and parent-scoped editable groups, run targeted tests, keep Smart3 independent-egress release gate. Do not edit production iPhone VPN/proxies, submit to Apple or merge into main."
