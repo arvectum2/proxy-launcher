@@ -15,14 +15,18 @@ final class HomeNativeAdController: NSObject, ObservableObject, NativeAdDelegate
 
     private let loader = NativeAdLoader()
     private var ad: NativeAd?
+    private var failureAt: Date?
+    private var attempts = 0
+    private let retryCooldown: TimeInterval = 30 * 60
     private let statusKey = "rsya.nativeStatus.v1"
     private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA.Native")
 
     func load() {
         guard state == .idle, IOSAdsConfig.isEnabled else { return }
         state = .loading
-        UserDefaults.standard.set("request", forKey: statusKey)
-        loader.loadAd(with: AdRequest(adUnitID: IOSAdsConfig.nativeAdUnitID)) { [weak self] result in
+        attempts += 1
+        UserDefaults.standard.set("request-\(attempts)", forKey: statusKey)
+        loader.loadAd(with: AdRequest(adUnitID: IOSAdsConfig.activeNativeAdUnitID)) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let native):
@@ -31,19 +35,32 @@ final class HomeNativeAdController: NSObject, ObservableObject, NativeAdDelegate
                     ad = native
                     native.delegate = self
                     state = .ready
+                    failureAt = nil
                     UserDefaults.standard.set("loaded", forKey: statusKey)
                 } catch {
                     state = .unavailable
+                    failureAt = Date()
                     let details = error as NSError
                     logger.error("RSYA native bind failed code=\(details.code) domain=\(details.domain, privacy: .public)")
                     UserDefaults.standard.set("bind_failed:\(details.code)", forKey: statusKey)
                 }
-            case .failure:
+            case .failure(let error):
                 state = .unavailable
-                logger.error("RSYA native request failed")
-                UserDefaults.standard.set("failed", forKey: statusKey)
+                failureAt = Date()
+                let details = error as NSError
+                logger.error("RSYA native request failed code=\(details.code) domain=\(details.domain, privacy: .public)")
+                UserDefaults.standard.set("failed:\(details.code)", forKey: statusKey)
             }
         }
+    }
+
+    /// Never spin on a no-fill result. On a later foreground session an old
+    /// failure can be retried once; the fallback banner remains independent.
+    func retryOnForegroundIfDue() {
+        guard state == .unavailable, attempts < 2,
+              let failureAt, Date().timeIntervalSince(failureAt) >= retryCooldown else { return }
+        state = .idle
+        load()
     }
 
     func nativeAdDidClick(_ ad: NativeAd) {

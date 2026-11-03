@@ -14,6 +14,11 @@ struct ArvectumProxyLauncherApp: App {
 #if !targetEnvironment(macCatalyst)
         // Start the SDK before the banner enters the view hierarchy. This
         // reduces first-impression latency, including on a cold app launch.
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER") {
+            YandexAds.enableLogging()
+        }
+#endif
         YandexAds.initializeSDK(completionHandler: nil)
 #endif
     }

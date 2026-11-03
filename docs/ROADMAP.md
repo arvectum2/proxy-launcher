@@ -391,6 +391,16 @@
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
 - [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
 
+## 03.11.2026 — РСЯ: устранена причина отсутствия рекламы на iPhone, проверен настоящий Release
+
+- [x] Причина: предыдущие аппаратные Smart3 QA оставляли на iPhone Debug-сборку с намеренно отключённой рекламой. Это не поведение Release.
+- [x] После очистки только диагностических маркеров получили реальные impression события SDK: Debug demo — primary, secondary, native; оптимизированный Release с боевыми местами R-M-20288304-1 и R-M-20288304-2 — primary и native.
+- [x] На iPhone оставлена Development-signed Release-компиляция 0.2.0(48) с рекламой, все App Group 11/11 + app prefs 20/20 восстановлены точными SHA-256.
+- [x] Поправлена изоляция Debug native (официальный demo unit) и ограниченные повторы при no-fill: не чаще 15/30 минут в новой активной сессии. Реальные ID и privacy не изменялись.
+- [x] Новый Apple Distribution .xcarchive и локальный IPA: ARCHIVE/EXPORT/CODESIGN/ZIP PASS; SHA256 5ef331c13fcd81995e313e77a97245807edd65ac1ef00e6aee324809f1940ff7; SDK и 228 SKAdNetworkItems в артефакте.
+- [x] Добавлен обязательный RSYA source preflight и --ipa gate для подписанного артефакта; без рабочих рекламных интеграций подготовка Release завершается ошибкой. [Протокол](APL_IOS_020_RSYA_DEVICE_AND_RELEASE_QA_2026-11-03.md).
+- [ ] Реальная выдача рекламного креатива каждому пользователю зависит от доступности рекламы и сервера РСЯ; App Store upload только после остальных Smart3 gate.
+
 ## 03.11.2026 — Smart3: обнаружен и закрыт fail-closed дефект physical IPv6
 
 - [x] iPhone13: IPv6-only прямое TCP-соединение реально устанавливалось, но TLS зависал. Это негативный тест, не успешный DIRECT. Соседний canonical hostname оставался на upstream proxy.

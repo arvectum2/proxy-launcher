@@ -20,16 +20,35 @@ class IOS020ActiveReleasePreflightTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for relpath in (module.IDENTITY_PATH, module.PROJECT_SPEC_PATH, module.XCODE_PROJECT_PATH):
+        for relpath in (module.IDENTITY_PATH, module.PROJECT_SPEC_PATH, module.XCODE_PROJECT_PATH,
+                        module.RSYA_CONFIG_PATH, module.RSYA_NATIVE_PATH,
+                        module.RSYA_HOME_PATH, module.RSYA_APP_PATH, module.RSYA_INFO_PATH):
             destination = self.root / relpath
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text((ROOT / relpath).read_text(encoding="utf-8"), encoding="utf-8")
+            destination.write_bytes((ROOT / relpath).read_bytes())
 
     def replace(self, relpath, old, new):
         path = self.root / relpath
         content = path.read_text(encoding="utf-8")
         self.assertIn(old, content)
         path.write_text(content.replace(old, new), encoding="utf-8")
+
+    def test_release_primary_banner_cannot_be_disabled(self):
+        self.replace(module.RSYA_CONFIG_PATH, "static let isEnabled = true", "static let isEnabled = false")
+        with self.assertRaisesRegex(ValueError, "RSYA disabled"):
+            module.verify_active_release(self.root)
+
+    def test_release_native_unit_cannot_be_changed_to_demo(self):
+        self.replace(module.RSYA_CONFIG_PATH,
+                     "activeNativeAdUnitID = nativeAdUnitID",
+                     "activeNativeAdUnitID = demoNativeUnitID")
+        with self.assertRaisesRegex(ValueError, "RSYA disabled"):
+            module.verify_active_release(self.root)
+
+    def test_release_native_placement_cannot_be_removed(self):
+        self.replace(module.RSYA_HOME_PATH, "NativeHomeAdView(width:", "NativeDebugPlaceholder(width:")
+        with self.assertRaisesRegex(ValueError, "RSYA placements"):
+            module.verify_active_release(self.root)
 
     def test_stale_0142_xcodegen_source_is_rejected(self):
         self.replace(module.PROJECT_SPEC_PATH, 'MARKETING_VERSION: "0.2.0"', 'MARKETING_VERSION: "0.1.42"')

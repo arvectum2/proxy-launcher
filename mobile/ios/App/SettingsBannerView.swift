@@ -9,6 +9,7 @@ enum IOSAdsConfig {
     static let productionBannerUnitID = "R-M-20288304-1"
     static let demoBannerUnitID = "demo-banner-yandex"
     static let nativeAdUnitID = "R-M-20288304-2"
+    static let demoNativeUnitID = "demo-native-content-yandex"
 
     static let labels: [String: String] = [
         "ru": "Реклама",
@@ -84,10 +85,12 @@ enum IOSAdsConfig {
     // Explicit opt-in for local QA. Never contact production RSYA in debug builds.
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER")
     static let activeBannerUnitID = demoBannerUnitID
+    static let activeNativeAdUnitID = demoNativeUnitID
 #else
     // Production banner enabled by explicit owner directive; App Store privacy metadata is unchanged.
     static let isEnabled = true
     static let activeBannerUnitID = productionBannerUnitID
+    static let activeNativeAdUnitID = nativeAdUnitID
 #endif
 }
 
@@ -108,6 +111,7 @@ struct SettingsBannerView: View {
     @State private var loaded = false
     @State private var failed = false
     @State private var attempts = 0
+    @State private var lastFailureAt: Date?
     @State private var retryTask: Task<Void, Never>?
 
     private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")
@@ -115,6 +119,9 @@ struct SettingsBannerView: View {
         placement == .primary ? "rsya.bannerStatus.v1" : "rsya.bannerStatus.secondary.v1"
     }
     private let maxAttempts = 2
+    // After two no-fill/network failures, do not make perpetual ad requests.
+    // A new foreground session MAY retry once after the recovery cooldown.
+    private let recoveryCooldown: TimeInterval = 15 * 60
     private let retryDelayNs: UInt64 = 45_000_000_000
 
     var body: some View {
@@ -131,6 +138,7 @@ struct SettingsBannerView: View {
                             .onAdLoad { _ in
                                 loaded = true
                                 failed = false
+                                lastFailureAt = nil
                                 UserDefaults.standard.set("loaded", forKey: statusKey)
                                 logger.info("RSYA banner loaded")
                             }
@@ -140,6 +148,7 @@ struct SettingsBannerView: View {
                                 UserDefaults.standard.set("failed: \(nsError.code)", forKey: statusKey)
                                 loaded = false
                                 failed = true
+                                lastFailureAt = Date()
                                 scheduleRetryIfNeeded()
                             }
                             .onAdImpression { _ in
@@ -190,7 +199,13 @@ struct SettingsBannerView: View {
     }
 
     private func scheduleRetryIfNeeded() {
-        guard attempts < maxAttempts, retryTask == nil else { return }
+        guard retryTask == nil else { return }
+        if attempts >= maxAttempts {
+            guard let lastFailureAt,
+                  Date().timeIntervalSince(lastFailureAt) >= recoveryCooldown else { return }
+            attempts = 0
+        }
+        guard attempts < maxAttempts else { return }
         retryTask = Task { @MainActor in
             do { try await Task.sleep(nanoseconds: retryDelayNs) }
             catch { return }

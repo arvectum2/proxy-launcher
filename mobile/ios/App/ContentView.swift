@@ -98,7 +98,12 @@ struct ContentView: View {
             // The Packet Tunnel records failures while Safari is foreground.
             // Reload App Group evidence when the user returns, without
             // background polling, raw URL logging or changing VPN routes.
-            if phase == .active { model.refresh() }
+            if phase == .active {
+                model.refresh()
+#if !targetEnvironment(macCatalyst)
+                homeNativeAdController.retryOnForegroundIfDue()
+#endif
+            }
         }
         .onOpenURL { url in
             do {
