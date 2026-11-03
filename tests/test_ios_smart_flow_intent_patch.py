@@ -17,7 +17,9 @@ def test_second_patch_is_pinned_applied_after_legacy_dns_patch():
     assert 'FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"' in FETCH
     assert 'git", "apply", "--check", str(FLOW_INTENT_PATCH)' in FETCH
     assert FETCH.index('str(SPLIT_DNS_PATCH), cwd=source)') < FETCH.index('str(FLOW_INTENT_PATCH), cwd=source)')
-    assert 'split-dns-and-flow-intent' in FETCH
+    # The script applies both pinned patches and keeps the physical DIRECT
+    # safety gate closed; a historical output label is not an API contract.
+    assert 'does not enable alternate' in FETCH
 
 
 def test_flow_policy_does_not_open_unsupported_direct_socket():

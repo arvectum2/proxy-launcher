@@ -26,7 +26,7 @@ class QuickActionsContract(unittest.TestCase):
 
     def test_quick_action_localizations_are_separate_from_source_catalog(self):
         codes=sorted(path.name.removesuffix('.lproj') for path in (ROOT/'Resources').glob('*.lproj'))
-        self.assertEqual(len(codes),50)
+        self.assertEqual(len(codes),64)
         for code in codes:
             path=ROOT/'Resources'/f'{code}.lproj'/'QuickActions.strings'
             self.assertTrue(path.is_file(),path)
