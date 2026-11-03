@@ -55,3 +55,19 @@ struct ConnectionPressurePolicy {
         return true
     }
 }
+
+/// Reconnect only a recently crashed tunnel, never a deliberate manual stop.
+/// Cap the number of automatic attempts so a broken proxy cannot create a loop.
+struct TunnelAutoReconnectPolicy {
+    private(set) var attempts: [Date] = []
+
+    mutating func mayRetry(now: Date, failureAt: Date?, explicitDisconnect: Bool) -> Bool {
+        guard !explicitDisconnect, let failureAt else { return false }
+        let age = now.timeIntervalSince(failureAt)
+        guard age >= 0, age <= 45 else { return false }
+        attempts.removeAll { now.timeIntervalSince($0) > 10 * 60 }
+        guard attempts.count < 3 else { return false }
+        attempts.append(now)
+        return true
+    }
+}

@@ -65,15 +65,17 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('SOURCE_COMMIT = "e271de19683937f23d3f8f0eb4df0a61fc4a6e50"', FETCH)
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
         self.assertIn("-create-xcframework", FETCH)
-        self.assertIn("disable-api-forced-exit-and-exact-host-split-dns", FETCH)
+        self.assertIn("bounded-tokio-shutdown-and-exact-host-split-dns", FETCH)
+        self.assertIn("rt.shutdown_timeout(std::time::Duration::from_secs(2))", FETCH)
+        self.assertIn("stop_watch.cancelled().await", FETCH)
         self.assertIn("tun2proxy-split-dns.patch", FETCH)
         patch = (ROOT / "mobile" / "ios" / "Tools" / "tun2proxy-split-dns.patch").read_text(encoding="utf-8")
         self.assertIn("dns_bypass", patch)
         self.assertIn("with_bypass", patch)
         self.assertIn("RecordType::AAAA", patch)
 
-    def test_store_release_is_0_2_20_and_uses_mac_specific_entrypoint(self):
-        self.assertIn('MARKETING_VERSION: "0.2.20"', PROJECT)
+    def test_store_release_is_0_2_21_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.21"', PROJECT)
         self.assertIn('CFBundleShortVersionString', APP_SHARED)
         self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
         self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
@@ -108,7 +110,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("manager.isEnabled = true", VPN)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "10"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "14"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
