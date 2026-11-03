@@ -3,3 +3,4 @@
 mobile/ios/Tools/tun2proxy-flow-intent.patch whitespace=-blank-at-eol
 mobile/ios/Tools/tun2proxy-experimental-scoped-direct.patch whitespace=-blank-at-eol
 mobile/ios/Tools/tun2proxy-sameflow-scoped-retry.patch whitespace=-blank-at-eol
+mobile/ios/Tools/tun2proxy-prefer-ipv4-physical-family.patch whitespace=-blank-at-eol

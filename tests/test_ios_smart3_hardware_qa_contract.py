@@ -18,7 +18,7 @@ def test_hardware_qa_defaults_to_synthetic_and_scoped_egress_is_opt_in():
     assert ': ["probe.qa-example.test", "auth.qa-example.test", "auth.qa-example.test"]' in driver
     assert 'APL_SMART3_SCOPED_QA' in test
     assert 'throw XCTSkip("Explicit scoped egress QA opt-in required")' in test
-    assert 'qaScopedDirect' in tunnel and 'if qaScopedDirect { args +=' in tunnel
+    assert 'qaScopedDirect' in tunnel and 'if exactHostDirect { args +=' in tunnel
     assert '#if DEBUG' in driver and '#if DEBUG' in tunnel and '#if DEBUG' in vpn
     assert 'qaStopAfterSeconds' in tunnel and 'cancelTunnelWithError' in tunnel
     assert 'qaStopAfterSeconds' in vpn

@@ -165,6 +165,12 @@ final class VPNController: ObservableObject {
                 tunnelOptions["qaSmart3ProxyPort"] = NSNumber(value: 18081)
                 if ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") {
                     tunnelOptions["qaScopedDirect"] = NSNumber(value: true)
+                    if ProcessInfo.processInfo.arguments.contains("-aplSmart3PathResetLabQA") {
+                        tunnelOptions["qaResetDirectAfterSeconds"] = NSNumber(value: 17)
+                    }
+                    if ProcessInfo.processInfo.arguments.contains("-aplSmart3TTLResetLabQA") {
+                        tunnelOptions["qaDirectTTLSeconds"] = NSNumber(value: 4)
+                    }
                 }
             }
         }

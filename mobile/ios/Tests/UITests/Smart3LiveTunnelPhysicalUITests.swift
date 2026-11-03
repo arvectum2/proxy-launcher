@@ -109,6 +109,56 @@ final class Smart3LiveTunnelPhysicalUITests: XCTestCase {
 #endif
     }
 
+    /// No real radio switch: exercise the same revocation callback on a
+    /// physical device while preserving the owner's Wi-Fi/LTE settings.
+    /// The independent App Group+mock audit proves the post-revocation
+    /// fourth connection stays on proxy, never silently escapes direct.
+    func testScopedDirectRevokedOnSimulatedNetworkChange() throws {
+        try exerciseBoundedRouteRevocation(
+            environment: "APL_SMART3_PATH_RESET_QA",
+            flag: "-aplSmart3PathResetLabQA")
+    }
+
+    func testScopedDirectRevokedAtShortenedLabTTL() throws {
+        try exerciseBoundedRouteRevocation(
+            environment: "APL_SMART3_TTL_RESET_QA",
+            flag: "-aplSmart3TTLResetLabQA")
+    }
+
+    private func exerciseBoundedRouteRevocation(environment: String, flag: String) throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical iPhone and Packet Tunnel required")
+#else
+        guard ProcessInfo.processInfo.environment[environment] == "enabled" else {
+            throw XCTSkip("No explicit destructive-free hardware revocation QA consent")
+        }
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-aplEphemeralTunnelQA", "-aplSmart3LocalProxyQA",
+                                "-aplSmart3ScopedDirectLabQA", flag]
+        app.launch()
+        guard app.buttons["Подключиться"].firstMatch.waitForExistence(timeout: 15) else {
+            throw XCTSkip("Owner VPN already active; never replace it")
+        }
+        app.buttons["Подключиться"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Отключить"].firstMatch.waitForExistence(timeout: 12))
+        Thread.sleep(forTimeInterval: 24)
+        let activity = app.tabBars.buttons["Активность"]
+        XCTAssertTrue(activity.waitForExistence(timeout: 8))
+        activity.tap()
+        let refresh = app.buttons["activity.refresh"]
+        XCTAssertTrue(refresh.waitForExistence(timeout: 6))
+        refresh.tap()
+        let newAttempt = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label CONTAINS %@", "lab scoped tls attempt"))
+            .firstMatch
+        XCTAssertTrue(newAttempt.waitForExistence(timeout: 5),
+                      "Post-revocation target connection was not attempted")
+        print("APL_SCOPED_ROUTE_REVOCATION_QA_REQUIRES_INDEPENDENT_MOCK_AUDIT")
+#endif
+    }
+
     /// Browser E2E, not an app NWConnection substitute. The only traffic
     /// producer after VPN activation is real Safari: synthetic HTTP A serves
     /// an HTTP 302 to https://www.apple.com/, whose CONNECTs are withheld.

@@ -1,0 +1,72 @@
+diff --git a/src/lib.rs b/src/lib.rs
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -506,6 +506,10 @@
+     let mut server = if let Some(host) = direct_host {
+         match flow_direct_transport::connect(host, session_info.dst.port()).await {
+             Ok(stream) => {
++                if let Ok(peer)=stream.peer_addr(){
++                    flow_events::emit(observed_host, observed_id,
++                        if peer.is_ipv4(){10}else{11});
++                }
+                 flow_events::emit(observed_host, observed_id, 6);
+                 stream
+             }
+@@ -568,6 +572,10 @@
+                     // NEPacketTunnelNetworkSettings route changes.
+                     server = direct;
+                     uses_direct = true;
++                    if let Ok(peer)=server.peer_addr(){
++                        flow_events::emit(observed_host, observed_id,
++                            if peer.is_ipv4(){10}else{11});
++                    }
+                     // Event 7 proves the ORIGINAL captured client TCP stream
+                     // survived a real upstream proxy failure, not just that
+                     // a later application-initiated flow used direct egress.
+diff --git a/src/flow_direct_transport.rs b/src/flow_direct_transport.rs
+--- a/src/flow_direct_transport.rs
++++ b/src/flow_direct_transport.rs
+@@ -24,9 +24,17 @@
+     let values=tokio::time::timeout(Duration::from_secs(4),
+          tokio::net::lookup_host((host.as_str(),port))).await
+             .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"direct DNS timeout"))??;
+-    let result:Vec<_>=values.filter(|v|public(v.ip())).take(8).collect();
++    // Prefer IPv4 on dual-stack networks. Certain bound IPv6 interfaces can
++    // complete TCP but stall during TLS data. IPv6-only stays supported.
++    let result:Vec<_>=values.filter(|v|public(v.ip())).take(32).collect();
++    let result=prefer_ipv4(result);
+     if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,"no real public IP"))}
+     else{Ok(result)}
++}
++fn prefer_ipv4(mut addrs:Vec<SocketAddr>)->Vec<SocketAddr>{
++    addrs.sort_by_key(|addr| if addr.is_ipv4(){0}else{1});
++    addrs.truncate(8);
++    addrs
+ }
+ async fn scoped(peer:SocketAddr)->io::Result<TcpStream>{
+     #[cfg(target_os="ios")]
+@@ -91,6 +99,12 @@
+ #[cfg(test)]
+ mod tests{
+     use super::*;
++    #[test] fn ipv4_prioritized_but_ipv6_only_remains_supported(){
++        let v6:SocketAddr="[2001:4860:4860::8888]:443".parse().unwrap();
++        let v4:SocketAddr="1.1.1.1:443".parse().unwrap();
++        assert_eq!(prefer_ipv4(vec![v6,v4]),vec![v4,v6]);
++        assert_eq!(prefer_ipv4(vec![v6]),vec![v6]);
++    }
+     #[test] fn rejects_synthetic_and_private(){
+         for s in ["127.0.0.1","10.1.1.1","192.168.1.1","172.16.0.1",
+                   "100.64.0.1","198.18.0.1","198.19.255.254",
+diff --git a/src/flow_events.rs b/src/flow_events.rs
+--- a/src/flow_events.rs
++++ b/src/flow_events.rs
+@@ -27,7 +27,7 @@
+ 
+ pub(crate) fn next_id() -> u64 { IDS.fetch_add(1, Ordering::Relaxed) }
+ pub(crate) fn emit(host: Option<&str>, connection_id: u64, event: i32) {
+-    if !matches!(event, 0..=9) { return; }
++    if !matches!(event, 0..=11) { return; }
+     let Some(host) = host.and_then(|host| crate::flow_routing::validate_exact_host(host).ok()) else { return };
+     let Ok(host) = CString::new(host) else { return };
+     let callback = OBSERVER.lock().ok().and_then(|guard| *guard);

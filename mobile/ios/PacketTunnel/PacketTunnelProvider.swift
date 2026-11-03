@@ -36,6 +36,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var stopping = false
 #if DEBUG
     private var qaScopedDirect = false
+    private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
 #endif
 
     override func startTunnel(
@@ -48,6 +49,16 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         qaScopedDirect = (options?["qaScopedDirect"] as? NSNumber)?.boolValue == true &&
             (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue == 30 &&
             options?["qaSmart3ProxyHost"] as? String == "192.168.1.80"
+        qaDirectTTLSeconds = qaScopedDirect &&
+            (options?["qaDirectTTLSeconds"] as? NSNumber)?.intValue == 4
+            ? 4 : AdaptiveRouteLearning.lifetime
+        if qaScopedDirect,
+           (options?["qaResetDirectAfterSeconds"] as? NSNumber)?.intValue == 17 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 17) { [weak self] in
+                guard let self, !self.stopping else { return }
+                SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+            }
+        }
 #endif
 #if DEBUG
         if let value = options?["qaStopAfterSeconds"] as? NSNumber,
@@ -233,15 +244,26 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
         var args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
 #if DEBUG
-        // Explicit, bounded hardware lab only. This transport is not Apple
-        // supported under TN3120 for the consumer release.
-        if qaScopedDirect { args += " --experimental-scoped-direct" }
-        if let store {
-            SmartFlowEventCollector.shared.start(store: store, labScopedDirect: qaScopedDirect)
-        }
+        let physicalLab = qaScopedDirect
 #else
-        if let store { SmartFlowEventCollector.shared.start(store: store) }
+        let physicalLab = false
 #endif
+        // Real iPhone only: exact VirtualDNS hostname, not a shared IP route.
+        // Dynamic approval requires two different failed proxy flows, evidence
+        // of a healthy other-host CONNECT, and two independent physical TLS
+        // handshakes. Any ambiguous identity stays on the upstream proxy.
+        let exactHostDirect = AdaptiveRouteCapabilities.iosPacketTunnelExactHostDirect || physicalLab
+        if exactHostDirect { args += " --experimental-scoped-direct" }
+#if DEBUG
+        let directTTL = qaDirectTTLSeconds
+#else
+        let directTTL = AdaptiveRouteLearning.lifetime
+#endif
+        if let store {
+            SmartFlowEventCollector.shared.start(store: store,
+                exactHostDirect: exactHostDirect, labScopedDirect: physicalLab,
+                qaDirectTTLSeconds: directTTL)
+        }
         engineQueue.async { [weak self] in
             guard let self, !self.stopping else { return }
             let result = args.withCString {

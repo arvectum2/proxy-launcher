@@ -20,12 +20,16 @@ def verify_shared_ip(group_plist: Path, mock_log: Path) -> dict[str, int]:
         source = source.encode("utf-8")
     events = json.loads(source)
     types = collections.Counter(e.get("type", "") for e in events)
-    marker = next(
-        (e.get("timestamp", 0) for e in events if e.get("type") == "lab scoped enabled"),
-        None,
-    )
+    # The activity ring retains only the most recent 40 events. The early
+    # lab-enabled marker can legitimately roll off after several TLS retries.
+    # Require the most recent actual independent probe-start instead.
+    starts = [
+        e.get("timestamp", 0) for e in events
+        if e.get("type") == "lab scoped probe started"
+    ]
+    marker = max(starts) if starts else None
     if marker is None:
-        raise ValueError("Lab was never started on this iPhone")
+        raise ValueError("Independent physical probe never started")
     events = [e for e in events if e.get("timestamp", 0) >= marker]
     events.sort(key=lambda e: e.get("timestamp", 0))
     types = collections.Counter(e.get("type", "") for e in events)
@@ -46,6 +50,8 @@ def verify_shared_ip(group_plist: Path, mock_log: Path) -> dict[str, int]:
             raise ValueError(f"Missing independent per-flow proof: {name}")
     if names.index("lab direct armed") >= names.index("lab sameflow recovered"):
         raise ValueError("Direct armed AFTER same-flow recovery")
+    if max(e.get("timestamp", 0) for e in events) - marker > 55:
+        raise ValueError("Physical evidence spans multiple QA sessions")
     raw = mock_log.read_text(errors="replace")
     for token, minimum in (
         ("BLOCKED_CONNECT", 2),
@@ -64,6 +70,60 @@ def verify_shared_ip(group_plist: Path, mock_log: Path) -> dict[str, int]:
         "original_tls_responses": types["lab sameflow tls data"],
         "fresh_tls_responses": types["lab scoped tls data"],
         "direct_server_payload_events": types["lab direct server bytes"],
+        "direct_ipv4_sockets": types["lab physical tcp ipv4"],
+        "direct_ipv6_sockets": types["lab physical tcp ipv6"],
+    }
+
+
+def verify_reversion(group_plist: Path, mock_log: Path, mode: str) -> dict[str, int]:
+    """Ensure a real recovered TLS route becomes proxy-only on QA revoke/TTL."""
+    if mode not in {"path", "ttl"}:
+        raise ValueError("Unknown bounded QA reversion mode")
+    data = plistlib.loads(group_plist.read_bytes())
+    source = data.get("tunnel_events_v1", b"[]")
+    if isinstance(source, str):
+        source = source.encode("utf-8")
+    records = json.loads(source)
+    events = sorted(records, key=lambda x: x.get("timestamp", 0))
+    armed = [e for e in events if e.get("type") == "lab direct armed"]
+    if not armed:
+        raise ValueError("No independently approved DIRECT route")
+    approved = armed[-1].get("timestamp", 0)
+    events = [e for e in events if e.get("timestamp", 0) >= approved]
+    kind = "smart direct reverted" if mode == "path" else "smart direct expired"
+    revoked = [e for e in events if e.get("type") == kind and
+               (mode != "path" or e.get("detail") == "qa network change")]
+    if not revoked:
+        raise ValueError("No bounded revocation or TTL expiry event")
+    time = revoked[-1].get("timestamp", 0)
+    if not approved < time:
+        raise ValueError("Route revoked before it was approved")
+    if mode == "ttl" and not 3 <= time - approved <= 8:
+        raise ValueError("Shortened TTL did not expire at expected delay")
+    original = [e for e in events if e.get("type") == "lab sameflow tls data"
+                and e.get("timestamp", 0) < time]
+    if len(original) < 2:
+        raise ValueError("Original blocked TCP/TLS streams did not recover")
+    retry = [e for e in events if e.get("type") == "lab scoped tls attempt"
+             and e.get("timestamp", 0) > time]
+    if not retry:
+        raise ValueError("No new target connection after route was revoked")
+    wrong = [e for e in events if e.get("type") == "lab scoped tls data"
+             and e.get("timestamp", 0) > time]
+    if wrong:
+        raise ValueError("Previously approved target still received DIRECT TLS after revoke")
+    raw = mock_log.read_text(errors="replace")
+    if raw.count("BLOCKED_CONNECT") < 3:
+        raise ValueError("Expected third target CONNECT through proxy after revoke")
+    if raw.count("HEALTHY_CONNECT") < 1:
+        raise ValueError("Healthy other-host proxy evidence missing")
+    if max(e.get("timestamp", 0) for e in events) - approved > 45:
+        raise ValueError("Reversion evidence spans multiple physical QA runs")
+    return {
+        "original_tls_responses": len(original),
+        "post_revoke_proxy_target_connects": raw.count("BLOCKED_CONNECT") - 2,
+        "post_revoke_direct_tls_responses": len(wrong),
+        "route_revocations": len(revoked),
     }
 
 
@@ -71,9 +131,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--group-plist", type=Path, required=True)
     parser.add_argument("--mock-log", type=Path, required=True)
+    parser.add_argument("--reversion-mode", choices=("path", "ttl"))
     args = parser.parse_args()
-    result = verify_shared_ip(args.group_plist, args.mock_log)
-    print("SHARED_IP_DEVICE_AND_UPSTREAM_EVIDENCE_PASS", result)
+    if args.reversion_mode:
+        result = verify_reversion(args.group_plist, args.mock_log, args.reversion_mode)
+        print("DIRECT_REVERSION_DEVICE_AND_UPSTREAM_EVIDENCE_PASS", result)
+    else:
+        result = verify_shared_ip(args.group_plist, args.mock_log)
+        print("SHARED_IP_DEVICE_AND_UPSTREAM_EVIDENCE_PASS", result)
 
 
 if __name__ == "__main__":

@@ -391,6 +391,14 @@
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
 - [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
 
+## 03.11.2026 — Smart3: финальные аппаратные rollback/TTL и локальный signed RC
+
+- [x] Настоящий iPhone 13 iOS27.2: две отдельные проверки отката **2/2 PASS** — после имитации смены пути и после сокращённого QA TTL. Для каждого режима: 2 исходных TLS-ответа до отзыва, 1 повторный CONNECT через upstream proxy после, **0 DIRECT TLS-ответов после**. Проверены App Group telemetry и журнал независимого mock proxy.
+- [x] Все 11/11 App Group и 20/20 app preferences восстановлены на телефоне после обоих тестов, per-value SHA256 match.
+- [x] Rust 13/13 PASS, Swift Core 132/132 PASS, Python iOS 156/156 + 73 subtests PASS; signed Debug iPhone и unsigned Release iPhoneOS BUILD SUCCEEDED.
+- [x] Локальный Apple Distribution .xcarchive **ARCHIVE SUCCEEDED**, App Store-format IPA **EXPORT SUCCEEDED**, ZIP и deep codesign PASS, 0.2.0 (48), Packet Tunnel и YandexMobileAds на месте. Никакого upload/merge. [Подробный протокол](APL_IOS_020_SMART3_FINAL_DEVICE_QA_2026-11-03.md).
+- [ ] Физический радио Wi-Fi↔LTE, IPv6 shared-CDN two-host и adversarial QUIC/DoH/ECH требуют проверки отдельно от имитации события и модели. Допустимость App Store решает Apple Review при подаче, предварительный DTS не обязателен.
+
 ## 03.11.2026 — Smart3: отдельная проверка iOS Simulator
 
 - [x] iPhone 17 Pro Simulator (iOS 27.0): 8/8 целевых UI PASS, EN/HE RTL, автоматические группы apex/www, предупреждения и доступность. После полного сброса Simulator: ещё 1/1 PASS — автоматическое расширение включено по умолчанию. [Протокол](APL_IOS_020_SMART3_SIMULATOR_QA_2026-11-03.md).

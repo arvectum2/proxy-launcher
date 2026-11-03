@@ -19,10 +19,12 @@ def test_no_auto_direct_from_two_timeouts_or_fake_probe():
     assert 'SiteDependencyDiscovery.eligibleForAutomaticBypass(value)' in CORE
 
 
-def test_explicit_ios_capability_disables_ip_wide_silent_learning():
-    assert 'iosPacketTunnelExactHostDirect = false' in CAPS
-    assert 'iosIndependentNoProxyProbe = false' in CAPS
+def test_ios_host_scoped_capability_does_not_grant_ip_wide_bypass():
+    assert 'iosPacketTunnelExactHostDirect = true' in CAPS
+    assert 'iosIndependentNoProxyProbe = true' in CAPS
+    assert '#if targetEnvironment(simulator)' in CAPS
     assert 'SharedIPRouteGuard.plan' in TUNNEL
+    assert 'if exactHostDirect { args +=' in TUNNEL
     assert 'adaptiveRouteLearning' not in TUNNEL  # not falsely deployed to VPN
 
 

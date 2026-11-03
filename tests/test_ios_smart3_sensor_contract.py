@@ -24,7 +24,8 @@ def test_real_virtual_dns_flow_events_no_untrusted_sni_fallback():
 def test_pinned_rebuild_includes_added_abi_and_ios_lifecycle():
     assert 'install_flow_event_header(source_framework)' in FETCH
     assert 'git", "apply", "--check", str(FLOW_INTENT_PATCH)' in FETCH
-    assert 'SmartFlowEventCollector.shared.start(store: store)' in PROVIDER
+    assert 'SmartFlowEventCollector.shared.start(store: store,' in PROVIDER
+    assert 'exactHostDirect: exactHostDirect, labScopedDirect: physicalLab' in PROVIDER
     assert 'SmartFlowEventCollector.shared.stop()' in PROVIDER
     assert 'tun2proxy_set_flow_event_callback(nil, nil)' in COLLECTOR
     assert 'self.successfulHosts.contains { $0.key != host }' in COLLECTOR

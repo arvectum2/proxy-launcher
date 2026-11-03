@@ -27,6 +27,7 @@ SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
 FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
 SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
 SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
+DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-prefer-ipv4-physical-family.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -137,15 +138,18 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     # physical egress in the iOS packet tunnel (Apple TN3120).
     run("git", "apply", "--check", str(FLOW_INTENT_PATCH), cwd=source)
     run("git", "apply", str(FLOW_INTENT_PATCH), cwd=source)
-    # DEBUG lab ONLY: physical-scoped exact-host experiment. Runtime disabled
-    # by default; do not enable in a submitted app without Apple DTS approval.
+    # Source-pinned physical-scoped exact-host transport. The CLI stays
+    # opt-in; real iPhone Packet Tunnel selects it after safety checks.
     run("git", "apply", "--check", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
     run("git", "apply", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
-    # Same captured TCP connection is retained during verified host-specific
-    # physical egress checks. This remains behind the DEBUG lab flag, because
-    # iOS NetworkExtension packet-tunnel alternate egress is not approved.
+    # Original TCP is retained through host-specific proxy failures,
+    # with separate physical verification and fail-closed defaults.
     run("git", "apply", "--check", str(SAME_FLOW_RETRY_PATCH), cwd=source)
     run("git", "apply", str(SAME_FLOW_RETRY_PATCH), cwd=source)
+    # Dual-stack physical sockets can complete TCP on IPv6 yet stall TLS.
+    # Prefer public IPv4 first, retain IPv6-only fallback; log family only.
+    run("git", "apply", "--check", str(DIRECT_FAMILY_PATCH), cwd=source)
+    run("git", "apply", str(DIRECT_FAMILY_PATCH), cwd=source)
 
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")

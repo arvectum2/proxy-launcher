@@ -11,6 +11,7 @@ IOS = ROOT / "mobile/ios"
 FETCH = (IOS / "Tools/fetch_tun2proxy.py").read_text()
 RETRY = (IOS / "Tools/tun2proxy-sameflow-scoped-retry.patch").read_text()
 SCOPED = (IOS / "Tools/tun2proxy-experimental-scoped-direct.patch").read_text()
+FAMILY = (IOS / "Tools/tun2proxy-prefer-ipv4-physical-family.patch").read_text()
 PROVIDER = (IOS / "PacketTunnel/PacketTunnelProvider.swift").read_text()
 COLLECTOR = (IOS / "PacketTunnel/SmartFlowEventCollector.swift").read_text()
 HARDWARE = (IOS / "Tests/UITests/Smart3LiveTunnelPhysicalUITests.swift").read_text()
@@ -23,6 +24,13 @@ def test_pinned_replay_order_and_same_captured_tcp_stream():
     assert FETCH.index('str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)') < FETCH.index(
         'str(SAME_FLOW_RETRY_PATCH), cwd=source)'
     )
+    assert 'DIRECT_FAMILY_PATCH = TOOLS' in FETCH
+    assert FETCH.index('str(SAME_FLOW_RETRY_PATCH), cwd=source)') < FETCH.index(
+        'str(DIRECT_FAMILY_PATCH), cwd=source)')
+    assert "let result=prefer_ipv4(result);" in FAMILY
+    assert 'if peer.is_ipv4(){10}else{11}' in FAMILY
+    assert '0..=11' in FAMILY
+    assert "lab physical tcp ipv4" in COLLECTOR
     assert "recover_after_proxy_failure" in RETRY
     assert "if lab_direct && direct_host.is_none()" in RETRY or (
         'lab_direct && direct_host.is_none()' in RETRY)
@@ -35,12 +43,13 @@ def test_pinned_replay_order_and_same_captured_tcp_stream():
     assert "Duration::from_secs(5)" in RETRY
 
 
-def test_direct_cannot_be_enabled_by_default_or_raw_ip():
-    assert "iosPacketTunnelExactHostDirect = false" in CAPS
-    assert "iosIndependentNoProxyProbe = false" in CAPS
+def test_release_enabled_only_for_exact_virtual_host_without_ipwide_route():
+    assert "iosPacketTunnelExactHostDirect = true" in CAPS
+    assert "iosIndependentNoProxyProbe = true" in CAPS
     assert "--experimental-scoped-direct" in PROVIDER
     assert "#if DEBUG" in PROVIDER
-    assert "if qaScopedDirect { args +=" in PROVIDER
+    assert "if exactHostDirect { args +=" in PROVIDER
+    assert "let exactHostDirect = AdaptiveRouteCapabilities.iosPacketTunnelExactHostDirect || physicalLab" in PROVIDER
     assert "experimental_scoped_direct: false" in SCOPED
     assert "if !valid_fake { return FlowIntent::Proxy; }" in SCOPED
     assert 'FlowIntent::Proxy' in SCOPED
@@ -60,7 +69,7 @@ def test_physical_qa_requires_real_socket_and_original_tls_payload():
     assert 'labDirect ? .tls : .tcp' in CLIENT
     assert 'lab sameflow tls data' in CLIENT
     assert "event == 7, self.labScopedDirect" in COLLECTOR
-    assert "event == 5, self.labScopedDirect" in COLLECTOR
+    assert "event == 5, self.exactHostDirect" in COLLECTOR
     assert 'tun2proxy_set_direct_exact_host($0, false)' in COLLECTOR
 
 
