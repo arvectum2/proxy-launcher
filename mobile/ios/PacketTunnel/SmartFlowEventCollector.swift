@@ -22,6 +22,7 @@ final class SmartFlowEventCollector {
 #if DEBUG
     private var labFlowEventBudget = 0
     private var labPhysicalFamilyBudget = 0
+    private var labOpaqueUDPBudget = 0
 #endif
 
 
@@ -44,6 +45,7 @@ final class SmartFlowEventCollector {
 #if DEBUG
             labFlowEventBudget = 0
             labPhysicalFamilyBudget = 0
+            labOpaqueUDPBudget = 0
             self.labScopedDirect = labScopedDirect
             if labScopedDirect {
                 telemetry.append(TunnelEvent(type: "lab scoped enabled", detail: "DEBUG only"))
@@ -187,6 +189,17 @@ final class SmartFlowEventCollector {
                 return
             }
 #if DEBUG
+            if event == 12, self.labScopedDirect {
+                // Engine-side event, not a Swift inference: approved TCP
+                // hostname's actual UDP/443 arrived in UDP/proxy path.
+                // There is no scoped UDP code path anywhere in tun2proxy.
+                if self.labOpaqueUDPBudget < 2 {
+                    self.labOpaqueUDPBudget += 1
+                    self.telemetry.append(TunnelEvent(type: "lab opaque udp engine proxy path",
+                        detail: "Approved TCP host UDP captured by ordinary upstream handler"))
+                }
+                return
+            }
             if (event == 10 || event == 11), self.labScopedDirect {
                 // Bound diagnostic journal: do not push older evidence out of
                 // the compact on-device event ring with repeated TLS retries.

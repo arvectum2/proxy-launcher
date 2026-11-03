@@ -83,6 +83,43 @@ import Network
                     detail: "Fourth independent connection after direct policy armed"))
                 direct.start(queue: queue)
                 connections.append(direct)
+                if ProcessInfo.processInfo.arguments.contains("-aplSmart3OpaqueTrafficLabQA") {
+                    // All three paths are opaque to an exact HTTP/TLS hostname
+                    // rule: a raw IP, an HTTPS DoH endpoint, and genuine
+                    // QUIC/UDP port 443. The mock NEVER forwards these.
+                    for (host, marker) in [
+                        ("23.12.156.37", "lab raw ip proxy tcp ready"),
+                        ("dns.google", "lab doh endpoint proxy tcp ready")
+                    ] {
+                        let opaque = NWConnection(host: NWEndpoint.Host(host),
+                                                  port: .https, using: .tcp)
+                        opaque.stateUpdateHandler = { state in
+                            if case .ready = state {
+                                TelemetryStore().append(TunnelEvent(type: marker,
+                                    detail: "Non-approved destination connected via mock upstream"))
+                            }
+                        }
+                        opaque.start(queue: queue)
+                        connections.append(opaque)
+                    }
+                    // Send a genuine Network.framework QUIC Initial over
+                    // UDP/443. The upstream HTTP mock has NO UDP relay, so
+                    // connection success is not expected. What matters is that
+                    // tun2proxy processes it exclusively as UDP, not DIRECT.
+                    let quicParameters = NWParameters(quic: NWProtocolQUIC.Options(alpn: ["h3"]))
+                    let quic = NWConnection(host: NWEndpoint.Host(target),
+                                            port: .https, using: quicParameters)
+                    quic.stateUpdateHandler = { state in
+                        if case .failed = state {
+                            TelemetryStore().append(TunnelEvent(type: "lab opaque quic refused",
+                                detail: "Mock HTTP proxy cannot forward QUIC; no direct fallback"))
+                        }
+                    }
+                    quic.start(queue: queue)
+                    TelemetryStore().append(TunnelEvent(type: "lab opaque quic started",
+                        detail: "Actual Network.framework QUIC h3 handshake attempted"))
+                    connections.append(quic)
+                }
                 if ipv6OnlyLab {
                     // Same IPv6 physical endpoint via canonical CNAME, but
                     // separate VirtualDNS hostname: never inherit DIRECT.

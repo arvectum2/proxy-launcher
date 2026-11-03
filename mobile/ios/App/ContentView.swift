@@ -23,6 +23,9 @@ struct ContentView: View {
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
+#if DEBUG && !targetEnvironment(macCatalyst)
+    @State private var didStartOpaqueNetworkQA = false
+#endif
 #if !targetEnvironment(macCatalyst)
     @StateObject private var homeNativeAdController = HomeNativeAdController()
 #endif
@@ -44,6 +47,22 @@ struct ContentView: View {
 #endif
             await model.prepare()
 #if DEBUG && !targetEnvironment(macCatalyst)
+            // Explicit self-terminating physical QA: only the app's disposable
+            // proxy on the fixed LAN address. Never starts a real owner profile,
+            // changes a radio setting, or reconnects an existing owner VPN.
+            let opaqueQA = ProcessInfo.processInfo.arguments.contains("-aplSmart3OpaqueTrafficLabQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA")
+            if opaqueQA && !didStartOpaqueNetworkQA {
+                didStartOpaqueNetworkQA = true
+                if !model.vpn.isConnectedOrConnecting && model.vpn.canToggle {
+                    await model.toggleVPN()
+                } else {
+                    TelemetryStore().append(TunnelEvent(type: "lab opaque skipped",
+                        detail: "Owner VPN was already active; never override"))
+                }
+            }
             // Safe screenshot-only localization QA on a disposable simulator.
             // No VPN or saved profile mutation and compiled out of Release.
             if ProcessInfo.processInfo.arguments.contains("-aplSettingsLocaleQA") {

@@ -19,6 +19,8 @@ START = "start.qa-example.test:80"
 NEIGHBOR = "www.apple.com.cn:443"
 IPV6_ONLY_FAIL = "ipv6.google.com:443"
 IPV6_NEIGHBOR = "ipv6.l.google.com:443"
+RAW_IP = "23.12.156.37:443"
+DOH_HOST = "dns.google:443"
 
 
 class BoundedServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -76,6 +78,20 @@ class MockConnect(socketserver.BaseRequestHandler):
                 print("NEIGHBOR_PROXY_CONNECT", flush=True)
                 self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
                 time.sleep(2)
+            elif (getattr(self.server, "opaque_qa", False) and
+                  first == b"CONNECT " + RAW_IP.encode("ascii") + b" HTTP/1.1"):
+                # A raw public IP has no exact VirtualDNS hostname. Approval
+                # for a domain can NEVER authorize direct traffic to an IP.
+                print("RAW_IP_PROXY_CONNECT", flush=True)
+                self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                time.sleep(2)
+            elif (getattr(self.server, "opaque_qa", False) and
+                  first == b"CONNECT " + DOH_HOST.encode("ascii") + b" HTTP/1.1"):
+                # This controls only an opaque HTTPS endpoint; it DOES NOT
+                # decrypt DoH or claim to have inspected encrypted DNS.
+                print("DOH_ENDPOINT_PROXY_CONNECT", flush=True)
+                self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                time.sleep(2)
             elif first == b"CONNECT " + HEALTHY.encode("ascii") + b" HTTP/1.1":
                 print("HEALTHY_CONNECT", flush=True)
                 self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
@@ -100,6 +116,8 @@ def main():
                         help="Observe a distinct proxy-only hostname sharing Apple's CDN IPv4")
     parser.add_argument("--ipv6-only-qa", action="store_true",
                         help="IPv6-only target and canonical-name proxy neighbor")
+    parser.add_argument("--opaque-qa", action="store_true",
+                        help="Observe raw public IP and DoH endpoint on no-forwarding proxy")
     parser.add_argument("--bind-ip", default="192.168.1.80")
     parser.add_argument("--port", type=int, default=18081)
     options = parser.parse_args()
@@ -114,6 +132,7 @@ def main():
         server.safari_redirect = options.safari_redirect
         server.shared_ip_qa = options.shared_ip_qa
         server.ipv6_only_qa = options.ipv6_only_qa
+        server.opaque_qa = options.opaque_qa
         threading.Timer(115, server.shutdown).start()
         print("READY_SCOPED_MOCK lifetime<=115s no_forwarding=true", flush=True)
         server.serve_forever(poll_interval=0.1)

@@ -1,7 +1,33 @@
 diff --git a/src/lib.rs b/src/lib.rs
 --- a/src/lib.rs
 +++ b/src/lib.rs
-@@ -506,6 +506,10 @@
+@@ -322,8 +322,9 @@
+                 } else {
+                     None
+                 };
+-                // Lab-only exact VirtualDNS host. Other connections remain PROXY.
+-                // Release iOS MUST NOT supply --experimental-scoped-direct.
++                // Approved per-flow exact VirtualDNS host ONLY; other
++                // connections remain PROXY. This capability is guarded by
++                // physical probes, a bounded TTL, and per-network revocation.
+                 let direct_host = if lab_direct && matches!(
+                     intent_policy.for_new_flow(domain_name.as_deref(), tcp.peer_addr().ip()),
+                     flow_routing::FlowIntent::DirectNeedsScopedTransport
+@@ -386,6 +387,13 @@
+                 } else {
+                     None
+                 };
++                // The TCP-only exact-host approval MUST NEVER authorize UDP.
++                // A tiny bounded QA event proves QUIC-like traffic reached the
++                // ordinary UDP/proxy handler even for an approved TCP host.
++                if lab_direct && udp.peer_addr().port() == 443 &&
++                    domain_name.as_deref().is_some_and(crate::flow_routing::is_armed) {
++                    flow_events::emit(domain_name.as_deref(), flow_events::next_id(), 12);
++                }
+                 #[cfg(feature = "udpgw")]
+                 if let Some(udpgw) = udpgw_client.clone() {
+                     let tcp_src = match udp.peer_addr() {
+@@ -506,6 +514,10 @@
      let mut server = if let Some(host) = direct_host {
          match flow_direct_transport::connect(host, session_info.dst.port()).await {
              Ok(stream) => {
@@ -12,7 +38,7 @@ diff --git a/src/lib.rs b/src/lib.rs
                  flow_events::emit(observed_host, observed_id, 6);
                  stream
              }
-@@ -568,6 +572,10 @@
+@@ -568,6 +580,10 @@
                      // NEPacketTunnelNetworkSettings route changes.
                      server = direct;
                      uses_direct = true;
@@ -26,7 +52,16 @@ diff --git a/src/lib.rs b/src/lib.rs
 diff --git a/src/flow_direct_transport.rs b/src/flow_direct_transport.rs
 --- a/src/flow_direct_transport.rs
 +++ b/src/flow_direct_transport.rs
-@@ -24,9 +24,17 @@
+@@ -1,5 +1,6 @@
+-//! Experimental scoped per-TCP flow. NEVER ship without Apple DTS approval:
+-//! TN3120 explicitly discourages forwarding packet tunnel flows elsewhere.
++//! Exact-host physical per-TCP routing after independent verification.
++//! TN3120 warns about alternate-interface packet tunnel forwarding;
++//! platform admissibility remains for Apple App Review to decide.
+ //! No IP-wide routes, local listener, unbound socket or credentials.
+ use std::{io,net::{IpAddr,SocketAddr},time::Duration};
+ use tokio::net::{TcpSocket,TcpStream};
+@@ -24,9 +25,17 @@
      let values=tokio::time::timeout(Duration::from_secs(4),
           tokio::net::lookup_host((host.as_str(),port))).await
              .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"direct DNS timeout"))??;
@@ -46,7 +81,7 @@ diff --git a/src/flow_direct_transport.rs b/src/flow_direct_transport.rs
  }
  async fn scoped(peer:SocketAddr)->io::Result<TcpStream>{
      #[cfg(target_os="ios")]
-@@ -91,6 +99,14 @@
+@@ -91,6 +100,14 @@
  #[cfg(test)]
  mod tests{
      use super::*;
@@ -69,7 +104,7 @@ diff --git a/src/flow_events.rs b/src/flow_events.rs
  pub(crate) fn next_id() -> u64 { IDS.fetch_add(1, Ordering::Relaxed) }
  pub(crate) fn emit(host: Option<&str>, connection_id: u64, event: i32) {
 -    if !matches!(event, 0..=9) { return; }
-+    if !matches!(event, 0..=11) { return; }
++    if !matches!(event, 0..=12) { return; }
      let Some(host) = host.and_then(|host| crate::flow_routing::validate_exact_host(host).ok()) else { return };
      let Ok(host) = CString::new(host) else { return };
      let callback = OBSERVER.lock().ok().and_then(|guard| *guard);

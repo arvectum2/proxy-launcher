@@ -73,3 +73,93 @@ def test_ipv6_canonical_neighbor_must_stay_on_upstream_proxy(tmp_path):
                   proxy='BLOCKED_CONNECT\nBLOCKED_CONNECT\nHEALTHY_CONNECT\n')
     with pytest.raises(ValueError, match='neighbor bypassed upstream'):
         MOD.verify_ipv6_fail_closed(p, q)
+
+
+OPAQUE_EVENTS = [
+    'lab scoped probe started', 'lab direct armed',
+    'lab sameflow recovered', 'lab sameflow tls data',
+    'lab sameflow recovered', 'lab sameflow tls data',
+    'lab physical tcp ipv4', 'lab physical tcp ipv4',
+    'lab physical tcp ipv4', 'lab raw ip proxy tcp ready',
+    'lab doh endpoint proxy tcp ready', 'lab opaque udp submitted',
+    'lab scoped tls data',
+]
+OPAQUE_MOCK = ('READY_SCOPED_MOCK lifetime<=115s no_forwarding=true\\n'
+               'BLOCKED_CONNECT\\nBLOCKED_CONNECT\\nHEALTHY_CONNECT\\n'
+               'RAW_IP_PROXY_CONNECT\\nDOH_ENDPOINT_PROXY_CONNECT\\n')
+
+
+def test_physical_opaque_raw_ip_and_doh_endpoints_stay_proxied(tmp_path):
+    p, q = sample(tmp_path, names=OPAQUE_EVENTS, proxy=OPAQUE_MOCK)
+    result = MOD.verify_opaque_flows(p, q)
+    assert result['raw_ip_upstream_connects'] == 1
+    assert result['doh_endpoint_upstream_connects'] == 1
+    assert result['physical_direct_ipv6_sockets'] == 0
+    assert result['udp_test_datagrams_submitted'] == 1
+
+
+@pytest.mark.parametrize('drop,reason', [
+    ('lab raw ip proxy tcp ready', 'lab raw ip proxy tcp ready'),
+    ('lab doh endpoint proxy tcp ready', 'lab doh endpoint proxy tcp ready'),
+    ('lab opaque udp submitted', 'lab opaque udp submitted'),
+])
+def test_opaque_evidence_requires_each_independent_device_event(tmp_path, drop, reason):
+    p,q=sample(tmp_path, names=[x for x in OPAQUE_EVENTS if x!=drop], proxy=OPAQUE_MOCK)
+    with pytest.raises(ValueError, match=reason):
+        MOD.verify_opaque_flows(p,q)
+
+
+def test_opaque_raw_ip_can_never_count_as_safe_without_proxy_connect(tmp_path):
+    p,q=sample(tmp_path,names=OPAQUE_EVENTS,proxy=OPAQUE_MOCK.replace('RAW_IP_PROXY_CONNECT',''))
+    with pytest.raises(ValueError,match='RAW_IP_PROXY_CONNECT'):
+        MOD.verify_opaque_flows(p,q)
+
+
+def test_opaque_report_rejects_ipv6_direct_sockets(tmp_path):
+    p,q=sample(tmp_path,names=OPAQUE_EVENTS+['lab physical tcp ipv6'],proxy=OPAQUE_MOCK)
+    with pytest.raises(ValueError,match='Unapproved IPv6'):
+        MOD.verify_opaque_flows(p,q)
+
+
+QUIC_EVENTS = [
+    'lab direct armed', 'lab sameflow recovered', 'lab sameflow recovered',
+    'lab sameflow tls data', 'lab sameflow tls data',
+    'lab direct server bytes', 'lab direct server bytes',
+    'lab physical tcp ipv4', 'lab physical tcp ipv4', 'lab physical tcp ipv4',
+    'lab scoped tls data', 'lab raw ip proxy tcp ready',
+    'lab doh endpoint proxy tcp ready', 'lab opaque quic started',
+    'lab opaque udp engine proxy path',
+]
+
+
+def test_actual_quic_engine_udp_proxy_path_proven(tmp_path):
+    p,q=sample(tmp_path,names=QUIC_EVENTS,proxy=OPAQUE_MOCK)
+    r=MOD.verify_real_quic_fail_closed(p,q)
+    assert r['quic_network_framework_starts']==1
+    assert r['quic_packets_observed_by_udp_engine']==1
+
+
+def test_quic_app_start_is_not_sufficient_without_engine_side_udp(tmp_path):
+    p,q=sample(tmp_path,names=[n for n in QUIC_EVENTS if n!='lab opaque udp engine proxy path'],proxy=OPAQUE_MOCK)
+    with pytest.raises(ValueError,match='lab opaque udp engine proxy path'):
+        MOD.verify_real_quic_fail_closed(p,q)
+
+
+def test_quic_opaque_endpoint_must_stay_on_proxy(tmp_path):
+    p,q=sample(tmp_path,names=QUIC_EVENTS,proxy=OPAQUE_MOCK.replace('DOH_ENDPOINT_PROXY_CONNECT',''))
+    with pytest.raises(ValueError,match='DOH_ENDPOINT_PROXY_CONNECT'):
+        MOD.verify_real_quic_fail_closed(p,q)
+
+
+def test_quic_bounded_evidence_allows_evicted_armed_event(tmp_path):
+    names=[x for x in QUIC_EVENTS if x != 'lab direct armed']
+    p,q=sample(tmp_path,names=names,proxy=OPAQUE_MOCK)
+    result=MOD.verify_real_quic_fail_closed(p,q)
+    assert result['original_tls_responses']==2
+
+
+def test_quic_cannot_pass_without_two_recovered_original_tcp_streams(tmp_path):
+    names=[x for x in QUIC_EVENTS if x != 'lab sameflow recovered']
+    p,q=sample(tmp_path,names=names,proxy=OPAQUE_MOCK)
+    with pytest.raises(ValueError,match='lab sameflow recovered'):
+        MOD.verify_real_quic_fail_closed(p,q)

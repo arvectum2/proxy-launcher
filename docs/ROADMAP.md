@@ -391,6 +391,16 @@
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
 - [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
 
+## 04.11.2026 — Smart3: аппаратный QUIC/h3 и безопасный raw-IP/DoH endpoint
+
+- [x] Реальный iPhone13: Network.framework QUIC(h3) для ранее одобренного TCP-host дал два engine-side подтверждения Rust UDP/proxy branch; физического DIRECT UDP нет. Полный QUIC handshake намеренно недоступен с no-forwarding mock.
+- [x] Raw IP общего CDN и hostname dns.google:443 (DoH endpoint) сохранились через upstream: по одному независимому proxy CONNECT; DoH payload/ECH не декодировались и не считаются подтверждёнными.
+- [x] Оба исходных TLS-потока восстановились, дополнительный TLS получил ответ, 3 физических DIRECT IPv4, 0 DIRECT IPv6. Независимая проверка REAL_QUIC_ENGINE_UDP_PROXY_FAILCLOSED_DEVICE_PASS.
+- [x] На настоящем iPhone NWPathMonitor наблюдал изменение сети и отозвал правило DIRECT. Контролируемое переключение радиоканала Wi-Fi↔LTE пока НЕ тестировалось.
+- [x] Настройки iPhone точно восстановлены (App Group 11/11 + app 19/19), на телефоне Release с настоящей РСЯ. Rust 13/13, Python 173/173+73 PASS.
+- [x] Итоговый подписанный локальный IPA iOS 0.2.0 (48) с Rust QUIC fail-closed и включёнными баннерами: ARCHIVE/EXPORT/CODESIGN/ZIP PASS; SHA256 d8f2442c51ebd9e1f960d212d673890135a458f8ff3e2f8e6c686789cdffe4d3, 228 SKAdNetworkItems.
+- [ ] Реальный Wi-Fi↔LTE handoff и полноценный IPv6-only DIRECT остаются не закрыты. IPv6-only сейчас корректно остаётся на PROXY. [Протокол](APL_IOS_020_SMART3_OPAQUE_QUIC_HARDWARE_QA_2026-11-04.md).
+
 ## 03.11.2026 — РСЯ: устранена причина отсутствия рекламы на iPhone, проверен настоящий Release
 
 - [x] Причина: предыдущие аппаратные Smart3 QA оставляли на iPhone Debug-сборку с намеренно отключённой рекламой. Это не поведение Release.

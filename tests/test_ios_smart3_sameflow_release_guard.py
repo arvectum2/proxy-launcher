@@ -1,8 +1,8 @@
 """Exact-host DIRECT proof must never degrade into an IP-wide or fake passing test.
 
-Production consumer iOS cannot enable this experimental alternate egress under
-Apple TN3120 without separate platform support. This is a source safety gate,
-not an assertion that Safari zero-touch recovery is App Store ready.
+Production consumer iOS exact-host egress must remain fail-closed; TN3120
+warns about alternate-interface packet forwarding, and App Review alone
+decides platform admissibility. This is a source and physical safety gate.
 """
 from pathlib import Path
 
@@ -31,7 +31,11 @@ def test_pinned_replay_order_and_same_captured_tcp_stream():
     assert "addr.is_ipv4() && public(addr.ip())" in FAMILY
     assert "ipv6_only_direct_must_fail_closed_after_real_iphone_tls_stall" in FAMILY
     assert 'if peer.is_ipv4(){10}else{11}' in FAMILY
-    assert '0..=11' in FAMILY
+    assert '0..=12' in FAMILY
+    assert 'flow_events::emit(domain_name.as_deref(), flow_events::next_id(), 12)' in FAMILY
+    assert 'domain_name.as_deref().is_some_and(crate::flow_routing::is_armed)' in FAMILY
+    assert 'event == 12, self.labScopedDirect' in COLLECTOR
+    assert 'lab opaque udp engine proxy path' in COLLECTOR
     assert "lab physical tcp ipv4" in COLLECTOR
     assert "recover_after_proxy_failure" in RETRY
     assert "if lab_direct && direct_host.is_none()" in RETRY or (
