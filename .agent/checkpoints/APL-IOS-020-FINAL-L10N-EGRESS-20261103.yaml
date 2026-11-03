@@ -1,0 +1,21 @@
+task_id: APL-IOS-020-FINAL-L10N-EGRESS-20261103
+status: in_progress
+goal: "Finish iOS 0.2.0 Smart Exclusions localization and determine safe, Apple-supported exact-host fallback behavior without IP-wide leaks."
+definition_of_done:
+  - "All existing SmartExclusions locales reviewed for the six new UI strings; localized strings complete with correct escaping/formatting, key coverage and native labels."
+  - "Audit obvious misleading prior translations that can affect the new settings and save flow, fix validated issues."
+  - "Re-run iOS Core, locale/source contracts, simulator UI and unsigned Release build for changes."
+  - "Validate Apple NetworkExtension path against primary docs and repository capabilities; implement safe feasible outcome or document objective platform blocker and executable engineering options without weakening privacy."
+  - "Checkpoint/roadmap updated; feature branch and review PR created; no Apple publication or changes to actual user's iPhone/VPN/proxies/privacy/advertising."
+completed:
+  - "Recovered completed grouped UX task at source commit caf9a4a1, checkpoint 8852a9a5; created isolated l10n/egress branch."
+current: "Inventory 64 iOS locales and audit NetworkExtension compliance; implement localized copy."
+pending:
+  - "Produce high-quality translations for new Smart Exclusions controls in all existing locales."
+  - "Audit feasibility and alternatives for independent exact-host Safari direct egress; keep previously blocked Smart3 release gate if Apple APIs do not permit it."
+  - "Run targeted localization, Core, iOS Simulator and unsigned Release validation."
+  - "Update docs and checkpoint; PR as draft pending product/platform gate."
+last_verified_commit: "8852a9a577a6dd4cb54de0dd8e28ce315d69dfd5 (base); previous 131 Core, 5 Simulator UI, 36 Python, unsigned Release PASS."
+test_results:
+  - "No new source tests yet."
+resume_instruction: "Continue feat/ios-020-final-l10n-egress-20261103. Complete new SmartExclusions localized labels in all 64 .lproj catalogs, test, examine Apple supported domain-specific DIRECT from consumer NEPacketTunnelProvider without MDM or IP-wide leak, preserve Smart3 gate. Do not publish App Store, alter user iPhone or existing proxies, add watchdog or weaken shared IP safety."
