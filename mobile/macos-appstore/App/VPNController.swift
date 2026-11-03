@@ -10,6 +10,11 @@ final class VPNController: ObservableObject {
 
     private var manager: NETunnelProviderManager?
     private var observer: NSObjectProtocol?
+    private var userRequestedDisconnect = false
+    private var hasObservedConnection = false
+    private var recoveryTask: Task<Void, Never>?
+    private var reconnectPolicy = TunnelAutoReconnectPolicy()
+    private var lastHandledFailureID: UUID?
 
     init() {
         observer = NotificationCenter.default.addObserver(
@@ -70,11 +75,15 @@ final class VPNController: ObservableObject {
             }
         }
 
+        userRequestedDisconnect = false
         detail = "Подключение…"
         refreshStatus()
     }
 
     func disconnect() {
+        userRequestedDisconnect = true
+        recoveryTask?.cancel()
+        recoveryTask = nil
         manager?.connection.stopVPNTunnel()
         detail = "Отключение…"
         refreshStatus()
@@ -118,7 +127,16 @@ final class VPNController: ObservableObject {
     }
 
     private func refreshStatus() {
+        let previous = status
         status = manager?.connection.status ?? .invalid
+        if status == .connected {
+            hasObservedConnection = true
+            recoveryTask?.cancel()
+            recoveryTask = nil
+        }
+        if status == .disconnected && previous != .disconnected {
+            scheduleRecoveryAfterUnexpectedFailure()
+        }
         detail = switch status {
         case .invalid, .disconnected: "Отключено"
         case .connecting: "Подключение…"
@@ -126,6 +144,35 @@ final class VPNController: ObservableObject {
         case .reasserting: "Переподключение…"
         case .disconnecting: "Отключение…"
         @unknown default: "Неизвестное состояние"
+        }
+    }
+
+    /// Only the tunnel provider can identify an internal engine failure. Do not
+    /// reconnect after an explicit Stop or a manual disconnect in System Settings.
+    private func scheduleRecoveryAfterUnexpectedFailure() {
+        guard !userRequestedDisconnect, hasObservedConnection, recoveryTask == nil else { return }
+        let events = TelemetryStore().list(limit: 12)
+        guard let failure = events.first(where: { $0.type == "switch failed" }),
+              !events.contains(where: { $0.type == "manual stop" && $0.timestamp >= failure.timestamp }),
+              failure.id != lastHandledFailureID,
+              reconnectPolicy.mayRetry(now: Date(), failureAt: failure.timestamp,
+                                       explicitDisconnect: userRequestedDisconnect) else { return }
+        lastHandledFailureID = failure.id
+        recoveryTask = Task { [weak self] in
+            defer { self?.recoveryTask = nil }
+            do {
+                try await Task.sleep(nanoseconds: 2_000_000_000)
+                guard let self, !Task.isCancelled, !self.userRequestedDisconnect,
+                      self.manager?.connection.status == .disconnected else { return }
+                try await self.connect()
+                TelemetryStore().append(TunnelEvent(type: "automatic reconnect",
+                    detail: "Recovered after internal engine failure"))
+            } catch {
+                if !Task.isCancelled {
+                    TelemetryStore().append(TunnelEvent(type: "automatic reconnect failed",
+                        detail: error.localizedDescription))
+                }
+            }
         }
     }
 

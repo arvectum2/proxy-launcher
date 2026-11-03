@@ -64,6 +64,19 @@ final class ConnectionPressurePolicyTests: XCTestCase {
         ))
     }
 
+    func testTunnelReconnectOnlyAfterRecentUnexpectedFailure() {
+        var policy = TunnelAutoReconnectPolicy()
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        XCTAssertFalse(policy.mayRetry(now: now, failureAt: nil, explicitDisconnect: false))
+        XCTAssertFalse(policy.mayRetry(now: now, failureAt: now, explicitDisconnect: true))
+        XCTAssertFalse(policy.mayRetry(now: now, failureAt: now.addingTimeInterval(-60), explicitDisconnect: false))
+        XCTAssertTrue(policy.mayRetry(now: now, failureAt: now.addingTimeInterval(-2), explicitDisconnect: false))
+        XCTAssertTrue(policy.mayRetry(now: now.addingTimeInterval(5), failureAt: now, explicitDisconnect: false))
+        XCTAssertTrue(policy.mayRetry(now: now.addingTimeInterval(10), failureAt: now, explicitDisconnect: false))
+        XCTAssertFalse(policy.mayRetry(now: now.addingTimeInterval(15), failureAt: now, explicitDisconnect: false))
+        XCTAssertTrue(policy.mayRetry(now: now.addingTimeInterval(650), failureAt: now.addingTimeInterval(649), explicitDisconnect: false))
+    }
+
     func testSwitchingSuppressesRecycle() {
         var policy = ConnectionPressurePolicy()
         XCTAssertFalse(policy.shouldRecover(
