@@ -72,3 +72,11 @@ network changes. No App Store build has been submitted.
 4. Obtain Apple supported consumer Packet Tunnel per-host physical-egress confirmation or supported alternative without IP-wide leaks; only then consider preparing final signed app, App Store Connect build number and submission.
 
 No part of this document authorizes publication of iOS 0.2.0 or weakening its original required functionality.
+
+## 19:58 MSK — Same-CDN IPv4 hostname isolation, real iPhone PASS
+
+Mac mini DNS reported 23.12.156.37 for both www.apple.com and www.apple.com.cn. With explicit bounded, no-forwarding mock HTTP proxy on physical iPhone 13 iOS 27.2, two blocked target CONNECT sessions triggered two independent physical TLS probes and exact-host DIRECT. Both original TLS sessions recovered and received HTTP bytes, a later fresh TLS session also received response bytes. **The other hostname www.apple.com.cn remained on the proxy** (one independently observed NEIGHBOR_PROXY_CONNECT). Test XCTest PASS, 40.645 seconds: /private/tmp/apl-smart3-final-shared-cdn-green-device-20261103.xcresult.
+
+Separate script scripts/qa_smart3_physical_evidence.py verified the App Group events and upstream mock log: proxy target failures 2, neighbor proxy CONNECT 1, sameflow recovered 2, original TLS data 2, fresh TLS data 1. The initial runner failed to initialize automation; a subsequent run falsely missed two older, offscreen entries in the virtualized UI list. The underlying telemetry contained both. Corrected GUI checks plus separate full-event audit PASS. All 11 App Group and 20 app preference values were restored to pre-test SHA256-identical values; private snapshots on Mac mini under /Users/master/Library/Application Support/Arvectum/ios-020-smart3-final-20261103.
+
+**Boundary:** same public CDN IP was established from Mac DNS, not dual iPhone packet captures; the mock deliberately did not forward the proxy-only hostname. Therefore physical exact-host **route selection** is proved, but identical actual remote IP on both phone connections is not independently captured. IPv6, QUIC/ECH/DoH, handoff and Release enabling remain open. Not an Apple Review approval or release.

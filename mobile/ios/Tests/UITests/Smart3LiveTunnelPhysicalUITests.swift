@@ -92,8 +92,12 @@ final class Smart3LiveTunnelPhysicalUITests: XCTestCase {
         let refresh = app.buttons["activity.refresh"]
         XCTAssertTrue(refresh.waitForExistence(timeout: 5))
         refresh.tap()
-        for evidence in ["lab direct armed",
-                         "lab sameflow recovered",
+        // The activity view is a virtualized list: early records such as
+        // "lab direct armed" and "lab sameflow recovered" can be off-screen,
+        // although they remain in App Group telemetry. Require latest proof
+        // in UI, and independently audit ALL original flow events plus the
+        // temporary mock proxy from the captured preference snapshot.
+        for evidence in ["lab scoped tls data",
                          "lab direct server bytes",
                          "lab neighbor via proxy"] {
             let row = app.descendants(matching: .any)

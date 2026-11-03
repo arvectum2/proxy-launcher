@@ -396,7 +396,8 @@
 - [x] iPhone 17 Pro Simulator (iOS 27.0): 8/8 целевых UI PASS, EN/HE RTL, автоматические группы apex/www, предупреждения и доступность. После полного сброса Simulator: ещё 1/1 PASS — автоматическое расширение включено по умолчанию. [Протокол](APL_IOS_020_SMART3_SIMULATOR_QA_2026-11-03.md).
 - [x] Swift Core 132/132, Rust 12/12, Python iOS 153/153 + 73 подтеста. Модель одинакового CDN IPv4/IPv6: только одобренное hostname DIRECT; сосед, неизвестный хост и raw-IP остаются PROXY.
 - [x] ARM64 iOS Simulator Release BUILD SUCCEEDED (Xcode 27.1). Generic x86_64 Simulator не предусмотрен текущим arm64-only Rust XCFramework.
-- [ ] Физическая same-IP A/B, QUIC/DoH/ECH, смена сети, TTL и rollback — отдельные проверки. По решению владельца допуск архитектуры решает непосредственно Apple App Review, предварительное DTS не обязательно. Промежуточную 0.2.0 не публиковать; рекламу и privacy не менять.
+- [x] iPhone13: один CDN IPv4 www.apple.com / www.apple.com.cn, первый DIRECT, соседний PROXY. XCTest PASS 40.645 с, 2/2 TLS same-flow, независимый аудит и 31/31 настроек восстановлены; совпадение адресов подтверждено DNS Mac mini. [Протокол](APL_IOS_020_SMART3_EXACT_FLOW_DIRECT_LAB_2026-11-03.md).
+- [ ] Отдельно: физический IPv6, QUIC/DoH/ECH, смена сети, TTL и rollback, включение и QA Release. По решению владельца допуск архитектуры решает непосредственно Apple App Review, предварительное DTS не обязательно. Промежуточную 0.2.0 не публиковать; рекламу и privacy не менять.
 
 ## 03.11.2026 — iOS 0.2.0: подписанный RC, iPhone и языковая QA
 
