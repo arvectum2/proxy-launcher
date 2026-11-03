@@ -29,6 +29,7 @@ final class AppViewModel: ObservableObject {
     @Published var exclusions: [String] = []
     @Published var manualExclusions: [String] = []
     @Published var smartGraph = SmartExclusionGraph()
+    @Published var automaticSiteExpansion = true
     @Published var adaptiveRouteLearning = AdaptiveRouteLearning()
     @Published var health: [UUID: ProfileHealth] = [:]
     @Published var isScanningProfiles = false
@@ -116,6 +117,7 @@ final class AppViewModel: ObservableObject {
         exclusions = store.siteExclusions
         manualExclusions = store.manualSiteExclusions
         smartGraph = store.smartGraph
+        automaticSiteExpansion = store.automaticSiteExpansion
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-qaSmart3FailureFixture") ||
            ProcessInfo.processInfo.arguments.contains("-qaSmart3ProbeFixture") {
@@ -327,6 +329,12 @@ final class AppViewModel: ObservableObject {
 
     func delete(_ profile: ProxyProfile) {
         deleteProfile(id: profile.id)
+    }
+
+    /// Changes future automatic approvals only; existing VPN routes stay intact.
+    func setAutomaticSiteExpansion(_ enabled: Bool) {
+        store.automaticSiteExpansion = enabled
+        automaticSiteExpansion = enabled
     }
 
     func saveExclusions(_ raw: [String], graph: SmartExclusionGraph? = nil) async -> Bool {
