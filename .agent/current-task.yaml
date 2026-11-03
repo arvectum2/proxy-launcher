@@ -1,38 +1,23 @@
-task_id: APL-SMART-ROUTE-LEARNING-20261102
-status: blocked
-goal: "Smart Exclusions 3.0: detect auth.example.com proxy failures, prove independent exact-host DIRECT without shared-IP leaks, learn 24h route, roll back. Mandatory gate for iOS 0.2.0."
+task_id: APL-IOS-020-AUTO-GROUPS-20261103
+status: in_progress
+goal: "iOS 0.2.0: automatic default first-party exception expansion, manual toggle, editable per-site dependency groups, no silent shared-IP bypass."
 definition_of_done:
-  - "Actual per-flow TCP/CONNECT events bridged from tun2proxy to local iOS learning."
-  - "Two distinct proxy errors and verified independent no-proxy successes produce exact-host, non-IP-wide bypass only if Apple APIs safely support it."
-  - "Physical iPhone Safari A→auth.A A/B demonstrates safe independent egress and no unintended traffic from other host on same CDN IP."
-  - "TTL, cooldown, network change, reject, rollback, IPv4/IPv6, QUIC/Wi-Fi/LTE and user profile restoration verified."
-  - "Release 0.2.0 only after independent DIRECT acceptance or explicit owner approval of changed scope."
+  - "Settings auto-expansion switch defaults true and persists; manual mode blocks auto-approval."
+  - "One parent site visibly groups aliases and observed children; users can add/revoke/remove linked domains without changing other groups."
+  - "Explicit rejects survive re-scans; automatic mode respects first-party confidence, rules cap, TTL and existing routes."
+  - "Core and relevant UI regressions pass; CI/preflight reviewed; unresolved exact-host direct-egress blocker reported."
+  - "Source and checkpoint committed in an isolated branch; no Apple submissions, VPN/device/proxy changes."
 completed:
-  - "Previous baseline 9d2abc73: A→B/C automatic WebKit dependency detection, first-party safety and user approval."
-  - "Commit aec23c5b: local AdaptiveRouteLearning evidence gates, repeat session failures, independent A/B requirement, 24h expiry, deny/rollback, bounded App Group persistence; no IP-wide silent DIRECT."
-  - "Commit 471ace66: pinned Rust tun2proxy VirtualDNS per-flow CONNECT success/timeout/refused/upstream-down C ABI events; Swift serial collector and diagnostics with explicit shared-IP warning."
-  - "Commit 720edc21: iPhone 13 iOS 27.2 real signed Debug 0.2.0(48) physical QA; 3/3 relevant hardware XCTest PASS, including time-limited real PacketTunnel with isolated local QA HTTP CONNECT proxy."
-  - "Physical QA evidence: test proxy saw 2 synthetic CONNECT; device App Group recorded one synthetic host with two unique failed TCP session IDs, no direct route activated. Limited interface TLS check PASSED but cannot certify VPN bypass."
-  - "Safe QA isolation: dedicated mock with 115s lifetime/403 to other destinations, disposable VPN ≤25s, QA source #if DEBUG and tests opt-in via APL_SMART3_HARDWARE_QA=enabled."
-  - "Before iPhone QA backed up private App Group and preferences; afterward removed only synthetic qa-example.test evidence, verified user profile records unchanged, reinstalled original signed app 0.2.0(48)."
-  - "Final source QA: Rust previous 10/10, Swift Core 126/126, Python 21/21, Simulator BUILD SUCCEEDED and 2/2 targeted UI tests PASS; iOS 0.2.0(48) source preflight PASS; device tests and hardware report saved."
-  - "Apple docs verified: TN3120 discourages selective physical forwarding in NEPacketTunnelProvider; excludedRoutes are destination IP-based; NEAppProxyProvider consumer iOS requires MDM per-app configuration."
-  - "03.11 source commit fefc214f: Settings tab diagnostic badge uses current App Group evidence, refreshes on scenePhase .active after Safari without background polling/notification permission, never silently mutates VPN/IP routes."
-  - "03.11 official Apple feasibility review: NEOnDemandRuleEvaluateConnection only starts/avoids starting VPN, not per-host bypass while connected; NETunnelProviderManager.excludedDomains and NEAppProxyProviderManager are iOS MDM per-app only; NEPacketTunnelNetworkSettings excludes by IP; createTCPConnectionThroughTunnel uses current tunnel. No supported consumer direct-by-host method found."
-  - "03.11 QA: Simulator 2/2 UI PASS, real iPhone 13 iOS27.2 new badge UI 1/1 PASS (12.919s), Swift 126/126 and Python 23/23 PASS, source preflight 0.2.0(48) PASS. iPhone original signed app restored 0.2.0(48), no PacketTunnel process, six profile/exclusion preference keys byte-identical before/after."
-current: "Smart3 automatic diagnosis UX improved and physically verified; owner demand for safe zero-touch Safari exact-host DIRECT still blocked by Apple-supported consumer-iOS routing. iOS 0.2.0 release gate remains active."
+  - "2026-11-03: Recovered iOS 0.2.0(48) PR #296 source from 0a855c93 and reviewed existing Smart Exclusions and iOS network limitations."
+  - "Archived previous blocked Smart3 egress checkpoint without loosening its release gate."
+current: "Implement persisted default-on mode and grouped editable iOS exception UI in isolated branch."
 pending:
-  - "APL-SMART3-EGRESS-001: confirm supported Apple iOS route for truly independent exact-domain Safari DIRECT while keeping unknown same-IP sites on proxy. No proven solution with current Packet Tunnel."
-  - "APL-SMART3-DEVICE-001: full Safari A→auth.A two verified egress/public IP paths on same CDN-IP, IPv6/QUIC, network handoff and no-leak/rollback acceptance after supported architecture exists."
-  - "Owner product decision required if exact-host egress not available: accept manual confirmation, relax shared-IP no-leak condition, or change architecture. Remote Gateway was rejected."
-  - "Do not publish/merge iOS 0.2.0 or modify Apple 0.1.41 review, ads/privacy, production proxy profiles or Watchdog."
-blockers:
-  - "Apple consumer Packet Tunnel has no demonstrated supported per-host physical DIRECT route; included/excluded routes are IP-wide; shared CDN safety conflicts with silent /32."
-  - "Network.framework requiredInterfaceType Wi-Fi TLS is not proof of different actual external egress, and Safari HTTPS application errors are opaque to Packet Tunnel."
-last_verified_commit: "fefc214f (03.11 Smart3 badge source; checkpoint commit follows)"
+  - "Code changes and localized copy."
+  - "Core and UI tests."
+  - "Create draft PR, review checks and record results."
+last_verified_commit: "0a855c93ebf4262c9fc97f7912367dafe67bfc22 (base of isolated branch)"
 test_results:
-  - "03.11 source: Swift Core 126/126 PASS, targeted Python contracts 23/23 PASS, 2/2 iOS Simulator UI PASS, 1/1 physical iPhone 13 badge UI PASS, profile keys 6/6 unchanged, restored original 0.2.0(48), no VPN start. Apple 0.1.41/0.2.0 submissions unchanged."
-  - "Rust 10/10, Swift 126/126, Python 21/21, Simulator BUILD + 2 UI PASS, 3 physical iPhone UI tests PASS."
-  - "2 actual synthetic CONNECT observed and two distinct timeout session IDs in iPhone App Group; no automatic direct route."
-  - "iPhone user profile records match backup, QA evidence cleared, original signed APL 0.2.0(48) restored; source preflight 0.2.0(48) PASS."
-resume_instruction: "Task BLOCKED on full user-requested Smart 3.0 zero-touch exact-host DIRECT, not on diagnostic UI. Last source fefc214f adds tab badge on return from Safari to existing Rust→Swift per-host CONNECT event diagnosis; 126 Swift, 23 Python, 2 Simulator UI, 1 physical iPhone badge UI PASS. Original signed iPhone APL 0.2.0(48) restored; profile/exclusion keys unchanged. Apple TN3120 discourages selective forwarding from Packet Tunnel, excludedRoutes are IP-wide, OnDemand neverConnect only controls VPN start, iOS per-app excludedDomains/NEAppProxyProvider requires MDM, createTCPConnectionThroughTunnel is not outside-tunnel. No supported consumer per-host external physical DIRECT found; no full Safari A→auth.A safe dual egress accepted. Continue only with owner choice of altered scope (manual-confirmed suggestions, agreed shared-IP risk, or architecture changes such as already-rejected Gateway); preserve 0.2.0 RELEASE GATE. Do not silently relax no-leak requirement, run Watchdog, mutate iPhone/VPN/credentials, upload Apple/merge PR, or change ads/privacy. Docs: docs/APL_SMART_ADAPTIVE_ROUTING_2026-11-02.md, docs/APL_IOS_SMART3_PHYSICAL_EGRESS_QA_2026-11-02.md, docs/ROADMAP.md."
+  - "Inherited Smart3 QA: 126 Swift core, 23 Python, 2 simulator UI and 1 physical badge UI PASS at 0a855c93; no checks for current changes yet."
+blockers:
+  - "Independent physical exact-host DIRECT egress is not supported/proven by current consumer iOS Packet Tunnel; separate Smart3 release gate remains."
+resume_instruction: "From branch feat/ios-020-auto-expansion-groups-20261103 implement first-party default-on/ manual switch and parent-scoped editable groups, run targeted tests, keep Smart3 independent-egress release gate. Do not edit production iPhone VPN/proxies, submit to Apple or merge into main."
