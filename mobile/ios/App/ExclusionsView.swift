@@ -304,15 +304,18 @@ struct ExclusionsView: View {
                 Button(SmartExclusionsUX.text("Добавить вручную")) {
                     guard let host = pendingExternalHost else { return }
                     do {
-                        if !diagnosticHints.contains(host) && entries.contains(where: {
-                            SmartExclusionGraph.root($0) == scannedParent
-                        }) {
+                        let roots = entries.compactMap(SmartExclusionGraph.root)
+                        let inferredParent = roots.filter { host.hasSuffix("." + $0) }
+                            .sorted { $0.count > $1.count }.first
+                        let linkedParent = !diagnosticHints.contains(host) && roots.contains(scannedParent)
+                            ? scannedParent : inferredParent
+                        if let linkedParent {
                             var next = graph
-                            try next.addUserLink(parent: scannedParent, child: host)
+                            try next.addUserLink(parent: linkedParent, child: host)
                             _ = try next.effective(manual: entries)
                             snapshotUndo()
                             graph = next
-                            expandedParents.insert(scannedParent)
+                            expandedParents.insert(linkedParent)
                         } else {
                             let updated = try SiteExclusionPolicy.normalizeAll(entries + [host])
                             _ = try graph.effective(manual: updated)
