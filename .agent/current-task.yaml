@@ -1,6 +1,6 @@
 task_id: APL-IOS-020-PHYSICAL-RELEASE-READINESS-20261103
 repository: arvectum2/proxy-launcher
-status: in_progress
+status: completed
 goal: "Finish iOS 0.2.0 release preparation: latest CI, signed archive/IPA, protected physical iPhone 13 feature acceptance, iOS localization and safe release gate."
 definition_of_done:
   - "Verify source matches 0.2.0(48) and all app/tunnel build configurations and relevant CI."
@@ -16,15 +16,21 @@ completed:
   - "Signed iOS Release archive and App Store export IPA 0.2.0(48) built PASS, 64 app languages, 1 PacketTunnel, YandexMobileAds. Export zip integrity and deep codesign of app+extension PASS. Source f9954483, IPA SHA-256 181f2a74a5a2c05418e3dac45044a93c9d9a200c93cfd2c32d428c82a35f7b3d. Local file-only export, NOT Apple upload."
   - "Four stale iOS pytest source contracts updated for current 64 languages and the pinned Rust safety patch; 147/147 tests plus 73 subtests PASS. Historical 50-language 7-state screenshot matrix remains honestly 50 rows, not fabricated as 64."
   - "GitHub Mobile iOS personal PR #303 commit 6eaa41ed all relevant runs successful (41616519259/41616344000/41616290078)."
-current: "Complete exhaustive 64-language Simulator UI smoke and accessibility, then save readiness report and draft PR. Physical device preferences fully restored."
+  - "Latest source iPhone 17 Pro iOS 27.0 Simulator: all 64 locales Settings/navigation PASS; 16 deep secondary-screen/RTL locales PASS; 11 new locales Dynamic Type accessibility-extra-extra-large Settings PASS including auto-expansion toggle; Smart Exclusions accessibility audit 0 findings. Simulator kept isolated from physical iPhone."
+  - "Created signed release manifest under /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/rc-pr303-20261103 and source QA report docs/APL_IOS_020_SIGNED_PHYSICAL_RELEASE_QA_2026-11-03.md, roadmap updated and draft PR #304 targeting draft PR #303."
+current: "RELEASE PREPARATION COMPLETED: signed App Store-export IPA and source/physical/localization/a11y QA passed; original Smart3 exact-host consumer DIRECT release gate remains BLOCKED pending a product/platform decision. No App Store submission."
 pending:
   - "DONE: physical backups and signed archive/IPA verified."
   - "DONE: 6 physical UI tests PASS, app reinstalled, all 31 preferences identical."
-  - "Pending: final 64-locale Simulator UI/screen accessibility and readiness report. Python/Swift/archive checks already green."
-  - "Create draft PR/checkpoint; preserve original Apple per-host release gate and no upload."
-last_verified_commit: "0733aca9c099e958fca402f124b9e4432b64fc7c (QA branch base; test-only changes pending commit)"
+  - "DONE: 64 locale navigation, 16 deep locale screens, 11 XXL Settings and 0-issue Smart Exclusions accessibility QA; source report committed."
+  - "DONE: draft PR #304 and checkpoint; iOS 0.2.0 publication remains separately BLOCKED by exact-host shared-IP safe physical routing."
+  - "OUTSIDE COMPLETED PREPARATION: product owner must explicitly approve narrowed first-party auto + third-party manual exception scope or retain full Smart3 no-leak gate; then check App Store Connect build number availability and submit only with explicit authorization."
+last_verified_commit: "cfb45fe5abc4f3ad76fd3eb1d0c6887e0b6f8960 (final verified code, UI tests and QA report; checkpoint commit follows)"
 test_results:
   - "Latest source: physical iPhone 13 iOS 27.2 signed 6/6 UI PASS; pre/post 11 App Group +20 app prefs byte-level value hash matches after restoring 0.2.0(48) development-signed app."
   - "Signed IPA archive/export version 0.2.0(48) code-sign PASS with 64 lproj and YandexMobileAds; export SHA-256 181f2a74a5a2c05418e3dac45044a93c9d9a200c93cfd2c32d428c82a35f7b3d."
   - "Current iOS pytest 147 PASS 73 subtests; previous Swift Core 131 PASS, GitHub PR #303 hosted CI SUCCESS."
-resume_instruction: "Continue physical release QA in qa/ios-020-physical-release-readiness-20261103. Physical iPhone 13 available paired. Back up settings/app before install; preserve actual proxy profiles, VPN OFF, restore original signed app at end. Verify signed archive/IPA 0.2.0(48), correct app group + PacketTunnel, iOS locales/ads, UI on device. Do not claim full zero-touch hostname bypass; current consumer NetworkExtension API gate blocked. Do not publish to Apple, modify production VPN/proxies or create watchdog."
+  - "03.11 exact QA branch: 131 Swift Core PASS; 147 Python iOS tests and 73 subtests PASS."
+  - "03.11 Simulator: 64/64 locale navigation PASS, 16/16 secondary-screen locales PASS, 11/11 XXL Settings PASS, Smart Exclusions accessibility audit PASS with zero issues (screen only)."
+  - "App Store export is local signed package, not a successful Apple upload/review; same-IP hostname DIRECT is unverified and blocked."
+resume_instruction: "PREPARATION COMPLETED on qa/ios-020-physical-release-readiness-20261103 (draft PR #304 to PR #303): signed IPA on Mac mini /Volumes/ArvectumSSD/Arvectum/releases/ios/0.2.0-48/rc-pr303-20261103/exported/Arvectum Proxy Launcher.ipa, SHA-256 181f2a74a5a2c05418e3dac45044a93c9d9a200c93cfd2c32d428c82a35f7b3d. Six iPhone physical UI tests PASS, iPhone all 31 preference values fully restored with archived Development 0.2.0(48), 131 Swift, 147 Python+73 subtests, 64 navigation, 16 deep, 11 XXL, zero-issue Smart Exclusions accessibility, signatures and IPA PASS. DO NOT redo passed stages. Overall iOS 0.2.0 release gate remains BLOCKED by unsupported automatic independent Safari exact-host physical DIRECT without same-IP leaks on consumer PacketTunnel. For next work ask the owner to explicitly select a narrower safe release scope (automatic verified first-party, manual external/auth approval) or preserve full blocked behavior; see archived Smart3 checkpoint and docs/APL_IOS_020_EXACT_HOST_DIRECT_PLATFORM_GATE_2026-11-03.md. No Apple publication, no silent IP-wide fallback, no production iPhone/VPN/proxy/ads/privacy/watchdog changes; source QA docs in docs/APL_IOS_020_SIGNED_PHYSICAL_RELEASE_QA_2026-11-03.md."
