@@ -157,6 +157,28 @@ final class SmartExclusionGraphTests: XCTestCase {
                        ["example.com"])
     }
 
+    func testDeletingChildCannotBeUndoneByNextAutomaticScan() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com",
+                          html: ["auth.example.com"],
+                          network: ["auth.example.com"], at: now)
+        XCTAssertEqual(graph.approveStrongFirstParty(parent: "example.com",
+                                                      manual: ["example.com"], at: now),
+                       ["auth.example.com"])
+        graph.remove(parent: "example.com", child: "auth.example.com")
+        try graph.observe(parent: "example.com", html: ["auth.example.com"],
+                          network: ["auth.example.com"], at: now.addingTimeInterval(60))
+        XCTAssertTrue(graph.approveStrongFirstParty(parent: "example.com",
+                                                     manual: ["example.com"],
+                                                     at: now.addingTimeInterval(60)).isEmpty)
+        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now), ["example.com"])
+        // A deliberate Add restores only the selected child.
+        try graph.addUserLink(parent: "example.com", child: "auth.example.com",
+                              at: now.addingTimeInterval(120))
+        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now),
+                       ["auth.example.com", "example.com"])
+    }
+
     func testExplicitLinkCannotBypassRuleBudget() throws {
         var graph = SmartExclusionGraph()
         for i in 0..<SiteDependencyDiscovery.maxCandidates {
