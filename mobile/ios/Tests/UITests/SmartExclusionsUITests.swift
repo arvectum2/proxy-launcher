@@ -1,6 +1,42 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    func testManualExpansionSwitchAndEditableSiteGroup() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let mode = app.switches["settings.autoExpandExclusions"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
+        if (mode.value as? String) == "1" { mode.tap() }
+        XCTAssertEqual(mode.value as? String, "0")
+        app.buttons["Исключения сайтов"].tap()
+        let site = app.textFields["example.com"]
+        XCTAssertTrue(site.waitForExistence(timeout: 10))
+        site.tap()
+        site.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let group = app.buttons["exclusions.addLinked.qa.example.test"]
+        for _ in 0..<8 where !group.exists { app.swipeUp() }
+        XCTAssertTrue(group.waitForExistence(timeout: 10), app.debugDescription)
+        group.tap()
+        let linked = app.textFields["exclusions.linkedHost"]
+        XCTAssertTrue(linked.waitForExistence(timeout: 5))
+        linked.tap()
+        linked.typeText("auth.partner.test")
+        app.buttons["exclusions.submitLinked.qa.example.test"].tap()
+        XCTAssertTrue(app.staticTexts["auth.partner.test"].waitForExistence(timeout: 7))
+        // Do not save synthetic QA hosts to shared user preferences.
+        app.buttons["Отмена"].tap()
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
+        if (mode.value as? String) == "0" { mode.tap() }
+        XCTAssertEqual(mode.value as? String, "1")
+    }
+
     func testSmart3ProblemBadgeAndNoSilentExclusion() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
