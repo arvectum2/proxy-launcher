@@ -5,6 +5,12 @@ import Foundation
 /// The English dictionary remains a defensive fallback for missing keys.
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
+        "Автоматически расширять исключения": "Expand website exclusions automatically",
+        "Добавить связанный домен": "Add linked domain",
+        "Адрес связанного домена": "Linked domain",
+        "Системная связь": "Built-in link",
+        "Добавлено вручную": "Added manually",
+        "В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения.": "Automatic mode adds verified first-party subdomains. Manual mode lets you select proposed hosts. Save to apply changes.",
         "Добавить проблемный сайт в обход VPN?": "Bypass the VPN for this failing site?",
         "Проверяется TLS-соединение…": "Checking TLS connection…",
         "TLS через Wi-Fi доступен (маршрут не подтверждён)": "TLS over Wi-Fi available (route unverified)",
