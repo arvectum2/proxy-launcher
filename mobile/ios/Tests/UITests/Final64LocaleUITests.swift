@@ -113,6 +113,14 @@ final class Final64LocaleUITests: XCTestCase {
                 app.swipeUp()
             }
             XCTAssertTrue(toggle.isHittable, "Return toggle unreachable at XXL: \(code)")
+            let autoExpand = app.switches["settings.autoExpandExclusions"]
+            XCTAssertTrue(autoExpand.exists, "Automatic exclusion mode switch missing at XXL: \(code)")
+            for _ in 0..<6 {
+                if autoExpand.isHittable { break }
+                app.swipeDown()
+            }
+            XCTAssertTrue(autoExpand.isHittable,
+                          "Auto expansion switch unreachable at XXL: \(code)")
             let exclusions = app.buttons["settings.siteExclusions"]
             for _ in 0..<4 {
                 if exclusions.isHittable { break }

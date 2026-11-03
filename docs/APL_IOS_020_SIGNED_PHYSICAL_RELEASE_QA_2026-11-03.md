@@ -40,6 +40,8 @@ Private backups stay on Mac mini: /Users/master/Library/Application Support/Arve
 - 64/64 Apple .strings catalogs parse, six new Smart Exclusions controls localized into 64 languages, 24 faulty financial interpretations of Saving corrected.
 - Three GitHub Mobile iOS personal runs on upstream PR #303 succeeded: 41616519259, 41616344000 and 41616290078.
 - The historical October 30 seven-state Home/Banner matrix contains 50 observed locales, not fabricated entries for the 14 new ones.
+- Nov 3 fresh iPhone Simulator test: **64/64** language-navigation scenarios PASS (tabs, Settings, exclusion screen entry and language menu); **16/16** deep secondary-screen checks PASS (11 new post-Soviet locales plus AR/HE/FA/FR/DE), with screen attachments captured by XCTest.
+- With simulator Dynamic Type explicitly set to accessibility-extra-extra-large, all 11 new post-Soviet locale Settings scenarios PASS (including hittable automatic-expansion switch). Smart Exclusions accessibility audit: **0 findings / PASS**. This is a focused screen audit, not a whole-app accessibility certification.
 
 ## Remaining release decisions
 
