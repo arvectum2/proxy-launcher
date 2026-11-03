@@ -27,7 +27,9 @@ def test_pinned_replay_order_and_same_captured_tcp_stream():
     assert 'DIRECT_FAMILY_PATCH = TOOLS' in FETCH
     assert FETCH.index('str(SAME_FLOW_RETRY_PATCH), cwd=source)') < FETCH.index(
         'str(DIRECT_FAMILY_PATCH), cwd=source)')
-    assert "let result=prefer_ipv4(result);" in FAMILY
+    assert "values.filter(|v|physical_direct_eligible(*v))" in FAMILY
+    assert "addr.is_ipv4() && public(addr.ip())" in FAMILY
+    assert "ipv6_only_direct_must_fail_closed_after_real_iphone_tls_stall" in FAMILY
     assert 'if peer.is_ipv4(){10}else{11}' in FAMILY
     assert '0..=11' in FAMILY
     assert "lab physical tcp ipv4" in COLLECTOR

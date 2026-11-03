@@ -127,13 +127,53 @@ def verify_reversion(group_plist: Path, mock_log: Path, mode: str) -> dict[str, 
     }
 
 
+def verify_ipv6_fail_closed(group_plist: Path, mock_log: Path) -> dict[str, int]:
+    """Physical iPhone direct IPv6 TCP can stall TLS; disallow this egress."""
+    settings = plistlib.loads(group_plist.read_bytes())
+    raw_events = settings.get("tunnel_events_v1", b"[]")
+    if isinstance(raw_events, str):
+        raw_events = raw_events.encode("utf-8")
+    events = sorted(json.loads(raw_events), key=lambda x: x.get("timestamp", 0))
+    starts = [e.get("timestamp", 0) for e in events
+              if e.get("type") == "lab scoped probe started"]
+    if not starts:
+        raise ValueError("No physical IPv6 test learning attempt observed")
+    started = max(starts)
+    events = [e for e in events if e.get("timestamp", 0) >= started]
+    counts = collections.Counter(e.get("type", "") for e in events)
+    for key in ("lab ipv6 neighbor via proxy", "lab ipv6 neighbor tcp ready",
+                "lab scoped tls attempt"):
+        if counts[key] < 1:
+            raise ValueError("Missing verified proxy-neighbor or test attempt: "+key)
+    for bad in ("lab physical tcp ipv6", "lab scoped tls data",
+                "lab sameflow tls data", "lab direct server bytes"):
+        if counts[bad] != 0:
+            raise ValueError("IPv6-only host escaped fail-closed: "+bad)
+    text = mock_log.read_text(errors="replace")
+    if text.count("BLOCKED_CONNECT") < 2 or text.count("HEALTHY_CONNECT") < 1:
+        raise ValueError("Missing two independent proxy failures or healthy peer")
+    if text.count("IPV6_NEIGHBOR_PROXY_CONNECT") < 1:
+        raise ValueError("Canonical IPv6 neighbor bypassed upstream proxy")
+    return {
+        "upstream_ipv6_target_failures": text.count("BLOCKED_CONNECT"),
+        "ipv6_neighbor_proxy_connects": text.count("IPV6_NEIGHBOR_PROXY_CONNECT"),
+        "outgoing_direct_ipv6_sockets": counts["lab physical tcp ipv6"],
+        "direct_tls_responses": counts["lab scoped tls data"] + counts["lab sameflow tls data"],
+        "reverted_unvalidated_routes": counts["lab direct reverted"],
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--group-plist", type=Path, required=True)
     parser.add_argument("--mock-log", type=Path, required=True)
     parser.add_argument("--reversion-mode", choices=("path", "ttl"))
+    parser.add_argument("--ipv6-failclosed", action="store_true")
     args = parser.parse_args()
-    if args.reversion_mode:
+    if args.ipv6_failclosed:
+        result = verify_ipv6_fail_closed(args.group_plist, args.mock_log)
+        print("IPV6_ONLY_FAILCLOSED_DEVICE_AND_UPSTREAM_EVIDENCE_PASS", result)
+    elif args.reversion_mode:
         result = verify_reversion(args.group_plist, args.mock_log, args.reversion_mode)
         print("DIRECT_REVERSION_DEVICE_AND_UPSTREAM_EVIDENCE_PASS", result)
     else:

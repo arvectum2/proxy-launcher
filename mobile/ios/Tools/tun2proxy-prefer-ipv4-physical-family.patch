@@ -31,29 +31,32 @@ diff --git a/src/flow_direct_transport.rs b/src/flow_direct_transport.rs
           tokio::net::lookup_host((host.as_str(),port))).await
              .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"direct DNS timeout"))??;
 -    let result:Vec<_>=values.filter(|v|public(v.ip())).take(8).collect();
-+    // Prefer IPv4 on dual-stack networks. Certain bound IPv6 interfaces can
-+    // complete TCP but stall during TLS data. IPv6-only stays supported.
-+    let result:Vec<_>=values.filter(|v|public(v.ip())).take(32).collect();
-+    let result=prefer_ipv4(result);
-     if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,"no real public IP"))}
+-    if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,"no real public IP"))}
++    // Physical iPhone A/B: interface-bound IPv6 TCP CONNECTED but never
++    // received TLS response bytes. Until a supported end-to-end IPv6
++    // transport is validated, fail closed (no direct socket for IPv6-only).
++    // AAAA-only hosts remain on the ordinary PROXY path after a probe failure.
++    let result:Vec<_>=values.filter(|v|physical_direct_eligible(*v)).take(8).collect();
++    if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,
++        "no validated public IPv4 egress for direct"))}
      else{Ok(result)}
 +}
-+fn prefer_ipv4(mut addrs:Vec<SocketAddr>)->Vec<SocketAddr>{
-+    addrs.sort_by_key(|addr| if addr.is_ipv4(){0}else{1});
-+    addrs.truncate(8);
-+    addrs
++fn physical_direct_eligible(addr:SocketAddr)->bool{
++    addr.is_ipv4() && public(addr.ip())
  }
  async fn scoped(peer:SocketAddr)->io::Result<TcpStream>{
      #[cfg(target_os="ios")]
-@@ -91,6 +99,12 @@
+@@ -91,6 +99,14 @@
  #[cfg(test)]
  mod tests{
      use super::*;
-+    #[test] fn ipv4_prioritized_but_ipv6_only_remains_supported(){
++    #[test] fn ipv6_only_direct_must_fail_closed_after_real_iphone_tls_stall(){
 +        let v6:SocketAddr="[2001:4860:4860::8888]:443".parse().unwrap();
 +        let v4:SocketAddr="1.1.1.1:443".parse().unwrap();
-+        assert_eq!(prefer_ipv4(vec![v6,v4]),vec![v4,v6]);
-+        assert_eq!(prefer_ipv4(vec![v6]),vec![v6]);
++        let private_v4:SocketAddr="10.0.0.1:443".parse().unwrap();
++        assert!(!physical_direct_eligible(v6));
++        assert!(!physical_direct_eligible(private_v4));
++        assert!(physical_direct_eligible(v4));
 +    }
      #[test] fn rejects_synthetic_and_private(){
          for s in ["127.0.0.1","10.1.1.1","192.168.1.1","172.16.0.1",

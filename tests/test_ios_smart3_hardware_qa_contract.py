@@ -14,7 +14,10 @@ def test_hardware_qa_defaults_to_synthetic_and_scoped_egress_is_opt_in():
     # enabled DEBUG-only experiment probes two public TLS hosts; it does not
     # alter stored profiles and can never run in a normal Release binary.
     assert 'let labDirect = ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")' in driver
-    assert 'labDirect ? ["www.cloudflare.com", "www.apple.com", "www.apple.com"]' in driver
+    assert 'let ipv6OnlyLab = labDirect && ProcessInfo.processInfo.arguments.contains("-aplSmart3IPv6OnlyLabQA")' in driver
+    assert 'let target = ipv6OnlyLab ? "ipv6.google.com" : "www.apple.com"' in driver
+    assert 'labDirect ? ["www.cloudflare.com", target, target]' in driver
+    assert 'testIPv6OnlyFailsClosedWithCanonicalNeighborProxy' in test
     assert ': ["probe.qa-example.test", "auth.qa-example.test", "auth.qa-example.test"]' in driver
     assert 'APL_SMART3_SCOPED_QA' in test
     assert 'throw XCTSkip("Explicit scoped egress QA opt-in required")' in test

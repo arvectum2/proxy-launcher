@@ -173,6 +173,10 @@ final class SmartFlowEventCollector {
                     self.telemetry.append(TunnelEvent(type: "lab neighbor via proxy",
                         detail: "Distinct exact virtual-DNS host CONNECT accepted by upstream"))
                 }
+                if self.labScopedDirect && host == "ipv6.l.google.com" {
+                    self.telemetry.append(TunnelEvent(type: "lab ipv6 neighbor via proxy",
+                        detail: "Distinct canonical IPv6 DNS host stays on upstream"))
+                }
 #endif
                 self.successfulHosts[host] = now
                 if self.successfulHosts.count > 32 {

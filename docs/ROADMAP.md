@@ -391,6 +391,14 @@
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
 - [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
 
+## 03.11.2026 — Smart3: обнаружен и закрыт fail-closed дефект physical IPv6
+
+- [x] iPhone13: IPv6-only прямое TCP-соединение реально устанавливалось, но TLS зависал. Это негативный тест, не успешный DIRECT. Соседний canonical hostname оставался на upstream proxy.
+- [x] Исправление в pinned tun2proxy: physical DIRECT допустим только для публичного IPv4, IPv6-only всегда остаётся PROXY / отзывается без утечки. **Физический повторный fail-closed тест PASS** (0 DIRECT IPv6, 0 DIRECT TLS ответов, 1 canonical neighbor proxy CONNECT, 2 rollback), App Group 11/11 и app 20/20 restored.
+- [x] После защиты IPv6 настоящий shared-CDN IPv4 iPhone13 regression **PASS**: 2 recovered TLS, 1 fresh TLS, 1 соседний proxy CONNECT, 3 DIRECT IPv4 и 0 DIRECT IPv6; все 31 preference restored.
+- [x] Новый подписанный Apple Distribution iOS 0.2.0 (48) .xcarchive и безопасный локально экспортированный IPA: **ARCHIVE / EXPORT / ZIP / CODE SIGN PASS**; SHA256 IPA 13df688a6865520cb1d6c321a56c4f2d94fd687c92005c1e0329e3f137ba0890. Предыдущий IPA до IPv6-фикса не использовать. Python 159/159 +73, Rust 13/13, Swift Core 132/132. [Протокол](APL_IOS_020_SMART3_FINAL_DEVICE_QA_2026-11-03.md).
+- [ ] Успешный автоматический DIRECT для IPv6-only сайтов **не реализован** — безопасный PROXY fallback. Настоящий Wi-Fi↔LTE переход и adversarial QUIC/ECH/DoH остаются отдельными gates; App Store допустимость решает Apple Review.
+
 ## 03.11.2026 — Smart3: финальные аппаратные rollback/TTL и локальный signed RC
 
 - [x] Настоящий iPhone 13 iOS27.2: две отдельные проверки отката **2/2 PASS** — после имитации смены пути и после сокращённого QA TTL. Для каждого режима: 2 исходных TLS-ответа до отзыва, 1 повторный CONNECT через upstream proxy после, **0 DIRECT TLS-ответов после**. Проверены App Group telemetry и журнал независимого mock proxy.

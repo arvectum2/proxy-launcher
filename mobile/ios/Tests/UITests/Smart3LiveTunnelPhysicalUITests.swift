@@ -109,6 +109,45 @@ final class Smart3LiveTunnelPhysicalUITests: XCTestCase {
 #endif
     }
 
+    /// Physical IPv6-only bound TCP completed but HTTPS stalled on this
+    /// iPhone; until fixed, NEVER open direct IPv6 sockets. Fail closed and
+    /// keep a distinct canonical hostname on upstream proxy.
+    func testIPv6OnlyFailsClosedWithCanonicalNeighborProxy() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical iPhone IPv6 interface required")
+#else
+        guard ProcessInfo.processInfo.environment["APL_SMART3_IPV6_QA"] == "enabled" else {
+            throw XCTSkip("Explicit physical IPv6 QA opt-in required")
+        }
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-aplEphemeralTunnelQA", "-aplSmart3LocalProxyQA",
+                                "-aplSmart3ScopedDirectLabQA", "-aplSmart3IPv6OnlyLabQA"]
+        app.launch()
+        guard app.buttons["Подключиться"].firstMatch.waitForExistence(timeout: 15) else {
+            throw XCTSkip("Owner VPN already in use; never override")
+        }
+        app.buttons["Подключиться"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Отключить"].firstMatch.waitForExistence(timeout: 12))
+        Thread.sleep(forTimeInterval: 23)
+        let activity = app.tabBars.buttons["Активность"]
+        XCTAssertTrue(activity.waitForExistence(timeout: 8))
+        activity.tap()
+        let refresh = app.buttons["activity.refresh"]
+        XCTAssertTrue(refresh.waitForExistence(timeout: 5))
+        refresh.tap()
+        for evidence in ["lab scoped tls attempt",
+                         "lab ipv6 neighbor via proxy"] {
+            let row = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@", evidence)).firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 5),
+                "Missing IPv6 fail-closed and unrelated proxy proof: \(evidence)")
+        }
+        print("APL_IPV6_ONLY_FAILCLOSED_AND_NEIGHBOR_PROXY_DEVICE_QA")
+#endif
+    }
+
     /// No real radio switch: exercise the same revocation callback on a
     /// physical device while preserving the owner's Wi-Fi/LTE settings.
     /// The independent App Group+mock audit proves the post-revocation

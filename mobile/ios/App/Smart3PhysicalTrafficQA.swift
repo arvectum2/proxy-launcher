@@ -14,7 +14,9 @@ import Network
         connections.removeAll()
         let queue = DispatchQueue(label: "ru.arvectum.apl.smart3.qa-traffic")
         let labDirect = ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")
-        let hosts = labDirect ? ["www.cloudflare.com", "www.apple.com", "www.apple.com"]
+        let ipv6OnlyLab = labDirect && ProcessInfo.processInfo.arguments.contains("-aplSmart3IPv6OnlyLabQA")
+        let target = ipv6OnlyLab ? "ipv6.google.com" : "www.apple.com"
+        let hosts = labDirect ? ["www.cloudflare.com", target, target]
                               : ["probe.qa-example.test", "auth.qa-example.test", "auth.qa-example.test"]
         for host in hosts {
             // In scoped lab, the first two target connections perform a
@@ -24,13 +26,13 @@ import Network
                                           using: labDirect ? .tls : .tcp)
             connection.stateUpdateHandler = { state in
                 if case .ready = state {
-                    if labDirect && host == "www.apple.com" {
+                    if labDirect && host == target {
                         TelemetryStore().append(TunnelEvent(type: "lab sameflow tls ready",
                             detail: "Original stalled TLS client became ready without reconnect"))
                     }
                     connection.send(content: Data("GET / HTTP/1.1\r\nHost: \(host)\r\nConnection: close\r\n\r\n".utf8),
                                     completion: .contentProcessed { _ in })
-                    if labDirect && host == "www.apple.com" {
+                    if labDirect && host == target {
                         connection.receive(minimumIncompleteLength: 1, maximumLength: 256) {
                             data, _, _, _ in
                             if let data, !data.isEmpty {
@@ -40,7 +42,7 @@ import Network
                         }
                     }
                 } else if case .failed = state {
-                    if labDirect && host == "www.apple.com" {
+                    if labDirect && host == target {
                         TelemetryStore().append(TunnelEvent(type: "lab sameflow tls failed",
                             detail: "Original stalled TLS transport failed before application response"))
                     }
@@ -55,7 +57,7 @@ import Network
             if labDirect {
                 // A fresh fourth connection after the two proxy timeouts and
                 // independent TLS probes tests actual per-flow routing.
-                let host = "www.apple.com"
+                let host = target
                 let direct = NWConnection(host: NWEndpoint.Host(host), port: .https, using: .tls)
                 direct.stateUpdateHandler = { state in
                     if case .ready = state {
@@ -81,6 +83,21 @@ import Network
                     detail: "Fourth independent connection after direct policy armed"))
                 direct.start(queue: queue)
                 connections.append(direct)
+                if ipv6OnlyLab {
+                    // Same IPv6 physical endpoint via canonical CNAME, but
+                    // separate VirtualDNS hostname: never inherit DIRECT.
+                    let neighbor = NWConnection(host: "ipv6.l.google.com",
+                                                port: .https, using: .tcp)
+                    neighbor.stateUpdateHandler = { state in
+                        if case .ready = state {
+                            TelemetryStore().append(TunnelEvent(
+                                type: "lab ipv6 neighbor tcp ready",
+                                detail: "Different IPv6 virtual DNS name used mock proxy"))
+                        }
+                    }
+                    neighbor.start(queue: queue)
+                    connections.append(neighbor)
+                }
                 if ProcessInfo.processInfo.arguments.contains("-aplSmart3SharedIPLabQA") {
                     // Different exact VirtualDNS identity, same observed CDN
                     // IPv4 as approved apple.com. Must remain upstream proxy.

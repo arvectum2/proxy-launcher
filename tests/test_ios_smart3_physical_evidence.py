@@ -38,3 +38,38 @@ def test_cannot_claim_pass_when_neighbor_not_proxied(tmp_path):
 def test_cannot_claim_pass_without_original_tls_response(tmp_path):
     p,q=sample(tmp_path,names=[x for x in NAMES if x!='lab sameflow tls data'])
     with pytest.raises(ValueError,match='lab sameflow tls data'): MOD.verify_shared_ip(p,q)
+
+
+IPV6_SAFE_EVENTS = [
+    'lab scoped probe started', 'lab scoped probe results',
+    'lab direct armed', 'lab direct reverted',
+    'lab scoped tls attempt', 'lab ipv6 neighbor via proxy',
+    'lab ipv6 neighbor tcp ready',
+]
+IPV6_SAFE_PROXY = (
+    'BLOCKED_CONNECT\nBLOCKED_CONNECT\nHEALTHY_CONNECT\n'
+    'IPV6_NEIGHBOR_PROXY_CONNECT\n'
+)
+
+
+def test_real_ipv6_unverified_scoped_transport_must_fail_closed(tmp_path):
+    p, q = sample(tmp_path, names=IPV6_SAFE_EVENTS, proxy=IPV6_SAFE_PROXY)
+    result = MOD.verify_ipv6_fail_closed(p, q)
+    assert result['outgoing_direct_ipv6_sockets'] == 0
+    assert result['direct_tls_responses'] == 0
+    assert result['ipv6_neighbor_proxy_connects'] == 1
+
+
+def test_ipv6_physical_tcp_attempt_can_never_be_mistaken_for_safe_fallback(tmp_path):
+    p, q = sample(tmp_path,
+                  names=IPV6_SAFE_EVENTS + ['lab physical tcp ipv6'],
+                  proxy=IPV6_SAFE_PROXY)
+    with pytest.raises(ValueError, match='IPv6-only host escaped fail-closed'):
+        MOD.verify_ipv6_fail_closed(p, q)
+
+
+def test_ipv6_canonical_neighbor_must_stay_on_upstream_proxy(tmp_path):
+    p, q = sample(tmp_path, names=IPV6_SAFE_EVENTS,
+                  proxy='BLOCKED_CONNECT\nBLOCKED_CONNECT\nHEALTHY_CONNECT\n')
+    with pytest.raises(ValueError, match='neighbor bypassed upstream'):
+        MOD.verify_ipv6_fail_closed(p, q)
