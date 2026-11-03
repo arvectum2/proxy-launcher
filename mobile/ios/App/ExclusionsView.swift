@@ -229,8 +229,13 @@ struct ExclusionsView: View {
                                         .accessibilityIdentifier("exclusions.addLinked.\(parent)")
                                     }
                                 } label: {
-                                    let count = graph.edges.filter { $0.parent == parent }.count
-                                    Text(SmartExclusionsUX.text("Связанные домены") + " (\(count))")
+                                    let observedCount = graph.edges.filter { $0.parent == parent }.count
+                                    let builtInCount = SiteExclusionPolicy.routingHosts(for: host).filter { alias in
+                                        alias != host && !graph.edges.contains {
+                                            $0.parent == parent && $0.host == alias
+                                        }
+                                    }.count
+                                    Text(SmartExclusionsUX.text("Связанные домены") + " (\(observedCount + builtInCount))")
                                         .font(.subheadline)
                                 }
                                 .accessibilityIdentifier("exclusions.group.\(parent)")
@@ -297,12 +302,23 @@ struct ExclusionsView: View {
                 Button(SmartExclusionsUX.text("Добавить вручную")) {
                     guard let host = pendingExternalHost else { return }
                     do {
-                        let updated = try SiteExclusionPolicy.normalizeAll(entries + [host])
-                        _ = try graph.effective(manual: updated)
-                        snapshotUndo()
-                        entries = updated
+                        if !diagnosticHints.contains(host) && entries.contains(where: {
+                            SmartExclusionGraph.root($0) == scannedParent
+                        }) {
+                            var next = graph
+                            try next.addUserLink(parent: scannedParent, child: host)
+                            _ = try next.effective(manual: entries)
+                            snapshotUndo()
+                            graph = next
+                            expandedParents.insert(scannedParent)
+                        } else {
+                            let updated = try SiteExclusionPolicy.normalizeAll(entries + [host])
+                            _ = try graph.effective(manual: updated)
+                            snapshotUndo()
+                            entries = updated
+                            if SiteDependencyDiscovery.isScannableHost(host) { queueScan(host) }
+                        }
                         externalHints.removeAll { $0 == host }
-                        if SiteDependencyDiscovery.isScannableHost(host) { queueScan(host) }
                         localError = nil
                     } catch { localError = error.localizedDescription }
                     pendingExternalHost = nil
@@ -406,7 +422,7 @@ struct ExclusionsView: View {
                         .foregroundStyle(Brand.text)
                         .fixedSize(horizontal: false, vertical: true)
                     DisclosureGroup {
-                        Text(SmartExclusionsUX.text("Найденные в HTML и сетевых запросах поддомены добавляются автоматически. Остальные связи требуют подтверждения. Сохраните изменения и переподключитесь."))
+                        Text(SmartExclusionsUX.text("В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения."))
                             .font(.body)
                             .foregroundStyle(Brand.text)
                             .fixedSize(horizontal: false, vertical: true)
@@ -504,7 +520,7 @@ struct ExclusionsView: View {
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
-                                        Text(SmartExclusionsUX.text(edge.evidence.description))
+                                        Text(SmartExclusionsUX.text(edge.userLinked == true ? "Добавлено вручную" : edge.evidence.description))
                                             .font(.caption2).foregroundStyle(.secondary)
                                         Text(edge.lastSeen, style: .date)
                                             .font(.caption2).foregroundStyle(.secondary)
