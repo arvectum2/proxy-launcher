@@ -219,6 +219,7 @@ struct ExclusionsView: View {
                                                 .accessibilityIdentifier("exclusions.linkedHost")
                                             Button(AppL10n.tr("Добавить")) { addLinkedHost(to: parent) }
                                                 .buttonStyle(.borderless)
+                                                .accessibilityIdentifier("exclusions.submitLinked.\(parent)")
                                         }
                                     } else {
                                         Button(SmartExclusionsUX.text("Добавить связанный домен")) {
