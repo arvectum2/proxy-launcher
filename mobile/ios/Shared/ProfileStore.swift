@@ -43,6 +43,7 @@ final class ProfileStore {
         static let exclusions = "site_exclusions"
         static let manualExclusions = "manual_site_exclusions.v2"
         static let smartGraph = "smart_dependency_graph.v1"
+        static let automaticSiteExpansion = "automatic_site_expansion.v1"
         static let adaptiveLearning = "smart_route_evidence.v1"
         static let lastAutoProfileID = "last_auto_profile_id"
         static let recentlyFailedProfileID = "recently_failed_profile_id"
@@ -197,6 +198,13 @@ final class ProfileStore {
     var manualSiteExclusions: [String] {
         defaults.stringArray(forKey: Key.manualExclusions)
             ?? defaults.stringArray(forKey: Key.exclusions) ?? []
+    }
+
+    /// Preference defaults to automatic mode on fresh installs and upgrades.
+    /// Switching off affects future scans, not previous manual decisions.
+    var automaticSiteExpansion: Bool {
+        get { (defaults.object(forKey: Key.automaticSiteExpansion) as? Bool) ?? true }
+        set { defaults.set(newValue, forKey: Key.automaticSiteExpansion) }
     }
 
     var smartGraph: SmartExclusionGraph {
