@@ -22,7 +22,7 @@ final class ExclusionWebScanner: NSObject, WKNavigationDelegate {
         // Deterministic test-only network observation: prove Add -> scan ->
         // auto approval + manual third-party proposal without external DNS.
         if ProcessInfo.processInfo.arguments.contains("-qaSmartDependenciesFixture"),
-           host == "qa.example.test" {
+           SmartExclusionGraph.root(host) == "qa.example.test" {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                 self?.finish(.success(SiteScanObservation(
                     html: ["api.qa.example.test", "analytics.qa.example.test"],

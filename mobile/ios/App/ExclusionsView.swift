@@ -175,11 +175,7 @@ struct ExclusionsView: View {
                                 }
                                 Button(role: .destructive) {
                                     snapshotUndo()
-                                    entries.removeAll { $0 == host }
-                                    graph.remove(parent: host)
-                                    queuedScans.removeAll { $0 == host }
-                                    if activeScanHost == host { cancelScan() }
-                                    if linkingParent == SmartExclusionGraph.root(host) { linkingParent = nil }
+                                    removeManualHost(host)
                                 } label: {
                                     Image(systemName: "trash")
                                         .foregroundStyle(.red)
@@ -188,7 +184,8 @@ struct ExclusionsView: View {
                                 .buttonStyle(.borderless)
                                 .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
                             }
-                            if let parent = SmartExclusionGraph.root(host) {
+                            if let parent = SmartExclusionGraph.root(host),
+                               entries.first(where: { SmartExclusionGraph.root($0) == parent }) == host {
                                 DisclosureGroup(isExpanded: Binding(
                                     get: { expandedParents.contains(parent) },
                                     set: { open in
@@ -235,7 +232,15 @@ struct ExclusionsView: View {
                         snapshotUndo()
                         let removed = offsets.map { entries[$0] }
                         entries.remove(atOffsets: offsets)
-                        for host in removed { graph.remove(parent: host) }
+                        for host in removed {
+                            guard let root = SmartExclusionGraph.root(host),
+                                  !entries.contains(where: { SmartExclusionGraph.root($0) == root })
+                            else { continue }
+                            graph.remove(parent: root)
+                            if linkingParent == root { linkingParent = nil }
+                        }
+                        queuedScans.removeAll { removed.contains($0) }
+                        if let activeScanHost, removed.contains(activeScanHost) { cancelScan() }
                     }
                 } header: {
                     if !entries.isEmpty {
@@ -702,6 +707,19 @@ struct ExclusionsView: View {
                 scanNextQueuedSite()
             }
         } catch { localError = error.localizedDescription }
+    }
+
+    /// A manual apex/www pair is one logical group. Removing one alias must
+    /// not destroy its still-active sibling's approved dependencies.
+    private func removeManualHost(_ host: String) {
+        entries.removeAll { $0 == host }
+        if let root = SmartExclusionGraph.root(host),
+           !entries.contains(where: { SmartExclusionGraph.root($0) == root }) {
+            graph.remove(parent: root)
+            if linkingParent == root { linkingParent = nil }
+        }
+        queuedScans.removeAll { $0 == host }
+        if activeScanHost == host { cancelScan() }
     }
 
     private func addLinkedHost(to parent: String) {

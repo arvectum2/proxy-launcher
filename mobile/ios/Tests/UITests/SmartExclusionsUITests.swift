@@ -1,6 +1,43 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    func testApexWWWPairHasOneGroupAndKeepsLinksWhenOneAliasRemoved() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Настройки"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 8))
+        field.tap()
+        field.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let linked = app.staticTexts["api.qa.example.test"].firstMatch
+        for _ in 0..<6 where !linked.exists { app.swipeUp() }
+        XCTAssertTrue(linked.waitForExistence(timeout: 8))
+        // An explicit www alias has the same logical parent, not a duplicate group.
+        // The editor row is lazily recycled after scrolling to the group.
+        for _ in 0..<8 where !field.exists { app.swipeDown() }
+        XCTAssertTrue(field.waitForExistence(timeout: 7), app.debugDescription)
+        field.tap()
+        field.typeText("www.qa.example.test")
+        app.buttons["Добавить"].tap()
+        let remove = app.buttons["Удалить исключение qa.example.test"]
+        for _ in 0..<7 where !remove.exists { app.swipeUp() }
+        XCTAssertTrue(remove.waitForExistence(timeout: 7), app.debugDescription)
+        remove.tap()
+        let remaining = app.buttons["Удалить исключение www.qa.example.test"]
+        for _ in 0..<6 where !remaining.exists { app.swipeUp() }
+        XCTAssertTrue(remaining.waitForExistence(timeout: 7))
+        for _ in 0..<7 where !linked.exists { app.swipeUp() }
+        XCTAssertTrue(linked.waitForExistence(timeout: 8),
+                      "Deleting one apex/www alias must not erase the other site's links")
+        app.buttons["Отмена"].tap() // Never persist synthetic QA domains.
+    }
+
     func testManualExpansionSwitchAndEditableSiteGroup() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
@@ -13,6 +50,14 @@ final class SmartExclusionsUITests: XCTestCase {
         let mode = app.switches["settings.autoExpandExclusions"]
         XCTAssertTrue(mode.waitForExistence(timeout: 10))
         if (mode.value as? String) == "1" { mode.tap() }
+        XCTAssertEqual(mode.value as? String, "0")
+        // Manual choice is durable across a cold application launch.
+        app.terminate()
+        app.launch()
+        let reopenedSettings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(reopenedSettings.waitForExistence(timeout: 20))
+        reopenedSettings.tap()
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
         XCTAssertEqual(mode.value as? String, "0")
         app.buttons["Исключения сайтов"].tap()
         let site = app.textFields["example.com"]

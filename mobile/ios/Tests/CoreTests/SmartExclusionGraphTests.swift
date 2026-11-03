@@ -192,9 +192,20 @@ final class SmartExclusionGraphTests: XCTestCase {
     }
 
     func testPreviousVersionGraphDecodesWithoutNewOptionalFields() throws {
-        let oldData = Data(#"{"edges":[]}"#.utf8)
+        var original = SmartExclusionGraph()
+        try original.observe(parent: "example.com", html: ["auth.example.com"],
+                             network: [], at: now)
+        let encoded = try JSONEncoder().encode(original)
+        var legacy = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        var oldEdges = try XCTUnwrap(legacy["edges"] as? [[String: Any]])
+        oldEdges[0].removeValue(forKey: "userLinked")
+        legacy["edges"] = oldEdges
+        legacy.removeValue(forKey: "suppressed")
+        let oldData = try JSONSerialization.data(withJSONObject: legacy)
         let graph = try JSONDecoder().decode(SmartExclusionGraph.self, from: oldData)
-        XCTAssertTrue(graph.pruned(at: now).edges.isEmpty)
+        XCTAssertEqual(graph.pruned(at: now).edges.count, 1)
+        XCTAssertEqual(graph.edges.first?.host, "auth.example.com")
+        XCTAssertNil(graph.edges.first?.userLinked)
         XCTAssertTrue((graph.suppressed ?? []).isEmpty)
     }
 
