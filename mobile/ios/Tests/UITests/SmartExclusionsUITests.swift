@@ -28,8 +28,14 @@ final class SmartExclusionsUITests: XCTestCase {
         XCTAssertTrue(linked.waitForExistence(timeout: 5))
         linked.tap()
         linked.typeText("auth.partner.test")
-        app.buttons["exclusions.submitLinked.qa.example.test"].tap()
-        XCTAssertTrue(app.staticTexts["auth.partner.test"].waitForExistence(timeout: 7))
+        app.buttons["exclusions.submitLinked"].tap()
+        let groupWithLink = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Связанные домены (5)")).firstMatch
+        for _ in 0..<5 where !groupWithLink.exists { app.swipeUp() }
+        XCTAssertTrue(groupWithLink.waitForExistence(timeout: 7), app.debugDescription)
+        let added = app.staticTexts["auth.partner.test"].firstMatch
+        if !added.exists { groupWithLink.tap() }
+        for _ in 0..<5 where !added.exists { app.swipeUp() }
+        XCTAssertTrue(added.waitForExistence(timeout: 7), app.debugDescription)
         // Do not save synthetic QA hosts to shared user preferences.
         app.buttons["Отмена"].tap()
         XCTAssertTrue(mode.waitForExistence(timeout: 10))

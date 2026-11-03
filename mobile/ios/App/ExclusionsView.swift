@@ -211,25 +211,13 @@ struct ExclusionsView: View {
                                                 .font(.caption).foregroundStyle(.secondary)
                                         }
                                     }
-                                    if linkingParent == parent {
-                                        HStack {
-                                            TextField(SmartExclusionsUX.text("Адрес связанного домена"),
-                                                      text: $linkedHostInput)
-                                                .textInputAutocapitalization(.never)
-                                                .autocorrectionDisabled()
-                                                .accessibilityIdentifier("exclusions.linkedHost")
-                                            Button(AppL10n.tr("Добавить")) { addLinkedHost(to: parent) }
-                                                .buttonStyle(.borderless)
-                                                .accessibilityIdentifier("exclusions.submitLinked.\(parent)")
-                                        }
-                                    } else {
-                                        Button(SmartExclusionsUX.text("Добавить связанный домен")) {
-                                            linkingParent = parent
-                                            linkedHostInput = ""
-                                        }
-                                        .frame(minHeight: 44)
-                                        .accessibilityIdentifier("exclusions.addLinked.\(parent)")
+                                    Button(SmartExclusionsUX.text("Добавить связанный домен")) {
+                                        linkedHostInput = ""
+                                        localError = nil
+                                        linkingParent = parent
                                     }
+                                    .frame(minHeight: 44)
+                                    .accessibilityIdentifier("exclusions.addLinked.\(parent)")
                                 } label: {
                                     let observedCount = graph.edges.filter { $0.parent == parent }.count
                                     let builtInCount = SiteExclusionPolicy.routingHosts(for: host).filter { alias in
@@ -240,7 +228,6 @@ struct ExclusionsView: View {
                                     Text(SmartExclusionsUX.text("Связанные домены") + " (\(observedCount + builtInCount))")
                                         .font(.subheadline)
                                 }
-                                .accessibilityIdentifier("exclusions.group.\(parent)")
                             }
                         }
                     }
@@ -397,6 +384,42 @@ struct ExclusionsView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(saving ? SmartExclusionsUX.text("Сохранение…") : AppL10n.tr("Сохранить"))
                     .disabled(saving || scanning || !queuedScans.isEmpty)
+                }
+            }
+        }
+        // The linked-host editor is presented separately: editing inline
+        // caused the DisclosureGroup to collapse and hid the keyboard field.
+        .sheet(isPresented: Binding(
+            get: { linkingParent != nil },
+            set: { if !$0 { linkingParent = nil } }
+        )) {
+            NavigationView {
+                Form {
+                    TextField(SmartExclusionsUX.text("Адрес связанного домена"), text: $linkedHostInput)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .accessibilityIdentifier("exclusions.linkedHost")
+                    if let localError {
+                        Text(SmartExclusionsUX.text(localError))
+                            .font(.caption).foregroundStyle(.red)
+                    }
+                }
+                .keyboardDismissOnSwipeUp()
+                .navigationTitle(SmartExclusionsUX.text("Добавить связанный домен"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(AppL10n.tr("Отмена")) {
+                            linkingParent = nil
+                            localError = nil
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(AppL10n.tr("Добавить")) {
+                            if let parent = linkingParent { addLinkedHost(to: parent) }
+                        }
+                        .accessibilityIdentifier("exclusions.submitLinked")
+                    }
                 }
             }
         }
