@@ -46,9 +46,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
+        let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
+        let radioHandoffQA = stopAfter == 95 &&
+            (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true
         qaScopedDirect = (options?["qaScopedDirect"] as? NSNumber)?.boolValue == true &&
-            (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue == 30 &&
-            options?["qaSmart3ProxyHost"] as? String == "192.168.1.80"
+            (stopAfter == 30 || radioHandoffQA) &&
+            options?["qaSmart3ProxyHost"] as? String == "192.168.1.80" &&
+            (options?["qaSmart3ProxyPort"] as? NSNumber)?.intValue == 18081
+        UserDefaults(suiteName: AppShared.defaultsSuite)?
+            .set(stopAfter, forKey: "qaSmart3RadioEffectiveDuration.v1")
+        UserDefaults(suiteName: AppShared.defaultsSuite)?
+            .set(radioHandoffQA && qaScopedDirect, forKey: "qaSmart3RadioAuthorized.v1")
         qaDirectTTLSeconds = qaScopedDirect &&
             (options?["qaDirectTTLSeconds"] as? NSNumber)?.intValue == 4
             ? 4 : AdaptiveRouteLearning.lifetime
@@ -62,7 +70,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #endif
 #if DEBUG
         if let value = options?["qaStopAfterSeconds"] as? NSNumber,
-           (5...30).contains(value.intValue) {
+           ((5...30).contains(value.intValue) ||
+            (value.intValue == 95 && qaScopedDirect &&
+             (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
                 guard let self, !self.stopping else { return }
                 // Last-resort safety net if the UI test / wireless debug link
@@ -86,7 +96,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #if DEBUG
                 let prepared: PreparedProxy
                 if let value = options?["qaStopAfterSeconds"] as? NSNumber,
-                   (5...30).contains(value.intValue),
+                   ((5...30).contains(value.intValue) ||
+                    (value.intValue == 95 && qaScopedDirect &&
+                     (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)),
                    options?["qaSmart3ProxyHost"] as? String == "192.168.1.80",
                    (options?["qaSmart3ProxyPort"] as? NSNumber)?.intValue == 18081 {
                     let qa = ProxyProfile(name: "APL Smart3 Disposable QA", host: "192.168.1.80",

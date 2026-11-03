@@ -11,7 +11,7 @@ IOS = ROOT / "mobile/ios"
 FETCH = (IOS / "Tools/fetch_tun2proxy.py").read_text()
 RETRY = (IOS / "Tools/tun2proxy-sameflow-scoped-retry.patch").read_text()
 SCOPED = (IOS / "Tools/tun2proxy-experimental-scoped-direct.patch").read_text()
-FAMILY = (IOS / "Tools/tun2proxy-prefer-ipv4-physical-family.patch").read_text()
+FAMILY = (IOS / "Tools/tun2proxy-dual-stack-physical-family.patch").read_text()
 PROVIDER = (IOS / "PacketTunnel/PacketTunnelProvider.swift").read_text()
 COLLECTOR = (IOS / "PacketTunnel/SmartFlowEventCollector.swift").read_text()
 HARDWARE = (IOS / "Tests/UITests/Smart3LiveTunnelPhysicalUITests.swift").read_text()
@@ -28,8 +28,16 @@ def test_pinned_replay_order_and_same_captured_tcp_stream():
     assert FETCH.index('str(SAME_FLOW_RETRY_PATCH), cwd=source)') < FETCH.index(
         'str(DIRECT_FAMILY_PATCH), cwd=source)')
     assert "values.filter(|v|physical_direct_eligible(*v))" in FAMILY
-    assert "addr.is_ipv4() && public(addr.ip())" in FAMILY
-    assert "ipv6_only_direct_must_fail_closed_after_real_iphone_tls_stall" in FAMILY
+    assert "public(addr.ip())" in FAMILY
+    assert "public_ipv6_only_requires_independently_verified_tls_first_record" in FAMILY
+    assert "first_tls_record(&mut tcp_stack)" in FAMILY
+    assert "verify_ipv6_tls_first_record(&mut server,&hello)" in FAMILY
+    assert "connect_cellular_ipv6(" in FAMILY
+    assert '"pdp_ip0","pdp_ip1","pdp_ip2"' in FAMILY
+    assert "if uses_direct && server.peer_addr().is_ok_and(|peer|peer.is_ipv6())" in FAMILY
+    assert "tls_first_record_contract_tests" in FAMILY or "ios_ipv6_first_record_contract_tests" in FAMILY
+    assert "port()==443" in FAMILY or "port() == 443" in FAMILY
+    assert "first_server_record_rejects_tls_alert_even_after_tcp_connect" in FAMILY
     assert 'if peer.is_ipv4(){10}else{11}' in FAMILY
     assert '0..=12' in FAMILY
     assert 'flow_events::emit(domain_name.as_deref(), flow_events::next_id(), 12)' in FAMILY
@@ -72,7 +80,8 @@ def test_physical_qa_requires_real_socket_and_original_tls_payload():
     assert "lab sameflow tls data" in HARDWARE
     assert 'XCTAssertTrue(recovered.waitForExistence' in HARDWARE
     assert 'XCTAssertTrue(originalData.waitForExistence' in HARDWARE
-    assert 'labDirect ? .tls : .tcp' in CLIENT
+    assert 'sec_protocol_options_set_tls_server_name(options.securityProtocolOptions, host)' in CLIENT
+    assert 'NWParameters(tls: options, tcp: NWProtocolTCP.Options())' in CLIENT
     assert 'lab sameflow tls data' in CLIENT
     assert "event == 7, self.labScopedDirect" in COLLECTOR
     assert "event == 5, self.exactHostDirect" in COLLECTOR

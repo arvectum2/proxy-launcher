@@ -27,7 +27,7 @@ SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
 FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
 SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
 SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
-DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-prefer-ipv4-physical-family.patch"
+DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-dual-stack-physical-family.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -146,8 +146,9 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     # with separate physical verification and fail-closed defaults.
     run("git", "apply", "--check", str(SAME_FLOW_RETRY_PATCH), cwd=source)
     run("git", "apply", str(SAME_FLOW_RETRY_PATCH), cwd=source)
-    # Dual-stack physical sockets can complete TCP on IPv6 yet stall TLS.
-    # Prefer public IPv4 first, retain IPv6-only fallback; log family only.
+    # Scoped dual-stack per-host TCP. IPv6 Wi-Fi server TLS reset is
+    # retried over cellular only after bounded first TLS-record validation.
+    # Raw-IP/UDP and unrelated names never inherit this permission.
     run("git", "apply", "--check", str(DIRECT_FAMILY_PATCH), cwd=source)
     run("git", "apply", str(DIRECT_FAMILY_PATCH), cwd=source)
 

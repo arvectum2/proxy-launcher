@@ -47,14 +47,19 @@ struct ContentView: View {
 #endif
             await model.prepare()
 #if DEBUG && !targetEnvironment(macCatalyst)
+            if ProcessInfo.processInfo.arguments.contains("-aplIPv6PhysicalDiagnosticsQA") {
+                IPv6PhysicalDiagnosticsQA.start()
+            }
             // Explicit self-terminating physical QA: only the app's disposable
             // proxy on the fixed LAN address. Never starts a real owner profile,
             // changes a radio setting, or reconnects an existing owner VPN.
-            let opaqueQA = ProcessInfo.processInfo.arguments.contains("-aplSmart3OpaqueTrafficLabQA") &&
-                ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") &&
+            let testTrafficQA = (
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3OpaqueTrafficLabQA") ||
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3IPv6OnlyLabQA")
+            ) && ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") &&
                 ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") &&
                 ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA")
-            if opaqueQA && !didStartOpaqueNetworkQA {
+            if testTrafficQA && !didStartOpaqueNetworkQA {
                 didStartOpaqueNetworkQA = true
                 if !model.vpn.isConnectedOrConnecting && model.vpn.canToggle {
                     await model.toggleVPN()

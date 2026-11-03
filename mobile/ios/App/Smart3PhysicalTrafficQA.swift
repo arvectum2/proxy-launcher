@@ -1,6 +1,7 @@
 #if DEBUG
 import Foundation
 import Network
+import Security
 
 /// Reproducible 20s hardware QA. Produces three ordinary app TCP flows;
 /// nothing is persisted and no paid proxy/user session is contacted.
@@ -22,8 +23,18 @@ import Network
             // In scoped lab, the first two target connections perform a
             // genuine TLS handshake WHILE the upstream proxy is stalled.
             // Their original TCP streams must recover without a page reload.
+            let parameters: NWParameters
+            if labDirect {
+                let options = NWProtocolTLS.Options()
+                // Never rely on implicit TLS SNI for the IPv6-only Google
+                // test; explicit SNI also matches the production TLS probe.
+                sec_protocol_options_set_tls_server_name(options.securityProtocolOptions, host)
+                parameters = NWParameters(tls: options, tcp: NWProtocolTCP.Options())
+            } else {
+                parameters = .tcp
+            }
             let connection = NWConnection(host: NWEndpoint.Host(host), port: .https,
-                                          using: labDirect ? .tls : .tcp)
+                                          using: parameters)
             connection.stateUpdateHandler = { state in
                 if case .ready = state {
                     if labDirect && host == target {
@@ -58,7 +69,11 @@ import Network
                 // A fresh fourth connection after the two proxy timeouts and
                 // independent TLS probes tests actual per-flow routing.
                 let host = target
-                let direct = NWConnection(host: NWEndpoint.Host(host), port: .https, using: .tls)
+                let options = NWProtocolTLS.Options()
+                sec_protocol_options_set_tls_server_name(options.securityProtocolOptions, host)
+                let parameters = NWParameters(tls: options, tcp: NWProtocolTCP.Options())
+                let direct = NWConnection(host: NWEndpoint.Host(host), port: .https,
+                                          using: parameters)
                 direct.stateUpdateHandler = { state in
                     if case .ready = state {
                         TelemetryStore().append(TunnelEvent(type: "lab scoped tls ready",

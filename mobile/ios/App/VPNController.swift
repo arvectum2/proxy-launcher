@@ -158,7 +158,13 @@ final class VPNController: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
             let scopedLab = ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
                 ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")
-            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: scopedLab ? 30 : 25)
+            let radioHandoffQA = scopedLab &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3RadioHandoffQA")
+            let qaLimit = radioHandoffQA ? 95 : scopedLab ? 30 : 25
+            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: qaLimit)
+            if radioHandoffQA { tunnelOptions["qaRadioHandoff"] = NSNumber(value: true) }
+            UserDefaults(suiteName: AppShared.defaultsSuite)?
+                .set(qaLimit, forKey: "qaSmart3RadioRequestedDuration.v1")
             if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") {
                 // Disposable physical QA only; no saved credentials/profiles.
                 tunnelOptions["qaSmart3ProxyHost"] = "192.168.1.80" as NSString

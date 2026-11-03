@@ -18,6 +18,8 @@ final class SmartFlowEventCollector {
     private var activeDirectHosts: Set<String> = []
     private var pathMonitors: [NWPathMonitor] = []
     private var pathSnapshots: [String: String] = [:]
+    private var physicalUnderlayTimer: DispatchSourceTimer?
+    private var physicalUnderlaySnapshot: String?
     private var inflight: Set<String> = []
 #if DEBUG
     private var labFlowEventBudget = 0
@@ -33,6 +35,9 @@ final class SmartFlowEventCollector {
         queue.sync {
             for monitor in pathMonitors { monitor.cancel() }
             pathMonitors.removeAll()
+            physicalUnderlayTimer?.cancel()
+            physicalUnderlayTimer = nil
+            physicalUnderlaySnapshot = nil
             pathSnapshots.removeAll()
             activeDirectHosts.removeAll()
             self.exactHostDirect = exactHostDirect
@@ -68,6 +73,9 @@ final class SmartFlowEventCollector {
         queue.sync {
             for monitor in pathMonitors { monitor.cancel() }
             pathMonitors.removeAll()
+            physicalUnderlayTimer?.cancel()
+            physicalUnderlayTimer = nil
+            physicalUnderlaySnapshot = nil
             pathSnapshots.removeAll()
             for host in activeDirectHosts {
                 _ = host.withCString { tun2proxy_set_direct_exact_host($0, false) }
@@ -99,7 +107,15 @@ final class SmartFlowEventCollector {
                 monitor.pathUpdateHandler = { [weak self] path in
                     guard let self, self.enabled else { return }
                     let fingerprint = self.pathFingerprint(path)
-                    if let previous = self.pathSnapshots[name], previous != fingerprint {
+                    let previous = self.pathSnapshots[name]
+#if DEBUG
+                    if self.labScopedDirect {
+                        self.recordPhysicalRadioPathQA(monitor: name, path: path,
+                            changed: previous != nil && previous != fingerprint,
+                            hadDirect: !self.activeDirectHosts.isEmpty)
+                    }
+#endif
+                    if let previous, previous != fingerprint {
                         self.revokeAllDirect(reason: "network changed")
                     }
                     self.pathSnapshots[name] = fingerprint
@@ -107,8 +123,118 @@ final class SmartFlowEventCollector {
                 self.pathMonitors.append(monitor)
                 monitor.start(queue: self.queue)
             }
+            // Independent physical-interface guard for PacketTunnel cases
+            // where NWPathMonitor's virtual/default route remains Wi-Fi even
+            // after Control Center disconnects the actual Wi-Fi underlay.
+            let initial = self.physicalInterfaceSnapshot()
+            self.physicalUnderlaySnapshot = initial.signature
+            let timer = DispatchSource.makeTimerSource(queue: self.queue)
+            timer.schedule(deadline: .now() + .seconds(2),
+                           repeating: .seconds(2))
+            timer.setEventHandler { [weak self] in
+                guard let self, self.enabled else { return }
+                let current = self.physicalInterfaceSnapshot()
+                let changed = self.physicalUnderlaySnapshot.map {
+                    $0 != current.signature
+                } ?? false
+#if DEBUG
+                if self.labScopedDirect {
+                    self.recordPhysicalUnderlayQA(
+                        wifi: current.wifi, cellular: current.cellular,
+                        changed: changed, hadDirect: !self.activeDirectHosts.isEmpty)
+                }
+#endif
+                if changed {
+                    self.revokeAllDirect(reason: "physical interface changed")
+                }
+                self.physicalUnderlaySnapshot = current.signature
+            }
+            self.physicalUnderlayTimer = timer
+            timer.resume()
         }
     }
+
+    /// Inspect only en0 and the cellular physical interfaces, never utun or
+    /// default VPN routes. Actual addresses are kept in-memory for comparing
+    /// snapshots, never persisted or reported in diagnostic events.
+    private func physicalInterfaceSnapshot() -> (
+        signature: String, wifi: Bool, cellular: Bool
+    ) {
+        var head: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&head) == 0, let head else {
+            return ("unavailable", false, false)
+        }
+        defer { freeifaddrs(head) }
+        var cursor: UnsafeMutablePointer<ifaddrs>? = head
+        var values: [String] = []
+        var wifi = false
+        var cellular = false
+        while let current = cursor {
+            let entry = current.pointee
+            cursor = entry.ifa_next
+            guard let namePtr = entry.ifa_name, let sockaddr = entry.ifa_addr else { continue }
+            let name = String(cString: namePtr)
+            guard name == "en0" || ["pdp_ip0", "pdp_ip1", "pdp_ip2"].contains(name) else { continue }
+            let family = Int32(sockaddr.pointee.sa_family)
+            guard family == AF_INET || family == AF_INET6,
+                  (entry.ifa_flags & UInt32(IFF_UP)) != 0,
+                  (entry.ifa_flags & UInt32(IFF_RUNNING)) != 0 else { continue }
+            var buffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            let length: socklen_t = family == AF_INET
+                ? socklen_t(MemoryLayout<sockaddr_in>.size)
+                : socklen_t(MemoryLayout<sockaddr_in6>.size)
+            guard getnameinfo(sockaddr, length, &buffer, socklen_t(buffer.count),
+                              nil, 0, NI_NUMERICHOST) == 0 else { continue }
+            let numeric = String(cString: buffer)
+            // Link-local IPv6 alone does not prove external data reachability.
+            if family == AF_INET6 &&
+                (numeric.hasPrefix("fe80:") || numeric.hasPrefix("FE80:")) { continue }
+            values.append("\(name):\(numeric)")
+            if name == "en0" { wifi = true } else { cellular = true }
+        }
+        return (values.sorted().joined(separator: "|"), wifi, cellular)
+    }
+
+#if DEBUG
+    private func recordPhysicalUnderlayQA(
+        wifi: Bool, cellular: Bool, changed: Bool, hadDirect: Bool
+    ) {
+        guard let defaults = UserDefaults(suiteName: AppShared.defaultsSuite) else { return }
+        let key = "qaSmart3RadioUnderlay.v1"
+        var entries = defaults.array(forKey: key) as? [[String: Any]] ?? []
+        entries.append([
+            "time": Date().timeIntervalSince1970,
+            "monitor": "physical",
+            "status": wifi || cellular ? "satisfied" : "unsatisfied",
+            "wifi": wifi, "cellular": cellular,
+            "changed": changed, "hadDirect": hadDirect
+        ])
+        defaults.set(Array(entries.suffix(30)), forKey: key)
+    }
+#endif
+
+#if DEBUG
+    /// Per-monitor physical status, stored only for an explicitly opted-in
+    /// disposable QA. Never persist gateways, SSIDs, cellular carrier, IPs,
+    /// user domains, or any device identifier. Original prefs get restored.
+    private func recordPhysicalRadioPathQA(
+        monitor: String, path: NWPath, changed: Bool, hadDirect: Bool
+    ) {
+        guard let defaults = UserDefaults(suiteName: AppShared.defaultsSuite) else { return }
+        let key = "qaSmart3RadioUnderlay.v1"
+        var entries = defaults.array(forKey: key) as? [[String: Any]] ?? []
+        entries.append([
+            "time": Date().timeIntervalSince1970,
+            "monitor": monitor,
+            "status": path.status == .satisfied ? "satisfied" : "unsatisfied",
+            "wifi": path.usesInterfaceType(.wifi),
+            "cellular": path.usesInterfaceType(.cellular),
+            "changed": changed,
+            "hadDirect": hadDirect
+        ])
+        defaults.set(Array(entries.suffix(30)), forKey: key)
+    }
+#endif
 
     private func pathFingerprint(_ path: NWPath) -> String {
         let interfaces = path.availableInterfaces.map {

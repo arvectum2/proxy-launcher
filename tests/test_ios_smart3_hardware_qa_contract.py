@@ -61,3 +61,43 @@ def test_bounded_proxy_qa_script_never_forwards_external_destinations():
     assert 'threading.Timer(115, server.shutdown)' in qa
     assert 'HTTP/1.1 403 Forbidden' in qa
     assert 'socket.create_connection' not in qa
+
+
+def test_radio_handoff_needs_explicit_95sec_bounded_lab_and_logs_true_interfaces():
+    vpn = (SRC/'App/VPNController.swift').read_text()
+    tunnel = (SRC/'PacketTunnel/PacketTunnelProvider.swift').read_text()
+    collector = (SRC/'PacketTunnel/SmartFlowEventCollector.swift').read_text()
+    assert '"-aplSmart3RadioHandoffQA"' in vpn
+    assert 'radioHandoffQA ? 95 : scopedLab ? 30 : 25' in vpn
+    assert 'qaRadioHandoff' in vpn and 'qaRadioHandoff' in tunnel
+    assert 'value.intValue == 95 && qaScopedDirect' in tunnel
+    assert 'qaSmart3ProxyHost' in tunnel and '192.168.1.80' in tunnel
+    assert 'qaSmart3RadioUnderlay.v1' in collector
+    assert 'path.usesInterfaceType(.wifi)' in collector
+    assert 'path.usesInterfaceType(.cellular)' in collector
+    assert 'hadDirect: !self.activeDirectHosts.isEmpty' in collector
+    assert '#if DEBUG' in collector
+
+
+def test_standalone_ipv6_tlspayload_probe_is_debug_only_and_interface_bound():
+    src=(SRC/'App/IPv6PhysicalDiagnosticsQA.swift').read_text()
+    view=(SRC/'App/ContentView.swift').read_text()
+    assert '#if DEBUG' in src
+    assert 'ipv6.google.com' in src
+    assert 'NWParameters(tls: tls, tcp: NWProtocolTCP.Options())' in src
+    assert 'params.requiredInterfaceType = interface' in src
+    assert 'lab ipv6 http data' in src
+    assert '-aplIPv6PhysicalDiagnosticsQA' in src and '-aplIPv6PhysicalDiagnosticsQA' in view
+
+
+def test_physical_underlay_monitor_is_independent_of_virtual_vpn_path():
+    collector=(SRC/'PacketTunnel/SmartFlowEventCollector.swift').read_text()
+    assert 'physicalInterfaceSnapshot()' in collector
+    assert 'DispatchSource.makeTimerSource(queue: self.queue)' in collector
+    assert 'physical interface changed' in collector
+    assert 'if changed {' in collector
+    assert 'revokeAllDirect(reason: "physical interface changed")' in collector
+    assert 'name == "en0"' in collector and '"pdp_ip0"' in collector
+    assert 'if name == "en0" { wifi = true } else { cellular = true }' in collector
+    assert 'name == "en0"' in collector
+    assert 'physicalUnderlayTimer?.cancel()' in collector

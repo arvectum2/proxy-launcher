@@ -391,6 +391,18 @@
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
 - [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
 
+## 04.11.2026 — Smart3: исправлен IPv6-only DIRECT, аппаратный Wi-Fi → LTE → Wi-Fi
+
+- [x] iPhone13 iOS27.2: у Wi-Fi IPv6 DIRECT физический TCP CONNECT проходил, но сервер сбрасывал TLS ClientHello; независимые HTTPS по IPv6 и Wi-Fi, и LTE успешны.
+- [x] Rust: полный ограниченный ClientHello/первый ServerHello, предпочтительно физический Wi-Fi, затем при ошибке первого TLS-ответа повтор **того же Hello** на bound LTE; иначе отзыв exact-host и fail-closed. Не трогать raw IP, UDP и другие VirtualDNS-host.
+- [x] В реальном IPv6-only опыте после исправления два исходных TLS-соединения восстановились с HTTP-ответом, новое третье получило HTTP-ответ; три физических IPv6 DIRECT, отдельный соседний AAAA-host остался upstream proxy CONNECT. USB RVI подтвердил Wi-Fi RST и успешный cellular IPv6.
+- [x] При Control Center Wi-Fi disconnect во время активного Smart3 NWPathMonitor отозвал DIRECT (network changed). При этом Wi-Fi модуль не выключается — Apple оставляет его работающим для Continuity.
+- [x] Три последовательных реальных HTTPS-маршрута с настоящего iPhone: Wi-Fi → LTE → Wi-Fi, каждый вернул 512 байт, NWConnection bound=1, IPv6=1. USB RVI отдельно подтвердил 48/56/34 исходящих пакета с соответствующих физических адресов и портов.
+- [x] Независимая 2-секундная проверка физических en0/pdp_ip* интерфейсов в Packet Tunnel; при изменении — отзыв всех DIRECT, адреса никуда не сохраняются.
+- [x] Rust 17/17, Python 176/176 +73 subtests, повторное наложение pinned patch byte-for-byte PASS; iPhone owner prefs восстановлены 11/11 +19/19, на телефоне Release с РСЯ.
+- [x] Новый Apple Distribution iOS 0.2.0 (48) архив и IPA, SHA-256 7e716fad3a946fc4c7623acef57fe174939eae9ddf612617358ec5f1f9fe60fe, 9 070 959 байт. ARCHIVE/EXPORT/ZIP/APP+EXTENSION CODESIGN PASS; боевые РСЯ SDK и 228 SKAdNetwork IDs на месте. В экспортированном Packet Tunnel реально есть новый Rust IPv6 TLS fallback. Предыдущие локальные IPA устарели, загрузки в App Store не было.
+- [ ] Полное выключение Wi-Fi радио через iOS Настройки при активном туннеле специально не проводили: iPhone Mirroring может отключиться. Трёхступенчатая проверка — реальный выбор физического маршрута для отдельных соединений, не TCP migration. [Аппаратный отчёт](APL_IOS_020_SMART3_DUALSTACK_RADIO_HARDWARE_QA_2026-11-04.md).
+
 ## 04.11.2026 — Smart3: аппаратный QUIC/h3 и безопасный raw-IP/DoH endpoint
 
 - [x] Реальный iPhone13: Network.framework QUIC(h3) для ранее одобренного TCP-host дал два engine-side подтверждения Rust UDP/proxy branch; физического DIRECT UDP нет. Полный QUIC handshake намеренно недоступен с no-forwarding mock.
