@@ -156,11 +156,16 @@ final class VPNController: ObservableObject {
         // switches: one in the app, one in the Packet Tunnel extension.
         // This option is never used in App Store distribution binaries.
         if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
-            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: 25)
+            let scopedLab = ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")
+            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: scopedLab ? 30 : 25)
             if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") {
                 // Disposable physical QA only; no saved credentials/profiles.
                 tunnelOptions["qaSmart3ProxyHost"] = "192.168.1.80" as NSString
                 tunnelOptions["qaSmart3ProxyPort"] = NSNumber(value: 18081)
+                if ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") {
+                    tunnelOptions["qaScopedDirect"] = NSNumber(value: true)
+                }
             }
         }
 #endif

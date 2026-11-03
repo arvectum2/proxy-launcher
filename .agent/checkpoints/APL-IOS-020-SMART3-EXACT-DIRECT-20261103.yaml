@@ -1,23 +1,57 @@
 task_id: APL-IOS-020-SMART3-EXACT-DIRECT-20261103
 repository: arvectum2/proxy-launcher
 status: in_progress
-goal: "Deliver automatic failed-domain no-proxy recovery for Safari without user interaction, exact hostname only, no shared-IP leakage, suitable for consumer iOS 0.2.0. No intermediate App Store release."
+goal: Deliver automatic failed-domain no-proxy recovery for Safari without user interaction, exact hostname only, no shared-IP
+  leakage, suitable for consumer iOS 0.2.0. No intermediate App Store release.
 definition_of_done:
-  - "Automatic trigger: two distinct attributable proxy timeouts/refusals while upstream healthy; independent physical DIRECT probe; two verified successes and bounded TTL stored locally; rollback on network change or failures."
-  - "Exact-host traffic DIRECT and unrelated host sharing same destination IP stays on upstream proxy; raw-IP/ECH/QUIC/DoH unsupported flows fail closed without data leak."
-  - "Supported Apple consumer-iOS transport confirmed through primary docs / Apple DTS and physical egress tests; if unsupported, an objective blocker remains, never masquerade as a completed feature."
-  - "Implement route switching in pinned tun2proxy and Swift policy, test cargo + Swift Core + iPhone physical egress + shared-IP adversarial cases; no user profile/proxy modification."
-  - "Do not merge, publish, or upload iOS 0.2.0 until full end-to-end behavior verified; checkpoint accurately records status."
+- 'Automatic trigger: two distinct attributable proxy timeouts/refusals while upstream healthy; independent physical DIRECT
+  probe; two verified successes and bounded TTL stored locally; rollback on network change or failures.'
+- Exact-host traffic DIRECT and unrelated host sharing same destination IP stays on upstream proxy; raw-IP/ECH/QUIC/DoH
+  unsupported flows fail closed without data leak.
+- Supported Apple consumer-iOS transport confirmed through primary docs / Apple DTS and physical egress tests; if unsupported,
+  an objective blocker remains, never masquerade as a completed feature.
+- Implement route switching in pinned tun2proxy and Swift policy, test cargo + Swift Core + iPhone physical egress + shared-IP
+  adversarial cases; no user profile/proxy modification.
+- Do not merge, publish, or upload iOS 0.2.0 until full end-to-end behavior verified; checkpoint accurately records status.
 completed:
-  - "Recovered completed release-preparation PR #304/checkpoint at 20119b06; exact-host DIRECT still previously blocked; user explicitly prohibited interim release."
-  - "Reviewed Apple TN3120, Apple WWDC25 NetworkExtension and tun2proxy virtual DNS; TN3120 explicitly warns against selective forwarding captured Packet Tunnel traffic to another interface, so alternate-interface solution must be physically tested and receive platform support proof before shipping."
-current: "Explore first-party per-flow connection destination routing in Rust, identity attribution, physical-socket availability, Apple-supported alternatives; develop and verify isolated prototype."
+- 'Recovered completed release-preparation PR #304/checkpoint at 20119b06; exact-host DIRECT still previously blocked; user
+  explicitly prohibited interim release.'
+- Reviewed Apple TN3120, Apple WWDC25 NetworkExtension and tun2proxy virtual DNS; TN3120 explicitly warns against selective
+  forwarding captured Packet Tunnel traffic to another interface, so alternate-interface solution must be physically tested
+  and receive platform support proof before shipping.
+- 'iPhone13 strict hardware test after user unlocked failed 2 TLS payload assertions: sameflow recovered 2, bound TCP 6,
+  no TLS response; full tunnel activated and disconnected. All 31 preferences restored with exact hash equality.'
+- 'Rebuilt pinned Rust patch: DEBUG-only 4s upstream timeout, unchanged Release 12s; Rust tests 12 PASS and source patch
+  replay PASS.'
+- 'Hardware iPhone13 iOS27.2 16:34 MSK accepted strict same-captured-flow E2E: two failed target CONNECTs, two independent
+  physical direct TLS probes and exact-host approval, BOTH original captured TCP sessions recovered with client+server bytes
+  and valid TLS/HTTP response; new fourth flow also got TLS/HTTP response; verified xcresult at /private/tmp/apl-smart3-direction-physical-20261103.xcresult.'
+- Previously original TLS stalled because 12s proxy CONNECT deadline outlasted client tolerance; opt-in DEBUG experiment
+  now has 4s deadline while Release/non-lab preserves 12s. Rust cargo 12 PASS, reproducible pinned 4th patch replay, signed
+  iOS Debug device test build and XCTest PASS, 151 Python iOS tests +73 subtests PASS.
+- After physical E2E, all 11 App Group and 20 app preference values were restored; independent SHA256 per value EXACT_MATCH
+  for all 31 keys. Did not alter real profiles, ads, privacy, or publish version.
+current: Confirmed app-owned TLS same-flow recovery on actual iPhone. Next real Safari A→auth.A redirect, same-CDN IPv4/IPv6
+  isolation, network change/fail-closed and supported Apple consumer distribution model.
 pending:
-  - "Inspect Rust tun2proxy source for direct transport integration that does not issue excludedRoutes and per-flow virtual DNS." 
-  - "Implement incremental internal learning and transport tests, including WAN proxy fault/recovery, shared-IP denial and fallbacks." 
-  - "Real iPhone tests using disposable mock and reversible backups, compare all App Group and app preferences; never publish." 
-  - "Update source/test docs/roadmap, external Apple API gate, draft PR, checkpoint." 
-last_verified_commit: "20119b0606dc239f64d38b3cafead8bf964a9ab5 (base, previous feature/release source QA passed)"
+- Safely test real Safari navigation with A→auth.A redirect and failed upstream CONNECT; prove original page completes without
+  manual retry, plus learning persistence, TTL, handoff and failure rollback.
+- Provide adversarial shared-CDN IPv4/IPv6 different exact host test and demonstrate proxy-only traffic for nonapproved
+  neighbor, fail closed on raw IP/DoH/QUIC/ECH/unknown flows.
+- Validate supported Apple iOS NetworkExtension alternate-interface egress via official Apple DTS or an App Store-supported
+  equivalent; until then leave Release physical DIRECT disabled, no Store upload.
+- Produce final source tests, QA report, draft PR, and checkpoint; do not merge or publish partial release.
+last_verified_commit: 20119b0606dc239f64d38b3cafead8bf964a9ab5 (base, previous feature/release source QA passed)
 test_results:
-  - "Inherited: Swift Core 131, Python iOS 147 plus 73 subtests, physical iPhone 6 UI, 64 locale, 16 deep, 11 XXL, a11y audit 0, signed IPA from prior RC; DOES NOT test full Smart3 DIRECT."
-resume_instruction: "On feat/ios-020-smart3-exact-flow-direct-20261103 read this checkpoint and git status first. User insists fully automatic fallback and no interim release. Implement/test per-flow exact-host independently-direct on consumer iOS if technically and Apple supported; do not use IP-wide silent bypass or claim feature working until physical iPhone Safari A->auth.A A/B shared CDN pass. Use isolated worktree, avoid dirty main; preserve iPhone backups and original app. Keep iOS 0.2.0 draft and unsubmitted."
+- 'Inherited: Swift Core 131, Python iOS 147 plus 73 subtests, physical iPhone 6 UI, 64 locale, 16 deep, 11 XXL, a11y audit
+  0, signed IPA from prior RC; DOES NOT test full Smart3 DIRECT.'
+- Physical strict same-flow 1/1 PASS (41s) with two original TLS HTTP bytes and one new flow TLS HTTP bytes; failed earlier
+  12s and 4s tests recorded and resolved.
+- Rust 12/12; Python iOS 151/151 + 73 subtests; signed physical Debug build-for-testing PASS, iOS Release unsigned build
+  earlier PASS; physical app/group preferences exactly restored 31/31.
+resume_instruction: 'Continue feat/ios-020-smart3-exact-flow-direct-20261103 from verified physical E2E stage; read checkpoint
+  and git status. Actual iPhone13 iOS27.2 strict app TLS same-flow passed /private/tmp/apl-smart3-direction-physical-20261103.xcresult.
+  Do NOT rerun this or prior tests unchanged. Source patch mobile/ios/Tools/tun2proxy-sameflow-scoped-retry.patch (4s DEBUG,
+  12s release; events7-9). Next conduct real Safari A→auth.A redirect and adversarial shared-CDN IP/IPv6 with A proxy-only
+  vs auth.A exact physical DIRECT. No Apple TN3120 clearance yet: Release flags false, no upload/merge/publication. Backup/restore
+  31 prefs for any hardware test, no real paid proxy; no user secrets in log.'

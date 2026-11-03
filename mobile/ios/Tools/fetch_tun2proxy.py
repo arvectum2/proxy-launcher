@@ -25,6 +25,8 @@ TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = TOOLS / "tun2proxy-v0.8.3.Cargo.lock"
 SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
 FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
+SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
+SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -135,6 +137,15 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     # physical egress in the iOS packet tunnel (Apple TN3120).
     run("git", "apply", "--check", str(FLOW_INTENT_PATCH), cwd=source)
     run("git", "apply", str(FLOW_INTENT_PATCH), cwd=source)
+    # DEBUG lab ONLY: physical-scoped exact-host experiment. Runtime disabled
+    # by default; do not enable in a submitted app without Apple DTS approval.
+    run("git", "apply", "--check", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
+    run("git", "apply", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
+    # Same captured TCP connection is retained during verified host-specific
+    # physical egress checks. This remains behind the DEBUG lab flag, because
+    # iOS NetworkExtension packet-tunnel alternate egress is not approved.
+    run("git", "apply", "--check", str(SAME_FLOW_RETRY_PATCH), cwd=source)
+    run("git", "apply", str(SAME_FLOW_RETRY_PATCH), cwd=source)
 
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
@@ -183,6 +194,12 @@ def install_flow_event_header(framework: Path) -> None:
             "void tun2proxy_set_flow_event_callback(\n" +
             "    void (*callback)(const char *host, uint64_t connection_id, int32_t event, void *ctx),\n" +
             "    void *ctx);", 1)
+    signature = "int32_t tun2proxy_set_direct_exact_host("
+    if signature not in value:
+        value = value.replace("void tun2proxy_set_flow_event_callback(",
+            "/* Experimental only: 5=DIRECT_FAIL, 6=DIRECT_TCP, 7=SAME_FLOW_RECOVERED. */\n"
+            "int32_t tun2proxy_set_direct_exact_host(const char *host, bool enable);\n\n"
+            "void tun2proxy_set_flow_event_callback(", 1)
     header.write_text(value, encoding="utf-8")
 
 
@@ -265,7 +282,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-and-per-flow-events\n"
+            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n"
             + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"

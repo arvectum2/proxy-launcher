@@ -34,6 +34,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
+#if DEBUG
+    private var qaScopedDirect = false
+#endif
 
     override func startTunnel(
         options: [String : NSObject]?,
@@ -41,6 +44,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     ) {
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
+#if DEBUG
+        qaScopedDirect = (options?["qaScopedDirect"] as? NSNumber)?.boolValue == true &&
+            (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue == 30 &&
+            options?["qaSmart3ProxyHost"] as? String == "192.168.1.80"
+#endif
 #if DEBUG
         if let value = options?["qaStopAfterSeconds"] as? NSNumber,
            (5...30).contains(value.intValue) {
@@ -223,8 +231,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // DNS answers. Supply only explicit bypass hosts and their resolved IPs
         // to the patched virtual DNS; other hosts keep proxy-side name lookup.
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
-        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+        var args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+#if DEBUG
+        // Explicit, bounded hardware lab only. This transport is not Apple
+        // supported under TN3120 for the consumer release.
+        if qaScopedDirect { args += " --experimental-scoped-direct" }
+        if let store {
+            SmartFlowEventCollector.shared.start(store: store, labScopedDirect: qaScopedDirect)
+        }
+#else
         if let store { SmartFlowEventCollector.shared.start(store: store) }
+#endif
         engineQueue.async { [weak self] in
             guard let self, !self.stopping else { return }
             let result = args.withCString {

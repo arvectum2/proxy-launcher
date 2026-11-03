@@ -4,13 +4,21 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'mobile/ios'
 
 
-def test_hardware_qa_is_synthetic_only_and_self_terminating():
+def test_hardware_qa_defaults_to_synthetic_and_scoped_egress_is_opt_in():
     driver = (SRC/'App/Smart3PhysicalTrafficQA.swift').read_text()
     tunnel = (SRC/'PacketTunnel/PacketTunnelProvider.swift').read_text()
     vpn = (SRC/'App/VPNController.swift').read_text()
     test = (SRC/'Tests/UITests/Smart3LiveTunnelPhysicalUITests.swift').read_text()
     assert 'probe.qa-example.test' in driver and driver.count('auth.qa-example.test') == 2
-    assert 'www.apple.com' not in driver and 'www.cloudflare.com' not in driver
+    # Default physical test remains entirely synthetic. A SEPARATE explicitly
+    # enabled DEBUG-only experiment probes two public TLS hosts; it does not
+    # alter stored profiles and can never run in a normal Release binary.
+    assert 'let labDirect = ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")' in driver
+    assert 'labDirect ? ["www.cloudflare.com", "www.apple.com", "www.apple.com"]' in driver
+    assert ': ["probe.qa-example.test", "auth.qa-example.test", "auth.qa-example.test"]' in driver
+    assert 'APL_SMART3_SCOPED_QA' in test
+    assert 'throw XCTSkip("Explicit scoped egress QA opt-in required")' in test
+    assert 'qaScopedDirect' in tunnel and 'if qaScopedDirect { args +=' in tunnel
     assert '#if DEBUG' in driver and '#if DEBUG' in tunnel and '#if DEBUG' in vpn
     assert 'qaStopAfterSeconds' in tunnel and 'cancelTunnelWithError' in tunnel
     assert 'qaStopAfterSeconds' in vpn

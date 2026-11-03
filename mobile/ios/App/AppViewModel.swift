@@ -412,7 +412,11 @@ final class AppViewModel: ObservableObject {
             }
             if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
                 Task { [weak self] in
-                    try? await Task.sleep(nanoseconds: 20_000_000_000)
+                    // Lab needs time for two real proxy handshakes plus two
+                    // independent TLS checks; PacketTunnel still auto-stops
+                    // after 25s even if app/automation fails.
+                    let directLab = ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")
+                    try? await Task.sleep(nanoseconds: directLab ? 29_000_000_000 : 20_000_000_000)
                     self?.vpn.disconnect()
                 }
             }

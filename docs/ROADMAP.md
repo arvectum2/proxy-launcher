@@ -383,6 +383,13 @@
 - [x] Проверены публичные API Apple, включая URL Filter (не маршрутизирует), excludedDomains (MDM per-app), IP-only excludedRoutes и TN3120. [Ограничение iOS](APL_IOS_020_EXACT_HOST_DIRECT_PLATFORM_GATE_2026-11-03.md).
 - [ ] Блокер релиза 0.2.0: полностью автоматическая схема `ошибка Safari → доказанный независимый DIRECT → запоминание маршрута только нужного hostname` не доказана на потребительском iOS PacketTunnel; нельзя автоматически расширять сторонние CDN/IP без обхода shared-IP риска.
 
+## 03.11.2026 — Smart3: настоящий exact-host TCP DIRECT, без промежуточной публикации
+
+- [x] Физический iPhone 13: после двух тайм-аутов upstream CONNECT независимые physical TLS-пробы прошли, точный VirtualDNS hostname динамически одобрен; новый TCP через IP_BOUND_IF открыл TLS и реально получил данные. Mock proxy увидел только первые два CONNECT нужного host, не третий. [Подробный протокол](APL_IOS_020_SMART3_EXACT_FLOW_DIRECT_LAB_2026-11-03.md).
+- [x] В экспериментальном, выключенном в Release Rust движке реализована попытка восстановления **исходного захваченного TCP** после провала proxy handshake (максимум 5 секунд на проверенное разрешение exact-host), отдельное событие same-flow recovery и строгие аппаратные проверки оригинального TLS payload. Cargo 12/12, Swift Core 131/131, Python iOS 151/151 (+73 subtests), подписанный Debug device и unsigned Release — PASS.
+- [x] **Физический iPhone13, iOS27.2 — same-flow TLS PASS (03.11, 16:34 МСК)**: после двух proxy-ошибок, двух независимых DIRECT TLS-проб первоначальные **два TCP/TLS-потока восстановились без нового соединения**: события original TCP + клиентские/серверные байты, TLS ready и HTTP-данные; отдельный новый поток получил TLS-данные. Строгий XCUITest PASS. Это ещё **не реальная навигация Safari**. Исходники/логи: [протокол](APL_IOS_020_SMART3_EXACT_FLOW_DIRECT_LAB_2026-11-03.md).
+- [ ] Safari A→auth.A, two-host shared-CDN IPv4/IPv6, QUIC/DoH/ECH/unknown fail-closed, handoff/rollback, Apple TN3120/DTS: обязательные gates перед включением в Release. Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
+
 ## 03.11.2026 — iOS 0.2.0: подписанный RC, iPhone и языковая QA
 
 - [x] Подписанный архив Apple Distribution 0.2.0(48) и App Store IPA экспортированы **локально**, без публикации. Подписи приложения и Packet Tunnel, 64 локализации, YandexMobileAds и ZIP — PASS. [Протокол и SHA-256](APL_IOS_020_SIGNED_PHYSICAL_RELEASE_QA_2026-11-03.md); Draft PR #304 к #303.
