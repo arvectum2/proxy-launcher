@@ -27,6 +27,8 @@ struct SmartDependency: Codable, Equatable, Identifiable {
     var evidence: SmartEvidence
     var decision: SmartDecision
     var lastSeen: Date
+    /// User explicitly linked this host to a parent site. Optional for old stored graphs.
+    var userLinked: Bool? = nil
     var id: String { parent + "|" + host }
 }
 enum SmartGraphError: LocalizedError {
@@ -57,13 +59,21 @@ struct SmartExclusionGraph: Codable, Equatable {
         // Treat persistence as potentially malformed: do not let duplicate
         // IDs, unbounded parents or arbitrary child names expand direct routes.
         var byID: [String: SmartDependency] = [:]
-        for edge in edges where edge.lastSeen <= now && now.timeIntervalSince(edge.lastSeen) < Self.ttl {
-            guard Self.validChild(edge.host, for: edge.parent),
+        for edge in edges where edge.lastSeen <= now &&
+                (edge.userLinked == true || now.timeIntervalSince(edge.lastSeen) < Self.ttl) {
+            let validObserved = Self.validChild(edge.host, for: edge.parent)
+            let validExplicit = edge.userLinked == true &&
+                SiteDependencyDiscovery.isScannableHost(edge.host) &&
+                edge.host != edge.parent && edge.host != "www." + edge.parent
+            guard (validObserved || validExplicit),
                   Self.root(edge.parent) == edge.parent else { continue }
             if let previous = byID[edge.id] {
                 // Conflicting duplicate decisions must not silently approve.
                 var kept = edge.lastSeen > previous.lastSeen ? edge : previous
-                if edge.decision != previous.decision { kept.decision = .pending }
+                if edge.decision != previous.decision || edge.userLinked != previous.userLinked {
+                    kept.decision = .pending
+                    kept.userLinked = nil
+                }
                 byID[edge.id] = kept
             } else { byID[edge.id] = edge }
         }
@@ -131,12 +141,40 @@ struct SmartExclusionGraph: Codable, Equatable {
         return approved.sorted()
     }
 
+    /// User-initiated links can include external authentication domains. They
+    /// are never inferred from a third-party resource or shared CDN IP.
+    mutating func addUserLink(parent raw: String, child rawChild: String,
+                              at now: Date = Date()) throws {
+        guard let parent = Self.root(raw),
+              let child = try? SiteExclusionPolicy.normalize(rawChild),
+              SiteDependencyDiscovery.isScannableHost(child),
+              child != parent, child != "www." + parent else { throw SmartGraphError.invalidChild }
+        var proposed = pruned(at: now)
+        if let i = proposed.edges.firstIndex(where: { $0.parent == parent && $0.host == child }) {
+            proposed.edges[i].decision = .approved
+            proposed.edges[i].userLinked = true
+            proposed.edges[i].lastSeen = now
+        } else {
+            guard proposed.edges.filter({ $0.parent == parent }).count < SiteDependencyDiscovery.maxCandidates,
+                  Set(proposed.edges.map { $0.parent }).union([parent]).count <= SiteExclusionPolicy.maxEntries
+            else { throw SmartGraphError.tooMany }
+            proposed.edges.append(.init(parent: parent, host: child, evidence: .network,
+                                        decision: .approved, lastSeen: now, userLinked: true))
+        }
+        proposed.edges.sort { $0.id < $1.id }
+        self = proposed
+    }
+
     mutating func set(_ decision: SmartDecision, parent raw: String, child: String) throws {
-        guard let root = Self.root(raw), Self.validChild(child, for: root),
-              let i = edges.firstIndex(where: { $0.parent == root && $0.host == child }) else {
+        guard let root = Self.root(raw),
+              let i = edges.firstIndex(where: { $0.parent == root && $0.host == child }),
+              Self.validChild(child, for: root) ||
+                (edges[i].userLinked == true && SiteDependencyDiscovery.isScannableHost(child)) else {
             throw SmartGraphError.invalidChild
         }
         edges[i].decision = decision
+        // A user denial must survive rescans and expiry.
+        if decision == .rejected { edges[i].userLinked = true }
     }
     mutating func remove(parent raw: String, child: String? = nil) {
         guard let root = Self.root(raw) else { return }
