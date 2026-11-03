@@ -44,6 +44,9 @@ enum SmartGraphError: LocalizedError {
 struct SmartExclusionGraph: Codable, Equatable {
     static let ttl: TimeInterval = 7 * 86400
     var edges: [SmartDependency] = []
+    /// Explicit removals are tombstones: a rescan must not silently resurrect
+    /// a deleted child. Optional for decoding graphs from previous versions.
+    var suppressed: [String]? = nil
     static func root(_ site: String) -> String? {
         guard let s = try? SiteExclusionPolicy.normalize(site),
               SiteDependencyDiscovery.isScannableHost(s) else { return nil }
@@ -87,13 +90,21 @@ struct SmartExclusionGraph: Codable, Equatable {
             parents.insert(edge.parent)
             counts[edge.parent, default: 0] += 1
         }
-        return Self(edges: result)
+        let denies = Array(Set((suppressed ?? []).filter { identifier in
+            let parts = identifier.split(separator: "|", omittingEmptySubsequences: false)
+            guard parts.count == 2 else { return false }
+            let parent = String(parts[0]), host = String(parts[1])
+            return Self.root(parent) == parent && SiteDependencyDiscovery.isScannableHost(host)
+        })).sorted().prefix(SiteExclusionPolicy.maxEntries * SiteDependencyDiscovery.maxCandidates)
+        return Self(edges: result, suppressed: Array(denies))
     }
     mutating func observe(parent raw: String, html: [String], network: [String], at now: Date = Date()) throws {
         guard let parent = Self.root(raw) else { throw SmartGraphError.invalidParent }
         let htmlSet = Set(html.filter { Self.validChild($0, for: parent) })
         let networkSet = Set(network.filter { Self.validChild($0, for: parent) })
-        let hosts = htmlSet.union(networkSet)
+        let hosts = htmlSet.union(networkSet).filter { host in
+            !(suppressed ?? []).contains(parent + "|" + host)
+        }
         guard hosts.count <= SiteDependencyDiscovery.maxCandidates else { throw SmartGraphError.tooMany }
         var proposed = pruned(at: now)
         guard Set(proposed.edges.map(\.parent)).union([parent]).count <= SiteExclusionPolicy.maxEntries else {
@@ -150,6 +161,7 @@ struct SmartExclusionGraph: Codable, Equatable {
               SiteDependencyDiscovery.isScannableHost(child),
               child != parent, child != "www." + parent else { throw SmartGraphError.invalidChild }
         var proposed = pruned(at: now)
+        proposed.suppressed?.removeAll { $0 == parent + "|" + child }
         if let i = proposed.edges.firstIndex(where: { $0.parent == parent && $0.host == child }) {
             proposed.edges[i].decision = .approved
             proposed.edges[i].userLinked = true
@@ -178,7 +190,15 @@ struct SmartExclusionGraph: Codable, Equatable {
     }
     mutating func remove(parent raw: String, child: String? = nil) {
         guard let root = Self.root(raw) else { return }
-        edges.removeAll { $0.parent == root && (child == nil || $0.host == child) }
+        if let child {
+            guard SiteDependencyDiscovery.isScannableHost(child) else { return }
+            let id = root + "|" + child
+            if !(suppressed ?? []).contains(id) { suppressed = (suppressed ?? []) + [id] }
+            edges.removeAll { $0.parent == root && $0.host == child }
+        } else {
+            edges.removeAll { $0.parent == root }
+            suppressed = (suppressed ?? []).filter { !$0.hasPrefix(root + "|") }
+        }
     }
     func approved(at now: Date = Date()) -> [String] {
         Array(Set(pruned(at: now).edges.filter { $0.decision == .approved }.map(\.host))).sorted()
