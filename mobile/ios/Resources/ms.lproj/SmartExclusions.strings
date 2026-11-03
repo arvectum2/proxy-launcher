@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Domain tapak web tidak sah";
 "Связанный домен не принадлежит сайту" = "Domain ini bukan milik tapak";
 "Превышен безопасный предел связанных доменов" = "Terlalu banyak domain berkaitan";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Kembangkan pengecualian secara automatik";
+"Добавить связанный домен" = "Tambah domain berkaitan";
+"Адрес связанного домена" = "Domain berkaitan";
+"Системная связь" = "Pautan terbina dalam";
+"Добавлено вручную" = "Ditambah secara manual";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Dalam mod automatik, subdomain yang disahkan ditambah secara automatik. Dalam mod manual, pilih daripada cadangan. Simpan perubahan untuk menggunakannya.";

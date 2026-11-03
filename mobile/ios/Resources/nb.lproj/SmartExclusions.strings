@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Ugyldig nettstedsdomene";
 "Связанный домен не принадлежит сайту" = "Dette domenet tilhører ikke nettstedet";
 "Превышен безопасный предел связанных доменов" = "For mange relaterte domener";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Utvid unntak automatisk";
+"Добавить связанный домен" = "Legg til tilknyttet domene";
+"Адрес связанного домена" = "Tilknyttet domene";
+"Системная связь" = "Innebygd kobling";
+"Добавлено вручную" = "Lagt til manuelt";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "I automatisk modus legges bekreftede underdomener til automatisk. I manuell modus velger du dem fra forslagene. Lagre endringene for å ta dem i bruk.";

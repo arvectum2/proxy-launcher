@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Laatste wijziging ongedaan maken";
 "Разрешить прямой доступ для стороннего домена?" = "De proxy voor een domein van derden omzeilen?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "Een gedeeld IP-adres kan andere sites bedienen. Het omzeilen ervan heeft invloed op elke verbinding met die IP, niet alleen op dit domein.";
-"Сохранение…" = "Besparing…";
+"Сохранение…" = "Opslaan…";
 "Новых связанных доменов не обнаружено" = "Geen nieuwe gerelateerde domeinen gevonden";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Voer een geldig websitedomein in, en geen IP-adres, om afhankelijkheden te scannen.";
 "Некорректный домен сайта" = "Ongeldig websitedomein";
 "Связанный домен не принадлежит сайту" = "Dit domein hoort niet bij de site";
 "Превышен безопасный предел связанных доменов" = "Te veel gerelateerde domeinen";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Uitzonderingen automatisch uitbreiden";
+"Добавить связанный домен" = "Gekoppeld domein toevoegen";
+"Адрес связанного домена" = "Gekoppeld domein";
+"Системная связь" = "Ingebouwde koppeling";
+"Добавлено вручную" = "Handmatig toegevoegd";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "In de automatische modus worden geverifieerde subdomeinen automatisch toegevoegd. In de handmatige modus kiest u ze uit de suggesties. Sla de wijzigingen op om ze toe te passen.";

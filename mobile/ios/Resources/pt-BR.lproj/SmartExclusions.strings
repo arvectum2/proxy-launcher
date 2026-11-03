@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Domínio do site inválido";
 "Связанный домен не принадлежит сайту" = "Este domínio não pertence ao site";
 "Превышен безопасный предел связанных доменов" = "Muitos domínios relacionados";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Expandir exceções automaticamente";
+"Добавить связанный домен" = "Adicionar domínio vinculado";
+"Адрес связанного домена" = "Domínio vinculado";
+"Системная связь" = "Vínculo integrado";
+"Добавлено вручную" = "Adicionado manualmente";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "No modo automático, os subdomínios verificados são adicionados automaticamente. No modo manual, selecione-os entre as sugestões. Salve as alterações para aplicá-las.";

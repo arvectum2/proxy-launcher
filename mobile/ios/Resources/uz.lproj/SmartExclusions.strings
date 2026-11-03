@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Veb-sayt domeni yaroqsiz";
 "Связанный домен не принадлежит сайту" = "Bu domen saytga tegishli emas";
 "Превышен безопасный предел связанных доменов" = "Aloqador domenlar juda koʻp";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Istisnolarni avtomatik kengaytirish";
+"Добавить связанный домен" = "Bogʻlangan domenni qoʻshish";
+"Адрес связанного домена" = "Bogʻlangan domen";
+"Системная связь" = "Ichki bogʻlanish";
+"Добавлено вручную" = "Qoʻlda qoʻshilgan";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Avtomatik rejimda tekshirilgan subdomenlar oʻz-oʻzidan qoʻshiladi. Qoʻlda rejimda ularni takliflardan tanlang. Oʻzgarishlarni qoʻllash uchun saqlang.";

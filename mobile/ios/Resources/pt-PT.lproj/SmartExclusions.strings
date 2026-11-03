@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Anular a última alteração";
 "Разрешить прямой доступ для стороннего домена?" = "Ignorar o proxy de um domínio de terceiros?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "Um endereço partilhado IP pode servir outros sites. Ignorá-lo afeta todas as ligações a este IP, e não apenas a este domínio.";
-"Сохранение…" = "Salvando…";
+"Сохранение…" = "A guardar…";
 "Новых связанных доменов не обнаружено" = "Nenhum novo domínio relacionado encontrado";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Introduza um domínio de site válido, e não um endereço IP, para verificar as dependências.";
 "Некорректный домен сайта" = "Domínio do site inválido";
 "Связанный домен не принадлежит сайту" = "Este domínio não pertence ao site";
 "Превышен безопасный предел связанных доменов" = "Muitos domínios relacionados";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Expandir exceções automaticamente";
+"Добавить связанный домен" = "Adicionar domínio associado";
+"Адрес связанного домена" = "Domínio associado";
+"Системная связь" = "Ligação integrada";
+"Добавлено вручную" = "Adicionado manualmente";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "No modo automático, os subdomínios verificados são adicionados automaticamente. No modo manual, selecione-os nas sugestões. Guarde as alterações para as aplicar.";

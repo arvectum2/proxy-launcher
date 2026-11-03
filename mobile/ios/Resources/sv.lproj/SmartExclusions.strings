@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Ångra senaste ändring";
 "Разрешить прямой доступ для стороннего домена?" = "Vill du kringgå proxyn för en tredjepartsdomän?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "En delad IP-adress kan tjäna andra webbplatser. Att kringgå det påverkar varje anslutning till den IP, inte bara den här domänen.";
-"Сохранение…" = "Sparande…";
+"Сохранение…" = "Sparar…";
 "Новых связанных доменов не обнаружено" = "Inga nya relaterade domäner hittades";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Ange en giltig webbplatsdomän, inte en IP-adress, för att skanna beroenden.";
 "Некорректный домен сайта" = "Ogiltig webbplatsdomän";
 "Связанный домен не принадлежит сайту" = "Denna domän tillhör inte webbplatsen";
 "Превышен безопасный предел связанных доменов" = "För många relaterade domäner";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Utöka undantag automatiskt";
+"Добавить связанный домен" = "Lägg till relaterad domän";
+"Адрес связанного домена" = "Relaterad domän";
+"Системная связь" = "Inbyggd koppling";
+"Добавлено вручную" = "Tillagd manuellt";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "I automatiskt läge läggs verifierade underdomäner till automatiskt. I manuellt läge väljer du dem bland förslagen. Spara ändringarna för att tillämpa dem.";

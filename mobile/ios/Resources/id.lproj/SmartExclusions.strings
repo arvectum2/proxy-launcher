@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Batalkan perubahan terakhir";
 "Разрешить прямой доступ для стороннего домена?" = "Lewati proxy untuk domain pihak ketiga?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "Alamat IP yang dibagikan mungkin melayani situs lain. Melewatinya akan memengaruhi setiap koneksi ke IP tersebut, tidak hanya domain ini.";
-"Сохранение…" = "Penghematan…";
+"Сохранение…" = "Menyimpan…";
 "Новых связанных доменов не обнаружено" = "Tidak ditemukan domain terkait baru";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Masukkan domain situs web yang valid, bukan alamat IP, untuk memindai dependensi.";
 "Некорректный домен сайта" = "Domain situs web tidak valid";
 "Связанный домен не принадлежит сайту" = "Domain ini bukan milik situs";
 "Превышен безопасный предел связанных доменов" = "Terlalu banyak domain terkait";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Perluas pengecualian secara otomatis";
+"Добавить связанный домен" = "Tambahkan domain terkait";
+"Адрес связанного домена" = "Domain terkait";
+"Системная связь" = "Tautan bawaan";
+"Добавлено вручную" = "Ditambahkan secara manual";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Dalam mode otomatis, subdomain yang telah diverifikasi ditambahkan secara otomatis. Dalam mode manual, pilih dari saran. Simpan perubahan untuk menerapkannya.";

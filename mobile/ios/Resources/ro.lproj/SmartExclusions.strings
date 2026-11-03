@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Anulați ultima modificare";
 "Разрешить прямой доступ для стороннего домена?" = "Ocoliți proxy-ul pentru un domeniu terță parte?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "O adresă comună IP poate servi și alte site-uri. Ocolirea acestuia afectează fiecare conexiune la acel IP, nu numai acest domeniu.";
-"Сохранение…" = "Economisire…";
+"Сохранение…" = "Se salvează…";
 "Новых связанных доменов не обнаружено" = "Nu s-au găsit noi domenii asociate";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Introduceți un domeniu de site valid, nu o adresă IP, pentru a scana dependențe.";
 "Некорректный домен сайта" = "Domeniu site nevalid";
 "Связанный домен не принадлежит сайту" = "Acest domeniu nu aparține site-ului";
 "Превышен безопасный предел связанных доменов" = "Prea multe domenii înrudite";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Extinde automat excepțiile";
+"Добавить связанный домен" = "Adaugă un domeniu asociat";
+"Адрес связанного домена" = "Domeniu asociat";
+"Системная связь" = "Legătură încorporată";
+"Добавлено вручную" = "Adăugat manual";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "În modul automat, subdomeniile verificate sunt adăugate automat. În modul manual, selectează-le din sugestii. Salvează modificările pentru a le aplica.";

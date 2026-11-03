@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Kikoa batili cha tovuti";
 "Связанный домен не принадлежит сайту" = "Kikoa hiki si cha tovuti";
 "Превышен безопасный предел связанных доменов" = "Vikoa vingi vinavyohusiana";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Panua orodha ya vighairi kiotomatiki";
+"Добавить связанный домен" = "Ongeza kikoa kinachohusiana";
+"Адрес связанного домена" = "Kikoa kinachohusiana";
+"Системная связь" = "Kiungo kilichojengewa ndani";
+"Добавлено вручную" = "Imeongezwa mwenyewe";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Katika hali ya kiotomatiki, vikoa vidogo vilivyothibitishwa huongezwa vyenyewe. Katika hali ya mkono, vichague kutoka kwenye mapendekezo. Hifadhi mabadiliko ili yatumike.";

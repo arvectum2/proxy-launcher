@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Atsaukt pēdējās izmaiņas.";
 "Разрешить прямой доступ для стороннего домена?" = "Vai vēlaties apiet starpniekserveri trešās puses domēnam?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "Koplietotā IP adrese var kalpot citām vietnēm, un tās apiešana ietekmē visus savienojumus ar šo IP adresi, ne tikai šo domēnu.";
-"Сохранение…" = "Saving… Saving…";
+"Сохранение…" = "Saglabā…";
 "Новых связанных доменов не обнаружено" = "Nav atrasti jauni saistīti domēni.";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "Lai skenētu atkarības, ievadiet derīgu tīmekļa vietnes domēnu, nevis IP adresi.";
 "Некорректный домен сайта" = "Nederīgs tīmekļa vietnes domēns.";
 "Связанный домен не принадлежит сайту" = "Šis domēns tiek pārdots.";
 "Превышен безопасный предел связанных доменов" = "Pārāk daudz saistītu domēnu.";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Automātiski paplašināt izņēmumus";
+"Добавить связанный домен" = "Pievienot saistītu domēnu";
+"Адрес связанного домена" = "Saistīts domēns";
+"Системная связь" = "Iebūvēta saite";
+"Добавлено вручную" = "Pievienots manuāli";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Automātiskajā režīmā pārbaudītie apakšdomēni tiek pievienoti automātiski. Manuālajā režīmā atlasiet tos no ieteikumiem. Saglabājiet izmaiņas, lai tās lietotu.";

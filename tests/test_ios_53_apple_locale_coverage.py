@@ -15,7 +15,7 @@ from ios_020_locale_audit import read_strings
 
 NEW = {'or': 'or-IN', 'sl': 'sl-SI', 'uk': 'uk'}
 TABLES = {'Localizable': 155, 'ProfileManagement': 101,
-          'ProxyImport': 40, 'SmartExclusions': 45, 'QuickActions': 3}
+          'ProxyImport': 40, 'SmartExclusions': 51, 'QuickActions': 3}
 
 
 def test_53_ui_languages_all_have_five_complete_catalogs():

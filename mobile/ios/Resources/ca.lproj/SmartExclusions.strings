@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Domini del lloc web no vàlid";
 "Связанный домен не принадлежит сайту" = "Aquest domini no pertany al lloc";
 "Превышен безопасный предел связанных доменов" = "Massa dominis relacionats";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Amplia automàticament les exclusions";
+"Добавить связанный домен" = "Afegeix un domini relacionat";
+"Адрес связанного домена" = "Domini relacionat";
+"Системная связь" = "Enllaç integrat";
+"Добавлено вручную" = "Afegit manualment";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "En el mode automàtic, els subdominis verificats s'afegeixen sols. En el mode manual, tria'ls entre els suggeriments. Desa els canvis per aplicar-los.";

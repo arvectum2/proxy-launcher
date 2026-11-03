@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Səhv veb sayt domeni";
 "Связанный домен не принадлежит сайту" = "Bu domen bu saytda deyil.";
 "Превышен безопасный предел связанных доменов" = "Çoxlu əlaqəli domenlər var.";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "İstisnaları avtomatik genişləndir";
+"Добавить связанный домен" = "Əlaqəli domen əlavə et";
+"Адрес связанного домена" = "Əlaqəli domen";
+"Системная связь" = "Daxili əlaqə";
+"Добавлено вручную" = "Əllə əlavə edilib";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Avtomatik rejimdə yoxlanılmış alt domenlər öz-özünə əlavə edilir. Əl rejimində onları təkliflərdən seçin. Tətbiq etmək üçün dəyişiklikləri yadda saxlayın.";

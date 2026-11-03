@@ -14,7 +14,7 @@ PAT=re.compile(r'^\s*"((?:\\.|[^"\\])*)"\s*=\s*"((?:\\.|[^"\\])*)"\s*;',re.M)
 FMT=re.compile(r'%(?:(\d+)\$)?[-+#0 ]*(?:\d+)?(?:\.\d+)?(?:hh|ll|h|l|L|z|t|j)?([@diufFeEgGxXosc])')
 ALIASES={'Домой':'Главная','Тема':'Тема оформления','Язык':'Язык приложения','Автоматизация':'Автоматизация приложений'}
 REQUIRED_TABLES={'Localizable':155,'ProfileManagement':101,'ProxyImport':40,
-                 'SmartExclusions':45,'QuickActions':3}
+                 'SmartExclusions':51,'QuickActions':3}
 
 def read_strings(path):
     pairs=PAT.findall(path.read_text(encoding='utf-8'))

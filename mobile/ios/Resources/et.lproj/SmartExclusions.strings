@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Kehtetu veebisaidi domeen.";
 "Связанный домен не принадлежит сайту" = "See domeen on registreeritud, kuid seda ei kasutata.";
 "Превышен безопасный предел связанных доменов" = "Liiga palju seotud domeene.";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Laienda erandeid automaatselt";
+"Добавить связанный домен" = "Lisa seotud domeen";
+"Адрес связанного домена" = "Seotud domeen";
+"Системная связь" = "Sisseehitatud seos";
+"Добавлено вручную" = "Lisatud käsitsi";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Automaatrežiimis lisatakse kinnitatud alamdomeenid ise. Käsirežiimis vali need soovituste hulgast. Muudatuste rakendamiseks salvesta need.";

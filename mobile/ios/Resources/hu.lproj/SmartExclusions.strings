@@ -38,9 +38,17 @@
 "Отменить последнее изменение" = "Az utolsó módosítás visszavonása";
 "Разрешить прямой доступ для стороннего домена?" = "Megkerüli a proxyt egy harmadik féltől származó domainhez?";
 "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена." = "A megosztott IP-es cím más webhelyeket is kiszolgálhat. Ennek megkerülése minden, a IP-es számhoz csatlakozott kapcsolatot érint, nem csak ezt a tartományt.";
-"Сохранение…" = "Megtakarítás…";
+"Сохранение…" = "Mentés…";
 "Новых связанных доменов не обнаружено" = "Nem található új kapcsolódó domain";
 "Для поиска зависимостей укажите корректный домен сайта, а не IP-адрес" = "A függőségek vizsgálatához adjon meg egy érvényes webhelydomaint, ne egy IP-es címet.";
 "Некорректный домен сайта" = "Érvénytelen webhelydomain";
 "Связанный домен не принадлежит сайту" = "Ez a domain nem tartozik a webhelyhez";
 "Превышен безопасный предел связанных доменов" = "Túl sok kapcsolódó domain";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Kivételek automatikus bővítése";
+"Добавить связанный домен" = "Kapcsolódó domain hozzáadása";
+"Адрес связанного домена" = "Kapcsolódó domain";
+"Системная связь" = "Beépített kapcsolat";
+"Добавлено вручную" = "Kézzel hozzáadva";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Automatikus módban az ellenőrzött aldomainek automatikusan hozzáadódnak. Kézi módban válassza ki őket a javaslatok közül. A módosítások alkalmazásához mentse őket.";

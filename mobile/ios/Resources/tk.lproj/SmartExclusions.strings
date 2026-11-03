@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Ýokary hilli web sahypasynyň domeni ýok.";
 "Связанный домен не принадлежит сайту" = "Bu domen bu saýtyň eýesi däl.";
 "Превышен безопасный предел связанных доменов" = "Çok köp baglanyşykly domenler bar.";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Kadadan çykmalary awtomatiki giňelt";
+"Добавить связанный домен" = "Baglanyşykly domen goş";
+"Адрес связанного домена" = "Baglanyşykly domen";
+"Системная связь" = "Içindäki baglanyşyk";
+"Добавлено вручную" = "El bilen goşuldy";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Awtomatiki tertipde barlanan kiçi domenler öz-özünden goşulýar. El bilen tertipde olary tekliplerden saýlaň. Üýtgetmeleri ulanmak üçin ýatda saklaň.";

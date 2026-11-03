@@ -483,7 +483,8 @@ extension ProxyImportUITests {
 
 final class SmartExclusionsLocaleUITests: XCTestCase {
     private func assertLocalizedSmartExclusions(language: String, settings: String,
-                                                exclusions: String, scan: String) {
+                                                exclusions: String, scan: String,
+                                                autoExpand: String) {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
                                 "-appLanguage.v1", language]
@@ -491,6 +492,10 @@ final class SmartExclusionsLocaleUITests: XCTestCase {
         let tab = app.tabBars.buttons[settings]
         XCTAssertTrue(tab.waitForExistence(timeout: 20), "Settings tab absent for \(language)")
         tab.tap()
+        let modeLabel = app.staticTexts[autoExpand]
+        for _ in 0..<4 where !modeLabel.exists { app.swipeUp() }
+        XCTAssertTrue(modeLabel.waitForExistence(timeout: 8),
+                      "Auto expansion setting missing or untranslated for \(language)")
         let section = app.buttons[exclusions]
         XCTAssertTrue(section.waitForExistence(timeout: 10), "Exclusions item absent for \(language)")
         section.tap()
@@ -501,12 +506,14 @@ final class SmartExclusionsLocaleUITests: XCTestCase {
 
     func testEnglishSmartExclusionsScreenUsesEnglishLabels() {
         assertLocalizedSmartExclusions(language: "en", settings: "Settings",
-                                       exclusions: "Website exclusions", scan: "Find related domains")
+                                       exclusions: "Website exclusions", scan: "Find related domains",
+                                       autoExpand: "Expand exclusions automatically")
     }
 
     func testHebrewSmartExclusionsScreenUsesRTLLanguageLabels() {
         assertLocalizedSmartExclusions(language: "he", settings: "הגדרות",
-                                       exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים")
+                                       exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים",
+                                       autoExpand: "הרחבה אוטומטית של חריגים")
     }
 }
 

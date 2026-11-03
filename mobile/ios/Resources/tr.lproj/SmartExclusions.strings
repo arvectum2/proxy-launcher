@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Geçersiz web sitesi alanı";
 "Связанный домен не принадлежит сайту" = "Bu alan adı siteye ait değil";
 "Превышен безопасный предел связанных доменов" = "Çok fazla ilgili alan var";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "İstisnaları otomatik genişlet";
+"Добавить связанный домен" = "İlişkili alan adı ekle";
+"Адрес связанного домена" = "İlişkili alan adı";
+"Системная связь" = "Yerleşik bağlantı";
+"Добавлено вручную" = "Elle eklendi";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Otomatik modda doğrulanan alt alan adları otomatik eklenir. Manuel modda bunları önerilerden seçin. Değişiklikleri uygulamak için kaydedin.";

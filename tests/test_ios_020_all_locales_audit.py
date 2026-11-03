@@ -24,7 +24,7 @@ class AllLocalesAudit(unittest.TestCase):
             self.assertEqual(lang['new_english'],0,lang['locale'])
             self.assertEqual(lang['ProfileManagement_entries'],101,lang['locale'])
             self.assertEqual(lang['ProxyImport_entries'],40,lang['locale'])
-            self.assertEqual(lang['SmartExclusions_entries'],45,lang['locale'])
+            self.assertEqual(lang['SmartExclusions_entries'],51,lang['locale'])
             self.assertEqual(lang['QuickActions_entries'],3,lang['locale'])
         swift=(ROOT/'mobile/ios/App/AppLocalization.swift').read_text(encoding='utf-8')
         for frag in ('"Домой": "Главная"','"Тема": "Тема оформления"','"Язык": "Язык приложения"','"Автоматизация": "Автоматизация приложений"'):

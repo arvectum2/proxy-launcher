@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Neplatná doména webových stránok";
 "Связанный домен не принадлежит сайту" = "Táto doména nepatrí do lokality";
 "Превышен безопасный предел связанных доменов" = "Príliš veľa súvisiacich domén";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Automaticky rozširovať výnimky";
+"Добавить связанный домен" = "Pridať súvisiacu doménu";
+"Адрес связанного домена" = "Súvisiaca doména";
+"Системная связь" = "Vstavaná väzba";
+"Добавлено вручную" = "Pridané ručne";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "V automatickom režime sa overené subdomény pridávajú automaticky. V manuálnom režime ich vyberte z návrhov. Uložte zmeny, aby sa použili.";

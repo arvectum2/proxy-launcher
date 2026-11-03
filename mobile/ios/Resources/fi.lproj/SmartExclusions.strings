@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Virheellinen verkkosivuston verkkotunnus";
 "Связанный домен не принадлежит сайту" = "Tämä verkkotunnus ei kuulu sivustolle";
 "Превышен безопасный предел связанных доменов" = "Liian monta aiheeseen liittyvää verkkotunnusta";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Laajenna poikkeuksia automaattisesti";
+"Добавить связанный домен" = "Lisää liittyvä verkkotunnus";
+"Адрес связанного домена" = "Liittyvä verkkotunnus";
+"Системная связь" = "Sisäänrakennettu yhteys";
+"Добавлено вручную" = "Lisätty käsin";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "Automaattitilassa vahvistetut aliverkkotunnukset lisätään automaattisesti. Manuaalitilassa valitse ne ehdotuksista. Tallenna muutokset ottaaksesi ne käyttöön.";

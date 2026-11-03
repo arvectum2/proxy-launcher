@@ -44,3 +44,11 @@
 "Некорректный домен сайта" = "Yankin gidan yanar gizo mara inganci";
 "Связанный домен не принадлежит сайту" = "Wannan yanki baya cikin rukunin yanar gizon";
 "Превышен безопасный предел связанных доменов" = "Yankuna masu alaƙa da yawa";
+
+/* iOS 0.2.0: automatic site exclusion groups and editing. */
+"Автоматически расширять исключения" = "Faɗaɗa keɓancewa ta atomatik";
+"Добавить связанный домен" = "Ƙara yankin yanar gizo mai alaƙa";
+"Адрес связанного домена" = "Yankin yanar gizo mai alaƙa";
+"Системная связь" = "Haɗin da aka gina a ciki";
+"Добавлено вручную" = "An ƙara da hannu";
+"В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения." = "A yanayin atomatik, ana ƙara ƙananan yankunan da aka tabbatar ta atomatik. A yanayin hannu, zaɓe su daga shawarwari. Ajiye canje-canje don amfani da su.";
