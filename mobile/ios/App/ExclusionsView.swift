@@ -25,6 +25,9 @@ struct ExclusionsView: View {
     @State private var entries: [String] = []
     @State private var graph = SmartExclusionGraph()
     @State private var scannedParent = ""
+    @State private var expandedParents: Set<String> = []
+    @State private var linkingParent: String?
+    @State private var linkedHostInput = ""
     @State private var externalHints: [String] = []
     @State private var diagnosticHints: [String] = []
     @State private var diagnosticProbeStatus: [String: String] = [:]
@@ -59,13 +62,6 @@ struct ExclusionsView: View {
         NavigationView {
             List {
                 editorSection
-                if !automaticallyIncluded.isEmpty {
-                    Section(SmartExclusionsUX.text("Добавлены автоматически")) {
-                        ForEach(automaticallyIncluded, id: \.self) { host in
-                            Text(host).textSelection(.enabled)
-                        }
-                    }
-                }
                 if !discovered.isEmpty {
                     Section(SmartExclusionsUX.text("Найденные домены — выберите для исключения")) {
                         ForEach(discovered, id: \.self) { host in
@@ -146,25 +142,6 @@ struct ExclusionsView: View {
                         Text(SmartExclusionsUX.text("Сторонние домены могут обслуживать рекламу или использовать общие IP-адреса. Добавление вручную направит все соединения к этим IP мимо VPN. Без явного подтверждения правила не меняются."))
                     }
                 }
-                if !graph.edges.isEmpty {
-                    Section {
-                        ForEach(Array(Set(graph.edges.map(\.parent))).sorted(), id: \.self) { parent in
-                            DisclosureGroup(parent) {
-                                ForEach(graph.edges.filter { $0.parent == parent }) { edge in
-                                    graphEdgeRow(edge, parent: parent)
-                                }
-                                Button(SmartExclusionsUX.text("Удалить связи сайта"), role: .destructive) {
-                                    snapshotUndo()
-                                    graph.remove(parent: parent)
-                                }
-                            }
-                        }
-                    } header: {
-                        Text(SmartExclusionsUX.text("Связанные домены"))
-                    } footer: {
-                        Text(SmartExclusionsUX.text("Связи хранятся локально 7 дней. Повторный анализ обновляет дату наблюдения, но не меняет ваше решение. Сторонние CDN не обходятся автоматически."))
-                    }
-                }
                 if undoEntries != nil {
                     Section {
                         Button(SmartExclusionsUX.text("Отменить последнее изменение")) { restoreUndo() }
@@ -181,32 +158,83 @@ struct ExclusionsView: View {
                         .frame(maxWidth: .infinity, minHeight: 68, alignment: .leading)
                     }
                     ForEach(entries, id: \.self) { host in
-                        HStack(spacing: 12) {
-                            Text(host)
-                                .textSelection(.enabled)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            if host.contains(".") && !host.contains(":") {
-                                Button { scanSite(host) } label: {
-                                    Image(systemName: "magnifyingglass")
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack(spacing: 12) {
+                                Text(host)
+                                    .textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                if SmartExclusionGraph.root(host) != nil {
+                                    Button { scanSite(host) } label: {
+                                        Image(systemName: "magnifyingglass")
+                                            .frame(minWidth: 44, minHeight: 44)
+                                    }
+                                    .disabled(scanning)
+                                    .buttonStyle(.borderless)
+                                    .accessibilityLabel(SmartExclusionsUX.text("Найти связанные домены для ") + host)
+                                }
+                                Button(role: .destructive) {
+                                    snapshotUndo()
+                                    entries.removeAll { $0 == host }
+                                    graph.remove(parent: host)
+                                    queuedScans.removeAll { $0 == host }
+                                    if activeScanHost == host { cancelScan() }
+                                    if linkingParent == SmartExclusionGraph.root(host) { linkingParent = nil }
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .foregroundStyle(.red)
                                         .frame(minWidth: 44, minHeight: 44)
                                 }
-                                .disabled(scanning)
                                 .buttonStyle(.borderless)
-                                .accessibilityLabel(SmartExclusionsUX.text("Найти связанные домены для ") + host)
+                                .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
                             }
-                            Button(role: .destructive) {
-                                snapshotUndo()
-                                entries.removeAll { $0 == host }
-                                graph.remove(parent: host)
-                                queuedScans.removeAll { $0 == host }
-                                if activeScanHost == host { cancelScan() }
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(.red)
-                                    .frame(minWidth: 44, minHeight: 44)
+                            if let parent = SmartExclusionGraph.root(host) {
+                                DisclosureGroup(isExpanded: Binding(
+                                    get: { expandedParents.contains(parent) },
+                                    set: { open in
+                                        if open { expandedParents.insert(parent) }
+                                        else { expandedParents.remove(parent) }
+                                    }
+                                )) {
+                                    ForEach(graph.edges.filter { $0.parent == parent }) { edge in
+                                        graphEdgeRow(edge, parent: parent)
+                                    }
+                                    ForEach(SiteExclusionPolicy.routingHosts(for: host).filter { alias in
+                                        alias != host && !graph.edges.contains {
+                                            $0.parent == parent && $0.host == alias
+                                        }
+                                    }, id: \.self) { alias in
+                                        HStack {
+                                            Text(alias).textSelection(.enabled)
+                                            Spacer()
+                                            Text(SmartExclusionsUX.text("Системная связь"))
+                                                .font(.caption).foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    if linkingParent == parent {
+                                        HStack {
+                                            TextField(SmartExclusionsUX.text("Адрес связанного домена"),
+                                                      text: $linkedHostInput)
+                                                .textInputAutocapitalization(.never)
+                                                .autocorrectionDisabled()
+                                                .accessibilityIdentifier("exclusions.linkedHost")
+                                            Button(AppL10n.tr("Добавить")) { addLinkedHost(to: parent) }
+                                                .buttonStyle(.borderless)
+                                        }
+                                    } else {
+                                        Button(SmartExclusionsUX.text("Добавить связанный домен")) {
+                                            linkingParent = parent
+                                            linkedHostInput = ""
+                                        }
+                                        .frame(minHeight: 44)
+                                        .accessibilityIdentifier("exclusions.addLinked.\(parent)")
+                                    }
+                                } label: {
+                                    let count = graph.edges.filter { $0.parent == parent }.count
+                                    Text(SmartExclusionsUX.text("Связанные домены") + " (\(count))")
+                                        .font(.subheadline)
+                                }
+                                .accessibilityIdentifier("exclusions.group.\(parent)")
                             }
-                            .buttonStyle(.borderless)
-                            .accessibilityLabel(AppL10n.tr("Удалить исключение") + " \(host)")
                         }
                     }
                     .onDelete { offsets in
@@ -287,6 +315,7 @@ struct ExclusionsView: View {
                 model.refresh()
                 entries = model.manualExclusions
                 graph = model.smartGraph.pruned()
+                expandedParents = Set(entries.compactMap(SmartExclusionGraph.root))
                 diagnosticHints = model.adaptiveRouteLearning.diagnosticCandidates()
                 diagnosticProbeTask?.cancel()
                 diagnosticProbeTask = Task { await checkDiagnosticHosts() }
@@ -606,7 +635,8 @@ struct ExclusionsView: View {
                     do {
                         snapshotUndo()
                         try graph.observe(parent: host, html: observation.html, network: observation.network)
-                        let autoAdded = graph.approveStrongFirstParty(parent: host, manual: entries)
+                        let autoAdded = model.automaticSiteExpansion
+                            ? graph.approveStrongFirstParty(parent: host, manual: entries) : []
                         scannedParent = SmartExclusionGraph.root(host) ?? host
                         externalHints = observation.external.filter {
                             !entries.contains($0) && !automaticallyIncluded.contains($0)
@@ -625,6 +655,22 @@ struct ExclusionsView: View {
         } catch { localError = error.localizedDescription }
     }
 
+    private func addLinkedHost(to parent: String) {
+        do {
+            guard entries.contains(where: { SmartExclusionGraph.root($0) == parent }) else {
+                throw SmartGraphError.invalidParent
+            }
+            var next = graph
+            try next.addUserLink(parent: parent, child: linkedHostInput)
+            _ = try next.effective(manual: entries)
+            snapshotUndo()
+            graph = next
+            linkingParent = nil
+            linkedHostInput = ""
+            localError = nil
+        } catch { localError = error.localizedDescription }
+    }
+
     private func addEntry() {
         isDomainFocused = false
         do {
@@ -634,6 +680,7 @@ struct ExclusionsView: View {
                 let newlyAdded = updated != entries
                 if newlyAdded { snapshotUndo() }
                 entries = updated
+                if let parent = SmartExclusionGraph.root(value) { expandedParents.insert(parent) }
                 // This is the core user flow: Add A automatically initiates
                 // one bounded HTML + runtime request scan for B/C.
                 if newlyAdded { queueScan(value) }
