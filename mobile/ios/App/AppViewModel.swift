@@ -1,6 +1,9 @@
 import Foundation
 import Combine
 import NetworkExtension
+#if DEBUG
+import UIKit
+#endif
 
 enum ProfileHealth: Equatable {
     case checking
@@ -403,8 +406,26 @@ final class AppViewModel: ObservableObject {
         do {
             try await vpn.connect()
 #if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
-               ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
+            let safariRedirectLab = ProcessInfo.processInfo.arguments.contains("-aplSmart3SafariRedirectQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA")
+            if safariRedirectLab {
+                // Isolated hardware QA only: open synthetic A in actual
+                // Safari so the browser itself follows the 302 to auth-like B.
+                // Do not prime the route using our own test NWConnections.
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 5_000_000_000)
+                    if let url = URL(string: "http://start.qa-example.test/") {
+                        UIApplication.shared.open(url, options: [:]) { opened in
+                            TelemetryStore().append(TunnelEvent(
+                                type: "lab safari open attempted",
+                                detail: opened ? "Synthetic A opened in Safari" : "Safari opener declined"))
+                        }
+                    }
+                }
+            } else if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+                      ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
                 Task {
                     try? await Task.sleep(nanoseconds: 2_000_000_000)
                     Smart3PhysicalTrafficQA.begin()

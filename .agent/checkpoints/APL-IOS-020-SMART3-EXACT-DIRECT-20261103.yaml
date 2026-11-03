@@ -31,11 +31,15 @@ completed:
   iOS Debug device test build and XCTest PASS, 151 Python iOS tests +73 subtests PASS.
 - After physical E2E, all 11 App Group and 20 app preference values were restored; independent SHA256 per value EXACT_MATCH
   for all 31 keys. Did not alter real profiles, ads, privacy, or publish version.
-current: Confirmed app-owned TLS same-flow recovery on actual iPhone. Next real Safari A→auth.A redirect, same-CDN IPv4/IPv6
-  isolation, network change/fail-closed and supported Apple consumer distribution model.
+- 'REAL Safari on iPhone13 iOS27.2 A→B redirect PASS (37sec): synthetic HTTP origin 302 to www.apple.com; two blocked upstream
+  target CONNECT; two physical TLS probes; exact-host approval; original Safari TCP recovered with real bidirectional bytes;
+  Safari displayed redirected apple.com page and iPhone text. Physical XCResult /private/tmp/apl-smart3-safari-final-physical-20261103.xcresult.
+  31/31 saved preferences restored SHA256 exact.'
+current: 'Real Safari A→B automatic recovery passed in bounded physical DEBUG QA. Next: shared real CDN IPv4/IPv6 neighbor
+  must remain PROXY, network handoff/rollback, Apple TN3120 supported architecture; no release.'
 pending:
-- Safely test real Safari navigation with A→auth.A redirect and failed upstream CONNECT; prove original page completes without
-  manual retry, plus learning persistence, TTL, handoff and failure rollback.
+- DONE baseline real Safari A→B automatic direct redirect; remaining production robustness (single target failure, TTL,
+  handoff, rollback, Safari HTTPS-only/QUIC) and adversarial shared-IP peer isolation.
 - Provide adversarial shared-CDN IPv4/IPv6 different exact host test and demonstrate proxy-only traffic for nonapproved
   neighbor, fail closed on raw IP/DoH/QUIC/ECH/unknown flows.
 - Validate supported Apple iOS NetworkExtension alternate-interface egress via official Apple DTS or an App Store-supported
@@ -49,9 +53,11 @@ test_results:
   12s and 4s tests recorded and resolved.
 - Rust 12/12; Python iOS 151/151 + 73 subtests; signed physical Debug build-for-testing PASS, iOS Release unsigned build
   earlier PASS; physical app/group preferences exactly restored 31/31.
-resume_instruction: 'Continue feat/ios-020-smart3-exact-flow-direct-20261103 from verified physical E2E stage; read checkpoint
-  and git status. Actual iPhone13 iOS27.2 strict app TLS same-flow passed /private/tmp/apl-smart3-direction-physical-20261103.xcresult.
-  Do NOT rerun this or prior tests unchanged. Source patch mobile/ios/Tools/tun2proxy-sameflow-scoped-retry.patch (4s DEBUG,
-  12s release; events7-9). Next conduct real Safari A→auth.A redirect and adversarial shared-CDN IP/IPv6 with A proxy-only
-  vs auth.A exact physical DIRECT. No Apple TN3120 clearance yet: Release flags false, no upload/merge/publication. Backup/restore
-  31 prefs for any hardware test, no real paid proxy; no user secrets in log.'
+- 2026-11-03 16:54 MSK physical Safari A→B test 1/1 PASS 37sec; origin CONNECT=2, 302=1, blocked target CONNECT=2, independent
+  physical probes=2, original TCP recovered with client+server bytes; iPhone app/group prefs 31 SHA256 restore PASS; 152
+  Python iOS tests +73 subtests PASS.
+resume_instruction: 'On feat/ios-020-smart3-exact-flow-direct-20261103 preserve completed physical Safari A-to-B PASS, app
+  same-flow PASS and 31-pref restore. Next test shared real CDN-IP www.apple.com and www.apple.com.cn (Mac mini dig both
+  23.12.156.37 on Nov3): approved A exact DIRECT; distinct neighbor B stays upstream PROXY. Do not repeat passed app/Safari
+  tests unless changed. Then Wi-Fi/LTE/TTL/QUIC/DoH/ECH/single-failure and Apple-supported consumer iOS approach under TN3120.
+  Do not merge/upload/publish 0.2.0 while release gate unmet. Read docs/APL_IOS_020_SMART3_EXACT_FLOW_DIRECT_LAB_2026-11-03.md.'

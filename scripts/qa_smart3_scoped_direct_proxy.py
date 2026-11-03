@@ -15,6 +15,7 @@ import time
 
 HEALTHY = "www.cloudflare.com:443"
 FAIL = "www.apple.com:443"
+START = "start.qa-example.test:80"
 
 
 class BoundedServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -34,7 +35,31 @@ class MockConnect(socketserver.BaseRequestHandler):
                     return
                 content += chunk
             first = content.split(b"\r\n", 1)[0]
-            if first == b"CONNECT " + HEALTHY.encode("ascii") + b" HTTP/1.1":
+            if (getattr(self.server, "safari_redirect", False) and
+                    first == b"CONNECT " + START.encode("ascii") + b" HTTP/1.1"):
+                # Safari first loads a synthetic HTTP A, then follows a real
+                # redirect to the blocked HTTPS auth-like destination. No
+                # real origin connection or user account is contacted here.
+                print("START_CONNECT", flush=True)
+                self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                request = b""
+                while b"\r\n\r\n" not in request and len(request) < 4096:
+                    part = self.request.recv(1024)
+                    if not part:
+                        return
+                    request += part
+                if not request.startswith(b"GET "):
+                    print("START_BAD_METHOD", flush=True)
+                    return
+                self.request.sendall(
+                    b"HTTP/1.1 302 Found\r\n"
+                    b"Location: https://www.apple.com/\r\n"
+                    b"Content-Length: 0\r\n"
+                    b"Cache-Control: no-store\r\n"
+                    b"Connection: close\r\n\r\n")
+                print("START_REDIRECT_TO_TARGET", flush=True)
+                time.sleep(1)
+            elif first == b"CONNECT " + HEALTHY.encode("ascii") + b" HTTP/1.1":
                 print("HEALTHY_CONNECT", flush=True)
                 self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
                 time.sleep(2)
@@ -51,6 +76,8 @@ class MockConnect(socketserver.BaseRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--physical-lab", action="store_true")
+    parser.add_argument("--safari-redirect", action="store_true",
+                        help="Enable a synthetic HTTP 302 start-site fixture")
     parser.add_argument("--bind-ip", default="192.168.1.80")
     parser.add_argument("--port", type=int, default=18081)
     options = parser.parse_args()
@@ -62,6 +89,7 @@ def main():
     if options.port != 18081:
         parser.error("This fixed-purpose fixture may only use port 18081.")
     with BoundedServer((str(address), options.port), MockConnect) as server:
+        server.safari_redirect = options.safari_redirect
         threading.Timer(115, server.shutdown).start()
         print("READY_SCOPED_MOCK lifetime<=115s no_forwarding=true", flush=True)
         server.serve_forever(poll_interval=0.1)

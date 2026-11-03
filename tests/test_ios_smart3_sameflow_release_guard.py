@@ -76,3 +76,18 @@ def test_lan_mock_is_explicit_and_never_forwards_any_destination():
     assert 'socket.create_connection(' not in fixture
     assert 'socket.socket(' not in fixture
     assert 'HTTP/1.1 403 Forbidden' in fixture
+
+def test_real_safari_redirect_uses_actual_browser_without_app_priming():
+    app = (IOS / "App/AppViewModel.swift").read_text()
+    fixture = (ROOT / "scripts/qa_smart3_scoped_direct_proxy.py").read_text()
+    assert '"-aplSmart3SafariRedirectQA"' in app
+    assert "UIApplication.shared.open(url, options:" in app
+    assert 'if safariRedirectLab {' in app and 'else if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA")' in app
+    assert 'let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")' in HARDWARE
+    assert 'testSafariHTTPRedirectRecoversAuthLikeHostWithoutReload' in HARDWARE
+    assert 'hierarchy.contains("apple.com")' in HARDWARE
+    assert 'label CONTAINS[c] %@' in HARDWARE and '"iPhone"' in HARDWARE
+    assert 'START = "start.qa-example.test:80"' in fixture
+    assert 'Location: https://www.apple.com/' in fixture
+    assert '"--safari-redirect"' in fixture
+    assert 'socket.create_connection(' not in fixture

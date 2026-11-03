@@ -63,6 +63,76 @@ final class Smart3LiveTunnelPhysicalUITests: XCTestCase {
 #endif
     }
 
+    /// Browser E2E, not an app NWConnection substitute. The only traffic
+    /// producer after VPN activation is real Safari: synthetic HTTP A serves
+    /// an HTTP 302 to https://www.apple.com/, whose CONNECTs are withheld.
+    /// The tunnel must independently learn B and finish Safari navigation.
+    func testSafariHTTPRedirectRecoversAuthLikeHostWithoutReload() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Requires physical Safari and Packet Tunnel")
+#else
+        guard ProcessInfo.processInfo.environment["APL_SMART3_SAFARI_QA"] == "enabled" else {
+            throw XCTSkip("Explicit real Safari physical experiment is required")
+        }
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-aplEphemeralTunnelQA", "-aplSmart3LocalProxyQA",
+                                "-aplSmart3ScopedDirectLabQA", "-aplSmart3SafariRedirectQA"]
+        app.launch()
+        let connect = app.buttons["Подключиться"].firstMatch
+        guard connect.waitForExistence(timeout: 15) else {
+            throw XCTSkip("Owner VPN is already running; never override it")
+        }
+        connect.tap()
+        XCTAssertTrue(app.buttons["Отключить"].firstMatch.waitForExistence(timeout: 12),
+                      "Temporary Safari QA VPN did not start")
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        XCTAssertTrue(safari.wait(for: .runningForeground, timeout: 18),
+                      "Safari was not opened on synthetic A by the application")
+        print("APL_SAFARI_BROWSER_APPEARED")
+        let browser = safari.webViews.firstMatch
+        XCTAssertTrue(browser.waitForExistence(timeout: 12),
+                      "No Safari WebKit page appeared")
+        Thread.sleep(forTimeInterval: 13)
+        let hierarchy = safari.debugDescription
+        print("APL_SAFARI_HIERARCHY_PREVIEW_\(String(hierarchy.prefix(1600)))")
+        // Safari address UI usually hides leading "www."; don't require
+        // the literal DNS hostname in its shortened address-bar label.
+        XCTAssertTrue(hierarchy.contains("apple.com"),
+                      "Safari did not expose the redirected target domain")
+        let page = browser.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "iPhone")
+        ).firstMatch
+        XCTAssertTrue(page.waitForExistence(timeout: 4),
+                      "Safari target HTML did not render after automatic bypass")
+        print("APL_SAFARI_REDIRECT_HTML_RENDERED")
+        app.activate()
+        let activity = app.tabBars.buttons["Активность"]
+        XCTAssertTrue(activity.waitForExistence(timeout: 6),
+                      "Cannot check Packet Tunnel browser-flow evidence")
+        activity.tap()
+        let refresh = app.buttons["activity.refresh"]
+        XCTAssertTrue(refresh.waitForExistence(timeout: 5))
+        refresh.tap()
+        let approved = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS %@", "lab direct armed")
+        ).firstMatch
+        let recovered = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS %@", "lab sameflow recovered")
+        ).firstMatch
+        let downstream = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS %@", "lab direct server bytes")
+        ).firstMatch
+        XCTAssertTrue(approved.waitForExistence(timeout: 5),
+                      "No independent proof activated exact-host DIRECT")
+        XCTAssertTrue(recovered.waitForExistence(timeout: 5),
+                      "Safari's original blocked TCP stream was not recovered")
+        XCTAssertTrue(downstream.waitForExistence(timeout: 5),
+                      "No response bytes crossed the physical direct TCP stream")
+#endif
+    }
+
     private func exercise(_ host: String) -> NWConnection {
         let connection = NWConnection(host: NWEndpoint.Host(host), port: .https,
                                       using: .tcp)

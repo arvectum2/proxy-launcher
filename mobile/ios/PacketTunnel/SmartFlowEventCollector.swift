@@ -14,6 +14,9 @@ final class SmartFlowEventCollector {
     private var enabled = false
     private var labScopedDirect = false
     private var inflight: Set<String> = []
+#if DEBUG
+    private var labFlowEventBudget = 0
+#endif
 
 
     func start(store: ProfileStore, labScopedDirect: Bool = false) {
@@ -23,6 +26,7 @@ final class SmartFlowEventCollector {
             successfulHosts.removeAll()
             inflight.removeAll()
 #if DEBUG
+            labFlowEventBudget = 0
             self.labScopedDirect = labScopedDirect
             if labScopedDirect {
                 telemetry.append(TunnelEvent(type: "lab scoped enabled", detail: "DEBUG only"))
@@ -59,6 +63,17 @@ final class SmartFlowEventCollector {
             self.successfulHosts = self.successfulHosts.filter {
                 now.timeIntervalSince($0.value) < 60
             }
+#if DEBUG
+            // Only the two disposable browser-test hosts; bounded and no secrets.
+            if self.labScopedDirect && self.labFlowEventBudget < 16 &&
+                (host == "start.qa-example.test" || host == "www.apple.com") {
+                self.labFlowEventBudget += 1
+                let origin = host == "start.qa-example.test" ? "origin" : "target"
+                let healthy = self.successfulHosts.contains { $0.key != host }
+                self.telemetry.append(TunnelEvent(type: "lab browser flow observed",
+                    detail: "\(origin); code=\(event); peerHealthy=\(healthy ? 1 : 0)"))
+            }
+#endif
             if event == 0 {
                 self.successfulHosts[host] = now
                 if self.successfulHosts.count > 32 {

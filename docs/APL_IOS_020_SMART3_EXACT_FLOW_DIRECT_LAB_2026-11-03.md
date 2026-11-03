@@ -10,7 +10,7 @@ On physical iPhone 13 iOS 27.2 using explicit opt-in Debug QA, tun2proxy v0.8.3 
 - A **fresh fourth client TCP/TLS flow** for www.apple.com opened an iOS IP_BOUND_IF bound TCP socket, completed TLS, and received actual response bytes. The mock proxy recorded two, not three target CONNECT requests.
 - Event log (UTC, November 3): 11:43:17 probe started, 11:43:19 probe results 1+1 and dynamic approval, 11:43:24 physical bound TCP accepted / TLS ready / received data.
 - Physical XCTest PASS with actual TCP + TLS evidence, not merely a timer: /private/tmp/apl-smart3-direct-evidence-guard-real2-20261103.xcresult.
-- The result proves a **fresh app NWConnection flow** after learning. It does NOT establish that Safari's already hanging session recovered, that two unrelated domains sharing one CDN IP are isolated on hardware, or that Apple supports this use of a packet tunnel in an App Store release.
+- This earlier test proved only a fresh app flow; later full same-flow TLS and real Safari A-to-B recovery both PASS. Shared-IP isolation and Apple support are separate release gates.
 
 ## Same captured TCP stream — PHYSICAL TLS PAYLOAD ACCEPTANCE PASSED
 
@@ -26,7 +26,36 @@ On physical iPhone 13 iOS 27.2 using explicit opt-in Debug QA, tun2proxy v0.8.3 
 - **03 Nov 16:34 MSK real iPhone PASS**: /private/tmp/apl-smart3-direction-physical-20261103.xcresult, `testExperimentalScopedDirectAfterTwoFailures() Passed (41s)`. The mock received two blocked `www.apple.com` CONNECT sessions and upstream healthy CONNECT. Distinct physical event evidence: at 13:34:10 UTC independent probe started, 13:34:12 2/2 physical TLS probes passed and host armed; 13:34:12.372 and .379 two **original** captured TCP streams recovered, each transferred first client bytes and server bytes, then each completed TLS and received HTTP response bytes without reconnect; 13:34:25 a **fresh fourth** TLS flow also completed physical TCP, both directions, TLS handshake and response bytes. XCUITest has explicit assertions for both old and fresh application payload. No forced page reload. Per-host flow attributed by VirtualDNS fake-IP mapping; no global IP-wide excludedRoutes added.
 - Previously at 16:23 and 16:28 MSK two strict tests **FAILED** because original/fresh TLS payload was absent: event7/physical TCP alone did not count as success. Corrected the **DEBUG-only** proxy handshake deadline from 12 seconds to 4 seconds. Release/non-lab deadline remains 12 seconds. Added event 8/9 to measure actual first client/server TCP chunk without storing packet contents. Successful test followed these changes.
 - Full iPhone user's saved state was restored after the test: 11 App Group and 20 app preferences match the pretest SHA-256 digest for every key, including proxy profiles. Diagnostic snapshots are private under /Users/master/Library/Application Support/Arvectum/ios-020-smart3-sameflow-20261103/. The temporary LAN proxy auto-stops after 115 seconds.
-- **Caveat:** this physical test uses an app NWConnection to emulate a Safari TLS client; it is not yet a real Safari browser redirect test. Apple NetworkExtension TN3120 support is not established; exact-host lab transport remains disabled for Release.
+- This original test uses app NWConnection; real Safari is separately accepted above. NetworkExtension TN3120 remains a release blocker; experiment is disabled for Release.
+
+## Real Safari A to auth-like B — PHYSICAL PASS at 16:54 MSK
+
+Actual Safari on iPhone13 opened http://start.qa-example.test/ and received
+HTTP 302 to https://www.apple.com/. The bounded LAN mock observed two origin
+CONNECTs, one successful redirect and two blocked target CONNECTs. No target
+traffic was forwarded through this mock.
+
+Real tunnel events in UTC: 13:54:22 origin proxy CONNECT healthy, 13:54:30 and
+13:54:39 target CONNECT failures, 13:54:39 physical DIRECT verification
+started, 13:54:41 two independent TLS probes PASS and exact hostname armed,
+13:54:41.535 original Safari TCP flow recovered without manual reload,
+13:54:41.541 outgoing TLS bytes and 13:54:41.603 incoming server bytes.
+Safari accessibility showed the shortened apple.com address and Apple iPhone
+homepage contents. Physical XCTest PASS (37 sec), result:
+  /private/tmp/apl-smart3-safari-final-physical-20261103.xcresult
+
+A previous negative test required literal www.apple.com in Safari chrome,
+which iOS shortens to apple.com. The stricter revised check validates the
+displayed domain, actual iPhone page contents, original TCP flow recovery
+and independently observed direct client and server bytes. No test client
+pre-armed the route: Safari alone generated the redirect and two proxy
+failures. Private app data: all 11 App Group and 20 app preference values
+restored and verified byte-for-byte-equivalent by per-value SHA256.
+
+This proves Safari A to B automatic recovery on the physical device in
+bounded DEBUG QA; it does NOT establish Apple-supported consumer distribution,
+same physical CDN IP peer isolation, QUIC/DoH/ECH safety or recovery after
+network changes. No App Store build has been submitted.
 
 ## Safety, privacy and distribution gates
 
@@ -37,8 +66,8 @@ On physical iPhone 13 iOS 27.2 using explicit opt-in Debug QA, tun2proxy v0.8.3 
 
 ## Required next acceptance tests
 
-1. DONE for app NWConnection only: strict same-flow XCTest with actual TLS payload and pre/post device preference digest protection PASS. Repeat for actual Safari, including auth-domain redirect (not yet proved).
-2. Test actual Safari A → auth.A auto-recovery with proxy timeout, including the already-open navigation, page load success, learned persistence, 24h expiry, network changes and rollback.
+1. DONE: strict app same-flow TLS and real Safari HTTP redirect to HTTPS target, independent learned DIRECT and actual page render PASS.
+2. DONE for baseline Safari navigation and original-flow recovery; still test learned persistence, 24h expiry, network changes and rollback.
 3. On one real shared-CDN IPv4 **and IPv6**, prove only the exact host bypasses; unrelated second host stays on upstream proxy; block ECH/QUIC/DoH/raw-IP/unknown host direct leaks.
 4. Obtain Apple supported consumer Packet Tunnel per-host physical-egress confirmation or supported alternative without IP-wide leaks; only then consider preparing final signed app, App Store Connect build number and submission.
 
