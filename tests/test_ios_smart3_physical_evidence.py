@@ -3,6 +3,11 @@ import importlib.util
 import json
 import plistlib
 from pathlib import Path
+import unittest
+
+# Pure pytest fixtures are skipped under portable unittest-only build.
+if importlib.util.find_spec("pytest") is None:
+    raise unittest.SkipTest("pytest-only Smart3 physical evidence module")
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]

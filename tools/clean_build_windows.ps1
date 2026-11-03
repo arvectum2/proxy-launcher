@@ -24,6 +24,9 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# Set UTF-8 for source contracts on Windows regardless of code page.
+$env:PYTHONUTF8 = "1"
+
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location -LiteralPath $RepoRoot
 
