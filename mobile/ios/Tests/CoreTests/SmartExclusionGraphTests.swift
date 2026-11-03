@@ -175,7 +175,8 @@ final class SmartExclusionGraphTests: XCTestCase {
         // A deliberate Add restores only the selected child.
         try graph.addUserLink(parent: "example.com", child: "auth.example.com",
                               at: now.addingTimeInterval(120))
-        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now),
+        XCTAssertEqual(try graph.effective(manual: ["example.com"],
+                                           at: now.addingTimeInterval(120)),
                        ["auth.example.com", "example.com"])
     }
 
