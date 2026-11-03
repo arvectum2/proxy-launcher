@@ -41,6 +41,7 @@ struct ExclusionsView: View {
     @FocusState private var isDomainFocused: Bool
     @State private var input = ""
     @State private var localError: String?
+    @State private var scanWarning: String?
     @State private var confirmClearAll = false
     @State private var saving = false
     @State private var discovered: [String] = []
@@ -449,6 +450,10 @@ struct ExclusionsView: View {
                     if let localError {
                         Text(SmartExclusionsUX.text(localError)).font(.caption).foregroundStyle(.red)
                     }
+                    if let scanWarning {
+                        Text(SmartExclusionsUX.text(scanWarning))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                     Button {
                         guard !scanUnavailable else { return }
                         scanSite()
@@ -640,6 +645,7 @@ struct ExclusionsView: View {
             externalHints = []
             selectedDiscovered = []
             localError = nil
+            scanWarning = nil
             let worker = ExclusionWebScanner()
             scanner = worker
             worker.scan(host: host) { result in
@@ -662,10 +668,10 @@ struct ExclusionsView: View {
                             $0.parent == scannedParent && $0.decision == .pending && !entries.contains($0.host)
                         }.map(\.host).sorted()
                         if discovered.isEmpty && externalHints.isEmpty && autoAdded.isEmpty {
-                            localError = "Новых связанных доменов не обнаружено"
+                            scanWarning = "Новых связанных доменов не обнаружено"
                         }
-                    } catch { localError = error.localizedDescription }
-                case .failure(let error): localError = error.localizedDescription
+                    } catch { scanWarning = error.localizedDescription }
+                case .failure(let error): scanWarning = error.localizedDescription
                 }
                 scanNextQueuedSite()
             }
