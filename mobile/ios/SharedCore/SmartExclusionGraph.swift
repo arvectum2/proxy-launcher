@@ -64,6 +64,7 @@ struct SmartExclusionGraph: Codable, Equatable {
         var byID: [String: SmartDependency] = [:]
         for edge in edges where edge.lastSeen <= now &&
                 (edge.userLinked == true || now.timeIntervalSince(edge.lastSeen) < Self.ttl) {
+            guard !(suppressed ?? []).contains(edge.id) else { continue }
             let validObserved = Self.validChild(edge.host, for: edge.parent)
             let validExplicit = edge.userLinked == true &&
                 SiteDependencyDiscovery.isScannableHost(edge.host) &&
