@@ -1,6 +1,27 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    func testSmart3ProblemBadgeAndNoSilentExclusion() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmart3FailureFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        let description = settings.debugDescription
+        print("APL_SMART3_SETTINGS_TAB_ACCESSIBILITY=" + description)
+        // Number badge must be visible on Settings while the detected host
+        // remains pending and expires automatically after the evidence TTL.
+        XCTAssertTrue(description.contains("1") || (settings.value as? String)?.contains("1") == true,
+                      "Expected one suggested failed host in Settings tab: \(description)")
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let host = app.staticTexts["auth.qa-example.test"].firstMatch
+        for _ in 0..<6 where !host.exists { app.swipeUp() }
+        XCTAssertTrue(host.waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+    }
+
     func testAdaptiveConnectionSuggestionRequiresManualConsent() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",

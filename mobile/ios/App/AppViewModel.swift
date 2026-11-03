@@ -88,6 +88,12 @@ final class AppViewModel: ObservableObject {
         return profiles.first(where: { $0.id == selectedProfileID })?.name ?? "Выберите прокси"
     }
 
+    /// Active-host failure diagnostics shown only while the user returns to APL.
+    /// Stale and denied observations do not create a notification/badge.
+    var pendingSmartDiagnosticsCount: Int {
+        adaptiveRouteLearning.diagnosticCandidates().count
+    }
+
     func prepare() async {
         await vpn.prepare()
         await scanProfiles()

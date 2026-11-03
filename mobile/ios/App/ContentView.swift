@@ -8,6 +8,7 @@ private struct ProxyImportRequest: Identifiable {
 struct ContentView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("setupGuideSeen.v1") private var setupGuideSeen = false
@@ -93,6 +94,12 @@ struct ContentView: View {
         .sheet(isPresented: $showProfileBackup) {
             ProfileBackupView().environmentObject(model)
         }
+        .onChange(of: scenePhase) { phase in
+            // The Packet Tunnel records failures while Safari is foreground.
+            // Reload App Group evidence when the user returns, without
+            // background polling, raw URL logging or changing VPN routes.
+            if phase == .active { model.refresh() }
+        }
         .onOpenURL { url in
             do {
                 importRequest = ProxyImportRequest(source: try ProxyImport.fromDeepLink(url))
@@ -134,6 +141,7 @@ struct ContentView: View {
             settingsScreen
                 .tag(AppDestination.settings)
                 .tabItem { Label(AppDestination.settings.title, systemImage: AppDestination.settings.icon) }
+                .badge(model.pendingSmartDiagnosticsCount)
         }
         .tint(Brand.mint)
         .background(Brand.canvas)
