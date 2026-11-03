@@ -137,7 +137,7 @@ struct CompactSettingsView<Header: View>: View {
         Group {
             if dynamicTypeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(AppL10n.tr(title))
+                    Text(SmartExclusionsUX.text(title))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Brand.text)
                         .fixedSize(horizontal: false, vertical: true)
@@ -147,7 +147,7 @@ struct CompactSettingsView<Header: View>: View {
                 .padding(.vertical, 3)
             } else {
                 HStack(spacing: 10) {
-                    Text(AppL10n.tr(title))
+                    Text(SmartExclusionsUX.text(title))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Brand.text)
                     Spacer(minLength: 4)
@@ -178,6 +178,14 @@ struct CompactSettingsView<Header: View>: View {
                 showExclusions = true
             }
             .accessibilityIdentifier("settings.siteExclusions")
+            settingsRow("Автоматически расширять исключения") {
+                Toggle(SmartExclusionsUX.text("Автоматически расширять исключения"),
+                       isOn: Binding(get: { model.automaticSiteExpansion },
+                                     set: { model.setAutomaticSiteExpansion($0) }))
+                    .labelsHidden()
+                    .tint(Brand.mint)
+                    .accessibilityIdentifier("settings.autoExpandExclusions")
+            }
             if #available(iOS 16.0, *) {
                 compactSettingsAction("Команды VPN", icon: "bolt.circle") {
                     showQuickActions = true
