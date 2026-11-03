@@ -1,21 +1,33 @@
 task_id: APL-IOS-020-FINAL-L10N-EGRESS-20261103
-status: in_progress
-goal: "Finish iOS 0.2.0 Smart Exclusions localization and determine safe, Apple-supported exact-host fallback behavior without IP-wide leaks."
+repository: arvectum2/proxy-launcher
+status: blocked
+goal: "iOS 0.2.0: finalize automatic Smart Exclusions localization and enable safe consumer Safari exact-host DIRECT after proxy timeouts."
 definition_of_done:
-  - "All existing SmartExclusions locales reviewed for the six new UI strings; localized strings complete with correct escaping/formatting, key coverage and native labels."
-  - "Audit obvious misleading prior translations that can affect the new settings and save flow, fix validated issues."
-  - "Re-run iOS Core, locale/source contracts, simulator UI and unsigned Release build for changes."
-  - "Validate Apple NetworkExtension path against primary docs and repository capabilities; implement safe feasible outcome or document objective platform blocker and executable engineering options without weakening privacy."
-  - "Checkpoint/roadmap updated; feature branch and review PR created; no Apple publication or changes to actual user's iPhone/VPN/proxies/privacy/advertising."
+  - "All existing iOS SmartExclusions languages include six new auto-group UI strings with native formatting, source checks and no erroneous Save/Saving copy."
+  - "All relevant Swift Core, iOS Simulator locale UI, Python contracts, Apple plist syntax and unsigned Release build checks pass."
+  - "A safe Apple-supported consumer exact-host independent Safari DIRECT implementation excludes only a hostname even with an unrelated same-IP peer, or an objective external blocker is reported without misrepresenting the feature."
+  - "Preserve user proxy/VPN/ads/privacy, draft PR isolation and blocked iOS 0.2.0 release until independently verified egress or explicit owner scope change."
 completed:
-  - "Recovered completed grouped UX task at source commit caf9a4a1, checkpoint 8852a9a5; created isolated l10n/egress branch."
-current: "Inventory 64 iOS locales and audit NetworkExtension compliance; implement localized copy."
+  - "2026-11-03: recovered grouped Smart Exclusions PR #302, verified completed task checkpoint at 8852a9a5, created isolated localization/platform branch."
+  - "Created 384 localized values for six new controls, across exactly 64 existing mobile/ios/Resources/*.lproj/SmartExclusions.strings catalogs; corrected 24 operational Saving… mistranslations."
+  - "Expanded locale audit from 45 to 51 SmartExclusions keys per locale, added tests/test_ios_020_smart_group_localization.py. No original Localizable.strings 155-key catalogs modified."
+  - "Updated English/Hebrew RTL UI tests to assert translated automatic-expansion label; ran on disposable iPhone 17 Pro Simulator (iOS 27.0), 2/2 PASS."
+  - "macOS Mac mini Xcode 27.1 latest source validation: Swift Core 131/131 PASS; Python 66 tests and 73 subtests PASS; Apple plutil 64/64 PASS; unsigned iOS device Release BUILD SUCCEEDED."
+  - "Apple primary documentation reverified: NEPacketTunnel excludedRoutes are IP/prefix-wide; iOS per-app excludedDomains requires MDM; URLFilter is allow/block only; TN3120 disallows selective alternate-interface forwarding of claimed packet-tunnel traffic. Direct proof of Safari exact-host independent no-proxy route unavailable for ordinary iOS App Store device VPN."
+  - "Documented platform and product alternatives in docs/APL_IOS_020_EXACT_HOST_DIRECT_PLATFORM_GATE_2026-11-03.md and roadmap, preserving existing Smart3 physical QA evidence and SharedIPRouteGuard."
+  - "Source commit f9954483b55448a1dff8413b7dd6aa8b64f15366 pushed in draft PR #303 (base: grouped Draft PR #302, which targets Draft PR #296 for iOS 0.2.0)."
+current: "LOCALIZATION DONE AND CHECKED; automatic exact-host Safari no-proxy without shared-IP leaks BLOCKED BY SUPPORTED iOS PLATFORM. iOS 0.2.0 release gate remains blocked."
 pending:
-  - "Produce high-quality translations for new Smart Exclusions controls in all existing locales."
-  - "Audit feasibility and alternatives for independent exact-host Safari direct egress; keep previously blocked Smart3 release gate if Apple APIs do not permit it."
-  - "Run targeted localization, Core, iOS Simulator and unsigned Release validation."
-  - "Update docs and checkpoint; PR as draft pending product/platform gate."
-last_verified_commit: "8852a9a577a6dd4cb54de0dd8e28ce315d69dfd5 (base); previous 131 Core, 5 Simulator UI, 36 Python, unsigned Release PASS."
+  - "Outside current safe capability: proof of an Apple-supported consumer exact-host DIRECT route which preserves unrelated shared-IP traffic on proxy, with actual Safari A→auth.A physical QA for IPv4/IPv6/QUIC/Wi-Fi/LTE, network handoff, 24h TTL and rollback. Current public APIs do not meet the conditions."
+  - "Product decision if release scope changes: accept existing auto-first-party + manual unrelated/auth suggestion mode with disclosure, or pursue separate MDM enterprise deployment. Do not silently relax shared-IP no-leak requirement or revive rejected remote gateway."
+  - "GitHub hosted CI for PR #303 commit f9954483 was still in progress at checkpoint; exact-source Mac mini tests and unsigned Release are green. Check hosted CI without unnecessary repeat builds if work resumes."
+  - "No App Store publication, production device/credential/VPN changes, advertising/privacy changes or watchdog modifications."
+blockers:
+  - "Apple NEPacketTunnelProvider has only destination IP excluded routes on ordinary iOS; on shared CDN IP, direct bypass leaks unrelated host traffic. Apple MDM-specific domain API not available in unmanaged consumer deployment. URL Filter cannot choose egress."
+  - "User requirement of safe automatic exact-host DIRECT cannot be honestly marked complete based on TLS Wi-Fi probe or IP-sharing heuristics."
+last_verified_commit: "f9954483b55448a1dff8413b7dd6aa8b64f15366 (all tested localization and platform research source; checkpoint metadata commit follows)."
 test_results:
-  - "No new source tests yet."
-resume_instruction: "Continue feat/ios-020-final-l10n-egress-20261103. Complete new SmartExclusions localized labels in all 64 .lproj catalogs, test, examine Apple supported domain-specific DIRECT from consumer NEPacketTunnelProvider without MDM or IP-wide leak, preserve Smart3 gate. Do not publish App Store, alter user iPhone or existing proxies, add watchdog or weaken shared IP safety."
+  - "03.11: 64/64 .strings plutil OK, six new keys x64, 24 Saving copy corrections, 17 localization tests and 70 subtests PASS."
+  - "03.11 exact source: Python3.14 66 PASS +73 subtests, Swift Core 131 PASS, 2/2 EN/HE RTL iPhone Simulator UI PASS, unsigned iOS 0.2.0(48) Release BUILD SUCCEEDED."
+  - "No real iPhone user data/proxy/NetworkExtension changes, no live Safari zero-touch proof, App Store submission untouched; PR #303 draft."
+resume_instruction: "Restore latest blocked APL-IOS-020-FINAL-L10N-EGRESS-20261103 checkpoint in feat/ios-020-final-l10n-egress-20261103 (PR #303). Localization for all 64 SmartExclusions language catalogs and 24 Saving copy fixes is completed and passed local QA at source f9954483; do not redo it. Check GitHub PR #303 CI then consult Apple official API support only if materially new information exists. Do not claim or implement an unsupported exact-host Safari DIRECT with IP-wide route leaks; this is platform-blocked under current consumer iOS APIs. For a changed 0.2.0 scope, obtain explicit owner product decision; otherwise leave PR #296/#302/#303 drafts and iOS 0.2.0 release blocked. No production iPhone/credentials, ads/privacy, Apple uploads, remote gateway or Watchdog changes."
