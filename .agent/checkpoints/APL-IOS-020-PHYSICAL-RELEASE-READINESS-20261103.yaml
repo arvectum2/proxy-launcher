@@ -1,0 +1,22 @@
+task_id: APL-IOS-020-PHYSICAL-RELEASE-READINESS-20261103
+repository: arvectum2/proxy-launcher
+status: in_progress
+goal: "Finish iOS 0.2.0 release preparation: latest CI, signed archive/IPA, protected physical iPhone 13 feature acceptance, iOS localization and safe release gate."
+definition_of_done:
+  - "Verify source matches 0.2.0(48) and all app/tunnel build configurations and relevant CI."
+  - "Back up/compare live physical iPhone's saved settings; avoid running live VPN or production proxy; run latest signed-source real-device UI tests and restore installed app after QA."
+  - "Build signed archive and IPA and verify codesign, embedded extensions, SDK, exact version, all iOS languages, signatures and packaging."
+  - "Run Core, Python contracts, localized Simulator/physical UI acceptance; fix any source issues observed."
+  - "Update release readiness report, roadmap, PR and checkpoint; never claim zero-touch exact-host direct gate cleared without supported implementation and same-CDN safe proof."
+completed:
+  - "2026-11-03 recovered previous task checkpoint and PR #303 at 6eaa41ed; physical iPhone 13 paired, installed APL 0.2.0(48), Xcode development signing settings present."
+current: "Prepare isolated QA branch, inventory safest backup and signed build paths, recheck hosted CI before touching device."
+pending:
+  - "Verify final iPhone signed packaging; back up current installed app/preferences securely."
+  - "Execute focused iPhone UI suites with fixture and minimal side effects; compare/restore state."
+  - "Validate full release artifacts, run source tests and compile detailed readiness report."
+  - "Create draft PR/checkpoint; preserve original Apple per-host release gate and no upload."
+last_verified_commit: "6eaa41ed0b6897d0b966e66e229e0e85ee4e326f"
+test_results:
+  - "Previous source: 131 Swift, 66 Python and 73 subtests, EN/HE-RTL 2/2 Simulator UI, unsigned Release PASS."
+resume_instruction: "Continue physical release QA in qa/ios-020-physical-release-readiness-20261103. Physical iPhone 13 available paired. Back up settings/app before install; preserve actual proxy profiles, VPN OFF, restore original signed app at end. Verify signed archive/IPA 0.2.0(48), correct app group + PacketTunnel, iOS locales/ads, UI on device. Do not claim full zero-touch hostname bypass; current consumer NetworkExtension API gate blocked. Do not publish to Apple, modify production VPN/proxies or create watchdog."
