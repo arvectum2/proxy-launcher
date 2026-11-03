@@ -190,6 +190,13 @@ final class SmartExclusionGraphTests: XCTestCase {
                                                     child: "example.com", at: now))
     }
 
+    func testPreviousVersionGraphDecodesWithoutNewOptionalFields() throws {
+        let oldData = Data(#"{"edges":[]}"#.utf8)
+        let graph = try JSONDecoder().decode(SmartExclusionGraph.self, from: oldData)
+        XCTAssertTrue(graph.pruned(at: now).edges.isEmpty)
+        XCTAssertTrue((graph.suppressed ?? []).isEmpty)
+    }
+
     func testBoundsAndRoundtrip() throws {
         var graph = SmartExclusionGraph()
         let oversized = (0..<25).map { "s\($0).example.com" }
