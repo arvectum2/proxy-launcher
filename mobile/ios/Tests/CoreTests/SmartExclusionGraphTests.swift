@@ -126,6 +126,48 @@ final class SmartExclusionGraphTests: XCTestCase {
                        [host, "example.com", "sub.example.com"])
     }
 
+    func testExplicitExternalLinkStaysParentScopedPastDiscoveryExpiry() throws {
+        var graph = SmartExclusionGraph()
+        try graph.addUserLink(parent: "example.com", child: "login.partner.test", at: now)
+        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now),
+                       ["example.com", "login.partner.test"])
+        XCTAssertEqual(try graph.effective(manual: ["other.test"], at: now), ["other.test"])
+        XCTAssertEqual(try graph.effective(manual: ["example.com"],
+                                           at: now.addingTimeInterval(10 * 86400)),
+                       ["example.com", "login.partner.test"])
+        try graph.set(.rejected, parent: "example.com", child: "login.partner.test")
+        XCTAssertEqual(try graph.effective(manual: ["example.com"], at: now), ["example.com"])
+        let restored = try JSONDecoder().decode(SmartExclusionGraph.self,
+                                                 from: JSONEncoder().encode(graph))
+        XCTAssertEqual(restored.pruned(at: now.addingTimeInterval(10 * 86400)).edges.count, 1)
+    }
+
+    func testUserDenialSurvivesRescanAndExpiration() throws {
+        var graph = SmartExclusionGraph()
+        try graph.observe(parent: "example.com", html: ["auth.example.com"],
+                          network: ["auth.example.com"], at: now)
+        try graph.set(.rejected, parent: "example.com", child: "auth.example.com")
+        try graph.observe(parent: "example.com", html: ["auth.example.com"],
+                          network: ["auth.example.com"], at: now.addingTimeInterval(8 * 86400))
+        XCTAssertTrue(graph.approveStrongFirstParty(parent: "example.com",
+                                                     manual: ["example.com"],
+                                                     at: now.addingTimeInterval(8 * 86400)).isEmpty)
+        XCTAssertEqual(try graph.effective(manual: ["example.com"],
+                                           at: now.addingTimeInterval(8 * 86400)),
+                       ["example.com"])
+    }
+
+    func testExplicitLinkCannotBypassRuleBudget() throws {
+        var graph = SmartExclusionGraph()
+        for i in 0..<SiteDependencyDiscovery.maxCandidates {
+            try graph.addUserLink(parent: "example.com", child: "s\(i).partner.test", at: now)
+        }
+        XCTAssertThrowsError(try graph.addUserLink(parent: "example.com",
+                                                    child: "overflow.partner.test", at: now))
+        XCTAssertThrowsError(try graph.addUserLink(parent: "example.com",
+                                                    child: "example.com", at: now))
+    }
+
     func testBoundsAndRoundtrip() throws {
         var graph = SmartExclusionGraph()
         let oversized = (0..<25).map { "s\($0).example.com" }
