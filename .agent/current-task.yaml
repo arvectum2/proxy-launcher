@@ -1,8 +1,9 @@
 task_id: APL-IOS-020-SMART3-EXACT-DIRECT-20261103
 repository: arvectum2/proxy-launcher
 status: in_progress
-goal: Deliver automatic failed-domain no-proxy recovery for Safari without user interaction, exact hostname only,
-  no shared-IP leakage, suitable for consumer iOS 0.2.0. No intermediate App Store release.
+goal: Finish Smart3 consumer iOS 0.2.0 physical QA and release-candidate validation; diagnose and resolve absent RSYA
+  ad banners on the currently installed iPhone and prove real banner/native ads enabled and correctly loading in production
+  Release. No intermediate App Store upload.
 definition_of_done:
 - 'Automatic trigger: two distinct attributable proxy timeouts/refusals while upstream healthy; independent physical
   DIRECT probe; two verified successes and bounded TTL stored locally; rollback on network change or failures.'
@@ -15,6 +16,9 @@ definition_of_done:
   + shared-IP adversarial cases; no user profile/proxy modification.
 - Do not merge, publish, or upload iOS 0.2.0 until full end-to-end behavior verified; checkpoint accurately records
   status.
+- 'Owner Nov3 22:05: production build includes active primary Yandex banner R-M-20288304-1 and native ad R-M-20288304-2;
+  actual installed iPhone advertising absence diagnosed, reliable request/render tested on hardware where fill available;
+  ad SDK and privacy metadata verified in signed RC.'
 completed:
 - 'Recovered completed release-preparation PR #304/checkpoint at 20119b06; exact-host DIRECT still previously blocked;
   user explicitly prohibited interim release.'
@@ -72,10 +76,30 @@ completed:
   IPA export PASS; ZIP and deep codesign/PacketTunnel PASS, YandexMobileAds present, SHA256 13df688a6865520cb1d6c321a56c4f2d94fd687c92005c1e0329e3f137ba0890.
   Earlier before-fix IPA SUPERSEDED; do not upload it. Python iOS 159/159 +73 subtests, Rust13/13 and Swift Core132/132.
   No release/merge/upload.
-current: Hardware IPv4 exact-host Safari and shared-CDN egress works, path-callback+TTL revoke PASS. IPv6-only physical
-  egress produced TLS stall; safe Rust IPv4-only fail-closed fix physically PASS while preserving IPv4, signed fixed
-  RC built. Remaining actual Wi-Fi/LTE transitions, QUIC/ECH/DoH adversarial packet egress and architecture to support
-  IPv6-only DIRECT if this must be included in product.
+- '2026-11-03 22:18 MSK RSYA root cause found: installed iPhone QA Debug build disables ads without -APL_ENABLE_DEMO_BANNER.
+  First raw preferences showed historical impression markers, so reset only three diagnostic ad keys after backing
+  up original app/group preferences; fresh iPhone real SDK Debug demo launched via devicectl returned primary, secondary
+  and native impression markers. Debug native now uses official demo-native-content-yandex.'
+- 2026-11-03 22:23 MSK true Swift Release compilation 0.2.0(48), locally signed with existing Apple Development app
+  and PacketTunnel profiles (temporary generated QA project removed), installed on iPhone. After cleared RSYA diagnostics
+  and normal non-test launch, two production RSYA placements generated actual primary banner and native ad impression
+  events within 18 seconds; app remained running and user sees production Release, no SDK mock.
+- 2026-11-03 22:28 MSK after physical ad QA App Group 11/11 and app 20/20 preferences fully restored, per-value SHA256
+  EXACT MATCH 31/31; owner profiles/proxy secrets unchanged; Release-compiled, Dev-signed iOS0.2.0(48) remains installed
+  on iPhone, no demo/test flags. iPhone UI XCTest runner timed out enabling automation, NOT counted PASS; direct launch
+  + reset diagnostic markers + SDK impression callbacks independently proved real ad behavior.
+- 2026-11-03 22:30 MSK new Apple Distribution signed iOS0.2.0(48) archive + local AppStore-format IPA with RSYA fixes
+  ARCHIVE/EXPORT PASS; ZIP, app and PacketTunnel deep codesign PASS, YandexMobileAds.framework binary and 228 SKAdNetworkItems
+  verified; IPA SHA256 5ef331c13fcd81995e313e77a97245807edd65ac1ef00e6aee324809f1940ff7, 9060018 bytes. Prior IPA
+  superseded; no upload/merge/publication.
+- '2026-11-03 22:35 MSK mandatory RSYA release source and IPA artifact preflight added: reject disabled production
+  banner/native, missing ad placements/SDK/SKAdNetwork, wrong IPA or unsigned structure. Python iOS suite 162/162
+  plus73 subtests PASS, xcodegen regenerated project includes demo physical QA, Debug build for testing PASS, optimized
+  Development-signed Release app build+hardware ad impressions PASS, Distribution archive and export PASS.'
+current: 'RSYA owner issue RESOLVED: Release-compiled iPhone app has live real primary banner and native RSYA impressions;
+  user settings 31/31 restored; final signed ads-enabled local IPA verified with mandatory source+artifact release
+  guard. Smart3 remaining technical gates: actual Wi-Fi/LTE radio handoff, untested hidden ECH/DoH/adversarial UDP
+  egress, IPv6-only physical DIRECT not functional (safe fail-closed proxy). No App Store upload.'
 pending:
 - Verify real physical underlay Wi-Fi→LTE→Wi-Fi handoff on iPhone with direct route active, without risking owner
   network state. Existing same revocation callback proven physically after a synthetic path event; an actual radio
@@ -88,8 +112,8 @@ pending:
 - After complete consumer functionality and physical QA, consider full build App Store submission for Apple App Review
   to decide platform admissibility; owner removed mandatory pre-DTS gate. Do not merge/publish intermediate build,
   and preserve Yandex ad code and accepted privacy.
-last_verified_commit: 61768855f2491c6f01f7941c0351294c82fb422b (verified source, physical QA and final IPA report;
-  checkpoint-only commit follows)
+last_verified_commit: f9e16b190a2e1cacc523b2e57b4e3a3cae97359d (RSYA source, QA report, source/artifact preflight,
+  final IPA tests; checkpoint commit follows)
 test_results:
 - 'Inherited: Swift Core 131, Python iOS 147 plus 73 subtests, physical iPhone 6 UI, 64 locale, 16 deep, 11 XXL, a11y
   audit 0, signed IPA from prior RC; DOES NOT test full Smart3 DIRECT.'
@@ -117,16 +141,21 @@ test_results:
   regression XCTest 1/1 PASS; original_tls2 fresh_tls1 neighbor_proxy1 direct_ipv4_sockets3 direct_ipv6_sockets0.
   31/31 preference hashes restored each run. Final IPv6Safe signed IPA+archive PASS; IPA SHA13df688a... Python159+73,
   Rust13, Swift132.'
-resume_instruction: 'Read this checkpoint and git status on branch feat/ios-020-smart3-exact-flow-direct-20261103.
-  Do not rerun completed iPhone A->B Safari, shared IPv4 A/B, TTL/network-callback, IPv6 failclosed and IPv4 post-fix
-  regression unchanged: all passed with independent mock evidence; real IPv6 direct negative test FAILED (TCP up TLS
-  stalled) and has been safely disabled for AAAA-only addresses by physical_direct_eligible() requiring public IPv4.
-  Final signed safe IPA local /private/tmp/APL-iOS-020-Smart3-IPv6Safe-20261103-export/Arvectum Proxy Launcher.ipa
-  SHA13df688a6865520cb1d6c321a56c4f2d94fd687c92005c1e0329e3f137ba0890. Restore iPhone 11 AppGroup +20 app prefs after
-  any test, exact hash. Next actual WiFi/LTE handoff (requires safe radio transition), IPv6 per-flow architecture
-  when feasible, QUIC/ECH/DoH/raw IP adversarial live egress. User says Apple App Review decides admissibility; no
-  pre-DTS gate; no partial merge/upload/publication and do not alter ads/privacy. Prior IPA without ipv6 safety is
-  superseded. See docs/APL_IOS_020_SMART3_FINAL_DEVICE_QA_2026-11-03.md.'
-app_review_decision: User delegates admissibility to Apple App Review, no prior DTS requirement. Actual consumer release
-  is still gated by functional safety QA and completeness; do not submit partial version without owner confirmation
-  of reduced IPv6 support.
+- 'RSYA final 22:35: after clearing prior three historical status markers live iPhone demo primary+secondary+native
+  impressions; live true Release normal launch REAL primary+native production impressions within 18s; 31/31 prefs
+  SHA256 restored; UI XCTest automation timed out (not a PASS). Signed Apple Distribution archive/IPA ZIP+codesign
+  PASS, 228 SKAdNetworkItems+SDK; SHA5ef331c13fcd81995e313e77a97245807edd65ac1ef00e6aee324809f1940ff7. Python iOS162+73
+  subtests, RSYA source+IPA gate PASS.'
+resume_instruction: 'Resume from .agent/current-task.yaml on GitHub Draft PR #305 branch feat/ios-020-smart3-exact-flow-direct-20261103.
+  RSYA issue CLOSED, root cause prior Debug-installed iPhone app; true optimized Release signed Dev installed physically
+  and real Yandex production banner/native impression callbacks proved from cleared rsya markers, all 31 preferences
+  restored. Source+IPA artifact mandatory RSYA gates PASS, signed local IPA /private/tmp/APL-iOS-020-Smart3-FinalAdsLive-20261103-export/Arvectum
+  Proxy Launcher.ipa SHA5ef331c13fcd81995e313e77a97245807edd65ac1ef00e6aee324809f1940ff7; older IPAs superseded. Next
+  finish Smart3 actual iPhone underlay WiFi-LTE handoff, adversarial DoH/ECH/QUIC/raw-IP physical failclosed; IPv6-only
+  direct physically stalled TLS, safely falls back to proxy, do not claim native IPv6 direct supported. Preserve user
+  iPhone preferences and restore after physical tests. UI XCTest automation timed out in ad QA, though direct app
+  ad impressions succeeded. Apple DTS preclearance is not a requirement; Apple App Review decides when complete. No
+  App Store upload/merge/public release until real gates satisfied, do not alter production ads/privacy.'
+app_review_decision: Owner wants ad banners mandatory for Release, live production primary/native impression hardware
+  PASS, release gate enforced. Apple App Review to decide platform admissibility, no prior DTS approval requirement.
+  Do not merge or upload partial Smart3.
