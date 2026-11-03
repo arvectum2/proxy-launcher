@@ -1,0 +1,23 @@
+task_id: APL-IOS-020-SMART3-EXACT-DIRECT-20261103
+repository: arvectum2/proxy-launcher
+status: in_progress
+goal: "Deliver automatic failed-domain no-proxy recovery for Safari without user interaction, exact hostname only, no shared-IP leakage, suitable for consumer iOS 0.2.0. No intermediate App Store release."
+definition_of_done:
+  - "Automatic trigger: two distinct attributable proxy timeouts/refusals while upstream healthy; independent physical DIRECT probe; two verified successes and bounded TTL stored locally; rollback on network change or failures."
+  - "Exact-host traffic DIRECT and unrelated host sharing same destination IP stays on upstream proxy; raw-IP/ECH/QUIC/DoH unsupported flows fail closed without data leak."
+  - "Supported Apple consumer-iOS transport confirmed through primary docs / Apple DTS and physical egress tests; if unsupported, an objective blocker remains, never masquerade as a completed feature."
+  - "Implement route switching in pinned tun2proxy and Swift policy, test cargo + Swift Core + iPhone physical egress + shared-IP adversarial cases; no user profile/proxy modification."
+  - "Do not merge, publish, or upload iOS 0.2.0 until full end-to-end behavior verified; checkpoint accurately records status."
+completed:
+  - "Recovered completed release-preparation PR #304/checkpoint at 20119b06; exact-host DIRECT still previously blocked; user explicitly prohibited interim release."
+  - "Reviewed Apple TN3120, Apple WWDC25 NetworkExtension and tun2proxy virtual DNS; TN3120 explicitly warns against selective forwarding captured Packet Tunnel traffic to another interface, so alternate-interface solution must be physically tested and receive platform support proof before shipping."
+current: "Explore first-party per-flow connection destination routing in Rust, identity attribution, physical-socket availability, Apple-supported alternatives; develop and verify isolated prototype."
+pending:
+  - "Inspect Rust tun2proxy source for direct transport integration that does not issue excludedRoutes and per-flow virtual DNS." 
+  - "Implement incremental internal learning and transport tests, including WAN proxy fault/recovery, shared-IP denial and fallbacks." 
+  - "Real iPhone tests using disposable mock and reversible backups, compare all App Group and app preferences; never publish." 
+  - "Update source/test docs/roadmap, external Apple API gate, draft PR, checkpoint." 
+last_verified_commit: "20119b0606dc239f64d38b3cafead8bf964a9ab5 (base, previous feature/release source QA passed)"
+test_results:
+  - "Inherited: Swift Core 131, Python iOS 147 plus 73 subtests, physical iPhone 6 UI, 64 locale, 16 deep, 11 XXL, a11y audit 0, signed IPA from prior RC; DOES NOT test full Smart3 DIRECT."
+resume_instruction: "On feat/ios-020-smart3-exact-flow-direct-20261103 read this checkpoint and git status first. User insists fully automatic fallback and no interim release. Implement/test per-flow exact-host independently-direct on consumer iOS if technically and Apple supported; do not use IP-wide silent bypass or claim feature working until physical iPhone Safari A->auth.A A/B shared CDN pass. Use isolated worktree, avoid dirty main; preserve iPhone backups and original app. Keep iOS 0.2.0 draft and unsubmitted."
