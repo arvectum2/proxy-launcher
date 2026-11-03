@@ -14,6 +14,26 @@ final class SmartFlowRoutingPolicyTests: XCTestCase {
         XCTAssertEqual(policy.decide(host: nil, resolvedIP: "203.0.113.12"), .proxy)
     }
 
+    func testSharedAppleCDNPhysicalIPv4AndIPv6NeverAuthorizeNeighborHost() throws {
+        // This is a deterministic *policy* test, not proof of physical
+        // packet-tunnel routing on the iPhone. A separate host may resolve
+        // to the same real CDN address, but must never inherit DIRECT.
+        let policy = try SmartFlowRoutingPolicy(manual: ["www.apple.com"],
+                                                 graph: .init(), at: now)
+        for physicalIP in ["23.12.156.37", "2001:db8::37"] {
+            XCTAssertEqual(policy.decide(host: "www.apple.com",
+                                         resolvedIP: physicalIP), .direct)
+            XCTAssertEqual(policy.decide(host: "www.apple.com.cn",
+                                         resolvedIP: physicalIP), .proxy)
+            XCTAssertEqual(policy.decide(host: "www.apple.com.edgekey.net",
+                                         resolvedIP: physicalIP), .proxy)
+            XCTAssertEqual(policy.decide(host: nil,
+                                         resolvedIP: physicalIP), .proxy)
+            XCTAssertEqual(policy.decide(host: physicalIP,
+                                         resolvedIP: physicalIP), .proxy)
+        }
+    }
+
     func testApprovedButOrphanedOrExpiredHostMustRemainProxied() throws {
         var graph = SmartExclusionGraph()
         try graph.observe(parent: "example.com", html: ["cdn.example.com"], network: [], at: now)

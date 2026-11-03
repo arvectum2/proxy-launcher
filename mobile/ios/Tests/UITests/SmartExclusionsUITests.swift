@@ -1,6 +1,23 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    /// Isolated clean-install simulator QA: default must be automatic without
+    /// requiring manual action or a previously saved preference.
+    func testAutomaticSiteExpansionDefaultsOnForCleanInstall() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let toggle = app.switches["settings.autoExpandExclusions"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        XCTAssertEqual(toggle.value as? String, "1",
+                       "Automatic related-domain expansion must start enabled")
+    }
+
     func testApexWWWPairHasOneGroupAndKeepsLinksWhenOneAliasRemoved() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",

@@ -16,6 +16,7 @@ import time
 HEALTHY = "www.cloudflare.com:443"
 FAIL = "www.apple.com:443"
 START = "start.qa-example.test:80"
+NEIGHBOR = "www.apple.com.cn:443"
 
 
 class BoundedServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -59,6 +60,13 @@ class MockConnect(socketserver.BaseRequestHandler):
                     b"Connection: close\r\n\r\n")
                 print("START_REDIRECT_TO_TARGET", flush=True)
                 time.sleep(1)
+            elif (getattr(self.server, "shared_ip_qa", False) and
+                  first == b"CONNECT " + NEIGHBOR.encode("ascii") + b" HTTP/1.1"):
+                # A distinct hostname resolves to the same Akamai CDN IPv4
+                # on the test Mac. Its traffic MUST stay with the proxy.
+                print("NEIGHBOR_PROXY_CONNECT", flush=True)
+                self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+                time.sleep(2)
             elif first == b"CONNECT " + HEALTHY.encode("ascii") + b" HTTP/1.1":
                 print("HEALTHY_CONNECT", flush=True)
                 self.request.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
@@ -78,6 +86,8 @@ def main():
     parser.add_argument("--physical-lab", action="store_true")
     parser.add_argument("--safari-redirect", action="store_true",
                         help="Enable a synthetic HTTP 302 start-site fixture")
+    parser.add_argument("--shared-ip-qa", action="store_true",
+                        help="Observe a distinct proxy-only hostname sharing Apple's CDN IPv4")
     parser.add_argument("--bind-ip", default="192.168.1.80")
     parser.add_argument("--port", type=int, default=18081)
     options = parser.parse_args()
@@ -90,6 +100,7 @@ def main():
         parser.error("This fixed-purpose fixture may only use port 18081.")
     with BoundedServer((str(address), options.port), MockConnect) as server:
         server.safari_redirect = options.safari_redirect
+        server.shared_ip_qa = options.shared_ip_qa
         threading.Timer(115, server.shutdown).start()
         print("READY_SCOPED_MOCK lifetime<=115s no_forwarding=true", flush=True)
         server.serve_forever(poll_interval=0.1)

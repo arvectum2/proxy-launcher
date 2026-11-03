@@ -91,3 +91,15 @@ def test_real_safari_redirect_uses_actual_browser_without_app_priming():
     assert 'Location: https://www.apple.com/' in fixture
     assert '"--safari-redirect"' in fixture
     assert 'socket.create_connection(' not in fixture
+
+def test_shared_cdn_peer_is_always_proxy_with_hardware_assertions():
+    fixture = (ROOT / "scripts/qa_smart3_scoped_direct_proxy.py").read_text()
+    assert 'NEIGHBOR = "www.apple.com.cn:443"' in fixture
+    assert '"--shared-ip-qa"' in fixture
+    assert "NEIGHBOR_PROXY_CONNECT" in fixture
+    assert 'lab neighbor via proxy' in COLLECTOR
+    assert 'www.apple.com.cn' in CLIENT
+    assert '-aplSmart3SharedIPLabQA' in CLIENT
+    assert 'testSharedCDNHostIsNotBypassedByAHostRule' in HARDWARE
+    assert 'lab direct server bytes' in HARDWARE
+    assert 'lab neighbor via proxy' in HARDWARE

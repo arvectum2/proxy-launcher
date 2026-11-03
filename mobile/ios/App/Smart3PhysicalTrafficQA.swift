@@ -81,6 +81,27 @@ import Network
                     detail: "Fourth independent connection after direct policy armed"))
                 direct.start(queue: queue)
                 connections.append(direct)
+                if ProcessInfo.processInfo.arguments.contains("-aplSmart3SharedIPLabQA") {
+                    // Different exact VirtualDNS identity, same observed CDN
+                    // IPv4 as approved apple.com. Must remain upstream proxy.
+                    let peer = NWConnection(host: "www.apple.com.cn",
+                                            port: .https, using: .tcp)
+                    peer.stateUpdateHandler = { state in
+                        switch state {
+                        case .ready:
+                            TelemetryStore().append(TunnelEvent(
+                                type: "lab neighbor tcp ready",
+                                detail: "Distinct CDN hostname connected over proxy"))
+                        case .failed:
+                            TelemetryStore().append(TunnelEvent(
+                                type: "lab neighbor tcp failed",
+                                detail: "Distinct CDN hostname TCP failed"))
+                        default: break
+                        }
+                    }
+                    peer.start(queue: queue)
+                    connections.append(peer)
+                }
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
             }
             connections.forEach { $0.cancel() }

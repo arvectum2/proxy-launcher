@@ -63,6 +63,48 @@ final class Smart3LiveTunnelPhysicalUITests: XCTestCase {
 #endif
     }
 
+    /// Physically adversarial split by hostname on a real CDN address:
+    /// www.apple.com approved for DIRECT, its different apple.com.cn hostname
+    /// MUST still traverse the mock upstream proxy. Never add IP exclusions.
+    func testSharedCDNHostIsNotBypassedByAHostRule() throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Real iPhone Packet Tunnel required")
+#else
+        guard ProcessInfo.processInfo.environment["APL_SMART3_SHAREDIP_QA"] == "enabled" else {
+            throw XCTSkip("Explicit same-CDN physical QA opt-in required")
+        }
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-aplEphemeralTunnelQA", "-aplSmart3LocalProxyQA",
+                                "-aplSmart3ScopedDirectLabQA", "-aplSmart3SharedIPLabQA"]
+        app.launch()
+        let start = app.buttons["Подключиться"].firstMatch
+        guard start.waitForExistence(timeout: 15) else {
+            throw XCTSkip("Existing owner VPN must not be replaced")
+        }
+        start.tap()
+        XCTAssertTrue(app.buttons["Отключить"].firstMatch.waitForExistence(timeout: 12))
+        Thread.sleep(forTimeInterval: 23)
+        let activity = app.tabBars.buttons["Активность"]
+        XCTAssertTrue(activity.waitForExistence(timeout: 8))
+        activity.tap()
+        let refresh = app.buttons["activity.refresh"]
+        XCTAssertTrue(refresh.waitForExistence(timeout: 5))
+        refresh.tap()
+        for evidence in ["lab direct armed",
+                         "lab sameflow recovered",
+                         "lab direct server bytes",
+                         "lab neighbor via proxy"] {
+            let row = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label CONTAINS %@", evidence)).firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 5),
+                          "Missing physical shared-CDN routing evidence: \(evidence)")
+        }
+        print("APL_SHARED_CDN_EXACT_HOST_DIRECT_NEIGHBOR_PROXY_PROVED")
+#endif
+    }
+
     /// Browser E2E, not an app NWConnection substitute. The only traffic
     /// producer after VPN activation is real Safari: synthetic HTTP A serves
     /// an HTTP 302 to https://www.apple.com/, whose CONNECTs are withheld.

@@ -75,6 +75,12 @@ final class SmartFlowEventCollector {
             }
 #endif
             if event == 0 {
+#if DEBUG
+                if self.labScopedDirect && host == "www.apple.com.cn" {
+                    self.telemetry.append(TunnelEvent(type: "lab neighbor via proxy",
+                        detail: "Distinct exact virtual-DNS host CONNECT accepted by upstream"))
+                }
+#endif
                 self.successfulHosts[host] = now
                 if self.successfulHosts.count > 32 {
                     if let oldest = self.successfulHosts.min(by: { $0.value < $1.value })?.key {

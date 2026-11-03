@@ -389,7 +389,14 @@
 - [x] В экспериментальном, выключенном в Release Rust движке реализована попытка восстановления **исходного захваченного TCP** после провала proxy handshake (максимум 5 секунд на проверенное разрешение exact-host), отдельное событие same-flow recovery и строгие аппаратные проверки оригинального TLS payload. Cargo 12/12, Swift Core 131/131, Python iOS 151/151 (+73 subtests), подписанный Debug device и unsigned Release — PASS.
 - [x] **Физический iPhone13, iOS27.2 — same-flow TLS PASS (03.11, 16:34 МСК)**: после двух proxy-ошибок, двух независимых DIRECT TLS-проб первоначальные **два TCP/TLS-потока восстановились без нового соединения**: события original TCP + клиентские/серверные байты, TLS ready и HTTP-данные; отдельный новый поток получил TLS-данные. Строгий XCUITest PASS. Это ещё **не реальная навигация Safari**. Исходники/логи: [протокол](APL_IOS_020_SMART3_EXACT_FLOW_DIRECT_LAB_2026-11-03.md).
 - [x] **Реальный Safari A→B, iPhone13**: HTTP-редирект с синтетической страницы на HTTPS www.apple.com, две ошибки CONNECT, две TLS-пробы DIRECT, изначальный TCP-поток восстановился без ручного обновления; Safari отобразил страницу. XCTest PASS 37с (03.11 16:54 МСК).
-- [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple TN3120/DTS — обязательные gates. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
+- [ ] Два домена на общем физическом CDN IPv4/IPv6, QUIC/DoH/ECH/raw-IP fail-closed, смена Wi-Fi/LTE, TTL/rollback и Apple App Review решает допустимость; DTS не обязательное предварительное условие. iOS 0.2.0 не публиковать.  Версию 0.2.0 НЕ публиковать/НЕ загружать без этой ключевой функции.
+
+## 03.11.2026 — Smart3: отдельная проверка iOS Simulator
+
+- [x] iPhone 17 Pro Simulator (iOS 27.0): 8/8 целевых UI PASS, EN/HE RTL, автоматические группы apex/www, предупреждения и доступность. После полного сброса Simulator: ещё 1/1 PASS — автоматическое расширение включено по умолчанию. [Протокол](APL_IOS_020_SMART3_SIMULATOR_QA_2026-11-03.md).
+- [x] Swift Core 132/132, Rust 12/12, Python iOS 153/153 + 73 подтеста. Модель одинакового CDN IPv4/IPv6: только одобренное hostname DIRECT; сосед, неизвестный хост и raw-IP остаются PROXY.
+- [x] ARM64 iOS Simulator Release BUILD SUCCEEDED (Xcode 27.1). Generic x86_64 Simulator не предусмотрен текущим arm64-only Rust XCFramework.
+- [ ] Физическая same-IP A/B, QUIC/DoH/ECH, смена сети, TTL и rollback — отдельные проверки. По решению владельца допуск архитектуры решает непосредственно Apple App Review, предварительное DTS не обязательно. Промежуточную 0.2.0 не публиковать; рекламу и privacy не менять.
 
 ## 03.11.2026 — iOS 0.2.0: подписанный RC, iPhone и языковая QA
 
