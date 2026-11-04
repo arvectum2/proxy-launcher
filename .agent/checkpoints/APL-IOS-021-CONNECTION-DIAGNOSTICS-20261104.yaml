@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-021-CONNECTION-DIAGNOSTICS-20261104
+status: in_progress
+goal: "Begin iOS 0.2.1 roadmap safely: classify connection failures without exposing raw OS error details while preserving existing 64-language VPN repair guidance."
+definition_of_done:
+  - "A typed safe connection alert uses only allowlisted/localized keys and stable diagnostic codes, never an arbitrary error.localizedDescription."
+  - "Preserve existing VPN disabled/stale/invalid recovery guidance, avoid new UI localization keys."
+  - "Add focused security and diagnostic regression tests; run available CI on exact branch commit."
+  - "Create reviewable change and record commit/tests; no App Store/device/watchdog mutation."
+completed:
+  - "ARC read-only audit on Mac mini: existing ProxyFailureReason, HTTP 407 support, 64/64 existing localized help keys confirmed."
+  - "Identified unsafe AppViewModel.toggleVPN catch exposing arbitrary localizedDescription."
+current: "Implement safe typed mapping and tests on isolated GitHub branch; then verify CI."
+pending:
+  - "Implement localized safe alert and tests."
+  - "Run CI; review merge readiness."
+  - "Continue 0.2.1 socket lifecycle and exact 0.1.41 upgrade validation in independent stages."
+last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc"
+test_results:
+  - "Prior release CI 16/16 PASS on iOS 0.2.0; new branch untested."
+resume_instruction: "Using ARC for Mac mini read-only operations; RDC forbidden by owner. Inspect branch fix/ios-021-safe-connection-errors-20261104, finish typed safe connection alert, run tests/CI, checkpoint exact commit. Never touch live App Store 0.2.0, iPhone profiles, Proxy Launcher Watchdog, or concurrent macOS socket root-fix worktree."
