@@ -1,0 +1,30 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-EGRESS-WITNESS-20261105
+status: in_progress
+goal: "Prepare independent, bounded server-side TCP egress witnesses for the Smart Routing 4.0 physical attribution gate without changing runtime routing or live iPhone state."
+definition_of_done:
+  - "Standalone paired no-forwarding laboratory TCP listeners attest receipt of unique ephemeral 128-bit probe tokens on independently labeled DIRECT/PROXY endpoints, bounded by port, time and 256 samples."
+  - "Verifier correlates a unique planned Smart4 route with independently recorded positive server-side receipt; duplicate, conflicting, stale, missing, IP-only and malformed witnesses never count as confirmed matches."
+  - "Aggregate result reports counts only; never persists hostnames, URLs, IP or credentials; no real proxy forwarding or PacketTunnel hooks."
+  - "Automated real-loopback TCP plus adversarial Python tests and source contract, iOS Swift Core and iOS Python regression tests pass."
+  - "Document why local loopback is not physical iPhone egress proof; leave Smart4 phase 2b.2 hardware gate unchecked and PR #314/Apple/Keychain/live VPN untouched."
+  - "Open isolated PR with exact-head CI; merge only after green/CLEAN, then finalize canonical checkpoint."
+completed:
+  - "Read canonical main and prior Smart4 2b.1 source-only aggregate; confirmed true physical iPhone egress 2b.2 remains unproven."
+  - "Implemented standalone synthetic no-forwarding TCP DIRECT/PROXY LabWitnessListener, 128-bit nonce receipt, positive server ACK, separate private JSONL logs, exact schema and bounded 120s/256 samples."
+  - "Implemented strict offline fail-closed correlation; no proof from DNS/IP, missing/duplicate/conflicting/stale/out-of-plan evidence. Minimum independently witnessed DIRECT and PROXY, scope synthetic_lab_only; physical_egress_verified always false."
+  - "Real TCP loopback DIRECT+PROXY server receipts and adversarial tests PASS, no production PacketTunnel or Keychain changes."
+  - "GitHub PR #343 initial Windows CI exposed POSIX private-file mode incompatibility; standalone listener now fail-closed on non-POSIX while cross-platform verifier remains available; Windows-specific guard test added."
+current: "Source and local QA ready. 17 focused witness tests PASS; previous full Swift Core181/181 PASS; full iOS Python192 (1 skipped) PASS. PR #343 opened; Windows CI correction pending rerun and exact-head merge; physical Smart4 egress 2b.2 remains unchecked."
+pending:
+  - "Create isolated PR on main with source, tests, roadmap, doc and in_progress checkpoint."
+  - "Require full exact-head GitHub CI, merge only on green/CLEAN."
+  - "Metadata-only completed checkpoint after merge; real physical iPhone egress stays open in roadmap."
+last_verified_commit: "a414a880d65aa1455ba9c34ceb5b4471e46f5596 (origin/main source base; pending new PR)"
+test_results:
+  - "Focused Smart4 TCP witness Python17/17 PASS (two actual independent local TCP observers + adversarial cases)."
+  - "Full iOS Python192 run, one skipped, zero failures; no actual App Store mutations."
+  - "Existing Swift Core181/181 PASS on unchanged mobile/ios source."
+  - "No iPhone installation, VPN/Keychain/profile/routing change, Apple submission or physical egress claim."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-egress-witness-20261105; source-only Python lab servers/verifier and fail-closed tests ready on main a414a880, focused Python17, iOS Python192 (1 skipped), Swift181 PASS. NEXT git add/commit/push and PR with CI; merge only all-green CLEAN. Then close checkpoint with merge SHA. Hardware Smart4 stage 2b.2 remains unverified; user live iPhone/VPN/Keychain/Apple and draft PR #314 untouched. Never claim local loopback proves physical routing."
