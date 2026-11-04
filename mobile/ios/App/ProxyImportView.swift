@@ -115,8 +115,15 @@ struct ProxyImportView: View {
                 NavigationView {
                     ProxyQRScanner(onCode: { code in
                         scanQR = false
-                        source = code
-                        parse()
+                        do {
+                            // Shared APL QR links are also Apple deep links.
+                            // Unwrap only our registered scheme; legacy proxy
+                            // QR and multi-profile supplier codes keep working.
+                            source = try ProxyProfileSharing.scannedSource(code)
+                            parse()
+                        } catch {
+                            importError = ProxyImportUX.error(error)
+                        }
                     }, onError: { message in
                         scanQR = false
                         cameraPermissionDenied = message == "Нет доступа к камере"
