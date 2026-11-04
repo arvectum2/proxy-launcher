@@ -23,9 +23,6 @@ struct ContentView: View {
     @State private var showExclusions = false
     @State private var showQuickActions = false
     @State private var showAppExclusions = false
-#if targetEnvironment(macCatalyst)
-    @State private var confirmVPNRepair = false
-#endif
 #if DEBUG && !targetEnvironment(macCatalyst)
     @State private var didStartOpaqueNetworkQA = false
 #endif
@@ -740,22 +737,7 @@ struct ContentView: View {
                     }
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
 #if targetEnvironment(macCatalyst)
-                    settingsButton("Восстановить VPN", icon: "arrow.clockwise") {
-                        confirmVPNRepair = true
-                    }
-                    .disabled(model.vpn.isConnectedOrConnecting)
-                    .confirmationDialog(
-                        "Пересоздать системную конфигурацию VPN?",
-                        isPresented: $confirmVPNRepair,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Восстановить VPN", role: .destructive) {
-                            Task { await model.repairVPNConfiguration() }
-                        }
-                        Button("Отмена", role: .cancel) {}
-                    } message: {
-                        Text("Прокси-профили и пароли сохранятся. macOS может снова запросить разрешение на VPN.")
-                    }
+                    MacVPNRepairControl(model: model)
 #endif
                     if #available(iOS 16.0, *) {
                         settingsButton(QuickActionsCopy.text("Быстрые команды VPN", en: "VPN quick actions"),

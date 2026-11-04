@@ -125,10 +125,12 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         viewmodel = (ROOT / "mobile" / "ios" / "App" / "AppViewModel.swift").read_text(encoding="utf-8")
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
         self.assertIn("func repairVPNConfiguration() async", viewmodel)
-        self.assertIn('settingsButton("Восстановить VPN", icon: "arrow.clockwise")', content)
-        self.assertIn('confirmVPNRepair = true', content)
-        self.assertIn('Task { await model.repairVPNConfiguration() }', content)
-        self.assertIn("Прокси-профили и пароли сохранятся.", content)
+        control = (ROOT / "mobile" / "macos-appstore" / "App" / "MacVPNRepairControl.swift").read_text(encoding="utf-8")
+        self.assertIn("MacVPNRepairControl(model: model)", content)
+        self.assertIn("App/MacVPNRepairControl.swift", PROJECT)
+        self.assertIn("confirmRepair = true", control)
+        self.assertIn("Task { await model.repairVPNConfiguration() }", control)
+        self.assertIn("Прокси-профили и пароли сохранятся.", control)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
         self.assertIn('CURRENT_PROJECT_VERSION: "15"', PROJECT)

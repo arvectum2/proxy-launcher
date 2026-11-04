@@ -35,6 +35,7 @@ targets:
       - ../ios/App/HomeLayoutProbe.swift
       - App/MacSettingsBannerPlaceholder.swift
       - App/VPNController.swift
+      - App/MacVPNRepairControl.swift
       - App/PrivacyDisclosureView.swift
       - ../ios/Shared/ProfileStore.swift
       - ../ios/Shared/ProxyProbe.swift
