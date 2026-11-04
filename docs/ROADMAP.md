@@ -1,3 +1,20 @@
+## 04.11.2026 — macOS root fix: TestFlight build16 REJECTED
+
+- [x] Physical 65-minute QA FAIL: maximum 308 TCP / 172 CLOSE_WAIT; final 282/141. Availability-only PASS was a false positive. Do NOT ship build16.
+- [x] Independent socket/trend acceptance evaluator with 8 passing regression tests; actual build16 log correctly rejected.
+- [x] Kernel closewait watcher for blocked virtual writes, native live TCP FIN and session handoff regression 6/6 PASS.
+- [x] Signed TestFlight 0.2.22 build17 installed; full 65-minute socket soak: max 48 TCP/31 CLOSE_WAIT, final 14/1, VPN and ARC stable.
+- [ ] Overall build17 QA FAIL: two real HTTPS curl 28 timeouts out of 14 probes. Repeat diagnostic 65-minute test with backup website probes; no public release until full pass.
+- [x] Signed exact-source build18 Apple VALID and installed on MacBook; 32/32 HTTPS smoke PASS; App Store draft created with manual release.
+- [ ] Full 65-minute build18 QA before PR #310 merge and public App Review submission.
+
+## 04.11.2026 — macOS CLOSE_WAIT root fix (candidate for next release)
+
+- [x] Root cause found in pinned Rust tun2proxy half-close join; native bounded cleanup implemented, 4 Rust tests including real TCP FIN passed.
+- [x] macOS 96-session engine limit, Smart3 FFI retained, full Catalyst Debug build and 31 focused Python contracts passed.
+- [x] Signed TestFlight 0.2.22 build16 installed on physical MacBook; three proxy profiles retained, 30/30 HTTPS 200, ARC/Tailscale online; prior public 0.2.21 backup preserved.
+- [x] Build16 65-minute QA FAILED, build17 sockets stable but HTTPS gate FAILED twice; further diagnosis required. Details: docs/APL_MACOS_CLOSEWAIT_ROOTFIX_20261104.md.
+
 ## 04.11.2026 — порядок iOS-релизов и послерелизная приёмка QR (решение владельца)
 
 - [x] Подтверждено по исходникам: отправленная Apple **iOS 0.2.0 (48)** собрана из f0a93f8a **до** появления нового QR-обмена (b59801f6, PR #320). Следовательно, установить 0.2.0 на второй iPhone недостаточно для проверки QR.

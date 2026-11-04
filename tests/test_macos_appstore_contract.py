@@ -65,7 +65,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('SOURCE_COMMIT = "e271de19683937f23d3f8f0eb4df0a61fc4a6e50"', FETCH)
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
         self.assertIn("-create-xcframework", FETCH)
-        self.assertIn("bounded-tokio-shutdown-and-exact-host-split-dns", FETCH)
+        self.assertIn("bounded-tokio-shutdown-full-smart3-flow-stack-and-bounded-tcp-halfclose", FETCH)
         self.assertIn("rt.shutdown_timeout(std::time::Duration::from_secs(2))", FETCH)
         self.assertIn("stop_watch.cancelled().await", FETCH)
         self.assertIn("tun2proxy-split-dns.patch", FETCH)
@@ -74,8 +74,20 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("with_bypass", patch)
         self.assertIn("RecordType::AAAA", patch)
 
-    def test_store_release_is_0_2_21_and_uses_mac_specific_entrypoint(self):
-        self.assertIn('MARKETING_VERSION: "0.2.21"', PROJECT)
+    def test_shared_profile_qr_presentation_is_wired_into_mac_catalyst_app(self):
+        # The shared ProfilesScreenView references ProxySharePresentation from
+        # the iOS QR feature. Mac Catalyst compiles this same screen, so its
+        # dependencies must be explicitly present in the XcodeGen source list.
+        screen = (ROOT / "mobile" / "ios" / "App" / "ProfilesScreenView.swift").read_text(encoding="utf-8")
+        if "ProxySharePresentation" in screen:
+            self.assertIn("../ios/App/ProxyShareView.swift", PROJECT)
+            self.assertIn("../ios/App/ProfilesScreenView.swift", PROJECT)
+            share = (ROOT / "mobile" / "ios" / "App" / "ProxyShareView.swift").read_text(encoding="utf-8")
+            self.assertIn("struct ProxySharePresentation", share)
+            self.assertIn("confirmation", screen.lower())
+
+    def test_store_release_is_0_2_22_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.22"', PROJECT)
         self.assertIn('CFBundleShortVersionString', APP_SHARED)
         self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
         self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
@@ -133,7 +145,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("Прокси-профили и пароли сохранятся.", control)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "15"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "18"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
         # ExclusionsView is now a standalone SwiftUI screen, no longer a

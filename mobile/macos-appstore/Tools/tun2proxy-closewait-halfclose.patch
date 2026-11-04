@@ -1,0 +1,381 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index bd19048..bbc161d 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -289,6 +289,10 @@ where
+ 
+     let task_count = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+     use std::sync::atomic::Ordering::Relaxed;
++    // Do not detach TCP/UDP session tasks across an in-process tunnel handoff.
++    // A serial engineQueue barrier proves the parent runner exited, but without
++    // joining its children they can still own upstream TCP FDs after stop().
++    let mut session_tasks = tokio::task::JoinSet::<()>::new();
+ 
+     loop {
+         let task_count = task_count.clone();
+@@ -298,6 +302,12 @@ where
+                 log::info!("Shutdown received");
+                 break;
+             }
++            finished = session_tasks.join_next(), if !session_tasks.is_empty() => {
++                if let Some(Err(err)) = finished {
++                    log::debug!("Session task ended unexpectedly: {err}");
++                }
++                continue;
++            }
+             ip_stack_stream = ip_stack.accept() => {
+                 ip_stack_stream?
+             }
+@@ -333,7 +343,7 @@ where
+                 let observed_id = flow_events::next_id();
+                 let proxy_handler = mgr.new_proxy_handler(info, domain_name, false).await?;
+                 let socket_queue = socket_queue.clone();
+-                tokio::spawn(async move {
++                session_tasks.spawn(async move {
+                     if let Err(err) = handle_tcp_session(tcp, proxy_handler, socket_queue, observed_host.as_deref(), observed_id, direct_host.as_deref(), lab_direct).await {
+                         log::error!("{info} error \"{err}\"");
+                     }
+@@ -359,7 +369,7 @@ where
+                         info.protocol = IpProtocol::Tcp;
+                         let proxy_handler = mgr.new_proxy_handler(info, None, false).await?;
+                         let socket_queue = socket_queue.clone();
+-                        tokio::spawn(async move {
++                        session_tasks.spawn(async move {
+                             if let Err(err) = handle_dns_over_tcp_session(udp, proxy_handler, socket_queue, ipv6_enabled).await {
+                                 log::error!("{info} error \"{err}\"");
+                             }
+@@ -368,7 +378,7 @@ where
+                         continue;
+                     }
+                     if args.dns == ArgDns::Virtual {
+-                        tokio::spawn(async move {
++                        session_tasks.spawn(async move {
+                             if let Some(virtual_dns) = virtual_dns {
+                                 if let Err(err) = handle_virtual_dns_session(udp, virtual_dns).await {
+                                     log::error!("{info} error \"{err}\"");
+@@ -403,7 +413,7 @@ where
+                     let tcpinfo = SessionInfo::new(tcp_src, udpgw.get_udpgw_server_addr(), IpProtocol::Tcp);
+                     let proxy_handler = mgr.new_proxy_handler(tcpinfo, None, false).await?;
+                     let queue = socket_queue.clone();
+-                    tokio::spawn(async move {
++                    session_tasks.spawn(async move {
+                         let dst = info.dst; // real UDP destination address
+                         let dst_addr = match domain_name {
+                             Some(ref d) => socks5_impl::protocol::Address::from((d.clone(), dst.port())),
+@@ -419,7 +429,7 @@ where
+                 match mgr.new_proxy_handler(info, domain_name, true).await {
+                     Ok(proxy_handler) => {
+                         let socket_queue = socket_queue.clone();
+-                        tokio::spawn(async move {
++                        session_tasks.spawn(async move {
+                             let ty = args.proxy.proxy_type;
+                             if let Err(err) = handle_udp_associate_session(udp, ty, proxy_handler, socket_queue, ipv6_enabled).await {
+                                 log::info!("Ending {info} with \"{err}\"");
+@@ -443,6 +453,18 @@ where
+             }
+         }
+     }
++    // Guarantee old session TcpStreams have been dropped before return to
++    // the long-lived Network Extension. In-process restart without this drain
++    // repeatedly accumulated orphaned CLOSE_WAIT FDs in the same PID.
++    session_tasks.abort_all();
++    let drain = async {
++        while session_tasks.join_next().await.is_some() {}
++    };
++    if tokio::time::timeout(std::time::Duration::from_secs(3), drain)
++        .await.is_err()
++    {
++        log::warn!("Timed out waiting for native TCP session tasks to close");
++    }
+     Ok(task_count.load(Relaxed))
+ }
+ 
+@@ -546,6 +568,76 @@ async fn verify_ipv6_tls_first_record(
+         "physical first TLS record timed out"))?
+ }
+ 
++/// When the proxy sends FIN, a virtual client may hold its sending half
++/// open indefinitely. A join! holds the upstream socket in CLOSE_WAIT until
++/// that client also sends FIN. Bound both half-close completion directions.
++async fn bounded_half_close<C, S>(
++    client_to_server: C,
++    server_to_client: S,
++    after_server_eof: std::time::Duration,
++    after_client_eof: std::time::Duration,
++) -> (Option<tokio::io::Result<u64>>, Option<tokio::io::Result<u64>>)
++where
++    C: std::future::Future<Output = tokio::io::Result<u64>>,
++    S: std::future::Future<Output = tokio::io::Result<u64>>,
++{
++    tokio::pin!(client_to_server);
++    tokio::pin!(server_to_client);
++    tokio::select! {
++        result = &mut server_to_client => {
++            // Proxy sent FIN; dropping the other future releases its write
++            // half, avoiding indefinite CLOSE_WAIT on the proxy socket.
++            let other = tokio::time::timeout(after_server_eof, &mut client_to_server).await.ok();
++            (other, Some(result))
++        }
++        result = &mut client_to_server => {
++            // Client sent FIN: allow a final response to drain first.
++            let other = tokio::time::timeout(after_client_eof, &mut server_to_client).await.ok();
++            (Some(result), other)
++        }
++    }
++}
++
++/// Read TCP state without consuming application bytes. The peer can send FIN
++/// while our server->virtual-client copy is blocked on backpressure, so EOF
++/// can remain unobserved indefinitely by normal Tokio copy futures.
++///
++/// Only inspect a socket while the enclosing stream is alive; never close a
++/// foreign raw descriptor or race the OS's descriptor allocator.
++#[cfg(any(target_os = "ios", target_os = "macos"))]
++fn upstream_socket_in_close_wait(fd: std::os::fd::RawFd) -> bool {
++    use nix::libc;
++    let mut info: libc::tcp_connection_info = unsafe { std::mem::zeroed() };
++    let mut len = std::mem::size_of::<libc::tcp_connection_info>() as libc::socklen_t;
++    let result = unsafe {
++        libc::getsockopt(
++            fd, libc::IPPROTO_TCP, libc::TCP_CONNECTION_INFO,
++            (&mut info as *mut libc::tcp_connection_info).cast::<libc::c_void>(),
++            &mut len,
++        )
++    };
++    result == 0 && info.tcpi_state == 5 // Darwin TCPS_CLOSE_WAIT
++}
++
++/// The native kernel state is authoritative even if our forwarder's write is
++/// stuck. Confirm CLOSE_WAIT twice before dropping the owned stream, so short
++/// receive-buffer transitions cannot provoke an unnecessary reconnect.
++#[cfg(any(target_os = "ios", target_os = "macos"))]
++async fn wait_for_upstream_close_wait(fd: std::os::fd::RawFd) {
++    let mut ticker = tokio::time::interval(std::time::Duration::from_secs(1));
++    ticker.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
++    let mut consecutive = 0_u8;
++    loop {
++        ticker.tick().await;
++        if upstream_socket_in_close_wait(fd) {
++            consecutive = consecutive.saturating_add(1);
++            if consecutive >= 2 { return; }
++        } else {
++            consecutive = 0;
++        }
++    }
++}
++
+ async fn handle_tcp_session(
+     mut tcp_stack: IpStackTcpStream,
+     proxy_handler: Arc<Mutex<dyn ProxyHandler>>,
+@@ -695,10 +787,16 @@ async fn handle_tcp_session(
+         }
+     }
+ 
++    #[cfg(any(target_os = "ios", target_os = "macos"))]
++    let upstream_fd = {
++        use std::os::fd::AsRawFd;
++        server.as_raw_fd()
++    };
++
+     let (mut t_rx, mut t_tx) = tokio::io::split(tcp_stack);
+     let (mut s_rx, mut s_tx) = tokio::io::split(server);
+ 
+-    let res = tokio::join!(
++    let copy = bounded_half_close(
+         async move {
+             let r = copy_and_record_traffic(&mut t_rx, &mut s_tx, true, observed_host, observed_id, lab_direct && uses_direct).await;
+             if let Err(err) = s_tx.shutdown().await {
+@@ -713,7 +811,21 @@ async fn handle_tcp_session(
+             }
+             r
+         },
++        std::time::Duration::from_secs(2),
++        std::time::Duration::from_secs(30),
+     );
++
++    #[cfg(any(target_os = "ios", target_os = "macos"))]
++    let res = tokio::select! {
++        r = copy => r,
++        _ = wait_for_upstream_close_wait(upstream_fd) => {
++            log::debug!("Forcing cleanup of half-closed upstream session {session_info}");
++            (None, None)
++        },
++    };
++    #[cfg(not(any(target_os = "ios", target_os = "macos")))]
++    let res = copy.await;
++
+     log::info!("Ending {session_info} with {res:?}");
+ 
+     Ok(())
+@@ -1129,3 +1241,171 @@ mod ios_ipv6_first_record_contract_tests {
+                       .unwrap_err().kind(),std::io::ErrorKind::InvalidData);
+     }
+ }
++
++
++#[cfg(test)]
++mod apl_halfclose_regression_tests {
++    use super::*;
++
++    #[tokio::test]
++    async fn upstream_fin_reaps_pending_client_forwarder() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                std::future::pending::<tokio::io::Result<u64>>(),
++                async { Ok(10) },
++                std::time::Duration::from_millis(20),
++                std::time::Duration::from_millis(50),
++            ),
++        ).await.expect("upstream FIN must not leave a pending client read");
++        assert!(result.0.is_none());
++        assert_eq!(result.1.unwrap().unwrap(), 10);
++    }
++
++    #[tokio::test]
++    async fn client_fin_reaps_pending_upstream_forwarder() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                async { Ok(5) },
++                std::future::pending::<tokio::io::Result<u64>>(),
++                std::time::Duration::from_millis(20),
++                std::time::Duration::from_millis(50),
++            ),
++        ).await.expect("client FIN must not leave a pending remote read");
++        assert_eq!(result.0.unwrap().unwrap(), 5);
++        assert!(result.1.is_none());
++    }
++
++    /// A real loopback upstream sends FIN, but the virtual browser never
++    /// sends EOF. The patched relay must drop both split upstream halves.
++    #[tokio::test]
++    async fn real_tcp_fin_closes_proxy_fd_while_browser_remains_open() {
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++
++        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
++            .await.expect("loopback listener");
++        let addr = listener.local_addr().unwrap();
++        let peer = tokio::spawn(async move {
++            let (mut accepted, _) = listener.accept().await.unwrap();
++            accepted.shutdown().await.unwrap(); // sends upstream FIN
++            let mut buf = [0u8; 1];
++            // Closing the upstream client's remaining write half must
++            // deliver EOF here, before the untouched browser closes.
++            tokio::time::timeout(
++                std::time::Duration::from_millis(600),
++                accepted.read(&mut buf),
++            ).await.expect("proxy socket leaked after server FIN")
++                .expect("proxy read error")
++        });
++        let server = tokio::net::TcpStream::connect(addr).await.unwrap();
++        let (client_to_tunnel, _browser_open) = tokio::io::duplex(1024);
++        let (mut t_rx, mut t_tx) = tokio::io::split(client_to_tunnel);
++        let (mut s_rx, mut s_tx) = tokio::io::split(server);
++
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(500),
++            bounded_half_close(
++                async move {
++                    let n = tokio::io::copy(&mut t_rx, &mut s_tx).await;
++                    s_tx.shutdown().await?;
++                    n
++                },
++                async move {
++                    let n = tokio::io::copy(&mut s_rx, &mut t_tx).await;
++                    t_tx.shutdown().await?;
++                    n
++                },
++                std::time::Duration::from_millis(35),
++                std::time::Duration::from_millis(80),
++            ),
++        ).await.expect("half-closed upstream stuck waiting for browser EOF");
++        assert!(result.0.is_none(), "browser must still be open");
++        assert_eq!(result.1.unwrap().unwrap(), 0);
++        assert_eq!(peer.await.unwrap(), 0, "upstream socket was not closed");
++    }
++
++    #[tokio::test]
++    async fn both_sides_finish_immediately() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                async { Ok(1) },
++                async { Ok(2) },
++                std::time::Duration::from_secs(2),
++                std::time::Duration::from_secs(30),
++            ),
++        ).await.expect("both sides complete immediately");
++        assert_eq!(result.0.unwrap().unwrap(), 1);
++        assert_eq!(result.1.unwrap().unwrap(), 2);
++    }
++    /// Kernel FIN arrives while both forwarding futures remain pending.
++    /// A completion-only timeout is insufficient; this test would hang with
++    /// the old bounded_half_close implementation alone.
++    #[cfg(target_os = "macos")]
++    #[tokio::test]
++    async fn tcp_close_wait_detected_while_virtual_output_is_blocked() {
++        use std::os::fd::AsRawFd;
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
++            .await.expect("listener");
++        let addr = listener.local_addr().unwrap();
++        let peer = tokio::spawn(async move {
++            let (mut accepted, _) = listener.accept().await.unwrap();
++            accepted.write_all(b"buffered response").await.unwrap();
++            accepted.shutdown().await.unwrap();
++            let mut buf = [0u8; 1];
++            tokio::time::timeout(
++                std::time::Duration::from_secs(4), accepted.read(&mut buf)
++            ).await.expect("stream never released by watcher")
++        });
++
++        let stream = tokio::net::TcpStream::connect(addr).await.unwrap();
++        let fd = stream.as_raw_fd();
++        // Keep our upstream stream fully alive and unread. In the live
++        // extension this happens when a virtual client stops accepting data.
++        let blocked_writer = std::future::pending::<()>();
++        let guard = tokio::select! {
++            _ = blocked_writer => false,
++            _ = tokio::time::timeout(
++                std::time::Duration::from_secs(4),
++                wait_for_upstream_close_wait(fd)
++            ) => true,
++        };
++        assert!(guard, "CLOSE_WAIT watcher must terminate stalled forwarding");
++        drop(stream);
++        // An unread response can legitimately cause RST when the client
++        // closes; EOF and RST both prove kernel descriptor teardown.
++        match peer.await.unwrap() {
++            Ok(0) => {},
++            Err(e) if e.kind() == std::io::ErrorKind::ConnectionReset => {},
++            outcome => panic!("upstream socket not torn down: {outcome:?}"),
++        }
++    }
++
++    #[tokio::test]
++    async fn native_session_handoff_drops_stale_upstream_fd() {
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
++        let addr = listener.local_addr().unwrap();
++        let mut client = tokio::net::TcpStream::connect(addr).await.unwrap();
++        let (mut peer, _) = listener.accept().await.unwrap();
++        client.write_all(b"test").await.unwrap();
++        let mut buf = [0u8; 4];
++        peer.read_exact(&mut buf).await.unwrap();
++        let mut session_tasks = tokio::task::JoinSet::<()>::new();
++        session_tasks.spawn(async move {
++            let _own_client_fd = client;
++            std::future::pending::<()>().await;
++        });
++        tokio::task::yield_now().await;
++        session_tasks.abort_all();
++        tokio::time::timeout(std::time::Duration::from_secs(2), async {
++            while session_tasks.join_next().await.is_some() {}
++        }).await.expect("session fd drain stalled");
++        let read = tokio::time::timeout(std::time::Duration::from_secs(2), peer.read(&mut buf))
++            .await.expect("server did not observe upstream TCP cleanup");
++        assert!(matches!(read, Ok(0) | Err(_)), "socket not closed after handoff");
++    }
++
++}

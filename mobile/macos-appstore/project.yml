@@ -6,8 +6,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.2.21"
-    CURRENT_PROJECT_VERSION: "15"
+    MARKETING_VERSION: "0.2.22"
+    CURRENT_PROJECT_VERSION: "18"
     DEVELOPMENT_TEAM: "VML75VY94V"
     CODE_SIGN_STYLE: Manual
     SUPPORTS_MACCATALYST: YES
@@ -24,6 +24,23 @@ targets:
       - App/HelpView.swift
       - ../ios/App/AppViewModel.swift
       - ../ios/App/ContentView.swift
+      - ../ios/App/ProfileLibraryRowView.swift
+      - ../ios/App/ProfileLibraryFiltersView.swift
+      - ../ios/App/ProfileLibraryBulkActionsView.swift
+      - ../ios/App/AdaptiveDirectProbe.swift
+      - ../ios/App/ExclusionWebScanner.swift
+      - ../ios/App/AppDestination.swift
+      - ../ios/App/Smart3PhysicalTrafficQA.swift
+      - ../ios/App/BrandTheme.swift
+      - ../ios/App/KeyboardDismissSupport.swift
+      - ../ios/App/ProfileEditorView.swift
+      - ../ios/App/ProfileBackupView.swift
+      - ../ios/App/ExclusionsView.swift
+      - ../ios/App/ApplicationExclusionsView.swift
+      - ../ios/App/EqualHeightDashboardLayout.swift
+      - ../ios/App/ProfilesScreenView.swift
+      - ../ios/App/ProxyShareView.swift
+      - ../ios/App/ActivityScreenView.swift
       - ../ios/App/AppearanceMode.swift
       - ../ios/App/AppLocalization.swift
       - ../ios/App/SetupGuideView.swift

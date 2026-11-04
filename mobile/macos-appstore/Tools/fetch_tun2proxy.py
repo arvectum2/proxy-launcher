@@ -14,6 +14,11 @@ REPO = ROOT.parents[1]
 TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = Path(__file__).resolve().parent / "tun2proxy-v0.8.3.Cargo.lock"
 SPLIT_DNS_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-split-dns.patch"
+CLOSE_WAIT_PATCH = ROOT / "Tools" / "tun2proxy-closewait-halfclose.patch"
+FLOW_INTENT_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-flow-intent.patch"
+SCOPED_DIRECT_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-experimental-scoped-direct.patch"
+SAME_FLOW_RETRY_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-sameflow-scoped-retry.patch"
+DIRECT_FAMILY_PATCH = ROOT.parent / "ios" / "Tools" / "tun2proxy-dual-stack-physical-family.patch"
 CARGO_TARGET = REPO / "build" / "tun2proxy-maccatalyst"
 RUST_TARGET = "aarch64-apple-ios-macabi"
 
@@ -66,6 +71,30 @@ def developer_dir() -> str:
         if (candidate / "usr/bin/xcodebuild").is_file():
             return str(candidate)
     raise SystemExit("Full Xcode is required")
+
+def install_flow_event_header(headers: Path) -> None:
+    """Expose the added pinned Rust C ABI consistently across device/sim."""
+    header = headers / "tun2proxy.h"
+    value = header.read_text(encoding="utf-8")
+    signature = "void tun2proxy_set_flow_event_callback("
+    if signature not in value:
+        anchor = "int tun2proxy_stop(void);"
+        if value.count(anchor) != 1:
+            raise SystemExit("tun2proxy public header anchor changed")
+        value = value.replace(anchor, anchor + "\n\n" +
+            "/* 0=CONNECT_OK, 1=TIMEOUT, 2=REFUSED, 3=OTHER, 4=UPSTREAM_DOWN */\n" +
+            "void tun2proxy_set_flow_event_callback(\n" +
+            "    void (*callback)(const char *host, uint64_t connection_id, int32_t event, void *ctx),\n" +
+            "    void *ctx);", 1)
+    signature = "int32_t tun2proxy_set_direct_exact_host("
+    if signature not in value:
+        value = value.replace("void tun2proxy_set_flow_event_callback(",
+            "/* Experimental only: 5=DIRECT_FAIL, 6=DIRECT_TCP, 7=SAME_FLOW_RECOVERED. */\n"
+            "int32_t tun2proxy_set_direct_exact_host(const char *host, bool enable);\n\n"
+            "void tun2proxy_set_flow_event_callback(", 1)
+    header.write_text(value, encoding="utf-8")
+
+
 
 def main() -> None:
     env = os.environ.copy()
@@ -129,6 +158,14 @@ def main() -> None:
         # excludedRoutes; keep default virtual DNS for all other hosts.
         run("git", "apply", "--check", str(SPLIT_DNS_PATCH), cwd=source, env=env)
         run("git", "apply", str(SPLIT_DNS_PATCH), cwd=source, env=env)
+        # On upstream FIN, do not wait forever for a virtual client to FIN.
+        # Keep the Smart3 flow callbacks and per-host intent already called
+        # from the shared Swift PacketTunnelMac sources; prior Catalyst
+        # native fetch omitted them and could not link current app sources.
+        for patch in (FLOW_INTENT_PATCH, SCOPED_DIRECT_PATCH,
+                      SAME_FLOW_RETRY_PATCH, DIRECT_FAMILY_PATCH, CLOSE_WAIT_PATCH):
+            run("git", "apply", "--check", str(patch), cwd=source, env=env)
+            run("git", "apply", str(patch), cwd=source, env=env)
 
         run(cargo, f"+{RUST_TOOLCHAIN}", "build", "--release", "--locked",
             "--target", RUST_TARGET, cwd=source, env=env)
@@ -138,6 +175,7 @@ def main() -> None:
 
         module_headers = tmpdir / "Headers"
         shutil.copytree(headers, module_headers)
+        install_flow_event_header(module_headers)
         (module_headers / "module.modulemap").write_text(
             'module tun2proxy {\n    header "tun2proxy.h"\n    export *\n}\n',
             encoding="utf-8",
@@ -158,7 +196,7 @@ def main() -> None:
         (TARGET.parent / ".tun2proxy-version").write_text(
             f"{VERSION}\nsource_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"rust_target={RUST_TARGET}\npatch=bounded-tokio-shutdown-and-exact-host-split-dns\n"
+            f"rust_target={RUST_TARGET}\npatch=bounded-tokio-shutdown-full-smart3-flow-stack-and-bounded-tcp-halfclose\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\npatched_library_sha256={sha}\n",
             encoding="utf-8",
         )
