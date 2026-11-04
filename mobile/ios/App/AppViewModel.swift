@@ -452,6 +452,17 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+#if targetEnvironment(macCatalyst)
+    func repairVPNConfiguration() async {
+        errorMessage = nil
+        do {
+            try await vpn.recreateConfigurationAndConnect()
+        } catch {
+            errorMessage = "VPN: " + error.localizedDescription
+        }
+    }
+#endif
+
     func scanProfiles(manual: Bool = false, specificIDs: Set<UUID>? = nil) async {
         // Never launch overlapping network scans. Imported lists can contain
         // 200 paid proxies, so startup only checks 3 prioritized entries.

@@ -1,0 +1,32 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-021-APPSTORE-CONNECTION-20261104
+status: in_progress
+goal: "Fix VPN connection broken on MacBook after macOS App Store APL 0.2.21 build 15 update, and prevent stale NetworkExtension signing registration on future upgrades."
+definition_of_done:
+  - "Identify App Store update failure with actual system evidence and confirm upstream proxies independently."
+  - "Safely restore MacBook signed App Store APL VPN connectivity and proxy HTTPS egress, preserving all profiles and ARC/Tailscale."
+  - "Implement explicit macOS-only VPN configuration repair and build-number reconciliation, run focused tests, commit/PR."
+  - "Document any unrelated historical socket-pressure issues and limitations without claiming they are fixed or shipping an untested build."
+completed:
+  - "Verified App Store 0.2.21 build15 on MacBook. App and embedded PacketTunnel codesign valid with Apple Mac OS Application Signing, team VML75VY94V."
+  - "Actual root cause: nesessionmanager Signature check failed, NEVPNTunnelPlugin Validation of the extension failed, NEVPNConnectionErrorDomainPlugin code7 before upstream network use. Saved macOS VPN configuration carried obsolete signing requirement from TestFlight/developer distribution."
+  - "Proxy reachability: PX6 primary 68.209.60.141:8000 timeout, Netherlands 2 and US backup TCP reachable."
+  - "Backed up MacBook App Group preferences to ~/Library/Application Support/ArvectumQA/20261104/recovery/; verified all three stored proxy profiles remain."
+  - "Removed only disconnected Arvectum VPN configuration through macOS Settings and re-created using App Store APL with standard macOS VPN authorization. Tailscale configuration untouched."
+  - "MacBook restored: App Store build15 Connected, proxy egress 200.0.60.91, 15/15 concurrent HTTPS 200, TCP 23/CLOSE_WAIT 0 after 17 minutes, ARC userspace Tailscale Running/Online, all profiles and passwords preserved."
+  - "Implemented future build-number reconciliation (marketing version plus CFBundleVersion), explicit confirmation-protected macOS Settings VPN repair that removes only own disconnected VPN manager, no silent operation at launch."
+  - "Regression checks: macOS store contracts 23/23 PASS, appearance tests 5/5 PASS, isolated Mac Catalyst VPNController.swift typecheck PASS."
+  - "Full updated origin/main Catalyst build blocked by separate native dependency mismatch: SmartFlowEventCollector.swift calls new tun2proxy FFI symbols absent in available release Catalyst framework. Did not replace working signed App Store app."
+current: "Immediate MacBook incident resolved, source patch and tests verified; prepare branch commit, GitHub PR and CI."
+pending:
+  - "Commit code/tests/documentation and create PR targeting main; check CI, merge when green."
+  - "Separate follow-up investigation of historical 1689 TCP / 1655 CLOSE_WAIT pressure events, not conflated with stale signature validation."
+  - "Before a future macOS App Store release, reconcile Smart3 native FFI framework and perform full signed build and physical QA. No new app build has been shipped."
+last_verified_commit: "dac4cc7a origin/main as of task start; patch uncommitted."
+test_results:
+  - "MacBook signed Store app 0.2.21(15): VPN Connected, US egress 200.0.60.91, HTTPS 15/15, ARC/Tailscale online, three profiles intact."
+  - "23 macOS store contract tests + 5 appearance tests PASS."
+  - "Standalone Catalyst Swift typecheck of actual modified VPNController PASS."
+  - "Full main Catalyst build blocked by existing missing Smart3 native FFI symbols, unrelated to this patch."
+resume_instruction: "Use /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-021-appstore-connection-20261104. MacBook operationally FIXED: stale macOS VPN signing requirement recreated only Arvectum VPN; active App Store 0.2.21(15) Connected via US backup 200.0.60.91, 15/15 HTTPS, 0 CLOSE_WAIT, ARC online and three proxy profiles preserved. Source patch and tests prepared; commit, push, create PR and check CI. Do not replace working App Store build15 or mutate iOS release. Current main Catalyst build requires separate Smart3 native FFI symbols absent in the old macOS tun2proxy framework. Previous 1689/1655 socket pressure remains a separate potential issue, do not claim fixed. See docs/releases/0.2.21-macos-appstore-vpn-signature-repair-20261104.md. Once source merged set status completed and sync canonical checkpoint; Proxy Launcher Watchdog must remain disabled."
