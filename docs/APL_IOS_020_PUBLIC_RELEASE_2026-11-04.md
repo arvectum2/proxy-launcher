@@ -32,3 +32,10 @@
 ## Deferred product backlog (not required for iOS 0.2.0)
 
 CloudKit exception sync, Proxifier-like common desktop routing engine, QRVPN-like hosted gateway, storefront coverage audit and native linguist certification are separate product/quality workstreams, not hidden unimplemented binary features.
+
+## Final release handoff — 4 November 2026
+
+- GitHub PR #306 merged into canonical main at 99f73ce42b2c7eac57c577ccffeb963952a2adfa. All five earlier dependent draft PRs (#296, #302, #303, #304, #305) had their original heads independently verified as ancestors of main, then were closed with references to PR #306.
+- Exact release branch head a211c22ff0a64a812b3263bc3bcb13ef97e4c525: 16/16 GitHub Actions passed, including iOS personal, Windows installer and portable, macOS packaging, Doctor Windows UTF-8, security scans and provenance.
+- Apple App Review ID fc47d4f2-0490-4e6b-a22a-5c1aaf8ca35b and version 0.2.0 show WAITING_FOR_REVIEW; AFTER_APPROVAL will publish only when approved. Public distribution is not yet confirmed.
+- Canonical release engineering task marked completed. The optional independent native linguist certification and independent Apple-distributed 0.1.41 Keychain upgrade verification on a disposable device remain separate QA tasks.

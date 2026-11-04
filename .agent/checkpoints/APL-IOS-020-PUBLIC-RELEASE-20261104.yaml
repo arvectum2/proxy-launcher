@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-020-PUBLIC-RELEASE-20261104
-status: in_progress
+status: completed
 goal: "Finish iOS 0.2.0(48), reconcile repository/roadmap, migrate safely and submit for public App Review."
 definition_of_done:
   - "Existing iOS 0.1.41 published and verified."
@@ -20,15 +20,20 @@ completed:
   - "Built source-reconstructed 0.1.41(46) and latest 0.2.0 Simulator app; signed 0.1.41 native Swift profile decoding and data-key compatibility audited; synthetic source-reconstructed Simulator upgrade 0.1.41(46)→0.2.0(48) preserved 8/8 App Group SHA256 values and same App Group container; real iPhone Keychain upgrade unverified; owner iPhone/proxies untouched."
   - "Added new legacy 0.1.41 migration Swift fixtures and 4 Python persistence contracts; 134 Swift Core tests PASS, 4 Python contracts PASS."
   - "Added App Store 0.2.0 guarded repeatable release tool and new 4 Nov roadmap/release report."
-current: "Apple App Review successfully submitted; integrate PR #306 after CI, close five superseded draft PRs, verify final GitHub merge and complete checkpoint."
+completed_final:
+  - "2026-11-04: 16 of 16 exact-head GitHub workflows PASS on a211c22ff0a64a812b3263bc3bcb13ef97e4c525."
+  - "2026-11-04: release PR #306 merged into origin/main at 99f73ce42b2c7eac57c577ccffeb963952a2adfa."
+  - "2026-11-04: historical draft PRs #296, #302, #303, #304 and #305 closed; all original heads verified ancestors of main."
+  - "2026-11-04: Apple App Store Connect iOS 0.2.0(48) and review fc47d4f2-0490-4e6b-a22a-5c1aaf8ca35b WAITING_FOR_REVIEW, AFTER_APPROVAL."
+  - "2026-11-04: synthetic in-place Simulator upgrade 0.1.41(46) to 0.2.0(48) preserved 8/8 App Group values by SHA256; disposable simulator removed."
+  - "2026-11-04: 201 targeted iOS/macOS Python tests +84 subtests, 113 macOS tests +3 subtests, and Swift Core 135/135 PASS."
+current: "COMPLETED: version submitted to Apple App Review and release code integrated into canonical main."
 pending:
-  - "DONE: 180 iOS Python+84 subtests, merged Swift Core135/135; Windows CI portability followup in release branch."
-  - "Merge release branch onto fresh origin/main, review CI and close superseded draft PRs."
-  - "DONE: Apple 0.2.0 version WAITING_FOR_REVIEW, review fc47d4f2-0490-4e6b-a22a-5c1aaf8ca35b WAITING_FOR_REVIEW, release AFTER_APPROVAL."
-  - "Outside technical release: independent native-speaker QA and real binary upgrade with Keychain on disposable properly provisioned device not completed; do not assert otherwise."
-last_verified_commit: "e54a90516054b0b810fa8d872c999bca7a4bad07 (Smart3 verified code baseline; release docs/test commit pending)"
+  - "External review by Apple; iOS 0.2.0 public download not claimed before approval."
+  - "Separately scoped future QA: independent native linguist review and Apple-distributed iPhone Keychain upgrade test."
+last_verified_commit: "99f73ce42b2c7eac57c577ccffeb963952a2adfa (verified origin/main GitHub merge)"
 test_results:
   - "Prior iPhone Smart3 physical Safari IPV4/IPV6/RSYA all PASS; Rust17, Swift132, Python176+73."
   - "New Swift legacy 0.1.41 migration Core tests 134/134 PASS; Python frozen 0.1.41 storage + Keychain source contracts 4/4 PASS."
   - "Apple 47 release notes, 94 processed screenshots, 0.2.0 build48 VALID and selected, App Store review WAITING_FOR_REVIEW."
-resume_instruction: "Work only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-020-release-final-20261104. Preserve the stale dirty root checkout. Check Python final QA job 0f46e7f6-cd7a-4593-9634-f1edcfca1b4e. Fetch origin/main and merge validated release branch; ensure production mobile/ios tree matches f0a93f8a. GitHub CI and App Review are next. Submit via python3 mobile/ios/ASO/release_020.py --submit --confirm-version 0.2.0 only after readiness. Owner explicitly approved 2026-11-04. Keep single existing Watchdog."
+resume_instruction: "Release task completed. Do not rerun or resubmit Apple 0.2.0. For any new request, first inspect current main and actual Apple status; start a new task checkpoint if new work is justified."
