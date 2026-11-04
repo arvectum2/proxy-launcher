@@ -443,12 +443,11 @@ final class AppViewModel: ObservableObject {
             }
 #endif
         } catch {
-            // Preserve the actionable NetworkExtension explanation but
-            // identify system tunnel failures unambiguously in the alert.
-            let kind = ProxyFailureReason.classify(error)
-            errorMessage = kind == .tunnel
-                ? "VPN: " + error.localizedDescription
-                : error.localizedDescription
+            // Never surface raw NSError.localizedDescription from an upstream
+            // or NetworkExtension failure: it may contain connection secrets.
+            // Reuse the 64-language guidance keys and stable, safe reason codes.
+            let advice = SafeConnectionAlert.forError(error)
+            errorMessage = AppL10n.tr(advice.localizationKey) + " (" + advice.code + ")"
         }
     }
 
