@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreImage
 import UIKit
+import AVFoundation
 
 // Isolated QA bundle. Never accesses the installed APL App Group, Keychain
 // or PacketTunnel, and never connects to a real proxy.
@@ -27,6 +28,24 @@ struct QRDeviceQAHome: View {
     @State private var cameraReady = false
     @State private var preview: ImportedProxy?
     @State private var status = "NOT_RUN"
+    @State private var qaActivityPresented = false
+    @State private var qaActivityObserved = false
+
+    // Read-only camera hardware/authorization check. No permission prompt,
+    // capture session, images or video frames are ever requested.
+    private var cameraAvailability: String {
+        AVCaptureDevice.default(for: .video) == nil ? "unavailable" : "available"
+    }
+
+    private var cameraAuthorization: String {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: return "authorized"
+        case .denied: return "denied"
+        case .restricted: return "restricted"
+        case .notDetermined: return "not_requested"
+        @unknown default: return "unknown"
+        }
+    }
 
     private func writeSyntheticEvidence(_ outcome: String) {
         let payload: [String: String] = [
@@ -36,7 +55,11 @@ struct QRDeviceQAHome: View {
             "device": UIDevice.current.model,
             "os_version": UIDevice.current.systemVersion,
             "test": "real_iPhone_QR_image_CIDetector_and_strict_proxy_import",
-            "date": ISO8601DateFormatter().string(from: Date())
+            "date": ISO8601DateFormatter().string(from: Date()),
+            "camera_hardware": cameraAvailability,
+            "camera_permission": cameraAuthorization,
+            "apple_activity_view": qaActivityObserved ? "presented" : "not_presented",
+            "external_share": "not_performed"
         ]
         guard let directory = FileManager.default.urls(
                 for: .documentDirectory, in: .userDomainMask).first,
@@ -112,7 +135,28 @@ struct QRDeviceQAHome: View {
                 Spacer()
             }.padding()
                 .navigationTitle("APL QR Device QA")
-                .onAppear { selfTest() }
+                .onAppear {
+                    selfTest()
+                    // Explicit synthetic-only CLI flag. Never used by the
+                    // production app, and never invokes a third-party activity.
+                    if ProcessInfo.processInfo.arguments.contains("-aplQASystemShareAttestation"),
+                       status.hasPrefix("PASS:") {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            qaActivityPresented = true
+                        }
+                    }
+                }
+                .sheet(isPresented: $qaActivityPresented) {
+                    QRSystemShareAttestation {
+                        // Proof of actual viewDidAppear, not delivery to any
+                        // recipient or proof of the user's Apple share actions.
+                        qaActivityObserved = true
+                        writeSyntheticEvidence(status)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            qaActivityPresented = false
+                        }
+                    }
+                }
                 .confirmationDialog(
                     "QR раскрывает тестовый логин и пароль. Продолжить?",
                     isPresented: $consent
