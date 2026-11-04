@@ -368,7 +368,7 @@ final class AppViewModel: ObservableObject {
                 do {
                     try store.saveSmartExclusions(manual: previousManual, graph: previousGraph)
                 } catch {
-                    errorMessage = AppL10n.tr("VPN: не удалось восстановить прежние исключения.") + " " + error.localizedDescription
+                    errorMessage = SiteExclusionSaveUX.rollbackFailed()
                     return false
                 }
                 exclusions = store.siteExclusions
@@ -378,7 +378,7 @@ final class AppViewModel: ObservableObject {
                     do {
                         try await vpn.restoreAfterFailedExclusionsUpdate()
                     } catch {
-                        errorMessage = AppL10n.tr("Прежние исключения восстановлены, но VPN нужно подключить заново:") + " " + error.localizedDescription
+                        errorMessage = SiteExclusionSaveUX.reconnectNeeded(error)
                         return false
                     }
                 }
@@ -389,7 +389,7 @@ final class AppViewModel: ObservableObject {
             smartGraph = nextGraph
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = SiteExclusionSaveUX.failed(error)
             return false
         }
     }
