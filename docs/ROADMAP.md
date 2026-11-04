@@ -18,6 +18,12 @@
 
 ---
 
+## 04.11.2026 — iOS: ограничение памяти файлового импорта
+
+- [x] APL-IOS-BOUNDED-IMPORT-FILE-READER: файловый импорт больше не загружает Data(contentsOf:) целиком до проверки лимита; введено чтение FileHandle блоками до 16 КБ, с остановкой на 256000+1 байте, обязательным закрытием, строгим UTF-8 и проверкой локального URL. TXT/CSV/XML уже используют код; JSON из отдельного PR #335 будет пользоваться той же точкой входа. 6 Swift-тестов нового читателя, Swift Core165/165, Python137 (один skipped), 4 portable source-контракта, unsigned ARM64 Simulator App+PacketTunnel BUILD PASS. [Отчёт](APL_IOS_BOUNDED_FILE_IMPORT_2026-11-04.md).
+
+---
+
 ## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
 
 - [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.

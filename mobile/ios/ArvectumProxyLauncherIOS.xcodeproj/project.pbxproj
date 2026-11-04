@@ -27,6 +27,7 @@
 		1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		1963C3C126A975C10D01059D /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
+		1EA289B35370B82540C513DA /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
@@ -39,6 +40,7 @@
 		3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */; };
 		34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */; };
 		36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253B0C12F0347B26073794E0 /* AppDestination.swift */; };
+		36C110A5629C0531820FC002 /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		36C8485C979A28BB15CBFD46 /* ProxyImport.strings in Resources */ = {isa = PBXBuildFile; fileRef = BB11E773C4C15B602BA581E8 /* ProxyImport.strings */; };
 		39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */; };
@@ -184,6 +186,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImportFileReader.swift; sourceTree = "<group>"; };
 		01B9352820AA0795566EECD2 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImport.swift; sourceTree = "<group>"; };
 		03FE21FD9F027F95E7985BA6 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -749,6 +752,7 @@
 				830ABBEFB957123DBF424C92 /* ProfileScanPolicy.swift */,
 				C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */,
 				02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */,
+				016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */,
 				BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */,
 				B266784C8D84E9CAEB06097B /* ProxyModel.swift */,
 				676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */,
@@ -1040,6 +1044,7 @@
 				61C2D8CDC6BFA305A20537E6 /* ProfileStore.swift in Sources */,
 				05ACEE232AEE8294F12358BF /* ProxyFailureReason.swift in Sources */,
 				BCFAB992B54C9384E430D856 /* ProxyImport.swift in Sources */,
+				36C110A5629C0531820FC002 /* ProxyImportFileReader.swift in Sources */,
 				F7898E8D4636D03F5C53E73F /* ProxyImportStructured.swift in Sources */,
 				1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */,
 				A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */,
@@ -1143,6 +1148,7 @@
 				52CBC7915554AFDF2A102CE8 /* ProfilesScreenView.swift in Sources */,
 				CA00AE677BE5D78AFAEEBCC3 /* ProxyFailureReason.swift in Sources */,
 				66CB3242870370307C0B3730 /* ProxyImport.swift in Sources */,
+				1EA289B35370B82540C513DA /* ProxyImportFileReader.swift in Sources */,
 				851706D3307B653CC5F96F6B /* ProxyImportStructured.swift in Sources */,
 				14B2C9154CB78BAEE14F4149 /* ProxyImportUX.swift in Sources */,
 				9C39C5C8380C75F10B6D4224 /* ProxyImportView.swift in Sources */,

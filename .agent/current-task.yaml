@@ -1,27 +1,22 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
-status: blocked
-goal: "Ship native TCP half-close lifetime rootfix safely in iOS 0.2.1, without risking user proxy traffic or violating Apple's NetworkExtension constraints."
+task_id: APL-IOS-BOUNDED-IMPORT-FILE-READER-20261104
+status: in_progress
+goal: "Replace whole-file Data(contentsOf:) in iOS proxy file importer with bounded UTF-8 FileHandle reads, never loading oversize documents into memory before enforcing the 256 KB input cap."
 definition_of_done:
-  - "Pinned tun2proxy Rust fix and source tests pass; production TCP routes/profiles/credentials and Apple 0.2.0(48) review remain untouched."
-  - "Pass controlled independent physical iPhone FIN/CLOSE_WAIT and proxy-egress QA, including Safari upload/download, reconnect, Wi-Fi/LTE switching and fallback."
-  - "Verify no truncation of legitimate long-lived upload/download under 2-second upstream FIN and 30-second client FIN bounds; revise patch if regressions are observed."
-  - "Build and verify production iPhoneOS App+PacketTunnel after hardware gate and full exact-head hosted CI; merge PR #314 only when all gates pass."
+  - "Read local security-scoped file incrementally in bounded <=16KB chunks, reject as soon as >256000 bytes, close handle on every path, avoid truncated reads and expose only safe errors."
+  - "Preserve current TXT/CSV/XML proxy import parsing, preview, dedup, rollback and existing access-scope release; JSON from independent PR #335 should use same importer when merged."
+  - "Swift Core tests with valid short/large exact-boundary/over-limit/invalid UTF8/non-file URL, no credential leak; portable Python source contract."
+  - "Full Swift+Python suites and unsigned ARM64 Simulator App+PacketTunnel build PASS."
+  - "Isolated PR and exact-head CI before merge, completed checkpoint only after merged. Do not touch user iPhone/VPN/Keychain/Apple or native PR314."
 completed:
-  - "Draft PR #314 preserves source-pinned tun2proxy v0.8.3 and app routing; Rust fix bounds upstream FIN to 2s and client FIN to 30s."
-  - "Original draft 21 Rust, 135 Swift, 107 Python (1 skipped), ARM64 Simulator app+PacketTunnel build PASS."
-  - "Source-only stress QA PR #328 merged ONLY into draft feature branch at 429a19db906c466a541ffebf7a1ddf52167aeac8 with 7/7 GitHub CI green."
-  - "Additional real loopback proof: 23 Rust PASS, 25x6 tests 150 PASS covering 500 upstream FIN cycles, byte-exact delayed 128KiB download after client 32KiB upload, and upstream socket EOF."
-  - "Swift135/135, full iOS Python111 (1 skipped), pinned iPhoneOS and Simulator native release lib builds PASS; shipping native patch byte-identical before and after cfg(test) additions."
-current: "BLOCKED: Draft PR #314 contains tested native rootfix and stronger real TCP stress proof; it is NOT safe to merge into main before independent physical FIN/CLOSE_WAIT and egress/long transfer acceptance. Owner's physical iPhone and production VPN remain untouched."
+  - "Found iOS ProxyImportView used Data(contentsOf: url) BEFORE checking data.count <= 256_000, potentially reading multi-gig files."
+current: "Source implemented and locally verified: FileHandle bounded reads <=16KB and 256000+1 check, strict UTF8, close-on-all-paths and no remote file. Six targeted Swift, full Swift165/165, portable Python4, full iOS Python137 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel build and compiled reader symbol PASS. PR creation + hosted CI still pending."
 pending:
-  - "Physical controlled test using disposable iPhone/device and synthetic proxy: actual upstream FIN closes FD, avoids CLOSE_WAIT accumulation, Safari upload/download intact."
-  - "Physical background/resume, Wi-Fi/LTE switch, failover and long upload after server FIN; if 2s/30s truncates valid traffic, adjust policy and rerun native/physical regression."
-  - "Refresh draft branch against current main only after hardware gate and risk review; run exact-head full GitHub CI, then consider main integration and later Apple release."
-last_verified_commit: "a92715b7afb83348d02fd844e8028c88bc038887 (draft PR #314 source QA merged via PR #328 as 429a19db, exact head f4e01f5b 7/7 hosted checks SUCCESS; latest closure metadata only)"
+  - "DONE: Bounded FileHandle UTF8 reader, one-byte overflow guard, six Swift tests and four source contracts, preserving security-scoped Files picker behavior."
+  - "DONE: Swift165/165, Python137 (1 skipped), unsigned ARM64 App+PacketTunnel and compiled reader symbol PASS. A transient concurrent xcodegen/test file absence was rerun after generation, all green."
+  - "DONE: QA report and roadmap updated. PENDING commit/push PR, exact-head GitHub CI, merge and completed checkpoint."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (main; JSON PR #335 independent, 165 Swift and 133 Python local PASS)"
 test_results:
-  - "Native Rust 1.98.1: 23/23 PASS, 25 repetitions of six real/async FIN cases =150/150 PASS, including 500 loopback TCP FIN sessions."
-  - "Full iOS Swift Core135/135, Python111 run (1 skipped) PASS; native aarch64-apple-ios and aarch64-apple-ios-sim release static library BUILD PASS."
-  - "PR #328 source head f4e01f5b GitHub 7/7 checks SUCCESS; merged only to draft branch. Real iPhone PacketTunnel FIN/CLOSE_WAIT/egress NOT tested."
-resume_instruction: "ARC only. Canonical source branch is DRAFT PR #314 fix/ios-021-closewait-halfclose-20261104 at 429a19db906c466a541ffebf7a1ddf52167aeac8 (plus checkpoint-only closure commit). Native QA PR #328 MERGED into draft with 7/7 CI; Rust23/23, repeated150/150 including 500 real loopback FIN sessions, Swift135/135, Python111 (1 skipped), iPhoneOS+Simulator native release libs PASS. NEXT ONLY when independent safe physical lab exists: disposable iPhone with synthetic upstream proxy, real FIN/CLOSE_WAIT and Safari uploads/downloads, long-lived half-closed traffic, Wi-Fi/LTE and failover. Do not modify owner iPhone, user VPN/Keychain or merge draft PR #314 into main without physical gate. Apple 0.2.0(48) review and post-release two-iPhone QR acceptance separate. No RDC or Watchdog."
+  - "Focused Swift6, full Swift165/165, focused Python4, full iOS Python137 (1 skipped), ARM64 Simulator App+PacketTunnel compiled reader PASS."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-bounded-import-file-reader-20261104. Implemented ProxyImportFileReader bounded FileHandle reads and switched existing Files importer call; preserves access security scope and error localization. Six targeted Swift, full Swift165, Python137 (1 skipped), focused Python4, unsigned ARM64 Simulator App+PacketTunnel build and compiled reader symbol PASS. Next git commit/push standalone PR, exact-head GitHub CI then merge on full green; do not bypass runner checks. Independent JSON PR #335 uses same UI ingestion when eventually merged. No user iPhone/VPN/Keychain, Apple App Review, PR314 draft, Watchdog or RDC."

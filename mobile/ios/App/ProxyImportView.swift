@@ -150,11 +150,7 @@ struct ProxyImportView: View {
                     guard let url = try result.get().first else { return }
                     let access = url.startAccessingSecurityScopedResource()
                     defer { if access { url.stopAccessingSecurityScopedResource() } }
-                    let data = try Data(contentsOf: url)
-                    guard data.count <= 256_000, let text = String(data: data, encoding: .utf8) else {
-                        throw ProxyImportError.tooLarge
-                    }
-                    source = text
+                    source = try ProxyImportFileReader.readUTF8(from: url)
                     parse()
                 } catch let caught { importError = ProxyImportUX.error(caught) }
             }
