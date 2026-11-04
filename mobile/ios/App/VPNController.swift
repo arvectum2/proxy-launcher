@@ -38,7 +38,8 @@ final class VPNController: ObservableObject {
             manager = try await loadOrCreateManager()
             refreshStatus()
         } catch {
-            detail = userFacingError(error).localizedDescription
+            detail = ProxyFailureReason.safeDisplay(
+                for: userFacingError(error), translate: { AppL10n.tr($0) })
         }
     }
 
@@ -281,40 +282,22 @@ final class VPNController: ObservableObject {
             || nsError.code == NEVPNError.Code.configurationStale.rawValue
     }
 
-    private func userFacingError(_ error: Error) -> NSError {
+    private func userFacingError(_ error: Error) -> Error {
         let nsError = error as NSError
-        guard nsError.domain == NEVPNErrorDomain else { return nsError }
-
+        guard nsError.domain == NEVPNErrorDomain else {
+            return ProxyDiagnosticError(ProxyFailureReason.classify(error))
+        }
+        // Preserve precise, translated guidance while never forwarding a
+        // system error description (which could contain private endpoints).
         switch nsError.code {
         case NEVPNError.Code.configurationDisabled.rawValue:
-            return NSError(
-                domain: "ArvectumVPN",
-                code: nsError.code,
-                userInfo: [
-                    NSLocalizedDescriptionKey:
-                        "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение."
-                ]
-            )
+            return ProxyDiagnosticError(.tunnel, recoveryHint: .vpnDisabled)
         case NEVPNError.Code.configurationStale.rawValue:
-            return NSError(
-                domain: "ArvectumVPN",
-                code: nsError.code,
-                userInfo: [
-                    NSLocalizedDescriptionKey:
-                        "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её."
-                ]
-            )
+            return ProxyDiagnosticError(.tunnel, recoveryHint: .vpnStale)
         case NEVPNError.Code.configurationInvalid.rawValue:
-            return NSError(
-                domain: "ArvectumVPN",
-                code: nsError.code,
-                userInfo: [
-                    NSLocalizedDescriptionKey:
-                        "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить."
-                ]
-            )
+            return ProxyDiagnosticError(.tunnel, recoveryHint: .vpnInvalid)
         default:
-            return nsError
+            return ProxyDiagnosticError(.tunnel)
         }
     }
 
