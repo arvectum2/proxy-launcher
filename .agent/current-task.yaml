@@ -1,32 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-021-APPSTORE-CONNECTION-20261104
-status: completed
-goal: "Fix VPN connection broken on MacBook after macOS App Store APL 0.2.21 build 15 update, and prevent stale NetworkExtension signing registration on future upgrades."
+task_id: APL-IOS-021-HALFCLOSE-STRESS-QA-20261104
+status: in_progress
+goal: "Expand source-pinned tun2proxy real-loopback native regression proof for FIN/CLOSE_WAIT without touching owner iPhone/VPN; validate upload/download and repeated half-close socket teardown before merging hardware-gated PR #314."
 definition_of_done:
-  - "Identify App Store update failure with actual system evidence and confirm upstream proxies independently."
-  - "Safely restore MacBook signed App Store APL VPN connectivity and proxy HTTPS egress, preserving all profiles and ARC/Tailscale."
-  - "Implement explicit macOS-only VPN configuration repair and build-number reconciliation, run focused tests, commit/PR."
-  - "Document any unrelated historical socket-pressure issues and limitations without claiming they are fixed or shipping an untested build."
+  - "Preserve PR #314 as draft and do not merge into production without independent iPhone FIN, Safari upload/download, Wi-Fi/LTE and failover tests."
+  - "Add source-pinned real TCP tests for delayed server response after client EOF, actual end-to-end payload delivery on FIN, and repeated upstream FIN lifecycle without fd leaks."
+  - "Re-apply pinned six tun2proxy patches and execute full 1.98.1 Rust regression; no user proxies or external egress."
+  - "Run iOS source-contract Python and Swift tests, validate native patch, and document explicit physical limitations."
+  - "Publish reviewable PR targeting draft PR #314 feature branch, merge only after required hosted CI; keep original PR #314 draft and record checkpoint as completed (source-only) or blocked if unable."
 completed:
-  - "Verified App Store 0.2.21 build15 on MacBook. App and embedded PacketTunnel codesign valid with Apple Mac OS Application Signing, team VML75VY94V."
-  - "Actual root cause: nesessionmanager Signature check failed, NEVPNTunnelPlugin Validation of the extension failed, NEVPNConnectionErrorDomainPlugin code7 before upstream network use. Saved macOS VPN configuration carried obsolete signing requirement from TestFlight/developer distribution."
-  - "Proxy reachability: PX6 primary 68.209.60.141:8000 timeout, Netherlands 2 and US backup TCP reachable."
-  - "Backed up MacBook App Group preferences to ~/Library/Application Support/ArvectumQA/20261104/recovery/; verified all three stored proxy profiles remain."
-  - "Removed only disconnected Arvectum VPN configuration through macOS Settings and re-created using App Store APL with standard macOS VPN authorization. Tailscale configuration untouched."
-  - "MacBook restored: App Store build15 Connected, proxy egress 200.0.60.91, 15/15 concurrent HTTPS 200, TCP 23/CLOSE_WAIT 0 after 17 minutes, ARC userspace Tailscale Running/Online, all profiles and passwords preserved."
-  - "Implemented future build-number reconciliation (marketing version plus CFBundleVersion), explicit confirmation-protected macOS Settings VPN repair that removes only own disconnected VPN manager, no silent operation at launch."
-  - "Regression checks: macOS store contracts 23/23 PASS, appearance tests 5/5 PASS, isolated Mac Catalyst VPNController.swift typecheck PASS."
-  - "Full updated origin/main Catalyst build blocked by separate native dependency mismatch: SmartFlowEventCollector.swift calls new tun2proxy FFI symbols absent in available release Catalyst framework. Did not replace working signed App Store app."
-current: "DONE: MacBook Store 0.2.21 (15) connection restored through fresh Arvectum-only VPN registration; future repair UI + build stamping merged to main in PR #308. No newer App Store version installed or published."
+  - "PR #314 head 0aaf0d3e exact source Rust 21/21, Swift135, Python107 and hosted Mobile iOS run 41806234250 SUCCESS, but physical network regression not accepted."
+  - "Owner approved deferring two-iPhone QR testing until after QR release; this does not waive FIN/CLOSE_WAIT safety gate."
+current: "Native patch source-only proof complete: re-applied pinned six patches, 23/23 Rust + 25 repeated halfclose cycles 150/150 PASS, 500 real loopback FIN sessions, Swift135/135, iOS Python111 (1 skipped), iPhoneOS/Simulator static Rust libs BUILD PASS. Production source patch byte-identical after removing newly added cfg(test) lines. Commit/push reviewable test PR against draft PR #314 branch and verify hosted CI, leaving native release gate blocked."
 pending:
-  - "PR #308 merged into main as 6c3bf207fc788a552fb5ee986afdd1c4ac43c78a, with 23 CI checks PASS, 4 skipped at merge; remaining 3 background unsigned iOS build jobs were still running and are unrelated to Mac VPN fix."
-  - "Separate follow-up investigation of historical 1689 TCP / 1655 CLOSE_WAIT pressure events, not conflated with stale signature validation."
-  - "Before a future macOS App Store release, reconcile Smart3 native FFI framework and perform full signed build and physical QA. No new app build has been shipped."
-last_verified_commit: "6c3bf207fc788a552fb5ee986afdd1c4ac43c78a (PR #308 merged; verified MacBook Store app restored; 23 macOS contracts + 5 appearance tests + isolated Catalyst source typecheck PASS)."
+  - "DONE: Added actual TCP 32KiB upload and delayed 128KiB response test; 20 consecutive real TCP upstream FIN with 4KiB final payload, retained browser write half and server EOF proof. All code under cfg(test), production timeouts unchanged."
+  - "DONE: Clone exact tun2proxy v0.8.3 upstream SHA, git apply --check all six patches and run Rust +1.98.1 native lib 23/23 PASS. Repeated 6 scoped halfclose tests 25 times, 150/150 PASS including 500 loopback FIN sessions."\n  - "DONE: Native Rust 23/23 + 150 repeated halfclose PASS, final patch reapply PASS, Swift Core 135/135 PASS, iOS Python 111 (1 skipped) PASS, Rust static libraries built for iPhoneOS + ARM64 Simulator, production source byte-identical to PR #314 after stripping new cfg(test) tests."
+  - "PENDING: Commit and push isolated source-only test branch, open PR with base fix/ios-021-closewait-halfclose-20261104, merge only into draft PR #314 branch if hosted CI green; never merge main or publish pending hardware QA."
+last_verified_commit: "0aaf0d3ece106bf6e39288eaa6831a1bde5d891a (draft PR #314 base source, hosted iOS run 41806234250 SUCCESS)"
 test_results:
-  - "MacBook signed Store app 0.2.21(15): VPN Connected, US egress 200.0.60.91, HTTPS 15/15, ARC/Tailscale online, three profiles intact."
-  - "23 macOS store contract tests + 5 appearance tests PASS."
-  - "Standalone Catalyst Swift typecheck of actual modified VPNController PASS."
-  - "Full main Catalyst build blocked by existing missing Smart3 native FFI symbols, unrelated to this patch."
-resume_instruction: "Use /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-021-appstore-connection-20261104. MacBook operationally FIXED: stale macOS VPN signing requirement recreated only Arvectum VPN; active App Store 0.2.21(15) Connected via US backup 200.0.60.91, 15/15 HTTPS, 0 CLOSE_WAIT, ARC online and three proxy profiles preserved. Source patch and tests prepared; commit, push, create PR and check CI. Do not replace working App Store build15 or mutate iOS release. Current main Catalyst build requires separate Smart3 native FFI symbols absent in the old macOS tun2proxy framework. Previous 1689/1655 socket pressure remains a separate potential issue, do not claim fixed. See docs/releases/0.2.21-macos-appstore-vpn-signature-repair-20261104.md. Once source merged set status completed and sync canonical checkpoint; Proxy Launcher Watchdog must remain disabled."
+  - "Six pinned git apply --check PASS, Rust 1.98.1 full lib 23/23, repeated halfclose 25x6=150 PASS (500 real loopback FIN sessions); last exact patch verified again 23/23 PASS."\n  - "Swift Core 135/135 PASS; full iOS Python source 111 tests (1 skipped) PASS; 7 focused Python native contract tests PASS."\n  - "Release Rust aarch64-apple-ios SHA256 bc5baea1225974099da1825d748b2aa8e14bd58710873aca6e27869e6e39a7cb; aarch64-apple-ios-sim SHA256 ecb11db7415e3f3ec7a56e5fa328f0405c04ff685a51753605e977a7314f932b, both built."\n  - "Only cfg(test) Rust patch lines added; original native runtime patch verified byte-identical. Physical device/Safari/egress acceptance NOT performed; PR #314 stays draft."
+resume_instruction: "ARC only. Source-only native halfclose stress tests implemented and verified in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-021-native-halfclose-stress-20261104: Rust 23/23, repeated 25x6 150/150 with 500 real loopback FIN sessions, Swift135/135, Python111 (1 skipped), pinned iPhoneOS+Simulator native release libs build PASS, runtime source patch byte-identical after stripping cfg(test). Next commit/push test branch, open PR with base fix/ios-021-closewait-halfclose-20261104, await exact-head GitHub CI and merge tests ONLY into DRAFT PR #314 branch. Then metadata checkpoint completed in that branch. NEVER merge PR #314 into main or upload to Apple before controlled independent physical FIN/CLOSE_WAIT Safari/upload/download/egress/reconnect/failover QA. Preserve owner iPhone, VPN/Keychain, macOS rootfix, Watchdog; no RDC."
