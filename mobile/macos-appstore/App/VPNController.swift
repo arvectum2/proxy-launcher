@@ -80,6 +80,41 @@ final class VPNController: ObservableObject {
         refreshStatus()
     }
 
+    /// Repair a stale NetworkExtension signature requirement after switching
+    /// from a TestFlight/developer-signed app to the Mac App Store build.
+    /// Only the app's own VPN manager is removed; proxy profiles and passwords
+    /// live in the separate App Group and Keychain and are never touched.
+    ///
+    /// Called only from a confirmed, explicit user action in macOS settings.
+    func recreateConfigurationAndConnect() async throws {
+        guard !isConnectedOrConnecting else {
+            throw NSError(domain: "ArvectumVPN", code: 4, userInfo: [
+                NSLocalizedDescriptionKey: "Сначала отключите VPN, затем восстановите конфигурацию."
+            ])
+        }
+        userRequestedDisconnect = true
+        recoveryTask?.cancel()
+        recoveryTask = nil
+        let existing = try await loadAllManagers().filter(isArvectumManager)
+        for old in existing {
+            guard old.connection.status == .disconnected || old.connection.status == .invalid else {
+                throw NSError(domain: "ArvectumVPN", code: 5, userInfo: [
+                    NSLocalizedDescriptionKey: "Дождитесь полного отключения VPN перед восстановлением."
+                ])
+            }
+            try await remove(old)
+        }
+        manager = nil
+        hasObservedConnection = false
+        lastHandledFailureID = nil
+        let fresh = try await loadOrCreateManager(forceSave: true)
+        manager = fresh
+        try startTunnel(using: fresh)
+        userRequestedDisconnect = false
+        detail = "Подключение…"
+        refreshStatus()
+    }
+
     func disconnect() {
         userRequestedDisconnect = true
         recoveryTask?.cancel()
@@ -260,8 +295,13 @@ final class VPNController: ObservableObject {
         }
 
         var providerConfiguration = proto.providerConfiguration ?? [:]
-        if providerConfiguration["version"] as? String != AppShared.version {
+        // A marketing version can span multiple builds, while macOS keeps
+        // the Network Extension's old signing requirement across upgrades.
+        // Refresh the saved manager for every new build, not just 0.2.x.
+        if providerConfiguration["version"] as? String != AppShared.version ||
+           providerConfiguration["build"] as? String != AppShared.build {
             providerConfiguration["version"] = AppShared.version
+            providerConfiguration["build"] = AppShared.build
             proto.providerConfiguration = providerConfiguration
             changed = true
         }
@@ -328,6 +368,16 @@ final class VPNController: ObservableObject {
             )
         default:
             return nsError
+        }
+    }
+
+    private func remove(_ manager: NETunnelProviderManager) async throws {
+        try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<Void, Error>) in
+            manager.removeFromPreferences { error in
+                if let error { continuation.resume(throwing: error) }
+                else { continuation.resume() }
+            }
         }
     }
 

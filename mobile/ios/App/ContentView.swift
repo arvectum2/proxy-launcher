@@ -736,6 +736,9 @@ struct ContentView: View {
                         showSetupGuide = true
                     }
                     settingsButton("Исключения сайтов", icon: "globe") { showExclusions = true }
+#if targetEnvironment(macCatalyst)
+                    MacVPNRepairControl(model: model)
+#endif
                     if #available(iOS 16.0, *) {
                         settingsButton(QuickActionsCopy.text("Быстрые команды VPN", en: "VPN quick actions"),
                                        icon: "bolt.circle") { showQuickActions = true }

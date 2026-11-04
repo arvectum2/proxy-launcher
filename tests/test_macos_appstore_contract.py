@@ -109,6 +109,29 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("loadOrCreateManager()", connect)
         self.assertIn("manager.isEnabled = true", VPN)
 
+    def test_mac_reconciles_vpn_for_each_new_build_not_just_marketing_version(self):
+        self.assertIn("static let build = Bundle.main.object(forInfoDictionaryKey: \"CFBundleVersion\")", APP_SHARED)
+        self.assertIn('providerConfiguration["build"] as? String != AppShared.build', VPN)
+        self.assertIn('providerConfiguration["build"] = AppShared.build', VPN)
+        self.assertIn('try await save(manager)', VPN)
+        self.assertNotIn('removeFromPreferences', VPN.split('func prepare() async {', 1)[1].split('func connect() async throws {', 1)[0])
+
+    def test_mac_explicit_vpn_signature_repair_preserves_app_group_profiles(self):
+        self.assertIn("func recreateConfigurationAndConnect() async throws", VPN)
+        self.assertIn('try await loadAllManagers().filter(isArvectumManager)', VPN)
+        self.assertIn("try await remove(old)", VPN)
+        self.assertIn("manager.removeFromPreferences", VPN)
+        self.assertIn("let fresh = try await loadOrCreateManager(forceSave: true)", VPN)
+        viewmodel = (ROOT / "mobile" / "ios" / "App" / "AppViewModel.swift").read_text(encoding="utf-8")
+        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
+        self.assertIn("func repairVPNConfiguration() async", viewmodel)
+        control = (ROOT / "mobile" / "macos-appstore" / "App" / "MacVPNRepairControl.swift").read_text(encoding="utf-8")
+        self.assertIn("MacVPNRepairControl(model: model)", content)
+        self.assertIn("App/MacVPNRepairControl.swift", PROJECT)
+        self.assertIn("confirmRepair = true", control)
+        self.assertIn("Task { await model.repairVPNConfiguration() }", control)
+        self.assertIn("Прокси-профили и пароли сохранятся.", control)
+
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
         self.assertIn('CURRENT_PROJECT_VERSION: "15"', PROJECT)
 
