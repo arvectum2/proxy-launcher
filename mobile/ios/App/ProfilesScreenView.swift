@@ -19,6 +19,8 @@ struct ProfilesScreenView<Header: View>: View {
     @State private var profileBulkMode = false
     @State private var bulkSelectedIDs: Set<UUID> = []
     @State private var confirmBulkDelete = false
+    @State private var shareCandidate: ProxyProfile?
+    @State private var sharedProfile: ProxySharePresentation?
 
     var body: some View {
         ZStack {
@@ -54,6 +56,7 @@ struct ProfilesScreenView<Header: View>: View {
                                     bulkMode: profileBulkMode,
                                     isSelected: bulkSelectedIDs.contains(profile.id),
                                     onOpen: { editorProfile = profile },
+                                    onShare: { shareCandidate = $0 },
                                     onToggleSelection: {
                                         if !bulkSelectedIDs.insert(profile.id).inserted {
                                             bulkSelectedIDs.remove(profile.id)
@@ -103,6 +106,30 @@ struct ProfilesScreenView<Header: View>: View {
             Button(AppL10n.tr("Отмена"), role: .cancel) { pendingGroupIDs.removeAll() }
         } message: {
             Text(AppL10n.tr("Группы изменяют только организацию списка, не маршрутизацию VPN."))
+        }
+        .confirmationDialog(ProxyShareUX.text("Поделиться данными прокси?"), isPresented: Binding(
+            get: { shareCandidate != nil },
+            set: { if !$0 { shareCandidate = nil } }
+        ), titleVisibility: .visible) {
+            Button(ProxyShareUX.text("Показать QR-код")) {
+                guard let candidate = shareCandidate else { return }
+                shareCandidate = nil
+                do {
+                    let link = try model.shareProxyLink(for: candidate)
+                    let qr = try ProxyShareQRCode.image(for: link)
+                    sharedProfile = ProxySharePresentation(
+                        name: candidate.name, link: link, qrImage: qr)
+                } catch {
+                    // Avoid printing Keychain or URL details in the alert.
+                    model.errorMessage = ProxyShareUX.text("Не удалось создать QR-код")
+                }
+            }
+            Button(AppL10n.tr("Отмена"), role: .cancel) { shareCandidate = nil }
+        } message: {
+            Text(ProxyShareUX.text("QR-код содержит адрес прокси, логин и пароль. Делитесь только с теми, кому доверяете."))
+        }
+        .sheet(item: $sharedProfile, onDismiss: { sharedProfile = nil }) { item in
+            ProxyShareView(item: item)
         }
         .confirmationDialog(AppL10n.tr("Удалить выбранные прокси?"), isPresented: $confirmBulkDelete, titleVisibility: .visible) {
             Button(AppL10n.tr("Удалить безвозвратно"), role: .destructive) {

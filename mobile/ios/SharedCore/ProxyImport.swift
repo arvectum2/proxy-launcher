@@ -106,9 +106,9 @@ enum ProxyImport {
                 throw ProxyImportError.invalid
             }
             return try item(host: host, port: String(port),
-                            username: url.user?.removingPercentEncoding ?? "",
-                            password: url.password?.removingPercentEncoding ?? "",
-                            type: type, name: url.fragment?.removingPercentEncoding ?? "")
+                            username: url.user ?? "",
+                            password: url.password ?? "",
+                            type: type, name: url.fragment ?? "")
         }
         // Supplier notation host:port[:user:password]. Split only 3 colons:
         // password may contain colons. Bracketed IPv6 is also supported.

@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-PROFILE-QR-SHARE-20261104
+status: in_progress
+goal: "Deliver secure user-confirmed profile QR sharing via existing APL import, Apple share sheet, and one explicit receiving import action."
+definition_of_done:
+  - "Work isolated from production and macOS tasks, based on latest merged main after Smart4 UI PR #316."
+  - "Per-profile share button on iOS with explicit warning that QR reveals proxy credentials; generated scannable QR and Apple system sharing, no logging or silent network sharing."
+  - "Encode single HTTP/HTTPS/SOCKS5 profile (IPv6, non-ASCII name, percent-encoded credentials) into existing arvectum-proxy import deep link, and adapt in-app QR scanner to decode safely."
+  - "Recipient import preview uses existing one-action Add, respects duplicate detection and existing selected profile; no auto-connect or credential/Keychain writes before explicit user import."
+  - "Run Swift Core/contract tests, ARM64 iOS Simulator app+PacketTunnel build and UI tests where feasible; commit/push reviewable PR with accurate 64-language fallback scope."
+completed:
+  - "PR #315 Smart4 provenance merged with 19/19 hosted CI and PR #316 Smart4 accessible UI merged with 16/16 hosted CI."
+  - "Verified ProxyImport.fromDeepLink exists for arvectum-proxy://import?data=...; in-app QR scanner currently passes raw text and does not yet unwrap deep links."
+current: "QR sender and receiver source complete; Swift 151/151, Python iOS 111 tests (1 skipped), ARM64 Simulator app+PacketTunnel build PASS; isolated signed simulator QR consent UI XCTest 1/1 PASS. Review exact source/locale/privacy diff, commit/push PR; physical iPhone-to-iPhone E2E remains release gate."
+pending:
+  - "DONE: ProxyProfileSharing URI round-trip parser + 5 Core tests (HTTP/HTTPS/SOCKS5, IPv6, Unicode, special characters), consent sender UI, real QR image with quiet zone, system Apple share sheet and existing QR/import deep-link receiver path."
+  - "DONE: 13 explicit locales and English fallback without changes to 64 frozen localization resource catalogs; Swift 151/151, Python 111 (1 skipped), ARM64 Simulator build PASS; signed isolated iPhone13 simulator UI XCTest 1/1 PASS; simulator deleted."
+  - "Review privacy warning, commit/push PR, hosted CI, preserve Apple 0.2.0 review."
+last_verified_commit: "ce5326c01d570efaf15cab620993a3d17787875d (merged PR #316 baseline)"
+test_results:
+  - "Swift Core 151/151 PASS, iOS Python 111 run (1 skipped) PASS, unsigned ARM64 iOS Simulator app+PacketTunnel BUILD PASS, signed isolated Simulator QR sender UI XCTest 1/1 PASS, git diff --check PASS. Initial unsigned UI launch crashed in App Group entitlement, resolved via signing in test harness. Physical iPhone-to-iPhone QA pending."
+resume_instruction: "ARC only. Work in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-profile-qr-share-20261104; add ProxyProfileShare shared-core encoder, tests, explicit consent QR sheet and Apple share sheet on each profile, scanner decoding of arvectum-proxy deep link. QR includes Keychain user/password only after explicit warning; never write sensitive payload to logs, clipboard or persistence. Receiver keeps existing import confirmation and duplicate detection. Run relevant QA, source-only PR. Do not touch owner iPhone/Apple 0.2.0/App Store, active VPN, macOS fixes or disabled Watchdog. Never RDC."
