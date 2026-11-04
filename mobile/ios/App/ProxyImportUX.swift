@@ -1,7 +1,8 @@
 import Foundation
 
-/// User-facing import copy for the post-0.1.41 candidate. The 50 existing
-/// release catalogs remain unchanged; every language has an English fallback.
+/// Context-specific import wording in 50 ProxyImport.strings catalogs.
+/// 'Preview' is intentionally different from connectivity 'Check'. The
+/// curated legacy priority translations stay available as a safe fallback.
 enum ProxyImportUX {
     private static let english: [String: String] = [
         "Тип прокси по умолчанию": "Default proxy protocol",
@@ -23,6 +24,7 @@ enum ProxyImportUX {
         "Импортировать профили": "Import profiles",
         "Все профили уже добавлены": "All profiles have already been added",
         "Не удалось сохранить профили. Изменения отменены": "Could not save profiles. Changes were rolled back.",
+        "Не удалось полностью отменить импорт. Проверьте список профилей": "Import could not be completely rolled back. Check the saved profiles.",
         "Закрыть": "Close",
         "Сканирование QR": "QR scanner",
         "Отмена": "Cancel",
@@ -58,6 +60,8 @@ enum ProxyImportUX {
         let language = AppL10n.effectiveLanguage
         if language == "ru" { return russian }
         if let value = priority[language]?[russian] { return value }
+        let contextual = AppL10n.tr(russian, table: "ProxyImport")
+        if contextual != russian { return contextual }
         let localized = AppL10n.tr(russian)
         if localized != russian { return localized }
         return english[russian] ?? "Import could not be completed. Check the proxy link."

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "ios-only",
-  "status": "source-complete; App Store submission pending release gates",
+  "status": "64 UI locale catalogs source-complete, technically audited; independent native-speaker editorial QA required before release",
   "sourceEntriesPerLanguage": 155,
   "languages": [
     "en",
@@ -53,10 +53,26 @@
     "bg",
     "sr",
     "hr",
-    "ca"
+    "ca",
+    "or",
+    "sl",
+    "uk",
+    "be",
+    "et",
+    "lv",
+    "lt",
+    "ka",
+    "hy",
+    "az",
+    "kk",
+    "tk",
+    "ky",
+    "tg"
   ],
-  "lastEditorialPass": "2026-10-30",
+  "lastEditorialPass": "2026-11-02",
   "reviewNotes": [
+    "Former USSR 15 country language coverage: ru/uk/uz/ro were present; be/et/lv/lt/ka/hy/az/kk/tk/ky/tg added as machine-assisted drafts. Human native review still required.",
+    "Odia, Slovenian and Ukrainian added via automated initial translation; independent native-speaker editorial review pending.",
     "Human native-speaker and physical-device accessibility QA remain release gates.",
     "Advertising disclosure conflict requires explicit product review before submission.",
     "Cross-platform localization/apl-locales.json remains Core-40 until Android and desktop are separately translated."

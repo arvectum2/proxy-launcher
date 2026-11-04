@@ -10,8 +10,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.1.42"
-    CURRENT_PROJECT_VERSION: "47"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "48"
     DEVELOPMENT_TEAM: "VML75VY94V"
     CODE_SIGN_STYLE: Automatic
 targets:
@@ -86,8 +86,12 @@ targets:
       - Shared/ProxyProbe.swift
       - SharedCore/ProxyModel.swift
       - SharedCore/ProxyFailureReason.swift
+      - SharedCore/TunnelEngineHandoff.swift
       - SharedCore/ProxyImport.swift
       - SharedCore/ProxyImportStructured.swift
+      - App/AdaptiveDirectProbe.swift
+      - SharedCore/SiteDependencyDiscovery.swift
+      - SharedCore/SiteExclusionPolicy.swift
     dependencies:
       - target: ArvectumProxyLauncher
     settings:

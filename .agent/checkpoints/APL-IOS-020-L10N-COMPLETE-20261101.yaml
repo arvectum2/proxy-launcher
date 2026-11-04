@@ -1,0 +1,31 @@
+task_id: APL-IOS-020-L10N-COMPLETE-20261101
+status: completed
+goal: Complete all 50 iOS 0.2 localizations with contextual translations, editorial review, tests and in-place device install.
+definition_of_done:
+  - Each of 50 iOS locales has complete ProfileManagement, ProxyImport, SmartExclusions and QuickActions strings.
+  - English fallback for new 0.2 keys equals zero; printf specifiers/RTLs and critical backup/VPN bypass semantics intact.
+  - Resource lint, focused tests and signed Simulator UI tests pass.
+  - Signed 0.2.0(48) installed on physical iPhone in place with all three profiles preserved.
+completed:
+  - 50/50 iOS locales now have five tables with 155+101+40+45+3=344 entries each (250 files, 17,200 entries); legacy 155-key catalogs preserved.
+  - Added 48 ProfileManagement, 34 QuickActions, 50 Import and 50 SmartExclusions tables; all feature tables covered natively, no English fallback.
+  - Context-specific translation via AppL10n.tr(key, table) for Preview vs Check and VPN exclusion terminology; dynamic password field localizes.
+  - Machine-assisted drafts for public UI only, with editorial corrections for proxy/primary, profile backup/no-overwrite, and user-approved VPN bypass.
+  - Reviewed backtranslations of 48x11 critical safety phrases; this does not constitute independent native-speaker certification.
+  - 250/250 plutil lint, 25/25 focused Python tests and 50 embedded language bundles in Simulator and iPhone build PASS.
+  - Signed Simulator ten-language UI test for Settings, Site Exclusions and Proxy Import PASS (198.023s).
+  - Replaced truncated large website exclusions header in French/Amharic with concise native Exclusions and inline navigation; dedicated Simulator UI test PASS (16.628s) with both screenshots inspected.
+  - Signed Apple Development 0.2.0(48) with actual production Yandex ads installed in place twice on physical iPhone 13; original 3/3 proxy JSON hash and 10 AppGroup keys unchanged, actual dual ad Home screenshot inspected.
+  - Full coverage report docs/APL_IOS_020_50_LANGUAGE_EDITORIAL_QA_2026-11-02.md and updated docs/ROADMAP.md.
+current: Completed. Await owner review and separate release authorization.
+pending:
+  - Optional independent professional native-speaker review / Dynamic Type and VoiceOver audit.
+  - New Apple Distribution archive / IPA must incorporate post-localization commit; authorized release is separate task.
+last_verified_commit: 73571960
+test_results:
+  - plutil lint 250/250, locale coverage 50/50, English fallback 0, resource errors 0.
+  - Python contract tests 25/25 PASS.
+  - Signed Simulator UI test 10 languages x 3 screens PASS 198.023 seconds.
+  - Signed Simulator French+Amharic short title PASS 16.628 seconds, screenshots inspected.
+  - Final device signed build/install/launch PASS; 3/3 saved profile JSON hash identical and 10/10 preference keys retained.
+resume_instruction: This task is COMPLETED. Do not redo it without new user feedback. Check PR #296 latest CI, await owner acceptance/release authorization; do not change App Store privacy/ad metadata, no automatic merge/publication, no watchdog.

@@ -1,6 +1,11 @@
 # Arvectum Proxy Launcher — iOS App Store localization package
 
-This directory contains **47 Apple-supported App Store localization records** that map to **42 of the 50 shipped iOS UI languages**, with genuine regional variants for English, French and Spanish. It does **not** represent 47 separate binary languages; the iOS app itself has **50** complete source catalogs.
+> **02.11.2026 / former-USSR expansion:** APL iOS now targets **64 in-app languages** (including 11 new languages `be`, `et`, `lv`, `lt`, `ka`, `hy`, `az`, `kk`, `tk`, `ky`, `tg`). App Store Connect metadata **remains 50/50 official variants** and the existing 100 screenshots remain intact; Apple does not expose a separate listing language for these 11 new UI locales. New UI catalogs are machine-assisted, with independent human editorial quality gate before public shipping.
+
+> **02.11.2026 / iOS 0.2.0 only:** This offline package now targets **50/50 official Apple ASO locales**, **53 UI languages** and **100 real Simulator screenshots**. The newly added `or-IN`, `sl-SI`, `uk` UI/ASO copy was machine-assisted and received targeted technical/terminology edits; **independent native-speaker editorial certification is not claimed**. Existing submitted iOS **0.1.41 remains on Apple review per the owner**. Do not run any Apple write/upload/submit command below against 0.1.41; historical instructions are preserved only as previous release records. A future authorized 0.2.0 submission will require a new editable version and owner approval. No app privacy or ad metadata changed.
+
+
+This directory contains **50 Apple-supported App Store localization records** that map to **45 of the 64 shipped iOS UI languages**, with genuine regional variants for English, French and Spanish. It does **not** represent 50 separate binary languages; the iOS app itself has **64** complete source catalogs.
 
 ## Editorial sources and export files
 
@@ -13,7 +18,7 @@ This directory contains **47 Apple-supported App Store localization records** th
 ## Apple constraints and mapping
 
 - Product name at most 30 characters; local subtitle at most 30 characters; promotional text at most 170; description at most 4000; keywords at most **100 bytes in UTF-8** (not 100 Unicode characters).
-- Current package supports 47 locales and the official BCP-47/API variants, including `bn-BD`, `gu-IN`, `kn-IN`, `ml-IN`, `mr-IN`, `pa-IN`, `ta-IN`, `te-IN`, `ur-PK`, `ar-SA`, `no` (for app `nb`) and regional English/French/Spanish versions.
+- Current package supports 50 locales and the official BCP-47/API variants, including `or-IN`, `sl-SI`, `uk`, `bn-BD`, `gu-IN`, `kn-IN`, `ml-IN`, `mr-IN`, `pa-IN`, `ta-IN`, `te-IN`, `ur-PK`, `ar-SA`, `no` (for app `nb`) and regional English/French/Spanish versions.
 - Apple currently doesn't expose separate App Store listing language variants for 8 existing iOS UI languages: Persian `fa`, Uzbek `uz`, Filipino `fil`, Swahili `sw`, Hausa `ha`, Amharic `am`, Bulgarian `bg` and Serbian `sr`. These languages **remain localized inside the iOS binary** and receive Apple's supported listing fallback. There is no invented non-Apple ASO locale.
 - Screenshot originals are 1206 × 2622 (Apple-supported Dynamic Island medium iPhone portrait size) and stored as opaque JPEGs. No App Store Connect upload performed.
 - All claims focus on verified functions in the iOS source: self-configured HTTP / HTTPS CONNECT / SOCKS5 connections, profiles, fallback/priority, direct website exclusions, optional iOS Shortcuts user-created automations and locally held credentials. App name is consistent for all markets.
@@ -25,14 +30,14 @@ This directory contains **47 Apple-supported App Store localization records** th
 3. For a **new, editable** iOS version in App Store Connect, import localizations and screenshots only after release authorization. Keep the live card and privacy information untouched until specifically instructed.
 4. If editing screenshots, preserve actual application content. All visible UI must reflect real features; do not invent successful proxy connections or add product claims unsupported by the app.
 
-**Sources**: Apple App Store localization and screenshot specifications, and App Store Connect metadata property limits (2026-10-30). See `docs/APL_IOS_50_EDITORIAL_ASO_QA_2026-10-30.md` for local test evidence.
+**Sources**: Apple App Store localization and screenshot specifications (updated 2026-11-02), and App Store Connect metadata property limits. See `docs/APL_IOS_50_EDITORIAL_ASO_QA_2026-10-30.md` for local test evidence.
 
 ## Repeatable App Store Connect import (review-safe)
 
 `import_appstore.py` uses only Python standard library, Xcode's `altool` and the existing local App Store Connect credentials. It was tested against Apple with **GET requests only** on 30 October 2026. Its execute path has an explicit confirmation gate and checks the app version state *before any write* and again before each locale.
 
 ```bash
-# Fully offline validation: 47 ASO locales, 94 screenshots, zero writes
+# Fully offline validation: 50 ASO locales, 100 screenshots, zero writes
 python3 mobile/ios/ASO/import_appstore.py
 
 # Read current version and localization count directly from Apple; no writes
@@ -46,7 +51,7 @@ The tool supports idempotent locale creation/update and screenshot asset reserva
 
 **Current real App Store state (30 October 2026):** iOS `0.1.40` = `WAITING_FOR_REVIEW`, with only `ru` and `en-US` card localizations; it is not currently editable for screenshots. Apple explicitly forbids new screenshot uploads while Waiting for Review. To deploy the prepared ASO package, either the owner must explicitly choose to withdraw and resubmit that version or we can import into a later editable iOS version after Apple's current review completes. No cancellation or App Store Connect write was performed.
 
-## Next release 0.1.41: prepared without changing 0.1.40 (30 Oct 2026)
+## Historical release 0.1.41 notes (30 Oct 2026; do not execute while version under review)
 
 **Owner choice is to preserve the current Apple review of 0.1.40.** It is `WAITING_FOR_REVIEW` with submitted build **45**. Apple's version-creation workflow requires the current version to become *Ready for Distribution* (App Store Connect API `READY_FOR_SALE`) before a new version can be created.
 

@@ -19,21 +19,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let dnsBypass: [String]
     }
 
-    /// Guarantees that the old blocking tun2proxy runner has exited before a
-    /// replacement is submitted to the same serial queue.
-    private final class EngineDrainGate: @unchecked Sendable {
-        private let lock = NSLock()
-        private var finished = false
-
-        func claim() -> Bool {
-            lock.lock()
-            defer { lock.unlock() }
-            guard !finished else { return false }
-            finished = true
-            return true
-        }
-    }
-
     private let engineQueue = DispatchQueue(label: "ru.arvectum.proxylauncher.ios.tun2proxy")
     private let policy = FailoverPolicy()
     private let probe = ProxyProbe()
@@ -41,21 +26,53 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var store: ProfileStore?
     private var tlsRelay: TLSProxyRelay?
     private var monitorTask: Task<Void, Never>?
+    private var startTask: Task<Void, Never>?
     private var socketPressureTask: Task<Void, Never>?
     private var connectionPressurePolicy = ConnectionPressurePolicy()
     private var active: PreparedProxy?
     private var consecutiveFailures = 0
+    private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
+#if DEBUG
+    private var qaScopedDirect = false
+    private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
+#endif
 
     override func startTunnel(
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
         stopping = false
+        lastPrimaryRecoveryProbeAt = nil
+#if DEBUG
+        let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
+        let radioHandoffQA = stopAfter == 95 &&
+            (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true
+        qaScopedDirect = (options?["qaScopedDirect"] as? NSNumber)?.boolValue == true &&
+            (stopAfter == 30 || radioHandoffQA) &&
+            options?["qaSmart3ProxyHost"] as? String == "192.168.1.80" &&
+            (options?["qaSmart3ProxyPort"] as? NSNumber)?.intValue == 18081
+        UserDefaults(suiteName: AppShared.defaultsSuite)?
+            .set(stopAfter, forKey: "qaSmart3RadioEffectiveDuration.v1")
+        UserDefaults(suiteName: AppShared.defaultsSuite)?
+            .set(radioHandoffQA && qaScopedDirect, forKey: "qaSmart3RadioAuthorized.v1")
+        qaDirectTTLSeconds = qaScopedDirect &&
+            (options?["qaDirectTTLSeconds"] as? NSNumber)?.intValue == 4
+            ? 4 : AdaptiveRouteLearning.lifetime
+        if qaScopedDirect,
+           (options?["qaResetDirectAfterSeconds"] as? NSNumber)?.intValue == 17 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 17) { [weak self] in
+                guard let self, !self.stopping else { return }
+                SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+            }
+        }
+#endif
 #if DEBUG
         if let value = options?["qaStopAfterSeconds"] as? NSNumber,
-           (5...30).contains(value.intValue) {
+           ((5...30).contains(value.intValue) ||
+            (value.intValue == 95 && qaScopedDirect &&
+             (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
                 guard let self, !self.stopping else { return }
                 // Last-resort safety net if the UI test / wireless debug link
@@ -73,22 +90,49 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             return
         }
 
-        Task {
+        startTask?.cancel()
+        startTask = Task {
             do {
+#if DEBUG
+                let prepared: PreparedProxy
+                if let value = options?["qaStopAfterSeconds"] as? NSNumber,
+                   ((5...30).contains(value.intValue) ||
+                    (value.intValue == 95 && qaScopedDirect &&
+                     (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)),
+                   options?["qaSmart3ProxyHost"] as? String == "192.168.1.80",
+                   (options?["qaSmart3ProxyPort"] as? NSNumber)?.intValue == 18081 {
+                    let qa = ProxyProfile(name: "APL Smart3 Disposable QA", host: "192.168.1.80",
+                                          port: 18081, type: .http)
+                    prepared = PreparedProxy(storedProfile: qa, resolvedProfile: qa,
+                                             password: nil, automaticSelection: false, latencyMs: 0)
+                } else {
+                    prepared = try await selectProxy()
+                }
+#else
                 let prepared = try await selectProxy()
+#endif
+                try Task.checkCancellation()
+                guard !stopping else { throw CancellationError() }
                 try await apply(prepared)
+                try Task.checkCancellation()
+                guard !stopping else { throw CancellationError() }
                 active = prepared
+                // A successful handshake is not a successfully applied VPN.
+                // Remember last-good only after the actual tunnel starts.
+                if prepared.automaticSelection {
+                    store?.lastAutoProfileID = prepared.storedProfile.id
+                }
                 connectionPressurePolicy = ConnectionPressurePolicy()
                 startSocketPressureMonitor()
                 telemetry.append(TunnelEvent(
                     type: "connected",
                     profileName: prepared.storedProfile.name,
-                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.storedProfile.host):\(prepared.storedProfile.port)"
+                    detail: "\(prepared.resolvedProfile.type.label) · \(prepared.latencyMs) мс"
                 ))
                 if prepared.automaticSelection { startMonitor() }
                 completionHandler(nil)
             } catch {
-                telemetry.append(TunnelEvent(type: "error", detail: error.localizedDescription))
+                telemetry.append(TunnelEvent(type: "error", detail: ProxyFailureReason.classify(error).code))
                 completionHandler(error)
             }
         }
@@ -99,10 +143,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         completionHandler: @escaping () -> Void
     ) {
         stopping = true
+        startTask?.cancel()
+        startTask = nil
+        lastPrimaryRecoveryProbeAt = nil
         monitorTask?.cancel()
         monitorTask = nil
         socketPressureTask?.cancel()
         socketPressureTask = nil
+        SmartFlowEventCollector.shared.stop()
         _ = tun2proxy_stop()
         tlsRelay?.stop()
         tlsRelay = nil
@@ -135,25 +183,34 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let failedID = policy.recentlyFailedStillSuppressed(now: now, failedAt: store.recentlyFailedAt)
             ? store.recentlyFailedProfileID
             : nil
-        let orderedIDs = policy.orderCandidates(
+        let orderedIDs = policy.connectionCandidates(
             profileIDs: profiles.map(\.id),
             primaryID: store.primaryProfileID,
             lastSuccessfulID: store.lastAutoProfileID,
-            recentlyFailedID: failedID
+            recentlyFailedID: failedID,
+            latencies: store.proxyQuality.freshLatencies(for: Set(profiles.map(\.id)), at: now)
         )
         let byID = Dictionary(uniqueKeysWithValues: profiles.map { ($0.id, $0) })
         var failures: [String] = []
         for id in orderedIDs {
+            try Task.checkCancellation()
+            guard !stopping else { throw CancellationError() }
             guard let profile = byID[id] else { continue }
             do {
                 let prepared = try await prepare(profile, automatic: true)
-                store.lastAutoProfileID = profile.id
                 return prepared
             } catch {
-                failures.append("\(profile.name): \(error.localizedDescription)")
+                // Do not persist or propagate arbitrary proxy/library error
+                // strings: they may contain URLs with embedded credentials.
+                failures.append("№\(failures.count + 1): \(ProxyFailureReason.classify(error).code)")
             }
         }
-        throw tunnelError("Нет доступных прокси. " + failures.joined(separator: "; "))
+        // An imported 200-entry list must not turn one Connect action into
+        // hundreds of paid network handshakes or an unbounded spinner.
+        let limitHint = orderedIDs.count < profiles.count
+            ? " Проверено \(orderedIDs.count) из \(profiles.count); остальные можно проверить партиями в Профилях."
+            : ""
+        throw tunnelError("Нет доступных прокси." + limitHint + " " + failures.joined(separator: "; "))
     }
 
     private func prepare(_ profile: ProxyProfile, automatic: Bool) async throws -> PreparedProxy {
@@ -170,6 +227,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func apply(_ prepared: PreparedProxy) async throws {
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
         tlsRelay?.stop()
         tlsRelay = nil
 
@@ -186,6 +245,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let exclusions = try resolveExclusions(for: prepared)
         let settings = networkSettings(excludedAddresses: exclusions.addresses)
         try await setSettings(settings)
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
         guard let tunFD = tunnelFileDescriptor(forAddress: "192.0.2.1"), tunFD >= 0 else {
             throw tunnelError("Не удалось получить файловый дескриптор Packet Tunnel")
         }
@@ -198,12 +259,34 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // DNS answers. Supply only explicit bypass hosts and their resolved IPs
         // to the patched virtual DNS; other hosts keep proxy-side name lookup.
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
-        let args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+        var args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+#if DEBUG
+        let physicalLab = qaScopedDirect
+#else
+        let physicalLab = false
+#endif
+        // Real iPhone only: exact VirtualDNS hostname, not a shared IP route.
+        // Dynamic approval requires two different failed proxy flows, evidence
+        // of a healthy other-host CONNECT, and two independent physical TLS
+        // handshakes. Any ambiguous identity stays on the upstream proxy.
+        let exactHostDirect = AdaptiveRouteCapabilities.iosPacketTunnelExactHostDirect || physicalLab
+        if exactHostDirect { args += " --experimental-scoped-direct" }
+#if DEBUG
+        let directTTL = qaDirectTTLSeconds
+#else
+        let directTTL = AdaptiveRouteLearning.lifetime
+#endif
+        if let store {
+            SmartFlowEventCollector.shared.start(store: store,
+                exactHostDirect: exactHostDirect, labScopedDirect: physicalLab,
+                qaDirectTTLSeconds: directTTL)
+        }
         engineQueue.async { [weak self] in
+            guard let self, !self.stopping else { return }
             let result = args.withCString {
                 tun2proxy_run_with_cli_args($0, 1500, true)
             }
-            guard let self, !self.stopping else { return }
+            guard !self.stopping else { return }
             if result != 0 {
                 self.telemetry.append(TunnelEvent(
                     type: "engine stopped",
@@ -213,6 +296,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
         try await Task.sleep(nanoseconds: 350_000_000)
+        try Task.checkCancellation()
+        guard !stopping else { throw CancellationError() }
     }
 
     // Runs even for manually selected profiles; the ordinary failover monitor
@@ -261,58 +346,51 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func monitorIteration() async {
-        guard !switching, let current = active, current.automaticSelection, let store else { return }
+        guard !stopping, !switching, let current = active,
+              current.automaticSelection, let store else { return }
 
+        let now = Date()
         if store.restorePolicy == .returnToPrimary,
            let primaryID = store.primaryProfileID,
            primaryID != current.storedProfile.id,
-           policy.cooldownElapsed(now: Date(), lastSwitch: store.lastFailoverAt),
            let primary = store.profile(id: primaryID),
-           let prepared = try? await prepare(primary, automatic: true) {
-            await switchTo(prepared, reason: "primary restored")
-            return
+           policy.shouldProbePrimary(now: now, lastAttempt: lastPrimaryRecoveryProbeAt,
+                                     lastSwitch: store.lastFailoverAt) {
+            // Record the attempt *before* awaiting Network.framework; failed
+            // primary checks must also be throttled to at most once / 30s.
+            lastPrimaryRecoveryProbeAt = now
+            if let prepared = try? await prepare(primary, automatic: true) {
+                guard !stopping, !Task.isCancelled else { return }
+                await switchTo(prepared, reason: "primary restored")
+                return
+            }
         }
 
         do {
             _ = try await probe.resolveMeasured(current.resolvedProfile, password: current.password)
+            guard !stopping, !Task.isCancelled else { return }
             consecutiveFailures = 0
         } catch {
+            guard !stopping, !Task.isCancelled else { return }
             consecutiveFailures += 1
             guard policy.failureConfirmed(consecutiveFailures) else { return }
-            store.markRecentlyFailed(current.storedProfile.id)
-            store.lastFailoverAt = Date()
+            // Avoid retrying a failed Auto transition every monitoring tick.
+            let failureAt = Date()
+            guard policy.cooldownElapsed(now: failureAt, lastSwitch: store.lastFailoverAt) else { return }
+            store.markRecentlyFailed(current.storedProfile.id, at: failureAt)
+            store.lastFailoverAt = failureAt
             telemetry.append(TunnelEvent(
                 type: "proxy unavailable",
                 profileName: current.storedProfile.name,
-                detail: error.localizedDescription
+                detail: ProxyFailureReason.classify(error).code
             ))
             do {
                 let next = try await selectProxy()
+                guard !stopping, !Task.isCancelled else { return }
                 await switchTo(next, reason: "failover")
             } catch {
-                telemetry.append(TunnelEvent(type: "failover failed", detail: error.localizedDescription))
-            }
-        }
-    }
-
-    /// tun2proxy_run_with_cli_args blocks engineQueue. A fixed sleep cannot
-    /// prove the old runner has exited; queuing a replacement too early makes
-    /// macOS report "Connected" while DNS requests remain unanswered.
-    private func stopEngineAndWait() async throws {
-        _ = tun2proxy_stop()
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            let gate = EngineDrainGate()
-            engineQueue.async {
-                if gate.claim() { continuation.resume() }
-            }
-            DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 5) {
-                if gate.claim() {
-                    continuation.resume(throwing: NSError(
-                        domain: "ArvectumTunnelEngine", code: 2,
-                        userInfo: [NSLocalizedDescriptionKey:
-                            "Предыдущий сетевой движок не остановился за 5 секунд"]
-                    ))
-                }
+                guard !stopping, !Task.isCancelled else { return }
+                telemetry.append(TunnelEvent(type: "failover failed", detail: ProxyFailureReason.classify(error).code))
             }
         }
     }
@@ -322,11 +400,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         switching = true
         defer { switching = false }
         do {
-            try await stopEngineAndWait()
-            guard !stopping else { return }
+            // A blocking tun2proxy runner owns engineQueue until it exits.
+            // Waiting for the queue barrier prevents starting a replacement
+            // while the old runner is still draining its virtual DNS sockets.
+            try await TunnelEngineHandoff.stopAndDrain(engineQueue: engineQueue) {
+                _ = tun2proxy_stop()
+            }
+            guard !stopping, !Task.isCancelled else { return }
             tlsRelay?.stop()
             tlsRelay = nil
             try await apply(prepared)
+            guard !stopping, !Task.isCancelled else { return }
             active = prepared
             consecutiveFailures = 0
             store?.lastAutoProfileID = prepared.storedProfile.id
@@ -341,47 +425,63 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 detail: prepared.resolvedProfile.type.label
             ))
         } catch {
-            telemetry.append(TunnelEvent(type: "switch failed", detail: error.localizedDescription))
-            // A failed engine handoff must not leave a ghost VPN that appears
-            // connected but silently starves DNS. Let macOS show the failure.
-            cancelTunnelWithError(error)
+            guard !stopping, !Task.isCancelled else { return }
+            // tun2proxy_stop() already stopped the old engine. Staying in
+            // NEVPNStatus.connected now would silently leak a dead connection.
+            // Let NetworkExtension stop the tunnel and show a real error.
+            telemetry.append(TunnelEvent(type: "switch failed", detail: ProxyFailureReason.classify(error).code))
+            cancelTunnelWithError(ProxyDiagnosticError(ProxyFailureReason.classify(error)))
         }
     }
 
     private func resolveExclusions(for prepared: PreparedProxy) throws -> SplitDNSExclusions {
         guard let store else { return SplitDNSExclusions(addresses: [], dnsBypass: []) }
-        var addresses = Set<String>()
-        var domainMappings = Set<String>()
+        // The active graph can include previously rejected or not-yet-approved
+        // subdomains. Their DNS answers are evidence of IP collisions, never
+        // authorization to bypass the proxy. Do not grant a new excludedRoute
+        // solely because an allowed host was seen on the same IP.
+        let refused = store.smartGraph.pruned().edges
+            .filter { $0.decision != .approved }
+            .map(\.host)
+        var approved: [String: [String]] = [:]
         for entry in store.siteExclusions {
-            let candidateHosts = SiteExclusionPolicy.routingHosts(for: entry)
-            for host in candidateHosts {
-                // The explicitly entered host must be resolvable; the implied
-                // www/apex alias is optional (many hosts have no www entry).
-                // Do not let an absent alias make a valid VPN configuration fail.
-                let resolved: [String]
+            for host in SiteExclusionPolicy.routingHosts(for: entry) {
+                // Explicit manual root is required; its automatically derived
+                // www/apex alias is optional when it does not have DNS.
                 if host == entry {
-                    resolved = try resolveHost(host)
-                } else {
-                    guard let aliasAddresses = try? resolveHost(host) else { continue }
-                    resolved = aliasAddresses
-                }
-                for address in resolved {
-                    addresses.insert(address)
-                    // Both the virtual DNS answer and /32-/128 excluded route
-                    // must use the same real IP. Otherwise www gets a fake
-                    // 198.18/15 address and silently falls back to the proxy.
-                    if !resolved.contains(host) {
-                        domainMappings.insert("\(host)=\(address)")
-                    }
+                    approved[host] = try resolveHost(host)
+                } else if let addresses = try? resolveHost(host) {
+                    approved[host] = addresses
                 }
             }
         }
-        // Always preserve a physical route to the upstream proxy.
+        var denied: [String: [String]?] = [:]
+        let candidates = Set(refused).subtracting(approved.keys)
+        // 32 sites x 24 candidates could otherwise add 768 blocking DNS
+        // lookups to a VPN start. If verification exceeds a bounded budget,
+        // withhold all optional domain routes instead of trusting the rest.
+        if candidates.count > SiteExclusionPolicy.maxEntries {
+            denied["unverified-over-cap.example.invalid"] = nil
+        } else {
+            for host in candidates.sorted() {
+                denied[host] = try? resolveHost(host)
+            }
+        }
+        let guarded = SharedIPRouteGuard.plan(approved: approved, nonApproved: denied)
+        if !guarded.withheldAddresses.isEmpty {
+            // Use only counts, never hostnames, IPs or usernames in telemetry.
+            telemetry.append(TunnelEvent(type: "shared IP guarded", detail:
+                "\(guarded.withheldAddresses.count) адресов исключены из прямых маршрутов"))
+        }
+        var addresses = Set(guarded.allowedAddresses)
+        // The proxy upstream is a deliberately excluded transport endpoint;
+        // it must remain accessible or the tunnel cannot work. Its IP cannot
+        // safely be used to infer an unrelated domain's bypass permission.
         for address in try resolveHost(prepared.storedProfile.host) { addresses.insert(address) }
         if addresses.count > SiteExclusionPolicy.maxResolvedAddresses {
             throw tunnelError("Слишком много IP-адресов в исключениях")
         }
-        return SplitDNSExclusions(addresses: addresses.sorted(), dnsBypass: domainMappings.sorted())
+        return SplitDNSExclusions(addresses: addresses.sorted(), dnsBypass: guarded.dnsBypass)
     }
 
     private func networkSettings(excludedAddresses: [String]) -> NEPacketTunnelNetworkSettings {

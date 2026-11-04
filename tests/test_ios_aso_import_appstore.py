@@ -10,8 +10,8 @@ imp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(imp)
 
 class ImportContractTests(unittest.TestCase):
-    def test_offline_plan_has_47_locales_and_requires_no_apple_credentials(self):
-        self.assertEqual(47, len(imp.load_rows()))
+    def test_offline_plan_has_50_locales_and_requires_no_apple_credentials(self):
+        self.assertEqual(50, len(imp.load_rows()))
         self.assertEqual(0, imp.main([]))
 
     def test_executing_requires_explicit_matching_version(self):

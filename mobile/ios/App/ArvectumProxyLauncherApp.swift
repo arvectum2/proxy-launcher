@@ -1,4 +1,7 @@
 import SwiftUI
+#if !targetEnvironment(macCatalyst)
+import YandexMobileAds
+#endif
 
 @main
 struct ArvectumProxyLauncherApp: App {
@@ -6,6 +9,19 @@ struct ArvectumProxyLauncherApp: App {
     @AppStorage("appearanceMode.v1") private var appearanceMode = AppearanceMode.system.rawValue
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("privacyDisclosureAccepted.v1") private var privacyDisclosureAccepted = false
+
+    init() {
+#if !targetEnvironment(macCatalyst)
+        // Start the SDK before the banner enters the view hierarchy. This
+        // reduces first-impression latency, including on a cold app launch.
+#if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER") {
+            YandexAds.enableLogging()
+        }
+#endif
+        YandexAds.initializeSDK(completionHandler: nil)
+#endif
+    }
 
     var body: some Scene {
         WindowGroup {

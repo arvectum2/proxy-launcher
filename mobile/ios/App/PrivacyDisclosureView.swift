@@ -47,8 +47,8 @@ struct PrivacyDisclosureView: View {
 
                     disclosureRow(
                         icon: "chart.bar.xaxis",
-                        title: "Без аналитики и рекламы",
-                        text: "В этой версии нет рекламных SDK, аналитики, трекинга, регистрации или облачного backend."
+                        title: AppL10n.tr("Реклама в приложении"),
+                        text: AppL10n.tr("В приложении показывается реклама РСЯ. SDK Яндекса может обрабатывать технические данные устройства для загрузки объявлений.")
                     )
 
                     Link(destination: privacyURL) {

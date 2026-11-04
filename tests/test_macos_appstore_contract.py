@@ -113,15 +113,18 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('CURRENT_PROJECT_VERSION: "15"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
-        content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        exclusion_view = content.split("struct ExclusionsView: View {", 1)[1].split("struct ApplicationExclusionsView: View {", 1)[0]
+        # ExclusionsView is now a standalone SwiftUI screen, no longer a
+        # string slice between unrelated types in ContentView.swift.
+        exclusion_view = (ROOT / "mobile" / "ios" / "App" / "ExclusionsView.swift").read_text(encoding="utf-8")
         self.assertIn('Button(role: .destructive)', exclusion_view)
         self.assertIn('entries.removeAll { $0 == host }', exclusion_view)
         self.assertIn('AppL10n.tr("Удалить исключение")', exclusion_view)
         self.assertIn('\\(host)', exclusion_view)
         self.assertIn('.onDelete { offsets in', exclusion_view)
         self.assertIn('entries.remove(atOffsets: offsets)', exclusion_view)
-        self.assertIn('for host in removed { graph.remove(parent: host) }', exclusion_view)
+        self.assertIn('for host in removed {', exclusion_view)
+        self.assertIn('guard let root = SmartExclusionGraph.root(host)', exclusion_view)
+        self.assertIn('graph.remove(parent: root)', exclusion_view)
         self.assertIn('Button("Очистить все", role: .destructive)', exclusion_view)
         self.assertIn('confirmClearAll = true', exclusion_view)
         self.assertIn('.confirmationDialog(', exclusion_view)
@@ -143,9 +146,10 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('"gosuslugi.ru": ["gu-st.ru"]', policy)
         self.assertIn('let dependencies = requiredSiteHosts[apex] ?? []', policy)
         self.assertIn('return Array(Set([normalized, alias] + dependencies)).sorted()', policy)
-        self.assertIn('for host in candidateHosts', tunnel)
-        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
-        self.assertIn('addresses.insert(address)', tunnel)
+        self.assertIn('for entry in store.siteExclusions', tunnel)
+        self.assertIn('for host in SiteExclusionPolicy.routingHosts(for: entry)', tunnel)
+        self.assertIn('SharedIPRouteGuard.plan(approved: approved, nonApproved: denied)', tunnel)
+        self.assertIn('guarded.dnsBypass', tunnel)
 
     def test_www_alias_gets_real_dns_and_same_excluded_route_as_parent(self):
         policy = (ROOT / "mobile" / "ios" / "SharedCore" / "SiteExclusionPolicy.swift").read_text(encoding="utf-8")
@@ -157,9 +161,9 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("inet_pton(AF_INET6", policy)
         self.assertIn("SiteExclusionPolicy.routingHosts(for: entry)", tunnel)
         self.assertIn('host == entry', tunnel)
-        self.assertIn('guard let aliasAddresses = try? resolveHost(host) else { continue }', tunnel)
-        self.assertIn('domainMappings.insert("\(host)=\(address)")', tunnel)
-        self.assertIn('addresses.insert(address)', tunnel)
+        self.assertIn('else if let addresses = try? resolveHost(host)', tunnel)
+        self.assertIn('SharedIPRouteGuard.plan(approved: approved, nonApproved: denied)', tunnel)
+        self.assertIn('guarded.dnsBypass', tunnel)
         self.assertIn("networkSettings(excludedAddresses: exclusions.addresses)", tunnel)
 
     def test_native_dns_bypass_uses_same_real_ips_as_tunnel_excluded_routes(self):
@@ -168,8 +172,8 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("dnsBypassFlags = exclusions.dnsBypass", tunnel)
         self.assertIn("--dns virtual", tunnel)
         self.assertIn("--dns-bypass", tunnel)
-        self.assertIn("domainMappings.insert", tunnel)
-        self.assertIn("if !resolved.contains(host)", tunnel)
+        self.assertIn('SharedIPRouteGuard.plan(approved: approved, nonApproved: denied)', tunnel)
+        self.assertIn('guarded.withheldAddresses', tunnel)
         self.assertIn("for address in try resolveHost(prepared.storedProfile.host)", tunnel)
 
     def test_store_export_uses_managed_installer_identity_without_cloud_signing(self):
@@ -216,13 +220,14 @@ class MacOSAppStoreContractTests(unittest.TestCase):
 
     def test_mac_dashboard_matches_card_heights_and_stacks_on_narrow_windows(self):
         content = (ROOT / "mobile" / "ios" / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn("private struct EqualHeightDashboardLayout: Layout", content)
+        catalyst_layout=(ROOT / "mobile" / "ios" / "App" / "EqualHeightDashboardLayout.swift").read_text(encoding="utf-8")
+        self.assertIn("struct EqualHeightDashboardLayout: Layout", catalyst_layout)
         self.assertIn("geometry.size.width >= 820", content)
         self.assertIn("EqualHeightDashboardLayout(spacing: 18)", content)
         self.assertIn("connectionCard(compact: false)\n                                activeProfileCard(compact: false)", content)
         self.assertIn("} else {\n                            connectionCard(compact: false)\n                            activeProfileCard(compact: false)", content)
-        self.assertIn("let tallest = subviews.map", content)
-        self.assertIn("height: bounds.height", content)
+        self.assertIn("let tallest = subviews.map", catalyst_layout)
+        self.assertIn("height: bounds.height", catalyst_layout)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .top)", content)
         self.assertIn(".frame(maxWidth: .infinity, maxHeight: dashboardCardMaxHeight, alignment: .topLeading)", content)
         self.assertIn("VStack(alignment: .leading, spacing: 5)", content)

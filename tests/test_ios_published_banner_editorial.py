@@ -1,4 +1,4 @@
-"""Preserve shipped Yandex banner and validate native UI editorial across 50 iOS locales."""
+"""Preserve shipped Yandex banner and validate native UI editorial across 64 iOS locales."""
 import json
 import plistlib
 import re
@@ -27,11 +27,17 @@ def test_shipped_banner_wiring_is_restored_in_ios_release_source():
     assert 'static let isEnabled = true' in banner
     assert 'activeBannerUnitID = productionBannerUnitID' in banner
     assert 'activeBannerUnitID = demoBannerUnitID' in banner
-    assert 'VStack(spacing: 0)' in home
+    assert 'TabView(selection: $destination)' in home
+    layout=home.split('private var homeScreen: some View {',1)[1].split('private var dashboardCardMaxHeight',1)[0]
+    assert layout.index('homeMeasured("header")') < layout.index('SettingsBannerView(')
+    assert layout.index('SettingsBannerView(') < layout.index('homeConnectControl')
     assert '.safeAreaInset(edge: .bottom, spacing: 0)' not in home
-    assert 'SettingsBannerView()' in home
-    assert 'size: .sticky()' in banner
-    assert '.frame(minHeight: 50)' in banner
+    assert 'SettingsBannerView(' in home
+    assert '.inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
+    # The SDK manages actual inline creative size; forcing a second frame
+    # would distort it. Home separately controls the adaptive ad slot.
+    assert '.frame(minHeight: 80, maxHeight: maxAdHeight)' not in banner
+    assert '.inline(width: max(1, adWidth), maxHeight: maxAdHeight)' in banner
     assert '.onAdLoad' in banner and '.onAdFailure' in banner
     assert '.onAdImpression' in banner
     plist=plistlib.loads((IOS/'Config/App-Info.plist').read_bytes())
@@ -45,7 +51,7 @@ def test_ad_disclosure_label_is_present_in_every_ios_language():
     banner=(IOS/'App/SettingsBannerView.swift').read_text(encoding='utf-8')
     segment=banner.split('static let labels: [String: String] = [',1)[1].split('\n    ]',1)[0]
     found=dict(re.findall(r'^\s*"([^\"]+)": "([^\"]+)",$',segment,re.M))
-    assert len(found)==len(CODES)==50
+    assert len(found)==len(CODES)==64
     assert set(found)==set(CODES)
     assert all(value.strip() and len(value.strip())<35 for value in found.values())
     assert found['ru']=='Реклама' and found['en']=='Ad'

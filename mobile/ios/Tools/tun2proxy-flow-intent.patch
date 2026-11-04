@@ -1,0 +1,293 @@
+diff --git a/src/args.rs b/src/args.rs
+index 6513544..9f93ef7 100644
+--- a/src/args.rs
++++ b/src/args.rs
+@@ -104,6 +104,12 @@ pub struct Args {
+     #[arg(long, value_name = "HOST=IP", value_parser = validate_dns_bypass)]
+     pub dns_bypass: Vec<String>,
+ 
++    /// Experimental exact hostname intent ONLY; it always falls back to
++    /// the configured upstream proxy until a scoped transport is proven.
++    /// Production iOS never supplies this argument.
++    #[arg(long, value_name = "EXACT_HOST", value_parser = crate::flow_routing::validate_exact_host)]
++    pub flow_direct_candidate: Vec<String>,
++
+     /// IPs used in routing setup which should bypass the tunnel,
+     /// in the form of IP or IP/CIDR. Multiple IPs can be specified,
+     /// e.g. --bypass 3.4.5.0/24 --bypass 5.6.7.8
+@@ -220,6 +226,7 @@ impl Default for Args {
+             verbosity: ArgVerbosity::Info,
+             virtual_dns_pool: IpCidr::from_str("198.18.0.0/15").unwrap(),
+             dns_bypass: Vec::new(),
++            flow_direct_candidate: Vec::new(),
+             daemonize: false,
+             exit_on_fatal_error: false,
+             max_sessions: 200,
+diff --git a/src/flow_events.rs b/src/flow_events.rs
+new file mode 100644
+index 0000000..255aff5
+--- /dev/null
++++ b/src/flow_events.rs
+@@ -0,0 +1,60 @@
++//! Structured per-flow CONNECT outcomes for local iOS diagnostics only.
++//! No URLs, payloads, proxy credentials, or remote telemetry.
++use std::{ffi::CString, os::raw::{c_char, c_void}, sync::{Mutex, atomic::{AtomicU64, Ordering}}};
++
++#[derive(Clone, Copy)]
++struct Observer(unsafe extern "C" fn(*const c_char, u64, i32, *mut c_void), *mut c_void);
++unsafe impl Send for Observer {}
++unsafe impl Sync for Observer {}
++static OBSERVER: Mutex<Option<Observer>> = Mutex::new(None);
++static IDS: AtomicU64 = AtomicU64::new(1);
++
++/// Event 0 = CONNECT accepted; 1 = target-specific timeout; 2 = refused;
++/// 3 = other handshake failure; 4 = global upstream transport failure.
++/// Only 1 or 2 can be candidates for adaptive probing, with other-host
++/// CONNECT success as independent evidence of upstream health.
++/// # Safety
++/// `ctx` must stay valid until callback is unregistered.
++#[unsafe(no_mangle)]
++pub unsafe extern "C" fn tun2proxy_set_flow_event_callback(
++    callback: Option<unsafe extern "C" fn(*const c_char, u64, i32, *mut c_void)>,
++    ctx: *mut c_void,
++) {
++    if let Ok(mut guard) = OBSERVER.lock() {
++        *guard = callback.map(|callback| Observer(callback, ctx));
++    }
++}
++
++pub(crate) fn next_id() -> u64 { IDS.fetch_add(1, Ordering::Relaxed) }
++pub(crate) fn emit(host: Option<&str>, connection_id: u64, event: i32) {
++    if !matches!(event, 0..=4) { return; }
++    let Some(host) = host.and_then(|host| crate::flow_routing::validate_exact_host(host).ok()) else { return };
++    let Ok(host) = CString::new(host) else { return };
++    let callback = OBSERVER.lock().ok().and_then(|guard| *guard);
++    if let Some(Observer(callback, ctx)) = callback {
++        unsafe { callback(host.as_ptr(), connection_id, event, ctx); }
++    }
++}
++pub(crate) fn failure_kind(err: &crate::Error, upstream: bool) -> i32 {
++    if upstream { return 4; }
++    match err {
++        crate::Error::Io(e) if e.kind() == std::io::ErrorKind::TimedOut => 1,
++        crate::Error::Io(e) if e.kind() == std::io::ErrorKind::ConnectionRefused => 2,
++        _ => 3,
++    }
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn classification_is_transport_specific_and_upstream_distinct() {
++        let timeout = crate::Error::Io(std::io::Error::from(std::io::ErrorKind::TimedOut));
++        let denied = crate::Error::Io(std::io::Error::from(std::io::ErrorKind::ConnectionRefused));
++        assert_eq!(failure_kind(&timeout, false), 1);
++        assert_eq!(failure_kind(&denied, false), 2);
++        assert_eq!(failure_kind(&timeout, true), 4);
++        assert_eq!(failure_kind(&crate::Error::from("HTTP 403"), false), 3);
++    }
++    #[test]
++    fn session_ids_are_unique() { assert_ne!(next_id(), next_id()); }
++}
+diff --git a/src/flow_routing.rs b/src/flow_routing.rs
+new file mode 100644
+index 0000000..b9e3055
+--- /dev/null
++++ b/src/flow_routing.rs
+@@ -0,0 +1,106 @@
++//! Exact-host intent classifier. A candidate NEVER bypasses by itself.
++//! Production iOS must not open unscoped sockets to exit its own packet tunnel;
++//! Apple TN3120 advises against local proxies or other-interface forwarding.
++use std::{collections::HashSet, net::IpAddr};
++
++#[derive(Clone, Copy, Debug, Eq, PartialEq)]
++pub(crate) enum FlowIntent { Proxy, DirectNeedsScopedTransport }
++
++#[derive(Default)]
++pub(crate) struct FlowRoutingPolicy { approved: HashSet<String> }
++
++impl FlowRoutingPolicy {
++    pub fn new(names: &[String]) -> Self {
++        Self { approved: names.iter().filter_map(|n| validate_exact_host(n).ok()).collect() }
++    }
++    /// Caller MUST supply the name bound to this specific virtual-DNS fake
++    /// destination IP, never arbitrary DNS/SNI/HTTP Host or the physical CDN IP.
++    pub fn for_new_flow(&self, virtual_dns_host: Option<&str>, _destination: IpAddr) -> FlowIntent {
++        let Some(host) = virtual_dns_host.and_then(|n| validate_exact_host(n).ok()) else {
++            return FlowIntent::Proxy;
++        };
++        if self.approved.contains(&host) { FlowIntent::DirectNeedsScopedTransport }
++        else { FlowIntent::Proxy }
++    }
++}
++
++pub(crate) fn validate_exact_host(input: &str) -> Result<String, String> {
++    let name = input.trim_end_matches('.').to_ascii_lowercase();
++    if name.len() > 253 || name.is_empty() || !name.is_ascii()
++       || name.parse::<IpAddr>().is_ok() || !name.contains('.') {
++        return Err("invalid exact routing hostname".into());
++    }
++    if name.split('.').any(|s| s.is_empty() || s.len() > 63 || s.starts_with('-') || s.ends_with('-') ||
++       !s.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')) {
++        return Err("invalid DNS label".into());
++    }
++    Ok(name)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use crate::virtual_dns::VirtualDns;
++    use hickory_proto::{op::{Message, MessageType, OpCode, Query}, rr::{Name, RecordType}};
++    use std::str::FromStr;
++    use tproxy_config::IpCidr;
++
++    fn fake(dns: &mut VirtualDns, host: &str) -> IpAddr {
++        let mut q = Message::new(1, MessageType::Query, OpCode::Query);
++        q.add_query(Query::query(Name::from_str(host).unwrap(), RecordType::A));
++        dns.generate_query(&q.to_vec().unwrap()).unwrap().2
++    }
++
++    #[test]
++    fn three_allowed_resources_and_unrelated_shared_cdn_origin() {
++        let mut dns = VirtualDns::new(IpCidr::from_str("198.18.0.0/15").unwrap());
++        let allow = ["site.test", "api.site.test", "static.site.test"];
++        let policy = FlowRoutingPolicy::new(&allow.iter().map(|s| s.to_string()).collect::<Vec<_>>());
++        let synthetic: Vec<_> = allow.iter().map(|h| fake(&mut dns, h)).collect();
++        for ip in synthetic {
++            assert_eq!(policy.for_new_flow(dns.resolve_ip(&ip).map(String::as_str), ip), FlowIntent::DirectNeedsScopedTransport);
++        }
++        let other = fake(&mut dns, "tracker.other.test");
++        assert_eq!(policy.for_new_flow(dns.resolve_ip(&other).map(String::as_str), other), FlowIntent::Proxy);
++        for same_cdn_ip in ["203.0.113.42", "2001:db8::42"] {
++            let ip = same_cdn_ip.parse().unwrap();
++            assert_eq!(policy.for_new_flow(Some("api.site.test"), ip), FlowIntent::DirectNeedsScopedTransport);
++            assert_eq!(policy.for_new_flow(Some("tracker.other.test"), ip), FlowIntent::Proxy);
++            assert_eq!(policy.for_new_flow(None, ip), FlowIntent::Proxy);
++        }
++    }
++
++    #[test]
++    fn cli_rejects_untrusted_names_and_retains_no_direct_candidate_by_default() {
++        use clap::Parser;
++        use crate::args::Args;
++        let base = ["tun2proxy-bin", "--proxy", "socks5://127.0.0.1:1080", "--dns", "virtual"];
++        let defaults = Args::try_parse_from(base).unwrap();
++        assert!(defaults.flow_direct_candidate.is_empty());
++        let allow = Args::try_parse_from(base.into_iter().chain([
++            "--flow-direct-candidate", "SITE.TEST."
++        ])).unwrap();
++        assert_eq!(allow.flow_direct_candidate, ["site.test"]);
++        for unsafe_host in ["*.site.test", "site.test.evil/", "2001:db8::1", "site..test"] {
++            assert!(Args::try_parse_from(base.into_iter().chain([
++                "--flow-direct-candidate", unsafe_host
++            ])).is_err());
++        }
++    }
++
++    #[test]
++    fn default_is_proxy_and_hostnames_are_exact_not_suffix_or_sni() {
++        let policy = FlowRoutingPolicy::default();
++        let dst = "198.18.0.1".parse().unwrap();
++        assert_eq!(policy.for_new_flow(Some("site.test"), dst), FlowIntent::Proxy);
++        let policy = FlowRoutingPolicy::new(&["site.test".into()]);
++        for name in [None, Some("other.site.test"), Some("site.test.evil"),
++                     Some("203.0.113.42"), Some("site.test:443")] {
++            assert_eq!(policy.for_new_flow(name, dst), FlowIntent::Proxy);
++        }
++        for invalid in ["*.site.test", "192.0.2.1", "site..test", "site.test:443", "-bad.test"] {
++            assert!(validate_exact_host(invalid).is_err());
++        }
++        assert_eq!(validate_exact_host("SITE.TEST.").unwrap(), "site.test");
++    }
++}
+diff --git a/src/lib.rs b/src/lib.rs
+index 63c3f06..44da806 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -51,6 +51,8 @@ mod directions;
+ mod dns;
+ mod dump_logger;
+ mod error;
++mod flow_routing;
++mod flow_events;
+ mod general_api;
+ mod http;
+ mod no_proxy;
+@@ -173,6 +175,7 @@ where
+ 
+     let server_addr = args.proxy.addr;
+     let key = args.proxy.credentials.clone();
++    let intent_policy = flow_routing::FlowRoutingPolicy::new(&args.flow_direct_candidate);
+     let dns_addr = args.dns_addr;
+     let ipv6_enabled = args.ipv6_enabled;
+     let virtual_dns = if args.dns == ArgDns::Virtual {
+@@ -311,10 +314,20 @@ where
+                 } else {
+                     None
+                 };
++                // Phase A: classify real TCP connections from the per-flow
++                // VirtualDns synthetic destination mapping. Phase B requires
++                // a supported physical-interface direct transport. Until then
++                // even approved candidates MUST stay on the upstream proxy.
++                if matches!(intent_policy.for_new_flow(domain_name.as_deref(), tcp.peer_addr().ip()),
++                    flow_routing::FlowIntent::DirectNeedsScopedTransport) {
++                    log::trace!("Scoped DIRECT unavailable; use upstream PROXY");
++                }
++                let observed_host = domain_name.clone();
++                let observed_id = flow_events::next_id();
+                 let proxy_handler = mgr.new_proxy_handler(info, domain_name, false).await?;
+                 let socket_queue = socket_queue.clone();
+                 tokio::spawn(async move {
+-                    if let Err(err) = handle_tcp_session(tcp, proxy_handler, socket_queue).await {
++                    if let Err(err) = handle_tcp_session(tcp, proxy_handler, socket_queue, observed_host.as_deref(), observed_id).await {
+                         log::error!("{info} error \"{err}\"");
+                     }
+                     log::trace!("Session count {}", task_count.fetch_sub(1, Relaxed).saturating_sub(1));
+@@ -467,6 +480,8 @@ async fn handle_tcp_session(
+     mut tcp_stack: IpStackTcpStream,
+     proxy_handler: Arc<Mutex<dyn ProxyHandler>>,
+     socket_queue: Option<Arc<SocketQueue>>,
++    observed_host: Option<&str>,
++    observed_id: u64,
+ ) -> crate::Result<()> {
+     let (session_info, server_addr) = {
+         let handler = proxy_handler.lock().await;
+@@ -474,13 +489,33 @@ async fn handle_tcp_session(
+         (handler.get_session_info(), handler.get_server_addr())
+     };
+ 
+-    let mut server = create_tcp_stream(&socket_queue, server_addr).await?;
++    let mut server = match create_tcp_stream(&socket_queue, server_addr).await {
++        Ok(server) => server,
++        Err(err) => {
++            flow_events::emit(observed_host, observed_id, 4);
++            return Err(err.into());
++        }
++    };
+ 
+     log::info!("Beginning {session_info}");
+ 
+-    if let Err(e) = handle_proxy_session(&mut server, proxy_handler).await {
+-        tcp_stack.shutdown().await?;
+-        return Err(e);
++    let handshake = tokio::time::timeout(
++        std::time::Duration::from_secs(12),
++        handle_proxy_session(&mut server, proxy_handler),
++    ).await;
++    match handshake {
++        Ok(Ok(_)) => flow_events::emit(observed_host, observed_id, 0),
++        Ok(Err(e)) => {
++            flow_events::emit(observed_host, observed_id, flow_events::failure_kind(&e, false));
++            tcp_stack.shutdown().await?;
++            return Err(e);
++        }
++        Err(_) => {
++            flow_events::emit(observed_host, observed_id, 1);
++            tcp_stack.shutdown().await?;
++            return Err(std::io::Error::new(std::io::ErrorKind::TimedOut,
++                "proxy handshake timeout").into());
++        }
+     }
+ 
+     let (mut t_rx, mut t_tx) = tokio::io::split(tcp_stack);

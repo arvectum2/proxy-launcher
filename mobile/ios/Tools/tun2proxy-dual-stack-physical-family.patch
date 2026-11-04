@@ -1,0 +1,341 @@
+diff --git a/src/lib.rs b/src/lib.rs
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -322,8 +322,9 @@
+                 } else {
+                     None
+                 };
+-                // Lab-only exact VirtualDNS host. Other connections remain PROXY.
+-                // Release iOS MUST NOT supply --experimental-scoped-direct.
++                // Approved per-flow exact VirtualDNS host ONLY; other
++                // connections remain PROXY. This capability is guarded by
++                // physical probes, a bounded TTL, and per-network revocation.
+                 let direct_host = if lab_direct && matches!(
+                     intent_policy.for_new_flow(domain_name.as_deref(), tcp.peer_addr().ip()),
+                     flow_routing::FlowIntent::DirectNeedsScopedTransport
+@@ -386,6 +387,13 @@
+                 } else {
+                     None
+                 };
++                // The TCP-only exact-host approval MUST NEVER authorize UDP.
++                // A tiny bounded QA event proves QUIC-like traffic reached the
++                // ordinary UDP/proxy handler even for an approved TCP host.
++                if lab_direct && udp.peer_addr().port() == 443 &&
++                    domain_name.as_deref().is_some_and(crate::flow_routing::is_armed) {
++                    flow_events::emit(domain_name.as_deref(), flow_events::next_id(), 12);
++                }
+                 #[cfg(feature = "udpgw")]
+                 if let Some(udpgw) = udpgw_client.clone() {
+                     let tcp_src = match udp.peer_addr() {
+@@ -487,6 +495,57 @@
+     Ok(total)
+ }
+ 
++/// Read a complete bounded first TLS record without consuming application
++/// bytes irreversibly. A first TLS handshake is the ONLY protocol eligible
++/// for the iOS IPv6-specific cellular retry; HTTP/QUIC/raw IP stay proxied.
++async fn first_tls_record<R: AsyncRead + Unpin>(
++    stream: &mut R,
++) -> std::io::Result<Vec<u8>> {
++    use std::io::{Error, ErrorKind};
++    tokio::time::timeout(std::time::Duration::from_secs(4), async {
++        let mut hdr=[0u8;5];
++        stream.read_exact(&mut hdr).await?;
++        let len=u16::from_be_bytes([hdr[3],hdr[4]]) as usize;
++        if hdr[0]!=0x16 || hdr[1]!=0x03 || hdr[2]>0x04 ||
++            !(1..=16384).contains(&len) {
++            return Err(Error::new(ErrorKind::InvalidData,
++                "first packet not bounded TLS handshake"));
++        }
++        let mut packet=Vec::with_capacity(5+len);
++        packet.extend_from_slice(&hdr);
++        packet.resize(5+len,0);
++        stream.read_exact(&mut packet[5..]).await?;
++        Ok(packet)
++    }).await.map_err(|_|Error::new(ErrorKind::TimedOut,
++       "first TLS record timeout"))?
++}
++
++/// The physical TCP CONNECT alone is not enough: bound Wi-Fi IPv6 was
++/// observed on iPhone to receive a server RST immediately after ClientHello.
++/// A real server TLS first response must arrive before we commit this flow.
++async fn verify_ipv6_tls_first_record(
++    server: &mut TcpStream, hello: &[u8],
++) -> std::io::Result<Vec<u8>> {
++    use std::io::{Error,ErrorKind};
++    tokio::time::timeout(std::time::Duration::from_secs(3), async {
++        server.write_all(hello).await?;
++        let mut hdr=[0u8;5];
++        server.read_exact(&mut hdr).await?;
++        let len=u16::from_be_bytes([hdr[3],hdr[4]]) as usize;
++        if hdr[0]!=0x16 || hdr[1]!=0x03 || hdr[2]>0x04 ||
++           !(1..=16384).contains(&len) {
++            return Err(Error::new(ErrorKind::InvalidData,
++               "no verified server TLS handshake"));
++        }
++        let mut packet=Vec::with_capacity(5+len);
++        packet.extend_from_slice(&hdr);
++        packet.resize(5+len,0);
++        server.read_exact(&mut packet[5..]).await?;
++        Ok(packet)
++    }).await.map_err(|_|Error::new(ErrorKind::TimedOut,
++        "physical first TLS record timed out"))?
++}
++
+ async fn handle_tcp_session(
+     mut tcp_stack: IpStackTcpStream,
+     proxy_handler: Arc<Mutex<dyn ProxyHandler>>,
+@@ -506,6 +565,10 @@
+     let mut server = if let Some(host) = direct_host {
+         match flow_direct_transport::connect(host, session_info.dst.port()).await {
+             Ok(stream) => {
++                if let Ok(peer)=stream.peer_addr(){
++                    flow_events::emit(observed_host, observed_id,
++                        if peer.is_ipv4(){10}else{11});
++                }
+                 flow_events::emit(observed_host, observed_id, 6);
+                 stream
+             }
+@@ -568,6 +631,10 @@
+                     // NEPacketTunnelNetworkSettings route changes.
+                     server = direct;
+                     uses_direct = true;
++                    if let Ok(peer)=server.peer_addr(){
++                        flow_events::emit(observed_host, observed_id,
++                            if peer.is_ipv4(){10}else{11});
++                    }
+                     // Event 7 proves the ORIGINAL captured client TCP stream
+                     // survived a real upstream proxy failure, not just that
+                     // a later application-initiated flow used direct egress.
+@@ -586,6 +653,45 @@
+         } else {
+             tcp_stack.shutdown().await?;
+             return Err(original_failure);
++        }
++    }
++
++    // Verified exact VirtualDNS hostname only. On IPv6 iPhone Wi-Fi
++    // a TCP socket could connect but the peer sent TCP RST on TLS ClientHello.
++    // Replay the *same original client's* first TLS record on cellular ONLY
++    // if the Wi-Fi-bound first server TLS record fails. If neither physical
++    // transport can answer, fail closed and revoke this exact host.
++    if uses_direct && server.peer_addr().is_ok_and(|peer|peer.is_ipv6()) {
++        let host=observed_host.filter(|_| session_info.dst.port()==443)
++            .ok_or_else(||std::io::Error::new(std::io::ErrorKind::InvalidInput,
++                "IPv6 scoped direct requires a verified TLS hostname:443"))?;
++        let handshake = async {
++            let hello=first_tls_record(&mut tcp_stack).await?;
++            let server_record=match verify_ipv6_tls_first_record(&mut server,&hello).await {
++                Ok(record)=>record,
++                Err(_first_error)=>{
++                    // iPhone 13 hardware QA: cellular-bound IPv6 delivered
++                    // real TLS bytes where Wi-Fi-bound IPv6 returned a RST.
++                    let mut cellular=flow_direct_transport::connect_cellular_ipv6(
++                        host,session_info.dst.port()).await?;
++                    let record=verify_ipv6_tls_first_record(&mut cellular,&hello).await?;
++                    server=cellular;
++                    record
++                }
++            };
++            tcp_stack.write_all(&server_record).await?;
++            Ok::<(),std::io::Error>(())
++        }.await;
++        if let Err(err)=handshake {
++            flow_events::emit(observed_host,observed_id,5);
++            let _=tcp_stack.shutdown().await;
++            return Err(err.into());
++        }
++        // Record only packet directions, never TLS data. This is the first
++        // payload of the original exact-host session, preserved on retry.
++        if lab_direct {
++            flow_events::emit(observed_host,observed_id,8);
++            flow_events::emit(observed_host,observed_id,9);
+         }
+     }
+ 
+@@ -978,3 +1084,48 @@
+     crate::traffic_status::traffic_status_update(tx, rx)?;
+     Ok(proxy_handler.get_udp_associate())
+ }
++
++#[cfg(test)]
++mod ios_ipv6_first_record_contract_tests {
++    use super::*;
++    #[tokio::test]
++    async fn partial_client_hello_record_is_reassembled() {
++        let (mut writer,mut reader)=tokio::io::duplex(128);
++        tokio::spawn(async move {
++            writer.write_all(&[22,3,3,0]).await.unwrap();
++            tokio::task::yield_now().await;
++            writer.write_all(&[3,1,2,3]).await.unwrap();
++        });
++        assert_eq!(first_tls_record(&mut reader).await.unwrap(),
++                   vec![22,3,3,0,3,1,2,3]);
++    }
++    #[tokio::test]
++    async fn raw_http_is_never_mistaken_for_tls() {
++        let (mut writer,mut reader)=tokio::io::duplex(64);
++        writer.write_all(b"GET / HTTP/1.1").await.unwrap();
++        assert_eq!(first_tls_record(&mut reader).await.unwrap_err().kind(),
++                   std::io::ErrorKind::InvalidData);
++    }
++    #[tokio::test]
++    async fn oversized_tls_record_fails_closed_before_payload_read() {
++        let (mut writer,mut reader)=tokio::io::duplex(64);
++        writer.write_all(&[22,3,3,0xff,0xff]).await.unwrap();
++        assert_eq!(first_tls_record(&mut reader).await.unwrap_err().kind(),
++                   std::io::ErrorKind::InvalidData);
++    }
++    #[tokio::test]
++    async fn first_server_record_rejects_tls_alert_even_after_tcp_connect() {
++        let listener=tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
++        let addr=listener.local_addr().unwrap();
++        tokio::spawn(async move {
++            let (mut socket,_) = listener.accept().await.unwrap();
++            let mut hello=[0u8;8];
++            socket.read_exact(&mut hello).await.unwrap();
++            socket.write_all(&[21,3,3,0,2,2,40]).await.unwrap();
++        });
++        let mut client=TcpStream::connect(addr).await.unwrap();
++        let hello=[22,3,3,0,3,1,2,3];
++        assert_eq!(verify_ipv6_tls_first_record(&mut client,&hello).await
++                      .unwrap_err().kind(),std::io::ErrorKind::InvalidData);
++    }
++}
+diff --git a/src/flow_direct_transport.rs b/src/flow_direct_transport.rs
+--- a/src/flow_direct_transport.rs
++++ b/src/flow_direct_transport.rs
+@@ -1,5 +1,6 @@
+-//! Experimental scoped per-TCP flow. NEVER ship without Apple DTS approval:
+-//! TN3120 explicitly discourages forwarding packet tunnel flows elsewhere.
++//! Exact-host physical per-TCP routing after independent verification.
++//! TN3120 warns about alternate-interface packet tunnel forwarding;
++//! platform admissibility remains for Apple App Review to decide.
+ //! No IP-wide routes, local listener, unbound socket or credentials.
+ use std::{io,net::{IpAddr,SocketAddr},time::Duration};
+ use tokio::net::{TcpSocket,TcpStream};
+@@ -24,31 +25,47 @@
+     let values=tokio::time::timeout(Duration::from_secs(4),
+          tokio::net::lookup_host((host.as_str(),port))).await
+             .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"direct DNS timeout"))??;
+-    let result:Vec<_>=values.filter(|v|public(v.ip())).take(8).collect();
+-    if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,"no real public IP"))}
++    // A public IPv6 address is eligible only for verified exact-host TLS.
++    // The caller MUST perform a complete TLS-first-record check and retry
++    // over cellular if the IPv6 Wi-Fi TCP connection resets its TLS stream.
++    // Non-TLS and unverified IPv6 always fail closed without an IP-wide route.
++    let result:Vec<_>=values.filter(|v|physical_direct_eligible(*v)).take(8).collect();
++    if result.is_empty(){Err(io::Error::new(io::ErrorKind::AddrNotAvailable,
++        "no validated public IP for direct"))}
+     else{Ok(result)}
+ }
++fn physical_direct_eligible(addr:SocketAddr)->bool{
++    public(addr.ip())
++}
++#[cfg(target_os="ios")]
++async fn scoped_one(peer:SocketAddr,iface:&str)->io::Result<TcpStream>{
++    use std::{ffi::CString,os::fd::AsRawFd};
++    use nix::libc;
++    let name=CString::new(iface).map_err(|_|io::Error::new(
++        io::ErrorKind::InvalidInput,"invalid interface"))?;
++    let idx=unsafe{libc::if_nametoindex(name.as_ptr())};
++    if idx==0 {return Err(io::Error::new(io::ErrorKind::AddrNotAvailable,
++        "physical interface missing"))}
++    let sock=if peer.is_ipv4(){TcpSocket::new_v4()?}else{TcpSocket::new_v6()?};
++    let (level,opt)=if peer.is_ipv4(){(libc::IPPROTO_IP,libc::IP_BOUND_IF)}
++                     else{(libc::IPPROTO_IPV6,libc::IPV6_BOUND_IF)};
++    let rc=unsafe{libc::setsockopt(sock.as_raw_fd(),level,opt,
++        (&idx as *const u32).cast(),std::mem::size_of::<u32>() as libc::socklen_t)};
++    if rc!=0{return Err(io::Error::last_os_error())}
++    tokio::time::timeout(Duration::from_secs(4),sock.connect(peer)).await
++        .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"physical scoped timeout"))?
++}
++
+ async fn scoped(peer:SocketAddr)->io::Result<TcpStream>{
+     #[cfg(target_os="ios")]
+     {
+-        use std::{ffi::CString,os::fd::AsRawFd};
+-        use nix::libc;
+         let mut last=io::Error::new(io::ErrorKind::AddrNotAvailable,"no physical interface");
++        // Prefer Wi-Fi as expected by the owner; an IPv6 TLS first-record
++        // failure may retry via cellular only after the same-flow validation.
+         for iface in ["en0","pdp_ip0","pdp_ip1","pdp_ip2"]{
+-            let name=CString::new(iface).unwrap();
+-            let idx=unsafe{libc::if_nametoindex(name.as_ptr())};
+-            if idx==0{continue;}
+-            let socket=if peer.is_ipv4(){TcpSocket::new_v4()?}else{TcpSocket::new_v6()?};
+-            let (level,opt)=if peer.is_ipv4(){
+-                (libc::IPPROTO_IP,libc::IP_BOUND_IF)
+-            }else{(libc::IPPROTO_IPV6,libc::IPV6_BOUND_IF)};
+-            let rc=unsafe{libc::setsockopt(socket.as_raw_fd(),level,opt,
+-                (&idx as *const u32).cast(),std::mem::size_of::<u32>() as libc::socklen_t)};
+-            if rc!=0{last=io::Error::last_os_error();continue;}
+-            match tokio::time::timeout(Duration::from_secs(4),socket.connect(peer)).await{
+-                Ok(Ok(t))=>return Ok(t),
+-                Ok(Err(e))=>last=e,
+-                Err(_)=>last=io::Error::new(io::ErrorKind::TimedOut,"scoped timeout"),
++            match scoped_one(peer,iface).await{
++                Ok(stream)=>return Ok(stream),
++                Err(err)=>last=err,
+             }
+         }
+         Err(last)
+@@ -58,6 +75,31 @@
+         let sock=if peer.is_ipv4(){TcpSocket::new_v4()?}else{TcpSocket::new_v6()?};
+         tokio::time::timeout(Duration::from_secs(4),sock.connect(peer)).await
+             .map_err(|_|io::Error::new(io::ErrorKind::TimedOut,"direct timeout"))?
++    }
++}
++
++/// After a real TLS server reset on bound Wi-Fi, retry the SAME exact-host
++/// client hello on cellular. No general UDP/raw-IP or TLS credentials involved.
++pub(crate) async fn connect_cellular_ipv6(host:&str,port:u16)->io::Result<TcpStream>{
++    #[cfg(target_os="ios")]
++    {
++        let mut last=io::Error::new(io::ErrorKind::AddrNotAvailable,
++            "no verified IPv6 cellular underlay");
++        for peer in resolve(host,port).await?.into_iter().filter(|p|p.is_ipv6()){
++            for iface in ["pdp_ip0","pdp_ip1","pdp_ip2"]{
++                match scoped_one(peer,iface).await{
++                    Ok(stream)=>return Ok(stream),
++                    Err(err)=>last=err,
++                }
++            }
++        }
++        Err(last)
++    }
++    #[cfg(not(target_os="ios"))]
++    {
++        let _=(host,port);
++        Err(io::Error::new(io::ErrorKind::Unsupported,
++            "cellular IPv6 fallback available only on iOS"))
+     }
+ }
+ /// Only for a lab tunnel which already observed a real proxy failure.
+@@ -91,6 +133,14 @@
+ #[cfg(test)]
+ mod tests{
+     use super::*;
++    #[test] fn public_ipv6_only_requires_independently_verified_tls_first_record(){
++        let v6:SocketAddr="[2001:4860:4860::8888]:443".parse().unwrap();
++        let v4:SocketAddr="1.1.1.1:443".parse().unwrap();
++        let private_v4:SocketAddr="10.0.0.1:443".parse().unwrap();
++        assert!(physical_direct_eligible(v6));
++        assert!(!physical_direct_eligible(private_v4));
++        assert!(physical_direct_eligible(v4));
++    }
+     #[test] fn rejects_synthetic_and_private(){
+         for s in ["127.0.0.1","10.1.1.1","192.168.1.1","172.16.0.1",
+                   "100.64.0.1","198.18.0.1","198.19.255.254",
+diff --git a/src/flow_events.rs b/src/flow_events.rs
+--- a/src/flow_events.rs
++++ b/src/flow_events.rs
+@@ -27,7 +27,7 @@
+ 
+ pub(crate) fn next_id() -> u64 { IDS.fetch_add(1, Ordering::Relaxed) }
+ pub(crate) fn emit(host: Option<&str>, connection_id: u64, event: i32) {
+-    if !matches!(event, 0..=9) { return; }
++    if !matches!(event, 0..=12) { return; }
+     let Some(host) = host.and_then(|host| crate::flow_routing::validate_exact_host(host).ok()) else { return };
+     let Ok(host) = CString::new(host) else { return };
+     let callback = OBSERVER.lock().ok().and_then(|guard| *guard);

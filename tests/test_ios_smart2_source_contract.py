@@ -17,7 +17,7 @@ class IOSSmartExclusionSourceContract(unittest.TestCase):
     def test_persisted_derived_rules_require_explicit_user_approval(self):
         store = (ROOT / 'Shared' / 'ProfileStore.swift').read_text(encoding='utf-8')
         vm = (ROOT / 'App' / 'AppViewModel.swift').read_text(encoding='utf-8')
-        ui = (ROOT / 'App' / 'ContentView.swift').read_text(encoding='utf-8')
+        ui = (ROOT / 'App' / 'ExclusionsView.swift').read_text(encoding='utf-8')
         self.assertIn('smartGraph.effective(manual: manualSiteExclusions)', store)
         self.assertIn('try store.saveSmartExclusions(manual: previousManual, graph: previousGraph)', vm)
         self.assertIn('restoreAfterFailedExclusionsUpdate', vm)

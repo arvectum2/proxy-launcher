@@ -8,6 +8,18 @@ import XCTest
 final class PhysicalVPNControlledUITests: XCTestCase {
 #if APL_RUN_EXPLICIT_VPN_QA
     @MainActor
+    private func dismissLowBatteryInterruption() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let alert = springboard.alerts["Низкий заряд"]
+        guard alert.exists else { return }
+        let close = alert.buttons["Закрыть"]
+        if close.exists {
+            close.tap()
+            print("APL_PHYSICAL_QA dismissed_system_low_battery_alert=true")
+        }
+    }
+
+    @MainActor
     func testTemporaryTunnelConnectAndRealHTTPS() async throws {
 #if targetEnvironment(simulator)
         throw XCTSkip("System Packet Tunnel VPN acceptance requires an explicitly authorized physical iPhone")
@@ -18,8 +30,22 @@ final class PhysicalVPNControlledUITests: XCTestCase {
                                 "-appLanguage.v1", "ru",
                                 "-aplEphemeralTunnelQA"]
         app.launch()
-        XCTAssertTrue(app.tabBars.buttons["Главная"].waitForExistence(timeout: 15))
-        let off = app.staticTexts["Отключено"]
+        dismissLowBatteryInterruption()
+        XCTAssertTrue(app.tabBars.buttons["Домой"].waitForExistence(timeout: 15))
+        // Check the three compact primary actions before starting a bounded
+        // live VPN test; no profiles or preferences are modified here.
+        app.tabBars.buttons["Профили"].tap()
+        XCTAssertTrue(app.buttons["profiles.import"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["profiles.encryptedBackup"].exists)
+        let profileScreenshot = XCTAttachment(screenshot: app.screenshot())
+        profileScreenshot.name = "APL 0.2 compact profile actions"
+        profileScreenshot.lifetime = .keepAlways
+        add(profileScreenshot)
+        app.tabBars.buttons["Домой"].tap()
+        dismissLowBatteryInterruption()
+        // Home intentionally hides the redundant OFF caption. Button title is
+        // the observable state for physical QA and VoiceOver users.
+        let off = app.buttons["Подключиться"]
         guard off.waitForExistence(timeout: 10) else {
             throw XCTSkip("Existing device VPN is not explicitly OFF; do not interrupt it")
         }
@@ -33,7 +59,7 @@ final class PhysicalVPNControlledUITests: XCTestCase {
             let disconnect = app.buttons["Отключить"]
             if disconnect.exists { disconnect.tap() }
         }
-        guard app.staticTexts["Подключено"].waitForExistence(timeout: 12) else {
+        guard app.buttons["Отключить"].waitForExistence(timeout: 12) else {
             throw XCTSkip("No working device proxy/tunnel authorization for a controlled VPN acceptance run")
         }
         // The system VPN is on at this point. Verify an actual remote HTTPS

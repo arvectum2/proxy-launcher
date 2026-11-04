@@ -1,12 +1,29 @@
 import Foundation
 
-/// Product copy for the new Smart Exclusions surface. The existing 50 complete
-/// 155-key catalogs are immutable for the submitted release; new feature copy
-/// uses a clearly specified English fallback until each locale is reviewed.
-/// Never present Russian-only technical warnings in a non-Russian locale.
+/// Safety-sensitive Smart Exclusions copy has its own 50-language table,
+/// to avoid confusing website bypass rules with ordinary profile actions.
+/// The English dictionary remains a defensive fallback for missing keys.
 enum SmartExclusionsUX {
     private static let english: [String: String] = [
+        "Автоматически расширять исключения": "Expand website exclusions automatically",
+        "Добавить связанный домен": "Add linked domain",
+        "Адрес связанного домена": "Linked domain",
+        "Системная связь": "Built-in link",
+        "Добавлено вручную": "Added manually",
+        "В автоматическом режиме проверенные поддомены добавляются сами. В ручном режиме выбирайте их из предложений. Сохраните изменения для применения.": "Automatic mode adds verified first-party subdomains. Manual mode lets you select proposed hosts. Save to apply changes.",
+        "Добавить проблемный сайт в обход VPN?": "Bypass the VPN for this failing site?",
+        "Проверяется TLS-соединение…": "Checking TLS connection…",
+        "TLS через Wi-Fi доступен (маршрут не подтверждён)": "TLS over Wi-Fi available (route unverified)",
+        "TLS через мобильную сеть доступен (маршрут не подтверждён)": "TLS over cellular available (route unverified)",
+        "Проверка TLS не удалась": "TLS check failed",
+        "Проблемные сайты": "Connection problems",
+        "Повторные ошибки соединения через прокси": "Repeated proxy connection failures",
+        "Проверить исключение": "Review bypass",
+        "APL заметила ошибки подключения, но ещё не доказала, что прямой путь безопасен. Решение об исключении принимает пользователь.": "APL detected connection failures but has not verified a safe direct route. You decide whether to bypass.",
         "Анализ ресурсов сайта": "Checking website resources",
+        "Добавлены автоматически": "Added automatically",
+        "Связанные домены": "Related domains",
+        "Найденные в HTML и сетевых запросах поддомены добавляются автоматически. Остальные связи требуют подтверждения. Сохраните изменения и переподключитесь.": "Subdomains observed in both HTML and network requests are added automatically. Other related hosts need approval. Save changes and reconnect.",
         "Введите домен, URL или IP и нажмите «Добавить».": "Enter a domain, URL or IP address and tap Add.",
         "Адрес домена, URL или IP": "Domain, URL or IP address",
         "Домен или IP": "Domain or IP address",
@@ -57,6 +74,8 @@ enum SmartExclusionsUX {
         let language = AppL10n.effectiveLanguage
         if language == "ru" { return russian }
         if let translated = priority[language]?[russian] { return translated }
+        let contextual = AppL10n.tr(russian, table: "SmartExclusions")
+        if contextual != russian { return contextual }
         if let fallback = english[russian] { return fallback }
         let existing = AppL10n.tr(russian)
         if existing != russian { return existing }

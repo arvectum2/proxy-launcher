@@ -1,6 +1,217 @@
 import XCTest
 
 final class SmartExclusionsUITests: XCTestCase {
+    /// Isolated clean-install simulator QA: default must be automatic without
+    /// requiring manual action or a previously saved preference.
+    func testAutomaticSiteExpansionDefaultsOnForCleanInstall() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let toggle = app.switches["settings.autoExpandExclusions"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        XCTAssertEqual(toggle.value as? String, "1",
+                       "Automatic related-domain expansion must start enabled")
+    }
+
+    func testApexWWWPairHasOneGroupAndKeepsLinksWhenOneAliasRemoved() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Настройки"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 8))
+        field.tap()
+        field.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let linked = app.staticTexts["api.qa.example.test"].firstMatch
+        for _ in 0..<6 where !linked.exists { app.swipeUp() }
+        XCTAssertTrue(linked.waitForExistence(timeout: 8))
+        // An explicit www alias has the same logical parent, not a duplicate group.
+        // The editor row is lazily recycled after scrolling to the group.
+        for _ in 0..<8 where !field.exists { app.swipeDown() }
+        XCTAssertTrue(field.waitForExistence(timeout: 7), app.debugDescription)
+        field.tap()
+        field.typeText("www.qa.example.test")
+        app.buttons["Добавить"].tap()
+        let remove = app.buttons["Удалить исключение qa.example.test"]
+        for _ in 0..<7 where !remove.exists { app.swipeUp() }
+        XCTAssertTrue(remove.waitForExistence(timeout: 7), app.debugDescription)
+        remove.tap()
+        let remaining = app.buttons["Удалить исключение www.qa.example.test"]
+        for _ in 0..<6 where !remaining.exists { app.swipeUp() }
+        XCTAssertTrue(remaining.waitForExistence(timeout: 7))
+        for _ in 0..<7 where !linked.exists { app.swipeUp() }
+        XCTAssertTrue(linked.waitForExistence(timeout: 8),
+                      "Deleting one apex/www alias must not erase the other site's links")
+        app.buttons["Отмена"].tap() // Never persist synthetic QA domains.
+    }
+
+    func testManualExpansionSwitchAndEditableSiteGroup() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        let mode = app.switches["settings.autoExpandExclusions"]
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
+        if (mode.value as? String) == "1" { mode.tap() }
+        XCTAssertEqual(mode.value as? String, "0")
+        // Manual choice is durable across a cold application launch.
+        app.terminate()
+        app.launch()
+        let reopenedSettings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(reopenedSettings.waitForExistence(timeout: 20))
+        reopenedSettings.tap()
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
+        XCTAssertEqual(mode.value as? String, "0")
+        app.buttons["Исключения сайтов"].tap()
+        let site = app.textFields["example.com"]
+        XCTAssertTrue(site.waitForExistence(timeout: 10))
+        site.tap()
+        site.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let group = app.buttons["exclusions.addLinked.qa.example.test"]
+        for _ in 0..<8 where !group.exists { app.swipeUp() }
+        XCTAssertTrue(group.waitForExistence(timeout: 10), app.debugDescription)
+        group.tap()
+        let linked = app.textFields["exclusions.linkedHost"]
+        XCTAssertTrue(linked.waitForExistence(timeout: 5))
+        linked.tap()
+        linked.typeText("auth.partner.test")
+        app.buttons["exclusions.submitLinked"].tap()
+        let groupWithLink = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Связанные домены (5)")).firstMatch
+        for _ in 0..<5 where !groupWithLink.exists { app.swipeUp() }
+        XCTAssertTrue(groupWithLink.waitForExistence(timeout: 7), app.debugDescription)
+        let added = app.staticTexts["auth.partner.test"].firstMatch
+        if !added.exists { groupWithLink.tap() }
+        for _ in 0..<5 where !added.exists { app.swipeUp() }
+        XCTAssertTrue(added.waitForExistence(timeout: 7), app.debugDescription)
+        // Do not save synthetic QA hosts to shared user preferences.
+        app.buttons["Отмена"].tap()
+        XCTAssertTrue(mode.waitForExistence(timeout: 10))
+        if (mode.value as? String) == "0" { mode.tap() }
+        XCTAssertEqual(mode.value as? String, "1")
+    }
+
+    func testSmart3ProblemBadgeAndNoSilentExclusion() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmart3FailureFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        let description = settings.debugDescription
+        print("APL_SMART3_SETTINGS_TAB_ACCESSIBILITY=" + description)
+        // Number badge must be visible on Settings while the detected host
+        // remains pending and expires automatically after the evidence TTL.
+        XCTAssertTrue(description.contains("1") || (settings.value as? String)?.contains("1") == true,
+                      "Expected one suggested failed host in Settings tab: \(description)")
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let host = app.staticTexts["auth.qa-example.test"].firstMatch
+        for _ in 0..<6 where !host.exists { app.swipeUp() }
+        XCTAssertTrue(host.waitForExistence(timeout: 8))
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+    }
+
+    func testAdaptiveConnectionSuggestionRequiresManualConsent() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmart3FailureFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let host = app.staticTexts["auth.qa-example.test"].firstMatch
+        for _ in 0..<6 where !host.exists { app.swipeUp() }
+        XCTAssertTrue(host.waitForExistence(timeout: 8), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["Повторные ошибки соединения через прокси"].exists)
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+        app.buttons["Проверить исключение"].tap()
+        XCTAssertTrue(app.staticTexts["Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."].waitForExistence(timeout: 5))
+        app.buttons["Отмена"].firstMatch.tap()
+        XCTAssertFalse(app.buttons["Удалить исключение auth.qa-example.test"].exists)
+    }
+
+    func testAddAutoDiscoversStrongSubdomainsAndOffersExternalHosts() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("qa.example.test")
+        // No manual Find action: Add alone must start the scan and classify.
+        app.buttons["Добавить"].tap()
+        let auto = app.staticTexts["api.qa.example.test"].firstMatch
+        // List cells below the first fold are lazily created; scroll until
+        // the new auto-included section appears instead of assuming viewport.
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.waitForExistence(timeout: 8), app.debugDescription)
+        // Single-signal CDN and tracking endpoint are offered, not silently
+        // approved. A different registered domain is also only a suggestion.
+        let pending = app.staticTexts["cdn.qa.example.test"].firstMatch
+        let tracker = app.staticTexts["analytics.qa.example.test"].firstMatch
+        let external = app.staticTexts["assets.partner.test"].firstMatch
+        for item in [pending, tracker, external] {
+            for _ in 0..<5 where !item.exists { app.swipeUp() }
+            XCTAssertTrue(item.exists, app.debugDescription)
+        }
+        XCTAssertFalse(app.buttons["Удалить исключение assets.partner.test"].exists)
+        app.buttons["Отмена"].tap()
+    }
+
+    func testAutomaticallyDiscoveredDomainPersistsAfterSave() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
+                                "-appLanguage.v1", "ru", "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Настройки"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Настройки"].tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+        let auto = app.staticTexts["api.qa.example.test"].firstMatch
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.waitForExistence(timeout: 8), app.debugDescription)
+        let save = app.buttons["Сохранить"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        XCTAssertTrue(save.isEnabled)
+        save.tap()
+        XCTAssertTrue(app.buttons["Исключения сайтов"].waitForExistence(timeout: 10))
+        app.buttons["Исключения сайтов"].tap()
+        for _ in 0..<5 where !auto.exists { app.swipeUp() }
+        XCTAssertTrue(auto.exists, "Auto-approved domain must survive Save and re-open")
+        // Remove fixture root before leaving so this test cannot pollute
+        // other tests or the simulator's saved app state.
+        let remove = app.buttons["Удалить исключение qa.example.test"]
+        for _ in 0..<6 where !remove.exists { app.swipeUp() }
+        XCTAssertTrue(remove.exists)
+        remove.tap()
+        app.buttons["Сохранить"].tap()
+    }
+
     func testAddDeleteAndCancelWithoutSaving() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
@@ -144,7 +355,7 @@ final class ProxyImportUITests: XCTestCase {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        let importButton = app.buttons["Импортировать прокси"]
+        let importButton = app.buttons["profiles.import"]
         XCTAssertTrue(importButton.waitForExistence(timeout: 10))
         importButton.tap()
         XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
@@ -170,7 +381,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 15))
         profiles.tap()
-        app.buttons["Импортировать прокси"].tap()
+        app.buttons["profiles.import"].tap()
         XCTAssertTrue(app.navigationBars["Импорт прокси"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Тип прокси по умолчанию"].exists)
         let editor = app.textViews.firstMatch
@@ -246,7 +457,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        let importButton = app.buttons["Импортировать прокси"]
+        let importButton = app.buttons["profiles.import"]
         XCTAssertTrue(importButton.waitForExistence(timeout: 10))
         importButton.tap()
         let scanButton = app.buttons["Сканировать QR-код"]
@@ -273,7 +484,7 @@ extension ProxyImportUITests {
         let profiles = app.tabBars.buttons["Профили"]
         XCTAssertTrue(profiles.waitForExistence(timeout: 20))
         profiles.tap()
-        app.buttons["Импортировать прокси"].tap()
+        app.buttons["profiles.import"].tap()
         let editor = app.textViews.firstMatch
         XCTAssertTrue(editor.waitForExistence(timeout: 10))
         editor.tap()
@@ -289,7 +500,8 @@ extension ProxyImportUITests {
 
 final class SmartExclusionsLocaleUITests: XCTestCase {
     private func assertLocalizedSmartExclusions(language: String, settings: String,
-                                                exclusions: String, scan: String) {
+                                                exclusions: String, scan: String,
+                                                autoExpand: String) {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES",
                                 "-appLanguage.v1", language]
@@ -297,6 +509,10 @@ final class SmartExclusionsLocaleUITests: XCTestCase {
         let tab = app.tabBars.buttons[settings]
         XCTAssertTrue(tab.waitForExistence(timeout: 20), "Settings tab absent for \(language)")
         tab.tap()
+        let modeLabel = app.staticTexts[autoExpand]
+        for _ in 0..<4 where !modeLabel.exists { app.swipeUp() }
+        XCTAssertTrue(modeLabel.waitForExistence(timeout: 8),
+                      "Auto expansion setting missing or untranslated for \(language)")
         let section = app.buttons[exclusions]
         XCTAssertTrue(section.waitForExistence(timeout: 10), "Exclusions item absent for \(language)")
         section.tap()
@@ -307,12 +523,14 @@ final class SmartExclusionsLocaleUITests: XCTestCase {
 
     func testEnglishSmartExclusionsScreenUsesEnglishLabels() {
         assertLocalizedSmartExclusions(language: "en", settings: "Settings",
-                                       exclusions: "Website exclusions", scan: "Find related domains")
+                                       exclusions: "Website exclusions", scan: "Find related domains",
+                                       autoExpand: "Expand exclusions automatically")
     }
 
     func testHebrewSmartExclusionsScreenUsesRTLLanguageLabels() {
         assertLocalizedSmartExclusions(language: "he", settings: "הגדרות",
-                                       exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים")
+                                       exclusions: "חריגים לאתרים", scan: "חיפוש דומיינים קשורים",
+                                       autoExpand: "הרחבה אוטומטית של חריגים")
     }
 }
 

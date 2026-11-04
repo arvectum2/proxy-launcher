@@ -27,6 +27,8 @@ struct SmartDependency: Codable, Equatable, Identifiable {
     var evidence: SmartEvidence
     var decision: SmartDecision
     var lastSeen: Date
+    /// User explicitly linked this host to a parent site. Optional for old stored graphs.
+    var userLinked: Bool? = nil
     var id: String { parent + "|" + host }
 }
 enum SmartGraphError: LocalizedError {
@@ -42,6 +44,9 @@ enum SmartGraphError: LocalizedError {
 struct SmartExclusionGraph: Codable, Equatable {
     static let ttl: TimeInterval = 7 * 86400
     var edges: [SmartDependency] = []
+    /// Explicit removals are tombstones: a rescan must not silently resurrect
+    /// a deleted child. Optional for decoding graphs from previous versions.
+    var suppressed: [String]? = nil
     static func root(_ site: String) -> String? {
         guard let s = try? SiteExclusionPolicy.normalize(site),
               SiteDependencyDiscovery.isScannableHost(s) else { return nil }
@@ -57,13 +62,22 @@ struct SmartExclusionGraph: Codable, Equatable {
         // Treat persistence as potentially malformed: do not let duplicate
         // IDs, unbounded parents or arbitrary child names expand direct routes.
         var byID: [String: SmartDependency] = [:]
-        for edge in edges where edge.lastSeen <= now && now.timeIntervalSince(edge.lastSeen) < Self.ttl {
-            guard Self.validChild(edge.host, for: edge.parent),
+        for edge in edges where edge.lastSeen <= now &&
+                (edge.userLinked == true || now.timeIntervalSince(edge.lastSeen) < Self.ttl) {
+            guard !(suppressed ?? []).contains(edge.id) else { continue }
+            let validObserved = Self.validChild(edge.host, for: edge.parent)
+            let validExplicit = edge.userLinked == true &&
+                SiteDependencyDiscovery.isScannableHost(edge.host) &&
+                edge.host != edge.parent && edge.host != "www." + edge.parent
+            guard (validObserved || validExplicit),
                   Self.root(edge.parent) == edge.parent else { continue }
             if let previous = byID[edge.id] {
                 // Conflicting duplicate decisions must not silently approve.
                 var kept = edge.lastSeen > previous.lastSeen ? edge : previous
-                if edge.decision != previous.decision { kept.decision = .pending }
+                if edge.decision != previous.decision || edge.userLinked != previous.userLinked {
+                    kept.decision = .pending
+                    kept.userLinked = nil
+                }
                 byID[edge.id] = kept
             } else { byID[edge.id] = edge }
         }
@@ -77,13 +91,21 @@ struct SmartExclusionGraph: Codable, Equatable {
             parents.insert(edge.parent)
             counts[edge.parent, default: 0] += 1
         }
-        return Self(edges: result)
+        let denies = Array(Set((suppressed ?? []).filter { identifier in
+            let parts = identifier.split(separator: "|", omittingEmptySubsequences: false)
+            guard parts.count == 2 else { return false }
+            let parent = String(parts[0]), host = String(parts[1])
+            return Self.root(parent) == parent && SiteDependencyDiscovery.isScannableHost(host)
+        })).sorted().prefix(SiteExclusionPolicy.maxEntries * SiteDependencyDiscovery.maxCandidates)
+        return Self(edges: result, suppressed: Array(denies))
     }
     mutating func observe(parent raw: String, html: [String], network: [String], at now: Date = Date()) throws {
         guard let parent = Self.root(raw) else { throw SmartGraphError.invalidParent }
         let htmlSet = Set(html.filter { Self.validChild($0, for: parent) })
         let networkSet = Set(network.filter { Self.validChild($0, for: parent) })
-        let hosts = htmlSet.union(networkSet)
+        let hosts = htmlSet.union(networkSet).filter { host in
+            !(suppressed ?? []).contains(parent + "|" + host)
+        }
         guard hosts.count <= SiteDependencyDiscovery.maxCandidates else { throw SmartGraphError.tooMany }
         var proposed = pruned(at: now)
         guard Set(proposed.edges.map(\.parent)).union([parent]).count <= SiteExclusionPolicy.maxEntries else {
@@ -106,16 +128,78 @@ struct SmartExclusionGraph: Codable, Equatable {
         proposed.edges.sort { $0.id < $1.id }
         self = proposed
     }
+    /// Automatically include only first-party hosts observed in BOTH the
+    /// rendered page and actual runtime resource requests. An unobserved,
+    /// rejected, cross-site or ambiguous host is never granted DIRECT.
+    /// Preserve both existing user decisions and the 32-rule hard limit.
+    @discardableResult
+    mutating func approveStrongFirstParty(parent raw: String, manual: [String],
+                                          at now: Date = Date()) -> [String] {
+        guard let parent = Self.root(raw),
+              (try? SiteExclusionPolicy.normalizeAll(manual))?
+                  .contains(where: { Self.root($0) == parent }) == true else { return [] }
+        var approved: [String] = []
+        for i in edges.indices where edges[i].parent == parent &&
+                edges[i].decision == .pending && edges[i].evidence == .both &&
+                Self.validChild(edges[i].host, for: parent) &&
+                SiteDependencyDiscovery.eligibleForAutomaticBypass(edges[i].host) {
+            edges[i].decision = .approved
+            if (try? effective(manual: manual, at: now)) != nil {
+                approved.append(edges[i].host)
+            } else {
+                edges[i].decision = .pending
+            }
+        }
+        return approved.sorted()
+    }
+
+    /// User-initiated links can include external authentication domains. They
+    /// are never inferred from a third-party resource or shared CDN IP.
+    mutating func addUserLink(parent raw: String, child rawChild: String,
+                              at now: Date = Date()) throws {
+        guard let parent = Self.root(raw),
+              let child = try? SiteExclusionPolicy.normalize(rawChild),
+              SiteDependencyDiscovery.isScannableHost(child),
+              child != parent, child != "www." + parent else { throw SmartGraphError.invalidChild }
+        var proposed = pruned(at: now)
+        proposed.suppressed?.removeAll { $0 == parent + "|" + child }
+        if let i = proposed.edges.firstIndex(where: { $0.parent == parent && $0.host == child }) {
+            proposed.edges[i].decision = .approved
+            proposed.edges[i].userLinked = true
+            proposed.edges[i].lastSeen = now
+        } else {
+            guard proposed.edges.filter({ $0.parent == parent }).count < SiteDependencyDiscovery.maxCandidates,
+                  Set(proposed.edges.map { $0.parent }).union([parent]).count <= SiteExclusionPolicy.maxEntries
+            else { throw SmartGraphError.tooMany }
+            proposed.edges.append(.init(parent: parent, host: child, evidence: .network,
+                                        decision: .approved, lastSeen: now, userLinked: true))
+        }
+        proposed.edges.sort { $0.id < $1.id }
+        self = proposed
+    }
+
     mutating func set(_ decision: SmartDecision, parent raw: String, child: String) throws {
-        guard let root = Self.root(raw), Self.validChild(child, for: root),
-              let i = edges.firstIndex(where: { $0.parent == root && $0.host == child }) else {
+        guard let root = Self.root(raw),
+              let i = edges.firstIndex(where: { $0.parent == root && $0.host == child }),
+              Self.validChild(child, for: root) ||
+                (edges[i].userLinked == true && SiteDependencyDiscovery.isScannableHost(child)) else {
             throw SmartGraphError.invalidChild
         }
         edges[i].decision = decision
+        // A user denial must survive rescans and expiry.
+        if decision == .rejected { edges[i].userLinked = true }
     }
     mutating func remove(parent raw: String, child: String? = nil) {
         guard let root = Self.root(raw) else { return }
-        edges.removeAll { $0.parent == root && (child == nil || $0.host == child) }
+        if let child {
+            guard SiteDependencyDiscovery.isScannableHost(child) else { return }
+            let id = root + "|" + child
+            if !(suppressed ?? []).contains(id) { suppressed = (suppressed ?? []) + [id] }
+            edges.removeAll { $0.parent == root && $0.host == child }
+        } else {
+            edges.removeAll { $0.parent == root }
+            suppressed = (suppressed ?? []).filter { !$0.hasPrefix(root + "|") }
+        }
     }
     func approved(at now: Date = Date()) -> [String] {
         Array(Set(pruned(at: now).edges.filter { $0.decision == .approved }.map(\.host))).sorted()

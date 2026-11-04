@@ -156,7 +156,29 @@ final class VPNController: ObservableObject {
         // switches: one in the app, one in the Packet Tunnel extension.
         // This option is never used in App Store distribution binaries.
         if ProcessInfo.processInfo.arguments.contains("-aplEphemeralTunnelQA") {
-            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: 25)
+            let scopedLab = ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")
+            let radioHandoffQA = scopedLab &&
+                ProcessInfo.processInfo.arguments.contains("-aplSmart3RadioHandoffQA")
+            let qaLimit = radioHandoffQA ? 95 : scopedLab ? 30 : 25
+            tunnelOptions["qaStopAfterSeconds"] = NSNumber(value: qaLimit)
+            if radioHandoffQA { tunnelOptions["qaRadioHandoff"] = NSNumber(value: true) }
+            UserDefaults(suiteName: AppShared.defaultsSuite)?
+                .set(qaLimit, forKey: "qaSmart3RadioRequestedDuration.v1")
+            if ProcessInfo.processInfo.arguments.contains("-aplSmart3LocalProxyQA") {
+                // Disposable physical QA only; no saved credentials/profiles.
+                tunnelOptions["qaSmart3ProxyHost"] = "192.168.1.80" as NSString
+                tunnelOptions["qaSmart3ProxyPort"] = NSNumber(value: 18081)
+                if ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA") {
+                    tunnelOptions["qaScopedDirect"] = NSNumber(value: true)
+                    if ProcessInfo.processInfo.arguments.contains("-aplSmart3PathResetLabQA") {
+                        tunnelOptions["qaResetDirectAfterSeconds"] = NSNumber(value: 17)
+                    }
+                    if ProcessInfo.processInfo.arguments.contains("-aplSmart3TTLResetLabQA") {
+                        tunnelOptions["qaDirectTTLSeconds"] = NSNumber(value: 4)
+                    }
+                }
+            }
         }
 #endif
         try session.startTunnel(options: tunnelOptions)

@@ -19,13 +19,16 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertIn('@AppStorage("appearanceMode.v1")', view)
         self.assertIn('.preferredColorScheme(AppearanceMode(rawValue: appearanceMode)?.colorScheme)', app)
         self.assertIn('case .system: return nil', appearance)
-        self.assertIn('Picker("Тема оформления"', view)
+        self.assertIn('Picker("Тема оформления"', (IOS/'App/CompactSettingsView.swift').read_text(encoding='utf8'))
+        self.assertIn('CompactSettingsView(',view)
 
     def test_no_fixed_dark_palette_on_main_screens(self):
         view = (IOS / "App" / "ContentView.swift").read_text(encoding="utf-8")
-        self.assertIn('static let canvas = adaptive(', view)
-        self.assertIn('static let graphite = adaptive(', view)
-        self.assertIn('static let text = adaptive(', view)
+        theme=(IOS/'App/BrandTheme.swift').read_text(encoding='utf8')
+        self.assertIn('static let canvas = adaptive(',theme)
+        self.assertIn('static let graphite = adaptive(',theme)
+        self.assertIn('static let text = adaptive(',theme)
+        self.assertIn('enum Brand {',theme)
         self.assertNotIn('Brand.navy.ignoresSafeArea()', view)
         self.assertNotIn('.foregroundStyle(.white)', view)
         disclosure = (IOS / "App" / "PrivacyDisclosureView.swift").read_text(encoding="utf-8")
@@ -35,10 +38,10 @@ class IOSAppearanceContractTests(unittest.TestCase):
     def test_release_version_and_project_consistent(self):
         yml = (IOS / "project.yml").read_text(encoding="utf-8")
         pbx = (IOS / "ArvectumProxyLauncherIOS.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
-        self.assertIn('MARKETING_VERSION: "0.1.42"', yml)
-        self.assertIn('CURRENT_PROJECT_VERSION: "47"', yml)
-        self.assertEqual(pbx.count('MARKETING_VERSION = 0.1.42;'), 2)
-        self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 47;'), 2)
+        self.assertIn('MARKETING_VERSION: "0.2.0"', yml)
+        self.assertIn('CURRENT_PROJECT_VERSION: "48"', yml)
+        self.assertEqual(pbx.count('MARKETING_VERSION = 0.2.0;'), 2)
+        self.assertEqual(pbx.count('CURRENT_PROJECT_VERSION = 48;'), 2)
 
     def test_ads_enabled_in_release_only_main_app(self):
         config = (IOS / "project.yml").read_text(encoding="utf-8")
@@ -58,8 +61,13 @@ class IOSAppearanceContractTests(unittest.TestCase):
         self.assertIn('https://github.com/yandexmobile/yandex-ads-sdk-ios', config)
         self.assertIn('product: YandexMobileAds', config)
         self.assertIn('R-M-20288304-1', banner)
-        self.assertIn('SettingsBannerView()', home)
-        self.assertIn('VStack(spacing: 0)', home)
+        self.assertIn('SettingsBannerView(', home)
+        self.assertIn('TabView(selection: $destination)', home)
+        mobile_home = home.split('private var homeScreen: some View {', 1)[1].split('private var dashboardCardMaxHeight', 1)[0]
+        self.assertLess(mobile_home.index('homeMeasured("header")'),
+                        mobile_home.index('SettingsBannerView('))
+        self.assertLess(mobile_home.index('SettingsBannerView('),
+                        mobile_home.index('homeConnectControl'))
         self.assertNotIn('.safeAreaInset(edge: .bottom, spacing: 0)', home)
 
 

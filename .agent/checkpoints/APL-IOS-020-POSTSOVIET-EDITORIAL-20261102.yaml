@@ -1,0 +1,24 @@
+task_id: APL-IOS-020-POSTSOVIET-EDITORIAL-20261102
+status: completed
+goal: "Independent-model bilingual semantic/editorial re-read and repair of 11 new post-Soviet UI locale catalogues, avoiding falsely claiming human native-speaker certification."
+definition_of_done:
+  - "Review all 11 new UI language catalogs for functional meaning, destructive-action polarity, proxy/exception/routing terminology, primary/failover, file import, privacy, labels, style and grammar with focused cross-language comparison."
+  - "Fix discovered semantic/editorial mistakes in source .strings; preserve stable keys/technical tokens/placeholder formats and existing 64-language picker and App Store metadata."
+  - "Add targeted regression contracts for objectively dangerous misinterpretations and language register, run locale audits and relevant tests + simulator build if changed strings are bundled."
+  - "Record an honest detailed language-by-language report, preserve Apple 0.1.41 review, all consumer data and metadata, commit and push clean Draft PR branch, then close checkpoint."
+completed:
+  - "Baseline clean git HEAD 277b1f43; previous 64-language expansion checkpoint completed; 11 locale files present and previous 44 tests PASS."
+current: "COMPLETE: self-directed semantic editorial repair of 350 UI strings in all 11 locales, including harmful inverse routing, profile backup and automation mistakes; 64-language audit, 320/320 plutil, 37/37 targeted tests, arm64 iOS Simulator build 64 .lproj PASS; no human native-speaker certification claimed."
+pending: []
+future_release_gates:
+  - "Native-speaker editorial validation of safety-critical translation across low-resource tk/tg/ky/ka/hy, plus remaining full corpus, before claiming human-grade publication-ready text. Machine/model editor review is not native human certification."
+  - "If release authorized: rebuild signed Apple Distribution IPA from a reviewed commit; wait for Apple 0.1.41 review before any next-version edits/upload."
+
+last_verified_commit: "0be8994a (iOS UI resource tree ae63737f5d367fde9e1f358d01e4f1851c28fa7a; checkpoint status completion commit comes next)"
+test_results:
+  - "350 corrected locale text entries across 11 languages; git diff --check PASS. Structured editorial/semantic report docs/APL_IOS_020_POSTSOVIET_11_EDITORIAL_REVIEW_2026-11-02.md."
+  - "37/37 focused pytest checks PASS, including new tests/test_ios_post_soviet_editorial.py; earlier hard-coded 50-locale unit tests updated for current 64-language source."
+  - "64-language scripts/ios_020_locale_audit.py PASS; 320/320 .strings plutil -lint PASS, scripts/ios_active_release_preflight.py PASS."
+  - "ARM64 iOS Simulator BUILD SUCCEEDED, 64 .lproj in built app. ASO 50/50 variants, 100 screenshots unchanged; no Apple API writes nor personal iPhone/proxy changes."
+
+resume_instruction: "Task COMPLETE at commit 0be8994a. Independently performed model-based source copy review across 11 post-Soviet locale tables (be et lv lt ka hy az kk tk ky tg), fixed 350 faulty translations including backwards routing and destructive copy, literal numeric hallucinations and duplicates; 37 focused tests, 320 resource lints, 64 locale audit, ARM64 Simulator build PASS. Not a native-human editorial signoff; for native-certified release review keep separate QA gate. Do not repeat work unless source changes. Apple 0.1.41 review, 0.2.0 Draft PR #296, user iPhone/Keychain/proxy, ad/privacy metadata, and disabled Watchdog untouched; no upload or merge."

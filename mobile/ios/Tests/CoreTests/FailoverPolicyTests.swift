@@ -18,6 +18,78 @@ final class FailoverPolicyTests: XCTestCase {
         XCTAssertEqual(ordered, [b, c, a])
     }
 
+    func testHealthyBackupsUseMeasuredSpeedButRespectPrimaryAndFailure() {
+        let a = UUID(), b = UUID(), c = UUID(), d = UUID()
+        let policy = FailoverPolicy()
+        XCTAssertEqual(policy.orderCandidates(profileIDs: [a,b,c,d], primaryID: a,
+            lastSuccessfulID: b, recentlyFailedID: nil, latencies: [c: 120, d: 35]), [a,b,d,c])
+        XCTAssertEqual(policy.orderCandidates(profileIDs: [a,b,c,d], primaryID: a,
+            lastSuccessfulID: b, recentlyFailedID: d, latencies: [c: 120, d: 35]), [a,b,c,d])
+    }
+
+    func testLargePaidProxyListHasBoundedConnectionAttempts() {
+        let ids = (0..<200).map { _ in UUID() }
+        let ranked = FailoverPolicy().connectionCandidates(
+            profileIDs: ids, primaryID: ids[100], lastSuccessfulID: ids[150],
+            recentlyFailedID: ids[50], latencies: [ids[180]: 23, ids[190]: 45]
+        )
+        XCTAssertEqual(ranked.count, 6)
+        XCTAssertEqual(ranked.prefix(4), [ids[100], ids[150], ids[180], ids[190]])
+        XCTAssertFalse(ranked.contains(ids[50]))
+    }
+
+    func testRecentlyFailedProxyIsNotRetriedInSmallOrSingleEntryList() {
+        let failed = UUID(), healthy = UUID()
+        let policy = FailoverPolicy()
+        XCTAssertEqual(policy.connectionCandidates(
+            profileIDs: [failed, healthy], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: failed), [healthy])
+        XCTAssertTrue(policy.connectionCandidates(
+            profileIDs: [failed], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: failed).isEmpty)
+        XCTAssertEqual(policy.connectionCandidates(
+            profileIDs: [failed], primaryID: failed,
+            lastSuccessfulID: failed, recentlyFailedID: nil), [failed])
+    }
+
+    func testConnectionMonitoringReducesProbeRateWithoutSingleFailureFlapping() {
+        let policy = FailoverPolicy()
+        XCTAssertEqual(policy.tuning.healthInterval, 10)
+        XCTAssertFalse(policy.failureConfirmed(1))
+        XCTAssertTrue(policy.failureConfirmed(2))
+    }
+
+    func testFailedPrimaryRecheckIsThrottledIndependently() {
+        let now = Date()
+        let policy = FailoverPolicy()
+        XCTAssertFalse(policy.shouldProbePrimary(now: now, lastAttempt: nil,
+            lastSwitch: now.addingTimeInterval(-10)))
+        XCTAssertTrue(policy.shouldProbePrimary(now: now, lastAttempt: nil,
+            lastSwitch: now.addingTimeInterval(-30)))
+        XCTAssertFalse(policy.shouldProbePrimary(now: now,
+            lastAttempt: now.addingTimeInterval(-10), lastSwitch: now.addingTimeInterval(-30)))
+        XCTAssertTrue(policy.shouldProbePrimary(now: now,
+            lastAttempt: now.addingTimeInterval(-31), lastSwitch: now.addingTimeInterval(-35)))
+    }
+
+    func testReturnToPrimaryToggleOffKeepsWorkingBackup() {
+        let primary = UUID(), backup = UUID()
+        let now = Date()
+        let policy = FailoverPolicy()
+        // No automatic switch-back when the owner disables the toggle.
+        XCTAssertFalse(policy.shouldRestorePrimary(
+            policy: .stayOnCurrent, currentID: backup, primaryID: primary,
+            primaryAvailable: true, now: now, lastSwitch: nil))
+        // With the toggle enabled the available preferred route is eligible.
+        XCTAssertTrue(policy.shouldRestorePrimary(
+            policy: .returnToPrimary, currentID: backup, primaryID: primary,
+            primaryAvailable: true, now: now, lastSwitch: nil))
+        // Even with the toggle enabled, do not switch to an unavailable route.
+        XCTAssertFalse(policy.shouldRestorePrimary(
+            policy: .returnToPrimary, currentID: backup, primaryID: primary,
+            primaryAvailable: false, now: now, lastSwitch: nil))
+    }
+
     func testRestorePolicyHonorsCooldown() {
         let a = UUID(), b = UUID()
         XCTAssertFalse(FailoverPolicy().shouldRestorePrimary(

@@ -35,6 +35,19 @@
 	<string>Камера используется для сканирования QR-кодов с настройками прокси.</string>
 	<key>CFBundleURLTypes</key>
 	<array><dict><key>CFBundleURLSchemes</key><array><string>arvectum-proxy</string></array></dict></array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>ru.arvectum.proxylauncher.aplbackup</string>
+			<key>UTTypeDescription</key>
+			<string>Arvectum encrypted proxy profiles</string>
+			<key>UTTypeConformsTo</key>
+			<array><string>public.data</string></array>
+			<key>UTTypeTagSpecification</key>
+			<dict><key>public.filename-extension</key><array><string>aplbackup</string></array></dict>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>SKAdNetworkItems</key>

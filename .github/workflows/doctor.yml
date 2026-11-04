@@ -36,6 +36,10 @@ on:
 permissions:
   contents: read
 
+# Avoid Windows cp1252 decoding failures when reading UTF-8 source contracts.
+env:
+  PYTHONUTF8: '1'
+
 jobs:
   contract:
     name: Doctor contract (${{ matrix.os }})

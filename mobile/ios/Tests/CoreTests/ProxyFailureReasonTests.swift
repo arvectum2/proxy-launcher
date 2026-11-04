@@ -47,6 +47,12 @@ final class ProxyFailureReasonTests: XCTestCase {
         XCTAssertEqual(ProxyFailureReason.forHTTPConnectStatus(502), .rejected)
     }
 
+    func testEngineDrainTimeoutIsReportedAsSafeTunnelFailure() {
+        let reason = ProxyFailureReason.classify(TunnelEngineDrainError.timeout)
+        XCTAssertEqual(reason, .tunnel)
+        XCTAssertEqual(reason.code, "VPN")
+    }
+
     func testExactErrorCodesAreStable() {
         XCTAssertEqual(ProxyFailureReason.authentication.code, "AUTH")
         XCTAssertEqual(ProxyFailureReason.http407.code, "HTTP 407")

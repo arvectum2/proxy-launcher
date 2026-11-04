@@ -50,6 +50,9 @@ enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
 
     static func classify(_ error: Error) -> Self {
         if let diagnostic = error as? ProxyDiagnosticError { return diagnostic.reason }
+        // A timed-out engine handoff is a tunnel failure, not an unknown
+        // network problem or a reason to reveal internal socket details.
+        if error is TunnelEngineDrainError { return .tunnel }
         return classify(error as NSError, depth: 0)
     }
 

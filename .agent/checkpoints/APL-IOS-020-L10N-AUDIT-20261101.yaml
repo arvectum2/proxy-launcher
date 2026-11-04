@@ -1,0 +1,22 @@
+task_id: APL-IOS-020-L10N-AUDIT-20261101
+status: completed
+goal: Full UI/UX and source audit of all 50 iOS 0.2 localizations.
+definition_of_done:
+  - Verify 50 catalogs, fallback and formatting.
+  - Inspect signed simulator UI in representative scripts and all-locale geometry.
+  - Fix unambiguous localization regressions and publish report.
+completed:
+  - 50x155 legacy entries, 95 new entries RU/EN, 48 English-fallback languages.
+  - 16 localized QuickActions tables; 34 remain for separate P1.
+  - Reused old native translations for four primary labels; fixed backup Close, Russian Home guide, RTL proxy address and common errors.
+  - iPhone 13 Simulator geometry 50/50; signed Settings screenshots 13 locales, Home 8.
+  - 18/18 focused contracts PASS; signed Simulator build PASS.
+current: Completed.
+pending:
+  - Human-reviewed native translation of 95 new keys in 48 languages, 34 QuickActions catalogs.
+  - Small-screen / XXL Dynamic Type and full RTL accessibility follow-up.
+last_verified_commit: 5c60dc52
+test_results:
+  - 50/50 resources valid; 0 duplicate keys, malformed placeholders or empty values.
+  - Signed Simulator build PASS, targeted 18 tests PASS, visual sample PASS.
+resume_instruction: Completed. See docs/APL_IOS_020_LOCALIZATION_AUDIT_2026-11-01.md. Do not repeat source tests when translating additional locales.

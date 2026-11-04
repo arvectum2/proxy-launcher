@@ -9,8 +9,22 @@ final class PhysicalAccessibilityUITests: XCTestCase {
         let settings = app.tabBars.buttons["Настройки"]
         XCTAssertTrue(settings.waitForExistence(timeout: 20))
         settings.tap()
-        app.buttons["Исключения сайтов"].tap()
-        XCTAssertTrue(app.navigationBars["Исключения сайтов"].waitForExistence(timeout: 10))
+        let exclusionsButton = app.buttons["settings.siteExclusions"]
+        // With physical VoiceOver enabled, a single tap may focus the element
+        // instead of activating it. Double-tap only if navigation did not occur.
+        // The same test continues to work with VoiceOver disabled.
+        if !exclusionsButton.waitForExistence(timeout: 2) {
+            settings.doubleTap()
+        }
+        XCTAssertTrue(exclusionsButton.waitForExistence(timeout: 10),
+                      "Settings must be accessible with or without VoiceOver")
+        exclusionsButton.tap()
+        let exclusionsTitle = app.navigationBars["Исключения"]
+        if !exclusionsTitle.waitForExistence(timeout: 2) {
+            exclusionsButton.doubleTap()
+        }
+        XCTAssertTrue(exclusionsTitle.waitForExistence(timeout: 10),
+                      "Site exclusions screen must be reachable by VoiceOver activation")
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "APL Smart Exclusions physical baseline"
         attachment.lifetime = .keepAlways

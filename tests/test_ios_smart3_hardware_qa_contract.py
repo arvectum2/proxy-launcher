@@ -1,0 +1,103 @@
+"""Hardware tests are opt-in and do not silently leak user traffic/settings."""
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / 'mobile/ios'
+
+
+def test_hardware_qa_defaults_to_synthetic_and_scoped_egress_is_opt_in():
+    driver = (SRC/'App/Smart3PhysicalTrafficQA.swift').read_text()
+    tunnel = (SRC/'PacketTunnel/PacketTunnelProvider.swift').read_text()
+    vpn = (SRC/'App/VPNController.swift').read_text()
+    test = (SRC/'Tests/UITests/Smart3LiveTunnelPhysicalUITests.swift').read_text()
+    assert 'probe.qa-example.test' in driver and driver.count('auth.qa-example.test') == 2
+    # Default physical test remains entirely synthetic. A SEPARATE explicitly
+    # enabled DEBUG-only experiment probes two public TLS hosts; it does not
+    # alter stored profiles and can never run in a normal Release binary.
+    assert 'let labDirect = ProcessInfo.processInfo.arguments.contains("-aplSmart3ScopedDirectLabQA")' in driver
+    assert 'let ipv6OnlyLab = labDirect && ProcessInfo.processInfo.arguments.contains("-aplSmart3IPv6OnlyLabQA")' in driver
+    assert 'let target = ipv6OnlyLab ? "ipv6.google.com" : "www.apple.com"' in driver
+    assert 'labDirect ? ["www.cloudflare.com", target, target]' in driver
+    assert 'testIPv6OnlyFailsClosedWithCanonicalNeighborProxy' in test
+    assert ': ["probe.qa-example.test", "auth.qa-example.test", "auth.qa-example.test"]' in driver
+    assert 'APL_SMART3_SCOPED_QA' in test
+    assert 'throw XCTSkip("Explicit scoped egress QA opt-in required")' in test
+    assert 'qaScopedDirect' in tunnel and 'if exactHostDirect { args +=' in tunnel
+    assert '#if DEBUG' in driver and '#if DEBUG' in tunnel and '#if DEBUG' in vpn
+    assert 'qaStopAfterSeconds' in tunnel and 'cancelTunnelWithError' in tunnel
+    assert 'qaStopAfterSeconds' in vpn
+    assert 'APL_SMART3_HARDWARE_QA' in test
+    assert 'throw XCTSkip' in test
+    assert 'testLiveVPTunnelPerHostCONNECTSignalWithAutoRollback' in test
+
+
+def test_physical_probe_is_diagnostic_not_proof_of_noproxy():
+    probe = (SRC/'App/AdaptiveDirectProbe.swift').read_text()
+    view = (SRC/'App/ExclusionsView.swift').read_text()
+    test = (SRC/'Tests/UITests/AdaptiveDirectProbePhysicalUITests.swift').read_text()
+    assert 'requiredInterfaceType' in probe
+    assert 'currentPath?.usesInterfaceType' in probe
+    assert 'TLS' in probe
+    assert 'маршрут не подтверждён' in view
+    assert 'APL_SMART3_HARDWARE_QA' in test
+    assert 'testPhysicalTLSProbeDisplaysBoundedDiagnostic' in test
+    assert 'no-proxy' not in probe.lower() or 'NOT' in probe
+
+
+def test_synthetic_evidence_can_only_be_cleared_when_no_real_hosts_exist():
+    store = (SRC/'Shared/ProfileStore.swift').read_text()
+    viewmodel = (SRC/'App/AppViewModel.swift').read_text()
+    assert 'clearSyntheticSmart3QAEvidence' in store
+    assert 'state.hosts.keys.allSatisfy({ $0.hasSuffix(".qa-example.test") })' in store
+    assert 'state.rejected.isEmpty' in store
+    assert 'defaults.removeObject(forKey: Key.adaptiveLearning)' in store
+    assert 'aplSmart3CleanQAOnlyEvidence' in viewmodel
+    assert 'store.clearSyntheticSmart3QAEvidence()' in viewmodel
+
+
+def test_bounded_proxy_qa_script_never_forwards_external_destinations():
+    qa = (ROOT/'scripts/qa_smart3_local_proxy.py').read_text()
+    assert 'auth.qa-example.test:443' in qa and 'probe.qa-example.test:443' in qa
+    assert 'time.sleep(13.8)' in qa
+    assert 'threading.Timer(115, server.shutdown)' in qa
+    assert 'HTTP/1.1 403 Forbidden' in qa
+    assert 'socket.create_connection' not in qa
+
+
+def test_radio_handoff_needs_explicit_95sec_bounded_lab_and_logs_true_interfaces():
+    vpn = (SRC/'App/VPNController.swift').read_text()
+    tunnel = (SRC/'PacketTunnel/PacketTunnelProvider.swift').read_text()
+    collector = (SRC/'PacketTunnel/SmartFlowEventCollector.swift').read_text()
+    assert '"-aplSmart3RadioHandoffQA"' in vpn
+    assert 'radioHandoffQA ? 95 : scopedLab ? 30 : 25' in vpn
+    assert 'qaRadioHandoff' in vpn and 'qaRadioHandoff' in tunnel
+    assert 'value.intValue == 95 && qaScopedDirect' in tunnel
+    assert 'qaSmart3ProxyHost' in tunnel and '192.168.1.80' in tunnel
+    assert 'qaSmart3RadioUnderlay.v1' in collector
+    assert 'path.usesInterfaceType(.wifi)' in collector
+    assert 'path.usesInterfaceType(.cellular)' in collector
+    assert 'hadDirect: !self.activeDirectHosts.isEmpty' in collector
+    assert '#if DEBUG' in collector
+
+
+def test_standalone_ipv6_tlspayload_probe_is_debug_only_and_interface_bound():
+    src=(SRC/'App/IPv6PhysicalDiagnosticsQA.swift').read_text()
+    view=(SRC/'App/ContentView.swift').read_text()
+    assert '#if DEBUG' in src
+    assert 'ipv6.google.com' in src
+    assert 'NWParameters(tls: tls, tcp: NWProtocolTCP.Options())' in src
+    assert 'params.requiredInterfaceType = interface' in src
+    assert 'lab ipv6 http data' in src
+    assert '-aplIPv6PhysicalDiagnosticsQA' in src and '-aplIPv6PhysicalDiagnosticsQA' in view
+
+
+def test_physical_underlay_monitor_is_independent_of_virtual_vpn_path():
+    collector=(SRC/'PacketTunnel/SmartFlowEventCollector.swift').read_text()
+    assert 'physicalInterfaceSnapshot()' in collector
+    assert 'DispatchSource.makeTimerSource(queue: self.queue)' in collector
+    assert 'physical interface changed' in collector
+    assert 'if changed {' in collector
+    assert 'revokeAllDirect(reason: "physical interface changed")' in collector
+    assert 'name == "en0"' in collector and '"pdp_ip0"' in collector
+    assert 'if name == "en0" { wifi = true } else { cellular = true }' in collector
+    assert 'name == "en0"' in collector
+    assert 'physicalUnderlayTimer?.cancel()' in collector

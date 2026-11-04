@@ -1,27 +1,34 @@
-task_id: APL-IOS-BULK-PROXY-IMPORT-20261101
-status: completed
-goal: 'Support provider-formatted proxy imports host:port:login:password, TXT/CSV/XML batches on iOS while preserving existing URLs, QR, credentials and App Store submission.'
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-020-PUBLIC-RELEASE-20261104
+status: in_progress
+goal: "Finish iOS 0.2.0(48), reconcile repository/roadmap, migrate safely and submit for public App Review."
 definition_of_done:
-  - 'Accept HTTP/HTTPS/SOCKS5 links and multiline supplier host:port:login:password, including bracketed IPv6 and colons in passwords.'
-  - 'Import UTF-8 TXT, CSV with EN/RU header aliases or positional fields, and structured XML proxy elements/attributes; reject external XML entities and invalid lists wholesale.'
-  - 'Apply selectable HTTP/HTTPS/SOCKS5 default to entries without protocol, limit 200 proxies/256000 bytes, show preview without credentials, preserve duplicate filtering.'
-  - 'Focused Swift and iOS simulator UI tests pass, document behavior and merge PR on green checks.'
+  - "Existing iOS 0.1.41 published and verified."
+  - "Preserved old profile/Keychain/exception schemas verified against 0.1.41; disclose any unverified real binary migration."
+  - "iOS 0.2.0 Smart3 exact-host physical QA, 64 locales, Rust/Swift/Python and signed IPA verified."
+  - "Two active RSYA formats, privacy disclosures unchanged."
+  - "Final release notes, 47 Apple locales and 94 screenshots verified."
+  - "Release branch integrated into origin/main, superseded draft PRs closed, CI assessed."
+  - "Version 0.2.0(48) successfully submitted for public Apple App Review."
 completed:
-  - 'Inspected origin/main 4136d683: prior parser accepted HTTP/HTTPS/SOCKS5 URLs only; TXT supported URLs, CSV/XML and vendor raw strings absent.'
-  - 'Implemented bounded RAW/TXT, CSV with headers/positional entries and quoted fields, XML with attributes/child elements and DTD/entity rejection; old URLs and QR preserved.'
-  - 'Added iOS HTTP/HTTPS/SOCKS5 default protocol picker, CSV/XML files in picker, translated import labels and errors, no password in preview.'
-  - 'Added 11 Swift parser tests; total 71/71 PASS.'
-  - 'iOS Simulator Debug build-for-testing PASS; targeted provider raw preview XCUITest PASS (15.367s), no fake profile saved; existing URL preview UI PASS.'
-  - 'Five focused Python iOS onboarding/preview contract tests PASS; git diff --check PASS.'
-  - 'Documented format examples, 200/256KB limit, XML safety and explicit App Store release exclusion in docs/ROADMAP.md and docs/APL_IOS_042_BULK_PROXY_IMPORT_2026-11-01.md.'
-  - 'Production/source implementation committed as 520411a4 on isolated branch feat/ios-bulk-proxy-import-20261101.'
-current: 'Implementation and targeted QA complete; protected PR/green CI merge is the only remaining mechanical action.'
-pending: []
-last_verified_commit: '520411a4 (71/71 Swift PASS, focused iOS Simulator UI PASS, iOS build-for-testing PASS)'
+  - "2026-11-04: recovered Smart3 e54a9051 / source f0a93f8a, physical dualstack IPv4/IPv6, Safari, QUIC fail closed, handoff and rollback accepted from original checkpoint."
+  - "ASC API verified iOS 0.1.41(46) READY_FOR_SALE."
+  - "Created iOS 0.2.0 version e8d364e7-07c9-4ba2-bece-862f7905320a with AFTER_APPROVAL."
+  - "Apple ContentDelivery uploaded signed IPA SHA256 7e716fad3a946fc4c7623acef57fe174939eae9ddf612617358ec5f1f9fe60fe; build48 b60b4825-d72f-455e-a681-2941e4aca438 VALID, attached; encryption usesNonExemptEncryption=false."
+  - "Updated all 47 Apple WhatsNew locale records; 94 inherited App Store screenshots verified COMPLETE."
+  - "Built source-reconstructed 0.1.41(46) and latest 0.2.0 Simulator app; signed 0.1.41 native Swift profile decoding and data-key compatibility audited; synthetic source-reconstructed Simulator upgrade 0.1.41(46)→0.2.0(48) preserved 8/8 App Group SHA256 values and same App Group container; real iPhone Keychain upgrade unverified; owner iPhone/proxies untouched."
+  - "Added new legacy 0.1.41 migration Swift fixtures and 4 Python persistence contracts; 134 Swift Core tests PASS, 4 Python contracts PASS."
+  - "Added App Store 0.2.0 guarded repeatable release tool and new 4 Nov roadmap/release report."
+current: "Apple App Review successfully submitted; integrate PR #306 after CI, close five superseded draft PRs, verify final GitHub merge and complete checkpoint."
+pending:
+  - "DONE: 180 iOS Python+84 subtests, merged Swift Core135/135; Windows CI portability followup in release branch."
+  - "Merge release branch onto fresh origin/main, review CI and close superseded draft PRs."
+  - "DONE: Apple 0.2.0 version WAITING_FOR_REVIEW, review fc47d4f2-0490-4e6b-a22a-5c1aaf8ca35b WAITING_FOR_REVIEW, release AFTER_APPROVAL."
+  - "Outside technical release: independent native-speaker QA and real binary upgrade with Keychain on disposable properly provisioned device not completed; do not assert otherwise."
+last_verified_commit: "e54a90516054b0b810fa8d872c999bca7a4bad07 (Smart3 verified code baseline; release docs/test commit pending)"
 test_results:
-  - 'Swift package: 71/71 PASS (11 new importer cases).'
-  - 'iOS Simulator build-for-testing: TEST BUILD SUCCEEDED.'
-  - 'iOS Simulator provider raw preview: PASS 15.367s; old URL preview: PASS; no profiles imported.'
-  - 'Python focused onboarding+format contracts: 5/5 PASS.'
-  - 'Physical iPhone, stored profiles and submitted Apple 0.1.41 (46): unchanged.'
-resume_instruction: 'Source branch /tmp/apl-ios-bulk-proxy-import-20261101, 520411a4, fully implemented and targeted verified; push PR to protected main, merge after all required GitHub CI is green, then verify remote main SHA. Avoid any new VPN test campaign or App Store Connect mutation. iOS 0.1.42 (47) source only; physical iPhone still runs prior build until separate release.'
+  - "Prior iPhone Smart3 physical Safari IPV4/IPV6/RSYA all PASS; Rust17, Swift132, Python176+73."
+  - "New Swift legacy 0.1.41 migration Core tests 134/134 PASS; Python frozen 0.1.41 storage + Keychain source contracts 4/4 PASS."
+  - "Apple 47 release notes, 94 processed screenshots, 0.2.0 build48 VALID and selected, App Store review WAITING_FOR_REVIEW."
+resume_instruction: "Work only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-020-release-final-20261104. Preserve the stale dirty root checkout. Check Python final QA job 0f46e7f6-cd7a-4593-9634-f1edcfca1b4e. Fetch origin/main and merge validated release branch; ensure production mobile/ios tree matches f0a93f8a. GitHub CI and App Review are next. Submit via python3 mobile/ios/ASO/release_020.py --submit --confirm-version 0.2.0 only after readiness. Owner explicitly approved 2026-11-04. Keep single existing Watchdog."

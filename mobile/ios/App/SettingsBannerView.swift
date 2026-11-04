@@ -8,6 +8,8 @@ import YandexMobileAds
 enum IOSAdsConfig {
     static let productionBannerUnitID = "R-M-20288304-1"
     static let demoBannerUnitID = "demo-banner-yandex"
+    static let nativeAdUnitID = "R-M-20288304-2"
+    static let demoNativeUnitID = "demo-native-content-yandex"
 
     static let labels: [String: String] = [
         "ru": "Реклама",
@@ -60,6 +62,20 @@ enum IOSAdsConfig {
         "sr": "Оглас",
         "hr": "Oglas",
         "ca": "Anunci",
+        "or": "ବିଜ୍ଞାପନ",
+        "sl": "Oglas",
+        "uk": "Реклама",
+        "be": "Рэклама",
+        "et": "Reklaam",
+        "lv": "Reklāma",
+        "lt": "Reklama",
+        "ka": "რეკლამა",
+        "hy": "Գովազդ",
+        "az": "Reklam",
+        "kk": "Жарнама",
+        "tk": "Mahabat",
+        "ky": "Жарнама",
+        "tg": "Реклама",
     ]
     static var localizedAdLabel: String {
         labels[AppL10n.effectiveLanguage] ?? labels["en"] ?? "Ad"
@@ -69,62 +85,135 @@ enum IOSAdsConfig {
     // Explicit opt-in for local QA. Never contact production RSYA in debug builds.
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER")
     static let activeBannerUnitID = demoBannerUnitID
+    static let activeNativeAdUnitID = demoNativeUnitID
 #else
     // Production banner enabled by explicit owner directive; App Store privacy metadata is unchanged.
     static let isEnabled = true
     static let activeBannerUnitID = productionBannerUnitID
+    static let activeNativeAdUnitID = nativeAdUnitID
 #endif
 }
 
-/// Non-blocking native ad footer alongside the iPhone TabView; never appears in the tunnel extension.
+/// Non-blocking, adaptive inline banner directly under the Home wordmark.
+/// Never stretches the ad creative or appears in the tunnel extension.
 /// No VPN connection state, domains, proxy settings or other user data are sent.
+enum IOSBannerPlacement {
+    case primary, secondary
+}
+
 struct SettingsBannerView: View {
+    let adWidth: CGFloat
+    let maxAdHeight: CGFloat
+    var placement: IOSBannerPlacement = .primary
+
+    @Environment(\.scenePhase) private var scenePhase
     @State private var bannerState: BannerState?
     @State private var loaded = false
     @State private var failed = false
+    @State private var attempts = 0
+    @State private var lastFailureAt: Date?
+    @State private var retryTask: Task<Void, Never>?
+
     private let logger = Logger(subsystem: "ru.arvectum.proxylauncher.ios", category: "RSYA")
+    private var statusKey: String {
+        placement == .primary ? "rsya.bannerStatus.v1" : "rsya.bannerStatus.secondary.v1"
+    }
+    private let maxAttempts = 2
+    // After two no-fill/network failures, do not make perpetual ad requests.
+    // A new foreground session MAY retry once after the recovery cooldown.
+    private let recoveryCooldown: TimeInterval = 15 * 60
+    private let retryDelayNs: UInt64 = 45_000_000_000
 
     var body: some View {
-        Group {
+        VStack(spacing: 0) {
             if IOSAdsConfig.isEnabled, !failed {
                 if let bannerState {
-                VStack(alignment: .leading, spacing: 4) {
-                    if loaded {
-                        Text(IOSAdsConfig.localizedAdLabel)
-                            .font(.caption)
-                            .foregroundStyle(Brand.softGray)
+                    VStack(alignment: .leading, spacing: 4) {
+                        if loaded {
+                            Text(IOSAdsConfig.localizedAdLabel)
+                                .font(.caption2)
+                                .foregroundStyle(Brand.softGray)
+                        }
+                        Banner(state: bannerState)
+                            .onAdLoad { _ in
+                                loaded = true
+                                failed = false
+                                lastFailureAt = nil
+                                UserDefaults.standard.set("loaded", forKey: statusKey)
+                                logger.info("RSYA banner loaded")
+                            }
+                            .onAdFailure { error in
+                                let nsError = error as NSError
+                                logger.error("RSYA banner load failed: code=\(nsError.code) domain=\(nsError.domain, privacy: .public)")
+                                UserDefaults.standard.set("failed: \(nsError.code)", forKey: statusKey)
+                                loaded = false
+                                failed = true
+                                lastFailureAt = Date()
+                                scheduleRetryIfNeeded()
+                            }
+                            .onAdImpression { _ in
+                                UserDefaults.standard.set("impression", forKey: statusKey)
+                                logger.info("RSYA banner impression")
+                            }
+                            // SDK .inline(width:maxHeight:) computes the
+                            // creative height. Do not impose a second fixed
+                            // frame that can distort the winning ad.
+                            .frame(maxWidth: .infinity)
+                            .accessibilityHidden(!loaded)
                     }
-                    Banner(state: bannerState)
-                        .onAdLoad { _ in
-                            loaded = true
-                            logger.info("RSYA banner loaded")
-                        }
-                        .onAdFailure { error in
-                            logger.error("RSYA banner load failed: \(String(describing: error), privacy: .public)")
-                            loaded = false
-                            failed = true  // No retry storm; hide failed request.
-                        }
-                        .onAdImpression { _ in
-                            logger.info("RSYA banner impression")
-                        }
-                        // Yandex sticky banners need their full adaptive area
-                        // (at least 50pt) even *before* loading succeeds.
-                        .frame(minHeight: 50)
-                        .frame(maxWidth: .infinity)
-                        .accessibilityHidden(!loaded)
-                }
-                .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity)
                 } else {
-                    Color.clear.frame(height: 50)
+                    Color.clear.frame(height: placement == .primary ? 80 : 42)
                 }
             }
         }
         .onAppear {
-            guard IOSAdsConfig.isEnabled, bannerState == nil, !failed else { return }
-            bannerState = BannerState(
-                size: .sticky(),
-                request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID)
-            )
+            guard IOSAdsConfig.isEnabled else { return }
+            if bannerState == nil { requestBanner() }
+            else if failed { scheduleRetryIfNeeded() }
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .active, failed { scheduleRetryIfNeeded() }
+        }
+        .onDisappear {
+            retryTask?.cancel()
+            retryTask = nil
+        }
+    }
+
+    private func requestBanner() {
+        guard attempts < maxAttempts else { return }
+        attempts += 1
+        loaded = false
+        failed = false
+        UserDefaults.standard.set("request-\(attempts)", forKey: statusKey)
+        // Separate instances have separate retry budgets and callback keys.
+        // Use the existing registered Yandex unit until a dedicated second
+        // placement unit is provisioned; never stretch the actual creative.
+        bannerState = BannerState(
+            size: placement == .secondary
+                ? .sticky(width: max(1, adWidth))
+                : .inline(width: max(1, adWidth), maxHeight: maxAdHeight),
+            request: AdRequest(adUnitID: IOSAdsConfig.activeBannerUnitID)
+        )
+    }
+
+    private func scheduleRetryIfNeeded() {
+        guard retryTask == nil else { return }
+        if attempts >= maxAttempts {
+            guard let lastFailureAt,
+                  Date().timeIntervalSince(lastFailureAt) >= recoveryCooldown else { return }
+            attempts = 0
+        }
+        guard attempts < maxAttempts else { return }
+        retryTask = Task { @MainActor in
+            do { try await Task.sleep(nanoseconds: retryDelayNs) }
+            catch { return }
+            retryTask = nil
+            guard !Task.isCancelled, scenePhase == .active else { return }
+            // One delayed retry after a transient SDK/no-fill failure, never
+            // a request storm. SDK handles normal refresh after a success.
+            requestBanner()
         }
     }
 }

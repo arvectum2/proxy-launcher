@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import hashlib
+import plistlib
 import os
 import shutil
 import subprocess
@@ -22,6 +24,10 @@ TOOLS = Path(__file__).resolve().parent
 TARGET = ROOT / "Frameworks" / "tun2proxy.xcframework"
 LOCKFILE = TOOLS / "tun2proxy-v0.8.3.Cargo.lock"
 SPLIT_DNS_PATCH = TOOLS / "tun2proxy-split-dns.patch"
+FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
+SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
+SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
+DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-dual-stack-physical-family.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -106,7 +112,7 @@ def developer_dir() -> str:
     raise SystemExit("A full Xcode installation is required to link tun2proxy for iOS")
 
 
-def build_patched_library(tmpdir: Path) -> Path:
+def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) -> dict[str, Path]:
     source = tmpdir / "source"
     run("git", "clone", "--depth", "1", "--branch", VERSION, REPOSITORY, str(source))
     actual_commit = run("git", "rev-parse", "HEAD", cwd=source).strip()
@@ -127,10 +133,30 @@ def build_patched_library(tmpdir: Path) -> Path:
 
     run("git", "apply", "--check", str(SPLIT_DNS_PATCH), cwd=source)
     run("git", "apply", str(SPLIT_DNS_PATCH), cwd=source)
+    # Separate, additive patch: classifies individual TCP connections by
+    # virtual-DNS host identity, but deliberately does not enable alternate
+    # physical egress in the iOS packet tunnel (Apple TN3120).
+    run("git", "apply", "--check", str(FLOW_INTENT_PATCH), cwd=source)
+    run("git", "apply", str(FLOW_INTENT_PATCH), cwd=source)
+    # Source-pinned physical-scoped exact-host transport. The CLI stays
+    # opt-in; real iPhone Packet Tunnel selects it after safety checks.
+    run("git", "apply", "--check", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
+    run("git", "apply", str(SCOPED_DIRECT_EXPERIMENT_PATCH), cwd=source)
+    # Original TCP is retained through host-specific proxy failures,
+    # with separate physical verification and fail-closed defaults.
+    run("git", "apply", "--check", str(SAME_FLOW_RETRY_PATCH), cwd=source)
+    run("git", "apply", str(SAME_FLOW_RETRY_PATCH), cwd=source)
+    # Scoped dual-stack per-host TCP. IPv6 Wi-Fi server TLS reset is
+    # retried over cellular only after bounded first TLS-record validation.
+    # Raw-IP/UDP and unrelated names never inherit this permission.
+    run("git", "apply", "--check", str(DIRECT_FAMILY_PATCH), cwd=source)
+    run("git", "apply", str(DIRECT_FAMILY_PATCH), cwd=source)
 
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
     run(rustup, "target", "add", "aarch64-apple-ios", "--toolchain", RUST_TOOLCHAIN)
+    if include_simulator:
+        run(rustup, "target", "add", "aarch64-apple-ios-sim", "--toolchain", RUST_TOOLCHAIN)
 
     cargo = cargo_path()
     env = os.environ.copy()
@@ -138,24 +164,88 @@ def build_patched_library(tmpdir: Path) -> Path:
     env["PATH"] = cargo_home_bin + os.pathsep + env.get("PATH", "")
     env["DEVELOPER_DIR"] = developer_dir()
     print(f"Using DEVELOPER_DIR={env['DEVELOPER_DIR']}")
-    run(
-        cargo,
-        f"+{RUST_TOOLCHAIN}",
-        "build",
-        "--release",
-        "--locked",
-        "--target",
-        "aarch64-apple-ios",
-        cwd=source,
-        env=env,
+    result: dict[str, Path] = {}
+    for target in (["aarch64-apple-ios", "aarch64-apple-ios-sim"] if include_simulator
+                   else ["aarch64-apple-ios"]):
+        run(
+            cargo,
+            f"+{RUST_TOOLCHAIN}",
+            "build",
+            "--release",
+            "--locked",
+            "--target",
+            target,
+            cwd=source,
+            env=env,
+        )
+        library = source / "target" / target / "release" / "libtun2proxy.a"
+        if not library.is_file():
+            raise SystemExit(f"Patched tun2proxy library for {target} was not produced")
+        result[target] = library
+    return result
+
+
+def install_flow_event_header(framework: Path) -> None:
+    """Expose the added pinned Rust C ABI consistently across device/sim."""
+    header = framework / "ios-arm64" / "Headers" / "tun2proxy.h"
+    value = header.read_text(encoding="utf-8")
+    signature = "void tun2proxy_set_flow_event_callback("
+    if signature not in value:
+        anchor = "int tun2proxy_stop(void);"
+        if value.count(anchor) != 1:
+            raise SystemExit("tun2proxy public header anchor changed")
+        value = value.replace(anchor, anchor + "\n\n" +
+            "/* 0=CONNECT_OK, 1=TIMEOUT, 2=REFUSED, 3=OTHER, 4=UPSTREAM_DOWN */\n" +
+            "void tun2proxy_set_flow_event_callback(\n" +
+            "    void (*callback)(const char *host, uint64_t connection_id, int32_t event, void *ctx),\n" +
+            "    void *ctx);", 1)
+    signature = "int32_t tun2proxy_set_direct_exact_host("
+    if signature not in value:
+        value = value.replace("void tun2proxy_set_flow_event_callback(",
+            "/* Experimental only: 5=DIRECT_FAIL, 6=DIRECT_TCP, 7=SAME_FLOW_RECOVERED. */\n"
+            "int32_t tun2proxy_set_direct_exact_host(const char *host, bool enable);\n\n"
+            "void tun2proxy_set_flow_event_callback(", 1)
+    header.write_text(value, encoding="utf-8")
+
+
+def add_simulator_slice(framework: Path, library: Path) -> None:
+    """Attach a *patched*, source-pinned ARM64 simulator slice for UI-target CI.
+
+    The official downloaded v0.8.3 archive only has an iPhoneOS slice.
+    Reusing that slice for the simulator fails to link or load on macOS.
+    """
+    device_headers = framework / "ios-arm64" / "Headers"
+    simulator = framework / "ios-arm64-simulator"
+    simulator.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(device_headers, simulator / "Headers", dirs_exist_ok=True)
+    shutil.copy2(library, simulator / "libtun2proxy.a")
+    with (framework / "Info.plist").open("rb") as stream:
+        info = plistlib.load(stream)
+    info["AvailableLibraries"] = [
+        item for item in info["AvailableLibraries"]
+        if item.get("LibraryIdentifier") != "ios-arm64-simulator"
+    ] + [{
+        "BinaryPath": "libtun2proxy.a",
+        "HeadersPath": "Headers",
+        "LibraryIdentifier": "ios-arm64-simulator",
+        "LibraryPath": "libtun2proxy.a",
+        "SupportedArchitectures": ["arm64"],
+        "SupportedPlatform": "ios",
+        "SupportedPlatformVariant": "simulator",
+    }]
+    with (framework / "Info.plist").open("wb") as stream:
+        plistlib.dump(info, stream)
+    (simulator / "Headers" / "module.modulemap").write_text(
+        'module tun2proxy {\n    header "tun2proxy.h"\n    export *\n}\n',
+        encoding="utf-8",
     )
-    library = source / "target" / "aarch64-apple-ios" / "release" / "libtun2proxy.a"
-    if not library.is_file():
-        raise SystemExit("Patched tun2proxy library was not produced")
-    return library
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Build source-pinned, locally patched tun2proxy for iOS")
+    parser.add_argument("--with-simulator", action="store_true",
+                        help="Also build patched ARM64 iOS Simulator slice for UI tests")
+    args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="apl-ios-tun2proxy-") as tmp:
         tmpdir = Path(tmp)
         archive = tmpdir / "tun2proxy.zip"
@@ -176,9 +266,12 @@ def main() -> None:
         if not upstream_library.is_file():
             raise SystemExit("Unexpected tun2proxy iOS archive layout")
 
-        patched_library = build_patched_library(tmpdir)
-        shutil.copy2(patched_library, upstream_library)
+        patched_libraries = build_patched_libraries(tmpdir, include_simulator=args.with_simulator)
+        shutil.copy2(patched_libraries["aarch64-apple-ios"], upstream_library)
         patched_sha256 = digest(upstream_library)
+        install_flow_event_header(source_framework)
+        if args.with_simulator:
+            add_simulator_slice(source_framework, patched_libraries["aarch64-apple-ios-sim"])
 
         shutil.rmtree(TARGET, ignore_errors=True)
         TARGET.parent.mkdir(parents=True, exist_ok=True)
@@ -194,9 +287,11 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-exact-host-split-dns\n"
+            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
-            f"patched_library_sha256={patched_sha256}\n",
+            f"patched_library_sha256={patched_sha256}\n"
+            + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"
+               if args.with_simulator else ""),
             encoding="utf-8",
         )
         print(f"Installed patched {TARGET.relative_to(ROOT)}")

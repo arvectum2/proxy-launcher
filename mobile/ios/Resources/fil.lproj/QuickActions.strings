@@ -1,0 +1,4 @@
+/* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
+"Подключить APL" = "Ikonekta ang APL";
+"Отключить APL" = "Idiskonekta ang APL";
+"Переключить APL" = "I-toggle ang APL";

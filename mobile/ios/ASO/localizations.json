@@ -2,7 +2,7 @@
   "scope": "App Store Connect metadata for iOS only",
   "state": "editorial_source_ready_not_uploaded",
   "appBundleId": "ru.arvectum.proxylauncher.ios",
-  "supportedLocaleCount": 47,
+  "supportedLocaleCount": 50,
   "localizations": [
     {
       "locale": "ru",
@@ -801,6 +801,57 @@
         "01_profiles": "פרופילים מרובים, סדרי עדיפויות ומעבר אוטומטי לפרוקסי גיבוי",
         "02_direct_exceptions": "חריגים לאתרים שזקוקים לחיבור ישיר",
         "03_app_automation": "אוטומציות לאפליקציות נבחרות דרך קיצורים ב־iOS"
+      }
+    },
+    {
+      "locale": "or-IN",
+      "iosLanguage": "or",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "ପ୍ରକ୍ସି ପ୍ରୋଫାଇଲ୍ ଓ SOCKS5",
+      "description": "ନିଜ ପ୍ରକ୍ସି ସର୍ଭର ମାଧ୍ୟମରେ iPhone କୁ ସଂଯୋଗ କରନ୍ତୁ ଏବଂ ସହଜରେ ପରିଚାଳନା କରନ୍ତୁ।\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• ଏକାଧିକ ପ୍ରୋଫାଇଲ୍, ପ୍ରାଥମିକତା ଏବଂ ସ୍ୱୟଂଚାଳିତ ବ୍ୟାକଅପ୍ ପ୍ରକ୍ସି\n• ସିଧାସଳଖ ସଂଯୋଗ ପାଇଁ ୱେବସାଇଟ୍ ବ୍ୟତିକ୍ରମ\n• iOS Shortcuts ମାଧ୍ୟମରେ ଚୟନିତ ଆପ୍‌ର ସ୍ୱୟଂଚାଳନ\n• ସେଟିଂସ୍ ଡିଭାଇସ୍‌ରେ ରହେ, ପାସୱାର୍ଡ Keychain ରେ ସୁରକ୍ଷିତ\n\nନିଜ ପ୍ରକ୍ସି ସର୍ଭର ଦରକାର; APL ପ୍ରକ୍ସି ସେବା ଯୋଗାଏ ନାହିଁ।",
+      "keywords": "ପ୍ରକ୍ସି,ପ୍ରୋଫାଇଲ୍,ସଂଯୋଗ",
+      "promotionalText": "ନିଜ ପ୍ରକ୍ସି ସର୍ଭର ମାଧ୍ୟମରେ iPhone କୁ ସଂଯୋଗ କରନ୍ତୁ ଏବଂ ସହଜରେ ପରିଚାଳନା କରନ୍ତୁ।",
+      "whatsNew": "ନୂତନ ଭାଷା ଏବଂ ସହଜ ପ୍ରକ୍ସି ପରିଚାଳନା ଯୋଡ଼ାଗଲା।",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "ଏକାଧିକ ପ୍ରୋଫାଇଲ୍, ପ୍ରାଥମିକତା ଏବଂ ସ୍ୱୟଂଚାଳିତ ବ୍ୟାକଅପ୍ ପ୍ରକ୍ସି",
+        "02_direct_exceptions": "ସିଧାସଳଖ ସଂଯୋଗ ପାଇଁ ୱେବସାଇଟ୍ ବ୍ୟତିକ୍ରମ",
+        "03_app_automation": "iOS Shortcuts ମାଧ୍ୟମରେ ଚୟନିତ ଆପ୍‌ର ସ୍ୱୟଂଚାଳନ"
+      }
+    },
+    {
+      "locale": "sl-SI",
+      "iosLanguage": "sl",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Profili proxy in SOCKS5",
+      "description": "Povežite iPhone prek lastnega posredniškega strežnika in preprosto upravljajte povezavo.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Več profilov, prednostne naloge in samodejni preklop na rezervni proxy\n• Izjeme za spletna mesta, ki potrebujejo neposredno povezavo\n• Avtomatizacije izbranih aplikacij z bližnjicami iOS\n• Nastavitve ostanejo v napravi, gesla pa v Keychainu\n\nPotreben je lasten proxy strežnik; APL ne zagotavlja proxy storitve.",
+      "keywords": "omrežje,proxy,profili,varnost,izjeme",
+      "promotionalText": "Povežite iPhone prek lastnega posredniškega strežnika in preprosto upravljajte povezavo.",
+      "whatsNew": "Dodani so novi jeziki in preglednejše upravljanje profilov.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Več profilov, prednostne naloge in samodejni preklop na rezervni proxy",
+        "02_direct_exceptions": "Izjeme za spletna mesta, ki potrebujejo neposredno povezavo",
+        "03_app_automation": "Avtomatizacije izbranih aplikacij z bližnjicami iOS"
+      }
+    },
+    {
+      "locale": "uk",
+      "iosLanguage": "uk",
+      "name": "Arvectum Proxy Launcher",
+      "subtitle": "Проксі та SOCKS5",
+      "description": "Підключайте iPhone через власний проксі-сервер і зручно керуйте з’єднанням.\n\n• HTTP, HTTPS CONNECT, SOCKS5\n• Кілька профілів, пріоритети й автоматичне перемикання на резервний проксі\n• Винятки для сайтів, яким потрібне пряме з’єднання\n• Автоматизації вибраних програм через Швидкі команди iOS\n• Налаштування зберігаються на пристрої, паролі — у В’язці ключів\n\nПотрібен власний проксі-сервер; APL не надає доступу до проксі-серверів.",
+      "keywords": "проксі,мережа,профілі,резерв,винятки",
+      "promotionalText": "Підключайте iPhone через власний проксі-сервер і зручно керуйте з’єднанням.",
+      "whatsNew": "Додано нові мови інтерфейсу та покращено керування проксі.",
+      "supportUrl": "https://arvectum.com/",
+      "marketingUrl": "https://arvectum.com/",
+      "screenshots": {
+        "01_profiles": "Кілька профілів, пріоритети й автоматичне перемикання на резервний проксі",
+        "02_direct_exceptions": "Винятки для сайтів, яким потрібне пряме з’єднання",
+        "03_app_automation": "Автоматизації вибраних програм через Швидкі команди iOS"
       }
     }
   ]

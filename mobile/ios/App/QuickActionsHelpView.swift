@@ -4,7 +4,10 @@ import SwiftUI
 /// are localized by iOS using QuickActions.strings and system language.
 enum QuickActionsCopy {
     static func text(_ ru: String, en: String) -> String {
-        AppL10n.effectiveLanguage == "ru" ? ru : en
+        // App-level language controls this help sheet independently of the
+        // system language used by iOS for the actual App Intents labels.
+        let value = AppL10n.tr(ru)
+        return value == ru && AppL10n.effectiveLanguage != "ru" ? en : value
     }
 
     static func action(_ key: String) -> String {

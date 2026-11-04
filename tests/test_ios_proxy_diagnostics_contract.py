@@ -18,7 +18,7 @@ class IOSProxyDiagnosticsContractTests(unittest.TestCase):
         self.assertIn('case .http407: return "HTTP 407"', core)
         self.assertNotIn('error.localizedDescription', core)
         locales = list((IOS / "Resources").glob('*.lproj/Localizable.strings'))
-        self.assertEqual(len(locales), 50)
+        self.assertEqual(len(locales), 64)
         for locale in locales:
             self.assertIn('"недоступен"', locale.read_text(encoding="utf-8"))
 

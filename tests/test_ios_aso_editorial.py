@@ -4,18 +4,18 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 ASO=ROOT/'mobile/ios/ASO'
 IOS=ROOT/'mobile/ios/Resources'
-EXPECTED={'ru','en-US','en-GB','en-AU','en-CA','es-ES','es-MX','fr-FR','fr-CA','de-DE','it','pt-BR','pt-PT','ja','ko','zh-Hans','zh-Hant','nl-NL','id','tr','hi','ar-SA','vi','pl','th','ur-PK','bn-BD','pa-IN','ta-IN','te-IN','mr-IN','gu-IN','kn-IN','ml-IN','ms','ro','hu','cs','sk','el','he','sv','da','fi','no','hr','ca'}
+EXPECTED={'ru','en-US','en-GB','en-AU','en-CA','es-ES','es-MX','fr-FR','fr-CA','de-DE','it','pt-BR','pt-PT','ja','ko','zh-Hans','zh-Hant','nl-NL','id','tr','hi','ar-SA','vi','pl','th','ur-PK','bn-BD','pa-IN','ta-IN','te-IN','mr-IN','gu-IN','kn-IN','ml-IN','ms','ro','hu','cs','sk','el','he','sv','da','fi','no','hr','ca','or-IN','sl-SI','uk'}
 P=re.compile(r'^"((?:\\.|[^"\\])*)" = "((?:\\.|[^"\\])*)";$')
 def catalog(lang):
  p=IOS/f'{lang}.lproj/Localizable.strings'
  return dict(m.groups() for line in p.read_text().splitlines() if (m:=P.fullmatch(line)))
 
-def test_full_47_app_store_locales_and_apple_limits():
+def test_full_50_app_store_locales_and_apple_limits():
  payload=json.loads((ASO/'localizations.json').read_text())
  entries=payload['localizations']
- assert payload['supportedLocaleCount']==47 and len(entries)==47
+ assert payload['supportedLocaleCount']==50 and len(entries)==50
  assert {x['locale'] for x in entries}==EXPECTED
- assert len({x['iosLanguage'] for x in entries})==42
+ assert len({x['iosLanguage'] for x in entries})==45
  names={x['locale']:x['iosLanguage'] for x in entries}
  assert names['no']=='nb' and names['ur-PK']=='ur' and names['bn-BD']=='bn'
  assert names['pa-IN']=='pa' and names['mr-IN']=='mr'
