@@ -31,8 +31,8 @@ struct ConnectionPressurePolicy {
     }
 
     /// Recover proactively before DNS requests stall as TCP sockets accumulate.
-/// Two consecutive 10-second samples debounce transient traffic bursts.
-/// Hard limits bypass the debounce, but not the minimum recovery interval.
+    /// Two consecutive 10-second samples debounce transient traffic bursts.
+    /// Hard limits bypass the debounce, but not the minimum recovery interval.
     /// Recover only the embedded tun2proxy engine after sustained pressure.
     mutating func shouldRecover(sample: Sample, at now: Date, tunnelIsSwitching: Bool) -> Bool {
         guard !tunnelIsSwitching else {
@@ -47,8 +47,13 @@ struct ConnectionPressurePolicy {
         guard hard || consecutivePressureSamples >= requiredConsecutiveSamples else {
             return false
         }
-        if let lastRecoveryAt, now.timeIntervalSince(lastRecoveryAt) < minimumRecoveryInterval {
-            return false
+        if let lastRecoveryAt {
+            let elapsed = now.timeIntervalSince(lastRecoveryAt)
+            // Retain cooldown through small NTP corrections. A large backwards
+            // system-clock jump must not disable recovery for hours, however.
+            if elapsed >= -minimumRecoveryInterval && elapsed < minimumRecoveryInterval {
+                return false
+            }
         }
         lastRecoveryAt = now
         consecutivePressureSamples = 0
@@ -65,7 +70,12 @@ struct TunnelAutoReconnectPolicy {
         guard !explicitDisconnect, let failureAt else { return false }
         let age = now.timeIntervalSince(failureAt)
         guard age >= 0, age <= 45 else { return false }
-        attempts.removeAll { now.timeIntervalSince($0) > 10 * 60 }
+        attempts.removeAll {
+            let elapsed = now.timeIntervalSince($0)
+            // Drop attempts outside the bounded window in either direction:
+            // a large backwards clock correction must not exhaust retry budget.
+            return elapsed > 10 * 60 || elapsed < -(10 * 60)
+        }
         guard attempts.count < 3 else { return false }
         attempts.append(now)
         return true
