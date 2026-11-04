@@ -2,22 +2,26 @@ version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
 status: blocked
-goal: "Port tested native Rust FIN half-close socket lifetime bound to the source-pinned iOS tun2proxy build, preventing stuck upstream CLOSE_WAIT after peer FIN."
+goal: "Ship native TCP half-close lifetime rootfix safely in iOS 0.2.1, without risking user proxy traffic or violating Apple's NetworkExtension constraints."
 definition_of_done:
-  - "Keep release 0.2.0 App Review, owner's iPhone/profiles, Tailscale/ARC and macOS root-fix branch intact."
-  - "Apply exact source-pinned bounded half-close patch to iOS after existing Smart3 patches; preserve ABI and DNS routing."
-  - "Rebuild pinned native Rust device/simulator artifacts; pass actual live TCP FIN tests, static source contracts, app/PacketTunnel ARM64 Simulator build."
-  - "Commit and push reviewable PR with honest physical iPhone gate; merge only after CI and hardware safety gates."
+  - "Pinned tun2proxy Rust fix and source tests pass; production TCP routes/profiles/credentials and Apple 0.2.0(48) review remain untouched."
+  - "Pass controlled independent physical iPhone FIN/CLOSE_WAIT and proxy-egress QA, including Safari upload/download, reconnect, Wi-Fi/LTE switching and fallback."
+  - "Verify no truncation of legitimate long-lived upload/download under 2-second upstream FIN and 30-second client FIN bounds; revise patch if regressions are observed."
+  - "Build and verify production iPhoneOS App+PacketTunnel after hardware gate and full exact-head hosted CI; merge PR #314 only when all gates pass."
 completed:
-  - "MacOS own worktree had proof of 4 async Rust half-close tests, including real TCP FIN; patch includes 2s upstream EOF and 30s browser EOF bounds."
-  - "Created iOS isolated worktree from origin/main, copied identical independent patch, and registered it in fetch script after Smart3 dual-stack patch."
-current: "Draft PR #314 open at source commit 6ee71fda; 21/21 Rust, 135/135 Swift, 107 Python and ARM64 Simulator app+PacketTunnel PASS. Blocked on hosted PR checks and independent disposable-device physical TCP E2E."
+  - "Draft PR #314 preserves source-pinned tun2proxy v0.8.3 and app routing; Rust fix bounds upstream FIN to 2s and client FIN to 30s."
+  - "Original draft 21 Rust, 135 Swift, 107 Python (1 skipped), ARM64 Simulator app+PacketTunnel build PASS."
+  - "Source-only stress QA PR #328 merged ONLY into draft feature branch at 429a19db906c466a541ffebf7a1ddf52167aeac8 with 7/7 GitHub CI green."
+  - "Additional real loopback proof: 23 Rust PASS, 25x6 tests 150 PASS covering 500 upstream FIN cycles, byte-exact delayed 128KiB download after client 32KiB upload, and upstream socket EOF."
+  - "Swift135/135, full iOS Python111 (1 skipped), pinned iPhoneOS and Simulator native release lib builds PASS; shipping native patch byte-identical before and after cfg(test) additions."
+current: "BLOCKED: Draft PR #314 contains tested native rootfix and stronger real TCP stress proof; it is NOT safe to merge into main before independent physical FIN/CLOSE_WAIT and egress/long transfer acceptance. Owner's physical iPhone and production VPN remain untouched."
 pending:
-  - "DONE: All six upstream patches reapplied in order and Rust 4/4 FIN + full 21/21 PASS; device/simulator libraries built with pinned 1.98.1 toolchain."
-  - "DONE: Swift 135/135 PASS, Python iOS source 107 tests (1 skipped), ARM64 Simulator app+PacketTunnel BUILD PASS."
-  - "DONE: Draft PR #314 created, with exact source 6ee71fda; neither Apple App Review nor owner device touched."
-  - "WAIT: GitHub hosted CI and controlled physical iPhone FIN/egress regression before production integration."
-last_verified_commit: "6ee71fda880a188160ab644b338be25842f548f1 (draft PR #314 head); 21 Rust / 135 Swift / 107 Python source tests, ARM64 Simulator app+PacketTunnel PASS"
+  - "Physical controlled test using disposable iPhone/device and synthetic proxy: actual upstream FIN closes FD, avoids CLOSE_WAIT accumulation, Safari upload/download intact."
+  - "Physical background/resume, Wi-Fi/LTE switch, failover and long upload after server FIN; if 2s/30s truncates valid traffic, adjust policy and rerun native/physical regression."
+  - "Refresh draft branch against current main only after hardware gate and risk review; run exact-head full GitHub CI, then consider main integration and later Apple release."
+last_verified_commit: "429a19db906c466a541ffebf7a1ddf52167aeac8 (draft PR #314 feature branch with source-only QA PR #328, 7/7 GitHub checks green; source f4e01f5b5d1cc2e2080ea313651a4ff142f79acf)"
 test_results:
-  - "iOS pinned Rust 4/4 half-close + 21/21 full PASS; Swift 135/135; Python 107 (1 skipped); ARM64 app+PacketTunnel build PASS."
-resume_instruction: "ARC only. Draft PR #314 exact head 6ee71fda has completed source/native tests and ARM64 iOS Simulator app+PacketTunnel build. Do not repeat checks until source changes; inspect hosted CI and do not merge pending controlled disposable iPhone FIN/CLOSE_WAIT and upload/download/failover egress QA. Separately PR #312 head was updated to 65e7e653, PR #313 head 1947f10a; merge them only with exact-head green GitHub checks. Do not touch owner VPN/iPhone, macOS CLOSE_WAIT worktree, Apple 0.2.0 App Review or disabled Watchdog."
+  - "Native Rust 1.98.1: 23/23 PASS, 25 repetitions of six real/async FIN cases =150/150 PASS, including 500 loopback TCP FIN sessions."
+  - "Full iOS Swift Core135/135, Python111 run (1 skipped) PASS; native aarch64-apple-ios and aarch64-apple-ios-sim release static library BUILD PASS."
+  - "PR #328 source head f4e01f5b GitHub 7/7 checks SUCCESS; merged only to draft branch. Real iPhone PacketTunnel FIN/CLOSE_WAIT/egress NOT tested."
+resume_instruction: "ARC only. Canonical source branch is DRAFT PR #314 fix/ios-021-closewait-halfclose-20261104 at 429a19db906c466a541ffebf7a1ddf52167aeac8 (plus checkpoint-only closure commit). Native QA PR #328 MERGED into draft with 7/7 CI; Rust23/23, repeated150/150 including 500 real loopback FIN sessions, Swift135/135, Python111 (1 skipped), iPhoneOS+Simulator native release libs PASS. NEXT ONLY when independent safe physical lab exists: disposable iPhone with synthetic upstream proxy, real FIN/CLOSE_WAIT and Safari uploads/downloads, long-lived half-closed traffic, Wi-Fi/LTE and failover. Do not modify owner iPhone, user VPN/Keychain or merge draft PR #314 into main without physical gate. Apple 0.2.0(48) review and post-release two-iPhone QR acceptance separate. No RDC or Watchdog."
