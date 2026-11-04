@@ -59,7 +59,7 @@ index bd19048..a5948d6 100644
      log::info!("Ending {session_info} with {res:?}");
  
      Ok(())
-@@ -1129,3 +1161,102 @@ mod ios_ipv6_first_record_contract_tests {
+@@ -1129,3 +1161,209 @@ mod ios_ipv6_first_record_contract_tests {
                        .unwrap_err().kind(),std::io::ErrorKind::InvalidData);
      }
  }
@@ -160,5 +160,112 @@ index bd19048..a5948d6 100644
 +        ).await.expect("both sides complete immediately");
 +        assert_eq!(result.0.unwrap().unwrap(), 1);
 +        assert_eq!(result.1.unwrap().unwrap(), 2);
++    }
++    /// Actual loopback HTTP-style upload half-closes before the server sends
++    /// a delayed large response. Bounded teardown must drain that response.
++    #[tokio::test]
++    async fn real_client_fin_preserves_delayed_response_after_upload() {
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++        use std::time::Duration;
++
++        let uploaded: Vec<u8> = (0..32768).map(|n| (n % 251) as u8).collect();
++        let downloaded: Vec<u8> = (0..131072).map(|n| (n % 239) as u8).collect();
++        let expected_upload = uploaded.clone();
++        let expected_download = downloaded.clone();
++
++        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
++        let address = listener.local_addr().unwrap();
++        let remote = tokio::spawn(async move {
++            let (mut stream, _) = listener.accept().await.unwrap();
++            let mut got = Vec::new();
++            stream.read_to_end(&mut got).await.unwrap();
++            tokio::time::sleep(Duration::from_millis(25)).await;
++            stream.write_all(&downloaded).await.unwrap();
++            stream.shutdown().await.unwrap();
++            got
++        });
++        let server = tokio::net::TcpStream::connect(address).await.unwrap();
++        let (client_to_tunnel, mut browser) = tokio::io::duplex(262144);
++        let browser_task = tokio::spawn(async move {
++            browser.write_all(&uploaded).await.unwrap();
++            browser.shutdown().await.unwrap();
++            let mut response = Vec::new();
++            browser.read_to_end(&mut response).await.unwrap();
++            response
++        });
++        let (mut t_rx, mut t_tx) = tokio::io::split(client_to_tunnel);
++        let (mut s_rx, mut s_tx) = tokio::io::split(server);
++        let relay = tokio::time::timeout(Duration::from_secs(3), bounded_half_close(
++            async move {
++                let n = tokio::io::copy(&mut t_rx, &mut s_tx).await;
++                s_tx.shutdown().await?;
++                n
++            },
++            async move {
++                let n = tokio::io::copy(&mut s_rx, &mut t_tx).await;
++                t_tx.shutdown().await?;
++                n
++            },
++            Duration::from_millis(70),
++            Duration::from_millis(750),
++        )).await.expect("relay must drain delayed response after client FIN");
++
++        assert_eq!(relay.0.unwrap().unwrap(), expected_upload.len() as u64);
++        assert_eq!(relay.1.unwrap().unwrap(), expected_download.len() as u64);
++        assert_eq!(remote.await.unwrap(), expected_upload);
++        assert_eq!(browser_task.await.unwrap(), expected_download);
++    }
++
++    /// Repeated real TCP upstream FINs with clients holding their write half
++    /// open must close the upstream peer each time, without retaining a socket.
++    #[tokio::test]
++    async fn repeated_real_upstream_fins_reap_open_browser_sockets() {
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++        use std::time::Duration;
++
++        for iteration in 0..20u8 {
++            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
++            let address = listener.local_addr().unwrap();
++            let remote = tokio::spawn(async move {
++                let (mut stream, _) = listener.accept().await.unwrap();
++                stream.write_all(&[iteration; 4096]).await.unwrap();
++                stream.shutdown().await.unwrap();
++                let mut last = [0u8; 1];
++                tokio::time::timeout(Duration::from_secs(1), stream.read(&mut last))
++                    .await.expect("upstream FD retained after FIN").expect("peer read")
++            });
++            let server = tokio::net::TcpStream::connect(address).await.unwrap();
++            let (client_to_tunnel, browser) = tokio::io::duplex(16384);
++            let (mut browser_read, _browser_write) = tokio::io::split(browser);
++            let (mut t_rx, mut t_tx) = tokio::io::split(client_to_tunnel);
++            let (mut s_rx, mut s_tx) = tokio::io::split(server);
++            let (relay, bytes) = tokio::time::timeout(Duration::from_secs(2), async {
++                tokio::join!(
++                    bounded_half_close(
++                        async move {
++                            let n = tokio::io::copy(&mut t_rx, &mut s_tx).await;
++                            s_tx.shutdown().await?;
++                            n
++                        },
++                        async move {
++                            let n = tokio::io::copy(&mut s_rx, &mut t_tx).await;
++                            t_tx.shutdown().await?;
++                            n
++                        },
++                        Duration::from_millis(20),
++                        Duration::from_millis(100),
++                    ),
++                    async {
++                        let mut bytes = Vec::new();
++                        browser_read.read_to_end(&mut bytes).await.unwrap();
++                        bytes
++                    }
++                )
++            }).await.expect("FIN relay or browser read hung");
++            assert!(relay.0.is_none(), "browser write half stayed open");
++            assert_eq!(relay.1.unwrap().unwrap(), 4096);
++            assert_eq!(bytes, vec![iteration; 4096], "lost final FIN payload");
++            assert_eq!(remote.await.unwrap(), 0, "upstream must see EOF");
++        }
 +    }
 +}
