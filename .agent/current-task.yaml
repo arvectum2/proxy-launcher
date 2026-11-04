@@ -1,23 +1,27 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-RELEASE-SOURCE-ATTESTATION-20261104
-status: completed
-goal: "Align iOS roadmap with owner decision to perform two-iPhone QR acceptance after shipping an actual QR-containing release, and add automated release source provenance gate to prevent mistaking Apple 0.2.0(48) for a QR-capable binary."
+task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
+status: blocked
+goal: "Ship native TCP half-close lifetime rootfix safely in iOS 0.2.1, without risking user proxy traffic or violating Apple's NetworkExtension constraints."
 definition_of_done:
-  - "Prove source commit of Apple's 0.2.0(48) does not contain later QR source and identify first/required QR merge commits."
-  - "Update live roadmap gate to owner-approved post-release two-device test; preserve explicit unverified-risk acceptance and distinguish source inclusion from binary acceptance."
-  - "Create read-only deterministic CLI feature source ancestry and required-files check, with optional fail-closed gate and no network/Apple calls."
-  - "Run negative (0.2.0 build48) and positive (main with QR) tests, invalid ref behavior, full iOS Python/Swift regression and source gate."
-  - "Commit, push reviewable PR; merge only after GitHub exact-head green CI; record checkpoint completed."
+  - "Pinned tun2proxy Rust fix and source tests pass; production TCP routes/profiles/credentials and Apple 0.2.0(48) review remain untouched."
+  - "Pass controlled independent physical iPhone FIN/CLOSE_WAIT and proxy-egress QA, including Safari upload/download, reconnect, Wi-Fi/LTE switching and fallback."
+  - "Verify no truncation of legitimate long-lived upload/download under 2-second upstream FIN and 30-second client FIN bounds; revise patch if regressions are observed."
+  - "Build and verify production iPhoneOS App+PacketTunnel after hardware gate and full exact-head hosted CI; merge PR #314 only when all gates pass."
 completed:
-  - "Verified Apple iOS 0.2.0(48) documented IPA source f0a93f8addb4b61961e9c53c885871a563aef9c6 predates QR source; initial QR source commit 848cdd9488f177fb85c22c8af97122b51aa095c6 and final PR #320 source b59801f69990d621e873360762256a80919168de."
-  - "Connection diagnostics PR #312 already merged; PR #314 half-close fix remains draft pending real-device FIN/egress QA, not production."
-current: "COMPLETED: Git source provenance gate and post-release QR acceptance roadmap merged as PR #326 commit 045ed2462e7bf6f2f35e88e95d484c2be263b2ca. Exact head 182675e7 passed all 16 triggered GitHub CI checks; Windows shallow-checkout problem fixed. Local Swift Core 159/159, iOS Python 133 (1 skipped), 14 focused source tests PASS. Apple 0.2.0(48) source f0a93f8a lacks QR; no Apple/device/VPN mutation."
+  - "Draft PR #314 preserves source-pinned tun2proxy v0.8.3 and app routing; Rust fix bounds upstream FIN to 2s and client FIN to 30s."
+  - "Original draft 21 Rust, 135 Swift, 107 Python (1 skipped), ARM64 Simulator app+PacketTunnel build PASS."
+  - "Source-only stress QA PR #328 merged ONLY into draft feature branch at 429a19db906c466a541ffebf7a1ddf52167aeac8 with 7/7 GitHub CI green."
+  - "Additional real loopback proof: 23 Rust PASS, 25x6 tests 150 PASS covering 500 upstream FIN cycles, byte-exact delayed 128KiB download after client 32KiB upload, and upstream socket EOF."
+  - "Swift135/135, full iOS Python111 (1 skipped), pinned iPhoneOS and Simulator native release lib builds PASS; shipping native patch byte-identical before and after cfg(test) additions."
+current: "BLOCKED: Draft PR #314 contains tested native rootfix and stronger real TCP stress proof; it is NOT safe to merge into main before independent physical FIN/CLOSE_WAIT and egress/long transfer acceptance. Owner's physical iPhone and production VPN remain untouched."
 pending:
-  - "DONE: Read-only Git commit ancestry plus required-files feature source gate, optional require-present/absent strict exit codes, and 7 focused failure/success tests. Signed IPA and Apple publication explicitly unverified."
-  - "DONE: Updated canonical roadmap and source-to-release evidence report: Apple 0.2.0(48) source f0a93f8a predates QR PR #320; owner approved post-release two-iPhone QR user test, fixes go in next release. Native PR #314 remains draft."
-  - "DONE: PR #326 source 182675e7 passed 16/16 exact-head hosted CI checks and merged main 045ed2462e7bf6f2f35e88e95d484c2be263b2ca; Windows shallow-checkout test failures resolved by 7 synthetic Git tests."
-last_verified_commit: "045ed2462e7bf6f2f35e88e95d484c2be263b2ca (origin/main merged PR #326 source 182675e7a3b5dba77ece1c26c562724c83082547, 16/16 exact-head GitHub CI SUCCESS)"
+  - "Physical controlled test using disposable iPhone/device and synthetic proxy: actual upstream FIN closes FD, avoids CLOSE_WAIT accumulation, Safari upload/download intact."
+  - "Physical background/resume, Wi-Fi/LTE switch, failover and long upload after server FIN; if 2s/30s truncates valid traffic, adjust policy and rerun native/physical regression."
+  - "Refresh draft branch against current main only after hardware gate and risk review; run exact-head full GitHub CI, then consider main integration and later Apple release."
+last_verified_commit: "a92715b7afb83348d02fd844e8028c88bc038887 (draft PR #314 source QA merged via PR #328 as 429a19db, exact head f4e01f5b 7/7 hosted checks SUCCESS; latest closure metadata only)"
 test_results:
-  - "Verified Git source ancestry and files: Apple iOS 0.2.0(48) documented source f0a93f8a did not have QR, current main does. This does not assert binary inspection or Apple publication."\n  - "Local latest: historical source 7/7 and portable synthetic actual Git 7/7 PASS; full iOS Python 133 tests (1 skipped), Swift Core 159/159 PASS; no iOS app binary sources changed."\n  - "Initial GitHub PR #326 Windows build and installer CI failed due shallow checkout lacking historical commit objects, not due production code. Tests now use synthetic Git repo on every runner and skip real historical assertions only where commit history is unavailable; exact-head hosted rerun pending."
-resume_instruction: "COMPLETED: Do not reimplement QR source release gate. PR #326 merged main 045ed2462e7bf6f2f35e88e95d484c2be263b2ca after 16/16 exact-head GitHub checks. On full Git history, Apple 0.2.0(48) source f0a93f8a has no QR; only a FUTURE Apple release built from QR-containing source is eligible for post-release two-iPhone QR camera/AirDrop/VoiceOver user acceptance, with defect fixes in a subsequent update. Source Git ancestry never claims signed IPA/App Store verification. Native FIN/CLOSE_WAIT PR #314 remains DRAFT until separate controlled hardware QA. Do not modify production iPhone/Keychain/VPN, Apple review, CloudKit, Watchdog; ARC only, never RDC."
+  - "Native Rust 1.98.1: 23/23 PASS, 25 repetitions of six real/async FIN cases =150/150 PASS, including 500 loopback TCP FIN sessions."
+  - "Full iOS Swift Core135/135, Python111 run (1 skipped) PASS; native aarch64-apple-ios and aarch64-apple-ios-sim release static library BUILD PASS."
+  - "PR #328 source head f4e01f5b GitHub 7/7 checks SUCCESS; merged only to draft branch. Real iPhone PacketTunnel FIN/CLOSE_WAIT/egress NOT tested."
+resume_instruction: "ARC only. Canonical source branch is DRAFT PR #314 fix/ios-021-closewait-halfclose-20261104 at 429a19db906c466a541ffebf7a1ddf52167aeac8 (plus checkpoint-only closure commit). Native QA PR #328 MERGED into draft with 7/7 CI; Rust23/23, repeated150/150 including 500 real loopback FIN sessions, Swift135/135, Python111 (1 skipped), iPhoneOS+Simulator native release libs PASS. NEXT ONLY when independent safe physical lab exists: disposable iPhone with synthetic upstream proxy, real FIN/CLOSE_WAIT and Safari uploads/downloads, long-lived half-closed traffic, Wi-Fi/LTE and failover. Do not modify owner iPhone, user VPN/Keychain or merge draft PR #314 into main without physical gate. Apple 0.2.0(48) review and post-release two-iPhone QR acceptance separate. No RDC or Watchdog."
