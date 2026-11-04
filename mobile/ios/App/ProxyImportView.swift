@@ -124,10 +124,10 @@ struct ProxyImportView: View {
                         } catch {
                             importError = ProxyImportUX.error(error)
                         }
-                    }, onError: { message in
+                    }, onError: { failure in
                         scanQR = false
-                        cameraPermissionDenied = message == "Нет доступа к камере"
-                        importError = ProxyImportUX.text(message)
+                        cameraPermissionDenied = failure.needsCameraSettings
+                        importError = ProxyImportUX.text(failure.localizationKey)
                     }, onReady: { cameraReady = true })
                     .overlay(alignment: .bottom) {
                         Text(ProxyImportUX.text(cameraReady ? "Камера готова — наведите на QR-код" : "Запуск камеры..."))
