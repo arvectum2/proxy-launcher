@@ -3,6 +3,38 @@ import XCTest
 final class SmartExclusionsUITests: XCTestCase {
     /// Isolated clean-install simulator QA: default must be automatic without
     /// requiring manual action or a previously saved preference.
+    /// Smart4 explanations describe only staged rules and never save them.
+    func testSmart4ManualRuleExplanationPreviewAndNoSave() {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru",
+                                "-qaSmartDependenciesFixture", "YES"]
+        app.launch()
+        let settings = app.tabBars.buttons["Настройки"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 20))
+        settings.tap()
+        app.buttons["Исключения сайтов"].tap()
+        let field = app.textFields["example.com"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("qa.example.test")
+        app.buttons["Добавить"].tap()
+
+        let details = app.buttons["exclusions.routeExplain.qa.example.test"]
+        for _ in 0..<8 where !details.exists { app.swipeUp() }
+        XCTAssertTrue(details.waitForExistence(timeout: 10), app.debugDescription)
+        details.tap()
+        let alert = app.alerts["Подробнее о правилах обхода"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 7), app.debugDescription)
+        let copy = alert.debugDescription
+        XCTAssertTrue(copy.contains("Добавлено вручную"), copy)
+        XCTAssertTrue(copy.contains("Изменения вступят в силу"), copy)
+        alert.buttons["OK"].tap()
+        XCTAssertTrue(details.exists)
+        // Never commit QA domains: an explanation is a read-only UI action.
+        app.buttons["Отмена"].tap()
+    }
+
     func testAutomaticSiteExpansionDefaultsOnForCleanInstall() {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
