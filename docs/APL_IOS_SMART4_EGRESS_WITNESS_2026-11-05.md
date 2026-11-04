@@ -37,3 +37,10 @@ python3 scripts/qa_smart4_egress_witness.py verify --intents /tmp/lab-intents-ne
 3. Сопоставление с предложенным Smart4 решением; отсутствие, повтор или конфликт свидетельств не превращать в успех. Production DIRECT не расширять до выполнения gate.
 
 Никакой App Store submission, публикации, перенастройки пользовательского VPN или выпуска native FIN draft PR #314 в этой задаче нет.
+
+## Итог source-only этапа — 5 ноября 2026
+
+- Реальный loopback TCP: два независимых серверных наблюдателя DIRECT/PROXY и ACK для двух одноразовых 128-битных проб, 1/1 интеграционный сценарий PASS; все 17/17 негативных и контрактных тестов PASS.
+- Полный iOS Python-корпус: 192 теста, один skipped; Swift Core 181/181 PASS. Приложение и PacketTunnel не изменены.
+- GitHub [PR #343](https://github.com/arvectum2/proxy-launcher/pull/343) exact-head `845b2627173d225ad23333d61c83c9701335a32d` — 13/13 CI SUCCESS, MERGED main `bdae1c2664936781c9689bd31fbf6656e6680d13`. Первые Windows jobs обнаружили отсутствие POSIX mode 0600 на NTFS; listener теперь явно отказывает на non-POSIX, verifier остаётся переносимым; повторная Windows CI PASS.
+- **Физическая аттестация не проведена.** `physical_egress_verified=false`, никаких утверждений о сравнении истинного маршрута на iPhone, аппаратный gate 2b.2 остаётся открытым. Пользовательский iPhone/Keychain/VPN, App Store Connect и draft PR #314 не менялись.
