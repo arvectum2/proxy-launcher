@@ -100,7 +100,15 @@ def developer_dir() -> str:
         if (candidate / "usr" / "bin" / "xcodebuild").is_file():
             return str(candidate)
 
-    candidates = [Path("/Applications/Xcode.app/Contents/Developer")]
+    # Xcode is often installed on an external volume; respect the active
+    # Xcode selected by the owner before falling back to /Applications.
+    selected = subprocess.run(
+        ["xcode-select", "-p"], capture_output=True, text=True, check=False
+    )
+    candidates = []
+    if selected.returncode == 0 and selected.stdout.strip():
+        candidates.append(Path(selected.stdout.strip()))
+    candidates.append(Path("/Applications/Xcode.app/Contents/Developer"))
     candidates.extend(
         sorted(
             Path("/Applications").glob("Xcode*.app/Contents/Developer"),

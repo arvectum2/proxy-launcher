@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
-status: in_progress
+status: blocked
 goal: "Port tested native Rust FIN half-close socket lifetime bound to the source-pinned iOS tun2proxy build, preventing stuck upstream CLOSE_WAIT after peer FIN."
 definition_of_done:
   - "Keep release 0.2.0 App Review, owner's iPhone/profiles, Tailscale/ARC and macOS root-fix branch intact."
@@ -11,12 +11,13 @@ definition_of_done:
 completed:
   - "MacOS own worktree had proof of 4 async Rust half-close tests, including real TCP FIN; patch includes 2s upstream EOF and 30s browser EOF bounds."
   - "Created iOS isolated worktree from origin/main, copied identical independent patch, and registered it in fetch script after Smart3 dual-stack patch."
-current: "Native Rust device+simulator and all regressions PASS. Create reviewable PR, review hosted CI, then physical-device E2E remains as acceptance gate."
+current: "Draft PR #314 open at source commit 6ee71fda; 21/21 Rust, 135/135 Swift, 107 Python and ARM64 Simulator app+PacketTunnel PASS. Blocked on hosted PR checks and independent disposable-device physical TCP E2E."
 pending:
   - "DONE: All six upstream patches reapplied in order and Rust 4/4 FIN + full 21/21 PASS; device/simulator libraries built with pinned 1.98.1 toolchain."
   - "DONE: Swift 135/135 PASS, Python iOS source 107 tests (1 skipped), ARM64 Simulator app+PacketTunnel BUILD PASS."
-  - "Commit/push PR, mark bounded production physical iPhone rollout gate; never touch active iPhone."
-last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc (origin/main baseline)"
+  - "DONE: Draft PR #314 created, with exact source 6ee71fda; neither Apple App Review nor owner device touched."
+  - "WAIT: GitHub hosted CI and controlled physical iPhone FIN/egress regression before production integration."
+last_verified_commit: "6ee71fda880a188160ab644b338be25842f548f1 (draft PR #314 head); 21 Rust / 135 Swift / 107 Python source tests, ARM64 Simulator app+PacketTunnel PASS"
 test_results:
   - "iOS pinned Rust 4/4 half-close + 21/21 full PASS; Swift 135/135; Python 107 (1 skipped); ARM64 app+PacketTunnel build PASS."
-resume_instruction: "Use ARC only, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-021-closewait-halfclose-20261104. Independently source-pin/reapply all patches and run Rust regressions + iOS ARM64 simulator/device library and app builds. Do not alter MacOS socket root-fix worktree, Apple review 0.2.0, owner iPhone/profiles, or disabled Watchdog. Other iOS PRs #312/#313 have green local tests but hosted CI pending."
+resume_instruction: "ARC only. Draft PR #314 exact head 6ee71fda has completed source/native tests and ARM64 iOS Simulator app+PacketTunnel build. Do not repeat checks until source changes; inspect hosted CI and do not merge pending controlled disposable iPhone FIN/CLOSE_WAIT and upload/download/failover egress QA. Separately PR #312 head was updated to 65e7e653, PR #313 head 1947f10a; merge them only with exact-head green GitHub checks. Do not touch owner VPN/iPhone, macOS CLOSE_WAIT worktree, Apple 0.2.0 App Review or disabled Watchdog."

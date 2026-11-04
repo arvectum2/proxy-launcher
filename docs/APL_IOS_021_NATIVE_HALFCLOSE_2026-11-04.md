@@ -10,7 +10,7 @@ The iOS packet tunnel uses an embedded Rust tun2proxy v0.8.3 TCP forwarder. The 
 - Replace tokio::join! with a bounded two-direction completion operation. Upstream FIN allows up to 2 seconds for client-to-proxy forwarding to finish; client FIN allows up to 30 seconds for the reverse path to drain. Then drop the remaining async future and its socket halves instead of holding a half-closed upstream descriptor.
 - The 2/30-second bounds are product trade-offs, not a guarantee that all legitimate half-closed TCP interactions remain unaffected. Run physical proxy throughput and upload/download regressions before a production rollout.
 - Retain exact pinned upstream source commit e271de19683937f23d3f8f0eb4df0a61fc4a6e50, pinned Rust 1.98.1 toolchain, Smart3 callbacks, IPv4/IPv6 per-host routing and current App Store signing metadata.
-- The reproducible builder mobile/ios/Tools/fetch_tun2proxy.py --with-simulator checks every patch before applying it, then generates device and ARM64 Simulator libraries. This repository tracks source patches and tool, not the 66 MiB generated XCFramework.
+- The reproducible builder mobile/ios/Tools/fetch_tun2proxy.py --with-simulator checks every patch before applying it, then generates device and ARM64 Simulator libraries. The builder now respects the active xcode-select developer directory (including Xcode installed on an external SSD) without requiring a manual DEVELOPER_DIR override. This repository tracks source patches and tool, not the 66 MiB generated XCFramework.
 
 ## Validation
 

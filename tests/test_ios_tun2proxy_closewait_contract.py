@@ -18,6 +18,16 @@ class IOSCloseWaitNativeContractTests(unittest.TestCase):
             FETCH.index('run("git", "apply", str(CLOSE_WAIT_PATCH), cwd=source)'),
         )
 
+    def test_builder_uses_active_xcode_outside_applications(self):
+        # Hosted macOS may use /Applications; Mac mini selects an external
+        # Xcode path. Both must be supported without manual env injection.
+        self.assertIn('["xcode-select", "-p"]', FETCH)
+        self.assertIn('candidates.append(Path(selected.stdout.strip()))', FETCH)
+        self.assertLess(
+            FETCH.index('candidates.append(Path(selected.stdout.strip()))'),
+            FETCH.index('candidates.append(Path("/Applications/Xcode.app/Contents/Developer"))'),
+        )
+
     def test_half_closed_upstream_has_bounded_shutdown_both_directions(self):
         self.assertIn('async fn bounded_half_close<C, S>(', PATCH)
         self.assertIn('let res = bounded_half_close(', PATCH)
