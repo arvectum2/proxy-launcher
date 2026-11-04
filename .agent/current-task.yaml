@@ -1,28 +1,29 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-FILE-PICKER-CANCEL-20261104
-status: completed
-goal: "Prevent iOS Files proxy importer from showing a file-read failure when the user cancels the file picker, while maintaining error messages for real failure and all existing preview/rollback/JSON support."
+task_id: APL-IOS-SMART4-EGRESS-WITNESS-20261105
+status: in_progress
+goal: "Prepare independent, bounded server-side TCP egress witnesses for the Smart Routing 4.0 physical attribution gate without changing runtime routing or live iPhone state."
 definition_of_done:
-  - "Classify only proven Cocoa NSUserCancelledError from NSCocoaErrorDomain as user cancellation; other Cocoa codes and same numeric code in other domains must still report failure."
-  - "On cancellation, Files importer UI does not display an error; real proxy parsing and file-access exceptions still get bounded localized messages."
-  - "Swift Core tests for cancel vs real failure and portable source/privacy contract pass."
-  - "Full Swift Core and iOS Python tests, ARM64 Simulator App+PacketTunnel unsigned build PASS on integrated iOS code."
-  - "Source PR #340 passes 25/25 exact-head GitHub CI, CLEAN/MERGEABLE and is merged into main; historical checkpoint and roadmap are closed."
+  - "Standalone paired no-forwarding laboratory TCP listeners attest receipt of unique ephemeral 128-bit probe tokens on independently labeled DIRECT/PROXY endpoints, bounded by port, time and 256 samples."
+  - "Verifier correlates a unique planned Smart4 route with independently recorded positive server-side receipt; duplicate, conflicting, stale, missing, IP-only and malformed witnesses never count as confirmed matches."
+  - "Aggregate result reports counts only; never persists hostnames, URLs, IP or credentials; no real proxy forwarding or PacketTunnel hooks."
+  - "Automated real-loopback TCP plus adversarial Python tests and source contract, iOS Swift Core and iOS Python regression tests pass."
+  - "Document why local loopback is not physical iPhone egress proof; leave Smart4 phase 2b.2 hardware gate unchecked and PR #314/Apple/Keychain/live VPN untouched."
+  - "Open isolated PR with exact-head CI; merge only after green/CLEAN, then finalize canonical checkpoint."
 completed:
-  - "Root cause: Files picker cancellation was handled as a failed file-read; only Cocoa NSUserCancelledError must be silent."
-  - "Implemented SharedCore ProxyFilePickerCancellation domain+code classifier and guarded ProxyImportView.fileImporter error presentation; genuine file errors still shown safely."
-  - "Rebased PR #340 on independently merged Smart Exclusions safe rollback PR #341 (64a7d3cea107c70f06ced5bc038a70ff73401209), preserving both changes."
-  - "PR #340 exact-head 20b6e337167dd1684c55059ca6c0b4d3f4bbc39f GitHub CI 25/25 SUCCESS after macOS runner cancellations were retried; MERGED main 478738d4f055401eb05db6a89397e59ccc8f8fba."
-  - "Actual iOS Simulator Files picker Cancel -> importer screen with no false error PASS 1/1; temporary test source restored. Previously existing proxy import preview UI PASS 1/1."
-  - "Real iPhone 13 through Mirroring: existing App Store 0.1.41 UI Home/Profiles/Settings/Exclusions smoke only; active VPN, Keychain and profiles unchanged, no new test IPA installed."
-current: "COMPLETED: PR #340 merged with all 25/25 exact-head GitHub CI SUCCESS at 478738d4f055401eb05db6a89397e59ccc8f8fba; PR #341 already merged at 64a7d3ce. Swift181/181, iOS Python175 (1 skipped), ARM64 Simulator and unsigned iPhoneOS App+PacketTunnel PASS; system Files cancellation UI 1/1 PASS."
-pending: []
-last_verified_commit: "478738d4f055401eb05db6a89397e59ccc8f8fba (PR #340 MERGED, exact-head 20b6e337, CI25/25; PR #341 25/25)."
+  - "Read canonical main and prior Smart4 2b.1 source-only aggregate; confirmed true physical iPhone egress 2b.2 remains unproven."
+  - "Implemented standalone synthetic no-forwarding TCP DIRECT/PROXY LabWitnessListener, 128-bit nonce receipt, positive server ACK, separate private JSONL logs, exact schema and bounded 120s/256 samples."
+  - "Implemented strict offline fail-closed correlation; no proof from DNS/IP, missing/duplicate/conflicting/stale/out-of-plan evidence. Minimum independently witnessed DIRECT and PROXY, scope synthetic_lab_only; physical_egress_verified always false."
+  - "Real TCP loopback DIRECT+PROXY server receipts and adversarial tests PASS, no production PacketTunnel or Keychain changes."
+current: "Source and local QA ready. 16 focused witness tests PASS; previous full Swift Core181/181 PASS; full iOS Python191 (1 skipped) PASS. Next metadata update and standalone PR exact-head CI; physical Smart4 egress 2b.2 remains unchecked."
+pending:
+  - "Create isolated PR on main with source, tests, roadmap, doc and in_progress checkpoint."
+  - "Require full exact-head GitHub CI, merge only on green/CLEAN."
+  - "Metadata-only completed checkpoint after merge; real physical iPhone egress stays open in roadmap."
+last_verified_commit: "a414a880d65aa1455ba9c34ceb5b4471e46f5596 (origin/main source base; pending new PR)"
 test_results:
-  - "Integrated full Swift Core181/181 PASS; iOS Python175 run, 1 skipped, 0 failures."
-  - "Targeted Swift cancellation5 and focused Python3 PASS; 64-locale safe Exclusions tests preserved."
-  - "Unsigned ARM64 iOS Simulator App+PacketTunnel build PASS, unsigned iPhoneOS/ARM64 app+extension build PASS."
-  - "iOS Simulator system Files Picker choose/cancel UI acceptance 1/1 PASS in 25.764s; import preview UI 1/1 PASS in 19.875s. Test code was temporary, not added to source or CI."
-  - "GitHub PR #340 exact-head 25/25 SUCCESS after runner-only cancellations were retried; merged 478738d4f055401eb05db6a89397e59ccc8f8fba."
-resume_instruction: "COMPLETED — do not redo PR #340 or PR #341, or re-run 65min macOS QA. iOS 0.2.0(48) Apple state WAITING_FOR_REVIEW at 2026-11-05; do not modify submitted version. Next independent iOS roadmap gates are controlled Smart4 true egress attribution, Apple-distributed 0.1.41 -> 0.2.0 Keychain upgrade on disposable test phone, and two-device QR acceptance after first QR-containing App Store release. Keep unverified native FIN/CLOSE_WAIT draft PR #314 out of main until physical acceptance. Avoid replacing owner's real iPhone APL, proxies, Keychain or active VPN for QA. ARC only; Proxy Launcher Watchdog remains disabled by owner decision."
+  - "Focused Smart4 TCP witness Python16/16 PASS (two actual independent local TCP observers + adversarial cases)."
+  - "Full iOS Python191 run, one skipped, zero failures; no actual App Store mutations."
+  - "Existing Swift Core181/181 PASS on unchanged mobile/ios source."
+  - "No iPhone installation, VPN/Keychain/profile/routing change, Apple submission or physical egress claim."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-egress-witness-20261105; source-only Python lab servers/verifier and fail-closed tests ready on main a414a880, focused Python16, iOS Python191 (1 skipped), Swift181 PASS. NEXT git add/commit/push and PR with CI; merge only all-green CLEAN. Then close checkpoint with merge SHA. Hardware Smart4 stage 2b.2 remains unverified; user live iPhone/VPN/Keychain/Apple and draft PR #314 untouched. Never claim local loopback proves physical routing."
