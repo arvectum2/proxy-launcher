@@ -47,3 +47,22 @@ still work. AppleScript reports no accessible TestFlight controls, so
 installation must be done by the owner at the visible TestFlight UI or
 after restoring observable remote GUI. Never force an unseen GUI update.
 No public 0.2.22 release has been submitted.
+
+## Real MacBook TestFlight installation, 2026-11-04
+
+ARC GUI recovered and a macOS Automation prompt to control TestFlight was
+authorized after the owner explicitly requested installation. TestFlight
+0.2.22 build16 was installed over 0.2.21 and App Store's request to close
+the running APL was accepted. The old app and App Group preference plist
+were backed up before installation.
+
+Version 0.2.22 build16 and code signature verified. All 3 saved profiles
+were retained and existing selected profile Netherlands 2 unchanged.
+APL VPN Connected; external HTTPS egress 68.209.63.122; Tailscale/ARC
+remains Running/Online. 30/30 controlled HTTPS requests returned 200,
+initial TCP 48 / CLOSE_WAIT 21 and after load TCP 29 / CLOSE_WAIT 0.
+The passive 65-minute MacBook QA monitor is running under user account,
+logging to the local qa directory as soak_0_2_22_b16.jsonl and summary.
+It never changes VPN state or profiles.
+
+Short QA PASSED; full physical soak is still pending. Do not publish yet.
