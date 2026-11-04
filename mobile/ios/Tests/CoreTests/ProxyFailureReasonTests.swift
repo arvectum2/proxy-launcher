@@ -59,4 +59,52 @@ final class ProxyFailureReasonTests: XCTestCase {
         XCTAssertEqual(ProxyFailureReason.dns.code, "DNS")
         XCTAssertEqual(ProxyFailureReason.tunnel.code, "VPN")
     }
+
+    func testSafeConnectionAlertUsesExistingLocalizedHelpKeys() {
+        let dns = NSError(domain: NSURLErrorDomain, code: NSURLErrorDNSLookupFailed,
+                          userInfo: [NSLocalizedDescriptionKey: "secret.example:1234"])
+        let dnsAdvice = SafeConnectionAlert.forError(dns)
+        XCTAssertEqual(dnsAdvice.code, "DNS")
+        XCTAssertEqual(dnsAdvice.localizationKey, "Проверьте адрес и порт прокси")
+        let authentication = SafeConnectionAlert.forError(ProxyDiagnosticError(.http407))
+        XCTAssertEqual(authentication.code, "HTTP 407")
+        XCTAssertEqual(authentication.localizationKey,
+                       "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные.")
+        let known = Set([dnsAdvice.localizationKey, authentication.localizationKey])
+        for reason in ProxyFailureReason.allCases {
+            XCTAssertTrue(known.contains(reason.connectionHelpLocalizationKey))
+        }
+    }
+
+    func testSafeConnectionAlertNeverDisplaysUntrustedErrorDetails() {
+        let secret = "proxy.internal.example:8000 username=private password=privateSecret"
+        let errors: [Error] = [
+            NSError(domain: "ArvectumVPN", code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: secret]),
+            NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut,
+                    userInfo: [NSLocalizedDescriptionKey: secret]),
+            NSError(domain: "private.upstream", code: 500,
+                    userInfo: [NSLocalizedDescriptionKey: secret])
+        ]
+        for error in errors {
+            let advice = SafeConnectionAlert.forError(error)
+            XCTAssertFalse(advice.localizationKey.contains(secret))
+            XCTAssertFalse(advice.code.contains(secret))
+        }
+    }
+
+    func testSafeConnectionAlertPreservesOnlyApprovedVPNRepairGuidance() {
+        let hints = [
+            "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение.",
+            "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её.",
+            "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить."
+        ]
+        for hint in hints {
+            let error = NSError(domain: "ArvectumVPN", code: 3,
+                                userInfo: [NSLocalizedDescriptionKey: hint])
+            let advice = SafeConnectionAlert.forError(error)
+            XCTAssertEqual(advice.localizationKey, hint)
+            XCTAssertEqual(advice.code, "VPN")
+        }
+    }
 }
