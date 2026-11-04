@@ -25,6 +25,7 @@ pending:
   - "Apple 0.2.22 build16 exported through Xcode cloud Installer signed PKG; server-side validation returned 409 DUPLICATE because build16 had already uploaded earlier. ASC API verified existing build16 is VALID, uploaded 2026-11-04T00:33:50-08:00."
   - "Apple App Store Connect build16 export compliance set to previous accepted macOS classification usesNonExemptEncryption=false and attached to existing Arvectum macOS Internal QA group; IN_BETA_TESTING."
   - "Direct ARC device GUI for MacBook reports transport offline, although independent Tailscale userspace and LAN SSH work. TestFlight launched through SSH; AX tree empty/unobservable; no blind click/overwrite of working 0.2.21."
+  - "At 2026-11-04 12:19 MSK public MacBook 0.2.21 showed VPN Connected but HTTPS proxy traffic timed out after sustained socket accumulation. Restarted ONLY Arvectum VPN via scutil stop/start: service Connected, external egress 68.209.63.122, 73 TCP / 17 CLOSE_WAIT at immediate recovery; independent Tailscale Running/Online. This is temporary relief, not root fix."
 last_verified_commit: "52aa90316433ccbfc3e923d4aeb12e3281dbd1b1 (PR #310, 24 checks PASS, signed 0.2.22(16) archive/Apple beta VALID)."
 test_results:
   - "MacBook signed public 0.2.21(15) remains connected via backup; 3 profiles and ARC/Tailscale safe; not replaced."
