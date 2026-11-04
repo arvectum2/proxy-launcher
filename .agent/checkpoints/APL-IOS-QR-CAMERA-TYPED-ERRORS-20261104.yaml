@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-QR-CAMERA-TYPED-ERRORS-20261104
-status: in_progress
+status: completed
 goal: "Use typed localized QR scanner failures and a fail-closed camera-start result; never present raw AVFoundation localizedDescription or detect permission denial by comparing a translated/Russian string."
 definition_of_done:
   - "Replace QR scanner onError String callback with typed failure; stable localization keys backed by all 64 ProxyImport locale catalogs."
@@ -11,12 +11,12 @@ definition_of_done:
   - "Open isolated PR, merge only after exact-head green hosted CI and then mark task completed; do not alter Apple App Review, user VPN/Keychain/iPhone or draft native PR #314."
 completed:
   - "Verified four QR camera error localization keys exist in all 64 ProxyImport.strings; source currently uses raw error.localizedDescription and Russian string comparison."
-current: "DONE locally: typed QR camera failures and localized stable errors in 64/64 locales, camera Settings CTA only on permission denial, startup failure surfaced without raw error descriptions, post-dismissal callbacks suppressed. Focused 6/6, full iOS Python139 (1 skipped), Swift159/159, ARM64 Simulator App+PacketTunnel and separate QR QA app builds PASS. Prepare PR and exact-head CI."
+current: "COMPLETED: implementation merged via consolidated PR #337 at 268dfc6b418204847f788b61fa49347a3e0bc7a9, hosted CI 19/19 SUCCESS, local integrated Swift171/171, iOS Python168 (1 skipped), ARM64 Simulator App+PacketTunnel and compiled evidence PASS."
 pending:
   - "DONE: Production scanner typed failure enum, localized keys, fail-closed start handling and permission Settings CTA by type; six source/locale contracts PASS."
   - "DONE: Python iOS 139 (one skipped), Swift Core159/159, App+PacketTunnel ARM64 and independent QA scanner ARM64 Simulator builds PASS, no user iPhone touched."
   - "DONE: Documented fix and updated top roadmap; PENDING commit/push PR, exact-head GitHub CI merge and completed checkpoint in main."
-last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main after PR #329; PR #330 separate and blocked on runner cancellation)"
+last_verified_commit: "268dfc6b418204847f788b61fa49347a3e0bc7a9 (via consolidated PR #337, original source/test code identical in main)"
 test_results:
   - "Local 6/6 focused source tests, 64/64 locale key coverage, full Python139 (1 skipped), Swift159/159, two ARM64 Simulator builds PASS."
-resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-qr-camera-failures-20261104. Production scanner typed failure fix implemented and verified: 64 locale coverage, no raw NSError descriptions, Settings CTA only for .permissionDenied, failed camera startup and post-dismissal callbacks safe. Full iOS Python139 (1 skipped), Swift159/159, six focused Python contracts, unsigned ARM64 App+PacketTunnel and QA scanner builds PASS. Next commit/push reviewable independent PR, exact-head GitHub CI then merge if green; close checkpoint in main via metadata-only closure. PR #330 separate and six macOS reruns queued; do not change its SHA or touch PR #314 DRAFT. No Apple/iPhone/VPN/Keychain/Watchdog or RDC."
+resume_instruction: "COMPLETED in main at 268dfc6b418204847f788b61fa49347a3e0bc7a9 via PR #337. Original source PR closed as superseded. No need to repeat source/tests; further work follow current iOS roadmap and separate future Apple signed IPA/physical QR post-release gate. ARC only; do not touch owner iPhone/VPN/Keychain, native draft PR #314 or submitted macOS release."

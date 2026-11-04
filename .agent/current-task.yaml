@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-MAIN-CONSOLIDATION-20261104
-status: in_progress
+status: completed
 goal: "Consolidate six locally verified iOS source PRs #330,#331,#332,#333,#335,#336 onto current main including already merged macOS #310, without the draft iOS native FIN PR #314."
 definition_of_done:
   - "Preserve latest macOS 0.2.22 release source in main byte-identical; leave user macOS release in Apple review untouched."
@@ -11,14 +11,14 @@ definition_of_done:
   - "Checkpoint completed in main with exact merge commit and test evidence; preserve separate blocked draft PR #314 and owner QR physical post-release test policy."
 completed:
   - "Verified current origin/main has merged macOS PR #310 at 4e7b58084d1973aebdd6fb832abfb7dcb6863698; diff from prior iOS base changes only PacketTunnelProvider Swift, .agent/current-task.yaml and docs/ROADMAP.md, none of which should be reverted."
-  - "PR #335 all 19/19 GitHub CI green before macOS main moved; #330/331/332/333/336 have green majority and cancellations from macOS CI runners, plus separate full local PASS."
-current: "Local consolidation COMPLETE: six iOS source PRs #330,#331,#332,#333,#335,#336 combined on macOS main 4e7b5808, UI conflict resolved, Xcode project regenerated, mac PacketTunnelProvider unchanged. Swift171/171, Python168 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel, compiled QR/JSON/reader/CRUD/backup symbols and 64 locale files PASS. Hosted CI and main merge still pending."
+  - "PR #337 exact merged source 841d1bd passed all 19/19 GitHub checks, bypassing neither required CI nor branch protection."
+current: "COMPLETED: PR #337 exact source 841d1bd087265bd761baeaeed6239f2b81ed7a4d passed 19/19 hosted checks and merged into main at 268dfc6b418204847f788b61fa49347a3e0bc7a9. All six source PRs #330/#331/#332/#333/#335/#336 CLOSED as superseded with code/test content byte-identical in main. Local integrated Swift171/171, Python168 (1 skipped), ARM64 Simulator App+PacketTunnel and QR/JSON/backup/profile compiled symbols PASS. macOS PR310 code and iOS PacketTunnel byte-identical; draft PR314 unchanged."
 pending:
-  - "Combine six iOS source changes and generated Xcode project, fix any cross-branch tests."
-  - "Run full local Swift/Python regression, unsigned ARM64 iOS Simulator app+PacketTunnel and compiled-code witnesses."
-  - "Open one integration PR and wait for all exact-head GitHub CI checks green; merge without bypass."
-  - "Close only superseded iOS PRs with integrated commit proof; finalize status=completed in main."
-last_verified_commit: "4e7b58084d1973aebdd6fb832abfb7dcb6863698 (origin/main, already merged macOS PR #310; user states macOS version was submitted for Apple review)"
+  - "DONE: Integrated and merged six iOS source PRs with UI/pbxproj conflict resolution; macOS code byte-identical."
+  - "DONE: Local Swift171/171, iOS Python168 (1 skipped), unsigned ARM64 iOS Simulator App+PacketTunnel, QR/JSON/reader/backup/profile compiled witnesses and 64 locale lint PASS."
+  - "DONE: PR #337 exact head 841d1bd 19/19 GitHub CI SUCCESS, CLEAN/MERGEABLE, MERGED at 268dfc6b418204847f788b61fa49347a3e0bc7a9."
+  - "DONE: PR #330,#331,#332,#333,#335,#336 source/test byte identical in main, commented and CLOSED as superseded; all historical checkpoints completed."
+last_verified_commit: "268dfc6b418204847f788b61fa49347a3e0bc7a9 (PR #337 merged, 19/19 exact-head GitHub CI SUCCESS; six original iOS PRs source/test content verified in main and closed)"
 test_results:
   - "Each iOS source branch has full local Swift/Python/simulator checks; JSON+bounded-reader combined locally passed Swift171/171, Python142 (1 skipped) and ARM64 app."
-resume_instruction: "ARC only, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-main-consolidation-20261104. Six iOS PR sources #330-333,#335,#336 integrated onto macOS main 4e7b5808, Swift171/171, Python168 (1 skipped), unsigned ARM64 app and PacketTunnel, QR witness and 64/64 locale lint PASS. MacOS PacketTunnelProvider unchanged, draft #314 excluded. NEXT source commit/push one integration PR, require full exact-head GitHub CI and CLEAN/MERGEABLE, merge only when green; close six superseded PRs with merge proof and mark historical/current checkpoints completed in main via metadata closure. Do not touch Apple/macOS review, owner iPhone/VPN/Keychain, Watchdog or RDC. Two-iPhone QR QA after first QR-capable release."
+resume_instruction: "COMPLETED. DO NOT repeat iOS consolidation or reopen superseded PRs #330-333/#335/#336. Main merged at 268dfc6b418204847f788b61fa49347a3e0bc7a9 from #337, full CI 19/19 SUCCESS, local integrated Swift171/171, Python168 (1 skipped), ARM64 Simulator App+PacketTunnel and compiler symbol witness PASS. Next separate iOS task APL-IOS-SMART-EXCLUSIONS-ROLLBACK-SAFE-20261104 in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-exclusions-rollback-safe-20261104. Keep native iOS FIN PR #314 draft until independent physical VPN tests. Owner QR two-phone acceptance after first QR-capable release, not today. Do not change submitted macOS Apple review, user VPN/iPhone/Keychain or Watchdog. ARC only, no RDC."
