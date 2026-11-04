@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-SMART4-DRYRUN-20261104
-status: in_progress
+status: completed
 goal: "Implement opt-in, privacy-preserving aggregate comparison between proposed exact-host Smart4 decisions and independently supplied Smart3 route evidence, without intercepting user traffic."
 definition_of_done:
   - "Dedicated worktree from main after merged QR physical QA PR #321; keep unrelated tasks untouched."
@@ -13,12 +13,12 @@ definition_of_done:
 completed:
   - "PR #315 Smart4 provenance, #316 Smart4 read-only UI, QR source #320 and physical QR QA harness #321 already merged."
   - "Inspected Smart3 PacketTunnel: existing NE IPv4/v6 excludedRoutes are IP wide; exact-host transport cannot be inferred from CDN DNS alone."
-current: "Opt-in aggregate-only Smart4 dry-run implemented and locally verified: 159/159 Swift, 117 iOS Python (1 skipped), unsigned ARM64 Simulator app+PacketTunnel BUILD PASS. Prepare source commit/PR; physical transport evidence hookup intentionally deferred."
+current: "COMPLETED: Smart4 aggregate-only opt-in comparison source merged via PR #322 into main 1ce5b482a51b255b2dbb6f1eab5d001bc07ad1b2. Exact source 8cc43a9a, 19/19 GitHub CI SUCCESS. Swift 159/159, Python 117 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel BUILD PASS. Real independent Smart3 egress attestation is next separate physical-lab-gated phase."
 pending:
   - "DONE: Smart4DryRunAudit pure opt-in bounded counters with 8 Swift tests for independent evidence, shared CDN IPv4/IPv6, invalid host, TTL and reset; no runtime hooks."
   - "DONE: Full Swift Core 159/159 PASS, iOS Python 117 run (1 skipped) PASS, ARM64 iOS Simulator app+PacketTunnel BUILD SUCCEEDED, git diff --check PASS."
-  - "DONE: Specification and top roadmap updated with explicit source-only distinction and lab physical gate."\n  - "PENDING: Commit/push reviewable PR, await exact-head GitHub CI, merge and set checkpoint completed with merge SHA."
-last_verified_commit: "675d2334fa94ce504879e14f8c9f04ff36853549 (merged QA PR #321)"
+  - "DONE: Specification and top roadmap updated with explicit source-only distinction and lab physical gate."\n  - "DONE: Pushed source commit 8cc43a9aefdeacffa6705fa4d76d2d033de2b118; PR #322 had all 19/19 exact-head checks SUCCESS and CLEAN MERGEABLE gate; merged as 1ce5b482a51b255b2dbb6f1eab5d001bc07ad1b2."
+last_verified_commit: "1ce5b482a51b255b2dbb6f1eab5d001bc07ad1b2 (origin/main merged PR #322, source 8cc43a9aefdeacffa6705fa4d76d2d033de2b118, 19/19 GitHub CI SUCCESS)"
 test_results:
-  - "Final local: Swift Core 159/159 PASS, Python iOS 117 run (1 skipped) PASS, ARM64 iOS Simulator app+PacketTunnel BUILD PASS, 3 new source privacy contracts PASS. Pure comparison only; real Smart3 evidence capture not yet implemented."\n  - "Prior QR physical pixel decode PASS; actual iPhone UI XCTest still blocked (Xcode27.2 XCTFuture1000, CoreSimulator version mismatch); production APL unaffected."
-resume_instruction: "ARC only. Work in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-dryrun-20261104; source-only aggregate Smart4DryRunAudit implemented, local 159 Swift and 117 Python (1 skipped) PASS, unsigned ARM64 App+PacketTunnel BUILD PASS. Next commit and push PR feat/ios-smart4-aggregate-dryrun-20261104, verify exact-head CI and merge when all green, update checkpoint status completed with merge hash. Do not claim real Smart3 egress observation; external confirmed route evidence adapter is a future lab-gated task. Preserve owner iPhone APL 0.1.41 and Keychain/VPN, Apple review, macOS tasks and Watchdog. No RDC."
+  - "Final local: Swift Core 159/159 PASS, Python iOS 117 run (1 skipped) PASS, ARM64 iOS Simulator app+PacketTunnel BUILD PASS, 3 new privacy contracts PASS. GitHub exact-head PR #322 19/19 SUCCESS; MERGED main 1ce5b482a51b255b2dbb6f1eab5d001bc07ad1b2. Real Smart3 evidence capture not implemented."\n  - "Prior QR physical pixel decode PASS; actual iPhone UI XCTest still blocked (Xcode27.2 XCTFuture1000, CoreSimulator version mismatch); production APL unaffected."
+resume_instruction: "COMPLETED: do not repeat source-only Smart4 aggregate QA. PR #322 merged main 1ce5b482a51b255b2dbb6f1eab5d001bc07ad1b2, exact source 8cc43a9a, GitHub CI 19/19 SUCCESS; Swift 159/159, iOS Python 117 (1 skipped) and ARM64 Simulator build PASS. Continue roadmap phase 2b.2 only with independent lab egress evidence, no user traffic logging and no production PacketTunnel change. Real iPhone QR camera/AirDrop/VoiceOver remains blocked by XCTest automation failure on Xcode 27.1/27.2; see .agent/checkpoints/APL-IOS-QR-HARDWARE-20261104.yaml. ARC only; preserve user APL 0.1.41, VPN, Keychain, Apple review, macOS worktree, Watchdog; never RDC."
