@@ -1,3 +1,12 @@
+## 05.11.2026 — iOS 0.2.1 source: безопасная обработка ошибок импорта и исключений
+
+- [x] PR #341: без вывода сырого NSError при сохранении, откате и переподключении Smart Exclusions, 25/25 GitHub CI, merge `64a7d3ce`.
+- [x] PR #340: отмена системного Files Picker не создаёт ошибку импорта; реальные ошибки сохраняют безопасное отображение. Source merge `478738d4`, 25/25 CI, Swift181/181, iOS Python175 (один skipped), ARM64 iOS Simulator и iPhoneOS BUILD, 1/1 реальный системный Files Picker Cancel UI-тест симулятора.
+- [ ] Не путать source с опубликованным бинарником: App Store iOS 0.1.41 публична, версия 0.2.0(48) **WAITING_FOR_REVIEW** по Apple API на 05.11; в ней ещё нет новых QR-функций и этих iOS 0.2.1 исправлений. Номер build/версию до отдельного релизного решения не менять.
+- [ ] Дальше по отдельным gates: Smart4 физическая проверка true egress; 0.1.41→0.2.0 Keychain upgrade на отдельном тестовом iPhone; QR E2E после первого QR-содержащего релиза. Не переносить неподтверждённый native FIN draft PR #314 в main.
+
+---
+
 ## 04.11.2026 — macOS root fix: TestFlight build16 REJECTED
 
 - [x] Physical 65-minute QA FAIL: maximum 308 TCP / 172 CLOSE_WAIT; final 282/141. Availability-only PASS was a false positive. Do NOT ship build16.
@@ -38,7 +47,7 @@
 ## 04.11.2026 — iOS: отмена Files Picker без ложной ошибки
 
 - [x] APL-IOS-FILE-PICKER-CANCEL: корректная отмена системного выбора файла больше не вызывает ошибку импорта. Только NSError(NSCocoaErrorDomain, NSUserCancelledError) считается отменой; реальные сбои чтения по-прежнему показываются. Swift Core176/176, Python171 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel PASS. [Отчёт](APL_IOS_FILE_PICKER_CANCEL_2026-11-04.md).
-- [ ] Следующий самостоятельный PR на базе main 384c2cba, после объединения исходной iOS интеграции #337 и закрытия checkpoint #338.
+- [x] **PR #340 MERGED**, `478738d4`, 25/25 GitHub CI SUCCESS после повторения отменённых macOS jobs; объединён с уже слитым безопасным откатом Smart Exclusions PR #341. На актуальном дереве Swift181/181, iOS Python175 (1 skipped), ARM64 Simulator и unsigned iPhoneOS App+PacketTunnel BUILD PASS, реальный Files Picker Cancel в симуляторе UI 1/1 PASS. Ни рабочий VPN/Keychain iPhone, ни отправленная Apple 0.2.0(48) не менялись.
 
 ---
 
