@@ -13,6 +13,7 @@
 		1BCC34835EBA8F20493A8716 /* QRDeviceQAApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BCE9F74501F0BDF9B4D098 /* QRDeviceQAApp.swift */; };
 		2E46632E9ADB72F18ED73AE0 /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFEE1FEF1A3A598D075CF8 /* QuickVPNActionPolicy.swift */; };
 		2E4FD6F9CB19B45D8FCF0747 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588EFCD9A86070AD0C8B0018 /* ProfileOrganization.swift */; };
+		359C7F863EB7B2D81310E3C7 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */; };
 		41D91A2F45CAEA7EF267007A /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DD5908D5A31FA57C72C90D /* ProxyModel.swift */; };
 		4D0251788611630335DCE302 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */; };
 		52191FE1AED37C0DD3007233 /* ProfileScanPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1BD38D07580B9343B291E2 /* ProfileScanPolicy.swift */; };
@@ -30,6 +31,7 @@
 		B324F017BEB35A7B7662EE04 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */; };
 		B3433FA88194BA52B51D45AB /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006BD83C3696A535381B75CD /* AdaptiveRouteLearning.swift */; };
 		B516209EC06D6860A8E648BC /* ProxyShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3314F6A5DF3BA5EC31640BF9 /* ProxyShareView.swift */; };
+		C23DDE55A3268613B71F922F /* QRSystemShareAttestation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */; };
 		D381A7BBBD69B6DCC76B41BB /* SmartExclusionGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */; };
 		DD67CA3E32A002B841048B99 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = E917C579806F5E305796CED4 /* ApplicationExclusionCapability.swift */; };
 		DF0BF92A2431D1DE5CF207DD /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A859FD3A671DBC3B336DC1 /* ProxyImportStructured.swift */; };
@@ -65,6 +67,7 @@
 		5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionGraph.swift; sourceTree = "<group>"; };
 		623936ADA026CCAFFE1F7F93 /* ProfileBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackup.swift; sourceTree = "<group>"; };
 		7A5452693070E4010A23C8ED /* SiteDependencyDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDependencyDiscovery.swift; sourceTree = "<group>"; };
+		7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRSystemShareAttestation.swift; sourceTree = "<group>"; };
 		9CD3CBEBAE45DCEC71E5C141 /* APLQRDeviceQATests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = APLQRDeviceQATests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowRoutingPolicy.swift; sourceTree = "<group>"; };
 		C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngineHandoff.swift; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		DF6F8102CF74A2F496C1E4A3 /* ProxyQualitySnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQualitySnapshot.swift; sourceTree = "<group>"; };
 		E41ADEFF035FEE1B688936A3 /* APLQRDeviceQA.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = APLQRDeviceQA.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E917C579806F5E305796CED4 /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
+		EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartRouteDryRunAudit.swift; sourceTree = "<group>"; };
 		EDD9735AF1388A236CC032EB /* ProxyProfileSharing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProfileSharing.swift; sourceTree = "<group>"; };
 		F0848A59198154AA7779AD41 /* ProxyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImport.swift; sourceTree = "<group>"; };
 		F3DFEE1FEF1A3A598D075CF8 /* QuickVPNActionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickVPNActionPolicy.swift; sourceTree = "<group>"; };
@@ -110,6 +114,7 @@
 				F7AEBF069D5C798D3597D215 /* SiteExclusionPolicy.swift */,
 				5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */,
 				A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */,
+				EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */,
 				C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */,
 			);
 			name = SharedCore;
@@ -130,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				42BCE9F74501F0BDF9B4D098 /* QRDeviceQAApp.swift */,
+				7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -273,6 +279,7 @@
 				A5578E78D74B8F643E04EE2F /* ProxyQualitySnapshot.swift in Sources */,
 				B516209EC06D6860A8E648BC /* ProxyShareView.swift in Sources */,
 				1BCC34835EBA8F20493A8716 /* QRDeviceQAApp.swift in Sources */,
+				C23DDE55A3268613B71F922F /* QRSystemShareAttestation.swift in Sources */,
 				2E46632E9ADB72F18ED73AE0 /* QuickVPNActionPolicy.swift in Sources */,
 				FBF5494A980B7BC8344626D4 /* RelayConnectionPolicy.swift in Sources */,
 				A282FA2979D7932565EF345A /* SharedIPRouteGuard.swift in Sources */,
@@ -280,6 +287,7 @@
 				FD84580153C45BA7A8C71D70 /* SiteExclusionPolicy.swift in Sources */,
 				D381A7BBBD69B6DCC76B41BB /* SmartExclusionGraph.swift in Sources */,
 				B324F017BEB35A7B7662EE04 /* SmartFlowRoutingPolicy.swift in Sources */,
+				359C7F863EB7B2D81310E3C7 /* SmartRouteDryRunAudit.swift in Sources */,
 				4D0251788611630335DCE302 /* TunnelEngineHandoff.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

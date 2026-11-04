@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-QR-SYSTEM-SHARE-HARDWARE-20261104
+status: in_progress
+goal: "Attest actual iOS system share sheet presentation using isolated synthetic QR QA app on paired physical iPhone, without XCTest, user data, profile migrations, VPN changes or recipient delivery."
+definition_of_done:
+  - "Use distinct QA bundle id and synthetic .invalid profile, not the installed App Store APL or its App Group."
+  - "Implement explicit launch-argument-gated hardware lifecycle audit of UIActivityViewController, storing only boolean/status in isolated QA Documents, with no automatic AirDrop/Messages recipient actions."
+  - "Check physical camera capability/authorization status without requesting permission or capturing frames, and exact shared-core QR image round trip."
+  - "Install/launch independent app, retrieve PASS evidence, verify existing production APL version retained; uninstall QA-only app."
+  - "Run Swift/Python tests, signed device build and source contracts; document limits, commit PR and verify CI."
+completed:
+  - "PR #320 QR source and #321 physical QA harness merged; on-device QR pixels/CIDetector/strict importer PASS on iPhone 13 iOS 27.2."
+  - "iOS physical XCTest remains blocked with XCTFuture 1000 under Xcode 27.1 and Xcode 27.2; CoreSimulator runtime mismatch; iPhone Mirroring requires iPhone locked, and device currently in use."
+current: "On-device iPhone13/iOS27.2 UIKit activity viewDidAppear PASS with synthetic QR, QR decoder/import PASS, camera hardware present without permission; QA app removed and production APL 0.1.41(46) preserved. Full Swift 159/159, Python iOS 119 (1 skipped), signed iPhoneOS build PASS. Commit/push PR, await exact-head CI."
+pending:
+  - "DONE: Explicit QA-only launch flag created synthetic QR and presented real UIKit UIActivityViewController; lifecycle boolean recorded, never sent to recipient."
+  - "DONE: iPhone13/iOS27.2 Share Sheet actually appeared, camera hardware present, permission not requested; QA app removed, APL 0.1.41(46) preserved."
+  - "DONE: Full Swift Core 159/159 PASS, iOS Python 119 (1 skipped) PASS, independent signed physical iPhoneOS QA app BUILD PASS, static diff --check PASS."\n  - "PENDING: Commit/push reviewable PR, verify exact-head CI, merge then close completed checkpoint; second-phone camera/AirDrop/VoiceOver E2E remains separate."
+last_verified_commit: "22c3470c8f10aeea1a61803d781d576306c05034 (origin/main merged completed Smart4 checkpoint PR #323)"
+test_results:
+  - "Signed physical iPhoneOS BUILD and entitlements PASS, iPhone13 QR image and Apple activity viewDidAppear PASS; camera permission not_requested, external_share not_performed; QA app removed and APL 0.1.41(46) preserved."\n  - "Swift Core 159/159 PASS, full iOS Python source/locale contracts 119 tests / 1 skipped PASS, focused QA privacy/isolation 5/5 PASS, git diff --check PASS."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-qr-system-share-hardware-20261104. Real iPhone13 iOS27.2 confirmed QR pixel decode and UIKit activity controller viewDidAppear with fake QR; camera hardware available but no permission requested or frames captured; external share not performed. QA bundle uninstalled, production APL 0.1.41(46) untouched. Next run full iOS Python contracts, commit/push QA-only source and roadmap/docs, await exact-head GitHub CI, merge and record completed checkpoint. Do not claim second-phone Camera/AirDrop/VoiceOver/user-app E2E. Never RDC or alter production VPN/Keychain/Apple review/Watchdog."
