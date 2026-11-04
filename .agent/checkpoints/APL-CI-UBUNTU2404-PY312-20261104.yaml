@@ -1,0 +1,21 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-CI-UBUNTU2404-PY312-20261104
+status: in_progress
+goal: "Restore six GitHub CI security/quality gates broken by ubuntu-latest selecting Ubuntu 26.04 without pinned setup-python 3.12.10, preserving pinned Python and all actual checks."
+definition_of_done:
+  - "Change only six affected Python-based workflows from ubuntu-latest to ubuntu-24.04, keep setup-python SHA and exact Python pin."
+  - "Run workflow YAML/static contracts and verify no required jobs or security steps were skipped/disabled."
+  - "Commit/push independent infra PR, obtain exact-head successful CI for affected workflows, merge, and refresh blocked iOS PR #316."
+  - "Preserve all other project tasks, real iPhone, Apple Review, proxy and Watchdog."
+completed:
+  - "Identified six simultaneous failures in PR #316 caused at setup-python: The version 3.12.10 was not found for Ubuntu 26.04; old checks on previous image green."
+current: "Six Ubuntu 24.04 runner pins implemented, YAML parsing 6/6 and 16/16 related local contracts PASS. Commit/push independent CI repair PR, then exact-head hosted CI."
+pending:
+  - "DONE: Six runner pins, pinned setup-python SHA and Python 3.12.10 retained; new guard test plus 16/16 targeted contracts and six Ruby YAML parses PASS."
+  - "Commit/push PR, verify hosted execution and merge when green."
+  - "Refresh PR #316 from new main then run exact-head CI and merge UI."
+last_verified_commit: "c7c970ef9dcbf3363f4a552d99bd9e3fe71422a3 (origin/main before CI repair)"
+test_results:
+  - "Six Ubuntu 26.04 jobs failed before tests. Local repaired CI YAML parse 6/6 PASS; relevant Python 16/16 PASS; workflow diffs limited to runner pins. Source PR #316 iOS 146 Swift, 107 Python, app+tunnel and UI 1/1 PASS."
+resume_instruction: "Use ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ci-python312-ubuntu2404-20261104. Pin ubuntu-24.04 in .github/workflows/dependency-scan.yml, sast.yml, sbom.yml, apl-ip-001-v0-2-5.yml, apl-ip-001-v0-2-9.yml and apl-reg-001b-sovereign-lifecycle.yml. Keep full existing security checks, Python version 3.12.10 and setup-python pinned action. Run YAML/static contracts; push separate PR and merge on green. Then update blocked PR #316 exact source d43504dc; do not change owner iPhone/VPN, Apple 0.2.0 App Review, macOS CLOSE_WAIT or disabled Watchdog. Never RDC."
