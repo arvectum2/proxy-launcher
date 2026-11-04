@@ -67,7 +67,7 @@
 
 ## 05.11.2026 — Smart Routing 4.0: лабораторный TCP witness (подготовка 2b.2)
 
-- [x] Изолированный no-forwarding TCP witness-сборщик для отдельных DIRECT/PROXY наблюдателей: одноразовый 128-битный токен, bounded JSONL, 120-секундный стенд, 256 проб; только агрегаты без host/IP/секретов. Лабораторный TCP/ACK loopback и adversarial проверки, без интеграции в PacketTunnel. [Протокол](APL_IOS_SMART4_EGRESS_WITNESS_2026-11-05.md).
+- [x] **PR #343 MERGED** (`bdae1c26`, 13/13 GitHub CI): изолированный no-forwarding TCP witness-сборщик для отдельных DIRECT/PROXY наблюдателей: одноразовый 128-битный токен, bounded JSONL, 120-секундный стенд, 256 проб; только агрегаты без host/IP/секретов. Лабораторный TCP/ACK loopback, 17/17 adversarial, iOS Python192 (1 skipped), Swift181 PASS; Windows защищённый writer fail-closed (POSIX-only), без интеграции в PacketTunnel. [Протокол](APL_IOS_SMART4_EGRESS_WITNESS_2026-11-05.md).
 - [ ] Физический gate 2b.2 **не закрыт**: loopback и файлы свидетельств не подтверждают egress настоящего iPhone. Требуются раздельные внешние DIRECT/PROXY наблюдатели, подтверждение подлинного PacketTunnel потока и независимого физического маршрута; production DIRECT не расширять.
 
 ---
