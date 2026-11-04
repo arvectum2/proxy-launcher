@@ -6,7 +6,7 @@ import Foundation
 enum ProxyImportUX {
     private static let english: [String: String] = [
         "Тип прокси по умолчанию": "Default proxy protocol",
-        "Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола.": "Paste proxy links, IP:port:user:password, or import up to 200 proxies from TXT/CSV/XML. The selected protocol only applies to entries without one.",
+        "Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола.": "Paste proxy links, IP:port:user:password, or import up to 200 proxies from TXT/CSV/XML/JSON. The selected protocol only applies to entries without one.",
         "Импорт прокси": "Import proxies",
         "Импортировать прокси": "Import proxies",
         "Ссылка или список прокси": "Proxy link or list",

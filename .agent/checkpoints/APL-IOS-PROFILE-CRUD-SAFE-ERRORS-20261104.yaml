@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-PROFILE-CRUD-SAFE-ERRORS-20261104
+status: in_progress
+goal: "Prevent raw Keychain/storage NSError details leaking into iOS profile save, delete, and bulk-delete error UI while keeping localized user guidance and no CRUD logic change."
+definition_of_done:
+  - "Use verified Localizable 64/64 key for save failure and ProfileManagement 64/64 key for bulk-delete failure, without appending raw NSError."
+  - "Use actionable stable RU/EN fallback for single deletion with no misleading plural; localize VPN-off guard via existing 64/64 ProfileManagement key."
+  - "Preserve profile save, delete ordering, partial deletion result, Keychain preservation, error state, VPN guard and rollback behavior; no error descriptions or credentials sent to logs."
+  - "Portable source+64 language contracts PASS, full iOS Python and Swift Core tests, unsigned ARM64 iOS Simulator app/PacketTunnel build."
+  - "Create isolated PR, merge only after exact-head full hosted CI; mark checkpoint completed in main. Never modify owner's iPhone, VPN/Keychain or Apple submission."
+completed:
+  - "Verified save failure key in Localizable 64/64 and bulk-delete plus VPN-off error keys in ProfileManagement 64/64; current UI directly renders NSError.localizedDescription on save/delete."
+current: "Locally verified scoped CRUD safe error UI: vetted 64-locale save, invalid host, bulk delete and VPN guard strings; accurate safe RU/EN for single delete. Five focused tests, full iOS Python138 (one skipped), Swift159/159, unsigned ARM64 Simulator App+PacketTunnel build and compiled ProfileMutationUX symbol PASS. Commit/push PR, exact-head CI, checkpoint completed after merge."
+pending:
+  - "DONE: Narrow AppViewModel + ProfileMutationUX UI mapping implemented, no ProfileStore/Keychain writes changed."
+  - "DONE: Five source+locale tests, full iOS Python138 (1 skipped), Swift159, ARM64 Simulator App+PacketTunnel build and compiled helper PASS."
+  - "PENDING: Commit/push PR, wait exact-head CI, merge only when fully green, then mark task completed."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main; PR #330, #331 and #332 are independent and not merged)"
+test_results:
+  - "Focused five tests PASS, 64/64 catalog translations, iOS Python138 (1 skipped), Swift159/159, unsigned ARM64 App+PacketTunnel build PASS."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-profile-crud-safe-errors-20261104. ProfileMutationUX and AppViewModel UI fix verified: five focused contracts, 64/64 translation keys, Python138 (1 skipped), Swift159, unsigned ARM64 Simulator App+PacketTunnel build and compiled helper PASS. Next commit/push PR, wait exact-head hosted CI, merge only when fully green, close checkpoint after main merge. PR #330/#331/#332 independent and runner delayed; do not alter their SHA. Native PR314 DRAFT, Apple App Review, iPhone, VPN, Keychain, Watchdog untouched, no RDC."

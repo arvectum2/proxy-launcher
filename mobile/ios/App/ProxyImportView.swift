@@ -124,10 +124,10 @@ struct ProxyImportView: View {
                         } catch {
                             importError = ProxyImportUX.error(error)
                         }
-                    }, onError: { message in
+                    }, onError: { failure in
                         scanQR = false
-                        cameraPermissionDenied = message == "Нет доступа к камере"
-                        importError = ProxyImportUX.text(message)
+                        cameraPermissionDenied = failure.needsCameraSettings
+                        importError = ProxyImportUX.text(failure.localizationKey)
                     }, onReady: { cameraReady = true })
                     .overlay(alignment: .bottom) {
                         Text(ProxyImportUX.text(cameraReady ? "Камера готова — наведите на QR-код" : "Запуск камеры..."))
@@ -144,17 +144,13 @@ struct ProxyImportView: View {
                 }
             }
             .fileImporter(isPresented: $chooseFile,
-                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml],
+                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml, .json],
                           allowsMultipleSelection: false) { result in
                 do {
                     guard let url = try result.get().first else { return }
                     let access = url.startAccessingSecurityScopedResource()
                     defer { if access { url.stopAccessingSecurityScopedResource() } }
-                    let data = try Data(contentsOf: url)
-                    guard data.count <= 256_000, let text = String(data: data, encoding: .utf8) else {
-                        throw ProxyImportError.tooLarge
-                    }
-                    source = text
+                    source = try ProxyImportFileReader.readUTF8(from: url)
                     parse()
                 } catch let caught { importError = ProxyImportUX.error(caught) }
             }

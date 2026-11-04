@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-QR-BINARY-ATTESTATION-20261104
+status: in_progress
+goal: "Prevent a future QR release from passing on source-only Git ancestry: verify actual compiled iOS app bundle includes sender/QR scanner/codec symbols and PacketTunnel, without publishing, replacing app or using the user's iPhone."
+definition_of_done:
+  - "Create deterministic read-only compiled iOS app bundle attestation for QR sender, scanner and share codec; fail closed on mismatched bundle, absent symbols, missing extension, or unverified Git source ref."
+  - "Handle modern Xcode debug executable plus .debug.dylib; never claim proof of Apple-signed IPA or actual App Store publication."
+  - "Add platform-portable hermetic unit tests for symbol extraction/correctness and rejection cases."
+  - "Rebuild unsigned ARM64 iOS Simulator app + PacketTunnel from current exact source ref; verify compiled actual app and report evidence."
+  - "Run full iOS Python and Swift Core regression, document distinctions and next owner-approved post-release two-phone acceptance."
+  - "Merge reviewable PR only after exact-head GitHub CI; checkpoint completed, leaving Apple review and production iPhone unchanged."
+completed:
+  - "Source-provenance gate PR #326 already merged; Apple iOS 0.2.0(48) exact source f0a93f8a lacks QR source, whereas main includes QR PR #320."
+  - "Prior ARM64 Simulator build source contains QR symbols in Xcode .debug.dylib; nm+swift-demangle verified sender, camera scanner, share codec."
+  - "TCP native PR #314 remains DRAFT, blocked on physical FIN/egress QA and must not be included."
+current: "Locally done: unsigned ARM64 Simulator App+PacketTunnel build from exact main 6a661695, compiled QR sender/image/codec/camera Swift symbols verified with actual binary and bundle/extension IDs. Nine focused tests, iOS Python 142 (1 skipped), Swift159/159 PASS. Publish PR and CI, then mark checkpoint completed; no Apple/user device actions."
+pending:
+  - "DONE: Read-only app binary verifier checks exact Git ancestry, bundle/PacketTunnel IDs, compiled QR sender/image/codec/camera Swift symbols including Xcode .debug.dylib."
+  - "DONE: Nine hermetic portable positive and fail-closed tests PASS; full iOS Python 142 run (1 skipped), Swift Core159/159 PASS."
+  - "DONE: Unsigned ARM64 iOS Simulator App+PacketTunnel build from 6a661695 PASS; four real compiled symbol predicates and identities PASS."
+  - "DONE: Documented compiled local QA evidence, signed IPA distinction, owner post-release two-phone acceptance, and roadmap."\n  - "PENDING: Commit/push PR, exact-head hosted CI and merge, completed checkpoint update."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main PR #329 documentation merge; TCP draft PR #314 remains excluded)"
+test_results:
+  - "Unsigned ARM64 Simulator App+PacketTunnel from exact 6a661695 built, four QR compiled symbols and exact App/PacketTunnel bundle IDs PASS."\n  - "Portable QA 9/9, full iOS Python 142 (1 skipped), Swift Core159/159 PASS; Apple signed archive, App Store publication and two-phone QA NOT verified."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-qr-build-artifact-attestation-20261104. Local compiled QR witness implemented from main 6a661695 with unsigned ARM64 Simulator App+PacketTunnel BUILD PASS, four actual demangled QR code symbols PASS, 9 focused, Python142 (1 skipped), Swift159 PASS. Next commit/push PR, await exact-head GitHub CI and merge; close checkpoint. Apple signed 0.2.0(48) source f0a93f8a has no QR despite local debug bundle carrying same version metadata. Never claim signed IPA evidence. Keep owner iPhone/VPN/Keychain, App Review, native FIN draft PR314, CloudKit deferred, Watchdog untouched. ARC only, no RDC."\n

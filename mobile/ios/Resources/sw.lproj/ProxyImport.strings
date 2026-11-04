@@ -1,6 +1,6 @@
 /* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
 "Тип прокси по умолчанию" = "Itifaki chaguo-msingi ya seva mbadala";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Bandika viungo vya seva mbadala, IP:port:user:password, au leta hadi proksi 200 kutoka TXT/CSV/XML. Itifaki iliyochaguliwa inatumika tu kwa maingizo bila moja.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Bandika viungo vya seva mbadala, IP:port:user:password, au leta hadi proksi 200 kutoka TXT/CSV/XML/JSON. Itifaki iliyochaguliwa inatumika tu kwa maingizo bila moja.";
 "Импорт прокси" = "Ingiza proksi";
 "Импортировать прокси" = "Ingiza proksi";
 "Ссылка или список прокси" = "Kiungo cha proksi au orodha";

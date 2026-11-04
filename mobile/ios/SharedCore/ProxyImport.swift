@@ -49,6 +49,8 @@ enum ProxyImport {
         let result: [ImportedProxy]
         if clean.first == "<" {
             result = try ProxyImportStructured.xml(clean, defaultType: fallback)
+        } else if clean.first == "{" || ProxyImportStructured.looksLikeJSONArray(clean) {
+            result = try ProxyImportStructured.json(clean, defaultType: fallback)
         } else if ProxyImportStructured.looksLikeCSV(clean) {
             result = try ProxyImportStructured.csv(clean, defaultType: fallback)
         } else {
@@ -95,7 +97,7 @@ enum ProxyImport {
                              username: username, password: password)
     }
 
-    private static func parseLine(_ text: String, defaultType: ProxyType) throws -> ImportedProxy {
+    static func parseLine(_ text: String, defaultType: ProxyType) throws -> ImportedProxy {
         if text.contains("://") {
             guard let url = URLComponents(string: text), let scheme = url.scheme else {
                 throw ProxyImportError.invalid

@@ -1,6 +1,6 @@
 /* APL iOS lv — machine-assisted source translations; high-risk labels curated; independent native-language editorial QA pending. */
 "Тип прокси по умолчанию" = "Noklusējuma starpniekservera protokols.";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Ielīmējiet starpniekservera saites, IP:ports:lietotājs:parole vai importējiet līdz 200 starpniekserveri no TXT/CSV/XML. Izvēlētais protokols attiecas tikai uz ierakstiem bez tā.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Ielīmējiet starpniekservera saites, IP:ports:lietotājs:parole vai importējiet līdz 200 starpniekserveri no TXT/CSV/XML/JSON. Izvēlētais protokols attiecas tikai uz ierakstiem bez tā.";
 "Импорт прокси" = "Importa starpniekserveri.";
 "Импортировать прокси" = "Importa starpniekserveri.";
 "Ссылка или список прокси" = "Starpniekservera saite vai saraksts";

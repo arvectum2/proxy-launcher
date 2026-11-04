@@ -1,6 +1,6 @@
 /* APL iOS tk — machine-assisted source translations; high-risk labels curated; independent native-language editorial QA pending. */
 "Тип прокси по умолчанию" = "Default proxy protocol Default proxy protokoly";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Proksi baglanyşyklaryny, IP:port:user:password ýa-da 200-e çenli proksileri TXT/CSV/XML-den import ediň. Saýlanan protokol diňe bir proksi bolmadyk girdejilere degişlidir.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Proksi baglanyşyklaryny, IP:port:user:password ýa-da 200-e çenli proksileri TXT/CSV/XML/JSON-den import ediň. Saýlanan protokol diňe bir proksi bolmadyk girdejilere degişlidir.";
 "Импорт прокси" = "Proksileri import ediň";
 "Импортировать прокси" = "Proksileri import ediň";
 "Ссылка или список прокси" = "Proksi baglanyşygy ýa-da sanawy";

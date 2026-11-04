@@ -1,6 +1,6 @@
 /* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
 "Тип прокси по умолчанию" = "Oletusvälityspalvelinprotokolla";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Liitä välityspalvelinlinkkejä tai IP:port:user:password-rivejä, tai tuo enintään 200 välityspalvelinta TXT/CSV/XML-tiedostosta. Valittu protokolla koskee vain tietueita, joissa sitä ei ole määritetty.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Liitä välityspalvelinlinkkejä tai IP:port:user:password-rivejä, tai tuo enintään 200 välityspalvelinta TXT/CSV/XML/JSON-tiedostosta. Valittu protokolla koskee vain tietueita, joissa sitä ei ole määritetty.";
 "Импорт прокси" = "Tuo välityspalvelimet";
 "Импортировать прокси" = "Tuo välityspalvelimet";
 "Ссылка или список прокси" = "Välityspalvelinlinkki tai luettelo";

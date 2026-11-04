@@ -1,6 +1,6 @@
 /* APL iOS — sl machine translation draft, requires editorial QA. Source keys immutable. */
 "Тип прокси по умолчанию" = "Privzeti proxy protokol";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Prilepite proxy povezave, IP:vrata:uporabnik:geslo ali uvozite do 200 proxyjev iz TXT/CSV/XML. Izbrani protokol velja samo za vnose brez njega.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Prilepite proxy povezave, IP:vrata:uporabnik:geslo ali uvozite do 200 proxyjev iz TXT/CSV/XML/JSON. Izbrani protokol velja samo za vnose brez njega.";
 "Импорт прокси" = "Uvoz proxyjev";
 "Импортировать прокси" = "Uvoz proxyjev";
 "Ссылка или список прокси" = "Proxy povezava ali seznam";
