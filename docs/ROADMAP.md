@@ -1,3 +1,11 @@
+## 04.11.2026 — macOS CLOSE_WAIT root fix (candidate for next release)
+
+- [x] Root cause found in pinned Rust tun2proxy half-close join; native bounded cleanup implemented, 4 Rust tests including real TCP FIN passed.
+- [x] macOS 96-session engine limit, Smart3 FFI retained, full Catalyst Debug build and 31 focused Python contracts passed.
+- [ ] Signed TestFlight, 60+ minute physical MacBook QA and public distribution; existing public 0.2.21 remains untouched. Details: docs/APL_MACOS_CLOSEWAIT_ROOTFIX_20261104.md.
+
+---
+
 ## 04.11.2026 — iOS 0.2.0 (48): релизный срез, заменяет устаревшую очередь от 02.11
 
 **ИТОГ 04.11:** GitHub PR #306 объединён в main (99f73ce42b2); PR #296 и #302–#305 закрыты как superseded. Все 16/16 GitHub CI завершились успешно. Версия iOS 0.2.0(48) находится на Apple App Review, WAITING_FOR_REVIEW; до решения Apple ещё не опубликована.

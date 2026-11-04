@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-CLOSEWAIT-ROOTFIX-20261104
+status: in_progress
+goal: "Eliminate persistent upstream proxy TCP/CLOSE_WAIT accumulation on macOS without user reconnect, while preserving working App Store 0.2.21, all profiles and independent ARC/Tailscale."
+definition_of_done:
+  - "Identify accountable owner of stale TCP sockets in Network Extension with measured evidence, not infer root cause from generic threshold events."
+  - "Implement bounded socket lifetime and deterministic cleanup at the responsible layer, with rate-limited safe recovery and no rogue concurrent tun2proxy runners."
+  - "Test real socket lifecycle, stress resource bounds, run focused regressions and build the touched macOS target when native dependencies permit."
+  - "Physically QA proxy egress and ARC/Tailscale continuity without disrupting the working signed public 0.2.21."
+  - "Commit/push reviewable fix and update roadmap/checkpoint accurately; no App Store publication until release QA gates."
+completed:
+  - "Verified MacBook signed public 0.2.21 build15 VPN Connected, egress via backup USA 200.0.60.91, three profiles intact, independent ARC Tailscale online."
+  - "Historical telemetry records 1689 upstream sockets / 1655 CLOSE_WAIT and current 66 TCP / 24 CLOSE_WAIT; main PX6 upstream remains unreachable."
+  - "Created isolated worktree fix/apl-macos-closewait-root-20261104 from origin/main 5ed0c3dfa9d9eebdad6e19d25447033072204bcc."
+current: "Native root fix and full unsigned Mac Catalyst Debug app/PacketTunnel build PASS; 4 Rust including real TCP FIN plus 23+5+3 contracts PASS. Commit PR, then signed beta and physical 60min QA pending."
+pending:
+  - "Rust bounded half-close and preserved Smart3 ABI implemented and compiled."
+  - "Rust 4 tests (including live FIN) and 31 Python contracts PASS."
+  - "Create PR, obtain green CI, arrange signed beta and 60min physical QA."
+last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc (origin/main baseline)."
+test_results:
+  - "MacBook signed public 0.2.21(15) remains connected via backup; 3 profiles and ARC/Tailscale safe; not replaced."
+  - "Pinned native Rust 4 async tests PASS; Mac Catalyst library full Smart3 ABI and full unsigned Debug app+PacketTunnel PASS."
+  - "macOS contracts 23, appearance 5, native socket contracts 3 all PASS."
+resume_instruction: "Start at isolated /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-closewait-rootfix-20261104, branch fix/apl-macos-closewait-root-20261104. Current code fix in mobile/macos-appstore/Tools/tun2proxy-closewait-halfclose.patch, fetch script applies full Smart3 native chain, Swift macOS-only --max-sessions 96 and pressure monitor, XcodeGen App source wiring. 4 Rust tests including real peer FIN PASS, native library and full unsigned Mac Catalyst app+PacketTunnel PASS, 23+5+3 Python tests PASS. Commit/push PR and check CI; then signed beta + 60min MacBook QA, not yet done. Keep public App Store 0.2.21(15) installed, ARC/Tailscale and all profiles safe, no unsigned replacement. Do not change iOS submission or enable disabled Watchdog."

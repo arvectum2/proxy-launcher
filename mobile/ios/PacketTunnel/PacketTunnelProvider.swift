@@ -122,7 +122,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 if prepared.automaticSelection {
                     store?.lastAutoProfileID = prepared.storedProfile.id
                 }
-                connectionPressurePolicy = ConnectionPressurePolicy()
+                resetConnectionPressurePolicy()
                 startSocketPressureMonitor()
                 telemetry.append(TunnelEvent(
                     type: "connected",
@@ -260,6 +260,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         // to the patched virtual DNS; other hosts keep proxy-side name lookup.
         let dnsBypassFlags = exclusions.dnsBypass.map { "--dns-bypass \($0)" }.joined(separator: " ")
         var args = "tun2proxy-bin --proxy \(proxyURL) --tun-fd \(tunFD) --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn \(dnsBypassFlags)"
+#if targetEnvironment(macCatalyst)
+        // This proxy account permits 200 sessions across several devices.
+        // Cap this Mac's concurrent engine sessions below half the
+        // provider's advertised account-wide 200-connection ceiling.
+        // 96 preserves previously observed healthy bursts of 81 connections.
+        // The Rust half-close fix reaps stale sessions before this limit.
+        args += " --max-sessions 96"
+#endif
 #if DEBUG
         let physicalLab = qaScopedDirect
 #else
@@ -298,6 +306,24 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         try await Task.sleep(nanoseconds: 350_000_000)
         try Task.checkCancellation()
         guard !stopping else { throw CancellationError() }
+    }
+
+    private func resetConnectionPressurePolicy() {
+#if targetEnvironment(macCatalyst)
+        // Native engine cap is 96. Pressure above that indicates stale FDs
+        // across runners or a separate TLS relay; do not recycle the engine
+        // on a normal short high-traffic burst within its configured cap.
+        connectionPressurePolicy = ConnectionPressurePolicy(
+            softSocketLimit: 108,
+            softCloseWaitLimit: 28,
+            hardSocketLimit: 150,
+            hardCloseWaitLimit: 55,
+            requiredConsecutiveSamples: 2,
+            minimumRecoveryInterval: 2 * 60
+        )
+#else
+        connectionPressurePolicy = ConnectionPressurePolicy()
+#endif
     }
 
     // Runs even for manually selected profiles; the ordinary failover monitor
@@ -416,7 +442,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             store?.lastAutoProfileID = prepared.storedProfile.id
             if reason != "connection pressure" {
                 store?.lastFailoverAt = Date()
-                connectionPressurePolicy = ConnectionPressurePolicy()
+                resetConnectionPressurePolicy()
             }
             if reason == "primary restored" { store?.clearRecentlyFailed() }
             telemetry.append(TunnelEvent(

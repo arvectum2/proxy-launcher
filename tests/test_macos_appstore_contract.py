@@ -65,7 +65,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn('SOURCE_COMMIT = "e271de19683937f23d3f8f0eb4df0a61fc4a6e50"', FETCH)
         self.assertIn('RUST_TARGET = "aarch64-apple-ios-macabi"', FETCH)
         self.assertIn("-create-xcframework", FETCH)
-        self.assertIn("bounded-tokio-shutdown-and-exact-host-split-dns", FETCH)
+        self.assertIn("bounded-tokio-shutdown-full-smart3-flow-stack-and-bounded-tcp-halfclose", FETCH)
         self.assertIn("rt.shutdown_timeout(std::time::Duration::from_secs(2))", FETCH)
         self.assertIn("stop_watch.cancelled().await", FETCH)
         self.assertIn("tun2proxy-split-dns.patch", FETCH)

@@ -1,32 +1,26 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-021-APPSTORE-CONNECTION-20261104
-status: completed
-goal: "Fix VPN connection broken on MacBook after macOS App Store APL 0.2.21 build 15 update, and prevent stale NetworkExtension signing registration on future upgrades."
+task_id: APL-MAC-CLOSEWAIT-ROOTFIX-20261104
+status: in_progress
+goal: "Eliminate persistent upstream proxy TCP/CLOSE_WAIT accumulation on macOS without user reconnect, while preserving working App Store 0.2.21, all profiles and independent ARC/Tailscale."
 definition_of_done:
-  - "Identify App Store update failure with actual system evidence and confirm upstream proxies independently."
-  - "Safely restore MacBook signed App Store APL VPN connectivity and proxy HTTPS egress, preserving all profiles and ARC/Tailscale."
-  - "Implement explicit macOS-only VPN configuration repair and build-number reconciliation, run focused tests, commit/PR."
-  - "Document any unrelated historical socket-pressure issues and limitations without claiming they are fixed or shipping an untested build."
+  - "Identify accountable owner of stale TCP sockets in Network Extension with measured evidence, not infer root cause from generic threshold events."
+  - "Implement bounded socket lifetime and deterministic cleanup at the responsible layer, with rate-limited safe recovery and no rogue concurrent tun2proxy runners."
+  - "Test real socket lifecycle, stress resource bounds, run focused regressions and build the touched macOS target when native dependencies permit."
+  - "Physically QA proxy egress and ARC/Tailscale continuity without disrupting the working signed public 0.2.21."
+  - "Commit/push reviewable fix and update roadmap/checkpoint accurately; no App Store publication until release QA gates."
 completed:
-  - "Verified App Store 0.2.21 build15 on MacBook. App and embedded PacketTunnel codesign valid with Apple Mac OS Application Signing, team VML75VY94V."
-  - "Actual root cause: nesessionmanager Signature check failed, NEVPNTunnelPlugin Validation of the extension failed, NEVPNConnectionErrorDomainPlugin code7 before upstream network use. Saved macOS VPN configuration carried obsolete signing requirement from TestFlight/developer distribution."
-  - "Proxy reachability: PX6 primary 68.209.60.141:8000 timeout, Netherlands 2 and US backup TCP reachable."
-  - "Backed up MacBook App Group preferences to ~/Library/Application Support/ArvectumQA/20261104/recovery/; verified all three stored proxy profiles remain."
-  - "Removed only disconnected Arvectum VPN configuration through macOS Settings and re-created using App Store APL with standard macOS VPN authorization. Tailscale configuration untouched."
-  - "MacBook restored: App Store build15 Connected, proxy egress 200.0.60.91, 15/15 concurrent HTTPS 200, TCP 23/CLOSE_WAIT 0 after 17 minutes, ARC userspace Tailscale Running/Online, all profiles and passwords preserved."
-  - "Implemented future build-number reconciliation (marketing version plus CFBundleVersion), explicit confirmation-protected macOS Settings VPN repair that removes only own disconnected VPN manager, no silent operation at launch."
-  - "Regression checks: macOS store contracts 23/23 PASS, appearance tests 5/5 PASS, isolated Mac Catalyst VPNController.swift typecheck PASS."
-  - "Full updated origin/main Catalyst build blocked by separate native dependency mismatch: SmartFlowEventCollector.swift calls new tun2proxy FFI symbols absent in available release Catalyst framework. Did not replace working signed App Store app."
-current: "DONE: MacBook Store 0.2.21 (15) connection restored through fresh Arvectum-only VPN registration; future repair UI + build stamping merged to main in PR #308. No newer App Store version installed or published."
+  - "Verified MacBook signed public 0.2.21 build15 VPN Connected, egress via backup USA 200.0.60.91, three profiles intact, independent ARC Tailscale online."
+  - "Historical telemetry records 1689 upstream sockets / 1655 CLOSE_WAIT and current 66 TCP / 24 CLOSE_WAIT; main PX6 upstream remains unreachable."
+  - "Created isolated worktree fix/apl-macos-closewait-root-20261104 from origin/main 5ed0c3dfa9d9eebdad6e19d25447033072204bcc."
+current: "Native root fix and full unsigned Mac Catalyst Debug app/PacketTunnel build PASS; 4 Rust including real TCP FIN plus 23+5+3 contracts PASS. Commit PR, then signed beta and physical 60min QA pending."
 pending:
-  - "PR #308 merged into main as 6c3bf207fc788a552fb5ee986afdd1c4ac43c78a, with 23 CI checks PASS, 4 skipped at merge; remaining 3 background unsigned iOS build jobs were still running and are unrelated to Mac VPN fix."
-  - "Separate follow-up investigation of historical 1689 TCP / 1655 CLOSE_WAIT pressure events, not conflated with stale signature validation."
-  - "Before a future macOS App Store release, reconcile Smart3 native FFI framework and perform full signed build and physical QA. No new app build has been shipped."
-last_verified_commit: "6c3bf207fc788a552fb5ee986afdd1c4ac43c78a (PR #308 merged; verified MacBook Store app restored; 23 macOS contracts + 5 appearance tests + isolated Catalyst source typecheck PASS)."
+  - "Rust bounded half-close and preserved Smart3 ABI implemented and compiled."
+  - "Rust 4 tests (including live FIN) and 31 Python contracts PASS."
+  - "Create PR, obtain green CI, arrange signed beta and 60min physical QA."
+last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc (origin/main baseline)."
 test_results:
-  - "MacBook signed Store app 0.2.21(15): VPN Connected, US egress 200.0.60.91, HTTPS 15/15, ARC/Tailscale online, three profiles intact."
-  - "23 macOS store contract tests + 5 appearance tests PASS."
-  - "Standalone Catalyst Swift typecheck of actual modified VPNController PASS."
-  - "Full main Catalyst build blocked by existing missing Smart3 native FFI symbols, unrelated to this patch."
-resume_instruction: "Use /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-021-appstore-connection-20261104. MacBook operationally FIXED: stale macOS VPN signing requirement recreated only Arvectum VPN; active App Store 0.2.21(15) Connected via US backup 200.0.60.91, 15/15 HTTPS, 0 CLOSE_WAIT, ARC online and three proxy profiles preserved. Source patch and tests prepared; commit, push, create PR and check CI. Do not replace working App Store build15 or mutate iOS release. Current main Catalyst build requires separate Smart3 native FFI symbols absent in the old macOS tun2proxy framework. Previous 1689/1655 socket pressure remains a separate potential issue, do not claim fixed. See docs/releases/0.2.21-macos-appstore-vpn-signature-repair-20261104.md. Once source merged set status completed and sync canonical checkpoint; Proxy Launcher Watchdog must remain disabled."
+  - "MacBook signed public 0.2.21(15) remains connected via backup; 3 profiles and ARC/Tailscale safe; not replaced."
+  - "Pinned native Rust 4 async tests PASS; Mac Catalyst library full Smart3 ABI and full unsigned Debug app+PacketTunnel PASS."
+  - "macOS contracts 23, appearance 5, native socket contracts 3 all PASS."
+resume_instruction: "Start at isolated /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-closewait-rootfix-20261104, branch fix/apl-macos-closewait-root-20261104. Current code fix in mobile/macos-appstore/Tools/tun2proxy-closewait-halfclose.patch, fetch script applies full Smart3 native chain, Swift macOS-only --max-sessions 96 and pressure monitor, XcodeGen App source wiring. 4 Rust tests including real peer FIN PASS, native library and full unsigned Mac Catalyst app+PacketTunnel PASS, 23+5+3 Python tests PASS. Commit/push PR and check CI; then signed beta + 60min MacBook QA, not yet done. Keep public App Store 0.2.21(15) installed, ARC/Tailscale and all profiles safe, no unsigned replacement. Do not change iOS submission or enable disabled Watchdog."

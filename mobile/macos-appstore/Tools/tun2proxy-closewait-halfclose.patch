@@ -1,0 +1,164 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index bd19048..a5948d6 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -546,6 +546,36 @@ async fn verify_ipv6_tls_first_record(
+         "physical first TLS record timed out"))?
+ }
+ 
++/// When the proxy sends FIN, a virtual client may hold its sending half
++/// open indefinitely. A join! holds the upstream socket in CLOSE_WAIT until
++/// that client also sends FIN. Bound both half-close completion directions.
++async fn bounded_half_close<C, S>(
++    client_to_server: C,
++    server_to_client: S,
++    after_server_eof: std::time::Duration,
++    after_client_eof: std::time::Duration,
++) -> (Option<tokio::io::Result<u64>>, Option<tokio::io::Result<u64>>)
++where
++    C: std::future::Future<Output = tokio::io::Result<u64>>,
++    S: std::future::Future<Output = tokio::io::Result<u64>>,
++{
++    tokio::pin!(client_to_server);
++    tokio::pin!(server_to_client);
++    tokio::select! {
++        result = &mut server_to_client => {
++            // Proxy sent FIN; dropping the other future releases its write
++            // half, avoiding indefinite CLOSE_WAIT on the proxy socket.
++            let other = tokio::time::timeout(after_server_eof, &mut client_to_server).await.ok();
++            (other, Some(result))
++        }
++        result = &mut client_to_server => {
++            // Client sent FIN: allow a final response to drain first.
++            let other = tokio::time::timeout(after_client_eof, &mut server_to_client).await.ok();
++            (Some(result), other)
++        }
++    }
++}
++
+ async fn handle_tcp_session(
+     mut tcp_stack: IpStackTcpStream,
+     proxy_handler: Arc<Mutex<dyn ProxyHandler>>,
+@@ -698,7 +728,7 @@ async fn handle_tcp_session(
+     let (mut t_rx, mut t_tx) = tokio::io::split(tcp_stack);
+     let (mut s_rx, mut s_tx) = tokio::io::split(server);
+ 
+-    let res = tokio::join!(
++    let res = bounded_half_close(
+         async move {
+             let r = copy_and_record_traffic(&mut t_rx, &mut s_tx, true, observed_host, observed_id, lab_direct && uses_direct).await;
+             if let Err(err) = s_tx.shutdown().await {
+@@ -713,7 +743,9 @@ async fn handle_tcp_session(
+             }
+             r
+         },
+-    );
++        std::time::Duration::from_secs(2),
++        std::time::Duration::from_secs(30),
++    ).await;
+     log::info!("Ending {session_info} with {res:?}");
+ 
+     Ok(())
+@@ -1129,3 +1161,102 @@ mod ios_ipv6_first_record_contract_tests {
+                       .unwrap_err().kind(),std::io::ErrorKind::InvalidData);
+     }
+ }
++
++
++#[cfg(test)]
++mod apl_halfclose_regression_tests {
++    use super::*;
++
++    #[tokio::test]
++    async fn upstream_fin_reaps_pending_client_forwarder() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                std::future::pending::<tokio::io::Result<u64>>(),
++                async { Ok(10) },
++                std::time::Duration::from_millis(20),
++                std::time::Duration::from_millis(50),
++            ),
++        ).await.expect("upstream FIN must not leave a pending client read");
++        assert!(result.0.is_none());
++        assert_eq!(result.1.unwrap().unwrap(), 10);
++    }
++
++    #[tokio::test]
++    async fn client_fin_reaps_pending_upstream_forwarder() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                async { Ok(5) },
++                std::future::pending::<tokio::io::Result<u64>>(),
++                std::time::Duration::from_millis(20),
++                std::time::Duration::from_millis(50),
++            ),
++        ).await.expect("client FIN must not leave a pending remote read");
++        assert_eq!(result.0.unwrap().unwrap(), 5);
++        assert!(result.1.is_none());
++    }
++
++    /// A real loopback upstream sends FIN, but the virtual browser never
++    /// sends EOF. The patched relay must drop both split upstream halves.
++    #[tokio::test]
++    async fn real_tcp_fin_closes_proxy_fd_while_browser_remains_open() {
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++
++        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
++            .await.expect("loopback listener");
++        let addr = listener.local_addr().unwrap();
++        let peer = tokio::spawn(async move {
++            let (mut accepted, _) = listener.accept().await.unwrap();
++            accepted.shutdown().await.unwrap(); // sends upstream FIN
++            let mut buf = [0u8; 1];
++            // Closing the upstream client's remaining write half must
++            // deliver EOF here, before the untouched browser closes.
++            tokio::time::timeout(
++                std::time::Duration::from_millis(600),
++                accepted.read(&mut buf),
++            ).await.expect("proxy socket leaked after server FIN")
++                .expect("proxy read error")
++        });
++        let server = tokio::net::TcpStream::connect(addr).await.unwrap();
++        let (client_to_tunnel, _browser_open) = tokio::io::duplex(1024);
++        let (mut t_rx, mut t_tx) = tokio::io::split(client_to_tunnel);
++        let (mut s_rx, mut s_tx) = tokio::io::split(server);
++
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(500),
++            bounded_half_close(
++                async move {
++                    let n = tokio::io::copy(&mut t_rx, &mut s_tx).await;
++                    s_tx.shutdown().await?;
++                    n
++                },
++                async move {
++                    let n = tokio::io::copy(&mut s_rx, &mut t_tx).await;
++                    t_tx.shutdown().await?;
++                    n
++                },
++                std::time::Duration::from_millis(35),
++                std::time::Duration::from_millis(80),
++            ),
++        ).await.expect("half-closed upstream stuck waiting for browser EOF");
++        assert!(result.0.is_none(), "browser must still be open");
++        assert_eq!(result.1.unwrap().unwrap(), 0);
++        assert_eq!(peer.await.unwrap(), 0, "upstream socket was not closed");
++    }
++
++    #[tokio::test]
++    async fn both_sides_finish_immediately() {
++        let result = tokio::time::timeout(
++            std::time::Duration::from_millis(200),
++            bounded_half_close(
++                async { Ok(1) },
++                async { Ok(2) },
++                std::time::Duration::from_secs(2),
++                std::time::Duration::from_secs(30),
++            ),
++        ).await.expect("both sides complete immediately");
++        assert_eq!(result.0.unwrap().unwrap(), 1);
++        assert_eq!(result.1.unwrap().unwrap(), 2);
++    }
++}
