@@ -38,7 +38,7 @@
 ## 04.11.2026 — iOS: консолидация после macOS 0.2.22
 
 - [x] В отдельной интеграционной ветке поверх main с macOS PR #310 сведены iOS PR #330, #331, #332, #333, #335, #336: QR бинарная проверка, безопасные локализованные ошибки камеры/копии/профилей, JSON-импорт и порционное чтение файлов. Устранено пересечение в ProxyImportView, Xcode-проект пересобран, релизный macOS PacketTunnel не изменён. Swift171/171, Python168 (один skipped), unsigned ARM64 Simulator App+PacketTunnel BUILD, бинарные QR/JSON symbols и 64/64 локализаций PASS. [Протокол](APL_IOS_INTEGRATION_AFTER_MAC_RELEASE_2026-11-04.md).
-- [ ] Единый integration PR: exact-head GitHub CI и merge в main, закрытие шести исходных PR и checkpoint completed.
+- [x] Единый PR #337 **объединён с main** при 19/19 успешных GitHub CI, merge 268dfc6b; шесть исходных PR #330/#331/#332/#333/#335/#336 закрыты как superseded, отдельные истории сохранены.
 - [ ] Будущий подписанный iOS-релиз и проверка импорта/Keychain на устройстве; двухайфонный QR E2E — после первого QR-релиза. Нативный PR #314 остаётся черновиком.
 
 ---

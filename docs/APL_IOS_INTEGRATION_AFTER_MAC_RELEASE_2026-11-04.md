@@ -70,3 +70,7 @@ were not treated as proof of successful checks. Only AFTER this integration
 PR is merged may the six now-superseded PRs be closed with a reference to
 the exact merged source. Preserve archived individual task checkpoints
 and change their status to completed only when that merge is confirmed.
+
+## Main integration result
+
+PR #337 merged on 4 Nov 2026 at commit 268dfc6b418204847f788b61fa49347a3e0bc7a9 after **19/19 hosted GitHub CI checks SUCCESS** on source 841d1bd0. All six original iOS PRs #330/#331/#332/#333/#335/#336 were then closed as superseded, not individually merged. This source integration does not imply a signed iOS IPA or release.

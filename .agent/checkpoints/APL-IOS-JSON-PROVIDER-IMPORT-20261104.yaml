@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-JSON-PROVIDER-IMPORT-20261104
-status: in_progress
+status: completed
 goal: "Extend existing bounded offline universal proxy import with provider JSON files/clipboard (single proxy, array or {proxies: array}) while preserving all-or-nothing 200-record/256KB limits, legacy IPv6 raw notation and user permission/preview flow."
 definition_of_done:
   - "Parse bounded JSON dictionaries and arrays of proxy record objects or proxy-link strings using current ProxyImport.item/parseLine validation, alias normalization and exact password handling. Reject malformed, unsupported, numeric/bool host, invalid port, conflicting canonical aliases and nested/ambiguous records."
@@ -13,12 +13,10 @@ definition_of_done:
 completed:
   - "Inspected existing ProxyImport.swift and ProxyImportStructured.swift: TXT/CSV/XML and URL/QR mass import already complete, 200 records / 256 KB and dedup preview already implemented. JSON not handled and UTType.json omitted."
   - "Confirmed all 64 ProxyImport.strings translations contain literal TXT/CSV/XML in the help string, so format list can be extended without rewriting translations."
-current: "DONE locally: offline JSON importer accepts single/mixed arrays and proxies wrapper with existing aliases, 200/256KB bounds, IPv6/Unicode, fail-closed record validation, legacy formats preserved; all 64 format help values updated. 6 focused Swift tests, full Swift165, five Python contracts and iOS Python133 (one skipped), all 64 strings lint, unsigned ARM64 Simulator App+PacketTunnel build and compiled JSON symbol PASS. Next PR, exact-head CI and merge."
-pending:
-  - "DONE: Offline JSON object/array/proxies-wrapper parser, alias normalization, typed port and credential validation, IPv6-safe detection, JSON file picker and 64 locale help values."
-  - "DONE: Swift Core165/165 (6 JSON), Python iOS133 (1 skipped) and five focused source contracts, strings lint64/64, unsigned ARM64 App+PacketTunnel and compiled JSON symbol PASS."
-  - "PENDING: Commit and PR, exact-head hosted CI, merge and mark checkpoint completed."
-last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main; PR #330/#331/#332/#333 independent pending macOS runners)"
+  - "DONE: PR #337 integration source 841d1bd0 merged at 268dfc6b418204847f788b61fa49347a3e0bc7a9 after 19/19 hosted CI SUCCESS; six source PRs #330/#331/#332/#333/#335/#336 closed as superseded, draft PR #314 preserved."
+current: "COMPLETED: iOS source consolidated with current main including macOS #310. GitHub integration PR #337 merged at 268dfc6b418204847f788b61fa49347a3e0bc7a9, exact-source 19/19 CI SUCCESS. Swift171/171, iOS Python168 (1 skipped), ARM64 iOS Simulator App+PacketTunnel build PASS, six source PRs closed as superseded. Owner hardware, VPN/Keychain and Apple untouched."
+pending: []
+last_verified_commit: "268dfc6b418204847f788b61fa49347a3e0bc7a9 (main merge PR #337, exact head 841d1bd0, 19/19 GitHub checks SUCCESS; local Swift171, Python168, ARM64 app PASS)"
 test_results:
   - "Full Swift165 (JSON6), iOS Python133 (1 skipped), focused Python5, plutil lint64/64, ARM64 App+PacketTunnel unsigned BUILD and compiled JSON parser symbol PASS."
-resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-json-proxy-import-20261104. JSON supplier import source/64 locale UI implemented, all tests and unsigned ARM64 App+PacketTunnel build PASS: Swift165/165 (6 JSON), iOS Python133 (1 skipped), five contracts, plist lint64/64, compiled JSON symbol. Next commit/push standalone PR, exact-head GitHub CI; merge only after all required checks green; completed checkpoint in main after merge. PR #330-#333 separate, often queued/cancelled macOS runners; do NOT stall independent iOS implementation. No user iPhone/VPN/Keychain/Apple, PR314 draft, Watchdog or RDC."
+resume_instruction: "COMPLETED — do not repeat iOS PRs #330/#331/#332/#333/#335/#336 or main consolidation. Source merged as PR #337 at 268dfc6b418204847f788b61fa49347a3e0bc7a9 after 19/19 hosted CI SUCCESS. Continue distinct next iOS task APL-IOS-FILE-PICKER-CANCEL-20261104, prepared locally at commit 43077393 in worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-file-picker-cancel-20261104. Rebase its change onto main and do independent exact-head CI. Preserve owner iPhone/VPN/Keychain, Apple reviews, draft PR #314 and Watchdog; ARC only, no RDC."
