@@ -21,20 +21,26 @@ enum ProxyProfileSharing {
             username: profile.username ?? "", password: password ?? "",
             type: profile.type, name: profile.name
         )
-        // Construct the authority exactly as the receiver's strict parser
-        // does. Foundation versions differ in whether the host getter
-        // includes IPv6 brackets, and setting a bracketed host may encode
-        // it a second time on older SDKs.
+        // Encode userinfo and fragment with only RFC 3986 unreserved scalars.
+        // URLComponents setters differ across Foundation versions for custom
+        // SOCKS5 schemes and reserved username punctuation (e.g. colon).
         let authority = checked.host.contains(":") && !checked.host.hasPrefix("[")
             ? "[\(checked.host)]" : checked.host
-        guard var transport = URLComponents(
-            string: "\(scheme)://\(authority):\(checked.port)") else {
-            throw ProxyImportError.invalid
+        let unreserved = CharacterSet(charactersIn:
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
+        func encoded(_ value: String) throws -> String {
+            guard let output = value.addingPercentEncoding(withAllowedCharacters: unreserved)
+            else { throw ProxyImportError.invalid }
+            return output
         }
-        if !checked.username.isEmpty { transport.user = checked.username }
-        if !checked.password.isEmpty { transport.password = checked.password }
-        if !checked.name.isEmpty { transport.fragment = checked.name }
-        guard let proxyURL = transport.string else { throw ProxyImportError.invalid }
+        let userInfo: String
+        if !checked.username.isEmpty || !checked.password.isEmpty {
+            userInfo = "\(try encoded(checked.username)):\(try encoded(checked.password))@"
+        } else {
+            userInfo = ""
+        }
+        let fragment = checked.name.isEmpty ? "" : "#\(try encoded(checked.name))"
+        let proxyURL = "\(scheme)://\(userInfo)\(authority):\(checked.port)\(fragment)"
 
         // Round-trip secrets and non-ASCII fields before producing a QR.
         let decoded = try ProxyImport.parse(proxyURL)

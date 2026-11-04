@@ -11,7 +11,7 @@
 ## Wire format and security
 
 - The URI is arvectum-proxy://import?data=..., using a percent-encoded canonical HTTP/HTTPS/SOCKS5 proxy URI with optional username, password and profile name fragment. AUTO is not a transferable upstream scheme.
-- URLComponents percent-encodes reserved characters, IPv6 and Unicode; the sender validates exact round-trip through the receiver parser before generating. 1800-byte QR URI cap.
+- The sender applies explicit RFC 3986 percent-encoding of username/password/name; the sender validates exact round-trip through the receiver parser before generating. 1800-byte QR URI cap.
 - Fixes an existing importer issue: URLComponents.user/password/fragment are already percent-decoded; the previous additional removingPercentEncoding damaged percent-containing credentials.
 - macOS 26 GitHub Swift runner and macOS 27 local Foundation expose IPv6 host brackets differently. The sender now constructs the URL from validated bracketed authority and compares canonical IPv6 host identity only after stripping optional enclosing brackets; username, password, protocol, port and name remain strictly equal. This was caught by PR #319 hosted core-tests and corrected before merge.
 - Generated QR is not stored to App Group, UserDefaults or logs; sheet dismissal releases its view state. Third-party share recipients may independently retain the image/link. Rotating upstream credentials is the only reliable revocation after sharing.
@@ -26,3 +26,7 @@
 - **Remaining device gate:** real iPhone-to-iPhone QR scanning, system Camera/AirDrop/Messages delivery, VoiceOver, actual profile import and unchanged active VPN; no owner production device or paid proxy experimentation.
 
 Source-only post-0.2.0 work. The already submitted iOS 0.2.0(48) App Review is untouched; no new App Store version or production VPN change.
+
+## Hosted CI compatibility follow-up
+
+- GitHub macos-26-arm64 exposed a mismatch with Foundation URLComponents setters for custom SOCKS5 URI username punctuation; local macOS 27 tests alone did not catch it. Sender now builds strictly percent-encoded credentials and name from RFC 3986 unreserved characters and uses the same existing import parser to verify a lossless round trip. IPv6 brackets are normalized solely for host identity. This does not relax credential validation.
