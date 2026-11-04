@@ -53,6 +53,46 @@ final class ProxyFailureReasonTests: XCTestCase {
         XCTAssertEqual(reason.code, "VPN")
     }
 
+    func testSafeDisplayNeverRendersNSErrorSecretsOrUnknownRawText() {
+        let secret = "auth:secret@private-upstream.invalid"
+        let error = NSError(domain: "unknown-provider", code: 42, userInfo: [
+            NSLocalizedDescriptionKey: "Could not connect to \(secret)",
+            NSURLErrorFailingURLStringErrorKey: "https://\(secret)"
+        ])
+        let display = ProxyFailureReason.safeDisplay(for: error, translate: { $0 })
+        XCTAssertEqual(ProxyFailureReason.classify(error), .unknown)
+        XCTAssertTrue(display.contains("UNKNOWN"))
+        XCTAssertFalse(display.contains(secret))
+        XCTAssertFalse(display.contains("Could not connect"))
+        XCTAssertFalse(display.contains("https://"))
+    }
+
+    func testSafeDisplayHasActionableGuidanceForEveryReason() {
+        for reason in ProxyFailureReason.allCases {
+            let error = ProxyDiagnosticError(reason)
+            let display = ProxyFailureReason.safeDisplay(for: error, translate: { "[\($0)]" })
+            XCTAssertTrue(display.contains(reason.code))
+            XCTAssertTrue(display.contains("[\(reason.recoveryGuidanceKey)]"))
+            XCTAssertFalse(reason.recoveryGuidanceKey.isEmpty)
+        }
+        XCTAssertEqual(ProxyFailureReason.http407.recoveryGuidanceKey,
+                       "Логин и пароль нужны только для прокси с авторизацией.")
+        XCTAssertEqual(ProxyFailureReason.protocolMismatch.recoveryGuidanceKey,
+                       "Если тип подключения неизвестен, уточните его у поставщика. После заполнения нажмите «Сохранить».")
+    }
+
+    func testNestedErrorDisplayUsesTypedReasonOnly() {
+        let secret = "sensitive-proxy.local:8080"
+        let underlying = NSError(domain: NSURLErrorDomain,
+                                 code: NSURLErrorDNSLookupFailed,
+                                 userInfo: [NSLocalizedDescriptionKey: secret])
+        let wrapping = NSError(domain: "wrapper", code: 1,
+                               userInfo: [NSUnderlyingErrorKey: underlying])
+        let display = ProxyFailureReason.safeDisplay(for: wrapping, translate: { $0 })
+        XCTAssertTrue(display.contains("DNS"))
+        XCTAssertFalse(display.contains(secret))
+    }
+
     func testExactErrorCodesAreStable() {
         XCTAssertEqual(ProxyFailureReason.authentication.code, "AUTH")
         XCTAssertEqual(ProxyFailureReason.http407.code, "HTTP 407")

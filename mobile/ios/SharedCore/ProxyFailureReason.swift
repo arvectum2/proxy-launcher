@@ -32,6 +32,28 @@ enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
         }
     }
 
+    /// Use only keys already translated in all 64 supported iOS languages.
+    /// Neither the raw NSError description nor proxy credentials reach UI.
+    var recoveryGuidanceKey: String {
+        switch self {
+        case .dns, .tcp, .timeout:
+            return "Проверьте адрес и порт прокси"
+        case .authentication, .http407:
+            return "Логин и пароль нужны только для прокси с авторизацией."
+        case .tls, .protocolMismatch:
+            return "Если тип подключения неизвестен, уточните его у поставщика. После заполнения нажмите «Сохранить»."
+        case .offline, .rejected, .tunnel, .unknown:
+            return "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные."
+        }
+    }
+
+    /// Construct a safe and localized diagnostic from a finite set of literals.
+    /// Caller injects its localization function; no error fields are rendered.
+    static func safeDisplay(for error: Error, translate: (String) -> String) -> String {
+        let reason = classify(error)
+        return "\(translate("Недоступен")) · \(reason.code)\n\(translate(reason.recoveryGuidanceKey))"
+    }
+
     /// An HTTP 407 is always an authentication failure, including Digest
     /// challenges. No unverified CONNECT response can be treated as success.
     static func forHTTPConnectStatus(_ status: Int) -> Self? {

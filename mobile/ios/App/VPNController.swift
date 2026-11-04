@@ -38,7 +38,8 @@ final class VPNController: ObservableObject {
             manager = try await loadOrCreateManager()
             refreshStatus()
         } catch {
-            detail = userFacingError(error).localizedDescription
+            detail = ProxyFailureReason.safeDisplay(
+                for: error, translate: { AppL10n.tr($0) })
         }
     }
 
@@ -281,9 +282,11 @@ final class VPNController: ObservableObject {
             || nsError.code == NEVPNError.Code.configurationStale.rawValue
     }
 
-    private func userFacingError(_ error: Error) -> NSError {
+    private func userFacingError(_ error: Error) -> Error {
         let nsError = error as NSError
-        guard nsError.domain == NEVPNErrorDomain else { return nsError }
+        guard nsError.domain == NEVPNErrorDomain else {
+            return ProxyDiagnosticError(ProxyFailureReason.classify(error))
+        }
 
         switch nsError.code {
         case NEVPNError.Code.configurationDisabled.rawValue:
@@ -314,7 +317,7 @@ final class VPNController: ObservableObject {
                 ]
             )
         default:
-            return nsError
+            return ProxyDiagnosticError(.tunnel)
         }
     }
 
