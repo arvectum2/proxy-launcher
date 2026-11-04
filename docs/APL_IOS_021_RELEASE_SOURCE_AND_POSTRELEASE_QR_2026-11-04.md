@@ -26,3 +26,12 @@ Features supported: qr-profile-share and safe-connection-diagnostics. Unknown so
 5. Record issues as reproducible regression cases with no secrets and fix them in the following version, with fresh CI and Apple review. Do not assert post-release tests passed until they actually occur.
 
 The physical iPhone 13 already passed isolated synthetic QR generation/pixel decoding/import and real UIKit UIActivityViewController.viewDidAppear; this is partial evidence only. Native in-app camera permission, true transfer between two iPhones, and Apple-distributed 0.1.41-to-0.2.0 Keychain migration remain unverified. The user chose to defer the two-phone QR test, not to waive safety gates for native tunnel/socket changes or Keychain upgrade.
+
+
+## CI portability of the source gate
+
+GitHub's Windows clean-build and installer workflows use shallow source checkouts: old Apple build and QR source commit objects are absent there. Do not equate unavailable history with a negative feature verdict. Historical real-project assertions run on full local clones and explicitly skip on shallow runners.
+
+Portable tests build a disposable local Git repository with a pre-feature commit, a new-feature commit and a follow-up deletion of a required source file. Seven real-Git tests exercise ancestry, file presence, fail-closed absence, invalid refs and CLI exit codes on all CI platforms without fetching history or contacting GitHub. The production source verifier always rejects unresolved commits rather than returning a spurious positive or a false negative.
+
+Verified on a full local repository: 7 historical-source checks, 7 synthetic Git checks, iOS Python 133 total (1 skipped), Swift Core 159/159 PASS.

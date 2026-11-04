@@ -20,6 +20,22 @@ QR_FEATURE_SOURCE = "b59801f69990d621e873360762256a80919168de"
 
 
 class ReleaseSourceProvenanceTests(unittest.TestCase):
+    def setUp(self):
+        # GitHub Actions often uses a depth-one checkout. Historical Apple
+        # release commits are absent there by design; these are LOCAL
+        # full-history integration checks, not portable unit tests.
+        # Portable synthetic-history tests run separately on every CI runner.
+        old_commits = (
+            APPLE_020_SOURCE,
+            QR_FEATURE_SOURCE,
+            "65e7e6535154c9db1a56cd34aadffee292c4b43d",
+        )
+        if any(module.git("cat-file", "-e", sha + "^{commit}").returncode
+               for sha in old_commits):
+            self.skipTest(
+                "Historical release sources unavailable in shallow CI checkout; "
+                "portable Git fixture tests verify fail-closed behavior"
+            )
     def test_apple_020_does_not_include_later_qr_feature(self):
         report = module.source_status(APPLE_020_SOURCE, "qr-profile-share")
         self.assertFalse(report["source_feature_present"])
