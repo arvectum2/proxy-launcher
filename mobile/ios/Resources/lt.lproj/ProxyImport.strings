@@ -1,6 +1,6 @@
 /* APL iOS lt — machine-assisted source translations; high-risk labels curated; independent native-language editorial QA pending. */
 "Тип прокси по умолчанию" = "Numatytasis tarpinio serverio protokolas.";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Įklijuokite proxy nuorodas, IP:port:user:password, arba importuokite iki 200 proxy iš TXT/CSV/XML. Pasirinktas protokolas taikomas tik įrašams be jo.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Įklijuokite proxy nuorodas, IP:port:user:password, arba importuokite iki 200 proxy iš TXT/CSV/XML/JSON. Pasirinktas protokolas taikomas tik įrašams be jo.";
 "Импорт прокси" = "Importuoti tarpinius serverius (proxy).";
 "Импортировать прокси" = "Importuoti tarpinius serverius (proxy).";
 "Ссылка или список прокси" = "Įgaliotojo serverio nuoroda arba sąrašas";

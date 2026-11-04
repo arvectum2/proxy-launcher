@@ -35,6 +35,14 @@
 
 ---
 
+## 04.11.2026 — iOS: консолидация после macOS 0.2.22
+
+- [x] В отдельной интеграционной ветке поверх main с macOS PR #310 сведены iOS PR #330, #331, #332, #333, #335, #336: QR бинарная проверка, безопасные локализованные ошибки камеры/копии/профилей, JSON-импорт и порционное чтение файлов. Устранено пересечение в ProxyImportView, Xcode-проект пересобран, релизный macOS PacketTunnel не изменён. Swift171/171, Python168 (один skipped), unsigned ARM64 Simulator App+PacketTunnel BUILD, бинарные QR/JSON symbols и 64/64 локализаций PASS. [Протокол](APL_IOS_INTEGRATION_AFTER_MAC_RELEASE_2026-11-04.md).
+- [ ] Единый integration PR: exact-head GitHub CI и merge в main, закрытие шести исходных PR и checkpoint completed.
+- [ ] Будущий подписанный iOS-релиз и проверка импорта/Keychain на устройстве; двухайфонный QR E2E — после первого QR-релиза. Нативный PR #314 остаётся черновиком.
+
+---
+
 ## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
 
 - [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.

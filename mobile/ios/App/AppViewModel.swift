@@ -201,7 +201,7 @@ final class AppViewModel: ObservableObject {
     ) -> Bool {
         let cleanHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanHost.isEmpty, let port = Int(portText), (1...65535).contains(port) else {
-            errorMessage = "Проверьте адрес и порт прокси"
+            errorMessage = AppL10n.tr("Проверьте адрес и порт прокси")
             return false
         }
 
@@ -225,7 +225,7 @@ final class AppViewModel: ObservableObject {
             if scanAfterSave { Task { await scanProfiles() } }
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = ProfileMutationUX.saveFailed
             return false
         }
     }
@@ -311,7 +311,7 @@ final class AppViewModel: ObservableObject {
     /// selected in the UI so partial failures are visible and retryable.
     func deleteProfiles(ids: Set<UUID>) -> Set<UUID> {
         guard !vpn.isConnectedOrConnecting else {
-            errorMessage = "Отключите VPN перед удалением профилей"
+            errorMessage = ProfileMutationUX.disconnectVPNBeforeDelete
             return []
         }
         var removed: Set<UUID> = []
@@ -325,19 +325,19 @@ final class AppViewModel: ObservableObject {
             }
         }
         refresh()
-        if let firstError {
-            errorMessage = AppL10n.tr("Не все профили удалены:") + " " + firstError.localizedDescription
+        if firstError != nil {
+            errorMessage = ProfileMutationUX.bulkDeleteFailed
         }
         return removed
     }
 
     func deleteProfile(id: UUID) {
         guard !vpn.isConnectedOrConnecting else {
-            errorMessage = "Отключите VPN перед удалением профилей"
+            errorMessage = ProfileMutationUX.disconnectVPNBeforeDelete
             return
         }
         do { try store.delete(id: id); refresh() }
-        catch { errorMessage = error.localizedDescription }
+        catch { errorMessage = ProfileMutationUX.singleDeleteFailed }
     }
 
     func delete(_ profile: ProxyProfile) {

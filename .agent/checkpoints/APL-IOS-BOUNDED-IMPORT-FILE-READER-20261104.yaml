@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-BOUNDED-IMPORT-FILE-READER-20261104
+status: in_progress
+goal: "Replace whole-file Data(contentsOf:) in iOS proxy file importer with bounded UTF-8 FileHandle reads, never loading oversize documents into memory before enforcing the 256 KB input cap."
+definition_of_done:
+  - "Read local security-scoped file incrementally in bounded <=16KB chunks, reject as soon as >256000 bytes, close handle on every path, avoid truncated reads and expose only safe errors."
+  - "Preserve current TXT/CSV/XML proxy import parsing, preview, dedup, rollback and existing access-scope release; JSON from independent PR #335 should use same importer when merged."
+  - "Swift Core tests with valid short/large exact-boundary/over-limit/invalid UTF8/non-file URL, no credential leak; portable Python source contract."
+  - "Full Swift+Python suites and unsigned ARM64 Simulator App+PacketTunnel build PASS."
+  - "Isolated PR and exact-head CI before merge, completed checkpoint only after merged. Do not touch user iPhone/VPN/Keychain/Apple or native PR314."
+completed:
+  - "Found iOS ProxyImportView used Data(contentsOf: url) BEFORE checking data.count <= 256_000, potentially reading multi-gig files."
+current: "Source implemented and locally verified: FileHandle bounded reads <=16KB and 256000+1 check, strict UTF8, close-on-all-paths and no remote file. Six targeted Swift, full Swift165/165, portable Python4, full iOS Python137 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel build and compiled reader symbol PASS. PR creation + hosted CI still pending."
+pending:
+  - "DONE: Bounded FileHandle UTF8 reader, one-byte overflow guard, six Swift tests and four source contracts, preserving security-scoped Files picker behavior."
+  - "DONE: Swift165/165, Python137 (1 skipped), unsigned ARM64 App+PacketTunnel and compiled reader symbol PASS. A transient concurrent xcodegen/test file absence was rerun after generation, all green."
+  - "DONE: QA report and roadmap updated. PENDING commit/push PR, exact-head GitHub CI, merge and completed checkpoint."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (main; JSON PR #335 independent, 165 Swift and 133 Python local PASS)"
+test_results:
+  - "Focused Swift6, full Swift165/165, focused Python4, full iOS Python137 (1 skipped), ARM64 Simulator App+PacketTunnel compiled reader PASS."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-bounded-import-file-reader-20261104. Implemented ProxyImportFileReader bounded FileHandle reads and switched existing Files importer call; preserves access security scope and error localization. Six targeted Swift, full Swift165, Python137 (1 skipped), focused Python4, unsigned ARM64 Simulator App+PacketTunnel build and compiled reader symbol PASS. Next git commit/push standalone PR, exact-head GitHub CI then merge on full green; do not bypass runner checks. Independent JSON PR #335 uses same UI ingestion when eventually merged. No user iPhone/VPN/Keychain, Apple App Review, PR314 draft, Watchdog or RDC."

@@ -123,7 +123,7 @@ struct ProfileBackupView: View {
                 successMessage = AppL10n.tr("Зашифрованная копия сохранена")
             case .failure(let error):
                 if (error as NSError).code != NSUserCancelledError {
-                    errorMessage = error.localizedDescription
+                    errorMessage = ProfileBackupUX.message(error, operation: .exportFile)
                 }
             }
         }
@@ -149,7 +149,7 @@ struct ProfileBackupView: View {
             } catch {
                 encryptedData = nil
                 importPassword = ""
-                errorMessage = AppL10n.tr(error.localizedDescription)
+                errorMessage = ProfileBackupUX.message(error, operation: .importFile)
             }
         }
         .onDisappear {
@@ -170,7 +170,7 @@ struct ProfileBackupView: View {
             backupDocument = EncryptedProfileBackupDocument(encryptedData: encrypted)
             showExporter = true
         } catch {
-            errorMessage = AppL10n.tr(error.localizedDescription)
+            errorMessage = ProfileBackupUX.message(error, operation: .createBackup)
         }
     }
 
@@ -184,7 +184,7 @@ struct ProfileBackupView: View {
             self.encryptedData = nil
             importPassword = ""
         } catch {
-            errorMessage = AppL10n.tr(error.localizedDescription)
+            errorMessage = ProfileBackupUX.message(error, operation: .restoreBackup)
             importPassword = ""
         }
     }
