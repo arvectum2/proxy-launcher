@@ -5,7 +5,8 @@
 - [x] Kernel closewait watcher for blocked virtual writes, native live TCP FIN and session handoff regression 6/6 PASS.
 - [x] Signed TestFlight 0.2.22 build17 installed; full 65-minute socket soak: max 48 TCP/31 CLOSE_WAIT, final 14/1, VPN and ARC stable.
 - [ ] Overall build17 QA FAIL: two real HTTPS curl 28 timeouts out of 14 probes. Repeat diagnostic 65-minute test with backup website probes; no public release until full pass.
-- [ ] Merge PR #310 and submit public macOS review only after physical acceptance.
+- [x] Signed exact-source build18 Apple VALID and installed on MacBook; 32/32 HTTPS smoke PASS; App Store draft created with manual release.
+- [ ] Full 65-minute build18 QA before PR #310 merge and public App Review submission.
 
 ## 04.11.2026 — macOS CLOSE_WAIT root fix (candidate for next release)
 

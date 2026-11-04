@@ -175,3 +175,25 @@ Mac mini external ARC Funnel monitor showed one 18:30 timeout then three
 HTTP401 responses at 18:32, showing the local ARC status alone does not
 establish independent external availability. Monitor output is at
 /tmp/apl_b17_external_arc_20261104.jsonl.
+
+## Exact-source build18 App Store candidate and physical QA (2026-11-04)
+
+Signed 0.2.22 build18 from commit 53ace223 was server-validated and uploaded
+to Apple, accepted as VALID and distributed to Internal TestFlight.
+MacBook installed build18 through visible ARC GUI around 20:03 Moscow,
+preserving 3 proxy profiles; VPN Connected with HTTPS 200 and independent
+Tailscale online. 32/32 concurrent HTTPS requests passed. New strict
+65-minute passive per-minute HTTPS and TCP/CLOSE_WAIT QA started at epoch
+1793811904. Source on MacBook: qa/soak_0_2_22_b18.py; output:
+qa/soak_0_2_22_b18.jsonl. Full independent verdict NOT YET AVAILABLE.
+
+App Store Connect new macOS 0.2.22 draft version id
+183c7258-5b86-415b-b2ab-2ae5c68d9b78 is PREPARE_FOR_SUBMISSION,
+MANUAL release, with build18 fecbcfa6-0748-4a7a-8f94-35f8a3bc2206
+attached and Russian release notes saved. This draft is NOT yet submitted
+to App Review. Public 0.2.21 untouched.
+
+Independent ARC Funnel monitor on Mac mini under
+/tmp/apl_b18_external_arc_20261104.jsonl is separate from the MacBook
+local Tailscale health field. Previous build17 had 3 transient external ARC
+Funnel timeouts in 13 probes; root cause not established.
