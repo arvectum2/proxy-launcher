@@ -66,3 +66,41 @@ logging to the local qa directory as soak_0_2_22_b16.jsonl and summary.
 It never changes VPN state or profiles.
 
 Short QA PASSED; full physical soak is still pending. Do not publish yet.
+
+
+## FAILED 65-minute build16 MacBook physical QA (2026-11-04)
+
+Observed 66 samples over 3900 seconds: TCP 58 to 282, maximum 308;
+CLOSE_WAIT 18 to 141, maximum 172. HTTPS, VPN and ARC remained online,
+but persistent FD accumulation is a RELEASE BLOCKER. More recent samples
+reached 413 TCP / 265 CLOSE_WAIT, with recurrent internal engine handoffs
+approximately every 125 seconds.
+
+Original passive collector incorrectly marked PASS based only on connectivity.
+Raw logs and its original verdict remain unchanged; independent socket-limit
+acceptance evaluator returns FAIL on four separate resource criteria.
+Eight automated regression tests passed.
+
+New kernel-level Darwin TCP_CONNECTION_INFO watcher observes upstream FIN
+even when virtual-client writes block and normal Tokio forwarding does not
+complete. Requires two consecutive kernel CLOSE_WAIT observations before
+dropping the owned upstream stream; does not close foreign raw FDs. New
+macOS live TCP test with blocked virtual output PASSED; all five native
+half-close tests passed. Build16 is REJECTED; new build17 required.
+
+
+## Additional runtime-scoped cleanup in build17
+
+Repeated in-process pressure recovery events were seen approximately every
+125 seconds while sockets persisted across previous runner handoffs.
+The pinned Rust engine spawned TCP and UDP session tasks detached from
+its main accept loop. The revised native macOS patch now maintains a
+tokio JoinSet, reaps completed session task results and explicitly aborts
+and awaits every remaining task when the engine stops. The Session Handoff
+barrier now follows native session teardown instead of only the accept-loop
+exit. A new real-loopback session test confirms the held TCP socket
+releases after abort/drain. All SIX native tests pass on Mac mini.
+
+Build17 needs a signed rebuild with this *final* patch; an earlier locally
+signed build17 archive with only the kernel watcher is superseded, and has
+NOT been uploaded to Apple.

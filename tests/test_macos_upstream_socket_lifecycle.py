@@ -15,6 +15,20 @@ class MacOSUpstreamSocketLifecycleContract(unittest.TestCase):
         self.assertIn("std::time::Duration::from_secs(30)", PATCH)
         self.assertIn("apl_halfclose_regression_tests", PATCH)
 
+    def test_darwin_closewait_guard_covers_stalled_client_writes(self):
+        for marker in (
+            "+fn upstream_socket_in_close_wait(",
+            "libc::TCP_CONNECTION_INFO",
+            "info.tcpi_state == 5",
+            "+async fn wait_for_upstream_close_wait(",
+            "wait_for_upstream_close_wait(upstream_fd)",
+            "tcp_close_wait_detected_while_virtual_output_is_blocked",
+            "session_tasks.abort_all();",
+            "session_tasks.join_next().await",
+            "native_session_handoff_drops_stale_upstream_fd",
+        ):
+            self.assertIn(marker, PATCH)
+
     def test_current_smart3_ffi_is_preserved_in_native_build(self):
         for name in ("FLOW_INTENT_PATCH", "SCOPED_DIRECT_PATCH",
                      "SAME_FLOW_RETRY_PATCH", "DIRECT_FAMILY_PATCH", "CLOSE_WAIT_PATCH"):

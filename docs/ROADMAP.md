@@ -1,3 +1,10 @@
+## 04.11.2026 — macOS root fix: TestFlight build16 REJECTED
+
+- [x] Physical 65-minute QA FAIL: maximum 308 TCP / 172 CLOSE_WAIT; final 282/141. Availability-only PASS was a false positive. Do NOT ship build16.
+- [x] Independent socket/trend acceptance evaluator with 8 passing regression tests; actual build16 log correctly rejected.
+- [x] Kernel closewait watcher for blocked virtual writes, native live TCP FIN and session handoff regression 6/6 PASS.
+- [ ] Mac Catalyst signed build17, TestFlight physical 60+ minute QA with bounded socket counts, merge PR #310 and public review.
+
 ## 04.11.2026 — macOS CLOSE_WAIT root fix (candidate for next release)
 
 - [x] Root cause found in pinned Rust tun2proxy half-close join; native bounded cleanup implemented, 4 Rust tests including real TCP FIN passed.
