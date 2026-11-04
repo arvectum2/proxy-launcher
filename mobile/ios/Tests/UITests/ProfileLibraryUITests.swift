@@ -3,6 +3,44 @@ import XCTest
 /// One focused simulator journey: real production import -> library controls.
 /// The reserved .invalid host avoids touching a real paid proxy.
 final class ProfileLibraryUITests: XCTestCase {
+    /// One explicit on-device share action, no real proxy or background upload.
+    func testImportedSyntheticProxyShowsCredentialBearingQRWithoutStartingVPN() throws {
+        let app = XCUIApplication()
+        app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES",
+                                "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]
+        app.launch()
+        XCTAssertTrue(app.tabBars.buttons["Профили"].waitForExistence(timeout: 20))
+        app.tabBars.buttons["Профили"].tap()
+        app.buttons["profiles.import"].tap()
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 10))
+        let host = "share-" + UUID().uuidString.prefix(8).lowercased() + ".invalid"
+        editor.tap()
+        editor.typeText("socks5://testuser:qapass@" + host + ":47936")
+        app.buttons["Проверить"].tap()
+        XCTAssertTrue(app.staticTexts["Предпросмотр (1)"].waitForExistence(timeout: 10))
+        app.swipeUp()
+        let importButton = app.buttons["Импортировать профили"]
+        XCTAssertTrue(importButton.waitForExistence(timeout: 10))
+        importButton.tap()
+        let search = app.textFields["profiles.search"]
+        XCTAssertTrue(search.waitForExistence(timeout: 15))
+        search.tap()
+        search.typeText(host)
+        let share = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "profiles.share.")).firstMatch
+        XCTAssertTrue(share.waitForExistence(timeout: 10), app.debugDescription)
+        share.tap()
+        XCTAssertTrue(app.images["profiles.share.qrImage"].waitForExistence(timeout: 12),
+                      app.debugDescription)
+        XCTAssertTrue(app.buttons["profiles.share.systemSheet"].exists)
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "может содержать логин и пароль")).firstMatch.exists)
+        // The QR is shown only after a Share tap. Do not activate a tunnel
+        // or transmit this intentionally synthetic credential anywhere.
+        app.buttons["Закрыть"].tap()
+    }
+
     func testImportedProxyCanBeFoundFavoritedAndRemovedWithoutStartingVPN() throws {
         let app = XCUIApplication()
         app.launchArguments += ["-privacyDisclosureAccepted.v1", "YES", "-setupGuideSeen.v1", "YES", "-appLanguage.v1", "ru"]

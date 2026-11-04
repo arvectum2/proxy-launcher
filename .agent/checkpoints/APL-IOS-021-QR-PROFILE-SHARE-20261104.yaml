@@ -1,0 +1,27 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-021-QR-PROFILE-SHARE-20261104
+status: blocked
+goal: "Add explicit one-profile QR sharing from every iOS proxy profile, local QR rendering and Apple system share, with one-action import after receiver scan and no external servers."
+definition_of_done:
+  - "Source-only isolated worktree; preserve existing Apple 0.2.0 review, live iPhone/VPN, password Keychain and independent PRs."
+  - "Encode complete type/name/host/port/login/password including AUTO as bounded versioned payload in an Arvectum import deep link; parse without unsafe double decoding; old imports stay compatible."
+  - "Each profile has an accessible Share action. Generate on-device QR, show it, let user send image/link with Apple share sheet, clearly warn that credentials are included."
+  - "Receiver QR scanner and iOS deep link both recognize the payload; one explicit Import action adds profile without replacing current selected proxy; duplicates handled."
+  - "Test valid/malformed/IPv6/reserved-character/AUTO/oversized payloads, and absent logs/secrets; verify 64-language fallback policy. Run Swift Core, Python source contracts, ARM64 Simulator app+tunnel, targeted UI XCTest."
+  - "Commit/push reviewable PR with honest physical-device and full editorial translation gates; no App Store publication without acceptance."
+completed:
+  - "Identified current iOS QR import, deep link, profile Keychain and source-only UI patterns. Existing store can read password only by explicit profile ID."
+current: "APL1 offline QR profile share code complete on branch synced with main ce5326c0, Swift 151/151, iOS Python 111 tests (1 skipped) PASS, ARM64 Simulator app+PacketTunnel BUILD PASS. Source commit 015fce84 + merge bae773ce. UI XCTEST runner was unresponsive and terminated with no PASS; blocker along with controlled two-iPhone E2E and full 64-language editorial. Create Draft PR and check CI."
+pending:
+  - "DONE: APL1 JSON/base64url schema with bounded QR length and authority validation; five Swift Core tests passed for all proxy types, UTF8, percent/reserved characters, IPv6, invalid/oversized input and legacy imports."
+  - "DONE: Explicit share button per visible profile, on-demand Keychain read, CoreImage QR on screen, system Apple activity sheet; existing import preview receives APL1 from system deep link and in-app QR scanner. No VPN/proxy switch."
+  - "DONE: 151/151 Swift Core, 108 Python iOS source tests (1 skipped), Xcode ARM64 Simulator app+PacketTunnel BUILD PASS after deterministic XcodeGen registration."
+  - "BLOCKER: Isolated iPhone13 iOS27.0 UI XCTest compiled but Xcode 27.1 could not launch test runner, started diagnostics and hung for over five minutes. Test interrupted, isolated simulator deleted; NOT passed."
+  - "DONE: Source commit 015fce84e9b1e9a8d6037e45a9c33a096b4fee70; merged latest main ce5326c0 via bae773cef2e09f04912a3c60d7aba27efb639dc5."
+  - "DONE: Post-merge Swift 151/151, Python iOS 111 (1 skipped) and full unsigned ARM64 Simulator app+PacketTunnel build PASS."
+  - "WAIT: Push Draft PR, exact-head hosted CI; physical distinct-device scan, security review, editorial localization to 64 languages, UI XCTest genuine pass before production release."
+last_verified_commit: "bae773cef2e09f04912a3c60d7aba27efb639dc5 (QR source 015fce84e9b1e9a8d6037e45a9c33a096b4fee70 integrated with main ce5326c01d570efaf15cab620993a3d17787875d); Swift151/Python111/iOS ARM64 simulator BUILD PASS; UI XCTest blocked."
+test_results:
+  - "Updated merge Swift Core 151/151 PASS, Python iOS 111 (1 skipped) PASS, full ARM64 app+PacketTunnel build PASS. UI test binary compiled but XCTest runner failed to start under Xcode27.1; NOT verified, clean isolated sim removed."
+resume_instruction: "ARC only. In /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-021-qr-profile-share-20261104, source commit 015fce84 plus merge bae773ce includes main PRs #316/#317, exact suite 151 Swift, 111 Python (1 skipped), full ARM64 app+PacketTunnel build PASS. Create/inspect Draft PR exact-head hosted checks. UI XCTest on disposable simulator compiled but Xcode runner hung; no valid result, no release claim. Need controlled two-iPhone QR/password scan import E2E and professional 64-language localization review before promotion/merge/public release. Do not touch owner iPhone/paid proxy, Apple App Review 0.2.0, macOS socket worktree or Watchdog. Never RDC."

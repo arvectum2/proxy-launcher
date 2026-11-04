@@ -230,6 +230,15 @@ final class AppViewModel: ObservableObject {
         }
     }
 
+    /// Explicit user-initiated export of one existing profile. Read the
+    /// Keychain only after Share is tapped; never log, cache or auto-upload it.
+    func shareLink(for profile: ProxyProfile) throws -> URL {
+        guard let current = store.profile(id: profile.id),
+              current == profile else { throw ProxyShareError.invalid }
+        let secret = try store.password(for: profile.id)
+        return try ProxyShare.makeDeepLink(profile: current, password: secret)
+    }
+
     /// Export is all-or-nothing: an inaccessible Keychain item aborts the
     /// operation rather than silently omitting a password from the backup.
     func createEncryptedProfileBackup(password: String) throws -> Data {

@@ -11,6 +11,7 @@ struct ProfilesScreenView<Header: View>: View {
     let onImport: () -> Void
     let header: Header
 
+    @State private var sharingProfile: ProxyProfile?
     @State private var profileSearch = ""
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
@@ -54,6 +55,7 @@ struct ProfilesScreenView<Header: View>: View {
                                     bulkMode: profileBulkMode,
                                     isSelected: bulkSelectedIDs.contains(profile.id),
                                     onOpen: { editorProfile = profile },
+                                    onShare: { sharingProfile = profile },
                                     onToggleSelection: {
                                         if !bulkSelectedIDs.insert(profile.id).inserted {
                                             bulkSelectedIDs.remove(profile.id)
@@ -87,6 +89,9 @@ struct ProfilesScreenView<Header: View>: View {
                 .frame(maxWidth: .infinity)
             }
             .keyboardDismissOnSwipeUp()
+        }
+        .sheet(item: $sharingProfile) { profile in
+            ProfileShareView(profile: profile).environmentObject(model)
         }
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }

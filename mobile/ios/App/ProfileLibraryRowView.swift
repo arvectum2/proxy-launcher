@@ -7,6 +7,7 @@ struct ProfileLibraryRowView: View {
     let bulkMode: Bool
     let isSelected: Bool
     let onOpen: () -> Void
+    let onShare: () -> Void
     let onToggleSelection: () -> Void
     let onNewGroup: (Set<UUID>) -> Void
 
@@ -55,6 +56,14 @@ struct ProfileLibraryRowView: View {
             .accessibilityIdentifier("profiles.row.\(profile.id.uuidString)")
             .accessibilityAddTraits(bulkMode && isSelected ? .isSelected : [])
             if !bulkMode {
+                Button(action: onShare) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(Brand.mintLight)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(ProfileShareUX.text("Поделиться"))
+                .accessibilityIdentifier("profiles.share.\(profile.id.uuidString)")
                 Button { model.toggleFavorite(profile.id) } label: {
                     Image(systemName: model.profileOrganization.isFavorite(profile.id) ? "star.fill" : "star")
                         .foregroundStyle(Brand.mint)
