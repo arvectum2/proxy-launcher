@@ -104,3 +104,38 @@ releases after abort/drain. All SIX native tests pass on Mac mini.
 Build17 needs a signed rebuild with this *final* patch; an earlier locally
 signed build17 archive with only the kernel watcher is superseded, and has
 NOT been uploaded to Apple.
+
+
+## Build17 signed TestFlight installation and physical retest (2026-11-04 ~16:35 MSK)
+
+Previous beta16 65-minute test is REJECTED, independently re-evaluated as
+FAIL due to 308 TCP/172 CLOSE_WAIT peak and final 282/141. Signed beta17
+contains the native Darwin TCP_CONNECTION_INFO CLOSE_WAIT watcher and
+explicit join/abort drain across engine handoffs. Server validation and
+upload of beta17 succeeded; App Store Connect says VALID and Internal QA
+IN_BETA_TESTING.
+
+MacBook GUI TestFlight showed 0.2.22 build17 and updated it in place;
+application version 17 confirmed; three existing profiles retained,
+selected Netherlands 2; VPN Connected, egress 68.209.63.122,
+HTTPS 200. ARC/Tailscale userspace backend Running and independent external
+Funnel responds HTTP 401 (correct authorization boundary). After installation
+first socket sample had 17 TCP / 0 CLOSE_WAIT; a 20-request concurrent HTTPS
+probe returned HTTP 200 for all requests and 49 TCP / 17 CLOSE_WAIT afterward.
+
+Read-only physical QA restarted as *v2* because userspace Tailscale's cached
+Self.Online reported false even while the external ARC HTTPS Funnel was
+reachably responding HTTP 401. The revised monitor samples actual local ARC
+HTTP readiness plus Tailscale Running and independent external checks from
+Mac mini. The initial raw v1 log is retained separately, not overwritten.
+Files on MacBook:
+~/Library/Application Support/Arvectum/ProxyLauncher/qa/soak_0_2_22_b17_v2.start
+~/Library/Application Support/Arvectum/ProxyLauncher/qa/soak_0_2_22_b17_v2.jsonl
+
+An independent hardened evaluator in
+mobile/macos-appstore/Tools/evaluate_socket_soak.py must analyze the full
+3900 seconds before public review. No claimed success yet.
+
+CI security jobs had failures setting up pinned Python 3.12.10 on
+ubuntu-latest/26.04 (unrelated to app source). The affected three workflows
+are now pinned to ubuntu-24.04, preserving the pinned Python version.
