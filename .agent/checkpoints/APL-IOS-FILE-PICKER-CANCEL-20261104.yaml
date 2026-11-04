@@ -1,23 +1,28 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-FILE-PICKER-CANCEL-20261104
-status: in_progress
+status: completed
 goal: "Prevent iOS Files proxy importer from showing a file-read failure when the user cancels the file picker, while maintaining error messages for real failure and all existing preview/rollback/JSON support."
 definition_of_done:
   - "Classify only proven Cocoa NSUserCancelledError from NSCocoaErrorDomain as user cancellation; other Cocoa codes and same numeric code in other domains must still report failure."
   - "On cancellation, Files importer UI does not display an error; real proxy parsing and file-access exceptions still get bounded localized messages."
   - "Swift Core tests for cancel vs real failure and portable source/privacy contract pass."
   - "Full Swift Core and iOS Python tests, ARM64 Simulator App+PacketTunnel unsigned build PASS on integrated iOS code."
-  - "DONE: Parent integration and checkpoint closure both merged into main; source worktree rebased to 384c2cba. PENDING: separate PR exact-head CI, merge and metadata closure."
+  - "Source PR #340 passes 25/25 exact-head GitHub CI, CLEAN/MERGEABLE and is merged into main; historical checkpoint and roadmap are closed."
 completed:
-  - "Observed ProxyImportView fileImporter always uses ProxyImportUX.error on a user cancellation NSError, showing incorrect could-not-read-file banner."
-  - "Integration PR #337 source 841d1bd0 is pending hosted CI; new task branches from it without changing the parent's exact source head."
-current: "Parent integration PR #337 MERGED main 268dfc6b and checkpoint closure PR #338 MERGED main 384c2cba; new iOS file-picker cancel fix rebased onto exact main. Five focused Swift, three Python source/privacy, full Swift176/176, iOS Python171 (one skipped), unsigned ARM64 Simulator App+PacketTunnel and compiled cancel helper PASS. Next commit/push standalone PR, verify exact-head full GitHub CI and merge."
-pending:
-  - "Implement pure SharedCore cancel classifier and use in importer callback."
-  - "Swift and Python focused/full tests, iOS ARM64 Simulator app build."
-  - "After PR #337 merged, rebase source onto main and PR exact-head CI, merge and close."
-last_verified_commit: "384c2cba11ce4fdc1a6f6bb3a20bbb2685eb538c (canonical main after iOS consolidation and task closure; local follow-up Swift176/Python171/ARM64 build PASS)"
+  - "Root cause: Files picker cancellation was handled as a failed file-read; only Cocoa NSUserCancelledError must be silent."
+  - "Implemented SharedCore ProxyFilePickerCancellation domain+code classifier and guarded ProxyImportView.fileImporter error presentation; genuine file errors still shown safely."
+  - "Rebased PR #340 on independently merged Smart Exclusions safe rollback PR #341 (64a7d3cea107c70f06ced5bc038a70ff73401209), preserving both changes."
+  - "PR #340 exact-head 20b6e337167dd1684c55059ca6c0b4d3f4bbc39f GitHub CI 25/25 SUCCESS after macOS runner cancellations were retried; MERGED main 478738d4f055401eb05db6a89397e59ccc8f8fba."
+  - "Actual iOS Simulator Files picker Cancel -> importer screen with no false error PASS 1/1; temporary test source restored. Previously existing proxy import preview UI PASS 1/1."
+  - "Real iPhone 13 through Mirroring: existing App Store 0.1.41 UI Home/Profiles/Settings/Exclusions smoke only; active VPN, Keychain and profiles unchanged, no new test IPA installed."
+current: "COMPLETED: PR #340 merged with all 25/25 exact-head GitHub CI SUCCESS at 478738d4f055401eb05db6a89397e59ccc8f8fba; PR #341 already merged at 64a7d3ce. Swift181/181, iOS Python175 (1 skipped), ARM64 Simulator and unsigned iPhoneOS App+PacketTunnel PASS; system Files cancellation UI 1/1 PASS."
+pending: []
+last_verified_commit: "478738d4f055401eb05db6a89397e59ccc8f8fba (PR #340 MERGED, exact-head 20b6e337, CI25/25; PR #341 25/25)."
 test_results:
-  - "Parent integration Swift171/171 Python168 (1 skipped), ARM64 Simulator app+PacketTunnel PASS, no new cancellation tests yet."
-resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-file-picker-main-followup-20261104, rebased onto main 384c2cba. Source adds ProxyFilePickerCancellation (Cocoa domain+NSUserCancelledError only) and suppresses false Files import errors, with real failures still shown; local Swift176/176, Python171 (1 skipped), ARM64 unsigned App+PacketTunnel and compiled helper PASS. NEXT commit/push standalone PR, full exact-head GitHub CI, merge only on green/CLEAN, update status completed in main. All six prior iOS PRs closed as superseded by PR #337. No owner iPhone/VPN/Keychain, Apple/macOS release, PR314 draft, Watchdog or RDC."
+  - "Integrated full Swift Core181/181 PASS; iOS Python175 run, 1 skipped, 0 failures."
+  - "Targeted Swift cancellation5 and focused Python3 PASS; 64-locale safe Exclusions tests preserved."
+  - "Unsigned ARM64 iOS Simulator App+PacketTunnel build PASS, unsigned iPhoneOS/ARM64 app+extension build PASS."
+  - "iOS Simulator system Files Picker choose/cancel UI acceptance 1/1 PASS in 25.764s; import preview UI 1/1 PASS in 19.875s. Test code was temporary, not added to source or CI."
+  - "GitHub PR #340 exact-head 25/25 SUCCESS after runner-only cancellations were retried; merged 478738d4f055401eb05db6a89397e59ccc8f8fba."
+resume_instruction: "COMPLETED — do not redo PR #340 or PR #341, or re-run 65min macOS QA. iOS 0.2.0(48) Apple state WAITING_FOR_REVIEW at 2026-11-05; do not modify submitted version. Next independent iOS roadmap gates are controlled Smart4 true egress attribution, Apple-distributed 0.1.41 -> 0.2.0 Keychain upgrade on disposable test phone, and two-device QR acceptance after first QR-containing App Store release. Keep unverified native FIN/CLOSE_WAIT draft PR #314 out of main until physical acceptance. Avoid replacing owner's real iPhone APL, proxies, Keychain or active VPN for QA. ARC only; Proxy Launcher Watchdog remains disabled by owner decision."
