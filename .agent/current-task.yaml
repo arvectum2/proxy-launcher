@@ -12,7 +12,7 @@ definition_of_done:
 completed:
   - "Observed ProxyImportView fileImporter always uses ProxyImportUX.error on a user cancellation NSError, showing incorrect could-not-read-file banner."
   - "Integration PR #337 source 841d1bd0 is pending hosted CI; new task branches from it without changing the parent's exact source head."
-current: "Source-only Files Picker cancellation handling rebased on main merge #341 64a7d3ce; product source compiled before this rebase (Swift176, Python171, ARM64 Simulator). Exact-head CI and integration verification are pending."
+current: "PR #340 rebased on merged Smart Exclusions #341 64a7d3ce, conflict resolved with both features. Rebased source: Swift181/181, iOS Python175 (1 skipped), ARM64 Simulator App+PacketTunnel BUILD PASS. Exact-head CI pending."
 pending:
   - "Re-run focused Swift/Python after combining safe rollback and cancellation fixes."
   - "Update PR #340 exact head, require green GitHub CI and CLEAN/MERGEABLE before merge."
@@ -20,5 +20,6 @@ pending:
 last_verified_commit: "64a7d3cea107c70f06ced5bc038a70ff73401209 (main has PR #341; PR #340 pending rebase verification)"
 
 test_results:
+  - "Rebased source Swift181/181, iOS Python175 (1 skipped), ARM64 Simulator App+PacketTunnel BUILD PASS; PR #341 CI25/25 merged."
   - "Parent integration Swift171/171 Python168 (1 skipped), ARM64 Simulator app+PacketTunnel PASS, no new cancellation tests yet."
-resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-file-picker-main-followup-20261104, rebased onto main 384c2cba. Source adds ProxyFilePickerCancellation (Cocoa domain+NSUserCancelledError only) and suppresses false Files import errors, with real failures still shown; local Swift176/176, Python171 (1 skipped), ARM64 unsigned App+PacketTunnel and compiled helper PASS. NEXT commit/push standalone PR, full exact-head GitHub CI, merge only on green/CLEAN, update status completed in main. All six prior iOS PRs closed as superseded by PR #337. No owner iPhone/VPN/Keychain, Apple/macOS release, PR314 draft, Watchdog or RDC."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-file-picker-main-followup-20261104, rebased onto main 384c2cba. Source adds ProxyFilePickerCancellation (Cocoa domain+NSUserCancelledError only) and suppresses false Files import errors, with real failures still shown; local Swift176/176, Python171 (1 skipped), ARM64 unsigned App+PacketTunnel and compiled helper PASS. NEXT force-with-lease push rebased PR #340, full exact-head GitHub CI, merge only on green/CLEAN, update status completed in main. All six prior iOS PRs closed as superseded by PR #337. No owner iPhone/VPN/Keychain, Apple/macOS release, PR314 draft, Watchdog or RDC."
