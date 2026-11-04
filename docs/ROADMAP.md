@@ -1,5 +1,7 @@
 ## 04.11.2026 — iOS 0.2.0 (48): релизный срез, заменяет устаревшую очередь от 02.11
 
+**ИТОГ 04.11:** GitHub PR #306 объединён в main (99f73ce42b2); PR #296 и #302–#305 закрыты как superseded. Все 16/16 GitHub CI завершились успешно. Версия iOS 0.2.0(48) находится на Apple App Review, WAITING_FOR_REVIEW; до решения Apple ещё не опубликована.
+
 **Факт Apple API:** iOS 0.1.41(46) уже `READY_FOR_SALE`; iOS 0.2.0 создана, подписанный IPA из прошедшего физическую приёмку Smart3 `f0a93f8a` доставлен и принят Apple (`VALID`, build 48), привязан к версии. 47 локализованных релизных заметок обновлены, 94 наследуемых скриншота в статусе `COMPLETE`. Apple приватность/реклама не менялись. [Релизный протокол](APL_IOS_020_PUBLIC_RELEASE_2026-11-04.md).
 
 - [x] `APL-SMART3-DEVICE-001`, `APL-SMART3-EGRESS-001` — техническая модель на настоящем iPhone: TCP/Safari exact-host DIRECT для IPv4 и IPv6, раздельные shared-CDN hostname PROXY/DIRECT, ограничение raw IP и QUIC/DoH, смена Wi-Fi/LTE, TTL/rollback; Rust 17/17, Swift 132/132 (плюс новые миграционные тесты), Python 176/176+73. Apple App Review остаётся **внешним**, а не инженерным gate; предсогласование DTS не требуется по решению владельца.
@@ -7,7 +9,7 @@
 - [x] `APL-IOS-020-APPLE-BINARY` — Apple Distribution app/PacketTunnel и IPA подписи, 64 локализации, `VALID` upload, 47 WhatsNew/94 screenshots, encryption declaration и attach.
 - [ ] `APL-IOS-UPGRADE-020` — frozen-схема и 0.1.41(46)→0.2.0(48) in-place симуляторное обновление с восемью синтетическими App Group ключами **8/8 PASS**; настоящий опубликованный binary+Keychain upgrade на отдельном устройстве ещё **не доказан**. Не откатывать рабочие пользовательские профили ради QA.
 - [ ] `APL-I18N-NATIVE-QA-020` — независимое подтверждение качества носителями, особенно малоресурсных языков, отсутствует; редакторский/технический QA проведён. Вести отдельно, не подменять самопроверку человеческой сертификацией.
-- [ ] `APL-IOS-020-PUBLICATION` — после фиксации итоговых GitHub CI/merge отправить в Apple App Review, отметить реальный статус. Доработка CloudKit, Proxifier и Gateway — отдельные релизы.
+- [x] `APL-IOS-020-PUBLICATION` — 16/16 GitHub CI PASS, PR #306 merged, Apple App Review 0.2.0(48) WAITING_FOR_REVIEW (фактическая публикация — внешнее решение Apple). Доработка CloudKit, Proxifier и Gateway — отдельные релизы.
 
 **Исторические блоки ниже отражают состояние 02.11 и ранее**; в частности, утверждения о `Smart3 capability=false`, старом IPA, ожидающей Apple 0.1.41 и незагруженном 0.2.0 теперь устарели. Для принятия решений использовать этот раздел и релизный протокол, а не старые чекбоксы.
 
