@@ -1,6 +1,6 @@
 /* APL iOS et — machine-assisted source translations; high-risk labels curated; independent native-language editorial QA pending. */
 "Тип прокси по умолчанию" = "Vaikimisi puhverserveri protokoll.";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Kleebi puhverserveri lingid või IP:port:kasutaja:parool, samuti saad importida kuni 200 puhverserverit TXT/CSV/XML failidest. Ülal valitud protokoll kehtib ainult protokollita kirjetele.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Kleebi puhverserveri lingid või IP:port:kasutaja:parool, samuti saad importida kuni 200 puhverserverit TXT/CSV/XML/JSON failidest. Ülal valitud protokoll kehtib ainult protokollita kirjetele.";
 "Импорт прокси" = "Impordi puhverserverid.";
 "Импортировать прокси" = "Impordi puhverserverid.";
 "Ссылка или список прокси" = "Puhverserveri link või loend";

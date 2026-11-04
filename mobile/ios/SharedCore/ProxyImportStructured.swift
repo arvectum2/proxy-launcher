@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
@@ -14,12 +15,93 @@ enum ProxyImportStructured {
         "name": ["name", "label", "title", "название", "имя"]
     ]
 
-    private static func key(_ input: String) -> String {
+    static func key(_ input: String) -> String {
         let normalized = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             .replacingOccurrences(of: "_", with: "")
             .replacingOccurrences(of: "-", with: "")
             .replacingOccurrences(of: " ", with: "")
         return aliases.first { $0.value.contains(normalized) }?.key ?? normalized
+    }
+
+    /// Do not confuse a bracketed IPv6 supplier entry such as
+    /// [2001:db8::1]:1080 with the opening bracket of a JSON array.
+    static func looksLikeJSONArray(_ input: String) -> Bool {
+        guard input.first == "[" else { return false }
+        let firstValue = input.dropFirst().first(where: { !$0.isWhitespace })
+        return firstValue == "{" || firstValue == "\"" || firstValue == "]"
+    }
+
+    /// Bounded offline JSON supplier imports. No remote content resolution,
+    /// unknown nesting, logging, or partial acceptance of malformed records.
+    static func json(_ input: String, defaultType: ProxyType) throws -> [ImportedProxy] {
+        guard let data = input.data(using: .utf8), data.count <= 256_000 else {
+            throw ProxyImportError.tooLarge
+        }
+        let root: Any
+        do { root = try JSONSerialization.jsonObject(with: data) }
+        catch { throw ProxyImportError.invalid }
+
+        let records: [Any]
+        if let array = root as? [Any] {
+            records = array
+        } else if let object = root as? [String: Any] {
+            if let wrapped = object["proxies"] {
+                guard object.count == 1, let array = wrapped as? [Any] else {
+                    throw ProxyImportError.invalid
+                }
+                records = array
+            } else {
+                records = [object]
+            }
+        } else {
+            throw ProxyImportError.invalid
+        }
+        guard !records.isEmpty else { throw ProxyImportError.empty }
+        guard records.count <= 200 else { throw ProxyImportError.tooLarge }
+
+        return try records.map { value in
+            if let link = value as? String {
+                // A JSON string is exactly ONE proxy, never a hidden new list.
+                guard !link.contains(where: { $0.isNewline }) else {
+                    throw ProxyImportError.invalid
+                }
+                return try ProxyImport.parseLine(link, defaultType: defaultType)
+            }
+            guard let fields = value as? [String: Any] else { throw ProxyImportError.invalid }
+            let allowed: Set<String> = ["host", "port", "username", "password", "type", "name"]
+            var normalized: [String: Any] = [:]
+            for (raw, fieldValue) in fields {
+                let canonical = key(raw)
+                guard allowed.contains(canonical),
+                      normalized.updateValue(fieldValue, forKey: canonical) == nil else {
+                    throw ProxyImportError.invalid
+                }
+            }
+
+            let port: String
+            if let text = normalized["port"] as? String {
+                port = text
+            } else if let number = normalized["port"] as? NSNumber {
+                // JSON true/false bridge to NSNumber; never import them as 1/0.
+                guard CFGetTypeID(number) != CFBooleanGetTypeID(),
+                      number.doubleValue.isFinite,
+                      number.doubleValue == Double(number.intValue) else {
+                    throw ProxyImportError.invalid
+                }
+                port = String(number.intValue)
+            } else {
+                throw ProxyImportError.invalid
+            }
+            func string(_ field: String) throws -> String {
+                guard let raw = normalized[field] else { return "" }
+                guard let text = raw as? String else { throw ProxyImportError.invalid }
+                return text
+            }
+            let type = try ProxyImport.specifiedType(string("type"), defaultType: defaultType)
+            return try ProxyImport.item(host: string("host"), port: port,
+                                        username: string("username"), password: string("password"),
+                                        type: type, name: string("name"))
+        }
     }
 
     static func looksLikeCSV(_ input: String) -> Bool {

@@ -1,6 +1,6 @@
 /* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
 "Тип прокси по умолчанию" = "Standard-Proxy-Protokoll";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Fügen Sie Proxy-Links ein, IP:port:user:password, oder importieren Sie bis zu 200 Proxys von TXT/CSV/XML. Das ausgewählte Protokoll gilt nur für Einträge ohne Protokoll.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Fügen Sie Proxy-Links ein, IP:port:user:password, oder importieren Sie bis zu 200 Proxys von TXT/CSV/XML/JSON. Das ausgewählte Protokoll gilt nur für Einträge ohne Protokoll.";
 "Импорт прокси" = "Proxys importieren";
 "Импортировать прокси" = "Proxys importieren";
 "Ссылка или список прокси" = "Proxy-Link oder Liste";

@@ -1,6 +1,6 @@
 /* APL iOS 0.2 — localized UI. Formatting tokens/proxy identifiers must remain literal. */
 "Тип прокси по умолчанию" = "Giao thức proxy mặc định";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Dán liên kết proxy, IP:port:user:password hoặc nhập tối đa 200 proxy từ TXT/CSV/XML. Giao thức đã chọn chỉ áp dụng cho các mục không có.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Dán liên kết proxy, IP:port:user:password hoặc nhập tối đa 200 proxy từ TXT/CSV/XML/JSON. Giao thức đã chọn chỉ áp dụng cho các mục không có.";
 "Импорт прокси" = "Nhập proxy";
 "Импортировать прокси" = "Nhập proxy";
 "Ссылка или список прокси" = "Liên kết hoặc danh sách proxy";

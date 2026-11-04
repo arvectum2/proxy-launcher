@@ -1,6 +1,6 @@
 /* APL iOS az — machine-assisted source translations; high-risk labels curated; independent native-language editorial QA pending. */
 "Тип прокси по умолчанию" = "Ön qurğulu proxy protokolu.";
-"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Proksi bağlantılarını, IP:port:user:password yazın, ya da TXT/CSV/XML-dən 200-ə qədər proksi idxal edin. Seçim protokolu yalnız bir protokolu olmayan girişlərə aiddir.";
+"Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола." = "Proksi bağlantılarını, IP:port:user:password yazın, ya da TXT/CSV/XML/JSON-dən 200-ə qədər proksi idxal edin. Seçim protokolu yalnız bir protokolu olmayan girişlərə aiddir.";
 "Импорт прокси" = "Proksiləri idxal et.";
 "Импортировать прокси" = "Proksiləri idxal et.";
 "Ссылка или список прокси" = "Proksi bağlantısı və ya siyahısı";

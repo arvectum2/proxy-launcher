@@ -18,6 +18,13 @@
 
 ---
 
+## 04.11.2026 — iOS: JSON-импорт профилей поставщиков
+
+- [x] APL-IOS-JSON-PROVIDER-IMPORT: существующий универсальный импорт расширен локальным JSON — отдельный объект, массив записей/URL и контейнер proxies; поля-алиасы из TXT/CSV/XML, Unicode, IPv6, HTTP/HTTPS/SOCKS5. Ограничения 200 записей / 256 КБ, предпросмотр, дубликаты, полный отказ при ошибке и однократный post-import scan сохранены. Files picker принимает JSON; справка о форматах скорректирована для 64 языков без смены ключа. 165/165 Swift, 133 iOS Python (1 skipped), 5/5 source-контрактов, plutil 64/64, unsigned ARM64 Simulator App+PacketTunnel BUILD PASS. [Отчёт](APL_IOS_JSON_PROVIDER_IMPORT_2026-11-04.md).
+- [ ] Включение JSON-импорта в подписанную релизную IPA, Apple Review и физическая проверка импорта файла/Keychain — отдельные релизные этапы.
+
+---
+
 ## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
 
 - [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.

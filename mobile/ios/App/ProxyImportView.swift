@@ -144,7 +144,7 @@ struct ProxyImportView: View {
                 }
             }
             .fileImporter(isPresented: $chooseFile,
-                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml],
+                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml, .json],
                           allowsMultipleSelection: false) { result in
                 do {
                     guard let url = try result.get().first else { return }
