@@ -162,6 +162,10 @@ class LabWitnessListener:
             raise InvalidWitness("INVALID_PORT")
         if output.exists():
             raise InvalidWitness("OUTPUT_ALREADY_EXISTS")
+        # Windows os.open(mode=0o600) cannot enforce owner-only POSIX file
+        # permissions. Refuse to collect ephemeral network evidence there.
+        if os.name != "posix":
+            raise InvalidWitness("POSIX_PRIVATE_LOG_REQUIRED")
         self.output, self.duration, self.max_probes = output, duration, max_probes
         family = socket.AF_INET6 if ":" in host else socket.AF_INET
         self.sock = socket.socket(family, socket.SOCK_STREAM)

@@ -1,6 +1,7 @@
 """Real TCP receipts and adversarial tests for isolated Smart4 witness QA."""
 from pathlib import Path
 import json
+import os
 import secrets
 import socket
 import sys
@@ -36,6 +37,7 @@ class Smart4EgressWitnessTests(unittest.TestCase):
     def receipt(self, token=None, delta=1):
         return {"token": token or self.nonce, "received_at_ms": self.issued + delta}
 
+    @unittest.skipUnless(os.name == "posix", "Private TCP witnesses require POSIX file permissions")
     def test_real_tcp_loopback_two_independent_listeners(self):
         first, second = secrets.token_hex(16), secrets.token_hex(16)
         issued = int(time.time() * 1000)
@@ -160,11 +162,20 @@ class Smart4EgressWitnessTests(unittest.TestCase):
             w.LabWitnessListener("DIRECT", "127.0.0.1", 0, self.base / "x",
                                   duration=w.MAX_DURATION + 1)
 
+    def test_nonposix_listener_is_refused_before_network_or_file_creation(self):
+        from unittest.mock import patch
+        target = self.base / "private-log.jsonl"
+        with patch.object(w.os, "name", "nt"):
+            with self.assertRaisesRegex(w.InvalidWitness, "POSIX_PRIVATE_LOG_REQUIRED"):
+                w.LabWitnessListener("DIRECT", "127.0.0.1", 0, target)
+        self.assertFalse(target.exists())
+
     def test_no_observer_file_overwrite(self):
         f = self.file("existing.jsonl", [])
         with self.assertRaisesRegex(w.InvalidWitness, "OUTPUT_ALREADY_EXISTS"):
             w.LabWitnessListener("PROXY", "127.0.0.1", 0, f)
 
+    @unittest.skipUnless(os.name == "posix", "Private TCP witnesses require POSIX file permissions")
     def test_non_token_payload_cannot_appear_as_positive_evidence(self):
         f = self.base / "invalid-receipt.jsonl"
         listener = w.LabWitnessListener("DIRECT", "127.0.0.1", 0, f,
