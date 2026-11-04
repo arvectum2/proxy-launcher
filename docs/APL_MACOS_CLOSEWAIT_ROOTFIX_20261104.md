@@ -155,3 +155,23 @@ Second full read-only 65-minute MacBook test v3 was started about
 18:25 Moscow, with additional apple.com and github.com probes if
 the primary example.com check fails; raw v2 evidence is retained.
 Do not merge PR #310 or publish macOS 0.2.22 before full acceptance.
+
+## Integration with QR sharing from latest main (2026-11-04)
+
+Shared iOS ProfilesScreenView and AppViewModel also compile in the macOS
+Catalyst app. After main merged iOS QR profile sharing, the macOS app
+failed compilation due a missing ProxySharePresentation dependency. Added
+only ProxyShareView.swift to the Mac XcodeGen app sources, regenerated
+the Xcode project and added a regression contract. The merged Mac app
+and PacketTunnel now BUILD, with 24 macOS contracts PASS. No changes
+were made to iOS app source or the installed signed MacBook beta17.
+
+Release-source caveat: signed Apple beta17 predates merged QR AppViewModel.
+The integrated branch could produce a different Mac app binary. Exact
+signed release source must be attested, and any changed integrated app
+must be re-signed and physically regression-tested before publication.
+
+Mac mini external ARC Funnel monitor showed one 18:30 timeout then three
+HTTP401 responses at 18:32, showing the local ARC status alone does not
+establish independent external availability. Monitor output is at
+/tmp/apl_b17_external_arc_20261104.jsonl.

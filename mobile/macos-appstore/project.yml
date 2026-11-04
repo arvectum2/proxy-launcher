@@ -39,6 +39,7 @@ targets:
       - ../ios/App/ApplicationExclusionsView.swift
       - ../ios/App/EqualHeightDashboardLayout.swift
       - ../ios/App/ProfilesScreenView.swift
+      - ../ios/App/ProxyShareView.swift
       - ../ios/App/ActivityScreenView.swift
       - ../ios/App/AppearanceMode.swift
       - ../ios/App/AppLocalization.swift

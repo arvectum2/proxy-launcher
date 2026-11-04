@@ -74,6 +74,18 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("with_bypass", patch)
         self.assertIn("RecordType::AAAA", patch)
 
+    def test_shared_profile_qr_presentation_is_wired_into_mac_catalyst_app(self):
+        # The shared ProfilesScreenView references ProxySharePresentation from
+        # the iOS QR feature. Mac Catalyst compiles this same screen, so its
+        # dependencies must be explicitly present in the XcodeGen source list.
+        screen = (ROOT / "mobile" / "ios" / "App" / "ProfilesScreenView.swift").read_text(encoding="utf-8")
+        if "ProxySharePresentation" in screen:
+            self.assertIn("../ios/App/ProxyShareView.swift", PROJECT)
+            self.assertIn("../ios/App/ProfilesScreenView.swift", PROJECT)
+            share = (ROOT / "mobile" / "ios" / "App" / "ProxyShareView.swift").read_text(encoding="utf-8")
+            self.assertIn("struct ProxySharePresentation", share)
+            self.assertIn("confirmation", screen.lower())
+
     def test_store_release_is_0_2_22_and_uses_mac_specific_entrypoint(self):
         self.assertIn('MARKETING_VERSION: "0.2.22"', PROJECT)
         self.assertIn('CFBundleShortVersionString', APP_SHARED)
