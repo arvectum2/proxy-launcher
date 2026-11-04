@@ -1,0 +1,24 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-DRYRUN-20261104
+status: in_progress
+goal: "Implement opt-in, privacy-preserving aggregate comparison between proposed exact-host Smart4 decisions and independently supplied Smart3 route evidence, without intercepting user traffic."
+definition_of_done:
+  - "Dedicated worktree from main after merged QR physical QA PR #321; keep unrelated tasks untouched."
+  - "Pure comparison API, enabled only by explicit QA opt-in, default off, no persistence or telemetry of raw host, IP or credentials."
+  - "Treat unknown, CDN-IP inferred or unverified actual route as inconclusive; require independently confirmed evidence for match/mismatch."
+  - "Bound aggregate counters, support fail-closed diagnostics for invalid host, denied/expired dependencies, mixed IPv4/IPv6 CDN."
+  - "Full Swift Core, iOS Python contract suite, unsigned ARM64 iOS Simulator app+PacketTunnel build and GitHub CI."
+  - "Reviewable commit/PR merged after exact SHA green CI; checkpoint completed with verified merge hash."
+completed:
+  - "PR #315 Smart4 provenance, #316 Smart4 read-only UI, QR source #320 and physical QR QA harness #321 already merged."
+  - "Inspected Smart3 PacketTunnel: existing NE IPv4/v6 excludedRoutes are IP wide; exact-host transport cannot be inferred from CDN DNS alone."
+current: "Opt-in aggregate-only Smart4 dry-run implemented and locally verified: 159/159 Swift, 117 iOS Python (1 skipped), unsigned ARM64 Simulator app+PacketTunnel BUILD PASS. Prepare source commit/PR; physical transport evidence hookup intentionally deferred."
+pending:
+  - "DONE: Smart4DryRunAudit pure opt-in bounded counters with 8 Swift tests for independent evidence, shared CDN IPv4/IPv6, invalid host, TTL and reset; no runtime hooks."
+  - "DONE: Full Swift Core 159/159 PASS, iOS Python 117 run (1 skipped) PASS, ARM64 iOS Simulator app+PacketTunnel BUILD SUCCEEDED, git diff --check PASS."
+  - "DONE: Specification and top roadmap updated with explicit source-only distinction and lab physical gate."\n  - "PENDING: Commit/push reviewable PR, await exact-head GitHub CI, merge and set checkpoint completed with merge SHA."
+last_verified_commit: "675d2334fa94ce504879e14f8c9f04ff36853549 (merged QA PR #321)"
+test_results:
+  - "Final local: Swift Core 159/159 PASS, Python iOS 117 run (1 skipped) PASS, ARM64 iOS Simulator app+PacketTunnel BUILD PASS, 3 new source privacy contracts PASS. Pure comparison only; real Smart3 evidence capture not yet implemented."\n  - "Prior QR physical pixel decode PASS; actual iPhone UI XCTest still blocked (Xcode27.2 XCTFuture1000, CoreSimulator version mismatch); production APL unaffected."
+resume_instruction: "ARC only. Work in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-dryrun-20261104; source-only aggregate Smart4DryRunAudit implemented, local 159 Swift and 117 Python (1 skipped) PASS, unsigned ARM64 App+PacketTunnel BUILD PASS. Next commit and push PR feat/ios-smart4-aggregate-dryrun-20261104, verify exact-head CI and merge when all green, update checkpoint status completed with merge hash. Do not claim real Smart3 egress observation; external confirmed route evidence adapter is a future lab-gated task. Preserve owner iPhone APL 0.1.41 and Keychain/VPN, Apple review, macOS tasks and Watchdog. No RDC."
