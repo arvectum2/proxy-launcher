@@ -189,7 +189,17 @@ struct ProxyImportView: View {
         parsedSource = source
         parsedType = defaultType
         cameraPermissionDenied = false
-        do { candidates = try ProxyImport.parse(source, defaultType: defaultType); importError = nil }
+        do {
+            let payload: String
+            if let url = URL(string: source),
+               url.scheme?.lowercased() == "arvectum-proxy" {
+                payload = try ProxyImport.fromDeepLink(url)
+            } else {
+                payload = source
+            }
+            candidates = try ProxyImport.parse(payload, defaultType: defaultType)
+            importError = nil
+        }
         catch { candidates = []; importError = ProxyImportUX.error(error) }
     }
 }

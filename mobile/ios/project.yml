@@ -88,6 +88,7 @@ targets:
       - SharedCore/ProxyFailureReason.swift
       - SharedCore/TunnelEngineHandoff.swift
       - SharedCore/ProxyImport.swift
+      - SharedCore/ProxyShare.swift
       - SharedCore/ProxyImportStructured.swift
       - App/AdaptiveDirectProbe.swift
       - SharedCore/SiteDependencyDiscovery.swift

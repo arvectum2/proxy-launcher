@@ -21,6 +21,7 @@
 		0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		137A7D6F9489905219AF00FD /* Smart3PhysicalTrafficQA.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD92A04584B40BD9FEE2D469 /* Smart3PhysicalTrafficQA.swift */; };
+		146D319D772F65137AC816D4 /* ProfileShareUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64848CBAB5BF6C06982F34F /* ProfileShareUX.swift */; };
 		14B2C9154CB78BAEE14F4149 /* ProxyImportUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */; };
 		1692281A8D63E7B66C59D142 /* YandexMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = AF27A3CA6C0140F9DA3DCCC0 /* YandexMobileAds */; };
 		18C38F96F9E31B711586C7A0 /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
@@ -29,10 +30,13 @@
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
+		22BA6FA32EE27A5BDE67BA82 /* ProxyShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91025DDF0AB8B06711D9F920 /* ProxyShare.swift */; };
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
+		25BA23CD6D8904D70C628B42 /* ProxyShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91025DDF0AB8B06711D9F920 /* ProxyShare.swift */; };
 		26C09B6D8411877AB0EC8994 /* UpstreamSocketDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50D7CFCE3DD739FD75C2060 /* UpstreamSocketDiagnostics.swift */; };
 		28CA215B9CC00B00AC46EC71 /* ProfileScanPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830ABBEFB957123DBF424C92 /* ProfileScanPolicy.swift */; };
 		2E7EFEEC2836FCABD85C2A6D /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
+		322977DC7A665230EB8D9622 /* ProfileShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8A88F5DD48A2328E7060FD /* ProfileShareView.swift */; };
 		3321AA021DDF960DB1E58BFF /* Smart3LiveTunnelPhysicalUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6690A66DE5B241DA7FE3E5 /* Smart3LiveTunnelPhysicalUITests.swift */; };
 		3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */; };
 		34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */; };
@@ -125,6 +129,7 @@
 		CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		D06A095790028F09C33A550B /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		D54300848C7D98F2F676583A /* ProxyShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91025DDF0AB8B06711D9F920 /* ProxyShare.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
@@ -214,6 +219,7 @@
 		1D1425EC66B18E02C6EA6913 /* IPv6PhysicalDiagnosticsQA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6PhysicalDiagnosticsQA.swift; sourceTree = "<group>"; };
 		1D333EE5E9FE87FC92FA9E62 /* ky */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ky; path = ky.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		1D76B5C4011703E6E4C3F0C9 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		1D8A88F5DD48A2328E7060FD /* ProfileShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileShareView.swift; sourceTree = "<group>"; };
 		1E337EF28FB37FAD5845C7DA /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		1E3F4842782D4D44DB6E4A69 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		1F94CB9737B7558CE15B4B60 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -414,6 +420,7 @@
 		8E6DB52E20AE10FFA6154042 /* ha */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ha; path = ha.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		8EFC41D91C6DD5BFC38545D2 /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		8F0ADF3731A558D637A1C4BA /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		91025DDF0AB8B06711D9F920 /* ProxyShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyShare.swift; sourceTree = "<group>"; };
 		91CEB48728663D12CBF37303 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/Localizable.strings; sourceTree = "<group>"; };
 		9256215EC98CA6544A912BE6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		936D79342A99DFA707F424C9 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -443,6 +450,7 @@
 		A43163CC551F11F491F9EA4B /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		A4AC8477D2AC3A296EAFB204 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = et; path = et.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryBulkActionsView.swift; sourceTree = "<group>"; };
+		A64848CBAB5BF6C06982F34F /* ProfileShareUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileShareUX.swift; sourceTree = "<group>"; };
 		A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNControlledUITests.swift; sourceTree = "<group>"; };
 		A707AD34E2385DA843AA613A /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		A70E715C3D0BDDFCCCE64AF3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -741,6 +749,7 @@
 				BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */,
 				B266784C8D84E9CAEB06097B /* ProxyModel.swift */,
 				8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */,
+				91025DDF0AB8B06711D9F920 /* ProxyShare.swift */,
 				CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */,
 				4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */,
 				610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */,
@@ -781,6 +790,8 @@
 				A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */,
 				558EBC8BAFAD9E2A2EC623D6 /* ProfileLibraryFiltersView.swift */,
 				D62E3E6A5C03575EA7455F4A /* ProfileLibraryRowView.swift */,
+				A64848CBAB5BF6C06982F34F /* ProfileShareUX.swift */,
+				1D8A88F5DD48A2328E7060FD /* ProfileShareView.swift */,
 				ED9A0A9D12DC4FD6895628A1 /* ProfilesScreenView.swift */,
 				9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */,
 				611C8DA174BECA86752E2F06 /* ProxyImportView.swift */,
@@ -1030,6 +1041,7 @@
 				1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */,
 				A03788334D0D3C58C54045E6 /* ProxyProbe.swift in Sources */,
 				8E52655301B360A515C768DC /* ProxyQualitySnapshot.swift in Sources */,
+				25BA23CD6D8904D70C628B42 /* ProxyShare.swift in Sources */,
 				B8B109ED98EC4BE9BE9100D4 /* QuickVPNActionPolicy.swift in Sources */,
 				951D250C1BF60644C19BFBDB /* RelayConnectionPolicy.swift in Sources */,
 				2E7EFEEC2836FCABD85C2A6D /* SharedIPRouteGuard.swift in Sources */,
@@ -1071,6 +1083,7 @@
 				18C38F96F9E31B711586C7A0 /* ProxyImportStructured.swift in Sources */,
 				39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */,
 				5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */,
+				22BA6FA32EE27A5BDE67BA82 /* ProxyShare.swift in Sources */,
 				A40F21446C8449E5E2D91D05 /* RSYABannerPhysicalUITests.swift in Sources */,
 				8FD9D3D22BB542FE2B36EDE3 /* SiteDependencyDiscovery.swift in Sources */,
 				AB3D907BDD74A40E83BD6446 /* SiteExclusionPolicy.swift in Sources */,
@@ -1122,6 +1135,8 @@
 				415FE0C43C74F8997BF96AA7 /* ProfileLibrarySelectionPolicy.swift in Sources */,
 				882C0FD013288E96F42DDBC4 /* ProfileOrganization.swift in Sources */,
 				076C70BEEC37B4CF86D2E83E /* ProfileScanPolicy.swift in Sources */,
+				146D319D772F65137AC816D4 /* ProfileShareUX.swift in Sources */,
+				322977DC7A665230EB8D9622 /* ProfileShareView.swift in Sources */,
 				0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */,
 				52CBC7915554AFDF2A102CE8 /* ProfilesScreenView.swift in Sources */,
 				CA00AE677BE5D78AFAEEBCC3 /* ProxyFailureReason.swift in Sources */,
@@ -1133,6 +1148,7 @@
 				D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */,
 				83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */,
 				D06A095790028F09C33A550B /* ProxyQualitySnapshot.swift in Sources */,
+				D54300848C7D98F2F676583A /* ProxyShare.swift in Sources */,
 				83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */,
 				0B6DA474EAA2172857BA559D /* QuickVPNActionPolicy.swift in Sources */,
 				F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */,

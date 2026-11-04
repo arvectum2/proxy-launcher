@@ -47,7 +47,9 @@ enum ProxyImport {
         guard !clean.isEmpty else { throw ProxyImportError.empty }
         let fallback = defaultType == .auto ? ProxyType.http : defaultType
         let result: [ImportedProxy]
-        if clean.first == "<" {
+        if clean.hasPrefix(ProxyShare.prefix) {
+            result = [try ProxyShare.decode(clean)]
+        } else if clean.first == "<" {
             result = try ProxyImportStructured.xml(clean, defaultType: fallback)
         } else if ProxyImportStructured.looksLikeCSV(clean) {
             result = try ProxyImportStructured.csv(clean, defaultType: fallback)
