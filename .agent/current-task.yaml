@@ -1,32 +1,24 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-MAC-021-APPSTORE-CONNECTION-20261104
-status: completed
-goal: "Fix VPN connection broken on MacBook after macOS App Store APL 0.2.21 build 15 update, and prevent stale NetworkExtension signing registration on future upgrades."
+task_id: APL-IOS-QR-HARDWARE-20261104
+status: blocked
+goal: "Verify merged source QR sharing on the connected physical iPhone without replacing the installed App Store APL 0.1.41 or reading its Keychain/profiles."
 definition_of_done:
-  - "Identify App Store update failure with actual system evidence and confirm upstream proxies independently."
-  - "Safely restore MacBook signed App Store APL VPN connectivity and proxy HTTPS egress, preserving all profiles and ARC/Tailscale."
-  - "Implement explicit macOS-only VPN configuration repair and build-number reconciliation, run focused tests, commit/PR."
-  - "Document any unrelated historical socket-pressure issues and limitations without claiming they are fixed or shipping an untested build."
+  - "Read-only verify physical paired developer-mode iPhone, existing installed APL bundle/version and compatible signing; avoid modification of that APL install and VPN."
+  - "Create isolated, signed QA app with distinct bundle ID and synthetic invalid-domain credentials, compiling exact shared QR codec and QR view/scanner sources."
+  - "Install and run QA bundle on physical iPhone; validate proxy URI round-trip, camera/QR rendering, Apple sheet presence, one-action import preview without network, no data exfiltration."
+  - "Run targeted device XCTest/diagnostics, check production APL version and any active VPN unaffected, uninstall QA app if appropriate; persist evidence."
+  - "Record verified physical proof and remaining second-iPhone/AirDrop/handoff gates; commit QA harness if robust and helpful."
 completed:
-  - "Verified App Store 0.2.21 build15 on MacBook. App and embedded PacketTunnel codesign valid with Apple Mac OS Application Signing, team VML75VY94V."
-  - "Actual root cause: nesessionmanager Signature check failed, NEVPNTunnelPlugin Validation of the extension failed, NEVPNConnectionErrorDomainPlugin code7 before upstream network use. Saved macOS VPN configuration carried obsolete signing requirement from TestFlight/developer distribution."
-  - "Proxy reachability: PX6 primary 68.209.60.141:8000 timeout, Netherlands 2 and US backup TCP reachable."
-  - "Backed up MacBook App Group preferences to ~/Library/Application Support/ArvectumQA/20261104/recovery/; verified all three stored proxy profiles remain."
-  - "Removed only disconnected Arvectum VPN configuration through macOS Settings and re-created using App Store APL with standard macOS VPN authorization. Tailscale configuration untouched."
-  - "MacBook restored: App Store build15 Connected, proxy egress 200.0.60.91, 15/15 concurrent HTTPS 200, TCP 23/CLOSE_WAIT 0 after 17 minutes, ARC userspace Tailscale Running/Online, all profiles and passwords preserved."
-  - "Implemented future build-number reconciliation (marketing version plus CFBundleVersion), explicit confirmation-protected macOS Settings VPN repair that removes only own disconnected VPN manager, no silent operation at launch."
-  - "Regression checks: macOS store contracts 23/23 PASS, appearance tests 5/5 PASS, isolated Mac Catalyst VPNController.swift typecheck PASS."
-  - "Full updated origin/main Catalyst build blocked by separate native dependency mismatch: SmartFlowEventCollector.swift calls new tun2proxy FFI symbols absent in available release Catalyst framework. Did not replace working signed App Store app."
-current: "DONE: MacBook Store 0.2.21 (15) connection restored through fresh Arvectum-only VPN registration; future repair UI + build stamping merged to main in PR #308. No newer App Store version installed or published."
+  - "Merged QR sharing source PR #320 as 837774e0ff5ca4bafbe4b53520d45adf96e7d595; 19/19 hosted checks PASS."
+  - "ARC Mac mini sees physical iPhone 13 paired and developer mode enabled, installed live App Store APL 0.1.41(46)."
+  - "DONE: Wildcard Apple Development provisioning and dedicated signed ru.arvectum.qrdeviceqa.device QA app without PacketTunnel/App Group, using exactly production QR code and synthetic .invalid source."
+current: "REAL DEVICE QR PIXEL/CODEC PASS on paired iPhone13 iOS27.2, isolated QA app installed/ran and deleted, original APL 0.1.41(46) unchanged. Physical Xcode UI XCTest could not enable automation mode (XCTFuture Code 1000); camera and Apple sharing still blocked on accessible UI automation/second-phone acceptance. Commit reproducible QA harness/report; do not claim full device E2E."
 pending:
-  - "PR #308 merged into main as 6c3bf207fc788a552fb5ee986afdd1c4ac43c78a, with 23 CI checks PASS, 4 skipped at merge; remaining 3 background unsigned iOS build jobs were still running and are unrelated to Mac VPN fix."
-  - "Separate follow-up investigation of historical 1689 TCP / 1655 CLOSE_WAIT pressure events, not conflated with stale signature validation."
-  - "Before a future macOS App Store release, reconcile Smart3 native FFI framework and perform full signed build and physical QA. No new app build has been shipped."
-last_verified_commit: "6c3bf207fc788a552fb5ee986afdd1c4ac43c78a (PR #308 merged; verified MacBook Store app restored; 23 macOS contracts + 5 appearance tests + isolated Catalyst source typecheck PASS)."
+  - "DONE: Signed QA app with independent ru.arvectum.qrdeviceqa.device bundle and zero App Group/NetworkExtension entitlements built and installed on physical iPhone; version APL 0.1.41 preserved."
+  - "DONE: Real iPhone self-test PASS: production QR image -> CIDetector pixel decoding -> strict import -> exact synthetic fields; PASS JSON extracted from QA app Documents container (no secrets). QA app and runner uninstalled; production APL 0.1.41(46) still installed."
+  - "DONE: Static QA isolation tests 3/3 PASS and physical evidence report saved."\n  - "PENDING: Commit/push QA harness, PR CI and merge if green."\n  - "BLOCKED: Physical UI XCTest could not enable automation (XCTFuture Code 1000); camera/AirDrop/Messages/VoiceOver and receiver one-action persistence on real iPhone remain unproven."
+last_verified_commit: "837774e0ff5ca4bafbe4b53520d45adf96e7d595 (origin/main after PR #320)"
 test_results:
-  - "MacBook signed Store app 0.2.21(15): VPN Connected, US egress 200.0.60.91, HTTPS 15/15, ARC/Tailscale online, three profiles intact."
-  - "23 macOS store contract tests + 5 appearance tests PASS."
-  - "Standalone Catalyst Swift typecheck of actual modified VPNController PASS."
-  - "Full main Catalyst build blocked by existing missing Smart3 native FFI symbols, unrelated to this patch."
-resume_instruction: "Use /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-021-appstore-connection-20261104. MacBook operationally FIXED: stale macOS VPN signing requirement recreated only Arvectum VPN; active App Store 0.2.21(15) Connected via US backup 200.0.60.91, 15/15 HTTPS, 0 CLOSE_WAIT, ARC online and three proxy profiles preserved. Source patch and tests prepared; commit, push, create PR and check CI. Do not replace working App Store build15 or mutate iOS release. Current main Catalyst build requires separate Smart3 native FFI symbols absent in the old macOS tun2proxy framework. Previous 1689/1655 socket pressure remains a separate potential issue, do not claim fixed. See docs/releases/0.2.21-macos-appstore-vpn-signature-repair-20261104.md. Once source merged set status completed and sync canonical checkpoint; Proxy Launcher Watchdog must remain disabled."
+  - "Actual signed iPhoneOS QA app BUILD PASS; physical iPhone13 iOS27.2 auto-run QR pixels->CIDetector->strict ProxyImport PASS, evidence in isolated Documents/qr-hardware-evidence.json; QA app + runner removed; APL 0.1.41(46) unchanged."\n  - "Physical XCTest UI runner built/launched, but initialization FAILED: XCTFuture Code 1000 Timed out while enabling automation mode. UI assertions NOT RUN. This is an explicit E2E blocker, not a source defect."\n  - "3/3 QA isolation Python contracts PASS; previous source PR #320 hosted 19/19 PASS."
+resume_instruction: "ARC only in isolated /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-qr-hardware-qa-20261104. Physical iPhone13 iOS27.2 QR render->CIDetector->ProxyImport exact-field PASS from QA own app sandbox; production APL 0.1.41(46) unchanged; QA app and runner already uninstalled. Xcode physical UI runner timed out enabling automation (XCTFuture 1000); DO NOT claim camera/AirDrop/VoiceOver/actual APL import E2E tested. Next commit/push reproducible QA harness + evidence + Python isolation contract to GitHub PR, check hosted CI, then mark source harness stage completed while physical UI acceptance remains blocked until UI automation can be enabled or a second device/manual camera setup exists. Never overwrite/upgrade production APL nor touch user Keychain/active VPN; no RDC or Watchdog/Apple App Review mutations."

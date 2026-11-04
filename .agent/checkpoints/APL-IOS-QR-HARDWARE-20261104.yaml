@@ -1,0 +1,24 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-QR-HARDWARE-20261104
+status: blocked
+goal: "Verify merged source QR sharing on the connected physical iPhone without replacing the installed App Store APL 0.1.41 or reading its Keychain/profiles."
+definition_of_done:
+  - "Read-only verify physical paired developer-mode iPhone, existing installed APL bundle/version and compatible signing; avoid modification of that APL install and VPN."
+  - "Create isolated, signed QA app with distinct bundle ID and synthetic invalid-domain credentials, compiling exact shared QR codec and QR view/scanner sources."
+  - "Install and run QA bundle on physical iPhone; validate proxy URI round-trip, camera/QR rendering, Apple sheet presence, one-action import preview without network, no data exfiltration."
+  - "Run targeted device XCTest/diagnostics, check production APL version and any active VPN unaffected, uninstall QA app if appropriate; persist evidence."
+  - "Record verified physical proof and remaining second-iPhone/AirDrop/handoff gates; commit QA harness if robust and helpful."
+completed:
+  - "Merged QR sharing source PR #320 as 837774e0ff5ca4bafbe4b53520d45adf96e7d595; 19/19 hosted checks PASS."
+  - "ARC Mac mini sees physical iPhone 13 paired and developer mode enabled, installed live App Store APL 0.1.41(46)."
+  - "DONE: Wildcard Apple Development provisioning and dedicated signed ru.arvectum.qrdeviceqa.device QA app without PacketTunnel/App Group, using exactly production QR code and synthetic .invalid source."
+current: "REAL DEVICE QR PIXEL/CODEC PASS on paired iPhone13 iOS27.2, isolated QA app installed/ran and deleted, original APL 0.1.41(46) unchanged. Physical Xcode UI XCTest could not enable automation mode (XCTFuture Code 1000); camera and Apple sharing still blocked on accessible UI automation/second-phone acceptance. Commit reproducible QA harness/report; do not claim full device E2E."
+pending:
+  - "DONE: Signed QA app with independent ru.arvectum.qrdeviceqa.device bundle and zero App Group/NetworkExtension entitlements built and installed on physical iPhone; version APL 0.1.41 preserved."
+  - "DONE: Real iPhone self-test PASS: production QR image -> CIDetector pixel decoding -> strict import -> exact synthetic fields; PASS JSON extracted from QA app Documents container (no secrets). QA app and runner uninstalled; production APL 0.1.41(46) still installed."
+  - "DONE: Static QA isolation tests 3/3 PASS and physical evidence report saved."\n  - "PENDING: Commit/push QA harness, PR CI and merge if green."\n  - "BLOCKED: Physical UI XCTest could not enable automation (XCTFuture Code 1000); camera/AirDrop/Messages/VoiceOver and receiver one-action persistence on real iPhone remain unproven."
+last_verified_commit: "837774e0ff5ca4bafbe4b53520d45adf96e7d595 (origin/main after PR #320)"
+test_results:
+  - "Actual signed iPhoneOS QA app BUILD PASS; physical iPhone13 iOS27.2 auto-run QR pixels->CIDetector->strict ProxyImport PASS, evidence in isolated Documents/qr-hardware-evidence.json; QA app + runner removed; APL 0.1.41(46) unchanged."\n  - "Physical XCTest UI runner built/launched, but initialization FAILED: XCTFuture Code 1000 Timed out while enabling automation mode. UI assertions NOT RUN. This is an explicit E2E blocker, not a source defect."\n  - "3/3 QA isolation Python contracts PASS; previous source PR #320 hosted 19/19 PASS."
+resume_instruction: "ARC only in isolated /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-qr-hardware-qa-20261104. Physical iPhone13 iOS27.2 QR render->CIDetector->ProxyImport exact-field PASS from QA own app sandbox; production APL 0.1.41(46) unchanged; QA app and runner already uninstalled. Xcode physical UI runner timed out enabling automation (XCTFuture 1000); DO NOT claim camera/AirDrop/VoiceOver/actual APL import E2E tested. Next commit/push reproducible QA harness + evidence + Python isolation contract to GitHub PR, check hosted CI, then mark source harness stage completed while physical UI acceptance remains blocked until UI automation can be enabled or a second device/manual camera setup exists. Never overwrite/upgrade production APL nor touch user Keychain/active VPN; no RDC or Watchdog/Apple App Review mutations."
