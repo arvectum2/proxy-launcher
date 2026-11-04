@@ -26,7 +26,7 @@ final class ProxyProfileSharingTests: XCTestCase {
         let parsed = try XCTUnwrap(ProxyImport.parse(ProxyProfileSharing.scannedSource(
             link.absoluteString)).first)
         XCTAssertEqual(parsed.name, profile.name)
-        XCTAssertEqual(parsed.host, "[2001:db8::3]")
+        XCTAssertEqual(parsed.host.trimmingCharacters(in: CharacterSet(charactersIn: "[]")), "2001:db8::3")
         XCTAssertEqual(parsed.username, "user:name")
         XCTAssertEqual(parsed.password, "пароль/γ@")
     }

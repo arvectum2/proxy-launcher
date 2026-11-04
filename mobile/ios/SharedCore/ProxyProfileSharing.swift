@@ -21,17 +21,37 @@ enum ProxyProfileSharing {
             username: profile.username ?? "", password: password ?? "",
             type: profile.type, name: profile.name
         )
-        var transport = URLComponents()
-        transport.scheme = scheme
-        transport.host = checked.host
-        transport.port = checked.port
+        // Construct the authority exactly as the receiver's strict parser
+        // does. Foundation versions differ in whether the host getter
+        // includes IPv6 brackets, and setting a bracketed host may encode
+        // it a second time on older SDKs.
+        let authority = checked.host.contains(":") && !checked.host.hasPrefix("[")
+            ? "[\(checked.host)]" : checked.host
+        guard var transport = URLComponents(
+            string: "\(scheme)://\(authority):\(checked.port)") else {
+            throw ProxyImportError.invalid
+        }
         if !checked.username.isEmpty { transport.user = checked.username }
         if !checked.password.isEmpty { transport.password = checked.password }
         if !checked.name.isEmpty { transport.fragment = checked.name }
         guard let proxyURL = transport.string else { throw ProxyImportError.invalid }
 
         // Round-trip secrets and non-ASCII fields before producing a QR.
-        guard try ProxyImport.parse(proxyURL) == [checked] else {
+        let decoded = try ProxyImport.parse(proxyURL)
+        guard decoded.count == 1 else { throw ProxyImportError.invalid }
+        let restored = decoded[0]
+        // IPv6 bracket decoration is not semantic data. Never relax checks
+        // on the username/password/port/protocol/name themselves.
+        func unbracket(_ host: String) -> String {
+            host.hasPrefix("[") && host.hasSuffix("]")
+                ? String(host.dropFirst().dropLast()) : host
+        }
+        guard unbracket(restored.host) == unbracket(checked.host),
+              restored.port == checked.port,
+              restored.type == checked.type,
+              restored.name == checked.name,
+              restored.username == checked.username,
+              restored.password == checked.password else {
             throw ProxyImportError.invalid
         }
 

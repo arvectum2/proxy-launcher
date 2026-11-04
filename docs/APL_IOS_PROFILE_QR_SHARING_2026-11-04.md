@@ -13,6 +13,7 @@
 - The URI is arvectum-proxy://import?data=..., using a percent-encoded canonical HTTP/HTTPS/SOCKS5 proxy URI with optional username, password and profile name fragment. AUTO is not a transferable upstream scheme.
 - URLComponents percent-encodes reserved characters, IPv6 and Unicode; the sender validates exact round-trip through the receiver parser before generating. 1800-byte QR URI cap.
 - Fixes an existing importer issue: URLComponents.user/password/fragment are already percent-decoded; the previous additional removingPercentEncoding damaged percent-containing credentials.
+- macOS 26 GitHub Swift runner and macOS 27 local Foundation expose IPv6 host brackets differently. The sender now constructs the URL from validated bracketed authority and compares canonical IPv6 host identity only after stripping optional enclosing brackets; username, password, protocol, port and name remain strictly equal. This was caught by PR #319 hosted core-tests and corrected before merge.
 - Generated QR is not stored to App Group, UserDefaults or logs; sheet dismissal releases its view state. Third-party share recipients may independently retain the image/link. Rotating upstream credentials is the only reliable revocation after sharing.
 - Seven new short UI strings are explicitly localized for 13 locales (ru, en, de, fr, es, it, pt, uk, ja, ko, zh-Hans, zh-Hant, tr). The other interface languages use an explicit English fallback. The original 64 release translation catalogs are unchanged; future native editorial review remains pending.
 
