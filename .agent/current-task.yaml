@@ -1,23 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-QR-SYSTEM-SHARE-HARDWARE-20261104
-status: completed
-goal: "Attest actual iOS system share sheet presentation using isolated synthetic QR QA app on paired physical iPhone, without XCTest, user data, profile migrations, VPN changes or recipient delivery."
+task_id: APL-IOS-RELEASE-SOURCE-ATTESTATION-20261104
+status: in_progress
+goal: "Align iOS roadmap with owner decision to perform two-iPhone QR acceptance after shipping an actual QR-containing release, and add automated release source provenance gate to prevent mistaking Apple 0.2.0(48) for a QR-capable binary."
 definition_of_done:
-  - "Use distinct QA bundle id and synthetic .invalid profile, not the installed App Store APL or its App Group."
-  - "Implement explicit launch-argument-gated hardware lifecycle audit of UIActivityViewController, storing only boolean/status in isolated QA Documents, with no automatic AirDrop/Messages recipient actions."
-  - "Check physical camera capability/authorization status without requesting permission or capturing frames, and exact shared-core QR image round trip."
-  - "Install/launch independent app, retrieve PASS evidence, verify existing production APL version retained; uninstall QA-only app."
-  - "Run Swift/Python tests, signed device build and source contracts; document limits, commit PR and verify CI."
+  - "Prove source commit of Apple's 0.2.0(48) does not contain later QR source and identify first/required QR merge commits."
+  - "Update live roadmap gate to owner-approved post-release two-device test; preserve explicit unverified-risk acceptance and distinguish source inclusion from binary acceptance."
+  - "Create read-only deterministic CLI feature source ancestry and required-files check, with optional fail-closed gate and no network/Apple calls."
+  - "Run negative (0.2.0 build48) and positive (main with QR) tests, invalid ref behavior, full iOS Python/Swift regression and source gate."
+  - "Commit, push reviewable PR; merge only after GitHub exact-head green CI; record checkpoint completed."
 completed:
-  - "PR #320 QR source and #321 physical QA harness merged; on-device QR pixels/CIDetector/strict importer PASS on iPhone 13 iOS 27.2."
-  - "iOS physical XCTest remains blocked with XCTFuture 1000 under Xcode 27.1 and Xcode 27.2; CoreSimulator runtime mismatch; iPhone Mirroring requires iPhone locked, and device currently in use."
-current: "COMPLETED: iPhone13/iOS27.2 showed real UIKit UIActivityViewController with synthetic QR and import link (viewDidAppear PASS), QR pixel decode and strict import PASS, camera hardware available but permission not requested. No recipient action. QA bundle uninstalled, production APL 0.1.41(46) preserved. PR #324 merged to main 995d15db with all 19/19 checks SUCCESS."
+  - "Verified Apple iOS 0.2.0(48) documented IPA source f0a93f8addb4b61961e9c53c885871a563aef9c6 predates QR source; initial QR source commit 848cdd9488f177fb85c22c8af97122b51aa095c6 and final PR #320 source b59801f69990d621e873360762256a80919168de."
+  - "Connection diagnostics PR #312 already merged; PR #314 half-close fix remains draft pending real-device FIN/egress QA, not production."
+current: "Source-to-release provenance gate and user-approved post-release two-iPhone QR acceptance roadmap implemented, validated negative for Apple 0.2.0(48) and positive for current main. Source-only local 7/7 focused tests, full iOS Python 126 (1 skipped), Swift Core 159/159 PASS; no Apple/device/PacketTunnel changes. Prepare PR, hosted CI and source merge."
 pending:
-  - "DONE: Explicit QA-only launch flag created synthetic QR and presented real UIKit UIActivityViewController; lifecycle boolean recorded, never sent to recipient."
-  - "DONE: iPhone13/iOS27.2 Share Sheet actually appeared, camera hardware present, permission not requested; QA app removed, APL 0.1.41(46) preserved."
-  - "DONE: Full Swift Core 159/159 PASS, full iOS Python contracts 119 (1 skipped) PASS, signed iPhoneOS QA build PASS, privacy contracts PASS; PR #324 source dafb4cb1 merged main 995d15db with 19/19 hosted checks green. Separate two-device Camera/AirDrop/VoiceOver/recipient import remains future release gate."
-last_verified_commit: "995d15dbaa3776d9bad8b6c17ebd4a830ba7040a (origin/main merged PR #324 exact source dafb4cb1166ede484043c37401ce1a77f91bcb2d, all 19/19 hosted GitHub checks SUCCESS)"
+  - "DONE: Read-only Git commit ancestry plus required-files feature source gate, optional require-present/absent strict exit codes, and 7 focused failure/success tests. Signed IPA and Apple publication explicitly unverified."
+  - "DONE: Updated canonical roadmap and source-to-release evidence report: Apple 0.2.0(48) source f0a93f8a predates QR PR #320; owner approved post-release two-iPhone QR user test, fixes go in next release. Native PR #314 remains draft."
+  - "DONE: Focused 7/7 provenance tests, iOS Python full suite 126 tests (1 skipped), Swift 159/159 PASS, git diff --check PASS; no binary code or entitlements changed."\n  - "PENDING: Commit/push source-only release attestation PR, await exact-head hosted CI, merge and mark completed checkpoint in main."
+last_verified_commit: "057e6c66c6d01bef73b68738d788637ee88b5019 (origin/main after QR system share hardware checkpoint)"
 test_results:
-  - "Signed physical iPhoneOS BUILD and entitlements PASS, physical iPhone13 iOS27.2 QR and real UIKit activity presentation PASS, camera permission not_requested, external_share not_performed, QA uninstalled and APL 0.1.41(46) preserved. Swift 159/159, Python 119 (1 skipped), GitHub PR #324 19/19 checks SUCCESS; merge 995d15db."
-resume_instruction: "COMPLETED: do not redo synthetic hardware Share Sheet attestation. PR #324 merged to main 995d15dbaa3776d9bad8b6c17ebd4a830ba7040a with 19/19 hosted GitHub CI SUCCESS. Physical paired iPhone13 iOS27.2 QR pixel/strict import and actual UIActivityViewController viewDidAppear PASS; camera hardware present with camera_permission not_requested, external_share not_performed. Isolated QA app removed, live APL 0.1.41(46), Keychain/profiles/VPN and Apple submission untouched. NEXT separate release gate is actual camera scanning of a second screen, recipient AirDrop/Messages and one-tap import on disposable second iPhone, VoiceOver and Apple-distributed Keychain migration; physical Xcode UI Automation remains blocked XCTFuture1000. Work through ARC only; do not touch RDC, Watchdog or production VPN."
+  - "Verified Git source ancestry and files: Apple iOS 0.2.0(48) documented source f0a93f8a did not have QR, current main does. This does not assert binary inspection or Apple publication."\n  - "7/7 focused release-source tests PASS; full iOS Python source/locale 126 tests (1 skipped) PASS; Swift Core 159/159 PASS; docs/source diff check clean. No iOS binary sources changed."
+resume_instruction: "ARC only in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-021-release-feature-attestation-20261104. Source provenance CLI and release order docs implemented. Local focused 7/7, all iOS Python 126 (1 skipped), Swift 159/159 PASS. Next commit, push PR, wait exact-head CI and merge; then mark checkpoint completed via canonical metadata-only PR if necessary. Apple build48 source f0a93f8a cannot contain QR feature merged after that build; owner will perform 2-iPhone QR acceptance only after first separate QR-containing App Store release and request patch if bugs. Source gate NEVER claims signed IPA tested. Keep native FIN PR314 draft pending independent safe network physical QA. Do not touch production iPhone/VPN/Keychain, App Review, Watchdog or RDC."
