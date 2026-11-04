@@ -1,21 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-MAIN-CONSOLIDATION-20261104
-status: completed
-goal: "Consolidate six locally verified iOS source PRs #330,#331,#332,#333,#335,#336 onto current main including already merged macOS #310, without the draft iOS native FIN PR #314."
+task_id: APL-IOS-SMART-EXCLUSIONS-ROLLBACK-SAFE-20261104
+status: in_progress
+goal: "Prevent raw storage/NetworkExtension NSError details appearing in Smart Exclusions save/rollback/reconnect UI; preserve unchanged rollback ordering and accurate typed errors."
 definition_of_done:
-  - "Preserve latest macOS 0.2.22 release source in main byte-identical; leave user macOS release in Apple review untouched."
-  - "Integrate QR compiled app witness, QR camera typed errors, backup and profile CRUD safe messages, JSON provider import and bounded Files reader; combine UI and project sources correctly."
-  - "Verify shared source builds without any live user iPhone/VPN/Keychain or Apple actions; Swift Core, iOS Python source/privacy/locale, iOS Simulator App+PacketTunnel and compiled symbols."
-  - "Create an integration PR, check exact-head GitHub CI and CLEAN/MERGEABLE, merge only on full green, then close superseded PRs with correct integration reference."
-  - "Checkpoint completed in main with exact merge commit and test evidence; preserve separate blocked draft PR #314 and owner QR physical post-release test policy."
+  - "Smart graph validation errors translate from existing 64/64 SmartExclusions catalogs; manually entered invalid exclusions receive safe RU/EN actionable hints; never print raw system details or host credentials."
+  - "Rollback failure and VPN reconnect-after-rollback use 64-language ProfileManagement keys and safe diagnostic code only; never append NSError.localizedDescription."
+  - "All unrelated unknown platform errors fail closed to safe RU/EN generic message; existing exclusion persistence, rollback, active-VPN behavior and domains untouched."
+  - "Targeted pure Swift Core/privacy and Python source/64-locale tests, full iOS Swift/Python, unsigned ARM64 Simulator App+PacketTunnel build PASS."
+  - "Create isolated PR based on merged iOS integration #337; exact-head GitHub CI before merging and finalized checkpoint; no Apple/iPhone/Keychain/proxy or macOS release modification."
 completed:
-  - "Verified current origin/main has merged macOS PR #310 at 4e7b58084d1973aebdd6fb832abfb7dcb6863698; diff from prior iOS base changes only PacketTunnelProvider Swift, .agent/current-task.yaml and docs/ROADMAP.md, none of which should be reverted."
-  - "PR #335 all 19/19 GitHub CI green before macOS main moved; #330/331/332/333/336 have green majority and cancellations from macOS CI runners, plus separate full local PASS."
-  - "DONE: PR #337 integration source 841d1bd0 merged at 268dfc6b418204847f788b61fa49347a3e0bc7a9 after 19/19 hosted CI SUCCESS; six source PRs #330/#331/#332/#333/#335/#336 closed as superseded, draft PR #314 preserved."
-current: "COMPLETED: iOS source consolidated with current main including macOS #310. GitHub integration PR #337 merged at 268dfc6b418204847f788b61fa49347a3e0bc7a9, exact-source 19/19 CI SUCCESS. Swift171/171, iOS Python168 (1 skipped), ARM64 iOS Simulator App+PacketTunnel build PASS, six source PRs closed as superseded. Owner hardware, VPN/Keychain and Apple untouched."
-pending: []
-last_verified_commit: "268dfc6b418204847f788b61fa49347a3e0bc7a9 (main merge PR #337, exact head 841d1bd0, 19/19 GitHub checks SUCCESS; local Swift171, Python168, ARM64 app PASS)"
+  - "Verified existing saveExclusions contains three raw error.localizedDescription paths, including failed restore and failed reconnect, risking untrusted NSError in UI."
+  - "Verified all three SmartGraphError keys are translated 64/64 in SmartExclusions.strings and two rollback-specific alert keys are 64/64 in ProfileManagement.strings."
+current: "DONE local QA: typed safe Smart Exclusions save/rollback/reconnect UI without raw NSError, 64-locale SmartExclusions and ProfileManagement reuse, stable fallback for unknown errors. Swift targeted 5/5 and full176/176; Python focused4/4 full172 (1 skipped); XcodeGen and unsigned ARM64 Simulator App+PacketTunnel BUILD PASS, compiled SiteExclusionSaveUX symbol. Pending isolated PR from latest main after already-merged closure #338 and exact-head GitHub CI."
+pending:
+  - "DONE: Pure SiteExclusionSaveFailure and localized SiteExclusionSaveUX, three saveExclusions catch paths no raw NSError, rollback call order unchanged."
+  - "DONE: 5 targeted Swift, 4 portable source+64-locale, full Swift176, iOS Python172 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel and compiled helper PASS."
+  - "PENDING: Rebase new source onto main after checkpoint closure #339, commit/push standalone PR, exact-head hosted CI and metadata completed checkpoint."
+last_verified_commit: "384c2cba11ce4fdc1a6f6bb3a20bbb2685eb538c (origin/main with PR #337 sources and PR #338 completed checkpoints; safe rollback source tested locally on equivalent sources)"
 test_results:
-  - "Each iOS source branch has full local Swift/Python/simulator checks; JSON+bounded-reader combined locally passed Swift171/171, Python142 (1 skipped) and ARM64 app."
-resume_instruction: "COMPLETED — do not repeat iOS PRs #330/#331/#332/#333/#335/#336 or main consolidation. Source merged as PR #337 at 268dfc6b418204847f788b61fa49347a3e0bc7a9 after 19/19 hosted CI SUCCESS. Continue distinct next iOS task APL-IOS-FILE-PICKER-CANCEL-20261104, prepared locally at commit 43077393 in worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-file-picker-cancel-20261104. Rebase its change onto main and do independent exact-head CI. Preserve owner iPhone/VPN/Keychain, Apple reviews, draft PR #314 and Watchdog; ARC only, no RDC."
+  - "Targeted Swift5, Python4, full Swift176/176, full iOS Python172 (1 skipped), ARM64 App+PacketTunnel compiled helper PASS."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-exclusions-rollback-main-20261104 based on merged consolidation PR #337 841d1bd. Safe typed exclusion save/rollback/reconnect presentation implemented, no raw NSError and no routing/store changes. Swift full176, focused5, Python full172 (1 skipped), focused4, unsigned ARM64 App+PacketTunnel build and compiled SiteExclusionSaveUX PASS. Next commit source from latest main 384c2cba and open separate PR; all canonical completed checkpoints remain untouched except current-task moving to new in-progress task, then open standalone PR, full exact-head GitHub CI and merge; close this checkpoint completed afterward. macOS release sent Apple review remains untouched, iOS draft native PR314 BLOCKED, owner iPhone/VPN/Keychain/Watchdog unchanged. ARC only, no RDC."
