@@ -35,6 +35,13 @@
 
 ---
 
+## 04.11.2026 — iOS: отмена Files Picker без ложной ошибки
+
+- [x] APL-IOS-FILE-PICKER-CANCEL: корректная отмена системного выбора файла больше не вызывает ошибку импорта. Только NSError(NSCocoaErrorDomain, NSUserCancelledError) считается отменой; реальные сбои чтения по-прежнему показываются. Swift Core176/176, Python171 (1 skipped), unsigned ARM64 Simulator App+PacketTunnel PASS. [Отчёт](APL_IOS_FILE_PICKER_CANCEL_2026-11-04.md).
+- [ ] Следующий самостоятельный PR на базе main 384c2cba, после объединения исходной iOS интеграции #337 и закрытия checkpoint #338.
+
+---
+
 ## 04.11.2026 — iOS: консолидация после macOS 0.2.22
 
 - [x] В отдельной интеграционной ветке поверх main с macOS PR #310 сведены iOS PR #330, #331, #332, #333, #335, #336: QR бинарная проверка, безопасные локализованные ошибки камеры/копии/профилей, JSON-импорт и порционное чтение файлов. Устранено пересечение в ProxyImportView, Xcode-проект пересобран, релизный macOS PacketTunnel не изменён. Swift171/171, Python168 (один skipped), unsigned ARM64 Simulator App+PacketTunnel BUILD, бинарные QR/JSON symbols и 64/64 локализаций PASS. [Протокол](APL_IOS_INTEGRATION_AFTER_MAC_RELEASE_2026-11-04.md).

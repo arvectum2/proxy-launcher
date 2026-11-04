@@ -152,7 +152,11 @@ struct ProxyImportView: View {
                     defer { if access { url.stopAccessingSecurityScopedResource() } }
                     source = try ProxyImportFileReader.readUTF8(from: url)
                     parse()
-                } catch let caught { importError = ProxyImportUX.error(caught) }
+                } catch {
+                    if !ProxyFilePickerCancellation.isUserCancellation(error) {
+                        importError = ProxyImportUX.error(error)
+                    }
+                }
             }
         }
     }
