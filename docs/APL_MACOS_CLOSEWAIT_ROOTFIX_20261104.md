@@ -20,3 +20,30 @@ Verified:
 - Public MacBook 0.2.21 has NOT been replaced, profile data and ARC/Tailscale remain intact.
 
 Not yet proved: long physical QA of new signed beta, App Store distribution, account-wide 200-session safety if all five devices are fully saturated. Do not claim public fix before TestFlight/real QA.
+
+
+## Apple TestFlight state and remaining physical gate (12:17 MSK)
+
+The public MacBook 0.2.21(15) was measured with **274 upstream TCP / 170
+CLOSE_WAIT**, all directed at the US backup 200.0.60.91:9448, after about
+two hours of VPN uptime. The ordinary HTTPS proxy route still works, but
+this is a real resource leak and may exhaust provider's concurrency limits.
+
+PR #310 native Rust half-close fix CI passed 24 checks; signed 0.2.22
+build16 archive signed and locally verified. The package was successfully
+cloud-exported by Xcode. Apple server validation of a second copy returned
+409 DUPLICATE: build 16 was previously uploaded. ASC API independently
+confirmed existing version 0.2.22 build16 ID
+7e9ea489-aa9c-4f51-8437-e0c1300a6dd3 is VALID (2026-11-04).
+Export compliance reused prior macOS non-exempt encryption=false and the
+build was added to existing internal TestFlight QA group, state
+IN_BETA_TESTING. No need to upload another binary.
+
+Before installing on MacBook, backed up existing public 0.2.21 app and
+App Group preference plist to
+~/ArvectumSafe/backups/APL-macOS-0.2.21-before-closewait-qa-20261104/.
+Direct remote ARC MacBook GUI is offline; SSH and independent Tailscale
+still work. AppleScript reports no accessible TestFlight controls, so
+installation must be done by the owner at the visible TestFlight UI or
+after restoring observable remote GUI. Never force an unseen GUI update.
+No public 0.2.22 release has been submitted.

@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-CLOSEWAIT-ROOTFIX-20261104
-status: in_progress
+status: blocked
 goal: "Eliminate persistent upstream proxy TCP/CLOSE_WAIT accumulation on macOS without user reconnect, while preserving working App Store 0.2.21, all profiles and independent ARC/Tailscale."
 definition_of_done:
   - "Identify accountable owner of stale TCP sockets in Network Extension with measured evidence, not infer root cause from generic threshold events."
@@ -13,14 +13,21 @@ completed:
   - "Verified MacBook signed public 0.2.21 build15 VPN Connected, egress via backup USA 200.0.60.91, three profiles intact, independent ARC Tailscale online."
   - "Historical telemetry records 1689 upstream sockets / 1655 CLOSE_WAIT and current 66 TCP / 24 CLOSE_WAIT; main PX6 upstream remains unreachable."
   - "Created isolated worktree fix/apl-macos-closewait-root-20261104 from origin/main 5ed0c3dfa9d9eebdad6e19d25447033072204bcc."
-current: "Native root fix and full unsigned Mac Catalyst Debug app/PacketTunnel build PASS; 4 Rust including real TCP FIN plus 23+5+3 contracts PASS. Commit PR, then signed beta and physical 60min QA pending."
+current: "Code fix and signed macOS 0.2.22 build16 ready, Apple ASC VALID/internal TestFlight IN_BETA_TESTING. Blocked on physical MacBook TestFlight installation: direct ARC device GUI transport offline and TestFlight AX window contains no accessible controls. Signed public 0.2.21 kept working; backed up app and profiles. Ask owner to install 0.2.22 build16 from TestFlight, then do physical 60min QA."
 pending:
   - "Rust bounded half-close and preserved Smart3 ABI implemented and compiled."
   - "Rust 4 tests (including live FIN) and 31 Python contracts PASS."
-  - "Create PR, obtain green CI, arrange signed beta and 60min physical QA."
-last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc (origin/main baseline)."
+  - "PR #310 open, 24 GitHub CI checks PASS. Signed build16 with Apple Distribution; cloud Installer package generated using existing Apple Xcode account, keychain list restored."
+  - "App Store Connect version 0.2.22 build16 ID 7e9ea489-aa9c-4f51-8437-e0c1300a6dd3 VALID; duplicate upload blocked (already delivered earlier); no need to upload again."
+  - "Build16 export compliance set to prior macOS false and added to Arvectum macOS Internal QA, internal state IN_BETA_TESTING."
+  - "Live MacBook latest public 0.2.21: 274 TCP/170 CLOSE_WAIT all to 200.0.60.91:9448 while VPN Connected, egress 200.0.60.91 works; ARC/Tailscale Running/Online."
+  - "Backed up MacBook signed 0.2.21 app to ~/ArvectumSafe/backups/APL-macOS-0.2.21-before-closewait-qa-20261104/AppStore-0.2.21.app.zip and profile preference plist to same folder; rollback preserved."
+  - "Apple 0.2.22 build16 exported through Xcode cloud Installer signed PKG; server-side validation returned 409 DUPLICATE because build16 had already uploaded earlier. ASC API verified existing build16 is VALID, uploaded 2026-11-04T00:33:50-08:00."
+  - "Apple App Store Connect build16 export compliance set to previous accepted macOS classification usesNonExemptEncryption=false and attached to existing Arvectum macOS Internal QA group; IN_BETA_TESTING."
+  - "Direct ARC device GUI for MacBook reports transport offline, although independent Tailscale userspace and LAN SSH work. TestFlight launched through SSH; AX tree empty/unobservable; no blind click/overwrite of working 0.2.21."
+last_verified_commit: "52aa90316433ccbfc3e923d4aeb12e3281dbd1b1 (PR #310, 24 checks PASS, signed 0.2.22(16) archive/Apple beta VALID)."
 test_results:
   - "MacBook signed public 0.2.21(15) remains connected via backup; 3 profiles and ARC/Tailscale safe; not replaced."
   - "Pinned native Rust 4 async tests PASS; Mac Catalyst library full Smart3 ABI and full unsigned Debug app+PacketTunnel PASS."
   - "macOS contracts 23, appearance 5, native socket contracts 3 all PASS."
-resume_instruction: "Start at isolated /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-closewait-rootfix-20261104, branch fix/apl-macos-closewait-root-20261104. Current code fix in mobile/macos-appstore/Tools/tun2proxy-closewait-halfclose.patch, fetch script applies full Smart3 native chain, Swift macOS-only --max-sessions 96 and pressure monitor, XcodeGen App source wiring. 4 Rust tests including real peer FIN PASS, native library and full unsigned Mac Catalyst app+PacketTunnel PASS, 23+5+3 Python tests PASS. Commit/push PR and check CI; then signed beta + 60min MacBook QA, not yet done. Keep public App Store 0.2.21(15) installed, ARC/Tailscale and all profiles safe, no unsigned replacement. Do not change iOS submission or enable disabled Watchdog."
+resume_instruction: "Read this checkpoint and verify PR #310 and worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-closewait-rootfix-20261104. Code root fix: Rust half-close timeouts 2s/30s + macOS --max-sessions 96; native Rust real-FIN PASS; signed 0.2.22 build16 archive exists, valid build16 7e9ea489-aa9c-4f51-8437-e0c1300a6dd3 already IN_BETA_TESTING, so do not upload duplicate. Signed public 0.2.21 on MacBook has real leak 274 TCP/170 CLOSE_WAIT. Its app and profiles are backed up in ~/ArvectumSafe/backups/APL-macOS-0.2.21-before-closewait-qa-20261104. GUI direct ARC MacBook is offline; TestFlight AX has empty window. Ask owner to install APL 0.2.22(16) in TestFlight on MacBook or restore visible GUI; do not blindly replace app. After install run 60+ minute physical soak monitoring CLOSE_WAIT, VPN/HTTPS, Tailscale/ARC, three profiles, no external restart guard. CI 24 PASS on PR #310. If QA passes merge PR and prep public macOS release. Don't touch iOS or turn on disabled watchdog."
