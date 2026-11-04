@@ -11,13 +11,13 @@
 The toggleVPN() error alert, the macCatalyst repair alert and VPNController.prepare() status previously rendered arbitrary error.localizedDescription. A raw NSError can carry an upstream proxy hostname, a username, a URL or other technical secrets; showing that data as an actionable alert was inappropriate.
 
 - ProxyFailureReason.safeDisplay(for:translate:) now outputs only a static, stable error code plus a translated, predefined recovery message. It never passes arbitrary error descriptions, hostnames, userInfo or raw URLs to UI.
-- recoveryGuidanceKey uses four existing reviewed Localizable.strings keys, present in all 64/64 shipped UI languages, with conservative actions for DNS/TCP/timeout, authentication/HTTP 407, TLS/protocol mismatch and the remaining generic classes. No unsupported new translations were invented.
+- recoveryGuidanceKey uses four general and three VPN-specific existing reviewed Localizable.strings keys, present in all 64/64 shipped UI languages, with conservative actions for DNS/TCP/timeout, authentication/HTTP 407, TLS/protocol mismatch and the remaining generic classes. No unsupported new translations were invented.
 - AppViewModel.toggleVPN() and repairVPNConfiguration() use the same safe message builder. VPNController.prepare() also uses this builder instead of the raw error. VPNController.userFacingError() preserves its deliberately authored NetworkExtension disabled/stale/invalid guidance but converts other errors to typed, non-sensitive diagnostic errors.
 - This deliberately does not auto-modify VPN configuration or bypass proxy security and does not imply that a successful CONNECT means site content loaded.
 
 ## Verification
 
-- swift test --package-path mobile/ios: 138/138 PASS (including 3 new safe-display cases).
+- swift test --package-path mobile/ios: 139/139 PASS (including 4 new safe-display cases).
 - python3 -m unittest discover -s tests -p 'test_ios_*.py': 104 tests run, 0 failures, 1 skipped; 64-locale contract checked; synthetic 0.1.41 storage/Keychain source compatibility contracts retained.
 - xcodebuild unsigned iOS Simulator application + PacketTunnel full build on ARM64, Xcode 27.1: BUILD SUCCEEDED. Initial generic simulator build also targeted x86_64 and could not link pinned arm64-only tun2proxy; the explicit ARCHS=arm64 ONLY_ACTIVE_ARCH=YES build succeeded.
 - git diff --check: PASS.

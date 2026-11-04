@@ -93,6 +93,25 @@ final class ProxyFailureReasonTests: XCTestCase {
         XCTAssertFalse(display.contains(secret))
     }
 
+    func testExplicitVPNRecoveryHintsAreSafeAndDoNotRenderRawNSError() {
+        let hints: [(ProxyRecoveryHint, String)] = [
+            (.vpnDisabled, "Настройки → VPN"),
+            (.vpnStale, "Перезапустите подключение"),
+            (.vpnInvalid, "Packet Tunnel"),
+        ]
+        for (hint, expected) in hints {
+            let error = ProxyDiagnosticError(.tunnel, recoveryHint: hint)
+            let display = ProxyFailureReason.safeDisplay(for: error, translate: { $0 })
+            XCTAssertTrue(display.contains("VPN"))
+            XCTAssertTrue(display.contains(expected))
+            XCTAssertTrue(display.contains(hint.localizationKey))
+        }
+        let secret = "username:password@private-proxy.invalid"
+        let raw = NSError(domain: "ArvectumVPN", code: 999,
+                          userInfo: [NSLocalizedDescriptionKey: secret])
+        XCTAssertFalse(ProxyFailureReason.safeDisplay(for: raw, translate: { $0 }).contains(secret))
+    }
+
     func testExactErrorCodesAreStable() {
         XCTAssertEqual(ProxyFailureReason.authentication.code, "AUTH")
         XCTAssertEqual(ProxyFailureReason.http407.code, "HTTP 407")

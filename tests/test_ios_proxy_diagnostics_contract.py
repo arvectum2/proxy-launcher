@@ -25,11 +25,17 @@ class IOSProxyDiagnosticsContractTests(unittest.TestCase):
         self.assertEqual(len(locales), 64)
         self.assertIn('static func safeDisplay(for error:', core)
         self.assertIn('var recoveryGuidanceKey: String', core)
+        self.assertIn('enum ProxyRecoveryHint: Equatable', core)
+        self.assertIn('recoveryHint: ProxyRecoveryHint?', core)
+        self.assertIn('for: userFacingError(error), translate:', vpn)
         guidance_keys = (
             "Проверьте адрес и порт прокси",
             "Логин и пароль нужны только для прокси с авторизацией.",
             "Если тип подключения неизвестен, уточните его у поставщика. После заполнения нажмите «Сохранить».",
             "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные.",
+            "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение.",
+            "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её.",
+            "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить.",
         )
         for locale in locales:
             strings = locale.read_text(encoding="utf-8")
