@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-BACKUP-SAFE-ERRORS-20261104
+status: in_progress
+goal: "Fix seven already translated ProfileBackupError messages currently fetched from wrong Localizable table, and prevent raw file/Keychain/Crypto system errors appearing in the encrypted-backup UI without changing backup bytes, migrations, profiles or VPN."
+definition_of_done:
+  - "Use typed ProfileBackupError localization via ProfileManagement.strings for all 64 supported languages, preserving precise invalid-file/authentication/rollback messages."
+  - "Map unknown file exporter/importer/backup exceptions to stable safe RU/EN context-specific wording; never present localizedDescription or file path, secrets or NSError diagnostics."
+  - "Preserve cancelled file export no-error behavior, all-or-nothing backup and existing VPN-active safety checks."
+  - "Pass portable source+64 locale contracts, full iOS Python and Swift core suites, unsigned ARM64 simulator App+PacketTunnel build."
+  - "Create independent PR, merge only after exact-head CI and mark checkpoint completed. No Apple/user iPhone/Keychain/proxy or draft native PR #314 changes."
+completed:
+  - "Verified all seven ProfileBackupError errorDescription keys exist in 64/64 ProfileManagement.strings, but no Localizable.strings contains these keys."
+  - "Verified ProfileBackupView currently surfaces arbitrary error.localizedDescription in file export and uses incorrect default localization table for import, seal, restore failures."
+current: "Locally verified: seven existing backup errors localized correctly from 64/64 ProfileManagement catalogs, unknown native FileExporter/FileImporter/Crypto/Keychain errors replaced with safe operation context messages; no codec/rollback changes. Six source contracts, full iOS Python139 (1 skipped), Swift159/159, ARM64 Simulator App+PacketTunnel build and actual compiled helper symbol PASS. Commit/push PR, exact-head CI then complete checkpoint."
+pending:
+  - "DONE: Added ProfileBackupUX with all 7 known typed keys from ProfileManagement (64 locales) and safe RU/EN context fallback for unknown OS errors. Backup bytes untouched."
+  - "DONE: Six portable source+64 locale tests PASS; full iOS Python139 (1 skipped), Swift Core159/159, ARM64 Simulator App+PacketTunnel BUILD PASS, compiled helper symbol verified."
+  - "DONE: Roadmap and QA protocol updated. PENDING: commit/push reviewable PR, await exact-head hosted CI, merge and metadata completed checkpoint."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main before PR #330/#331 source merges)"
+test_results:
+  - "Six focused backup privacy/locale contracts PASS, 64/64 existing translations, full iOS Python139 (1 skipped), Swift159/159, ARM64 Simulator App+PacketTunnel and compiled Swift backup helper PASS."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-backup-safe-errors-20261104. Stable encrypted backup errors helper and ProfileBackupView edits implemented. Seven existing ProfileBackupError messages now localized in 64 ProfileManagement catalogs, unknown system errors never displayed verbatim; safe RU/EN fallback by operation. Local 6 focused, iOS Python139 (1 skipped), Swift159, unsigned ARM64 App+PacketTunnel build PASS; actual ProfileBackupUX Swift symbol in compiled app. Next commit/push PR, wait exact-head GitHub CI, merge if fully green, checkpoint completed. PR #330 compiled QR witness and PR #331 QR camera errors separate and still CI pending. Do not touch current Apple review, user iPhone/VPN/Keychain/profiles, native draft PR #314, Watchdog or RDC."

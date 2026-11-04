@@ -1,27 +1,23 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
-status: blocked
-goal: "Ship native TCP half-close lifetime rootfix safely in iOS 0.2.1, without risking user proxy traffic or violating Apple's NetworkExtension constraints."
+task_id: APL-IOS-BACKUP-SAFE-ERRORS-20261104
+status: in_progress
+goal: "Fix seven already translated ProfileBackupError messages currently fetched from wrong Localizable table, and prevent raw file/Keychain/Crypto system errors appearing in the encrypted-backup UI without changing backup bytes, migrations, profiles or VPN."
 definition_of_done:
-  - "Pinned tun2proxy Rust fix and source tests pass; production TCP routes/profiles/credentials and Apple 0.2.0(48) review remain untouched."
-  - "Pass controlled independent physical iPhone FIN/CLOSE_WAIT and proxy-egress QA, including Safari upload/download, reconnect, Wi-Fi/LTE switching and fallback."
-  - "Verify no truncation of legitimate long-lived upload/download under 2-second upstream FIN and 30-second client FIN bounds; revise patch if regressions are observed."
-  - "Build and verify production iPhoneOS App+PacketTunnel after hardware gate and full exact-head hosted CI; merge PR #314 only when all gates pass."
+  - "Use typed ProfileBackupError localization via ProfileManagement.strings for all 64 supported languages, preserving precise invalid-file/authentication/rollback messages."
+  - "Map unknown file exporter/importer/backup exceptions to stable safe RU/EN context-specific wording; never present localizedDescription or file path, secrets or NSError diagnostics."
+  - "Preserve cancelled file export no-error behavior, all-or-nothing backup and existing VPN-active safety checks."
+  - "Pass portable source+64 locale contracts, full iOS Python and Swift core suites, unsigned ARM64 simulator App+PacketTunnel build."
+  - "Create independent PR, merge only after exact-head CI and mark checkpoint completed. No Apple/user iPhone/Keychain/proxy or draft native PR #314 changes."
 completed:
-  - "Draft PR #314 preserves source-pinned tun2proxy v0.8.3 and app routing; Rust fix bounds upstream FIN to 2s and client FIN to 30s."
-  - "Original draft 21 Rust, 135 Swift, 107 Python (1 skipped), ARM64 Simulator app+PacketTunnel build PASS."
-  - "Source-only stress QA PR #328 merged ONLY into draft feature branch at 429a19db906c466a541ffebf7a1ddf52167aeac8 with 7/7 GitHub CI green."
-  - "Additional real loopback proof: 23 Rust PASS, 25x6 tests 150 PASS covering 500 upstream FIN cycles, byte-exact delayed 128KiB download after client 32KiB upload, and upstream socket EOF."
-  - "Swift135/135, full iOS Python111 (1 skipped), pinned iPhoneOS and Simulator native release lib builds PASS; shipping native patch byte-identical before and after cfg(test) additions."
-current: "BLOCKED: Draft PR #314 contains tested native rootfix and stronger real TCP stress proof; it is NOT safe to merge into main before independent physical FIN/CLOSE_WAIT and egress/long transfer acceptance. Owner's physical iPhone and production VPN remain untouched."
+  - "Verified all seven ProfileBackupError errorDescription keys exist in 64/64 ProfileManagement.strings, but no Localizable.strings contains these keys."
+  - "Verified ProfileBackupView currently surfaces arbitrary error.localizedDescription in file export and uses incorrect default localization table for import, seal, restore failures."
+current: "Locally verified: seven existing backup errors localized correctly from 64/64 ProfileManagement catalogs, unknown native FileExporter/FileImporter/Crypto/Keychain errors replaced with safe operation context messages; no codec/rollback changes. Six source contracts, full iOS Python139 (1 skipped), Swift159/159, ARM64 Simulator App+PacketTunnel build and actual compiled helper symbol PASS. Commit/push PR, exact-head CI then complete checkpoint."
 pending:
-  - "Physical controlled test using disposable iPhone/device and synthetic proxy: actual upstream FIN closes FD, avoids CLOSE_WAIT accumulation, Safari upload/download intact."
-  - "Physical background/resume, Wi-Fi/LTE switch, failover and long upload after server FIN; if 2s/30s truncates valid traffic, adjust policy and rerun native/physical regression."
-  - "Refresh draft branch against current main only after hardware gate and risk review; run exact-head full GitHub CI, then consider main integration and later Apple release."
-last_verified_commit: "a92715b7afb83348d02fd844e8028c88bc038887 (draft PR #314 source QA merged via PR #328 as 429a19db, exact head f4e01f5b 7/7 hosted checks SUCCESS; latest closure metadata only)"
+  - "DONE: Added ProfileBackupUX with all 7 known typed keys from ProfileManagement (64 locales) and safe RU/EN context fallback for unknown OS errors. Backup bytes untouched."
+  - "DONE: Six portable source+64 locale tests PASS; full iOS Python139 (1 skipped), Swift Core159/159, ARM64 Simulator App+PacketTunnel BUILD PASS, compiled helper symbol verified."
+  - "DONE: Roadmap and QA protocol updated. PENDING: commit/push reviewable PR, await exact-head hosted CI, merge and metadata completed checkpoint."
+last_verified_commit: "6a6616953f1b12b0480ee14fc8dc4bc5c46e99b3 (origin/main before PR #330/#331 source merges)"
 test_results:
-  - "Native Rust 1.98.1: 23/23 PASS, 25 repetitions of six real/async FIN cases =150/150 PASS, including 500 loopback TCP FIN sessions."
-  - "Full iOS Swift Core135/135, Python111 run (1 skipped) PASS; native aarch64-apple-ios and aarch64-apple-ios-sim release static library BUILD PASS."
-  - "PR #328 source head f4e01f5b GitHub 7/7 checks SUCCESS; merged only to draft branch. Real iPhone PacketTunnel FIN/CLOSE_WAIT/egress NOT tested."
-resume_instruction: "ARC only. Canonical source branch is DRAFT PR #314 fix/ios-021-closewait-halfclose-20261104 at 429a19db906c466a541ffebf7a1ddf52167aeac8 (plus checkpoint-only closure commit). Native QA PR #328 MERGED into draft with 7/7 CI; Rust23/23, repeated150/150 including 500 real loopback FIN sessions, Swift135/135, Python111 (1 skipped), iPhoneOS+Simulator native release libs PASS. NEXT ONLY when independent safe physical lab exists: disposable iPhone with synthetic upstream proxy, real FIN/CLOSE_WAIT and Safari uploads/downloads, long-lived half-closed traffic, Wi-Fi/LTE and failover. Do not modify owner iPhone, user VPN/Keychain or merge draft PR #314 into main without physical gate. Apple 0.2.0(48) review and post-release two-iPhone QR acceptance separate. No RDC or Watchdog."
+  - "Six focused backup privacy/locale contracts PASS, 64/64 existing translations, full iOS Python139 (1 skipped), Swift159/159, ARM64 Simulator App+PacketTunnel and compiled Swift backup helper PASS."
+resume_instruction: "ARC only. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-backup-safe-errors-20261104. Stable encrypted backup errors helper and ProfileBackupView edits implemented. Seven existing ProfileBackupError messages now localized in 64 ProfileManagement catalogs, unknown system errors never displayed verbatim; safe RU/EN fallback by operation. Local 6 focused, iOS Python139 (1 skipped), Swift159, unsigned ARM64 App+PacketTunnel build PASS; actual ProfileBackupUX Swift symbol in compiled app. Next commit/push PR, wait exact-head GitHub CI, merge if fully green, checkpoint completed. PR #330 compiled QR witness and PR #331 QR camera errors separate and still CI pending. Do not touch current Apple review, user iPhone/VPN/Keychain/profiles, native draft PR #314, Watchdog or RDC."

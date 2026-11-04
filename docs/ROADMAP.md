@@ -18,6 +18,12 @@
 
 ---
 
+## 04.11.2026 — iOS: безопасные ошибки зашифрованных резервных копий
+
+- [x] APL-IOS-BACKUP-SAFE-ERRORS: выявлены и устранены неверный поиск 7 ошибок ProfileBackupError в Localizable вместо ProfileManagement (переводы уже имеются во всех 64/64 языках) и вывод сырых FileExporter/Files/Keychain/CryptoKit ошибок. Типизированные ошибки показывают точные локализованные подсказки, неизвестные системные — только нейтральные RU/EN сообщения по операции. Отмена файлового диалога и AES-GCM/откат профилей не менялись; 6/6 адресных контрактов, 139 Python (один skipped), 159 Swift, unsigned ARM64 Simulator App+PacketTunnel BUILD PASS. [Отчёт](APL_IOS_BACKUP_SAFE_ERRORS_2026-11-04.md).
+
+---
+
 ## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
 
 - [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.
