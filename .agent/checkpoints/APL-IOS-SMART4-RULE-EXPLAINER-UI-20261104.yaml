@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-RULE-EXPLAINER-UI-20261104
+status: in_progress
+goal: "Show transparent, localized read-only provenance of user-created website bypass entries in the iOS exclusions UI, without promising actual per-domain Packet Tunnel routing."
+definition_of_done:
+  - "Use clean isolated worktree based on merged PR #315; preserve Mac/iOS other checkpoints and Apple 0.2.0 review."
+  - "Make route-explanation discoverable and accessible on manual and linked exclusion rows, using already translated strings in 64 locales, clear save/reconnect caution."
+  - "No impact on exclusion model persistence, routing decisions, Keychain, live proxy or Pocket Tunnel."
+  - "Add source contracts for 64-language safety and UI wiring; run Swift Core, iOS Python source checks and unsigned ARM64 Simulator app+PacketTunnel build."
+  - "Commit/push source-only PR with evidence, monitor exact-head CI and merge only after passing."
+completed:
+  - "PR #315 Smart4 pure route-provenance model merged to main c7c970ef9dcbf3363f4a552d99bd9e3fe71422a3 with 19/19 CI green."
+current: "Read-only route explanation UI and 64-locale source contracts implemented; Swift 146/146, Python iOS 107 (1 skipped), ARM64 Simulator app+PacketTunnel BUILD, isolated UI XCTest 1/1 all PASS. Prepare commit/push and hosted CI."
+pending:
+  - "DONE: Two accessible info buttons (manual and dependency rows), read-only Smart4 preview with fixed localization keys present in 64/64 catalogs; no network/profile writes."
+  - "DONE: Swift 146/146, Python 107 (1 skipped), ARM64 Simulator BUILD, isolated UI XCTest 1/1 Passed; test simulator deleted."
+  - "Commit/push PR, exact-head CI, merge and close checkpoint."
+last_verified_commit: "c7c970ef9dcbf3363f4a552d99bd9e3fe71422a3 (origin/main PR #315 merge)"
+test_results:
+  - "UI branch Swift Core 146/146 PASS; Python iOS 107 tests (1 skipped) PASS; ARM64 iOS Simulator app+PacketTunnel BUILD PASS; isolated iPhone13 iOS27.0 UI XCTest 1/1 PASS; temporary simulator cleaned."
+resume_instruction: "ARC only, work in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-rule-explainer-ui-20261104. Implement a read-only localized explanation accessible by info button in manual/linked exclusion rows; use existing keys across 64 SmartExclusions catalogs and caution that current unsaved rules are just a preview. Do not write to ProfileStore, routes, Keychain or PacketTunnel. Test/bundle and create PR; merge only after exact-head GitHub CI. No owner iPhone, Apple App Review, macOS socket worktree, disabled Watchdog or RDC changes."

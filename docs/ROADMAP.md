@@ -3,19 +3,53 @@
 - [x] Physical 65-minute QA FAIL: maximum 308 TCP / 172 CLOSE_WAIT; final 282/141. Availability-only PASS was a false positive. Do NOT ship build16.
 - [x] Independent socket/trend acceptance evaluator with 8 passing regression tests; actual build16 log correctly rejected.
 - [x] Kernel closewait watcher for blocked virtual writes, native live TCP FIN and session handoff regression 6/6 PASS.
-- [ ] Mac Catalyst signed build17, TestFlight physical 60+ minute QA with bounded socket counts, merge PR #310 and public review.
+- [x] Signed TestFlight 0.2.22 build17 installed; full 65-minute socket soak: max 48 TCP/31 CLOSE_WAIT, final 14/1, VPN and ARC stable.
+- [ ] Overall build17 QA FAIL: two real HTTPS curl 28 timeouts out of 14 probes. Repeat diagnostic 65-minute test with backup website probes; no public release until full pass.
+- [ ] Merge PR #310 and submit public macOS review only after physical acceptance.
 
 ## 04.11.2026 — macOS CLOSE_WAIT root fix (candidate for next release)
 
 - [x] Root cause found in pinned Rust tun2proxy half-close join; native bounded cleanup implemented, 4 Rust tests including real TCP FIN passed.
 - [x] macOS 96-session engine limit, Smart3 FFI retained, full Catalyst Debug build and 31 focused Python contracts passed.
 - [x] Signed TestFlight 0.2.22 build16 installed on physical MacBook; three proxy profiles retained, 30/30 HTTPS 200, ARC/Tailscale online; prior public 0.2.21 backup preserved.
-- [ ] Full 65-minute MacBook socket soak still running; public release remains gated. Details: docs/APL_MACOS_CLOSEWAIT_ROOTFIX_20261104.md.
+- [x] Build16 65-minute QA FAILED, build17 sockets stable but HTTPS gate FAILED twice; further diagnosis required. Details: docs/APL_MACOS_CLOSEWAIT_ROOTFIX_20261104.md.
+
+## 04.11.2026 — порядок iOS-релизов и послерелизная приёмка QR (решение владельца)
+
+- [x] Подтверждено по исходникам: отправленная Apple **iOS 0.2.0 (48)** собрана из f0a93f8a **до** появления нового QR-обмена (b59801f6, PR #320). Следовательно, установить 0.2.0 на второй iPhone недостаточно для проверки QR.
+- [x] APL-IOS-RELEASE-SOURCE-GATE: локальная проверка Git-источника будущей сборки на включение QR-передачи и безопасной диагностики, без ложных утверждений о содержимом подписанной IPA и о статусе Apple. [План и команды](APL_IOS_021_RELEASE_SOURCE_AND_POSTRELEASE_QR_2026-11-04.md).
+- [ ] По решению владельца **реальный QR-обмен между двумя iPhone и VoiceOver проверяем после появления в App Store первой версии, действительно содержащей QR**, а при обнаружении ошибок выпускаем отдельное исправление. Это осознанный перенос только двухустройственной приёмки, не отмена регрессионного CI, проверки подписи, приватности и безопасности VPN.
+- [ ] Для будущей QR-содержащей версии: фиксировать точный исходный commit, проверить включение функции в собранный архив, пройти стандартные релизные проверки; номер версии и build не менять до отдельного релизного решения. Неразрешённый native FIN/CLOSE_WAIT draft PR #314 в релиз автоматически не включать.
+
+---
+
+## 04.11.2026 — iOS: передача одного профиля через QR
+
+- [x] APL-IOS-PROFILE-QR-SHARE-001: source-only реализация кнопки у каждого прокси, явное предупреждение о передаче логина/пароля, QR и системного Apple Share Sheet. Получатель может открыть APL по ссылке или сканировать встроенной камерой APL, посмотреть предварительные данные и одним действием импортировать; дубликаты пропускаются, активный VPN не изменяется.
+- [x] APL-IOS-PROFILE-QR-HARDWARE-PIXEL: на реальном iPhone 13 / iOS 27.2 прошла цепочка QR-кодека из production-исходников: генерация изображения → CIDetector → парсинг ссылки с проверкой имени, типа, хоста, логина и пароля. Отдельный QA-клиент без App Group/VPN установлен, запущен и удалён; рабочий APL 0.1.41 (46) не изменялся. [Отчёт](APL_IOS_QR_PHYSICAL_QA_2026-11-04.md).
+- [x] APL-IOS-PROFILE-QR-SYSTEM-SHARE-HARDWARE: реальный iPhone 13 / iOS 27.2 подтвердил открытие UIKit UIActivityViewController с синтетическим QR-кодом и ссылкой; данные не отправлялись, камера присутствует, разрешение на неё не запрашивалось. Отдельное QA-приложение удалено, рабочий APL не затронут. [Отчёт](APL_IOS_QR_SYSTEM_SHARE_HARDWARE_2026-11-04.md).
+- [ ] APL-IOS-PROFILE-QR-UI-HARDWARE:  XCTest физического iPhone не смог включить UI Automation (XCTFuture timeout); QA-сборка подтвердила системный Share Sheet. Реальные клики в основном APL, камера, AirDrop/VoiceOver и импорт на втором iPhone перенесены владельцем на период после первого QR-содержащего App Store релиза.
+- [ ] APL-IOS-PROFILE-QR-SHARE-DEVICE: приёмка iPhone→iPhone, штатной камерой, AirDrop/сообщением, VoiceOver, IPv6/спецсимволами, без раскрытия секретов в журнал/аналитику. **Владелец перенёс эту двухустройственную проверку на период после выпуска QR-содержащей версии; возможные дефекты исправляются следующим релизом.** Остальные проверки безопасности и релизные гейты не отменяются.
+- Семь новых строк: 13 явно переведённых языков + английский fallback для остальных. Исходные 64 каталога остаются неизменными. [Протокол](APL_IOS_PROFILE_QR_SHARING_2026-11-04.md).
+
+---
+
+## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
+
+- [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.
+- [x] Этап 2a: read-only объяснение причин из Smart4 в списке ручных и связанных исключений; локализация 64/64 готовыми ключами; без записи маршрутов. [Протокол](APL_IOS_SMART4_RULE_EXPLAINER_UI_2026-11-04.md).
+- [x] Этап 2b.1: source-only агрегатор безопасного сравнения предлагаемого маршрута Smart4 с независимо подтверждённым Smart3; хранит только ограниченные числовые счётчики, запрещает трактовать известный IP как доказанный маршрут. Не подключён к рабочему PacketTunnel, по умолчанию выключен. [Спецификация](APL_IOS_SMART4_AGGREGATE_DRYRUN_2026-11-04.md).
+- [ ] Этап 2b.2: независимая физическая аттестация исходящего маршрута в контролируемом лабораторном потоке, без записи личной истории сайтов. До этого нельзя утверждать, что фактические пути Smart3/Smart4 совпадают.
+- [ ] Этап 3: управляемая физическая приёмка точного IPv4/IPv6 host egress, общего CDN-IP, UDP/QUIC, смены сети и отката; без доказательств не расширять автоматически DIRECT.
+- Техническая спецификация: [Smart4 provenance](APL_IOS_SMART4_PROVENANCE_2026-11-04.md). Изменений в текущей iOS 0.2.0 App Review и рабочих VPN нет.
+
+---
 
 ## 04.11.2026 — iOS 0.2.1: следующий инженерный этап (после подачи 0.2.0)
 
-- APL-IOS-021-CONNECTION-DIAGNOSTICS: в отдельной ветке feat/ios-021-connection-diagnostics-20261104 исправлен вывод необработанных NSError.localizedDescription в UI соединений/подготовки VPN. Пользователь видит только стабильный код (DNS, TCP, HTTP 407, VPN и др.) и проверенную локализованную подсказку; 64/64 языка имеют используемые ключи. Swift Core 139/139 PASS, iOS Python source suite 104 tests / 1 skipped, ARM64 iOS Simulator app+PacketTunnel BUILD PASS. Не выпущено в Apple, текущая заявка 0.2.0 не изменялась. [Протокол](APL_IOS_021_CONNECTION_DIAGNOSTICS_2026-11-04.md).
+- APL-IOS-021-CONNECTION-DIAGNOSTICS: PR #312 **уже объединён с main** (b9168e36); исправлен вывод необработанных NSError.localizedDescription в UI соединений/подготовки VPN. Пользователь видит только стабильный код (DNS, TCP, HTTP 407, VPN и др.) и проверенную локализованную подсказку; 64/64 языка имеют используемые ключи. Swift Core 139/139 PASS, iOS Python source suite 104 tests / 1 skipped, ARM64 iOS Simulator app+PacketTunnel BUILD PASS. Диагностика не входит в уже загруженную Apple 0.2.0(48), текущая заявка не изменялась. [Протокол](APL_IOS_021_CONNECTION_DIAGNOSTICS_2026-11-04.md).
 - Следующий P0: независимое доказательство настоящего опубликованного 0.1.41→0.2.0 Keychain upgrade на отдельном тестовом iPhone; модельная/симуляторная проверка 8/8 и source schema уже есть. Не трогать рабочий iPhone.
+- [ ] APL-IOS-021-CLOSEWAIT-HALFCLOSE: **draft PR #314** (Rust tun2proxy, upstream FIN 2 с и client FIN 30 с) остаётся **BLOCKED для релиза**. Тестовый PR #328 объединён только с веткой черновика: 23/23 Rust, 25 циклов × 6 тестов = 150/150 PASS (500 настоящих loopback TCP FIN), 135/135 Swift, 111 Python (1 skipped), native iPhoneOS/ARM64 Simulator lib BUILD PASS; GitHub PR #328 7/7 CI SUCCESS. Патч production не изменён, только cfg(test). До включения в main требуются отдельные физические FIN/CLOSE_WAIT, Safari upload/download, Wi-Fi/LTE, failover и проверка риска обрыва долгой загрузки. [Отчёт](APL_IOS_021_NATIVE_HALFCLOSE_STRESS_2026-11-04.md).
 - Следующий P1: профилактика накопления TCP/CLOSE_WAIT только после отдельного диагностического root-fix macOS; не переиспользовать непроверенные фиксы движка и не дублировать готовую ConnectionPressurePolicy.
 - Дальше: Smart Routing 4.0 и общая модель правил; iCloud/CloudKit и APL Gateway остаются независимыми будущими релизами и требуют своих технических/продуктовых гейтов.
 - Сборка 0.2.1 не опубликована и номер build не повышался: работа в source-only ветке, 0.2.0(48) продолжает Apple App Review. Proxy Launcher Watchdog остаётся выключенным.

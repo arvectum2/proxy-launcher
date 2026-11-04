@@ -1,0 +1,51 @@
+name: APLQRDeviceQA
+options:
+  bundleIdPrefix: ru.arvectum.qrdeviceqa
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: "VML75VY94V"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "Apple Development"
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  APLQRDeviceQA:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: ../../SharedCore
+      - path: ../../App/ProxyShareView.swift
+      - path: ../../App/ProxyQRScanner.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.qrdeviceqa.device
+        PRODUCT_NAME: "APL QR QA"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSMainCameraUsageDescription: "Only to scan a synthetic proxy QR during hardware QA."
+        TARGETED_DEVICE_FAMILY: "1"
+  APLQRDeviceQATests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: APLQRDeviceQA
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.qrdeviceqa.device.uitests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  APLQRDeviceQA:
+    build:
+      targets:
+        APLQRDeviceQA: all
+    test:
+      config: Debug
+      targets:
+        - APLQRDeviceQATests
+    run:
+      config: Debug

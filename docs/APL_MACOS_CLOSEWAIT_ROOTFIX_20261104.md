@@ -139,3 +139,19 @@ mobile/macos-appstore/Tools/evaluate_socket_soak.py must analyze the full
 CI security jobs had failures setting up pinned Python 3.12.10 on
 ubuntu-latest/26.04 (unrelated to app source). The affected three workflows
 are now pinned to ubuntu-24.04, preserving the pinned Python version.
+
+## First full build17 physical QA result: socket PASS, HTTPS FAIL (2026-11-04)
+
+Strict independent evaluation of 66 samples over 3900 seconds in MacBook
+qa/soak_0_2_22_b17_v2.jsonl returned FAIL. Kernel socket lifecycle
+improved to max 48 TCP / 31 CLOSE_WAIT, final 14 TCP / 1 CLOSE_WAIT;
+VPN, ARC and tunnel PID stayed stable. But two genuine HTTPS curl
+timeouts (return code 28, HTTP 000) occurred at 903 and 1209 seconds,
+about 16:52 and 16:57 Moscow. Twelve other scheduled probes passed;
+HTTPS recovered without manual reconnection. Root cause of transient
+outage (external proxy versus APL route) is NOT established.
+
+Second full read-only 65-minute MacBook test v3 was started about
+18:25 Moscow, with additional apple.com and github.com probes if
+the primary example.com check fails; raw v2 evidence is retained.
+Do not merge PR #310 or publish macOS 0.2.22 before full acceptance.

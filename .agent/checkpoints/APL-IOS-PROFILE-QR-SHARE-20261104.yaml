@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-PROFILE-QR-SHARE-20261104
+status: in_progress
+goal: "Deliver secure user-confirmed profile QR sharing via existing APL import, Apple share sheet, and one explicit receiving import action."
+definition_of_done:
+  - "Work isolated from production and macOS tasks, based on latest merged main after Smart4 UI PR #316."
+  - "Per-profile share button on iOS with explicit warning that QR reveals proxy credentials; generated scannable QR and Apple system sharing, no logging or silent network sharing."
+  - "Encode single HTTP/HTTPS/SOCKS5 profile (IPv6, non-ASCII name, percent-encoded credentials) into existing arvectum-proxy import deep link, and adapt in-app QR scanner to decode safely."
+  - "Recipient import preview uses existing one-action Add, respects duplicate detection and existing selected profile; no auto-connect or credential/Keychain writes before explicit user import."
+  - "Run Swift Core/contract tests, ARM64 iOS Simulator app+PacketTunnel build and UI tests where feasible; commit/push reviewable PR with accurate 64-language fallback scope."
+completed:
+  - "PR #315 Smart4 provenance merged with 19/19 hosted CI and PR #316 Smart4 accessible UI merged with 16/16 hosted CI."
+  - "Verified ProxyImport.fromDeepLink exists for arvectum-proxy://import?data=...; in-app QR scanner currently passes raw text and does not yet unwrap deep links."
+current: "PR #319 head 90736118 still failed macos-26-arm64 SOCKS5 IPv6 Unicode fixture at strict roundtrip. Replaced platform-dependent URLComponents user/password/fragment setters with explicit RFC3986 unreserved encoding, keeping full field validation; rerun all local QA and publish second CI fix, check exact-head CI. Isolated signed UI 1/1 remains green."
+pending:
+  - "DONE: ProxyProfileSharing URI round-trip parser + 5 Core tests (HTTP/HTTPS/SOCKS5, IPv6, Unicode, special characters), consent sender UI, real QR image with quiet zone, system Apple share sheet and existing QR/import deep-link receiver path."
+  - "DONE: 13 explicit locales and English fallback without changes to 64 frozen localization resource catalogs; Swift 151/151, Python 111 (1 skipped), ARM64 Simulator build PASS; signed isolated iPhone13 simulator UI XCTest 1/1 PASS; simulator deleted."
+  - "DONE: Reviewed explicit plaintext credential risk, clean 64 release catalogs (13 localized share languages with English fallback), documented release gates. Local commit 08c4e93c; GitHub push returned temporary HTTP 500, uploaded identical tree via Git Data API commit 848cdd9488f177fb85c22c8af97122b51aa095c6 and verified matching tree SHA 8859dd7a; PR #319 created."
+  - "DONE: CI core-tests failure on GitHub macos-26-arm64 found URLComponents IPv6 brackets difference in testSOCKS5IPv6AndUnicodeNameRoundTrip; fixed only host bracket normalization, retaining exact secret comparison. Post-fix Swift 151/151, Python 111 (1 skipped), ARM64 Simulator build PASS."
+  - "DONE: First CI IPv6 normalization fix published to PR #319 head 90736118, but macos-26 still failed SOCKS5+IPv6+Unicode fixture; applied second RFC3986 fixed userinfo/fragment encoding while preserving exact credential validation."
+  - "PENDING: Re-run QA and publish second GitHub fix, exact-head CI, source PR merge, record merge hash; real iPhone-to-iPhone QA remains independent release blocker."
+last_verified_commit: "848cdd9488f177fb85c22c8af97122b51aa095c6 (PR #319 head, same tree 8859dd7aca5885b5cc6809e3455c43971df2ea84 as local 08c4e93cd689c04ba1d9c4cbeb3a639eaa2fe77d)"
+test_results:
+  - "Swift Core 151/151 PASS, iOS Python 111 run (1 skipped) PASS, unsigned ARM64 iOS Simulator app+PacketTunnel BUILD PASS, signed isolated Simulator QR sender UI XCTest 1/1 PASS, git diff --check PASS. Initial unsigned UI launch crashed in App Group entitlement, resolved via signing in test harness. Physical iPhone-to-iPhone QA pending."
+resume_instruction: "ARC only. QR sharing PR #319 at exact head 848cdd9488f177fb85c22c8af97122b51aa095c6 (GitHub Data API commit; Git tree matches local 08c4e93c) is OPEN. Source and full QA completed: Swift Core 151, iOS Python 111 (1 skipped), ARM64 simulator app+PacketTunnel build, isolated signed iPhone13 Simulator UI 1/1 PASS (unsigned test crash was App Group entitlement test harness issue, not QR feature). Check GitHub hosted CI exact SHA; merge source PR when green and branch up-to-date, then mark checkpoint completed. Physical iPhone-to-iPhone camera/AirDrop/VoiceOver/unchanged-VPN E2E remains product release gate. No owner iPhone/VPN, Apple 0.2.0, macOS worktree, Watchdog mutations or RDC."

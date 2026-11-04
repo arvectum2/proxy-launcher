@@ -1,0 +1,538 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0434C683E3AF8C0BCB018327 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15890D52A9B9089A48D4AF33 /* ManagedProfileContract.swift */; };
+		15DC1C01E4251C21E31845E1 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5452693070E4010A23C8ED /* SiteDependencyDiscovery.swift */; };
+		176858CE52B62AE6526E5DB0 /* ConnectionPressurePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAEFF373873D6A00DAAEEEE /* ConnectionPressurePolicy.swift */; };
+		1BCC34835EBA8F20493A8716 /* QRDeviceQAApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42BCE9F74501F0BDF9B4D098 /* QRDeviceQAApp.swift */; };
+		2E46632E9ADB72F18ED73AE0 /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3DFEE1FEF1A3A598D075CF8 /* QuickVPNActionPolicy.swift */; };
+		2E4FD6F9CB19B45D8FCF0747 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588EFCD9A86070AD0C8B0018 /* ProfileOrganization.swift */; };
+		359C7F863EB7B2D81310E3C7 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */; };
+		41D91A2F45CAEA7EF267007A /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41DD5908D5A31FA57C72C90D /* ProxyModel.swift */; };
+		4D0251788611630335DCE302 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */; };
+		52191FE1AED37C0DD3007233 /* ProfileScanPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC1BD38D07580B9343B291E2 /* ProfileScanPolicy.swift */; };
+		5DE75CC7CDAA74764E2786FB /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D17B092502E5BB30CBDA79 /* ProfileLibrarySelectionPolicy.swift */; };
+		69516826EF4A1FF460D2215E /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55829AB0D8422080168E8669 /* FailoverPolicy.swift */; };
+		7370E7B17223A6B700A5A292 /* ProfileBackupRestorePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0126CBE6EE006F348520BA48 /* ProfileBackupRestorePlan.swift */; };
+		769B659B7788E27967D59825 /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D796D9778E0C73413AD46B50 /* AdaptiveRouteCapabilities.swift */; };
+		8EE9ED872D2767D92C1AF11A /* QRDeviceQATests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4593C16F5876D9EB02D4B996 /* QRDeviceQATests.swift */; };
+		A1E2A239CAA2EBF59C7DA1C9 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623936ADA026CCAFFE1F7F93 /* ProfileBackup.swift */; };
+		A282FA2979D7932565EF345A /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1404B05F477DE57E2846883 /* SharedIPRouteGuard.swift */; };
+		A2D9FFE40B4B6B792FB9A466 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0848A59198154AA7779AD41 /* ProxyImport.swift */; };
+		A5578E78D74B8F643E04EE2F /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6F8102CF74A2F496C1E4A3 /* ProxyQualitySnapshot.swift */; };
+		A8FAD7EF4F81ED0A899C43F0 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9DCFFB95DA0B779552506EC /* ProxyQRScanner.swift */; };
+		AF38279F0A6C400E343F59F0 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD57A912FB0ADFDF8521C2EF /* ProxyFailureReason.swift */; };
+		B324F017BEB35A7B7662EE04 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */; };
+		B3433FA88194BA52B51D45AB /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006BD83C3696A535381B75CD /* AdaptiveRouteLearning.swift */; };
+		B516209EC06D6860A8E648BC /* ProxyShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3314F6A5DF3BA5EC31640BF9 /* ProxyShareView.swift */; };
+		C23DDE55A3268613B71F922F /* QRSystemShareAttestation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */; };
+		D381A7BBBD69B6DCC76B41BB /* SmartExclusionGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */; };
+		DD67CA3E32A002B841048B99 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = E917C579806F5E305796CED4 /* ApplicationExclusionCapability.swift */; };
+		DF0BF92A2431D1DE5CF207DD /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A859FD3A671DBC3B336DC1 /* ProxyImportStructured.swift */; };
+		E638713FBEB0CA561C390DF4 /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD9735AF1388A236CC032EB /* ProxyProfileSharing.swift */; };
+		FBF5494A980B7BC8344626D4 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E50948DA8376751CF9FA294 /* RelayConnectionPolicy.swift */; };
+		FD84580153C45BA7A8C71D70 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AEBF069D5C798D3597D215 /* SiteExclusionPolicy.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D68CBF95A26A9B78E81AB950 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E7B70255179873EFBE403DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 154BB5B2CF91DD5D578E5A5A;
+			remoteInfo = APLQRDeviceQA;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		006BD83C3696A535381B75CD /* AdaptiveRouteLearning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteLearning.swift; sourceTree = "<group>"; };
+		0126CBE6EE006F348520BA48 /* ProfileBackupRestorePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupRestorePlan.swift; sourceTree = "<group>"; };
+		14A859FD3A671DBC3B336DC1 /* ProxyImportStructured.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImportStructured.swift; sourceTree = "<group>"; };
+		15890D52A9B9089A48D4AF33 /* ManagedProfileContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedProfileContract.swift; sourceTree = "<group>"; };
+		2DAEFF373873D6A00DAAEEEE /* ConnectionPressurePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPressurePolicy.swift; sourceTree = "<group>"; };
+		3314F6A5DF3BA5EC31640BF9 /* ProxyShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyShareView.swift; sourceTree = "<group>"; };
+		41DD5908D5A31FA57C72C90D /* ProxyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyModel.swift; sourceTree = "<group>"; };
+		42BCE9F74501F0BDF9B4D098 /* QRDeviceQAApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRDeviceQAApp.swift; sourceTree = "<group>"; };
+		4593C16F5876D9EB02D4B996 /* QRDeviceQATests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRDeviceQATests.swift; sourceTree = "<group>"; };
+		4E50948DA8376751CF9FA294 /* RelayConnectionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConnectionPolicy.swift; sourceTree = "<group>"; };
+		53D17B092502E5BB30CBDA79 /* ProfileLibrarySelectionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibrarySelectionPolicy.swift; sourceTree = "<group>"; };
+		55829AB0D8422080168E8669 /* FailoverPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailoverPolicy.swift; sourceTree = "<group>"; };
+		588EFCD9A86070AD0C8B0018 /* ProfileOrganization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileOrganization.swift; sourceTree = "<group>"; };
+		5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionGraph.swift; sourceTree = "<group>"; };
+		623936ADA026CCAFFE1F7F93 /* ProfileBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackup.swift; sourceTree = "<group>"; };
+		7A5452693070E4010A23C8ED /* SiteDependencyDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteDependencyDiscovery.swift; sourceTree = "<group>"; };
+		7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRSystemShareAttestation.swift; sourceTree = "<group>"; };
+		9CD3CBEBAE45DCEC71E5C141 /* APLQRDeviceQATests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = APLQRDeviceQATests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowRoutingPolicy.swift; sourceTree = "<group>"; };
+		C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngineHandoff.swift; sourceTree = "<group>"; };
+		CD57A912FB0ADFDF8521C2EF /* ProxyFailureReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyFailureReason.swift; sourceTree = "<group>"; };
+		D1404B05F477DE57E2846883 /* SharedIPRouteGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedIPRouteGuard.swift; sourceTree = "<group>"; };
+		D796D9778E0C73413AD46B50 /* AdaptiveRouteCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteCapabilities.swift; sourceTree = "<group>"; };
+		D9DCFFB95DA0B779552506EC /* ProxyQRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQRScanner.swift; sourceTree = "<group>"; };
+		DC1BD38D07580B9343B291E2 /* ProfileScanPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScanPolicy.swift; sourceTree = "<group>"; };
+		DF6F8102CF74A2F496C1E4A3 /* ProxyQualitySnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyQualitySnapshot.swift; sourceTree = "<group>"; };
+		E41ADEFF035FEE1B688936A3 /* APLQRDeviceQA.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = APLQRDeviceQA.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E917C579806F5E305796CED4 /* ApplicationExclusionCapability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionCapability.swift; sourceTree = "<group>"; };
+		EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartRouteDryRunAudit.swift; sourceTree = "<group>"; };
+		EDD9735AF1388A236CC032EB /* ProxyProfileSharing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProfileSharing.swift; sourceTree = "<group>"; };
+		F0848A59198154AA7779AD41 /* ProxyImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImport.swift; sourceTree = "<group>"; };
+		F3DFEE1FEF1A3A598D075CF8 /* QuickVPNActionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickVPNActionPolicy.swift; sourceTree = "<group>"; };
+		F7AEBF069D5C798D3597D215 /* SiteExclusionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteExclusionPolicy.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		02AFD7E7DD708E5D54323EE6 /* SharedCore */ = {
+			isa = PBXGroup;
+			children = (
+				D796D9778E0C73413AD46B50 /* AdaptiveRouteCapabilities.swift */,
+				006BD83C3696A535381B75CD /* AdaptiveRouteLearning.swift */,
+				E917C579806F5E305796CED4 /* ApplicationExclusionCapability.swift */,
+				2DAEFF373873D6A00DAAEEEE /* ConnectionPressurePolicy.swift */,
+				55829AB0D8422080168E8669 /* FailoverPolicy.swift */,
+				15890D52A9B9089A48D4AF33 /* ManagedProfileContract.swift */,
+				623936ADA026CCAFFE1F7F93 /* ProfileBackup.swift */,
+				0126CBE6EE006F348520BA48 /* ProfileBackupRestorePlan.swift */,
+				53D17B092502E5BB30CBDA79 /* ProfileLibrarySelectionPolicy.swift */,
+				588EFCD9A86070AD0C8B0018 /* ProfileOrganization.swift */,
+				DC1BD38D07580B9343B291E2 /* ProfileScanPolicy.swift */,
+				CD57A912FB0ADFDF8521C2EF /* ProxyFailureReason.swift */,
+				F0848A59198154AA7779AD41 /* ProxyImport.swift */,
+				14A859FD3A671DBC3B336DC1 /* ProxyImportStructured.swift */,
+				41DD5908D5A31FA57C72C90D /* ProxyModel.swift */,
+				EDD9735AF1388A236CC032EB /* ProxyProfileSharing.swift */,
+				DF6F8102CF74A2F496C1E4A3 /* ProxyQualitySnapshot.swift */,
+				F3DFEE1FEF1A3A598D075CF8 /* QuickVPNActionPolicy.swift */,
+				4E50948DA8376751CF9FA294 /* RelayConnectionPolicy.swift */,
+				D1404B05F477DE57E2846883 /* SharedIPRouteGuard.swift */,
+				7A5452693070E4010A23C8ED /* SiteDependencyDiscovery.swift */,
+				F7AEBF069D5C798D3597D215 /* SiteExclusionPolicy.swift */,
+				5A9D3018E4502230CAEC23B2 /* SmartExclusionGraph.swift */,
+				A52D692DD4026D82C622B173 /* SmartFlowRoutingPolicy.swift */,
+				EC446B37A85B22D6FF05029E /* SmartRouteDryRunAudit.swift */,
+				C078F65AA841C0FBA6939799 /* TunnelEngineHandoff.swift */,
+			);
+			name = SharedCore;
+			path = ../../SharedCore;
+			sourceTree = "<group>";
+		};
+		09E1CDDA219C13AF66984A03 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D9DCFFB95DA0B779552506EC /* ProxyQRScanner.swift */,
+				3314F6A5DF3BA5EC31640BF9 /* ProxyShareView.swift */,
+			);
+			name = App;
+			path = ../../App;
+			sourceTree = "<group>";
+		};
+		4F2DD29ED9CAD92EEC6BA067 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				42BCE9F74501F0BDF9B4D098 /* QRDeviceQAApp.swift */,
+				7F7F83F2628EE8742C0F00D6 /* QRSystemShareAttestation.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		9143273309598A4EEAF7C14C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E41ADEFF035FEE1B688936A3 /* APLQRDeviceQA.app */,
+				9CD3CBEBAE45DCEC71E5C141 /* APLQRDeviceQATests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B11A41191DF768B30785C87D = {
+			isa = PBXGroup;
+			children = (
+				4F2DD29ED9CAD92EEC6BA067 /* App */,
+				09E1CDDA219C13AF66984A03 /* App */,
+				02AFD7E7DD708E5D54323EE6 /* SharedCore */,
+				E6949B4F30939E1079B89DD5 /* Tests */,
+				9143273309598A4EEAF7C14C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E6949B4F30939E1079B89DD5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				4593C16F5876D9EB02D4B996 /* QRDeviceQATests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		154BB5B2CF91DD5D578E5A5A /* APLQRDeviceQA */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 135567DCEC65A4D1923295C1 /* Build configuration list for PBXNativeTarget "APLQRDeviceQA" */;
+			buildPhases = (
+				2CB2355A6890C52CEE530FFC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = APLQRDeviceQA;
+			packageProductDependencies = (
+			);
+			productName = APLQRDeviceQA;
+			productReference = E41ADEFF035FEE1B688936A3 /* APLQRDeviceQA.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2912C7DE8619A5A0122FA66F /* APLQRDeviceQATests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5B78A4B2D4166675AFC3B19 /* Build configuration list for PBXNativeTarget "APLQRDeviceQATests" */;
+			buildPhases = (
+				29C78146DA1F9B4B06ECFB2F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6049503D29D121E3D6FA7C8E /* PBXTargetDependency */,
+			);
+			name = APLQRDeviceQATests;
+			packageProductDependencies = (
+			);
+			productName = APLQRDeviceQATests;
+			productReference = 9CD3CBEBAE45DCEC71E5C141 /* APLQRDeviceQATests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1E7B70255179873EFBE403DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					154BB5B2CF91DD5D578E5A5A = {
+						DevelopmentTeam = VML75VY94V;
+						ProvisioningStyle = Automatic;
+					};
+					2912C7DE8619A5A0122FA66F = {
+						DevelopmentTeam = VML75VY94V;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 154BB5B2CF91DD5D578E5A5A;
+					};
+				};
+			};
+			buildConfigurationList = D4ED61C4BB84D9D8E9D1710F /* Build configuration list for PBXProject "APLQRDeviceQA" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B11A41191DF768B30785C87D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9143273309598A4EEAF7C14C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				154BB5B2CF91DD5D578E5A5A /* APLQRDeviceQA */,
+				2912C7DE8619A5A0122FA66F /* APLQRDeviceQATests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		29C78146DA1F9B4B06ECFB2F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8EE9ED872D2767D92C1AF11A /* QRDeviceQATests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CB2355A6890C52CEE530FFC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				769B659B7788E27967D59825 /* AdaptiveRouteCapabilities.swift in Sources */,
+				B3433FA88194BA52B51D45AB /* AdaptiveRouteLearning.swift in Sources */,
+				DD67CA3E32A002B841048B99 /* ApplicationExclusionCapability.swift in Sources */,
+				176858CE52B62AE6526E5DB0 /* ConnectionPressurePolicy.swift in Sources */,
+				69516826EF4A1FF460D2215E /* FailoverPolicy.swift in Sources */,
+				0434C683E3AF8C0BCB018327 /* ManagedProfileContract.swift in Sources */,
+				A1E2A239CAA2EBF59C7DA1C9 /* ProfileBackup.swift in Sources */,
+				7370E7B17223A6B700A5A292 /* ProfileBackupRestorePlan.swift in Sources */,
+				5DE75CC7CDAA74764E2786FB /* ProfileLibrarySelectionPolicy.swift in Sources */,
+				2E4FD6F9CB19B45D8FCF0747 /* ProfileOrganization.swift in Sources */,
+				52191FE1AED37C0DD3007233 /* ProfileScanPolicy.swift in Sources */,
+				AF38279F0A6C400E343F59F0 /* ProxyFailureReason.swift in Sources */,
+				A2D9FFE40B4B6B792FB9A466 /* ProxyImport.swift in Sources */,
+				DF0BF92A2431D1DE5CF207DD /* ProxyImportStructured.swift in Sources */,
+				41D91A2F45CAEA7EF267007A /* ProxyModel.swift in Sources */,
+				E638713FBEB0CA561C390DF4 /* ProxyProfileSharing.swift in Sources */,
+				A8FAD7EF4F81ED0A899C43F0 /* ProxyQRScanner.swift in Sources */,
+				A5578E78D74B8F643E04EE2F /* ProxyQualitySnapshot.swift in Sources */,
+				B516209EC06D6860A8E648BC /* ProxyShareView.swift in Sources */,
+				1BCC34835EBA8F20493A8716 /* QRDeviceQAApp.swift in Sources */,
+				C23DDE55A3268613B71F922F /* QRSystemShareAttestation.swift in Sources */,
+				2E46632E9ADB72F18ED73AE0 /* QuickVPNActionPolicy.swift in Sources */,
+				FBF5494A980B7BC8344626D4 /* RelayConnectionPolicy.swift in Sources */,
+				A282FA2979D7932565EF345A /* SharedIPRouteGuard.swift in Sources */,
+				15DC1C01E4251C21E31845E1 /* SiteDependencyDiscovery.swift in Sources */,
+				FD84580153C45BA7A8C71D70 /* SiteExclusionPolicy.swift in Sources */,
+				D381A7BBBD69B6DCC76B41BB /* SmartExclusionGraph.swift in Sources */,
+				B324F017BEB35A7B7662EE04 /* SmartFlowRoutingPolicy.swift in Sources */,
+				359C7F863EB7B2D81310E3C7 /* SmartRouteDryRunAudit.swift in Sources */,
+				4D0251788611630335DCE302 /* TunnelEngineHandoff.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6049503D29D121E3D6FA7C8E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 154BB5B2CF91DD5D578E5A5A /* APLQRDeviceQA */;
+			targetProxy = D68CBF95A26A9B78E81AB950 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2A3260FEB9A8DF7B424756E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VML75VY94V;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		5CA3FC4D3B3BBBA296083ABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = VML75VY94V;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		5FBC108792DF8DF9E5F7340E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.qrdeviceqa.device.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = APLQRDeviceQA;
+			};
+			name = Release;
+		};
+		AC602DAB377F4425E3FC9C30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.qrdeviceqa.device.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = APLQRDeviceQA;
+			};
+			name = Debug;
+		};
+		E498BF4A0F0E2E2FF209378B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMainCameraUsageDescription = "Only to scan a synthetic proxy QR during hardware QA.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.qrdeviceqa.device;
+				PRODUCT_NAME = "APL QR QA";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EF95F500AAC5DE0E7AF6E9B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMainCameraUsageDescription = "Only to scan a synthetic proxy QR during hardware QA.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.qrdeviceqa.device;
+				PRODUCT_NAME = "APL QR QA";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		135567DCEC65A4D1923295C1 /* Build configuration list for PBXNativeTarget "APLQRDeviceQA" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E498BF4A0F0E2E2FF209378B /* Debug */,
+				EF95F500AAC5DE0E7AF6E9B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D4ED61C4BB84D9D8E9D1710F /* Build configuration list for PBXProject "APLQRDeviceQA" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5CA3FC4D3B3BBBA296083ABA /* Debug */,
+				2A3260FEB9A8DF7B424756E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E5B78A4B2D4166675AFC3B19 /* Build configuration list for PBXNativeTarget "APLQRDeviceQATests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC602DAB377F4425E3FC9C30 /* Debug */,
+				5FBC108792DF8DF9E5F7340E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1E7B70255179873EFBE403DF /* Project object */;
+}

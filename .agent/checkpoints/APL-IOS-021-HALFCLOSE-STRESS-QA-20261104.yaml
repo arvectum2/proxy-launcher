@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-021-HALFCLOSE-STRESS-QA-20261104
+status: completed
+goal: "Expand source-pinned tun2proxy real-loopback native regression proof for FIN/CLOSE_WAIT without touching owner iPhone/VPN; validate upload/download and repeated half-close socket teardown before merging hardware-gated PR #314."
+definition_of_done:
+  - "Preserve PR #314 as draft and do not merge into production without independent iPhone FIN, Safari upload/download, Wi-Fi/LTE and failover tests."
+  - "Add source-pinned real TCP tests for delayed server response after client EOF, actual end-to-end payload delivery on FIN, and repeated upstream FIN lifecycle without fd leaks."
+  - "Re-apply pinned six tun2proxy patches and execute full 1.98.1 Rust regression; no user proxies or external egress."
+  - "Run iOS source-contract Python and Swift tests, validate native patch, and document explicit physical limitations."
+  - "Publish reviewable PR targeting draft PR #314 feature branch, merge only after required hosted CI; keep original PR #314 draft and record checkpoint as completed (source-only) or blocked if unable."
+completed:
+  - "PR #314 head 0aaf0d3e exact source Rust 21/21, Swift135, Python107 and hosted Mobile iOS run 41806234250 SUCCESS, but physical network regression not accepted."
+  - "Owner approved deferring two-iPhone QR testing until after QR release; this does not waive FIN/CLOSE_WAIT safety gate."
+current: "COMPLETED: pinned source-only native TCP FIN/CLOSE_WAIT stress proof merged into DRAFT PR #314 branch via PR #328 at 429a19db906c466a541ffebf7a1ddf52167aeac8, exact test head f4e01f5b passed 7/7 GitHub checks. Native Rust23/23, 25x six-test halfclose suite 150/150 PASS, 500 real loopback FIN sessions, Swift135/135, iOS Python111 (1 skipped), iPhoneOS+Simulator Rust libs BUILD PASS. No production code changed."
+pending:
+  - "DONE: Added actual TCP 32KiB upload and delayed 128KiB response test; 20 consecutive real TCP upstream FIN with 4KiB final payload, retained browser write half and server EOF proof. All code under cfg(test), production timeouts unchanged."
+  - "DONE: Clone exact tun2proxy v0.8.3 upstream SHA, git apply --check all six patches and run Rust +1.98.1 native lib 23/23 PASS. Repeated 6 scoped halfclose tests 25 times, 150/150 PASS including 500 loopback FIN sessions."\n  - "DONE: Native Rust 23/23 + 150 repeated halfclose PASS, final patch reapply PASS, Swift Core 135/135 PASS, iOS Python 111 (1 skipped) PASS, Rust static libraries built for iPhoneOS + ARM64 Simulator, production source byte-identical to PR #314 after stripping new cfg(test) tests."
+  - "DONE: PR #328 source f4e01f5b with seven hosted GitHub checks green; merged into draft PR #314 feature branch 429a19db906c466a541ffebf7a1ddf52167aeac8. Production main unchanged."
+last_verified_commit: "429a19db906c466a541ffebf7a1ddf52167aeac8 (PR #328 merged ONLY into draft PR #314 feature branch, exact source f4e01f5b5d1cc2e2080ea313651a4ff142f79acf, 7/7 GitHub checks SUCCESS)"
+test_results:
+  - "Six pinned git apply --check PASS, Rust 1.98.1 full lib 23/23, repeated halfclose 25x6=150 PASS (500 real loopback FIN sessions); last exact patch verified again 23/23 PASS."\n  - "Swift Core 135/135 PASS; full iOS Python source 111 tests (1 skipped) PASS; 7 focused Python native contract tests PASS."\n  - "Release Rust aarch64-apple-ios SHA256 bc5baea1225974099da1825d748b2aa8e14bd58710873aca6e27869e6e39a7cb; aarch64-apple-ios-sim SHA256 ecb11db7415e3f3ec7a56e5fa328f0405c04ff685a51753605e977a7314f932b, both built."\n  - "Only cfg(test) Rust patch lines added; original native runtime patch verified byte-identical. Physical device/Safari/egress acceptance NOT performed; PR #314 stays draft."
+resume_instruction: "COMPLETED: do not repeat native source-only stress QA. PR #328 merged at 429a19db906c466a541ffebf7a1ddf52167aeac8 only into feature branch of DRAFT PR #314, with 7/7 exact-source CI success. Rust 23/23, 150/150 repeated, Swift135/135, Python111 (1 skipped), both iPhoneOS/Simulator native release libraries built. The remaining parent APL-IOS-021-CLOSEWAIT-HALFCLOSE task is BLOCKED on independent disposable-device FIN/CLOSE_WAIT, Safari upload/download, Wi-Fi/LTE switching and failover acceptance. Never merge PR #314 to main, deploy on owner iPhone or change Apple App Review without completing physical gate. ARC only; no RDC or Watchdog."

@@ -232,6 +232,16 @@ final class AppViewModel: ObservableObject {
 
     /// Export is all-or-nothing: an inaccessible Keychain item aborts the
     /// operation rather than silently omitting a password from the backup.
+    /// Called only after the user explicitly confirms credential disclosure.
+    /// Never cache or publish the resulting plaintext QR/deep link.
+    func shareProxyLink(for profile: ProxyProfile) throws -> URL {
+        guard profiles.contains(where: { $0.id == profile.id }) else {
+            throw ProxyImportError.invalid
+        }
+        return try ProxyProfileSharing.deepLink(
+            profile: profile, password: try store.password(for: profile.id))
+    }
+
     func createEncryptedProfileBackup(password: String) throws -> Data {
         let snapshot = store.listProfiles()
         let entries = try snapshot.map { profile in

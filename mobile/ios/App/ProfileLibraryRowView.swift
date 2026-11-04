@@ -7,6 +7,7 @@ struct ProfileLibraryRowView: View {
     let bulkMode: Bool
     let isSelected: Bool
     let onOpen: () -> Void
+    let onShare: (ProxyProfile) -> Void
     let onToggleSelection: () -> Void
     let onNewGroup: (Set<UUID>) -> Void
 
@@ -63,6 +64,13 @@ struct ProfileLibraryRowView: View {
                 .accessibilityLabel(model.profileOrganization.isFavorite(profile.id) ?
                                     AppL10n.tr("Убрать из избранного") : AppL10n.tr("В избранное"))
                 .accessibilityIdentifier("profiles.favorite.\(profile.id.uuidString)")
+                Button { onShare(profile) } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(Brand.mintLight)
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .accessibilityLabel(ProxyShareUX.text("Поделиться") + " " + profile.name)
+                .accessibilityIdentifier("profiles.share." + profile.id.uuidString)
                 ProfileLibraryGroupMenu(model: model, ids: [profile.id], onNewGroup: onNewGroup)
             }
         }

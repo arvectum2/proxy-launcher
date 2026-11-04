@@ -31,6 +31,7 @@ struct ExclusionsView: View {
     @State private var externalHints: [String] = []
     @State private var diagnosticHints: [String] = []
     @State private var diagnosticProbeStatus: [String: String] = [:]
+    @State private var explainingHost: String? = nil
     @State private var diagnosticProbeTask: Task<Void, Never>?
 
     @State private var pendingExternalHost: String?
@@ -173,6 +174,13 @@ struct ExclusionsView: View {
                                     .buttonStyle(.borderless)
                                     .accessibilityLabel(SmartExclusionsUX.text("Найти связанные домены для ") + host)
                                 }
+                                Button { explainingHost = host } label: {
+                                    Image(systemName: "info.circle")
+                                        .frame(minWidth: 44, minHeight: 44)
+                                }
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel(SmartExclusionsUX.text("Подробнее о правилах обхода") + " " + host)
+                                .accessibilityIdentifier("exclusions.routeExplain." + host)
                                 Button(role: .destructive) {
                                     snapshotUndo()
                                     removeManualHost(host)
@@ -323,6 +331,16 @@ struct ExclusionsView: View {
                 Button("Отмена", role: .cancel) { pendingExternalHost = nil }
             } message: {
                 Text(SmartExclusionsUX.text("Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."))
+            }
+            .alert(SmartExclusionsUX.text("Подробнее о правилах обхода"), isPresented: Binding(
+                get: { explainingHost != nil },
+                set: { if !$0 { explainingHost = nil } }
+            )) {
+                Button("OK", role: .cancel) { explainingHost = nil }
+            } message: {
+                if let host = explainingHost {
+                    Text(routeExplanation(for: host))
+                }
             }
             .onAppear {
                 model.refresh()
@@ -548,6 +566,26 @@ struct ExclusionsView: View {
         .accessibilityLabel(AppL10n.tr("Добавить"))
     }
 
+    /// This describes only the unsaved rule preview. It does not inspect
+    /// PacketTunnel traffic or promise per-domain routing on a shared IP.
+    private func routeExplanation(for host: String) -> String {
+        let policy = try? SmartFlowRoutingPolicy(manual: entries, graph: graph)
+        let reason = policy?.explain(host: host, resolvedIP: nil).reason ?? .unverifiedHost
+        let key: String
+        switch reason {
+        case .manualExclusion:
+            key = "Добавлено вручную"
+        case .approvedDependency:
+            key = "Прямой"
+        case .noMatchingPermission:
+            key = "Обход VPN — только для разрешённых доменов."
+        case .unverifiedHost:
+            key = "Общий IP-адрес может обслуживать и другие сайты. Такой обход касается всего IP, не только выбранного домена."
+        }
+        return SmartExclusionsUX.text(key) + "\n" +
+            SmartExclusionsUX.text("Изменения вступят в силу после сохранения и переподключения VPN.")
+    }
+
     private func graphEdgeRow(_ edge: SmartDependency, parent: String) -> some View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         HStack {
@@ -556,6 +594,13 @@ struct ExclusionsView: View {
                                             Text(SmartExclusionsUX.text(edge.decision.label))
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
+                                            Button { explainingHost = edge.host } label: {
+                                                Image(systemName: "info.circle")
+                                                    .frame(minWidth: 44, minHeight: 44)
+                                            }
+                                            .buttonStyle(.borderless)
+                                            .accessibilityLabel(SmartExclusionsUX.text("Подробнее о правилах обхода") + " " + edge.host)
+                                            .accessibilityIdentifier("exclusions.routeExplain." + edge.host)
                                         }
                                         Text(SmartExclusionsUX.text(edge.userLinked == true ? "Добавлено вручную" : edge.evidence.description))
                                             .font(.caption2).foregroundStyle(.secondary)
