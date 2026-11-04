@@ -77,6 +77,46 @@ final class ConnectionPressurePolicyTests: XCTestCase {
         XCTAssertTrue(policy.mayRetry(now: now.addingTimeInterval(650), failureAt: now.addingTimeInterval(649), explicitDisconnect: false))
     }
 
+    func testClockRollbackPreservesShortCooldownButResetsLongStall() {
+        var policy = ConnectionPressurePolicy()
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let overload = ConnectionPressurePolicy.Sample(upstreamSockets: 180, closeWaitSockets: 60)
+        XCTAssertTrue(policy.shouldRecover(sample: overload, at: start, tunnelIsSwitching: false))
+        // A small negative clock adjustment must not cause recovery thrash.
+        XCTAssertFalse(policy.shouldRecover(sample: overload,
+                                            at: start.addingTimeInterval(-30),
+                                            tunnelIsSwitching: false))
+        // A one-hour backwards jump cannot leave sockets accumulating for an hour.
+        let corrected = start.addingTimeInterval(-3600)
+        XCTAssertTrue(policy.shouldRecover(sample: overload,
+                                           at: corrected, tunnelIsSwitching: false))
+        XCTAssertFalse(policy.shouldRecover(sample: overload,
+                                            at: corrected.addingTimeInterval(10),
+                                            tunnelIsSwitching: false))
+        XCTAssertTrue(policy.shouldRecover(sample: overload,
+                                           at: corrected.addingTimeInterval(121),
+                                           tunnelIsSwitching: false))
+    }
+
+    func testAutoReconnectBudgetSurvivesClockCorrection() {
+        var policy = TunnelAutoReconnectPolicy()
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        for offset in 0..<3 {
+            let at = start.addingTimeInterval(Double(offset))
+            XCTAssertTrue(policy.mayRetry(now: at, failureAt: at, explicitDisconnect: false))
+        }
+        // A small rollback retains the cap to prevent a storm.
+        let smallRollback = start.addingTimeInterval(-30)
+        XCTAssertFalse(policy.mayRetry(now: smallRollback, failureAt: smallRollback,
+                                       explicitDisconnect: false))
+        // Attempts far in the future are invalid after a large clock correction.
+        let corrected = start.addingTimeInterval(-3600)
+        XCTAssertTrue(policy.mayRetry(now: corrected, failureAt: corrected,
+                                      explicitDisconnect: false))
+        XCTAssertFalse(policy.mayRetry(now: corrected, failureAt: corrected,
+                                       explicitDisconnect: true))
+    }
+
     func testSwitchingSuppressesRecycle() {
         var policy = ConnectionPressurePolicy()
         XCTAssertFalse(policy.shouldRecover(
