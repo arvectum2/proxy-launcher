@@ -443,12 +443,10 @@ final class AppViewModel: ObservableObject {
             }
 #endif
         } catch {
-            // Preserve the actionable NetworkExtension explanation but
-            // identify system tunnel failures unambiguously in the alert.
-            let kind = ProxyFailureReason.classify(error)
-            errorMessage = kind == .tunnel
-                ? "VPN: " + error.localizedDescription
-                : error.localizedDescription
+            // A system error can embed the proxy host, username or password.
+            // Render only a stable classification and pretranslated guidance.
+            errorMessage = ProxyFailureReason.safeDisplay(
+                for: error, translate: { AppL10n.tr($0) })
         }
     }
 
@@ -458,7 +456,8 @@ final class AppViewModel: ObservableObject {
         do {
             try await vpn.recreateConfigurationAndConnect()
         } catch {
-            errorMessage = "VPN: " + error.localizedDescription
+            errorMessage = ProxyFailureReason.safeDisplay(
+                for: error, translate: { AppL10n.tr($0) })
         }
     }
 #endif

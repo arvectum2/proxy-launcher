@@ -1,6 +1,25 @@
 import Foundation
 import Darwin
 
+/// Fixed recovery instructions for known Apple VPN configuration failures.
+/// Only code-defined values can enter UI; no NSError description is interpolated.
+enum ProxyRecoveryHint: Equatable {
+    case vpnDisabled
+    case vpnStale
+    case vpnInvalid
+
+    var localizationKey: String {
+        switch self {
+        case .vpnDisabled:
+            return "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение."
+        case .vpnStale:
+            return "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её."
+        case .vpnInvalid:
+            return "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить."
+        }
+    }
+}
+
 /// Stable, non-sensitive diagnostic codes: never include a server address,
 /// account name, password, system error description or arbitrary response body.
 enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
@@ -30,6 +49,30 @@ enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
         case .protocolMismatch: return "PROTOCOL"
         case .unknown: return "UNKNOWN"
         }
+    }
+
+    /// Use only keys already translated in all 64 supported iOS languages.
+    /// Neither the raw NSError description nor proxy credentials reach UI.
+    var recoveryGuidanceKey: String {
+        switch self {
+        case .dns, .tcp, .timeout:
+            return "Проверьте адрес и порт прокси"
+        case .authentication, .http407:
+            return "Логин и пароль нужны только для прокси с авторизацией."
+        case .tls, .protocolMismatch:
+            return "Если тип подключения неизвестен, уточните его у поставщика. После заполнения нажмите «Сохранить»."
+        case .offline, .rejected, .tunnel, .unknown:
+            return "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные."
+        }
+    }
+
+    /// Construct a safe and localized diagnostic from a finite set of literals.
+    /// Caller injects its localization function; no error fields are rendered.
+    static func safeDisplay(for error: Error, translate: (String) -> String) -> String {
+        let reason = classify(error)
+        let hint = (error as? ProxyDiagnosticError)?.recoveryHint?.localizationKey
+            ?? reason.recoveryGuidanceKey
+        return "\(translate("Недоступен")) · \(reason.code)\n\(translate(hint))"
     }
 
     /// An HTTP 407 is always an authentication failure, including Digest
@@ -98,6 +141,12 @@ enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
 
 struct ProxyDiagnosticError: LocalizedError {
     let reason: ProxyFailureReason
-    init(_ reason: ProxyFailureReason) { self.reason = reason }
+    let recoveryHint: ProxyRecoveryHint?
+
+    init(_ reason: ProxyFailureReason, recoveryHint: ProxyRecoveryHint? = nil) {
+        self.reason = reason
+        self.recoveryHint = recoveryHint
+    }
+
     var errorDescription: String? { "Прокси недоступен (\(reason.code))" }
 }
