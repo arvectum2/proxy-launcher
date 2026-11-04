@@ -38,7 +38,8 @@ class BoundedProxyFileImportContracts(unittest.TestCase):
                           "UIPasteboard", "Keychain", "NetworkExtension",
                           "String(describing:"):
             self.assertNotIn(forbidden, executable)
-        self.assertIn("ProxyImportUX.error(caught)", UI)
+        self.assertTrue("ProxyImportUX.error(caught)" in UI or
+                        "ProxyImportUX.error(error)" in UI)
 
 
 if __name__ == "__main__":
