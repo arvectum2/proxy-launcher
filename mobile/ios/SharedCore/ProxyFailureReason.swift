@@ -32,6 +32,18 @@ enum ProxyFailureReason: String, Codable, Equatable, CaseIterable {
         }
     }
 
+    /// These keys are present in all 64 shipped UI localizations. Do not
+    /// render raw NSError descriptions: they may contain upstream addresses,
+    /// credentials, URLs or other sensitive diagnostic details.
+    var connectionHelpLocalizationKey: String {
+        switch self {
+        case .dns, .tcp, .timeout:
+            return "Проверьте адрес и порт прокси"
+        default:
+            return "Следите за статусом соединения. Если подключение не удалось, проверьте адрес, порт, тип и учётные данные."
+        }
+    }
+
     /// An HTTP 407 is always an authentication failure, including Digest
     /// challenges. No unverified CONNECT response can be treated as success.
     static func forHTTPConnectStatus(_ status: Int) -> Self? {
@@ -100,4 +112,31 @@ struct ProxyDiagnosticError: LocalizedError {
     let reason: ProxyFailureReason
     init(_ reason: ProxyFailureReason) { self.reason = reason }
     var errorDescription: String? { "Прокси недоступен (\(reason.code))" }
+}
+
+/// Renderable connection error: ONLY an existing translated key and a stable
+/// non-sensitive code may reach the UI. The three trusted NetworkExtension
+/// repair messages come from VPNController, not from arbitrary OS errors.
+struct SafeConnectionAlert: Equatable {
+    let localizationKey: String
+    let code: String
+
+    private static let approvedVPNHints: Set<String> = [
+        "iOS отключила конфигурацию VPN и не позволила включить её автоматически. Откройте Настройки → VPN и разрешите Arvectum Proxy Launcher, затем повторите подключение.",
+        "Конфигурация VPN была изменена системой. Перезапустите подключение — приложение перечитает и восстановит её.",
+        "iOS отклонила конфигурацию Packet Tunnel. Конфигурация была восстановлена, но системе всё ещё не удалось её запустить."
+    ]
+
+    static func forError(_ error: Error) -> Self {
+        let reason = ProxyFailureReason.classify(error)
+        let nsError = error as NSError
+        let key: String
+        if nsError.domain == "ArvectumVPN",
+           approvedVPNHints.contains(nsError.localizedDescription) {
+            key = nsError.localizedDescription
+        } else {
+            key = reason.connectionHelpLocalizationKey
+        }
+        return Self(localizationKey: key, code: reason.code)
+    }
 }
