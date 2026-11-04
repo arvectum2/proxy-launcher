@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-MAC-021-APPSTORE-CONNECTION-20261104
-status: in_progress
+status: completed
 goal: "Fix VPN connection broken on MacBook after macOS App Store APL 0.2.21 build 15 update, and prevent stale NetworkExtension signing registration on future upgrades."
 definition_of_done:
   - "Identify App Store update failure with actual system evidence and confirm upstream proxies independently."
@@ -18,12 +18,12 @@ completed:
   - "Implemented future build-number reconciliation (marketing version plus CFBundleVersion), explicit confirmation-protected macOS Settings VPN repair that removes only own disconnected VPN manager, no silent operation at launch."
   - "Regression checks: macOS store contracts 23/23 PASS, appearance tests 5/5 PASS, isolated Mac Catalyst VPNController.swift typecheck PASS."
   - "Full updated origin/main Catalyst build blocked by separate native dependency mismatch: SmartFlowEventCollector.swift calls new tun2proxy FFI symbols absent in available release Catalyst framework. Did not replace working signed App Store app."
-current: "Immediate MacBook incident resolved, source patch and tests verified; prepare branch commit, GitHub PR and CI."
+current: "DONE: MacBook Store 0.2.21 (15) connection restored through fresh Arvectum-only VPN registration; future repair UI + build stamping merged to main in PR #308. No newer App Store version installed or published."
 pending:
-  - "Commit code/tests/documentation and create PR targeting main; check CI, merge when green."
+  - "PR #308 merged into main as 6c3bf207fc788a552fb5ee986afdd1c4ac43c78a, with 23 CI checks PASS, 4 skipped at merge; remaining 3 background unsigned iOS build jobs were still running and are unrelated to Mac VPN fix."
   - "Separate follow-up investigation of historical 1689 TCP / 1655 CLOSE_WAIT pressure events, not conflated with stale signature validation."
   - "Before a future macOS App Store release, reconcile Smart3 native FFI framework and perform full signed build and physical QA. No new app build has been shipped."
-last_verified_commit: "dac4cc7a origin/main as of task start; patch uncommitted."
+last_verified_commit: "6c3bf207fc788a552fb5ee986afdd1c4ac43c78a (PR #308 merged; verified MacBook Store app restored; 23 macOS contracts + 5 appearance tests + isolated Catalyst source typecheck PASS)."
 test_results:
   - "MacBook signed Store app 0.2.21(15): VPN Connected, US egress 200.0.60.91, HTTPS 15/15, ARC/Tailscale online, three profiles intact."
   - "23 macOS store contract tests + 5 appearance tests PASS."
