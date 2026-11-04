@@ -28,6 +28,7 @@ FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
 SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
 SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
 DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-dual-stack-physical-family.patch"
+CLOSE_WAIT_PATCH = TOOLS / "tun2proxy-closewait-halfclose.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -151,6 +152,10 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     # Raw-IP/UDP and unrelated names never inherit this permission.
     run("git", "apply", "--check", str(DIRECT_FAMILY_PATCH), cwd=source)
     run("git", "apply", str(DIRECT_FAMILY_PATCH), cwd=source)
+    # Bound half-closed TCP sessions so upstream FIN cannot hold CLOSE_WAIT forever.
+    # Apply after Smart3 family patch, using the exact source-pinned Rust ABI.
+    run("git", "apply", "--check", str(CLOSE_WAIT_PATCH), cwd=source)
+    run("git", "apply", str(CLOSE_WAIT_PATCH), cwd=source)
 
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
@@ -287,7 +292,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry\n"
+            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry-and-bounded-halfclose\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n"
             + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"

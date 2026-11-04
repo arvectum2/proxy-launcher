@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-021-CLOSEWAIT-HALFCLOSE-20261104
+status: in_progress
+goal: "Port tested native Rust FIN half-close socket lifetime bound to the source-pinned iOS tun2proxy build, preventing stuck upstream CLOSE_WAIT after peer FIN."
+definition_of_done:
+  - "Keep release 0.2.0 App Review, owner's iPhone/profiles, Tailscale/ARC and macOS root-fix branch intact."
+  - "Apply exact source-pinned bounded half-close patch to iOS after existing Smart3 patches; preserve ABI and DNS routing."
+  - "Rebuild pinned native Rust device/simulator artifacts; pass actual live TCP FIN tests, static source contracts, app/PacketTunnel ARM64 Simulator build."
+  - "Commit and push reviewable PR with honest physical iPhone gate; merge only after CI and hardware safety gates."
+completed:
+  - "MacOS own worktree had proof of 4 async Rust half-close tests, including real TCP FIN; patch includes 2s upstream EOF and 30s browser EOF bounds."
+  - "Created iOS isolated worktree from origin/main, copied identical independent patch, and registered it in fetch script after Smart3 dual-stack patch."
+current: "Native Rust device+simulator and all regressions PASS. Create reviewable PR, review hosted CI, then physical-device E2E remains as acceptance gate."
+pending:
+  - "DONE: All six upstream patches reapplied in order and Rust 4/4 FIN + full 21/21 PASS; device/simulator libraries built with pinned 1.98.1 toolchain."
+  - "DONE: Swift 135/135 PASS, Python iOS source 107 tests (1 skipped), ARM64 Simulator app+PacketTunnel BUILD PASS."
+  - "Commit/push PR, mark bounded production physical iPhone rollout gate; never touch active iPhone."
+last_verified_commit: "5ed0c3dfa9d9eebdad6e19d25447033072204bcc (origin/main baseline)"
+test_results:
+  - "iOS pinned Rust 4/4 half-close + 21/21 full PASS; Swift 135/135; Python 107 (1 skipped); ARM64 app+PacketTunnel build PASS."
+resume_instruction: "Use ARC only, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-021-closewait-halfclose-20261104. Independently source-pin/reapply all patches and run Rust regressions + iOS ARM64 simulator/device library and app builds. Do not alter MacOS socket root-fix worktree, Apple review 0.2.0, owner iPhone/profiles, or disabled Watchdog. Other iOS PRs #312/#313 have green local tests but hosted CI pending."
