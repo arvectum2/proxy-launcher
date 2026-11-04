@@ -74,8 +74,8 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("with_bypass", patch)
         self.assertIn("RecordType::AAAA", patch)
 
-    def test_store_release_is_0_2_21_and_uses_mac_specific_entrypoint(self):
-        self.assertIn('MARKETING_VERSION: "0.2.21"', PROJECT)
+    def test_store_release_is_0_2_22_and_uses_mac_specific_entrypoint(self):
+        self.assertIn('MARKETING_VERSION: "0.2.22"', PROJECT)
         self.assertIn('CFBundleShortVersionString', APP_SHARED)
         self.assertIn("App/ArvectumProxyLauncherMacApp.swift", PROJECT)
         self.assertNotIn("../ios/App/ArvectumProxyLauncherApp.swift", PROJECT)
@@ -133,7 +133,7 @@ class MacOSAppStoreContractTests(unittest.TestCase):
         self.assertIn("Прокси-профили и пароли сохранятся.", control)
 
     def test_rejected_and_already_uploaded_build_numbers_are_advanced(self):
-        self.assertIn('CURRENT_PROJECT_VERSION: "15"', PROJECT)
+        self.assertIn('CURRENT_PROJECT_VERSION: "16"', PROJECT)
 
     def test_exclusion_rows_are_visibly_deletable_and_bulk_clear_is_confirmed(self):
         # ExclusionsView is now a standalone SwiftUI screen, no longer a
