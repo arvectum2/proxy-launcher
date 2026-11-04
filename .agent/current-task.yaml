@@ -30,7 +30,7 @@ pending:
   - "If v3 fails, identify provider versus APL defect, patch and run new physical QA."
   - "If v3 passes, reconcile GitHub CI and merge PR #310, then prepare macOS App Store public release."
   - "Preserve separate iOS work and disabled scheduled watchdog."
-last_verified_commit: "f59e9f14706d98cb307c43b5c8b09df9d8ea079b (PR #310 with signed build17; latest main merge staged pending commit)."
+last_verified_commit: "c200f80c (latest verified code commit on PR #310; 24 macOS contracts PASS, integrated full Mac Catalyst Debug BUILD PASS, strict soak evaluator PASS on regressions)."
 test_results:
   - "Physical build16 65min: FAIL max TCP308/CLOSE_WAIT172, final 282/141 with healthy VPN and HTTPS."
   - "Native macOS Rust live-FIN 6/6 PASS, including blocked virtual writer."
@@ -42,6 +42,8 @@ test_results:
   - "GitHub PR #310 CI 7/7 PASS on latest checked head."
   - "Independent evaluator 8/8 regression PASS and correctly rejects actual build17 65min log due to two HTTPS timeouts (rc28, HTTP000). Socket thresholds PASS."
   - "Latest merged Mac Catalyst Debug app + PacketTunnel BUILD PASS, shared QR presentation explicitly wired in project.yml; 24/24 macOS contracts PASS."
-  - "Mac mini external ARC Funnel test intermittent: first 18:30 curl28 HTTP000, at 18:32 three HTTP401; one-off monitor /tmp/apl_b17_external_arc_20261104.jsonl started."
+  - "Mac mini external ARC Funnel intermittent: first 18:30 curl28 HTTP000; next independent probes at 18:32 and 18:35 HTTP401. Monitor /tmp/apl_b17_external_arc_20261104.jsonl ongoing. Investigate if it repeats."
+  - "Build17 v3 second 65-minute QA at ~18:39: 14 samples, elapsed 783s, max 46 TCP/24 CLOSE_WAIT, latest 27/5, zero VPN, local ARC and HTTPS errors. The full test is still RUNNING and cannot be accepted yet."
+  - "After c200f80c PR #310 CI has 17 PASS / 7 pending, Draft and MERGEABLE; do not merge until physical final PASS."
   - "Current live APL VPN Connected; example.com and github.com HTTPS200 and external IP68.209.63.122; no manual reconnect after timed-out probes."
 resume_instruction: "Resume this task from worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-mac-closewait-rootfix-20261104, PR #310. Signed 0.2.22 build17 is installed and works on MacBook with three saved profiles and independent ARC. First 65-minute test completed: SOCKETS PASS max48 TCP/31 CLOSE_WAIT final14/1, but 2 real HTTPS curl28 timeouts out of 14 probes => overall FAIL, strict evaluator agrees. The second read-only 65-minute v3 MacBook monitor started around 18:25 MSK, PID 66066. Inspect ~/Library/Application Support/Arvectum/ProxyLauncher/qa/soak_0_2_22_b17_v3.jsonl after >=3900 seconds from v3.start, including secondary_https on failed primary probes. Re-run mobile/macos-appstore/Tools/evaluate_socket_soak.py on complete log; no false PASS, no threshold relaxing. If FAIL diagnose upstream/route; if PASS recheck CI then merge PR #310 and prepare public macOS 0.2.22 App Review. Main iOS changes were preserved through merge; keep separate iOS PR #314, pending iOS releases and disabled Proxy Launcher watchdog intact. Newest main adds AppViewModel QR sharing which is compiled into macOS; Mac XcodeGen now includes ProxyShareView.swift, full Debug build and 24 macOS contracts PASS. Before publishing attest source of signed beta17 versus merged main and re-sign/retest if changed binary. External ARC monitor on Mac mini under /tmp/apl_b17_external_arc_20261104.jsonl showed one early timeout and three successful HTTP401 retests; consult full record."
