@@ -1,0 +1,22 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-ROUTE-PROVENANCE-20261104
+status: in_progress
+goal: "Implement a deterministic fail-closed route-decision reason model for future Smart Routing 4.0 diagnostics without changing actual TCP/DNS/UDP routing or user VPN."
+definition_of_done:
+  - "Isolated branch based on integrated iOS PR #312/#313 main, no edits to other worktrees/Apple App Review."
+  - "Explain PROXY vs exact-host DIRECT reason with stable codes; existing SmartFlowRoutingPolicy.decide() must remain behavior-equivalent."
+  - "Prove explicit/manual priority, approved dependency, orphan/expired/denied, invalid and shared-IP safety by deterministic Swift Core tests."
+  - "Run full Swift Core tests, iOS Python source contracts, unsigned ARM64 Simulator app+PacketTunnel build; document source-only nature and E2E gate."
+  - "Commit/push reviewable PR; preserve repo checkpoint and track hosted CI status."
+completed:
+  - "Reviewed Smart3 route policy, SmartExclusionGraph and Apple platform constraints. Existing proto policy is pure; it is not a PacketTunnelProvider route writer."
+current: "Smart4 provenance source + five deterministic tests complete and locally verified; prepare commit/push reviewable PR, then review hosted GitHub CI without Apple/hardware mutation."
+pending:
+  - "DONE: Read-only SmartRouteEvaluation with four stable nonidentifying reasons; manual priority, graph provenance and fail-closed default, five tests including independent Smart3 legacy equivalence."
+  - "DONE: 146/146 Swift Core PASS, 104 iOS Python (1 skipped) PASS, unsigned ARM64 iOS Simulator App+PacketTunnel BUILD PASS, git diff --check PASS."
+  - "Commit/push PR, await GitHub CI and document platform/hardware gates."
+last_verified_commit: "b9168e36507108d61a9bb63ad58f0e7c63f20445 (main after PR #312 merge)"
+test_results:
+  - "Final 146/146 Swift Core PASS, 104 Python iOS source tests (1 skipped), ARM64 Simulator app+PacketTunnel BUILD SUCCEEDED, git diff --check PASS. No runtime routes changed."
+resume_instruction: "Use ARC only. Work exclusively in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-provenance-20261104. Add pure provenance API to mobile/ios/SharedCore/SmartFlowRoutingPolicy.swift and focused CoreTests; prove decision behavior unchanged for exact-host manual, approved dependency, TTL/rejections and CDN shared IPv4/IPv6. No live routing changes, no Keychain/profile mutations, no Apple submission, no Watchdog, no RDC. Main PR #312 merged b9168e36 and #313 b8b3d5b3; PR #314 draft blocked on physical QA."
