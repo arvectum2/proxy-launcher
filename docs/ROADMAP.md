@@ -1,3 +1,12 @@
+## 04.11.2026 — Smart Routing 4.0, этап 1: причины решений без изменения сети
+
+- [x] APL-IOS-SMART4-PROVENANCE: чистая модель причин DIRECT/PROXY (MANUAL, APPROVED, NO_RULE, UNVERIFIED_HOST), приоритет ручного исключения, изоляция IP/чужого hostname, fail-closed для неверных имён и истёкших разрешений. Старый decide() сохраняет точный результат. Реальный PacketTunnel не изменялся; это подготовка диагностического слоя, не включённая пользователю функция.
+- [ ] Этап 2: локализованное объяснение причины в интерфейсе (64 языка) и read-only сравнение со Smart3 на реальном трафике.
+- [ ] Этап 3: управляемая физическая приёмка точного IPv4/IPv6 host egress, общего CDN-IP, UDP/QUIC, смены сети и отката; без доказательств не расширять автоматически DIRECT.
+- Техническая спецификация: [Smart4 provenance](APL_IOS_SMART4_PROVENANCE_2026-11-04.md). Изменений в текущей iOS 0.2.0 App Review и рабочих VPN нет.
+
+---
+
 ## 04.11.2026 — iOS 0.2.1: следующий инженерный этап (после подачи 0.2.0)
 
 - APL-IOS-021-CONNECTION-DIAGNOSTICS: в отдельной ветке feat/ios-021-connection-diagnostics-20261104 исправлен вывод необработанных NSError.localizedDescription в UI соединений/подготовки VPN. Пользователь видит только стабильный код (DNS, TCP, HTTP 407, VPN и др.) и проверенную локализованную подсказку; 64/64 языка имеют используемые ключи. Swift Core 139/139 PASS, iOS Python source suite 104 tests / 1 skipped, ARM64 iOS Simulator app+PacketTunnel BUILD PASS. Не выпущено в Apple, текущая заявка 0.2.0 не изменялась. [Протокол](APL_IOS_021_CONNECTION_DIAGNOSTICS_2026-11-04.md).
