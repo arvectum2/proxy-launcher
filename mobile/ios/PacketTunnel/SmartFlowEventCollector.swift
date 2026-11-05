@@ -260,6 +260,15 @@ final class SmartFlowEventCollector {
     /// probes are invalidated by a fresh generation id and cannot re-arm.
     private func revokeAllDirect(reason: String) {
         guard enabled else { return }
+#if DEBUG
+        // Invalidate even partial original-flow evidence on a physical path
+        // change: two payload directions on different underlays are NOT one
+        // independently witnessed external route.
+        if labScopedDirect {
+            smart4OriginalTrace.reset()
+            smart4TraceReported = false
+        }
+#endif
         for host in activeDirectHosts {
             _ = host.withCString { tun2proxy_set_direct_exact_host($0, false) }
         }

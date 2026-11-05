@@ -25,6 +25,11 @@ def test_only_rust_original_connection_id_and_real_first_bytes_are_considered():
 def test_only_existing_explicit_debug_hardware_qa_enables_attribution():
     source, collector, provider = CORE.read_text(), COLLECTOR.read_text(), PROVIDER.read_text()
     assert 'if self.labScopedDirect {' in collector
+    assert 'private func revokeAllDirect(reason: String)' in collector
+    revoke = collector.split('private func revokeAllDirect(reason: String)', 1)[1].split('private func accept(host:', 1)[0]
+    assert 'if labScopedDirect {' in revoke
+    assert 'smart4OriginalTrace.reset()' in revoke
+    assert 'smart4TraceReported = false' in revoke
     assert 'self.smart4OriginalTrace.record(host: host, connectionID: id,' in collector
     assert 'let evidence = self.smart4OriginalTrace.summary(at: now)' in collector
     assert 'evidence.conflicted == 0 && !evidence.overflowed' in collector
