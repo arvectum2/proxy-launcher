@@ -1,29 +1,33 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SMART4-EGRESS-WITNESS-20261105
-status: completed
-goal: "Prepare independent, bounded server-side TCP egress witnesses for the Smart Routing 4.0 physical attribution gate without changing runtime routing or live iPhone state."
+task_id: APL-IOS-SMART4-PHYSICAL-EGRESS-20261105
+status: in_progress
+goal: "Verify Smart4 versus independently observed actual DIRECT and PROXY egress on a wired iPhone 13 using synthetic, bounded, auditable laboratory traffic; preserve and restore the owner's working VPN and app state."
 definition_of_done:
-  - "Standalone paired no-forwarding laboratory TCP listeners attest receipt of unique ephemeral 128-bit probe tokens on independently labeled DIRECT/PROXY endpoints, bounded by port, time and 256 samples."
-  - "Verifier correlates a unique planned Smart4 route with independently recorded positive server-side receipt; duplicate, conflicting, stale, missing, IP-only and malformed witnesses never count as confirmed matches."
-  - "Aggregate result reports counts only; never persists hostnames, URLs, IP or credentials; no real proxy forwarding or PacketTunnel hooks."
-  - "Automated real-loopback TCP plus adversarial Python tests and source contract, iOS Swift Core and iOS Python regression tests pass."
-  - "Document why local loopback is not physical iPhone egress proof; leave Smart4 phase 2b.2 hardware gate unchecked and PR #314/Apple/Keychain/live VPN untouched."
-  - "Open isolated PR with exact-head CI; merge only after green/CLEAN, then finalize canonical checkpoint."
+  - "Verify physical phone pairing, iPhone Mirroring, baseline current VPN app/version/connection and available independent witness/QA instrumentation."
+  - "Before any invasive device changes record full reversible recovery plan, original signed app availability, backup and hashes of relevant preferences, and bound test window; use synthetic credentials only."
+  - "Perform hardware TCP tests via independently observed DIRECT/PROXY servers and correlate with original captured PacketTunnel flows and Smart4 policy decisions; reject forged, absent, inferred, conflicting, or stale evidence."
+  - "Cover exact hostname versus same-IP neighbor and IPv4, plus feasible fail-closed IPv6/UDP/QUIC and network-revocation gates without overclaiming unsupported coverage."
+  - "Restore the device's original VPN profile and connection, app and preferences, verify restoration and session cleanup; report unproved gates honestly."
+  - "Run focused and relevant regression tests; commit evidence and checkpoint, create PR only for validated code/docs changes and merge only with green CI."
 completed:
-  - "Read canonical main and prior Smart4 2b.1 source-only aggregate; confirmed true physical iPhone egress 2b.2 remains unproven."
-  - "Implemented standalone synthetic no-forwarding TCP DIRECT/PROXY LabWitnessListener, 128-bit nonce receipt, positive server ACK, separate private JSONL logs, exact schema and bounded 120s/256 samples."
-  - "Implemented strict offline fail-closed correlation; no proof from DNS/IP, missing/duplicate/conflicting/stale/out-of-plan evidence. Minimum independently witnessed DIRECT and PROXY, scope synthetic_lab_only; physical_egress_verified always false."
-  - "Real TCP loopback DIRECT+PROXY server receipts and adversarial tests PASS, no production PacketTunnel or Keychain changes."
-  - "GitHub PR #343 initial Windows CI exposed POSIX private-file mode incompatibility; standalone listener now fail-closed on non-POSIX while cross-platform verifier remains available; Windows-specific guard test added."
-  - "PR #343 exact-head 845b2627173d225ad23333d61c83c9701335a32d passed GitHub 13/13 CI after Windows correction; CLEAN/MERGEABLE and MERGED into main bdae1c2664936781c9689bd31fbf6656e6680d13."
-current: "COMPLETED: standalone no-forwarding DIRECT/PROXY witness lab merged via PR #343 (13/13 exact-head CI), main bdae1c2664936781c9689bd31fbf6656e6680d13. Python17 focused, iOS Python192 (1 skipped), Swift181 PASS. Physical iPhone Smart4 egress gate 2b.2 remains explicitly UNVERIFIED."
-pending: []
-last_verified_commit: "bdae1c2664936781c9689bd31fbf6656e6680d13 (PR #343 MERGED, exact-head 845b2627173d225ad23333d61c83c9701335a32d, GitHub CI 13/13 SUCCESS)."
+  - "Read main edfb893211d407b73470b5f4d21ce3065596dfd4: previous standalone witness lab finished (PR343/#344) but true physical stage 2b.2 remains unchecked."
+  - "Confirmed paired physical iPhone 13 (iOS27.2, dev mode enabled, wired) via CoreDevice; user authorized temporary VPN connection changes and mirroring."
+  - "Mirroring physical baseline: installed APL 0.1.41, APL VPN selected but disconnected; briefly connected existing VPN, Safari HTTPS loaded, external response used IPv4; after disconnect response used IPv6. No raw public IP/profile secrets persisted; returned VPN to OFF."
+  - "Development-signed isolated QRDeviceQA sidecar ru.arvectum.qrdeviceqa.device (no APL NetworkExtension/AppGroup entitlements) and bounded private-LAN CONNECT relay prepared. Never replaces App Store APL."
+  - "Prepared synthetic independent DIRECT Wi-Fi witness and PROXY fixed-CONNECT-to-loopback witness; shared-IP Smart4 policy evaluated from exact production SharedCore but not connected to production PacketTunnel."
+  - "Built Development-signed QA device app in /private/tmp/apl-ios-smart4-physical-signed-qa-20261105, bundle ru.arvectum.qrdeviceqa.device; codesign strict PASS, no production App Group/NetworkExtension entitlements."
+  - "Local source+relay Python 24/24 PASS, full iOS Python199 (one skipped) PASS, Swift Core181/181 PASS; QA app signed iPhoneOS build PASS."
+
+current: "Pre-device QA gate READY: signed separate QA client ru.arvectum.qrdeviceqa.device, private LAN fixed-target relay, two independent TCP witnesses, local tests 24 focused/199 iOS Python (one skipped)/181 Swift PASS. Original APL VPN OFF. Next install QA-only app and run physical witnesses; production PacketTunnel Smart4 egress still UNVERIFIED."
+pending:
+  - "Final signed QA sidecar build, check trusted private LAN witness ports and create bounded session."
+  - "Install QA-only bundle, execute synthetic iPhone direct / constrained CONNECT witness, verify positive independent receipts and device identity."
+  - "Restore and verify device; document evidence limitations."
+  - "Run relevant tests, commit source/evidence and close checkpoint only after verified DoD; otherwise mark blocked with precise cause."
+last_verified_commit: "edfb893211d407b73470b5f4d21ce3065596dfd4 (origin/main before hardware QA)"
 test_results:
-  - "GitHub PR #343 exact-head CI 13/13 SUCCESS (Windows portable and installer green after explicit POSIX-only private writer guard)."
-  - "Focused Smart4 TCP witness Python17/17 PASS (two actual independent local TCP observers + adversarial cases)."
-  - "Full iOS Python192 run, one skipped, zero failures; no actual App Store mutations."
-  - "Existing Swift Core181/181 PASS on unchanged mobile/ios source."
-  - "No iPhone installation, VPN/Keychain/profile/routing change, Apple submission or physical egress claim."
-resume_instruction: "COMPLETED. Do not redo PR #343. Continue separately with actual independent Smart4 physical iPhone egress stage 2b.2 on a disposable test device, with trusted external proxy/direct observation and original PacketTunnel flow correlation; do not treat local loopback attested=true as physical proof. Leave user live VPN/Keychain and Apple 0.2.0 review untouched; draft native FIN PR #314 blocked. ARC only."
+  - "Existing APL0.1.41 VPN connect/disconnect via Mirroring PASS; HTTPS Safari loaded, IPv4 with VPN and IPv6 after disconnect; raw addresses not recorded."
+  - "Isolated QR QA bundle Development signing/codesign/developer team PASS, no APL App Group / NetworkExtension entitlements; signed iPhoneOS Debug App BUILD PASS."
+  - "Python strict relay tests + standalone witness 24/24 PASS; full iOS Python199 run, 1 skipped, zero failures, Swift Core181/181 PASS; physical witness pending."
+resume_instruction: "ARC Mac mini worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-physical-20261105, hardware iPhone13 00008110-001C51810A12401E. Production APL 0.1.41; baseline VPN OFF and returned OFF after short ON HTTPS/IP family check. Separate signed QA bundle ru.arvectum.qrdeviceqa.device, xcodegen project and script scripts/qa_smart4_physical_proxy_relay.py. NEXT: finish signed QA build after last status-print edit, install only separate QA bundle (never overwrite production), run private LAN DIRECT witness (192.168.1.80:18441), PROXY loopback witness (127.0.0.1:18442), strict LAN CONNECT relay (192.168.1.80:18443), plan issued pre-launch, verify positive receipts, UI screenshot and remove QA bundle; no user proxy data. True captured PacketTunnel Smart4 egress still UNVERIFIED; document separately, gate remains blocked. Apple Review and PR314 untouched. Use Mirroring for phone and restore original VPN OFF."

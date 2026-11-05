@@ -26,6 +26,7 @@ targets:
         PRODUCT_NAME: "APL QR QA"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_NSMainCameraUsageDescription: "Only to scan a synthetic proxy QR during hardware QA."
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: "Synthetic-only Smart4 laboratory TCP probe to private LAN witnesses; no user profiles or traffic."
         TARGETED_DEVICE_FAMILY: "1"
   APLQRDeviceQATests:
     type: bundle.ui-testing
