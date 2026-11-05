@@ -25,6 +25,9 @@ final class SmartFlowEventCollector {
     private var labFlowEventBudget = 0
     private var labPhysicalFamilyBudget = 0
     private var labOpaqueUDPBudget = 0
+    // Native original-flow callback only; never a route permission.
+    private var smart4OriginalTrace = Smart4OriginalFlowTrace()
+    private var smart4TraceReported = false
 #endif
 
 
@@ -51,6 +54,8 @@ final class SmartFlowEventCollector {
             labFlowEventBudget = 0
             labPhysicalFamilyBudget = 0
             labOpaqueUDPBudget = 0
+            smart4OriginalTrace.reset()
+            smart4TraceReported = false
             self.labScopedDirect = labScopedDirect
             if labScopedDirect {
                 telemetry.append(TunnelEvent(type: "lab scoped enabled", detail: "DEBUG only"))
@@ -84,6 +89,10 @@ final class SmartFlowEventCollector {
             exactHostDirect = false
             enabled = false
             labScopedDirect = false
+#if DEBUG
+            smart4OriginalTrace.reset()
+            smart4TraceReported = false
+#endif
             inflight.removeAll()
             store = nil
             successfulHosts.removeAll()
@@ -251,6 +260,15 @@ final class SmartFlowEventCollector {
     /// probes are invalidated by a fresh generation id and cannot re-arm.
     private func revokeAllDirect(reason: String) {
         guard enabled else { return }
+#if DEBUG
+        // Invalidate even partial original-flow evidence on a physical path
+        // change: two payload directions on different underlays are NOT one
+        // independently witnessed external route.
+        if labScopedDirect {
+            smart4OriginalTrace.reset()
+            smart4TraceReported = false
+        }
+#endif
         for host in activeDirectHosts {
             _ = host.withCString { tun2proxy_set_direct_exact_host($0, false) }
         }
@@ -285,6 +303,24 @@ final class SmartFlowEventCollector {
                 now.timeIntervalSince($0.value) < 60
             }
 #if DEBUG
+            // DEBUG-only, explicitly opted-in disposable Smart3 test profile.
+            // Exact native connection ID joins the ORIGINAL captured stream's
+            // physical family, retry and first transferred payload directions.
+            // No raw hostname, IP, URL, nonce or native flow ID is persisted.
+            // Independent external server receipt is still UNVERIFIED.
+            if self.labScopedDirect {
+                self.smart4OriginalTrace.record(host: host, connectionID: id,
+                                                event: event, at: now)
+                let evidence = self.smart4OriginalTrace.summary(at: now)
+                if !self.smart4TraceReported && evidence.originalDirectPayload > 0 &&
+                    evidence.conflicted == 0 && !evidence.overflowed {
+                    self.smart4TraceReported = true
+                    self.telemetry.append(TunnelEvent(
+                        type: "lab original native flow observed",
+                        detail: "Native same-flow recovery, physical family and bidirectional payload; external egress unverified"
+                    ))
+                }
+            }
             // Only the two disposable browser-test hosts; bounded and no secrets.
             if self.labScopedDirect && self.labFlowEventBudget < 16 &&
                 (host == "start.qa-example.test" || host == "www.apple.com") {

@@ -1,40 +1,33 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SMART4-PHYSICAL-EGRESS-20261105
-status: blocked
-goal: "Verify Smart4 versus independently observed actual DIRECT and PROXY egress on a wired iPhone 13 using synthetic, bounded, auditable laboratory traffic; preserve and restore the owner's working VPN and app state."
+task_id: APL-IOS-SMART4-ORIGINAL-FLOW-TRACE-20261105
+status: in_progress
+goal: "Create bounded DEBUG-only, privacy-preserving attribution from the existing native tun2proxy original TCP flow callback to exact lab host identity, same connection ID, physical socket family and bidirectional first payload; explicitly distinguish engine evidence from independent external DIRECT/PROXY witness confirmation."
 definition_of_done:
-  - "Verify physical phone pairing, iPhone Mirroring, baseline current VPN app/version/connection and available independent witness/QA instrumentation."
-  - "Before any invasive device changes record full reversible recovery plan, original signed app availability, backup and hashes of relevant preferences, and bound test window; use synthetic credentials only."
-  - "Perform hardware TCP tests via independently observed DIRECT/PROXY servers and correlate with original captured PacketTunnel flows and Smart4 policy decisions; reject forged, absent, inferred, conflicting, or stale evidence."
-  - "Cover exact hostname versus same-IP neighbor and IPv4, plus feasible fail-closed IPv6/UDP/QUIC and network-revocation gates without overclaiming unsupported coverage."
-  - "Restore the device's original VPN profile and connection, app and preferences, verify restoration and session cleanup; report unproved gates honestly."
-  - "Run focused and relevant regression tests; commit evidence and checkpoint, create PR only for validated code/docs changes and merge only with green CI."
+  - "Add pure SharedCore bounded per-native-flow evidence state machine with fixed synthetic/test host aliases, per-original-flow ID, TTL, out-of-order policy and fail-closed collision/duplicate handling, no persistent host/IP/token/credential logs."
+  - "Wire the state machine only into existing opt-in DEBUG Smart3 physical lab event callback, never Release or production route changes."
+  - "Unit and contract tests verify positive same original flow, negative cross-ID/cross-host, stale evidence, absent payload, ambiguous/duplicate events, capacity and no inference from a client connection alone."
+  - "Run Swift, Python and ARM64 simulator/device build checks; create independent PR; merge only after exact-head all-green GitHub CI."
+  - "Keep true Smart4 physical PacketTunnel egress gate blocked pending original-flow proof joined with trusted external server receipts, IPv6 and UDP/QUIC/path reset acceptance."
 completed:
-  - "Read main edfb893211d407b73470b5f4d21ce3065596dfd4: previous standalone witness lab finished (PR343/#344) but true physical stage 2b.2 remains unchecked."
-  - "Confirmed paired physical iPhone 13 (iOS27.2, dev mode enabled, wired) via CoreDevice; user authorized temporary VPN connection changes and mirroring."
-  - "Mirroring physical baseline: installed APL 0.1.41, APL VPN selected but disconnected; briefly connected existing VPN, Safari HTTPS loaded, external response used IPv4; after disconnect response used IPv6. No raw public IP/profile secrets persisted; returned VPN to OFF."
-  - "Development-signed isolated QRDeviceQA sidecar ru.arvectum.qrdeviceqa.device (no APL NetworkExtension/AppGroup entitlements) and bounded private-LAN CONNECT relay prepared. Never replaces App Store APL."
-  - "Prepared synthetic independent DIRECT Wi-Fi witness and PROXY fixed-CONNECT-to-loopback witness; shared-IP Smart4 policy evaluated from exact production SharedCore but not connected to production PacketTunnel."
-  - "Built Development-signed QA device app in /private/tmp/apl-ios-smart4-physical-signed-qa-20261105, bundle ru.arvectum.qrdeviceqa.device; codesign strict PASS, no production App Group/NetworkExtension entitlements."
-  - "Local source+relay Python 24/24 PASS, full iOS Python199 (one skipped) PASS, Swift Core181/181 PASS; QA app signed iPhoneOS build PASS."
-  - "After allowing iOS Local Network, real iPhone QA DIRECT 1/1 and PROXY 1/1 server receipts, fixed CONNECT relay 1/1; tokens matched pre-issued plans with 1711/1739ms delay, historical in-TTL verifier 2/2 with 0 ambiguous. Synthetic transport only, physical_egress_verified=false."
-  - "Initial pre-permission attempt 0/0 fail-closed; late live verifier rejected correctly expired 120-second tokens."
-  - "Isolated QA app uninstalled and confirmed absent, 3 TCP listener ports closed, ephemeral tokens and logs deleted. Original owner VPN OFF at last observation; final Mirroring check unavailable because phone was in use."
+  - "Verified source PR #345 exact-head d130725b 16/16 CI SUCCESS, CLEAN, merged main f06a091d679184152d3e4d3f5bcf98ecaae7cbb1."
+  - "Reviewed Rust tun2proxy exact-host callback (native connection ID and event 0/6/7/8/9/10/11/12) and existing DEBUG-only Smart3 physical lab enablement; current Smart4 policy source-only, Release routing untouched."
+  - "Added bounded in-memory SharedCore Smart4OriginalFlowTrace: QA host aliases only, native original connection ID, accepted PROXY vs sameflow recovered physical-family IPv4/IPv6 and both first payload directions. TTL60s, max32, fail-closed conflicts/duplicates. Never considers same ID as external egress proof."
+  - "Wired only under existing explicit DEBUG labScopedDirect to native SmartFlowEventCollector, sanitized one-shot count-only telemetry, never changes Release and no new direct routes."
+  - "Added 12 Swift tests and 3 cross-platform Python contract tests; 193/193 Swift Core and 202 iOS Python (one skipped) PASS."
+  - "Unsigned iPhoneOS ARM64 and Simulator ARM64 App+PacketTunnel builds PASS after restoring already pinned ignored tun2proxy.xcframework with identical SHA256 from existing QA worktree."
+  - "Added DEBUG-only physical network-path revocation reset for native-flow evidence to prohibit attribution spanning Wi-Fi/cellular handoff; source contract updated, Swift193, iOS Python202 (1 skipped), ARM64 iPhoneOS and Simulator both revalidated PASS."
+  - "Opened PR #346 exact-head 50798ef505621d873279a24a98fa81c3881a2b07; pre-merge QA uncovered and fixed lifecycle reset before final CI."
 
 
-current: "BLOCKED: actual per-flow Smart4 routing in PacketTunnel remains source-only, not wired to NetworkExtension; physical synthetic transport readiness PASS 2/2, but original captured-flow attribution, independent true egress and IPv6/QUIC gates remain unverified."
+current: "PR #346 open. Additional DEBUG network change reset implemented and retested (Swift193/193, iOS Python202 with one skipped, unsigned ARM64 device+sim PASS). Push new head and require fresh exact-head CI. External witness physical egress gate 2b.2 stays UNVERIFIED."
 pending:
-  - "Submit documented standalone physical transport-readiness QA source through GitHub PR, require exact-head green CI before merge."
-  - "Build DEBUG-only original PacketTunnel captured-flow correlation to exact-host Smart4 policy and independent external DIRECT/PROXY witnesses; no new Release DIRECT permissions."
-  - "Perform full physical IPv4/shared CDN, IPv6, UDP/QUIC, network reset and TTL fail-closed hardware acceptance before closing gate 2b.2."
-  - "Recheck owner APL VPN remains OFF via Settings once iPhone is no longer in use; no changes made to VPN after verified OFF state."
-last_verified_commit: "a7941508a (verified signed physical QA source pushed; evidence/roadmap update pending next commit)."
+  - "Commit/push source-only native-flow attribution PR, verify all exact-head CI and CLEAN/MERGEABLE before merge."
+  - "After merge close current/historical task checkpoint in main using metadata-only PR; preserve true physical hardware gate 2b.2 blocked."
+last_verified_commit: "f06a091d679184152d3e4d3f5bcf98ecaae7cbb1 (PR345 merged; base main)"
 test_results:
-  - "Existing APL0.1.41 VPN connect/disconnect via Mirroring PASS; HTTPS Safari loaded, IPv4 with VPN and IPv6 after disconnect; raw addresses not recorded."
-  - "Isolated QR QA bundle Development signing/codesign/developer team PASS, no APL App Group / NetworkExtension entitlements; signed iPhoneOS Debug App BUILD PASS."
-  - "Python strict relay tests + standalone witness 24/24 PASS; full iOS Python199 run, 1 skipped, zero failures, Swift Core181/181 PASS; physical witness pending."
-  - "Physical independent QA DIRECT and PROXY server receipts 1/1 each, matched synthetic intentions within 1711/1739ms; 2/2 in-TTL retrospective verifier PASS, actual PacketTunnel attribution UNVERIFIED."
-  - "Post-QA device cleanup: isolated bundle uninstalled, 3 witness/relay ports closed, ephemeral files deleted; VPN untouched after initial OFF."
-
-resume_instruction: "BLOCKED by original Smart4 PacketTunnel flow attribution (not integrated); do not confuse separate QA synthetic 2/2 witness proof with VPN egress. Branch test/ios-smart4-physical-20261105, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-physical-20261105. Hardware report docs/APL_IOS_SMART4_PHYSICAL_EGRESS_2026-11-05.md. Commit a7941508a already pushed; next commit updated report, roadmap and blocked checkpoint, create PR and merge only with exact-head green CI. Signed isolated QA app was installed then uninstalled, witnesses stopped, tokens deleted. APL 0.1.41 and user Keychain/profiles not replaced; VPN OFF last observed, later Mirroring said phone in use. Future hardware gate needs original captured flow vs independent true external DIRECT/PROXY plus IPv4/IPv6/QUIC/TTL reset. Apple 0.2.0 review and native FIN draft PR314 untouched."
+  - "PR345 16/16 GitHub checks PASS (synthetic laboratory transport only)."
+  - "Swift Core193/193 PASS (12 new native trace tests), iOS Python202 PASS (one skipped, three new source contract tests)."
+  - "Unsigned iPhoneOS/ARM64 App+PacketTunnel BUILD PASS and ARM64 Simulator App+PacketTunnel BUILD PASS both before and after network-revoke reset; preexisting Swift 6 Sendable warnings unchanged."
+  - "Pinned ignored tun2proxy framework restored from existing local build cache; ios-arm64 and ios-arm64-simulator SHA256 verified identical to source."
+resume_instruction: "PR #346 open; push follow-up network-revoke reset commit. ARC Mac mini worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-flow-attribution-20261105; native original flow attribution source-only DEBUG-only ready; Swift193/193, iOS Python202 (one skipped), ARM64 iPhoneOS and Simulator App+PacketTunnel BUILD PASS. Next git add/commit/push and PR, require exact-head 16/16 or applicable CI CLEAN before merging. Then metadata-only closure checkpoint, true Smart4 captured flow→external DIRECT/PROXY witness hardware gate stays blocked; NO owner iPhone/VPN/Keychain/Apple Review/PR314 mutation."
