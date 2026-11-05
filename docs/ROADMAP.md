@@ -67,7 +67,7 @@
 
 ## 05.11.2026 — Smart4: native original-flow attribution, DEBUG-only
 
-- [x] Добавлен bounded volatile `Smart4OriginalFlowTrace`: единый native connection ID для событий оригинального TCP после fallback, адресное семейство физического direct-сокета и два направления payload. Проверка fixed QA-host alias, TTL 60 с, max 32 потока; конфликты и неполные события fail-closed. Это **свидетельство native engine, не доказательство независимого egress**. [Протокол](APL_IOS_SMART4_ORIGINAL_NATIVE_FLOW_TRACE_2026-11-05.md).
+- [x] **PR #346 MERGED** (`533e80d5`, 19/19 GitHub CI): добавлен bounded volatile `Smart4OriginalFlowTrace`: единый native connection ID для событий оригинального TCP после fallback, адресное семейство физического direct-сокета и два направления payload. Проверка fixed QA-host alias, TTL 60 с, max 32 потока; конфликты и неполные события fail-closed. Это **свидетельство native engine, не доказательство независимого egress**. [Протокол](APL_IOS_SMART4_ORIGINAL_NATIVE_FLOW_TRACE_2026-11-05.md).
 - [x] Подключён только к явно включённому физическому DEBUG `labScopedDirect` в `SmartFlowEventCollector`; Release-права DIRECT и production PacketTunnel policy не меняются.
 - [ ] Для реального подтверждения original captured flow нужно сопряжение native ID с одноразовым token на независимом DIRECT/PROXY-сервере. Физический gate 2b.2 и IPv6/QUIC/path reset остаются открытыми.
 

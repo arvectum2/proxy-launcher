@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-SMART4-ORIGINAL-FLOW-TRACE-20261105
-status: in_progress
+status: completed
 goal: "Create bounded DEBUG-only, privacy-preserving attribution from the existing native tun2proxy original TCP flow callback to exact lab host identity, same connection ID, physical socket family and bidirectional first payload; explicitly distinguish engine evidence from independent external DIRECT/PROXY witness confirmation."
 definition_of_done:
   - "Add pure SharedCore bounded per-native-flow evidence state machine with fixed synthetic/test host aliases, per-original-flow ID, TTL, out-of-order policy and fail-closed collision/duplicate handling, no persistent host/IP/token/credential logs."
@@ -20,14 +20,14 @@ completed:
   - "Opened PR #346 exact-head 50798ef505621d873279a24a98fa81c3881a2b07; pre-merge QA uncovered and fixed lifecycle reset before final CI."
 
 
-current: "PR #346 open. Additional DEBUG network change reset implemented and retested (Swift193/193, iOS Python202 with one skipped, unsigned ARM64 device+sim PASS). Push new head and require fresh exact-head CI. External witness physical egress gate 2b.2 stays UNVERIFIED."
-pending:
-  - "Commit/push source-only native-flow attribution PR, verify all exact-head CI and CLEAN/MERGEABLE before merge."
-  - "After merge close current/historical task checkpoint in main using metadata-only PR; preserve true physical hardware gate 2b.2 blocked."
-last_verified_commit: "f06a091d679184152d3e4d3f5bcf98ecaae7cbb1 (PR345 merged; base main)"
+  - "PR #346 exact-head 7b589e1857720822ae747da4a8ce633c5710a038 GitHub 19/19 checks SUCCESS (including unsigned iPhoneOS Debug and Release), MERGED main 533e80d5c6e461b9dcab37a225e140ce4ee46b5c."
+current: "COMPLETED: bounded DEBUG-only native original TCP event correlation merged in PR #346, 19/19 exact-head GitHub CI SUCCESS, main 533e80d5c6e461b9dcab37a225e140ce4ee46b5c. No production route change. True Smart4 original captured flow→independent external egress remains UNVERIFIED in separate blocked hardware task."
+pending: []
+last_verified_commit: "533e80d5c6e461b9dcab37a225e140ce4ee46b5c (PR #346 MERGED, exact-head 7b589e1857720822ae747da4a8ce633c5710a038, GitHub CI19/19 PASS)."
 test_results:
+  - "PR #346 GitHub exact-head 19/19 SUCCESS: iOS Debug/Release and Swift Core macOS runners, Windows, SAST, SBOM, governance all green."
   - "PR345 16/16 GitHub checks PASS (synthetic laboratory transport only)."
   - "Swift Core193/193 PASS (12 new native trace tests), iOS Python202 PASS (one skipped, three new source contract tests)."
   - "Unsigned iPhoneOS/ARM64 App+PacketTunnel BUILD PASS and ARM64 Simulator App+PacketTunnel BUILD PASS both before and after network-revoke reset; preexisting Swift 6 Sendable warnings unchanged."
   - "Pinned ignored tun2proxy framework restored from existing local build cache; ios-arm64 and ios-arm64-simulator SHA256 verified identical to source."
-resume_instruction: "PR #346 open; push follow-up network-revoke reset commit. ARC Mac mini worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-flow-attribution-20261105; native original flow attribution source-only DEBUG-only ready; Swift193/193, iOS Python202 (one skipped), ARM64 iPhoneOS and Simulator App+PacketTunnel BUILD PASS. Next git add/commit/push and PR, require exact-head 16/16 or applicable CI CLEAN before merging. Then metadata-only closure checkpoint, true Smart4 captured flow→external DIRECT/PROXY witness hardware gate stays blocked; NO owner iPhone/VPN/Keychain/Apple Review/PR314 mutation."
+resume_instruction: "COMPLETED. Do not redo PR #346 or the local Swift193/Python202/ARM64 builds. Next independent blocked APL-IOS-SMART4-PHYSICAL-EGRESS-20261105 remains in .agent/checkpoints and docs/ROADMAP.md: real original PacketTunnel flow must correlate native engine ID and original stream to independent external DIRECT/PROXY server nonce receipt, IPv4/IPv6/shared CDN/UDP QUIC, path-change TTL fail-closed. Avoid claiming current native callback alone proves remote egress. Owner iPhone APL0.1.41, VPN/Keychain and Apple 0.2.0 review unchanged; do not merge native FIN draft PR314. ARC only."

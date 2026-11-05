@@ -30,3 +30,9 @@
 - 12 Swift-тестов чистого in-memory native trace: восстановление исходного соединения, оба направления payload, независимость ID, конфликт exact-host, отсутствие семейства, повтор, лимит и TTL.
 - 3 Python-контрактных теста: Rust patch сохраняет один original ID, DEBUG lab guard, отсутствие включения production route и сохранения личных данных.
 - **Swift Core 193/193 PASS** (12 новых тестов), **iOS Python 202 (1 skipped) PASS** (3 новых contract tests); **ARM64 unsigned iPhoneOS App+PacketTunnel BUILD PASS** и **ARM64 iOS Simulator App+PacketTunnel BUILD PASS**. Первые сборки с новой рабочей копии не нашли игнорируемый Git локальный tun2proxy xcframework; после восстановления того же проверенного бинарника из локального build-cache обе сборки прошли, slice SHA256 идентичны источнику. Предсуществующие Swift 6 Sendable warnings не изменялись.
+
+## Интеграция в main
+
+- GitHub [PR #346](https://github.com/arvectum2/proxy-launcher/pull/346), exact-head `7b589e1857720822ae747da4a8ce633c5710a038`, **19/19 CI SUCCESS**, MERGED в `main` `533e80d5c6e461b9dcab37a225e140ce4ee46b5c` 05.11.2026.
+- Проверены unsigned Debug iPhoneOS и Simulator ARM64, unsigned iPhoneOS Release, Swift Core193/193 и Python iOS202 (один skipped). Network revoke сбрасывает диагностические записи; всё включено лишь в существующий явно активируемый DEBUG physical lab.
+- **Ни одного внешнего PacketTunnel egress теста в PR #346 нет.** Физическая задача `APL-IOS-SMART4-PHYSICAL-EGRESS-20261105` намеренно остаётся `blocked`, исходная APL на iPhone не переустанавливалась, пользовательские профили, Keychain, VPN, App Store 0.2.0 и PR #314 не менялись.
