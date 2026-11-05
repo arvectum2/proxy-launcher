@@ -30,4 +30,14 @@ Task `APL-IOS-SMART4-PHYSICAL-EGRESS-20261105`; source base main `edfb8932`.
 
 ## Фактические результаты отдельного физического стенда
 
-PENDING — это пока проект и локальная подписанная сборка; результаты сервера/телефона, ошибки, восстановление и тесты будут добавлены после запуска.
+Физический iPhone 13, 05.11.2026:
+
+- Подписанное изолированное QA-приложение установлено отдельно от APL 0.1.41. При первом запуске iOS запросил локальную сеть; до разрешения оба наблюдателя получили 0/0: тест закономерно FAIL-closed.
+- После выдачи разрешения и повторного запуска QA app показала: `Smart4 model PASS`, `WiFi direct PASS`, `synthetic proxy PASS`, `PacketTunnel NOT VERIFIED`.
+- Сервер DIRECT получил 1/1, независимый сервер PROXY — 1/1. Ограниченный CONNECT-посредник: `RELAY_ATTEMPTS=1 VERIFIED_FORWARDINGS=1`.
+- Одноразовые токены совпали с предварительно созданными намерениями. Задержки серверного приёма: 1711 и 1739 мс. При проверке по времени второго свидетельства +1000 мс: `confirmed_matches=2`, `confirmed_mismatches=0`, `inconclusive=0`, `ambiguous=0`, `attested=true`, но только `scope=synthetic_lab_only`, `physical_egress_verified=false`.
+- Позднее online-верификатор закономерно вернул `attested=false` из-за истечения 120-секундного TTL свидетельств. Это ожидаемая защита от повтора, не сбой доставки; повторная проверка старых токенов запрещена.
+- QA-приложение после опыта удалено с iPhone и отсутствие bundle ID подтверждено. Все три TCP-порта закрыты, одноразовые токены и журналы удалены. Рабочая APL 0.1.41 не заменялась, Keychain/профили/VPN в QA не изменялись. Последний подтверждённый статус VPN — OFF; финальный повторный просмотр через Mirroring не выполнен, поскольку iPhone был в активном использовании.
+- QA iPhoneOS signed build PASS, Python focused 24/24 PASS, iOS Python 199 (1 skipped) PASS, Swift Core 181/181 PASS.
+
+**Открытый аппаратный gate:** настоящая маршрутизация original captured flow через Smart4 внутри PacketTunnel **не доказана**. QA приложению не предоставлялись NetworkExtension/App Group entitlements и его два отдельных TCP-сокета не проходят через production Smart4. Нужны debug-only перехват оригинального потока и независимая корреляция exact-host policy→реальный DIRECT/PROXY egress с проверками IPv4/shared CDN, IPv6, UDP/QUIC, TTL и смены сети. До этого production DIRECT не расширять.
