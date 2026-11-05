@@ -62,8 +62,13 @@ class ModularAccessibility(unittest.TestCase):
         self.assertIn('private var statusControls: some View',activity)
         self.assertIn('if dynamicTypeSize.isAccessibilitySize {',activity)
         self.assertIn('refreshButton.frame(maxWidth: .infinity, alignment: .trailing)',activity)
-        self.assertIn('.frame(minWidth: 44, minHeight: 44)',activity)
-        self.assertIn('.accessibilityIdentifier("activity.refresh")',activity)
+        # The minimum hit target belongs to Button content, not an outer
+        # layout frame: XCUI previously measured the old target as 39x20 pt.
+        refresh=activity.split('private var refreshButton:',1)[1].split('@ViewBuilder',1)[0]
+        self.assertIn('Text(AppL10n.tr("Обновить"))',refresh)
+        self.assertIn('.frame(minWidth: 48, minHeight: 48)',refresh)
+        self.assertIn('.contentShape(Rectangle())',refresh)
+        self.assertIn('.accessibilityIdentifier("activity.refresh")',refresh)
         self.assertIn('.accessibilityElement(children: .combine)',activity)
         self.assertIn('Не удалось открыть VPN-сессию',activity)
         self.assertNotIn('ProfileStore()',activity)

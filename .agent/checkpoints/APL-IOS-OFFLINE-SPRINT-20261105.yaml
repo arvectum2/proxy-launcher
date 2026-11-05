@@ -1,0 +1,34 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-OFFLINE-SPRINT-20261105
+status: in_progress
+goal: "Advance all safely actionable iOS roadmap tasks without using any physical iPhone; deliver independently testable code, security/regression tests and repeatable Simulator QA without modifying Apple review or user VPN."
+definition_of_done:
+  - "Review current main and outstanding offline iOS gaps; avoid duplicating already implemented features or changing owner-restricted cloud/public releases."
+  - "Improve Smart4 offline evidence/proof chain and fail-closed test harness while explicitly preserving unverified physical PacketTunnel egress gate."
+  - "Audit and close actionable import/exception/UI accessibility/i18n defects with focused regression tests, separating optional additions into safe independent PRs."
+  - "Run full iOS Swift/Python tests and ARM64 Simulator/iPhoneOS unsigned builds for changed code; run relevant Simulator UI tests when possible."
+  - "Create isolated PR(s), verify exact-head GitHub CI and merge only green/CLEAN; maintain canonical and historical checkpoint, track honestly unverified hardware/App Store gates."
+completed:
+  - "Built one-command Smart4 synthetic-loopback direct/proxy TCP + fixed CONNECT relay, private 0600 plans, automatic cleanup; 7/7 adversarial Python tests PASS, physical_egress_verified=false."
+  - "Fixed UTF-8 BOM with blank lines/indentation in URL/JSON/XML/CSV proxy imports; two Swift regression tests, full Swift195/195 PASS."
+  - "Validated all 64 iOS locale catalogs and 320 .strings with plutil, 0 structural errors; full iOS Python212 (1 skipped) PASS."
+  - "Simulator UX/Import/10-locale first sweep 4/5 PASS: found Activity refresh 39x20 pt; repaired to 48x48 pt and made Accessibility XXL de/ar scroll reachability test pass 1/1 (34.095 sec); simulator type category restored."
+  - "Verified origin/main a0b4856e from merged PR #347; prior flow-trace task completed, hardware Smart4 2b.2 blocked; inspected current roadmap/backlog and 64-localization source."
+  - "Noted canonical checked-out main is dirty/divergent; all work restricted to isolated worktree and dedicated feature branch."
+  - "Simulator dark+increased-contrast compact Settings and 5-keyboard swipe tests 2/2 PASS. Unsigned synthetic QR fixture crashed because unsigned test had no required Keychain access; signed Simulator QR consent/preview 1/1 PASS (15.511s), no credential sharing."
+  - "Final 195 Swift and 212 iOS Python (1 skipped) tests PASS after updating stale 44pt source test; unsigned ARM64 iPhoneOS Debug+Release and Simulator App/PacketTunnel BUILD PASS."
+current: "All offline deliverables locally verified: Swift195, iOS Python212 (one skipped), 64 locales/320 strings, signed QR UI, Accessibility XXL, dark/contrast UI, unsigned ARM64 iPhoneOS Debug/Release and Simulator builds PASS. Ready to commit and PR with exact-head CI."
+pending:
+  - "Commit/push isolated source PR and require exact-head all-green GitHub CI and CLEAN before merge."
+  - "Close canonical/historical checkpoint via metadata-only PR after source merge; physical hardware gate remains blocked."
+last_verified_commit: "a0b4856ed04ea6ab6ef29cccf587c799467eafa1 (origin/main PR347)"
+test_results:
+  - "Smart4 standalone rehearsal 2/2 synthetic loopback witnesses PASS, 7/7 new negative/private-data Python tests."
+  - "Swift Core195/195 PASS; iOS Python212 run, 1 skipped, 0 failures."
+  - "Locale audit 64/64 catalogs, 320/320 .strings plutil PASS, 10-locale UI PASS."
+  - "Accessibility XXL real iOS Simulator de/ar regression 1/1 PASS after 48x48 pt button and scrolling test."
+  - "Simulator dark+high-contrast Settings 1/1 PASS, keyboard 1/1 PASS, signed synthetic QR 1/1 PASS; unsigned Keychain fixture crash belongs to QA signing not production."
+  - "Unsigned iPhoneOS ARM64 Debug+Release App/PacketTunnel BUILD PASS and iOS Simulator ARM64 App/PacketTunnel BUILD PASS; preexisting Swift 6 warnings only."
+
+resume_instruction: "FULL OFFLINE SOURCE VERIFIED (Swift195, Python212, ARM64 iPhoneOS Debug/Release and Simulator, signed QR + XXL and 64-locale QA). NEXT commit/push PR, exact-head all-green CI merge and metadata-only closure; no hardware. STAGE: Dark+contrast Simulator Settings and keyboard 2/2, QR signed Simulator 1/1; iPhoneOS Debug PASS, Release pending. New Smart4 harness and import BOM fixed; Swift195/Python212 (1 skipped), 64 locales/320 strings and real Simulator XXL a11y PASS. Dark/contrast UI running. NEXT finish UI, full ARM64 builds, PR/CI and close. ARC Mac mini, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-offline-sprint-20261105, branch feat/ios-offline-sprint-20261105. User explicitly requested all practical iOS roadmap progress WITHOUT using any phone. Current main a0b4856e; worktree isolated due dirty/divergent canonical checkout. Prior Smart4 original trace PR346 merged; physical stage 2b.2 remains blocked. Next implement offline evidence correlation, test, then import/UI/i18n quality and simulator smoke; commit/push PR(s) with green exact-head CI. Do NOT call iPhone Mirroring/devicectl install, change VPN/Keychain/profiles, Apple 0.2.0 review, CloudKit entitlements, production DIRECT or draft native FIN PR314. Always preserve truthful hardware gates and update checkpoint after stages."
