@@ -65,6 +65,14 @@
 
 ---
 
+## 05.11.2026 — Smart4: независимый тест LAN-транспорта на физическом iPhone
+
+- [x] QA app с отдельным bundle ID на реальном iPhone 13: SharedCore Smart4 policy exact-host/shared-IP PASS, серверные DIRECT и synthetic CONNECT→PROXY свидетели по 1/1, 2/2 token-корреляция в TTL (1711/1739 мс), 24 focused Python, iOS Python199 (один skipped), Swift181 PASS.
+- [x] QA app удалена с устройства, все 3 TCP listeners остановлены, одноразовые данные удалены. APL 0.1.41 не заменялся. [Физические результаты и границы](APL_IOS_SMART4_PHYSICAL_EGRESS_2026-11-05.md).
+- [ ] **Smart4 PacketTunnel hardware gate 2b.2 открыт:** отдельные тестовые LAN-потоки не доказывают исходный NetworkExtension captured flow и real DIRECT/PROXY egress. Требуются debug-only original-flow correlation, независимые внешние наблюдатели, IPv4/shared CDN, IPv6, QUIC и network-revocation fail-closed. Production DIRECT не включать.
+
+---
+
 ## 05.11.2026 — Smart Routing 4.0: лабораторный TCP witness (подготовка 2b.2)
 
 - [x] **PR #343 MERGED** (`bdae1c26`, 13/13 GitHub CI): изолированный no-forwarding TCP witness-сборщик для отдельных DIRECT/PROXY наблюдателей: одноразовый 128-битный токен, bounded JSONL, 120-секундный стенд, 256 проб; только агрегаты без host/IP/секретов. Лабораторный TCP/ACK loopback, 17/17 adversarial, iOS Python192 (1 skipped), Swift181 PASS; Windows защищённый writer fail-closed (POSIX-only), без интеграции в PacketTunnel. [Протокол](APL_IOS_SMART4_EGRESS_WITNESS_2026-11-05.md).

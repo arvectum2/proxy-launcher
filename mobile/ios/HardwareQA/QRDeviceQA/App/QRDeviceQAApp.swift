@@ -30,6 +30,7 @@ struct QRDeviceQAHome: View {
     @State private var status = "NOT_RUN"
     @State private var qaActivityPresented = false
     @State private var qaActivityObserved = false
+    @State private var smart4TransportStatus = "NOT_RUN"
 
     // Read-only camera hardware/authorization check. No permission prompt,
     // capture session, images or video frames are ever requested.
@@ -113,6 +114,11 @@ struct QRDeviceQAHome: View {
                 Text("Рабочая APL, VPN и профили не затрагиваются")
                     .font(.footnote)
                     .multilineTextAlignment(.center)
+                if ProcessInfo.processInfo.arguments.contains("-aplSmart4PhysicalTransportQA") {
+                    Text(smart4TransportStatus)
+                        .font(.footnote.monospaced())
+                        .accessibilityIdentifier("qa.smart4.transport-status")
+                }
                 Button("Проверить QR на iPhone") { selfTest() }
                     .accessibilityIdentifier("qa.run-selftest")
                 Text(status).font(.footnote.monospaced())
@@ -137,6 +143,13 @@ struct QRDeviceQAHome: View {
                 .navigationTitle("APL QR Device QA")
                 .onAppear {
                     selfTest()
+                    if ProcessInfo.processInfo.arguments.contains("-aplSmart4PhysicalTransportQA") {
+                        Task {
+                            smart4TransportStatus = await Smart4TransportPhysicalQA.run(
+                                arguments: ProcessInfo.processInfo.arguments)
+                            print("APL_SMART4_SYNTHETIC_TRANSPORT_RESULT " + smart4TransportStatus)
+                        }
+                    }
                     // Explicit synthetic-only CLI flag. Never used by the
                     // production app, and never invokes a third-party activity.
                     if ProcessInfo.processInfo.arguments.contains("-aplQASystemShareAttestation"),
