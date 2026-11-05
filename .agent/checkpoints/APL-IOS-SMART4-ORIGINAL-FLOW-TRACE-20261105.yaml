@@ -1,0 +1,30 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-ORIGINAL-FLOW-TRACE-20261105
+status: in_progress
+goal: "Create bounded DEBUG-only, privacy-preserving attribution from the existing native tun2proxy original TCP flow callback to exact lab host identity, same connection ID, physical socket family and bidirectional first payload; explicitly distinguish engine evidence from independent external DIRECT/PROXY witness confirmation."
+definition_of_done:
+  - "Add pure SharedCore bounded per-native-flow evidence state machine with fixed synthetic/test host aliases, per-original-flow ID, TTL, out-of-order policy and fail-closed collision/duplicate handling, no persistent host/IP/token/credential logs."
+  - "Wire the state machine only into existing opt-in DEBUG Smart3 physical lab event callback, never Release or production route changes."
+  - "Unit and contract tests verify positive same original flow, negative cross-ID/cross-host, stale evidence, absent payload, ambiguous/duplicate events, capacity and no inference from a client connection alone."
+  - "Run Swift, Python and ARM64 simulator/device build checks; create independent PR; merge only after exact-head all-green GitHub CI."
+  - "Keep true Smart4 physical PacketTunnel egress gate blocked pending original-flow proof joined with trusted external server receipts, IPv6 and UDP/QUIC/path reset acceptance."
+completed:
+  - "Verified source PR #345 exact-head d130725b 16/16 CI SUCCESS, CLEAN, merged main f06a091d679184152d3e4d3f5bcf98ecaae7cbb1."
+  - "Reviewed Rust tun2proxy exact-host callback (native connection ID and event 0/6/7/8/9/10/11/12) and existing DEBUG-only Smart3 physical lab enablement; current Smart4 policy source-only, Release routing untouched."
+  - "Added bounded in-memory SharedCore Smart4OriginalFlowTrace: QA host aliases only, native original connection ID, accepted PROXY vs sameflow recovered physical-family IPv4/IPv6 and both first payload directions. TTL60s, max32, fail-closed conflicts/duplicates. Never considers same ID as external egress proof."
+  - "Wired only under existing explicit DEBUG labScopedDirect to native SmartFlowEventCollector, sanitized one-shot count-only telemetry, never changes Release and no new direct routes."
+  - "Added 12 Swift tests and 3 cross-platform Python contract tests; 193/193 Swift Core and 202 iOS Python (one skipped) PASS."
+  - "Unsigned iPhoneOS ARM64 and Simulator ARM64 App+PacketTunnel builds PASS after restoring already pinned ignored tun2proxy.xcframework with identical SHA256 from existing QA worktree."
+
+current: "Source-only DEBUG original native flow attribution compiled and tested (Swift193, iOS Python202 1 skipped, ARM64 device+sim PASS). Next PR exact-head GitHub CI; physical original-flow+external-witness gate 2b.2 remains UNVERIFIED."
+pending:
+  - "Commit/push source-only native-flow attribution PR, verify all exact-head CI and CLEAN/MERGEABLE before merge."
+  - "After merge close current/historical task checkpoint in main using metadata-only PR; preserve true physical hardware gate 2b.2 blocked."
+last_verified_commit: "f06a091d679184152d3e4d3f5bcf98ecaae7cbb1 (PR345 merged; base main)"
+test_results:
+  - "PR345 16/16 GitHub checks PASS (synthetic laboratory transport only)."
+  - "Swift Core193/193 PASS (12 new native trace tests), iOS Python202 PASS (one skipped, three new source contract tests)."
+  - "Unsigned iPhoneOS/ARM64 App+PacketTunnel BUILD PASS and ARM64 Simulator App+PacketTunnel BUILD PASS; preexisting Swift 6 Sendable warnings unchanged."
+  - "Pinned ignored tun2proxy framework restored from existing local build cache; ios-arm64 and ios-arm64-simulator SHA256 verified identical to source."
+resume_instruction: "ARC Mac mini worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-flow-attribution-20261105; native original flow attribution source-only DEBUG-only ready; Swift193/193, iOS Python202 (one skipped), ARM64 iPhoneOS and Simulator App+PacketTunnel BUILD PASS. Next git add/commit/push and PR, require exact-head 16/16 or applicable CI CLEAN before merging. Then metadata-only closure checkpoint, true Smart4 captured flow→external DIRECT/PROXY witness hardware gate stays blocked; NO owner iPhone/VPN/Keychain/Apple Review/PR314 mutation."

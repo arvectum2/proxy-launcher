@@ -136,6 +136,7 @@
 		D06A095790028F09C33A550B /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */; };
 		D123F01AF8D1CE9160A904B2 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		D500CF222D03CED67EDEFA8E /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
@@ -144,6 +145,7 @@
 		E9651195C0A21232CC9C46F0 /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
 		EB3E854F8B41C274AC4F7CC8 /* ProxyShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614206BB28D1E243936A3475 /* ProxyShareView.swift */; };
 		EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */; };
+		EBF18CC6255DD1DFF163549D /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
 		EEE20757BFB04653A5E9E336 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */; };
 		EF2109211FDC6650620B1C4C /* Final64LocaleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBF8F652AE2EBC7FF26F402 /* Final64LocaleUITests.swift */; };
 		F05175729FE0D0257BA05F13 /* SmartExclusions.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E56A2C5CB23E7453CCB3DD9 /* SmartExclusions.strings */; };
@@ -374,6 +376,7 @@
 		70776A50FF9ABEA1C7A9CC15 /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		7223EDD3B4A845500D679BE2 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/ProxyImport.strings"; sourceTree = "<group>"; };
 		726CD0ED5A56A98EF68436E0 /* az */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = az; path = az.lproj/ProxyImport.strings; sourceTree = "<group>"; };
+		72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Smart4OriginalFlowTrace.swift; sourceTree = "<group>"; };
 		73535084E2934E15F50518F9 /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		73781973A6C51DE8C6245614 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		74C5FFBC0F502771EB771D97 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -776,6 +779,7 @@
 				A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */,
 				96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */,
 				EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */,
+				72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */,
 				C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */,
 				2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */,
 				6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */,
@@ -1074,6 +1078,7 @@
 				CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */,
 				7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */,
 				DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */,
+				D500CF222D03CED67EDEFA8E /* Smart4OriginalFlowTrace.swift in Sources */,
 				00734EFC5452D24061D99E40 /* SmartExclusionGraph.swift in Sources */,
 				3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */,
 				0A7E1E94C6F7C44A05EAE588 /* SmartFlowRoutingPolicy.swift in Sources */,
@@ -1191,6 +1196,7 @@
 				2C57AC20486C2B0E15B7DE66 /* SiteExclusionSaveFailure.swift in Sources */,
 				7CA2A1D2E9816B25A1366445 /* SiteExclusionSaveUX.swift in Sources */,
 				137A7D6F9489905219AF00FD /* Smart3PhysicalTrafficQA.swift in Sources */,
+				EBF18CC6255DD1DFF163549D /* Smart4OriginalFlowTrace.swift in Sources */,
 				42F0DA17D6D58A85434A1D8A /* SmartExclusionGraph.swift in Sources */,
 				FC7DAC5F4EDAD359D78EF662 /* SmartExclusionsUX.swift in Sources */,
 				435B39EADC4263B15EFE3903 /* SmartFlowRoutingPolicy.swift in Sources */,
