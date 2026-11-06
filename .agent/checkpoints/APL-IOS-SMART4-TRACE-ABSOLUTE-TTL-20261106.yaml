@@ -1,0 +1,27 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-SMART4-TRACE-ABSOLUTE-TTL-20261106
+status: in_progress
+goal: "Enforce the absolute 60-second lifetime of DEBUG-only Smart4 original-flow evidence from its first native event rather than last event, without changing production DIRECT or touching any physical device."
+definition_of_done:
+  - "Write regression proving a completed original-flow trace remains countable at <=60s but never beyond 60s from first event, even with recent payload."
+  - "Require same first-event TTL in both summary and eviction; stale events must not revive old positive evidence or exhaust capacity."
+  - "Keep existing fixed host aliases, event ordering, fail-closed conflicts, bounded state, network revoke reset and externalEgressVerified=false."
+  - "Run focused/full Swift tests, iOS Python source contracts, and unsigned ARM64 Simulator/iPhoneOS App+PacketTunnel builds as relevant; document limits."
+  - "Submit independent PR, require exact-head GitHub CI all-green and CLEAN before merge; mark checkpoint complete only after success."
+completed:
+  - "Verified PR #348 source merge 1437e5d9 and PR #349 checkpoint close eb37d4cf; origin/main checkpoint completed, physical egress gate separately blocked."
+  - "Observed TTL defect in source: summary(at:) and expire(at:) only filter by entry.last, allowing original trace created at T0 and updated T59 to be reported until T119 despite static lifetime=60."
+  - "Added two Swift regression tests: before fix focused 14-tests FAIL with 5 assertions at T+61 and bounded 32 capacity; after fixed absolute first-event TTL in summary+expire, 14/14 focused PASS. Python source contract updated to enforce both paths; no VPN/production route changes."
+  - "Full Swift197/197 PASS and iOS Python212 (one skipped) PASS; prior expiry clock-rollback negative tests remain green; iPhoneOS/Simulator unsigned ARM64 build jobs running."
+  - "Unsigned ARM64 iPhoneOS App+PacketTunnel Debug and Release builds exit0; ARM64 iOS Simulator App+PacketTunnel build exit0; pinned ignored tun2proxy libs SHA256 verified identical to established QA artifacts."
+current: "Fixed first-event native trace TTL. Full Swift197, iOS Python212 (1 skipped), unsigned ARM64 iPhoneOS Debug+Release, and ARM64 Simulator App+PacketTunnel all PASS. Next PR exact-head hosted CI."
+pending:
+  - "Create source PR; verify exact-head hosted GitHub CI all green, CLEAN, merge."
+  - "After source merge mark current/historical task completed in separate checkpoint closure PR, preserving physical egress gate."
+last_verified_commit: "eb37d4cf4102113e8dcce6859341ce28245f7ffc origin/main, PR #349"
+test_results:
+  - "Unsigned ARM64 iPhoneOS Debug and Release App+PacketTunnel and ARM64 Simulator App+PacketTunnel all xcodebuild exit0; pinned library SHA256 ios-arm64 and ios-arm64-simulator matched. Preexisting Sendable warnings."
+  - "Full Swift197/197, iOS Python212 with one skipped, 0 failures."
+  - "RED: Swift focused trace 14 tests / 5 failed assertions before source fix. GREEN: focused 14/14 after fix; Python native trace source contract PASS."
+resume_instruction: "LOCAL ALL GREEN: Swift197/197, iOS Python212 (1 skipped), iPhoneOS ARM64 Debug+Release and Simulator ARM64 App+PacketTunnel build exit0. NEXT source PR, wait exact-head GitHub CI and merge CLEAN, checkpoint closure. FIX + FULL TESTS DONE: Swift197/197 and iOS Python212 (1 skipped) PASS. ARM64 unsigned builds active job e66dcb56-00c5-4520-9c3e-c68fc453e4ec; then PR exact-head GitHub CI. FIX DONE: native trace summary/expire enforce fixed lifetime by start event; 14/14 focused Swift and Python source contract PASS, report docs updated. NEXT full Swift/Python and ARM64 Debug/Release unsigned builds, PR exact-head CI. ARC Mac mini isolated worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-smart4-trace-ttl-20261106 branch fix/ios-smart4-native-trace-ttl-20261106, base origin/main eb37d4cf. Fix synthetic DEBUG Smart4OriginalFlowTrace lifetime bug: summary and expire use last event instead of first started at T0. Need test at T+60 accepted (if complete), T+61 expired despite event at T+59, stale proof cannot revive/cause capacity exhaustion. Keep externalEgressVerified=false and scope limited to DEBUG. No real iPhone, VPN/Keychain, production routing, CloudKit/App Store or native FIN PR314. Update checkpoint after each stage, test, PR exact-head CI merge if all green."

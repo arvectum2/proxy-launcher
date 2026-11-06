@@ -102,6 +102,41 @@ final class Smart4OriginalFlowTraceTests: XCTestCase {
         XCTAssertEqual(trace.summary(at: start.addingTimeInterval(62)).observedFlows, 0)
     }
 
+    func testCompletedNativeFlowExpiresByFirstEventNotRecentPayload() {
+        var trace = Smart4OriginalFlowTrace()
+        for (seconds, event): (TimeInterval, Int32) in [
+            (0, 1), (30, 10), (53, 7), (58, 8), (59, 9)
+        ] {
+            trace.record(host: "www.apple.com", connectionID: 123,
+                         event: event, at: start.addingTimeInterval(seconds))
+        }
+        XCTAssertEqual(trace.summary(at: start.addingTimeInterval(60)).originalDirectPayload, 1)
+        let expired = trace.summary(at: start.addingTimeInterval(61))
+        XCTAssertEqual(expired.originalDirectPayload, 0,
+                       "A recent original-flow event must not renew the first-event 60s TTL")
+        XCTAssertEqual(expired.observedFlows, 0)
+        XCTAssertFalse(expired.externalEgressVerified)
+    }
+
+    func testManyRecentCallbacksCannotKeepExpiredNativeFlowCapacityOccupied() {
+        var trace = Smart4OriginalFlowTrace()
+        for id in 1...Smart4OriginalFlowTrace.maxFlows {
+            trace.record(host: "www.apple.com", connectionID: UInt64(id),
+                         event: 0, at: start)
+            trace.record(host: "www.apple.com", connectionID: UInt64(id),
+                         event: 1, at: start.addingTimeInterval(59))
+        }
+        XCTAssertEqual(trace.summary(at: start.addingTimeInterval(60)).observedFlows,
+                       Smart4OriginalFlowTrace.maxFlows)
+        trace.record(host: "www.apple.com", connectionID: 404,
+                     event: 0, at: start.addingTimeInterval(61))
+        let result = trace.summary(at: start.addingTimeInterval(61))
+        XCTAssertEqual(result.observedFlows, 1,
+                       "All original flows must expire independently of their latest event")
+        XCTAssertEqual(result.proxyHandshakeAccepted, 1)
+        XCTAssertFalse(result.overflowed)
+    }
+
     func testCapacityDoesNotEvictEarlierEvidenceAsProof() {
         var trace = Smart4OriginalFlowTrace()
         for id in 1...(Smart4OriginalFlowTrace.maxFlows + 1) {

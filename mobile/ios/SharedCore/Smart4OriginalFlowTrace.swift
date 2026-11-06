@@ -94,7 +94,9 @@ struct Smart4OriginalFlowTrace {
     /// Counts only. App/UI may never persist flow IDs, hostnames, IP or payloads.
     func summary(at now: Date = Date()) -> Summary {
         let active = flows.values.filter {
-            now >= $0.last && now.timeIntervalSince($0.last) <= Self.lifetime
+            // TTL is absolute from the ORIGINAL native event, not renewed by
+            // a late payload or family callback on the same captured flow.
+            now >= $0.last && now.timeIntervalSince($0.started) <= Self.lifetime
         }
         let proxy = active.filter(\.proxyHandshake).count
         let direct = active.filter(\.originalRecoveredWithPayload).count
@@ -112,7 +114,10 @@ struct Smart4OriginalFlowTrace {
 
     private mutating func expire(at now: Date) {
         flows = flows.filter { _, entry in
-            now.timeIntervalSince(entry.last) <= Self.lifetime
+            // Free bounded capacity at the same fixed first-event deadline.
+            // On a backwards clock step retain the entry: a subsequent
+            // nonmonotonic event for the same ID must be marked conflicted.
+            now.timeIntervalSince(entry.started) <= Self.lifetime
         }
     }
 }
