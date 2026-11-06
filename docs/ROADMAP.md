@@ -1,7 +1,7 @@
 ## 06.11.2026 — Smart4 DEBUG original-flow: абсолютный TTL (без iPhone)
 
 - [x] При source-only анализе найдено, что 60-секундное окно native trace считалось от **последнего**, а не первого события; тесты до исправления подтверждали ложноположительный поток в T+61 и занятую ёмкость 32/32 после истечения окна.
-- [x] Исправлены `summary` и `expire`: фиксированный TTL 60 с от исходного native callback; 2 новых XCTest, focused 14/14 и full Swift197/197 PASS, iOS Python212 (1 skipped), unsigned ARM64 iPhoneOS Debug/Release и Simulator App+PacketTunnel BUILD PASS, backward-clock/capacity fail-closed сохранены. [Подробности](APL_IOS_SMART4_ABSOLUTE_TRACE_TTL_2026-11-06.md).
+- [x] **PR #350 MERGED** (`f0ab33a2`, GitHub exact-head 25/25 SUCCESS): исправлены `summary` и `expire`, фиксированный TTL 60 с от первого native callback; 2 новых XCTest, focused 14/14 и full Swift197/197 PASS, iOS Python212 (1 skipped), unsigned ARM64 iPhoneOS Debug/Release и Simulator App+PacketTunnel BUILD PASS. Backward-clock/capacity fail-closed сохранены. [Подробности](APL_IOS_SMART4_ABSOLUTE_TRACE_TTL_2026-11-06.md).
 - [ ] Аппаратный Smart4 2b.2 original PacketTunnel flow + независимый DIRECT/PROXY receipt и IPv6/QUIC/path-change приёмка остаются **незавершёнными**; production DIRECT не включён.
 
 ---
