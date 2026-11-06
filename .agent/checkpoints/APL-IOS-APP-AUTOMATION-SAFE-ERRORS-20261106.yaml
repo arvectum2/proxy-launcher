@@ -1,0 +1,25 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-APP-AUTOMATION-SAFE-ERRORS-20261106
+status: in_progress
+goal: "Prevent raw NSError.localizedDescription from reaching the iOS app automation / Shortcuts settings UI on ProfileStore and VPN baseline failure, with localized fixed-code safe messages and unchanged routing behavior."
+definition_of_done:
+  - "Provide a pure, non-sensitive AppAutomationFailureUX formatter based only on existing translated keys and finite fixed-code diagnoses; no raw NSError/domain/userInfo/path/host/credentials can appear."
+  - "Replace all raw error text in ApplicationExclusionsView load/save/VPN-apply catch blocks; avoid changing VPN baseline, app shortcuts, storage or relaunch behaviors."
+  - "Add Swift regression and source-contract tests including adversarial NSError with secrets, nested NSError and 64 localization catalogs."
+  - "Run full Swift/iOS Python tests and unsigned ARM64 iPhoneOS/Simulator builds, create isolated PR and merge only exact-head green CI."
+  - "Close canonical/historical checkpoint after source merge, retain independent Smart4 physical gate blocked."
+completed:
+  - "Verified origin/main 31d558cb (PR#351 TTL source+checkpoint merged; previous canonical completed, physical Smart4 still blocked)."
+  - "Identified four ApplicationExclusionsView catch handlers displaying raw error.localizedDescription; existing ProxyFailureReason classification and 64 built-in iOS languages available."
+  - "Added AppAutomationFailureUX with finite localized fixed-code storage/VPN errors and fail-closed unknown VPN fallback; replaced all four catch blocks, kept baseline save/apply behavior. 4 Swift and 4 Python focused tests PASS; all 3 keys available 64/64 Localizable."
+  - "Full Swift201/201 PASS and iOS Python216 (one skipped) PASS; unsigned ARM64 iPhoneOS Debug and Release App+PacketTunnel builds PASS, and Simulator App+PacketTunnel BUILD PASS; pinned ignored tun2proxy slices SHA256 identical to prior verified local build-cache."
+current: "Safe automation error UI and 8 focused tests PASS, full Swift201/201, iOS Python216 (1 skipped), unsigned ARM64 iPhoneOS Debug/Release and Simulator App+PacketTunnel builds PASS. Ready to commit and create PR exact-head CI."
+pending:
+  - "Commit/push source branch; open PR and require exact-head GitHub CI all-green/CLEAN before merge."
+  - "Close canonical/historical checkpoint with separate metadata-only PR after source merge; preserve physical hardware gate blocked."
+last_verified_commit: "31d558cb26116bece83a7bba301d258c47da88db (origin/main PR351 completed)"
+test_results:
+  - "Focused Swift4/4 and Python4/4 regression PASS; 64/64 locale coverage of fixed messages."
+  - "Full Swift201/201 PASS; iOS Python216 with 1 skipped, no failures; unsigned ARM64 iPhoneOS Debug/Release and Simulator App+PacketTunnel BUILD PASS; same pinned tun2proxy libs SHA256 match."
+resume_instruction: "ALL LOCAL QA PASS. ARC worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-app-automation-safe-errors-20261106 branch fix/ios-automation-safe-errors-20261106, base 31d558cb. Safe fixed-code VPN/storage UI errors in four ApplicationExclusions catches + SharedCore AppAutomationFailureUX, 4 Swift unit +4 Python source tests, keys 64/64; full Swift201/201 and Python216 (one skipped) PASS, unsigned iPhoneOS ARM64 Debug+Release and Simulator App+PacketTunnel BUILD PASS. NEXT stage commit/push, PR exact-head all-green/CLEAN merge; metadata-only closure checkpoint. No physical iPhone, VPN/Keychain/AppStore, production DIRECT, CloudKit, or draft PR314. Hardware Smart4 gate separately blocked. Do not repeat unchanged validations."
