@@ -18,6 +18,8 @@ DEBUG-only `Smart4OriginalFlowTrace` разрешает следить за nati
 - До исправления: новые тесты `testCompletedNativeFlowExpiresByFirstEventNotRecentPayload` и `testManyRecentCallbacksCannotKeepExpiredNativeFlowCapacityOccupied` **FAIL (5 assertions)**.
 - После: focused **14/14 XCTest PASS**, Python source contract PASS; полный Swift Core **197/197 PASS** и iOS Python **212 (1 skipped), 0 failures**. unsigned ARM64 iPhoneOS **Debug/Release** и iOS Simulator App+PacketTunnel: **3/3 xcodebuild exit 0**. Имеются ранее известные предупреждения Sendable (Swift 6); GitHub CI независим от этой локальной проверки.
 
+- Source PR [#350](https://github.com/arvectum2/proxy-launcher/pull/350): exact-head `af82fbecef3e5dcc7a9b94a5e31d0c45ba38e91a`, **25/25 GitHub CI SUCCESS**, merged `f0ab33a277bd39295e66b8b7663b39640f643a9d`.
+
 ## Внешний аппаратный gate
 
 Smart4 2b.2 `APL-IOS-SMART4-PHYSICAL-EGRESS-20261105` **остаётся blocked**. Никакой original captured PacketTunnel flow не сопоставлялся с независимым внешним DIRECT/PROXY nonce receipt. iPhone, пользовательский VPN, Keychain, App Store 0.2.0 и черновик PR #314 не трогали.
