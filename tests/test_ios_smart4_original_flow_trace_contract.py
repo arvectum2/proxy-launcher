@@ -51,6 +51,10 @@ def test_bounded_never_persistent_and_same_host_alias_only():
     source = CORE.read_text()
     assert 'static let maxFlows = 32' in source
     assert 'static let lifetime: TimeInterval = 60' in source
+    assert 'now.timeIntervalSince($0.started) <= Self.lifetime' in source
+    assert 'now.timeIntervalSince(entry.started) <= Self.lifetime' in source
+    assert 'now.timeIntervalSince($0.last) <= Self.lifetime' not in source
+    assert 'now.timeIntervalSince(entry.last) <= Self.lifetime' not in source
     assert 'now < entry.last' in source
     assert 'alias != entry.alias' in source
     assert 'entry.events.contains(10) && entry.events.contains(11)' in source
