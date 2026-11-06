@@ -43,7 +43,11 @@ enum ProxyImport {
     static func parse(_ input: String, defaultType: ProxyType = .http) throws -> [ImportedProxy] {
         guard input.utf8.count <= 256_000 else { throw ProxyImportError.tooLarge }
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        let clean = trimmed.hasPrefix("\u{FEFF}") ? String(trimmed.dropFirst()) : trimmed
+        // A Windows/vendor UTF-8 BOM can precede blank lines or indentation.
+        // Strip it before format detection, then trim again: otherwise a
+        // valid JSON/XML/URL file is accidentally interpreted as a raw host.
+        let clean = (trimmed.hasPrefix("\u{FEFF}") ? String(trimmed.dropFirst()) : trimmed)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { throw ProxyImportError.empty }
         let fallback = defaultType == .auto ? ProxyType.http : defaultType
         let result: [ImportedProxy]

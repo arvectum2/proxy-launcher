@@ -1,3 +1,14 @@
+## 05.11.2026 — iOS offline sprint без iPhone
+
+- [x] Однокомандный bounded Smart4 synthetic-loopback DIRECT/PROXY/CONNECT witness стенд; 7 негативных и реальных TCP regression tests, приватные 0600 файлы и автоматическое удаление. Тест **не** подтверждает физический PacketTunnel egress и не разрешает production DIRECT.
+- [x] Исправлена BOM+whitespace обработка файлов импорта для JSON/XML/CSV/URL; Swift Core195/195, iOS Python212 (один skipped), unsigned ARM64 iPhoneOS Debug/Release и Simulator BUILD PASS.
+- [x] Проведён технический аудит 64 языков и 320 `.strings`: 0 ошибок, 10 локалей в Simulator UI-navigation PASS. Это не самостоятельная проверка носителями языков.
+- [x] Accessibility XXL Activity refresh: найдено ~39×20 pt, исправлено на 48×48 pt; реальный Simulator XCTest de/ar после прокрутки **1/1 PASS (34,095 с)**. Обычная навигация/импорт/10 локалей 4/4 PASS.
+- [x] Simulator dark + Increase Contrast: компактные настройки и свайп-клавиатура 2/2 PASS. Synthetic QR UI на **подписанном** Simulator 1/1 PASS (без передачи секретов); unsigned QA не поддерживает фиктивный Keychain. Исходный светлый режим и настройки контраста восстановлены.
+- [ ] Аппаратная Smart4 2b.2 original-flow→external egress, реальные Keychain upgrade и QR iPhone→iPhone остаются отдельно открытыми. [Отчёт](APL_IOS_OFFLINE_SPRINT_2026-11-05.md).
+
+---
+
 ## 05.11.2026 — iOS 0.2.1 source: безопасная обработка ошибок импорта и исключений
 
 - [x] PR #341: без вывода сырого NSError при сохранении, откате и переподключении Smart Exclusions, 25/25 GitHub CI, merge `64a7d3ce`.

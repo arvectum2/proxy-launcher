@@ -49,7 +49,15 @@ final class AccessibilityLargeTextUITests: XCTestCase {
             let refresh = app.buttons["activity.refresh"]
             XCTAssertTrue(refresh.waitForExistence(timeout: 10),
                           "Activity refresh is accessible: \(lang)")
-            XCTAssertTrue(refresh.isHittable, "Activity refresh is tappable: \(lang)")
+            // At Accessibility XXL a long localized status can legitimately
+            // push the refresh control below the viewport. It must remain
+            // reachable by scrolling, not necessarily visible on first paint.
+            if !refresh.isHittable {
+                let scroll = app.scrollViews.firstMatch
+                for _ in 0..<3 where !refresh.isHittable { scroll.swipeUp() }
+            }
+            XCTAssertTrue(refresh.isHittable,
+                          "Activity refresh must remain reachable after scrolling: \(lang)")
             XCTAssertGreaterThanOrEqual(refresh.frame.width, 44)
             XCTAssertGreaterThanOrEqual(refresh.frame.height, 44)
             capture(app, "\(lang) activity")

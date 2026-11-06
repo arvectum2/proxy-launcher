@@ -18,10 +18,16 @@ struct ActivityScreenView<Header: View>: View {
     }
 
     private var refreshButton: some View {
-        Button(AppL10n.tr("Обновить")) { model.refreshEvents() }
-            .foregroundStyle(Brand.mint)
-            .frame(minWidth: 44, minHeight: 44)
-            .accessibilityIdentifier("activity.refresh")
+        Button(action: { model.refreshEvents() }) {
+            // The label itself must own a comfortable 48×48 hit region. A frame on
+            // the outer Button only enlarges layout, not its XCUI hit area.
+            Text(AppL10n.tr("Обновить"))
+                .foregroundStyle(Brand.mint)
+                .frame(minWidth: 48, minHeight: 48)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("activity.refresh")
     }
 
     @ViewBuilder
@@ -57,7 +63,7 @@ struct ActivityScreenView<Header: View>: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                     if model.events.isEmpty {
-                        Text("Событий пока нет")
+                        Text(AppL10n.tr("Событий пока нет"))
                             .foregroundStyle(Brand.softGray)
                             .padding(16)
                     } else {

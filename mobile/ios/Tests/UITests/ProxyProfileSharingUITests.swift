@@ -2,6 +2,9 @@ import XCTest
 
 /// Sender-side proof uses ONLY the simulator-only .invalid profile fixture.
 /// No real account, device Keychain, VPN connection or remote proxy is touched.
+/// This fixture writes a synthetic Keychain item: run with a signed Simulator
+/// app (CODE_SIGNING_ALLOWED=YES, configured App Group/Keychain entitlement).
+/// Unsigned simulator app cannot exercise a meaningful credential share test.
 final class ProxyProfileSharingUITests: XCTestCase {
     func testSyntheticProfileShowsExplicitConsentThenScannableShareSheet() throws {
 #if targetEnvironment(simulator)

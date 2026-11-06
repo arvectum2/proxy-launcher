@@ -136,3 +136,26 @@ extension ProxyImportTests {
         }
     }
 }
+
+
+extension ProxyImportTests {
+    func testUTF8BOMFollowedByWhitespaceImportsStructuredAndRawFormats() throws {
+        let cases: [(String, String)] = [
+            ("\u{FEFF}\r\n  socks5://alice:secret@proxy.example:1080", "proxy.example"),
+            ("\u{FEFF}\n  [{\"host\":\"proxy.example\",\"port\":443}]", "proxy.example"),
+            ("\u{FEFF}\r\n  <proxies><proxy host=\"proxy.example\" port=\"443\" /></proxies>", "proxy.example"),
+            ("\u{FEFF}\r\n  host,port\nproxy.example,443", "proxy.example"),
+        ]
+        for (source, expected) in cases {
+            let imported = try ProxyImport.parse(source)
+            XCTAssertEqual(imported.count, 1)
+            XCTAssertEqual(imported.first?.host, expected)
+        }
+    }
+
+    func testBOMOnlyFileDoesNotCreateBogusProxy() {
+        XCTAssertThrowsError(try ProxyImport.parse("\u{FEFF} \r\n")) { error in
+            guard case ProxyImportError.empty = error else { return XCTFail("Expected empty list") }
+        }
+    }
+}
