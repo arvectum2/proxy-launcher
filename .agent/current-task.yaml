@@ -1,27 +1,25 @@
 version: 2
 repository: arvectum2/proxy-launcher
-task_id: APL-IOS-SMART4-TRACE-ABSOLUTE-TTL-20261106
-status: completed
-goal: "Enforce the absolute 60-second lifetime of DEBUG-only Smart4 original-flow evidence from its first native event rather than last event, without changing production DIRECT or touching any physical device."
+task_id: APL-IOS-APP-AUTOMATION-SAFE-ERRORS-20261106
+status: in_progress
+goal: "Prevent raw NSError.localizedDescription from reaching the iOS app automation / Shortcuts settings UI on ProfileStore and VPN baseline failure, with localized fixed-code safe messages and unchanged routing behavior."
 definition_of_done:
-  - "Write regression proving a completed original-flow trace remains countable at <=60s but never beyond 60s from first event, even with recent payload."
-  - "Require same first-event TTL in both summary and eviction; stale events must not revive old positive evidence or exhaust capacity."
-  - "Keep existing fixed host aliases, event ordering, fail-closed conflicts, bounded state, network revoke reset and externalEgressVerified=false."
-  - "Run focused/full Swift tests, iOS Python source contracts, and unsigned ARM64 Simulator/iPhoneOS App+PacketTunnel builds as relevant; document limits."
-  - "Submit independent PR, require exact-head GitHub CI all-green and CLEAN before merge; mark checkpoint complete only after success."
+  - "Provide a pure, non-sensitive AppAutomationFailureUX formatter based only on existing translated keys and finite fixed-code diagnoses; no raw NSError/domain/userInfo/path/host/credentials can appear."
+  - "Replace all raw error text in ApplicationExclusionsView load/save/VPN-apply catch blocks; avoid changing VPN baseline, app shortcuts, storage or relaunch behaviors."
+  - "Add Swift regression and source-contract tests including adversarial NSError with secrets, nested NSError and 64 localization catalogs."
+  - "Run full Swift/iOS Python tests and unsigned ARM64 iPhoneOS/Simulator builds, create isolated PR and merge only exact-head green CI."
+  - "Close canonical/historical checkpoint after source merge, retain independent Smart4 physical gate blocked."
 completed:
-  - "Verified PR #348 source merge 1437e5d9 and PR #349 checkpoint close eb37d4cf; origin/main checkpoint completed, physical egress gate separately blocked."
-  - "Observed TTL defect in source: summary(at:) and expire(at:) only filter by entry.last, allowing original trace created at T0 and updated T59 to be reported until T119 despite static lifetime=60."
-  - "Added two Swift regression tests: before fix focused 14-tests FAIL with 5 assertions at T+61 and bounded 32 capacity; after fixed absolute first-event TTL in summary+expire, 14/14 focused PASS. Python source contract updated to enforce both paths; no VPN/production route changes."
-  - "Full Swift197/197 PASS and iOS Python212 (one skipped) PASS; prior expiry clock-rollback negative tests remain green; iPhoneOS/Simulator unsigned ARM64 build jobs running."
-  - "Unsigned ARM64 iPhoneOS App+PacketTunnel Debug and Release builds exit0; ARM64 iOS Simulator App+PacketTunnel build exit0; pinned ignored tun2proxy libs SHA256 verified identical to established QA artifacts."
-  - "Source PR #350 exact-head af82fbecef3e5dcc7a9b94a5e31d0c45ba38e91a GitHub CI25/25 SUCCESS, MERGED main f0ab33a277bd39295e66b8b7663b39640f643a9d on 2026-11-06."
-current: "COMPLETED: DEBUG original-flow absolute first-event 60s TTL fix merged via PR #350, 25/25 exact-head GitHub checks SUCCESS, main f0ab33a277bd39295e66b8b7663b39640f643a9d. Production routes unchanged. Separate physical egress gate remains blocked."
-pending: []
-last_verified_commit: "f0ab33a277bd39295e66b8b7663b39640f643a9d (source PR #350 MERGED, exact-head af82fbecef3e5dcc7a9b94a5e31d0c45ba38e91a, CI25/25 PASS)"
+  - "Verified origin/main 31d558cb (PR#351 TTL source+checkpoint merged; previous canonical completed, physical Smart4 still blocked)."
+  - "Identified four ApplicationExclusionsView catch handlers displaying raw error.localizedDescription; existing ProxyFailureReason classification and 64 built-in iOS languages available."
+  - "Added AppAutomationFailureUX with finite localized fixed-code storage/VPN errors and fail-closed unknown VPN fallback; replaced all four catch blocks, kept baseline save/apply behavior. 4 Swift and 4 Python focused tests PASS; all 3 keys available 64/64 Localizable."
+  - "Full Swift201/201 PASS and iOS Python216 (one skipped) PASS; unsigned ARM64 iPhoneOS Debug and Release App+PacketTunnel builds PASS, and Simulator App+PacketTunnel BUILD PASS; pinned ignored tun2proxy slices SHA256 identical to prior verified local build-cache."
+current: "Safe automation error UI and 8 focused tests PASS, full Swift201/201, iOS Python216 (1 skipped), unsigned ARM64 iPhoneOS Debug/Release and Simulator App+PacketTunnel builds PASS. Ready to commit and create PR exact-head CI."
+pending:
+  - "Commit/push source branch; open PR and require exact-head GitHub CI all-green/CLEAN before merge."
+  - "Close canonical/historical checkpoint with separate metadata-only PR after source merge; preserve physical hardware gate blocked."
+last_verified_commit: "31d558cb26116bece83a7bba301d258c47da88db (origin/main PR351 completed)"
 test_results:
-  - "PR #350 exact-head 25/25 GitHub CI SUCCESS, CLEAN, MERGED; independent unsigned device Debug+Release builds green."
-  - "Unsigned ARM64 iPhoneOS Debug and Release App+PacketTunnel and ARM64 Simulator App+PacketTunnel all xcodebuild exit0; pinned library SHA256 ios-arm64 and ios-arm64-simulator matched. Preexisting Sendable warnings."
-  - "Full Swift197/197, iOS Python212 with one skipped, 0 failures."
-  - "RED: Swift focused trace 14 tests / 5 failed assertions before source fix. GREEN: focused 14/14 after fix; Python native trace source contract PASS."
-resume_instruction: "COMPLETED. Do not redo PR #350 or Swift197/Python212/unsigned ARM64 builds. Absolute DEBUG original-flow TTL from first event is merged main f0ab33a277bd39295e66b8b7663b39640f643a9d. Next separate task APL-IOS-SMART4-PHYSICAL-EGRESS-20261105 remains BLOCKED: real original captured PacketTunnel flow↔independent external DIRECT/PROXY nonce witness, IPv4/IPv6/shared CDN/QUIC and path revocation still unverified. Without physical phone, safe future iOS work can advance simulator/UI/localizations or lab QA without changing user VPN, Keychain, Apple App Review, iCloud entitlements, production DIRECT or native FIN draft PR314. ARC only."
+  - "Focused Swift4/4 and Python4/4 regression PASS; 64/64 locale coverage of fixed messages."
+  - "Full Swift201/201 PASS; iOS Python216 with 1 skipped, no failures; unsigned ARM64 iPhoneOS Debug/Release and Simulator App+PacketTunnel BUILD PASS; same pinned tun2proxy libs SHA256 match."
+resume_instruction: "ALL LOCAL QA PASS. ARC worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-app-automation-safe-errors-20261106 branch fix/ios-automation-safe-errors-20261106, base 31d558cb. Safe fixed-code VPN/storage UI errors in four ApplicationExclusions catches + SharedCore AppAutomationFailureUX, 4 Swift unit +4 Python source tests, keys 64/64; full Swift201/201 and Python216 (one skipped) PASS, unsigned iPhoneOS ARM64 Debug+Release and Simulator App+PacketTunnel BUILD PASS. NEXT stage commit/push, PR exact-head all-green/CLEAN merge; metadata-only closure checkpoint. No physical iPhone, VPN/Keychain/AppStore, production DIRECT, CloudKit, or draft PR314. Hardware Smart4 gate separately blocked. Do not repeat unchanged validations."

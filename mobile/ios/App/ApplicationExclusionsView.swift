@@ -81,11 +81,11 @@ struct ApplicationExclusionsView: View {
                 do {
                     try await AppRoutingVPNControl.applyBaseline(storedMode)
                 } catch {
-                    storageError = error.localizedDescription
+                    storageError = AppAutomationFailureUX.vpn(error, translate: AppL10n.tr)
                 }
             }
         } catch {
-            storageError = error.localizedDescription
+            storageError = AppAutomationFailureUX.storage(translate: AppL10n.tr)
         }
     }
 
@@ -98,11 +98,11 @@ struct ApplicationExclusionsView: View {
                 do {
                     try await AppRoutingVPNControl.applyBaseline(newValue)
                 } catch {
-                    storageError = error.localizedDescription
+                    storageError = AppAutomationFailureUX.vpn(error, translate: AppL10n.tr)
                 }
             }
         } catch {
-            storageError = error.localizedDescription
+            storageError = AppAutomationFailureUX.storage(translate: AppL10n.tr)
         }
     }
 #endif

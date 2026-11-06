@@ -1,3 +1,10 @@
+## 06.11.2026 — iOS Shortcuts: безопасные сообщения об ошибках автоматизации
+
+- [x] В четырёх `catch` обработчиках `ApplicationExclusionsView` заменён вывод сырого `NSError.localizedDescription` на ограниченные коды `STORE`/`VPN`/типизированные коды ошибок с существующими переводами для 64 языков. Обработка `AppRoutingVPNControl`, сохранение режима и права доступа не меняются. Добавлены 4 Swift и 4 Python regression tests; полный Swift201/201 и iOS Python216 (один skipped) PASS, unsigned ARM64 iPhoneOS Debug/Release и Simulator App+PacketTunnel BUILD PASS. [Отчёт](APL_IOS_APP_AUTOMATION_SAFE_ERRORS_2026-11-06.md).
+- [ ] Реальная аттестация PacketTunnel Smart4, Keychain upgrade и QR iPhone→iPhone остаются независимыми физическими gate; production DIRECT не включён.
+
+---
+
 ## 06.11.2026 — Smart4 DEBUG original-flow: абсолютный TTL (без iPhone)
 
 - [x] При source-only анализе найдено, что 60-секундное окно native trace считалось от **последнего**, а не первого события; тесты до исправления подтверждали ложноположительный поток в T+61 и занятую ёмкость 32/32 после истечения окна.
