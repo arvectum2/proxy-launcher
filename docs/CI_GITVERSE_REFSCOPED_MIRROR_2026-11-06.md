@@ -16,6 +16,6 @@
 
 ## Тесты
 
-`python3 -m unittest -q tests.test_ci_gitverse_refscoped` — 7/7 герметичных тестов с подменёнными командами `git` и `sleep`, без обращения к настоящему GitVerse и реального удаления. Проверены branch/tag, удаление по событию, manual/schedule prune, два transient 504-аналога, 3 попытки постоянного отказа, `bash -n`, сохранение триггеров и concurrency. YAML разобран Ruby Psych (`YAML_OK`).
+`python3 -m unittest -q tests.test_ci_gitverse_refscoped` — 6 POSIX-моков `git`/`sleep` и один кроссплатформенный статический контракт, без обращения к настоящему GitVerse и реального удаления. Проверены branch/tag, удаление по событию, manual/schedule prune, два transient 504-аналога, 3 попытки постоянного отказа, `bash -n`, сохранение триггеров и concurrency. YAML разобран Ruby Psych (`YAML_OK`).
 
 **Фактическая приёмка:** успешная реальная синхронизация текущего изменённого ref в GitVerse через GitHub Actions exact-head workflow и зелёный merge gate, без обхода CI. Пока не завершена — не заявлять, что зеркалирование восстановлено.

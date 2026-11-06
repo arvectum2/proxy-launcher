@@ -9,6 +9,10 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / '.github/workflows/mirror-to-gitverse.yml'
 
 
+# GitHub's mirror job itself runs on ubuntu-latest. Windows runners use
+# git.exe and do not execute extensionless POSIX mock commands through PATH.
+# Keep portable source-contract checks active on Windows below.
+@unittest.skipUnless(os.name == "posix", "POSIX executable mocks only")
 class GitVerseMirrorScopeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -88,16 +92,23 @@ printf 'sleep %s\\n' "$*" >> "$MOCK_GIT_LOG"
         self.assertEqual(len([x for x in lines if x.startswith('git ')]), 3)
         self.assertNotIn('GITVERSE_TOKEN', message)
 
-    def test_yaml_and_shell_structure_and_trigger_contract(self):
-        proc = subprocess.run(['bash', '-n'], input=self.snippet,
-                              text=True, capture_output=True, timeout=10)
-        self.assertEqual(proc.returncode, 0, proc.stderr)
+
+
+class GitVerseWorkflowStaticContract(unittest.TestCase):
+    """Runs on Windows too, without POSIX subprocess or executable mocks."""
+
+    def test_yaml_trigger_and_refscope_contract(self):
+        source = WORKFLOW.read_text()
+        snippet = source.split('# BEGIN REFSCOPED_PUSH\n', 1)[1].split(
+            '# END REFSCOPED_PUSH', 1)[0]
         for key in ('workflow_dispatch:', 'schedule:', 'cron:', 'concurrency:',
                     'cancel-in-progress: false', 'GITVERSE_PUSH_DELETED: ${{ github.event.deleted }}'):
-            self.assertIn(key, self.workflow)
-        self.assertNotIn('refs/pull/*:', self.snippet)
-        self.assertIn('git push --force', self.snippet)
-
+            self.assertIn(key, source)
+        self.assertIn('gitverse_push --prune gitverse', snippet)
+        self.assertIn('"${GITHUB_REF}:${GITHUB_REF}"', snippet)
+        self.assertIn('":${GITHUB_REF}"', snippet)
+        self.assertIn('attempt >= 3', snippet)
+        self.assertNotIn('refs/pull/*:', snippet)
 
 if __name__ == '__main__':
     unittest.main()
