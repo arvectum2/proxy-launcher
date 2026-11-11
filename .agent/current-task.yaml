@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-REPO-SYNC-IOS-FOCUS-20261111
-status: in_progress
+status: completed
 goal: "Safely reconcile local Mac mini main with canonical GitHub and GitVerse, record owner-confirmed macOS 0.2.22 publication, and set iOS as the sole active product roadmap."
 definition_of_done:
   - "Safeguard unrelated local commit history, uncommitted changes, and untracked files before any main alignment."
@@ -18,13 +18,18 @@ completed:
   - "Created single iOS active roadmap, new macOS published checkpoint and README/ROADMAP/backlog current index."
   - "Applied iOS-only product restriction to executor policy and queue, preserving historical queue order/items."
   - "Validated 4 YAML files via Ruby/Psych, 3/3 cross-links, scope and git diff --check."
-current: "Documentation ready and validated in isolated worktree. Push PR, merge after exact-head checks, align local main and verify mirrors."
-pending:
-  - "Push PR, require exact-head GitHub CI and merge documentation."
-  - "Align local main safely, clean stale worktree metadata, verify GitHub/GitVerse SHA parity."
-last_verified_commit: "31d558cb26116bece83a7bba301d258c47da88db (GitHub/GitVerse main before this task)"
+  - "Merged docs PR #354 with exact-head 13/13 GitHub CI PASS as fb195afdc496742cd2bff9f6547271aa3d6ac2ba."
+  - "Protected legacy main as archive/local-main-pre-sync-20261111; protected stash plus archive/local-working-state-pre-sync-20261111 and independent tar/patch backup of 29 untracked files."
+  - "Aligned Mac mini main fast-forward to fb195afd; pruned 26 obsolete worktree registrations, without deleting actual working directories."
+  - "Verified local Mac mini, GitHub and GitVerse refs/heads/main all exact SHA fb195afdc496742cd2bff9f6547271aa3d6ac2ba; local main clean."
+current: "COMPLETED: repository synced and legacy work safely preserved; macOS 0.2.22 published per Owner, only iOS active in policy, queue and roadmap."
+pending: []
+last_verified_commit: "fb195afdc496742cd2bff9f6547271aa3d6ac2ba (PR #354 merged; exact-head CI 13/13 PASS; Mac mini/GitHub/GitVerse main parity verified)"
 test_results:
   - "GitVerse and GitHub main remote SHA equality verified."
   - "Legacy local branch is unrelated; backup manifest, patch and tar verified."
   - "Ruby YAML parse 4/4 PASS, README/roadmap/backlog link 3/3 PASS, git diff --check PASS."
-resume_instruction: "Continue in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-repo-hygiene-20261111. Do not merge unrelated legacy main history. Do not destroy or change live worktrees. After docs PR and checks, preserve original working changes before aligning local main. No iOS app code/build changes in this task."
+  - "PR #354 exact-head GitHub CI 13/13 PASS, merged fb195afd."
+  - "Final main refs: Mac mini = GitHub = GitVerse = fb195afd; clean working tree."
+  - "Stale worktree metadata: 26 -> 0; local legacy branch and stash retain evidence."
+resume_instruction: "COMPLETED. Do not redo repo synchronization or merge old unrelated history. Start next iOS-only task from docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md and queue APL-IOS-021-RELEASE-READINESS-20261111. Smart4 physical egress stays blocked until witnessed, native FIN PR #314 stays draft, and all non-iOS product development remains paused until new Owner decision."
