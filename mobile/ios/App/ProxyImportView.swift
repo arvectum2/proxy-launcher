@@ -6,6 +6,11 @@ struct ProxyImportView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var source = ""
+    @State private var subscriptionURL = ""
+    @State private var subscriptionTitle = ""
+    @State private var savedSubscriptions: [SavedProxySubscription] = []
+    @State private var isFetchingSubscription = false
+    @State private var subscriptionTask: Task<Void, Never>?
     @State private var defaultType: ProxyType = .http
     @State private var parsedType: ProxyType = .http
     @State private var candidates: [ImportedProxy] = []
@@ -65,6 +70,45 @@ struct ProxyImportView: View {
                     Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
+                Section(ProxyImportUX.text("Список от поставщика")) {
+                    TextField(ProxyImportUX.text("HTTPS-ссылка на подписку"), text: $subscriptionURL)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .accessibilityIdentifier("profiles.subscriptionURL")
+                    Button(ProxyImportUX.text("Загрузить список")) { loadSubscription() }
+                        .disabled(isFetchingSubscription || subscriptionURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityIdentifier("profiles.loadSubscription")
+                    TextField(ProxyImportUX.text("Название подписки (необязательно)"), text: $subscriptionTitle)
+                        .accessibilityIdentifier("profiles.subscriptionTitle")
+                    Button(ProxyImportUX.text("Сохранить ссылку для обновления")) { saveSubscription() }
+                        .disabled(isFetchingSubscription || subscriptionURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    if isFetchingSubscription { ProgressView() }
+                    Text(ProxyImportUX.text("Список загружается только по вашему запросу. После предпросмотра подтвердите импорт. Поддерживаются HTTP, HTTPS и SOCKS5."))
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+                if !savedSubscriptions.isEmpty {
+                    Section(ProxyImportUX.text("Сохранённые подписки")) {
+                        ForEach(savedSubscriptions) { item in
+                            Button {
+                                loadSavedSubscription(item.id)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.title)
+                                    Text(verbatim: item.providerHost)
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                            .disabled(isFetchingSubscription)
+                        }
+                        .onDelete { offsets in
+                            let ids = offsets.compactMap { index in
+                                savedSubscriptions.indices.contains(index) ? savedSubscriptions[index].id : nil
+                            }
+                            for id in ids { deleteSubscription(id) }
+                        }
+                    }
+                }
                 if let message = importError {
                     Section {
                         Text(message).foregroundStyle(.red)
@@ -110,7 +154,11 @@ struct ProxyImportView: View {
             .navigationTitle(ProxyImportUX.text("Импорт прокси"))
             .keyboardDismissOnSwipeUp()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
-            .onAppear { if !initialSource.isEmpty { source = initialSource; parse() } }
+            .onAppear {
+                if !initialSource.isEmpty { source = initialSource; parse() }
+                refreshSavedSubscriptions()
+            }
+            .onDisappear { subscriptionTask?.cancel() }
             .sheet(isPresented: $scanQR) {
                 NavigationView {
                     ProxyQRScanner(onCode: { code in
@@ -156,6 +204,81 @@ struct ProxyImportView: View {
                     if !ProxyFilePickerCancellation.isUserCancellation(error) {
                         importError = ProxyImportUX.error(error)
                     }
+                }
+            }
+        }
+    }
+
+    private func refreshSavedSubscriptions() {
+        do { savedSubscriptions = try ProxySubscriptionStore().list() }
+        catch { importError = ProxyImportUX.text("Не удалось прочитать сохранённые подписки") }
+    }
+
+    private func saveSubscription() {
+        do {
+            try ProxySubscriptionStore().add(title: subscriptionTitle, urlText: subscriptionURL)
+            subscriptionTitle = ""
+            refreshSavedSubscriptions()
+            importError = nil
+        } catch {
+            importError = ProxyImportUX.text("Не удалось безопасно сохранить подписку")
+        }
+    }
+
+    private func deleteSubscription(_ id: UUID) {
+        do {
+            try ProxySubscriptionStore().remove(id)
+            refreshSavedSubscriptions()
+        } catch {
+            importError = ProxyImportUX.text("Не удалось удалить подписку")
+        }
+    }
+
+    private func loadSavedSubscription(_ id: UUID) {
+        do {
+            let url = try ProxySubscriptionStore().source(for: id)
+            loadSubscription(savedURL: url)
+        } catch {
+            importError = ProxyImportUX.text("Не удалось прочитать сохранённую подписку")
+        }
+    }
+
+    private func loadSubscription(savedURL: URL? = nil) {
+        guard !isFetchingSubscription else { return }
+        let originalURL = subscriptionURL
+        let originalSource = source
+        let selectedType = defaultType
+        let url: URL
+        do {
+            url = try savedURL ?? ProxySubscriptionImport.sourceURL(originalURL)
+        } catch {
+            importError = ProxyImportUX.text("Нужна безопасная HTTPS-ссылка поставщика")
+            return
+        }
+        editorFocused = false
+        isFetchingSubscription = true
+        importError = nil
+        subscriptionTask = Task {
+            defer { isFetchingSubscription = false; subscriptionTask = nil }
+            do {
+                let downloaded = try await ProxySubscriptionFetch.load(url, defaultType: selectedType)
+                try Task.checkCancellation()
+                // A concurrent user edit must not be overwritten by a delayed response.
+                guard subscriptionURL == originalURL, source == originalSource,
+                      defaultType == selectedType else { return }
+                source = downloaded
+                parse() // Preview only; the user must explicitly tap Import.
+            } catch is CancellationError {
+                return
+            } catch {
+                // Never interpolate the URL, redirect target, native NSError
+                // or supplier-supplied body into a public error message.
+                if case ProxySubscriptionError.oversized = error {
+                    importError = ProxyImportUX.text("Список поставщика слишком большой")
+                } else if case ProxySubscriptionError.unsupportedBody = error {
+                    importError = ProxyImportUX.text("Список содержит неподдерживаемые протоколы или формат")
+                } else {
+                    importError = ProxyImportUX.text("Не удалось безопасно загрузить список прокси")
                 }
             }
         }
