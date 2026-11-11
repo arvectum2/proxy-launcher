@@ -39,6 +39,7 @@
 		2C57AC20486C2B0E15B7DE66 /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
 		2E7EFEEC2836FCABD85C2A6D /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
 		3321AA021DDF960DB1E58BFF /* Smart3LiveTunnelPhysicalUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6690A66DE5B241DA7FE3E5 /* Smart3LiveTunnelPhysicalUITests.swift */; };
+		334CA924531EC1C9707D147D /* ExclusionCloudSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D859A549D1A32EAD793E893C /* ExclusionCloudSyncView.swift */; };
 		3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */; };
 		34CD6470BEFF653586184B90 /* CompactSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */; };
 		36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253B0C12F0347B26073794E0 /* AppDestination.swift */; };
@@ -90,6 +91,7 @@
 		7B8644A11A5316798B2FCCD0 /* ProxySubscriptionImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */; };
 		7CA2A1D2E9816B25A1366445 /* SiteExclusionSaveUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996C5F83E8CEE3660D8ACF38 /* SiteExclusionSaveUX.swift */; };
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
+		836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
 		851706D3307B653CC5F96F6B /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
 		86047547E3BE97C89D5581ED /* ProfileLibraryUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20270F814629DD91B0099C14 /* ProfileLibraryUITests.swift */; };
@@ -435,6 +437,7 @@
 		896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
 		898B8102A419789666AE1674 /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		89A9D0427123A9620FB1C3DE /* VPNController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNController.swift; sourceTree = "<group>"; };
+		89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusionCloudKitService.swift; sourceTree = "<group>"; };
 		8A0B01E5ECAB9DF993FD9DAB /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8A412DA7976F384FD76DAD0A /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		8BF369A21D09AB85F90E3660 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -578,6 +581,7 @@
 		D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNStateUITests.swift; sourceTree = "<group>"; };
 		D7C3D2B72C8CE8F1A9EBD9D6 /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		D8000FDEC8A6FF24C9F40D78 /* am */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = am; path = am.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		D859A549D1A32EAD793E893C /* ExclusionCloudSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusionCloudSyncView.swift; sourceTree = "<group>"; };
 		D8AA285AA938C0F3B1329E9F /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		D8F0BECC093210C1EE37516E /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		D9F026A7CB9537FE76492884 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -815,6 +819,8 @@
 				E0BAD9665FAF0C399B0AF97C /* CompactSettingsView.swift */,
 				BEA603A59EEC8463F7514A12 /* ContentView.swift */,
 				FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */,
+				89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */,
+				D859A549D1A32EAD793E893C /* ExclusionCloudSyncView.swift */,
 				3CF04293CB0940352CE500AA /* ExclusionsView.swift */,
 				D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */,
 				F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */,
@@ -1164,6 +1170,8 @@
 				B793CF633E29DAB897F62F8F /* ConnectionPressurePolicy.swift in Sources */,
 				11464251962C1B3FA454A316 /* ContentView.swift in Sources */,
 				645A2958E91971A18AC6D971 /* EqualHeightDashboardLayout.swift in Sources */,
+				836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */,
+				334CA924531EC1C9707D147D /* ExclusionCloudSyncView.swift in Sources */,
 				EF11C5C688A5F7B96B7DBA43 /* ExclusionSyncContract.swift in Sources */,
 				87F716E21F2F2A81CA6D4A29 /* ExclusionWebScanner.swift in Sources */,
 				CAAA0278E7D38A25D8D4E1B0 /* ExclusionsView.swift in Sources */,

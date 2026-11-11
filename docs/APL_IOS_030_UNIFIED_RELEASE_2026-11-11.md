@@ -8,10 +8,10 @@
 | --- | --- | --- |
 | Универсальный импорт, QR/Share, JSON/XML/CSV/TXT | В main; ожидает публикации | Подписанная сборка, Keychain upgrade, QR/Share после первого QR-релиза по ранее согласованной политике |
 | Безопасные ошибки DNS/TCP/HTTP 407/Keychain, исключения | В main; ожидает публикации | Регрессионные и релизные проверки без разглашения данных |
-| Загрузка списка прокси поставщика по HTTPS (raw/Base64) | Новый код в ветке этого релиза | Redirect/size/timeouts, Swift+ARM64, предпросмотр и ручное подтверждение; поддержка только реально работающих HTTP/HTTPS/SOCKS5 |
-| Сохранённые подписки с ручным обновлением | **В source branch реализовано:** URL/token в Keychain, список названий/доменов, ручная загрузка и удаление | Проверить Keychain на подписанном iPhone и отсутствие автоматической замены профилей; автоматическое фоновое обновление, разрешения и signed-provider trust остаются отдельно не реализованы |
-| iCloud/CloudKit исключений | Модель данных и diff для ручной проверки, **не подключено к iCloud** | Реальный private container, entitlement/provisioning, opt-in, conflict/merge, несколько устройств, privacy label |
-| VLESS/Reality | **НЕ реализовано** | Выбор независимого iOS PacketTunnel transport, исходники/лицензия, пин версии и SBOM, IPv4/IPv6/DNS, egress/rollback, реальный сервер |
+| Загрузка списка прокси поставщика по HTTPS (raw/Base64) | В main после PR #356 | Redirect/size/timeouts, Swift+ARM64, предпросмотр и ручное подтверждение; поддержка только реально работающих HTTP/HTTPS/SOCKS5 |
+| Сохранённые подписки с ручным обновлением | **В main после PR #356:** URL/token в Keychain, список названий/доменов, ручная загрузка и удаление | Проверить Keychain на подписанном iPhone и отсутствие автоматической замены профилей; автоматическое фоновое обновление, разрешения и signed-provider trust остаются отдельно не реализованы |
+| iCloud/CloudKit исключений | Snapshot/diff в main; отдельный **CloudKit private DB backend и UI готовы в source**, но экран скрыт `APL_CLOUDKIT_ENABLED`, entitlement отсутствует | Реальный private container, entitlement/provisioning, opt-in, conflict/merge, несколько устройств, privacy label |
+| VLESS/Reality | Транспорт **НЕ реализован**; проверен pinned официальный libXray Apple cgo artifact, SHA-256 и iOS arm64/simulator slices. [Исследование](APL_IOS_030_XRAY_RESEARCH_2026-11-11.md) | Выбор независимого iOS PacketTunnel transport, исходники/лицензия, пин версии и SBOM, IPv4/IPv6/DNS, egress/rollback, реальный сервер |
 | WireGuard/AmneziaWG | **НЕ реализовано** | Совместимый iOS backend, ключи в Keychain, UDP/handshake/failover, независимый физический egress, лицензирование |
 | Smart Routing 4.0 | DEBUG witness/TTL готовы; production DIRECT gate **открыт** | Связать original captured PacketTunnel flow с независимыми DIRECT/PROXY nonce, shared CDN IPv4/IPv6, QUIC, network revoke |
 | Native FIN/CLOSE_WAIT PR #314 | Draft, запрещено включать без теста | Реальный iPhone FIN, длительные Safari upload/download, переключение Wi-Fi/LTE, отсутствие обрывов |
@@ -45,4 +45,9 @@
 - [x] Data-only CloudKit manual-exclusions snapshot/diff, 4 новых Swift unit tests PASS; CloudKit network/entitlements НЕ включены.
 - [x] Local-first сохранённые subscription sources: separate ThisDeviceOnly Keychain service, display metadata в App Group, повторная загрузка только вручную. Signed physical Keychain QA остаётся открытым.
 - [x] Swift Core 206/206 PASS; iOS Python source contracts 288 PASS + 1513 subtests; unsigned ARM64 Simulator App+PacketTunnel BUILD PASS после внесения новых файлов.
-- [ ] Подключить сохраняемые подписки, iCloud и новый транспорт только после соответствующих gates; затем всеобщая приёмка и релиз.
+- [x] PR #356 MERGED `f0349879`, exact-head GitHub CI 17/17 PASS, локальная main/GitHub/GitVerse совпали.
+- [x] Stage 2 CloudKit private DB read/save: проверка Apple ID, лимиты/валидация, синхронизация **только** manual exclusions, CAS `.ifServerRecordUnchanged`, явно подтверждённые preview/apply/upload, откат VPN через обычный `saveExclusions`. UI не активирован без Apple entitlements.
+- [x] Обнаружено и закрыто UX-риск: закрытие iCloud sheet не стирает несохранённые исключения; кнопка отключена при несохранённых изменениях.
+- [x] CloudKit gated UI Simulator Debug BUILD PASS и обычная unsigned iPhoneOS Release BUILD PASS; Swift Core207 + iOS Python292 / 1513 subtests PASS, 4 новых iOS статических gate-теста.
+- [x] libXray v26.11.9 Apple cgo с официальным SHA-256 проверен отдельно от репозитория; iOS C API доступен, runtime не подключён.
+- [ ] Физическая CloudKit двухустройственная приёмка, entitlement и включение UI; безопасная интеграция Xray/WireGuard транспорта; iPhone Keychain upgrade и egress; один подписанный релиз после gates.

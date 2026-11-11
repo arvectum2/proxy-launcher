@@ -41,6 +41,15 @@ final class ExclusionSyncContractTests: XCTestCase {
             JSONSerialization.data(withJSONObject: root), now: now))
     }
 
+    func testRevisionOverflowIsRejectedBeforeCloudUpload() throws {
+        XCTAssertThrowsError(try ExclusionSyncContract.encode(
+            localDomains: ["example.com"], deviceID: "phone",
+            revision: Int.max, at: now))
+        XCTAssertThrowsError(try ExclusionSyncContract.encode(
+            localDomains: ["example.com"], deviceID: "phone",
+            revision: 0, at: now))
+    }
+
     func testRejectsOversizeInvalidDeviceAndFutureTimestamp() throws {
         XCTAssertThrowsError(try ExclusionSyncContract.decode(Data(repeating: 65, count: 16_385)))
         XCTAssertThrowsError(try ExclusionSyncContract.encode(
