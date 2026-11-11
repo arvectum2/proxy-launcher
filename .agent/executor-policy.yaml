@@ -14,7 +14,16 @@ sources:
     assignment: docs/organization/POS-004-ROADMAP-EXECUTOR-AM4-AUTHORIZATION-v1.0.0.md
     decision_merge_commit: 7a4a1f57344380b01f960f8a137bba590a736278
 
+product_scope:
+  active_platforms:
+    - ios
+  non_ios_product_work: paused_by_owner_2026_11_11
+  authoritative_index: docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md
+  non_ios_resume_requires: explicit_owner_decision
+  preserve_historical_queue_items: true
+
 selection:
+  restrict_new_product_work_to_active_platforms: true
   resume_active_current_task_first: true
   scan_queue_in_order: true
   may_skip_blocked_or_human_gated_items: true
@@ -90,6 +99,7 @@ authority:
     description: "Requires physical, credentialed, legal or otherwise non-delegated human action. Automation may prepare instructions/evidence only."
 
 hard_stops:
+  - new non-iOS product engineering, signing, releases, registry or Gateway work while 2026-11-11 iOS-only Owner decision is active
   - publish or replace release assets
   - move immutable tags
   - sign binaries, legal documents or submissions with owner/company credentials
