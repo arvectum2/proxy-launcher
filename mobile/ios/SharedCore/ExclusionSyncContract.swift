@@ -22,10 +22,14 @@ enum ExclusionSyncError: Error, Equatable {
 
 enum ExclusionSyncContract {
     static let maxBytes = 16 * 1024
+    /// Keep cloud revision increments inside a portable, bounded range.
+    static let maxRevision = 2_147_483_646
 
     static func encode(localDomains: [String], deviceID: String, revision: Int,
                        at date: Date = Date()) throws -> Data {
-        guard validDeviceID(deviceID), revision > 0 else { throw ExclusionSyncError.invalid }
+        guard validDeviceID(deviceID), (1...maxRevision).contains(revision) else {
+            throw ExclusionSyncError.invalid
+        }
         let normalized = try SiteExclusionPolicy.normalizeAll(localDomains)
         let snapshot = ManualExclusionSnapshot(schemaVersion: 1, deviceID: deviceID,
                                                revision: revision, generatedAt: date,
@@ -47,7 +51,8 @@ enum ExclusionSyncContract {
         decoder.dateDecodingStrategy = .iso8601
         guard let snapshot = try? decoder.decode(ManualExclusionSnapshot.self, from: bytes),
               snapshot.schemaVersion == 1, validDeviceID(snapshot.deviceID),
-              snapshot.revision > 0, snapshot.generatedAt <= now.addingTimeInterval(300),
+              (1...maxRevision).contains(snapshot.revision),
+              snapshot.generatedAt <= now.addingTimeInterval(300),
               snapshot.manualDomains.count <= SiteExclusionPolicy.maxEntries
         else { throw ExclusionSyncError.invalid }
         guard let normalized = try? SiteExclusionPolicy.normalizeAll(snapshot.manualDomains),

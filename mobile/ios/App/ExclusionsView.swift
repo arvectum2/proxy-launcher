@@ -44,6 +44,9 @@ struct ExclusionsView: View {
     @State private var localError: String?
     @State private var scanWarning: String?
     @State private var confirmClearAll = false
+#if APL_CLOUDKIT_ENABLED
+    @State private var showingCloudSync = false
+#endif
     @State private var saving = false
     @State private var discovered: [String] = []
     @State private var selectedDiscovered: Set<String> = []
@@ -64,6 +67,14 @@ struct ExclusionsView: View {
         NavigationView {
             List {
                 editorSection
+#if APL_CLOUDKIT_ENABLED
+                Section("iCloud") {
+                    Button("Синхронизация ручных исключений") { showingCloudSync = true }
+                        .disabled(saving || scanning || entries != model.manualExclusions ||
+                                  graph != model.smartGraph.pruned())
+                        .accessibilityIdentifier("exclusions.cloudSync")
+                }
+#endif
                 if !discovered.isEmpty {
                     Section(SmartExclusionsUX.text("Найденные домены — выберите для исключения")) {
                         ForEach(discovered, id: \.self) { host in
@@ -357,6 +368,16 @@ struct ExclusionsView: View {
                 diagnosticProbeTask = nil
             }
             .keyboardDismissOnSwipeUp()
+#if APL_CLOUDKIT_ENABLED
+            .sheet(isPresented: $showingCloudSync) {
+                ExclusionCloudSyncView(model: model) {
+                    entries = model.manualExclusions
+                    graph = model.smartGraph.pruned()
+                    undoEntries = nil
+                    undoGraph = nil
+                }
+            }
+#endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button { dismiss() } label: {
