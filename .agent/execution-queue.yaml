@@ -319,14 +319,14 @@ items:
 
   - order: 150
     task_id: APL-IOS-021-RELEASE-READINESS-20261111
-    title: "Next iOS source/binary release readiness and Keychain migration proof"
+    title: "Unified iOS 0.3.0 candidate: all accepted new functions with one App Store release"
     status: ready
     authority: REVIEW
     independent: true
     auto_merge: false
-    source: "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md"
+    source: "docs/APL_IOS_030_UNIFIED_RELEASE_2026-11-11.md"
     dependencies: []
-    executor_scope: "iOS-only source, binary proof, safe tests. No Apple upload, release or physical working-device mutation without new authorization."
+    executor_scope: "One consolidated iOS feature/release branch and binary. No published micro-releases, no unverified protocol exposure, no production Smart4 DIRECT or native FIN without QA."
     owner_gate: "Signed candidate QA, physical migration as applicable and explicit Owner release decision."
     evidence: "PR #312/#320/#337/#340/#341 merged; next iOS signed release with QR not yet performed."
 

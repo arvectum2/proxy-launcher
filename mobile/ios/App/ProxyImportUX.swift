@@ -5,6 +5,21 @@ import Foundation
 /// curated legacy priority translations stay available as a safe fallback.
 enum ProxyImportUX {
     private static let english: [String: String] = [
+        "Название подписки (необязательно)": "Subscription name (optional)",
+        "Сохранить ссылку для обновления": "Save subscription URL",
+        "Сохранённые подписки": "Saved subscriptions",
+        "Не удалось прочитать сохранённые подписки": "Could not read saved subscriptions",
+        "Не удалось безопасно сохранить подписку": "Could not securely save the subscription",
+        "Не удалось удалить подписку": "Could not remove subscription",
+        "Не удалось прочитать сохранённую подписку": "Could not read saved subscription",
+        "Список от поставщика": "Provider subscription",
+        "HTTPS-ссылка на подписку": "HTTPS subscription URL",
+        "Загрузить список": "Load subscription",
+        "Список загружается только по вашему запросу. После предпросмотра подтвердите импорт. Поддерживаются HTTP, HTTPS и SOCKS5.": "The list is downloaded only when you request it. Review the preview before importing. HTTP, HTTPS and SOCKS5 are supported.",
+        "Нужна безопасная HTTPS-ссылка поставщика": "Enter a safe HTTPS provider URL",
+        "Список поставщика слишком большой": "Provider list is too large",
+        "Список содержит неподдерживаемые протоколы или формат": "This list contains an unsupported protocol or format",
+        "Не удалось безопасно загрузить список прокси": "Could not securely load the proxy list",
         "Тип прокси по умолчанию": "Default proxy protocol",
         "Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола.": "Paste proxy links, IP:port:user:password, or import up to 200 proxies from TXT/CSV/XML/JSON. The selected protocol only applies to entries without one.",
         "Импорт прокси": "Import proxies",
