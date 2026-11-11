@@ -1,0 +1,19 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-MAC-022-PUBLISHED-20261111
+status: completed
+goal: "Record owner-confirmed macOS App Store 0.2.22 build 18 publication."
+definition_of_done:
+  - "State App Store release explicitly and separately from GitHub desktop v0.2.16."
+  - "Preserve original code/QA evidence without signing, rebuilding, uploading or modifying Apple."
+completed:
+  - "Owner confirmed on 2026-11-11 that macOS App Store 0.2.22 is released."
+  - "Original source PR #310 merged 4e7b58084d1973aebdd6fb832abfb7dcb6863698 and signed build18 3900s physical acceptance PASS."
+  - "New product development is iOS-only; macOS remains historical/maintenance."
+current: "COMPLETED. macOS App Store 0.2.22(18) RELEASED per Owner. Public Apple storefront not independently rechecked."
+pending: []
+last_verified_commit: "4e7b58084d1973aebdd6fb832abfb7dcb6863698 (original PR #310 source and physical QA record)"
+test_results:
+  - "Original signed build18 3900s physical QA PASS (preserved historical evidence)."
+  - "Documentation only; no Apple or binary changes."
+resume_instruction: "Do not restart macOS product development unless Owner changes iOS-only decision."

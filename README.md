@@ -4,6 +4,12 @@ Arvectum Proxy Launcher — кроссплатформенный локальн�
 
 Arvectum Proxy Launcher is a cross-platform local client for safe system proxy/PAC management, `no_proxy`, local HTTP/SOCKS5 endpoints, and network-settings recovery.
 
+## Текущий фокус разработки — iOS
+
+С 11.11.2026 по решению владельца новые продуктовые задачи относятся **только к iOS**. [Актуальная очередь iOS](docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md); остальные платформы приостановлены, прежние релизы остаются доступны.
+
+**macOS App Store 0.2.22 (18) — выпущена**, непосредственно подтверждено владельцем 11.11.2026. Это отдельный канал от GitHub/GitVerse desktop v0.2.16; Android GitHub android-v0.1.38 также опубликован.
+
 ## Текущий релиз / Current release
 
 **0.2.16** — текущий опубликованный релиз для **Windows x64**, **Astra Linux 1.8 x86-64**, **RED OS 8.0.3 x86-64**, portable **Linux AppImage x86-64** и публичных macOS DMG (**Apple Silicon + Intel**).

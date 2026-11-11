@@ -1,7 +1,13 @@
 version: 2
 repository: arvectum2/proxy-launcher
-updated_at: "2026-10-04T22:36:00+03:00"
+updated_at: "2026-11-11T16:06:00+03:00"
 owner_controls_order: true
+active_product_scope:
+  platform: ios
+  source: "Owner decision 2026-11-11; docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md"
+  non_ios_status: paused_by_owner
+  allow_non_ios_product_execution: false
+  note: "Retain historical statuses/order but do not select non-iOS ready items until another explicit Owner decision."
 baseline:
   main_sha_verified: "6b3a9c4a2b18585487a3df0504d9b62b0110a292"
   stable_release: "v0.2.16"
@@ -310,6 +316,32 @@ items:
     executor_scope: "After facts are supplied, prepare current official application/author-consent forms and exact-v0.2.16 deposited source fragments; render/verify and stop before final signing/submission unless explicitly authorized."
     active_pr: 181
     evidence: "Official requirements and 5000 RUB fee rechecked 2026-09-26; exact filing object v0.2.16 / release commit 6799297... fixed; 6-page working DOCX rendered/visually checked with unknown fields blank and yellow."
+
+  - order: 150
+    task_id: APL-IOS-021-RELEASE-READINESS-20261111
+    title: "Next iOS source/binary release readiness and Keychain migration proof"
+    status: ready
+    authority: REVIEW
+    independent: true
+    auto_merge: false
+    source: "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md"
+    dependencies: []
+    executor_scope: "iOS-only source, binary proof, safe tests. No Apple upload, release or physical working-device mutation without new authorization."
+    owner_gate: "Signed candidate QA, physical migration as applicable and explicit Owner release decision."
+    evidence: "PR #312/#320/#337/#340/#341 merged; next iOS signed release with QR not yet performed."
+
+  - order: 160
+    task_id: APL-IOS-SMART4-PHYSICAL-EGRESS-20261111
+    title: "iOS original PacketTunnel independent DIRECT/PROXY egress gate"
+    status: blocked
+    authority: HUMAN
+    independent: true
+    auto_merge: false
+    source: "docs/APL_ACTIVE_IOS_ROADMAP_2026-11-11.md"
+    dependencies: []
+    blocker: "Physical iPhone, independent external DIRECT/PROXY nonce observers, IPv4/IPv6/shared CDN/QUIC/network-change evidence required."
+    executor_scope: "DEBUG-only physical QA preparation, no production DIRECT enablement."
+    evidence: "Smart4 absolute first-event TTL PR #350 25/25 PASS; physical original external egress open."
 
 repository_hygiene:
   superseded_open_prs:
