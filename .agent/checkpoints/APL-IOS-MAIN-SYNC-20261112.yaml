@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-MAIN-SYNC-20261112
+status: completed
+goal: "Recover and verify the exact canonical Mac mini main after temporary ARC filesystem tool failures, preserving user work."
+definition_of_done:
+  - "Local main clean with no staged or unstaged work before update."
+  - "Read-only confirm GitHub and GitVerse main commit hashes."
+  - "Fast-forward local main to identical latest upstream SHA without reset, force push or loss."
+  - "Record validation in canonical checkpoint and archive."
+completed:
+  - "Validated external ArvectumSSD APFS mounted and read-write."
+  - "Verified clean local main 0afa59fcb369bc40dcfd2e4f6af53ce61f4f3f26 with no lock files."
+  - "Verified remote GitHub/GitVerse main both 7999f2b00669576eb5cfe0cd228f8df6daf66ced."
+  - "Used authorized MacBook SSH connection to Mac mini; git fetch origin main and git merge --ff-only origin/main."
+  - "Verified exact SHA parity for Mac mini local main, GitHub origin/main and GitVerse main and clean final git status."
+current: "Completed. Local main safely fast-forwarded and verified."
+pending: []
+last_verified_commit: "7999f2b00669576eb5cfe0cd228f8df6daf66ced"
+test_results:
+  - "git merge --ff-only origin/main PASS (0afa59f -> 7999f2b)."
+  - "Local/GitHub/GitVerse main SHA exact parity PASS."
+  - "git status --porcelain empty PASS."
+  - "External SSD disk7s1 APFS mounted, media and volume read-write."
+  - "Historical APL iOS native/physical acceptance remains blocked; no iPhone or Apple App Store changes."
+resume_instruction: "No further repository sync action needed. Resume parent APL-IOS-UNIFIED-RELEASE-20261111 only when owner reconnects iPhone, then perform controlled physical acceptance without touching production VPN unexpectedly."

@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026: Mac mini external APFS SSD mounted read/write, repository main was clean at 0afa59fc; recovered using MacBook -> SSH -> Mac mini and fast-forwarded to 7999f2b0. Confirmed identical SHA on local main, GitHub origin/main and GitVerse main, and clean working tree. No force push or reset."
   - "Confirmed canonical Mac mini/GitHub/GitVerse main 7cd98adbfa9f3309c8fc45834f7e33815014fdc4, clean; created isolated iOS feature branch."
   - "Owner single-release decision reflected in docs/APL_IOS_030_UNIFIED_RELEASE_2026-11-11.md and active roadmap; target iOS 0.3.0, no micro-releases."
   - "Inspected production ProxyType: HTTP/HTTPS/SOCKS5 only; CloudKit entitlement absent, VLESS/Reality/WireGuard/AmneziaWG have no production backends."
@@ -52,7 +53,7 @@ completed:
 
 
 
-current: "All currently safe iOS 0.3.0 offline development is checked in (#356-#361). DEBUG-only native Rust/Xray blackhole handoff compiled and local Swift CGo runtime tested in isolated research branch. Await owner reconnecting safe iPhone for original TUN->Xray encrypted egress, 0.2.0 profile/Keychain migration and 2-device CloudKit acceptance. No signing, real VPN mutation or App Store upload done."
+current: "Offline iOS 0.3.0 development checked in through PR #362 and now local Mac mini main == GitHub == GitVerse at 7999f2b00669576eb5cfe0cd228f8df6daf66ced. Offline checkpoint remains blocked solely on safe iPhone hardware acceptance, native licensing, CloudKit 2-device entitlements and signed release. Device not touched."
 blocked_on:
   - "Owner will reconnect a safe physical iPhone for original PacketTunnel traffic, DNS/IPv4/IPv6/UDP, fail-closed and Keychain upgrade acceptance; do not operate phone until user signals readiness."
   - "CloudKit requires approved Apple private container/entitlements and two-device opt-in acceptance."
@@ -64,8 +65,9 @@ pending:
   - "Audit 60 declared native Go dependencies/third-party notices and build pinned Xray source reproducibly (Go 1.27.3 currently missing). AmneziaWG requires a distinct real backend gate."
   - "CloudKit private entitlement, privacy copy, two-device manual exclusion conflict and opt-in tests."
   - "Only one signed 0.3.0 iOS App Store candidate/review/publication after all release gates; no public 0.2.x micro-releases."
-last_verified_commit: "0afa59fcb369bc40dcfd2e4f6af53ce61f4f3f26 (PR #361 merged exact-head 17/17 CI; Mac mini/GitHub/GitVerse parity); isolated native lab d0e17ad8d5f627c99f4dc5132de48bdcac41240c"
+last_verified_commit: "7999f2b00669576eb5cfe0cd228f8df6daf66ced (local Mac mini main, GitHub origin/main and GitVerse main, clean; PR #362 CI 11/11; verified 2026-11-12, via MacBook SSH fallback); isolated native Xray lab d0e17ad8d5f627c99f4dc5132de48bdcac41240c"
 test_results:
+  - "Mac mini main=GitHub origin/main=GitVerse main: 7999f2b00669576eb5cfe0cd228f8df6daf66ced; git status --porcelain empty; git merge --ff-only, SSD APFS read-write; no app/device actions."
   - "New subscription and cloud contract Swift tests 9/9 PASS; full Swift206/206 PASS; iOS Python contracts 288 PASS + 1513 subtests."
   - "Unsigned ARM64 iOS Simulator Debug and iPhoneOS Release App+PacketTunnel xcodebuild PASS; pinned native device+sim SHA256 matched preexisting QA artifact."
   - "Gated CloudKit iOS Simulator Debug App+PacketTunnel BUILD PASS; default iPhoneOS Release App+PacketTunnel BUILD PASS."
@@ -87,4 +89,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner explicitly said to finish safe offline tasks and will later reconnect iPhone for acceptance. Do not touch physical iPhone until readiness is communicated. Canonical main 0afa59fcb369bc40dcfd2e4f6af53ce61f4f3f26 has #356-#361 source stages and all CI green. Isolated lab worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-030-xray-packet-tunnel-lab-20261112 at d0e17ad8d5f627c99f4dc5132de48bdcac41240c contains unshipped DEBUG-only XrayDebugTunRunner and is backed up to /Users/master/ArvectumSafe/backups/proxy-launcher/apl-ios-030-xray-lab-20261112.bundle (SHA256 17a6cfe56314b2cf475943210c0d0bc2bab0de66b6d5f40025781af516b1cb1b). When owner says phone connected, read docs/APL_IOS_030_DEVICE_ACCEPTANCE_HANDOFF_2026-11-12.md, verify safe device and source, follow physical nonce/Keychain/CloudKit gates, obtain specific confirmation before risky VPN changes. Do not publish 0.3.0 until completed. Unverified VLESS/WG/AWG, Smart4 DIRECT, FIN PR #314 and CloudKit remain OFF."
+resume_instruction: "Owner reconnects iPhone before physical iOS 0.3.0 acceptance. Local Mac mini main, GitHub and GitVerse were verified equal at 7999f2b00669576eb5cfe0cd228f8df6daf66ced on 2026-11-12 after SSH fast-forward; the main working tree was clean. Current task BLOCKED pending iPhone physical original-flow VLESS/WireGuard, profile/Keychain upgrade and 2-device CloudKit; do not touch iPhone until owner signals ready. Native Xray lab preserved at d0e17ad8 in research worktree and internal disk backup. Do not enable unfinished protocols or publish to App Store until all gates pass. Verify main SHA again on resume."
