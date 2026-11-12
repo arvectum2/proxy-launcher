@@ -12,7 +12,9 @@ on:
 
 jobs:
   core-tests:
-    runs-on: macos-latest
+    # The Swift Package uses Darwin but no Apple Silicon specifics.
+    # Intel avoids repeated hosted macOS arm64 runner acquisition failures.
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
       - name: Validate active iOS source identity
