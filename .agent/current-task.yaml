@@ -75,7 +75,7 @@ pending:
   - "Inspect pinned Rust flow and create local fixture for fakeIP-to-host CONNECT and TLS, patch only proven defect, repeat bounded iPhone tests."
   - "Complete IPv6 with valid hostname/TLS and upstream, DNS leak, UDP/QUIC, roaming/fail-closed."
   - "Complete native transports, private CloudKit, standalone encrypted backup, then one App Store 0.3.0 submission after approval."
-last_verified_commit: "c7e1f9570298524cf2fde46723bcf2aba346886f (signed physical iPhone13 direct IPv4 fallback and IPv6 PASS, no VPN activation, original profiles preserved, simulator 2 skipped/0 failed, Python323+1513 Swift226 PASS)"
+last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
 test_results:
   - "Signed iPhone13 PacketTunnel DNS snapshot fake A-only/dual 198.18/15 success XCTest 2.004s; posttest OFF and original 3 profiles bytes/selected ID intact."
   - "Apple per-session proxy IPv4-only HTTPS 3/3 PASS, IPv6-only 0/3; tunneled numeric IPv4 HTTPS PASS, IPv4-only hostname -1001."
