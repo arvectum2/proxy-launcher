@@ -21,7 +21,7 @@ completed:
   - "Read-only UI test infrastructure timed out enabling automation; no VPN state changed; switched to signed app-hosted Network Extension read-only XCTest."
 current: "Completed bounded physical iPhone13 signed Debug 0.3.0 PacketTunnel active test: connected, 2/2 public egress IPs changed, explicit OFF, 2/2 baseline IPs restored. Independent signed OFF test PASS and 3 original profiles unchanged."
 pending: []
-last_verified_commit: "439c70c00e086c5fc0503aaacb146483eaacd0da (per-session HTTPS physical QA base)"
+last_verified_commit: "dcefee99e5a24b73628c0783c2dad70ff1ab40ec (verified QA source; physical active 5.104s, post OFF PASS, python321+1513 swift226 simulator skip)"
 test_results:
   - "Real physical PacketTunnel enabled briefly with 20s app / 25s extension protective stop options. Verified Connected, 2/2 public egress change, direct OFF restoration 2/2. XCTest PASS 5.104s."
   - "Separate post-test physical OFF XCTest PASS 0.008s; three profiles and selected UUID byte-exact stable."

@@ -75,7 +75,7 @@ pending:
   - "Complete isolated native Xray/WireGuard external nonce/handshake and production integration only after licensing/reproducibility."
   - "CloudKit private 2-device entitlement/opt-in and secure standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after all gates and explicit publication approval; desktop platforms remain paused."
-last_verified_commit: "439c70c00e086c5fc0503aaacb146483eaacd0da (base HTTPS receipt physical QA; new native system VPN evidence source test PASS pending QA commit; Mac mini/GitHub/GitVerse main 568477f2d9cec6811dc3f4e7db1cb18f0e77f9fd)"
+last_verified_commit: "dcefee99e5a24b73628c0783c2dad70ff1ab40ec (physical iPhone13 Debug0.3.0 PacketTunnel Connected, 2/2 HTTPS egress changed and both restored after OFF, guarded 20/25s; 2 physical read-only OFF checks, 3 original profiles unchanged; Python321+1513, Swift226, simulator skip PASS; PR/CI pending)"
 test_results:
   - "Physical signed iPhone13 APL Debug0.3.0(49) real PacketTunnel/TUN external HTTPS egress changed 2 independent IP witnesses 2/2; after explicit OFF both restored 2/2. XCTest PASS 5.104s with separate app20s extension25s stop guards."
   - "Independent signed read-only NetworkExtension OFF PASS 0.008s posttest; protected App Group profiles.v1 and selected UUID byte-identical to post-upgrade snapshot; no secret/IP logs."
