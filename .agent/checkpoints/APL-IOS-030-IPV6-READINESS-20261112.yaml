@@ -1,0 +1,25 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-IPV6-READINESS-20261112
+status: completed
+goal: "Establish read-only physical iPhone IPv4/IPv6 and HTTPS origin baseline for later safe PacketTunnel dual-stack QA; no system VPN activation or user data writes."
+definition_of_done:
+  - "Use signed app-hosted physical-only XCTest after confirming APL NE status OFF."
+  - "Verify IPv4-only and IPv6-only HTTPS reachability and public IP address family, without logging IP."
+  - "Skip/unavailable status truthful when device upstream lacks native IPv6; do not call it a VPN defect."
+  - "Ensure no profiles or Keychain are mutated; simulator skip and complete local regressions PASS."
+  - "Complete checkpoint and attach follow-on controlled VPN dual-stack plan."
+completed:
+  - "12.11.2026 22:31 MSK physical iPhone signed read-only XCTest: api6.ipify.org IPv6 PASS; api4.ipify.org unexpectedly returned IPv6 (only family+length logged); independent ipv4.icanhazip.com returned IPv4 PASS, both tests PASS."
+  - "After device tests, App Group profiles.v1 exact bytes and selected ID match original post-upgrade snapshot."
+  - "Full Python323/323+1513 subtests and Swift226/226 local regression PASS."
+  - "Simulator CI safety suite: 2 skipped and 0 failures, TEST SUCCEEDED."
+  - "Main APL signed Debug 0.3.0 real PacketTunnel egress 2/2 PASS with OFF recovery and 20/25s guards in parent stage."
+current: "Completed signed physical read-only IPv4/IPv6 baseline while APL VPN OFF. IPv6 api6 PASS, api4 returned atypical IPv6, independent ipv4.icanhazip.com IPv4 PASS; no settings changed. Simulator 2 skipped, 0 failures. Full Python323+1513 Swift226 PASS."
+pending: []
+last_verified_commit: "c7e1f9570298524cf2fde46723bcf2aba346886f (signed physical iPhone13 direct IPv4 fallback and IPv6 PASS, no VPN activation, original profiles preserved, simulator 2 skipped/0 failed, Python323+1513 Swift226 PASS)"
+test_results:
+  - "Physical IPv6 native HTTPS family PASS (0.595s) and IPv4 fallback HTTPS family PASS (0.911s). api4 endpoint unexpectedly returned IPv6 instead of IPv4, logged family and length only."
+  - "Original profiles and selected ID exact bytes unchanged after test, APL VPN stayed OFF."
+  - "Full Python323+1513 and Swift226 PASS. Simulator iOS hardware tests 2 skipped, 0 failed, TEST SUCCEEDED."
+resume_instruction: "Completed IPv4/IPv6 direct baseline on physical iPhone13 while APL OFF: IPv6 api6 PASS, api4 unexpected IPv6, ipv4.icanhazip.com fallback IPv4 PASS; 2 physical PASS, 2 simulator XCTSkip, 0 failures, Python323+1513 Swift226 PASS. User profile metadata byte-identical. Continue parent APL iOS 0.3.0 checklist with safe bounded active PacketTunnel IPv4/IPv6, DNS/UDP, Wi-Fi/LTE, native transports, CloudKit. Do not infer IPv6 through VPN from direct baseline."
