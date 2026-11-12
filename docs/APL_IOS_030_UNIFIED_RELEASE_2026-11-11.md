@@ -12,7 +12,7 @@
 | Сохранённые подписки с ручным обновлением | **В main после PR #356:** URL/token в Keychain, список названий/доменов, ручная загрузка и удаление | Проверить Keychain на подписанном iPhone и отсутствие автоматической замены профилей; автоматическое фоновое обновление, разрешения и signed-provider trust остаются отдельно не реализованы |
 | iCloud/CloudKit исключений | Snapshot/diff в main; отдельный **CloudKit private DB backend и UI готовы в source**, но экран скрыт `APL_CLOUDKIT_ENABLED`, entitlement отсутствует | Реальный private container, entitlement/provisioning, opt-in, conflict/merge, несколько устройств, privacy label |
 | VLESS/Reality | Транспорт **НЕ реализован**; source-only строгая проверка REALITY/TCP ссылок и CGo API v3 contract, libXray v26.11.9 прошёл изолированный ARM64 Simulator conversion/start-stop/SOCKS-local receipt. [Исследование](APL_IOS_030_XRAY_RESEARCH_2026-11-11.md) | Выбор независимого iOS PacketTunnel transport, исходники/лицензия, пин версии и SBOM, IPv4/IPv6/DNS, egress/rollback, реальный сервер |
-| WireGuard/AmneziaWG | **НЕ реализовано** | Совместимый iOS backend, ключи в Keychain, UDP/handshake/failover, независимый физический egress, лицензирование |
+| WireGuard/AmneziaWG | **Не работающий транспорт:** готов только fail-closed wg-quick/AmneziaWG1 предпросмотр (ключи не сохраняет), без UI и VPN-бэкенда; [гейты](APL_IOS_030_WIREGUARD_RESEARCH_2026-11-12.md) | Совместимый iOS backend, ключи в Keychain, UDP/handshake/failover, независимый физический egress, лицензирование |
 | Smart Routing 4.0 | DEBUG witness/TTL готовы; production DIRECT gate **открыт** | Связать original captured PacketTunnel flow с независимыми DIRECT/PROXY nonce, shared CDN IPv4/IPv6, QUIC, network revoke |
 | Native FIN/CLOSE_WAIT PR #314 | Draft, запрещено включать без теста | Реальный iPhone FIN, длительные Safari upload/download, переключение Wi-Fi/LTE, отсутствие обрывов |
 
@@ -53,3 +53,10 @@
 - [x] libXray v26.11.9 Apple cgo с официальным SHA-256 проверен отдельно от репозитория; симулятор запустил C API v3, преобразовал VLESS/Reality, запустил и остановил локальный SOCKS, выдал синтетический HTTP receipt; в production PacketTunnel runtime не подключён.
 - [x] `VLESSRealityShareLink`: fail-closed валидатор REALITY/TCP, исходный URL не логируется и не записывается, Xray native v3 request формируется только после проверки; текущие HTTP/SOCKS профили и `ProxyType` не изменены.
 - [ ] Физическая CloudKit двухустройственная приёмка, entitlement и включение UI; безопасная интеграция Xray/WireGuard транспорта; iPhone Keychain upgrade и egress; один подписанный релиз после gates.
+
+## Progress / 12.11
+
+- [x] PR #358 VLESS/REALITY source-only валидатор: exact-head GitHub CI 17/17, MERGED в `main` (`4640348f`), локальный Mac mini / GitHub / GitVerse в одинаковом SHA.
+- [x] WireGuard / AmneziaWG1: безопасная синтаксическая проверка `.conf`, без загрузки секретов в хранилище, без добавления продукционного `ProxyType` или PacketTunnel engine. 7/7 Swift parser тестов и 3/3 source gates пройдены.
+- [x] Ветка WireGuard: full Swift 220/220 PASS, Python 298 + 1513 subtests PASS; iOS Simulator Debug и iPhoneOS Release unsigned ARM64 App+PacketTunnel BUILD PASS.
+- [ ] Предстоит настоящая реализация Xray/VLESS/REALITY, WireGuard/AmneziaWG native и iCloud entitlements/физические тесты. Одна публикация 0.3.0 по завершении всех гейтов.
