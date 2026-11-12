@@ -1,0 +1,27 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-XRAY-NATIVE-LINK-LAB-20261112
+status: in_progress
+goal: "Verify native libXray plus Rust tun2proxy coexistence in isolated iOS PacketTunnel build without touching production routing or user VPN."
+definition_of_done:
+  - "Build native debug simulator and iphoneos PacketTunnel with both libraries."
+  - "Verify CGoInvoke and Rust tun2proxy symbols in compiled binaries."
+  - "Validate actual captured PacketTunnel->localhost SOCKS->VLESS external egress with physical iPhone and fail-closed teardown."
+completed:
+  - "Resolved two-XCFramework duplicate module.modulemap output using manual Xray static link and module map."
+  - "Unsigned iOS Simulator ARM64 Debug App+PacketTunnel BUILD PASS."
+  - "Unsigned iPhoneOS ARM64 Debug App+PacketTunnel BUILD PASS."
+  - "nm on both debug dylibs: _APL_Xray_Lab_Version_Attestation, _CGoInvoke, _tun2proxy_stop all present."
+current: "R&D source linked and compiled for both architectures; no runtime PacketTunnel integration or external egress test yet."
+pending:
+  - "Implement DEBUG-only native Xray start-stop health management and hook to PacketTunnel captured-flow test."
+  - "Physical signed isolated iPhone QA: independent external server receipt, IPv4/IPv6, DNS and path changes, memory and teardown."
+  - "Review pinned libXray and transitive licenses/SBOM; never ship R&D prebuilt lib without approved provenance."
+last_verified_commit: "879056b12e7ddbc50810e1a85b7ce4652037ac33 (local research branch, no production merge); canonical main ce211faa3b13deb30126a71e782d4e252da7e9f6"
+test_results:
+  - "Unsigned iOS Simulator Debug arm64 App+PacketTunnel build PASS"
+  - "Unsigned iPhoneOS Debug arm64 App+PacketTunnel build PASS"
+  - "Both debug .dylib symbols confirmed; debug dylib ~43MB"
+  - "Separate pinned libXray iOS Simulator synthetic builtin wireguard outbound testXray/run/state(true)/stop/state(false) PASS, loopback peer 127.0.0.1:39873 only."
+  - "No app signing, Apple upload, live user VPN, physical egress or network-test modifications"
+resume_instruction: "Resume research/ios-030-xray-native-link-20261112 in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-030-xray-packet-tunnel-lab-20261112. Keep native libXray symlinked research-only and do not merge production. Build a DEBUG-only captured-flow forwarding test with bounded stop/rollback, obtain actual iPhone independent DIRECT/PROXY witness before release. Do not mix WireGuard-Go and Xray Go runtime without an isolation strategy."

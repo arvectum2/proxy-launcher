@@ -59,4 +59,6 @@
 - [x] PR #358 VLESS/REALITY source-only валидатор: exact-head GitHub CI 17/17, MERGED в `main` (`4640348f`), локальный Mac mini / GitHub / GitVerse в одинаковом SHA.
 - [x] WireGuard / AmneziaWG1: безопасная синтаксическая проверка `.conf`, без загрузки секретов в хранилище, без добавления продукционного `ProxyType` или PacketTunnel engine. 7/7 Swift parser тестов и 3/3 source gates пройдены.
 - [x] Ветка WireGuard: full Swift 220/220 PASS, Python 298 + 1513 subtests PASS; iOS Simulator Debug и iPhoneOS Release unsigned ARM64 App+PacketTunnel BUILD PASS.
-- [ ] Предстоит настоящая реализация Xray/VLESS/REALITY, WireGuard/AmneziaWG native и iCloud entitlements/физические тесты. Одна публикация 0.3.0 по завершении всех гейтов.
+- [x] PR #359 `ce211faa` MERGED exact-head 17/17 CI, репозитории Mac mini / GitHub / GitVerse совпали.
+- [x] Проверена [техническая гипотеза единого Xray-бэкенда](APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md): нативное совместное Rust+libXray линкование App+PacketTunnel unsigned Simulator/iPhoneOS ARM64 PASS; built-in стандартный WG outbound в libXray Simulator synthetic config/start/stop PASS.
+- [ ] Предстоит настоящая реализация Xray/VLESS/REALITY и WireGuard/AmneziaWG native, внешний PacketTunnel egress и iCloud entitlements/физические тесты. AmneziaWG требует отдельной проверки. Одна публикация 0.3.0 после всех гейтов.
