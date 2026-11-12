@@ -85,3 +85,9 @@
 - [x] После разрешённого in-place QA обновления 0.2.0→Debug 0.3.0(49) отдельный подписанный unit-test на физическом iPhone13 подтвердил 3/3 доступных непустых Keychain-пароля. Отсутствуют сетевые операции и раскрытие секретов.
 - [x] Повторно сравнили App Group prefs: список трёх профилей и выбранный ID идентичны оригинальному post-install снимку.
 - [ ] Реальный authenticated proxy egress, DNS, IPv4/IPv6/UDP, облачный opt-in и native VLESS/WG/AmneziaWG приёмка — ещё не выполнены.
+
+## Physical PacketTunnel HTTPS egress, 12.11.2026
+
+- [x] Signed Debug physical iPhone13 real VPN/TUN Connected and two independent HTTPS public IP egress services both changed 2/2; after explicit OFF both restored 2/2, physical XCTest PASS 5.104s.
+- [x] App 20s plus PacketTunnel 25s independent QA stop; post-test separate signed read-only NetworkExtension OFF PASS and App Group profiles.v1 and selected UUID identical.
+- [ ] DNS leak, UDP/QUIC, IPv4/IPv6, Wi-Fi/LTE fail-closed, native VLESS/WireGuard/AmneziaWG, CloudKit entitlement/multi-device and full encrypted standalone backup not yet accepted.

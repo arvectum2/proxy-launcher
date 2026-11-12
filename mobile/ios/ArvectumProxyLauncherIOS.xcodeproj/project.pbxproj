@@ -132,6 +132,7 @@
 		ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		B081B4BCD93A1355A3196AB3 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
 		B09DEE3E4DE2E93BEBF5643B /* ProxySubscriptionImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */; };
+		B122435BD86D05E0E9111E52 /* PhysicalVPNEgressHostTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBB1FC6F3E7A137B67CF8C60 /* PhysicalVPNEgressHostTests.swift */; };
 		B1A715AE3556791C4B2DA777 /* AppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */; };
 		B1D7B44615D3AB41BE224713 /* TunnelEngineHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */; };
 		B342A5FAE6B711747B11504E /* ProfileBackupRestorePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71068BC47835E696E79292 /* ProfileBackupRestorePlan.swift */; };
@@ -159,6 +160,7 @@
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		E627D33A92721C450DDA60AF /* ProfileMutationUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5841F41F9695CA0001F8E7 /* ProfileMutationUX.swift */; };
+		E8217FCEB46479115FD40A79 /* PhysicalVPNStatusReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE3F7AA041237A5DEC656C /* PhysicalVPNStatusReadOnlyTests.swift */; };
 		E9651195C0A21232CC9C46F0 /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
 		EB3E854F8B41C274AC4F7CC8 /* ProxyShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614206BB28D1E243936A3475 /* ProxyShareView.swift */; };
 		EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */; };
@@ -384,6 +386,7 @@
 		649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherApp.swift; sourceTree = "<group>"; };
 		64D94A97EECC1E91B23EB459 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		65A458634CC82FD5D21ACC90 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
+		65DE3F7AA041237A5DEC656C /* PhysicalVPNStatusReadOnlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNStatusReadOnlyTests.swift; sourceTree = "<group>"; };
 		65EFC16677193092DC928E7E /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		6652E446616A6E8C2C75AE86 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		66F32F462A5279E126D44D16 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -626,6 +629,7 @@
 		EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFlowEventCollector.swift; sourceTree = "<group>"; };
 		EB2FAF44FD51DBD2778B69A0 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		EB4BD1E88767A4DFC13ACE41 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/ProxyImport.strings; sourceTree = "<group>"; };
+		EBB1FC6F3E7A137B67CF8C60 /* PhysicalVPNEgressHostTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNEgressHostTests.swift; sourceTree = "<group>"; };
 		ECD24223C3044B4C0F33BC36 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		ED06A97B13E9981968F60FE3 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		ED9A0A9D12DC4FD6895628A1 /* ProfilesScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesScreenView.swift; sourceTree = "<group>"; };
@@ -708,6 +712,8 @@
 				36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */,
 				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
 				5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */,
+				EBB1FC6F3E7A137B67CF8C60 /* PhysicalVPNEgressHostTests.swift */,
+				65DE3F7AA041237A5DEC656C /* PhysicalVPNStatusReadOnlyTests.swift */,
 			);
 			name = DeviceKeychainTests;
 			path = Tests/DeviceKeychainTests;
@@ -1225,6 +1231,8 @@
 				10790F05833FF56EDD0111D7 /* PhysicalHTTPSReceiptReadOnlyTests.swift in Sources */,
 				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
 				E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */,
+				B122435BD86D05E0E9111E52 /* PhysicalVPNEgressHostTests.swift in Sources */,
+				E8217FCEB46479115FD40A79 /* PhysicalVPNStatusReadOnlyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

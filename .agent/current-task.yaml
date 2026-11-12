@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026 21:52 MSK: physical signed Debug APL0.3.0 iPhone13 NetworkExtension PacketTunnel active QA PASS after fixing asynchronous start transition: VPN Connected, two independent HTTPS public egress origins changed 2/2, explicit disconnect, both direct origins restored 2/2 in 5.104s. Independent posttest NE VPN OFF PASS, existing 3 profiles and selected UUID byte-identical. 20s app / 25s extension safety guards."
   - "12.11.2026 ~21:29 MSK: physical iPhone13 signed Debug APL0.3.0(49) per-session iOS Network.ProxyConfiguration authenticated HTTPS echo nonce response 3/3 with distinct external origin from direct baseline, allowFailover false. No system VPN. profiles.v1 and selected UUID byte-identical after. Simulator skip PASS; Python318+1513 Swift226 PASS."
   - "12.11.2026 21:16 MSK: original production ProxyProbe inside signed Debug APL0.3.0(49) on physical iPhone13 completed authenticated HTTP(S)/SOCKS5 CONNECT for all 3/3 saved Keychain profiles in 0.534s without enabling system VPN. App Group profiles.v1 and selected UUID exact bytes unchanged after test; no secrets or hostnames logged."
   - "12.11.2026 19:57 MSK: user-authorized signed host-app Xcode XCTest on physical iPhone13 read all three nonempty authenticated proxy Keychain records via ProfileStore.password(for:) without logging contents; PASS 0.004s. Post-test App Group profiles.v1 bytes and selected UUID unchanged. Separate QA simulator scheme XCTSkip PASS, Python314+1513 Swift226 PASS."
@@ -62,19 +63,23 @@ completed:
 
 
 
-current: "Physical iPhone13 Debug APL0.3.0(49): three profiles, three Keychain passwords, three CONNECT handshakes and 3/3 nonce-confirmed external HTTPS egress responses through temporary authenticated URLSession ProxyConfiguration, all PASS. Each proxy egress differs from direct iPhone baseline. System PacketTunnel/VPN routing was NOT activated or tested; CloudKit, native VLESS/WG/AWG, encrypted .aplbackup, App Store release still open."
+current: "iOS 0.3.0 physical signed Debug iPhone13: original three profiles, Keychain 3/3, CONNECT 3/3, per-session HTTPS external nonce 3/3 and real PacketTunnel/TUN HTTPS origin change/restoration 2/2 PASS. System VPN independently returned OFF and profile data unchanged. Stage completed; still open: DNS leakage, IPv4/IPv6/UDP/QUIC, Wi-Fi/LTE roaming and fail-closed, native Xray VLESS/WG/AWG, CloudKit, encrypted .aplbackup and App Store 0.3.0."
 blocked_on:
-  - "Full system PacketTunnel DNS, IPv4/IPv6, UDP, path switching, fail-closed and user VPN restore QA not performed; per-session HTTPS witness is NOT system VPN acceptance."
-  - "No separate owner-controlled encrypted app .aplbackup; prior iCloud Backup and protected App Group metadata are not complete Keychain export. Never uninstall or destructively roll back."
-  - "Native Xray VLESS/standard WireGuard, AWG backend, pinned Go licensing/reproducibility and CloudKit private container/two-device opt-in still gated."
+  - "DNS leak, IPv4/IPv6, UDP/QUIC and Wi-Fi/LTE path transition with fail-closed need separate controlled physical QA."
+  - "Signed production native Xray VLESS/standard WireGuard + AmneziaWG backend, pinned Go dependency licensing and reproducible source builds not complete."
+  - "CloudKit private iCloud entitlement, privacy copy, 2-device opt-in and conflict handling incomplete."
+  - "Standalone encrypted .aplbackup not available; iCloud Backup and protected App Group metadata are not complete Keychain export. Avoid uninstall or destructive rollback."
 pending:
-  - "Merge dependent physical CONNECT QA PR #369 and HTTPS nonce QA PR after exact-head GitHub CI, sync Mac mini main/GitHub/GitVerse."
-  - "Plan and perform controlled system PacketTunnel active VPN QA with safe profile and verified rollback, with measured DNS/IPv4/IPv6/UDP and fail-closed path."
-  - "Finish native VLESS/standard WireGuard captive TUN external nonce and source/license provenance, separate AWG backend."
-  - "Complete encrypted standalone profile backup and CloudKit private opt-in two-device tests."
-  - "One signed public App Store 0.3.0 release only after all gates and explicit approval; other platforms paused."
-last_verified_commit: "c45016bb669cb5fb01d51c84635b7adc5dff3b22 (base physical CONNECT QA; new 3/3 HTTPS witness source pending commit; previous local/GitHub/GitVerse main 953c597cc9ef0587ef269d20f6c1b3ff3c7af249)"
+  - "Merge physical bounded PacketTunnel QA source PR after exact-head CI; synchronize Mac mini, GitHub and GitVerse main."
+  - "Design and perform controlled DNS leak IPv4/IPv6, UDP/QUIC, network transitions and fail-closed physical tests without modifying owner profiles."
+  - "Complete isolated native Xray/WireGuard external nonce/handshake and production integration only after licensing/reproducibility."
+  - "CloudKit private 2-device entitlement/opt-in and secure standalone encrypted backup acceptance."
+  - "One public iOS 0.3.0 App Store release only after all gates and explicit publication approval; desktop platforms remain paused."
+last_verified_commit: "439c70c00e086c5fc0503aaacb146483eaacd0da (base HTTPS receipt physical QA; new native system VPN evidence source test PASS pending QA commit; Mac mini/GitHub/GitVerse main 568477f2d9cec6811dc3f4e7db1cb18f0e77f9fd)"
 test_results:
+  - "Physical signed iPhone13 APL Debug0.3.0(49) real PacketTunnel/TUN external HTTPS egress changed 2 independent IP witnesses 2/2; after explicit OFF both restored 2/2. XCTest PASS 5.104s with separate app20s extension25s stop guards."
+  - "Independent signed read-only NetworkExtension OFF PASS 0.008s posttest; protected App Group profiles.v1 and selected UUID byte-identical to post-upgrade snapshot; no secret/IP logs."
+  - "First QA attempt failed only because XCTests misread immediate disconnected state; wait transition fixed and retested PASS. CI simulator explicit VPN QA 1 skipped/0 failed; Python321+1513 subtests and Swift226 PASS."
   - "12.11 physical iPhone13 per-session signed APL0.3.0 HTTPS echo (httpbingo.org) 3/3 unique synthetic nonce returned, HTTP200 and distinct remote egress IP from direct baseline, using explicit Network.ProxyConfiguration.allowFailover false; XCTest PASS 3.435s. No VPN changes or raw IP/host/secret logs."
   - "Post-HTTPS Xcode CoreDevice App Group profiles.v1 and selected UUID byte-exact unchanged. Physical-only simulator 1 skipped/0 failed TEST SUCCEEDED. Python318/318 +1513 subtests and Swift226/226 PASS."
   - "12.11 physical iPhone13 production ProxyProbe HTTP(S)/SOCKS5 CONNECT 3/3 PASS in 0.534s, signed APL0.3.0(49), no VPN. App Group profiles.v1 and selected UUID byte-identical after, no identifying data or secrets printed."
@@ -110,4 +115,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS 0.3.0 only. User iPhone13 signed Debug APL0.3.0(49) installed in place, original three profiles and Keychain available. Full per-session Apple Network.ProxyConfiguration authenticated HTTPS external witness on httpbingo.org: 3/3 correct nonce, HTTP200, proxy egress distinct from direct baseline, allowFailover false, XCTest PASS 3.435s. System VPN PacketTunnel was NOT engaged, so next stage is controlled VPN/TUN/DNS/IPv4/IPv6/UDP/fail-closed test with safe restore; VLESS/WG/Amnezia, CloudKit, encrypted backup and App Store remain gated. Worktree qa/ios-030-https-egress-20261112 source in progress, simulator skip PASS, Python318+1513 and Swift226 PASS; commit PR and merge after exact-head CI; predecessor #369 still subject to macOS runner capacity. Never uninstall/reset or expose proxy credentials."
+resume_instruction: "iOS 0.3.0 only. On physical iPhone13 signed Debug0.3.0(49), original profiles Keychain, authenticated proxy CONNECT3/3, external nonce HTTPS3/3 and actual PacketTunnel HTTPS egress change+restore 2/2 all PASS. PacketTunnel active QA source in qa/ios-030-physical-vpn-egress-20261112, with 20s app+25s extension stop, tested 5.104s, posttest independent OFF and metadata unchanged. Python321+1513 Swift226 and sim skip PASS. First UI automation preflight timed out; signed unit preflight worked. Next commit PR and merge after exact-head CI; canonical main last 568477f2d9cec6811dc3f4e7db1cb18f0e77f9fd. Then DNS/IPv4/IPv6/UDP/roaming/fail-closed, native Xray/WG, CloudKit and backup. Never uninstall; do not publish App Store until acceptance."
