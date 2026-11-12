@@ -1,0 +1,28 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-INPLACE-UPGRADE-QA-20261112
+status: completed
+goal: "Verify safe in-place developer-signed iOS 0.2.0 to 0.3.0 migration on physical iPhone."
+definition_of_done:
+  - "No uninstall, reset, VPN switch or profile mutation."
+  - "Signed Debug iOS 0.3.0(49) installed and launched."
+  - "Three existing profiles and selected UUID preserved, confirmed via UI and App Group snapshots."
+  - "RU/EN/RU theme localization verified on physical device."
+  - "Physical-only XCTest skipped on CI simulators, full source regression green."
+completed:
+  - "Xcode CoreDevice installed and launched signed Debug APL 0.3.0(49) in-place, exit0."
+  - "Exactly three unique existing profile IDs and selected UUID survived."
+  - "Physical read-only XCTest profile library and Settings 0.3.0 PASS 14.077s."
+  - "Physical XCTest RU to EN to RU live theme labels PASS 27.006s."
+  - "App Group profiles.v1 bytes and selected UUID identical after both physical tests."
+  - "Simulator hardware-only XCTest skipped, zero failures, TEST SUCCEEDED."
+  - "Python312 +1513 subtests and Swift226/226 PASS."
+current: "In-place migration UI and metadata QA complete; production release gate remains open."
+pending: []
+last_verified_commit: "de739581091b2414236839e29df70c362ff1f22d (physical QA source)"
+test_results:
+  - "2/2 targeted physical iPhone XCUITests PASS."
+  - "3 existing profiles and selected ID preserved exactly, twice checked."
+  - "Python312+1513, Swift226, simulator skip PASS."
+  - "No Keychain secret access or real VPN packet egress claimed."
+resume_instruction: "Continue parent .agent/current-task.yaml: verify read-only Keychain credential accessibility and safe proxy egress, then native VLESS/WG and CloudKit gates. Signed Debug 0.3.0(49) is already installed. Do not uninstall or publish; no separate .aplbackup exists."
