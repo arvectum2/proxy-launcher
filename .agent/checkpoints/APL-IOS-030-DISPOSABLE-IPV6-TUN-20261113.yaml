@@ -20,7 +20,7 @@ completed:
   - "Existing Debug PacketTunnel QA option selects temporary HTTP proxy host 192.168.1.80 port18081 only under 5..30-second qaStopAfterSeconds and does not save owner profile."
 current: "COMPLETED real native IPv6 PacketTunnel with public literal destination, TLS SNI and allowlisted disposable IPv6-capable upstream. Also IPv6-only HTTPS domain PASS, exact proxy origin and OFF restoration. User profiles preserved. This is capability lab proof; three commercial proxies still 0/3 IPv6-only destinations."
 pending: []
-last_verified_commit: "4023e6b452d44671a6992ff1872609bad4d02cbd (base PR #375 verified physical IPv6 upstream restriction)"
+last_verified_commit: "f5202685a3490099f2679772f7db5a09a9349f6f (physical iPhone13 native IPv6 packet TUN TLS-SNI HTTP200 PASS, IPv6-only domain egress PASS, both 20/25s guarded; independent OFF/profile-byte-preservation; signed Debug, unsigned Release, Python340+1513 Swift226 and simulator 2 XCTSkip PASS)"
 test_results:
   - "Real signed iPhone13 disposable IPv6-only HTTPS tunnel egress 2.181s PASS; native original IPv6 literal TUN TLS/SNI HTTP200 2.203s PASS; both 20s/25s bounded."
   - "Independent signed OFF PASS after tests and original three profile bytes/selected UUID exact match. Lab proxy stopped and port18081 closed."

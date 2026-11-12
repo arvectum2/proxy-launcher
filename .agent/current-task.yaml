@@ -81,7 +81,7 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "30ee3b182a615711d8c8e79f8f473d1d2f3db9a0 (signed physical iPhone13 direct alternate IPv6-only endpoints 2/2, saved proxy 0/3 each; independent OFF and profile bytes stable; Python335+1513, Swift226 and simulator physical skip PASS; PR CI pending)"
+last_verified_commit: "f5202685a3490099f2679772f7db5a09a9349f6f (physical iPhone13 native IPv6 packet TUN TLS-SNI HTTP200 PASS, IPv6-only domain egress PASS, both 20/25s guarded; independent OFF/profile-byte-preservation; signed Debug, unsigned Release, Python340+1513 Swift226 and simulator 2 XCTSkip PASS)"
 test_results:
   - "Physical signed Debug0.3.0 iPhone13 disposable strict IPv6-only HTTPS via PacketTunnel PASS 2.181s, same IPv6 source as local proxy, restored original direct IP."
   - "Physical signed Debug0.3.0 native NUMERIC IPv6 packet TLS/SNI one.one.one.one through PacketTunnel HTTP200 PASS 2.203s and server allowed numeric IPv6 CONNECT observed."
