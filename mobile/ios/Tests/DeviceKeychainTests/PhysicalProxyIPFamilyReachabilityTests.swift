@@ -12,10 +12,10 @@ final class PhysicalProxyIPFamilyReachabilityTests: XCTestCase {
 
     @available(iOS 17.0, *)
     private func requestFamily(
-        _ source: ProxyConfiguration, address: String, family: Int32
+        _ source: ProxyConfiguration?, address: String, family: Int32
     ) async throws -> Bool {
         let config = URLSessionConfiguration.ephemeral
-        config.proxyConfigurations = [source]
+        if let source { config.proxyConfigurations = [source] }
         config.timeoutIntervalForRequest = 5
         config.timeoutIntervalForResource = 8
         config.waitsForConnectivity = false
@@ -116,4 +116,71 @@ final class PhysicalProxyIPFamilyReachabilityTests: XCTestCase {
         // may block the echo hosts. Report the counts, not a false product failure.
 #endif
     }
+
+    /// IPv6-only endpoints other than api6.ipify.org. First prove each public
+    /// endpoint reachable directly, then check upstream reachability through
+    /// each existing authenticated proxy, without activating system VPN.
+    func testAlternateIPv6OnlyEndpointsAcrossExistingProxiesReadOnly() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical owner iPhone Keychain and network required")
+#else
+        guard #available(iOS 17.0, *) else { throw XCTSkip("ProxyConfiguration iOS17+") }
+        let managers: [NETunnelProviderManager] = try await withCheckedThrowingContinuation {
+            (cont: CheckedContinuation<[NETunnelProviderManager], Error>) in
+            NETunnelProviderManager.loadAllFromPreferences { list, error in
+                if let error { cont.resume(throwing: error) }
+                else { cont.resume(returning: list ?? []) }
+            }
+        }
+        for manager in managers {
+            guard (manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier
+                == "ru.arvectum.proxylauncher.ios.PacketTunnel" else { continue }
+            guard manager.connection.status == .disconnected ||
+                  manager.connection.status == .invalid else {
+                throw XCTSkip("Owner APL VPN not OFF; abort read-only upstream QA")
+            }
+        }
+        let endpoints = ["https://v6.ident.me", "https://ipv6.icanhazip.com"]
+        var directAvailable = [Bool]()
+        for endpoint in endpoints {
+            let valid = (try? await requestFamily(nil, address: endpoint, family: AF_INET6)) == true
+            directAvailable.append(valid)
+        }
+        print("APL_IPV6_ALTERNATES_DIRECT_ENDPOINT1_\(directAvailable[0])_ENDPOINT2_\(directAvailable[1])")
+        guard directAvailable.contains(true) else {
+            throw XCTSkip("Neither alternate public IPv6-only endpoint works directly on owner iPhone")
+        }
+        let store = try ProfileStore()
+        let profiles = store.listProfiles()
+        XCTAssertEqual(profiles.count, 3, "Three original stored profiles expected")
+        let probe = ProxyProbe()
+        var success = [0, 0]
+        for (index, profile) in profiles.enumerated() {
+            guard let user = profile.username, !user.isEmpty,
+                  let pass = try store.password(for: profile.id), !pass.isEmpty else {
+                XCTFail("Saved Keychain credentials missing at anonymous profile index \(index + 1)")
+                continue
+            }
+            var results = [false, false]
+            do {
+                let resolved = try await probe.resolveMeasured(profile, password: pass).profile
+                let config = try proxyConfig(resolved, username: user, password: pass)
+                for target in endpoints.indices where directAvailable[target] {
+                    results[target] = (try? await requestFamily(
+                        config, address: endpoints[target], family: AF_INET6
+                    )) == true
+                    if results[target] { success[target] += 1 }
+                }
+            } catch {
+                // Never print error: it may include the remote proxy endpoint.
+            }
+            print("APL_IPV6_ALTERNATES_PROXY_INDEX_\(index + 1)_ENDPOINT1_\(results[0])_ENDPOINT2_\(results[1])")
+        }
+        print("APL_IPV6_ALTERNATES_UPSTREAM_ENDPOINT1_\(success[0])_OF_\(profiles.count)")
+        print("APL_IPV6_ALTERNATES_UPSTREAM_ENDPOINT2_\(success[1])_OF_\(profiles.count)")
+        // This intentionally does not assert provider success: the purpose is
+        // to classify external upstream reachability, not claim app breakage.
+#endif
+    }
+
 }

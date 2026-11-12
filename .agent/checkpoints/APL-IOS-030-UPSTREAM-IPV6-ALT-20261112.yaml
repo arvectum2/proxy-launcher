@@ -1,0 +1,25 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-UPSTREAM-IPV6-ALT-20261112
+status: completed
+goal: "Read-only signed iPhone13 diagnosis of two alternate IPv6-only HTTPS echo destinations through each of the three owner-existing authenticated proxies without system VPN."
+definition_of_done:
+  - "Confirm both public endpoints have AAAA and no A records at research time."
+  - "Apple ProxyConfiguration ephemeral HTTPS requests per existing profile, allowFailover false, Keychain read-only and APL NE OFF preflight."
+  - "Record only anonymous success counts and address family; no proxy host, IP, UUID, tokens or passwords."
+  - "No system VPN start or profile data change, post-test byte-identity proof."
+  - "Simulator skip, Python/Swift checks, checkpoint and accurate recommendation for IPv6 PacketTunnel acceptance."
+completed:
+  - "Physical signed iPhone13 23:37 MSK: direct IPv6-only v6.ident.me and ipv6.icanhazip.com HTTPS both PASS; each authenticated proxy 0/3 to both (no direct failover)."
+  - "Independent signed NetworkExtension OFF PASS and original 3 saved profile bytes and selected UUID byte-identical after test."
+  - "Full Python335+1513 subtests and Swift226 PASS; simulator hardware-only QA 1 skipped/0 failed PASS."
+  - "Mac mini DNS confirmed v6.ident.me and ipv6.icanhazip.com have 0 A and >=1 AAAA answers."
+current: "COMPLETED read-only IPv6 upstream reachability: both alternative IPv6-only public HTTPS sites direct PASS, but existing three saved proxies 0/3 each; signed OFF and profiles unchanged. Cannot accept end-to-end IPv6 PacketTunnel without proven IPv6-capable test upstream."
+pending: []
+last_verified_commit: "30ee3b182a615711d8c8e79f8f473d1d2f3db9a0 (signed physical iPhone13 direct alternate IPv6-only endpoints 2/2, saved proxy 0/3 each; independent OFF and profile bytes stable; Python335+1513, Swift226 and simulator physical skip PASS; PR CI pending)"
+test_results:
+  - "Signed physical iPhone13 alternate v6.ident.me and ipv6.icanhazip.com direct true/true, original saved proxy upstream per endpoint 0/3 and 0/3, 3.919s XCTest PASS."
+  - "Independent signed OFF and protected App Group profiles.v1/selected ID exact bytes preserved."
+  - "Python335+1513 Swift226 PASS, simulator hardware test XCTSkip1/0 failures PASS."
+  - "Previous api6.ipify.org via 3/3 saved proxies failed; no conclusion about alternative IPv6-only endpoints."
+resume_instruction: "COMPLETED upstream IPv6 evidence: physical signed iPhone13 direct v6.ident.me and ipv6.icanhazip.com both valid IPv6 HTTPS, all 3 saved proxies fail both (0/3 each); previous api6.ipify.org 0/3 too. No system VPN engaged; signed OFF and profile bytes exact same after. Python335+1513 Swift226 simulator skip PASS. Parent dual-stack stage remains BLOCKED on IPv6-capable upstream and IPv4 intermittent repeatability, no proven IPv6 transport defect. Before attempting active PacketTunnel IPv6 QA obtain or provision disposable proxy confirmed to reach AAAA-only public HTTPS, without altering original user profiles. No App Store."

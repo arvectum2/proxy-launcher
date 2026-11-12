@@ -11,6 +11,7 @@ definition_of_done:
   - "Independently confirm OFF and App Group profile bytes unchanged after active test."
   - "Full source regressions and simulator skip, documented pass/fail or objective environment blocker."
 completed:
+  - "23:37 read-only signed iPhone13: two additional independent IPv6-only HTTPS endpoints direct PASS, but through each of 3 original authenticated proxies 0/3 each. No compatible IPv6 test upstream confirmed."
   - "23:29 subsequent physical signed QA native CONNECT trace: three independent IPv4-only HTTPS over PacketTunnel HTTP200 PASS with code0, no native codes1-4; older -1001 failure now classified intermittent, not permanently fixed."
   - "23:13 signed physical iPhone13 DNS snapshot PASS: expected fake 198.18/15 A for IPv4-only and dual hostname inside active VPN, XCTest 2.004s."
   - "Numerical IPv4 Cloudflare HTTPS through PacketTunnel changed egress PASS; IPv4-only hostname HTTPS still timed out -1001."
