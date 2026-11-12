@@ -203,6 +203,23 @@ enum AppL10n {
         return systemLanguage
     }
 
+    /// Use an explicit selected language for controls whose identity is
+    /// updated in the same SwiftUI frame as @AppStorage. Do not re-read a
+    /// potentially cached UserDefaults/launch-argument locale.
+    static func tr(_ key: String, language: String) -> String {
+        let code = language == "system" ? systemLanguage : language
+        let missing = "__APL_030_MISSING_EXPLICIT_LANGUAGE__"
+        for name in [code, "en"] {
+            guard let path = Bundle.main.path(forResource: name, ofType: "lproj"),
+                  let bundle = Bundle(path: path) else { continue }
+            for table in ["Localizable", "ProfileManagement"] {
+                let value = bundle.localizedString(forKey: key, value: missing, table: table)
+                if value != missing { return value }
+            }
+        }
+        return key
+    }
+
     /// Feature-specific localization tables avoid ambiguous common keys.
     /// For example, import's «Проверить» means Preview, while the primary
     /// profile action «Проверить» means Check.
