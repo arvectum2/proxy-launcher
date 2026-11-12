@@ -1,0 +1,29 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-DISPOSABLE-IPV6-TUN-20261113
+status: completed
+goal: "Obtain physical IPv6-destination acceptance evidence with a temporary strictly allowlisted Mac mini IPv6-capable HTTP CONNECT upstream, without editing owner iPhone profiles or changing production routing."
+definition_of_done:
+  - "Use disposable localhost/LAN-only restricted proxy 192.168.1.80:18081 port443; whitelisted public QA destination(s), finite lifetime, no traffic/credential logging."
+  - "Preflight Mac mini native IPv6 egress and signed iPhone direct and per-session disposable proxy IPv6-only HTTPS witness; fail closed before any VPN activation if unavailable."
+  - "Activate real iPhone PacketTunnel ONLY with original Debug QA disposable-upstream option, host 20s/extension25s independent safety stop."
+  - "Verify HTTPS 200, IPv6-format remote witness with public IPv6-only endpoint through PacketTunnel, and separately evaluate true IPv6 TUN flow."
+  - "Independently verify APL OFF after test, protected original profiles/selected UUID byte-identical, stop temporary proxy."
+  - "Run simulator skips, Python/Swift and unsigned Release builds, checkpoint/report truthful and PR."
+completed:
+  - "13.11 Mac mini native IPv6 direct to both public echo services PASS, source-only ephemeral HTTP CONNECT strict host allowlist and port443, local TLS/SNI numeric IPv6 HTTP200 PASS."
+  - "Signed real iPhone13: IPv6-only v6.ident.me via disposable LAN proxy then PacketTunnel HTTPS200, public IPv6 equals proxy origin and differs direct; original source restored OFF, XCTest PASS 2.181s."
+  - "Signed real iPhone13: original NUMERIC IPv6 TCP via TUN with NWConnection TLS SNI one.one.one.one and default trust HTTP200; disposable proxy registered numeric IPv6 CONNECT, direct native TLS restored OFF, XCTest PASS 2.203s."
+  - "After both trials separate signed APL NetworkExtension OFF PASS, three original profiles.v1 byte-identical and selected UUID unchanged; proxy service explicitly stopped, port18081 closed."
+  - "Full Python340/340 +1513 subtests and Swift226/226, signed iPhoneOS Debug BFT, unsigned iPhoneOS Release App+PacketTunnel builds PASS, simulator both gated tests 2 XCTSkip/0 failures PASS."
+  - "Mac mini en0 is QA host 192.168.1.80, direct IPv6 HTTPS to v6.ident.me and ipv6.icanhazip.com HTTP200 without proxy."
+  - "Existing Debug PacketTunnel QA option selects temporary HTTP proxy host 192.168.1.80 port18081 only under 5..30-second qaStopAfterSeconds and does not save owner profile."
+current: "COMPLETED real native IPv6 PacketTunnel with public literal destination, TLS SNI and allowlisted disposable IPv6-capable upstream. Also IPv6-only HTTPS domain PASS, exact proxy origin and OFF restoration. User profiles preserved. This is capability lab proof; three commercial proxies still 0/3 IPv6-only destinations."
+pending: []
+last_verified_commit: "4023e6b452d44671a6992ff1872609bad4d02cbd (base PR #375 verified physical IPv6 upstream restriction)"
+test_results:
+  - "Real signed iPhone13 disposable IPv6-only HTTPS tunnel egress 2.181s PASS; native original IPv6 literal TUN TLS/SNI HTTP200 2.203s PASS; both 20s/25s bounded."
+  - "Independent signed OFF PASS after tests and original three profile bytes/selected UUID exact match. Lab proxy stopped and port18081 closed."
+  - "Python340+1513, Swift226/226, unsigned Release iPhoneOS and signed Debug BFT PASS, hardware simulator 2 skipped/0 failed."
+  - "Mac mini direct native IPv6 public HTTPS 200, iPhone direct IPv6 2/2, owner saved 3 proxies 0/3 to each."
+resume_instruction: "COMPLETED stage. On signed physical iPhone13 APL0.3.0 Debug, disposable strict public-only IPv6-capable Mac mini HTTP CONNECT (lifetime bounded, stopped) proved IPv6-only HTTPS VPN egress matching proxy and true numeric IPv6 destination TCP/TLS SNI HTTP200 through original PacketTunnel, proxy recorded numeric CONNECT, direct/off restoration, both hardware XCTest PASS. Posttest independent OFF and 3 original profiles byte-exact, no user edits. Python340+1513 Swift226, signed Debug, unsigned Release, simulator 2 XCTSkip PASS. Parent iOS0.3.0 task remains in_progress: DNS leakage, UDP/QUIC, Wi-Fi/LTE fail-closed, native Xray/VLESS/WG/AWG, CloudKit/backup and public release still unaccepted. Do not claim user's current 3 proxies support IPv6; all tested 0/3."
