@@ -76,7 +76,7 @@ pending:
   - "Controlled selected-proxy and underlay repeatability QA with safety guards before any Rust network fix; separately validate hostname-valid IPv6 TLS via an IPv6-capable proxy."
   - "DNS leak, UDP/QUIC, Wi-Fi/LTE fail-closed hardware acceptance."
   - "Native Xray/WG/AWG transport, CloudKit two-device private opt-in, encrypted backup; one public iOS0.3.0 only after approvals."
-last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
+last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
 test_results:
   - "Physical signed iPhone13 3/3 separate bounded PacketTunnel IPv4-only HTTPS HTTP200 plus native Rust CONNECT code0 (0 code1-4); no source route fix, earlier failures intermittent."
   - "Posttest independent signed OFF and three profiles bytes/selected UUID unchanged; source Python333+1513 Swift226, simulator hardware XCTSkip1 PASS and signed Debug/unsigned Release iPhoneOS builds PASS."

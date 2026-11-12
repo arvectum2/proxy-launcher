@@ -30,7 +30,7 @@ pending:
   - "Reproduce issue in unit fixture, apply minimal verified source-pinned patch and rebuild framework."
   - "Repeat physical dual-stack HTTPS with 20s host/25s extension guards and independent OFF/profile checks."
   - "Verify IPv6 with hostname-valid TLS and upstream-supported endpoint, DNS leak, UDP, roaming and fail-closed."
-last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
+last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
 test_results:
   - "DNS getaddrinfo VPN ON synthetic A-only 1 and dual 1, both code0; signed physical XCTest PASS 2.004s, post OFF+profile bytes PASS."
   - "System VPN IPv4-only domain -1001, numerical IPv4 HTTPS PASS; Apple per-session proxy upstream IPv4 3/3 PASS, IPv6 0/3."

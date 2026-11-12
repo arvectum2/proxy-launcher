@@ -16,7 +16,7 @@ completed:
   - "Parent hardware stage verified numeric IPv4 PacketTunnel HTTPS, hostname IPv4-only -1001, synthetic DNS 198.18/15 operational, Apple per-session upstream IPv4-only 3/3."
 current: "Completed guarded physical native CONNECT trace: iPhone13 IPv4-only HTTPS 3/3 PASS, Rust code0 in each, OFF restored, original profile bytes intact. Prior -1001 timeouts intermittent, not a verified production fix."
 pending: []
-last_verified_commit: "7038681bb891bd0aa889907a179e1af3c0bddf5c (parent diagnostic PR #373)"
+last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
 test_results:
   - "Three consecutive real iPhone13 20s host/25s extension guarded runs to ipv4.icanhazip.com HTTP200 and native CONNECT code0, no code1-4; all independent OFF PASS."
   - "After run3 three saved profile bytes and selected ID exactly unchanged, only anonymous code counts stored."
