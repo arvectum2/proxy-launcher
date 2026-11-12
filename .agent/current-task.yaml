@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026: owner-authorized Xcode CoreDevice signed Debug APL0.3.0(49) installed in place over 0.2.0, no uninstall/VPN; App Group 3 profiles, selected UUID unchanged; two physical iPhone XCUITest PASS (14.077s profile UI and 27.006s RU/EN/RU locale). Two metadata snapshots exact profiles.v1 bytes match."
   - "12.11.2026: iPhone USB pairing and iCloud Backup settings checked read-only. CloudBackupEnabled true, latest timestamp 2026-11-12T15:09:35Z. iPhone Mirroring unavailable (Connection Paused); no .aplbackup export. Signed candidate 0.3.0(49) and Apple dev team entitlements verified for in-place-only upgrade, zero uninstall or app data reset."
   - "12.11.2026: iPhone13 reconnected over USB/Mirroring; APL0.2.0 and three profiles unchanged; encrypted backup UI inspected, but unable to enter/confirm owner password reliably; export canceled, no file created, clipboard and unused temporary keychain entry cleared."
   - "12.11.2026: PR #364 live theme relocalization and physical iPhone Mirroring baseline merged exact-head GitHub CI 17/17 PASS at ec9ca321173b508863abc69ac0c73fe56eb33f2a; Mac mini/GitHub/GitVerse main parity and clean confirmed. Mirroring later interrupted, devicectl state unavailable."
@@ -58,21 +59,20 @@ completed:
 
 
 
-current: "Physical iPhone 13 iOS27.2.1 paired; encrypted iCloud Backup enabled, LastCloudBackupDate verified 2026-11-12 18:09:35 MSK. Separate .aplbackup still unavailable due iPhone Mirroring paused; the owner explicitly authorized autonomous work. Prepare signed in-place 0.2.0→0.3.0(49) development upgrade without uninstall or VPN changes. Immediately verify installed version and 3 existing profile IDs when accessible, stop on any migration fault. Full native VLESS/WG QA later."
+current: "Signed Debug APL 0.3.0(49) installed on physical iPhone13 via Xcode, without deleting 0.2.0 data. CoreDevice and physical XCTest prove 3 saved profiles, same selected ID, byte-identical profile data and fixed RU/EN theme labels. No VPN switched. Keychain secret accessibility, .aplbackup and native VLESS/WG external egress still unverified. No App Store release."
 blocked_on:
-  - "Encrypted profile backup requires an owner-entered private password in both on-device SecureFields and verified .aplbackup file; automatic Mirroring input did not work. Do not ask for password in chat."
-  - "Installing QA 0.3.0 under the same Bundle ID will replace App Store 0.2.0 with three work profiles. Require owner-controlled encrypted backup and specific confirmation for app replacement and any VPN route changes; phone connected and read-only GUI QA already complete."
-  - "Native source/Go dependency license audit, real external VLESS/standard WireGuard server receipts and controlled PacketTunnel acceptance are not yet completed."
-  - "CloudKit requires approved Apple private container entitlement/provisioning and two-device opt-in tests; signed App Store candidate/review still pending."
+  - "Direct Keychain secret accessibility and authenticated VPN egress unverified; protected metadata snapshot is not a full encrypted Keychain backup, and no standalone .aplbackup exists. No uninstall/reset/rollback."
+  - "Lab-only VLESS/standard WG captured TUN egress, DNS/IPv4/IPv6/UDP, native license/reproducibility, CloudKit entitlement and two-device opt-in are incomplete."
 pending:
-  - "Prepare owner-controlled encrypted APL 0.2.0 profile backup and specific owner confirmation before installing signed 0.3.0 Debug IPA with the same Bundle ID; then perform physical migration/rollback testing."
-  - "Run isolated DEBUG-only real PacketTunnel -> tun2proxy -> localhost Xray SOCKS -> external VLESS/standard WireGuard nonce egress, DNS, QUIC/UDP, path switching and stop/rollback QA on safe test profile."
-  - "Check signed 0.2.0(48) upgrade, profile IDs, Keychain secrets, backups, QR/Share, manual subscription refresh and full locale/a11y QA."
-  - "Audit 60 declared native Go dependencies/third-party notices and build pinned Xray source reproducibly (Go 1.27.3 currently missing). AmneziaWG requires a distinct real backend gate."
-  - "CloudKit private entitlement, privacy copy, two-device manual exclusion conflict and opt-in tests."
-  - "Only one signed 0.3.0 iOS App Store candidate/review/publication after all release gates; no public 0.2.x micro-releases."
-last_verified_commit: "a9a267077e99c7728ac2acf875f2ea6470881d7c (local Mac mini, GitHub and GitVerse main parity; phone reconnected and 0.2.0 untouched; backup not yet created)"
+  - "Merge hardware QA test after exact-head CI, then sync Mac mini/GitHub/GitVerse main."
+  - "Safely verify existing Keychain credentials and HTTP/SOCKS5 egress without exposing secrets or resetting profiles."
+  - "Create owner-controlled encrypted .aplbackup when securely possible; iCloud Backup and App Group metadata alone are not app-credential recovery proof."
+  - "Finish isolated VLESS/standard WireGuard hardware nonce egress, DNS/path-switching, CloudKit user opt-in and native source/license gates."
+  - "One signed public iOS 0.3.0 release only after acceptance; desktop platforms remain paused."
+last_verified_commit: "de739581091b2414236839e29df70c362ff1f22d (tested physical QA source, iPhone XCTest PASS, simulator skip PASS, Python312+1513 Swift226; base main 28ac51696fa3c1d60350e7e0618c5f8b8dc05dce)"
 test_results:
+  - "Physical iPhone XCUITest 3 saved profiles and Settings 0.3.0 PASS 14.077s; RU->EN->RU theme labels PASS 27.006s. AppGroup snapshots exact profiles.v1 and selected profile ID match before/after tests."
+  - "Device CoreDevice signed in-place install exit0, APL0.3.0 build49 launch PASS; no VPN traffic or uninstall. Simulator physical-only test 1 skipped/0 failed PASS, Python312+1513 subtests and Swift226 PASS."
   - "PR #364 exact-head 17/17 PASS; local/GitHub/GitVerse main exact SHA ec9ca321173b508863abc69ac0c73fe56eb33f2a, clean. Physical 0.2.0 baseline and signed 0.3.0 candidate checked; actual phone upgrade and VPN not performed due backup/device safety gate."
   - "12.11.2026 physical iPhone13 iOS27.2.1 iPhone Mirroring 0.2.0 baseline PASS: 3 saved profiles preserved, empty exclusions, APL VPN disconnected; synthetic http://qa.invalid:1234 preview-only imported 1 candidate then canceled; RU->EN->RU old theme issue reproduced without touching profiles."
   - "12.11.2026 SwiftUI locale fix exact Simulator XCTest CompactSettingsUITests.testThemeSegmentsRelocalizeWithoutRestartingAppOrChangingAppearance PASS 26.818s; run without forced NSArgumentDomain appLanguage argument."
@@ -100,4 +100,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Physical upgrade attempt in branch qa/ios-030-physical-upgrade-20261112. Preflight signed iPhoneOS Debug APL0.3.0(49), code signatures/App Group/Keychain equal, device 0.2.0 currently installed and owner authorized autonomous continuation. iCloud backup timestamp 2026-11-12T15:09:35Z (~18:09 MSK), but no separate .aplbackup. Use only non-destructive in-place upgrade (NEVER uninstall/reset) then verify 3 profiles and Keychain via iPhone Mirroring or safe read-only diagnostics; if unavailable leave hardware QA blocked. Do not switch VPN, enable VLESS/WG/AWG or submit App Store without independent external receipts. Signed Debug candidate /tmp/APL-ios-030-physical-signed-20261112-DD/Build/Products/Debug-iphoneos/Arvectum Proxy Launcher.app."
+resume_instruction: "Branch qa/ios-030-physical-upgrade-20261112, device QA code commit de739581091b2414236839e29df70c362ff1f22d. Signed Debug APL0.3.0(49) is ALREADY installed in-place on physical iPhone13. Profiles and selected UUID preserved, two physical XCUITests PASS and repeated App Group profiles.v1 byte-identical. Simulator-safe XCTSkip and Python312+1513/Swift226 PASS. First merge current QA PR after exact-head CI and sync mirrors. Next verify Keychain accessibility and real authenticated HTTP/SOCKS5 egress, then lab-only native VLESS/WG nonce and CloudKit gates. Never uninstall/reset; no full .aplbackup, only earlier iCloud Backup and protected metadata snapshot. No App Store upload."
