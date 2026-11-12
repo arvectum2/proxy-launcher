@@ -62,3 +62,11 @@
 - [x] PR #359 `ce211faa` MERGED exact-head 17/17 CI, репозитории Mac mini / GitHub / GitVerse совпали.
 - [x] Проверена [техническая гипотеза единого Xray-бэкенда](APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md): нативное совместное Rust+libXray линкование App+PacketTunnel unsigned Simulator/iPhoneOS ARM64 PASS; built-in стандартный WG outbound в libXray Simulator synthetic config/start/stop PASS.
 - [ ] Предстоит настоящая реализация Xray/VLESS/REALITY и WireGuard/AmneziaWG native, внешний PacketTunnel egress и iCloud entitlements/физические тесты. AmneziaWG требует отдельной проверки. Одна публикация 0.3.0 после всех гейтов.
+
+## Без iPhone — автономный этап 12.11.2026
+
+- [x] [Контракт безопасного локального туннельного handoff](APL_IOS_030_DEVICE_ACCEPTANCE_HANDOFF_2026-11-12.md): strict `tunFD`/SOCKS port/DNS-bypass validation, deterministic `tun2proxy` CLI without proxy secrets, no production routing enablement.
+- [x] Гейты жизненного цикла Xray: generation tokens, stale callback rejection, idempotent stop-drain, no automatic start after fail-closed, late failure after drain does not spoil next session.
+- [x] [Offline native provenance gate](APL_IOS_030_XRAY_NATIVE_PROVENANCE_2026-11-12.md): official pinned libXray Apple archive SHA-256 and pinned `go.mod` SHA-256, upstream source tag/60 dependencies, ZIP traversal/symlink/substitution tests.
+- [x] Физический iPhone **не используется**: отдельный native lab Swift adapter уже подтверждён в iOS Simulator на семи последовательных/конкурентных start/stop циклах с `blackhole` outbound; production PacketTunnel и App Store не изменены.
+- [ ] Осталось: реальный original-flow PacketTunnel egress, физический iPhone Keychain/QR/CloudKit/device network-path, native reproducible SBOM и signed release gate. Пока активна только опубликованная 0.2.0, следующий номер 0.3.0 ещё не отправлен Apple.

@@ -37,17 +37,24 @@ completed:
   - "Isolated native Xray PacketTunnel laboratory worktree and local commit 879056b12e7ddbc50810e1a85b7ce4652037ac33: manually linked official libXray v26.11.9 with pinned Rust tun2proxy, resolved module.modulemap collision."
   - "Lab unsigned ARM64 iOS Simulator Debug and iPhoneOS Debug App+PacketTunnel builds both PASS; nm confirms CGoInvoke, Rust tun2proxy_stop and lab version symbol, dylib approximately 43 MB. Lab R&D code not in production main."
   - "Simulator libXray API v3 built-in wireguard outbound: synthetic local config testXray PASS and test-run/state=true/stop/state=false PASS; peer endpoint loopback only, no real handshake or external original-flow receipt."
+  - "Owner 2026-11-12 instructed to complete every safe iOS 0.3.0 step WITHOUT iPhone; reserve device/network acceptance for when device is available."
+  - "Stage 6 offline XraySocksHandoffPlan: deterministic loopback socks5/tun2proxy flags with validated FD/port/DNS bypass, no secrets, no production protocol activation."
+  - "Stage 6 XrayHandoffLifecycle: generation-aware start/ready/stop/drain/failClosed; stale callbacks and late failure after drain rejected; no auto-restart after failedClosed."
+  - "Stage 6 Apple Xray native provenance gate: pinned 26.11.9 Apple ZIP SHA256, pinned go.mod SHA256, source tag, exact xray-core 676eaf66f8f0 and 60 declared Go modules; ZIP traversal/symlink/substitution fail-closed."
+  - "Stage 6 native Swift XrayNativeLabBridge actually executed on ARM64 iOS Simulator (not only compiled): 7 sequential and concurrent caller sessions start/stop with single serial NSLock, blackhole outbound; no original PacketTunnel egress or device modification."
+  - "Stage 6 final offline regression Swift226/226 and iOS Python307 +1513 subtests PASS; unsigned ARM64 Simulator Debug and iPhoneOS Release App+PacketTunnel builds PASS."
 
 
 
-current: "Stages 1-4 (#356-#359) merged with 17/17 CI each. Main/Mac mini/GitVerse ce211faa clean. Stage 5 isolated native Xray lab (local research commit 879056b1) builds both iOS Simulator/iPhoneOS and accepts synthetic WireGuard outbound. Full PacketTunnel captured-flow routing, native stop/rollback and physical handshake remain unverified."
+
+current: "Offline stage 6: completed strict Xray SOCKS handoff + generation-safe fail-closed planner, Go-native pinned asset provenance and actual iOS Simulator 7-cycle Swift CGo start/stop checks. No physical iPhone requested or modified. Await Stage 6 PR exact-head CI then merge and continue only no-device lab and release-readiness work."
 pending:
-  - "Implement lab-only captured original PacketTunnel -> tun2proxy -> localhost libXray SOCKS -> independent VLESS/standard-WG external server, with a bounded fail-closed stop and no VPN disruption."
-  - "Physically validate real iPhone source flow/nonce receipt, DNS, IPv4/IPv6, UDP, path switch, memory, reconnect, Keychain upgrade and subscription handling on safe test config."
-  - "Check pinned native Xray/WG source licensing, transitive SBOM, reproducible build and app-extension size/entitlements; AmneziaWG requires distinct protocol support or isolated backend."
-  - "Enable CloudKit only after Apple private-container entitlement/provisioning, explicit opt-in privacy disclosure and two-device acceptance."
-  - "Only one signed App Store 0.3.0 candidate/review/public release after all gates; no intermediate public micro-releases."
-last_verified_commit: "ce211faa3b13deb30126a71e782d4e252da7e9f6 (PR #359, GitHub exact-head CI 17/17 PASS; Mac mini/GitHub/GitVerse main parity); lab-only 879056b12e7ddbc50810e1a85b7ce4652037ac33"
+  - "Finish Stage 6 offline gates PR, exact-head CI and Mac mini/GitHub/GitVerse synchronization."
+  - "Continue isolated native PacketTunnel Xray lab: DEBUG-only captured-flow forwarding and fail-closed teardown, native code/SBOM/license audit and offline simulation; do not modify production routing."
+  - "When owner connects safe QA iPhone: physical original-flow VLESS/WireGuard nonce egress, DNS/IPv4/IPv6/UDP, path switching, Keychain profile migration, QR/Share, subscriptions and Smart4 bypass gate."
+  - "Enable CloudKit only after Apple private-container entitlement/provisioning, opt-in privacy copy and approved two-device physical acceptance."
+  - "One signed, reviewed iOS 0.3.0 candidate and a single App Store release after all acceptance gates; no public micro-releases."
+last_verified_commit: "1f866d5298643f74e39cf9c5535d9c3f14f75c41 (PR #360 merged, 11/11 CI; Mac mini/GitHub/GitVerse parity); isolated native lab 35276e43a5e8171e4f9064ef207320723102142f"
 test_results:
   - "New subscription and cloud contract Swift tests 9/9 PASS; full Swift206/206 PASS; iOS Python contracts 288 PASS + 1513 subtests."
   - "Unsigned ARM64 iOS Simulator Debug and iPhoneOS Release App+PacketTunnel xcodebuild PASS; pinned native device+sim SHA256 matched preexisting QA artifact."
@@ -60,6 +67,11 @@ test_results:
   - "PR #359 merge exact-head CI 17/17 PASS, main GitHub/GitVerse/Mac mini ce211faa aligned."
   - "Lab native Rust+Xray combined PacketTunnel unsigned iOS Simulator and iPhoneOS Debug ARM64 builds PASS and symbols verified; Xcode modulemap collision resolved manually in research branch only."
   - "Pinned libXray on iOS Simulator: standard wireguard outbound synthetic testXray PASS and local peer-only run/state/stop PASS; no real handshake, external receipt or physical PacketTunnel traffic."
+  - "Stage 6 offline XraySocksHandoffContract 6 new Swift tests PASS and provenance 6 new Python tests + handoff 3 new Python tests PASS."
+  - "Full Swift226/226 and iOS Python307 +1513 subtests PASS, unsigned ARM64 iOS Simulator Debug and iPhoneOS Release App+PacketTunnel build PASS."
+  - "Native isolated Swift CGo bridge version and seven concurrent/sequential start-stop cycles on real iOS Simulator PASS; explicitly no physical iPhone or external egress."
+  - "Official libXray ZIP 28 members and pinned go.mod 60 modules SHA256 PASS; no reproducible source build or exhaustive license verification."
+
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Read .agent/current-task.yaml and docs/APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md. Main is ce211faa with #356-#359 merged 17/17 CI. Continue isolated research/ios-030-xray-native-link-20261112 in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-030-xray-packet-tunnel-lab-20261112 at local commit 879056b12, where lab uses symlinked verified libXray from a separate R&D cache and builds for Simulator/iPhoneOS. Next create DEBUG-only local SOCKS bridge with bounded cancellation, loop protection, independent original PacketTunnel egress witnesses and safe physical iPhone acceptance; do NOT alter production ProxyType, CloudKit entitlement, Smart4 DIRECT, native FIN or publish partial versions. Only one App Store iOS 0.3.0 once fully accepted."
+resume_instruction: "Continue iOS 0.3.0 only. First confirm Stage 6 PR from feat/ios-030-offline-handoff-gates-20261112 (worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-030-offline-handoff-20261112) has exact-head green CI; merge and sync Mac mini/GitHub/GitVerse. Then continue isolated, unmerged lab research/ios-030-xray-native-link-20261112 in /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ios-030-xray-packet-tunnel-lab-20261112, at 35276e43a + local uncommitted NSLock bridge; verify and checkpoint that local lab work, never merge a dependency symlink into production. Use docs/APL_IOS_030_DEVICE_ACCEPTANCE_HANDOFF_2026-11-12.md as hardware acceptance gate. User explicitly asked NO iPhone operations until they reconnect it. No automatic CloudKit capabilities, Smart4 DIRECT, unverified VLESS/WG/AWG or App Store upload. Only one future signed iOS 0.3.0 public release."
