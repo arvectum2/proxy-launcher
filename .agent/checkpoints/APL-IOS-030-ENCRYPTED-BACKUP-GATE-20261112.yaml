@@ -1,0 +1,26 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-ENCRYPTED-BACKUP-GATE-20261112
+status: blocked
+goal: "Protect three existing iOS 0.2.0 proxy profiles before installing same-Bundle-ID signed Debug 0.3.0."
+definition_of_done:
+  - "Owner enters a private password locally into both SecureFields (12+ chars)."
+  - "Create and confirm encrypted .aplbackup in Files outside the app's sandbox."
+  - "Owner retains password; never send it in chat."
+  - "Explicit owner authorization for same-Bundle-ID QA app replacement."
+completed:
+  - "Physical iPhone13 USB and iPhone Mirroring reconnected at 17:26 MSK."
+  - "Original installed APL0.2.0 and all three profiles preserved; VPN untouched."
+  - "Inspected encrypted backup form; native source uses AES-GCM with PBKDF2-HMAC-SHA256 (210000 iterations)."
+  - "Automated SecureField entry proved unreliable; no backup exported."
+  - "Closed form without saving; cleared Mac clipboard and deleted unused temporary Keychain secret."
+current: "Waiting for owner-controlled private password entry and confirmation of saved encrypted .aplbackup."
+pending:
+  - "Owner enters password directly in app via Mirroring/phone and saves .aplbackup to Files outside app folder."
+  - "Verify file exists and password is retained by owner; do not require plaintext in chat."
+  - "Only then explicitly authorize installation of signed iOS 0.3.0 QA and validate profile migration, Keychain and safe rollback."
+last_verified_commit: "a9a267077e99c7728ac2acf875f2ea6470881d7c"
+test_results:
+  - "iPhone13 available/paired and Mirroring reconnected; all 3 user profiles still present."
+  - "No backup created, no profiles or VPN changed, no 0.3.0 installed."
+resume_instruction: "Open Profiles > Копия on owner's iPhone; ask owner to enter private password twice and save encrypted file. Do not request password in chat, use unsupported secure typing, or overwrite 0.2.0 until owner confirms backup and authorizes installation."
