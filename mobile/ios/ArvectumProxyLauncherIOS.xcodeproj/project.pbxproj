@@ -153,6 +153,7 @@
 		D500CF222D03CED67EDEFA8E /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
+		E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */; };
 		E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
@@ -355,6 +356,7 @@
 		55C956D1CFA44C46C7FC2C0D /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		5670D6BC71FD8955EFD40703 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/ProfileManagement.strings"; sourceTree = "<group>"; };
 		5726A3C35A31E9CDF6117CAC /* be */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = be; path = be.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalProxyHandshakeReadOnlyTests.swift; sourceTree = "<group>"; };
 		58B994740429D8BD945D92E1 /* tk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tk; path = tk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		594817B40932AC8030EBC952 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		59778D4844BEE69A905F98E6 /* hy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hy; path = hy.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -702,6 +704,7 @@
 			isa = PBXGroup;
 			children = (
 				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
+				5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */,
 			);
 			name = DeviceKeychainTests;
 			path = Tests/DeviceKeychainTests;
@@ -1217,6 +1220,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
+				E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
