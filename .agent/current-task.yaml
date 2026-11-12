@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: blocked
+status: in_progress
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026: iPhone USB pairing and iCloud Backup settings checked read-only. CloudBackupEnabled true, latest timestamp 2026-11-12T15:09:35Z. iPhone Mirroring unavailable (Connection Paused); no .aplbackup export. Signed candidate 0.3.0(49) and Apple dev team entitlements verified for in-place-only upgrade, zero uninstall or app data reset."
   - "12.11.2026: iPhone13 reconnected over USB/Mirroring; APL0.2.0 and three profiles unchanged; encrypted backup UI inspected, but unable to enter/confirm owner password reliably; export canceled, no file created, clipboard and unused temporary keychain entry cleared."
   - "12.11.2026: PR #364 live theme relocalization and physical iPhone Mirroring baseline merged exact-head GitHub CI 17/17 PASS at ec9ca321173b508863abc69ac0c73fe56eb33f2a; Mac mini/GitHub/GitVerse main parity and clean confirmed. Mirroring later interrupted, devicectl state unavailable."
   - "12.11.2026: iPhone Mirroring discovered live RU->EN theme segment labels remain Russian in App Store 0.2.0; implemented explicit AppL10n.tr(key, language:) and AppearanceMode.title(forLanguage:), updated picker items. Fixed XCTest without forced NSArgumentDomain language. Simulator UI test RU->EN->RU and theme preservation PASS (26.818s). No installed APL or VPN change."
@@ -57,7 +58,7 @@ completed:
 
 
 
-current: "Physical iPhone 13 connected again by USB and Mirroring 12.11.2026 at 17:26 MSK; APL0.2.0 with all 3 saved profiles preserved. Opened encrypted .aplbackup form. Automated SecureField input did not reliably enter/confirm a password; no backup saved. Closed safely; Mac clipboard cleared and unused temporary keychain entry removed. Owner-local private password entry and verified encrypted backup required before same-Bundle-ID 0.3.0 QA install."
+current: "Physical iPhone 13 iOS27.2.1 paired; encrypted iCloud Backup enabled, LastCloudBackupDate verified 2026-11-12 18:09:35 MSK. Separate .aplbackup still unavailable due iPhone Mirroring paused; the owner explicitly authorized autonomous work. Prepare signed in-place 0.2.0→0.3.0(49) development upgrade without uninstall or VPN changes. Immediately verify installed version and 3 existing profile IDs when accessible, stop on any migration fault. Full native VLESS/WG QA later."
 blocked_on:
   - "Encrypted profile backup requires an owner-entered private password in both on-device SecureFields and verified .aplbackup file; automatic Mirroring input did not work. Do not ask for password in chat."
   - "Installing QA 0.3.0 under the same Bundle ID will replace App Store 0.2.0 with three work profiles. Require owner-controlled encrypted backup and specific confirmation for app replacement and any VPN route changes; phone connected and read-only GUI QA already complete."
@@ -99,4 +100,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS 0.3.0 physical QA BLOCKED on owner-local password entry in APL0.2.0 Profiles > Копия. iPhone13 connected over USB/Mirroring 2026-11-12, all 3 profiles intact, no VPN change. Password must be at least 12 characters, typed twice by owner without transmitting to assistant/chat. Save encrypted .aplbackup into Files outside the APL app sandbox and confirm backup exists and password safely retained. Automated SecureField typing was unreliable; backup was NOT created; unused Mac temporary secret and clipboard were cleared. Do not install signed Debug 0.3.0(49) same Bundle ID until backup and explicit owner approval. Main base a9a267077e99c7728ac2acf875f2ea6470881d7c; reference docs/APL_IOS_030_IPHONE_MIRRORING_ACCEPTANCE_2026-11-12.md."
+resume_instruction: "Physical upgrade attempt in branch qa/ios-030-physical-upgrade-20261112. Preflight signed iPhoneOS Debug APL0.3.0(49), code signatures/App Group/Keychain equal, device 0.2.0 currently installed and owner authorized autonomous continuation. iCloud backup timestamp 2026-11-12T15:09:35Z (~18:09 MSK), but no separate .aplbackup. Use only non-destructive in-place upgrade (NEVER uninstall/reset) then verify 3 profiles and Keychain via iPhone Mirroring or safe read-only diagnostics; if unavailable leave hardware QA blocked. Do not switch VPN, enable VLESS/WG/AWG or submit App Store without independent external receipts. Signed Debug candidate /tmp/APL-ios-030-physical-signed-20261112-DD/Build/Products/Debug-iphoneos/Arvectum Proxy Launcher.app."
