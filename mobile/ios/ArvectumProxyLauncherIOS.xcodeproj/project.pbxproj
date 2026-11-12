@@ -20,6 +20,7 @@
 		0DE07E70231418DFAB188C90 /* ProfileBackupRestorePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71068BC47835E696E79292 /* ProfileBackupRestorePlan.swift */; };
 		0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
 		0ED58CFB7328F99EAD35ACF2 /* ProxySubscriptionFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5FE529490A9209DDFA7B20 /* ProxySubscriptionFetch.swift */; };
+		10790F05833FF56EDD0111D7 /* PhysicalHTTPSReceiptReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */; };
 		11464251962C1B3FA454A316 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA603A59EEC8463F7514A12 /* ContentView.swift */; };
 		137A7D6F9489905219AF00FD /* Smart3PhysicalTrafficQA.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD92A04584B40BD9FEE2D469 /* Smart3PhysicalTrafficQA.swift */; };
 		14B2C9154CB78BAEE14F4149 /* ProxyImportUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */; };
@@ -301,6 +302,7 @@
 		32888B5D1C0BEBAEB75364D6 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		330C82055E0153A614AC229A /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		3538F9DC207776017EC6F648 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalHTTPSReceiptReadOnlyTests.swift; sourceTree = "<group>"; };
 		3775CCC840C042E2F1D53CAC /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37C0B875154298B04E4DC8B9 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/Localizable.strings; sourceTree = "<group>"; };
 		37E71814347EB485F86B3DD2 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/ProxyImport.strings; sourceTree = "<group>"; };
@@ -703,6 +705,7 @@
 		361FCFB2425C1BAF880344B5 /* DeviceKeychainTests */ = {
 			isa = PBXGroup;
 			children = (
+				36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */,
 				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
 				5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */,
 			);
@@ -1219,6 +1222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10790F05833FF56EDD0111D7 /* PhysicalHTTPSReceiptReadOnlyTests.swift in Sources */,
 				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
 				E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */,
 			);

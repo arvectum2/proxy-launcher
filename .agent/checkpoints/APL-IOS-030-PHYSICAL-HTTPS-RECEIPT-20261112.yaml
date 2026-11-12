@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-PHYSICAL-HTTPS-RECEIPT-20261112
+status: completed
+goal: "Verify an external HTTPS echo nonce and egress IP over owner-existing authenticated proxy using Apple ProxyConfiguration with allowFailover false, without enabling system VPN or leaking secrets."
+definition_of_done:
+  - "Production profile & Keychain only read, no write/uninstall/VPN route switch."
+  - "Signed physical XCTest uses URLSessionConfiguration.proxyConfigurations and allowFailover false."
+  - "External HTTPS endpoint echoes client nonce and origin; verify origin differs from direct iPhone baseline without logging either IP."
+  - "Reports per-anonymous-index success only, no profile names or credentials."
+  - "Post-test App Group metadata exact bytes unchanged; simulator safe skip."
+completed:
+  - "Verified https://httpbingo.org/get JSON echo from Mac mini: returns args.qa_nonce and origin."
+  - "Previous 3/3 production CONNECT/SOCKS5 handshake on physical signed Debug APL0.3.0."
+current: "Physical iPhone13 authenticated HTTPS nonce-confirmed response, external origin distinct from direct baseline, 3/3 PASS, 3.435s, URLSession per-proxy allowFailover false. No system VPN and no data mutations."
+pending: []
+last_verified_commit: "c45016bb669cb5fb01d51c84635b7adc5dff3b22 (base network handshake QA)"
+test_results:
+  - "Physical signed iPhone13 XCTest HTTP GET echo nonce & distinct remote origin 3/3 PASS in 3.435s, Apple ProxyConfiguration allowFailover=false, no system VPN."
+  - "Post-HTTPS-XCTest App Group profiles.v1 and selected UUID are byte-identical to initial post-upgrade snapshot."
+  - "Simulator hardware test 1 skipped/0 failed TEST SUCCEEDED; full Python318/318 +1513 subtests and Swift226/226 PASS."
+  - "Full PacketTunnel DNS/IPv4/IPv6/UDP path not tested; this is per-session HTTPS, not system VPN egress."
+resume_instruction: "This stage is completed: real signed iPhone13 APL0.3.0 used temporary per-session Apple ProxyConfiguration for three authenticated proxies; all 3/3 obtained external HTTPS 200 with correct nonce and egress distinct from direct. VPN untouched, profile bytes unchanged. Continue parent APL-IOS-UNIFIED-RELEASE checkpoint for separately authorized PacketTunnel, native VLESS/WG, CloudKit, backup and App Store gates."
