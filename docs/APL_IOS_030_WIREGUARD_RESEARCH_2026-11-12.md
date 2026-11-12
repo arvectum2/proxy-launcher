@@ -26,3 +26,7 @@
 - [x] 3 source-only Python gates PASS: protocol remains absent from production app and PacketTunnel, parser has no persistence/networks.
 - [x] Full Swift 220/220 PASS, iOS source Python 298 + 1513 subtests PASS.
 - [x] iOS ARM64 Simulator Debug App+PacketTunnel BUILD PASS, iPhoneOS Release App+PacketTunnel unsigned BUILD PASS.
+
+## Обновление 12.11: единый Xray backend вместо второго Go-runtime
+
+[Проверенная гипотеза объединения транспорта VLESS + standard WireGuard](APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md): официальный `Xray-core` уже имеет `wireguard` outbound, а pinned `libXray v26.11.9` успешно выполняет синтетическую WireGuard config test → run → state → stop на ARM64 iOS Simulator без внешнего peer. Это упрощает дальнейшую архитектуру APL до одного нативного Go-движка плюс Rust `tun2proxy` для стандартного WG. **Проверки настоящего WireGuard handshake и AmneziaWG отсутствуют.** Не менять production `ProxyType` или активный туннель.

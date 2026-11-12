@@ -36,3 +36,10 @@
 - [x] Typed `VLESSRealityShareLink` не меняет production `ProxyType`; 6/6 новых Swift Core tests и 3/3 iOS gate Python tests проверяют fail-closed поведение. Full Swift213/213, iOS Python295 +1513 subtests, unsigned ARM64 iOS Simulator Debug и iPhoneOS Release App+PacketTunnel BUILD PASS.
 - [ ] Влияние на память PacketTunnel, лицензии всех transitive dependencies, производственный native bridging, реальный VLESS/REALITY server, IPv4/IPv6/UDP, Wi-Fi/LTE и Smart4 egress **не проверены**.
 - [ ] Физический iPhone по текущему `devicectl` на Mac mini обозначен `unavailable`; **никаких физических испытаний или VPN переключений в этом этапе не проводилось**.
+
+
+## Обновление 12.11
+
+- [x] Компоновка обоих native libXray+Rust tun2proxy в одном PacketTunnel unsigned iOS Simulator/iPhoneOS Debug ARM64 PASS; детали [в отдельном lab протоколе](APL_IOS_030_XRAY_PACKETTUNNEL_LAB_2026-11-12.md).
+- [x] `libXray v26.11.9` на ARM64 iOS Simulator принимает синтетический built-in Xray-core `wireguard` outbound, выполняет `testXray/runXray/getXrayState(true)/stopXray/getXrayState(false)` без реального peer; [единый транспортный план](APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md).
+- [ ] External PacketTunnel original-flow independent egress и физический iPhone остаются непроверенными; никаких production Xray/WG до gates.
