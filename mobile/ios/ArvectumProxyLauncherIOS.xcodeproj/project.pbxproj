@@ -41,6 +41,7 @@
 		2C57AC20486C2B0E15B7DE66 /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
 		2E7EFEEC2836FCABD85C2A6D /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
 		3092CE8477A30E68BC023E78 /* WGQuickConfigurationPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */; };
+		31FFB1FF24C1698273975335 /* PhysicalDisposableIPv6UpstreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D6E5AE6643EFA94158E005 /* PhysicalDisposableIPv6UpstreamTests.swift */; };
 		3321AA021DDF960DB1E58BFF /* Smart3LiveTunnelPhysicalUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6690A66DE5B241DA7FE3E5 /* Smart3LiveTunnelPhysicalUITests.swift */; };
 		334CA924531EC1C9707D147D /* ExclusionCloudSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D859A549D1A32EAD793E893C /* ExclusionCloudSyncView.swift */; };
 		3455E25E7FCBAF84A8CD1FA7 /* ActivityScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */; };
@@ -236,6 +237,7 @@
 		0855CBDB3AD71CBB73F4D46C /* ky */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ky; path = ky.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		08DD73381F42A849F96D7EE2 /* ActivityScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityScreenView.swift; sourceTree = "<group>"; };
 		095FBF3E481E0423C623C5B7 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		09D6E5AE6643EFA94158E005 /* PhysicalDisposableIPv6UpstreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalDisposableIPv6UpstreamTests.swift; sourceTree = "<group>"; };
 		09FF369B201AA150C9DB735E /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		0A0F59290BF4EBAC1D3621D3 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		0AA68C9D6FB9BA1A89C46E80 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -715,6 +717,7 @@
 		361FCFB2425C1BAF880344B5 /* DeviceKeychainTests */ = {
 			isa = PBXGroup;
 			children = (
+				09D6E5AE6643EFA94158E005 /* PhysicalDisposableIPv6UpstreamTests.swift */,
 				36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */,
 				1E41A3C09E61A38EEE2A7E48 /* PhysicalIPFamilyReadOnlyTests.swift */,
 				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
@@ -1237,6 +1240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				31FFB1FF24C1698273975335 /* PhysicalDisposableIPv6UpstreamTests.swift in Sources */,
 				10790F05833FF56EDD0111D7 /* PhysicalHTTPSReceiptReadOnlyTests.swift in Sources */,
 				CBBC92F54993767F2F264B28 /* PhysicalIPFamilyReadOnlyTests.swift in Sources */,
 				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
