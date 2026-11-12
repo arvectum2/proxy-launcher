@@ -75,7 +75,7 @@ pending:
   - "Native Xray VLESS/standard WireGuard packet egress; separate AWG support and third-party license/provenance."
   - "CloudKit private two-device opt-in QA and owner-controlled encrypted standalone backup."
   - "One public iOS 0.3.0 App Store submission after approvals and all gates. Other platforms paused."
-last_verified_commit: "d4ed7fe97dc11de19b0dc4ec162d29f2ba2c9d21 (source base from #371; new direct IPv4/IPv6 baseline QA tested physical2/2, simulator skips2/2 Python323+1513 Swift226, source pending commit. Latest verified main 568477f2d9cec6811dc3f4e7db1cb18f0e77f9fd)"
+last_verified_commit: "c7e1f9570298524cf2fde46723bcf2aba346886f (signed physical iPhone13 direct IPv4 fallback and IPv6 PASS, no VPN activation, original profiles preserved, simulator 2 skipped/0 failed, Python323+1513 Swift226 PASS)"
 test_results:
   - "Physical iPhone13 read-only direct IPv4 and IPv6 baseline under APL VPN OFF: api6 returns valid IPv6 PASS, api4 unexpectedly IPv6 but independent ipv4.icanhazip.com returns valid IPv4 PASS. 2/2 device XCTest success. profiles.v1 and selected ID unchanged."
   - "iOS simulator 2 physical-only IP family XCTSkip/0 failures TEST SUCCEEDED; full Python323/323 +1513 subtests and Swift226/226 PASS."

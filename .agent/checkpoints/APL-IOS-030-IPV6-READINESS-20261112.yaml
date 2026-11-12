@@ -17,7 +17,7 @@ completed:
   - "Main APL signed Debug 0.3.0 real PacketTunnel egress 2/2 PASS with OFF recovery and 20/25s guards in parent stage."
 current: "Completed signed physical read-only IPv4/IPv6 baseline while APL VPN OFF. IPv6 api6 PASS, api4 returned atypical IPv6, independent ipv4.icanhazip.com IPv4 PASS; no settings changed. Simulator 2 skipped, 0 failures. Full Python323+1513 Swift226 PASS."
 pending: []
-last_verified_commit: "d4ed7fe97dc11de19b0dc4ec162d29f2ba2c9d21 (parent PacketTunnel QA branch)"
+last_verified_commit: "c7e1f9570298524cf2fde46723bcf2aba346886f (signed physical iPhone13 direct IPv4 fallback and IPv6 PASS, no VPN activation, original profiles preserved, simulator 2 skipped/0 failed, Python323+1513 Swift226 PASS)"
 test_results:
   - "Physical IPv6 native HTTPS family PASS (0.595s) and IPv4 fallback HTTPS family PASS (0.911s). api4 endpoint unexpectedly returned IPv6 instead of IPv4, logged family and length only."
   - "Original profiles and selected ID exact bytes unchanged after test, APL VPN stayed OFF."
