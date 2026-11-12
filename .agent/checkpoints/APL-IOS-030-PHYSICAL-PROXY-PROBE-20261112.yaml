@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-PHYSICAL-PROXY-PROBE-20261112
+status: completed
+goal: "Safely test existing authenticated proxy CONNECT/SOCKS5 handshake from signed Debug APL0.3.0 on physical iPhone without enabling system VPN or changing profile data."
+definition_of_done:
+  - "Create dedicated hardware-only read-only XCTest using actual production ProxyProbe and ProfileStore."
+  - "Never log profile hosts, names, identifiers or Keychain values."
+  - "Verify at least a real negotiated proxy handshake, report per-test pass/fail counts without leaking data."
+  - "After testing verify App Group profile bytes and selected UUID remain unchanged."
+  - "Record results and limitation that tunnel handshake is not full HTTPS nonce receipt."
+completed:
+  - "Device paired and signed Debug APL0.3.0(49), 3 profile metadata and 3/3 nonempty Keychain secrets previously verified."
+current: "Completed signed physical iPhone13 authenticated CONNECT/SOCKS5 proxy handshake: 3/3 PASS, no VPN routing change, user profile metadata identical."
+pending: []
+last_verified_commit: "9ffd2924a94d609fdbff2cf9b63f66c71eeebe3b (base branch; physical 3/3 and local regressions verified, QA source to be committed)"
+test_results:
+  - "Physical iPhone13 existing authenticated proxy 3/3 CONNECT/SOCKS5 PASS in 0.534s; no NEPacketTunnel start."
+  - "Post-test App Group profiles.v1 exact bytes and selected UUID match pretest."
+  - "Source Python316/316 +1513 subtests and Swift226/226 PASS."
+  - "Simulator test 1 skipped by design, 0 failures, TEST SUCCEEDED; privacy fixtures safe."
+  - "Full HTTPS nonce/body, egress IP and VPN TUN routes not tested."
+resume_instruction: "Physical CONNECT-only proxy negotiation 3/3 PASS using production ProxyProbe inside signed APL0.3.0, no system VPN. Next parent task needs authenticated HTTPS external witness and controlled PacketTunnel egress. Do not claim full HTTPS or VPN routing from CONNECT-only result. Branch qa/ios-030-network-handshake-20261112."
