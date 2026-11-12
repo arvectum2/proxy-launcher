@@ -10,6 +10,8 @@
 - [x] 11.11: контракт и backend личной CloudKit базы для ручных исключений, preview/diff и предотвращение конфликтов; экран скомпилирован, но скрыт до entitlement/provisioning и физической приёмки.
 - [x] 12.11: PR #358 VLESS/Reality source-only и PR #359 WG/AWG1 source-only merged по 17/17; `ProxyType` не расширен.
 - [x] 12.11: [лабораторный симуляторный/линковочный gate Xray+WG](APL_IOS_030_UNIFIED_XRAY_WG_ENGINE_2026-11-12.md): один Xray outbound backend для VLESS и standard WG потенциально позволит избежать второго Go-runtime. Production original PacketTunnel egress не доказан.
+- [x] 12.11: [офлайн-подготовка к приёмке](APL_IOS_030_DEVICE_ACCEPTANCE_HANDOFF_2026-11-12.md): безопасный SOCKS handoff builder и generation-aware fail-closed lifecycle, Apple SHA/Go dependencies provenance gate; нативный Swift Xray lab проверен на iOS Simulator без физического телефона. Новые протоколы **не включены** в App Store IPA.
+
 - [ ] Автоматическое обновление подписки, CloudKit и новые сетевые протоколы: отдельные инженерные, entitlement/лицензионные и аппаратные gates, без ложного рекламирования.
 - [ ] Публикация 0.3.0 после всех проверок, миграции и подписанной сборки.
 

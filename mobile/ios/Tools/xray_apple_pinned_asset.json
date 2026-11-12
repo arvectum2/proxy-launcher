@@ -1,0 +1,14 @@
+{
+  "repository": "XTLS/libXray",
+  "tag": "v26.11.9",
+  "tag_commit": "71d9d443aa88ff939ab6ce22b82aa4b2adcc4d9f",
+  "asset": "libxray-apple-cgo.zip",
+  "sha256": "7c58346709f1856782a48d8f9926fb815c8ad1bbaf9e5d9dec4ee0cd1f41ed6f",
+  "go_mod_sha256": "6cae0b0bb7f8fb6718b7e357ce28103161949c803901f7233bd9a8a862f56b02",
+  "xray_core_module": "github.com/xtls/xray-core",
+  "xray_core_version": "v1.260327.1-0.20261109052709-676eaf66f8f0",
+  "required_archive_members": [
+    "libxray-apple-cgo/LibXray.xcframework/ios-arm64/libXray.a",
+    "libxray-apple-cgo/LibXray.xcframework/ios-arm64_x86_64-simulator/libXray.a"
+  ]
+}
