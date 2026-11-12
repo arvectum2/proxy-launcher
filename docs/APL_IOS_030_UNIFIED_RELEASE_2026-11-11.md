@@ -70,3 +70,12 @@
 - [x] [Offline native provenance gate](APL_IOS_030_XRAY_NATIVE_PROVENANCE_2026-11-12.md): official pinned libXray Apple archive SHA-256 and pinned `go.mod` SHA-256, upstream source tag/60 dependencies, ZIP traversal/symlink/substitution tests.
 - [x] Физический iPhone **не используется**: отдельный native lab Swift adapter уже подтверждён в iOS Simulator на семи последовательных/конкурентных start/stop циклах с `blackhole` outbound; production PacketTunnel и App Store не изменены.
 - [ ] Осталось: реальный original-flow PacketTunnel egress, физический iPhone Keychain/QR/CloudKit/device network-path, native reproducible SBOM и signed release gate. Пока активна только опубликованная 0.2.0, следующий номер 0.3.0 ещё не отправлен Apple.
+
+
+## Состояние 12.11 после завершения работы без iPhone
+
+- [x] PR #361 merged, exact-head CI 17/17, canonical main `0afa59fcb369bc40dcfd2e4f6af53ce61f4f3f26`; Mac mini/GitHub/GitVerse parity.
+- [x] Swift226/226, Python307 +1513 subtests, unsigned Simulator ARM64 Debug и iPhoneOS ARM64 Release builds PASS.
+- [x] iOS Simulator user journey импорта прокси PASS без реального VPN.
+- [x] Изолированный DEBUG-only native PacketTunnel Rust+libXray handoff собирается для Simulator/iPhoneOS arm64, native blackhole lifecycle проверен; исходный libXray не добавлен в production.
+- [ ] **Аппаратный блокер**: реальный iPhone original-flow nonce receipts, Keychain/QR/CloudKit, реальные VLESS и стандартный WG handshake; licensing/reproducible native build отдельно. До физической приёмки новые протоколы не доступны и 0.3.0 не публикуется.

@@ -13,3 +13,11 @@
 - [ ] No PacketTunnel captured-flow -> local Xray SOCKS -> real VLESS/REALITY server correlation. Prevent loopback capture, DNS leak, Go scheduler/process lifecycle leaks, memory/Go runtime conflicts, and ensure stop/rollback.
 - [ ] No legal source/dependency/SBOM acceptance, no signed test-device IPA, no production protocol advertisement.
 - [ ] Next: isolated debug-only bridge start/stop/health with timeouts; real physical iPhone egress receipt, IPv4/IPv6, QUIC/DNS, Wi-Fi/LTE, fail-closed recovery.
+
+
+## Обновление исследования 12.11: код лабораторного handoff без изменений production
+
+- Изолированный local commit: `d0e17ad8d5f627c99f4dc5132de48bdcac41240c` (плюс проверенный internal APFS Git bundle, ссылка в [device acceptance handoff](APL_IOS_030_DEVICE_ACCEPTANCE_HANDOFF_2026-11-12.md)).
+- `XrayDebugTunRunner` и `XrayNativeLabBridge.startBlackholeLocal/stopBlackholeLocal`: запустить localhost SOCKS blackhole → валидированный `XraySocksHandoffPlan` → Rust TUN runner на отдельной queue → остановить Rust и дождаться drain → остановить Xray; fail-closed для аварий/устаревшего generation.
+- Unsigned iOS Simulator/iPhoneOS ARM64 Debug App+PacketTunnel builds PASS; отдельный Swift CGo blackhole в iOS Simulator: четыре start/stop цикла, duplicate-start fail-closed и idempotent-stop PASS.
+- Внимание: `XrayDebugTunRunner` **не вызывается** действующим `PacketTunnelProvider`, original-flow/TUN outbound не доказан; никакого внешнего VPN или пользовательских Apple-операций. Для этой проверки нужен физический iPhone.

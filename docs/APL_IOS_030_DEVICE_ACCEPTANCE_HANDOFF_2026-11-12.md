@@ -32,3 +32,13 @@
 1. Продолжить **исключительно lab**: добавить безопасный ограниченный запуск `tun2proxy → localhost Xray SOCKS` в DEBUG NetworkExtension с явным fail-closed и stop-drain, без автоматического включения; все исходники, сценарии и сборки доступны без физического телефона.
 2. Зафиксировать source + dependencies SHA, SBOM/licenses, проверить размер и ограничения памяти App Extension.
 3. Провести симуляторные unit/UI/fault-injection сценарии профилей/исключений, затем выпустить **один** тестовый кандидат `0.3.0` после аппаратных ворот; не создавать промежуточные публичные 0.2.x.
+
+
+## Зафиксированная граница offline QA / 12.11.2026
+
+- [x] Исходниковые гейты объединены в canonical main через PR #361, SHA `0afa59fcb369bc40dcfd2e4f6af53ce61f4f3f26`, exact-head CI 17/17 PASS. GitHub/GitVerse/Mac mini совпадают.
+- [x] Real iOS Simulator UI smoke `ProxyImportUITests.testImportPreviewForValidLink`: PASS на синтетическом `.invalid` домене, без запуска VPN.
+- [x] Изолированная лабораторная ветка `research/ios-030-xray-native-link-20261112` SHA `d0e17ad8d5f627c99f4dc5132de48bdcac41240c`: `XrayDebugTunRunner` с локальным `blackhole` Xray SOCKS, Rust `tun2proxy`, строгим планом и serial `stopAndDrain`. DEBUG arm64 Simulator и iPhoneOS App+PacketTunnel BUILDS PASS; физический TUN runtime **NOT RUN**.
+- [x] Swift CGo persistent Xray SOCKS running in Simulator: 4 независимых start/stop цикла PASS, повторный старт отвергнут, повторный stop идемпотентен.
+- [x] Восстановление R&D: `/Users/master/ArvectumSafe/backups/proxy-launcher/apl-ios-030-xray-lab-20261112.bundle`, SHA-256 `17a6cfe56314b2cf475943210c0d0bc2bab0de66b6d5f40025781af516b1cb1b`. Native Apple CGO archive в отдельном R&D-кэше, **не в Git/IPA**.
+- [ ] Возврат владельца с подключённым безопасным iPhone: начать физическую приёмку по таблице выше, до этого Xray/AWG/WG не включать в production.
