@@ -1,0 +1,31 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-PHYSICAL-VPN-EGRESS-20261112
+status: completed
+goal: "Safely validate native system PacketTunnel VPN on physical iPhone with independent 20s app/25s extension auto-stop, public origin changes and restoration, without profile edits."
+definition_of_done:
+  - "Read-only preflight proves installed Debug 0.3.0(49) currently OFF with existing three profiles."
+  - "Enable explicit APL_RUN_EXPLICIT_VPN_QA only for signed Debug UI tests; no App Store changes."
+  - "Existing PhysicalProxyEgressUITests uses two HTTPS public origin providers, compares stable baseline vs VPN and restored OFF."
+  - "Both app 20s and PacketTunnel extension 25s QA kill switches are verified in source."
+  - "No profile mutations; post-test App Group exact bytes and selected UUID preserved; report truthful PASS/FAIL."
+completed:
+  - "Previous 3/3 physical proxy CONNECT and 3/3 nonce-confirmed per-session HTTPS egress PASS without VPN."
+  - "Signed read-only NetworkExtension status test OFF PASS, after UI XCTest automation activation timed out without VPN."
+  - "First active QA failed due premature initial .disconnected test check, no product defect asserted; separate OFF PASS and profiles unchanged."
+  - "Fixed NE start asynchronous grace, verified signed Debug host/XCTest build-for-testing PASS."
+  - "Real VPN PacketTunnel Connected, 2/2 independent HTTPS public IP witnesses changed, explicit disconnect, 2/2 restored: hardware XCTest PASS 5.104s."
+  - "Independent posttest signed NetworkExtension OFF PASS 0.008s; App Group profile bytes and selected UUID identical."
+  - "Full local Python321 +1513 subtests, Swift226 PASS; Simulator gated QA skipped, 0 failed."
+  - "Inspected production Debug app auto-disconnect 20s and independent extension qaStopAfterSeconds=25."
+  - "Read-only UI test infrastructure timed out enabling automation; no VPN state changed; switched to signed app-hosted Network Extension read-only XCTest."
+current: "Completed bounded physical iPhone13 signed Debug 0.3.0 PacketTunnel active test: connected, 2/2 public egress IPs changed, explicit OFF, 2/2 baseline IPs restored. Independent signed OFF test PASS and 3 original profiles unchanged."
+pending: []
+last_verified_commit: "dcefee99e5a24b73628c0783c2dad70ff1ab40ec (verified QA source; physical active 5.104s, post OFF PASS, python321+1513 swift226 simulator skip)"
+test_results:
+  - "Real physical PacketTunnel enabled briefly with 20s app / 25s extension protective stop options. Verified Connected, 2/2 public egress change, direct OFF restoration 2/2. XCTest PASS 5.104s."
+  - "Separate post-test physical OFF XCTest PASS 0.008s; three profiles and selected UUID byte-exact stable."
+  - "Simulator physical-only test XCTSkip 1 skipped/0 failed TEST SUCCEEDED; Python321/321+1513 and Swift226/226 PASS."
+  - "DNS/IPv4/IPv6/UDP/Wi-Fi LTE/fail-closed across network disruptions not yet verified."
+  - "3/3 per-session HTTPS nonce and distinct origin PASS 3.435s; system VPN not yet tested."
+resume_instruction: "Physical PacketTunnel iPhone13 production-path HTTPS egress/restore stage COMPLETE. 20s/25s independent guards, Connected PASS, ipify+Cloudflare origin changes 2/2, OFF direct baseline restore 2/2, independent signed OFF PASS, metadata identical. Continue parent .agent/current-task.yaml: DNS leak, IPv6, UDP/QUIC, Wi-Fi/LTE transitions, native VLESS/WG and private CloudKit, backup and public App Store gates. No destructive restore/uninstall."
