@@ -42,12 +42,13 @@ struct CompactSettingsView<Header: View>: View {
     private var themePicker: some View {
         Picker("Тема оформления", selection: $appearanceMode) {
             ForEach(AppearanceMode.allCases) { mode in
-                Text(mode.title).tag(mode.rawValue)
+                Text(mode.title(forLanguage: appLanguage)).tag(mode.rawValue)
             }
         }
         .labelsHidden() // The row already labels the control; menu shows current mode.
         .accessibilityLabel(AppL10n.tr("Тема оформления"))
         .accessibilityIdentifier("settings.theme")
+        .id(appLanguage)
     }
 
     @ViewBuilder
@@ -59,19 +60,19 @@ struct CompactSettingsView<Header: View>: View {
                         appearanceMode = mode.rawValue
                     } label: {
                         if mode.rawValue == appearanceMode {
-                            Label(mode.title, systemImage: "checkmark")
+                            Label(mode.title(forLanguage: appLanguage), systemImage: "checkmark")
                         } else {
-                            Text(mode.title)
+                            Text(mode.title(forLanguage: appLanguage))
                         }
                     }
                 }
             } label: {
-                accessibilityMenuLabel(AppearanceMode(rawValue: appearanceMode)?.title
-                                       ?? AppearanceMode.system.title)
+                accessibilityMenuLabel(AppearanceMode(rawValue: appearanceMode)?.title(forLanguage: appLanguage)
+                                       ?? AppearanceMode.system.title(forLanguage: appLanguage))
             }
             .accessibilityLabel(AppL10n.tr("Тема оформления"))
             .accessibilityIdentifier("settings.theme")
-        } else if AppearanceMode.allCases.contains(where: { $0.title.count > 9 }) {
+        } else if AppearanceMode.allCases.contains(where: { $0.title(forLanguage: appLanguage).count > 9 }) {
             // iPhone SE: use menu instead of three clipped native segments.
             themePicker.pickerStyle(.menu)
         } else {

@@ -35,7 +35,13 @@ def test_theme_labels_and_controls_never_force_truncated_segments():
     # Native segmented controls cannot fit three arbitrarily long localized
     # strings in a 240pt width. Longer languages must use menu presentation.
     settings=(IOS/'App/CompactSettingsView.swift').read_text()
-    assert 'AppearanceMode.allCases.contains(where: { $0.title.count > 9 })' in settings
+    # The current UI language must drive label measurement as well as the
+    # button titles. Otherwise switching locale may overflow the 240pt row.
+    assert (
+        'AppearanceMode.allCases.contains(where: '
+        '{ $0.title(forLanguage: appLanguage).count > 9 })'
+        in settings
+    )
     for code in ('be','et','lv','lt','ka','hy','az','kk','tk','ky','tg'):
         d,_=read_strings(IOS/'Resources'/f'{code}.lproj'/'Localizable.strings')
         labels,_=read_strings(IOS/'Resources'/f'{code}.lproj'/'ProfileManagement.strings')

@@ -61,3 +61,5 @@
 Windows WinDivert/new release, macOS per-app, Android/RuStore, Linux, Proxifier desktop, QRVPN Gateway, Marketplace, ГОСТ, международные трафик-квоты, реестр ПО и Роспатент **не являются активными направлениями**. Код, результаты, релизы, документы и исторический backlog остаются без удаления. Возобновление требует отдельного решения владельца.
 
 **Следующий запуск:** читать .agent/current-task.yaml, этот индекс и нужные iOS QA-протоколы; не создавать новый Watchdog, не менять Scheduled Tasks, Apple/RuStore и не выпускать подписанный бинарник без отдельного релизного решения.
+
+- [x] 12.11: Аппаратная baseline-проверка через iPhone Mirroring на iPhone 13 / iOS 27.2.1: APL 0.2.0, три профиля, пустые исключения, preview-only импорт, onboarding и язык; обнаружен и исправлен дефект подписей темы RU→EN. Simulator UI PASS, Python310+1513, Swift226, signed Debug iPhoneOS 0.3.0(49) PASS. См. [протокол](APL_IOS_030_IPHONE_MIRRORING_ACCEPTANCE_2026-11-12.md); установка новой версии и смена VPN закрыты до backup gate.
