@@ -49,6 +49,7 @@
 		36C110A5629C0531820FC002 /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		36C8485C979A28BB15CBFD46 /* ProxyImport.strings in Resources */ = {isa = PBXBuildFile; fileRef = BB11E773C4C15B602BA581E8 /* ProxyImport.strings */; };
 		39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
+		3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */; };
 		3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */; };
 		3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
 		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
@@ -193,6 +194,13 @@
 			remoteGlobalIDString = E61DDAFAF71112FF83DBA198;
 			remoteInfo = ArvectumProxyLauncher;
 		};
+		DE92BE7A8D197AB01977770C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B03F839F8939F6B9DD935E2F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E61DDAFAF71112FF83DBA198;
+			remoteInfo = ArvectumProxyLauncher;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -228,6 +236,7 @@
 		0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackupUX.swift; sourceTree = "<group>"; };
 		0FA7A1833E7E9E47A1F25FE8 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		0FE6C179D53398282FC43E83 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		1065C7F499F8371D3FF929D6 /* PhysicalKeychainReadOnlyTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PhysicalKeychainReadOnlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		10E79F53DAC92F937472FCDF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		126719C097CD844E767A8800 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		129C8AB44C8E39E05377DDA3 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/QuickActions.strings"; sourceTree = "<group>"; };
@@ -375,6 +384,7 @@
 		6652E446616A6E8C2C75AE86 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		66F32F462A5279E126D44D16 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProfileSharing.swift; sourceTree = "<group>"; };
+		67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalKeychainReadOnlyTests.swift; sourceTree = "<group>"; };
 		68253EF20512E06624313F34 /* UXReadOnlyNavigationUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UXReadOnlyNavigationUITests.swift; sourceTree = "<group>"; };
 		68FB061A7453C768ADE1E474 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyDisclosureView.swift; sourceTree = "<group>"; };
@@ -688,6 +698,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		361FCFB2425C1BAF880344B5 /* DeviceKeychainTests */ = {
+			isa = PBXGroup;
+			children = (
+				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
+			);
+			name = DeviceKeychainTests;
+			path = Tests/DeviceKeychainTests;
+			sourceTree = "<group>";
+		};
 		393ED22990C8B81CA7BF7036 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -757,6 +776,7 @@
 			children = (
 				B36CC5CE120606BD58EA5D89 /* App */,
 				7193BBEC5C3CD952A6891F76 /* AppPrivacy */,
+				361FCFB2425C1BAF880344B5 /* DeviceKeychainTests */,
 				7993D6249BA5ED912325B875 /* PacketTunnel */,
 				A5CB434A9963A1B400EEC60A /* PacketTunnelPrivacy */,
 				393ED22990C8B81CA7BF7036 /* Resources */,
@@ -875,6 +895,7 @@
 			children = (
 				16DF8817B74A221271EF9DC9 /* ArvectumProxyLauncher.app */,
 				30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */,
+				1065C7F499F8371D3FF929D6 /* PhysicalKeychainReadOnlyTests.xctest */,
 				2CE4835A38235A1898FD8E16 /* SmartExclusionsUITests.xctest */,
 			);
 			name = Products;
@@ -900,6 +921,24 @@
 			productName = SmartExclusionsUITests;
 			productReference = 2CE4835A38235A1898FD8E16 /* SmartExclusionsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		76F5410F0E20DE8399EC8EE1 /* PhysicalKeychainReadOnlyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C636192059A721FB27478ECF /* Build configuration list for PBXNativeTarget "PhysicalKeychainReadOnlyTests" */;
+			buildPhases = (
+				8E1FAC51504F7E69D4483BFA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D4721F2F9F4541595168E9C /* PBXTargetDependency */,
+			);
+			name = PhysicalKeychainReadOnlyTests;
+			packageProductDependencies = (
+			);
+			productName = PhysicalKeychainReadOnlyTests;
+			productReference = 1065C7F499F8371D3FF929D6 /* PhysicalKeychainReadOnlyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */ = {
 			isa = PBXNativeTarget;
@@ -955,6 +994,10 @@
 						DevelopmentTeam = VML75VY94V;
 						ProvisioningStyle = Automatic;
 						TestTargetID = E61DDAFAF71112FF83DBA198;
+					};
+					76F5410F0E20DE8399EC8EE1 = {
+						DevelopmentTeam = VML75VY94V;
+						ProvisioningStyle = Automatic;
 					};
 					E61DDAFAF71112FF83DBA198 = {
 						DevelopmentTeam = VML75VY94V;
@@ -1049,6 +1092,7 @@
 				E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */,
 				E8AD32270232FC1E1DF6E09B /* PacketTunnel */,
 				6236C8AFD4987A280867FD04 /* SmartExclusionsUITests */,
+				76F5410F0E20DE8399EC8EE1 /* PhysicalKeychainReadOnlyTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1168,6 +1212,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8E1FAC51504F7E69D4483BFA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9D6E75C14E16823EE2CFB35A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1265,6 +1317,11 @@
 			isa = PBXTargetDependency;
 			target = E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */;
 			targetProxy = 99045DEE4FECAB74ADCC8DBC /* PBXContainerItemProxy */;
+		};
+		3D4721F2F9F4541595168E9C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E61DDAFAF71112FF83DBA198 /* ArvectumProxyLauncher */;
+			targetProxy = DE92BE7A8D197AB01977770C /* PBXContainerItemProxy */;
 		};
 		F55362BBA22CAC0FE70CD8E4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1794,6 +1851,24 @@
 			};
 			name = Release;
 		};
+		B15C7A3729F369FE9D94A4EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios.PhysicalKeychainQA;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Arvectum Proxy Launcher.app/Arvectum Proxy Launcher";
+			};
+			name = Release;
+		};
 		B746969BEF700979572DF585 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1885,6 +1960,24 @@
 			};
 			name = Release;
 		};
+		F4D08B5EC1123DB87231FC2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ru.arvectum.proxylauncher.ios.PhysicalKeychainQA;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Arvectum Proxy Launcher.app/Arvectum Proxy Launcher";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1902,6 +1995,15 @@
 			buildConfigurations = (
 				B746969BEF700979572DF585 /* Debug */,
 				3C213C5398F1BC53ED62CD78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C636192059A721FB27478ECF /* Build configuration list for PBXNativeTarget "PhysicalKeychainReadOnlyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4D08B5EC1123DB87231FC2D /* Debug */,
+				B15C7A3729F369FE9D94A4EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

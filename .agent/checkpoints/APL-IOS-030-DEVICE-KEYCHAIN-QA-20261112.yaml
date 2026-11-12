@@ -1,0 +1,23 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-DEVICE-KEYCHAIN-QA-20261112
+status: completed
+goal: "Read-only verify three authenticated iPhone proxy Keychain entries after in-place iOS 0.3.0 upgrade, without exposing passwords or changing VPN."
+definition_of_done:
+  - "Build signed iPhone-hosted XCTest with the existing APL app and matching Team."
+  - "Query the real ProfileStore and existing Keychain read-only, no secret output."
+  - "Validate 3 profiles and 3 accessible nonempty authentication entries."
+  - "Skip on simulator/CI, retain all user data."
+completed:
+  - "Prepared separate read-only XCTest target and dedicated Xcode scheme."
+  - "Initial build found module import name mismatch, corrected to Arvectum_Proxy_Launcher."
+current: "Completed read-only signed host-app Xcode XCTest on physical iPhone13; all three authenticated Keychain entries are present and nonempty; original profiles.v1 unchanged."
+pending: []
+last_verified_commit: "30050f94794d0fcd9fade97805e6734adb89cd5a (parent QA baseline)"
+test_results:
+  - "Initial import mismatch fixed: app module is Arvectum_Proxy_Launcher, not target name."
+  - "Physical signed iPhone13 XCTest testThreeExistingAuthenticatedProfilesCanReadKeychainWithoutMutation PASS in 0.004s, 3/3 credentials readable; secrets never printed."
+  - "Post-test App Group snapshot byte-identical profile data and selected UUID; no mutations."
+  - "Simulator suite: 1 skipped, 0 failed, TEST SUCCEEDED."
+  - "Full local iOS Python314/314 +1513 subtests and Swift226/226 PASS."
+resume_instruction: "Completed Keychain hardware migration gate. All 3/3 saved authenticated proxy credentials read nonempty inside signed Debug APL0.3.0(49), simulator skip and Python314+1513 Swift226 green. Next merge QA PR then resume parent .agent/current-task.yaml with controlled authenticated HTTP/SOCKS5 real network egress, native VLESS/WG lab and CloudKit. Never uninstall/reset or log secrets. No full .aplbackup exists."

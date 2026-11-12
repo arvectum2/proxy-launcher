@@ -99,6 +99,20 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios.UITests
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGNING_ALLOWED: YES
+  PhysicalKeychainReadOnlyTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/DeviceKeychainTests
+    dependencies:
+      - target: ArvectumProxyLauncher
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.ios.PhysicalKeychainQA
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Arvectum Proxy Launcher.app/Arvectum Proxy Launcher"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        CODE_SIGNING_ALLOWED: YES
 schemes:
   ArvectumProxyLauncher:
     build:
@@ -113,3 +127,15 @@ schemes:
       config: Debug
     archive:
       config: Release
+
+  ArvectumKeychainReadOnlyQA:
+    build:
+      targets:
+        ArvectumProxyLauncher: all
+        PhysicalKeychainReadOnlyTests: all
+    test:
+      config: Debug
+      targets:
+        - PhysicalKeychainReadOnlyTests
+    run:
+      config: Debug

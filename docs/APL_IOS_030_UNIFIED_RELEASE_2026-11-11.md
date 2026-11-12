@@ -79,3 +79,9 @@
 - [x] iOS Simulator user journey импорта прокси PASS без реального VPN.
 - [x] Изолированный DEBUG-only native PacketTunnel Rust+libXray handoff собирается для Simulator/iPhoneOS arm64, native blackhole lifecycle проверен; исходный libXray не добавлен в production.
 - [ ] **Аппаратный блокер**: реальный iPhone original-flow nonce receipts, Keychain/QR/CloudKit, реальные VLESS и стандартный WG handshake; licensing/reproducible native build отдельно. До физической приёмки новые протоколы не доступны и 0.3.0 не публикуется.
+
+## Keychain migration gate, 12.11.2026
+
+- [x] После разрешённого in-place QA обновления 0.2.0→Debug 0.3.0(49) отдельный подписанный unit-test на физическом iPhone13 подтвердил 3/3 доступных непустых Keychain-пароля. Отсутствуют сетевые операции и раскрытие секретов.
+- [x] Повторно сравнили App Group prefs: список трёх профилей и выбранный ID идентичны оригинальному post-install снимку.
+- [ ] Реальный authenticated proxy egress, DNS, IPv4/IPv6/UDP, облачный opt-in и native VLESS/WG/AmneziaWG приёмка — ещё не выполнены.
