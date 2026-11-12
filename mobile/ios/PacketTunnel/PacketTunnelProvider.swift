@@ -36,6 +36,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var stopping = false
 #if DEBUG
     private var qaScopedDirect = false
+    private var qaTracePublicIPv4Only = false
     private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
 #endif
 
@@ -47,6 +48,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
         let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
+        // Only a bounded signed Debug hardware test may observe anonymous
+        // per-flow CONNECT results. This flag never changes routing.
+        qaTracePublicIPv4Only = stopAfter == 25 &&
+            (options?["qaTracePublicIPv4Only"] as? NSNumber)?.boolValue == true
         let radioHandoffQA = stopAfter == 95 &&
             (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true
         qaScopedDirect = (options?["qaScopedDirect"] as? NSNumber)?.boolValue == true &&
@@ -285,9 +290,15 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         let directTTL = AdaptiveRouteLearning.lifetime
 #endif
         if let store {
+#if DEBUG
+            let qaFlowTrace = qaTracePublicIPv4Only
+#else
+            let qaFlowTrace = false
+#endif
             SmartFlowEventCollector.shared.start(store: store,
                 exactHostDirect: exactHostDirect, labScopedDirect: physicalLab,
-                qaDirectTTLSeconds: directTTL)
+                qaDirectTTLSeconds: directTTL,
+                qaTracePublicIPv4Only: qaFlowTrace)
         }
         engineQueue.async { [weak self] in
             guard let self, !self.stopping else { return }
