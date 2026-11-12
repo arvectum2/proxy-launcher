@@ -1,0 +1,28 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-IPHONE-MIRRORING-20261112
+status: completed
+goal: "Read-only iPhone 13 Mirroring baseline for APL 0.2.0, detect and fix UI regressions, build signed 0.3.0 QA without replacing production app."
+definition_of_done:
+  - "Preserve 0.2.0 user profiles and VPN untouched."
+  - "Run synthetic preview-only import, read-only settings/onboarding/locale."
+  - "Fix discovered locale defect and pass real Simulator UI regression."
+  - "Pass complete Python/Swift regressions and signed Debug iPhoneOS build."
+  - "Merge reviewed PR after exact-head CI and sync GitHub/GitVerse/Mac mini."
+completed:
+  - "Physical iPhone13 iOS27.2.1 connected using iPhone Mirroring, APL 0.2.0 baseline three profiles and zero exclusions documented; VPN remained off."
+  - "Synthetic http://qa.invalid:1234 import preview displayed one candidate, saved nothing."
+  - "RU to EN to RU discovered untranslated theme segments in published app; implemented explicit locale labels and regression."
+  - "iOS Simulator selected XCTest RU->EN->RU theme segment relocalization PASS (26.818s)."
+  - "iOS Python310/310 +1513 subtests, Swift226/226 PASS."
+  - "Signed Debug iPhoneOS APL0.3.0(49) app+PacketTunnel built and verified; neither was installed."
+  - "GitHub PR #364 merged exact-head 17/17 CI; Mac mini/GitHub/GitVerse main SHA parity verified."
+current: "Stage complete, no modifications to existing iPhone app data."
+pending: []
+last_verified_commit: "ec9ca321173b508863abc69ac0c73fe56eb33f2a"
+test_results:
+  - "Simulator SwiftUI locale test PASS 26.818s."
+  - "Python 310 +1513 subtests and Swift 226 PASS."
+  - "Signed 0.3.0(49) debug arm64 iPhoneOS App and PacketTunnel codesign verify PASS; not installed."
+  - "PR #364 17/17 CI PASS and exact GitHub/GitVerse/Mac mini parity."
+resume_instruction: "Resume parent APL-IOS-UNIFIED-RELEASE-20261111 from main .agent/current-task.yaml only after owner reconnects iPhone and approves controlled encrypted backup/install gate. Prior physical iPhone Mirroring connection interrupted; do not overwrite the installed APL0.2.0 or touch working VPN without safe authorization."

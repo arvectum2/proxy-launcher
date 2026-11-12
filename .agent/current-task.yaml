@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: in_progress
+status: blocked
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026: PR #364 live theme relocalization and physical iPhone Mirroring baseline merged exact-head GitHub CI 17/17 PASS at ec9ca321173b508863abc69ac0c73fe56eb33f2a; Mac mini/GitHub/GitVerse main parity and clean confirmed. Mirroring later interrupted, devicectl state unavailable."
   - "12.11.2026: iPhone Mirroring discovered live RU->EN theme segment labels remain Russian in App Store 0.2.0; implemented explicit AppL10n.tr(key, language:) and AppearanceMode.title(forLanguage:), updated picker items. Fixed XCTest without forced NSArgumentDomain language. Simulator UI test RU->EN->RU and theme preservation PASS (26.818s). No installed APL or VPN change."
   - "12.11.2026: owner connected physical iPhone 13 iOS 27.2.1 by USB and authorized iPhone Mirroring; Mirroring connected and read-only baseline opened. Published APL v0.2.0, button Connect (VPN disconnected), 3 existing profiles, selected Netherlands 2, empty exclusion list; no user data changed."
   - "12.11.2026: Mac mini external APFS SSD mounted read/write, repository main was clean at 0afa59fc; recovered using MacBook -> SSH -> Mac mini and fast-forwarded to 7999f2b0. Confirmed identical SHA on local main, GitHub origin/main and GitVerse main, and clean working tree. No force push or reset."
@@ -55,7 +56,7 @@ completed:
 
 
 
-current: "Physical iPhone 13 Mirroring acceptance: installed APL 0.2.0 3 profiles/0 exclusions preserved, old in-place RU→EN theme bug found. QA 0.3.0 source fix 7176d13c tested UI in Simulator PASS, full Python310+1513 and Swift226 PASS, signed iPhoneOS 0.3.0(49) app+PacketTunnel verified. Next merge QA PR and prepare backup/installation gate before replacing App Store app; no physical VPN or production secret changes."
+current: "iOS 0.3.0 physical QA baseline complete but next hardware stage blocked. On 2026-11-12 owner iPhone13 Mirroring accessed 0.2.0 with three preserved profiles, zero exclusions; fixed RU→EN theme locale in source; PR #364 merged exact-head 17/17 PASS as ec9ca321173b508863abc69ac0c73fe56eb33f2a. Simulator UI26.818s, Python310+1513, Swift226, signed Debug 0.3.0(49) PASS. Existing app NOT replaced. Mirroring subsequently interrupted and devicectl sees iPhone unavailable; await device reconnection, controlled encrypted backup and explicit approval for same-Bundle-ID installation."
 blocked_on:
   - "Installing QA 0.3.0 under the same Bundle ID will replace App Store 0.2.0 with three work profiles. Require owner-controlled encrypted backup and specific confirmation for app replacement and any VPN route changes; phone connected and read-only GUI QA already complete."
   - "Native source/Go dependency license audit, real external VLESS/standard WireGuard server receipts and controlled PacketTunnel acceptance are not yet completed."
@@ -67,8 +68,9 @@ pending:
   - "Audit 60 declared native Go dependencies/third-party notices and build pinned Xray source reproducibly (Go 1.27.3 currently missing). AmneziaWG requires a distinct real backend gate."
   - "CloudKit private entitlement, privacy copy, two-device manual exclusion conflict and opt-in tests."
   - "Only one signed 0.3.0 iOS App Store candidate/review/publication after all release gates; no public 0.2.x micro-releases."
-last_verified_commit: "7176d13c43552ecddd11af7d730909f3e1ea9ee4 (iOS 0.3.0 theme locale QA source: real Simulator UI PASS, full iOS Python310+1513, Swift226 PASS, signed Debug iPhoneOS 0.3.0/49 app + extension verify PASS; base main 1df919170e8e9e7949cfac4395f2ae74082fd5db; PR not yet merged)"
+last_verified_commit: "ec9ca321173b508863abc69ac0c73fe56eb33f2a (PR #364 merged exact-head CI 17/17; local Mac mini/GitHub/GitVerse main parity and clean; Python310+1513, Swift226, Simulator UI PASS; signed Debug iPhoneOS 0.3.0/49 PASS, not installed)"
 test_results:
+  - "PR #364 exact-head 17/17 PASS; local/GitHub/GitVerse main exact SHA ec9ca321173b508863abc69ac0c73fe56eb33f2a, clean. Physical 0.2.0 baseline and signed 0.3.0 candidate checked; actual phone upgrade and VPN not performed due backup/device safety gate."
   - "12.11.2026 physical iPhone13 iOS27.2.1 iPhone Mirroring 0.2.0 baseline PASS: 3 saved profiles preserved, empty exclusions, APL VPN disconnected; synthetic http://qa.invalid:1234 preview-only imported 1 candidate then canceled; RU->EN->RU old theme issue reproduced without touching profiles."
   - "12.11.2026 SwiftUI locale fix exact Simulator XCTest CompactSettingsUITests.testThemeSegmentsRelocalizeWithoutRestartingAppOrChangingAppearance PASS 26.818s; run without forced NSArgumentDomain appLanguage argument."
   - "12.11.2026 full Python310/310 and 1513 subtests PASS; swift test 226/226 PASS after source fix."
@@ -95,4 +97,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Continue iOS 0.3.0 physical QA in branch qa/ios-030-physical-mirroring-20261112 and checkpoint. Source fix commit 7176d13c43552ecddd11af7d730909f3e1ea9ee4 tested Python310+1513, Swift226, iOS Simulator exact RU->EN->RU UI PASS; signed Debug iPhoneOS arm64 0.3.0(49) generated/verified on Mac mini, NOT installed. First merge PR after exact-head CI green and sync main GitHub/GitVerse/Mac mini. iPhone 13 iOS27.2.1 available in iPhone Mirroring; installed App Store APL0.2.0 three profiles, 0 exclusions, previous selected Netherlands2, no active APL VPN. Next require owner-controlled encrypted backup and specific permission before replacing same-bundle app on physical phone; preserve Keychain and profiles. Native VLESS/WG only source/lab; external nonce and CloudKit multi-device unavailable; no App Store upload."
+resume_instruction: "Task blocked on physical QA/install gate. Canonical Mac mini/GitHub/GitVerse main verified ec9ca321173b508863abc69ac0c73fe56eb33f2a, all CI 17/17 green. QA evidence docs/APL_IOS_030_IPHONE_MIRRORING_ACCEPTANCE_2026-11-12.md. User iPhone 13 iOS27.2.1 previously via iPhone Mirroring but later Connection Interrupted and devicectl unavailable; recheck device and Mirroring only after owner reconnects. App Store APL0.2.0 (3 profiles/0 exclusions/last Netherlands2/no active APL VPN) must not be replaced until owner-controlled encrypted backup and specific installation authorization. Debug signed 0.3.0(49) produced on Mac mini outside Git, but no installation. Then verify profile ID/Keychain upgrade, VPN, native Xray/WG external nonce, CloudKit opt-in multi-device; avoid unverified VLESS/AWG, Smart4 DIRECT and App Store publishing."
