@@ -16,7 +16,7 @@ completed:
   - "Mac mini DNS confirmed v6.ident.me and ipv6.icanhazip.com have 0 A and >=1 AAAA answers."
 current: "COMPLETED read-only IPv6 upstream reachability: both alternative IPv6-only public HTTPS sites direct PASS, but existing three saved proxies 0/3 each; signed OFF and profiles unchanged. Cannot accept end-to-end IPv6 PacketTunnel without proven IPv6-capable test upstream."
 pending: []
-last_verified_commit: "8b4588da288ae866f4d7c69ab1aa2487b2e0be97 (base Debug flow trace PR #374)"
+last_verified_commit: "30ee3b182a615711d8c8e79f8f473d1d2f3db9a0 (signed physical iPhone13 direct alternate IPv6-only endpoints 2/2, saved proxy 0/3 each; independent OFF and profile bytes stable; Python335+1513, Swift226 and simulator physical skip PASS; PR CI pending)"
 test_results:
   - "Signed physical iPhone13 alternate v6.ident.me and ipv6.icanhazip.com direct true/true, original saved proxy upstream per endpoint 0/3 and 0/3, 3.919s XCTest PASS."
   - "Independent signed OFF and protected App Group profiles.v1/selected ID exact bytes preserved."

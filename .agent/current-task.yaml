@@ -77,7 +77,7 @@ pending:
   - "Find/provision independent IPv6-capable disposable proxy and verify with a valid hostname TLS endpoint before guarded PacketTunnel IPv6 physical QA; do not change user profiles."
   - "Network condition repeatability, DNS leak, UDP/QUIC and Wi-Fi/LTE fail-closed."
   - "Complete native Xray/WG/AWG, iCloud opt-in, backup, then one public iOS 0.3.0 release only after gates."
-last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
+last_verified_commit: "30ee3b182a615711d8c8e79f8f473d1d2f3db9a0 (signed physical iPhone13 direct alternate IPv6-only endpoints 2/2, saved proxy 0/3 each; independent OFF and profile bytes stable; Python335+1513, Swift226 and simulator physical skip PASS; PR CI pending)"
 test_results:
   - "Physical signed iPhone13 direct v6.ident.me and ipv6.icanhazip.com valid IPv6, existing three proxies 0/3 on both; previous api6.ipify.org 0/3. No VPN toggled, user data byte-unchanged."
   - "Independent signed OFF and snapshot profiles.v1/selected ID pass; Python335+1513 Swift226 and simulator skip PASS."
