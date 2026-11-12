@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11.2026 19:57 MSK: user-authorized signed host-app Xcode XCTest on physical iPhone13 read all three nonempty authenticated proxy Keychain records via ProfileStore.password(for:) without logging contents; PASS 0.004s. Post-test App Group profiles.v1 bytes and selected UUID unchanged. Separate QA simulator scheme XCTSkip PASS, Python314+1513 Swift226 PASS."
   - "12.11.2026: owner-authorized Xcode CoreDevice signed Debug APL0.3.0(49) installed in place over 0.2.0, no uninstall/VPN; App Group 3 profiles, selected UUID unchanged; two physical iPhone XCUITest PASS (14.077s profile UI and 27.006s RU/EN/RU locale). Two metadata snapshots exact profiles.v1 bytes match."
   - "12.11.2026: iPhone USB pairing and iCloud Backup settings checked read-only. CloudBackupEnabled true, latest timestamp 2026-11-12T15:09:35Z. iPhone Mirroring unavailable (Connection Paused); no .aplbackup export. Signed candidate 0.3.0(49) and Apple dev team entitlements verified for in-place-only upgrade, zero uninstall or app data reset."
   - "12.11.2026: iPhone13 reconnected over USB/Mirroring; APL0.2.0 and three profiles unchanged; encrypted backup UI inspected, but unable to enter/confirm owner password reliably; export canceled, no file created, clipboard and unused temporary keychain entry cleared."
@@ -59,18 +60,21 @@ completed:
 
 
 
-current: "Signed Debug APL 0.3.0(49) installed on physical iPhone13 via Xcode, without deleting 0.2.0 data. CoreDevice and physical XCTest prove 3 saved profiles, same selected ID, byte-identical profile data and fixed RU/EN theme labels. No VPN switched. Keychain secret accessibility, .aplbackup and native VLESS/WG external egress still unverified. No App Store release."
+current: "Physical iPhone13 Debug APL0.3.0(49) QA: three preexisting profiles, selected UUID and all three nonempty authenticated Keychain secrets SURVIVED in-place upgrade, proven by signed host-app read-only Xcode unit XCTest. Source and simulator guards tested; no VPN activated or App Store release. Next gates: real authenticated proxy egress, native VLESS/WG lab, CloudKit and encrypted standalone backup."
 blocked_on:
-  - "Direct Keychain secret accessibility and authenticated VPN egress unverified; protected metadata snapshot is not a full encrypted Keychain backup, and no standalone .aplbackup exists. No uninstall/reset/rollback."
-  - "Lab-only VLESS/standard WG captured TUN egress, DNS/IPv4/IPv6/UDP, native license/reproducibility, CloudKit entitlement and two-device opt-in are incomplete."
+  - "Full owner-controlled encrypted .aplbackup is not available (only earlier iCloud Backup and restricted App Group metadata snapshots); do not uninstall or destructively rollback."
+  - "Real authenticated HTTP/SOCKS5 egress and DNS/IPv4/IPv6/UDP/path-switching not yet demonstrated with controlled external receipts."
+  - "Native VLESS/standard WG PacketTunnel egress, third-party licensing/reproducible build, CloudKit private entitlement/two-device opt-in remain incomplete."
 pending:
-  - "Merge hardware QA test after exact-head CI, then sync Mac mini/GitHub/GitVerse main."
-  - "Safely verify existing Keychain credentials and HTTP/SOCKS5 egress without exposing secrets or resetting profiles."
-  - "Create owner-controlled encrypted .aplbackup when securely possible; iCloud Backup and App Group metadata alone are not app-credential recovery proof."
-  - "Finish isolated VLESS/standard WireGuard hardware nonce egress, DNS/path-switching, CloudKit user opt-in and native source/license gates."
-  - "One signed public iOS 0.3.0 release only after acceptance; desktop platforms remain paused."
-last_verified_commit: "de739581091b2414236839e29df70c362ff1f22d (tested physical QA source, iPhone XCTest PASS, simulator skip PASS, Python312+1513 Swift226; base main 28ac51696fa3c1d60350e7e0618c5f8b8dc05dce)"
+  - "Merge physical migration QA and Keychain unit QA PRs after exact-head CI, then synchronize Mac mini/GitHub/GitVerse."
+  - "Prepare controlled read-only external endpoint witness and verify current HTTP/HTTPS/SOCKS5 with no secret leakage, with safe VPN restore."
+  - "Complete isolated native Rust+Xray VLESS/standard WG captured-flow egress and fail-closed, DNS, IPv4/IPv6/UDP/path-switching."
+  - "Create standalone owner-controlled encrypted .aplbackup when securely possible; no destructive rollback meanwhile."
+  - "Native third-party notices/reproducible build and CloudKit private two-device opt-in, then one public 0.3.0 App Store release only after all gates."
+last_verified_commit: "1cefb1e4a7f5ccc99469d44f63dd753cb427c561 (separate Xcode Keychain QA source, physical signed XCTest 3/3 PASS; simulator skip PASS; Python314+1513 and Swift226 PASS; parent physical QA head 30050f947)"
 test_results:
+  - "Physical signed host-app XCTest PhysicalKeychainReadOnlyTests: 3/3 authenticated nonempty Keychain passwords available, PASS 0.004s, no values logged. Profile metadata and selected UUID byte-identical after test."
+  - "Separate Keychain QA simulator scheme 1 XCTSkip, 0 failed TEST SUCCEEDED; Python314+1513 subtests and Swift226 PASS."
   - "Physical iPhone XCUITest 3 saved profiles and Settings 0.3.0 PASS 14.077s; RU->EN->RU theme labels PASS 27.006s. AppGroup snapshots exact profiles.v1 and selected profile ID match before/after tests."
   - "Device CoreDevice signed in-place install exit0, APL0.3.0 build49 launch PASS; no VPN traffic or uninstall. Simulator physical-only test 1 skipped/0 failed PASS, Python312+1513 subtests and Swift226 PASS."
   - "PR #364 exact-head 17/17 PASS; local/GitHub/GitVerse main exact SHA ec9ca321173b508863abc69ac0c73fe56eb33f2a, clean. Physical 0.2.0 baseline and signed 0.3.0 candidate checked; actual phone upgrade and VPN not performed due backup/device safety gate."
@@ -100,4 +104,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Branch qa/ios-030-physical-upgrade-20261112, device QA code commit de739581091b2414236839e29df70c362ff1f22d. Signed Debug APL0.3.0(49) is ALREADY installed in-place on physical iPhone13. Profiles and selected UUID preserved, two physical XCUITests PASS and repeated App Group profiles.v1 byte-identical. Simulator-safe XCTSkip and Python312+1513/Swift226 PASS. First merge current QA PR after exact-head CI and sync mirrors. Next verify Keychain accessibility and real authenticated HTTP/SOCKS5 egress, then lab-only native VLESS/WG nonce and CloudKit gates. Never uninstall/reset; no full .aplbackup, only earlier iCloud Backup and protected metadata snapshot. No App Store upload."
+resume_instruction: "iOS 0.3.0 only. Signed Debug APL0.3.0(49) ALREADY installed in place on owner iPhone13; 3 profile IDs, selected UUID and 3/3 nonempty Keychain credentials verified by physical read-only Xcode XCTest. No VPN or app deletion. Physical migration PR #367 head 30050f947 and dependent Keychain QA branch qa/ios-030-device-keychain-20261112 code 1cefb1e4a7f5ccc99469d44f63dd753cb427c561 need exact-head CI merge/sync. Separate Keychain QA scheme does not run in production app scheme; CI simulator skips. Next controlled authenticated HTTP/SOCKS5 network receipts, native Xray/WG encrypted egress, CloudKit and backup gates. No .aplbackup so never uninstall/destructively restore; do not publish 0.3.0 without completed acceptance."

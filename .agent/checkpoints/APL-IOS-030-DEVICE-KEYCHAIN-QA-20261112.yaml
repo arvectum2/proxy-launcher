@@ -13,7 +13,7 @@ completed:
   - "Initial build found module import name mismatch, corrected to Arvectum_Proxy_Launcher."
 current: "Completed read-only signed host-app Xcode XCTest on physical iPhone13; all three authenticated Keychain entries are present and nonempty; original profiles.v1 unchanged."
 pending: []
-last_verified_commit: "30050f94794d0fcd9fade97805e6734adb89cd5a (parent QA baseline)"
+last_verified_commit: "1cefb1e4a7f5ccc99469d44f63dd753cb427c561 (signed real-device read-only 3/3 Keychain PASS, sim skip, Python314+1513 Swift226)"
 test_results:
   - "Initial import mismatch fixed: app module is Arvectum_Proxy_Launcher, not target name."
   - "Physical signed iPhone13 XCTest testThreeExistingAuthenticatedProfilesCanReadKeychainWithoutMutation PASS in 0.004s, 3/3 credentials readable; secrets never printed."
