@@ -1,0 +1,43 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-PHYSICAL-VPN-DUALSTACK-20261112
+status: blocked
+goal: "Verify IPv4 and IPv6 HTTPS address-family egress over real APL PacketTunnel on user-authorized physical iPhone, with exact OFF restore, 20s/25s independent guardrails and no profile/Keychain mutation."
+definition_of_done:
+  - "Physical signed Debug app-hosted XCTest gated behind APL_RUN_EXPLICIT_VPN_QA and targetEnvironment(simulator) skip."
+  - "Preflight APL NE state OFF and stable direct IPv4 and IPv6 HTTPS baselines, no IP disclosure."
+  - "Tunnel on using only existing NE manager/profiles; app 20s and PacketTunnel 25s independent stop."
+  - "Check IPv4 and IPv6 remote HTTP200, syntax and changed source egress while ON, then OFF and restored addresses."
+  - "Independently confirm OFF and App Group profile bytes unchanged after active test."
+  - "Full source regressions and simulator skip, documented pass/fail or objective environment blocker."
+completed:
+  - "23:13 signed physical iPhone13 DNS snapshot PASS: expected fake 198.18/15 A for IPv4-only and dual hostname inside active VPN, XCTest 2.004s."
+  - "Numerical IPv4 Cloudflare HTTPS through PacketTunnel changed egress PASS; IPv4-only hostname HTTPS still timed out -1001."
+  - "Per-session Apple proxy IPv4-only 3/3 PASS, IPv6-only 0/3; literal IPv6 -1200 TLS inconclusive."
+  - "Independent signed posttest OFF, protected 3 profiles and selected UUID exact bytes intact."
+  - "Simulator hardware DNS skip1/0 failed; Python331+1513 Swift226 PASS."
+  - "12.11 22:41 and 22:47 MSK: two signed physical attempts with 20s host / 25s extension guards; PacketTunnel reached Connected, both IPv4-only and IPv6-only HTTPS endpoints timed out during VPN ON (-1001) when tested independently; both baseline addresses restored after explicit OFF."
+  - "Independent signed read-only NETunnelProviderManager check after both failed diagnostic attempts confirmed VPN OFF. Protected profiles.v1 bytes and selected ID exactly match pre-upgrade."
+  - "Signed physical per-session Network.ProxyConfiguration no-failover diagnostics with original Keychain credentials: IPv4-only endpoint succeeds 3/3 proxies; IPv6-only api6.ipify.org succeeds 0/3; system VPN was OFF."
+  - "App Group latest 40 telemetry event types include connected/disconnected/manual stop and connection pressure, no engine stopped; only event types counted, no names/details read out."
+  - "Mac mini public literal Cloudflare HTTPS IPv4 1.1.1.1 and IPv6 2606:4700:4700::1111 both return valid HTTP 200 + ip field; physical QA next."
+  - "Read-only physical direct IPv4 and IPv6 baseline 2/2 PASS in prerequisite stage; api4.ipify.org atypically returns IPv6, ipv4.icanhazip.com returned IPv4."
+  - "Earlier physical 20/25s guarded real PacketTunnel HTTPS IP witness 2/2 changed and restored PASS in 5.104s."
+current: "BLOCKED: IPv4-only hostname times out over real PacketTunnel despite valid virtual DNS answer, successful numeric IPv4 tunnel HTTPS, and 3/3 Apple proxy upstream HTTPS. Diagnose fakeIP-to-host-to-CONNECT-to-TLS before runtime patch."
+pending:
+  - "Source-level trace pinned Rust tun2proxy fakeIP→hostname→authenticated CONNECT→TLS for IPv4-only flow; only anonymous stages and error codes."
+  - "Reproduce issue in unit fixture, apply minimal verified source-pinned patch and rebuild framework."
+  - "Repeat physical dual-stack HTTPS with 20s host/25s extension guards and independent OFF/profile checks."
+  - "Verify IPv6 with hostname-valid TLS and upstream-supported endpoint, DNS leak, UDP, roaming and fail-closed."
+last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
+test_results:
+  - "DNS getaddrinfo VPN ON synthetic A-only 1 and dual 1, both code0; signed physical XCTest PASS 2.004s, post OFF+profile bytes PASS."
+  - "System VPN IPv4-only domain -1001, numerical IPv4 HTTPS PASS; Apple per-session proxy upstream IPv4 3/3 PASS, IPv6 0/3."
+  - "Python331+1513 subtests, Swift226, simulator hardware DNS skip1 PASS."
+  - "Physical iPhone13 signed Apple per-session proxy diagnosis while APL VPN OFF: all three proxies HTTP200 IPv4-only IPv4.icanhazip.com (3/3), all three failed IPv6-only api6.ipify.org (0/3), XCTest PASS 4.374s. No credentials/IP logged."
+  - "Latest copied App Group telemetry 40 events: engine stopped count 0, connected/disconnected/manual stop and connection pressure present; not a verified packet-route explanation."
+  - "Physical signed active PacketTunnel dual-stack run 1 FAILED (7.547s): concurrent v4/v6 receipt failure; VPN reached Connected, explicit OFF and both baseline IPs restored."
+  - "Physical signed active PacketTunnel dual-stack run 2 FAILED (11.658s): separated both endpoints, IPv4-only and IPv6-only requests each NSURLErrorDomain -1001 timeout while VPN ON. Real VPN Connected; OFF and both baseline IPs restored."
+  - "Independent signed OFF PASS after each attempt; profiles.v1 bytes and selected ID exact stable; no credentials/addresses logged."
+  - "Direct read-only IPv4 fallback PASS and IPv6 PASS; no PacketTunnel dual-stack proof yet."
+resume_instruction: "BLOCKED dual-stack acceptance. Real iPhone13 DNS synthetic fake 198.18/15 for IPv4-only and dual hosts is correct; numeric IPv4 through TUN passes, but hostname IPv4-only -1001 while per-session Apple upstream IPv4 3/3 PASS. Next isolate pinned Rust flow fakeIP→host→CONNECT→TLS, verify before patch. IPv6 upstream endpoint 0/3; numeric TLS -1200 inconclusive. After last signed DNS QA VPN independently OFF and three profiles exact bytes unchanged. Keep 20s/25s protection. Python331+1513 Swift226 and simulator skip PASS. No App Store release."

@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "12.11 23:13 signed physical iPhone13: virtual DNS fake 198.18/15 for A-only and dual hostname is operational in PacketTunnel; numeric IPv4 HTTPS through TUN PASS, but IPv4-only hostname -1001. Per-session upstream proxy IPv4-only 3/3 PASS, IPv6-only 0/3. Independent VPN OFF and protected profile bytes intact, Python331+1513 Swift226 simulator skip PASS."
   - "12.11.2026 ~22:31 MSK: physical iPhone13 signed Debug0.3.0 standalone read-only direct dual-stack baseline while APL VPN OFF: api6 returned IPv6 PASS; api4 unexpectedly returned IPv6, independent ipv4.icanhazip.com IPv4 PASS; both physical tests PASS. Post-test App Group profiles.v1 and selected profile UUID exact byte-equivalent. Simulator 2 XCTSkip/0 failures, Python323+1513 Swift226 PASS."
   - "12.11.2026 21:52 MSK: physical signed Debug APL0.3.0 iPhone13 NetworkExtension PacketTunnel active QA PASS after fixing asynchronous start transition: VPN Connected, two independent HTTPS public egress origins changed 2/2, explicit disconnect, both direct origins restored 2/2 in 5.104s. Independent posttest NE VPN OFF PASS, existing 3 profiles and selected UUID byte-identical. 20s app / 25s extension safety guards."
   - "12.11.2026 ~21:29 MSK: physical iPhone13 signed Debug APL0.3.0(49) per-session iOS Network.ProxyConfiguration authenticated HTTPS echo nonce response 3/3 with distinct external origin from direct baseline, allowFailover false. No system VPN. profiles.v1 and selected UUID byte-identical after. Simulator skip PASS; Python318+1513 Swift226 PASS."
@@ -64,19 +65,21 @@ completed:
 
 
 
-current: "Physical APL0.3.0 iPhone13: authenticated proxy HTTPS3/3 and real PacketTunnel HTTPS egress+restore2/2 PASS, independent OFF and profile preservation confirmed; direct iPhone IPv4+IPv6 source family readiness PASS with api4 atypical IPv6 and independent ipv4 fallback. Next needs controlled active PacketTunnel IPv4+IPv6, DNS leak/UDP/roaming/fail closed; native VLESS/WG/AWG, CloudKit and backup still incomplete."
+current: "iOS 0.3.0 physical signed iPhone13: ordinary proxy HTTPS and PacketTunnel egress/restoration PASS; isolated dual-stack acceptance BLOCKED. VirtualDNS returns expected synthetic A while IPv4-only hostname still times out -1001 via TUN, although numerical IPv4 passes and upstream Apple per-session proxy IPv4 is 3/3. IPv6 upstream 0/3 and literal TLS -1200 inconclusive; VPN independently OFF and original profiles unchanged."
 blocked_on:
-  - "Only direct OFF state IPv4 and IPv6 readiness proven; native dual-stack over real APL PacketTunnel, DNS leaks, UDP/QUIC and Wi-Fi/LTE path changes remain unverified."
-  - "Native VLESS/Reality, standard WireGuard, AmneziaWG backend source/licensing and mobile reproducible build integration incomplete."
-  - "CloudKit private entitlement and two-device opt-in conflict tests and standalone encrypted profile backup not complete."
+  - "Rust tun2proxy fakeIP→host→authenticated CONNECT→TLS flow for IPv4-only endpoint fails, root cause not yet demonstrated."
+  - "IPv6-only test endpoint unavailable through 3/3 saved proxies; numeric IPv6 TLS fails -1200, cannot establish end-to-end IPv6 support."
+  - "DNS leak/UDP/QUIC, Wi-Fi/LTE fail-closed, native Xray VLESS/WG/AWG, CloudKit two-device, encrypted backup pending."
 pending:
-  - "Merge proven physical PacketTunnel QA PR #371 after exact-head 17/17 CI (one macOS runner queued). Merge IPv4/IPv6 direct baseline PR after exact-head CI; synchronize GitHub/GitVerse/Mac mini main."
-  - "Safe bounded real PacketTunnel IPv4/IPv6 path tests and DNS leak, UDP/QUIC/fail-closed/roaming acceptance."
-  - "Native Xray VLESS/standard WireGuard packet egress; separate AWG support and third-party license/provenance."
-  - "CloudKit private two-device opt-in QA and owner-controlled encrypted standalone backup."
-  - "One public iOS 0.3.0 App Store submission after approvals and all gates. Other platforms paused."
-last_verified_commit: "c7e1f9570298524cf2fde46723bcf2aba346886f (signed physical iPhone13 direct IPv4 fallback and IPv6 PASS, no VPN activation, original profiles preserved, simulator 2 skipped/0 failed, Python323+1513 Swift226 PASS)"
+  - "Merge isolated hardware diagnostic source PR after exact-head CI, sync Mac mini/GitHub/GitVerse."
+  - "Inspect pinned Rust flow and create local fixture for fakeIP-to-host CONNECT and TLS, patch only proven defect, repeat bounded iPhone tests."
+  - "Complete IPv6 with valid hostname/TLS and upstream, DNS leak, UDP/QUIC, roaming/fail-closed."
+  - "Complete native transports, private CloudKit, standalone encrypted backup, then one App Store 0.3.0 submission after approval."
+last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
 test_results:
+  - "Signed iPhone13 PacketTunnel DNS snapshot fake A-only/dual 198.18/15 success XCTest 2.004s; posttest OFF and original 3 profiles bytes/selected ID intact."
+  - "Apple per-session proxy IPv4-only HTTPS 3/3 PASS, IPv6-only 0/3; tunneled numeric IPv4 HTTPS PASS, IPv4-only hostname -1001."
+  - "Python331/331+1513 subtests, Swift226/226, simulator DNS hardware XCTSkip1/0 failures PASS."
   - "Physical iPhone13 read-only direct IPv4 and IPv6 baseline under APL VPN OFF: api6 returns valid IPv6 PASS, api4 unexpectedly IPv6 but independent ipv4.icanhazip.com returns valid IPv4 PASS. 2/2 device XCTest success. profiles.v1 and selected ID unchanged."
   - "iOS simulator 2 physical-only IP family XCTSkip/0 failures TEST SUCCEEDED; full Python323/323 +1513 subtests and Swift226/226 PASS."
   - "Physical signed iPhone13 APL Debug0.3.0(49) real PacketTunnel/TUN external HTTPS egress changed 2 independent IP witnesses 2/2; after explicit OFF both restored 2/2. XCTest PASS 5.104s with separate app20s extension25s stop guards."
@@ -117,4 +120,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Continue iOS 0.3.0 only from canonical .agent/current-task.yaml in qa/ios-030-ipv6-baseline-20261112. Signed Debug0.3.0(49) owner iPhone13 has 3 original profiles and Keychain, real PacketTunnel HTTPS egress 2/2 change+restore and independent OFF proven; direct OFF IPv4 (fallback provider) and IPv6 (api6) both PASS, api4 atypically reports IPv6. Do NOT claim in-tunnel IPv4/IPv6. New direct baseline stage completed tests, commit PR, verify #371 exact-head CI before merge. Next safely bound active PacketTunnel IPv4+IPv6, DNS UDP roaming fail-closed. No full .aplbackup; never uninstall/erase, no App Store release."
+resume_instruction: "iOS0.3.0 only. Canonical root .agent/current-task.yaml status in_progress. Current diagnostic worktree qa/ios-030-vpn-dualstack-20261112; stage status blocked because IPv4-only hostname under real PacketTunnel times out -1001 despite correct 198.18/15 fake DNS A and numeric IPv4 HTTPS PASS + Apple proxy IPv4-only 3/3. IPv6 upstream test 0/3 and literal TLS -1200 inconclusive. Last physical DNS XCTest PASS 2.004s, signed independent OFF, protected three profiles bytes stable; Python331+1513 Swift226 simulator skip PASS. Commit, PR, exact-head CI/merge and sync mirrors, then isolate pinned Rust fakeIP→host→CONNECT→TLS with privacy-safe fixtures. No deletion/rollback, no App Store upload."
