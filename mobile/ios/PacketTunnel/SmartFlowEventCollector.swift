@@ -22,6 +22,8 @@ final class SmartFlowEventCollector {
     private var physicalUnderlaySnapshot: String?
     private var inflight: Set<String> = []
 #if DEBUG
+    private var qaTracePublicIPv4Only = false
+    private var qaTracePublicIPv4Budget = 0
     private var labFlowEventBudget = 0
     private var labPhysicalFamilyBudget = 0
     private var labOpaqueUDPBudget = 0
@@ -34,7 +36,8 @@ final class SmartFlowEventCollector {
     func start(store: ProfileStore,
                exactHostDirect: Bool = AdaptiveRouteCapabilities.iosPacketTunnelExactHostDirect,
                labScopedDirect: Bool = false,
-               qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime) {
+               qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime,
+               qaTracePublicIPv4Only: Bool = false) {
         queue.sync {
             for monitor in pathMonitors { monitor.cancel() }
             pathMonitors.removeAll()
@@ -51,6 +54,8 @@ final class SmartFlowEventCollector {
             successfulHosts.removeAll()
             inflight.removeAll()
 #if DEBUG
+            self.qaTracePublicIPv4Only = qaTracePublicIPv4Only
+            qaTracePublicIPv4Budget = 0
             labFlowEventBudget = 0
             labPhysicalFamilyBudget = 0
             labOpaqueUDPBudget = 0
@@ -92,6 +97,8 @@ final class SmartFlowEventCollector {
 #if DEBUG
             smart4OriginalTrace.reset()
             smart4TraceReported = false
+            qaTracePublicIPv4Only = false
+            qaTracePublicIPv4Budget = 0
 #endif
             inflight.removeAll()
             store = nil
@@ -303,6 +310,17 @@ final class SmartFlowEventCollector {
                 now.timeIntervalSince($0.value) < 60
             }
 #if DEBUG
+            // DEBUG-only exact public QA hostname; log only native CONNECT
+            // outcome codes, bounded to eight events. No host string, proxy
+            // endpoint or credentials go to App Group telemetry.
+            if self.qaTracePublicIPv4Only && host == "ipv4.icanhazip.com" &&
+                (0...4).contains(event) && self.qaTracePublicIPv4Budget < 8 {
+                self.qaTracePublicIPv4Budget += 1
+                self.telemetry.append(TunnelEvent(
+                    type: "qa ipv4-only proxy connect outcome",
+                    detail: "native_code=\(event)"
+                ))
+            }
             // DEBUG-only, explicitly opted-in disposable Smart3 test profile.
             // Exact native connection ID joins the ORIGINAL captured stream's
             // physical family, retry and first transferred payload directions.

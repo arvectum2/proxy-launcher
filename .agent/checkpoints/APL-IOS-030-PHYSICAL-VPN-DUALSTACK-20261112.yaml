@@ -11,6 +11,7 @@ definition_of_done:
   - "Independently confirm OFF and App Group profile bytes unchanged after active test."
   - "Full source regressions and simulator skip, documented pass/fail or objective environment blocker."
 completed:
+  - "23:29 subsequent physical signed QA native CONNECT trace: three independent IPv4-only HTTPS over PacketTunnel HTTP200 PASS with code0, no native codes1-4; older -1001 failure now classified intermittent, not permanently fixed."
   - "23:13 signed physical iPhone13 DNS snapshot PASS: expected fake 198.18/15 A for IPv4-only and dual hostname inside active VPN, XCTest 2.004s."
   - "Numerical IPv4 Cloudflare HTTPS through PacketTunnel changed egress PASS; IPv4-only hostname HTTPS still timed out -1001."
   - "Per-session Apple proxy IPv4-only 3/3 PASS, IPv6-only 0/3; literal IPv6 -1200 TLS inconclusive."
@@ -23,13 +24,13 @@ completed:
   - "Mac mini public literal Cloudflare HTTPS IPv4 1.1.1.1 and IPv6 2606:4700:4700::1111 both return valid HTTP 200 + ip field; physical QA next."
   - "Read-only physical direct IPv4 and IPv6 baseline 2/2 PASS in prerequisite stage; api4.ipify.org atypically returns IPv6, ipv4.icanhazip.com returned IPv4."
   - "Earlier physical 20/25s guarded real PacketTunnel HTTPS IP witness 2/2 changed and restored PASS in 5.104s."
-current: "BLOCKED: IPv4-only hostname times out over real PacketTunnel despite valid virtual DNS answer, successful numeric IPv4 tunnel HTTPS, and 3/3 Apple proxy upstream HTTPS. Diagnose fakeIP-to-host-to-CONNECT-to-TLS before runtime patch."
+current: "BLOCKED dual-stack final acceptance, not generally broken IPv4. Earlier IPv4-only hostname -1001, but three subsequent unchanged PacketTunnel starts HTTP200/native CONNECT code0. Need network-condition reproduction and upstream-supported IPv6; no speculative Rust fix."
 pending:
-  - "Source-level trace pinned Rust tun2proxy fakeIP→hostname→authenticated CONNECT→TLS for IPv4-only flow; only anonymous stages and error codes."
+  - "Repeated IPv4-only failure under a controlled network change is needed before diagnosing or patching Rust; latest original-flow CONNECT trace 3/3 PASS."
   - "Reproduce issue in unit fixture, apply minimal verified source-pinned patch and rebuild framework."
   - "Repeat physical dual-stack HTTPS with 20s host/25s extension guards and independent OFF/profile checks."
   - "Verify IPv6 with hostname-valid TLS and upstream-supported endpoint, DNS leak, UDP, roaming and fail-closed."
-last_verified_commit: "58b3409a704ad3d7e5a179a76c1f308e1601b6e5 (signed real iPhone13 DNS snapshot PASS 2.004s, after OFF and profiles preserved; IPv4-only hostname PacketTunnel acceptance blocked; Python331+1513 Swift226 and simulator hardware skip PASS)"
+last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
 test_results:
   - "DNS getaddrinfo VPN ON synthetic A-only 1 and dual 1, both code0; signed physical XCTest PASS 2.004s, post OFF+profile bytes PASS."
   - "System VPN IPv4-only domain -1001, numerical IPv4 HTTPS PASS; Apple per-session proxy upstream IPv4 3/3 PASS, IPv6 0/3."
@@ -40,4 +41,4 @@ test_results:
   - "Physical signed active PacketTunnel dual-stack run 2 FAILED (11.658s): separated both endpoints, IPv4-only and IPv6-only requests each NSURLErrorDomain -1001 timeout while VPN ON. Real VPN Connected; OFF and both baseline IPs restored."
   - "Independent signed OFF PASS after each attempt; profiles.v1 bytes and selected ID exact stable; no credentials/addresses logged."
   - "Direct read-only IPv4 fallback PASS and IPv6 PASS; no PacketTunnel dual-stack proof yet."
-resume_instruction: "BLOCKED dual-stack acceptance. Real iPhone13 DNS synthetic fake 198.18/15 for IPv4-only and dual hosts is correct; numeric IPv4 through TUN passes, but hostname IPv4-only -1001 while per-session Apple upstream IPv4 3/3 PASS. Next isolate pinned Rust flow fakeIP→host→CONNECT→TLS, verify before patch. IPv6 upstream endpoint 0/3; numeric TLS -1200 inconclusive. After last signed DNS QA VPN independently OFF and three profiles exact bytes unchanged. Keep 20s/25s protection. Python331+1513 Swift226 and simulator skip PASS. No App Store release."
+resume_instruction: "Dual-stack stage BLOCKED on robust IPv6 and intermittent failure reproduction. Earlier IPv4-only hostname timed out -1001 inside VPN while numeric IPv4 passed and virtual DNS fake 198.18/15 worked, but new signed Debug QA trace now obtained three consecutive HTTP200 with native Rust CONNECT code0 under unchanged existing profiles and 20s/25s guard. Do not claim fixed or apply blind Rust patch. IPv6-only upstream 0/3 and TLS numeric -1200 inconclusive. Next reproduce under controlled Wi-Fi/LTE path or time window, diagnose when failures recur, and test valid IPv6 hostname with capable provider. Last iPhone OFF and profiles preserved. No App Store."

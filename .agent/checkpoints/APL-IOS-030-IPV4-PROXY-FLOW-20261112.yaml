@@ -1,0 +1,25 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-030-IPV4-PROXY-FLOW-20261112
+status: completed
+goal: "Isolate CONNECT event stage of failing IPv4-only hostname in real signed APL PacketTunnel using existing Rust callback, without secrets, profile edits or direct-bypass fallbacks."
+definition_of_done:
+  - "Opt-in Debug-only flow event trace requires 25s extension guard, never ordinary production VPN."
+  - "Record only generic CONNECT event codes 0-4 for a known public QA host, with bounded event budget and no raw hosts/IPs/secrets."
+  - "Signed iPhone hardware test compares direct IPv4-only baseline and tunneled same host, reports anonymous event counts and restores OFF."
+  - "Independent posttest NE OFF and App Group profile snapshot exact bytes unchanged."
+  - "Simulator skip, Python and Swift regressions, report evidence and next step."
+completed:
+  - "Added Debug-only 25s-guarded exact public-host native Rust code 0-4 trace with eight-event budget; no raw host/IP/proxy/user secrets persisted."
+  - "Signed iPhone13 three independent bounded PacketTunnel starts, all IPv4-only HTTPS HTTP200 and native CONNECT code0; each returned OFF; after third profiles.v1 and selected ID byte-exact preserved."
+  - "Signed Debug build-for-testing and unsigned Release iPhoneOS build PASS, simulator XCTSkip1/0 failures, Python333+1513 Swift226 PASS."
+  - "Parent hardware stage verified numeric IPv4 PacketTunnel HTTPS, hostname IPv4-only -1001, synthetic DNS 198.18/15 operational, Apple per-session upstream IPv4-only 3/3."
+current: "Completed guarded physical native CONNECT trace: iPhone13 IPv4-only HTTPS 3/3 PASS, Rust code0 in each, OFF restored, original profile bytes intact. Prior -1001 timeouts intermittent, not a verified production fix."
+pending: []
+last_verified_commit: "dfaff8bb1de73ce3d898bf43fb94a1c28bc26b46 (real signed iPhone13 3/3 PacketTunnel IPv4-only HTTP200+Rust CONNECT code0, independent OFF and original profile bytes intact; signed Debug & unsigned Release builds, Python333+1513 Swift226, simulator skip PASS)"
+test_results:
+  - "Three consecutive real iPhone13 20s host/25s extension guarded runs to ipv4.icanhazip.com HTTP200 and native CONNECT code0, no code1-4; all independent OFF PASS."
+  - "After run3 three saved profile bytes and selected ID exactly unchanged, only anonymous code counts stored."
+  - "Signed Debug build-for-testing PASS, unsigned Release iPhoneOS build PASS, Python333+1513 Swift226 and simulator physical XCTSkip1 PASS."
+  - "Previous signed physical PacketTunnel DNS XCTest PASS and post-OFF profile bytes stable."
+resume_instruction: "COMPLETED flow trace stage: physical iPhone13 three consecutive PacketTunnel HTTPS HTTP200 and Rust native CONNECT code0 for IPv4-only public hostname, no errors; 20s/25s safety stop, posttest independent OFF and three profiles byte-exact intact. Older -1001 failures are intermittent; no route code fix was made. Stage APL-IOS-030-PHYSICAL-VPN-DUALSTACK-20261112 still blocked on robust IPv6/provider and intermittent IPv4 path repeatability, not permanently corrected. Next controlled underlay change/refresh and additional source instrumentation only if issue recurs; preserve owner profiles, no public release."

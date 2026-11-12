@@ -114,6 +114,7 @@
 		8EABD6CFECBE8745D8B6EDD7 /* PhysicalVPNStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */; };
 		8F2560F445B3C0392E010605 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
 		8FD9D3D22BB542FE2B36EDE3 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
+		90B84D039534B763C1044042 /* PhysicalProxyConnectOutcomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47DD7BE41A82AE6044C9CDF /* PhysicalProxyConnectOutcomeTests.swift */; };
 		911F99B9B153FAD0809A890E /* IPv6PhysicalDiagnosticsQA.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1425EC66B18E02C6EA6913 /* IPv6PhysicalDiagnosticsQA.swift */; };
 		951D250C1BF60644C19BFBDB /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */; };
@@ -607,6 +608,7 @@
 		D3F11682AFB4E04E4F949499 /* kk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kk; path = kk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		D40E7A21BC38A548A0415F25 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		D457E55F2C207B629ECA6A86 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		D47DD7BE41A82AE6044C9CDF /* PhysicalProxyConnectOutcomeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalProxyConnectOutcomeTests.swift; sourceTree = "<group>"; };
 		D5BA096394FA4376E095CE95 /* ExclusionWebScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusionWebScanner.swift; sourceTree = "<group>"; };
 		D62E3E6A5C03575EA7455F4A /* ProfileLibraryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryRowView.swift; sourceTree = "<group>"; };
 		D78433D6036577946EBB9215 /* PhysicalVPNStateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNStateUITests.swift; sourceTree = "<group>"; };
@@ -716,6 +718,7 @@
 				36BC8E1404904B0D39E13ECF /* PhysicalHTTPSReceiptReadOnlyTests.swift */,
 				1E41A3C09E61A38EEE2A7E48 /* PhysicalIPFamilyReadOnlyTests.swift */,
 				67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */,
+				D47DD7BE41A82AE6044C9CDF /* PhysicalProxyConnectOutcomeTests.swift */,
 				5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */,
 				688D2E5B13D5D16F58EA705A /* PhysicalProxyIPFamilyReachabilityTests.swift */,
 				EBB1FC6F3E7A137B67CF8C60 /* PhysicalVPNEgressHostTests.swift */,
@@ -1237,6 +1240,7 @@
 				10790F05833FF56EDD0111D7 /* PhysicalHTTPSReceiptReadOnlyTests.swift in Sources */,
 				CBBC92F54993767F2F264B28 /* PhysicalIPFamilyReadOnlyTests.swift in Sources */,
 				3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */,
+				90B84D039534B763C1044042 /* PhysicalProxyConnectOutcomeTests.swift in Sources */,
 				E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */,
 				6F14A42FCA0C13E0BB792D63 /* PhysicalProxyIPFamilyReachabilityTests.swift in Sources */,
 				B122435BD86D05E0E9111E52 /* PhysicalVPNEgressHostTests.swift in Sources */,
