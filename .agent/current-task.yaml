@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "13.11: GitHub PR #378 initial Windows P0 failed solely because new UDP Python test imported pytest but CI used unittest; fixed in fcfa6c5b3 using dependency-free unittest.TestCase. Local seven unittest gates PASS, full iOS Python347+1527 PASS. No application network code changed."
   - "13.11: PR #377 native-engine fail-closed exact-head GitHub CI 11/11 PASS, branch stays open (no merge or production modification)."
   - "13.11: isolated UDP IPv6 non-bypass echo witness: strict global IPv6 listener, exact 39-byte nonce 1:1 reply, <=16 packets, <=120s duration, independent server counter; no physical run."
   - "13.11: opt-in physical Debug UDP QA with two direct echo controls, disposable HTTP CONNECT-only proxy preflight, during-VPN route confirmation, host20s/extension25s stop guards and after-OFF echo; source branch 8a02f6c11."
@@ -74,7 +75,7 @@ completed:
 
 
 
-current: "iOS0.3.0 UDP native-packet leak sentinel prepared source-only, exact hardware QA remains gated. PR #377 CI 11/11 green unmerged; PR for UDP QA pending. iPhone paired but do not run disruptive unsigned/signed hardware tests."
+current: "PR #378 UDP opt-in witness initial Windows CI failure diagnosed and fixed (unittest compatibility); source/hardware target compilation and local regressions passed. Push exact head then wait for fresh GitHub CI; physical UDP/DNS/QUIC QA not performed."
 blocked_on:
   - "User's original three commercial proxies reach none of the three tested IPv6-only targets (0/3); lab IPv6-capable upstream proves APL path but does not upgrade those external providers."
   - "Repeatability of previous intermittent IPv4-only -1001 timeout under physical underlay/proxy churn needs controlled fault tests; latest three HTTP200/native CONNECT accepted."
@@ -87,8 +88,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "8a02f6c11 (UDP opt-in witness source, Python354+1513, Swift226, iPhoneOS/simulator XCTest builds and simulator XCTSkip PASS)"
+last_verified_commit: "fcfa6c5b3dd8a573cb14260f02656b15ea3382ae (unittest 7, Python347+1527, Swift226, unsigned iOS simulator/device XCTest builds, simulator skip)"
 test_results:
+  - "13.11 corrected UDP source QA: unittest 7/7 + 14 subtests PASS, full iOS pytest 347 PASS +1527 subtests, iOS Swift226 PASS, iOS physical XCTest unsigned simulator and device builds PASS, simulator 1 skip/0 failure. Await updated PR #378 exact-head CI."
   - "13.11 UDP source lab: Python354 + 1513 subtests, Swift226 PASS, arm64 simulator Debug physical XCTest build-for-testing PASS, unsigned iPhoneOS Debug physical XCTest build PASS, simulator 1 XCTSkip/0 failures PASS; no physical UDP leakage test performed."
   - "Physical signed Debug0.3.0 iPhone13 disposable strict IPv6-only HTTPS via PacketTunnel PASS 2.181s, same IPv6 source as local proxy, restored original direct IP."
   - "Physical signed Debug0.3.0 native NUMERIC IPv6 packet TLS/SNI one.one.one.one through PacketTunnel HTTP200 PASS 2.203s and server allowed numeric IPv6 CONNECT observed."
@@ -140,4 +142,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS0.3.0 ONLY. Branch qa/ios-030-udp-failclosed-witness-20261113, worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-udp-witness-20261113 based on main 0a68fbb4a, source commit 8a02f6c11. UDP echo server and hard opt-in physical XCTest compile/pass offline, 354 Python +1513, 226 Swift; simulator XCTSkip1. Record checkpoint commit then push and open PR, check exact-head CI. PR #377 failclosed 11/11 green, not merged; do not merge or publish without owner-specific approval. Real hardware leak test needs owner authorization, GUA IPv6 witness, disposable strict HTTP proxy, signed Debug iPhone, OFF/profile byte validation. Next DNS/QUIC/dual-stack and Wi-Fi/LTE fault/handoff and native Xray/WG/AWG CloudKit/backup gates. No App Store actions."
+resume_instruction: "iOS0.3.0 ONLY. Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-udp-witness-20261113, branch qa/ios-030-udp-failclosed-witness-20261113. Code commit fcfa6c5b3 corrects PR #378 Windows P0 Python unittest import failure. Tests: unittest7 +14 subtests, iOS Python347+1527, Swift226, unsigned iPhoneOS and sim physical XCTest builds and sim 1 skip PASS. Commit this checkpoint, push origin branch, check new exact-head PR #378 CI (old CI Windows P0 failed before fix). PR #377 remains green 11/11 but unmerged. Do NOT merge or publish without owner approval. No signed physical iPhone testing: require explicit owner authorization, public IPv6 UDP echo witness, disposable strict HTTP CONNECT proxy and independent post-VPN OFF/profile byte preservation. Next DNS/QUIC Wi-Fi/LTE and native Xray/WG/AWG CloudKit/backup release gates."
