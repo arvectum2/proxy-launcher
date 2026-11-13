@@ -12,6 +12,9 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "13.11 afternoon: hardened encrypted standalone Files backup: every export filename now UTC date/time+UUID, repeat save on same disposable iOS27 simulator resulted in two distinct .aplbackup encrypted files and no Replace Existing Item prompt."
+  - "13.11 afternoon: encrypted import reads scoped File Provider URL in bounded <=64KiB chunks and rejects >1MiB or <64-byte document without unbounded Data(contentsOf:); format, existing owner profiles, Keychain and network configuration unchanged."
+  - "13.11 afternoon: Swift Core230/230, Python iOS343 +1513 subtests, dependency-free unittest3, unsigned generic iPhoneOS Release App+PacketTunnel BUILD SUCCEEDED, locally signed simulator Files export with 1 XCTSkip/0 failures (import via Recents remains unaccepted)."
   - "13.11: PR #377 engine unexpected-exit fail-closed and PR #378 bounded UDP leak witness exact-head GitHub workflows both 11/11 PASS, remaining unmerged pending owner-specific merge decision."
   - "13.11: encrypted standalone backup lab on disposable iOS27 iPhone13 simulator: ad-hoc-signed Debug app after unsigned fixture startup crash; real system Files exported 512-byte encrypted .aplbackup, format v1 PBKDF2-HMAC-SHA256 210k iterations, AES-GCM, synthetic secret strings absent in plaintext."
   - "13.11: backup Swift9/9 PASS, full iOS Python340+1513 PASS. Fresh simulator full Files roundtrip skipped after export: picker Recents empty, imported file not selected, so do not accept standalone restore. Reused simulator duplicate export filename raised Replace alert, system UI tapped Stop."
@@ -74,7 +77,7 @@ completed:
 
 
 
-current: "iOS 0.3.0: CI #377/#378 11/11 each, open unmerged. Offline synthetic encrypted backup Files export verified on dedicated simulator with actual ciphertext on disk. Import via remote Files Recents not accepted (XCTSkip); manual Browse selection/physical acceptance still required. No user iPhone/VPN actions."
+current: "iOS 0.3.0: encrypted Files backup export now creates unique UTC-timestamp+UUID filenames and file import uses capped streaming FileHandle. Simulator repeat export confirms two independent ciphertext files. Full system Files Browse import still BLOCKED/UNACCEPTED; PR #379 previously docs-only now to be updated with source fix and new CI. PR377/378 green unmerged."
 blocked_on:
   - "User's original three commercial proxies reach none of the three tested IPv6-only targets (0/3); lab IPv6-capable upstream proves APL path but does not upgrade those external providers."
   - "Repeatability of previous intermittent IPv4-only -1001 timeout under physical underlay/proxy churn needs controlled fault tests; latest three HTTP200/native CONNECT accepted."
@@ -86,8 +89,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "0a68fbb4a5984ee59530314c4310bfaa71c9e3ea main (backup tests/signed simulator export evidence; PR377 1cf01839f and PR378 db6b5d246 independently CI 11/11, both unmerged)"
+last_verified_commit: "bb0be34fcda96894465d0c76b149e4288f1ca07c (encrypted backup unique filenames and bounded FileHandle, Swift230 Python343+1513, unsigned iPhoneOS Release build, signed sim repeat export 2 files / XCTSkip import)"
 test_results:
+  - "13.11 afternoon: backup repeat export two distinct .aplbackup files in disposable simulator without Replace alert; signed Files UI XCTest 1 skip/0 failures (import unaccepted); Swift Core230 PASS, Python343 +1513 subtests PASS, unittest3 PASS, unsigned iPhoneOS Release App+PacketTunnel build PASS."
   - "13.11 synthetic Files QA: 512-byte .aplbackup encrypted envelope on disk PASS, Swift 9 backup tests PASS, Python340+1513 PASS; locally signed iOS27 simulator export succeeded, full import 1 XCTSkip/0 failures because remote Files Recents empty; unsigned fixture initialization crashed and signed simulator resolved it. No physical acceptance."
   - "Physical signed Debug0.3.0 iPhone13 disposable strict IPv6-only HTTPS via PacketTunnel PASS 2.181s, same IPv6 source as local proxy, restored original direct IP."
   - "Physical signed Debug0.3.0 native NUMERIC IPv6 packet TLS/SNI one.one.one.one through PacketTunnel HTTP200 PASS 2.203s and server allowed numeric IPv6 CONNECT observed."
@@ -139,4 +143,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS0.3.0 ONLY. Active isolated worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-encrypted-files-20261113 branch qa/ios-030-encrypted-files-simulator-20261113 from clean main 0a68fbb4a. Dedicated disposable simulator 35D9BEE3-82AE-4225-BDEE-4ABF9E3D6BCA real .aplbackup export 512 bytes encrypted PBKDF2-SHA256/AES-GCM PASS, Swift9 backup+Python340+1513 PASS. Full import not accepted: iOS27 Files picker Recents empty, UI test XCTSkip; manual/automated Browse acceptance and physical owner-approved backup remain. Save QA protocol, checkpoint, commit branch; optionally PR for documentation. PR #377 and #378 exact-head GitHub 11/11 each but unmerged; no merge without owner-specific approval. Do NOT change real iPhone/VPN or publish. Next offline acceptance or separate iPhone approval gate, DNS/UDP/QUIC Wi-Fi/LTE native Xray/WG/AWG CloudKit two-device."
+resume_instruction: "iOS0.3.0 ONLY. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-encrypted-files-20261113 branch qa/ios-030-encrypted-files-simulator-20261113. Since PR #379 docs commit a2b2820, source code commit bb0be34fcd fixes encrypted backup unique export filenames and bounded File Provider reads (Core Swift230, Python343+1513, unittest3, iPhoneOS Release BUILD, signed simulator repeat export 2 independent files, import XCTest XCTSkip). Commit, push branch, update PR #379 title/body to feature scope and check exact-head CI, keep main untouched pending owner approval. Independent full Files picker Browse decrypt/restore is unaccepted: Mac mini Xcode CLI lacks GUI Simulator.app, system file picker Recents empty. No physical owner iPhone/VPN changes and no App Store release. PR377/#378 independent 11/11 CI green, unmerged. Next physical DNS/UDP/QUIC Wi-Fi/LTE QA and native Xray/WG/AWG CloudKit two device gates require explicit owner approval when risky."
