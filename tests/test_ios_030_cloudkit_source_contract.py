@@ -22,6 +22,10 @@ def test_cloudkit_upload_requires_explicit_preview_and_optimistic_lock():
     assert ".ifServerRecordUnchanged" in service
     assert "requiresRemotePreview" in service
     assert "observedRemoteWasAbsent" in service
+    assert 'let reviewedBytes = expectedRemote["payload"] as? Data' in service
+    assert "let reviewedSnapshot = try? ExclusionSyncContract.decode(reviewedBytes)" in service
+    assert "ExclusionSyncContract.remoteUnchanged(" in service
+    assert "expectedRemote.recordType == Self.recordType" in service
     assert "ExclusionSyncContract.encode(localDomains:" in service
     assert 'record["payload"] = data as NSData' in service
 

@@ -42,6 +42,22 @@ class CloudKitPreviewConcurrencyContracts(unittest.TestCase):
         self.assertIn("approved == previewed", core)
         self.assertIn("live == approved", core)
 
+    def test_cloud_upload_rechecks_reviewed_payload_and_nonempty_tag(self):
+        service = SERVICE.read_text()
+        snippet = service.split("func upload(", 1)[1].split("private func deviceID()", 1)[0]
+        for required in (
+            "expectedRemote.recordID == currentRecord.recordID",
+            "expectedRemote.recordType == Self.recordType",
+            'expectedRemote["payload"] as? Data',
+            "ExclusionSyncContract.decode(reviewedBytes)",
+            "ExclusionSyncContract.remoteUnchanged(",
+            "previewTag: expectedRemote.recordChangeTag",
+            "currentTag: currentRecord.recordChangeTag",
+            "savePolicy: .ifServerRecordUnchanged",
+        ):
+            self.assertIn(required, snippet)
+        self.assertLess(snippet.index("remoteUnchanged("), snippet.index("database.modifyRecords("))
+
     def test_existing_cloudkit_kill_switch_and_server_cas_preserved(self):
         self.assertIn("#if APL_CLOUDKIT_ENABLED", APP.read_text())
         service = SERVICE.read_text()

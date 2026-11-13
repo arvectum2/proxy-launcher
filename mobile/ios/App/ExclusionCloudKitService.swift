@@ -66,9 +66,19 @@ final class ExclusionCloudKitService {
         let record: CKRecord
         let revision: Int
         if let (currentSnapshot, currentRecord) = live {
+            // Record versions alone are insufficient as a review receipt:
+            // require the same exact server payload that the user previewed.
+            // Empty change tags, missing/corrupt payloads or mismatched types
+            // must never authorize an overwrite of an existing cloud record.
             guard let expectedRemote,
-                  expectedRemote.recordChangeTag == currentRecord.recordChangeTag,
-                  expectedRemote.recordID == currentRecord.recordID else {
+                  expectedRemote.recordID == currentRecord.recordID,
+                  expectedRemote.recordType == Self.recordType,
+                  let reviewedBytes = expectedRemote["payload"] as? Data,
+                  let reviewedSnapshot = try? ExclusionSyncContract.decode(reviewedBytes),
+                  ExclusionSyncContract.remoteUnchanged(
+                    previewed: reviewedSnapshot, current: currentSnapshot,
+                    previewTag: expectedRemote.recordChangeTag,
+                    currentTag: currentRecord.recordChangeTag) else {
                 throw ExclusionCloudKitFailure.requiresRemotePreview
             }
             record = currentRecord
