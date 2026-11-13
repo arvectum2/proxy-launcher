@@ -72,6 +72,28 @@ enum ExclusionSyncContract {
                                      toRemove: localSet.subtracting(remoteSet).sorted())
     }
 
+    /// A user-approved preview is invalidated if the manual list changes.
+    /// Reject malformed/corrupted snapshot data rather than "normalizing"
+    /// it silently into a different approved list.
+    static func localUnchanged(previewed: [String], current: [String]) -> Bool {
+        guard let approved = try? SiteExclusionPolicy.normalizeAll(previewed),
+              approved == previewed,
+              let live = try? SiteExclusionPolicy.normalizeAll(current)
+        else { return false }
+        return live == approved
+    }
+
+    /// The server may have changed on another device after the user's review.
+    /// A same-revision payload with a new CloudKit record tag is still stale.
+    /// Both payload and nonempty change tag must match the approved preview.
+    static func remoteUnchanged(previewed: ManualExclusionSnapshot, current: ManualExclusionSnapshot,
+                                previewTag: String?, currentTag: String?) -> Bool {
+        guard let previewTag, !previewTag.isEmpty,
+              let currentTag, !currentTag.isEmpty
+        else { return false }
+        return previewTag == currentTag && previewed == current
+    }
+
     private static func validDeviceID(_ id: String) -> Bool {
         !id.isEmpty && id.utf8.count <= 64 && id.utf8.allSatisfy {
             ($0 >= 65 && $0 <= 90) || ($0 >= 97 && $0 <= 122) ||
