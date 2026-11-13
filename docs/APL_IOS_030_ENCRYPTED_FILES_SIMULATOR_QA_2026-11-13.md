@@ -20,3 +20,36 @@ Next execute a controlled **Browse** selection on a clean dedicated simulator wi
 ## Separate iOS 0.3.0 gates
 
 PR #377 native engine fail-closed and PR #378 UDP leak witness both reached exact-head GitHub Actions **11/11 PASS** on 13.11.2026, but neither was merged into `main` in this stage. Physical DNS/UDP/QUIC and Wi-Fi/LTE loss/handoff, native Xray/WG/AWG, CloudKit two-device and App Store release decisions remain open.
+
+## Backup Files hardening — 13 November, afternoon source stage
+
+Two app-side issues revealed by the simulator experiments were addressed in the
+same **isolated branch**, without changing the encrypted format or the saved
+profile schema:
+
+1. Each export now proposes a different
+   `APL-Profiles-Encrypted-YYYYMMDD-HHMMSS-<UUID>.aplbackup` filename (UTC
+   calendar timestamp, random UUID; no server or credential information).
+   Repeating the export on the **same** QA simulator successfully created both
+   the old file and a new timestamp/UUID-suffixed file. The earlier
+   `Replace Existing Item` sheet did not reappear.
+2. File import no longer uses unbounded `Data(contentsOf:)` to read
+   untrusted File Provider URLs. `ProfileBackupCodec.readEncryptedFile(at:)`
+   opens the scoped URL and reads chunks of at most 64 KiB, with a hard cap of
+   `maxFileBytes + 1` (1 MiB + 1); both overlarge and truncated files fail
+   validation. The existing security-scope start/stop remains unchanged.
+   Legacy backups retain their original `.aplbackup` extension and format.
+
+Offline checks (after this change): **230/230 Swift CoreTests PASS**,
+**343 Python iOS tests + 1513 subtests PASS**, **3 dependency-free
+`unittest` source gates PASS**. The unsigned generic iPhoneOS Release
+App+PacketTunnel build **SUCCEEDED**. Locally signed UI XCTest on the same
+disposable iOS 27 simulator **TEST SUCCEEDED with 1 XCTSkip / 0 failures**:
+the new export finished and produced a separate on-disk encrypted file, but
+the third-party system Files **Recents** view still did not expose the file
+for importing. **Do not count this result as a successful restore.**
+
+Headless Xcode CLI has no graphical `Simulator.app` on the Mac mini, so
+interactive tapping through the system Browse tab could not be performed
+there. A full signed Files Browse import remains an **open acceptance gate**,
+not a production regression and not a permission to overwrite user data.
