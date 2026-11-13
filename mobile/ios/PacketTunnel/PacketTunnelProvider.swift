@@ -36,6 +36,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var switching = false
     private var stopping = false
 #if DEBUG
+    private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
     private var qaTracePublicIPv4Only = false
     private var qaDirectTTLSeconds: TimeInterval = AdaptiveRouteLearning.lifetime
@@ -48,6 +49,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
+        let qaSession = qaCallbackGate.begin()
         let stopAfter = (options?["qaStopAfterSeconds"] as? NSNumber)?.intValue ?? 0
         // Only a bounded signed Debug hardware test may observe anonymous
         // per-flow CONNECT results. This flag never changes routing.
@@ -69,8 +71,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         if qaScopedDirect,
            (options?["qaResetDirectAfterSeconds"] as? NSNumber)?.intValue == 17 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 17) { [weak self] in
-                guard let self, !self.stopping else { return }
-                SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    SmartFlowEventCollector.shared.forceNetworkChangeForQA()
+                }
             }
         }
 #endif
@@ -80,12 +85,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             (value.intValue == 95 && qaScopedDirect &&
              (options?["qaRadioHandoff"] as? NSNumber)?.boolValue == true)) {
             DispatchQueue.main.asyncAfter(deadline: .now() + value.doubleValue) { [weak self] in
-                guard let self, !self.stopping else { return }
-                // Last-resort safety net if the UI test / wireless debug link
-                // is interrupted by the VPN network route. Cancellation
-                // returns the device to its previous disconnected state.
-                self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
-                    userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                guard let self else { return }
+                self.qaCallbackGate.performIfCurrent(qaSession) {
+                    guard !self.stopping else { return }
+                    // Generation check and cancellation are serialized with
+                    // stop/start: a stale test timer cannot cancel a new VPN.
+                    self.cancelTunnelWithError(NSError(domain: "APLPhysicalQA", code: 25,
+                        userInfo: [NSLocalizedDescriptionKey: "Test-only VPN safety timeout"]))
+                }
             }
         }
 #endif
@@ -148,6 +155,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+#if DEBUG
+        // A queued callback from this test must not fire after a new start.
+        qaCallbackGate.invalidate()
+#endif
         stopping = true
         // Planned stop invalidates the runner before its native return.
         engineExitGate.invalidate()
