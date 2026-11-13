@@ -34,6 +34,7 @@ struct ProfileBackupView: View {
     @State private var importPassword = ""
     @State private var encryptedData: Data?
     @State private var backupDocument: EncryptedProfileBackupDocument?
+    @State private var exportFilename = "APL-Profiles-Encrypted"
     @State private var showExporter = false
     @State private var showImporter = false
     @State private var errorMessage: String?
@@ -114,7 +115,7 @@ struct ProfileBackupView: View {
         .fileExporter(isPresented: $showExporter,
                       document: backupDocument,
                       contentType: .aplBackup,
-                      defaultFilename: "APL-Profiles-Encrypted") { result in
+                      defaultFilename: exportFilename) { result in
             exportPassword = ""
             exportConfirmation = ""
             backupDocument = nil
@@ -134,15 +135,7 @@ struct ProfileBackupView: View {
                 guard let file = try result.get().first else { return }
                 let scoped = file.startAccessingSecurityScopedResource()
                 defer { if scoped { file.stopAccessingSecurityScopedResource() } }
-                if let size = try FileManager.default.attributesOfItem(atPath: file.path)[.size] as? NSNumber,
-                   size.intValue > ProfileBackupCodec.maxFileBytes {
-                    throw ProfileBackupError.invalidFile
-                }
-                let contents = try Data(contentsOf: file)
-                guard contents.count <= ProfileBackupCodec.maxFileBytes else {
-                    throw ProfileBackupError.invalidFile
-                }
-                encryptedData = contents
+                encryptedData = try ProfileBackupCodec.readEncryptedFile(at: file)
                 importPassword = ""
                 successMessage = nil
                 errorMessage = nil
@@ -167,6 +160,7 @@ struct ProfileBackupView: View {
         do {
             guard exportPassword == exportConfirmation else { throw ProfileBackupError.weakPassword }
             let encrypted = try model.createEncryptedProfileBackup(password: exportPassword)
+            exportFilename = ProfileBackupCodec.exportFilename()
             backupDocument = EncryptedProfileBackupDocument(encryptedData: encrypted)
             showExporter = true
         } catch {
