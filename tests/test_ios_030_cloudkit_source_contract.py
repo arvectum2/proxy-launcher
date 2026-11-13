@@ -31,7 +31,11 @@ def test_cloudkit_user_consent_and_local_vpn_rollback():
     exclusions = (APP / "ExclusionsView.swift").read_text()
     assert "confirmUpload = true" in view
     assert "confirmationDialog(" in view
-    assert "await model.saveExclusions(remote.manualDomains, graph: model.smartGraph)" in view
+    assert "await model.saveExclusions(" in view
+    assert "currentRemote.manualDomains, graph: model.smartGraph)" in view
+    assert "ExclusionSyncContract.remoteUnchanged(" in view
+    assert "cloud.previewRemote()" in view
+    assert "ExclusionSyncContract.localUnchanged(" in view
     assert "localAtPreview" in view
     assert "onApplied()" in view
     assert "entries != model.manualExclusions" in exclusions
