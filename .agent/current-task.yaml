@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "13.11 PR #381 draft exact-head dc51ac5b533496ab29f48f58506c50b5d3efd0af: GitHub CI 17/17 SUCCESS; branch equals origin, worktree clean; no merge, device or App Store action."
   - "13.11 evening: created isolated qa/ios-030-integration-preview-20261113 from main0a68fbb4a; cherry-picked independent source code commits from PR377, PR378 (2 commits), PR379, PR380 without merging any PR into production main. Only roadmap append conflicts required union; PacketTunnelProvider/Xcode project combined without code conflicts; regenerated XcodeGen."
   - "13.11 integrated 0.3.0 four-PR source tree: Swift Core241/241 PASS, iOS Python357 PASS +1527 subtests, unittest14 PASS, generic unsigned iPhoneOS Release App+PacketTunnel BUILD SUCCEEDED and Debug QA target with APL_RUN_EXPLICIT_VPN_QA BUILD SUCCEEDED. No signed physical iPhone/NE action, remaining gates still open."
   - "13.11 late afternoon: branch fix/ios-030-qa-timer-generation-20261113 from main 0a68fbb4a; implemented TunnelQACallbackGate with reentrant generation synchronization to prevent delayed Debug qaStopAfterSeconds/qaResetDirectAfterSeconds of an old PacketTunnel session acting on a new VPN session."
@@ -81,13 +82,12 @@ completed:
 
 
 
-current: "iOS0.3.0 integration preview combining source of PR #377/#378/#379/#380 in one isolated branch; 241 Swift+357 Python+1527 subtests, iPhoneOS Release/Debug QA builds PASS. Push draft combined PR and check exact-head CI. This is not approved for merge, real iPhone or App Store; physical and CloudKit/Files gates pending."
+current: "iOS0.3.0 draft PR #381 integration preview exact-head dc51ac5b5: 17/17 CI PASS, Swift241+Python357+1527 and iPhoneOS Release/Debug QA build PASS. Await owner-specific merge decision; physical, CloudKit and Files gates remain open."
 blocked_on:
   - "User's original three commercial proxies reach none of the three tested IPv6-only targets (0/3); lab IPv6-capable upstream proves APL path but does not upgrade those external providers."
   - "Repeatability of previous intermittent IPv4-only -1001 timeout under physical underlay/proxy churn needs controlled fault tests; latest three HTTP200/native CONNECT accepted."
   - "Full DNS leak and UDP/QUIC, Wi-Fi/LTE loss/handoff fail-closed, native Xray VLESS/WG/AWG, CloudKit two-device, standalone encrypted backup not accepted."
 pending:
-  - "Push integration preview branch and open DRAFT PR for combined exact-head CI; do not merge individual or combined PR without owner-specific approval."
   - "Real signed iPhone physical failure-injection DNS/UDP/QUIC, Wi-Fi/LTE and post-test VPN OFF + original profile byte-preservation remains explicitly unaccepted."
   - "Push separate QA timer generation PR and verify exact-head CI; no merge without specific owner approval."
   - "Signed physical iPhone Wi-Fi/LTE handoff/timeout with disposable safe lab and preserved profile bytes/NE OFF remains gated; do not claim from offline tests."
@@ -153,4 +153,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS0.3.0 ONLY. New active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-integration-preview-20261113 branch qa/ios-030-integration-preview-20261113 from main0a68fbb4a. Source cherry-picked in sequence from #377(083101d640), #378(8a02f6c11+fcfa6c5b3), #379(bb0be34fc), #380(fe80c1626), with only roadmap docs union. Validated source Swift241, Python357+1527, unittest14, unsigned iPhoneOS Release and physical QA Debug builds PASS. Commit this checkpoint+preview doc, push branch and open DRAFT PR to obtain exact-head GitHub CI; do NOT merge existing PRs or draft without owner-specific approval, no App Store or real iPhone/VPN/profiles changes. Physical DNS/UDP/QUIC leak + Wi-Fi/LTE fault + original profile bytes/NE OFF, native VLESS/WG/AWG, CloudKit two-device, Files Browse encrypted restore are still not accepted. After green combined CI, continue safe source-only tasks."
+resume_instruction: "iOS0.3.0 ONLY. Draft PR #381 exact-head dc51ac5b5 CI 17/17 SUCCESS; do not repeat this gate or merge without approval. New active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-integration-preview-20261113 branch qa/ios-030-integration-preview-20261113 from main0a68fbb4a. Source cherry-picked in sequence from #377(083101d640), #378(8a02f6c11+fcfa6c5b3), #379(bb0be34fc), #380(fe80c1626), with only roadmap docs union. Validated source Swift241, Python357+1527, unittest14, unsigned iPhoneOS Release and physical QA Debug builds PASS. Commit this checkpoint+preview doc, push branch and open DRAFT PR to obtain exact-head GitHub CI; do NOT merge existing PRs or draft without owner-specific approval, no App Store or real iPhone/VPN/profiles changes. Physical DNS/UDP/QUIC leak + Wi-Fi/LTE fault + original profile bytes/NE OFF, native VLESS/WG/AWG, CloudKit two-device, Files Browse encrypted restore are still not accepted. After green combined CI, continue safe source-only tasks."
