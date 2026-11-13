@@ -12,6 +12,9 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "13.11 evening: draft integration PR #381 exact-head dc51ac5b5 achieved GitHub CI 11/11 PASS. Separate PRs #377/#378/#379/#380 exact-head 11/11 each remain open/unmerged; main stays unchanged."
+  - "13.11 evening: source-only CloudKit manual exclusion preview consistency hardening: repeat private CKRecord read, check recordID/changeTag/payload and local review list before applying; upload exactly previewed local list and reject local modifications; production CloudKit feature flag and entitlement stay disabled."
+  - "13.11 CloudKit gates: full Swift Core244/244 PASS, iOS Python361 PASS+1527 subtests, 4 dependency-free new unittest source gates PASS; unsigned iPhoneOS Release App+PacketTunnel BUILD SUCCEEDED and ARM64 iOS Simulator Debug with explicitly compiled APL_CLOUDKIT_ENABLED BUILD SUCCEEDED; no actual iCloud account/two-device sync action."
   - "13.11 PR #381 draft exact-head dc51ac5b533496ab29f48f58506c50b5d3efd0af: GitHub CI 17/17 SUCCESS; branch equals origin, worktree clean; no merge, device or App Store action."
   - "13.11 evening: created isolated qa/ios-030-integration-preview-20261113 from main0a68fbb4a; cherry-picked independent source code commits from PR377, PR378 (2 commits), PR379, PR380 without merging any PR into production main. Only roadmap append conflicts required union; PacketTunnelProvider/Xcode project combined without code conflicts; regenerated XcodeGen."
   - "13.11 integrated 0.3.0 four-PR source tree: Swift Core241/241 PASS, iOS Python357 PASS +1527 subtests, unittest14 PASS, generic unsigned iPhoneOS Release App+PacketTunnel BUILD SUCCEEDED and Debug QA target with APL_RUN_EXPLICIT_VPN_QA BUILD SUCCEEDED. No signed physical iPhone/NE action, remaining gates still open."
@@ -82,14 +85,14 @@ completed:
 
 
 
-current: "iOS0.3.0 draft PR #381 integration preview exact-head dc51ac5b5: 17/17 CI PASS, Swift241+Python357+1527 and iPhoneOS Release/Debug QA build PASS. Await owner-specific merge decision; physical, CloudKit and Files gates remain open."
+current: "iOS0.3.0 integration draft PR #381 previously exact-head 11/11 green. Added source-only CloudKit preview race protection for unchanged local list and server CKRecord ID+changeTag+payload on apply/upload, production feature remains disabled. Swift244 Python361+1527, iPhoneOS Release and CloudKit-compiled ARM64 Simulator Debug builds PASS. Push fresh code/checkpoint and verify new PR381 exact-head CI; physical 2-device QA not yet done."
 blocked_on:
   - "User's original three commercial proxies reach none of the three tested IPv6-only targets (0/3); lab IPv6-capable upstream proves APL path but does not upgrade those external providers."
   - "Repeatability of previous intermittent IPv4-only -1001 timeout under physical underlay/proxy churn needs controlled fault tests; latest three HTTP200/native CONNECT accepted."
   - "Full DNS leak and UDP/QUIC, Wi-Fi/LTE loss/handoff fail-closed, native Xray VLESS/WG/AWG, CloudKit two-device, standalone encrypted backup not accepted."
 pending:
+  - "Push updated draft integration PR #381 CloudKit preview consistency fix and check new exact-head GitHub CI; no merge or App Store publish without explicit owner approval."
   - "Real signed iPhone physical failure-injection DNS/UDP/QUIC, Wi-Fi/LTE and post-test VPN OFF + original profile byte-preservation remains explicitly unaccepted."
-  - "Push separate QA timer generation PR and verify exact-head CI; no merge without specific owner approval."
   - "Signed physical iPhone Wi-Fi/LTE handoff/timeout with disposable safe lab and preserved profile bytes/NE OFF remains gated; do not claim from offline tests."
   - "Continue Files UI manual/automated Browse import on disposable simulator and independently verify same encrypted file restores idempotently; real signed device standalone backup requires approval."
   - "PR #377 and PR #378 exact-head GitHub CI 11/11 each; merge only after owner-specific approval, maintain main/GitVerse parity."
@@ -97,8 +100,10 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "e6858769a06e9e87bde3881caf695255fcbd135a (integration code source of PR377+378+379+380, Swift241, Python357+1527, unsigned iPhoneOS Release+Debug QA builds PASS)"
+last_verified_commit: "512eaaf1e850c71e7c699509edcb2bfc981928ab (CloudKit preview race hardening integrated on 0.3.0 draft, Swift244 Python361+1527, unsigned iPhoneOS Release + CloudKit-compiled ARM64 Simulator Debug PASS)"
 test_results:
+  - "13.11 18:30 CloudKit manual exclusion concurrent preview safety: Swift244/244, Python361 PASS+1527 subtests, new unittest4 PASS, unsigned iPhoneOS Release App+PacketTunnel BUILD SUCCEEDED, ARM64 iOS Simulator Debug with explicit APL_CLOUDKIT_ENABLED BUILD SUCCEEDED; production flag and entitlement remain OFF; no live CloudKit/data."
+  - "13.11 integrated PR #381 head dc51ac5b533496ab29f48f58506c50b5d3efd0af exact-head CI 11/11 success before CloudKit update."
   - "13.11 integration source PR377+378+379+380: Swift241 PASS, Python iOS357 PASS +1527 subtests, unittest14 PASS, generic unsigned iPhoneOS Release App+PacketTunnel and Debug APL_RUN_EXPLICIT_VPN_QA test target both BUILD SUCCEEDED, git diff --check PASS."
   - "13.11 Debug QA timer generation: Swift232/232 PASS, Python iOS344 PASS +1513 subtests, unittest4, iPhoneOS Release App+PacketTunnel BUILD PASS, iPhoneOS Debug APL_RUN_EXPLICIT_VPN_QA target BUILD PASS, git diff --check PASS; physical untested."
   - "13.11 afternoon: backup repeat export two distinct .aplbackup files in disposable simulator without Replace alert; signed Files UI XCTest 1 skip/0 failures (import unaccepted); Swift Core230 PASS, Python343 +1513 subtests PASS, unittest3 PASS, unsigned iPhoneOS Release App+PacketTunnel build PASS."
@@ -153,4 +158,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "iOS0.3.0 ONLY. Draft PR #381 exact-head dc51ac5b5 CI 17/17 SUCCESS; do not repeat this gate or merge without approval. New active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-integration-preview-20261113 branch qa/ios-030-integration-preview-20261113 from main0a68fbb4a. Source cherry-picked in sequence from #377(083101d640), #378(8a02f6c11+fcfa6c5b3), #379(bb0be34fc), #380(fe80c1626), with only roadmap docs union. Validated source Swift241, Python357+1527, unittest14, unsigned iPhoneOS Release and physical QA Debug builds PASS. Commit this checkpoint+preview doc, push branch and open DRAFT PR to obtain exact-head GitHub CI; do NOT merge existing PRs or draft without owner-specific approval, no App Store or real iPhone/VPN/profiles changes. Physical DNS/UDP/QUIC leak + Wi-Fi/LTE fault + original profile bytes/NE OFF, native VLESS/WG/AWG, CloudKit two-device, Files Browse encrypted restore are still not accepted. After green combined CI, continue safe source-only tasks."
+resume_instruction: "iOS0.3.0 ONLY. Active worktree /Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/apl-ios-030-integration-preview-20261113, branch qa/ios-030-integration-preview-20261113 (Draft PR #381); main remains 0a68fbb4a, unmodified. Original code PRs #377/#378/#379/#380 cherry-picked and exact-head CI on previous PR381 commit dc51ac5b5 was 11/11 PASS. New CloudKit source hardening commit 512eaaf1e: recheck private CKRecord ID/changeTag/payload and unchanged local list before applying remote rules; upload only previewed list; production CloudKit flag/entitlement OFF. Tests Swift244, iOS Python361+1527, unittest4, unsigned iPhoneOS Release and explicit-flag ARM64 iOS Simulator Debug builds PASS. Commit checkpoint, push draft PR #381, check exact-head CI and autonomously fix regressions. Do not merge any PR/publish or mutate real iPhone/VPN/profiles/CloudKit account without owner-specific approval. Physical signed DNS/UDP/QUIC + Wi-Fi/LTE fail-closed; CloudKit 2-device concurrent writes, Files Browse decrypt/restore and native VLESS/WG/AWG provenance remain unaccepted. Watchdog must read this checkpoint instead of stale main."
