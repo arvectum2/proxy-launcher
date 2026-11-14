@@ -2,8 +2,9 @@
 import plistlib, subprocess, sys
 from pathlib import Path
 host = Path(sys.argv[1])
+assert not list(host.rglob("*.dylib")), "Unexpected embedded debug dylib"
 team = "VML75VY94V"
-base = "ru.arvectum.proxylauncher.lab.awgcompile"
+base = "ru.arvectum.proxylauncher.lab.nativeqa"
 for bundle, ident in [(host,base),(host/"PlugIns/AWGProvider.appex",base+".PacketTunnel")]:
     assert plistlib.loads((bundle/"Info.plist").read_bytes())["CFBundleIdentifier"] == ident
     profile = plistlib.loads(subprocess.check_output(["security","cms","-D","-i",str(bundle/"embedded.mobileprovision")],stderr=subprocess.DEVNULL))

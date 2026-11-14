@@ -1,5 +1,6 @@
 // Separate unsigned synthetic lab. Normal launches never alter VPN settings.
 import Foundation
+import Darwin
 import SwiftUI
 import NetworkExtension
 import Network
@@ -15,7 +16,7 @@ private final class AWGProbeOnce: @unchecked Sendable {
 }
 
 @MainActor final class AWGPhysicalLabModel: ObservableObject {
-    private static let provider = "ru.arvectum.proxylauncher.lab.awgcompile.PacketTunnel"
+    private static let provider = "ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel"
     private static let marker = "APL standalone AWG synthetic QA v1"
     private var consumed = false
     @Published private(set) var status = "No test requested"
@@ -52,6 +53,23 @@ private final class AWGProbeOnce: @unchecked Sendable {
         try await manager.loadFromPreferences()
         guard owned(manager) else { throw LabError.conflict }
         return manager
+    }
+    // Actual Wi-Fi address, not the virtual tunnel or a guessed ARP entry.
+    private func localWiFiIPv4() -> UInt32? {
+        var list: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&list) == 0, let first = list else { return nil }
+        defer { freeifaddrs(first) }
+        var cursor: UnsafeMutablePointer<ifaddrs>? = first
+        while let item = cursor {
+            let addr = item.pointee.ifa_addr
+            if String(cString: item.pointee.ifa_name) == "en0", let addr, addr.pointee.sa_family == UInt8(AF_INET) {
+                let raw = UnsafeRawPointer(addr).assumingMemoryBound(to: sockaddr_in.self).pointee.sin_addr.s_addr
+                let ip = UInt32(bigEndian: raw)
+                if ip >> 8 == 0xc0a801, (1...254).contains(ip & 255), ip != 0xc0a80150 { return ip }
+            }
+            cursor = item.pointee.ifa_next
+        }
+        return nil
     }
     private func off(_ manager: NETunnelProviderManager) -> Bool {
         manager.connection.status == .disconnected || manager.connection.status == .invalid
@@ -120,6 +138,8 @@ private final class AWGProbeOnce: @unchecked Sendable {
             switch request.action {
             case "prepare":
                 guard request.keys == nil, request.nonce == nil, let manager = try await profile(create: true), owned(manager), manager.isEnabled, !manager.isOnDemandEnabled, manager.connection.status == .disconnected else { throw LabError.conflict }
+                guard let ip = localWiFiIPv4() else { throw LabError.invalid }
+                result["localIPv4"] = ip
                 result["prepared"] = true; status = "Prepared; VPN OFF"
             case "cleanup":
                 guard request.keys == nil, request.nonce == nil else { throw LabError.invalid }
@@ -127,7 +147,7 @@ private final class AWGProbeOnce: @unchecked Sendable {
                 else { result["cleaned"] = true }
                 status = "Cleanup finished; verify receipt"
             case "run":
-                guard let keys = request.keys, keys.count == 96, let ip = request.localIPv4, ip >> 8 == 0xc0a801, (1...254).contains(ip & 255), let kind = request.probe, ["tcp4", "tcp6", "udp4", "udp6"].contains(kind), let nonce = request.nonce, nonce.utf8.count == 48, nonce.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }), let manager = try await profile(create: false), owned(manager), manager.isEnabled, !manager.isOnDemandEnabled, manager.connection.status == .disconnected else { throw LabError.invalid }
+                guard let keys = request.keys, keys.count == 96, let ip = request.localIPv4, ip == localWiFiIPv4(), ip >> 8 == 0xc0a801, (1...254).contains(ip & 255), let kind = request.probe, ["tcp4", "tcp6", "udp4", "udp6"].contains(kind), let nonce = request.nonce, nonce.utf8.count == 48, nonce.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }), let manager = try await profile(create: false), owned(manager), manager.isEnabled, !manager.isOnDemandEnabled, manager.connection.status == .disconnected else { throw LabError.invalid }
                 do {
                     try manager.connection.startVPNTunnel(options: ["aplAWGFixture": "explicit-lan-lab-v1" as NSString, "aplAWGKeys": keys as NSData, "aplAWGLocalIPv4": NSNumber(value: ip)])
                     for _ in 0..<100 {

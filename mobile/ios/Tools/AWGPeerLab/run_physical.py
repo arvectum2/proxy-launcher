@@ -19,7 +19,7 @@ import uuid
 from run_preflight import keypair, LAB_IP
 
 DEVICE = "00008110-001C51810A12401E"
-APP = "ru.arvectum.proxylauncher.lab.awgcompile"
+APP = "ru.arvectum.proxylauncher.lab.nativeqa"
 KINDS = ("tcp4", "tcp6", "udp4", "udp6")
 
 
@@ -177,7 +177,7 @@ def main():
             return
         assert_off()
         receipt = read_result(root)
-        if not receipt or receipt.get("runID") != prepared_id or receipt.get("prepared") is not True:
+        if not receipt or receipt.get("runID") != prepared_id or receipt.get("prepared") is not True or receipt.get("localIPv4") != int(client):
             raise RuntimeError("Explicit prepare-only receipt missing")
         try:
             for kind in KINDS:

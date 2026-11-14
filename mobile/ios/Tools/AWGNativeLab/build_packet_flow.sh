@@ -49,8 +49,9 @@ targets:
         NSLocalNetworkUsageDescription: "Connect only to the fixed local synthetic AWG peer."
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.awgcompile
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.nativeqa
         SWIFT_VERSION: "5.9"
+        ENABLE_DEBUG_DYLIB: NO
         CODE_SIGNING_ALLOWED: NO
         CODE_SIGN_ENTITLEMENTS: AWG.entitlements
   AWGProvider:
@@ -65,7 +66,7 @@ targets:
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).AWGIsolatedPacketTunnelProvider
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.awgcompile.PacketTunnel
+        PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel
         SWIFT_VERSION: "5.9"
         APPLICATION_EXTENSION_API_ONLY: YES
         ENABLE_DEBUG_DYLIB: NO
