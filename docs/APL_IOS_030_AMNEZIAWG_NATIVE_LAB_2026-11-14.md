@@ -131,3 +131,20 @@ Added fixed-LAN C ABI and Swift pump/provider, 20s provider lifetime, unsigned i
 ## Owner decision: reuse NativeLab — 23:05 MSK
 
 Supersedes proposed additional awgcompile identifiers. Reuse the existing nativeqa host and nativeqa.PacketTunnel IDs with AWG-only binary instead of Xray; no additional Apple IDs, provisioning updates, account or App Store record. `sign_reused_nativeqa.sh` uses the exact prior development profiles and matching existing identity offline, validates both entitlements, no App Group/shared Keychain, and refuses debug dylib bundles. Initial signed build installed but immediately exited; corrected host disables debug dylibs, compiled both platforms, signed and launched on physical iPhone. Original signed Xray artifact retained untouched. Corrected AWG artifact: native-artifacts/awg-nativeqa-signed-nodylib-20261114/AWGCompileHost.app. Prepare-only detects actual en0 IPv4 and suite requires matching receipt. Device showed system VPN permission and Mirroring Mac authentication; canceled, owned cleanup receipt true, uninstalled lab, production Netherlands 2 restored with active extension and unchanged three owner hashes. No AWG traffic cases run; no independent egress verification. Next run requires supervised OS consent; reuse existing signed artifact, do not rebuild.
+
+## Physical iPhone 13 acceptance — 23:13 MSK
+
+Owner approved the OS VPN prompt directly; matching prepare-only receipt and actual Wi-Fi address verified. Corrected signed AWG-only existing NativeLab variant, pinned separate-process AWG LAN witness, fresh credentials per case. `run_physical.py` eight cases passed without retry, exit0.
+
+| Case | Exact app witness | Outer server sent/received | Result |
+|---|---:|---:|---|
+| TCP4 | 1 | 7/6 | PASS |
+| TCP6 | 1 | 6/6 | PASS |
+| UDP4 | 1 | 2/2 | PASS |
+| UDP6 | 1 | 2/2 | PASS |
+| TCP4 wrong key | 0 | 0/1 | PASS |
+| UDP4 wrong key | 0 | 0/1 | PASS |
+| TCP4 wrong PSK | 0 | 1/1 | PASS |
+| UDP4 wrong PSK | 0 | 1/1 | PASS |
+
+Every case returned matching device receipt with OFF confirmed; final AWG_PHYSICAL_PROFILE_CLEANED and AWG_PHYSICAL_SUITE_PASS. Isolated app uninstalled, previous production Netherlands 2 restored with active extension; all three owner fingerprints identical. No new App IDs, no production modifications. Public egress not independently checked. This accepts bounded synthetic LAN data plane for pinned AWG fixture on physical iOS, not production release, all AWG variants, WAN or network handoff. Next integration/ownership and remaining release gates.
