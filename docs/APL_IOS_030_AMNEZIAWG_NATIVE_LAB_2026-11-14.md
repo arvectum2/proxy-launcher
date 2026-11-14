@@ -115,3 +115,9 @@ iPhoneOS fc9a042185c5127cb875e9498ccdce1fe916aef02479600f466bce6d3a0ffe8e.
 These are measured hashes, not independent bit-for-bit reproducibility.
 Focused source/contract tests 23/23 PASS. Actual physical iOS
 execution, full compatibility and production acceptance remain pending.
+
+## Standalone packet bridge and unsigned separate provider — 14 Nov
+
+Added bounded Go TUN queues (32 packets per direction, MTU1280, validated IPv4/IPv6 lengths, congestion drops, close unblocks reader), single-generation C ABI start/push/pull/stop with fixed loopback synthetic peer and 96-byte key input; no owner credentials. Native bridge test uses two instances of the same pinned AWG engine, exact raw bidirectional IPv4/IPv6 ICMP packets and duplicate/stale generation rejection. Go tests 3/3 PASS; original native positive/wrong-key/wrong-PSK cases plus bridge case all 4/4 PASS on macOS and fresh iOS simulator. Both direct spawn and full runner exit0; bootstatus took several minutes, revised bounded fallback helper syntax checked but not rerun end-to-end.
+
+Added standalone Swift NEPacketTunnelFlow pump, serial generation-scoped read/write, bounded output polling, retired instance and explicit failure callbacks; separate unsigned provider with fixed TEST-NET host routes and loopback peer, no default DNS, no app group, no automatic registration. `build_packet_flow.sh` verified pin and unsigned ARM64 device and simulator embedded app-extension links, required native symbols and absent Xray CGoInvoke. Both builds exit0. Swift NE pump not actually run, not a physical data-plane or production capability claim. Real separate-process peer (not same-engine fixture), LAN-restricted bind, signed physical NE TCP/UDP, negative/memory/handoff receipt, actual OS/native ownership driver, broader version and legal gates remain. No signing IDs/provisioning or device changes. Active release source preflight and Python 50/50 PASS; public version metadata deliberately unchanged.

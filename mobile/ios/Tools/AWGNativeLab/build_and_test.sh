@@ -28,10 +28,11 @@ export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
 go version
 mkdir "$work/lab"
 ln -s "$source_dir" "$work/awg"
-cp "$root"/main.go "$root"/go.mod "$root"/go.sum "$work/lab/"
+cp "$root"/*.go "$root"/go.mod "$root"/go.sum "$work/lab/"
 cp "$root/launcher.c.txt" "$work/launcher.c"
 cd "$work/lab"
 go mod verify
+go test -mod=readonly ./...
 for platform in macosx iphonesimulator iphoneos; do
     sdk="$(xcrun --sdk "$platform" --show-sdk-path)"
     case "$platform" in
@@ -46,7 +47,7 @@ for platform in macosx iphonesimulator iphoneos; do
     "$cc" -target "$target" -isysroot "$sdk" "$work/launcher.c" "$work/lib-$platform.a" \
         -framework Security -framework CoreFoundation -lresolv -o "$work/qa-$platform"
     xcrun nm "$work/qa-$platform" >"$work/symbols"
-    grep -E ' [Tt] _aplAWGSelfTest$' "$work/symbols"
+    grep -E ' [Tt] _aplAWG(SelfTest|Bridge(Start|Push|Pull|Stop|SelfTest))$' "$work/symbols"
     if grep -qE ' [Tt] _CGoInvoke$' "$work/symbols"; then echo "Unexpected Xray symbol"; exit 1; fi
     shasum -a256 "$work/lib-$platform.a" | awk '{print $1}'
     echo "APL_AWG_LINK_$platform"
@@ -56,6 +57,18 @@ echo APL_AWG_MAC_NATIVE_PASS
 codesign --force --sign - "$work/qa-iphonesimulator"
 sim="$(xcrun simctl create "APL-AWGNativeQA-$$" com.apple.CoreSimulator.SimDeviceType.iPhone-13 "$runtime")"
 xcrun simctl boot "$sim"
-xcrun simctl bootstatus "$sim" -b >/dev/null
-xcrun simctl spawn "$sim" "$work/qa-iphonesimulator"
+# Simulator setup can stall even after the owned simulator is Booted.
+# Permit a bounded direct native execution only if its exact ID is Booted.
+python3 - "$sim" "$work/qa-iphonesimulator" <<'PYQA'
+import json, subprocess, sys
+sim, binary = sys.argv[1:]
+try:
+    subprocess.run(["xcrun", "simctl", "bootstatus", sim, "-b"], stdout=subprocess.DEVNULL, check=True, timeout=120)
+except subprocess.TimeoutExpired:
+    listing = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "-j"], timeout=15))
+    if not any(d.get("udid") == sim and d.get("state") == "Booted" for group in listing["devices"].values() for d in group):
+        raise SystemExit("Owned simulator did not boot")
+    print("APL_AWG_SIM_BOOTSTATUS_TIMEOUT_BOOTED", flush=True)
+subprocess.run(["xcrun", "simctl", "spawn", sim, binary], check=True, timeout=45)
+PYQA
 echo APL_AWG_SIM_NATIVE_PASS
