@@ -28,6 +28,7 @@ FLOW_INTENT_PATCH = TOOLS / "tun2proxy-flow-intent.patch"
 SCOPED_DIRECT_EXPERIMENT_PATCH = TOOLS / "tun2proxy-experimental-scoped-direct.patch"
 SAME_FLOW_RETRY_PATCH = TOOLS / "tun2proxy-sameflow-scoped-retry.patch"
 DIRECT_FAMILY_PATCH = TOOLS / "tun2proxy-dual-stack-physical-family.patch"
+CONNECTED_UDP_PATCH = TOOLS / "tun2proxy-connected-udp.patch"
 
 FORCED_EXIT_BLOCK = """        // Spawn a std thread to force exit after timeout so it isn't cancelled
         // when the tokio runtime is dropped.
@@ -99,6 +100,12 @@ def developer_dir() -> str:
         if (candidate / "usr" / "bin" / "xcodebuild").is_file():
             return str(candidate)
 
+    # Real Xcode may live outside /Applications (e.g. a dedicated SSD).
+    selected = subprocess.run(["xcode-select", "-p"], capture_output=True, text=True, check=False)
+    if selected.returncode == 0:
+        candidate = Path(selected.stdout.strip())
+        if (candidate / "usr" / "bin" / "xcodebuild").is_file():
+            return str(candidate)
     candidates = [Path("/Applications/Xcode.app/Contents/Developer")]
     candidates.extend(
         sorted(
@@ -152,6 +159,9 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
     run("git", "apply", "--check", str(DIRECT_FAMILY_PATCH), cwd=source)
     run("git", "apply", str(DIRECT_FAMILY_PATCH), cwd=source)
 
+    run("git", "apply", "--check", str(CONNECTED_UDP_PATCH), cwd=source)
+    run("git", "apply", str(CONNECTED_UDP_PATCH), cwd=source)
+
     rustup = rustup_path()
     run(rustup, "toolchain", "install", RUST_TOOLCHAIN, "--profile", "minimal")
     run(rustup, "target", "add", "aarch64-apple-ios", "--toolchain", RUST_TOOLCHAIN)
@@ -181,6 +191,12 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
         library = source / "target" / target / "release" / "libtun2proxy.a"
         if not library.is_file():
             raise SystemExit(f"Patched tun2proxy library for {target} was not produced")
+        # Refuse a library that still contains the upstream API watchdog.
+        # The caller only installs a library after verifying the built artifact.
+        import mmap
+        with library.open("rb") as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as memory:
+            if memory.find(b"Forcing exit now.") >= 0:
+                raise SystemExit(f"Unsafe forced-exit watchdog still present in {target} library")
         result[target] = library
     return result
 
@@ -287,7 +303,7 @@ def main() -> None:
             f"{VERSION}\n"
             f"source_commit={SOURCE_COMMIT}\n"
             f"upstream_archive_sha256={ARCHIVE_SHA256}\n"
-            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry\n"
+            f"patch=disable-api-forced-exit-and-split-dns-flow-intent-per-flow-events-and-experimental-scoped-direct-sameflow-retry-connected-udp\n"
             f"rust_toolchain={RUST_TOOLCHAIN}\n"
             f"patched_library_sha256={patched_sha256}\n"
             + (f"patched_simulator_library_sha256={digest(TARGET / 'ios-arm64-simulator' / 'libtun2proxy.a')}\n"

@@ -71,6 +71,7 @@
 		49670D215DF47BB738877CBB /* ProxyFilePickerCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A20123BC92431EFCA5FACD6 /* ProxyFilePickerCancellation.swift */; };
 		4AAEE6BA73131A6B82667784 /* UXReadOnlyNavigationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68253EF20512E06624313F34 /* UXReadOnlyNavigationUITests.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5142212AA6C6727E3F7FD1E1 /* TransportBackendContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */; };
 		52CBC7915554AFDF2A102CE8 /* ProfilesScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9A0A9D12DC4FD6895628A1 /* ProfilesScreenView.swift */; };
 		532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */; };
 		5612E8FE553F943B08618E20 /* ProfileLibraryLocaleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27C63FA84494D774BCE273E5 /* ProfileLibraryLocaleUITests.swift */; };
@@ -101,6 +102,7 @@
 		7A68C1DD46C3481D59AFA3CA /* XraySocksHandoffContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */; };
 		7B8644A11A5316798B2FCCD0 /* ProxySubscriptionImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */; };
 		7CA2A1D2E9816B25A1366445 /* SiteExclusionSaveUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996C5F83E8CEE3660D8ACF38 /* SiteExclusionSaveUX.swift */; };
+		7F4719FF2230E4AB11B168CC /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
@@ -149,7 +151,9 @@
 		B8B109ED98EC4BE9BE9100D4 /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
 		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		BCFAB992B54C9384E430D856 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
+		BE45212202FCE790A55643C7 /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
 		BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */; };
+		C0CAAD68E0298214B6C60772 /* TransportBackendContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */; };
 		C10B751B12EE1CAD3DB5F3CA /* ProxyFilePickerCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A20123BC92431EFCA5FACD6 /* ProxyFilePickerCancellation.swift */; };
 		C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */; };
 		CA00AE677BE5D78AFAEEBCC3 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
@@ -160,6 +164,7 @@
 		D06A095790028F09C33A550B /* ProxyQualitySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378B18A313BC0A4A82714B5 /* ProxyQualitySnapshot.swift */; };
 		D123F01AF8D1CE9160A904B2 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */; };
 		D233812822CEB8E75ACBC592 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
+		D43464FFFBD761EE49ED57A6 /* TransportBackendAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */; };
 		D500CF222D03CED67EDEFA8E /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
@@ -187,6 +192,7 @@
 		FB52493F346AB26C8062A06D /* BrandTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */; };
 		FC7DAC5F4EDAD359D78EF662 /* SmartExclusionsUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88FA65A6768406583504159F /* SmartExclusionsUX.swift */; };
 		FD5C26344FEE8ED2529269E8 /* SetupGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB04057014F01C39512BA98A /* SetupGuideView.swift */; };
+		FE5073C850657CE0C9BA10DA /* TransportBackendAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */; };
 		FF2FF6FD4FE32378C4794669 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
 		FF741EF3C1CFE58537E519DA /* HomeLayoutProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */; };
 /* End PBXBuildFile section */
@@ -351,6 +357,7 @@
 		4AECB7B052EFAEF2B289A735 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		4BE9CB789E41DEE3DE7770FF /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		4C496FD82D9BF2FBD18628FB /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportBackendAdapter.swift; sourceTree = "<group>"; };
 		4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileOrganization.swift; sourceTree = "<group>"; };
 		4E8D1A6CF811A4F3A1416098 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		4EA50EA224CB9A03B00921A4 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -462,6 +469,7 @@
 		84AB32172A8CF755F8263AE1 /* ka */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ka; path = ka.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		84D5D2F89875F606C37AB587 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
 		85895C9DF378EA1E5EBE55AE /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XrayVLESSRuntimeConfig.swift; sourceTree = "<group>"; };
 		8694ECD0A5B7EEB361FA82D9 /* gu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = gu; path = gu.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		86AA4570BE61DDF8BE2ECFDD /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		8722833D0E497B6866D28263 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/QuickActions.strings"; sourceTree = "<group>"; };
@@ -662,6 +670,7 @@
 		F5419CC30EAAD00A1DFF9D5C /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		F551E0A0F6293F6337E24BBA /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
 		F58D1F2D461D37494D7C09FE /* hy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hy; path = hy.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
+		F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportBackendContract.swift; sourceTree = "<group>"; };
 		F682DF9092D1F371B56D6CE8 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeLayoutProbe.swift; sourceTree = "<group>"; };
 		F7AC220A81B3DAFEF5D906E9 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -861,12 +870,15 @@
 				C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */,
 				2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */,
 				6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */,
+				4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */,
+				F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */,
 				C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */,
 				763EDD91B854B64A115E22D4 /* TunnelEngineHandoff.swift */,
 				518B683BAA7929D82293297E /* TunnelQACallbackGate.swift */,
 				BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */,
 				7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */,
 				7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */,
+				85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */,
 			);
 			path = SharedCore;
 			sourceTree = "<group>";
@@ -1198,6 +1210,8 @@
 				265A8F49C43D1A01B9268895 /* SmartRouteDryRunAudit.swift in Sources */,
 				48968ADAEFAB6B9A8C934C39 /* TLSProxyRelay.swift in Sources */,
 				60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */,
+				FE5073C850657CE0C9BA10DA /* TransportBackendAdapter.swift in Sources */,
+				C0CAAD68E0298214B6C60772 /* TransportBackendContract.swift in Sources */,
 				1E23FF60E2DF996751E3EE47 /* TunnelEngineExitGate.swift in Sources */,
 				B1D7B44615D3AB41BE224713 /* TunnelEngineHandoff.swift in Sources */,
 				B7A299FB3C35106002B97EAB /* TunnelQACallbackGate.swift in Sources */,
@@ -1205,6 +1219,7 @@
 				1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */,
 				E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */,
 				7A68C1DD46C3481D59AFA3CA /* XraySocksHandoffContract.swift in Sources */,
+				7F4719FF2230E4AB11B168CC /* XrayVLESSRuntimeConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1343,6 +1358,8 @@
 				435B39EADC4263B15EFE3903 /* SmartFlowRoutingPolicy.swift in Sources */,
 				D123F01AF8D1CE9160A904B2 /* SmartRouteDryRunAudit.swift in Sources */,
 				ADC55F38768736A41DCDBEA2 /* TelemetryStore.swift in Sources */,
+				D43464FFFBD761EE49ED57A6 /* TransportBackendAdapter.swift in Sources */,
+				5142212AA6C6727E3F7FD1E1 /* TransportBackendContract.swift in Sources */,
 				84F7F7F84785E03AF2254A9E /* TunnelEngineExitGate.swift in Sources */,
 				EEE20757BFB04653A5E9E336 /* TunnelEngineHandoff.swift in Sources */,
 				46D42F2D3CA05A605BDCD41D /* TunnelQACallbackGate.swift in Sources */,
@@ -1351,6 +1368,7 @@
 				41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */,
 				3092CE8477A30E68BC023E78 /* WGQuickConfigurationPreview.swift in Sources */,
 				B5B224D7711928993E922EC2 /* XraySocksHandoffContract.swift in Sources */,
+				BE45212202FCE790A55643C7 /* XrayVLESSRuntimeConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
