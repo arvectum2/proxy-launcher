@@ -13,6 +13,7 @@ private final class AWGLabOnce: @unchecked Sendable {
 }
 
 final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
+    @MainActor private var control = TransportNativeControlState()
     @MainActor private var retired = false
     @MainActor private var started = false
     @MainActor private var pump: AWGPacketFlowPump?
@@ -39,6 +40,12 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
                 }
                 localIPv4 = address.uint32Value
             } else { localIPv4 = nil }
+            if let raw = options?["aplNativeIdentity"] {
+                guard let data = raw as? Data, let identity = try? TransportNativeCodec.decode(TransportNativeIdentity.self, data),
+                      (try? control.bind(identity, provider: "standalone-awg")) != nil else {
+                    completionHandler(failure(1)); return
+                }
+            }
             started = true
             let once = AWGLabOnce()
             let finish: (Error?) -> Void = { error in
@@ -47,7 +54,7 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
             let timeout = Task { @MainActor [weak self] in
                 try? await Task.sleep(nanoseconds: 8_000_000_000)
                 guard !Task.isCancelled, let self, once.take() else { return }
-                self.retired = true
+                self.retired = true; self.control.fail()
                 completionHandler(self.failure(2))
                 self.cancelTunnelWithError(self.failure(2))
             }
@@ -60,12 +67,12 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
             settings.ipv6Settings = v6
             settings.mtu = 1280
             do { try await setTunnelNetworkSettings(settings) }
-            catch { retired = true; timeout.cancel(); finish(failure(3)); return }
+            catch { retired = true; control.fail(); timeout.cancel(); finish(failure(3)); return }
             guard !retired else { try? await setTunnelNetworkSettings(nil); timeout.cancel(); finish(failure(4)); return }
             let bridge = AWGPacketFlowPump(flow: packetFlow) { [weak self] in
                 Task { @MainActor in
                     guard let self else { return }
-                    self.retired = true
+                    self.retired = true; self.control.fail()
                     self.cancelTunnelWithError(self.failure(5))
                 }
             }
@@ -74,7 +81,7 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
                 Task { @MainActor in
                     timeout.cancel()
                     guard ok, !self.retired else {
-                        self.retired = true
+                        self.retired = true; self.control.fail()
                         finish(self.failure(6)); self.cancelTunnelWithError(self.failure(6)); return
                     }
                     self.lifetime = Task { @MainActor [weak self] in
@@ -83,9 +90,34 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
                         self.retired = true
                         self.cancelTunnelWithError(self.failure(9))
                     }
+                    if self.control.identity != nil { try? self.control.ready() }
                     finish(nil) // Engine started, NOT a verified peer handshake.
                 }
             }
+        }
+    }
+    // Explicit stop handshake retains host routes until OS teardown. A
+    // query cannot invent identity; a native close callback proves drain.
+    override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
+        Task { @MainActor in
+            guard let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData),
+                  (try? control.response(to: request)) != nil else { completionHandler?(nil); return }
+            if request.action == .drain, control.state == .ready, !retired, let pump {
+                retired = true
+                lifetime?.cancel(); lifetime = nil
+                try? control.beginDrain()
+                pump.stop { ok in
+                    Task { @MainActor in
+                        if ok { try? self.control.finishDrain() }
+                        else { self.control.fail(); self.cancelTunnelWithError(self.failure(8)) }
+                        let response = try? self.control.response(to: request)
+                        completionHandler?(response.flatMap { try? TransportNativeCodec.encode($0) })
+                    }
+                }
+                return
+            }
+            let response = try? control.response(to: request)
+            completionHandler?(response.flatMap { try? TransportNativeCodec.encode($0) })
         }
     }
     override func stopTunnel(with reason: NEProviderStopReason,
@@ -93,6 +125,7 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
         Task { @MainActor in
             retired = true
             lifetime?.cancel(); lifetime = nil
+            if control.identity != nil && control.state != .drained { control.fail() }
             let once = AWGLabOnce()
             let finish = { if once.take() { completionHandler() } }
             let timeout = Task { @MainActor in

@@ -27,7 +27,7 @@ cp "$rust/libtun2proxy.a" "$work/Lib/Rust/"
 cp -R "$rust/Headers" "$work/Lib/Rust/"
 echo MEASURED_RUST_DEVICE_ARTIFACT
 shasum -a 256 "$work/Lib/Rust/libtun2proxy.a"
-for name in ProxyModel ManagedProfileContract VLESSRealityShareLink XrayVLESSRuntimeConfig XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate WGQuickConfigurationPreview; do
+for name in ProxyModel ManagedProfileContract VLESSRealityShareLink XrayVLESSRuntimeConfig XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate WGQuickConfigurationPreview TransportNativeControl; do
     cp "$root/SharedCore/$name.swift" "$work/Sources/"
 done
 cp "$root/Tools/XrayWireGuardLabConfig.swift" "$work/Sources/"

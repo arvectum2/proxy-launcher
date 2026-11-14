@@ -14,6 +14,7 @@ private final class LabCounters: @unchecked Sendable {
 import tun2proxy
 
 final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
+    @MainActor private var control = TransportNativeControlState()
     @MainActor private var lifecycle = XrayHandoffLifecycle()
     @MainActor private var starting = false
     @MainActor private var stopping = false
@@ -38,7 +39,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                 try await startLab(options)
                 completionHandler(nil)
             } catch {
-                retired = true
+                retired = true; control.fail()
                 await drain()
                 completionHandler((error as? NativeLabError)?.safeNSError ?? NativeLabError.stage(4).safeNSError)
             }
@@ -48,6 +49,10 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     @MainActor private func startLab(_ options: [String:NSObject]?) async throws {
         guard options?["aplNativeSyntheticQA"] as? String == "explicit-lab-v1",
               let link=options?["aplSyntheticLink"] as? String else { throw NativeLabError.stage(5) }
+        if let raw = options?["aplNativeIdentity"] {
+            guard let data = raw as? Data, let identity = try? TransportNativeCodec.decode(TransportNativeIdentity.self, data) else { throw NativeLabError.stage(5) }
+            try control.bind(identity, provider: "rust-xray")
+        }
         if let code=options?["aplLabExitChallenge"] as? NSNumber {
             guard (100000...999999).contains(code.intValue) else {throw NativeLabError.stage(5)}
             exitChallenge=code.intValue
@@ -123,7 +128,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             Task { @MainActor [weak self] in
                 guard let self, self.gate.shouldCancelTunnel(generation) else { return }
                 try? self.lifecycle.failClosed(generation:token)
-                self.retired = true
+                self.retired = true; self.control.fail()
                 // Fresh challenge only on actual native return after the one-shot request.
                 let code = self.forcedExitRequested && rc == 0 ? (self.exitChallenge ?? 9) : 9
                 self.cancelTunnelWithError(NativeLabError.stage(code).safeNSError)
@@ -132,16 +137,31 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         try await Task.sleep(nanoseconds:350_000_000)
         guard !stopping, !retired, gate.isRunning(generation) else { throw NativeLabError.stage(10) }
         try lifecycle.ready(generation:token)
+        if control.identity != nil { try control.ready() }
         timeoutTask = Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds:20_000_000_000)
             guard !Task.isCancelled,let self,self.gate.isRunning(generation) else { return }
-            self.retired = true
+            self.retired = true; self.control.fail()
             self.cancelTunnelWithError(NativeLabError.stage(11).safeNSError)
         }
     }
 
     override func handleAppMessage(_ messageData:Data, completionHandler: ((Data?) -> Void)?) {
         Task { @MainActor in
+            if let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData),
+               (try? control.response(to: request)) != nil {
+                if request.action == .drain, control.state == .ready, !retired, !stopping {
+                    retired = true
+                    try? control.beginDrain()
+                    await drain(removeSettings: false)
+                    if !engineStarted && !xrayStarted && lifecycle.phase == .stopped {
+                        try? control.finishDrain()
+                    } else { control.fail(); cancelTunnelWithError(NativeLabError.stage(12).safeNSError) }
+                }
+                let response = try? control.response(to: request)
+                completionHandler?(response.flatMap { try? TransportNativeCodec.encode($0) })
+                return
+            }
             if messageData == Data("apl-lab-counters-v1".utf8) {
                 var values=LabCounters.shared.snapshot()
                 var info=mach_task_basic_info()
@@ -171,15 +191,17 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     override func stopTunnel(with reason: NEProviderStopReason,completionHandler: @escaping () -> Void) {
         Task { @MainActor in
             retired = true
+            if control.identity != nil && control.state != .drained { control.fail() }
             await drain()
             completionHandler()
         }
     }
 
-    @MainActor private func drain() async {
+    @MainActor private func drain(removeSettings: Bool = true) async {
         // Multiple stop callbacks wait for the single in-progress cleanup.
         if stopping {
             while stopping { try? await Task.sleep(nanoseconds:20_000_000) }
+            if removeSettings { try? await setTunnelNetworkSettings(nil) }
             return
         }
         stopping = true
@@ -209,6 +231,6 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         if !engineStarted && !xrayStarted && lifecycle.phase == .stopping {
             try? lifecycle.drained(generation:token)
         }
-        try? await setTunnelNetworkSettings(nil)
+        if removeSettings { try? await setTunnelNetworkSettings(nil) }
     }
 }

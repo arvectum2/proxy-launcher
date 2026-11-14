@@ -58,9 +58,10 @@ struct TransportBackendPlan: Equatable {
             evidence = [.tcpIPv4, .tcpIPv6, .udpIPv4, .udpIPv6]
         case .amneziaWG1:
             // Only the fixed matching legacy fixture on the pinned v3 engine.
-            // No general AWG1 interoperability or app traffic asserted.
+            // Physical LAN app traffic accepted for this exact fixture only.
+            // No general AWG1 interoperability or WAN capability asserted.
             provider = .standaloneAWG
-            evidence = [.rawIPv4, .rawIPv6]
+            evidence = [.rawIPv4, .rawIPv6, .tcpIPv4, .tcpIPv6, .udpIPv4, .udpIPv6]
         case .amneziaWG2, .amneziaWG3:
             throw TransportContractError.unsupportedProtocol
         }

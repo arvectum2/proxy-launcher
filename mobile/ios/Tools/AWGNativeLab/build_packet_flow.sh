@@ -20,7 +20,7 @@ trap 'rm -rf -- "$work"' EXIT
 mkdir -p "$work/lab" "$work/Host" "$work/Provider" "$work/Lib"
 ln -s "$source_dir" "$work/awg"
 cp "$root"/*.go "$root"/go.mod "$root"/go.sum "$work/lab/"
-cp "$root"/PacketTunnel/*.swift "$work/Provider/"
+cp "$root"/PacketTunnel/*.swift "$root/../../SharedCore/TransportNativeControl.swift" "$work/Provider/"
 tar -xzf "$go_tar" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
 cp "$root"/Host/*.swift "$work/Host/"

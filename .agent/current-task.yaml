@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "14.11 23:44: common versioned request/receipt identity checks bound at provider startup; native drain via provider message before OS stop, retained synthetic routes; actual NETunnelProviderSession API bridge for existing lab IDs, core slot waits exact native/OS receipts, tests5/5. AWG1 exact lab capability contract updated for measured TCP/UDP IPv4/IPv6, production still denied."
   - "14.11 23:13: AWG isolated physical iPhone 13 suite 8/8 PASS, existing NativeLab signing reused, exact positive TCP4/TCP6/UDP4/UDP6 and 4 wrong-key/PSK negative cases, owned profile cleanup + owner restore verified."
   - "14.11 23:05: existing NativeLab host/PacketTunnel App IDs and prior dev profiles reused offline; no new account/app registration. Corrected no-debug-dylib host builds both platforms, signed and actually launches on iPhone."
   - "AWG fixed LAN separate process peer via pinned upstream AWG netstack, positive exact 4/4 TCP/UDP IPv4/IPv6, wrong key/PSK zero receipts, foreign source rejected each, actual bridge raw UDP4/UDP6 exact 2/2."
@@ -144,7 +145,7 @@ completed:
 
 
 
-current: "AWG physical isolated NativeLab eight-case LAN acceptance PASS exit0, exact TCP4/TCP6/UDP4/UDP6 receipts each1, wrong key/PSK TCP4/UDP4 zero app receipts, each stopped, owned cleanup confirmed. Uninstalled lab, restored Netherlands 2 production tunnel, owner three fingerprints unchanged. Existing IDs reused, no Apple registration. Next production adapter integration, broader AWG version/underlay interoperability, CloudKit/backup and release gates."
+current: "Exact physical acceptance head c8e23809d CI4/4 PASS. Shared session-bound native control messages and real NE API endpoint implemented (inactive, existing lab ID only), both AWG and Xray lab providers handle native readiness and explicit drain before OS teardown; synthetic slot switching tests PASS. Swift290/290, Python50/50, iOS NE endpoint typecheck, unsigned AWG device+sim and Xray device build+link PASS. Existing production HTTP tunnel unchanged, no phone changes."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -182,8 +183,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "b66663a18 plus AWG physical exact signed build 8/8 PASS and restoration evidence"
+last_verified_commit: "c8e23809d CI4/4 PASS; new native control working tree tests/builds pass"
 test_results:
+  - "Swift290/290 PASS; active production identity/preflight and Python iOS50/50 PASS; direct iPhoneOS NE endpoint typecheck PASS; unsigned AWG host+extension iPhoneOS and Simulator builds exit0, Xray/tun2proxy device unsigned linked build exit0 with pinned hashes and symbols. No newly signed app or actual provider-message/dual-provider hardware test; same existing lab ID variants cannot coexist."
   - "AWG physical exit0: TCP4 (7/6 outer sent/received), TCP6 6/6, UDP4 2/2, UDP6 2/2, exact app witness1 each; wrong-key TCP4/UDP4 0/1, wrong-PSK TCP4/UDP4 1/1, all app witness0. Matching device receipts OFF after each; cleanup true, lab absent, owner VPN active with same three fingerprints. Independent public egress not separately verified."
   - "Initial signed host launch failed (debug dylibs present); corrected builds device+sim PASS, offline profile/signature verifier and actual launch PASS, no embedded debug dylibs, Python receipt3 PASS. Permission gate canceled; cleanup confirmed, app absent, production process running same owner profile, hashes unchanged; public egress not separately retested."
   - "Reproducible peer build/preflight exit0, Go3 PASS, unsigned host+NE iPhoneOS/simulator builds exit0, SHA verification both peer and app binaries PASS; physical receipt guard unit3 PASS, active iOS preflight/Python50 PASS, unsigned artifact correctly rejected by signing verifier, no test ports retained. Previous head 43aa3147c CI7/7 PASS."
@@ -276,4 +278,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Do not repeat accepted WG/VLESS 10/10 or AWG physical 8/8. Verify exact-head CI then continue native backend production adapter and ownership/lifecycle integration offline in isolated branch, maintain fail closed and existing HTTP behavior. Address broader AWG versions, Wi-Fi/LTE, LAN policy, CloudKit/backup and release gates; no release or primary app replacement without approval. AWG physical receipt log /tmp/apl-awg-physical-nativeqa-20261114/run.log exit0, signed corrected artifact retained. Owner Netherlands 2 restored; lab absent."
+resume_instruction: "Verify exact-head PR383 CI. Continue by wiring the shared native control endpoint into existing NativeLab host (one runtime variant at a time, same existing IDs), test actual provider-message readiness/drain and missing/replayed receipt on device in supervised bounded test only when necessary. Concrete slots currently tested on fake endpoints; do not claim physical switch or production acceptance. Then general native runtime configuration/production packaging, license, non-synthetic route policy, AWG version and Wi-Fi/LTE, CloudKit/backup. Do not repeat accepted AWG8/8 or WG/VLESS10/10; do not create new IDs or replace production/release without approval."

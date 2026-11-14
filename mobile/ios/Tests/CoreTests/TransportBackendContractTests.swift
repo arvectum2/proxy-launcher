@@ -44,7 +44,8 @@ final class TransportBackendContractTests: XCTestCase {
             XCTAssertThrowsError(try plan(.wireGuard,[cap]))
         }
         XCTAssertThrowsError(try plan(.vlessReality,[.udpIPv4]))
-        XCTAssertThrowsError(try plan(.amneziaWG1,[.tcpIPv4]))
+        XCTAssertNoThrow(try plan(.amneziaWG1,[.tcpIPv4,.tcpIPv6,.udpIPv4,.udpIPv6]))
+        XCTAssertThrowsError(try plan(.amneziaWG1,[.dns]))
         XCTAssertThrowsError(try plan(.wireGuard,[]))
     }
 
