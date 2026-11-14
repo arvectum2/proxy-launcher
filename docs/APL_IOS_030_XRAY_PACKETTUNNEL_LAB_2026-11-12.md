@@ -73,3 +73,67 @@ memory/egress/stop-drain, support for actual WG transport, AWG provenance,
 full SBOM/licensing/reproducible source build. No native protocol added
 to production ProxyType, no libXray packaging or installation on real
 iPhone. No owner VPN, radio, profile or CloudKit mutation.
+
+## 14.11.2026 — Authenticated isolated VLESS/REALITY application receipt
+
+New standalone lab: `Tools/XrayVLESSPeerSimulatorQA.swift` and
+`Tools/run_xray_vless_peer_qa.py`. Two separately built and ad-hoc signed
+executables use the same SHA256-pinned libXray v26.11.9 Apple asset:
+macOS arm64 server and iOS arm64 Simulator client. Both are outside app
+and extension targets. The client imports the synthetic share link,
+invokes the real CGo converter, validates via XrayVLESSRuntimeConfig,
+and starts its local SOCKS. The server listens on 127.0.0.1:39882,
+with ephemeral X25519 key and two random UUIDs (with/without Vision).
+OpenSSL local TLS 1.3 decoy and independent HTTP witness bind only
+127.0.0.1:39884 and :39883. The synthetic requested host is
+apl-receipt.invalid; only that exact domain and target port is routed
+to the witness, otherwise default blackhole. Exact finalRules allow
+TCP to 127.0.0.1/32:39883 in the test server's receipt-only outbound,
+then block everything else. No public listener, external endpoint,
+user profile or user data. No global routing/production policy changes.
+
+Initial combined-simulator lab timed out before receipt; moving the
+server onto macOS allowed server-side logs to confirm authenticated
+VLESS acceptance, but built-in Freedom finalRule blocked the local
+witness. Corrected laboratory-only routing by permitting ONLY that
+loopback target (not blanket allow). See upstream source
+https://github.com/XTLS/Xray-core/blob/main/infra/conf/freedom.go and
+https://github.com/XTLS/Xray-core/blob/main/proxy/freedom/freedom.go .
+Pinned binary accepted this configuration.
+
+Actual successful run at 10:16 MSK: per-test fresh random 160-bit
+HTTP path, exact response body compared on client, independent witness
+counts with lock. Client and server state running, bounded lifetime,
+explicit stop, state false and port closed checked by each harness.
+
+| Probe | Exact response | Independent witness count |
+| --- | --- | ---: |
+| Valid UUID/REALITY, no Vision | PASS | 1 |
+| Valid UUID/REALITY + Vision | PASS | 1 |
+| Incorrect UUID | no response | 0 |
+| Incorrect REALITY public key | no response | 0 |
+| Correct credentials after server stopped | no response | 0 |
+
+Final set of seen paths exactly equals the two successful paths. No
+assumption based simply on SOCKS greeting or startup. Native runtime
+and protocol exercised on actual Simulator, with separate native
+macOS process and exact application receipt. No independent encrypted
+packet-byte analysis; no actual PacketTunnel, external-network,
+production backend, signed physical device, Wi-Fi/LTE, resource or
+legal acceptance asserted.
+
+Reproduction:
+`PYTHON=python3.14 mobile/ios/Tools/run_xray_vless_config_simulator_qa.sh /path/to/libxray-apple-cgo.zip /path/to/pinned-go.mod com.apple.CoreSimulator.SimRuntime.iOS-27-0 --peer`.
+Runner verifies pins, extracts only named platform libraries/headers,
+compiles and signs both lab executables, creates/deletes own simulator,
+uses private temporary directory and local-only owned listeners.
+Diagnostic logs from initial troubleshooting were synthetic only;
+normal repeated run uses the original config without debug logging.
+No raw test key, nonce, config, binary or capture committed.
+
+**Reproduction confirmed at 10:17 MSK:** complete one-command
+`--peer` runner from freshly extracted pinned macOS/Simulator libraries
+on a new dedicated iOS27 Simulator, with production config logging none:
+all five scenarios PASS again; exactly two independent receipts,
+zero across the three negative cases. Exit 0. The runner removed its
+new simulator and private extraction directory; no listeners remain.
