@@ -69,6 +69,21 @@ APL_OFFLINK_WINDOW_AFTER_END_124.0
                 OFFLINK.evaluate(self.marks, self.baseline(), "0 packets dropped by kernel", **options),
                 "INCONCLUSIVE")
 
+    def test_upstream_cut_requires_independent_exit_between_request_and_probe(self):
+        log = self.marks.replace("APL_OFFLINK_WINDOW_DURING_BEGIN_110.0",
+                                 "APL_UPSTREAM_CUT_REQUEST_108.0\nAPL_OFFLINK_WINDOW_DURING_BEGIN_110.0")
+        capture = self.baseline() + "\n" + self.packet(111, 443, "2001:db8::1")
+        with contextlib.redirect_stdout(io.StringIO()):
+            for bad in (None, 107.0, 110.1):
+                self.assertEqual(OFFLINK.evaluate(log, capture, "0 packets dropped by kernel",
+                    ports=(443,), cut_at=bad, require_cut=True), "INCONCLUSIVE")
+            self.assertEqual(OFFLINK.evaluate(log, capture, "0 packets dropped by kernel",
+                ports=(443,), cut_at=109.0, require_cut=True),
+                "BOUNDED_OFFLINK_PHYSICAL_TCP_NOT_OBSERVED")
+            self.assertEqual(OFFLINK.evaluate(log, capture + "\n" + self.packet(111, 443),
+                "0 packets dropped by kernel", ports=(443,), cut_at=109.0, require_cut=True),
+                "OFFLINK_PHYSICAL_TCP_OBSERVED")
+
     def test_duplicate_phase_rejected(self):
         with self.assertRaises(ValueError):
             self.evaluate(self.marks + "\nAPL_OFFLINK_WINDOW_BEFORE_BEGIN_100.0", self.baseline())

@@ -621,6 +621,98 @@ final class PhysicalDisposableIPv6UpstreamTests: XCTestCase {
 #endif
     }
 
+    private func upstreamFailureTLSWindow(_ phase: String) async -> Bool {
+        print("APL_OFFLINK_WINDOW_\(phase)_BEGIN_\(Date().timeIntervalSince1970)")
+        let ok = await nativeIPv6TLS()
+        // Keep positive-control windows open through capture timestamp
+        // jitter and TCP close; do not artificially widen the loss window.
+        if phase != "DURING" {
+            try? await Task.sleep(nanoseconds: 750_000_000)
+        }
+        print("APL_OFFLINK_WINDOW_\(phase)_END_\(Date().timeIntervalSince1970)_TLS_\(ok)")
+        return ok
+    }
+
+    /// Host orchestrator must terminate ONLY the disposable QA relay after
+    /// the explicit marker and independently attest process exit before the
+    /// DURING window. RVI captures the public literal TCP destination only.
+    func testBoundedDisposableUpstreamFailureWithRVIWitness() async throws {
+#if targetEnvironment(simulator)
+        throw XCTSkip("Physical upstream failure witness required")
+#else
+        guard #available(iOS 17.0, *),
+              ProcessInfo.processInfo.environment["APL_QA_UPSTREAM_CUT_ENABLE"] == "YES" else {
+            throw XCTSkip("Explicit managed disposable upstream cut required")
+        }
+        let tunnel = try await existingOffTunnel()
+        guard await upstreamFailureTLSWindow("BEFORE") else {
+            throw XCTSkip("Public native TLS control unavailable; VPN untouched")
+        }
+        let upstream = NWEndpoint.hostPort(
+            host: .init("192.168.1.80"), port: NWEndpoint.Port(rawValue: 18081)!)
+        var lab = ProxyConfiguration(httpCONNECTProxy: upstream)
+        lab.allowFailover = false
+        guard let labOrigin = try? await ipv6Witness(lab),
+              let directOrigin = try? await ipv6Witness(nil),
+              labOrigin != directOrigin else {
+            throw XCTSkip("Independent disposable HTTPS relay unavailable")
+        }
+        var started = false
+        var stopJob: DispatchWorkItem?
+        defer {
+            stopJob?.cancel()
+            if started { tunnel.stopVPNTunnel() }
+        }
+        started = true
+        try tunnel.startTunnel(options: [
+            "requestedByUser": NSNumber(value: true),
+            "qaStopAfterSeconds": NSNumber(value: 25),
+            "qaSmart3ProxyHost": "192.168.1.80" as NSString,
+            "qaSmart3ProxyPort": NSNumber(value: 18081)
+        ])
+        let stop = DispatchWorkItem { tunnel.stopVPNTunnel() }
+        stopJob = stop
+        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 20, execute: stop)
+        var connected = false
+        for attempt in 0..<48 {
+            if tunnel.status == .connected { connected = true; break }
+            if tunnel.status == .invalid || (tunnel.status == .disconnected && attempt >= 16) { break }
+            try await Task.sleep(nanoseconds: 250_000_000)
+        }
+        guard connected, (try? await ipv6Witness(nil)) == labOrigin,
+              await nativeIPv6TLS() else {
+            XCTFail("Disposable PacketTunnel egress and native TLS must work before cut"); return
+        }
+        print("APL_OFFLINK_DISPOSABLE_EGRESS_CONFIRMED")
+        print("APL_UPSTREAM_CUT_REQUEST_\(Date().timeIntervalSince1970)")
+        // External host supplies its own verified relay-exit epoch. No assumption
+        // that an elapsed sleep alone proves the relay actually stopped.
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        guard tunnel.status == .connected else {
+            XCTFail("VPN not connected at failure window start"); return
+        }
+        let during = await upstreamFailureTLSWindow("DURING")
+        XCTAssertEqual(tunnel.status, .connected,
+                       "Failure probe must remain within the active tunnel")
+        tunnel.stopVPNTunnel()
+        var off = false
+        for _ in 0..<40 {
+            if tunnel.status == .disconnected { off = true; break }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard off else { XCTFail("VPN must return OFF"); return }
+        stopJob?.cancel()
+        print("APL_OFFLINK_VPN_OFF_CONFIRMED")
+        // NE's status can become disconnected before every underlay route
+        // has settled. Give the independently observed direct control its
+        // own recovery window rather than accepting the first fast receipt.
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        let after = await upstreamFailureTLSWindow("AFTER")
+        XCTAssertFalse(during, "Upstream loss must not fall back to direct native TLS")
+        XCTAssertTrue(after, "Direct native TLS must recover after VPN OFF")
+#endif
+    }
+
     /// Explicit opt-in physical QA. Requires a separate short-lived public
     /// IPv6 UDP echo server and the known disposable HTTP CONNECT proxy.
     /// Never tests unknown owner profiles, Keychain or a production VPN path.

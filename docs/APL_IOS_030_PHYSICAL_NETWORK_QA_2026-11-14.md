@@ -139,3 +139,61 @@ plan. Production NetworkExtension settings are unchanged.
 
 Signed iPhoneOS QA build-for-testing PASS, 6 focused RVI unittest cases,
 iOS Python372 + 1527 subtests PASS. No production code changes.
+
+## Physical disposable upstream termination — 09:59–10:01 MSK
+
+Prior PR383 exact-head CI c46acb409: Mobile iOS personal success.
+User previously authorized bounded physical VPN testing; phone unlocked.
+
+New opt-in signed test `testBoundedDisposableUpstreamFailureWithRVIWitness`
+uses `APL_QA_UPSTREAM_CUT_ENABLE=YES`, the known disposable allowlisted
+HTTP relay on Mac, a literal public IPv6 TLS endpoint with certificate
+validation, and independent RVI. It never changes the owner profiles,
+system radio settings or production route policy. Preconditions: signed
+NE OFF, three existing credentials accessible, protected profile
+fingerprints equal, direct public TLS positive control, and verified
+distinct disposable relay egress. Host orchestrator owns the relay
+subprocess; on `APL_UPSTREAM_CUT_REQUEST_<epoch>` it terminates only
+that process, waits for actual process exit, and independently records
+the exit epoch. The analyzer requires that receipt between cut request
+and DURING start; the test asserts connected at both ends of the
+six-second blocked native TLS probe. Host 20s / extension 25s safety
+timeouts remain; explicit stop, OFF and restored direct TLS required.
+
+First run: signed XCTest PASS 10.467s, relay exit confirmed, TLS failed
+during the cut and recovered after VPN OFF, but RVI global-source TCP
+control counts 9/0/0 (28 packets, zero capture drops). Independent
+receipt INCONCLUSIVE because the post-OFF positive control was absent.
+No pass attributed to this run. Added 2s route-settling delay after OFF
+and 750ms padding to direct before/after positive windows only, leaving
+the blocked window unchanged.
+
+Repeated run: signed physical XCTest PASS 13.960s, independent owned
+relay exit before DURING verified, TLS true/false/true. Filtered RVI,
+literal external IPv6 TCP/443, global source counts BEFORE/DURING/AFTER
+**11/0/11**, non-global source during 4, 39 total packets, zero drops.
+Receipt BOUNDED_OFFLINK_PHYSICAL_TCP_NOT_OBSERVED. This is bounded
+evidence of no direct fallback on actual upstream termination for the
+tested public destination, not proof of universal leak-free behavior
+or active radio handoff. Both runs: independently signed NE OFF and
+3/3 existing Keychain credentials, profiles/selection/organization
+fingerprint parity before/after. Temporary relay and RVI removed;
+raw header capture and transient preference copies deleted.
+
+Reproduction: build signed `ArvectumKeychainReadOnlyQA` for testing,
+enable only the above opt-in in a temporary xctestrun, select the
+named test, use the existing restricted QA relay with bounded lifetime,
+and collect `tcpdump -i rvi0 -n -tt -l -q` with IPv6 destination
+2606:4700:4700::1111 and TCP destination port 443 only. Use the host's
+verified owned-process exit epoch with
+`qa_offlink_rvi_receipt.py --upstream-cut-receipt EPOCH` and the test
+log/capture/statistics inputs. Do not run without independent
+pre/postflight OFF, protected original profile parity, cleanup and
+owner authorization. Missing or late cut/positive control, test
+failure or packet loss makes the negative receipt inconclusive.
+
+Signed iPhoneOS build PASS. Python373 tests + 1527 subtests PASS,
+RVI focused unittest7/7 PASS. Existing Swift core unchanged.
+No production code changed. Active Wi-Fi/LTE handoff still requires
+a supervised operator; LAN policy and independently operated UDP echo
+server remain distinct decisions/gates.
