@@ -172,3 +172,37 @@ of invoking save again. Verify exact connected+HTTP witness and
 cleanup, owner profile parity and APL OFF/Keychain. If owner
 declines, clean up prepared lab only. Do not blindly retry.
 9 previous and new focused tests (10 total) pass.
+
+## 12:32 MSK — physical VLESS original-flow positive acceptance PASS
+
+Prepared permission-only receipt matched runID, prepared=true,
+connected=false, stage labPreparedOff. No prior active native
+extension. No reinstall after permission. Fresh exactly bounded
+pinned native peer, local TLS readiness, two independent authenticated
+LAN preflights (exact witness1 each), then actual signed installed
+iPhone host+NE with fixed synthetic /32 route. Runner exit0, duration
+4.744 seconds on host (including two preflights and cleanup).
+Final relay3 accepted connections, cumulative 6721/7804 bytes each
+direction (includes two preflights; final physical delta2383/2616).
+On-device connected=true, receipt=true, probeCode=200,
+native counter categories socks1/target1/tcp1, cleaned=true,
+independent exact physical HTTP nonce witness1, total3 exact receipts.
+Actual URLSession TCP request traversed OS NetworkExtension, original
+utun descriptor, native Rust->Xray->LAN peer and independent HTTP
+witness. No positive claim beyond this narrow synthetic VLESS
+configuration, no general leakage, DNS/UDP/IPv6/QUIC/MTU/memory or
+physical multi-protocol switch acceptance.
+
+Separate cleanup-only receipt confirmed true; lab app uninstalled,
+both lab app and extension processes absent; local listeners absent.
+Owner profile list/selected profile/organization fingerprints all
+match existing baseline; fresh Keychain3 and APL OFF read-only tests
+2/2 PASS. Global Settings visual profile-list appearance not inspected
+after this particular run; own manager reload/absence and app deletion
+verified, do not claim all system-wide settings visually verified.
+No user credentials or network profile data retained. Production and
+main untouched. Next: physical negative-key and actual native exit,
+restart/resource acceptance using a single permission session with
+bounded multiple cases and cleanup after last case; then signed
+physical WG/AWG and genuine multi-provider routing. Do not repeat
+the accepted positive gate just to accumulate local evidence.
