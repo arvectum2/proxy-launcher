@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "blocked"
+status: "in_progress"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "14.11 22:35 MSK: clean signed isolated WireGuard physical stability + VLESS regression 10/10 PASS on iPhone13. TCP4/TCP6 each exact witness1, UDP4/UDP6 three fresh pairs each exact witness1, wrong key handshake1/0 and data0/0 witness0, VLESS positive exact receipt and owned cleanup. Independent cleanup true, lab removed, production Netherlands 2 restored with tunnel process, owner three hashes unchanged. No new production linkage/release. Next verify CI and advance isolated production integration/AWG gates."
   - "14.11 21:40: explicit owner authorization temporary production VPN disconnect and restore. Current owner profile/selection/organization hash baseline privately captured. Mirroring Connect attempted, OS reports iPhone in Use / lock phone, unable to use normal UI. No phone install/stop/kill/profile changes."
   - "14.11 21:24–21:29 clean minimal loopback-only candidate isolated source-pinned build, device SHA e81642cf494e218aeb3314289f235eeff8dff21dc8d72b8bd23ded8b41c0b852, sim eb48446d2c94bddd0e5eb3fe49b37e86efcb4eff229665f930fd679acc0df75f. Removed invasive local SOCKS probe and temporary stage logs; independent reference measurement opt-in false by default, clean peer SHA bcb050d80c22c18baa5f3fbac66e885652b5e681655bf768dd11ee436116976d. Real WG simulator12/12, VLESS5/5, focused42/42, signed existing isolated host/NE PASS with measured clean device archive; LAN preflight exact1 after simulator ports freed (initial premature parallel preflight EADDRINUSE fixed by sequencing). Prepared ten-case physical suite no retries. Pre-install guard detected active production Arvectum Packet Tunnel; STOPPED before phone mutation/install, preserved active VPN. Canonical Rust unchanged. Await user disconnect."
   - "14.11 13:16–13:24 actual isolated physical WG baseline TCP4 HTTP200 witness1 handshake1/1 transport5/5 PASS. Baseline UDP4 reproduced errno49 before any WG handshake. Signed diagnostics found SOCKS reply loopback and both wildcard/explicit local bind/connect successful. Separate pinned Rust loopback-binding candidate SHA9b1553c894f3a8c1669ba1cc8a37833f696a8f378bd91f0883d97fa12b87e1df removed errno49, first two UDP4 candidate cases handshake/data but no witness; second lengths112/144, actual cause unproven. Instrumented reference peer SHA7a59845559e8334fdcd93f335f414737cfedfe1810bd99c86eff3bf05a50af60 then UDP4 exact witness1 twice, UDP6 witness1, TCP6 HTTP200 witness1, wrong-key witness0 init1/reply0/data0/0, last sequence4/4 exit0 19.399s; each fresh independent LAN preflight exact1. All five target physical scenarios observed, mixed artifacts and residual failures mean not release-stable yet. Candidate artifact and source patch/build wrapper preserved separately, no canonical Frameworks change. Cleanup-only true, uninstall, app/process/listeners absent, owner hashes all true, Keychain3/APL OFF2/2, focused40 PASS. Final global Settings visual unverified."
@@ -138,9 +139,8 @@ completed:
 
 
 
-current: "14.11 22:27 MSK: Mirroring connected, owner authorized normal UI disconnect completed, no active extension, isolated signed clean host/NE verified and installed, prepare-only launched. Allow on Mirroring triggered OS Mac login authentication. No test tunnel or peer started. Canceled, owned cleanup confirmed, lab uninstalled, production APL restored via normal UI to Netherlands 2 Connected; owner profiles/selection/organization hashes identical before/after. Await supervised direct iPhone VPN Allow or locally authenticated Mirroring."
+current: "14.11 22:35 MSK: clean signed isolated WireGuard physical stability + VLESS regression 10/10 PASS on iPhone13. TCP4/TCP6 each exact witness1, UDP4/UDP6 three fresh pairs each exact witness1, wrong key handshake1/0 and data0/0 witness0, VLESS positive exact receipt and owned cleanup. Independent cleanup true, lab removed, production Netherlands 2 restored with tunnel process, owner three hashes unchanged. No new production linkage/release. Next verify CI and advance isolated production integration/AWG gates."
 blocked_on:
-  - "Latest blocker: supervised owner VPN permission/authentication required after lab prepare-only; production connection restored and lab absent."
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
   - "Old permission blocker resolved for WG session; remaining UDP stability/final artifact gates and fresh permission only for future hardware trial."
@@ -177,8 +177,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "24bde2e2b77060e43c1687522e8aa16aefcaba2c (clean device/simulator build, WG12/12, VLESS5/5, focused42, signed isolated app, LAN preflight1/1; actual clean hardware not tested)"
+last_verified_commit: "cefa06796 base plus physical acceptance evidence (clean signed WG/VLESS 10/10; owner restoration and hashes PASS)"
 test_results:
+  - "14.11 22:35: clean physical sequence EXIT=0, WG9/9 + VLESS1/1, no retries, exact independent receipts; cleanup confirmed, isolated app absent, production tunnel running and owner profiles/selected/organization hashes unchanged; independent public egress and Keychain not retested."
   - "14.11 22:27: prepared signed isolated lab install PASS; permission blocked by OS authentication, no stability cases executed. Cleanup receipt true, uninstall confirmed, production Connected UI + extension present, three protected hashes equal; egress and Keychain not independently retested in this session."
   - "14.11 21:41 current production PacketTunnel still present; no lab started. Pending safe UI access for disconnect and restore."
   - "14.11 21:29 clean separate device+sim Rust verified, WG native sim12/12, VLESS sim5/5, focused42/42, clean independent LAN preflight1/1, signed clean isolated host/NE PASS. Physical clean gate NOT run, production extension active, guard stopped before install."
@@ -265,4 +266,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Current owner APL is Connected on Netherlands 2, lab absent. Owner previously authorized temporary disconnect and restoration for clean WG hardware QA. Next supervised run needs local owner available to approve NativeLabHost VPN permission (iPhone directly or Mac login on Mirroring); never solicit passwords in chat or bypass OS authentication. Recheck owner fingerprints, confirm UI restore path before disconnect, verify existing signed clean isolated artifact, install and prepare-only; after matching labPreparedOff receipt run documented 10 cases with run_clean_wg_stability.sh, abort first failure. Always cleanup/uninstall owned lab and restore previous production profile/Connected, verify UI and process plus owner fingerprint. No production replacement or release publish. Prior clean physical acceptance remains pending; do not repeat simulator acceptance."
+resume_instruction: "Clean WG physical acceptance 10/10 is completed; do not repeat. PR383 contains physical evidence; verify exact-head CI and integrate only upon approved production gate, keep main unchanged until merge authorized. Work remains on native production backend dispatch/ownership/lifecycle/routing and AWG interoperability/licensing, CloudKit, backup, active supervised Wi-Fi/LTE handoff and LAN access policy. Current owner APL production Netherlands 2 Connected, lab absent; only bounded authorized tests, no replacement or release without approval."

@@ -162,3 +162,17 @@ signing IDs, production release or account changes.
 ## 22:25–22:27 MSK — owner-authorized supervised attempt
 
 14.11 22:27 MSK: Mirroring connected, owner authorized normal UI disconnect completed, no active extension, isolated signed clean host/NE verified and installed, prepare-only launched. Allow on Mirroring triggered OS Mac login authentication. No test tunnel or peer started. Canceled, owned cleanup confirmed, lab uninstalled, production APL restored via normal UI to Netherlands 2 Connected; owner profiles/selection/organization hashes identical before/after. Await supervised direct iPhone VPN Allow or locally authenticated Mirroring. No clean physical case executed; no egress or Keychain acceptance claimed for this session.
+
+## 22:34–22:35 MSK — clean physical stability PASS
+
+Permission-only prepared OFF confirmed by matching runner precondition. Exact previously verified isolated signed clean artifact, independent clean reference, no retries. Sequence EXIT=0 and CLEAN_WG_STABILITY_AND_VLESS_REGRESSION_PASS.
+
+| Case | Exact witness | Handshake | Result |
+|---|---:|---|---|
+| TCP4 | 1 | 1/1 | PASS |
+| UDP4/UDP6, three fresh pairs | 1 each | 1/1 each | 6/6 PASS |
+| TCP6 | 1 | 1/1 | PASS |
+| Wrong WG key | 0 | 1/0, data 0/0 | PASS (negative) |
+| VLESS positive regression | 1 | two LAN preflights PASS | PASS |
+
+Provider RSS range 46,252,032–47,497,216 bytes. All cases bounded and isolated; no production backend promotion. Owned cleanup independently confirmed, lab app uninstalled, production tunnel restarted through normal UI with same selected profile; owner profiles/selection/organization hash equality verified. Public egress and Keychain were not independently retested in this session. This closes the clean physical stability gate, not universal protocol/production release acceptance.
