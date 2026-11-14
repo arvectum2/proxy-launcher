@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 if [[ $# != 3 && $# != 4 ]]; then
-    echo "usage: $0 PINNED_ASSET PINNED_GO_MOD IOS_SIM_RUNTIME_ID [--peer|--tun|--cycles]" >&2
+    echo "usage: $0 PINNED_ASSET PINNED_GO_MOD IOS_SIM_RUNTIME_ID [--peer|--tun|--cycles|--wg]" >&2
     exit 2
 fi
 if [[ "$(uname -m)" != arm64 ]]; then
@@ -11,7 +11,7 @@ if [[ "$(uname -m)" != arm64 ]]; then
 fi
 asset="$1"; go_mod="$2"; runtime="$3"
 mode="${4:-config}"
-[[ "$mode" == config || "$mode" == --peer || "$mode" == --tun || "$mode" == --cycles ]] || exit 2
+[[ "$mode" == config || "$mode" == --peer || "$mode" == --tun || "$mode" == --cycles || "$mode" == --wg ]] || exit 2
 [[ "$runtime" == com.apple.CoreSimulator.SimRuntime.iOS-* ]] || exit 2
 root="$(cd "$(dirname "$0")/.." && pwd)"
 python="${PYTHON:-python3}"
@@ -33,7 +33,7 @@ import sys, zipfile
 from pathlib import Path
 dest = Path(sys.argv[2])
 platforms = {"sim": "ios-arm64_x86_64-simulator"}
-if sys.argv[3] in ("--peer", "--tun", "--cycles"):
+if sys.argv[3] in ("--peer", "--tun", "--cycles", "--wg"):
     platforms["mac"] = "macos-arm64_x86_64"
 with zipfile.ZipFile(sys.argv[1]) as archive:
     for directory, platform in platforms.items():
@@ -48,6 +48,8 @@ sources=(
     "$root/SharedCore/ManagedProfileContract.swift"
     "$root/SharedCore/VLESSRealityShareLink.swift"
     "$root/SharedCore/XrayVLESSRuntimeConfig.swift"
+    "$root/SharedCore/WGQuickConfigurationPreview.swift"
+    "$root/Tools/XrayWireGuardLabConfig.swift"
 )
 lab="$root/Tools/XrayVLESSConfigSimulatorQA.swift"
 if [[ "$mode" != config ]]; then
@@ -60,7 +62,7 @@ fi
 tun_args=()
 tun_sources=()
 peer_args=()
-if [[ "$mode" == --tun || "$mode" == --cycles ]]; then
+if [[ "$mode" == --tun || "$mode" == --cycles || "$mode" == --wg ]]; then
     framework="${APL_QA_TUN2PROXY_FRAMEWORK:-$root/Frameworks/tun2proxy.xcframework}"
     "$python" "$root/Tools/verify_tun2proxy_lab_artifact.py" "$framework" ios-arm64-simulator
     rust="$framework/ios-arm64-simulator"
@@ -76,7 +78,9 @@ codesign --force --sign - "$work/qa"
 sim="$(xcrun simctl create "APL-XrayConfigQA-$$" com.apple.CoreSimulator.SimDeviceType.iPhone-13 "$runtime")"
 xcrun simctl boot "$sim"
 xcrun simctl bootstatus "$sim" -b >/dev/null
-if [[ "$mode" != config ]]; then
+if [[ "$mode" == --wg ]]; then
+    "$python" "$root/Tools/run_xray_wireguard_peer_qa.py" --simulator "$sim" --binary "$work/qa" --host-server "$work/hostpeer"
+elif [[ "$mode" != config ]]; then
     "$python" "$root/Tools/run_xray_vless_peer_qa.py" --simulator "$sim" \
         --binary "$work/qa" --host-server "$work/hostpeer" ${peer_args[@]+"${peer_args[@]}"}
 else

@@ -156,7 +156,7 @@ struct XrayVLESSPeerSimulatorQA {
 #if targetEnvironment(simulator) || os(macOS)
         let args = CommandLine.arguments
         guard args.count == 4,
-              ["server", "client", "tun-client", "tun-cycles"].contains(args[1]),
+              ["server", "client", "tun-client", "tun-cycles", "wg-tun"].contains(args[1]),
               let port = UInt16(args[3]), (39879...39884).contains(port),
               closed(port),
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
@@ -172,6 +172,9 @@ struct XrayVLESSPeerSimulatorQA {
             if args[1] == "server" {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 config = text
+            } else if args[1] == "wg-tun" {
+                guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
+                config = try XrayWireGuardLabConfig.prepare(text,port:Int(port))
             } else {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 let candidate = try VLESSRealityShareLink.parse(text)
@@ -187,7 +190,7 @@ struct XrayVLESSPeerSimulatorQA {
         } catch { fail("CONFIG") }
         guard invoke("testXray", config: config) != nil else { fail("TEST_XRAY") }
 #if APL_TUN_PAIR_QA && targetEnvironment(simulator)
-        if args[1] == "tun-client" || args[1] == "tun-cycles" {
+        if args[1] == "tun-client" || args[1] == "tun-cycles" || args[1] == "wg-tun" {
             let raw = (try? String(contentsOfFile:args[2] + ".path", encoding:.utf8)) ?? ""
             let paths = raw.split(separator:"\n").map(String.init)
             let repeated = args[1] == "tun-cycles"
