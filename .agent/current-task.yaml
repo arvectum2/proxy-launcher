@@ -146,7 +146,7 @@ completed:
 
 
 
-current: "15.11 00:28: exact d59aed467 CI7/7 PASS. Both signed variants verified. Owner hashes unchanged, Netherlands 2 connected before normal UI disconnect. Xray NativeLab installed, no active tunnel, prepare-only launched and system permission visibly pending; ID 14d78225-5158-43c3-8004-a9528db8524b. Owner must approve on physical iPhone. No traffic test yet."
+current: "15.11 02:02: previous prepare receipt false. Owner requested retry; existing Xray lab retained, all VPN extensions OFF. New prepare-only ID e51e7584-bee2-4065-8e27-19ea61fef475. iPhone screen shows separate OS Trust This Computer prompt over VPN settings. No trust decision made, no traffic test. Await owner interaction."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -280,4 +280,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Inspect pending Xray prepare-only receipt with runID 14d78225-5158-43c3-8004-a9528db8524b, prepared true and connected false; verify all extensions OFF, then run NativeTunnelLab/run_physical_peer.py --approved --native-control --prepared-id exact ID --peer $(cat /tmp/apl-native-physical-peer-path)/preflight. Require strict receipts and independent witness. If permission unavailable or unattended, cleanup owned profile, uninstall and restore Netherlands 2 with owner hash verification. After Xray restore, run AWG targeted test only with supervised permission. No new IDs or production replacement."
+resume_instruction: "Inspect pending Xray prepare-only receipt with runID e51e7584-bee2-4065-8e27-19ea61fef475, prepared true and connected false; verify all extensions OFF, then run NativeTunnelLab/run_physical_peer.py --approved --native-control --prepared-id exact ID --peer $(cat /tmp/apl-native-physical-peer-path)/preflight. Require strict receipts and independent witness. If permission unavailable or unattended, cleanup owned profile, uninstall and restore Netherlands 2 with owner hash verification. After Xray restore, run AWG targeted test only with supervised permission. No new IDs or production replacement."
