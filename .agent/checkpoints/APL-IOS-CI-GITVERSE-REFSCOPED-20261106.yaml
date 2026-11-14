@@ -1,0 +1,25 @@
+version: 2
+repository: arvectum2/proxy-launcher
+task_id: APL-IOS-CI-GITVERSE-REFSCOPED-20261106
+parent_task_id: APL-IOS-APP-AUTOMATION-SAFE-ERRORS-20261106
+status: in_progress
+goal: "Unblock PR #352 by mirroring the changed GitHub ref per push, with full daily/manual reconciliation, limited retries, unchanged strict all-green CI gate."
+definition_of_done:
+  - "Mirror one updated/deleted branch or tag on push, full branches+tags prune on schedule/workflow_dispatch."
+  - "Max three bounded retries, no token in logs or GitHub pull refs, preserve required CI merge safety."
+  - "Run hermetic mocked integration tests for branch/tag/deletion/full sync/retries and lint workflow."
+  - "PR exact-head all-green GitHub CI real GitVerse push, merge; refresh source PR #352 and verify all checks."
+completed:
+  - "Diagnosed three consecutive GitVerse HTTP 504 errors on PR #352 required mirror; origin has 529 branches, while anonymous GitVerse ls-remote returns main successfully."
+  - "Implemented single GITHUB_REF branch/tag push and targeted deletion, with full daily/manual --prune reconciliation and max three bounded retries."
+  - "Seven hermetic unit tests with mocked git/sleep 7/7 PASS, bash syntax PASS, YAML parsed successfully. No real GitVerse mutations during local testing."
+  - "PR #353 initial real GitVerse ref push PASS, Windows build/installer failed on POSIX-only fake git; corrected test platform targeting, Mac 7/7 PASS."
+current: "PR #353 mirrored GitVerse successfully, but Windows CI revealed POSIX-only git mock; added Windows portable static contract and skip POSIX mocks on Windows. New exact-head CI required."
+pending:
+  - "Push cross-platform test correction to open PR #353; require new exact-head all-green GitHub CI and merge CLEAN."
+  - "Refresh iOS safety PR #352 on updated main, rerun exact-head CI to merge, then complete parent task checkpoint."
+last_verified_commit: "31d558cb26116bece83a7bba301d258c47da88db (origin/main base; PR #352 source remains open)"
+test_results:
+  - "PR #353 real GitVerse mirror SUCCESS on original head; Mac dynamic POSIX tests 6 + portable static contract 1 PASS; Windows-only fake git failure corrected."
+  - "Python unittest tests.test_ci_gitverse_refscoped 7/7 PASS; mock git/sleep, bash -n and Ruby YAML parse PASS."
+resume_instruction: "Worktree /Volumes/ArvectumSSD/Arvectum/worktrees/apl-ci-gitverse-refscoped-20261106 branch fix/ci-gitverse-refscoped-mirror-20261106 base origin/main 31d558cb. CI mirror workflow now single branch/tag push or deletion on push, full daily/manual prune, 3 retry attempts; 7/7 hermetic tests PASS. NEXT git add/commit/push PR and exact-head CI real GitVerse push (do not bypass required check), merge if all green. Then refresh source PR #352 head to new main in its existing isolated worktree, rerun its checks and merge, close parent checkpoint. No real user iPhone/VPN/Keychain/production routing/App Store changes."

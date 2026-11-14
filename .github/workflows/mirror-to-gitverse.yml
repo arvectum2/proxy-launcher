@@ -47,6 +47,7 @@ jobs:
         env:
           GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
           GITVERSE_REPOSITORY: ${{ vars.GITVERSE_REPO }}
+          GITVERSE_PUSH_DELETED: ${{ github.event.deleted }}
         run: |
           set -euo pipefail
           cd repository.git
@@ -54,11 +55,39 @@ jobs:
           git remote add gitverse \
             "https://arvectum:${GITVERSE_TOKEN}@gitverse.ru/arvectum/${GITVERSE_REPOSITORY}.git"
 
-          # Mirror only normal branches and tags.
-          # GitHub-specific refs/pull/* are intentionally excluded.
-          git push --force --prune gitverse \
-            'refs/heads/*:refs/heads/*' \
-            'refs/tags/*:refs/tags/*'
+          # BEGIN REFSCOPED_PUSH
+          # A routine push mirrors only its changed ref. Pushing hundreds of
+          # unrelated branches on every commit can time out GitVerse (HTTP 504).
+          # Manual and daily runs still perform a full prune/reconcile.
+          gitverse_push() {
+            local attempt=1
+            while ! git push --force "$@"; do
+              if (( attempt >= 3 )); then
+                echo "::error::GitVerse push failed after three attempts"
+                return 1
+              fi
+              echo "::warning::GitVerse push unavailable; bounded retry $attempt"
+              sleep $((15 * attempt))
+              attempt=$((attempt + 1))
+            done
+          }
+
+          if [[ "${GITHUB_EVENT_NAME:-}" == "push" &&
+                ( "${GITHUB_REF:-}" == refs/heads/* || "${GITHUB_REF:-}" == refs/tags/* ) ]]; then
+            if [[ "${GITVERSE_PUSH_DELETED:-false}" == "true" ]]; then
+              # A deleted GitHub branch/tag must also be deleted from GitVerse.
+              gitverse_push gitverse ":${GITHUB_REF}"
+            else
+              gitverse_push gitverse "${GITHUB_REF}:${GITHUB_REF}"
+            fi
+          else
+            # Full daily/manual reconciliation, including branch/tag deletes.
+            # GitHub-specific refs/pull/* are intentionally excluded.
+            gitverse_push --prune gitverse \
+              'refs/heads/*:refs/heads/*' \
+              'refs/tags/*:refs/tags/*'
+          fi
+          # END REFSCOPED_PUSH
 
       - name: Summary
         if: success()
