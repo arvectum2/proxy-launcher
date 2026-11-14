@@ -69,3 +69,5 @@ acceptance claimed.
 Reproduce: PYTHON=python3.14 mobile/ios/Tools/run_xray_vless_config_simulator_qa.sh
 PINNED_ASSET PINNED_GO_MOD com.apple.CoreSimulator.SimRuntime.iOS-27-0 --wg
 with verified corrected Rust archive. No production target changes.
+
+14.11: [isolated AmneziaWG native source/build/packet gate](APL_IOS_030_AMNEZIAWG_NATIVE_LAB_2026-11-14.md) accepted for the measured matching legacy fixture on official v3.1.20260828 engine. Separate process, real loopback UDP, no system TUN. Fresh ARM64 macOS and iOS Simulator native PASS3/3; iPhoneOS link PASS. Product compatibility, separate signed extension, current-toolchain security/license clearance still pending.

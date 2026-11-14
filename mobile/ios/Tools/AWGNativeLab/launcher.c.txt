@@ -1,0 +1,12 @@
+/* Lab executable only; excluded from Go/cgo compilation. */
+#include <stdio.h>
+extern int aplAWGSelfTest(int mode);
+int main(void) {
+    for (int mode=0; mode<3; mode++) {
+        int rc = aplAWGSelfTest(mode);
+        printf("APL_AWG_NATIVE_CASE_%d_RC_%d\n", mode,rc);
+        fflush(stdout);
+        if (rc != 0) return rc;
+    }
+    return 0;
+}
