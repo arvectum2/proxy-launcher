@@ -1,7 +1,7 @@
 version: 2
 repository: arvectum2/proxy-launcher
 task_id: APL-IOS-UNIFIED-RELEASE-20261111
-status: "in_progress"
+status: "blocked"
 goal: "Prepare one consolidated iOS product release with new capabilities, avoiding serial micro-releases while preserving VPN security, user data, Apple platform rules and truthful capability disclosures."
 definition_of_done:
   - "Inventory current published iOS 0.2.0 and source-only capabilities; define one candidate release scope with full capability gates."
@@ -146,7 +146,7 @@ completed:
 
 
 
-current: "Both existing mutually exclusive NativeLab variants now invoke real NE native-control endpoint/slot in opt-in supervised mode; matching explicit rejection for wrong epoch, readiness and native drain plus OS OFF receipt required. Targeted VLESS and AWG TCP4 control runners prepared; no repetition of accepted data-plane suites. Both unsigned builds and offline reused-ID signing PASS, signed artifacts retained. Swift290/290, Python50/50, receipt5/5. No new phone change."
+current: "15.11 00:28: exact d59aed467 CI7/7 PASS. Both signed variants verified. Owner hashes unchanged, Netherlands 2 connected before normal UI disconnect. Xray NativeLab installed, no active tunnel, prepare-only launched and system permission visibly pending; ID 14d78225-5158-43c3-8004-a9528db8524b. Owner must approve on physical iPhone. No traffic test yet."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -184,7 +184,7 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "b49cf1611 plus host integration working tree, Swift290/Python50/receipt5 and signed artifacts verified locally; CI in progress"
+last_verified_commit: "d59aed467 exact-head CI7/7 PASS; signed variants and owner fingerprint precheck PASS"
 test_results:
   - "Swift290/290 PASS, Python50/50 PASS, focused physical receipt5/5 PASS, unsigned Xray device + AWG device/sim builds PASS, artifact checksums and reused-profile signatures/deep verification PASS. Latest previous head CI still running; no actual device control tests or production activation."
   - "Swift290/290 PASS; active production identity/preflight and Python iOS50/50 PASS; direct iPhoneOS NE endpoint typecheck PASS; unsigned AWG host+extension iPhoneOS and Simulator builds exit0, Xray/tun2proxy device unsigned linked build exit0 with pinned hashes and symbols. No newly signed app or actual provider-message/dual-provider hardware test; same existing lab ID variants cannot coexist."
@@ -280,4 +280,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify latest PR383 exact-head CI. Next run two targeted supervised device control tests using ready signed artifacts under native-artifacts/native-control-xray-signed-20261114/NativeLabHost.app and native-control-awg-signed-20261114/AWGCompileHost.app, one variant at a time; verify signature and owner hashes, restore plan and all VPN OFF, install existing NativeLab ID only, prepare-only consent and matching receipt. For Xray use run_physical_peer.py --approved --native-control --prepared-id exact ID --peer verified local prior VLESS peer. For AWG use run_physical.py --approved suite --native-control --prepared-id exact ID --peer verified AWG peer --peer-sha256 digest --client-ip actual prepare receipt IP. Require nativeControlAccepted/Ready/OSConnected/StaleRejected/Drained/OSOff true and nativeFailure false plus exact data witness; cleanup, uninstall, restore owner VPN and hashes between variants. If owner unavailable continue offline production configuration/packaging gates. No fresh Apple registration, no production replacement or publish. Prior WG/VLESS10/10 and AWG8/8 data plane accepted; do not repeat."
+resume_instruction: "Inspect pending Xray prepare-only receipt with runID 14d78225-5158-43c3-8004-a9528db8524b, prepared true and connected false; verify all extensions OFF, then run NativeTunnelLab/run_physical_peer.py --approved --native-control --prepared-id exact ID --peer $(cat /tmp/apl-native-physical-peer-path)/preflight. Require strict receipts and independent witness. If permission unavailable or unattended, cleanup owned profile, uninstall and restore Netherlands 2 with owner hash verification. After Xray restore, run AWG targeted test only with supervised permission. No new IDs or production replacement."
