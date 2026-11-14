@@ -28,3 +28,29 @@ def test_planning_contract_is_pure_and_requires_two_receipts():
     assert "import NetworkExtension" not in source
     assert "import LibXray" not in source
     assert "import tun2proxy" not in source
+
+
+def test_dispatch_adapter_remains_inactive_and_has_deadline_and_lease():
+    for directory in ("App", "PacketTunnel", "Shared"):
+        for source in (IOS / directory).rglob("*.swift"):
+            assert "TransportBackendAdapter" not in source.read_text()
+    source = (IOS / "SharedCore/TransportBackendAdapter.swift").read_text()
+    assert "@MainActor final class TransportBackendAdapter" in source
+    assert "lease.acquire(owner)" in source
+    assert "allOwnedProvidersQuiescent" in source
+    assert "nativeReady && osConnected" in source
+    assert "Task.sleep" in source and "timerID" in source
+    assert "import NetworkExtension" not in source
+
+
+def test_isolated_host_only_bounded_explicit_owned_manager():
+    host = (IOS / "Tools/NativeTunnelLab/Host/NativeLabHost.swift").read_text()
+    assert 'ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel' in host
+    assert 'proto.providerConfiguration = ["labOwner": Self.marker]' in host
+    assert 'named.allSatisfy(isOwned)' in host
+    assert 'item.isOnDemandEnabled = false' in host
+    assert 'http://198.51.100.77:39883/' in host
+    assert 'completionHandler(nil)' in host
+    assert 'item.removeFromPreferences()' in host
+    assert '.onAppear' not in host and '.onDemandRules' not in host
+    assert 'NativeLabHost' not in (IOS / "project.yml").read_text()
