@@ -2,7 +2,9 @@
 # Compile isolated QA host and embedded app extension. No app installation or signing requests.
 set -euo pipefail
 umask 077
-[[ $# == 2 ]] || { echo "usage: $0 PINNED_ASSET PINNED_GO_MOD" >&2; exit 2; }
+[[ $# == 2 || ( $# == 3 && "$3" == --approved-sign-lab ) ]] || { echo "usage: $0 PINNED_ASSET PINNED_GO_MOD [--approved-sign-lab]" >&2; exit 2; }
+signed=0
+if [[ $# == 3 ]]; then signed=1; fi
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 python="${PYTHON:-python3}"
 work="$(mktemp -d "${TMPDIR:-/tmp}/apl-native-ne.XXXXXX")"
@@ -98,7 +100,13 @@ schemes:
         NativeLabHost: all
 YAML
 (cd "$work" && xcodegen generate >/dev/null)
-if ! xcodebuild -project "$work/APLIsolatedNativeLab.xcodeproj" -scheme NativeLabHost -configuration Debug -destination 'generic/platform=iOS' -derivedDataPath "$work/Build" CODE_SIGNING_ALLOWED=NO build >"$work/build.log" 2>&1; then
+build_args=(CODE_SIGNING_ALLOWED=NO)
+if [[ "$signed" == 1 ]]; then
+    # Explicit owner approval limited to the two isolated development IDs.
+    # Never register a device or change production signing.
+    build_args=(CODE_SIGNING_ALLOWED=YES CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM=VML75VY94V CODE_SIGN_IDENTITY="Apple Development" -allowProvisioningUpdates)
+fi
+if ! xcodebuild -project "$work/APLIsolatedNativeLab.xcodeproj" -scheme NativeLabHost -configuration Debug -destination 'generic/platform=iOS' -derivedDataPath "$work/Build" "${build_args[@]}" build >"$work/build.log" 2>&1; then
     grep -E 'error:|BUILD FAILED' "$work/build.log" | tail -20
     exit 1
 fi
@@ -115,4 +123,13 @@ grep -E "CGoInvoke|tun2proxy_run_with_cli_args|NativeLabPacketTunnelProvider" "$
 grep -E ' [Tt] _CGoInvoke$' "$work/symbols"
 grep -E ' [Tt] _tun2proxy_run_with_cli_args$' "$work/symbols"
 grep -E "NativeLabPacketTunnelProvider" "$work/symbols" | head -1 || true
-echo ISOLATED_UNSIGNED_HOST_AND_EMBEDDED_NE_BUILD_AND_NATIVE_LINK_PASS
+if [[ "$signed" == 1 ]]; then
+    codesign --verify --deep --strict "$host"
+    "$python" "$root/Tools/NativeTunnelLab/verify_signed_lab.py" "$host"
+    dest="$(mktemp -d "${TMPDIR:-/tmp}/apl-signed-native-lab.XXXXXX")"
+    cp -R "$host" "$dest/"
+    printf '%s\n' "$dest/NativeLabHost.app" > /tmp/apl-signed-native-lab-path
+    echo ISOLATED_SIGNED_HOST_AND_EMBEDDED_NE_PASS
+else
+    echo ISOLATED_UNSIGNED_HOST_AND_EMBEDDED_NE_BUILD_AND_NATIVE_LINK_PASS
+fi

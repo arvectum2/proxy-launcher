@@ -22,6 +22,47 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     @Published private(set) var status = "Not started"
     @Published private(set) var busy = false
     private var manager: NETunnelProviderManager?
+    private var automated = false
+    private var runID: String?
+    private func stage(_ value: String) {
+        guard let runID else {return}
+        let url=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
+            .appendingPathComponent("native-lab-progress.json")
+        if let data=try? JSONSerialization.data(withJSONObject:["runID":runID,"stage":value]) {
+            try? data.write(to:url,options:.atomic)
+        }
+    }
+
+    // Explicit device-launch argument + one-shot private synthetic input.
+    // No production data, no automatic start on normal launches.
+    func runAuthorizedDeviceQA() async {
+        guard ProcessInfo.processInfo.arguments.contains("--apl-authorized-native-qa"),
+              !automated else { return }
+        automated = true
+        let documents = FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
+        let input = documents.appendingPathComponent("native-lab-input.json")
+        let output = documents.appendingPathComponent("native-lab-result.json")
+        try? FileManager.default.removeItem(at:output)
+        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String }
+        guard let raw=try? Data(contentsOf:input),raw.count<=4096,
+              let request=try? JSONDecoder().decode(Input.self,from:raw),
+              UUID(uuidString:request.runID) != nil else { return }
+        try? FileManager.default.removeItem(at:input)
+        runID=request.runID;stage("inputConsumed")
+        fixture=request.fixture;nonce=request.nonce
+        if request.fixture != "cleanup-only" { await startExplicitly() }
+        let connected=manager?.connection.status == .connected
+        if connected { stage("probeBegin");await probeExplicitly();stage("probeEnd") }
+        let receipt=status == "Exact response received; verify independent server receipt"
+        stage("cleanupBegin");await stopAndRemoveExplicitly();stage("cleanupEnd")
+        let cleaned=status == "Owned lab profile removed" || status == "No owned lab manager"
+        let result:[String:Any]=["runID":request.runID,"connected":connected,
+                                "receipt":receipt,"cleaned":cleaned]
+        if let data=try? JSONSerialization.data(withJSONObject:result) {
+            try? data.write(to:output,options:.atomic)
+        }
+        print("APL_PHYSICAL_NATIVE_QA_CONNECTED_\(connected)_RECEIPT_\(receipt)_CLEANED_\(cleaned)")
+    }
 
     private func isOwned(_ item: NETunnelProviderManager) -> Bool {
         guard let proto = item.protocolConfiguration as? NETunnelProviderProtocol else { return false }
@@ -30,7 +71,9 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     }
 
     private func labManager(create: Bool) async throws -> NETunnelProviderManager? {
+        stage("loadManagersBegin")
         let all = try await NETunnelProviderManager.loadAllFromPreferences()
+        stage("loadManagersEnd")
         let named = all.filter {
             ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == Self.bundle
         }
@@ -50,8 +93,12 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         item.localizedDescription = Self.marker
         item.isEnabled = true
         item.isOnDemandEnabled = false
+        stage("saveLabManagerBegin")
         try await item.saveToPreferences()
+        stage("saveLabManagerEnd")
+        stage("reloadLabManagerBegin")
         try await item.loadFromPreferences()
+        stage("reloadLabManagerEnd")
         guard isOwned(item) else { throw LabHostError.conflict }
         return item
     }
@@ -73,23 +120,28 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                   isOwned(item), item.isEnabled, !item.isOnDemandEnabled,
                   item.connection.status == .disconnected else { throw LabHostError.conflict }
             manager = item
+            stage("startTunnelBegin")
             try item.connection.startVPNTunnel(options:[
                 "aplNativeSyntheticQA":"explicit-lab-v1" as NSString,
                 "aplSyntheticLink":link as NSString
             ])
+            stage("startTunnelReturned")
             status = "Start requested; awaiting iOS"
             // Actual .connected is distinct from startVPNTunnel returning.
             for _ in 0..<100 {
                 if item.connection.status == .connected {
+                    stage("iOSConnected")
                     status = "iOS connected (native receipt still required)"
                     return
                 }
                 try await Task.sleep(nanoseconds:100_000_000)
             }
             item.connection.stopVPNTunnel()
+            stage("startTimeout")
             status = "Start timeout; stop requested"
         } catch {
             if let manager, isOwned(manager) { manager.connection.stopVPNTunnel() }
+            stage("startFailed")
             status = "Start refused or failed"
         }
     }
@@ -166,7 +218,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                     Task { await model.stopAndRemoveExplicitly() }
                 }
                 Text(model.status)
-            }.disabled(model.busy)
+            }.disabled(model.busy).task { await model.runAuthorizedDeviceQA() }
         }
     }
 }

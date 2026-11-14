@@ -37,5 +37,32 @@ def test_unsigned_build_does_not_install_or_create_provisioning_profile():
     assert "ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel" in src
     assert "verify_xray_apple_provenance.py" in src
     assert "_CGoInvoke" in src and "_tun2proxy_run_with_cli_args" in src
-    for forbidden in ("-allowProvisioningUpdates", "devicectl device install", "simctl install"):
+    assert '"$3" == --approved-sign-lab' in src
+    assert 'if [[ "$signed" == 1 ]]; then' in src
+    assert "CODE_SIGNING_ALLOWED=NO" in src
+    for forbidden in ("-allowProvisioningDeviceRegistration", "devicectl device install", "simctl install"):
         assert forbidden not in src
+
+
+def test_approved_signing_guards_and_one_shot_device_lab():
+    script = (LAB / "build_unsigned.sh").read_text()
+    checks = (LAB / "verify_signed_lab.py").read_text()
+    assert "--approved-sign-lab" in script
+    assert "DEVELOPMENT_TEAM=VML75VY94V" in script
+    assert "verify_signed_lab.py" in script
+    assert 'profile["ProvisionedDevices"]' in checks
+    assert '["get-task-allow"] is True' in checks
+    assert 'not actual.get("com.apple.security.application-groups")' in checks
+    host = (LAB / "Host/NativeLabHost.swift").read_text()
+    assert 'contains("--apl-authorized-native-qa")' in host
+    assert 'try? FileManager.default.removeItem(at:input)' in host
+    assert 'stage("saveLabManagerBegin")' in host
+    assert 'stage("saveLabManagerEnd")' in host
+    assert 'request.fixture != "cleanup-only"' in host
+    runner = (LAB / "run_physical_peer.py").read_text()
+    assert 'not a.approved' in runner
+    assert '"192.168.1.0/24"' in runner
+    assert 'accepted >= 12' in runner
+    assert 'PHYSICAL_QA_CLEANUP_CONFIRMED' in runner
+    assert 'PHYSICAL_QA_LAST_STAGE' in runner
+    assert 'n==1' in runner
