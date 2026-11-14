@@ -52,19 +52,40 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             guard (100000...999999).contains(code.intValue) else {throw NativeLabError.stage(5)}
             exitChallenge=code.intValue
         }
-        let candidate = try VLESSRealityShareLink.parse(link)
-        guard candidate.serverPort == 39882, candidate.serverName == "example.com",
-              candidate.serverHost == "127.0.0.1" || candidate.serverHost == "192.168.1.80" else {
-            throw NativeLabError.stage(6)
-        }
-        let config = try NativeLabRuntime.prepare(candidate,port:39879)
+        let mode=options?["aplLabTransport"] as? String ?? "vless"
+        let config:String
+        let remote:String
+        let dual:Bool
+        if mode == "wg-dual" {
+            // Standard WG synthetic fixture only; no AWG or user profile.
+            config=try XrayWireGuardLabConfig.prepare(link,port:39879,dual:true,physical:true)
+            remote="192.168.1.80"
+            dual=true
+            guard NativeLabRuntime.running == false,
+                  (NativeLabRuntime.call("xrayVersion")?["data"] as? [String:Any])?["version"] as? String == "26.11.9",
+                  NativeLabRuntime.call("testXray",config:config) != nil else {throw NativeLabError.stage(6)}
+        } else if mode == "vless" {
+            let candidate = try VLESSRealityShareLink.parse(link)
+            guard candidate.serverPort == 39882, candidate.serverName == "example.com",
+                  candidate.serverHost == "127.0.0.1" || candidate.serverHost == "192.168.1.80" else {
+                throw NativeLabError.stage(6)
+            }
+            config=try NativeLabRuntime.prepare(candidate,port:39879)
+            remote=candidate.serverHost
+            dual=false
+        } else {throw NativeLabError.stage(6)}
         let token = try lifecycle.begin()
-        let settings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress:candidate.serverHost)
+        let settings = NEPacketTunnelNetworkSettings(tunnelRemoteAddress:remote)
         let ipv4 = NEIPv4Settings(addresses:["192.0.2.177"],subnetMasks:["255.255.255.255"])
         ipv4.includedRoutes = [NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")]
         settings.ipv4Settings = ipv4
-        settings.mtu = 1500
-        // No default route, DNS, IPv6 or general LAN traffic in this lab.
+        if dual {
+            let ipv6=NEIPv6Settings(addresses:["2001:db8:177::2"],networkPrefixLengths:[128])
+            ipv6.includedRoutes=[NEIPv6Route(destinationAddress:"2001:db8:77::77",networkPrefixLength:128)]
+            settings.ipv6Settings=ipv6
+        }
+        settings.mtu = dual ? 1280 : 1500
+        // Only fixed synthetic host routes, no DNS or default routes.
         try await setTunnelNetworkSettings(settings)
         guard !stopping, !retired, lifecycle.phase == .starting,
               let fd=ExactLabTUNDescriptor.find(address:"192.0.2.177") else { throw NativeLabError.stage(7) }
@@ -80,12 +101,12 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             if line.contains("socks") {LabCounters.shared.increment("socks")}
             if line.contains("error") || line.contains("failed") {LabCounters.shared.increment("error")}
             if line.contains("connect") {LabCounters.shared.increment("connect")}
-            if line.contains("198.51.100.77") {LabCounters.shared.increment("target")}
+            if (line.contains("198.51.100.77") || line.contains("2001:db8:77::77")) {LabCounters.shared.increment("target")}
         },nil)
         let args = plan.tun2proxyArguments.replacingOccurrences(of:"--verbosity warn",with:"--verbosity debug")
         queue.async { [weak self] in
             guard let self, self.gate.isRunning(generation) else { return }
-            let rc = args.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
+            let rc = args.withCString { tun2proxy_run_with_cli_args($0,dual ? 1280 : 1500,true) }
             guard self.gate.markUnexpectedExit(generation) else { return }
             Task { @MainActor [weak self] in
                 guard let self, self.gate.shouldCancelTunnel(generation) else { return }

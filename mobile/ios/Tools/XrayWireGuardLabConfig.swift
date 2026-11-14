@@ -3,13 +3,14 @@ import Foundation
 
 enum XrayWireGuardLabConfig {
     enum Failure: Error { case unsupported }
-    static func prepare(_ text: String, port: Int, dual: Bool = false) throws -> String {
+    static func prepare(_ text: String, port: Int, dual: Bool = false, physical: Bool = false) throws -> String {
         let preview = try WGQuickConfigurationPreview.parse(text)
         let addresses = dual ? ["10.77.0.2/32", "2001:db8:77::2/128"] : ["10.77.0.2/32"]
         let targets = dual ? ["198.51.100.77/32", "2001:db8:77::77/128"] : ["198.51.100.77/32"]
+        let endpoint = physical ? "192.168.1.80:39881" : "127.0.0.1:39881"
         guard preview.format == .wireGuard, Set(preview.addresses) == Set(addresses), preview.addresses.count == addresses.count,
               preview.dnsServers.isEmpty, preview.peers.count == 1,
-              preview.peers[0].endpoint == "127.0.0.1:39881",
+              preview.peers[0].endpoint == endpoint,
               Set(preview.peers[0].allowedIPs) == Set(targets), preview.peers[0].allowedIPs.count == targets.count,
               port == 39879 else { throw Failure.unsupported }
         var values = [String:String]()
@@ -32,7 +33,7 @@ enum XrayWireGuardLabConfig {
             throw Failure.unsupported
         }
         var peer:[String:Any] = ["publicKey":try key("[peer]publickey"),
-            "endpoint":"127.0.0.1:39881","allowedIPs":targets]
+            "endpoint":endpoint,"allowedIPs":targets]
         if values["[peer]presharedkey"] != nil { peer["preSharedKey"]=try key("[peer]presharedkey") }
         let cfg:[String:Any] = [
             "log":["loglevel":"none"],

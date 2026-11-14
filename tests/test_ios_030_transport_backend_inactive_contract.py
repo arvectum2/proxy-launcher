@@ -49,7 +49,8 @@ def test_isolated_host_only_bounded_explicit_owned_manager():
     assert 'proto.providerConfiguration = ["labOwner": Self.marker]' in host
     assert 'named.allSatisfy(isOwned)' in host
     assert 'item.isOnDemandEnabled = false' in host
-    assert 'http://198.51.100.77:39883/' in host
+    assert 'let address=probeKind == "tcp6" ? "[2001:db8:77::77]" : "198.51.100.77"' in host
+    assert 'URL(string:"http://"+address+":39883/"+value)' in host
     assert 'completionHandler(nil)' in host
     assert 'item.removeFromPreferences()' in host
     assert '.onAppear' not in host and '.onDemandRules' not in host

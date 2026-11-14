@@ -18,8 +18,10 @@ def test_only_explicit_synthetic_route_and_no_owner_storage():
     assert '== "explicit-lab-v1"' in src
     assert 'candidate.serverPort == 39882' in src
     assert 'NEIPv4Route(destinationAddress:"198.51.100.77",subnetMask:"255.255.255.255")' in src
-    for forbidden in ("NEIPv4Route.default()", "dnsSettings", "ipv6Settings", "UserDefaults", "SecItem", "ProfileStore"):
+    for forbidden in ("NEIPv4Route.default()", "dnsSettings", "UserDefaults", "SecItem", "ProfileStore"):
         assert forbidden not in src
+    assert 'NEIPv6Route(destinationAddress:"2001:db8:77::77",networkPrefixLength:128)' in src
+    assert "NEIPv6Route.default()" not in src
     assert "TunnelEngineHandoff.stopAndDrain" in src
     assert "gate.markUnexpectedExit" in src
     assert "retired = true" in src

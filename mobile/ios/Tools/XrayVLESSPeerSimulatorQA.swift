@@ -162,14 +162,14 @@ struct XrayVLESSPeerSimulatorQA {
 #if targetEnvironment(simulator) || os(macOS)
         let args = CommandLine.arguments
         guard args.count == 4,
-              ["server", "client", "tun-client", "tun-cycles", "wg-tun", "wg-dual"].contains(args[1]),
+              ["server", "client", "tun-client", "tun-cycles", "wg-tun", "wg-dual", "wg-client"].contains(args[1]),
               let port = UInt16(args[3]), (39879...39884).contains(port),
               closed(port),
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
               running() == false else { fail("PRECHECK") }
 #if os(macOS)
         #if APL_PHYSICAL_PEER_PREFLIGHT
-        guard args[1] == "server" || args[1] == "client" else { fail("MAC_SERVER_ONLY") }
+        guard args[1] == "server" || args[1] == "client" || args[1] == "wg-client" else { fail("MAC_SERVER_ONLY") }
 #else
         guard args[1] == "server" else { fail("MAC_SERVER_ONLY") }
 #endif
@@ -182,6 +182,13 @@ struct XrayVLESSPeerSimulatorQA {
             if args[1] == "server" {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 config = text
+            } else if args[1] == "wg-client" {
+#if APL_PHYSICAL_PEER_PREFLIGHT && os(macOS)
+                guard let text=String(data:raw,encoding:.utf8) else {fail("INPUT")}
+                config=try XrayWireGuardLabConfig.prepare(text,port:Int(port),dual:true,physical:true)
+#else
+                fail("WG_PREFLIGHT_ONLY")
+#endif
             } else if args[1] == "wg-tun" || args[1] == "wg-dual" {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 config = try XrayWireGuardLabConfig.prepare(text,port:Int(port),dual:args[1]=="wg-dual")
@@ -237,7 +244,7 @@ struct XrayVLESSPeerSimulatorQA {
             return
         }
 #endif
-        guard args[1] == "server" || args[1] == "client" else { fail("TUN_NOT_COMPILED") }
+        guard args[1] == "server" || args[1] == "client" || args[1] == "wg-client" else { fail("TUN_NOT_COMPILED") }
         guard invoke("runXray", config:config) != nil, running() == true else { fail("RUN") }
         print("PEER_QA_READY_" + args[1]); fflush(stdout)
         // Bounded lifetime even if host orchestration is interrupted.

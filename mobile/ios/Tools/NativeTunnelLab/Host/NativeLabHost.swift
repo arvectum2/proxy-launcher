@@ -4,6 +4,7 @@
 import Foundation
 import SwiftUI
 import NetworkExtension
+import Network
 
 private final class LabMessageGate: @unchecked Sendable {
     private let lock = NSLock()
@@ -37,6 +38,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     private var manager: NETunnelProviderManager?
     private var automated = false
     private var runID: String?
+    private var transport = "vless"
+    private var probeKind = "tcp4"
     private var exitChallenge: Int?
     private var probeCode = -999
     private var counters:[String:Int] = [:]
@@ -59,7 +62,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let input = documents.appendingPathComponent("native-lab-input.json")
         let output = documents.appendingPathComponent("native-lab-result.json")
         try? FileManager.default.removeItem(at:output)
-        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int? }
+        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int?; let transport:String?; let probeKind:String? }
         guard let raw=try? Data(contentsOf:input),raw.count<=4096,
               let request=try? JSONDecoder().decode(Input.self,from:raw),
               UUID(uuidString:request.runID) != nil else { return }
@@ -75,6 +78,10 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             return
         }
         guard request.exitChallenge == nil || (100000...999999).contains(request.exitChallenge!) else {return}
+        transport=request.transport ?? "vless"
+        probeKind=request.probeKind ?? "tcp4"
+        guard (transport == "vless" && probeKind == "tcp4") ||
+            (transport == "wg-dual" && ["tcp4","tcp6","udp4","udp6"].contains(probeKind)) else {return}
         exitChallenge=request.exitChallenge
         fixture=request.fixture;nonce=request.nonce
         if request.fixture != "cleanup-only" { await startExplicitly() }
@@ -205,9 +212,13 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         fixture = ""
         manager = nil
         do {
-            let parsed = try VLESSRealityShareLink.parse(link)
-            guard parsed.serverHost == "192.168.1.80", parsed.serverPort == 39882,
-                  parsed.serverName == "example.com" else { throw LabHostError.fixture }
+            if transport == "wg-dual" {
+                _ = try XrayWireGuardLabConfig.prepare(link,port:39879,dual:true,physical:true)
+            } else {
+                let parsed = try VLESSRealityShareLink.parse(link)
+                guard parsed.serverHost == "192.168.1.80", parsed.serverPort == 39882,
+                      parsed.serverName == "example.com" else {throw LabHostError.fixture}
+            }
             guard let item = try await labManager(create:false),
                   isOwned(item), item.isEnabled, !item.isOnDemandEnabled,
                   item.connection.status == .disconnected else { throw LabHostError.conflict }
@@ -215,7 +226,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             stage("startTunnelBegin")
             var options:[String:NSObject]=[
                 "aplNativeSyntheticQA":"explicit-lab-v1" as NSString,
-                "aplSyntheticLink":link as NSString
+                "aplSyntheticLink":link as NSString,
+                "aplLabTransport":transport as NSString
             ]
             if let exitChallenge {options["aplLabExitChallenge"]=NSNumber(value:exitChallenge)}
             try item.connection.startVPNTunnel(options:options)
@@ -250,6 +262,15 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         }) else { status = "Invalid test nonce"; return }
         busy = true
         defer { busy = false }
+        if probeKind == "udp4" || probeKind == "udp6" {
+            let destination=probeKind == "udp4" ? "198.51.100.77" : "2001:db8:77::77"
+            let request=Data(("APL_UDP:"+value).utf8)
+            let reply=await udpProbe(host:destination,request:request)
+            let good=reply == Data(("APL_RECEIPT:"+value).utf8) && manager.connection.status == .connected
+            probeCode=good ? 200 : -1001
+            status=good ? "Exact response received; verify independent server receipt" : "Probe failed"
+            return
+        }
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
         cfg.timeoutIntervalForResource = 6
@@ -259,7 +280,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let session = URLSession(configuration:cfg,delegate:NoLabRedirect(),delegateQueue:nil)
         defer { session.invalidateAndCancel() }
         do {
-            guard let url = URL(string:"http://198.51.100.77:39883/"+value) else { return }
+            let address=probeKind == "tcp6" ? "[2001:db8:77::77]" : "198.51.100.77"
+            guard let url = URL(string:"http://"+address+":39883/"+value) else { return }
             let (data,response) = try await session.data(from:url)
             probeCode=(response as? HTTPURLResponse)?.statusCode ?? -998
             guard (response as? HTTPURLResponse)?.statusCode == 200,
@@ -269,6 +291,32 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             }
             status = "Exact response received; verify independent server receipt"
         } catch { probeCode=(error as NSError).code;status = "Probe failed" }
+    }
+
+    private func udpProbe(host:String,request:Data) async -> Data? {
+        let connection=NWConnection(host:NWEndpoint.Host(host),port:39883,using:.udp)
+        let queue=DispatchQueue(label:"apl.lab.udp.probe")
+        let result:Data?=await withCheckedContinuation { continuation in
+            let gate=LabMessageGate(continuation)
+            connection.stateUpdateHandler={ state in
+                switch state {
+                case .ready:
+                    connection.stateUpdateHandler=nil
+                    connection.send(content:request,completion:.contentProcessed { error in
+                        guard error == nil else {gate.finish(nil);return}
+                        connection.receiveMessage { data,_,_,error in
+                            gate.finish(error == nil ? data : nil)
+                        }
+                    })
+                case .failed,.cancelled:gate.finish(nil)
+                default:break
+                }
+            }
+            queue.asyncAfter(deadline:.now()+5) {gate.finish(nil);connection.cancel()}
+            connection.start(queue:queue)
+        }
+        connection.cancel()
+        return result
     }
 
     private func stopKeepingProfile() async {

@@ -21,18 +21,19 @@ with zipfile.ZipFile(sys.argv[1]) as z:
         dest.write_bytes(z.read(prefix+key))
 PY
 framework="${APL_QA_TUN2PROXY_FRAMEWORK:-$root/Frameworks/tun2proxy.xcframework}"
-"$python" "$root/Tools/verify_tun2proxy_lab_artifact.py" "$framework" ios-arm64
+"$python" "$root/Tools/verify_tun2proxy_lab_artifact.py" "$framework" ios-arm64 --require-connected-udp
 rust="$framework/ios-arm64"
 cp "$rust/libtun2proxy.a" "$work/Lib/Rust/"
 cp -R "$rust/Headers" "$work/Lib/Rust/"
 echo MEASURED_RUST_DEVICE_ARTIFACT
 shasum -a 256 "$work/Lib/Rust/libtun2proxy.a"
-for name in ProxyModel ManagedProfileContract VLESSRealityShareLink XrayVLESSRuntimeConfig XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate; do
+for name in ProxyModel ManagedProfileContract VLESSRealityShareLink XrayVLESSRuntimeConfig XraySocksHandoffContract TunnelEngineHandoff TunnelEngineExitGate WGQuickConfigurationPreview; do
     cp "$root/SharedCore/$name.swift" "$work/Sources/"
 done
+cp "$root/Tools/XrayWireGuardLabConfig.swift" "$work/Sources/"
 cp "$root/Tools/NativeTunnelLab/"*.swift "$work/Sources/"
 cp "$root/Tools/NativeTunnelLab/Host/NativeLabHost.swift" "$work/Host/"
-cp "$root/SharedCore/VLESSRealityShareLink.swift" "$root/SharedCore/ManagedProfileContract.swift" "$root/SharedCore/ProxyModel.swift" "$work/Host/"
+cp "$root/SharedCore/VLESSRealityShareLink.swift" "$root/SharedCore/ManagedProfileContract.swift" "$root/SharedCore/ProxyModel.swift" "$root/SharedCore/WGQuickConfigurationPreview.swift" "$root/Tools/XrayWireGuardLabConfig.swift" "$work/Host/"
 # Only the future explicitly approved isolated signing will use these.
 cat >"$work/Lab.entitlements" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
