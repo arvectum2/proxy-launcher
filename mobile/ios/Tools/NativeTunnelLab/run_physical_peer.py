@@ -47,7 +47,7 @@ def cleanup_only(root):
     return 2
 
 
-def run(peer, root, preflight=False):
+def run(peer, root, preflight=False, mode="positive", retain=False):
     private,public=keypair(); uid=str(uuid.uuid4());sid=secrets.token_hex(8)
     nonce=secrets.token_hex(20);runid=str(uuid.uuid4())
     preflight_nonces=[secrets.token_hex(20) for _ in range(2)]
@@ -165,6 +165,13 @@ def run(peer, root, preflight=False):
             if not good or client.returncode!=0: return 1
         if sorted(seen)!=sorted("/"+n for n in preflight_nonces): return 1
         if preflight: return 0
+        request=json.loads(fixture.read_text())
+        request["retainProfile"]=retain
+        if mode=="wrong-key":
+            _,bad_public=keypair()
+            request["fixture"]=request["fixture"].replace("pbk="+public,"pbk="+bad_public)
+        if mode=="native-exit":request["exitChallenge"]=secrets.randbelow(900000)+100000
+        fixture.write_text(json.dumps(request))
         ctl("copy","to","--domain-type","appDataContainer","--domain-identifier",APP,"--source",str(fixture),"--destination","Documents/native-lab-input.json")
         ctl("process","launch","--terminate-existing",APP,"--","--apl-authorized-native-qa")
         print("PHYSICAL_QA_LAUNCH_REQUESTED",flush=True)
@@ -176,8 +183,16 @@ def run(peer, root, preflight=False):
                 result=json.loads(resultpath.read_text())
                 if result.get("runID")==runid:
                     with lock:n=seen.count("/"+nonce); print("PHYSICAL_QA_RELAY",accepted,directions,flush=True)
-                    print("PHYSICAL_QA_RESULT",json.dumps({k:result.get(k) for k in ("connected","receipt","cleaned","probeCode","counters")}),"WITNESS",n,flush=True)
-                    return 0 if result["connected"] and result["receipt"] and result["cleaned"] and n==1 and len(seen)==3 else 1
+                    print("PHYSICAL_QA_RESULT",json.dumps({k:result.get(k) for k in ("connected","receipt","cleaned","retainedOff","nativeExitConfirmed","probeCode","counters")}),"WITNESS",n,flush=True)
+                    cleanup=result.get("retainedOff") is True if retain else result.get("cleaned") is True
+                    counters=result.get("counters",{})
+                    if mode=="wrong-key":
+                        ok=result["connected"] and not result["receipt"] and n==0 and len(seen)==2 and counters.get("target",0)>0 and accepted>2
+                    else:
+                        ok=result["connected"] and result["receipt"] and n==1 and len(seen)==3
+                    if mode=="native-exit":ok=ok and result.get("nativeExitConfirmed") is True
+                    print("PHYSICAL_MODE",mode,"PASS" if ok and cleanup else "FAIL",flush=True)
+                    return 0 if ok and cleanup else 1
                 resultpath.unlink()
             time.sleep(2)
         progress=root/"progress.json"
@@ -196,8 +211,8 @@ def run(peer, root, preflight=False):
         for server in (decoy,relay,witness):server.shutdown();server.server_close()
         print("PHYSICAL_QA_PEER_CLEANUP",flush=True)
 if __name__=="__main__":
-    p=argparse.ArgumentParser();p.add_argument("--approved",action="store_true");p.add_argument("--peer",type=Path);p.add_argument("--prepare-only",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--cleanup-only",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("--approved",action="store_true");p.add_argument("--peer",type=Path);p.add_argument("--prepare-only",action="store_true");p.add_argument("--mode",choices=["positive","wrong-key","native-exit"],default="positive");p.add_argument("--retain-profile",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--cleanup-only",action="store_true");a=p.parse_args()
     if not a.approved or (not (a.cleanup_only or a.prepare_only) and a.peer is None):raise SystemExit(2)
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-physical-native-fixture-") as d:
-        sys.exit(prepare_only(Path(d)) if a.prepare_only else cleanup_only(Path(d)) if a.cleanup_only else run(a.peer.resolve(),Path(d),preflight=a.preflight))
+        sys.exit(prepare_only(Path(d)) if a.prepare_only else cleanup_only(Path(d)) if a.cleanup_only else run(a.peer.resolve(),Path(d),preflight=a.preflight,mode=a.mode,retain=a.retain_profile))

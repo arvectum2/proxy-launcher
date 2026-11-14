@@ -20,6 +20,8 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     @MainActor private var retired = false
     @MainActor private var engineStarted = false
     @MainActor private var xrayStarted = false
+    @MainActor private var exitChallenge: Int?
+    @MainActor private var forcedExitRequested = false
     @MainActor private var timeoutTask: Task<Void,Never>?
     private let queue = DispatchQueue(label:"apl.isolated.native.engine")
     private let gate = TunnelEngineExitGate()
@@ -46,6 +48,10 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     @MainActor private func startLab(_ options: [String:NSObject]?) async throws {
         guard options?["aplNativeSyntheticQA"] as? String == "explicit-lab-v1",
               let link=options?["aplSyntheticLink"] as? String else { throw NativeLabError.stage(5) }
+        if let code=options?["aplLabExitChallenge"] as? NSNumber {
+            guard (100000...999999).contains(code.intValue) else {throw NativeLabError.stage(5)}
+            exitChallenge=code.intValue
+        }
         let candidate = try VLESSRealityShareLink.parse(link)
         guard candidate.serverPort == 39882, candidate.serverName == "example.com",
               candidate.serverHost == "127.0.0.1" || candidate.serverHost == "192.168.1.80" else {
@@ -79,13 +85,15 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         let args = plan.tun2proxyArguments.replacingOccurrences(of:"--verbosity warn",with:"--verbosity debug")
         queue.async { [weak self] in
             guard let self, self.gate.isRunning(generation) else { return }
-            _ = args.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
+            let rc = args.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
             guard self.gate.markUnexpectedExit(generation) else { return }
             Task { @MainActor [weak self] in
                 guard let self, self.gate.shouldCancelTunnel(generation) else { return }
                 try? self.lifecycle.failClosed(generation:token)
                 self.retired = true
-                self.cancelTunnelWithError(NativeLabError.stage(9).safeNSError)
+                // Fresh challenge only on actual native return after the one-shot request.
+                let code = self.forcedExitRequested && rc == 0 ? (self.exitChallenge ?? 9) : 9
+                self.cancelTunnelWithError(NativeLabError.stage(code).safeNSError)
             }
         }
         try await Task.sleep(nanoseconds:350_000_000)
@@ -100,8 +108,31 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func handleAppMessage(_ messageData:Data, completionHandler: ((Data?) -> Void)?) {
-        guard messageData == Data("apl-lab-counters-v1".utf8) else {completionHandler?(nil);return}
-        completionHandler?(try? JSONSerialization.data(withJSONObject:LabCounters.shared.snapshot()))
+        Task { @MainActor in
+            if messageData == Data("apl-lab-counters-v1".utf8) {
+                var values=LabCounters.shared.snapshot()
+                var info=mach_task_basic_info()
+                var count=mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size / MemoryLayout<integer_t>.size)
+                let kr=withUnsafeMutablePointer(to:&info) {
+                    $0.withMemoryRebound(to:integer_t.self,capacity:Int(count)) {
+                        task_info(mach_task_self_,task_flavor_t(MACH_TASK_BASIC_INFO),$0,&count)
+                    }
+                }
+                if kr == KERN_SUCCESS { values["rssBytes"]=Int(info.resident_size) }
+                completionHandler?(try? JSONSerialization.data(withJSONObject:values))
+                return
+            }
+            guard let code=exitChallenge, !forcedExitRequested, !stopping,
+                  lifecycle.phase == .running, engineStarted,
+                  messageData == Data(("apl-lab-exit-"+String(code)).utf8) else {
+                completionHandler?(nil);return
+            }
+            forcedExitRequested=true
+            // Do not invalidate the exit gate: this deliberately exercises the
+            // native run-return path, rather than invoking stopTunnel.
+            completionHandler?(Data("exit-requested".utf8))
+            _ = tun2proxy_stop()
+        }
     }
 
     override func stopTunnel(with reason: NEProviderStopReason,completionHandler: @escaping () -> Void) {

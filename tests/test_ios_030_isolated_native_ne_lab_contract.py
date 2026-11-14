@@ -82,3 +82,19 @@ def test_permission_only_phase_is_separate_from_peer_and_tunnel_start():
     assert "PHYSICAL_QA_DECOY_READY" in runner
     assert "PHYSICAL_PEER_PREFLIGHT" in runner
     assert "len(seen)==3" in runner
+
+
+def test_physical_failure_lab_requires_actual_native_return_and_fresh_os_error():
+    provider=(LAB / "NativeLabPacketTunnelProvider.swift").read_text()
+    host=(LAB / "Host/NativeLabHost.swift").read_text()
+    runner=(LAB / "run_physical_peer.py").read_text()
+    assert 'options?["aplLabExitChallenge"]' in provider
+    assert 'self.forcedExitRequested && rc == 0' in provider
+    assert 'gate.markUnexpectedExit(generation)' in provider
+    assert 'session.fetchLastDisconnectError' in host
+    assert 'e?.code == challenge' in host
+    assert 'request.retainProfile == true' in host
+    assert 'Owned lab profile retained; VPN OFF' in host
+    assert 'rssBytes' in provider
+    assert 'n==0 and len(seen)==2' in runner
+    assert 'result.get("nativeExitConfirmed") is True' in runner

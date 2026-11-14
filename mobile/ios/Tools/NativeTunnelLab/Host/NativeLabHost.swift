@@ -37,6 +37,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     private var manager: NETunnelProviderManager?
     private var automated = false
     private var runID: String?
+    private var exitChallenge: Int?
     private var probeCode = -999
     private var counters:[String:Int] = [:]
     private func stage(_ value: String) {
@@ -58,7 +59,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let input = documents.appendingPathComponent("native-lab-input.json")
         let output = documents.appendingPathComponent("native-lab-result.json")
         try? FileManager.default.removeItem(at:output)
-        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String }
+        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int? }
         guard let raw=try? Data(contentsOf:input),raw.count<=4096,
               let request=try? JSONDecoder().decode(Input.self,from:raw),
               UUID(uuidString:request.runID) != nil else { return }
@@ -73,6 +74,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             }
             return
         }
+        guard request.exitChallenge == nil || (100000...999999).contains(request.exitChallenge!) else {return}
+        exitChallenge=request.exitChallenge
         fixture=request.fixture;nonce=request.nonce
         if request.fixture != "cleanup-only" { await startExplicitly() }
         let connected=manager?.connection.status == .connected
@@ -90,10 +93,44 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             } catch {}
         }
         let receipt=status == "Exact response received; verify independent server receipt"
-        stage("cleanupBegin");await stopAndRemoveExplicitly();stage("cleanupEnd")
+        var nativeExitConfirmed=false
+        if #available(iOS 16.0, *), connected, receipt, let challenge=exitChallenge,
+           let session=manager?.connection as? NETunnelProviderSession {
+            stage("nativeExitRequest")
+            let ack:Data? = await withCheckedContinuation { continuation in
+                let gate=LabMessageGate(continuation)
+                DispatchQueue.global().asyncAfter(deadline:.now()+2) {gate.finish(nil)}
+                do {try session.sendProviderMessage(Data(("apl-lab-exit-"+String(challenge)).utf8)) {gate.finish($0)}}
+                catch {gate.finish(nil)}
+            }
+            if ack == Data("exit-requested".utf8) {
+                for _ in 0..<80 {
+                    if session.status == .disconnected {
+                        let response:Data? = await withCheckedContinuation { continuation in
+                            let gate=LabMessageGate(continuation)
+                            DispatchQueue.global().asyncAfter(deadline:.now()+2) {gate.finish(nil)}
+                            session.fetchLastDisconnectError { error in
+                                let e=error as NSError?
+                                gate.finish(Data((e?.domain == "APL.IsolatedNativeLab" && e?.code == challenge ? "confirmed" : "mismatch").utf8))
+                            }
+                        }
+                        nativeExitConfirmed=response == Data("confirmed".utf8)
+                        break
+                    }
+                    try? await Task.sleep(nanoseconds:100_000_000)
+                }
+            }
+        }
+        stage("cleanupBegin")
+        if request.retainProfile == true && request.fixture != "cleanup-only" {
+            await stopKeepingProfile()
+        } else { await stopAndRemoveExplicitly() }
+        stage("cleanupEnd")
+        let retained=status == "Owned lab profile retained; VPN OFF"
         let cleaned=status == "Owned lab profile removed" || status == "No owned lab manager"
         let result:[String:Any]=["runID":request.runID,"connected":connected,
-                                "receipt":receipt,"cleaned":cleaned,"probeCode":probeCode,"counters":counters]
+                                "receipt":receipt,"cleaned":cleaned,"retainedOff":retained,
+                                "nativeExitConfirmed":nativeExitConfirmed,"probeCode":probeCode,"counters":counters]
         if let data=try? JSONSerialization.data(withJSONObject:result) {
             try? data.write(to:output,options:.atomic)
         }
@@ -176,10 +213,12 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                   item.connection.status == .disconnected else { throw LabHostError.conflict }
             manager = item
             stage("startTunnelBegin")
-            try item.connection.startVPNTunnel(options:[
+            var options:[String:NSObject]=[
                 "aplNativeSyntheticQA":"explicit-lab-v1" as NSString,
                 "aplSyntheticLink":link as NSString
-            ])
+            ]
+            if let exitChallenge {options["aplLabExitChallenge"]=NSNumber(value:exitChallenge)}
+            try item.connection.startVPNTunnel(options:options)
             stage("startTunnelReturned")
             status = "Start requested; awaiting iOS"
             // Actual .connected is distinct from startVPNTunnel returning.
@@ -230,6 +269,20 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             }
             status = "Exact response received; verify independent server receipt"
         } catch { probeCode=(error as NSError).code;status = "Probe failed" }
+    }
+
+    private func stopKeepingProfile() async {
+        do {
+            guard let item=try await labManager(create:false),isOwned(item) else {throw LabHostError.conflict}
+            if item.connection.status != .disconnected {item.connection.stopVPNTunnel()}
+            for _ in 0..<100 {
+                if item.connection.status == .disconnected {
+                    status="Owned lab profile retained; VPN OFF";return
+                }
+                try await Task.sleep(nanoseconds:100_000_000)
+            }
+        } catch {}
+        status="Stop not confirmed; profile retained"
     }
 
     func stopAndRemoveExplicitly() async {
