@@ -3,6 +3,14 @@
 import Darwin
 import Foundation
 import NetworkExtension
+
+private final class LabCounters: @unchecked Sendable {
+    static let shared = LabCounters()
+    private let lock = NSLock()
+    private var values: [String:Int] = [:]
+    func increment(_ key: String) { lock.lock(); values[key,default:0] += 1; lock.unlock() }
+    func snapshot() -> [String:Int] { lock.lock(); defer { lock.unlock() }; return values }
+}
 import tun2proxy
 
 final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
@@ -59,7 +67,16 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         guard NativeLabRuntime.call("runXray",config:config) != nil, NativeLabRuntime.running == true else { throw NativeLabError.stage(8) }
         let generation = gate.begin()
         engineStarted = true
-        let args = plan.tun2proxyArguments
+        tun2proxy_set_log_callback({ _, message, _ in
+            guard let message else {return}
+            let line=String(cString:message).lowercased()
+            if line.contains("tcp") {LabCounters.shared.increment("tcp")}
+            if line.contains("socks") {LabCounters.shared.increment("socks")}
+            if line.contains("error") || line.contains("failed") {LabCounters.shared.increment("error")}
+            if line.contains("connect") {LabCounters.shared.increment("connect")}
+            if line.contains("198.51.100.77") {LabCounters.shared.increment("target")}
+        },nil)
+        let args = plan.tun2proxyArguments.replacingOccurrences(of:"--verbosity warn",with:"--verbosity debug")
         queue.async { [weak self] in
             guard let self, self.gate.isRunning(generation) else { return }
             _ = args.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
@@ -80,6 +97,11 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             self.retired = true
             self.cancelTunnelWithError(NativeLabError.stage(11).safeNSError)
         }
+    }
+
+    override func handleAppMessage(_ messageData:Data, completionHandler: ((Data?) -> Void)?) {
+        guard messageData == Data("apl-lab-counters-v1".utf8) else {completionHandler?(nil);return}
+        completionHandler?(try? JSONSerialization.data(withJSONObject:LabCounters.shared.snapshot()))
     }
 
     override func stopTunnel(with reason: NEProviderStopReason,completionHandler: @escaping () -> Void) {
@@ -108,6 +130,7 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
                     _ = tun2proxy_stop()
                 }
                 engineStarted=false
+                tun2proxy_set_log_callback(nil,nil)
             } catch {
                 try? lifecycle.failClosed(generation:token)
                 // No retry/restart in this provider instance. OS owns TUN.

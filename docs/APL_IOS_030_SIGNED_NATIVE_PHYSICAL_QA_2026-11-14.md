@@ -66,3 +66,42 @@ fingerprint recheck. No new account/profile approval needed for
 these two dedicated test IDs, already granted, but no unrelated
 signing or device changes. Actual multi-provider driver, AWG NE
 and full hardware/product/legal acceptance are still outstanding.
+
+## Operator resume, 11:51–11:54 MSK
+
+Mirroring connected after owner locked iPhone. Settings visibly
+VPN OFF, but the exact previous lab profile remained selected despite
+the earlier app receipt and uninstall. Thus the former cleanup receipt
+was insufficient to prove global Settings absence. Reinstalled only
+the authorized lab. First retry: connected=true, receipt=false,
+cleaned=true, independent witness0, runner exit1. This confirms actual
+iOS Connected status for the isolated VLESS NE, not working data plane.
+Need native transport diagnostics, not another simulator success.
+
+Added aggregate-only Rust log category counts via exact lab provider
+message, URLSession error/status code and explicit empty proxy
+dictionary, LAN relay accepted connection/byte counters, reload exact
+owned manager list after deletion. Corrected Swift callback API
+compilation, fresh signed app/NE verified and installed. Second
+diagnostic retry encountered the specific NativeLabHost VPN permission
+prompt; clicked Allow under prior explicit consent. macOS then
+displayed "Authenticate to access iPhone. Enter the Mac login for
+'master' to continue." No authentication bypass; operator required.
+Second retry returned connected=false, receipt=false, cleaned=true,
+probeCode=-999, counters empty, relay0/0/0, witness0, exit1.
+No data attempt occurred in that retry. The counter callback currently
+has no independent deadline; before using it in another unattended run,
+add bounded one-shot timeout to ensure cleanup even if provider fails
+to respond.
+
+Dedicated cleanup-only confirmed true, lab app uninstalled and app/
+process absence verified. Existing owner profile/selected/org hashes
+true, read-only Keychain3 and APL OFF tests2/2 passed; local listeners
+closed. Global Settings absence/selection after this cleanup remains
+unverified because Mirroring now requires Mac login. Do not claim
+global profile removed. Operator should authenticate directly on
+Mac or manually confirm the exact NativeLabHost permission on phone;
+then inspect Settings and remove only any orphan exact lab profile,
+restore prior APL selection while VPN OFF if appropriate, and retry
+one bounded diagnostic case. No password requested or stored.
+All 36 focused checks passed. No production activation.

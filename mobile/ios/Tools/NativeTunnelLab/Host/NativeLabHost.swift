@@ -24,6 +24,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     private var manager: NETunnelProviderManager?
     private var automated = false
     private var runID: String?
+    private var probeCode = -999
+    private var counters:[String:Int] = [:]
     private func stage(_ value: String) {
         guard let runID else {return}
         let url=FileManager.default.urls(for:.documentDirectory,in:.userDomainMask)[0]
@@ -53,11 +55,21 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         if request.fixture != "cleanup-only" { await startExplicitly() }
         let connected=manager?.connection.status == .connected
         if connected { stage("probeBegin");await probeExplicitly();stage("probeEnd") }
+        if connected, let session=manager?.connection as? NETunnelProviderSession {
+            do {
+                let data: Data? = try await withCheckedThrowingContinuation { continuation in
+                    do { try session.sendProviderMessage(Data("apl-lab-counters-v1".utf8)) { response in
+                        continuation.resume(returning: response)
+                    }} catch { continuation.resume(throwing:error) }
+                }
+                if let data, let parsed=try JSONSerialization.jsonObject(with:data) as? [String:Int] {counters=parsed}
+            } catch {}
+        }
         let receipt=status == "Exact response received; verify independent server receipt"
         stage("cleanupBegin");await stopAndRemoveExplicitly();stage("cleanupEnd")
         let cleaned=status == "Owned lab profile removed" || status == "No owned lab manager"
         let result:[String:Any]=["runID":request.runID,"connected":connected,
-                                "receipt":receipt,"cleaned":cleaned]
+                                "receipt":receipt,"cleaned":cleaned,"probeCode":probeCode,"counters":counters]
         if let data=try? JSONSerialization.data(withJSONObject:result) {
             try? data.write(to:output,options:.atomic)
         }
@@ -159,6 +171,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let cfg = URLSessionConfiguration.ephemeral
         cfg.timeoutIntervalForRequest = 5
         cfg.timeoutIntervalForResource = 6
+        cfg.connectionProxyDictionary = [:]
         cfg.urlCache = nil
         cfg.httpCookieStorage = nil
         let session = URLSession(configuration:cfg,delegate:NoLabRedirect(),delegateQueue:nil)
@@ -166,13 +179,14 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         do {
             guard let url = URL(string:"http://198.51.100.77:39883/"+value) else { return }
             let (data,response) = try await session.data(from:url)
+            probeCode=(response as? HTTPURLResponse)?.statusCode ?? -998
             guard (response as? HTTPURLResponse)?.statusCode == 200,
                   data == Data(("APL_RECEIPT:"+value).utf8),
                   manager.connection.status == .connected else {
                 status = "Probe failed"; return
             }
             status = "Exact response received; verify independent server receipt"
-        } catch { status = "Probe failed" }
+        } catch { probeCode=(error as NSError).code;status = "Probe failed" }
     }
 
     func stopAndRemoveExplicitly() async {
@@ -187,6 +201,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             for _ in 0..<100 {
                 if item.connection.status == .disconnected || item.connection.status == .invalid {
                     try await item.removeFromPreferences()
+                    let remaining=try await NETunnelProviderManager.loadAllFromPreferences()
+                    guard !remaining.contains(where:isOwned) else {throw LabHostError.conflict}
                     manager = nil
                     status = "Owned lab profile removed"
                     return

@@ -40,7 +40,7 @@ def cleanup_only(root):
 def run(peer, root):
     private,public=keypair(); uid=str(uuid.uuid4());sid=secrets.token_hex(8)
     nonce=secrets.token_hex(20);runid=str(uuid.uuid4())
-    seen=[];lock=threading.Lock();stop=threading.Event();accepted=0
+    seen=[];lock=threading.Lock();stop=threading.Event();accepted=0; directions=[0,0]
     class Witness(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path != "/"+nonce: self.send_error(404);return
@@ -62,6 +62,7 @@ def run(peer, root):
                         for src in ready:
                             data=src.recv(65536)
                             if not data:return
+                            with lock: directions[0 if src is self.request else 1]+=len(data)
                             (upstream if src is self.request else self.request).sendall(data)
             except OSError:return
     class Server(socketserver.ThreadingTCPServer):
@@ -107,8 +108,8 @@ def run(peer, root):
             if ret.returncode==0 and resultpath.is_file():
                 result=json.loads(resultpath.read_text())
                 if result.get("runID")==runid:
-                    with lock:n=len(seen)
-                    print("PHYSICAL_QA_RESULT",json.dumps({k:result[k] for k in ("connected","receipt","cleaned")}),"WITNESS",n,flush=True)
+                    with lock:n=len(seen); print("PHYSICAL_QA_RELAY",accepted,directions,flush=True)
+                    print("PHYSICAL_QA_RESULT",json.dumps({k:result.get(k) for k in ("connected","receipt","cleaned","probeCode","counters")}),"WITNESS",n,flush=True)
                     return 0 if result["connected"] and result["receipt"] and result["cleaned"] and n==1 else 1
                 resultpath.unlink()
             time.sleep(2)
