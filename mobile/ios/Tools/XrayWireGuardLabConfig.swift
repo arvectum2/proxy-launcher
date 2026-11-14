@@ -3,12 +3,14 @@ import Foundation
 
 enum XrayWireGuardLabConfig {
     enum Failure: Error { case unsupported }
-    static func prepare(_ text: String, port: Int) throws -> String {
+    static func prepare(_ text: String, port: Int, dual: Bool = false) throws -> String {
         let preview = try WGQuickConfigurationPreview.parse(text)
-        guard preview.format == .wireGuard, preview.addresses == ["10.77.0.2/32"],
+        let addresses = dual ? ["10.77.0.2/32", "2001:db8:77::2/128"] : ["10.77.0.2/32"]
+        let targets = dual ? ["198.51.100.77/32", "2001:db8:77::77/128"] : ["198.51.100.77/32"]
+        guard preview.format == .wireGuard, Set(preview.addresses) == Set(addresses), preview.addresses.count == addresses.count,
               preview.dnsServers.isEmpty, preview.peers.count == 1,
               preview.peers[0].endpoint == "127.0.0.1:39881",
-              preview.peers[0].allowedIPs == ["198.51.100.77/32"],
+              Set(preview.peers[0].allowedIPs) == Set(targets), preview.peers[0].allowedIPs.count == targets.count,
               port == 39879 else { throw Failure.unsupported }
         var values = [String:String]()
         var section = ""
@@ -30,15 +32,15 @@ enum XrayWireGuardLabConfig {
             throw Failure.unsupported
         }
         var peer:[String:Any] = ["publicKey":try key("[peer]publickey"),
-            "endpoint":"127.0.0.1:39881","allowedIPs":["198.51.100.77/32"]]
+            "endpoint":"127.0.0.1:39881","allowedIPs":targets]
         if values["[peer]presharedkey"] != nil { peer["preSharedKey"]=try key("[peer]presharedkey") }
         let cfg:[String:Any] = [
             "log":["loglevel":"none"],
             "inbounds":[["tag":"lab-socks","listen":"127.0.0.1","port":port,
-                         "protocol":"socks","settings":["auth":"noauth","udp":false]]],
+                         "protocol":"socks","settings":["auth":"noauth","udp":dual,"ip":"127.0.0.1"]]],
             "outbounds":[["tag":"lab-wg","protocol":"wireguard",
                           "settings":["secretKey":try key("[interface]privatekey"),
-                                      "address":["10.77.0.2/32"],"noKernelTun":true,
+                                      "address":addresses,"noKernelTun":true,
                                       "mtu":1280,"peers":[peer]]]],
             "routing":["domainStrategy":"AsIs","rules":[["type":"field","inboundTag":["lab-socks"],"outboundTag":"lab-wg"]]]
         ]

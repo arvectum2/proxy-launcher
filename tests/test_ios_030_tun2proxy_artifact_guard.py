@@ -47,3 +47,24 @@ def test_digest_mismatch_rejected(tmp_path):
     library.write_bytes(b"substituted")
     with pytest.raises(ValueError, match="sha256 mismatch"):
         guard.verify(root, "ios-arm64-simulator")
+
+
+def test_connected_udp_fix_uses_conn_bound_datagrams_and_fetcher_applies_it():
+    root = Path(__file__).resolve().parents[1] / "mobile/ios/Tools"
+    patch = (root / "tun2proxy-connected-udp.patch").read_text()
+    assert "+async fn create_udp_stream(" in patch and "Result<UdpSocket>" in patch
+    assert "+                    if udp_server.send(&s5_udp_data).await?" in patch
+    assert "+            len = udp_server.recv(&mut buf2)" in patch
+    assert "-                    udp_server.write_all(&s5_udp_data).await?;" in patch
+    fetch = (root / "fetch_tun2proxy.py").read_text()
+    assert "CONNECTED_UDP_PATCH" in fetch and "sameflow-retry-connected-udp" in fetch
+    assert "--require-connected-udp" in (root / "run_xray_vless_config_simulator_qa.sh").read_text()
+
+
+def test_udp_lab_refuses_pre_fix_rust_manifest(tmp_path):
+    root, _, digest = fixture(tmp_path)
+    with pytest.raises(ValueError, match="connected UDP patch flag missing"):
+        guard.verify(root, "ios-arm64-simulator", require_connected_udp=True)
+    stamp = root.parent / ".tun2proxy-version"
+    stamp.write_text(stamp.read_text().replace("split-dns\n", "split-dns-connected-udp\n"))
+    assert guard.verify(root, "ios-arm64-simulator", require_connected_udp=True) == digest

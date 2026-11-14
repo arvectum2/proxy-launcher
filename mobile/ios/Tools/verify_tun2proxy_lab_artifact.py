@@ -14,7 +14,7 @@ SLICES = {"ios-arm64": "patched_library_sha256",
           "ios-arm64-simulator": "patched_simulator_library_sha256"}
 
 
-def verify(framework: Path, slice_name: str) -> str:
+def verify(framework: Path, slice_name: str, *, require_connected_udp: bool = False) -> str:
     library = framework / slice_name / "libtun2proxy.a"
     stamp = framework.resolve().parent / ".tun2proxy-version"
     if slice_name not in SLICES or not library.is_file():
@@ -40,6 +40,8 @@ def verify(framework: Path, slice_name: str) -> str:
             raise ValueError(f"{key} mismatch")
     if not fields.get("patch", "").startswith("disable-api-forced-exit-and-split-dns"):
         raise ValueError("required patch flag missing")
+    if require_connected_udp and not fields.get("patch","").endswith("-connected-udp"):
+        raise ValueError("connected UDP patch flag missing")
     return digest
 
 
@@ -47,9 +49,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("framework", type=Path)
     parser.add_argument("slice", choices=SLICES)
+    parser.add_argument("--require-connected-udp",action="store_true")
     args = parser.parse_args()
     try:
-        print("VERIFIED_LOCAL_RUST_" + args.slice + "_SHA256_" + verify(args.framework, args.slice))
+        print("VERIFIED_LOCAL_RUST_" + args.slice + "_SHA256_" + verify(args.framework, args.slice, require_connected_udp=args.require_connected_udp))
     except (ValueError, OSError) as error:
         print("REJECTED_LOCAL_RUST_ARTIFACT:", str(error))
         raise SystemExit(1)

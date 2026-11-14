@@ -118,6 +118,7 @@ type Config struct {
 	Private string `json:"private"`
 	Peer    string `json:"peer"`
 	PSK     string `json:"psk"`
+	Dual    bool   `json:"dual"`
 }
 
 func validKey(s string) bool {
@@ -140,7 +141,11 @@ func run(path string) int {
 		!validKey(cfg.Private) || !validKey(cfg.Peer) || !validKey(cfg.PSK) {
 		return 2
 	}
-	tunnel, stack, err := netstack.CreateNetTUN([]netip.Addr{netip.MustParseAddr("198.51.100.77")}, nil, 1280)
+	addresses := []netip.Addr{netip.MustParseAddr("198.51.100.77")}
+	if cfg.Dual {
+		addresses = append(addresses, netip.MustParseAddr("2001:db8:77::77"))
+	}
+	tunnel, stack, err := netstack.CreateNetTUN(addresses, nil, 1280)
 	if err != nil {
 		return 3
 	}
@@ -148,6 +153,9 @@ func run(path string) int {
 	dev := device.NewDevice(tunnel, bind, device.NewLogger(device.LogLevelSilent, ""))
 	defer dev.Close()
 	settings := fmt.Sprintf("private_key=%s\nlisten_port=39882\nreplace_peers=true\npublic_key=%s\npreshared_key=%s\nreplace_allowed_ips=true\nallowed_ip=10.77.0.2/32\nendpoint=127.0.0.1:39881\n", cfg.Private, cfg.Peer, cfg.PSK)
+	if cfg.Dual {
+		settings += "allowed_ip=2001:db8:77::2/128\n"
+	}
 	if dev.IpcSet(settings) != nil || dev.Up() != nil || bind.port() != 39882 {
 		return 4
 	}
@@ -155,35 +163,93 @@ func run(path string) int {
 	if err != nil {
 		return 5
 	}
-	var workers sync.WaitGroup
-	acceptDone := make(chan struct{})
-	go func() {
-		defer close(acceptDone)
-		for {
-			c, err := listener.Accept()
+	var listeners []net.Listener
+	listeners = append(listeners, listener)
+	if cfg.Dual {
+		v6, err := stack.ListenTCPAddrPort(netip.MustParseAddrPort("[2001:db8:77::77]:39883"))
+		if err != nil {
+			listener.Close()
+			return 5
+		}
+		listeners = append(listeners, v6)
+	}
+	var workers, acceptors, udpWorkers sync.WaitGroup
+	var udpListeners []net.PacketConn
+	if cfg.Dual {
+		for _, addr := range addresses {
+			udp, err := stack.ListenUDPAddrPort(netip.AddrPortFrom(addr, 39883))
 			if err != nil {
-				return
+				for _, l := range listeners {
+					l.Close()
+				}
+				for _, u := range udpListeners {
+					u.Close()
+				}
+				udpWorkers.Wait()
+				return 5
 			}
-			workers.Add(1)
-			go func() {
-				defer workers.Done()
-				defer c.Close()
-				_ = c.SetDeadline(time.Now().Add(6 * time.Second))
-				witness, err := net.DialTimeout("tcp4", "127.0.0.1:39883", time.Second)
+			udpListeners = append(udpListeners, udp)
+			udpWorkers.Add(1)
+			go func(u net.PacketConn) {
+				defer udpWorkers.Done()
+				buf := make([]byte, 128)
+				for {
+					n, from, err := u.ReadFrom(buf)
+					if err != nil {
+						return
+					}
+					if n != 48 {
+						continue
+					}
+					// Fixed witness endpoint; no generic forwarding.
+					w, err := net.DialTimeout("udp4", "127.0.0.1:39883", time.Second)
+					if err != nil {
+						continue
+					}
+					_ = w.SetDeadline(time.Now().Add(time.Second))
+					_, err = w.Write(buf[:n])
+					if err == nil {
+						reply := make([]byte, 128)
+						m, err := w.Read(reply)
+						if err == nil {
+							_, _ = u.WriteTo(reply[:m], from)
+						}
+					}
+					w.Close()
+				}
+			}(udp)
+		}
+	}
+	for _, l := range listeners {
+		acceptors.Add(1)
+		go func(l net.Listener) {
+			defer acceptors.Done()
+			for {
+				c, err := l.Accept()
 				if err != nil {
 					return
 				}
-				defer witness.Close()
-				_ = witness.SetDeadline(time.Now().Add(6 * time.Second))
-				done := make(chan struct{})
-				go func() { _, _ = io.Copy(witness, c); close(done) }()
-				_, _ = io.Copy(c, witness)
-				_ = c.Close()
-				_ = witness.Close()
-				<-done
-			}()
-		}
-	}()
+				workers.Add(1)
+				go func() {
+					defer workers.Done()
+					defer c.Close()
+					_ = c.SetDeadline(time.Now().Add(6 * time.Second))
+					witness, err := net.DialTimeout("tcp4", "127.0.0.1:39883", time.Second)
+					if err != nil {
+						return
+					}
+					defer witness.Close()
+					_ = witness.SetDeadline(time.Now().Add(6 * time.Second))
+					done := make(chan struct{})
+					go func() { _, _ = io.Copy(witness, c); close(done) }()
+					_, _ = io.Copy(c, witness)
+					_ = c.Close()
+					_ = witness.Close()
+					<-done
+				}()
+			}
+		}(l)
+	}
 	fmt.Println("PEER_QA_READY_server")
 	deadline := time.Now().Add(75 * time.Second)
 	for time.Now().Before(deadline) {
@@ -192,8 +258,14 @@ func run(path string) int {
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
-	listener.Close()
-	<-acceptDone
+	for _, l := range listeners {
+		l.Close()
+	}
+	for _, u := range udpListeners {
+		u.Close()
+	}
+	acceptors.Wait()
+	udpWorkers.Wait()
 	workers.Wait()
 	dev.Close()
 	if bind.port() != 0 {

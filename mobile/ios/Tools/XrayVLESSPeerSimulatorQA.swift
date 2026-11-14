@@ -69,7 +69,7 @@ struct XrayVLESSPeerSimulatorQA {
 
 #if APL_TUN_PAIR_QA && targetEnvironment(simulator)
     private static func tunCycle(config: String, port: UInt16, path: String,
-                                 lifecycle: inout XrayHandoffLifecycle) async -> Bool {
+                                 lifecycle: inout XrayHandoffLifecycle, probeKind: String = "tcp4") async -> Bool {
         print("TUN_QA_XRAY_START_BEGIN"); fflush(stdout)
         guard running() == false, closed(port),
               let token = try? lifecycle.begin(),
@@ -96,7 +96,13 @@ struct XrayVLESSPeerSimulatorQA {
             print("TUN_QA_RUST_START_WAIT_COMPLETE"); fflush(stdout)
             guard !hasExited(exited) else { fail("RUST_EARLY_EXIT") }
             guard (try? lifecycle.ready(generation: token)) != nil else { fail("STATE_READY") }
-            let result = XrayTunPacketQA.probe(fd:injectionFD,path:path)
+            let result: Bool
+            switch probeKind {
+            case "udp4": result = XrayTunPacketQA.probeUDP(fd:injectionFD,path:path,v6:false)
+            case "udp6": result = XrayTunPacketQA.probeUDP(fd:injectionFD,path:path,v6:true)
+            case "tcp6": result = XrayTunPacketQA.probe(fd:injectionFD,path:path,v6:true)
+            default: result = XrayTunPacketQA.probe(fd:injectionFD,path:path)
+            }
             guard !hasExited(exited) else { fail("RUST_UNSOLICITED_EXIT") }
             guard (try? lifecycle.requestStop(generation: token)) == true else { fail("STATE_STOP") }
             do {
@@ -156,7 +162,7 @@ struct XrayVLESSPeerSimulatorQA {
 #if targetEnvironment(simulator) || os(macOS)
         let args = CommandLine.arguments
         guard args.count == 4,
-              ["server", "client", "tun-client", "tun-cycles", "wg-tun"].contains(args[1]),
+              ["server", "client", "tun-client", "tun-cycles", "wg-tun", "wg-dual"].contains(args[1]),
               let port = UInt16(args[3]), (39879...39884).contains(port),
               closed(port),
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
@@ -172,9 +178,9 @@ struct XrayVLESSPeerSimulatorQA {
             if args[1] == "server" {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 config = text
-            } else if args[1] == "wg-tun" {
+            } else if args[1] == "wg-tun" || args[1] == "wg-dual" {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
-                config = try XrayWireGuardLabConfig.prepare(text,port:Int(port))
+                config = try XrayWireGuardLabConfig.prepare(text,port:Int(port),dual:args[1]=="wg-dual")
             } else {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 let candidate = try VLESSRealityShareLink.parse(text)
@@ -190,16 +196,19 @@ struct XrayVLESSPeerSimulatorQA {
         } catch { fail("CONFIG") }
         guard invoke("testXray", config: config) != nil else { fail("TEST_XRAY") }
 #if APL_TUN_PAIR_QA && targetEnvironment(simulator)
-        if args[1] == "tun-client" || args[1] == "tun-cycles" || args[1] == "wg-tun" {
+        if args[1] == "tun-client" || args[1] == "tun-cycles" || args[1] == "wg-tun" || args[1] == "wg-dual" {
             let raw = (try? String(contentsOfFile:args[2] + ".path", encoding:.utf8)) ?? ""
             let paths = raw.split(separator:"\n").map(String.init)
             let repeated = args[1] == "tun-cycles"
-            guard paths.count == (repeated ? 12 : 1), Set(paths).count == paths.count else { fail("PATHS") }
+            let dual = args[1] == "wg-dual"
+            guard paths.count == (repeated ? 12 : dual ? 3 : 1), Set(paths).count == paths.count else { fail("PATHS") }
             var lifecycle = XrayHandoffLifecycle()
             if repeated { resourceReceipt(0) }
             for (index,path) in paths.enumerated() {
                 print("TUN_QA_BEGIN_CYCLE_\(index+1)"); fflush(stdout)
-                let result = await tunCycle(config:config,port:port,path:path,lifecycle:&lifecycle)
+                let kind = dual ? ["udp4","udp6","tcp6"][index] : "tcp4"
+                let result = await tunCycle(config:config,port:port,path:path,lifecycle:&lifecycle,probeKind:kind)
+                if dual { print("TUN_QA_DUAL_"+kind+"_"+String(result)); fflush(stdout) }
                 if repeated {
                     guard result, lifecycle.phase == .stopped, lifecycle.generation == UInt64(index+1) else { fail("CYCLE_RECEIPT") }
                     try? await Task.sleep(nanoseconds:400_000_000)

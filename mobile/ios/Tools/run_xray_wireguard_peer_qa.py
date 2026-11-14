@@ -21,7 +21,7 @@ TARGET = "198.51.100.77"
 def wgkey(raw):
     return base64.b64encode(base64.urlsafe_b64decode(raw+"=")).decode()
 
-def run(sim,binary,host_server,root,reference=False):
+def run(sim,binary,host_server,root,reference=False,dual=False):
     for port in (SERVER,WITNESS,CLIENT):
         check_port_free(port)
     with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as check:
@@ -32,14 +32,19 @@ def run(sim,binary,host_server,root,reference=False):
     psk=base64.b64encode(secrets.token_bytes(32)).decode()
     bad_psk=base64.b64encode(secrets.token_bytes(32)).decode()
     cases=[(n,"/"+secrets.token_hex(20)) for n in ("valid","bad_key","bad_psk","stopped")]
+    if dual:
+        cases=[(name, ["/"+secrets.token_hex(20) for _ in range(3)]) for name,_ in cases]
     seen=[]
+    udp_seen=[]
+    http_paths={paths[2] for _,paths in cases} if dual else set(dict(cases).values())
+    udp_paths={path for _,paths in cases for path in paths[:2]} if dual else set()
     counts=Counter()
     lock=threading.Lock()
     stop=threading.Event()
 
     class Witness(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
-            if self.path not in dict(cases).values():
+            if self.path not in http_paths:
                 self.send_error(404)
                 return
             with lock:
@@ -94,6 +99,9 @@ def run(sim,binary,host_server,root,reference=False):
         server = {"private":base64.b64decode(private).hex(),
                   "peer":base64.b64decode(client_public).hex(),
                   "psk":base64.b64decode(psk).hex()}
+    if dual:
+        if not reference: raise ValueError("dual requires reference")
+        server["dual"]=True
     cfg=root/"server.json"
     cfg.write_text(json.dumps(server))
     witness=http.server.ThreadingHTTPServer((HOST,WITNESS),Witness)
@@ -101,6 +109,27 @@ def run(sim,binary,host_server,root,reference=False):
     udp=threading.Thread(target=forward,daemon=True)
     worker.start()
     udp.start()
+    udp_witness=None
+    if dual:
+        udp_witness=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        udp_witness.bind((HOST,WITNESS))
+        udp_witness.settimeout(.1)
+        def echo():
+            while not stop.is_set():
+                try:
+                    data,src=udp_witness.recvfrom(128)
+                except socket.timeout:
+                    continue
+                if len(data)!=48 or not data.startswith(b"APL_UDP:"):
+                    continue
+                path="/"+data[8:].decode("ascii",errors="replace")
+                if path not in udp_paths:
+                    continue
+                with lock:
+                    udp_seen.append(path)
+                udp_witness.sendto(b"APL_RECEIPT:"+data[8:],src)
+        echo_thread=threading.Thread(target=echo,daemon=True)
+        echo_thread.start()
     proc=None
     try:
         log=root/"server.log"
@@ -122,12 +151,33 @@ def run(sim,binary,host_server,root,reference=False):
                 "[Peer]\nPublicKey = "+(wrong_public if name=="bad_key" else public)+
                 "\nPresharedKey = "+(bad_psk if name=="bad_psk" else psk)+
                 f"\nEndpoint = {HOST}:{RELAY}\nAllowedIPs = {TARGET}/32\n")
-            Path(str(fixture)+".path").write_text(path)
+            if dual:
+                text=fixture.read_text().replace("Address = 10.77.0.2/32","Address = 10.77.0.2/32, 2001:db8:77::2/128")
+                text=text.replace(f"AllowedIPs = {TARGET}/32",f"AllowedIPs = {TARGET}/32, 2001:db8:77::77/128")
+                fixture.write_text(text)
+            Path(str(fixture)+".path").write_text("\n".join(path) if dual else path)
             with lock:
                 before=counts.copy()
-            result=subprocess.run(["xcrun","simctl","spawn",sim,str(binary),"wg-tun",str(fixture),str(CLIENT)],
-                stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=25)
+            result=subprocess.run(["xcrun","simctl","spawn",sim,str(binary),"wg-dual" if dual else "wg-tun",str(fixture),str(CLIENT)],
+                stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=40 if dual else 25)
             markers=[line for line in result.stdout.splitlines() if line.startswith(("TUN_QA_","PEER_QA_"))]
+            if dual:
+                expected=name=="valid"
+                with lock:
+                    received=[udp_seen.count(path[0]),udp_seen.count(path[1]),seen.count(path[2])]
+                    diff=counts-before
+                correct=all(markers.count("TUN_QA_DUAL_"+kind+"_"+str(expected).lower())==1 for kind in ("udp4","udp6","tcp6"))
+                lifecycle=(markers.count("TUN_QA_RUST_EXIT_0")==3 and
+                    markers.count("TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED")==3 and
+                    markers.count("TUN_QA_XRAY_STOP_COMPLETE")==3 and
+                    "PEER_QA_STOPPED_wg-dual" in markers and
+                    "TUN_QA_UDP_INJECTED_4" in markers and "TUN_QA_UDP_INJECTED_6" in markers and
+                    "TUN_QA_SYNACK" in markers)
+                print(f"WG_DUAL_{name}_RC_{result.returncode}_WITNESS_{received}_INIT_{diff['c2s',1]}_REPLY_{diff['s2c',2]}_DATA_{diff['c2s',4]}/{diff['s2c',4]}",flush=True)
+                if result.returncode!=0 or not correct or not lifecycle or received!=[int(expected)]*3 or diff["c2s",1]<1 or (expected and not all(diff[k] for k in (("s2c",2),("c2s",4),("s2c",4)))):
+                    print("\n".join(markers),flush=True)
+                    raise RuntimeError("WG dual acceptance failed: "+name)
+                continue
             expected=name=="valid"
             ok="TUN_QA_RECEIPT_true" in markers
             with lock:
@@ -139,6 +189,11 @@ def run(sim,binary,host_server,root,reference=False):
                 or (expected and not all(diff[k] for k in (("s2c",2),("c2s",4),("s2c",4))))):
                 print("\n".join(markers),flush=True)
                 raise RuntimeError("WG acceptance failed: "+name)
+        if dual:
+            if sorted(udp_seen)!=sorted(cases[0][1][:2]) or seen!=[cases[0][1][2]]:
+                raise RuntimeError("unexpected dual witness receipts")
+            print("APL_WG_REFERENCE_DUAL_APP_UDP4_UDP6_TCP6_12_PROBES_PASS",flush=True)
+            return
         if seen!=[cases[0][1]]:
             raise RuntimeError("Unexpected witness receipts")
         print(("APL_WG_REFERENCE" if reference else "APL_WG_REAL") + "_UDP_HANDSHAKE_TUN_4_CASES_PASS",flush=True)
@@ -153,6 +208,9 @@ def run(sim,binary,host_server,root,reference=False):
         stop.set()
         udp.join(timeout=1)
         relay.close()
+        if udp_witness is not None:
+            echo_thread.join(timeout=1)
+            udp_witness.close()
         witness.shutdown()
         witness.server_close()
         worker.join(timeout=1)
@@ -163,7 +221,8 @@ if __name__=="__main__":
     parser.add_argument("--binary",required=True,type=Path)
     parser.add_argument("--host-server",required=True,type=Path)
     parser.add_argument("--reference",action="store_true")
+    parser.add_argument("--dual",action="store_true")
     args=parser.parse_args()
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-xray-wg-") as tmp:
-        run(args.simulator,args.binary.resolve(),args.host_server.resolve(),Path(tmp),reference=args.reference)
+        run(args.simulator,args.binary.resolve(),args.host_server.resolve(),Path(tmp),reference=args.reference,dual=args.dual)
