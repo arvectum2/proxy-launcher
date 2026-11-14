@@ -21,7 +21,7 @@ TARGET = "198.51.100.77"
 def wgkey(raw):
     return base64.b64encode(base64.urlsafe_b64decode(raw+"=")).decode()
 
-def run(sim,binary,host_server,root):
+def run(sim,binary,host_server,root,reference=False):
     for port in (SERVER,WITNESS,CLIENT):
         check_port_free(port)
     with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as check:
@@ -89,6 +89,11 @@ def run(sim,binary,host_server,root):
         "routing":{"domainStrategy":"AsIs","rules":[{"type":"field","inboundTag":["wg-in"],
           "ip":[TARGET+"/32"],"port":str(WITNESS),"network":"tcp","outboundTag":"receipt"}]}
     }
+    if reference:
+        # Separate official wireguard-go peer accepts the same ephemeral keys.
+        server = {"private":base64.b64decode(private).hex(),
+                  "peer":base64.b64decode(client_public).hex(),
+                  "psk":base64.b64decode(psk).hex()}
     cfg=root/"server.json"
     cfg.write_text(json.dumps(server))
     witness=http.server.ThreadingHTTPServer((HOST,WITNESS),Witness)
@@ -136,7 +141,7 @@ def run(sim,binary,host_server,root):
                 raise RuntimeError("WG acceptance failed: "+name)
         if seen!=[cases[0][1]]:
             raise RuntimeError("Unexpected witness receipts")
-        print("APL_WG_REAL_UDP_HANDSHAKE_TUN_4_CASES_PASS",flush=True)
+        print(("APL_WG_REFERENCE" if reference else "APL_WG_REAL") + "_UDP_HANDSHAKE_TUN_4_CASES_PASS",flush=True)
     finally:
         if proc is not None and proc.poll() is None:
             Path(str(cfg)+".stop").touch()
@@ -157,7 +162,8 @@ if __name__=="__main__":
     parser.add_argument("--simulator",required=True)
     parser.add_argument("--binary",required=True,type=Path)
     parser.add_argument("--host-server",required=True,type=Path)
+    parser.add_argument("--reference",action="store_true")
     args=parser.parse_args()
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-xray-wg-") as tmp:
-        run(args.simulator,args.binary.resolve(),args.host_server.resolve(),Path(tmp))
+        run(args.simulator,args.binary.resolve(),args.host_server.resolve(),Path(tmp),reference=args.reference)
