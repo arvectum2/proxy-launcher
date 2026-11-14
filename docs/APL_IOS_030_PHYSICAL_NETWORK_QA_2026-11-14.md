@@ -31,3 +31,71 @@ Date: **14 November 2026, 04:26–04:31 Moscow**. Explicit owner authorization w
 - [ ] DNS authoritative underlay leak proof, UDP witness from actual iPhone, QUIC UDP/443, Wi-Fi/LTE transition, post-test signed OFF and profiles parity.
 
 **Do not mark physical DNS/UDP/QUIC or Wi-Fi/LTE accepted.** This stage caused no VPN activation and did not modify owner profiles.
+
+## Resumed following physical unlock — 09:20–09:27 MSK
+
+The owner unlocked the handset. The prebuilt signed tests ran successfully.
+Before any VPN activation and independently after EACH active run, the
+signed read-only tests confirmed NetworkExtension OFF and all three
+authenticated Keychain records accessible. Protected local per-key SHA-256
+comparison proved original profiles.v1, selected profile and organization
+unchanged. No raw preference file retained.
+
+### Real hardware results
+
+| Test | Result | Limit |
+| --- | --- | --- |
+| VirtualDNS synthetic address diagnosis | PASS 2.010s | Both direct name controls resolve normally; in tunnel both return one synthetic IPv4 answer. Not an authoritative leak proof. |
+| Disposable same-LAN global IPv6 UDP echo | **FAIL 2.206s** | Direct control 2/2, proxy HTTPS receipt confirmed; actual UDP reply while active, independent witness echoed=4 not 3; post-OFF direct restored. Witness sits on same local IPv6 subnet, NOT an off-link internet echo host. |
+| Numeric off-link IPv6 DNS/QUIC + USB RVI | PASS 6.122s | Independent filtered packet counts below; public off-link destination only, not arbitrary UDP or all DNS paths. |
+| Interface-bound physical IPv6 TLS Wi-Fi → cellular → Wi-Fi | PASS 0.751s | All three independently selected NWConnection interfaces produce validated TLS/HTTP200, with VPN OFF; no global Wi-Fi toggle, no active handoff. |
+| Final read-only NE/Keychain and fingerprints | PASS 2/2 | VPN OFF, 3/3 credential access, exact profiles/selection/organization parity. |
+
+Actual installed NE route-policy booleans read from the signed app:
+**includeAllNetworks=false, excludeLocalNetworks=true, enforceRoutes=false**.
+This is consistent with the observed same-LAN UDP bypass; the local witness
+does NOT establish an external UDP leak. Do not change the production route
+policy without deciding whether LAN access should remain supported and
+hardware-testing explicit exclusions/proxy reachability. We did not modify
+any of these settings.
+
+### Off-link independent RVI receipt
+
+Genuine Network.framework QUIC h3 handshake and DNS UDP AAAA query sent
+to off-link Cloudflare numeric IPv6 2606:4700:4700::1111 during exactly
+three bounded phases. RVI BPF filters only that destination and UDP
+destination ports 53/443. No payload logged or retained. Capture had 24
+packets, zero kernel drops; raw header capture removed after counts.
+
+| Port | Global source BEFORE | Global source DURING | Global source AFTER | Non-global DURING |
+| --- | ---: | ---: | ---: | ---: |
+| DNS 53 | 1 | 0 | 1 | 1 |
+| QUIC 443 | 5 | 0 | 6 | 6 |
+
+HTTPS through the disposable exclusive HTTP upstream independently proved
+active real PacketTunnel. DNS returned a response (possibly VirtualDNS),
+QUIC handshake failed while HTTP-only VPN active and succeeded before
+and after. Independent receipt **BOUNDED_OFFLINK_PHYSICAL_UDP_NOT_OBSERVED**.
+This is evidence for these two probes, not universal DNS/UDP/QUIC leak
+protection. Sources with the TUN's non-global address are counted
+separately. Generic off-link UDP echo against an independently hosted
+server on a different subnet remains an acceptance gate.
+
+Added explicitly opted-in physical XCTest helpers and standard-library
+RVI receipt analyzer (five deterministic source-independent synthetic
+cases). Signed iPhoneOS test builds PASS; Python366+5 = 371 tests
++1527 subtests PASS, Swift250/250 PASS. No production networking code
+changed. Disposable processes, listener sockets and RVI removed.
+
+### Remaining physical acceptance gates
+
+- Decide LAN policy: preserve explicit local-network accessibility, or
+  implement separately validated strict routing (including upstream
+  proxy route and intentional bypass rules). Report the local UDP result
+  as measured, not a pass. No configuration changed silently.
+- Real Wi-Fi→cellular→Wi-Fi under **active** VPN requires a supervised
+  system radio transition and operator recovery; current bound-socket
+  Wi-Fi/cellular test does not satisfy that gate.
+- Independent off-link general UDP witness; full DNS coverage; native
+  protocol hardware QA, CloudKit live two-device, and user-data backup.
+- Do not merge/publish without owner-specific approval.
