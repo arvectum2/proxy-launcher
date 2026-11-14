@@ -158,3 +158,7 @@ if appropriate, confirm owner parity, Keychain3 and APL OFF. Initial
 diagnostic candidate's two no-witness events remain unresolved; do
 not promote patch before stable physical acceptance. No AWG new
 signing IDs, production release or account changes.
+
+## 22:25–22:27 MSK — owner-authorized supervised attempt
+
+14.11 22:27 MSK: Mirroring connected, owner authorized normal UI disconnect completed, no active extension, isolated signed clean host/NE verified and installed, prepare-only launched. Allow on Mirroring triggered OS Mac login authentication. No test tunnel or peer started. Canceled, owned cleanup confirmed, lab uninstalled, production APL restored via normal UI to Netherlands 2 Connected; owner profiles/selection/organization hashes identical before/after. Await supervised direct iPhone VPN Allow or locally authenticated Mirroring. No clean physical case executed; no egress or Keychain acceptance claimed for this session.
