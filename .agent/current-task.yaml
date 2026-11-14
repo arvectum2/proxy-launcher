@@ -113,7 +113,7 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "23d64ccf99252b5c371595525a4cdc388d2c90a1 (base PR382 verified CI Mobile iOS success; current physical preflight docs+checkpoint pending commit; signed iPhoneOS QA build-for-testing PASS; real device test blocked by physical lock)"
+last_verified_commit: "526eb7a87530368bc94ee4596418941a46c7f14e (physical lock block, signed QA build-for-testing PASS, original AppGroup byte-preservation PASS, Mac mini UDP echo local2/2, 0 physical VPN tests run)"
 test_results:
   - "14.11 04:26–04:31: physical Xcode XCTests 0 executed (device locked); signed Debug iPhoneOS QA build-for-testing PASS; protected AppGroup preferences byte-identical before/after lock-blocked attempt; local IPv6 UDP witness echo2/2 and terminated; no real VPN activation; DNS/UDP/QUIC/Wi-Fi-LTE NOT ACCEPTED."
   - "14.11 Fresh disposable simulator iOS27 full Files .aplbackup UI 1/1 XCTest PASS 49.935s, 0 skip; one 518-byte encrypted backup from 0-file baseline, same-file import and duplicate count0; previous used-sim 1/1 PASS35.134s, Browse diagnostic 1/1 PASS33.504s; full Swift250, Python366+1527 subtests and source unittest4 PASS."
