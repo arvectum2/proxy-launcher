@@ -37,6 +37,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     @Published private(set) var busy = false
     private var manager: NETunnelProviderManager?
     private var automated = false
+    private var nativeControlQA = false
+    private var nativeControl: NativeControlLabHost?
     private var runID: String?
     private var transport = "vless"
     private var probeKind = "tcp4"
@@ -62,7 +64,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         let input = documents.appendingPathComponent("native-lab-input.json")
         let output = documents.appendingPathComponent("native-lab-result.json")
         try? FileManager.default.removeItem(at:output)
-        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int?; let transport:String?; let probeKind:String? }
+        struct Input: Decodable { let fixture:String; let nonce:String; let runID:String; let retainProfile:Bool?; let exitChallenge:Int?; let transport:String?; let probeKind:String?; let nativeControlQA:Bool? }
         guard let raw=try? Data(contentsOf:input),raw.count<=4096,
               let request=try? JSONDecoder().decode(Input.self,from:raw),
               UUID(uuidString:request.runID) != nil else { return }
@@ -82,6 +84,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         probeKind=request.probeKind ?? "tcp4"
         guard (transport == "vless" && probeKind == "tcp4") ||
             (transport == "wg-dual" && ["tcp4","tcp6","udp4","udp6"].contains(probeKind)) else {return}
+        nativeControlQA = request.nativeControlQA == true
+        guard !nativeControlQA || request.exitChallenge == nil else {return}
         exitChallenge=request.exitChallenge
         fixture=request.fixture;nonce=request.nonce
         if request.fixture != "cleanup-only" { await startExplicitly() }
@@ -128,6 +132,8 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                 }
             }
         }
+        var nativeAccepted = false
+        if let nativeControl { nativeAccepted = await nativeControl.finish() }
         stage("cleanupBegin")
         if request.retainProfile == true && request.fixture != "cleanup-only" {
             await stopKeepingProfile()
@@ -135,9 +141,13 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         stage("cleanupEnd")
         let retained=status == "Owned lab profile retained; VPN OFF"
         let cleaned=status == "Owned lab profile removed" || status == "No owned lab manager"
-        let result:[String:Any]=["runID":request.runID,"connected":connected,
+        var result:[String:Any]=["runID":request.runID,"connected":connected,
                                 "receipt":receipt,"cleaned":cleaned,"retainedOff":retained,
                                 "nativeExitConfirmed":nativeExitConfirmed,"probeCode":probeCode,"counters":counters]
+        if nativeControlQA {
+            result["nativeControlAccepted"] = nativeAccepted
+            if let nativeControl { for (key,value) in nativeControl.report { result[key] = value } }
+        }
         if let data=try? JSONSerialization.data(withJSONObject:result) {
             try? data.write(to:output,options:.atomic)
         }
@@ -230,7 +240,11 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
                 "aplLabTransport":transport as NSString
             ]
             if let exitChallenge {options["aplLabExitChallenge"]=NSNumber(value:exitChallenge)}
-            try item.connection.startVPNTunnel(options:options)
+            if nativeControlQA {
+                let native = try NativeControlLabHost(manager:item, transport:transport == "wg-dual" ? .wireGuard : .vlessReality, options:options, externalQuiescenceConfirmed:true)
+                nativeControl = native
+                try await native.start()
+            } else { try item.connection.startVPNTunnel(options:options) }
             stage("startTunnelReturned")
             status = "Start requested; awaiting iOS"
             // Actual .connected is distinct from startVPNTunnel returning.

@@ -82,6 +82,8 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
                 return
             }
             var announced = false
+            var sawStarting = false
+            let startGrace = DispatchTime.now().uptimeNanoseconds + 1_000_000_000
             while stillOwns(session,id) {
                 switch endpoint.status {
                 case .connected:
@@ -97,7 +99,11 @@ enum NativeControlOSStatus { case off, starting, connected, stopping, unknown }
                         }
                     } else if response.state != .starting || announced { throw TransportAdapterError.unreconciled }
                 case .starting:
+                    sawStarting = true
                     if announced { throw TransportAdapterError.unreconciled }
+                case .off where !announced && !sawStarting && DispatchTime.now().uptimeNanoseconds < startGrace:
+                    // OS may publish connecting asynchronously after start returns.
+                    break
                 default: throw TransportAdapterError.unreconciled
                 }
                 try await Task.sleep(nanoseconds: 250_000_000)

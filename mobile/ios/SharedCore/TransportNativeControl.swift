@@ -24,7 +24,7 @@ struct TransportNativeRequest: Codable, Equatable {
 }
 
 struct TransportNativeResponse: Codable, Equatable {
-    enum State: String, Codable { case starting, ready, draining, drained, failed }
+    enum State: String, Codable { case starting, ready, draining, drained, failed, rejected }
     let version: Int
     let id: UUID
     let identity: TransportNativeIdentity
@@ -72,6 +72,11 @@ struct TransportNativeControlState {
         state = .drained
     }
     mutating func fail() { state = .failed }
+    // Explicit non-readiness rejection. Never infer a live identity from the query.
+    func rejection(to request: TransportNativeRequest) -> TransportNativeResponse? {
+        guard let identity, request.valid, request.identity != identity else { return nil }
+        return .init(request: request, state: .rejected)
+    }
     func response(to request: TransportNativeRequest) throws -> TransportNativeResponse {
         guard request.valid, request.identity == identity else { throw TransportNativeControlError.staleSession }
         return TransportNativeResponse(request: request, state: state)

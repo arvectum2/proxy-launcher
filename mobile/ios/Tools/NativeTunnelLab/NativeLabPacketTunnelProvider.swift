@@ -148,8 +148,9 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
 
     override func handleAppMessage(_ messageData:Data, completionHandler: ((Data?) -> Void)?) {
         Task { @MainActor in
-            if let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData),
-               (try? control.response(to: request)) != nil {
+            if let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData) {
+                if let rejected = control.rejection(to: request) { completionHandler?(try? TransportNativeCodec.encode(rejected)); return }
+                guard (try? control.response(to: request)) != nil else { completionHandler?(nil); return }
                 if request.action == .drain, control.state == .ready, !retired, !stopping {
                     retired = true
                     try? control.beginDrain()

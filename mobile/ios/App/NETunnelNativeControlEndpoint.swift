@@ -3,9 +3,9 @@ import NetworkExtension
 
 private final class NativeMessageCompletion: @unchecked Sendable {
     private let lock = NSLock()
-    private var continuation: CheckedContinuation<Data, Error>?
-    init(_ continuation: CheckedContinuation<Data, Error>) { self.continuation = continuation }
-    func finish(_ result: Result<Data, Error>) {
+    private var continuation: CheckedContinuation<Data?, Error>?
+    init(_ continuation: CheckedContinuation<Data?, Error>) { self.continuation = continuation }
+    func finish(_ result: Result<Data?, Error>) {
         lock.lock(); let c = continuation; continuation = nil; lock.unlock()
         c?.resume(with: result)
     }
@@ -55,26 +55,32 @@ private final class NativeMessageCompletion: @unchecked Sendable {
         values["aplNativeIdentity"] = try TransportNativeCodec.encode(identity) as NSData
         try connection.startTunnel(options: values)
     }
-    func exchange(_ request: TransportNativeRequest) async throws -> TransportNativeResponse {
+    private func message(_ request: TransportNativeRequest) async throws -> Data? {
         guard owned, status == .connected,
               request.identity.provider == (provider == .rustXray ? "rust-xray" : "standalone-awg") else { throw TransportAdapterError.unreconciled }
         let message = try TransportNativeCodec.encode(request)
-        let response: Data = try await withCheckedThrowingContinuation { continuation in
+        let response: Data? = try await withCheckedThrowingContinuation { continuation in
             let gate = NativeMessageCompletion(continuation)
             do {
-                try connection.sendProviderMessage(message) { data in
-                    if let data { gate.finish(.success(data)) }
-                    else { gate.finish(.failure(TransportAdapterError.unreconciled)) }
-                }
+                try connection.sendProviderMessage(message) { data in gate.finish(.success(data)) }
             } catch { gate.finish(.failure(error)) }
             DispatchQueue.global().asyncAfter(deadline: .now() + 6) {
                 gate.finish(.failure(TransportAdapterError.unreconciled))
             }
         }
-        guard owned else { throw TransportAdapterError.unreconciled }
+        guard owned, status == .connected else { throw TransportAdapterError.unreconciled }
+        return response
+    }
+    func exchange(_ request: TransportNativeRequest) async throws -> TransportNativeResponse {
+        guard let response = try await message(request) else { throw TransportAdapterError.unreconciled }
         let value = try TransportNativeCodec.decode(TransportNativeResponse.self,response)
         guard value.matches(request) else { throw TransportAdapterError.unreconciled }
         return value
+    }
+    // Only a matching explicit provider rejection counts, not nil/timeout/OS failure.
+    func rejectsStaleObservation(_ request: TransportNativeRequest) async throws -> Bool {
+        guard request.action == .observe else { throw TransportAdapterError.unreconciled }
+        return try await exchange(request).state == .rejected
     }
     func stop() throws {
         guard owned else { throw TransportAdapterError.unreconciled }

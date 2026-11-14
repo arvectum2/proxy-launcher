@@ -13,10 +13,13 @@ from pathlib import Path
 import re
 import secrets
 import subprocess
+import sys
 import tempfile
 import time
 import uuid
 from run_preflight import keypair, LAB_IP
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from native_control_receipt import validate_native_control
 
 DEVICE = "00008110-001C51810A12401E"
 APP = "ru.arvectum.proxylauncher.lab.nativeqa"
@@ -94,7 +97,7 @@ def validate_receipt(item, counts, kind, mode):
         raise RuntimeError("No return transport")
 
 
-def case(root, peerbinary, client, kind, mode):
+def case(root, peerbinary, client, kind, mode, native_control=False):
     assert_off()
     client_private, client_public = keypair()
     server_private, server_public = keypair()
@@ -117,7 +120,7 @@ def case(root, peerbinary, client, kind, mode):
                     raise RuntimeError("Peer readiness failed")
                 time.sleep(.05)
             item = dispatch(root, {"action": "run", "keys": base64.b64encode(keys).decode(),
-                                   "localIPv4": int(client), "probe": kind, "nonce": nonce})
+                                   "localIPv4": int(client), "probe": kind, "nonce": nonce, "nativeControlQA": native_control})
         finally:
             stop.touch()
             try:
@@ -137,6 +140,9 @@ def case(root, peerbinary, client, kind, mode):
         raise RuntimeError("No independent witness")
     counts = tuple(map(int, m.groups()))
     validate_receipt(item, counts, kind, mode)
+    if native_control:
+        validate_native_control(item)
+        print("AWG_NATIVE_CONTROL_RECEIPTS_PASS", flush=True)
     assert_off()
     print("AWG_PHYSICAL_CASE", kind, mode, "WITNESS", counts, "PASS", flush=True)
 
@@ -149,6 +155,7 @@ def main():
     parser.add_argument("--peer", type=Path)
     parser.add_argument("--peer-sha256")
     parser.add_argument("--client-ip")
+    parser.add_argument("--native-control", action="store_true", help="One targeted TCP4 control test instead of repeating the accepted suite")
     args = parser.parse_args()
     if args.action == "suite":
         if not all((args.prepared_id, args.peer, args.peer_sha256, args.client_ip)):
@@ -180,14 +187,17 @@ def main():
         if not receipt or receipt.get("runID") != prepared_id or receipt.get("prepared") is not True or receipt.get("localIPv4") != int(client):
             raise RuntimeError("Explicit prepare-only receipt missing")
         try:
-            for kind in KINDS:
-                case(root, peer, client, kind, "positive")
-            for mode in ("wrong-key", "wrong-psk"):
-                case(root, peer, client, "tcp4", mode)
-                case(root, peer, client, "udp4", mode)
+            if args.native_control:
+                case(root, peer, client, "tcp4", "positive", native_control=True)
+            else:
+                for kind in KINDS:
+                    case(root, peer, client, kind, "positive")
+                for mode in ("wrong-key", "wrong-psk"):
+                    case(root, peer, client, "tcp4", mode)
+                    case(root, peer, client, "udp4", mode)
         finally:
             cleanup(root)
-        print("AWG_PHYSICAL_SUITE_PASS", flush=True)
+        print("AWG_PHYSICAL_NATIVE_CONTROL_PASS" if args.native_control else "AWG_PHYSICAL_SUITE_PASS", flush=True)
 
 
 if __name__ == "__main__":

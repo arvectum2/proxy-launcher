@@ -34,6 +34,10 @@ cp "$root/Tools/XrayWireGuardLabConfig.swift" "$work/Sources/"
 cp "$root/Tools/NativeTunnelLab/"*.swift "$work/Sources/"
 cp "$root/Tools/NativeTunnelLab/Host/NativeLabHost.swift" "$work/Host/"
 cp "$root/SharedCore/VLESSRealityShareLink.swift" "$root/SharedCore/ManagedProfileContract.swift" "$root/SharedCore/ProxyModel.swift" "$root/SharedCore/WGQuickConfigurationPreview.swift" "$root/Tools/XrayWireGuardLabConfig.swift" "$work/Host/"
+for name in TransportBackendContract TransportBackendAdapter TransportNativeControl OwnedNativeControlSlot; do
+    cp "$root/SharedCore/$name.swift" "$work/Host/"
+done
+cp "$root/App/NETunnelNativeControlEndpoint.swift" "$root/Tools/NativeControlLabHost.swift" "$work/Host/"
 # Only the future explicitly approved isolated signing will use these.
 cat >"$work/Lab.entitlements" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,6 +74,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.nativeqa
         SWIFT_VERSION: "5.9"
+        ENABLE_DEBUG_DYLIB: NO
         CODE_SIGN_ENTITLEMENTS: Lab.entitlements
         CODE_SIGNING_ALLOWED: NO
   NativeLab:
@@ -132,5 +137,11 @@ if [[ "$signed" == 1 ]]; then
     printf '%s\n' "$dest/NativeLabHost.app" > /tmp/apl-signed-native-lab-path
     echo ISOLATED_SIGNED_HOST_AND_EMBEDDED_NE_PASS
 else
+    if [[ -n "${APL_QA_UNSIGNED_EXPORT:-}" ]]; then
+        dest="$(cd "$APL_QA_UNSIGNED_EXPORT" && pwd)"
+        [[ ! -e "$dest/NativeLabHost.app" && -z "$(find "$host" -name '*.dylib' -print)" ]]
+        cp -R "$host" "$dest/"
+        (cd "$dest" && shasum -a 256 NativeLabHost.app/NativeLabHost NativeLabHost.app/PlugIns/NativeLab.appex/NativeLab > NATIVE-SHA256SUMS)
+    fi
     echo ISOLATED_UNSIGNED_HOST_AND_EMBEDDED_NE_BUILD_AND_NATIVE_LINK_PASS
 fi

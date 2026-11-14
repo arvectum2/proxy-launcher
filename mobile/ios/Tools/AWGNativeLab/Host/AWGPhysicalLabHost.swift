@@ -27,6 +27,7 @@ private final class AWGProbeOnce: @unchecked Sendable {
         let localIPv4: UInt32?
         let probe: String?
         let nonce: String?
+        let nativeControlQA: Bool?
     }
     private enum LabError: Error { case conflict, invalid }
     private func owned(_ manager: NETunnelProviderManager) -> Bool {
@@ -148,8 +149,14 @@ private final class AWGProbeOnce: @unchecked Sendable {
                 status = "Cleanup finished; verify receipt"
             case "run":
                 guard let keys = request.keys, keys.count == 96, let ip = request.localIPv4, ip == localWiFiIPv4(), ip >> 8 == 0xc0a801, (1...254).contains(ip & 255), let kind = request.probe, ["tcp4", "tcp6", "udp4", "udp6"].contains(kind), let nonce = request.nonce, nonce.utf8.count == 48, nonce.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }), let manager = try await profile(create: false), owned(manager), manager.isEnabled, !manager.isOnDemandEnabled, manager.connection.status == .disconnected else { throw LabError.invalid }
+                let options: [String: NSObject] = ["aplAWGFixture": "explicit-lan-lab-v1" as NSString, "aplAWGKeys": keys as NSData, "aplAWGLocalIPv4": NSNumber(value: ip)]
+                var native: NativeControlLabHost?
+                if request.nativeControlQA == true {
+                    native = try NativeControlLabHost(manager:manager, transport:.amneziaWG1, options:options, externalQuiescenceConfirmed:true)
+                }
                 do {
-                    try manager.connection.startVPNTunnel(options: ["aplAWGFixture": "explicit-lan-lab-v1" as NSString, "aplAWGKeys": keys as NSData, "aplAWGLocalIPv4": NSNumber(value: ip)])
+                    if let native { try await native.start() }
+                    else { try manager.connection.startVPNTunnel(options:options) }
                     for _ in 0..<100 {
                         if manager.connection.status == .connected { break }
                         try await Task.sleep(nanoseconds: 100_000_000)
@@ -158,6 +165,11 @@ private final class AWGProbeOnce: @unchecked Sendable {
                     result["connected"] = connected
                     if connected { let received = await probe(kind: kind, nonce: nonce); result["receipt"] = received && manager.connection.status == .connected }
                 } catch { status = "Start or probe failed" }
+                if let native {
+                    let accepted = await native.finish()
+                    result["nativeControlAccepted"] = accepted
+                    for (key,value) in native.report { result[key] = value }
+                }
                 result["retainedOff"] = await stop(manager, remove: false)
                 status = "Test finished; verify independent peer and OFF receipt"
             default: throw LabError.invalid

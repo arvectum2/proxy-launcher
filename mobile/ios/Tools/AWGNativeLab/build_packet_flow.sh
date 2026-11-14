@@ -24,6 +24,10 @@ cp "$root"/PacketTunnel/*.swift "$root/../../SharedCore/TransportNativeControl.s
 tar -xzf "$go_tar" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
 cp "$root"/Host/*.swift "$work/Host/"
+for name in TransportBackendContract TransportBackendAdapter TransportNativeControl OwnedNativeControlSlot WGQuickConfigurationPreview ManagedProfileContract ProxyModel; do
+    cp "$root/../../SharedCore/$name.swift" "$work/Host/"
+done
+cp "$root/../../App/NETunnelNativeControlEndpoint.swift" "$root/../../Tools/NativeControlLabHost.swift" "$work/Host/"
 cat > "$work/AWG.entitlements" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

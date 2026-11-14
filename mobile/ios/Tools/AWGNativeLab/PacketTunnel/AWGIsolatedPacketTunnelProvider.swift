@@ -87,7 +87,7 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
                     self.lifetime = Task { @MainActor [weak self] in
                         try? await Task.sleep(nanoseconds: 20_000_000_000)
                         guard !Task.isCancelled, let self, !self.retired else { return }
-                        self.retired = true
+                        self.retired = true; self.control.fail()
                         self.cancelTunnelWithError(self.failure(9))
                     }
                     if self.control.identity != nil { try? self.control.ready() }
@@ -100,8 +100,9 @@ final class AWGIsolatedPacketTunnelProvider: NEPacketTunnelProvider {
     // query cannot invent identity; a native close callback proves drain.
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
         Task { @MainActor in
-            guard let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData),
-                  (try? control.response(to: request)) != nil else { completionHandler?(nil); return }
+            guard let request = try? TransportNativeCodec.decode(TransportNativeRequest.self, messageData) else { completionHandler?(nil); return }
+            if let rejected = control.rejection(to: request) { completionHandler?(try? TransportNativeCodec.encode(rejected)); return }
+            guard (try? control.response(to: request)) != nil else { completionHandler?(nil); return }
             if request.action == .drain, control.state == .ready, !retired, let pump {
                 retired = true
                 lifetime?.cancel(); lifetime = nil

@@ -5,6 +5,7 @@ import ssl, socketserver, subprocess, sys, tempfile, threading, time, uuid
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from run_xray_vless_peer_qa import keypair, wait_for
+from native_control_receipt import validate_native_control
 
 DEVICE="00008110-001C51810A12401E"
 APP="ru.arvectum.proxylauncher.lab.nativeqa"
@@ -16,11 +17,12 @@ def ctl(*args, check=True, timeout=15):
 def prepare_only(root):
     # No server, keys, route, or connection request in permission-only phase.
     fixture=root/"native-lab-input.json"
-    fixture.write_text(json.dumps({"fixture":"prepare-only","nonce":"","runID":str(uuid.uuid4())}))
+    runid=str(uuid.uuid4())
+    fixture.write_text(json.dumps({"fixture":"prepare-only","nonce":"","runID":runid}))
     ctl("copy","to","--domain-type","appDataContainer","--domain-identifier",APP,
         "--source",str(fixture),"--destination","Documents/native-lab-input.json")
     ctl("process","launch","--terminate-existing",APP,"--","--apl-authorized-native-qa")
-    print("PHYSICAL_QA_PREPARE_ONLY_LAUNCHED",flush=True)
+    print("PHYSICAL_QA_PREPARE_ONLY_LAUNCHED",runid,flush=True)
     return 0
 
 def cleanup_only(root):
@@ -47,7 +49,23 @@ def cleanup_only(root):
     return 2
 
 
-def run(peer, root, preflight=False, mode="positive", retain=False):
+def assert_no_active_extension():
+    processes=subprocess.check_output(["xcrun","devicectl","device","info","processes","--device",DEVICE],text=True,timeout=15)
+    if any(x in processes for x in ("Arvectum Packet Tunnel","NativeLab.appex","AWGProvider.appex")):
+        raise RuntimeError("Live extension; abort")
+
+
+def verify_prepared(root, prepared_id):
+    assert_no_active_extension()
+    receipt=root/"prepare-receipt.json"
+    ctl("copy","from","--domain-type","appDataContainer","--domain-identifier",APP,"--source","Documents/native-lab-result.json","--destination",str(receipt))
+    item=json.loads(receipt.read_text())
+    if item.get("runID")!=prepared_id or item.get("prepared") is not True or item.get("connected") is not False:
+        raise RuntimeError("Explicit prepare-only receipt missing")
+
+
+def run(peer, root, preflight=False, mode="positive", retain=False, native_control=False, prepared_id=None):
+    if native_control: verify_prepared(root,prepared_id)
     private,public=keypair(); uid=str(uuid.uuid4());sid=secrets.token_hex(8)
     nonce=secrets.token_hex(20);runid=str(uuid.uuid4())
     preflight_nonces=[secrets.token_hex(20) for _ in range(2)]
@@ -167,6 +185,9 @@ def run(peer, root, preflight=False, mode="positive", retain=False):
         if preflight: return 0
         request=json.loads(fixture.read_text())
         request["retainProfile"]=retain
+        if native_control:
+            assert_no_active_extension()
+            request["nativeControlQA"]=True
         if mode=="wrong-key":
             _,bad_public=keypair()
             request["fixture"]=request["fixture"].replace("pbk="+public,"pbk="+bad_public)
@@ -191,6 +212,10 @@ def run(peer, root, preflight=False, mode="positive", retain=False):
                     else:
                         ok=result["connected"] and result["receipt"] and n==1 and len(seen)==3
                     if mode=="native-exit":ok=ok and result.get("nativeExitConfirmed") is True
+                    if native_control:
+                        try: validate_native_control(result); assert_no_active_extension()
+                        except RuntimeError: ok=False
+                        if ok and cleanup: print("XRAY_NATIVE_CONTROL_RECEIPTS_PASS",flush=True)
                     print("PHYSICAL_MODE",mode,"PASS" if ok and cleanup else "FAIL",flush=True)
                     return 0 if ok and cleanup else 1
                 resultpath.unlink()
@@ -211,8 +236,9 @@ def run(peer, root, preflight=False, mode="positive", retain=False):
         for server in (decoy,relay,witness):server.shutdown();server.server_close()
         print("PHYSICAL_QA_PEER_CLEANUP",flush=True)
 if __name__=="__main__":
-    p=argparse.ArgumentParser();p.add_argument("--approved",action="store_true");p.add_argument("--peer",type=Path);p.add_argument("--prepare-only",action="store_true");p.add_argument("--mode",choices=["positive","wrong-key","native-exit"],default="positive");p.add_argument("--retain-profile",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--cleanup-only",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("--approved",action="store_true");p.add_argument("--peer",type=Path);p.add_argument("--prepare-only",action="store_true");p.add_argument("--mode",choices=["positive","wrong-key","native-exit"],default="positive");p.add_argument("--retain-profile",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--cleanup-only",action="store_true");p.add_argument("--native-control",action="store_true");p.add_argument("--prepared-id");a=p.parse_args()
     if not a.approved or (not (a.cleanup_only or a.prepare_only) and a.peer is None):raise SystemExit(2)
+    if a.native_control and (a.mode!="positive" or a.retain_profile or a.preflight or a.cleanup_only or a.prepare_only or not a.prepared_id):p.error("native-control requires positive run, exact prepared-id and removal")
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-physical-native-fixture-") as d:
-        sys.exit(prepare_only(Path(d)) if a.prepare_only else cleanup_only(Path(d)) if a.cleanup_only else run(a.peer.resolve(),Path(d),preflight=a.preflight,mode=a.mode,retain=a.retain_profile))
+        sys.exit(prepare_only(Path(d)) if a.prepare_only else cleanup_only(Path(d)) if a.cleanup_only else run(a.peer.resolve(),Path(d),preflight=a.preflight,mode=a.mode,retain=a.retain_profile,native_control=a.native_control,prepared_id=a.prepared_id))
