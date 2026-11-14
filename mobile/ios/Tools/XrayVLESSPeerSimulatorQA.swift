@@ -2,6 +2,9 @@
 import Darwin
 import Foundation
 import LibXray
+#if APL_TUN_PAIR_QA && targetEnvironment(simulator)
+import tun2proxy
+#endif
 
 @main
 struct XrayVLESSPeerSimulatorQA {
@@ -54,16 +57,20 @@ struct XrayVLESSPeerSimulatorQA {
         return true
     }
 
+    private static func hasExited(_ semaphore: DispatchSemaphore) -> Bool {
+        semaphore.wait(timeout: .now()) == .success
+    }
+
     private static func fail(_ stage: String) -> Never {
         _ = invoke("stopXray")
         print("PEER_QA_FAILED_" + stage); exit(1)
     }
 
-    static func main() {
+    static func main() async {
 #if targetEnvironment(simulator) || os(macOS)
         let args = CommandLine.arguments
         guard args.count == 4,
-              ["server", "client"].contains(args[1]),
+              ["server", "client", "tun-client"].contains(args[1]),
               let port = UInt16(args[3]), (39879...39884).contains(port),
               closed(port),
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
@@ -94,12 +101,55 @@ struct XrayVLESSPeerSimulatorQA {
         } catch { fail("CONFIG") }
         guard invoke("testXray", config: config) != nil else { fail("TEST_XRAY") }
         guard invoke("runXray", config: config) != nil, running() == true else { fail("RUN") }
+#if APL_TUN_PAIR_QA && targetEnvironment(simulator)
+        if args[1] == "tun-client" {
+            let path = (try? String(contentsOfFile: args[2] + ".path", encoding: .utf8)) ?? ""
+            var fds: [Int32] = [-1,-1]
+            guard socketpair(AF_UNIX, SOCK_DGRAM, 0, &fds) == 0 else { fail("SOCKETPAIR") }
+            let rawFD = fds[0], injectionFD = fds[1]
+            let plan: XraySocksHandoffPlan
+            do {
+                plan = try XraySocksHandoffPlan.prepare(tunFD:Int(rawFD),socksPort:Int(port),dnsBypass:[])
+            } catch { fail("TUN_PLAN") }
+            let queue = DispatchQueue(label:"apl.qa.private.tun")
+            let exited = DispatchSemaphore(value:0)
+            let arguments = plan.tun2proxyArguments
+            queue.async {
+                let code = arguments.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
+                print("TUN_QA_RUST_EXIT_\(code)")
+                fflush(stdout)
+                exited.signal()
+            }
+            try? await Task.sleep(nanoseconds:250_000_000)
+            guard !hasExited(exited) else { fail("RUST_EARLY_EXIT") }
+            let result = XrayTunPacketQA.probe(fd:injectionFD,path:path)
+            guard !hasExited(exited) else { fail("RUST_UNSOLICITED_EXIT") }
+            do {
+                try await TunnelEngineHandoff.stopAndDrain(engineQueue:queue,timeout:5) {
+                    _ = tun2proxy_stop()
+                }
+            } catch { fail("RUST_DRAIN") }
+            guard hasExited(exited),
+                  fcntl(rawFD,F_GETFD) != -1 else { fail("RUST_DRAIN_OR_FD") }
+            close(rawFD); close(injectionFD)
+            print("TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED")
+            guard invoke("stopXray") != nil, running() == false, closed(port) else { fail("STOP_XRAY") }
+            var usage = rusage()
+            if getrusage(RUSAGE_SELF,&usage) == 0 {
+                print("TUN_QA_PEAK_RSS_BYTES_\(usage.ru_maxrss)")
+            }
+            print("TUN_QA_RECEIPT_\(result)")
+            print("PEER_QA_STOPPED_tun-client"); fflush(stdout)
+            return
+        }
+#endif
+        guard args[1] != "tun-client" else { fail("TUN_NOT_COMPILED") }
         print("PEER_QA_READY_" + args[1]); fflush(stdout)
         // Bounded lifetime even if host orchestration is interrupted.
         let deadline = DispatchTime.now() + .seconds(args[1] == "server" ? 75 : 18)
         while DispatchTime.now() < deadline &&
             !FileManager.default.fileExists(atPath: args[2] + ".stop") {
-            Thread.sleep(forTimeInterval: 0.05)
+            try? await Task.sleep(nanoseconds:50_000_000)
         }
         guard invoke("stopXray") != nil, running() == false, closed(port) else {
             fail("STOP")

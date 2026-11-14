@@ -51,7 +51,7 @@ def check_port_free(port):
         sock.bind((HOST, port))
 
 
-def run(sim, binary, host_server, directory):
+def run(sim, binary, host_server, directory, tun=False):
     for port in range(CLIENT_PORT, DECOY_PORT + 1):
         check_port_free(port)
     private, public = keypair()
@@ -102,6 +102,11 @@ def run(sim, binary, host_server, directory):
              "domain": ["full:" + RECEIPT_HOST], "port": str(WITNESS_PORT),
              "network": "tcp", "outboundTag": "receipt-only"}]}
     }
+    if tun:
+        # Synthetic TEST-NET-2 target only, never accessed on the underlay.
+        server_config["routing"]["rules"].append({
+            "type": "field", "inboundTag": ["qa-in"], "ip": ["198.51.100.77/32"],
+            "port": str(WITNESS_PORT), "network": "tcp", "outboundTag": "receipt-only"})
     config = directory / "server.json"
     config.write_text(json.dumps(server_config))
     cert, key = directory / "tls.crt", directory / "tls.key"
@@ -137,6 +142,30 @@ def run(sim, binary, host_server, directory):
                            f"&sni=example.com&fp=chrome&pbk={pub}&sid={sid}"
                            + ("&flow=xtls-rprx-vision" if vision else ""))
         path = nonce_paths[name]
+        if tun:
+            Path(str(fixture) + ".path").write_text(path)
+            result = subprocess.run(
+                ["xcrun", "simctl", "spawn", sim, str(binary), "tun-client",
+                 str(fixture), str(CLIENT_PORT)],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=25, text=True)
+            markers = [line for line in result.stdout.splitlines()
+                       if line.startswith(("TUN_QA_", "PEER_QA_"))]
+            for line in markers:
+                print(line, flush=True)
+            if (result.returncode != 0 or "TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED" not in markers
+                    or "TUN_QA_SYNACK" not in markers
+                    or markers.count("TUN_QA_RECEIPT_true") + markers.count("TUN_QA_RECEIPT_false") != 1
+                    or "TUN_QA_RUST_EXIT_0" not in markers
+                    or "PEER_QA_STOPPED_tun-client" not in markers):
+                raise RuntimeError("native TUN lifecycle failed: " + name)
+            ok = "TUN_QA_RECEIPT_true" in markers
+            with lock:
+                count = seen.count(path)
+            if ok != expected or count != int(expected):
+                raise RuntimeError(f"TUN probe {name}: response={ok} witness_count={count}")
+            print(f"APL_TUN_VLESS_{name.upper()}_RESPONSE_{ok}_WITNESS_{count}_PASS", flush=True)
+            check_port_free(CLIENT_PORT)
+            return
         with peer("client", fixture, CLIENT_PORT):
             result = subprocess.run(
                 ["curl", "--disable", "--noproxy", "", "--silent", "--show-error",
@@ -174,7 +203,7 @@ def run(sim, binary, host_server, directory):
         probe("stopped", ids[0], public, False, False)
         with lock:
             assert sorted(seen) == sorted([nonce_paths["no_vision"], nonce_paths["vision"]])
-        print("APL_VLESS_PEER_2_AUTHENTICATED_3_NEGATIVE_EXACT_WITNESSES_PASS", flush=True)
+        print(("APL_TUN_VLESS" if tun else "APL_VLESS_PEER") + "_2_AUTHENTICATED_3_NEGATIVE_EXACT_WITNESSES_PASS", flush=True)
     finally:
         decoy.terminate()
         decoy.wait(timeout=3)
@@ -188,7 +217,8 @@ if __name__ == "__main__":
     parser.add_argument("--simulator", required=True)
     parser.add_argument("--binary", required=True, type=Path)
     parser.add_argument("--host-server", required=True, type=Path)
+    parser.add_argument("--tun", action="store_true")
     args = parser.parse_args()
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-xray-peer-") as tmp:
-        run(args.simulator, args.binary.resolve(), args.host_server.resolve(), Path(tmp))
+        run(args.simulator, args.binary.resolve(), args.host_server.resolve(), Path(tmp), tun=args.tun)

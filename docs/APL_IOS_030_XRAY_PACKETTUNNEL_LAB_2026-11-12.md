@@ -137,3 +137,61 @@ on a new dedicated iOS27 Simulator, with production config logging none:
 all five scenarios PASS again; exactly two independent receipts,
 zero across the three negative cases. Exit 0. The runner removed its
 new simulator and private extraction directory; no listeners remain.
+
+## 14.11.2026 — Real Rust TUN-descriptor to authenticated VLESS peer
+
+Standalone ARM64 iOS27 Simulator linker includes the existing Rust
+tun2proxy static library and pinned libXray v26.11.9. The Rust archive
+used in this measured run has SHA256
+01b829b1bafaa1377eb0d7120725547d92280c55350b0e6d7463e562b824fe53.
+This is a digest of the installed artifact, not a new reproducible
+source build or a signed provenance attestation (the local version
+stamp is missing). The new runner checks that exact artifact before
+compiling. No app/extension build settings or system routes changed.
+
+XrayTunPacketQA injects IPv4/TCP packets into a private Unix datagram
+socketpair with Darwin four-byte AF_INET packet information, not a
+system utun or a NetworkExtension packetFlow. Synthetic source
+10.77.0.2 and TEST-NET-2 target 198.51.100.77:39883, TCP SYN,
+SYN-ACK, ACK, PSH+ACK, response and ACK/FIN. IPv4 and TCP checksums
+are calculated. No direct SOCKS greeting or curl on the client
+data path. The macOS server retains only an exact lab IP/port route
+or the preceding exact synthetic domain/port, and finalRules restrict
+the receipt outbound to the local independent HTTP witness.
+The real Rust CLI comes from XraySocksHandoffPlan, using local SOCKS,
+virtual DNS, packet information true, and caller-owned descriptor.
+The Rust engine runs on a serial blocking queue; actual
+TunnelEngineHandoff.stopAndDrain completes before the caller closes
+the descriptor and stops Xray. Unexpected Rust exit before planned
+stop fails the test. Each case uses a new isolated process.
+
+Measured 10:29 MSK, native execution exit 0:
+- Without Vision: exact nonce response, independent count 1.
+- With Vision: exact nonce response, independent count 1.
+- Wrong UUID, wrong REALITY key, stopped server: no exact response,
+  independent count 0 each. All five cases independently report
+  SYN-ACK, Rust return code 0, queue drained, caller-owned descriptor
+  still open before explicit close, Xray stopped and SOCKS port closed.
+- Peak Darwin ru_maxrss of the five isolated client processes:
+  66093056, 66617344, 65978368, 68780032, 64536576 bytes.
+  This is 61.5–65.6 MiB in this simulator, not a physical extension
+  memory limit, no leak trend from repeated processes, nor a
+  jetsam/NetworkExtension entitlement test.
+
+The new single-command mode is
+`PYTHON=python3.14 mobile/ios/Tools/run_xray_vless_config_simulator_qa.sh /path/to/libxray-apple-cgo.zip /path/to/pinned-go.mod com.apple.CoreSimulator.SimRuntime.iOS-27-0 --tun`.
+Requires the measured local Rust artifact and both pinned Apple slices.
+It creates and cleans its own simulator, keys, fixtures and listeners.
+This closes the synthetic original IP/TCP descriptor handoff gate.
+Still outstanding: actual signed NEPacketTunnelProvider original-flow
+integration, whole-device capture, unexpected process exit during
+active flow and repeated same-process cycles/resource regression on
+the real extension, external peer, physical device and legal gates.
+
+Fresh one-command --tun reproduction completed at 10:30 MSK:
+same five cases PASS; SYN-ACK and exact independent witness counts
+1/1/0/0/0; Rust exit 0, drain, caller descriptor close and stopped
+Xray on every case. Both native artifact digests verified. Peak RSS
+65503232/65830912/65748992/68288512/64372736 bytes. Runner exit 0,
+fresh simulator and temp files removed, no listeners remain.
+Focused VLESS inactive/handoff/provenance contract tests: 12 PASS.
