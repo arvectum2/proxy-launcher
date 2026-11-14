@@ -18,14 +18,15 @@ final class AWGPacketFlowPump: @unchecked Sendable {
         self.onFailure = onFailure
     }
 
-    func start(keys: Data, listen: UInt16, peer: UInt16,
+    func start(keys: Data, localIPv4: UInt32?, listen: UInt16, peer: UInt16,
                completion: @escaping (Bool) -> Void) {
         queue.async {
             guard !self.retired, self.token == 0, keys.count == 96 else { completion(false); return }
             var buffer = keys
             defer { buffer.resetBytes(in: 0..<buffer.count) }
             let generation = buffer.withUnsafeMutableBytes { raw in
-                aplAWGBridgeStart(0, listen, peer, raw.baseAddress, 96)
+                if let localIPv4 { return aplAWGBridgeStartLAN(localIPv4, raw.baseAddress, 96) }
+                return aplAWGBridgeStart(0, listen, peer, raw.baseAddress, 96)
             }
             guard generation != 0 else { self.retired = true; completion(false); return }
             self.token = generation

@@ -2,7 +2,12 @@
 # Build-only, separate unsigned NE; no registered bundle or device changes.
 set -euo pipefail
 umask 077
-[[ $# == 2 && "$(uname -m)" == arm64 ]]
+[[ ( $# == 2 || $# == 3 ) && "$(uname -m)" == arm64 ]]
+export_dir=""
+if [[ $# == 3 ]]; then
+  export_dir="$(cd "$3" && pwd)"
+  [[ ! -e "$export_dir/AWGCompileHost.app" ]]
+fi
 source_dir="$(cd "$1" && pwd)"
 go_tar="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 [[ "$(git -C "$source_dir" rev-parse HEAD)" == b5928efb6ca19f0153958460c3d141f04abc5c2e && -z "$(git -C "$source_dir" status --porcelain)" ]]
@@ -18,12 +23,12 @@ cp "$root"/*.go "$root"/go.mod "$root"/go.sum "$work/lab/"
 cp "$root"/PacketTunnel/*.swift "$work/Provider/"
 tar -xzf "$go_tar" -C "$work"
 export PATH="$work/go/bin:$PATH" GOTOOLCHAIN=local GOWORK=off
-cat > "$work/Host/Host.swift" <<'SWIFT'
-import SwiftUI
-@main struct AWGCompileHost: App {
-    var body: some Scene { WindowGroup { Text("Standalone AWG compile-only lab") } }
-}
-SWIFT
+cp "$root"/Host/*.swift "$work/Host/"
+cat > "$work/AWG.entitlements" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>com.apple.developer.networking.networkextension</key><array><string>packet-tunnel-provider</string></array></dict></plist>
+PLIST
 cat > "$work/project.yml" <<'YAML'
 name: APLIsolatedAWG
 options:
@@ -41,11 +46,13 @@ targets:
       path: HostInfo.plist
       properties:
         UILaunchScreen: {}
+        NSLocalNetworkUsageDescription: "Connect only to the fixed local synthetic AWG peer."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.awgcompile
         SWIFT_VERSION: "5.9"
         CODE_SIGNING_ALLOWED: NO
+        CODE_SIGN_ENTITLEMENTS: AWG.entitlements
   AWGProvider:
     type: app-extension
     platform: iOS
@@ -63,6 +70,7 @@ targets:
         APPLICATION_EXTENSION_API_ONLY: YES
         ENABLE_DEBUG_DYLIB: NO
         CODE_SIGNING_ALLOWED: NO
+        CODE_SIGN_ENTITLEMENTS: AWG.entitlements
         SWIFT_INCLUDE_PATHS: "$(PROJECT_DIR)/Lib"
         LIBRARY_SEARCH_PATHS: "$(PROJECT_DIR)/Lib"
         OTHER_LDFLAGS: "-lAWG -lresolv -framework Security -framework CoreFoundation -framework NetworkExtension"
@@ -85,7 +93,17 @@ for sdk in iphoneos iphonesimulator; do
   binary="$work/Build-$sdk/Build/Products/Debug-$sdk/AWGCompileHost.app/PlugIns/AWGProvider.appex/AWGProvider"
   test -f "$binary"
   xcrun nm "$binary" > "$work/symbols"
-  for sym in Start Push Pull Stop; do grep -Eq " [Tt] _aplAWGBridge${sym}$" "$work/symbols"; done
+  for sym in Start StartLAN Push Pull Stop; do grep -Eq " [Tt] _aplAWGBridge${sym}$" "$work/symbols"; done
   if grep -qE ' [Tt] _CGoInvoke$' "$work/symbols"; then echo unexpected-Xray; exit 1; fi
+  if [[ "$sdk" == iphoneos && -n "$export_dir" ]]; then
+    cp -R "$work/Build-$sdk/Build/Products/Debug-$sdk/AWGCompileHost.app" "$work/unsigned-device.app"
+  fi
   echo "AWG_PACKET_FLOW_BUILD_${sdk}_PASS"
 done
+
+if [[ -n "$export_dir" ]]; then
+  # Copy only after both platform builds verified; no signing or install.
+  cp -R "$work/unsigned-device.app" "$export_dir/AWGCompileHost.app"
+  (cd "$export_dir" && shasum -a 256 AWGCompileHost.app/AWGCompileHost AWGCompileHost.app/PlugIns/AWGProvider.appex/AWGProvider > AWG-SHA256SUMS)
+  echo AWG_UNSIGNED_ARTIFACT_EXPORTED
+fi

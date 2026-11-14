@@ -29,6 +29,20 @@ func aplAWGBridgeStart(role C.int, listen, remote C.uint16_t, keys unsafe.Pointe
 	return C.uint64_t(isolatedBridge.start(int(role), uint16(listen), uint16(remote), copyKeys))
 }
 
+// Explicit LAN-only fixture, local address encoded as network-order octets.
+//
+//export aplAWGBridgeStartLAN
+func aplAWGBridgeStartLAN(local C.uint32_t, keys unsafe.Pointer, size C.int) C.uint64_t {
+	if keys == nil || size != 96 {
+		return 0
+	}
+	ip := uint32(local)
+	addr := netip.AddrFrom4([4]byte{byte(ip >> 24), byte(ip >> 16), byte(ip >> 8), byte(ip)})
+	copyKeys := C.GoBytes(keys, size)
+	defer clear(copyKeys)
+	return C.uint64_t(isolatedBridge.startLAN(addr, copyKeys))
+}
+
 //export aplAWGBridgePush
 func aplAWGBridgePush(token C.uint64_t, input unsafe.Pointer, size C.int) C.int {
 	if input == nil || size < 20 || size > bridgeMTU {

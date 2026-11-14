@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "AWG fixed LAN separate process peer via pinned upstream AWG netstack, positive exact 4/4 TCP/UDP IPv4/IPv6, wrong key/PSK zero receipts, foreign source rejected each, actual bridge raw UDP4/UDP6 exact 2/2."
   - "14.11: bounded standalone AWG C ABI and packetFlow pump, exact bidirectional raw IPv4/IPv6 between two native loopback peers, queue/close/restart checks, unsigned separate iOS provider build/link for iPhoneOS+Simulator PASS."
   - "14.11 22:38: inactive OwnedTransportDispatcher, correct provider/session only, no overlapping slots, rejects stale start same epoch; contradictory current receipt fails closed. Four new tests and all Swift285 PASS."
   - "14.11 22:35 MSK: clean signed isolated WireGuard physical stability + VLESS regression 10/10 PASS on iPhone13. TCP4/TCP6 each exact witness1, UDP4/UDP6 three fresh pairs each exact witness1, wrong key handshake1/0 and data0/0 witness0, VLESS positive exact receipt and owned cleanup. Independent cleanup true, lab removed, production Netherlands 2 restored with tunnel process, owner three hashes unchanged. No new production linkage/release. Next verify CI and advance isolated production integration/AWG gates."
@@ -141,8 +142,9 @@ completed:
 
 
 
-current: "Standalone AWG packet bridge and unsigned separate PacketTunnel provider built. Native macOS and iOS simulator raw IPv4/IPv6 bridge receipt, stale generation, original correct/wrong-key/wrong-PSK tests PASS; both iPhoneOS and Simulator unsigned provider builds/link checks PASS. Production still inactive. Next independent AWG LAN peer and signed isolated physical application traffic; prepare concrete owned NE driver; release CI and policy gates remain."
+current: "AWG standalone fixed LAN peer and native bridge passed separate-process macOS TCP4/TCP6/UDP4/UDP6 and negative wrong-key/PSK, plus exact raw bridge UDP4/UDP6. Unsigned physical host+NE device/sim builds PASS and exported checksummed artifact. Eight-case physical harness + 3 offline receipt guard tests PASS; no actual physical AWG execution. Specific approval needed for two new development IDs and signing; then supervised VPN permission and restoration."
 blocked_on:
+  - "AWG physical independent application packetFlow, new isolated Apple development IDs/provisioning/signing need explicit owner approval; no signed AWG app, device install, configuration or VPN changes done."
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
   - "Old permission blocker resolved for WG session; remaining UDP stability/final artifact gates and fresh permission only for future hardware trial."
@@ -179,8 +181,9 @@ pending:
   - "Complete pinned native Xray VLESS/Reality + standard WG packet handoff, AmneziaWG backend provenance/licensing and signed real hardware QA."
   - "CloudKit private two-device opt-in and standalone encrypted backup acceptance."
   - "One public iOS 0.3.0 App Store release only after remaining acceptance gates, explicit approval; other platforms paused."
-last_verified_commit: "376d12801 plus AWG bridge/provider changes; macOS+sim native PASS, both unsigned NE builds PASS, Python50 PASS"
+last_verified_commit: "43aa3147c exact-head CI 7/7 PASS; current AWG LAN/unsigned physical source validated locally"
 test_results:
+  - "Reproducible peer build/preflight exit0, Go3 PASS, unsigned host+NE iPhoneOS/simulator builds exit0, SHA verification both peer and app binaries PASS; physical receipt guard unit3 PASS, active iOS preflight/Python50 PASS, unsigned artifact correctly rejected by signing verifier, no test ports retained. Previous head 43aa3147c CI7/7 PASS."
   - "AWG Go 3 tests PASS, pinned native macOS and fresh iOS simulator 4/4 each PASS, both unsigned NE builds PASS and no Xray symbol, Python active iOS 50/50 PASS. Runner delayed bootstatus eventually exit0; direct sim execution also exit0; new bounded bootstatus helper syntax PASS, not rerun end-to-end."
   - "Swift core 285/285, 0 failures; git diff --check PASS. New concrete OS/native driver and unsigned build CI not yet verified."
   - "14.11 22:35: clean physical sequence EXIT=0, WG9/9 + VLESS1/1, no retries, exact independent receipts; cleanup confirmed, isolated app absent, production tunnel running and owner profiles/selected/organization hashes unchanged; independent public egress and Keychain not retested."
@@ -270,4 +273,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Do not repeat accepted WG/VLESS physical 10/10 or AWG native bridge and unsigned provider builds. First verify exact-head PR383 CI. Continue AWG independent separate-process peer using fixed synthetic LAN endpoint and bounded bind, version-specific fixtures; prepare signed isolated provider only after explicit new signing ID/physical VPN permission. Actual PacketTunnel packetFlow TCP/UDP and native drain/cancellation receipts not yet accepted. Implement concrete owned NE slot driver after evidence. Preserve owner production VPN/profile data, no main/release changes without authorization. Prior AWG runner exit0 and flow build exit0 logs /tmp/apl-awg-packet-bridge-20261114/run.log and /tmp/apl-awg-flow-build-20261114/run.log."
+resume_instruction: "Do not repeat accepted WG/VLESS hardware or AWG LAN preflight/build. Verify exact-head PR383 CI. For AWG physical gate obtain explicit approval for isolated ru.arvectum.proxylauncher.lab.awgcompile and .PacketTunnel development IDs/provision/signing + temporary device QA; verify signed artifact with verify_signed_awg.py; use fixed actual phone LAN IPv4, only after production VPN OFF and restore plan, run prepare (permission only) then suite using exact prepared ID and verified peer SHA; eight fresh cases, cleanup and restore previous owner VPN, verify profile hashes. No signing before approval, no production replacement. If not approved continue safe concrete driver/other 0.3.0 gates. Artifacts native-artifacts/awg-peer-20261114 and awg-unsigned-20261114; logs /tmp/apl-awg-peer-verified-build-20261114/run.log and /tmp/apl-awg-lan-final-build-20261114/run.log."

@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/amnezia-vpn/amneziawg-go/v3/conn"
 	"github.com/amnezia-vpn/amneziawg-go/v3/device"
 	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
 	"math"
@@ -141,14 +142,14 @@ type bridgePeer struct {
 	bind *loop
 }
 
-func makeBridgePeer(role int, listen, remote uint16, keys []byte) (*bridgePeer, error) {
-	if (role != 0 && role != 1) || remote == 0 || listen == remote || len(keys) != 96 {
+func configuredBridgePeer(role int, listen uint16, endpoint string, keys []byte, binding conn.Bind) (*bridgePeer, error) {
+	if (role != 0 && role != 1) || len(keys) != 96 {
 		return nil, os.ErrInvalid
 	}
 	for i := 0; i < 96; i += 32 {
 		var sum byte
-		for _, b := range keys[i : i+32] {
-			sum |= b
+		for _, v := range keys[i : i+32] {
+			sum |= v
 		}
 		if sum == 0 {
 			return nil, os.ErrInvalid
@@ -156,18 +157,42 @@ func makeBridgePeer(role int, listen, remote uint16, keys []byte) (*bridgePeer, 
 	}
 	ip4 := []netip.Addr{netip.MustParseAddr("192.0.2.1"), netip.MustParseAddr("192.0.2.2")}
 	ip6 := []netip.Addr{netip.MustParseAddr("2001:db8::1"), netip.MustParseAddr("2001:db8::2")}
-	t, b := newPacketBridgeTUN(), &loop{}
-	d := device.NewDevice(t, b, device.NewLogger(device.LogLevelSilent, ""))
-	cfg := fixture + fmt.Sprintf("private_key=%s\nlisten_port=%d\nreplace_peers=true\npublic_key=%s\npreshared_key=%s\nreplace_allowed_ips=true\nallowed_ip=%s/32\nallowed_ip=%s/128\nendpoint=127.0.0.1:%d\n", hex.EncodeToString(keys[:32]), listen, hex.EncodeToString(keys[32:64]), hex.EncodeToString(keys[64:]), ip4[role^1], ip6[role^1], remote)
-	if err := d.IpcSet(cfg); err != nil {
+	t := newPacketBridgeTUN()
+	d := device.NewDevice(t, binding, device.NewLogger(device.LogLevelSilent, ""))
+	cfg := fixture + fmt.Sprintf("private_key=%s\nlisten_port=%d\nreplace_peers=true\npublic_key=%s\npreshared_key=%s\nreplace_allowed_ips=true\nallowed_ip=%s/32\nallowed_ip=%s/128\nendpoint=%s\n", hex.EncodeToString(keys[:32]), listen, hex.EncodeToString(keys[32:64]), hex.EncodeToString(keys[64:]), ip4[role^1], ip6[role^1], endpoint)
+	if d.IpcSet(cfg) != nil || d.Up() != nil {
 		d.Close()
 		return nil, os.ErrInvalid
 	}
-	if err := d.Up(); err != nil {
-		d.Close()
+	p := &bridgePeer{t: t, d: d}
+	if b, ok := binding.(*loop); ok {
+		p.bind = b
+	}
+	return p, nil
+}
+func makeBridgePeer(role int, listen, remote uint16, keys []byte) (*bridgePeer, error) {
+	if remote == 0 || listen == remote {
 		return nil, os.ErrInvalid
 	}
-	return &bridgePeer{t, d, b}, nil
+	return configuredBridgePeer(role, listen, fmt.Sprintf("127.0.0.1:%d", remote), keys, &loop{})
+}
+func (b *packetBridge) startLAN(local netip.Addr, keys []byte) uint64 {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.peer != nil || b.generation == math.MaxUint64 {
+		return 0
+	}
+	binding, e := newScopedBind(false, local)
+	if e != nil {
+		return 0
+	}
+	p, e := configuredBridgePeer(0, awgLabClientPort, binding.remote.String(), keys, binding)
+	if e != nil {
+		return 0
+	}
+	b.generation++
+	b.peer = p
+	return b.generation
 }
 
 type packetBridge struct {
@@ -221,6 +246,9 @@ func (b *packetBridge) port(token uint64) uint16 {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	if b.peer == nil || token != b.generation {
+		return 0
+	}
+	if b.peer.bind == nil {
 		return 0
 	}
 	return b.peer.bind.port()

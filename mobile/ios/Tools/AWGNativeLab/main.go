@@ -15,6 +15,7 @@ import (
 	"github.com/amnezia-vpn/amneziawg-go/v3/tun/tuntest"
 	"net"
 	"net/netip"
+	"os"
 	"sync"
 	"time"
 )
@@ -281,4 +282,8 @@ func aplAWGSelfTest(mode C.int) C.int {
 	}
 	return 0
 }
-func main() {}
+func main() {
+	if len(os.Args) == 3 && os.Args[1] == "--synthetic-lan-bridge-probe" {
+		os.Exit(runLANBridgeProbe(os.Args[2]))
+	}
+}
