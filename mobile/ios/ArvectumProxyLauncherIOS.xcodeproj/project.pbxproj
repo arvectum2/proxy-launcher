@@ -101,6 +101,7 @@
 		7A68C1DD46C3481D59AFA3CA /* XraySocksHandoffContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */; };
 		7B8644A11A5316798B2FCCD0 /* ProxySubscriptionImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */; };
 		7CA2A1D2E9816B25A1366445 /* SiteExclusionSaveUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996C5F83E8CEE3660D8ACF38 /* SiteExclusionSaveUX.swift */; };
+		7F4719FF2230E4AB11B168CC /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
@@ -149,6 +150,7 @@
 		B8B109ED98EC4BE9BE9100D4 /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
 		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		BCFAB992B54C9384E430D856 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
+		BE45212202FCE790A55643C7 /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
 		BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */; };
 		C10B751B12EE1CAD3DB5F3CA /* ProxyFilePickerCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A20123BC92431EFCA5FACD6 /* ProxyFilePickerCancellation.swift */; };
 		C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */; };
@@ -462,6 +464,7 @@
 		84AB32172A8CF755F8263AE1 /* ka */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ka; path = ka.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		84D5D2F89875F606C37AB587 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
 		85895C9DF378EA1E5EBE55AE /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XrayVLESSRuntimeConfig.swift; sourceTree = "<group>"; };
 		8694ECD0A5B7EEB361FA82D9 /* gu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = gu; path = gu.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		86AA4570BE61DDF8BE2ECFDD /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		8722833D0E497B6866D28263 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/QuickActions.strings"; sourceTree = "<group>"; };
@@ -867,6 +870,7 @@
 				BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */,
 				7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */,
 				7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */,
+				85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */,
 			);
 			path = SharedCore;
 			sourceTree = "<group>";
@@ -1205,6 +1209,7 @@
 				1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */,
 				E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */,
 				7A68C1DD46C3481D59AFA3CA /* XraySocksHandoffContract.swift in Sources */,
+				7F4719FF2230E4AB11B168CC /* XrayVLESSRuntimeConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1351,6 +1356,7 @@
 				41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */,
 				3092CE8477A30E68BC023E78 /* WGQuickConfigurationPreview.swift in Sources */,
 				B5B224D7711928993E922EC2 /* XraySocksHandoffContract.swift in Sources */,
+				BE45212202FCE790A55643C7 /* XrayVLESSRuntimeConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

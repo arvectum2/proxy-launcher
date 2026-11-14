@@ -21,3 +21,55 @@
 - `XrayDebugTunRunner` и `XrayNativeLabBridge.startBlackholeLocal/stopBlackholeLocal`: запустить localhost SOCKS blackhole → валидированный `XraySocksHandoffPlan` → Rust TUN runner на отдельной queue → остановить Rust и дождаться drain → остановить Xray; fail-closed для аварий/устаревшего generation.
 - Unsigned iOS Simulator/iPhoneOS ARM64 Debug App+PacketTunnel builds PASS; отдельный Swift CGo blackhole в iOS Simulator: четыре start/stop цикла, duplicate-start fail-closed и idempotent-stop PASS.
 - Внимание: `XrayDebugTunRunner` **не вызывается** действующим `PacketTunnelProvider`, original-flow/TUN outbound не доказан; никакого внешнего VPN или пользовательских Apple-операций. Для этой проверки нужен физический iPhone.
+
+## 14.11.2026 — Typed VLESS runtime configuration gate
+
+Added inactive `SharedCore/XrayVLESSRuntimeConfig.swift` on the integrated
+QA branch. It takes the validated `VLESSRealityShareLink` and the actual
+pinned converter response. It checks the candidate's endpoint, UUID,
+encryption, REALITY server name, fingerprint, public key, short ID and
+optional Vision flow; rejects multiple outbounds, supplied routing or
+listeners, unrecognized transport fields, invalid listener port and
+oversize response. It rebuilds a minimal JSON configuration in memory
+with a loopback-only SOCKS5 inlet, exactly one VLESS/REALITY RAW outbound,
+fixed routing tag, no freedom/DIRECT fallback, no UDP inlet, and logging
+disabled in the config. No persistence, activation or production runtime
+dependency. The zero-key preview remains available for old import tests,
+but cannot form a runtime configuration.
+
+### Measured evidence
+
+- Verified the cached upstream archive and go.mod again against the
+  fixed SHA256 pin (28 members, 60 declared Go modules). Freshly extracted
+  only the simulator library/header/module map into a private temp directory.
+- Built and ad-hoc signed the standalone synthetic Swift harness
+  `Tools/XrayVLESSConfigSimulatorQA.swift` against that exact library.
+  New, disposable ARM64 iPhone13 iOS27 Simulator (not the real phone).
+- Actual pinned CGo API v3 returned version 26.11.9. Two independently
+  generated ephemeral Curve25519 key/UUID fixtures, TCP/REALITY without
+  Vision and with xtls-rprx-vision, both used
+  `convertShareLinksToXrayJson -> strict validated config -> testXray ->
+  runXray -> running=true -> local SOCKS greeting [5,0] -> stopXray ->
+  running=false -> local port closed`.
+- **2/2 PASS**, native executable exit 0. Synthetic VLESS peer was
+  loopback port 39882 with no server listening. No real VLESS handshake,
+  remote egress, packet capture or WireGuard transport is claimed.
+- Swift Core **255/255 PASS**, including 5 new configuration tests;
+  iOS Python **373 + 1527 subtests PASS**. Unsigned generic iPhoneOS
+  Release App+PacketTunnel BUILD SUCCEEDED. Production project unchanged
+  except inclusion of inactive SharedCore file; confirmed no CGoInvoke,
+  CGoFree or lab symbols in release PacketTunnel, no LibXray asset in app.
+- Added standalone reproducible runner
+  `Tools/run_xray_vless_config_simulator_qa.sh` (bash syntax checked;
+  the compile/boot/spawn steps were executed individually in this run).
+  It requires explicit local pinned asset/go.mod and iOS Simulator runtime
+  ID, creates/removes only its own QA simulator/temp files.
+
+### Still not accepted
+
+Real authorized VLESS/REALITY peer and authenticated application-data
+receipt, isolated signed PacketTunnel traffic bridge and physical device
+memory/egress/stop-drain, support for actual WG transport, AWG provenance,
+full SBOM/licensing/reproducible source build. No native protocol added
+to production ProxyType, no libXray packaging or installation on real
+iPhone. No owner VPN, radio, profile or CloudKit mutation.
