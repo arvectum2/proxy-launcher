@@ -195,3 +195,79 @@ Xray on every case. Both native artifact digests verified. Peak RSS
 65503232/65830912/65748992/68288512/64372736 bytes. Runner exit 0,
 fresh simulator and temp files removed, no listeners remain.
 Focused VLESS inactive/handoff/provenance contract tests: 12 PASS.
+
+## 14.11.2026 — Restart regression: stale Rust artifact detected and rebuilt
+
+Six successive original TCP packet receipts in one client process passed
+on the previously measured local Rust archive, but unpaced FD samples
+grew 8 -> 18 and RSS 59,736,064 -> 64,880,640 bytes. Longer paced
+12-cycle runs then failed unexpectedly after 2–3 completed cycles,
+simctl child exit 255, including a traced failure just after beginning
+Rust in cycle 4. Xray had started successfully. This was not an
+accepted repeatability result.
+
+Both prior Rust archives (sim 01b829b1... / device 8cdbad61e...)
+contained the exact upstream `Forcing exit now.` literal and lacked
+the source-build manifest. The source-pinned fetch script already
+removes the forced process-exit watchdog from general_api.rs. Exit
+255 is consistent with exit(-1); combined with the before/after
+experiment, stale binaries are the likely cause. No claim about the
+actual installed physical iPhone binary follows from inspection of
+these local archives.
+
+Built from scratch in a separate directory: v0.8.3 commit
+e271de19683937f23d3f8f0eb4df0a61fc4a6e50, upstream archive hash
+7f09f01a11fef6d57477df8c32ad3d86ea7fa98ba3aa60099680785ca637ecfd,
+Rust1.98.1, locked dependencies and repository patches. Xcode lives
+on SSD; initial discovery failed and was corrected with
+DEVELOPER_DIR from xcode-select. Both device and simulator slices
+compiled, local manifest generated, forced-exit literal absent.
+Device SHA256 d95f6075ca3c926c2c329789f0da3abe376b8e55466e86d7713f43a5d979707a
+and simulator 5c41479cdb10066f23a17d2fe876ec1a4daec6f5b2e897a564bf49c077b5e00c.
+This is a verified local source build, not an independent bit-for-bit
+reproducible or externally signed attestation.
+
+Added artifact guard requiring exact local source metadata, patch flag,
+digest and absence of the watchdog literal; both old slices rejected.
+Fetcher now detects selected Xcode and rejects the unsafe literal in
+built archives. Fresh --cycles run with corrected simulator archive:
+12/12 same-process start/flow/drain/stop, independent unique receipts
+12/12, Rust exit0 every time, process exit0. RSS start 59,916,288,
+peak 66,568,192, final 63,291,392 bytes; sampled FDs 8 at startup,
+12 from cycle1 through12 (six sockets, of which two INET),
+10 after 3s settle (four sockets, zero INET, four UNIX). Counts sampled
+first4096 FDs; no monotonic post-warmup growth in this bounded test,
+not long-run or physical extension memory proof.
+
+Persisted only the verified rebuilt artifacts in
+/Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/native-artifacts/tun2proxy-v0.8.3-20261114.
+Rewired only the active QA worktree's ignored Frameworks symlink.
+Original shared libraries and main remain untouched.
+
+### Isolated NetworkExtension compile gate
+Added Tools/NativeTunnelLab (outside app targets), separate bundle ID
+ru.arvectum.proxylauncher.lab.nativeqa.PacketTunnel, explicit synthetic
+opt-in and ephemeral candidate only, exact TEST-NET /32 route
+198.51.100.77, no default route, DNS, IPv6 or owner profile access.
+Strict exact-assigned-address utun descriptor match, no first-utun
+fallback. Existing native gate and stopAndDrain, OS-owned descriptor
+not closed by caller, 20s timeout after ready, retired provider instance
+cannot restart. Actual extension startup/stop race behavior remains
+untested. The separate build_unsigned.sh verifies Rust and pinned
+Xray archives, generates independent XcodeGen project, compiles ARM64
+iPhoneOS extension with CODE_SIGNING_ALLOWED=NO and verifies both
+_CGoInvoke and _tun2proxy_run_with_cli_args in the actual executable.
+Fresh rebuilt Rust device archive build/link PASS. An initial parallel
+build was SIGKILLed, not counted; sequential recheck passed.
+No matching local provisioning profile for the lab ID (0 found), no
+Apple account registration or install attempted. Signed host app and
+lab provisioning, actual NE original-flow, unexpected exit cancellation
+and resource testing still required. No physical device change.
+Focused contract tests 20/20 and CI/fetch+guard+isolated-lab subset
+10/10 PASS; full core unchanged. No production backend activation.
+
+Final post-rebuild --tun regression, 10:44 MSK: 5/5 PASS,
+independent witness counts 1/1/0/0/0 (valid without/with Vision, bad
+UUID/key, stopped server), every Rust exit0/drain/descriptor close and
+Xray stop confirmed, exit0 on fresh simulator. This rules out a
+regression of those bounded cases from the new Rust archive.

@@ -99,6 +99,12 @@ def developer_dir() -> str:
         if (candidate / "usr" / "bin" / "xcodebuild").is_file():
             return str(candidate)
 
+    # Real Xcode may live outside /Applications (e.g. a dedicated SSD).
+    selected = subprocess.run(["xcode-select", "-p"], capture_output=True, text=True, check=False)
+    if selected.returncode == 0:
+        candidate = Path(selected.stdout.strip())
+        if (candidate / "usr" / "bin" / "xcodebuild").is_file():
+            return str(candidate)
     candidates = [Path("/Applications/Xcode.app/Contents/Developer")]
     candidates.extend(
         sorted(
@@ -181,6 +187,12 @@ def build_patched_libraries(tmpdir: Path, *, include_simulator: bool = False) ->
         library = source / "target" / target / "release" / "libtun2proxy.a"
         if not library.is_file():
             raise SystemExit(f"Patched tun2proxy library for {target} was not produced")
+        # Refuse a library that still contains the upstream API watchdog.
+        # The caller only installs a library after verifying the built artifact.
+        import mmap
+        with library.open("rb") as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as memory:
+            if memory.find(b"Forcing exit now.") >= 0:
+                raise SystemExit(f"Unsafe forced-exit watchdog still present in {target} library")
         result[target] = library
     return result
 

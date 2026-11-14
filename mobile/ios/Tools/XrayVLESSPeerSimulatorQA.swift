@@ -62,15 +62,101 @@ struct XrayVLESSPeerSimulatorQA {
     }
 
     private static func fail(_ stage: String) -> Never {
+        print("PEER_QA_FAILED_" + stage); fflush(stdout)
         _ = invoke("stopXray")
-        print("PEER_QA_FAILED_" + stage); exit(1)
+        exit(1)
     }
+
+#if APL_TUN_PAIR_QA && targetEnvironment(simulator)
+    private static func tunCycle(config: String, port: UInt16, path: String,
+                                 lifecycle: inout XrayHandoffLifecycle) async -> Bool {
+        print("TUN_QA_XRAY_START_BEGIN"); fflush(stdout)
+        guard running() == false, closed(port),
+              let token = try? lifecycle.begin(),
+              invoke("runXray", config:config) != nil, running() == true else { fail("CYCLE_START") }
+        print("TUN_QA_XRAY_START_COMPLETE"); fflush(stdout)
+            var fds: [Int32] = [-1,-1]
+            guard socketpair(AF_UNIX, SOCK_DGRAM, 0, &fds) == 0 else { fail("SOCKETPAIR") }
+            let rawFD = fds[0], injectionFD = fds[1]
+            let plan: XraySocksHandoffPlan
+            do {
+                plan = try XraySocksHandoffPlan.prepare(tunFD:Int(rawFD),socksPort:Int(port),dnsBypass:[])
+            } catch { fail("TUN_PLAN") }
+            let queue = DispatchQueue(label:"apl.qa.private.tun")
+            let exited = DispatchSemaphore(value:0)
+            let arguments = plan.tun2proxyArguments
+            print("TUN_QA_RUST_START_BEGIN"); fflush(stdout)
+            queue.async {
+                let code = arguments.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
+                print("TUN_QA_RUST_EXIT_\(code)")
+                fflush(stdout)
+                exited.signal()
+            }
+            try? await Task.sleep(nanoseconds:250_000_000)
+            print("TUN_QA_RUST_START_WAIT_COMPLETE"); fflush(stdout)
+            guard !hasExited(exited) else { fail("RUST_EARLY_EXIT") }
+            guard (try? lifecycle.ready(generation: token)) != nil else { fail("STATE_READY") }
+            let result = XrayTunPacketQA.probe(fd:injectionFD,path:path)
+            guard !hasExited(exited) else { fail("RUST_UNSOLICITED_EXIT") }
+            guard (try? lifecycle.requestStop(generation: token)) == true else { fail("STATE_STOP") }
+            do {
+                try await TunnelEngineHandoff.stopAndDrain(engineQueue:queue,timeout:5) {
+                    _ = tun2proxy_stop()
+                }
+            } catch { fail("RUST_DRAIN") }
+            guard hasExited(exited),
+                  fcntl(rawFD,F_GETFD) != -1 else { fail("RUST_DRAIN_OR_FD") }
+            close(rawFD); close(injectionFD)
+            guard fcntl(rawFD,F_GETFD) == -1, fcntl(injectionFD,F_GETFD) == -1,
+                  (try? lifecycle.drained(generation:token)) != nil else { fail("STATE_DRAINED") }
+            print("TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED"); fflush(stdout)
+            print("TUN_QA_XRAY_STOP_BEGIN"); fflush(stdout)
+            guard invoke("stopXray") != nil, running() == false, closed(port) else { fail("STOP_XRAY") }
+            print("TUN_QA_XRAY_STOP_COMPLETE"); fflush(stdout)
+        return result
+    }
+
+    private static func resourceReceipt(_ cycle:Int) {
+        var usage = rusage()
+        guard getrusage(RUSAGE_SELF,&usage) == 0 else { fail("RSS") }
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size / MemoryLayout<integer_t>.size)
+        let status = withUnsafeMutablePointer(to:&info) {
+            $0.withMemoryRebound(to:integer_t.self, capacity:Int(count)) {
+                task_info(mach_task_self_,task_flavor_t(MACH_TASK_BASIC_INFO),$0,&count)
+            }
+        }
+        guard status == KERN_SUCCESS else { fail("TASK_INFO") }
+        let limit = min(getdtablesize(),4096)
+        var open = 0, sockets = 0, inet = 0, unix = 0, other = 0
+        for fd in 0..<limit where fcntl(fd,F_GETFD) != -1 {
+            open += 1
+            var kind:Int32 = 0
+            var len = socklen_t(MemoryLayout<Int32>.size)
+            if getsockopt(fd,SOL_SOCKET,SO_TYPE,&kind,&len) == 0 {
+                sockets += 1
+                var address = sockaddr_storage()
+                var size = socklen_t(MemoryLayout<sockaddr_storage>.size)
+                if withUnsafeMutablePointer(to:&address, {
+                    $0.withMemoryRebound(to:sockaddr.self,capacity:1) { getsockname(fd,$0,&size) }
+                }) == 0 {
+                    switch Int32(address.ss_family) {
+                    case AF_INET, AF_INET6: inet += 1
+                    case AF_UNIX: unix += 1
+                    default: other += 1
+                    }
+                } else { other += 1 }
+            }
+        }
+        print("TUN_QA_CYCLE_\(cycle)_RSS_\(info.resident_size)_PEAK_\(usage.ru_maxrss)_FD_SAMPLE_\(open)_SOCKETS_\(sockets)_INET_\(inet)_UNIX_\(unix)_OTHER_\(other)")
+    }
+#endif
 
     static func main() async {
 #if targetEnvironment(simulator) || os(macOS)
         let args = CommandLine.arguments
         guard args.count == 4,
-              ["server", "client", "tun-client"].contains(args[1]),
+              ["server", "client", "tun-client", "tun-cycles"].contains(args[1]),
               let port = UInt16(args[3]), (39879...39884).contains(port),
               closed(port),
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
@@ -100,50 +186,38 @@ struct XrayVLESSPeerSimulatorQA {
             }
         } catch { fail("CONFIG") }
         guard invoke("testXray", config: config) != nil else { fail("TEST_XRAY") }
-        guard invoke("runXray", config: config) != nil, running() == true else { fail("RUN") }
 #if APL_TUN_PAIR_QA && targetEnvironment(simulator)
-        if args[1] == "tun-client" {
-            let path = (try? String(contentsOfFile: args[2] + ".path", encoding: .utf8)) ?? ""
-            var fds: [Int32] = [-1,-1]
-            guard socketpair(AF_UNIX, SOCK_DGRAM, 0, &fds) == 0 else { fail("SOCKETPAIR") }
-            let rawFD = fds[0], injectionFD = fds[1]
-            let plan: XraySocksHandoffPlan
-            do {
-                plan = try XraySocksHandoffPlan.prepare(tunFD:Int(rawFD),socksPort:Int(port),dnsBypass:[])
-            } catch { fail("TUN_PLAN") }
-            let queue = DispatchQueue(label:"apl.qa.private.tun")
-            let exited = DispatchSemaphore(value:0)
-            let arguments = plan.tun2proxyArguments
-            queue.async {
-                let code = arguments.withCString { tun2proxy_run_with_cli_args($0,1500,true) }
-                print("TUN_QA_RUST_EXIT_\(code)")
-                fflush(stdout)
-                exited.signal()
-            }
-            try? await Task.sleep(nanoseconds:250_000_000)
-            guard !hasExited(exited) else { fail("RUST_EARLY_EXIT") }
-            let result = XrayTunPacketQA.probe(fd:injectionFD,path:path)
-            guard !hasExited(exited) else { fail("RUST_UNSOLICITED_EXIT") }
-            do {
-                try await TunnelEngineHandoff.stopAndDrain(engineQueue:queue,timeout:5) {
-                    _ = tun2proxy_stop()
+        if args[1] == "tun-client" || args[1] == "tun-cycles" {
+            let raw = (try? String(contentsOfFile:args[2] + ".path", encoding:.utf8)) ?? ""
+            let paths = raw.split(separator:"\n").map(String.init)
+            let repeated = args[1] == "tun-cycles"
+            guard paths.count == (repeated ? 12 : 1), Set(paths).count == paths.count else { fail("PATHS") }
+            var lifecycle = XrayHandoffLifecycle()
+            if repeated { resourceReceipt(0) }
+            for (index,path) in paths.enumerated() {
+                print("TUN_QA_BEGIN_CYCLE_\(index+1)"); fflush(stdout)
+                let result = await tunCycle(config:config,port:port,path:path,lifecycle:&lifecycle)
+                if repeated {
+                    guard result, lifecycle.phase == .stopped, lifecycle.generation == UInt64(index+1) else { fail("CYCLE_RECEIPT") }
+                    try? await Task.sleep(nanoseconds:400_000_000)
+                    resourceReceipt(index+1)
+                    print("TUN_QA_CYCLE_PASS_\(index+1)"); fflush(stdout)
+                } else {
+                    var usage = rusage()
+                    if getrusage(RUSAGE_SELF,&usage) == 0 { print("TUN_QA_PEAK_RSS_BYTES_\(usage.ru_maxrss)") }
+                    print("TUN_QA_RECEIPT_\(result)")
                 }
-            } catch { fail("RUST_DRAIN") }
-            guard hasExited(exited),
-                  fcntl(rawFD,F_GETFD) != -1 else { fail("RUST_DRAIN_OR_FD") }
-            close(rawFD); close(injectionFD)
-            print("TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED")
-            guard invoke("stopXray") != nil, running() == false, closed(port) else { fail("STOP_XRAY") }
-            var usage = rusage()
-            if getrusage(RUSAGE_SELF,&usage) == 0 {
-                print("TUN_QA_PEAK_RSS_BYTES_\(usage.ru_maxrss)")
             }
-            print("TUN_QA_RECEIPT_\(result)")
-            print("PEER_QA_STOPPED_tun-client"); fflush(stdout)
+            if repeated {
+                try? await Task.sleep(nanoseconds:3_000_000_000)
+                resourceReceipt(13)
+            }
+            print("PEER_QA_STOPPED_" + args[1]); fflush(stdout)
             return
         }
 #endif
-        guard args[1] != "tun-client" else { fail("TUN_NOT_COMPILED") }
+        guard args[1] == "server" || args[1] == "client" else { fail("TUN_NOT_COMPILED") }
+        guard invoke("runXray", config:config) != nil, running() == true else { fail("RUN") }
         print("PEER_QA_READY_" + args[1]); fflush(stdout)
         // Bounded lifetime even if host orchestration is interrupted.
         let deadline = DispatchTime.now() + .seconds(args[1] == "server" ? 75 : 18)

@@ -51,7 +51,7 @@ def check_port_free(port):
         sock.bind((HOST, port))
 
 
-def run(sim, binary, host_server, directory, tun=False):
+def run(sim, binary, host_server, directory, tun=False, cycles=False):
     for port in range(CLIENT_PORT, DECOY_PORT + 1):
         check_port_free(port)
     private, public = keypair()
@@ -60,7 +60,8 @@ def run(sim, binary, host_server, directory, tun=False):
     sid = secrets.token_hex(8)
     nonce_paths = {name: "/" + secrets.token_hex(20) for name in
                    ("no_vision", "vision", "bad_uuid", "bad_key", "stopped")}
-    allowed = set(nonce_paths.values())
+    cycle_paths = ["/" + secrets.token_hex(20) for _ in range(12)] if cycles else []
+    allowed = set(nonce_paths.values()) | set(cycle_paths)
     seen = []
     lock = threading.Lock()
 
@@ -102,7 +103,7 @@ def run(sim, binary, host_server, directory, tun=False):
              "domain": ["full:" + RECEIPT_HOST], "port": str(WITNESS_PORT),
              "network": "tcp", "outboundTag": "receipt-only"}]}
     }
-    if tun:
+    if tun or cycles:
         # Synthetic TEST-NET-2 target only, never accessed on the underlay.
         server_config["routing"]["rules"].append({
             "type": "field", "inboundTag": ["qa-in"], "ip": ["198.51.100.77/32"],
@@ -182,6 +183,36 @@ def run(sim, binary, host_server, directory, tun=False):
             print(f"APL_VLESS_PEER_{name.upper()}_RESPONSE_{ok}_WITNESS_{count}_PASS", flush=True)
         check_port_free(CLIENT_PORT)
 
+    def repeated_cycles():
+        fixture = directory / "cycles.uri"
+        fixture.write_text(f"vless://{ids[0]}@{HOST}:{SERVER_PORT}?encryption=none&security=reality&type=tcp"
+                           f"&sni=example.com&fp=chrome&pbk={public}&sid={sid}")
+        Path(str(fixture) + ".path").write_text("\n".join(cycle_paths))
+        result = subprocess.run(
+            ["xcrun", "simctl", "spawn", sim, str(binary), "tun-cycles", str(fixture), str(CLIENT_PORT)],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=65, text=True)
+        markers = [line for line in result.stdout.splitlines()
+                   if line.startswith(("TUN_QA_", "PEER_QA_"))]
+        for line in markers:
+            print(line, flush=True)
+        if (result.returncode != 0
+                or markers.count("TUN_QA_SYNACK") != 12
+                or markers.count("TUN_QA_RUST_EXIT_0") != 12
+                or markers.count("TUN_QA_RUST_DRAINED_DESCRIPTOR_CLOSED") != 12
+                or any(markers.count(f"TUN_QA_CYCLE_PASS_{n}") != 1 for n in range(1,13))
+                or "PEER_QA_STOPPED_tun-cycles" not in markers):
+            print("TUN_QA_PROCESS_RC", result.returncode, flush=True)
+            import re
+            for line in result.stdout.splitlines():
+                if re.search(r"panic:|fatal error:|SIG[A-Z]+|EXC_|signal [0-9]+|killed|crash|runtime\.|error was encountered|exit status|launchd|NSPOSIXErrorDomain|CoreSimulator", line, re.I):
+                    print("TUN_QA_DIAG", re.sub(r"[A-Za-z0-9_-]{24,}", "[redacted]", line)[:250], flush=True)
+            raise RuntimeError("same-process lifecycle not confirmed")
+        with lock:
+            if sorted(seen) != sorted(cycle_paths):
+                raise RuntimeError("same-process independent witness count mismatch")
+        check_port_free(CLIENT_PORT)
+        print("APL_TUN_SAME_PROCESS_TWELVE_CYCLES_EXACT_WITNESSES_PASS", flush=True)
+
     witness = http.server.ThreadingHTTPServer((HOST, WITNESS_PORT), Witness)
     worker = threading.Thread(target=witness.serve_forever, daemon=True)
     worker.start()
@@ -194,16 +225,21 @@ def run(sim, binary, host_server, directory, tun=False):
         time.sleep(.3)
         if decoy.poll() is not None:
             raise RuntimeError("decoy not started")
-        with peer("server", config, SERVER_PORT):
-            probe("no_vision", ids[0], public, False, True)
-            probe("vision", ids[1], public, True, True)
-            probe("bad_uuid", str(uuid.uuid4()), public, False, False)
-            probe("bad_key", ids[0], wrong_public, False, False)
-        check_port_free(SERVER_PORT)
-        probe("stopped", ids[0], public, False, False)
-        with lock:
-            assert sorted(seen) == sorted([nonce_paths["no_vision"], nonce_paths["vision"]])
-        print(("APL_TUN_VLESS" if tun else "APL_VLESS_PEER") + "_2_AUTHENTICATED_3_NEGATIVE_EXACT_WITNESSES_PASS", flush=True)
+        if cycles:
+            with peer("server", config, SERVER_PORT):
+                repeated_cycles()
+            check_port_free(SERVER_PORT)
+        else:
+            with peer("server", config, SERVER_PORT):
+                probe("no_vision", ids[0], public, False, True)
+                probe("vision", ids[1], public, True, True)
+                probe("bad_uuid", str(uuid.uuid4()), public, False, False)
+                probe("bad_key", ids[0], wrong_public, False, False)
+            check_port_free(SERVER_PORT)
+            probe("stopped", ids[0], public, False, False)
+            with lock:
+                assert sorted(seen) == sorted([nonce_paths["no_vision"], nonce_paths["vision"]])
+            print(("APL_TUN_VLESS" if tun else "APL_VLESS_PEER") + "_2_AUTHENTICATED_3_NEGATIVE_EXACT_WITNESSES_PASS", flush=True)
     finally:
         decoy.terminate()
         decoy.wait(timeout=3)
@@ -218,7 +254,8 @@ if __name__ == "__main__":
     parser.add_argument("--binary", required=True, type=Path)
     parser.add_argument("--host-server", required=True, type=Path)
     parser.add_argument("--tun", action="store_true")
+    parser.add_argument("--cycles", action="store_true")
     args = parser.parse_args()
     os.umask(0o077)
     with tempfile.TemporaryDirectory(prefix="apl-xray-peer-") as tmp:
-        run(args.simulator, args.binary.resolve(), args.host_server.resolve(), Path(tmp), tun=args.tun)
+        run(args.simulator, args.binary.resolve(), args.host_server.resolve(), Path(tmp), tun=args.tun, cycles=args.cycles)
