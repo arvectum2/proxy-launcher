@@ -105,3 +105,27 @@ then inspect Settings and remove only any orphan exact lab profile,
 restore prior APL selection while VPN OFF if appropriate, and retry
 one bounded diagnostic case. No password requested or stored.
 All 36 focused checks passed. No production activation.
+
+## 12:07–12:09 MSK: authentication gate reproduced
+
+Before reinstall, Mirroring showed Settings VPN disconnected, normal
+APL selected, exact lab profile absent. This visually closes the
+previous orphan-profile uncertainty for the preceding run. Added
+a lock-protected single-resume gate with a 2-second diagnostic
+provider-message deadline; signed host and embedded NE verified.
+Focused 9 source/contract checks passed.
+
+Installed the isolated build, launched the bounded physical runner.
+The specific NativeLabHost VPN permission appeared; authorized Allow
+click again led to the macOS login authentication dialog. No
+authentication bypass. Runner returned connected=false, receipt=false,
+cleaned=true, relay connections0 and bytes0/0, independent witness0.
+Peer cleanup complete. Separate cleanup-only launch failed with
+devicectl exit1, so do not claim independent cleanup-only success.
+Uninstall succeeded; isolated app and process inventory absent,
+owner profile/selection/organization hashes true. Final global
+Settings appearance and repeated read-only Keychain/VPN status tests
+not verified in this attempt. No data-plane acceptance.
+Require direct operator authentication or direct physical iPhone
+permission during next supervised attempt. Do not repeatedly install
+and create new VPN permission prompts while operator unavailable.

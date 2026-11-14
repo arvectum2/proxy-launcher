@@ -5,6 +5,19 @@ import Foundation
 import SwiftUI
 import NetworkExtension
 
+private final class LabMessageGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Data?, Never>?
+    init(_ continuation: CheckedContinuation<Data?, Never>) { self.continuation = continuation }
+    func finish(_ data: Data?) {
+        lock.lock()
+        let c = continuation
+        continuation = nil
+        lock.unlock()
+        c?.resume(returning: data)
+    }
+}
+
 private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
     func urlSession(_ session: URLSession, task: URLSessionTask,
                     willPerformHTTPRedirection response: HTTPURLResponse,
@@ -57,10 +70,12 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         if connected { stage("probeBegin");await probeExplicitly();stage("probeEnd") }
         if connected, let session=manager?.connection as? NETunnelProviderSession {
             do {
-                let data: Data? = try await withCheckedThrowingContinuation { continuation in
-                    do { try session.sendProviderMessage(Data("apl-lab-counters-v1".utf8)) { response in
-                        continuation.resume(returning: response)
-                    }} catch { continuation.resume(throwing:error) }
+                let data: Data? = await withCheckedContinuation { continuation in
+                    let gate = LabMessageGate(continuation)
+                    DispatchQueue.global().asyncAfter(deadline:.now()+2) { gate.finish(nil) }
+                    do {
+                        try session.sendProviderMessage(Data("apl-lab-counters-v1".utf8)) { gate.finish($0) }
+                    } catch { gate.finish(nil) }
                 }
                 if let data, let parsed=try JSONSerialization.jsonObject(with:data) as? [String:Int] {counters=parsed}
             } catch {}
