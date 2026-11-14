@@ -168,7 +168,11 @@ struct XrayVLESSPeerSimulatorQA {
               (invoke("xrayVersion")?["data"] as? [String: Any])?["version"] as? String == "26.11.9",
               running() == false else { fail("PRECHECK") }
 #if os(macOS)
+        #if APL_PHYSICAL_PEER_PREFLIGHT
+        guard args[1] == "server" || args[1] == "client" else { fail("MAC_SERVER_ONLY") }
+#else
         guard args[1] == "server" else { fail("MAC_SERVER_ONLY") }
+#endif
 #endif
         let config: String
         do {
@@ -184,7 +188,12 @@ struct XrayVLESSPeerSimulatorQA {
             } else {
                 guard let text = String(data: raw, encoding: .utf8) else { fail("INPUT") }
                 let candidate = try VLESSRealityShareLink.parse(text)
-                guard candidate.serverHost == "127.0.0.1", candidate.serverPort == 39882,
+#if APL_PHYSICAL_PEER_PREFLIGHT && os(macOS)
+                let allowedHost = candidate.serverHost == "192.168.1.80" || candidate.serverHost == "127.0.0.1"
+#else
+                let allowedHost = candidate.serverHost == "127.0.0.1"
+#endif
+                guard allowedHost, candidate.serverPort == 39882,
                       let converted = invokeJSON(try candidate.conversionRequest()) else {
                     fail("CLIENT_CONVERSION")
                 }

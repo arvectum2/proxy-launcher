@@ -129,3 +129,46 @@ not verified in this attempt. No data-plane acceptance.
 Require direct operator authentication or direct physical iPhone
 permission during next supervised attempt. Do not repeatedly install
 and create new VPN permission prompts while operator unavailable.
+
+## 12:25–12:32: direct operator and corrected test infrastructure
+
+Direct unlocked owner-supervised run reached actual iOS Connected,
+Rust aggregate tcp3/target3/socks1/connect1, HTTP timeout -1001,
+LAN relay 10 accepted connections and 19702 bytes toward peer,
+0 return bytes, independent witness0. App result cleaned=true,
+separate cleanup confirmed and uninstall. Not physical data acceptance.
+
+Reproduced failure **without phone**: independent native macOS
+client via same pinned physical peer (loopback/LAN), no HTTP
+receipt; OpenSSL local TLS target handshake itself timed out.
+Adding ALPN and HTTP flags alone caused intermittent results.
+Replaced the disposable local target with threaded TLS1.3
+HTTP endpoint bound only to loopback, added actual TLS readiness
+probe, and mandatory two authenticated fresh nonce receipts via
+LAN relay before launching phone. Fresh local preflight2/2
+and subsequent exact same-server preflight2/2 passed. This
+corrects a proven test-infrastructure blocker, not yet proof of
+physical data transfer. A dedicated compile flag
+APL_PHYSICAL_PEER_PREFLIGHT permits the macOS native helper to
+use client mode for only 127.0.0.1 or fixed test LAN host; default
+Mac helper still server-only. Current helper binary
+$(cat /tmp/apl-native-physical-peer-path)/preflight. Rebuild
+using same pinned source files/headers/archive as hostpeer plus
+-D APL_PHYSICAL_PEER_PREFLIGHT. Second device attempt after
+preflight reached saveLabManagerBegin and no result in 45s;
+peer closed, separate cleanup true, lab app uninstalled.
+
+Separate signing-verified permission-only build then installed;
+--approved --prepare-only passes only fixed nonsecret marker,
+NO peer, secrets, startTunnel, or actual provider invocation.
+Stage saveLabManagerBegin observed; no test listener and no lab
+or APL native extension process. This is INTENTIONAL temporary
+app retention while awaiting owner approval of the specific
+VPN prompt; no automatic start after consent. Next turn inspect
+stage/prepare receipt labPreparedOff, then ONLY after positive
+confirmed prepare, use bounded physical runner with preflight
+helper and fresh nonce. Start now refuses missing profile instead
+of invoking save again. Verify exact connected+HTTP witness and
+cleanup, owner profile parity and APL OFF/Keychain. If owner
+declines, clean up prepared lab only. Do not blindly retry.
+9 previous and new focused tests (10 total) pass.

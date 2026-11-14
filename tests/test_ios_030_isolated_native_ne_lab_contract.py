@@ -66,3 +66,19 @@ def test_approved_signing_guards_and_one_shot_device_lab():
     assert 'PHYSICAL_QA_CLEANUP_CONFIRMED' in runner
     assert 'PHYSICAL_QA_LAST_STAGE' in runner
     assert 'n==1' in runner
+
+
+def test_permission_only_phase_is_separate_from_peer_and_tunnel_start():
+    host=(LAB / "Host/NativeLabHost.swift").read_text()
+    prepare=host.split("func prepareExplicitly() async",1)[1].split("func startExplicitly() async",1)[0]
+    assert "labManager(create:true)" in prepare
+    assert "startVPNTunnel" not in prepare
+    start=host.split("func startExplicitly() async",1)[1].split("func probeExplicitly",1)[0]
+    assert "labManager(create:false)" in start
+    assert 'stage("labPreparedOff")' in prepare
+    runner=(LAB / "run_physical_peer.py").read_text()
+    permission=runner.split("def prepare_only(root):",1)[1].split("def cleanup_only",1)[0]
+    assert '"fixture":"prepare-only"' in permission and "keypair" not in permission
+    assert "PHYSICAL_QA_DECOY_READY" in runner
+    assert "PHYSICAL_PEER_PREFLIGHT" in runner
+    assert "len(seen)==3" in runner

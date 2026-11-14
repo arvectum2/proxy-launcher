@@ -64,6 +64,15 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
               UUID(uuidString:request.runID) != nil else { return }
         try? FileManager.default.removeItem(at:input)
         runID=request.runID;stage("inputConsumed")
+        if request.fixture == "prepare-only" {
+            await prepareExplicitly()
+            let prepared=status == "Lab profile prepared; VPN OFF"
+            let result:[String:Any]=["runID":request.runID,"prepared":prepared,"connected":false]
+            if let data=try? JSONSerialization.data(withJSONObject:result) {
+                try? data.write(to:output,options:.atomic)
+            }
+            return
+        }
         fixture=request.fixture;nonce=request.nonce
         if request.fixture != "cleanup-only" { await startExplicitly() }
         let connected=manager?.connection.status == .connected
@@ -130,6 +139,25 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         return item
     }
 
+    // Permission-only phase. Never starts the provider and requires no peer.
+    func prepareExplicitly() async {
+        guard !busy else {return}
+        busy=true
+        defer {busy=false}
+        status="Confirm VPN permission on iPhone"
+        do {
+            guard let item=try await labManager(create:true), isOwned(item),
+                  item.isEnabled, !item.isOnDemandEnabled,
+                  item.connection.status == .disconnected else {throw LabHostError.conflict}
+            manager=item
+            stage("labPreparedOff")
+            status="Lab profile prepared; VPN OFF"
+        } catch {
+            stage("prepareFailed")
+            status="Lab profile preparation failed"
+        }
+    }
+
     func startExplicitly() async {
         guard !busy else { return }
         busy = true
@@ -143,7 +171,7 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
             let parsed = try VLESSRealityShareLink.parse(link)
             guard parsed.serverHost == "192.168.1.80", parsed.serverPort == 39882,
                   parsed.serverName == "example.com" else { throw LabHostError.fixture }
-            guard let item = try await labManager(create:true),
+            guard let item = try await labManager(create:false),
                   isOwned(item), item.isEnabled, !item.isOnDemandEnabled,
                   item.connection.status == .disconnected else { throw LabHostError.conflict }
             manager = item
@@ -237,9 +265,10 @@ private final class NoLabRedirect: NSObject, URLSessionTaskDelegate {
         WindowGroup {
             Form {
                 Text("Isolated synthetic transport QA")
+                Button("Prepare isolated VPN profile (OFF)") { Task { await model.prepareExplicitly() } }
                 SecureField("Ephemeral synthetic VLESS link",text:$model.fixture)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
-                Button("Create isolated profile and start") {
+                Button("Start prepared lab profile") {
                     Task { await model.startExplicitly() }
                 }
                 TextField("40-character test nonce",text:$model.nonce)
