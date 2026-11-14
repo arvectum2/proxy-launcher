@@ -51,6 +51,24 @@ APL_OFFLINK_WINDOW_AFTER_END_124.0
         self.assertEqual(self.evaluate(self.marks, self.baseline(), "1 packets dropped by kernel"),
                          "INCONCLUSIVE")
 
+    def test_stun_3478_is_independent_of_dns_quic_controls(self):
+        import ipaddress
+        def packet(t, src="2606:4700:4700::1001"):
+            return f"{t} IP6 {src}.49152 > 2606:4700:49::.3478: UDP, length 20"
+        options = {"target": ipaddress.IPv6Address("2606:4700:49::"), "ports": (3478,)}
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                OFFLINK.evaluate(self.marks, "\n".join([packet(101), packet(111, "2001:db8::1"), packet(121)]),
+                                 "0 packets dropped by kernel", **options),
+                "BOUNDED_OFFLINK_PHYSICAL_UDP_NOT_OBSERVED")
+            self.assertEqual(
+                OFFLINK.evaluate(self.marks, "\n".join([packet(101), packet(111), packet(121)]),
+                                 "0 packets dropped by kernel", **options),
+                "OFFLINK_PHYSICAL_UDP_OBSERVED")
+            self.assertEqual(
+                OFFLINK.evaluate(self.marks, self.baseline(), "0 packets dropped by kernel", **options),
+                "INCONCLUSIVE")
+
     def test_duplicate_phase_rejected(self):
         with self.assertRaises(ValueError):
             self.evaluate(self.marks + "\nAPL_OFFLINK_WINDOW_BEFORE_BEGIN_100.0", self.baseline())

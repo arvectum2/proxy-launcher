@@ -99,3 +99,43 @@ changed. Disposable processes, listener sockets and RVI removed.
 - Independent off-link general UDP witness; full DNS coverage; native
   protocol hardware QA, CloudKit live two-device, and user-data backup.
 - Do not merge/publish without owner-specific approval.
+
+## Additional off-link UDP STUN sentinel — 09:29–09:31 MSK
+
+The same-LAN UDP echo failure was not repeated as an off-link witness.
+Instead the Mac mini first sent one standard STUN Binding Request to
+Cloudflare's public IPv6 STUN endpoint (stun.cloudflare.com,
+2606:4700:49::, UDP/3478) and verified the matching response transaction.
+A separate signed physical test then used a fresh 96-bit random
+transaction ID per phase; verified success type, magic cookie, matching
+transaction ID, exact aligned message length. No account or user traffic
+was submitted, no mapped-address content printed or persisted.
+
+- Signed initial NE OFF + all three Keychain credentials PASS; original
+  profiles/selection/organization hash parity PASS.
+- Before VPN: valid STUN Binding Success response.
+- During independently confirmed disposable HTTP PacketTunnel: no
+  STUN response (3-second bounded wait); tunnel still .connected at the
+  end of probe; closed by explicit stop with 20s/25s safety timers.
+- After confirmed OFF: valid fresh STUN response.
+- Signed physical test PASS, 5.322 seconds, zero skips.
+- Filtered RVI outgoing UDP/3478: **global IPv6 source counts 1/0/1**,
+  one non-global source packet during the tunnel, three total packets
+  captured, zero kernel drops. Receipt:
+  BOUNDED_OFFLINK_PHYSICAL_UDP_NOT_OBSERVED.
+- Independent signed postflight NE OFF and 3/3 Keychain PASS; original
+  profiles/selection/organization SHA equality PASS. Temporary relay
+  and RVI removed; raw header capture and transient preferences removed.
+
+This adds a positive-control standard non-DNS/non-QUIC off-link UDP
+probe to prior DNS53 and QUIC443 evidence. It does not assert that all
+UDP destinations are protected, nor invent an independently operated
+echo server: the public STUN responder returns a matching transaction
+rather than a server-side count. Local IPv6 bypass remains a measured
+failure against an all-UDP-blocked expectation while the existing iOS
+local-network exclusion remains enabled. Active system Wi-Fi/LTE
+handoff remains untested, requiring a direct operator and restoration
+plan. Production NetworkExtension settings are unchanged.
+
+Signed iPhoneOS QA build-for-testing PASS, 6 focused RVI unittest cases,
+iOS Python372 + 1527 subtests PASS. No production code changes.
