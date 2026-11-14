@@ -19,6 +19,8 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
     runid=str(uuid.uuid4())
     seen=collections.Counter()
     counts=collections.Counter()
+    sizes=collections.Counter()
+    witness_sizes=collections.Counter()
     lock=threading.Lock()
     stop=threading.Event()
     config={"private":base64.b64decode(private).hex(),"peer":base64.b64decode(client_public).hex(),"psk":base64.b64decode(psk).hex(),"dual":True}
@@ -48,6 +50,7 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
         while not stop.is_set():
             try:data,src=udp.recvfrom(128)
             except socket.timeout:continue
+            with lock:witness_sizes[len(data)]+=1
             if not kind.startswith("udp") or data!=("APL_UDP:"+nonce).encode():continue
             with lock:seen[nonce]+=1
             udp.sendto(("APL_RECEIPT:"+nonce).encode(),src)
@@ -63,6 +66,7 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
                 if client[0] is None:client[0]=src
                 if client[0]!=src:continue
                 counts["in",msg]+=1
+                if msg==4:sizes["in",len(data)]+=1
             local.sendto(data,(HOST,SERVER))
     def outbound():
         while not stop.is_set():
@@ -75,6 +79,7 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
                 target=client[0]
                 if target is None:continue
                 counts["out",msg]+=1
+                if msg==4:sizes["out",len(data)]+=1
             lan.sendto(data,target)
     threads=[threading.Thread(target=f,daemon=True) for f in (witness.serve_forever,echo,inbound,outbound)]
     for t in threads:t.start()
@@ -101,7 +106,7 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
         Path(str(cfg)+".stop").touch();proc.wait(timeout=6)
         if proc.returncode!=0:return 1
         Path(str(cfg)+".stop").unlink()
-        with lock:client[0]=None;before=counts.copy()
+        with lock:client[0]=None;before=counts.copy();sizes.clear();witness_sizes.clear()
         with log.open("w") as f:proc=subprocess.Popen([str(reference),"server",str(cfg),str(SERVER)],stdout=f,stderr=subprocess.STDOUT)
         wait_for(proc,log,"PEER_QA_READY_server")
         inp=root/"native-lab-input.json"
@@ -118,12 +123,15 @@ def run(reference, preflight, root, kind, wrong, retain, local_only):
                 if item.get("runID")==runid:
                     with lock:
                         diff=counts-before;n=seen[nonce];total=sum(seen.values())
+                        print("WG_PHYSICAL_LENGTHS",sorted((d,l,c) for (d,l),c in sizes.items()),"UDP_WITNESS_LENGTHS",sorted(witness_sizes.items()),flush=True)
                     cleanup=item.get("retainedOff") is True if retain else item.get("cleaned") is True
                     expected=not wrong
                     ok=(item.get("connected") is True and item.get("receipt") is expected and n==int(expected) and total==1+int(expected) and diff["in",1]>0 and cleanup)
                     if expected:ok=ok and all(diff[k]>0 for k in (("out",2),("in",4),("out",4)))
                     else:ok=ok and diff["out",2]==0 and diff["out",4]==0
                     print("WG_PHYSICAL_RESULT",kind,"wrong-key" if wrong else "valid",json.dumps({k:item.get(k) for k in ("connected","receipt","cleaned","retainedOff","probeCode","counters")}),"WITNESS",n,"INIT",diff["in",1],"REPLY",diff["out",2],"DATA",diff["in",4],diff["out",4],"PASS" if ok else "FAIL",flush=True)
+                    for marker in log.read_text().splitlines():
+                        if marker.startswith("WG_PACKET_"):print(marker,flush=True)
                     return 0 if ok else 1
                 result.unlink()
             time.sleep(1)

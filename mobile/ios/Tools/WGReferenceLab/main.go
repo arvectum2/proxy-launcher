@@ -3,11 +3,13 @@ package main
 
 import (
 	"encoding/hex"
+ "encoding/binary"
 	"encoding/json"
 	"fmt"
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun/netstack"
+ "golang.zx2c4.com/wireguard/tun"
 	"io"
 	"net"
 	"net/netip"
@@ -114,6 +116,37 @@ func (l *loop) stats() (int, int) { l.mu.Lock(); defer l.mu.Unlock(); return l.s
 
 var _ conn.Bind = (*loop)(nil)
 
+// Only aggregate packet metadata for synthetic local QA; never store payload.
+type measuredTUN struct {tun.Device}
+func measurePacket(direction string, b []byte) {
+ if len(b)<20 {return}
+ version:=b[0]>>4
+ var proto byte
+ var off int
+ var src,dst netip.Addr
+ if version==4 {
+  off=int(b[0]&15)*4;proto=b[9]
+  src,_=netip.AddrFromSlice(b[12:16]);dst,_=netip.AddrFromSlice(b[16:20])
+ } else if version==6 && len(b)>=40 {
+  off=40;proto=b[6];src,_=netip.AddrFromSlice(b[8:24]);dst,_=netip.AddrFromSlice(b[24:40])
+ } else {return}
+ if off<20 || len(b)<off+8{return}
+ if proto==17 {
+  fmt.Printf("WG_PACKET_%s_V%d_UDP_SRC_LAB_%t_DST_LAB_%t_PORT_OK_%t_LEN_%d_CHECKSUM_ZERO_%t\n",direction,version,src==netip.MustParseAddr("10.77.0.2")||src==netip.MustParseAddr("2001:db8:77::2"),dst==netip.MustParseAddr("198.51.100.77")||dst==netip.MustParseAddr("2001:db8:77::77"),binary.BigEndian.Uint16(b[off+2:off+4])==39883,binary.BigEndian.Uint16(b[off+4:off+6]),binary.BigEndian.Uint16(b[off+6:off+8])==0)
+ } else if proto==1 || proto==58 {
+  fmt.Printf("WG_PACKET_%s_V%d_ICMP_TYPE_%d_CODE_%d\n",direction,version,b[off],b[off+1])
+ }
+}
+func(t *measuredTUN) Write(bufs [][]byte,off int)(int,error){
+ for _,b:=range bufs {if off>=0 && off<len(b){measurePacket("RX",b[off:])}}
+ return t.Device.Write(bufs,off)
+}
+func(t *measuredTUN) Read(bufs [][]byte,sizes []int,off int)(int,error){
+ n,e:=t.Device.Read(bufs,sizes,off)
+ for i:=0;i<n;i++{if off>=0&&off+sizes[i]<=len(bufs[i]){measurePacket("TX",bufs[i][off:off+sizes[i]])}}
+ return n,e
+}
+
 type Config struct {
 	Private string `json:"private"`
 	Peer    string `json:"peer"`
@@ -150,7 +183,7 @@ func run(path string) int {
 		return 3
 	}
 	bind := &loop{}
-	dev := device.NewDevice(tunnel, bind, device.NewLogger(device.LogLevelSilent, ""))
+	dev := device.NewDevice(&measuredTUN{tunnel}, bind, device.NewLogger(device.LogLevelSilent, ""))
 	defer dev.Close()
 	settings := fmt.Sprintf("private_key=%s\nlisten_port=39882\nreplace_peers=true\npublic_key=%s\npreshared_key=%s\nreplace_allowed_ips=true\nallowed_ip=10.77.0.2/32\nendpoint=127.0.0.1:39881\n", cfg.Private, cfg.Peer, cfg.PSK)
 	if cfg.Dual {
