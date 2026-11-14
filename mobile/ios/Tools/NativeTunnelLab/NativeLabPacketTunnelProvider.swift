@@ -9,7 +9,6 @@ private final class LabCounters: @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String:Int] = [:]
     func increment(_ key: String) { lock.lock(); values[key,default:0] += 1; lock.unlock() }
-    func merge(_ other:[String:Int]) { lock.lock(); values.merge(other){_,new in new};lock.unlock() }
     func snapshot() -> [String:Int] { lock.lock(); defer { lock.unlock() }; return values }
 }
 import tun2proxy
@@ -93,7 +92,6 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
         let plan = try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[])
         xrayStarted = true
         guard NativeLabRuntime.call("runXray",config:config) != nil, NativeLabRuntime.running == true else { throw NativeLabError.stage(8) }
-        if dual {LabCounters.shared.merge(LabUDPAssociationDiagnostic.collect())}
         let generation = gate.begin()
         engineStarted = true
         tun2proxy_set_log_callback({ _, message, _ in
@@ -103,9 +101,6 @@ final class NativeLabPacketTunnelProvider: NEPacketTunnelProvider {
             if line.contains("socks") {LabCounters.shared.increment("socks")}
             if line.contains("error") || line.contains("failed") {
                 LabCounters.shared.increment("error")
-                for stage in ["bind","connect","send","recv"] {
-                    if line.contains("apl_udp_"+stage+"_error") {LabCounters.shared.increment("udpStage_"+stage)}
-                }
                 // Only finite predefined category and numeric errno counters.
                 for (needle,label) in [("connection refused","refused"),("network is unreachable","unreachable"),
                     ("no route to host","noRoute"),("address not available","addressUnavailable"),

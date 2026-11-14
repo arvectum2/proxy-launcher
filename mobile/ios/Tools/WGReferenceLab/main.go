@@ -152,6 +152,7 @@ type Config struct {
 	Peer    string `json:"peer"`
 	PSK     string `json:"psk"`
 	Dual    bool   `json:"dual"`
+	Measure bool `json:"measure"`
 }
 
 func validKey(s string) bool {
@@ -183,7 +184,9 @@ func run(path string) int {
 		return 3
 	}
 	bind := &loop{}
-	dev := device.NewDevice(&measuredTUN{tunnel}, bind, device.NewLogger(device.LogLevelSilent, ""))
+	var nativeTUN tun.Device = tunnel
+	if cfg.Measure { nativeTUN = &measuredTUN{tunnel} }
+	dev := device.NewDevice(nativeTUN, bind, device.NewLogger(device.LogLevelSilent, ""))
 	defer dev.Close()
 	settings := fmt.Sprintf("private_key=%s\nlisten_port=39882\nreplace_peers=true\npublic_key=%s\npreshared_key=%s\nreplace_allowed_ips=true\nallowed_ip=10.77.0.2/32\nendpoint=127.0.0.1:39881\n", cfg.Private, cfg.Peer, cfg.PSK)
 	if cfg.Dual {

@@ -26,3 +26,27 @@ def test_actual_dual_probes_bounded_and_independently_witnessed():
     assert 'client[0]!=src' in runner and 'sum(counts.values())>=512' in runner
     assert 'if not a.approved' in runner
     assert 'reference.resolve()' in runner
+
+
+def test_clean_loopback_candidate_keeps_production_patch_unchanged():
+    candidate=(LAB/"tun2proxy-connected-udp-loopback-clean.patch").read_text()
+    assert "a.ip().is_loopback()" in candidate
+    assert "Ipv4Addr::LOCALHOST" in candidate and "Ipv6Addr::LOCALHOST" in candidate
+    assert "APL_UDP_BIND_ERROR" not in candidate and "APL_UDP_SEND_ERROR" not in candidate
+    assert "udp_server.send(&s5_udp_data).await?" in candidate
+    assert "LabUDPAssociationDiagnostic" not in (LAB/"NativeLabPacketTunnelProvider.swift").read_text()
+    assert "if cfg.Measure" in (IOS/"Tools/WGReferenceLab/main.go").read_text()
+    assert "--with-simulator" in (LAB/"build_udp_candidate.sh").read_text()
+
+
+def test_clean_stability_requires_prepared_off_and_no_retries():
+    script=(LAB/"run_clean_wg_stability.sh").read_text()
+    assert 'a["runID"]==b["runID"]' in script
+    assert 'a["stage"]=="labPreparedOff"' in script
+    assert 'b["connected"] is False' in script
+    assert 'for kind in tcp4 udp4 udp6 udp4 udp6 udp4 udp6 tcp6' in script
+    assert '--kind tcp4 --wrong-key --retain-profile' in script
+    assert 'run_physical_peer.py' in script and '--mode positive' in script
+    assert 'assert_no_extension' in script
+    assert 'set -euo pipefail' in script
+    assert '--prepare-only' not in script

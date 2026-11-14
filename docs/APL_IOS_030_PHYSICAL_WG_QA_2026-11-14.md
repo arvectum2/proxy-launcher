@@ -108,3 +108,53 @@ Separate cleanup-only true, uninstall and lab process/app/listener
 absence, owner profiles/selected/org hashes true and fresh Keychain3/
 APL OFF read-only2/2 PASS. Final global Settings visual unverified.
 Focused40/40 PASS. No production activation, account or main changes.
+
+## 21:24–21:29 MSK — minimal clean candidate and regression gate
+
+Built clean source-pinned Rust candidate in isolated durable destination
+native-artifacts/tun2proxy-v0.8.3-loopback-udp-clean-20261114.
+Only effective additional behavior versus connected-UDP baseline:
+explicit local source address for loopback peers, both address families.
+No diagnostic stage logging in Rust; removed extra SOCKS association
+probe from isolated provider. Independent reference netstack instrumented
+wrapper is now explicit opt-in via measure=true; default uses original
+uninstrumented path. Production patch and canonical framework unchanged.
+Historical diagnostic candidate patch at prior commit retained.
+
+Device SHA256 e81642cf494e218aeb3314289f235eeff8dff21dc8d72b8bd23ded8b41c0b852
+Simulator SHA256 eb48446d2c94bddd0e5eb3fe49b37e86efcb4eff229665f930fd679acc0df75f
+Independent clean reference SHA256 bcb050d80c22c18baa5f3fbac66e885652b5e681655bf768dd11ee436116976d.
+Verified source-pinned build and both slice digests. Fresh WG dual native
+simulator 12/12 PASS (valid UDP4/UDP6/TCP6 exact1 each; bad key/PSK/stopped
+all0). VLESS native TUN simulator 5/5 PASS (two authenticated, three
+negative). Focused42/42 PASS. Signed existing isolated host+NE built
+and signatures verified; measured device archive exact clean SHA above.
+Regression job exit0. Clean independent LAN WG preflight1/1 PASS after
+simulator released shared ports (initial parallel preflight refused
+bind with EADDRINUSE, no device action).
+Logs /tmp/apl-loopback-clean-{build,wg-dual,tun,signed}.log.
+
+Prepared run_clean_wg_stability.sh: require matching prepared OFF receipt,
+check no active production/lab extension before and between cases,
+TCP4, three UDP4/UDP6 pairs, TCP6, wrong key, final VLESS positive
+regression with final owned manager removal. No automatic retries;
+fresh key/nonce/reference for each WG case. Use same signed candidate
+and clean uninstrumented reference. Hardware result not yet available.
+
+Attempted pre-installation check: **production Arvectum Packet Tunnel
+process present**. Guard stopped before app installation, profile
+mutation or any device test. Do not interrupt the user's active VPN.
+Await owner explicitly disconnecting APL and reporting ready; recheck
+no live extension, current owner fingerprints, verify signed candidate,
+install only authorized isolated host, prepare-only permission and
+verify exact matching OFF receipt. Then run sequence:
+```sh
+A=/Volumes/ArvectumSSD/Arvectum/worktrees/proxy-launcher/native-artifacts
+B=$(cat /tmp/apl-native-physical-peer-path)
+PYTHON=python3.14 mobile/ios/Tools/NativeTunnelLab/run_clean_wg_stability.sh --approved "$A/wg-reference-20261114/wg-reference-peer-clean" "$B/wg-preflight" "$B/preflight"
+```
+Abort and retain evidence on any failure, cleanup-only and uninstall
+if appropriate, confirm owner parity, Keychain3 and APL OFF. Initial
+diagnostic candidate's two no-witness events remain unresolved; do
+not promote patch before stable physical acceptance. No AWG new
+signing IDs, production release or account changes.
