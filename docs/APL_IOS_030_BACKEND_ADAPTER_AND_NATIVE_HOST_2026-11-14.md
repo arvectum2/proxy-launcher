@@ -76,3 +76,7 @@ the pure adapter source added to normal project, no live dispatch.
 The disposable generated lab project includes the minimal packet
 tunnel entitlement templates for future approved signing; there
 are no App Group or shared Keychain entitlements in the lab.
+
+## Two-slot dispatch boundary — 22:38 MSK
+
+OwnedTransportDispatcher routes exact immutable session commands to Xray or standalone AWG slots, requires both authoritative quiescence observations before start, rejects stale same-epoch start and foreign stop/cancel. Wrong-slot current-generation receipts signal failure; old receipts ignored. Ownership established before slot submission, so synchronous callbacks can be attributed. Four focused tests and full Swift 285/285 passed. Concrete native/NE slot implementations and signed integration remain pending; this is an inactive dispatch boundary with synthetic slot fixtures, not OS-level exclusive ownership or a kill switch. No device, provider registration or production linkage changed.

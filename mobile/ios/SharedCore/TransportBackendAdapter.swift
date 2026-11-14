@@ -229,3 +229,73 @@ enum TransportBackendReceipt: Equatable {
         deadline = nil
     }
 }
+
+/// Authoritative observations from one owned native/OS driver. Include
+/// pending starts and delayed shutdown work. No actual VPN authorization.
+@MainActor protocol OwnedTransportSlot: AnyObject {
+    var provider: TransportProvider { get }
+    func isQuiescent() throws -> Bool
+    func submit(_ command: TransportBackendCoordinator.Command) throws
+}
+
+enum OwnedTransportDispatchError: Error, Equatable {
+    case invalidSlots, overlappingProviders, foreignSession, staleStart
+}
+
+/// Inactive two-slot dispatch boundary. Never infer receipt identity from
+/// global VPN state. Concrete OS/native drivers are still required.
+@MainActor final class OwnedTransportDispatcher: TransportBackendDriver {
+    typealias Model = TransportBackendCoordinator
+    private let xray: OwnedTransportSlot
+    private let awg: OwnedTransportSlot
+    private var owner: Model.Session?
+    var onReceipt: ((TransportBackendReceipt, Model.Session) -> Void)?
+
+    init(xray: OwnedTransportSlot, awg: OwnedTransportSlot) throws {
+        guard xray.provider == .rustXray, awg.provider == .standaloneAWG,
+              xray !== awg else { throw OwnedTransportDispatchError.invalidSlots }
+        self.xray = xray
+        self.awg = awg
+    }
+
+    func allOwnedProvidersQuiescent() throws -> Bool {
+        let xrayOff = try xray.isQuiescent()
+        let awgOff = try awg.isQuiescent()
+        return xrayOff && awgOff
+    }
+
+    func submit(_ command: Model.Command) throws {
+        let session: Model.Session
+        switch command {
+        case .start(let s):
+            if let owner, owner.token.epoch == s.token.epoch,
+               s.token.generation <= owner.token.generation {
+                throw OwnedTransportDispatchError.staleStart
+            }
+            guard try allOwnedProvidersQuiescent() else {
+                throw OwnedTransportDispatchError.overlappingProviders
+            }
+            // Bind ownership before dispatch, including synchronous receipts.
+            owner = s
+            session = s
+        case .stop(let s), .cancelTunnel(let s):
+            guard owner == s else { throw OwnedTransportDispatchError.foreignSession }
+            session = s
+        }
+        let slot = session.plan.provider == .rustXray ? xray : awg
+        try slot.submit(command)
+    }
+
+    /// A wrong-slot receipt with the current token is a contradiction,
+    /// not readiness. Old epochs/generations are ignored.
+    func receive(_ receipt: TransportBackendReceipt, from slot: OwnedTransportSlot,
+                 session: Model.Session) {
+        guard let owner, owner.token == session.token else { return }
+        let expected = owner.plan.provider == .rustXray ? xray : awg
+        guard expected === slot, owner == session else {
+            onReceipt?(.failed, owner)
+            return
+        }
+        onReceipt?(receipt, owner)
+    }
+}
