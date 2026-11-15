@@ -60,6 +60,12 @@ import Foundation
         pending=nil
         return try previewRecords(NativeAutomaticImport.prepare(sources))
     }
+    func previewTransfer(_ transfer:NativeImportTransfer)throws->Summary {
+        pending=nil
+        let records=try transfer.take()
+        guard (1...NativeProfileBackupCodec.maxProfiles).contains(records.count),Set(records.map(\.reference.profileID)).count==records.count else{throw ProfileBackupError.invalidFile}
+        return try previewRecords(records)
+    }
     private func previewRecords(_ records: [NativeCredentialRecord]) throws -> Summary {
         let state=try catalog.reviewState()
         guard state.0.version==2 else {throw NativeCredentialCatalog.Failure.migrationRequired}

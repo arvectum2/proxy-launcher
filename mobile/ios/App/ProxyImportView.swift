@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import UIKit
 
-struct ProxyImportView: View {
+@MainActor struct ProxyImportView: View {
     @EnvironmentObject private var model: AppViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
@@ -23,6 +23,9 @@ struct ProxyImportView: View {
     @State private var importError: String?
     @State private var chooseFile = false
     @State private var scanQR = false
+    @State private var nativeOffer:NativeImportTransfer?
+    @State private var nativeHandoff:NativeImportTransfer?
+    @State private var initialConsumed=false
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
     @State private var showNativeImport=false
 #endif
@@ -34,6 +37,7 @@ struct ProxyImportView: View {
     @FocusState private var editorFocused: Bool
     var initialSource: String = ""
     private var preview: [ImportedProxy] {
+        if nativeOffer != nil {return []}
         if automaticPreview != nil {return candidates}
         return parsedSource == source && parsedType == defaultType ? candidates : []
     }
@@ -46,16 +50,16 @@ struct ProxyImportView: View {
             Form {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
                 Section {
-                    Button {cancelSubscriptionFetch();clearAutomaticPreview();editorFocused=false;showNativeImport=true} label:{
+                    Button {openNativeLibrary()} label:{
                         Label(refreshText("Импорт WireGuard, AmneziaWG, VLESS","Import WireGuard, AmneziaWG, VLESS"),systemImage:"shield.lefthalf.filled")
                     }
                     Text(refreshText("Нативные профили — отдельная библиотека, подключение пока недоступно.","Native profiles use a separate library; connections are not yet available.")).font(.footnote).foregroundStyle(.secondary)
                 }
 #endif
 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
-                Section {Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){cancelSubscriptionFetch();clearAutomaticPreview();editorFocused=false;showNativeReview=true}}
+                Section {Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){openNativeLibrary()}}
 #endif
-                Section(ProxyImportUX.text("Ссылка или список прокси")) {
+                Section(nativeAvailable ? refreshText("Конфигурация или список профилей","Configuration or profile list") : ProxyImportUX.text("Ссылка или список прокси")) {
                     Picker(ProxyImportUX.text("Тип прокси по умолчанию"), selection: $defaultType) {
                         Text("HTTP").tag(ProxyType.http)
                         Text("HTTPS").tag(ProxyType.https)
@@ -90,10 +94,10 @@ struct ProxyImportView: View {
                         editorFocused = false
                         parse()
                     }
-                    Text(ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
+                    Text(nativeAvailable ? refreshText("Вставьте прокси, конфигурацию WireGuard/AmneziaWG или ссылки VLESS Reality. Одна библиотека за операцию. Тип выше относится только к прокси без протокола.","Paste a proxy list, WireGuard/AmneziaWG configuration or VLESS Reality links. One library per operation. The default type applies only to proxies without a scheme.") : ProxyImportUX.text("Вставьте ссылки, IP:порт:логин:пароль или TXT/CSV/XML до 200 прокси. Тип выше применяется только к строкам без протокола."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
-                .disabled(automaticPreview != nil)
+                .disabled(automaticPreview != nil || nativeOffer != nil)
                 Section(ProxyImportUX.text("Список от поставщика")) {
                     TextField(ProxyImportUX.text("HTTPS-ссылка на подписку"), text: $subscriptionURL)
                         .keyboardType(.URL)
@@ -111,7 +115,15 @@ struct ProxyImportView: View {
                     Text(refreshText("Загрузка по запросу или по выбранному интервалу на открытом экране импорта. Добавление — только после подтверждения. HTTP, HTTPS и SOCKS5.","Load on request or at the chosen interval while this import screen is open. Confirm before adding. HTTP, HTTPS and SOCKS5."))
                         .font(.footnote).foregroundStyle(.secondary)
                 }
-                .disabled(automaticPreview != nil)
+                .disabled(automaticPreview != nil || nativeOffer != nil)
+                if let offer=nativeOffer {
+                    Section(refreshText("Нативные профили","Native profiles")) {
+                        Text("WireGuard: \(offer.wireGuard) · AWG: \(offer.amneziaWG1) · VLESS: \(offer.vless)")
+                        Text(refreshText("Конфигурации распознаны. Подтвердите добавление в нативную библиотеку на следующем экране.","Configurations recognized. Review and confirm addition in the native library on the next screen.")).font(.footnote)
+                        Button(refreshText("Перейти к предпросмотру","Continue to review")){openNativeLibrary(offer)}
+                        Button(refreshText("Отмена","Cancel"),role:.cancel){discardNativeOffer()}
+                    }
+                }
                 if !savedSubscriptions.isEmpty {
                     Section(ProxyImportUX.text("Сохранённые подписки")) {
                         ForEach(savedSubscriptions) { item in
@@ -121,13 +133,13 @@ struct ProxyImportView: View {
                                         Text(item.title)
                                         Text(verbatim:item.providerHost).font(.caption).foregroundStyle(.secondary)
                                     }
-                                }.buttonStyle(.borderless).disabled(isFetchingSubscription || automaticPreview != nil)
+                                }.buttonStyle(.borderless).disabled(isFetchingSubscription || automaticPreview != nil || nativeOffer != nil)
                                 Picker(refreshText("Автообновление","Auto refresh"),selection:Binding(get:{item.refresh?.interval ?? .manual},set:{configureRefresh(item.id,$0)})) {
                                     Text(refreshText("Вручную","Manual")).tag(SubscriptionRefreshSettings.Interval.manual)
                                     Text(refreshText("Каждый час","Hourly")).tag(SubscriptionRefreshSettings.Interval.hourly)
                                     Text(refreshText("Раз в день","Daily")).tag(SubscriptionRefreshSettings.Interval.daily)
                                     Text(refreshText("Раз в неделю","Weekly")).tag(SubscriptionRefreshSettings.Interval.weekly)
-                                }.disabled(isFetchingSubscription)
+                                }.disabled(isFetchingSubscription || nativeOffer != nil)
                                 if let policy=item.refresh {
                                     Text(refreshText("Тип для строк без протокола: ","Default protocol: ")+policy.defaultType.rawValue).font(.caption)
                                     if let last=item.lastAttempt {Text(refreshText("Отсчёт интервала: ","Interval starts: ")+last.formatted(date:.abbreviated,time:.shortened)).font(.caption2).foregroundStyle(.secondary)}
@@ -194,7 +206,7 @@ struct ProxyImportView: View {
             .keyboardDismissOnSwipeUp()
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(ProxyImportUX.text("Закрыть")) { dismiss() } } }
             .onAppear {
-                if !initialSource.isEmpty { source = initialSource; parse() }
+                if !initialConsumed {initialConsumed=true;if !initialSource.isEmpty {source=initialSource;parse()}}
                 visible=true
                 refreshSavedSubscriptions()
                 refreshDueSubscription()
@@ -206,13 +218,16 @@ struct ProxyImportView: View {
                     do {try await Task.sleep(nanoseconds:60_000_000_000)}catch{return}
                 }
             }
-            .onChange(of:scenePhase){phase in if phase != .active {cancelSubscriptionFetch();clearAutomaticPreview()}}
-            .onDisappear {visible=false;cancelSubscriptionFetch();clearAutomaticPreview()}
+            .onChange(of:scenePhase){phase in
+                if phase != .active {cancelSubscriptionFetch();clearAutomaticPreview()}
+                if phase == .background {discardNativeOffer();nativeHandoff?.discard();nativeHandoff=nil;if UnifiedProfileImport.hasNativeSyntax(source){source="";parsedSource=""}}
+            }
+            .onDisappear {visible=false;cancelSubscriptionFetch();clearAutomaticPreview();discardNativeOffer();if !nativeImportPresented {nativeHandoff?.discard();nativeHandoff=nil}}
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
-            .sheet(isPresented:$showNativeImport){NativePersistentProfilesView(model:model)}
+            .sheet(isPresented:$showNativeImport,onDismiss:clearNativeHandoff){NativePersistentProfilesView(model:model,initialImport:nativeHandoff)}
 #endif
 #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
-            .sheet(isPresented:$showNativeReview){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
+            .sheet(isPresented:$showNativeReview,onDismiss:clearNativeHandoff){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty,initialImport:nativeHandoff)}
 #endif
             .sheet(isPresented: $scanQR) {
                 NavigationView {
@@ -222,7 +237,8 @@ struct ProxyImportView: View {
                             // Shared APL QR links are also Apple deep links.
                             // Unwrap only our registered scheme; legacy proxy
                             // QR and multi-profile supplier codes keep working.
-                            source = try ProxyProfileSharing.scannedSource(code)
+                            if UnifiedProfileImport.hasNativeSyntax(code) {source=code}
+                            else {source = try ProxyProfileSharing.scannedSource(code)}
                             parse()
                         } catch {
                             importError = ProxyImportUX.error(error)
@@ -247,7 +263,7 @@ struct ProxyImportView: View {
                 }
             }
             .fileImporter(isPresented: $chooseFile,
-                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml, .json],
+                          allowedContentTypes: [.plainText, .commaSeparatedText, .xml, .json] + (nativeAvailable ? [.data] : []),
                           allowsMultipleSelection: false) { result in
                 do {
                     guard let url = try result.get().first else { return }
@@ -290,7 +306,7 @@ struct ProxyImportView: View {
     }
     private func refreshDueSubscription(){
         guard visible,scenePhase == .active,!nativeImportPresented,!isFetchingSubscription,!editorFocused,!scanQR,!chooseFile,
-              source.isEmpty,subscriptionURL.isEmpty,subscriptionTitle.isEmpty,automaticPreview==nil else{return}
+              source.isEmpty,subscriptionURL.isEmpty,subscriptionTitle.isEmpty,automaticPreview==nil,nativeOffer==nil else{return}
         do {
             let store=try ProxySubscriptionStore()
             guard let due=try store.list().filter({$0.refresh?.isDue(lastAttempt:$0.lastAttempt)==true}).min(by:{($0.lastAttempt ?? .distantPast)<($1.lastAttempt ?? .distantPast)}),
@@ -328,7 +344,7 @@ struct ProxyImportView: View {
     }
 
     private func loadSavedSubscription(_ id: UUID) {
-        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil else{return}
+        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil,nativeOffer==nil,!nativeImportPresented else{return}
         do {
             let store=try ProxySubscriptionStore()
             guard let saved=try store.list().first(where:{$0.id==id}) else{return}
@@ -342,7 +358,7 @@ struct ProxyImportView: View {
     }
 
     private func loadSubscription(savedURL: URL? = nil,saved:SavedProxySubscription?=nil,automatic:Bool=false) {
-        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil else { return }
+        guard visible,scenePhase == .active,!isFetchingSubscription,automaticPreview==nil,nativeOffer==nil,!nativeImportPresented else { return }
         let originalURL = subscriptionURL
         let originalSource = source
         let originalType = defaultType
@@ -365,7 +381,7 @@ struct ProxyImportView: View {
                 let downloaded = try await ProxySubscriptionFetch.load(url, defaultType: selectedType)
                 try Task.checkCancellation()
                 // A concurrent user edit must not be overwritten by a delayed response.
-                guard refreshGeneration==generation,visible,scenePhase == .active,!scanQR,!chooseFile,
+                guard refreshGeneration==generation,visible,scenePhase == .active,!scanQR,!chooseFile,!nativeImportPresented,nativeOffer==nil,
                       subscriptionURL == originalURL, source == originalSource, defaultType == originalType else{return}
                 if let saved {
                     guard try ProxySubscriptionStore().list().contains(saved) else{return}
@@ -435,12 +451,48 @@ struct ProxyImportView: View {
         dismiss()
     }
 
+    private var nativeAvailable:Bool {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        return true
+#elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        return true
+#else
+        return false
+#endif
+    }
+    private func discardNativeOffer(){nativeOffer?.discard();nativeOffer=nil}
+    private func clearNativeHandoff(){nativeHandoff?.discard();nativeHandoff=nil}
+    private func openNativeLibrary(_ offer:NativeImportTransfer?=nil){
+        guard nativeAvailable,visible,scenePhase == .active,!nativeImportPresented else{return}
+        if let offer {guard nativeOffer === offer else{return};nativeOffer=nil}else{discardNativeOffer()}
+        cancelSubscriptionFetch();clearAutomaticPreview();clearNativeHandoff();editorFocused=false
+        nativeHandoff=offer
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        showNativeImport=true
+#elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        showNativeReview=true
+#endif
+    }
     private func parse() {
         editorFocused = false
+        guard nativeOffer==nil else{return}
         parsedSource = source
         parsedType = defaultType
         cameraPermissionDenied = false
-        do { candidates = try ProxyImport.parse(source, defaultType: defaultType); importError = nil }
-        catch { candidates = []; importError = ProxyImportUX.error(error) }
+        do {
+            switch try UnifiedProfileImport.parse(source,defaultType:defaultType) {
+            case .proxy(let rows):candidates=rows;importError=nil
+            case .native(let records):
+                cancelSubscriptionFetch();candidates=[];parsedSource="";source=""
+                if nativeAvailable {nativeOffer=NativeImportTransfer(records);importError=nil}
+                else {importError=refreshText("Нативные профили пока недоступны в этой сборке","Native profiles are not available in this build")}
+            }
+        } catch {
+            candidates=[]
+            if UnifiedProfileImport.hasNativeSyntax(source) {
+                parsedSource="";source=""
+                importError=refreshText("Некорректная или неподдерживаемая нативная конфигурация. Не смешивайте прокси и VPN-профили.","Invalid or unsupported native configuration. Do not mix proxy and VPN profiles.")
+            }else{importError=ProxyImportUX.error(error)}
+        }
     }
 }

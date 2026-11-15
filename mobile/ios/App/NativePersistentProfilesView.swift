@@ -9,6 +9,8 @@ import NetworkExtension
 /// Explicit device Debug candidate, never a connection or legacy selection UI.
 @MainActor struct NativePersistentProfilesView:View {
     @ObservedObject var model:AppViewModel
+    var initialImport:NativeImportTransfer? = nil
+    @State private var consumedInitialImport=false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var phase
     @State private var session:NativePersistentProfileSession?
@@ -268,7 +270,13 @@ import NetworkExtension
         #endif
     }
     private func leave(){generation=UUID();lifecycle.leave();cancelReview();session=nil;library=nil;fileReceipt=nil;exportReceipt=nil;document=nil;exporting=false;choosing=false;busy=false}
-    private func enter(){guard session==nil else{return};lifecycle.appear();session=model.makePersistentNativeLibrary();reload()}
+    private func enter(){
+        guard session==nil else{return};lifecycle.appear();session=model.makePersistentNativeLibrary();reload()
+        if !consumedInitialImport,let initialImport {
+            consumedInitialImport=true
+            do {guard let session else{throw NativePersistentProfileSession.Failure.unavailable};summary=try session.previewTransfer(initialImport)}catch{initialImport.discard();failed=true}
+        }
+    }
     private func reload(){cancelReview();failed=false;do{library=try session?.state()}catch{library=nil;failed=true}}
     private func prepare(_ action:NativePersistentProfileSession.Action){guard !busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};cancelReview();do{receipt=try session.prepare(action)}catch{failed=true}}
     private func choose(_ action:NativeReviewFileLifecycle.Action){guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return};cancelReview();fileReceipt=lifecycle.begin(action);choosing=fileReceipt != nil}

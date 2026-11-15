@@ -59,3 +59,47 @@ enum NativeAutomaticImport {
         guard !records.isEmpty else{throw Failure.empty};return records
     }
 }
+
+/// Classify explicit native syntax before the legacy parser. Malformed or mixed
+/// native input must never degrade into an HTTP/SOCKS proxy.
+enum UnifiedProfileImport {
+    enum Result {
+        case proxy([ImportedProxy])
+        case native([NativeCredentialRecord])
+    }
+    static func hasNativeSyntax(_ input:String)->Bool {
+        guard input.utf8.prefix(NativeAutomaticImport.maxBytes+1).count<=NativeAutomaticImport.maxBytes else{return false}
+        return input.components(separatedBy:.newlines).contains {raw in
+            let line=raw.trimmingCharacters(in:.whitespacesAndNewlines).trimmingCharacters(in:CharacterSet(charactersIn:"\u{FEFF}")).trimmingCharacters(in:.whitespacesAndNewlines)
+            let marker=String(line.prefix{$0 != "#"}).trimmingCharacters(in:.whitespacesAndNewlines).lowercased()
+            return marker.hasPrefix("vless://") || marker=="[interface]" || marker=="[peer]"
+        }
+    }
+    static func parse(_ input:String,defaultType:ProxyType)throws->Result {
+        guard input.utf8.prefix(NativeAutomaticImport.maxBytes+1).count<=NativeAutomaticImport.maxBytes else{throw ProxyImportError.tooLarge}
+        guard hasNativeSyntax(input) else{return .proxy(try ProxyImport.parse(input,defaultType:defaultType))}
+        var clean=input.trimmingCharacters(in:.whitespacesAndNewlines)
+        if clean.hasPrefix("\u{FEFF}"){clean=String(clean.dropFirst()).trimmingCharacters(in:.whitespacesAndNewlines)}
+        return .native(try NativeAutomaticImport.prepare([clean]))
+    }
+}
+
+/// In-memory, one-shot handoff. No raw editable source, disk, clipboard or URL
+/// transport. A dismissed or backgrounded origin invalidates unused records.
+@MainActor final class NativeImportTransfer {
+    private var records:[NativeCredentialRecord]?
+    let wireGuard:Int
+    let amneziaWG1:Int
+    let vless:Int
+    init(_ records:[NativeCredentialRecord]) {
+        self.records=records
+        wireGuard=records.filter{$0.reference.kind == .wireGuard}.count
+        amneziaWG1=records.filter{$0.reference.kind == .amneziaWG1}.count
+        vless=records.filter{$0.reference.kind == .vlessReality}.count
+    }
+    func take()throws->[NativeCredentialRecord] {
+        guard let records else{throw NativeRestoreReview.Failure.staleReview}
+        self.records=nil;return records
+    }
+    func discard(){records=nil}
+}

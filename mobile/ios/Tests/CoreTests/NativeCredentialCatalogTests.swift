@@ -113,6 +113,24 @@ final class NativeCredentialCatalogTests: XCTestCase {
             XCTAssertThrowsError(try ui.confirm(receipt,vpnInactive:{true}))
         }
     }
+    @MainActor func testUnifiedImportClassifiesAndTransfersOnlyOnce() throws {
+        let a=automaticSources(),b=automaticSources()
+        let legacy="http://user:pass@192.0.2.42:8080\n192.0.2.43:1080"
+        guard case .proxy(let rows)=try UnifiedProfileImport.parse(legacy,defaultType:.socks5) else{return XCTFail("Wrong family")}
+        XCTAssertEqual(rows,try ProxyImport.parse(legacy,defaultType:.socks5))
+        for (source,kind) in [("\u{FEFF}# comment\n"+a.wg,NativeCredentialRecord.Kind.wireGuard),(a.awg,.amneziaWG1),(a.vless+"\n"+b.vless,.vlessReality)] {
+            guard case .native(let records)=try UnifiedProfileImport.parse(source,defaultType:.http) else{return XCTFail("Wrong family")}
+            XCTAssertTrue(records.allSatisfy{$0.reference.kind==kind})
+            let target=NativeProfileReviewSession(),transfer=NativeImportTransfer(records)
+            let summary=try target.previewTransfer(transfer);XCTAssertEqual(summary.count,records.count);XCTAssertEqual(try target.counts().total,0)
+            XCTAssertThrowsError(try transfer.take())
+            _=try target.addToRehearsal(summary);XCTAssertEqual(try target.counts().total,records.count)
+            let discarded=NativeImportTransfer(records);discarded.discard();XCTAssertThrowsError(try target.previewTransfer(discarded))
+        }
+        for source in [legacy+"\n"+a.vless,a.vless+"\n"+legacy,a.wg+"\n"+legacy,"[Peer]\nEndpoint=192.0.2.42:51820",a.awg.replacingOccurrences(of:"H4=32345\n",with:"")] {
+            XCTAssertThrowsError(try UnifiedProfileImport.parse(source,defaultType:.http))
+        }
+    }
     private func automaticSources() -> (wg:String,awg:String,vless:String) {
         let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
         let wg="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"

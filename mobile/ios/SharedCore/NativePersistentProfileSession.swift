@@ -37,6 +37,7 @@ import Foundation
     }
     func previewSource(_ source:String,kind:NativeCredentialRecord.Kind)throws->NativeRestoreReview.Summary {cancel();return try review.previewSource(source,expected:kind.transport)}
     func previewAutomatic(_ sources:[String])throws->NativeRestoreReview.Summary {cancel();return try review.previewAutomatic(sources)}
+    func previewTransfer(_ transfer:NativeImportTransfer)throws->NativeRestoreReview.Summary {cancel();return try review.previewTransfer(transfer)}
     func previewBackup(_ bytes:Data,password:String)throws->NativeRestoreReview.Summary {cancel();return try review.preview(data:bytes,password:password)}
     func confirmImport(_ summary:NativeRestoreReview.Summary,vpnInactive:()throws->Bool)throws {
         editing=nil;pending=nil;_ = try review.confirm(summary,vpnInactive:vpnInactive)

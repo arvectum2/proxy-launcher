@@ -73,13 +73,15 @@ enum NativeReviewQAL10n {
     @State private var exportFilename="APL-Native-QA-Encrypted"
     var legacyIDs:Set<UUID> = []
     var hasExclusions=false
+    var initialImport:NativeImportTransfer?
+    @State private var consumedInitialImport=false
     @State private var library=NativeProfilePresentation.empty
     @State private var failed=false
     @State private var authenticationFailed=false
     @State private var exportSaved=false
     @FocusState private var passwordFocus:Bool
 
-    init(legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) {self.legacyIDs=legacyIDs;self.hasExclusions=hasExclusions}
+    init(legacyIDs:Set<UUID> = [],hasExclusions:Bool = false,initialImport:NativeImportTransfer?=nil) {self.legacyIDs=legacyIDs;self.hasExclusions=hasExclusions;self.initialImport=initialImport}
 
     private func tr(_ key: String) -> String { NativeReviewQAL10n.tr(key) }
 
@@ -164,12 +166,16 @@ enum NativeReviewQAL10n {
             document=nil;exportReceipt=nil
             switch result {case .success:exportSaved=true;case .failure:fail()}
         }
-        .onAppear { if phase == .active { lifecycle.appear() } }
+        .onAppear { if phase == .active { lifecycle.appear();consumeInitialImport() } }
         .onChange(of:phase){value in
             if value == .background {leave()}
-            else if value == .active {lifecycle.appear()}
+            else if value == .active {lifecycle.appear();consumeInitialImport()}
         }
         .onDisappear {leave()}
+    }
+    private func consumeInitialImport(){
+        guard !consumedInitialImport,let initialImport else{return};consumedInitialImport=true
+        do {summary=try session.previewTransfer(initialImport)}catch{initialImport.discard();fail()}
     }
     private func protocolTitle(_ kind:NativeCredentialRecord.Kind)->String {
         switch kind {case .wireGuard:return "WireGuard";case .amneziaWG1:return "AmneziaWG 1";case .vlessReality:return "VLESS Reality"}

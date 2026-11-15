@@ -75,6 +75,7 @@ struct NativeProfilePresentation: Equatable {
     func previewSource(_ source:String,kind:NativeCredentialRecord.Kind) throws -> NativeRestoreReview.Summary {
         management.cancel();return try review.previewSource(source,expected:kind.transport)
     }
+    func previewTransfer(_ transfer:NativeImportTransfer)throws->NativeRestoreReview.Summary {management.cancel();return try review.previewTransfer(transfer)}
     func previewAutomatic(_ sources:[String])throws->NativeRestoreReview.Summary {
         management.cancel();return try review.previewAutomatic(sources)
     }
