@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage25 literal endpoint/port editor of native profiles, strict unchanged engine parameters, lease and revision-bound preview/commit."
   - "Stage24 same-protocol native configuration replacement via file/clipboard, journaled revision commit, identity/name preservation and required reselect."
   - "Stage23 native library labels/search and encrypted name roundtrip, shared import entry behind existing gates."
   - "Stage22 foreground opt-in interval refresh for saved proxy subscriptions, additive preview and persisted attempt schedule."
@@ -231,7 +232,7 @@ completed:
 
 
 
-current: "Stage24 implemented: replace one existing native config via file or clipboard, same protocol, new immutable revision; secret-free receipt, exact snapshot/legacy identity, existing atomic insert journal with additional live VPN-inactive checks and cleanup guard. Name/ID/order/other profiles preserved; old selected ref/nonce cleared, explicit reselection required, old creds retired until cleanup. Focused Swift test 1/1 PASS (invalid protocol, stale, VPN denied, commit failure rollback, success, reselection); gated unsigned iPhoneOS Debug BUILD PASS. Prior64ad3275 CI6/7 last observed, remaining running. No full suite/sim repeat. No device/account/network/signing/activation or production changes. No in-place field editor, cross-protocol replacement or retired rollback UI."
+current: "Stage25 implemented: exact current native endpoint editor, only literal IP+port visible, WG/AWG IPv4/IPv6 and VLESS IPv4 under existing strict compiler, no DNS host relaxation. WG/AWG canonical source reconstruction preserves validated parameters (not comments/formatting), VLESS endpoint change preserves authentication/REALITY fields. VPN-off lease read/preview/confirm, snapshot-bound expiring one-shot draft and existing journaled revision replacement, selected profile needs reselect. Gated unsigned iPhoneOS Debug BUILD PASS; focused Swift1/1 PASS all3 protocols exact engine config equality except endpoint, WG/AWG IPv6 and invalid/stale/active guard. Prior44dc5b74 CI5/7 success at entry; new CI pending. No broad checks or simulator repeat; no device, account, signing, activation, production changes. No general key/route editor."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -243,8 +244,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "64ad3275 exact CI6/7 last observed; new tree gated unsigned Debug and focused Swift replacement1/1 PASS; new CI pending"
+last_verified_commit: "44dc5b74 CI5/7 last seen at entry; stage25 working tree gated unsigned Debug and focused Swift endpoint editor PASS; new CI pending"
 test_results:
+  - "Stage25 gated unsigned Debug BUILD PASS; Swift focused endpoint editor1/1 PASS 0.012s; full QA deferred."
   - "Stage24 gated unsigned iPhoneOS Debug BUILD PASS; focused Swift replacement1/1 PASS; prior64ad3275 CI6/7 last seen, final QA deferred."
   - "Stage23 gated unsigned iPhoneOS Debug BUILD PASS; focused Swift 1/1 PASS; prior b879e456 CI7/7; full and actual device QA deferred."
   - "Stage22 final unsigned Release ARM64 BUILD PASS, focused subscription source contract PASS, prior84fa0bcd CI7/7; broader QA deferred, actual supplier/runtime pending."
@@ -392,4 +394,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner: develop substantive functions, only build and focused checks until final acceptance; do not revisit advertising SDK/monetization. Verify PR383 HEAD CI. Stage24 same-protocol native replacement completed. Review substantive remaining functionality/release integration, prioritize a genuinely useful missing feature (e.g. native safe endpoint/parameter editor only if it can preserve strict supported grammar and secret handling, otherwise shared profile library UX or supported import improvements); avoid test-only or documentation-only loops. Native domain/related-host parity requires explicit product architecture decision, not a silent scope reduction. Consolidate actual final acceptance gates once remaining implementation done; actual K1/K2/X1/N1/N2/C1/R1 and exact30 signed cases require owner device/network approval, independent topology and fresh exact candidate builds. Keep native runtime closed pending acceptance. No unauthorized signing, activation/device/account changes/main merge/publication. Maintain single watchdog/checkpoint."
+resume_instruction: "Owner instruction: prioritize substantive functionality; only build/focused checks until final acceptance; never reopen excluded advertising work. Verify PR383 exact HEAD CI. Stage25 endpoint editing done; next assess actual remaining roadmap and close substantive shared import UX gaps (single explicit classification and handoff for pasted supported proxy/native text, not cross-store atomic claims), then consolidate integration/release scope with owner; no redundant synthetic/GUI tests or invented tasks. Native exact-domain/related-host parity requires explicit product architecture decision; keep admission closed, no silent narrowing. Actual signed K1/K2/X1/N1/N2/C1/R1 and exact30 cases require device availability/network approval, independent topology and fresh exact candidate builds. No unauthorized signing/registration/device/account/network activation/main merge/publication. Maintain single watchdog and checkpoint."

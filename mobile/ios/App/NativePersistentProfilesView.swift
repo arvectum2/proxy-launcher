@@ -36,6 +36,9 @@ import NetworkExtension
     @State private var nameDraft=""
     @State private var showRename=false
     @State private var replacementTarget:NativeCredentialRecord.Reference?
+    @State private var endpointEdit:NativePersistentProfileSession.EndpointEdit?
+    @State private var endpointHost=""
+    @State private var endpointPort=""
     #if APL_NATIVE_IP_ROUTE_REVIEW
     @State private var ipRuleText=""
     @State private var ipOptIn=false
@@ -59,12 +62,25 @@ import NetworkExtension
                     Section(tr("Confirm operation","Подтверждение операции")) {
                         Text(actionTitle(receipt.action));Text(tr("Affected records: ","Затронуто записей: ")+String(receipt.affected))
                         if let row=targetRow(receipt.action) {Text(rowTitle(row))}
+                        if let endpoint=receipt.endpoint {Text(tr("New server: ","Новый сервер: ")+endpoint.address).font(.body.monospaced())}
                         if case .rename(_,let name)=receipt.action {Text(name.isEmpty ? tr("Default name","Имя по умолчанию"):name)}
                         if receipt.action == .exportBackup {
                             SecureField(tr("New password","Новый пароль"),text:$password).textContentType(.newPassword)
                             SecureField(tr("Repeat password","Повторите пароль"),text:$repeatedPassword).textContentType(.newPassword)
                             Button(tr("Encrypt and export","Зашифровать и экспортировать")){exportBackup(receipt)}.disabled(password.count<12 || password != repeatedPassword)
                         } else {Button(tr("Confirm","Подтвердить")){apply(receipt:receipt,summary:nil)}}
+                        Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
+                    }
+                }
+                if let edit=endpointEdit,let row=library?.library.rows.first(where:{$0.reference==edit.reference}) {
+                    Section(tr("Edit server","Редактирование сервера")) {
+                        Text(rowTitle(row)).font(.headline)
+                        Text(tr("Current server: ","Текущий сервер: ")+edit.endpoint.address).font(.footnote)
+                        TextField(tr("IP address","IP-адрес"),text:$endpointHost).textInputAutocapitalization(.never).disableAutocorrection(true)
+                        TextField(tr("Port","Порт"),text:$endpointPort).keyboardType(.numberPad)
+                        Text(tr("Only the server IP and port change. Keys and other settings remain unchanged.","Меняются только IP и порт сервера. Ключи и остальные параметры сохраняются.")).font(.footnote)
+                        if edit.reference.kind == .vlessReality {Text(tr("IPv4 only","Только IPv4")).font(.caption)}
+                        Button(tr("Review new server","Проверить новый сервер")){reviewEndpoint(edit)}.disabled(endpointHost.isEmpty || endpointHost.utf8.count>45 || UInt16(endpointPort)==nil || UInt16(endpointPort)==0)
                         Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
                     }
                 }
@@ -150,6 +166,7 @@ import NetworkExtension
                     Text(status(row.state)).font(.footnote).foregroundStyle(.secondary)
                     Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.buttonStyle(.borderless).disabled(!row.canReview)
                     Button(tr("Rename","Переименовать")){beginRename(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
+                    Button(tr("Edit server","Редактировать сервер")){beginEndpointEdit(row.reference)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
                     Button(tr("Replace configuration","Заменить конфигурацию")){beginReplacement(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
                     Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired)
                 }
@@ -245,7 +262,7 @@ import NetworkExtension
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){replacementTarget=nil;renameTarget=nil;nameDraft="";showRename=false;authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+    private func cancelReview(){endpointEdit=nil;endpointHost="";endpointPort="";replacementTarget=nil;renameTarget=nil;nameDraft="";showRename=false;authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
         #if APL_NATIVE_IP_ROUTE_REVIEW
         ipPreview=nil;ipOptIn=false;ipRuleText=""
         #endif
@@ -275,6 +292,37 @@ import NetworkExtension
             let raw=try NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes)
             summary=try session.previewSource(raw,kind:kind)
         }catch{cancelReview();failed=true}
+    }
+    private func beginEndpointEdit(_ target:NativeCredentialRecord.Reference){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return}
+        cancelReview();failed=false;busy=true;let token=generation
+        Task { @MainActor in
+            do {
+                var edit:NativePersistentProfileSession.EndpointEdit?
+                try await model.vpn.withNativeLibraryWrite { inactive in
+                    guard generation==token,lifecycle.visible,phase == .active else{throw NativePersistentProfileSession.Failure.stale}
+                    edit=try session.beginEndpointEdit(target,vpnInactive:inactive)
+                }
+                if generation==token,phase == .active,let edit {endpointEdit=edit;endpointHost=edit.endpoint.host;endpointPort=String(edit.endpoint.port)}
+            }catch{if generation==token{cancelReview();failed=true}}
+            if generation==token{busy=false}
+        }
+    }
+    private func reviewEndpoint(_ edit:NativePersistentProfileSession.EndpointEdit){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,endpointEdit==edit,let session,let port=UInt16(endpointPort),port>0 else{return}
+        let host=endpointHost.trimmingCharacters(in:.whitespacesAndNewlines),token=generation
+        endpointEdit=nil;endpointHost="";endpointPort="";busy=true;failed=false
+        Task { @MainActor in
+            do {
+                var prepared:NativePersistentProfileSession.Receipt?
+                try await model.vpn.withNativeLibraryWrite { inactive in
+                    guard generation==token,lifecycle.visible,phase == .active else{throw NativePersistentProfileSession.Failure.stale}
+                    prepared=try session.previewEndpointEdit(edit,host:host,port:port,vpnInactive:inactive)
+                }
+                if generation==token,phase == .active {receipt=prepared}
+            }catch{if generation==token{cancelReview();failed=true}}
+            if generation==token{busy=false}
+        }
     }
     private func beginReplacement(_ row:NativeProfilePresentation.Row){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return}

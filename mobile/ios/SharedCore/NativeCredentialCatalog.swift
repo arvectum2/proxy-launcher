@@ -144,6 +144,13 @@ struct NativeCredentialCatalogReader {
         try reader.storage.replace(bytes)
         s=next
     }
+    func recordForEndpointEdit(_ ref:Ref,expected:Snapshot,expectedLegacy:Set<UUID>,vpnInactive:()throws->Bool)throws->NativeCredentialRecord {
+        guard expected.version==2,!expected.hasPendingWrite,expected.current.contains(ref),!expectedLegacy.contains(ref.profileID),expected.retired.count<64 else{throw Failure.invalidCatalog}
+        guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
+        guard let record=try repository.read(ref) else{throw Failure.missing}
+        guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
+        return record
+    }
     func replace(_ old:Ref,with record:NativeCredentialRecord,expected:Snapshot,expectedLegacy:Set<UUID>,vpnInactive:()throws->Bool)throws {
         guard expected.version==2,!expected.hasPendingWrite,expected.current.contains(old),record.reference.profileID==old.profileID,record.reference.kind==old.kind,record.reference != old,!expectedLegacy.contains(old.profileID) else{throw Failure.collision}
         guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}

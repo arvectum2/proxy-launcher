@@ -56,6 +56,45 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
         let route = try NativeTunnelRoutePlan.prepare(config)
         return (.init(provider:config.provider,wireProtocol:config.wireProtocol,bytes:config.withEngineConfiguration{$0}),.wireGuard(route))
     }
+    struct Endpoint:Equatable {
+        let host:String
+        let port:UInt16
+        var address:String {host.contains(":") ? "[\(host)]:\(port)":"\(host):\(port)"}
+    }
+    func endpointForEdit()throws->Endpoint {
+        let route=try compile().1
+        return Endpoint(host:route.remoteAddress,port:route.remotePort)
+    }
+    /// Change only the validated endpoint. The source never leaves this type.
+    func replacingEndpoint(host:String,port:UInt16)throws->Self {
+        guard !host.isEmpty,host.utf8.count<=45,port>0,!host.utf8.contains(0) else{throw Failure.invalidRecord}
+        var a4=in_addr(),a6=in6_addr()
+        let ipv4=host.withCString{inet_pton(AF_INET,$0,&a4)==1}
+        let ipv6=host.withCString{inet_pton(AF_INET6,$0,&a6)==1}
+        guard ipv4 || (ipv6 && reference.kind != .vlessReality) else{throw Failure.invalidRecord}
+        let endpoint=Endpoint(host:host,port:port),updated:String
+        if reference.kind == .vlessReality {
+            let old=try VLESSRealityShareLink.parse(source)
+            guard var url=URLComponents(string:source.trimmingCharacters(in:.whitespacesAndNewlines)) else{throw Failure.invalidRecord}
+            url.host=host;url.port=Int(port)
+            guard let next=url.string else{throw Failure.invalidRecord}
+            let parsed=try VLESSRealityShareLink.parse(next)
+            guard parsed.userID==old.userID,parsed.serverName==old.serverName,parsed.fingerprint==old.fingerprint,parsed.publicKey==old.publicKey,parsed.shortID==old.shortID,parsed.visionFlow==old.visionFlow else{throw Failure.invalidRecord}
+            updated=next
+        } else {
+            let old=try WGQuickConfigurationPreview.validated(source)
+            guard old.peerProperties.count==1 else{throw Failure.invalidRecord}
+            // Reconstruct from the strict accepted grammar, preserving every value except Endpoint.
+            var peer=old.peerProperties[0];peer["endpoint"]=endpoint.address
+            func lines(_ fields:[String:String])->[String] {fields.keys.sorted().compactMap{key in fields[key].map{"\(key) = \($0)"}}}
+            updated=(["[Interface]"]+lines(old.properties)+["[Peer]"]+lines(peer)).joined(separator:"\n")
+            let checked=try WGQuickConfigurationPreview.validated(updated)
+            guard checked.properties==old.properties,checked.peerProperties==[peer] else{throw Failure.invalidRecord}
+        }
+        let result=try Self.create(profileID:reference.profileID,expected:reference.kind.transport,source:updated)
+        guard try result.endpointForEdit() != endpointForEdit() else{throw Failure.invalidRecord}
+        return result
+    }
     /// Revalidate and mint new IDs; restore never reuses a session revision.
     func copyForRestore(profileID: UUID) throws -> Self {
         try Self.create(profileID:profileID,expected:reference.kind.transport,source:source).withDisplayName(displayName)

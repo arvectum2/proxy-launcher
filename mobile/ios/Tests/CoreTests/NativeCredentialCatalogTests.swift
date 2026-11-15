@@ -77,6 +77,42 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let select=try ui.prepare(.select(ref));try ui.confirm(select,vpnInactive:{true});XCTAssertEqual(try c.reader.snapshot().selected,ref)
         XCTAssertNotEqual(try c.reader.snapshot().selectionNonce,before.selectionNonce)
     }
+    @MainActor func testEndpointEditorPreservesEngineParametersAndRejectsStaleDraft() throws {
+        let sources=automaticSources(),m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let ui=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly})
+        for (protocolKind,source) in [(TransportProtocol.wireGuard,sources.wg),(.amneziaWG1,sources.awg),(.vlessReality,sources.vless)] {
+            let old=try NativeCredentialRecord.create(profileID:UUID(),expected:protocolKind,source:source);try c.save(old,select:true)
+            let before=try c.reader.snapshot(),originalItems=items.values
+            XCTAssertThrowsError(try ui.beginEndpointEdit(old.reference,vpnInactive:{false}))
+            for host in ["example.com","127.0.0.1","192.0.2.53","192.0.2.43\nEndpoint=192.0.2.42:123"] {
+                // VLESS has no tunnel DNS configuration; its literal unicast DNS address is allowed.
+                if protocolKind == .vlessReality && host == "192.0.2.53" {continue}
+                let draft=try ui.beginEndpointEdit(old.reference,vpnInactive:{true})
+                XCTAssertThrowsError(try ui.previewEndpointEdit(draft,host:host,port:4444,vpnInactive:{true}))
+            }
+            let draft=try ui.beginEndpointEdit(old.reference,vpnInactive:{true});_ = try ui.prepare(.rename(old.reference,"Stale"))
+            XCTAssertThrowsError(try ui.previewEndpointEdit(draft,host:"192.0.2.43",port:4444,vpnInactive:{true}))
+            XCTAssertEqual(items.values,originalItems);XCTAssertEqual(try c.reader.snapshot(),before)
+            let good=try ui.beginEndpointEdit(old.reference,vpnInactive:{true})
+            let receipt=try ui.previewEndpointEdit(good,host:"192.0.2.43",port:4444,vpnInactive:{true})
+            XCTAssertEqual(receipt.endpoint?.address,"192.0.2.43:4444");XCTAssertEqual(items.values,originalItems)
+            try ui.confirm(receipt,vpnInactive:{true})
+            let ref=try XCTUnwrap(c.reader.snapshot().current.first{$0.profileID==old.reference.profileID}),new=try XCTUnwrap(repo.read(ref))
+            XCTAssertNotEqual(ref.revision,old.reference.revision);XCTAssertNil(try c.reader.snapshot().selected)
+            let oldBytes=try old.compile().0.withEngineConfiguration{$0},newBytes=try new.compile().0.withEngineConfiguration{$0}
+            if protocolKind == .vlessReality {
+                var expected=try XCTUnwrap(JSONSerialization.jsonObject(with:oldBytes) as? [String:Any])
+                var out=try XCTUnwrap(expected["outbounds"] as? [[String:Any]])
+                var settings=try XCTUnwrap(out[0]["settings"] as? [String:Any]);settings["address"]="192.0.2.43";settings["port"]=4444;out[0]["settings"]=settings;expected["outbounds"]=out
+                XCTAssertEqual(try JSONSerialization.data(withJSONObject:expected,options:[.sortedKeys]),newBytes)
+            } else {
+                let expected=String(decoding:oldBytes,as:UTF8.self).replacingOccurrences(of:good.endpoint.address,with:"192.0.2.43:4444")
+                XCTAssertEqual(Data(expected.utf8),newBytes)
+                let ipv6=try new.replacingEndpoint(host:"2001:db8::42",port:51820);XCTAssertEqual(try ipv6.endpointForEdit().address,"[2001:db8::42]:51820")
+            }
+            XCTAssertThrowsError(try ui.confirm(receipt,vpnInactive:{true}))
+        }
+    }
     private func automaticSources() -> (wg:String,awg:String,vless:String) {
         let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
         let wg="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
