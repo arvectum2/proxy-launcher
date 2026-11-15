@@ -1,6 +1,9 @@
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
 import SwiftUI
 import UniformTypeIdentifiers
+#if APL_NATIVE_IP_ROUTE_REVIEW
+import NetworkExtension
+#endif
 
 /// Explicit device Debug candidate, never a connection or legacy selection UI.
 @MainActor struct NativePersistentProfilesView:View {
@@ -25,6 +28,11 @@ import UniformTypeIdentifiers
     @State private var busy=false
     @State private var failed=false
     @State private var generation=UUID()
+    #if APL_NATIVE_IP_ROUTE_REVIEW
+    @State private var ipRuleText=""
+    @State private var ipOptIn=false
+    @State private var ipPreview:[String]?
+    #endif
     static var title:String {label("Native profiles · storage QA","Нативные профили · проверка хранилища")}
     private static func label(_ en:String,_ ru:String)->String {AppL10n.effectiveLanguage=="ru" ? ru:en}
     private func tr(_ en:String,_ ru:String)->String {Self.label(en,ru)}
@@ -92,6 +100,17 @@ import UniformTypeIdentifiers
                 }
             }
         }
+        #if APL_NATIVE_IP_ROUTE_REVIEW
+        if let row=library.library.rows.first(where:{$0.selected && $0.canReview && $0.reference.kind != .vlessReality}),library.policyAllowsSelection,!library.selectionNeedsReview,!library.migrationRequired,!library.recoveryRequired {
+            Section(tr("Explicit IP route preview","Предпросмотр IP-маршрутов")) {
+                Text(tr("One literal IP or network per line. Applies to every destination in that network, not a domain. Preview only; no routes are applied.","Один IP или CIDR в строке. Правило относится ко всем адресам сети, а не к домену. Только предпросмотр; маршруты не применяются."))
+                TextEditor(text:$ipRuleText).frame(minHeight:76).textInputAutocapitalization(.never).disableAutocorrection(true).onChange(of:ipRuleText){_ in ipPreview=nil;ipOptIn=false}
+                Toggle(tr("I understand the IP-wide scope","Понимаю действие правила на всю IP-сеть"),isOn:$ipOptIn).onChange(of:ipOptIn){_ in ipPreview=nil}
+                Button(tr("Preview excluded routes","Проверить исключаемые маршруты")){previewIPRoutes(row.reference)}.disabled(!ipOptIn || ipRuleText.isEmpty || ipRuleText.utf8.count>4096)
+                if let ipPreview {ForEach(ipPreview,id:\.self){Text($0).font(.system(.footnote,design:.monospaced))};Text(tr("Settings object verified, not applied.","Объект настроек проверен, не применён.")).font(.footnote)}
+            }
+        }
+        #endif
         if !library.migrationRequired && !library.recoveryRequired {
             Section(tr("Import test profile","Импорт тестового профиля")) {
                 Picker(tr("Protocol","Протокол"),selection:$kind) {
@@ -145,7 +164,11 @@ import UniformTypeIdentifiers
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""}
+    private func cancelReview(){session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+        #if APL_NATIVE_IP_ROUTE_REVIEW
+        ipPreview=nil;ipOptIn=false;ipRuleText=""
+        #endif
+    }
     private func leave(){generation=UUID();lifecycle.leave();cancelReview();session=nil;library=nil;fileReceipt=nil;exportReceipt=nil;document=nil;exporting=false;choosing=false;busy=false}
     private func enter(){guard session==nil else{return};lifecycle.appear();session=model.makePersistentNativeLibrary();reload()}
     private func reload(){cancelReview();failed=false;do{library=try session?.state()}catch{library=nil;failed=true}}
@@ -191,6 +214,29 @@ import UniformTypeIdentifiers
             if generation==token {busy=false}
         }
     }
+    #if APL_NATIVE_IP_ROUTE_REVIEW
+    private func previewIPRoutes(_ ref:NativeCredentialRecord.Reference){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,ipOptIn,ipRuleText.utf8.count<=4096,let session else{return}
+        let rules=ipRuleText.split(separator:"\n").map(String.init),token=generation
+        receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword="";ipPreview=nil;failed=false;busy=true
+        Task { @MainActor in
+            do {
+                var result:[String]?
+                try await model.vpn.withNativeLibraryWrite {inactive in
+                    guard generation==token,lifecycle.visible,phase == .active,ipOptIn else{throw NativePersistentProfileSession.Failure.stale}
+                    let plan=try session.previewIPRoutes(for:ref,explicitRules:rules,explicitIPOptIn:true,vpnInactive:inactive)
+                    let object=NativeTunnelNetworkSettings.makeExplicitIPReview(plan)
+                    guard let v4=object.ipv4Settings?.excludedRoutes,let v6=object.ipv6Settings?.excludedRoutes,
+                          v4.map({$0.destinationAddress+"/"+$0.destinationSubnetMask})==plan.ipv4Exclusions.map({$0.address+"/"+($0.ipv4Mask ?? "INVALID")}),
+                          v6.map({$0.destinationAddress+"/"+$0.destinationNetworkPrefixLength.stringValue})==plan.ipv6Exclusions.map(\.description) else{throw NativePersistentProfileSession.Failure.unavailable}
+                    result=plan.exclusions.map(\.description)
+                }
+                if generation==token,phase == .active {ipPreview=result}
+            }catch{if generation==token{ipPreview=nil;failed=true}}
+            if generation==token{busy=false}
+        }
+    }
+    #endif
     private func apply(receipt:NativePersistentProfileSession.Receipt?,summary:NativeRestoreReview.Summary?){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};busy=true;let token=generation
         Task { @MainActor in

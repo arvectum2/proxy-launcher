@@ -97,6 +97,16 @@ struct NativeCredentialCatalogReader {
         guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
         return result
     }
+    /// Read exactly the explicitly selected current WG/AWG revision. This
+    /// returns only route metadata, never engine configuration or a ticket.
+    func selectedRouteForReview(_ ref:Ref,expected:Snapshot,expectedLegacy:Set<UUID>,vpnInactive:()throws->Bool)throws->NativeTunnelRoutePlan {
+        guard expected.version==2,!expected.hasPendingWrite,expected.selected==ref,expected.selectionNonce != nil,expected.current.contains(ref),!expectedLegacy.contains(ref.profileID),ref.kind != .vlessReality else{throw Failure.invalidCatalog}
+        guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
+        guard let record=try repository.read(ref) else{throw Failure.missing}
+        guard case .wireGuard(let plan)=try record.compile().1 else{throw Failure.invalidCatalog}
+        guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
+        return plan
+    }
     func reviewState() throws -> (Snapshot, Set<UUID>) {
         (try reader.snapshot(),try legacyIDs())
     }

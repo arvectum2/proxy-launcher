@@ -34,6 +34,29 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let source="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
         return try .create(profileID:id,expected:.wireGuard,source:source)
     }
+    @MainActor func testIPRoutePreviewReadsOnlySelectedRevisionWithoutMutation() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        var admission=NativeRoutingAdmission.tunnelOnly,reads=0
+        let ui=NativePersistentProfileSession(catalog:c,policy:{admission});items.onRead={_ in reads+=1}
+        let before=try c.reader.snapshot(),writes=m.writes
+        for ref in [a.reference,b.reference] {
+            XCTAssertThrowsError(try ui.previewIPRoutes(for:ref,explicitRules:["example.com"],explicitIPOptIn:true,vpnInactive:{true}))
+            XCTAssertThrowsError(try ui.previewIPRoutes(for:ref,explicitRules:["198.51.100.7"],explicitIPOptIn:false,vpnInactive:{true}))
+        }
+        XCTAssertThrowsError(try ui.previewIPRoutes(for:b.reference,explicitRules:["198.51.100.7"],explicitIPOptIn:true,vpnInactive:{true}))
+        XCTAssertThrowsError(try ui.previewIPRoutes(for:a.reference,explicitRules:["198.51.100.7"],explicitIPOptIn:true,vpnInactive:{false}))
+        XCTAssertEqual(reads,0)
+        let plan=try ui.previewIPRoutes(for:a.reference,explicitRules:["198.51.100.7","2001:db8:99::/48"],explicitIPOptIn:true,vpnInactive:{true})
+        XCTAssertEqual(plan.exclusions.map(\.description),["198.51.100.7/32","2001:db8:99::/48"]);XCTAssertEqual(reads,1)
+        XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertEqual(m.writes,writes)
+        XCTAssertThrowsError(try ui.previewIPRoutes(for:a.reference,explicitRules:["192.0.2.53"],explicitIPOptIn:true,vpnInactive:{true}))
+        items.onRead={_ in admission = .siteExclusions}
+        XCTAssertThrowsError(try ui.previewIPRoutes(for:a.reference,explicitRules:["198.51.100.7"],explicitIPOptIn:true,vpnInactive:{true}))
+        admission = .tunnelOnly;items.onRead={_ in var changed=before;changed.mutationEpoch=UUID();m.bytes=try? JSONEncoder().encode(changed)}
+        XCTAssertThrowsError(try ui.previewIPRoutes(for:a.reference,explicitRules:["198.51.100.7"],explicitIPOptIn:true,vpnInactive:{true}))
+        XCTAssertEqual(m.writes,writes);XCTAssertEqual(items.values.count,2)
+    }
     @MainActor func testMutationEpochInvalidatesRestoredContentAndBackupReceipts() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record();try c.save(a,select:true)

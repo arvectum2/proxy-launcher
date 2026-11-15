@@ -21,3 +21,16 @@ enum NativeTunnelNetworkSettings {
         return settings
     }
 }
+
+#if DEBUG && APL_NATIVE_IP_ROUTE_REVIEW
+extension NativeTunnelNetworkSettings {
+    /// Offline mapping only; no setTunnelNetworkSettings caller. Keep DNS and
+    /// both included-route families unchanged; no implicit peer exemption.
+    static func makeExplicitIPReview(_ plan:NativeIPSplitRoutePlan)->NEPacketTunnelNetworkSettings {
+        let settings=make(plan.base)
+        settings.ipv4Settings?.excludedRoutes=plan.ipv4Exclusions.map {NEIPv4Route(destinationAddress:$0.address,subnetMask:$0.ipv4Mask!)}
+        settings.ipv6Settings?.excludedRoutes=plan.ipv6Exclusions.map {NEIPv6Route(destinationAddress:$0.address,networkPrefixLength:NSNumber(value:$0.length))}
+        return settings
+    }
+}
+#endif

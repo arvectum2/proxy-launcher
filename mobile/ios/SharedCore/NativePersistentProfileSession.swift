@@ -37,6 +37,18 @@ import Foundation
     func confirmImport(_ summary:NativeRestoreReview.Summary,vpnInactive:()throws->Bool)throws {
         pending=nil;_ = try review.confirm(summary,vpnInactive:vpnInactive)
     }
+    func previewIPRoutes(for ref:NativeCredentialRecord.Reference,explicitRules:[String],explicitIPOptIn:Bool,vpnInactive:()throws->Bool)throws->NativeIPSplitRoutePlan {
+        cancel()
+        guard explicitIPOptIn,policy() == .tunnelOnly else{throw Failure.unavailable}
+        // Reject invalid input before a credential read.
+        guard (1...64).contains(explicitRules.count) else{throw NativeIPSplitRoutePlan.Failure.invalidCount}
+        _ = try explicitRules.map(NativeLiteralIPPrefix.init)
+        let (snapshot,legacy)=try catalog.reviewState()
+        let base=try catalog.selectedRouteForReview(ref,expected:snapshot,expectedLegacy:legacy,vpnInactive:vpnInactive)
+        let plan=try NativeIPSplitRoutePlan.prepare(base:base,explicitRules:explicitRules,existingPolicy:policy(),explicitIPOptIn:explicitIPOptIn)
+        guard try vpnInactive(),try catalog.reader.snapshot()==snapshot,policy() == .tunnelOnly else{throw Failure.stale}
+        return plan
+    }
     func prepare(_ action:Action)throws->Receipt {
         cancel();let (s,legacy)=try catalog.reviewState();let count:Int
         switch action {

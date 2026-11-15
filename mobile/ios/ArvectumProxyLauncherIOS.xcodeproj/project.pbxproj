@@ -69,6 +69,7 @@
 		3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
 		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
 		4094EADFA3204613599ECCFD /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
+		415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */; };
 		415FE0C43C74F8997BF96AA7 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */; };
 		42F0DA17D6D58A85434A1D8A /* SmartExclusionGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */; };
@@ -85,6 +86,7 @@
 		4AAEE6BA73131A6B82667784 /* UXReadOnlyNavigationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68253EF20512E06624313F34 /* UXReadOnlyNavigationUITests.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5142212AA6C6727E3F7FD1E1 /* TransportBackendContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */; };
+		516E913707605990690B9E5F /* NativeIPSplitRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */; };
 		52CBC7915554AFDF2A102CE8 /* ProfilesScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9A0A9D12DC4FD6895628A1 /* ProfilesScreenView.swift */; };
 		532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */; };
 		54D3D304C34C89944511A9CE /* NativeCredentialHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */; };
@@ -634,6 +636,7 @@
 		BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAWGPacketSession.swift; sourceTree = "<group>"; };
 		BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLESSRealityShareLink.swift; sourceTree = "<group>"; };
 		BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImportStructured.swift; sourceTree = "<group>"; };
+		BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeIPSplitRoutePlan.swift; sourceTree = "<group>"; };
 		BBF912E0DBA411BBCC136580 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		BC628C93B4EE9C24FB11F7EB /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		BC67533C631BA69D95E9E549 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -928,6 +931,7 @@
 				DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */,
 				7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */,
 				B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */,
+				BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */,
 				459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */,
 				3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */,
 				35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */,
@@ -1283,6 +1287,7 @@
 				867506C8F75536FC4900E348 /* NativeCredentialKeychain.swift in Sources */,
 				773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */,
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
+				415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */,
 				FC7DC344D1FDA936CDBBC764 /* NativePersistentProfileSession.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
 				1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */,
@@ -1435,6 +1440,7 @@
 				10BC6C456EDAF87C727A4C14 /* NativeCredentialReceiver.swift in Sources */,
 				0C2FADD9A379E9A407602A29 /* NativeCredentialRecord.swift in Sources */,
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
+				516E913707605990690B9E5F /* NativeIPSplitRoutePlan.swift in Sources */,
 				57BB8F62CFB8C35AAC7B0A28 /* NativePersistentProfileSession.swift in Sources */,
 				F58A785920BD7940E66CBEA7 /* NativePersistentProfilesView.swift in Sources */,
 				613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */,
