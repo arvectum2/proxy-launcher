@@ -147,7 +147,7 @@ completed:
 
 
 
-current: "15.11 08:33: Xray targeted native control physical PASS exit0, exact witness1, native ready/stale reject/drain/OS OFF all accepted, cleanup and owner restoration verified with three unchanged hashes. AWG signed lab installed after restoration, production disconnected by normal UI, prepare-only ID 7E95AF95-6141-4B83-91B1-6758BE43DB7E; OS VPN permission prompt visible. Await supervised owner consent."
+current: "15.11 08:48 MSK: Xray native-control physical acceptance remains PASS. AWG prior prepare receipt false; retried ID 3CABFA04-66A4-4D92-A439-67C6D512EB15, tapped Allow under owner approval but Mirroring required local Mac authentication. Cancelled; new prepare receipt false. Owned lab cleanup confirmed, uninstalled, Netherlands 2 restored, active production extension and three owner hashes unchanged, no lab present. No AWG control traffic test executed."
 blocked_on:
   - "Temporary disconnect and restore authorized. Actual iPhone Mirroring requires locked idle iPhone; do not stop VPN before reliable restore path available."
   - "Production APL PacketTunnel active on iPhone; operator must disconnect before authorized isolated lab install/permission, no blind interruption."
@@ -282,4 +282,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Inspect AWG prepare receipt exact ID 7E95AF95-6141-4B83-91B1-6758BE43DB7E prepared true, actual en0 IPv4, all extensions OFF. Run AWGPeerLab/run_physical.py --approved suite --native-control --prepared-id exact ID --peer verified native-artifacts/awg-peer-20261114/awg-peer --peer-sha256 digest --client-ip actual receipt IP. Require strict native receipts and exact independent witness. If unavailable cleanup owned AWG manager and uninstall then restore Netherlands 2 and verify all three owner hashes. Xray accepted, do not repeat. Xray log /tmp/apl-xray-native-control-physical-20261115/run.log exit0."
+resume_instruction: "AWG physical native-control test still blocked on OS authentication; do not repeat Xray or prior AWG data-plane 8/8. For next supervised attempt use already signed native-control-awg-signed-20261114/AWGCompileHost.app and owner direct iPhone OS consent or locally authenticated Mirroring; only one attempt, verify matching prepared receipt true with actual en0 IP, run targeted suite --native-control, cleanup/uninstall/restore and verify fingerprints. If not supervised continue offline production configuration/packaging, avoid repeatedly interrupting phone. No new IDs, production replacement or publishing."
