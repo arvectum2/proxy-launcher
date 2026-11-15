@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Correlate trusted independent QA records; never authorize execution or release."""
 import base64,json,pathlib,re,stat,sys,uuid
-from unified_synthetic_fixture import CASES,MODES,CANDIDATE,digest,json_digest,witness_input
+from unified_synthetic_fixture import CASES,MODES,CANDIDATES,digest,json_digest,witness_input
 class Invalid(ValueError):pass
 
 def need(condition,reason):
@@ -20,7 +20,7 @@ def identity(x,provider):
 def validate(m,h,p,private):
     exact(m,'schema runID owner identity kind probe mode candidateManifestSHA256 challengeSHA256 fixtureSHA256 peerInputSHA256 runtime_authorized')
     exact(private,'runID owner identity kind probe mode nonce fixture localIPv4')
-    need(type(m['schema'])==int and m['schema']==1 and m['runtime_authorized'] is False and m['candidateManifestSHA256']==CANDIDATE,'candidate mismatch')
+    need(type(m['schema'])==int and m['schema']==1 and m['runtime_authorized'] is False and m['candidateManifestSHA256'] in CANDIDATES,'candidate mismatch')
     kind,probe,mode=m['kind'],m['probe'],m['mode'];need(kind in CASES and probe in CASES[kind] and mode in MODES[kind],'unsupported case')
     need(uuidstr(m['runID']) and uuidstr(m['owner']),'invalid test ID')
     provider='standalone-awg' if kind=='amneziaWG1' else 'rust-xray';identity(m['identity'],provider)

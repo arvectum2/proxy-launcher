@@ -79,3 +79,30 @@ def test_staged_review_verifies_exact_private_file_set(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match='file drift'):s.verify_staged_review(root)
     notice.write_bytes(b'original notice fixture');other=root/'extra';other.symlink_to(notice)
     with pytest.raises(ValueError,match='symlink'):s.verify_staged_review(root)
+
+
+@pytest.mark.parametrize('mode,log',[('positive','AWG_PEER_READY\nAWG_WITNESS tcp4=1 tcp6=0 udp4=0 udp6=0 sent=8 received=9 rejected=0\n'),('wrong-key','AWG_PEER_READY\nAWG_WITNESS tcp4=0 tcp6=0 udp4=0 udp6=0 sent=0 received=2 rejected=0\n'),('wrong-psk','AWG_PEER_READY\nAWG_WITNESS tcp4=0 tcp6=0 udp4=0 udp6=0 sent=2 received=2 rejected=0\n')])
+def test_reference_awg_adapter_requires_closed_exact_peer_observation(mode,log):
+    import adapt_unified_awg_peer_receipt as a
+    m,private,peer=f.generate('amneziaWG1','tcp4',mode,0xc0a80122)
+    w=f.witness_input(m,private)
+    result=a.convert(m,private,peer,w,log,0)
+    assert result['candidateManifestSHA256']==f.CONTAINING_CANDIDATE
+    assert result['observationClosed'] and result['ingressPackets']>0
+    for bad in [log+log,log.replace('AWG_PEER_READY',''),log+'unclosed\n',log.replace('received=','received=10000'),log.replace('udp6=0','udp6=1')]:
+        with pytest.raises(v.Invalid):a.convert(m,private,peer,w,bad,0)
+    with pytest.raises(v.Invalid):a.convert(m,private,peer,w,log,1)
+    with pytest.raises(v.Invalid):a.convert(m,private,dict(peer,Nonce='0'*48),w,log,0)
+    with pytest.raises(v.Invalid):a.convert(m,private,peer,dict(w,runID=f.uid()),log,0)
+
+
+def test_containing_host_requires_explicit_arm_and_preserves_production_targets():
+    h=(TOOLS/'UnifiedAcceptanceHost/UnifiedAcceptanceApp.swift').read_text()
+    assert 'approvedLaunch,armed,quiescence' in h and 'stillAuthorized:{self.generation==token && !self.cancelled}' in h
+    assert 'try FileManager.default.removeItem(at:path)' in h and 'withoutOverwriting' in h
+    assert 'saveToPreferences' not in h and 'removeFromPreferences' not in h
+    assert 'onAppear' not in h and 'onChange(of:phase)' in h
+    b=(TOOLS/'build_product_unified_candidate_unsigned.sh').read_text()
+    assert 'HOST_REQUIRES_SYNTHETIC_RUNTIME' in b and 'embed: true' in b and "x.pop('APLKeychainAccessGroup',None)" in b
+    assert 'no runnable bundle retained' in b
+    assert 'UnifiedAcceptanceHost' not in (TOOLS.parent/'project.yml').read_text()

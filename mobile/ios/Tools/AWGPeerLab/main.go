@@ -14,6 +14,7 @@ import (
 	"net"
 	"net/netip"
 	"os"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -83,6 +84,7 @@ func initPeer(c config, server bool) (*device.Device, *netstack.Net, *scopedBind
 }
 func response(n string) []byte { return []byte("APL:" + n) }
 func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
+	var workers sync.WaitGroup
 	var count [4]atomic.Uint64
 	var closers []io.Closer
 	defer func() {
@@ -97,7 +99,9 @@ func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
 			return 3
 		}
 		closers = append(closers, l)
+		workers.Add(1)
 		go func(idx int, l net.Listener) {
+			defer workers.Done()
 			for {
 				p, e := l.Accept()
 				if e != nil {
@@ -119,7 +123,9 @@ func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
 			return 4
 		}
 		closers = append(closers, u)
+		workers.Add(1)
 		go func(idx int, u net.PacketConn) {
+			defer workers.Done()
 			buf := make([]byte, 128)
 			for {
 				n, from, e := u.ReadFrom(buf)
@@ -145,6 +151,7 @@ func serve(c config, stack *netstack.Net, b *scopedBind, path string) int {
 	for _, l := range closers {
 		l.Close()
 	}
+	workers.Wait()
 	sent, recv, rejected := b.stats()
 	fmt.Printf("AWG_WITNESS tcp4=%d tcp6=%d udp4=%d udp6=%d sent=%d received=%d rejected=%d\n", count[0].Load(), count[1].Load(), count[2].Load(), count[3].Load(), sent, recv, rejected)
 	return 0

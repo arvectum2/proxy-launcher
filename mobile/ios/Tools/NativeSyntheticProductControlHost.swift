@@ -85,10 +85,11 @@ struct UnifiedSyntheticHostReceipt:Codable {
     }
     /// Only an external trusted harness may attest fresh process quiescence.
     /// Calling this function is outside current authorization.
-    func submit(externalQuiescenceConfirmed:Bool)async throws {
-        guard !busy,!attempted,externalQuiescenceConfirmed else{throw Failure.invalidState}
+    func submit(externalQuiescenceConfirmed:Bool,stillAuthorized:()->Bool)async throws {
+        guard !busy,!attempted,externalQuiescenceConfirmed,stillAuthorized() else{throw Failure.invalidState}
         busy=true;defer{busy=false}
         try await censusOff();try Task.checkCancellation()
+        guard stillAuthorized() else{throw Failure.invalidState}
         attempted=true
         let values=options;options.removeAll()
         try connection.startTunnel(options:values)
