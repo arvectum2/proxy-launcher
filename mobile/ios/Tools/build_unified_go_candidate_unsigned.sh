@@ -24,6 +24,11 @@ trap 'rm -rf -- "$work"' EXIT
 mkdir -p "$work/src" "$work/evidence"
 git -C "$a/libxray" archive HEAD | tar -xf - -C "$work/src"
 for f in "$root/Tools/AWGNativeLab/"*.go; do case "$f" in *_test.go) continue;; esac; cp "$f" "$work/src/cgo_bridge/awg_$(basename "$f")"; done
+product_flag="${APL_COMPILE_AWG_PRODUCT_BRIDGE:-0}"
+[[ "$product_flag" == 0 || "$product_flag" == 1 ]]
+if [[ "$product_flag" == 1 ]]; then
+    for f in "$root/Tools/AWGProductRuntime/"*.go; do case "$f" in *_test.go) continue;; esac; cp "$f" "$work/src/cgo_bridge/awg_product_$(basename "$f")"; done
+fi
 python3 - "$work/src/cgo_bridge/awg_main.go" <<'PY'
 import pathlib,sys
 p=pathlib.Path(sys.argv[1]);s=p.read_text();assert s.count('func main() {')==1;p.write_text(s.replace('func main() {','func awgSyntheticCLI() {',1))
@@ -49,17 +54,30 @@ int main(void) {
 }
 C
 E="$work/evidence"
+if [[ "$product_flag" == 1 ]]; then
+    python3 - "$E/link_probe.c" <<'PYPROBE'
+import pathlib,sys
+p=pathlib.Path(sys.argv[1]);s=p.read_text().replace('    return result==0 ? 0 : 1;', '    uint64_t token=aplAWGProductPrepare(config,sizeof(config)-1,1280,config,sizeof(config)-1,1);\n    if(token){result+=aplAWGProductStart(token);result+=aplAWGProductPush(token,config,sizeof(config)-1);result+=aplAWGProductPull(token,config,sizeof(config)-1);result+=aplAWGProductStop(token);}\n    return result==0 ? 0 : 1;')
+p.write_text(s)
+PYPROBE
+fi
 xcrun --sdk iphoneos clang -target arm64-apple-ios15.0 -isysroot "$sdk" -I "$E" "$E/link_probe.c" "$E/libAPLUnified.a" -lresolv -framework SystemConfiguration -framework CoreFoundation -framework Security -o "$work/ios-unified-link-probe"
 xcrun nm "$work/ios-unified-link-probe" > "$E/link-symbols.txt"
 for sym in CGoInvoke CGoFree aplAWGBridgeValidateConfig aplAWGBridgeStartLAN aplAWGBridgePush aplAWGBridgePull aplAWGBridgeStop; do grep -Eq " [Tt] _$sym$" "$E/link-symbols.txt"; done
+if [[ "$product_flag" == 1 ]]; then
+    for sym in aplAWGProductPrepare aplAWGProductStart aplAWGProductPush aplAWGProductPull aplAWGProductStop; do grep -Eq " [Tt] _$sym$" "$E/link-symbols.txt"; done
+fi
 xcrun vtool -show-build "$work/ios-unified-link-probe" > "$E/target.txt"
-python3 - "$root" "$work" <<'PY'
+python3 - "$root" "$work" "$product_flag" <<'PY'
 import hashlib,json,pathlib,subprocess,sys
-root,w=map(pathlib.Path,sys.argv[1:]);e=w/'evidence'
+root,w=map(pathlib.Path,sys.argv[1:3]);e=w/'evidence'
 def sha(f):
  with f.open('rb') as r:return hashlib.file_digest(r,'sha256').hexdigest()
 sources={f.name:sha(f) for f in sorted((root/'Tools/AWGNativeLab').glob('*.go')) if not f.name.endswith('_test.go')}
 report={'schema':1,'release_authorized':False,'scope':'offline single Go c-archive and iOS arm64 link probe only; never executed','base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'xray_commit':'5a0f7d8d1c28b34afb5727b04b26a10f6dbac7e3','awg_commit':'b5928efb6ca19f0153958460c3d141f04abc5c2e','go_version':'1.27.3','original_bridge_sha256':sources,'unified_bridge_sha256':{f.name:sha(f) for f in sorted((w/'src/cgo_bridge').glob('*.go'))},'link_probe_sha256':sha(w/'ios-unified-link-probe'),'files':{f.name:sha(f) for f in sorted(e.iterdir()) if f.is_file()}}
+if sys.argv[3]=='1':
+ report['product_awg_bridge']=True
+ report['product_bridge_sha256']={f.name:sha(f) for f in sorted((root/'Tools/AWGProductRuntime').glob('*.go')) if not f.name.endswith('_test.go')}
 (e/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('UNIFIED_IOS_ARCHIVE_LINK_ONLY_PASS',report['files']['libAPLUnified.a'])
 PY

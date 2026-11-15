@@ -193,6 +193,7 @@
 		BBFF285199C714000FC11D9A /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		BCFAB992B54C9384E430D856 /* ProxyImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A39471D7F96B0F1D2FC2C9 /* ProxyImport.swift */; };
 		BE45212202FCE790A55643C7 /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
+		BE643AFB0BA2070B50902564 /* NativeAWGProductFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8C2A1CBF2EEB4431F01149 /* NativeAWGProductFlow.swift */; };
 		BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */; };
 		BFCF80DBF1129A830E10043A /* NativeSessionLaunchBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDD31E686531523A25A94AF /* NativeSessionLaunchBoundary.swift */; };
 		C0CAAD68E0298214B6C60772 /* TransportBackendContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */; };
@@ -640,6 +641,7 @@
 		B968A8C7AFE251F6B7C694B6 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		B9D2DB5AB735ED9846251AFD /* lv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lv; path = lv.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		BA149C17C648D145F879BEB4 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Localizable.strings; sourceTree = "<group>"; };
+		BA8C2A1CBF2EEB4431F01149 /* NativeAWGProductFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAWGProductFlow.swift; sourceTree = "<group>"; };
 		BAB9368FEE44F075A0D98DBB /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		BACDBE610B2263D79F3BCCA7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAWGPacketSession.swift; sourceTree = "<group>"; };
@@ -894,6 +896,7 @@
 			isa = PBXGroup;
 			children = (
 				BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */,
+				BA8C2A1CBF2EEB4431F01149 /* NativeAWGProductFlow.swift */,
 				29B8B4B229C9BB34D06D9CBC /* NativeAWGValidationDriver.swift */,
 				C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */,
 				64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */,
@@ -1300,6 +1303,7 @@
 				58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */,
 				05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */,
 				5C302B3D4C91370FACC71BE4 /* NativeAWGPacketSession.swift in Sources */,
+				BE643AFB0BA2070B50902564 /* NativeAWGProductFlow.swift in Sources */,
 				620CEC9463F28D933D0E7F75 /* NativeAWGValidationDriver.swift in Sources */,
 				2116633C9FAC4573C24C7E78 /* NativeAutomaticImport.swift in Sources */,
 				5646E63EC14EFF44A70E3F03 /* NativeCredentialCatalog.swift in Sources */,
