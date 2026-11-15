@@ -24,6 +24,8 @@ struct NativeCredentialCatalogReader {
         var pendingInsert: Ref?
         // Optional for backward compatibility with existing v1 snapshots.
         var pendingRestore: [Ref]?
+        // Optional, user-authored labels; no credential or routing authority.
+        var displayNames: [String:String]? = nil
         var hasPendingWrite: Bool { pendingInsert != nil || pendingRestore != nil }
         static let empty = Self(version:2,current:[],retired:[],selected:nil,pendingInsert:nil,pendingRestore:nil)
     }
@@ -40,8 +42,13 @@ struct NativeCredentialCatalogReader {
               s.selected.map({s.current.contains($0)}) ?? true,
               (s.selectionNonce == nil || s.selected != nil),
               s.pendingInsert.map({!s.current.contains($0) && !s.retired.contains($0)}) ?? true,
-              validRestoreJournal(s) else { throw Failure.invalidCatalog }
+              validRestoreJournal(s), validDisplayNames(s) else { throw Failure.invalidCatalog }
         return s
+    }
+    private func validDisplayNames(_ s:Snapshot)->Bool {
+        guard let names=s.displayNames else{return true}
+        let ids=Set(s.current.map{$0.profileID.uuidString})
+        return names.count<=s.current.count && names.allSatisfy{ids.contains($0.key) && (try? NativeCredentialRecord.normalizedDisplayName($0.value)) == $0.value}
     }
     private func validRestoreJournal(_ s: Snapshot) -> Bool {
         guard let refs=s.pendingRestore else {return true}
@@ -68,7 +75,7 @@ struct NativeCredentialCatalogReader {
         guard start.version == 2 else {throw Failure.migrationRequired}
         guard !start.hasPendingWrite else {throw Failure.rollbackIncomplete}
         let records=try start.current.map { ref in
-            guard let record=try repository.read(ref) else {throw Failure.missing};return record
+            guard let record=try repository.read(ref) else {throw Failure.missing};return try record.withDisplayName(start.displayNames?[ref.profileID.uuidString])
         }
         guard try snapshot() == start else {throw Failure.invalidCatalog}
         return records
@@ -152,6 +159,7 @@ struct NativeCredentialCatalogReader {
         } else {
             guard s.current.count < 32 else { throw Failure.capacity }; s.current.append(ref)
         }
+        if let name=record.displayName {var names=s.displayNames ?? [:];names[ref.profileID.uuidString]=name;s.displayNames=names}
         if select { s.selected = ref; s.selectionNonce = UUID() }
         // Journal the exact intended revision before any credential write.
         // A crash can leave a pending entry, never an unknown record to sweep.
@@ -202,6 +210,7 @@ struct NativeCredentialCatalogReader {
             guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
             guard try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             var committed=original; committed.current += refs
+            for record in fresh {if let name=record.displayName {var names=committed.displayNames ?? [:];names[record.reference.profileID.uuidString]=name;committed.displayNames=names}}
             try publish(&committed)
             return refs
         } catch {
@@ -241,6 +250,16 @@ struct NativeCredentialCatalogReader {
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         s.selected = ref; s.selectionNonce = UUID(); try publish(&s)
     }
+    func rename(_ ref:Ref,name:String,vpnInactive:()throws->Bool)throws {
+        let label=try NativeCredentialRecord.normalizedDisplayName(name)
+        guard try vpnInactive() else{throw ProfileBackupError.vpnActive}
+        let legacy=try legacyIDs();let original=try writableSnapshot()
+        guard !original.hasPendingWrite,original.current.contains(ref),!legacy.contains(ref.profileID) else{throw Failure.collision}
+        var next=original;var names=next.displayNames ?? [:];names[ref.profileID.uuidString]=label
+        next.displayNames=names.isEmpty ? nil:names
+        guard try vpnInactive(),try reader.snapshot()==original,try legacyIDs()==legacy else{throw Failure.rollbackIncomplete}
+        if next != original {try publish(&next)}
+    }
     func remove(_ ref: Ref, vpnInactive: () throws -> Bool = {true}) throws {
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         var s = try writableSnapshot()
@@ -248,6 +267,7 @@ struct NativeCredentialCatalogReader {
         guard s.current.contains(ref) else { throw Failure.missing }
         guard s.retired.count < 64 else { throw Failure.capacity }
         s.current.removeAll{$0 == ref}; s.retired.append(ref)
+        s.displayNames?.removeValue(forKey:ref.profileID.uuidString);if s.displayNames?.isEmpty == true {s.displayNames=nil}
         if s.selected == ref { s.selected = nil; s.selectionNonce = nil }
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         try publish(&s)

@@ -23,6 +23,12 @@ struct ProxyImportView: View {
     @State private var importError: String?
     @State private var chooseFile = false
     @State private var scanQR = false
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    @State private var showNativeImport=false
+#endif
+#if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+    @State private var showNativeReview=false
+#endif
     @State private var cameraReady = false
     @State private var cameraPermissionDenied = false
     @FocusState private var editorFocused: Bool
@@ -38,6 +44,17 @@ struct ProxyImportView: View {
     var body: some View {
         NavigationView {
             Form {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+                Section {
+                    Button {cancelSubscriptionFetch();clearAutomaticPreview();editorFocused=false;showNativeImport=true} label:{
+                        Label(refreshText("Импорт WireGuard, AmneziaWG, VLESS","Import WireGuard, AmneziaWG, VLESS"),systemImage:"shield.lefthalf.filled")
+                    }
+                    Text(refreshText("Нативные профили — отдельная библиотека, подключение пока недоступно.","Native profiles use a separate library; connections are not yet available.")).font(.footnote).foregroundStyle(.secondary)
+                }
+#endif
+#if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+                Section {Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){cancelSubscriptionFetch();clearAutomaticPreview();editorFocused=false;showNativeReview=true}}
+#endif
                 Section(ProxyImportUX.text("Ссылка или список прокси")) {
                     Picker(ProxyImportUX.text("Тип прокси по умолчанию"), selection: $defaultType) {
                         Text("HTTP").tag(ProxyType.http)
@@ -191,6 +208,12 @@ struct ProxyImportView: View {
             }
             .onChange(of:scenePhase){phase in if phase != .active {cancelSubscriptionFetch();clearAutomaticPreview()}}
             .onDisappear {visible=false;cancelSubscriptionFetch();clearAutomaticPreview()}
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+            .sheet(isPresented:$showNativeImport){NativePersistentProfilesView(model:model)}
+#endif
+#if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+            .sheet(isPresented:$showNativeReview){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
+#endif
             .sheet(isPresented: $scanQR) {
                 NavigationView {
                     ProxyQRScanner(onCode: { code in
@@ -256,8 +279,17 @@ struct ProxyImportView: View {
         guard automaticPreview != nil else{return}
         automaticPreview=nil;parsedSource="";candidates=[]
     }
+    private var nativeImportPresented:Bool {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+        return showNativeImport
+#elseif DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        return showNativeReview
+#else
+        return false
+#endif
+    }
     private func refreshDueSubscription(){
-        guard visible,scenePhase == .active,!isFetchingSubscription,!editorFocused,!scanQR,!chooseFile,
+        guard visible,scenePhase == .active,!nativeImportPresented,!isFetchingSubscription,!editorFocused,!scanQR,!chooseFile,
               source.isEmpty,subscriptionURL.isEmpty,subscriptionTitle.isEmpty,automaticPreview==nil else{return}
         do {
             let store=try ProxySubscriptionStore()

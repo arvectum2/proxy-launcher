@@ -19,13 +19,24 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
         let version: Int
         let reference: Reference
         let source: String
+        var displayName: String? = nil
     }
     enum Failure: Error { case invalidRecord, unsupportedProtocol, wrongReference }
     let reference: Reference
     private let source: String
+    private(set) var displayName: String? = nil
     var description: String { "NativeCredentialRecord(redacted)" }
     var customMirror: Mirror { Mirror(self,children:[:]) }
     static let maxBytes = 32_768
+    static func normalizedDisplayName(_ raw:String)throws->String? {
+        let value=raw.trimmingCharacters(in:.whitespacesAndNewlines)
+        guard value.utf8.count<=128,!raw.unicodeScalars.contains(where:{CharacterSet.controlCharacters.contains($0) || CharacterSet.illegalCharacters.contains($0)}) else{throw Failure.invalidRecord}
+        return value.isEmpty ? nil:value
+    }
+    /// Copy for encrypted backup only; never modify the stored revision.
+    func withDisplayName(_ name:String?)throws->Self {
+        var result=self;result.displayName=try name.flatMap{try Self.normalizedDisplayName($0)};_ = try result.encoded();return result
+    }
     static func create(profileID: UUID, expected: TransportProtocol, source: String) throws -> Self {
         guard !source.isEmpty, source.utf8.count <= maxBytes else {throw Failure.invalidRecord}
         let kind: Kind
@@ -47,11 +58,11 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
     }
     /// Revalidate and mint new IDs; restore never reuses a session revision.
     func copyForRestore(profileID: UUID) throws -> Self {
-        try Self.create(profileID:profileID,expected:reference.kind.transport,source:source)
+        try Self.create(profileID:profileID,expected:reference.kind.transport,source:source).withDisplayName(displayName)
     }
     func encoded() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
-        let bytes = try encoder.encode(Payload(version:1,reference:reference,source:source))
+        let bytes = try encoder.encode(Payload(version:1,reference:reference,source:source,displayName:displayName))
         guard !bytes.isEmpty, bytes.count <= Self.maxBytes else { throw Failure.invalidRecord }
         return bytes
     }
@@ -59,7 +70,8 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
         guard !bytes.isEmpty, bytes.count <= maxBytes else { throw Failure.invalidRecord }
         let payload = try JSONDecoder().decode(Payload.self,from:bytes)
         guard payload.version == 1, payload.reference == expected else { throw Failure.wrongReference }
-        let result = Self(reference:expected,source:payload.source)
+        guard try payload.displayName.flatMap({try normalizedDisplayName($0)}) == payload.displayName else{throw Failure.invalidRecord}
+        let result = Self(reference:expected,source:payload.source,displayName:payload.displayName)
         _ = try result.compile()
         return result
     }

@@ -34,6 +34,27 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let source="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
         return try .create(profileID:id,expected:.wireGuard,source:source)
     }
+    @MainActor func testRenameMetadataPreservesSelectionAndEncryptedBackupName() throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let original=try record();try c.save(original,select:true)
+        let ui=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly}),before=try c.reader.snapshot(),originalItems=items.values
+        let stale=try ui.prepare(.rename(original.reference,"Old draft"))
+        let rename=try ui.prepare(.rename(original.reference,"  Home tunnel  "))
+        XCTAssertThrowsError(try ui.confirm(stale,vpnInactive:{true}))
+        try ui.confirm(rename,vpnInactive:{true})
+        let after=try c.reader.snapshot();XCTAssertEqual(after.selected,before.selected);XCTAssertEqual(after.selectionNonce,before.selectionNonce);XCTAssertEqual(items.values,originalItems)
+        XCTAssertEqual(try ui.state().library.rows.first?.displayName,"Home tunnel")
+        XCTAssertThrowsError(try ui.prepare(.rename(original.reference,"bad\nname")))
+        let export=try ui.prepare(.exportBackup),password="Synthetic-rename-test"
+        let bytes=try ui.confirmExport(export,password:password,vpnInactive:{true})
+        let restored=try NativeProfileBackupCodec.open(bytes,password:password)
+        XCTAssertEqual(restored.first?.displayName,"Home tunnel")
+        let m2=CatalogMemory(),items2=RecordMemory(),c2=NativeCredentialCatalog(storage:m2,repository:.init(items:items2),legacyIDs:{[]})
+        let added=try c2.restore(restored,vpnInactive:{true});XCTAssertEqual(added.count,1);XCTAssertNotEqual(added.first?.profileID,original.reference.profileID)
+        XCTAssertEqual(try c2.reader.snapshot().displayNames?[added[0].profileID.uuidString],"Home tunnel")
+        let reset=try ui.prepare(.rename(original.reference,""));try ui.confirm(reset,vpnInactive:{true});XCTAssertNil(try ui.state().library.rows.first?.displayName)
+        XCTAssertEqual(items.values,originalItems)
+    }
     private func automaticSources() -> (wg:String,awg:String,vless:String) {
         let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
         let wg="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"

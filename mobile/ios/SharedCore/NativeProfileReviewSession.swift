@@ -6,6 +6,8 @@ struct NativeProfilePresentation: Equatable {
     struct Row: Equatable, Identifiable {
         let reference:NativeCredentialRecord.Reference
         let number:Int
+        var displayName:String? = nil
+        var shortID:String {String(reference.profileID.uuidString.prefix(8))}
         let selected:Bool
         let state:State
         var id:UUID {reference.profileID}
@@ -23,7 +25,7 @@ struct NativeProfilePresentation: Equatable {
             else if legacyIDs.contains(ref.profileID) {state = .legacyCollision}
             else if hasExclusions {state = .unsupportedPolicy}
             else {state = .reviewOnly}
-            return Row(reference:ref,number:i+1,selected:snapshot.selected==ref,state:state)
+            return Row(reference:ref,number:i+1,displayName:snapshot.displayNames?[ref.profileID.uuidString],selected:snapshot.selected==ref,state:state)
         })
     }
 }

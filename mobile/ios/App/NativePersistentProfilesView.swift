@@ -31,6 +31,10 @@ import NetworkExtension
     @State private var authenticationFailed=false
     @State private var exportSaved=false
     @State private var generation=UUID()
+    @State private var profileSearch=""
+    @State private var renameTarget:NativeCredentialRecord.Reference?
+    @State private var nameDraft=""
+    @State private var showRename=false
     #if APL_NATIVE_IP_ROUTE_REVIEW
     @State private var ipRuleText=""
     @State private var ipOptIn=false
@@ -53,7 +57,8 @@ import NetworkExtension
                 if let receipt {
                     Section(tr("Confirm operation","Подтверждение операции")) {
                         Text(actionTitle(receipt.action));Text(tr("Affected records: ","Затронуто записей: ")+String(receipt.affected))
-                        if let row=targetRow(receipt.action) {Text("\(row.number). \(row.reference.kind.rawValue)")}
+                        if let row=targetRow(receipt.action) {Text(rowTitle(row))}
+                        if case .rename(_,let name)=receipt.action {Text(name.isEmpty ? tr("Default name","Имя по умолчанию"):name)}
                         if receipt.action == .exportBackup {
                             SecureField(tr("New password","Новый пароль"),text:$password).textContentType(.newPassword)
                             SecureField(tr("Repeat password","Повторите пароль"),text:$repeatedPassword).textContentType(.newPassword)
@@ -80,6 +85,11 @@ import NetworkExtension
             document=nil;exportReceipt=nil
             switch result {case .success:exportSaved=true;case .failure:failed=true}
         }
+        .alert(tr("Profile name","Имя профиля"),isPresented:$showRename) {
+            TextField(tr("Name (optional)","Имя (необязательно)"),text:$nameDraft)
+            Button(tr("Review","Проверить")){reviewRename()}
+            Button(tr("Cancel","Отмена"),role:.cancel){renameTarget=nil;nameDraft=""}
+        } message:{Text(tr("A label only. Leave empty to use the default name.","Только название. Оставьте пустым для имени по умолчанию."))}
         .onAppear {if phase == .active {enter()}}
         .onChange(of:phase){value in if value == .active {enter()} else if value == .background {leave()}}
         .onDisappear {leave()}
@@ -114,12 +124,22 @@ import NetworkExtension
         if library.selectionNeedsReview {Text(tr("Select again after migration.","После миграции выберите профиль повторно."))}
         Section(tr("Native library","Библиотека нативных профилей")) {
             if library.library.rows.isEmpty {Text(tr("No native profiles","Нет нативных профилей"))}
-            ForEach(library.library.rows) {row in
+            if !library.library.rows.isEmpty {
+                TextField(tr("Find profile","Найти профиль"),text:$profileSearch).autocorrectionDisabled()
+            }
+            let rows=library.library.rows.filter {row in
+                let q=profileSearch.trimmingCharacters(in:.whitespacesAndNewlines)
+                return q.isEmpty || rowTitle(row).localizedCaseInsensitiveContains(q) || protocolTitle(row.reference.kind).localizedCaseInsensitiveContains(q) || row.shortID.localizedCaseInsensitiveContains(q)
+            }
+            if rows.isEmpty && !library.library.rows.isEmpty {Text(tr("No matching profiles","Профили не найдены"))}
+            ForEach(rows) {row in
                 VStack(alignment:.leading,spacing:8) {
-                    Text("\(row.number). \(row.reference.kind.rawValue)").font(.headline)
+                    Text(rowTitle(row)).font(.headline)
+                    Text(protocolTitle(row.reference.kind)+" · "+row.shortID).font(.caption).foregroundStyle(.secondary)
                     if row.selected {Text(tr("Selected for review","Выбран для проверки"))}
                     Text(status(row.state)).font(.footnote).foregroundStyle(.secondary)
                     Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.buttonStyle(.borderless).disabled(!row.canReview)
+                    Button(tr("Rename","Переименовать")){beginRename(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
                     Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired)
                 }
             }
@@ -183,9 +203,22 @@ import NetworkExtension
         case .unsupportedPolicy:return tr("Unsupported policy","Политика не поддерживается")
         }
     }
+    private func protocolTitle(_ kind:NativeCredentialRecord.Kind)->String {
+        switch kind {case .wireGuard:return "WireGuard";case .amneziaWG1:return "AmneziaWG 1";case .vlessReality:return "VLESS Reality"}
+    }
+    private func rowTitle(_ row:NativeProfilePresentation.Row)->String {row.displayName ?? protocolTitle(row.reference.kind)+" · "+row.shortID}
+    private func beginRename(_ row:NativeProfilePresentation.Row){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return}
+        cancelReview();renameTarget=row.reference;nameDraft=row.displayName ?? "";showRename=true
+    }
+    private func reviewRename(){
+        guard phase == .active,let target=renameTarget else{return}
+        let name=nameDraft;renameTarget=nil;nameDraft=""
+        do{let label=try NativeCredentialRecord.normalizedDisplayName(name);prepare(.rename(target,label ?? ""))}catch{failed=true}
+    }
     private func targetRow(_ action:NativePersistentProfileSession.Action)->NativeProfilePresentation.Row? {
         switch action {
-        case .select(let ref),.remove(let ref):return library?.library.rows.first{$0.reference==ref}
+        case .select(let ref),.remove(let ref),.rename(let ref,_):return library?.library.rows.first{$0.reference==ref}
         default:return nil
         }
     }
@@ -196,10 +229,11 @@ import NetworkExtension
         case .recover:return tr("Roll back only the recorded incomplete operation.","Отменить только записанную незавершённую операцию.")
         case .purgeRetired:return tr("Permanently delete only retired credentials.","Окончательно удалить только выведенные из обращения ключи.")
         case .select:return tr("Select for review, not connection.","Выбрать для проверки, не для подключения.")
+        case .rename:return tr("Rename profile without changing credentials.","Переименовать профиль без изменения ключей.")
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+    private func cancelReview(){renameTarget=nil;nameDraft="";showRename=false;authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
         #if APL_NATIVE_IP_ROUTE_REVIEW
         ipPreview=nil;ipOptIn=false;ipRuleText=""
         #endif

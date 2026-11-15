@@ -3,7 +3,7 @@ import Foundation
 /// Metadata-only management of the real-format catalog, with explicit
 /// snapshot-bound actions. No ticket, engine, OS calls or legacy selection.
 @MainActor final class NativePersistentProfileSession {
-    enum Action:Equatable {case migrate, recover, purgeRetired, exportBackup, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference)}
+    enum Action:Equatable {case migrate, recover, purgeRetired, exportBackup, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference), rename(NativeCredentialRecord.Reference,String)}
     enum Failure:Error {case stale, unavailable, expired}
     struct State:Equatable {
         let library:NativeProfilePresentation
@@ -58,6 +58,7 @@ import Foundation
         case .exportBackup:guard s.version==2,!s.hasPendingWrite,!s.current.isEmpty,Set(s.current.map(\.profileID)).isDisjoint(with:legacy) else{throw Failure.unavailable};count=s.current.count
         case .purgeRetired:guard s.version==2,!s.hasPendingWrite,!s.retired.isEmpty else{throw Failure.unavailable};count=s.retired.count
         case .select(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),policy().permitsSelection else{throw Failure.unavailable};count=1
+        case .rename(let ref,let name):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID) else{throw Failure.unavailable};_ = try NativeCredentialRecord.normalizedDisplayName(name);count=1
         case .remove(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref) else{throw Failure.unavailable};count=1
         }
         let now=elapsed();guard now.isFinite,now>=0 else{throw Failure.expired}
@@ -86,6 +87,7 @@ import Foundation
         case .purgeRetired:try catalog.reconcileRetired(vpnInactive:vpnInactive)
         case .select(let ref):
             try catalog.select(ref,vpnInactive:{try vpnInactive() && self.policy().permitsSelection})
+        case .rename(let ref,let name):try catalog.rename(ref,name:name,vpnInactive:vpnInactive)
         case .remove(let ref):try catalog.remove(ref,vpnInactive:vpnInactive)
         }
     }
