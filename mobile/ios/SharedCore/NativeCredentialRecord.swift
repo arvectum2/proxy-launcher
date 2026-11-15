@@ -45,11 +45,12 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
         _ = try result.compile(); _ = try result.encoded()
         return result
     }
-    func compile() throws -> (NativeValidationConfiguration, NativeValidationRoute) {
+    func compile(vlessDatagramReview:Bool = false) throws -> (NativeValidationConfiguration, NativeValidationRoute) {
+        guard !vlessDatagramReview || reference.kind == .vlessReality else{throw Failure.unsupportedProtocol}
         if reference.kind == .vlessReality {
             let candidate = try VLESSRealityShareLink.parse(source)
             let plan = try NativeVLESSValidationPlan.prepare(candidate)
-            let bytes = try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:39879)
+            let bytes = try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:39879,datagramReview:vlessDatagramReview)
             return (.init(provider:.rustXray,wireProtocol:.vlessReality,bytes:bytes),.vlessTCP4(plan))
         }
         let config = try NativeWireGuardRuntimeConfig.compile(source,expected:reference.kind.transport)

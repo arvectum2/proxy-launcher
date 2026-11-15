@@ -37,7 +37,12 @@ import Network
         do {
             try control.bind(request.binding.session,provider:request.binding.reference.kind.providerName)
             let store=try ProfileStore(),handoff=store.makeNativeProviderValidationHandoff()
-            let plan=try request.consume(via:handoff,admission:store.nativeRoutingAdmission())
+#if APL_NATIVE_EXACT_DNS
+            let exactDNSAvailable=true
+#else
+            let exactDNSAvailable=false
+#endif
+            let plan=try request.consume(via:handoff,admission:store.nativeRoutingAdmission(),exactDNSAvailable:exactDNSAvailable)
             guard try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
             timeout=Task { @MainActor [weak self,weak provider] in
                 do{try await Task.sleep(nanoseconds:45_000_000_000)}catch{return}
@@ -48,7 +53,7 @@ import Network
             let bytes=plan.configuration.withEngineConfiguration{$0}
             switch plan.route {
             case .awg(let route):
-                guard NativeExactTunnelDescriptor.interfaces(address:route.ipv4Address)?.isEmpty==true else{throw error(1)}
+                guard NativeExactTunnelDescriptor.interfaces(address:route.ipv4Address)?.isEmpty==true,NativeExactTunnelDescriptor.interfaces(address:route.ipv6Address)?.isEmpty==true else{throw error(1)}
                 let flow=try NativeAWGProductFlow(flow:provider.packetFlow,plan:route,onFailure:{[weak self,weak provider] in
                     Task{@MainActor in if let self,let provider{self.invalidate(provider:provider,code:3)}}
                 })
@@ -60,6 +65,14 @@ import Network
                 let runner=try NativeXrayPacketSession(owner:request.binding)
                 xray=runner
                 try await runner.startScoped(provider:provider,plan:route,configuration:bytes)
+            case .xrayWireGuardFull(let route):
+#if APL_NATIVE_EXACT_DNS
+                let runner=try NativeXrayPacketSession(owner:request.binding)
+                xray=runner
+                try await runner.startWireGuardFull(provider:provider,plan:route,configuration:bytes)
+#else
+                _=route;throw error(1)
+#endif
             }
             guard !retired,try handoff.authorizes(request.binding),store.nativeRoutingAdmission().permitsSelection else{throw error(1)}
             starting=false

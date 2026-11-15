@@ -3,8 +3,7 @@ import Foundation
 import NetworkExtension
 import tun2proxy
 
-/// Compile-only concrete runner for the previously scoped synthetic routes.
-/// Not a caller of the shipping startTunnel path. Never use with owner data.
+/// Owned Xray runner. Only explicit experimental review lanes, never shipping starts.
 @MainActor final class NativeXrayPacketSession {
     enum Failure:Error {case unsupported, busy, notDrained}
     private let owner:NativeCredentialHandoff.Binding
@@ -49,15 +48,35 @@ import tun2proxy
     /// Full default/DNS capture requires a separate accepted DNS implementation.
     func startScoped(provider:NEPacketTunnelProvider,plan:NativeRuntimeReviewPlan.XrayProbeRoute,configuration:Data)async throws {
         guard plan.validation.provider == .rustXray,(1280...1500).contains(plan.mtu),
+              (plan.localIPv6==nil)==(plan.targetIPv6==nil),
               NativeExactTunnelDescriptor.interfaces(address:plan.localIPv4)?.isEmpty==true else{throw Failure.unsupported}
         let settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:plan.validation.remoteAddress)
         let v4=NEIPv4Settings(addresses:[plan.localIPv4],subnetMasks:["255.255.255.255"])
         v4.includedRoutes=[NEIPv4Route(destinationAddress:plan.targetIPv4,subnetMask:"255.255.255.255")]
         v4.excludedRoutes=[];settings.ipv4Settings=v4;settings.mtu=NSNumber(value:plan.mtu)
-        try await startOwned(provider:provider,route:plan.validation,configuration:configuration,planSettings:settings,mtu:UInt16(plan.mtu),descriptor:{NativeExactTunnelDescriptor.find(address:plan.localIPv4)})
+        var exactDNS=false
+        if let local6=plan.localIPv6,let target6=plan.targetIPv6 {
+#if APL_NATIVE_EXACT_DNS
+            guard owner.reference.kind == .vlessReality,NativeExactTunnelDescriptor.interfaces(address:local6)?.isEmpty==true else{throw Failure.unsupported}
+            let v6=NEIPv6Settings(addresses:[local6],networkPrefixLengths:[128])
+            v6.includedRoutes=[NEIPv6Route(destinationAddress:target6,networkPrefixLength:128)]
+            v6.excludedRoutes=[];settings.ipv6Settings=v6;exactDNS=true
+#else
+            _=local6;_=target6;throw Failure.unsupported
+#endif
+        }
+        try await startOwned(provider:provider,route:plan.validation,configuration:configuration,planSettings:settings,mtu:UInt16(plan.mtu),exactDNS:exactDNS,descriptor:{NativeExactTunnelDescriptor.find(address:plan.localIPv4,ipv6:plan.localIPv6)})
+    }
+#if APL_NATIVE_EXACT_DNS
+    func startWireGuardFull(provider:NEPacketTunnelProvider,plan:NativeTunnelRoutePlan,configuration:Data)async throws {
+        guard owner.reference.kind == .wireGuard,plan.provider == .rustXray,plan.excludedRoutes.isEmpty,
+              !plan.dnsServers.isEmpty,NativeExactTunnelDescriptor.interfaces(address:plan.ipv4Address)?.isEmpty==true,
+              NativeExactTunnelDescriptor.interfaces(address:plan.ipv6Address)?.isEmpty==true else{throw Failure.unsupported}
+        try await startOwned(provider:provider,route:.wireGuard(plan),configuration:configuration,planSettings:NativeTunnelNetworkSettings.make(plan),mtu:UInt16(plan.mtu),exactDNS:true,descriptor:{NativeExactTunnelDescriptor.find(address:plan.ipv4Address,ipv6:plan.ipv6Address)})
     }
 #endif
-    private func startOwned(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,planSettings:NEPacketTunnelNetworkSettings,mtu:UInt16,descriptor:()->Int32?) async throws {
+#endif
+    private func startOwned(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,planSettings:NEPacketTunnelNetworkSettings,mtu:UInt16,exactDNS:Bool=false,descriptor:()->Int32?) async throws {
         guard !retired,!starting,!draining,!attemptedXray,!submittedRust else{throw Failure.busy}
         starting=true;defer{starting=false}
         do {
@@ -67,7 +86,7 @@ import tun2proxy
             try await provider.setTunnelNetworkSettings(planSettings)
             try Task.checkCancellation()
             guard !retired,let fd=descriptor() else{throw Failure.unsupported}
-            let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[])
+            let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[],exactDNS:exactDNS)
             attemptedXray=true
             try driver.startXray(owner:owner,route:route,configuration:configuration)
             try Task.checkCancellation()

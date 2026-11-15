@@ -13,13 +13,20 @@ struct NativeCredentialHandoff {
         let selectionNonce: UUID
         var valid: Bool { session.valid && session.provider == reference.kind.providerName }
     }
-    enum Purpose:String,Codable {case runtimeReview}
+    enum Purpose:String,Codable {case runtimeReview,runtimeDataPlaneReview}
+    enum RuntimeScope:String,Codable {case wireGuardFull,vlessDatagrams}
     struct Ticket: Codable, Equatable {
         let id: UUID
         let binding: Binding
         var purpose:Purpose? = nil
         var runtimeOwner:UUID? = nil
         var runtimeProbeIPv4:String? = nil
+        var runtimeScope:RuntimeScope? = nil
+        var runtimeProbeIPv6:String? = nil
+        var validPurpose:Bool {
+            if runtimeOwner==nil {return purpose==nil && runtimeScope==nil && runtimeProbeIPv4==nil && runtimeProbeIPv6==nil}
+            return purpose==(runtimeScope == nil ? .runtimeReview:.runtimeDataPlaneReview) && (runtimeScope != nil || runtimeProbeIPv6==nil)
+        }
     }
     private struct Envelope: Codable {
         let version: Int
@@ -33,10 +40,11 @@ struct NativeCredentialHandoff {
     let now: () -> Date
     init(items: NativeCredentialItems, repository: NativeCredentialRepository, authorizes: @escaping (Binding) throws -> Bool, now: @escaping () -> Date = Date.init) { self.items = items; self.repository = repository; self.authorizes = authorizes; self.now = now }
     private func account(_ id: UUID) -> String { "handoff-v1/\(id.uuidString)" }
-    func issue(_ record: NativeCredentialRecord, binding: Binding, runtimeOwner:UUID? = nil,runtimeProbeIPv4:String? = nil) throws -> Ticket {
-        guard binding.valid, binding.reference == record.reference, runtimeOwner != nil || runtimeProbeIPv4 == nil, try authorizes(binding) else { throw Failure.invalidBinding }
+    func issue(_ record: NativeCredentialRecord, binding: Binding, runtimeOwner:UUID? = nil,runtimeProbeIPv4:String? = nil,runtimeScope:RuntimeScope? = nil,runtimeProbeIPv6:String? = nil) throws -> Ticket {
+        guard binding.valid, binding.reference == record.reference, runtimeOwner != nil || (runtimeProbeIPv4 == nil && runtimeScope==nil && runtimeProbeIPv6==nil), try authorizes(binding) else { throw Failure.invalidBinding }
         guard let stored = try repository.read(record.reference), try stored.encoded() == record.encoded() else { throw Failure.unavailable }
-        let issued = now(), ticket = Ticket(id:UUID(),binding:binding,purpose:runtimeOwner == nil ? nil:.runtimeReview,runtimeOwner:runtimeOwner,runtimeProbeIPv4:runtimeProbeIPv4)
+        let issued = now(), ticket = Ticket(id:UUID(),binding:binding,purpose:runtimeOwner == nil ? nil:(runtimeScope == nil ? .runtimeReview:.runtimeDataPlaneReview),runtimeOwner:runtimeOwner,runtimeProbeIPv4:runtimeProbeIPv4,runtimeScope:runtimeScope,runtimeProbeIPv6:runtimeProbeIPv6)
+        guard ticket.validPurpose else{throw Failure.invalidBinding}
         let envelope = Envelope(version:1,ticket:ticket,issued:issued,expires:issued.addingTimeInterval(60))
         let bytes = try JSONEncoder().encode(envelope)
         guard bytes.count <= Self.maxEnvelopeBytes else { throw Failure.invalidEnvelope }
@@ -45,7 +53,7 @@ struct NativeCredentialHandoff {
         return ticket
     }
     func redeem(_ ticket: Ticket, expected: Binding, runtimeOwner:UUID? = nil) throws -> NativeCredentialRecord {
-        guard expected.valid, ticket.binding == expected,ticket.runtimeOwner==runtimeOwner,(runtimeOwner != nil || ticket.runtimeProbeIPv4==nil),ticket.purpose == (runtimeOwner == nil ? nil:.runtimeReview) else { throw Failure.invalidBinding }
+        guard expected.valid, ticket.binding == expected,ticket.runtimeOwner==runtimeOwner,ticket.validPurpose else { throw Failure.invalidBinding }
         let name = account(ticket.id)
         guard let raw = try items.read(account:name) else { throw Failure.unavailable }
         // Concurrent readers can read, only one successful delete wins.
@@ -61,8 +69,7 @@ struct NativeCredentialHandoff {
         guard !raw.isEmpty, raw.count <= Self.maxEnvelopeBytes else {throw Failure.invalidEnvelope}
         let value = try JSONDecoder().decode(Envelope.self,from:raw)
         guard value.version == 1, value.ticket.id == id, value.ticket.binding.valid,
-              (value.ticket.purpose == nil) == (value.ticket.runtimeOwner == nil),
-              value.ticket.runtimeOwner != nil || value.ticket.runtimeProbeIPv4 == nil,
+              value.ticket.validPurpose,
               value.issued.timeIntervalSinceReferenceDate.isFinite,
               value.expires.timeIntervalSinceReferenceDate.isFinite,
               abs(value.expires.timeIntervalSince(value.issued)-60) < 0.001 else {throw Failure.invalidEnvelope}

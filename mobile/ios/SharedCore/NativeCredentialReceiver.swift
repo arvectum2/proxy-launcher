@@ -54,7 +54,7 @@ struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
               Set(opts.keys)==[modeKey,ownerKey,expectedKey,ticketKey],opts[modeKey] as? String==validationMode,opts[ownerKey] as? String==owner.uuidString,
               let raw=opts[expectedKey] as? Data,let ticket=opts[ticketKey] as? Data,
               let expected=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),expected.valid,
-              let decoded=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,ticket),decoded.binding==expected,decoded.purpose==nil,decoded.runtimeOwner==nil,decoded.runtimeProbeIPv4==nil else{return .denied}
+              let decoded=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,ticket),decoded.binding==expected,decoded.validPurpose,decoded.runtimeOwner==nil else{return .denied}
         return .validation(.init(owner:owner,expected:expected,ticketBytes:ticket))
     }
     /// Validation only, never a success receipt for NE startup.

@@ -63,7 +63,7 @@ enum XrayVLESSRuntimeConfig {
 
     /// Deterministic config from the strict parser. Pinned runtime testXray
     /// remains mandatory before isolated start. No activation authority.
-    static func compileValidatedCandidate(_ candidate: VLESSRealityShareLink, socksPort: Int) throws -> Data {
+    static func compileValidatedCandidate(_ candidate: VLESSRealityShareLink, socksPort: Int, datagramReview:Bool = false) throws -> Data {
         guard (1024...65535).contains(socksPort) else { throw Failure.invalidPort }
         let host = candidate.serverHost.lowercased()
         guard validEndpoint(host) else { throw Failure.invalidEndpoint }
@@ -83,7 +83,7 @@ enum XrayVLESSRuntimeConfig {
             "inbounds": [[
                 "tag": "apl-local", "listen": "127.0.0.1",
                 "port": socksPort, "protocol": "socks",
-                "settings": ["auth": "noauth", "udp": false]
+                "settings": datagramReview ? ["auth":"noauth","udp":true,"ip":"127.0.0.1"] : ["auth":"noauth","udp":false]
             ]],
             "outbounds": [[
                 "tag": outlet, "protocol": "vless",

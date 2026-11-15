@@ -54,6 +54,39 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let conflicting=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:config,options:NativeRuntimeReviewRequest.options(ticket:conflict,owner:owner),enabled:true))
         XCTAssertThrowsError(try conflicting.consume(via:h,admission:.tunnelOnly))
     }
+    func testExtendedRuntimeScopeRequiresExactDNSAndPreservesProfile() throws {
+        let (r,b,repo,_,items)=try fixture()
+        try repo.insert(r)
+        let h=NativeCredentialHandoff(items:items,repository:repo,authorizes:{$0==b}),owner=UUID()
+        let full=try h.issue(r,binding:b,runtimeOwner:owner,runtimeScope:.wireGuardFull)
+        XCTAssertEqual(full.purpose,.runtimeDataPlaneReview)
+        let request=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:NativeRuntimeReviewRequest.configuration(owner:owner),options:NativeRuntimeReviewRequest.options(ticket:full,owner:owner),enabled:true))
+        XCTAssertThrowsError(try request.consume(via:h,admission:.tunnelOnly))
+        let result=try request.consume(via:h,admission:.tunnelOnly,exactDNSAvailable:true)
+        guard case .xrayWireGuardFull(let route)=result.route else{return XCTFail("wrong full scope")}
+        XCTAssertEqual(route.dnsServers,["192.0.2.53"]);XCTAssertEqual(route.ipv4Address,"10.0.0.2");XCTAssertEqual(route.ipv6Address,"fd00::2");XCTAssertTrue(route.excludedRoutes.isEmpty)
+        let args=try XraySocksHandoffPlan.prepare(tunFD:3,socksPort:39879,dnsBypass:[],exactDNS:true)
+        XCTAssertTrue(args.tun2proxyArguments.contains("--dns direct --native-exact-dns"))
+        XCTAssertFalse(try XraySocksHandoffPlan.prepare(tunFD:3,socksPort:39879,dnsBypass:[]).tun2proxyArguments.contains("native-exact-dns"))
+        let key=Data(repeating:17,count:32).base64EncodedString().replacingOccurrences(of:"=",with:"")
+        let v=try NativeCredentialRecord.create(profileID:UUID(),expected:.vlessReality,source:"vless://12345678-abcd-abcd-abcd-123456789abc@192.0.2.42:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk="+key+"&sid=abcd")
+        try repo.insert(v)
+        let vb=NativeCredentialHandoff.Binding(reference:v.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())
+        let vh=NativeCredentialHandoff(items:items,repository:repo,authorizes:{$0==vb})
+        let t=try vh.issue(v,binding:vb,runtimeOwner:owner,runtimeProbeIPv4:"198.51.100.77",runtimeScope:.vlessDatagrams,runtimeProbeIPv6:"2001:db8::77")
+        let rev=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:NativeRuntimeReviewRequest.configuration(owner:owner),options:NativeRuntimeReviewRequest.options(ticket:t,owner:owner),enabled:true))
+        XCTAssertThrowsError(try rev.consume(via:vh,admission:.tunnelOnly))
+        let expanded=try rev.consume(via:vh,admission:.tunnelOnly,exactDNSAvailable:true)
+        guard case .xray(let scope)=expanded.route else{return XCTFail("wrong VLESS scope")}
+        XCTAssertEqual(scope.targetIPv4,"198.51.100.77");XCTAssertEqual(scope.targetIPv6,"2001:db8::77")
+        func json(_ data:Data)throws->[String:Any]{try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])}
+        let old=try json(v.compile().0.withEngineConfiguration{$0}),new=try json(expanded.configuration.withEngineConfiguration{$0})
+        let inbound=try XCTUnwrap((new["inbounds"] as? [[String:Any]])?.first)
+        XCTAssertEqual((inbound["settings"] as? [String:Any])?["udp"] as? Bool,true)
+        XCTAssertEqual((old["outbounds"] as? NSArray),(new["outbounds"] as? NSArray))
+        XCTAssertEqual((old["routing"] as? NSDictionary),(new["routing"] as? NSDictionary))
+        XCTAssertThrowsError(try rev.consume(via:vh,admission:.tunnelOnly,exactDNSAvailable:true))
+    }
     func testImmutableStorageAndReference() throws {
         let (r,_,repo,store,_) = try fixture()
         XCTAssertNil(try repo.read(r.reference)); try repo.insert(r)

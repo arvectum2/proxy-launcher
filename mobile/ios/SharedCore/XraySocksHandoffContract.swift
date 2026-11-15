@@ -14,7 +14,7 @@ struct XraySocksHandoffPlan: Equatable {
     let proxyURL: String
     let tun2proxyArguments: String
 
-    static func prepare(tunFD: Int, socksPort: Int, dnsBypass: [String]) throws -> Self {
+    static func prepare(tunFD: Int, socksPort: Int, dnsBypass: [String],exactDNS:Bool=false) throws -> Self {
         guard (0...Int(Int32.max)).contains(tunFD) else {
             throw XrayHandoffError.invalidDescriptor
         }
@@ -25,9 +25,11 @@ struct XraySocksHandoffPlan: Equatable {
         // split-DNS/direct patches. A host-only flag was also incompatible
         // with the older HOST=IP parser. Do not silently drop user policy.
         guard dnsBypass.isEmpty else {throw XrayHandoffError.unsupportedBypass}
+        guard !exactDNS || socksPort==39879 else{throw XrayHandoffError.invalidPort}
         let url = "socks5://127.0.0.1:\(socksPort)"
+        let dnsMode=exactDNS ? " --dns direct --native-exact-dns":" --dns virtual"
         let args = "tun2proxy-bin --proxy \(url) --tun-fd \(tunFD)" +
-            " --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn"
+            " --close-fd-on-drop false"+dnsMode+" --ipv6-enabled --verbosity warn"
         return .init(port:UInt16(socksPort),tunnelDescriptor:Int32(tunFD),dnsBypasses:[],proxyURL:url,tun2proxyArguments:args)
     }
 
