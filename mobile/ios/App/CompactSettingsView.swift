@@ -45,8 +45,12 @@ struct CompactSettingsView<Header: View>: View {
                         Text(AppShared.version).font(.subheadline)
                         Text(verbatim:AppL10n.effectiveLanguage=="ru" ? "Создано с использованием Yandex Mobile Ads SDK" : "Developed with the use of Yandex Mobile Ads SDK")
                         Text(verbatim:AppL10n.effectiveLanguage=="ru" ? "Создано с использованием Yandex AppMetrica SDK" : "Developed with the use of Yandex AppMetrica SDK")
+                        NavigationLink(destination: PrivacyDisclosureView(appLanguage:$appLanguage,reviewOnly:true) {showAbout=false}) {
+                            Text(AppL10n.tr("Конфиденциальность",language:appLanguage))
+                        }.accessibilityIdentifier("settings.privacyReview")
                     }.padding().frame(maxWidth:.infinity,alignment:.leading)
                 }.navigationTitle(AppL10n.effectiveLanguage=="ru" ? "О программе" : "About")
+                    .toolbar { ToolbarItem(placement:.cancellationAction) { Button(AppL10n.tr("Закрыть",language:appLanguage)) {showAbout=false} } }
             }
         }
     }

@@ -62,7 +62,17 @@ def analyze():
     additive=set(features)-set(original)
     app='\n'.join(p.read_text(encoding='utf-8') for p in (BASE/'App').glob('*.swift'))
     used=set(re.findall(r'AppL10n\.tr\(\s*"((?:\\.|[^"\\])+)"',app))
-    unused=sorted(used-set(original)-set(features))
+    # Separate supplemental disclosure: explicitly RU/EN only, with English fallback.
+    # Keep the five required product catalogs and their key counts unchanged.
+    supplemental=set()
+    for code in codes:
+        data=files[code].get('PrivacyDetails')
+        if code in ('ru','en'):
+            if set(data or {})!={'sdkManifestDisclosure'}:errors.append(f'{code}/PrivacyDetails: missing or extra keys')
+            else:supplemental.update(data)
+        elif data is not None:errors.append(f'{code}/PrivacyDetails: unexpected fallback override')
+    explicit_supplemental=set(re.findall(r'AppL10n\.tr\(\s*"([^"\n]+)"\s*,\s*table:\s*"PrivacyDetails"',app))
+    unused=sorted(used-set(original)-set(features)-(supplemental&explicit_supplemental))
     rows=[]
     for code in codes:
         b=files[code].get('Localizable',{})

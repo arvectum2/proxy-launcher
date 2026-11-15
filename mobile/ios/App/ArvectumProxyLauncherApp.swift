@@ -10,26 +10,39 @@ struct ArvectumProxyLauncherApp: App {
     @AppStorage("appLanguage.v1") private var appLanguage = AppLanguage.system.rawValue
     @AppStorage("privacyDisclosureAccepted.v1") private var privacyDisclosureAccepted = false
 
-    init() {
+    @State private var adsStartupCompleted = false
+
+    private var shouldInitializeAds: Bool {
 #if !targetEnvironment(macCatalyst)
-        // Start the SDK before the banner enters the view hierarchy. This
-        // reduces first-impression latency, including on a cold app launch.
+        return IOSAdsConfig.isEnabled
+#else
+        return false
+#endif
+    }
+
+    @MainActor private func startAdsAfterDisclosure() {
+        guard privacyDisclosureAccepted, shouldInitializeAds, !adsStartupCompleted else { return }
+#if !targetEnvironment(macCatalyst)
 #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-APL_ENABLE_DEMO_BANNER") {
-            YandexAds.enableLogging()
-        }
+        YandexAds.enableLogging()
 #endif
         YandexAds.initializeSDK(completionHandler: nil)
 #endif
+        adsStartupCompleted = true
     }
 
     var body: some Scene {
         WindowGroup {
             Group {
                 if privacyDisclosureAccepted {
-                    ContentView()
+                    if !shouldInitializeAds || adsStartupCompleted {
+                        ContentView()
+                    } else {
+                        // Do not construct ad views/loaders before the explicit SDK call.
+                        ProgressView().onAppear { startAdsAfterDisclosure() }
+                    }
                 } else {
-                    PrivacyDisclosureView {
+                    PrivacyDisclosureView(appLanguage: $appLanguage) {
                         privacyDisclosureAccepted = true
                     }
                 }

@@ -23,7 +23,7 @@ def test_53_ui_languages_all_have_five_complete_catalogs():
     languages = manifest['languages']
     assert len(languages) == len(set(languages)) == 64
     assert set(languages) == {p.name[:-6] for p in RES.glob('*.lproj')}
-    assert len(list(RES.glob('*.lproj/*.strings'))) == 64 * len(TABLES) == 320
+    assert len([p for p in RES.glob('*.lproj/*.strings') if p.stem != 'PrivacyDetails']) == 64 * len(TABLES) == 320
     for code in NEW:
         folder = RES / f'{code}.lproj'
         for table, count in TABLES.items():

@@ -42,6 +42,7 @@
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
+		223402984B9C755CE6B9357D /* PrivacyDetails.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FEE8CC7ABE21CB78AB07E5E /* PrivacyDetails.strings */; };
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		265A8F49C43D1A01B9268895 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */; };
 		26C09B6D8411877AB0EC8994 /* UpstreamSocketDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50D7CFCE3DD739FD75C2060 /* UpstreamSocketDiagnostics.swift */; };
@@ -479,6 +480,7 @@
 		6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartRouteDryRunAudit.swift; sourceTree = "<group>"; };
 		6BF7E38E0D18F2E813B186A2 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteLearning.swift; sourceTree = "<group>"; };
+		6CAD359663968418AE5252EB /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/PrivacyDetails.strings; sourceTree = "<group>"; };
 		6CBC4424DF9BF1666491F9D0 /* RSYABannerPhysicalUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSYABannerPhysicalUITests.swift; sourceTree = "<group>"; };
 		6CF789F184DAB8FE71B872AF /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		70419422C2B9C02B9F2B4D3B /* lt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lt; path = lt.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -706,6 +708,7 @@
 		D8AA285AA938C0F3B1329E9F /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		D8F0BECC093210C1EE37516E /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		D9F026A7CB9537FE76492884 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/QuickActions.strings; sourceTree = "<group>"; };
+		DA466D55DDC859DB0CF3CAA6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/PrivacyDetails.strings; sourceTree = "<group>"; };
 		DA4DF787F01DFFAC4839B12B /* ProxySubscriptionRefreshReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxySubscriptionRefreshReview.swift; sourceTree = "<group>"; };
 		DAA4BB6CA65FE842EB0443D3 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		DB42E08381B2F76A208511BC /* ApplicationExclusionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationExclusionsView.swift; sourceTree = "<group>"; };
@@ -830,6 +833,7 @@
 				1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */,
 				CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */,
 				D748F899748BE88389DBC47E /* Localizable.strings */,
+				0FEE8CC7ABE21CB78AB07E5E /* PrivacyDetails.strings */,
 				2DC6C5630E272E25E14496CD /* ProfileManagement.strings */,
 				BB11E773C4C15B602BA581E8 /* ProxyImport.strings */,
 				05F7FA145FBA431606749B23 /* QuickActions.strings */,
@@ -1261,6 +1265,7 @@
 				F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */,
 				E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */,
 				4315411C0DF25F13EDD974C4 /* Localizable.strings in Resources */,
+				223402984B9C755CE6B9357D /* PrivacyDetails.strings in Resources */,
 				B5BEE209D1B78B3ADF3AF8EB /* PrivacyInfo.xcprivacy in Resources */,
 				A3AB954D4D2ECCECD2A3ED8D /* ProfileManagement.strings in Resources */,
 				36C8485C979A28BB15CBFD46 /* ProxyImport.strings in Resources */,
@@ -1614,6 +1619,15 @@
 				8722833D0E497B6866D28263 /* zh-Hant */,
 			);
 			name = QuickActions.strings;
+			sourceTree = "<group>";
+		};
+		0FEE8CC7ABE21CB78AB07E5E /* PrivacyDetails.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DA466D55DDC859DB0CF3CAA6 /* en */,
+				6CAD359663968418AE5252EB /* ru */,
+			);
+			name = PrivacyDetails.strings;
 			sourceTree = "<group>";
 		};
 		2DC6C5630E272E25E14496CD /* ProfileManagement.strings */ = {

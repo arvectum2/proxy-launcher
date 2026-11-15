@@ -34,7 +34,7 @@ def test_all_15_former_republics_have_native_primary_language_in_64_ui_catalogs(
     assert len(manifest)==len(set(manifest))==64
     assert set(COUNTRY_LANGUAGE.values()).issubset(manifest)
     assert set(manifest)=={d.name.removesuffix('.lproj') for d in RES.glob('*.lproj')}
-    assert len(list(RES.glob('*.lproj/*.strings')))==320
+    assert len([p for p in RES.glob('*.lproj/*.strings') if p.stem != 'PrivacyDetails'])==320
     for lang in NEW:
         folder=RES/f'{lang}.lproj'
         for table in TABLES:

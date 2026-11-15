@@ -12,6 +12,9 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage17a explicit ad initialization after disclosure and lazy native objects, no monetization change."
+  - "Stage17b first-use selected language/Dynamic Type/reopenable disclosure, RU/EN supplemental note."
+  - "Stage17c actual unsigned bundle privacy manifest audit and unpublished bilingual policy draft; runtime/legal gates open."
   - "Stage16a actual new exact candidate-bound private source/notice review, 411 files independently verified."
   - "Stage16b exact30-case matrix and fixture/duplicate/trust correlation tests; no actual device proof."
   - "Stage16c consolidated supervised QA handoff and remaining gates."
@@ -220,7 +223,7 @@ completed:
 
 
 
-current: "Stage16 verified: exact new no-tproxy source kit private-no-tproxy-source-review-20261115 manifest52a291dce4a9c1efb0e9b3350c6832cd248f748baa8c7fa53e82cd27e1bc6c0e,411 files,250 Rust+71 Go original notices,3 MPL archives; fresh prepared Rust source and graph equality except absolute root path, exact unified bridge hashes, historical SDK material separate. No legal clearance/public delivery. New exact candidate matrix30 cases standard22/split8, independent artifact correlation and duplicate case/run/owner/challenge/evidence digest rejection, generates30 fixtures in disposable tests, no physical receipts or authorization. Python509/509+1527; focused32/32 after manifest guard; independent kit re-read411 PASS; prior Swift405 unchanged, b5cd74b1 CI3/7 last observed. Root-path graph comparison corrected; initial command length rejected and split. Consolidated handoff docs. No device/network/signing/account/Keychain/production change."
+current: "Stage17 verified: actual explicit SDK init reordered after privacy acknowledgment and ad-enabled check, lazy native loader/view, DEBUG default no explicit SDK init. Existing acceptance preserved, no forced reconsent, ad units/retry/monetization unchanged. First-use language picker, explicit localized copy/Dynamic Type and About disclosure review. All64 existing catalogs intact; additional RU/EN note with EN fallback, remaining62 translation/editorial and actual UI acceptance pending. Actual unsigned Release privacy audit26 manifests,7 collection declarations, AppMetrica AdSupport tracking+linked DeviceID, YandexMobileAds DeviceID+AdvertisingData. App/provider empty collection declarations, no actual transmission proof. Private manifest b41447f9163ca958e931b5850f454aff1bdc7bc771011a2b14dc37661beecd83 app cc3631890433f77ed649d474ab342a8714e12dcb8e1285c981b574ee33045527. Outdated repo privacy page no-ads claim identified, separate bilingual draft not published. Apple5.4 and runtime collection/terms remain blockers, no tracking consent/compliance claim. Python512/512+1527, 64 locale audit0 errors, ordinary unsigned Release and Debug PASS; active0.2.0(48) RSYA preflight PASS; initial locale fixed-count/overload assertions corrected; Swift core unchanged previous405. Prior91c53c91 CI3/7 last seen. No device/SDK runtime/account/signing/deployment."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -232,8 +235,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "b5cd74b1 CI3/7 last observed; working tree Python509+1527, focused32 and kit411 verification PASS; new CI pending; Swift unchanged405 previous"
+last_verified_commit: "91c53c91 CI3/7 last observed; working tree Python512+1527, 64 locale audit, unsigned Release+Debug, 26 bundle manifests and preflight verified; new CI pending"
 test_results:
+  - "Python512/512+1527, locale64 audit zero errors, Release+Debug unsigned build, active RSYA preflight, 26 embedded declarations PASS; no actual runtime or legal proof; previous Swift405 unchanged."
   - "Python509/509+1527, focused32/32, source kit411 files verified, all30 synthetic fixtures; previous Swift405 unchanged. No signed/runtime or legal clearance."
   - "Swift405/405 Python477/477+1527 Rust20/20 (6178 comparisons,6 UDP), two unsigned unified builds 2x80 source checks, split map214+11 archive entries, preflight PASS; old CI7/7. No physical runtime or legal clearance."
   - "Swift405/405 Python476/476+1527 Rust28 vectors and actual ARM64 iOS archive/link pass,141 source components/250 notices, ordinary unsigned Release, ASO50, active preflight PASS; full archive Apple nm partial incompatibility. Prior CI7/7. No physical proof or legal clearance."
@@ -373,4 +377,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 HEAD CI. Source kit and 30-case matrix prepared; no repeat compilation-only or synthetic scaffolding. Prioritize actual remaining independent product UI/legacy regression and SDK static privacy-manifest/data-flow audit if actionable without device. Physical signed new-candidate acceptance, external topology/capture permission, S1/K1/K2/X1/N1/N2/C1/R1 and exact-domain/related-host product decision remain blocked pending prerequisites. Seek explicit owner decision before narrowing domain behavior or monetization changes; no unsupported release clearance. No signing/registration/device/account/runtime activation/main merge/publication. Maintain single watchdog and update checkpoint."
+resume_instruction: "Verify PR383 exact HEAD CI. Actual remaining blockers: owner-approved SDK privacy/monetization decision and verified data behavior/Apple5.4, review draft privacy policy and translations before adoption; no claim vendor declarations prove runtime. No further repeat synthetic scaffolding. Continue independently actionable targeted UI/legacy fixes only if identified, otherwise consolidate actual device-required gates and request owner availability and explicit signing/network approval. Native exact-domain/related-host parity requires owner decision; no silent scope reduction. Signed physical S1/K1/K2/X1/N1/N2/C1/R1 plus exact new30 tests and independent topology/capture remain. No signing/registration/account/device/runtime activation/main merge/publication. Maintain single watchdog/checkpoint."
