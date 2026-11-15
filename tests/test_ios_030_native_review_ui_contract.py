@@ -38,7 +38,7 @@ def test_qa_dedicated_ru_en_localization_keys_and_fallback():
     view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
     entry=(IOS/'App/ProfileBackupView.swift').read_text()
     ru=dict((json.loads(k),json.loads(v)) for k,v in re.findall(r'^\s*(".*?"):\s*(".*?"),$',view,re.M))
-    assert len(ru)==30 and all(k!=v for k,v in ru.items())
+    assert len(ru)==35 and all(k!=v for k,v in ru.items())
     assert set(re.findall(r'tr\("([^"]+)"\)',view))|{'Native profiles · Simulator QA'}==set(ru)
     assert 'NativeReviewQAL10n.tr' in entry
     assert ru['Temporary profiles: %d'].count('%d')==1

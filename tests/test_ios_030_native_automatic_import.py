@@ -5,8 +5,9 @@ def test_native_import_ui_explicit_controls_and_bounded_read():
     v=(IOS/'App/NativePersistentProfilesView.swift').read_text()
     assert 'allowsMultipleSelection:fileReceipt?.action == .automaticConfigurations' in v
     assert 'nativeImport.autoFiles' in v and 'nativeImport.clipboard' in v
-    assert 'NativeAutomaticImport.maxBytes' in v and 'remaining-=data.count' in v
-    assert 'read(upToCount:limit+1-data.count)' in v
+    a=(IOS/'SharedCore/NativeAutomaticImport.swift').read_text()
+    assert 'NativeAutomaticImport.readSources(urls)' in v and 'remaining-=source.utf8.count' in a
+    assert 'read(upToCount:limit+1-data.count)' in a
     assert v.count('UIPasteboard.general.string')==1
     assert 'private func previewClipboard()' in v and 'summary=try session.previewAutomatic([text])' in v
     assert 'session.confirmImport(summary,vpnInactive:inactive)' in v

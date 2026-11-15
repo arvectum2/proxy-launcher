@@ -114,8 +114,8 @@ import NetworkExtension
                     Text("\(row.number). \(row.reference.kind.rawValue)").font(.headline)
                     if row.selected {Text(tr("Selected for review","Выбран для проверки"))}
                     Text(status(row.state)).font(.footnote).foregroundStyle(.secondary)
-                    Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.disabled(!row.canReview)
-                    Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.disabled(library.migrationRequired || library.recoveryRequired)
+                    Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.buttonStyle(.borderless).disabled(!row.canReview)
+                    Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired)
                 }
             }
         }
@@ -209,14 +209,7 @@ import NetworkExtension
         do {
             let urls=try result.get()
             if action == .automaticConfigurations {
-                guard (1...NativeAutomaticImport.maxSources).contains(urls.count) else{throw NativeAutomaticImport.Failure.tooLarge}
-                var remaining=NativeAutomaticImport.maxBytes,sources:[String]=[]
-                for url in urls {
-                    let data=try readConfiguration(url,limit:remaining);remaining-=data.count
-                    guard let source=String(data:data,encoding:.utf8) else{throw ProfileBackupError.invalidFile}
-                    sources.append(source)
-                }
-                summary=try session.previewAutomatic(sources);return
+                summary=try session.previewAutomatic(NativeAutomaticImport.readSources(urls));return
             }
             guard urls.count==1,let url=urls.first,url.isFileURL else{throw ProfileBackupError.invalidFile}
             if action == .backup {
@@ -224,20 +217,9 @@ import NetworkExtension
                 backupBytes=try ProfileBackupCodec.readEncryptedFile(at:url);return
             }
             guard case .configuration(let kind)=action else{throw ProfileBackupError.invalidFile}
-            let data=try readConfiguration(url,limit:NativeCredentialRecord.maxBytes)
-            guard let raw=String(data:data,encoding:.utf8) else{throw ProfileBackupError.invalidFile}
+            let raw=try NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes)
             summary=try session.previewSource(raw,kind:kind)
         }catch{cancelReview();failed=true}
-    }
-    private func readConfiguration(_ url:URL,limit:Int)throws->Data {
-        guard url.isFileURL,limit>0 else{throw ProfileBackupError.invalidFile}
-        let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
-        let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()};var data=Data()
-        while data.count<=limit {
-            let part=try handle.read(upToCount:limit+1-data.count) ?? Data()
-            if part.isEmpty{break};data.append(part)
-        }
-        guard data.count<=limit else{throw NativeAutomaticImport.Failure.tooLarge};return data
     }
     private func previewClipboard(){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return}

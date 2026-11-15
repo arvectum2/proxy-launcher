@@ -24,6 +24,32 @@ final class NativeProfileReviewSessionTests:XCTestCase {
         XCTAssertNotEqual(first.id,second.id);XCTAssertNil(g.consume(first));XCTAssertEqual(g.consume(second),.export)
         g.leave();XCTAssertNil(g.begin(.export))
     }
+    func testBoundedNativeFileReaderUsesActualFiles() throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString,isDirectory:true)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:false);defer{try? FileManager.default.removeItem(at:root)}
+        func write(_ name:String,_ bytes:Data)throws->URL {let p=root.appendingPathComponent(name);try bytes.write(to:p);return p}
+        let a=vless(),b=vless(),first=try write("one.txt",Data(a.utf8)),second=try write("two.txt",Data(b.utf8))
+        XCTAssertEqual(try NativeAutomaticImport.readSources([first,second]),[a,b]);XCTAssertEqual(try NativeAutomaticImport.prepare(NativeAutomaticImport.readSources([first,second])).count,2)
+        let huge=try write("huge.txt",Data(repeating:65,count:NativeAutomaticImport.maxBytes))
+        XCTAssertThrowsError(try NativeAutomaticImport.readSources([first,huge]))
+        XCTAssertThrowsError(try NativeAutomaticImport.readSource(first,limit:a.utf8.count-1))
+        XCTAssertEqual(try NativeAutomaticImport.readSource(first,limit:a.utf8.count),a)
+        let invalid=try write("invalid",Data([0xff,0xfe]));XCTAssertThrowsError(try NativeAutomaticImport.readSources([first,invalid]))
+        XCTAssertThrowsError(try NativeAutomaticImport.readSources(Array(repeating:first,count:33)))
+        XCTAssertThrowsError(try NativeAutomaticImport.readSources([]))
+    }
+    @MainActor func testAutomaticRehearsalRemovalConfirmationAndEncryptedRemainingRecords()async throws {
+        var now=100.0;let s=NativeProfileReviewSession(elapsed:{now}),other=NativeProfileReviewSession()
+        let a=vless(),b=vless();let first=try s.previewAutomatic([a+"\n"+b]);XCTAssertEqual(first.count,2);XCTAssertEqual(try s.counts().total,0)
+        _=try s.addToRehearsal(first);let rows=try s.presentation().rows;_ = try s.selectForReview(rows[0].reference)
+        let old=try s.prepareRemoval(rows[0].reference);s.cancelReview();XCTAssertThrowsError(try s.confirmRemoval(old));XCTAssertEqual(try s.counts().total,2)
+        let invalidated=try s.prepareRemoval(rows[0].reference);_ = try s.previewAutomatic([vless()]);XCTAssertThrowsError(try s.confirmRemoval(invalidated))
+        let expired=try s.prepareRemoval(rows[0].reference);now+=300;XCTAssertThrowsError(try s.confirmRemoval(expired))
+        let actual=try s.prepareRemoval(rows[0].reference);try s.confirmRemoval(actual);XCTAssertThrowsError(try s.confirmRemoval(actual))
+        XCTAssertEqual(try s.presentation().rows.map(\.reference),[rows[1].reference]);XCTAssertFalse(try s.presentation().rows[0].selected)
+        let pass="Synthetic-strong-password",data=try s.encryptedBackup(password:pass);let review=try other.previewBackup(data,password:pass);XCTAssertEqual(review.count,1);_ = try other.addToRehearsal(review)
+        let close=try s.prepareRemoval(rows[1].reference);s.clear();XCTAssertThrowsError(try s.confirmRemoval(close));XCTAssertEqual(try s.counts().total,0);XCTAssertEqual(try other.counts().total,1)
+    }
     @MainActor func testPreviewOnlyUntilConfirmationAndEncryptedRoundTrip() async throws {
         let a=NativeProfileReviewSession(),b=NativeProfileReviewSession(),password="Synthetic-strong-password"
         let summary=try a.previewSource(vless(),kind:.vlessReality)

@@ -13,6 +13,11 @@ enum NativeReviewQAL10n {
         "Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN.": "Только для тестирования в симуляторе. Используйте искусственные тестовые файлы. Профили не сохраняются в библиотеке, VPN не подключается.",
         "Temporary profiles: %d": "Временных профилей: %d",
         "Configuration review": "Проверка конфигурации",
+        "Choose synthetic files · detect protocol": "Выбрать тестовые файлы · автоопределение",
+        "Remove from temporary memory": "Удалить из временной памяти",
+        "Confirm removal": "Подтвердить удаление",
+        "Paste synthetic configuration or VLESS links": "Вставьте тестовую конфигурацию или ссылки VLESS",
+        "Preview pasted text": "Проверить вставленный текст",
         "Protocol": "Протокол",
         "Choose synthetic configuration text file": "Выбрать тестовый файл конфигурации",
         "Encrypted backup": "Зашифрованная резервная копия",
@@ -49,6 +54,9 @@ enum NativeReviewQAL10n {
     @Environment(\.scenePhase) private var phase
     @State private var session=NativeProfileReviewSession()
     @State private var kind:NativeCredentialRecord.Kind = .wireGuard
+    @State private var pastedText=""
+    @FocusState private var pasteFocused:Bool
+    @State private var removal:NativePersistentProfileSession.Receipt?
     @State private var summary:NativeRestoreReview.Summary?
     @State private var password=""
     @State private var repeatedPassword=""
@@ -75,7 +83,7 @@ enum NativeReviewQAL10n {
             Form {
                 Section {
                     Text(tr("Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN."))
-                    Text(String(format:tr("Temporary profiles: %d"),Int32(library.rows.count)))
+                    Text(String(format:tr("Temporary profiles: %d"),Int32(library.rows.count))).accessibilityIdentifier("nativeQA.count")
                 }
                 if !library.rows.isEmpty {
                     Section(tr("Temporary native library")) {
@@ -84,13 +92,18 @@ enum NativeReviewQAL10n {
                                 Text(String(format:tr("Profile %d"),Int32(row.number))+" · "+protocolTitle(row.reference.kind)).font(.headline)
                                 if row.selected {Label(tr("Selected for review"),systemImage:"checkmark.circle")}
                                 Text(statusTitle(row.state)).font(.footnote).foregroundStyle(.secondary)
-                                Button(tr("Select for review")){selectRow(row)}.disabled(!row.canReview || lifecycle.pending != nil)
+                                Button(tr("Select for review")){selectRow(row)}.disabled(!row.canReview || lifecycle.pending != nil).buttonStyle(.borderless).accessibilityIdentifier("nativeQA.select.\(row.number)")
+                                Button(tr("Remove from temporary memory"),role:.destructive){prepareRemoval(row)}.disabled(lifecycle.pending != nil).buttonStyle(.borderless).accessibilityIdentifier("nativeQA.remove.\(row.number)")
                             }
                             .accessibilityElement(children:.contain)
                         }
                     }
                 }
                 Section(tr("Configuration review")) {
+                    Button(tr("Choose synthetic files · detect protocol")){beginImport(.automaticConfigurations)}.accessibilityIdentifier("nativeQA.autoFiles")
+                    Text(tr("Paste synthetic configuration or VLESS links")).font(.footnote)
+                    TextEditor(text:Binding(get:{pastedText},set:{value in session.cancelReview();summary=nil;removal=nil;failed=false;pastedText=value})).frame(minHeight:60).textInputAutocapitalization(.never).disableAutocorrection(true).focused($pasteFocused).accessibilityIdentifier("nativeQA.pastedText")
+                    Button(tr("Preview pasted text")){previewText()}.disabled(pastedText.isEmpty || pastedText.utf8.prefix(NativeAutomaticImport.maxBytes+1).count>NativeAutomaticImport.maxBytes).accessibilityIdentifier("nativeQA.previewText")
                     Picker(tr("Protocol"),selection:$kind) {
                         Text("WireGuard").tag(NativeCredentialRecord.Kind.wireGuard)
                         Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
@@ -111,12 +124,21 @@ enum NativeReviewQAL10n {
                         Button(tr("Encrypt"),action:encrypt).disabled(password.count<12 || password != repeatedPassword)
                     }
                 }
+                if let removal {
+                    Section(tr("Confirm removal")) {
+                        if case .remove(let ref)=removal.action,let row=library.rows.first(where:{$0.reference==ref}) {
+                            Text(String(format:tr("Profile %d"),Int32(row.number))+" · "+protocolTitle(ref.kind))
+                        }
+                        Button(tr("Confirm removal"),role:.destructive){confirmRemoval(removal)}.accessibilityIdentifier("nativeQA.confirmRemoval")
+                        Button(tr("Cancel"),role:.cancel){resetReview()}
+                    }
+                }
                 if let summary {
                     Section(tr("Review — counts only")) {
                         Text("WireGuard: \(summary.wireGuard)")
                         Text("AmneziaWG 1: \(summary.amneziaWG1)")
                         Text("VLESS Reality: \(summary.vless)")
-                        Button(tr("Add to test memory only")) { accept(summary) }
+                        Button(tr("Add to test memory only")) { accept(summary) }.accessibilityIdentifier("nativeQA.confirmImport")
                         Button(tr("Cancel"),role:.cancel){resetReview()}
                     }
                 }
@@ -129,7 +151,7 @@ enum NativeReviewQAL10n {
             .navigationTitle(tr("Native profiles · QA"))
             .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close")){leave();dismiss()}}}
         }
-        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false, onCompletion:{ [receipt=importReceipt] result in readFile(result,receipt:receipt) })
+        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:importReceipt?.action == .automaticConfigurations, onCompletion:{ [receipt=importReceipt] result in readFile(result,receipt:receipt) })
         .fileExporter(isPresented:$showExporter,document:document,contentType:.json,defaultFilename:exportFilename){ [receipt=exportReceipt] _ in
             guard lifecycle.consume(receipt) == .export else{return}
             document=nil;exportReceipt=nil
@@ -158,7 +180,20 @@ enum NativeReviewQAL10n {
         resetReview()
         do{library=try session.selectForReview(row.reference,legacyIDs:legacyIDs,hasExclusions:hasExclusions)}catch{fail()}
     }
-    private func resetReview(){session.cancelReview();summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
+    private func previewText(){
+        guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return}
+        let source=pastedText;resetReview()
+        do{summary=try session.previewAutomatic([source])}catch{fail()}
+    }
+    private func prepareRemoval(_ row:NativeProfilePresentation.Row){
+        guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return}
+        resetReview();do{removal=try session.prepareRemoval(row.reference)}catch{fail()}
+    }
+    private func confirmRemoval(_ receipt:NativePersistentProfileSession.Receipt){
+        guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return}
+        do{try session.confirmRemoval(receipt);library=try session.presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions);resetReview()}catch{fail()}
+    }
+    private func resetReview(){session.cancelReview();pasteFocused=false;pastedText="";removal=nil;summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
     private func fail(){resetReview();failed=true}
     private func cancelPanel(){lifecycle.invalidate();importReceipt=nil;exportReceipt=nil;document=nil;resetReview()}
     private func leave(){lifecycle.leave();resetReview();session.clear();importReceipt=nil;exportReceipt=nil;choosing=false;showExporter=false;document=nil;library = .empty}
@@ -171,20 +206,15 @@ enum NativeReviewQAL10n {
         importReceipt=nil
 
         do {
-            guard let url=try result.get().first else{return}
-            guard url.isFileURL else{throw ProfileBackupError.invalidFile}
-            let scoped=url.startAccessingSecurityScopedResource();defer{if scoped{url.stopAccessingSecurityScopedResource()}}
+            let urls=try result.get()
+            if action == .automaticConfigurations {summary=try session.previewAutomatic(NativeAutomaticImport.readSources(urls));return}
+            guard urls.count==1,let url=urls.first,url.isFileURL else{throw ProfileBackupError.invalidFile}
             switch action {
-            case .backup: file=try ProfileBackupCodec.readEncryptedFile(at:url)
+            case .backup:
+                let scoped=url.startAccessingSecurityScopedResource();defer{if scoped{url.stopAccessingSecurityScopedResource()}}
+                file=try ProfileBackupCodec.readEncryptedFile(at:url)
             case .configuration(let reviewedKind):
-                let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()}
-                var bytes=Data()
-                while bytes.count<=NativeCredentialRecord.maxBytes {
-                    let part=try handle.read(upToCount:NativeCredentialRecord.maxBytes+1-bytes.count) ?? Data()
-                    if part.isEmpty{break};bytes.append(part)
-                }
-                guard bytes.count<=NativeCredentialRecord.maxBytes,let raw=String(data:bytes,encoding:.utf8) else {throw ProfileBackupError.invalidFile}
-                summary=try session.previewSource(raw,kind:reviewedKind)
+                summary=try session.previewSource(NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes),kind:reviewedKind)
             case .automaticConfigurations,.export:throw ProfileBackupError.invalidFile
             }
         } catch {fail()}

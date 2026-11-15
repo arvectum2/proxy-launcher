@@ -200,6 +200,7 @@
 		C7D36EA58115A02F2EC98A49 /* SmartExclusionsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */; };
 		CA00AE677BE5D78AFAEEBCC3 /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
 		CAAA0278E7D38A25D8D4E1B0 /* ExclusionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF04293CB0940352CE500AA /* ExclusionsView.swift */; };
+		CB8311324C7EA2F5E6BD1C70 /* NativeBatchReviewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB05015E437CC3A716B8540F /* NativeBatchReviewUITests.swift */; };
 		CBBC92F54993767F2F264B28 /* PhysicalIPFamilyReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E41A3C09E61A38EEE2A7E48 /* PhysicalIPFamilyReadOnlyTests.swift */; };
 		CD89C17AA15D25F29E32A844 /* SiteDependencyDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B644FF6B57F5DF5AA103F5 /* SiteDependencyDiscovery.swift */; };
 		D04EEC4B669195EFEDD6EDDE /* ExclusionSyncContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AC7094E7A0EF02E6290FC59 /* ExclusionSyncContract.swift */; };
@@ -676,6 +677,7 @@
 		CAEC798C1E9EC410EA7FE726 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		CAFE5642EEC59627E7B1D769 /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CB04057014F01C39512BA98A /* SetupGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupGuideView.swift; sourceTree = "<group>"; };
+		CB05015E437CC3A716B8540F /* NativeBatchReviewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeBatchReviewUITests.swift; sourceTree = "<group>"; };
 		CBEEBE021EA9404B3BD2B31C /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxySubscriptionImport.swift; sourceTree = "<group>"; };
 		CC245233CFBC84FB46E16CB6 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/ProxyImport.strings; sourceTree = "<group>"; };
@@ -856,6 +858,7 @@
 				7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */,
 				130B51C1D493CB1525C5632E /* Localization020ReadOnlyUITests.swift */,
 				BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */,
+				CB05015E437CC3A716B8540F /* NativeBatchReviewUITests.swift */,
 				3F623E765375AF9109A09002 /* PhysicalAccessibilityUITests.swift */,
 				31F4F0FCDD896F146B0B2F95 /* PhysicalProxyEgressUITests.swift */,
 				23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */,
@@ -1376,6 +1379,7 @@
 				EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */,
 				F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */,
 				69D9EE2807AA4D3DE0F2D9A7 /* Localization020ReadOnlyUITests.swift in Sources */,
+				CB8311324C7EA2F5E6BD1C70 /* NativeBatchReviewUITests.swift in Sources */,
 				BEA2EA86DCF459C9E63E3CDD /* PhysicalAccessibilityUITests.swift in Sources */,
 				532FAE0CAFAFCA9591F0A3B5 /* PhysicalProxyEgressUITests.swift in Sources */,
 				8A2C44D61AAFFEEC81F608B6 /* PhysicalQRCodeDecodeUITests.swift in Sources */,

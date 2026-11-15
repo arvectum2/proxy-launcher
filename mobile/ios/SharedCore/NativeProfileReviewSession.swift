@@ -56,12 +56,14 @@ struct NativeProfilePresentation: Equatable {
     private let catalog: NativeCredentialCatalog
     private let repository: NativeCredentialRepository
     private let review: NativeRestoreReview
+    private let management:NativePersistentProfileSession
     private let launchBoundary: NativeSessionLaunchBoundary
     init(elapsed: @escaping () -> TimeInterval = {ProcessInfo.processInfo.systemUptime}) {
         let repo=NativeCredentialRepository(items:items)
         repository=repo
         let c=NativeCredentialCatalog(storage:store,repository:repo,legacyIDs:{[]})
         catalog=c;review=NativeRestoreReview(catalog:c,elapsed:elapsed)
+        management=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly},elapsed:elapsed)
         launchBoundary=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:MemoryItems(),legacyIDs:{[]})
     }
     func counts() throws -> Counts {
@@ -69,10 +71,21 @@ struct NativeProfilePresentation: Equatable {
         return Counts(wireGuard:refs.filter{$0.kind == .wireGuard}.count,amneziaWG1:refs.filter{$0.kind == .amneziaWG1}.count,vless:refs.filter{$0.kind == .vlessReality}.count)
     }
     func previewSource(_ source:String,kind:NativeCredentialRecord.Kind) throws -> NativeRestoreReview.Summary {
-        try review.previewSource(source,expected:kind.transport)
+        management.cancel();return try review.previewSource(source,expected:kind.transport)
+    }
+    func previewAutomatic(_ sources:[String])throws->NativeRestoreReview.Summary {
+        management.cancel();return try review.previewAutomatic(sources)
+    }
+    func prepareRemoval(_ ref:NativeCredentialRecord.Reference)throws->NativePersistentProfileSession.Receipt {
+        review.cancel();return try management.prepare(.remove(ref))
+    }
+    func confirmRemoval(_ receipt:NativePersistentProfileSession.Receipt)throws {
+        guard case .remove=receipt.action else{throw NativePersistentProfileSession.Failure.unavailable}
+        try management.confirm(receipt,vpnInactive:{true})
+        try catalog.reconcileRetired(vpnInactive:{true})
     }
     func previewBackup(_ bytes:Data,password:String) throws -> NativeRestoreReview.Summary {
-        try review.preview(data:bytes,password:password)
+        management.cancel();return try review.preview(data:bytes,password:password)
     }
     /// True here means the rehearsal has no VPN object at all. Never reuse
     /// this method to approve a real restore or an OS-level inactive check.
@@ -85,7 +98,7 @@ struct NativeProfilePresentation: Equatable {
     }
     /// Ephemeral library only: run preflight, never issue a ticket or create an OS session.
     func selectForReview(_ reference:NativeCredentialRecord.Reference,legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) throws -> NativeProfilePresentation {
-        review.cancel()
+        cancelReview()
         guard try presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions).rows.contains(where:{$0.reference==reference && $0.canReview}) else {throw NativeSessionLaunchBoundary.Failure.staleSelection}
         try catalog.select(reference)
         let intent=try launchBoundary.prepare(reference:reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
@@ -95,8 +108,8 @@ struct NativeProfilePresentation: Equatable {
     func encryptedBackup(password:String) throws -> Data {
         try NativeProfileBackupCodec.seal(catalog.reader.currentRecordsForBackup(repository:repository),password:password)
     }
-    func cancelReview(){review.cancel()}
-    func clear(){review.cancel();store.bytes=nil;items.items.removeAll()}
+    func cancelReview(){review.cancel();management.cancel()}
+    func clear(){cancelReview();store.bytes=nil;items.items.removeAll()}
 }
 
 /// Tracks one outstanding asynchronous file-panel action. A callback must
