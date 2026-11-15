@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Native credential record/handoff and distinct device-only Keychain adapter; validated one winning consumer out of 16 using fake items. Real kernel-bound IPv4/v6 loopback AWG exchange and peer rejection, race checks3 repetitions, iOS archive compile."
   - "15.11: offline native profile revision/selection and single-use validation ticket boundary; legacy ProfileStore read-only collision check, invalidation on edits/deletes/policy failure, bounded 32 in-memory profiles. No persisted native credentials or actual provider startup."
   - "15.11: offline WG/AWG route/DNS plan and real NE settings materialization, explicit underlay requirement, rejected unsupported exclusion settings and invalid/colliding IPs, four NE object scenarios; current blocker/pending lists reconciled, old history retained in git."
   - "15.11 09:00: AWG signed existing NativeLab targeted physical native-control case PASS, independent TCP4 witness1, outer sent/received5/5, stale request rejection and native drain before OS OFF; owned cleanup, uninstall, Netherlands 2 restored and three fingerprints unchanged. Both isolated native-control hardware gates PASS."
@@ -151,7 +152,7 @@ completed:
 
 
 
-current: "Offline WG/AWG native profile preparation boundary implemented: revision identity, explicit selection, bounded in-memory staging and one-use provider-bound validation ticket for route+engine config. Legacy ProfileStore read-only collision guard, no storage migration, no Keychain writes, no production activation. Swift310/310, Python50/50, unsigned iPhoneOS Release build PASS, experimental link symbols absent. Actual native persistence, secure cross-process credential handoff and production underlay remain pending. No phone changes."
+current: "Native immutable credential records, isolated Keychain adapter, metadata-only expiring one-use handoff and profile integration locally verified. AWG bound UDP loopback IPv4/IPv6 kernel+native exchange and race tests PASS; iPhoneOS+simulator archives built. Swift317/Python50/unsigned Release PASS. Next authoritative catalog revision and reconciliation; no actual keychain cross-process or physical underlay proof."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -163,8 +164,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "8d31be52c plus native profile preparation working tree tested Swift310/Python50/Release; exact new CI pending"
+last_verified_commit: "fdd77a136 plus working-tree Swift317/Python50/Release and bound UDP Go race3 repetitions, device/sim archive builds PASS"
 test_results:
+  - "Swift317/317, Python50/50, Release exit0/no experimental engine symbols. BoundPeer Go tests 3 groups (IPv4+IPv6 subcases), -race count3 PASS, iPhoneOS/sim c-archive builds PASS. No actual Keychain mutation or physical route/underlay acceptance."
   - "Swift310/310 (8 new profile boundary tests), Python50/50, normal unsigned iPhoneOS Release exit0, no experimental engine link symbols. Initial generated Swift syntax error fixed then rerun PASS. Previous exact-head CI pending."
   - "Swift302/302, Python50/50, real macOS NE settings objects4/4 and iPhoneOS typecheck, unsigned normal Release build exit0, no native engine link symbols. No settings applied or actual routing/DNS tested."
   - "AWG_NATIVE_CONTROL_RECEIPTS_PASS, AWG_PHYSICAL_CASE tcp4 positive WITNESS (1,0,0,0,5,5,0) PASS, AWG_PHYSICAL_PROFILE_CLEANED, AWG_PHYSICAL_NATIVE_CONTROL_PASS exit0. Production extension active, lab absent, profile/selected/organization hashes all unchanged. External production egress not separately tested."
@@ -264,4 +266,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 head CI. Next design and implement isolated provider-owned underlay path verification and native credential handoff contract; validate DNS and route application in controlled lab, preserve production route/credential storage and deny activation until proven. Extend later to native profile persistence/backup format, VLESS route/DNS parity, production packaging/license/security, broader AWG variants, supervised Wi-Fi/LTE and CloudKit/backup. Do not repeat accepted 20 physical cases. No new IDs, owner app replacement or publish."
+resume_instruction: "Continue with current revision authority, exact stale-ticket rejection, storage failure/rollback tests, then release provenance inventory. Retain deny gate; no device/owner Keychain/production changes. Verify exact-head CI."

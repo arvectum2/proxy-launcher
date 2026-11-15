@@ -9,8 +9,10 @@ import Foundation
         let profileID: UUID
         let revision: UUID
         let wireProtocol: TransportProtocol
-        fileprivate init(profileID: UUID, wireProtocol: TransportProtocol) {
-            self.profileID = profileID; self.revision = UUID(); self.wireProtocol = wireProtocol
+        let reference: NativeCredentialRecord.Reference
+        fileprivate init(_ reference: NativeCredentialRecord.Reference) {
+            self.reference = reference
+            profileID = reference.profileID; revision = reference.revision; wireProtocol = reference.kind.transport
         }
     }
     struct Ticket: Equatable {
@@ -20,6 +22,7 @@ import Foundation
     }
     private struct Entry: CustomStringConvertible, CustomReflectable {
         let revision: Revision
+        let record: NativeCredentialRecord
         let configuration: NativeWireGuardRuntimeConfig
         var description: String { "NativeProfileEntry(redacted)" }
         var customMirror: Mirror { Mirror(self,children:[:]) }
@@ -38,15 +41,30 @@ import Foundation
     /// Replacement is atomic after validation. Failed edits cannot alter an
     /// existing revision or leave a partially compiled profile behind.
     @discardableResult func stage(profileID: UUID, expected: TransportProtocol, source: String) throws -> Revision {
-        guard expected == .wireGuard || expected == .amneziaWG1 else { throw Failure.unsupportedProtocol }
+        let record = try NativeCredentialRecord.create(profileID:profileID,expected:expected,source:source)
+        return try stage(record)
+    }
+    @discardableResult func stage(_ record: NativeCredentialRecord) throws -> Revision {
+        let profileID = record.reference.profileID
         guard !(try legacyIDs()).contains(profileID) else { throw Failure.legacyIDCollision }
         guard entries[profileID] != nil || entries.count < 32 else { throw Failure.capacityExceeded }
-        let config = try NativeWireGuardRuntimeConfig.compile(source,expected:expected)
-        _ = try NativeTunnelRoutePlan.prepare(config)
-        let revision = Revision(profileID:profileID,wireProtocol:expected)
-        entries[profileID] = .init(revision:revision, configuration:config)
+        let (config, _) = try record.compile()
+        let revision = Revision(record.reference)
+        entries[profileID] = .init(revision:revision, record:record, configuration:config)
         if selected?.profileID == profileID { selected = nil; prepared = nil }
         return revision
+    }
+    // Persistence is explicit and immutable. No UI catalog or legacy writes.
+    func retainRevision(_ revision: Revision, in repository: NativeCredentialRepository) throws {
+        try repository.insert(entry(revision).record)
+    }
+    func issueForValidation(_ ticket: Ticket, binding: NativeCredentialHandoff.Binding,
+                            via handoff: NativeCredentialHandoff) throws -> NativeCredentialHandoff.Ticket {
+        // Consume the exact prepared local ticket before transferring.
+        try consumeForValidation(ticket,provider:binding.reference.kind.provider) { _,_ in
+            let record = try entry(ticket.revision).record
+            return try handoff.issue(record,binding:binding)
+        }
     }
     func select(_ revision: Revision) throws {
         _ = try entry(revision)
