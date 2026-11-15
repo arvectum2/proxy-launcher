@@ -39,6 +39,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
     @MainActor private lazy var syntheticOwner=NativeSyntheticProviderOwner()
 #endif
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    @MainActor private lazy var productRuntimeOwner=NativeProductRuntimeOwner()
+#endif
 #if DEBUG
     private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
@@ -52,6 +55,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     ) {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
         Task { @MainActor in await syntheticOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.start(provider:self,options:options,completionHandler:completionHandler) }
         return
 #else
         // Route reserved native starts before touching legacy state, telemetry,
@@ -215,6 +221,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
         Task { @MainActor in await syntheticOwner.stop(provider:self);completionHandler() }
         return
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        Task { @MainActor in await productRuntimeOwner.stop(provider:self);completionHandler() }
+        return
 #else
         if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
             completionHandler();return
@@ -253,6 +262,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
     override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
         Task { @MainActor in completionHandler?(await syntheticOwner.message(messageData,provider:self)) }
+    }
+#elseif DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await productRuntimeOwner.message(messageData,provider:self)) }
     }
 #endif
 

@@ -73,6 +73,7 @@
 		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
 		4094EADFA3204613599ECCFD /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
 		40DC196CD938238E32E30D88 /* NativeAutomaticImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */; };
+		41218C19160BBA3ADF38BCE2 /* NativeProductRuntimeOwner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B0F85C9B2A424D613929A /* NativeProductRuntimeOwner.swift */; };
 		415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */; };
 		415FE0C43C74F8997BF96AA7 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */; };
@@ -128,6 +129,7 @@
 		7075B2D0812B1A74044A2BB8 /* ProxyProfileSharingUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5E95F28B3DFE5133AD7DBA /* ProxyProfileSharingUITests.swift */; };
 		70AF24A28FCAA4C704936223 /* ConnectionPressurePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */; };
 		70B812CA1398C795094CFA8F /* AdaptiveDirectProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 958B0FD5A8FB574BFE60A494 /* AdaptiveDirectProbe.swift */; };
+		70D318F150C4F50D94B0BE64 /* NativeRuntimeReviewRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3E7031511F9A83471135A /* NativeRuntimeReviewRequest.swift */; };
 		739EC468E2BE5EA10AC9A12C /* NativeXrayRuntimeDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A64350B8E866FF41D720FF9A /* NativeXrayRuntimeDriver.swift */; };
 		773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */; };
 		789890C484E3622982E4CD5D /* ProfileLibraryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62E3E6A5C03575EA7455F4A /* ProfileLibraryRowView.swift */; };
@@ -215,11 +217,13 @@
 		DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
 		E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */; };
 		E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */; };
+		E20D783A464E115360BC3181 /* NativeExactTunnelDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8895110B931BA6BAAD9ABB8A /* NativeExactTunnelDescriptor.swift */; };
 		E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		E55C3311711B5A04B35F8497 /* NativeSyntheticRuntimeFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		E627D33A92721C450DDA60AF /* ProfileMutationUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5841F41F9695CA0001F8E7 /* ProfileMutationUX.swift */; };
+		E763F20823DFBC6057D561F6 /* NativeRuntimeReviewRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EA3E7031511F9A83471135A /* NativeRuntimeReviewRequest.swift */; };
 		E8217FCEB46479115FD40A79 /* PhysicalVPNStatusReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE3F7AA041237A5DEC656C /* PhysicalVPNStatusReadOnlyTests.swift */; };
 		E9651195C0A21232CC9C46F0 /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
 		EB11510E5473B57442B812AD /* NativeSyntheticProviderSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */; };
@@ -547,6 +551,7 @@
 		87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveRouteCapabilities.swift; sourceTree = "<group>"; };
 		8857DDBDB0D232A6C9F7D66D /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/SmartExclusions.strings"; sourceTree = "<group>"; };
 		8880F42D2AC0A5285C57E51C /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
+		8895110B931BA6BAAD9ABB8A /* NativeExactTunnelDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeExactTunnelDescriptor.swift; sourceTree = "<group>"; };
 		88FA65A6768406583504159F /* SmartExclusionsUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionsUX.swift; sourceTree = "<group>"; };
 		896B36ABAE8F8B1D0F802D32 /* BrandTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandTheme.swift; sourceTree = "<group>"; };
 		898B8102A419789666AE1674 /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -582,6 +587,7 @@
 		9BA54DD0C176C31DA9C26076 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		9C07E6B78E33FCE3D8672278 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsHelpView.swift; sourceTree = "<group>"; };
+		9EA3E7031511F9A83471135A /* NativeRuntimeReviewRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeRuntimeReviewRequest.swift; sourceTree = "<group>"; };
 		9ED5E383F578A088F7824EF6 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		9F13B50437A77D94D6B6491F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/ProxyImport.strings"; sourceTree = "<group>"; };
 		9F14815C6EE5BD677FD7D7CE /* ProxyImportUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImportUX.swift; sourceTree = "<group>"; };
@@ -609,6 +615,7 @@
 		AC8241C703BA8183477BDCA1 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		ACCB14CE4149ACF0E7F07436 /* ky */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ky; path = ky.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AD31613845602AE4C611FE08 /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AE8B0F85C9B2A424D613929A /* NativeProductRuntimeOwner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProductRuntimeOwner.swift; sourceTree = "<group>"; };
 		AF347BBBEC159245B1916A00 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		AF77560279E6A7F7E9B173A1 /* am */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = am; path = am.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		AFCEA083CBF4F69F31108D25 /* ka */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ka; path = ka.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -898,6 +905,8 @@
 				BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */,
 				BA8C2A1CBF2EEB4431F01149 /* NativeAWGProductFlow.swift */,
 				29B8B4B229C9BB34D06D9CBC /* NativeAWGValidationDriver.swift */,
+				8895110B931BA6BAAD9ABB8A /* NativeExactTunnelDescriptor.swift */,
+				AE8B0F85C9B2A424D613929A /* NativeProductRuntimeOwner.swift */,
 				C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */,
 				64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */,
 				B60C531C130FA18F41AFA484 /* NativeXrayPacketSession.swift */,
@@ -958,6 +967,7 @@
 				35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */,
 				220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */,
 				2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */,
+				9EA3E7031511F9A83471135A /* NativeRuntimeReviewRequest.swift */,
 				2DDD31E686531523A25A94AF /* NativeSessionLaunchBoundary.swift */,
 				B745A2C75B50DAE81932CC6D /* NativeSyntheticRuntimeRequest.swift */,
 				FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */,
@@ -1312,12 +1322,15 @@
 				773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */,
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
 				04CA644E25CB6F0DA58B6EEA /* NativeDomainPolicyReview.swift in Sources */,
+				E20D783A464E115360BC3181 /* NativeExactTunnelDescriptor.swift in Sources */,
 				415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */,
 				FC7DC344D1FDA936CDBBC764 /* NativePersistentProfileSession.swift in Sources */,
+				41218C19160BBA3ADF38BCE2 /* NativeProductRuntimeOwner.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
 				1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */,
 				2710584D29A11CDDC62C8F83 /* NativeProfileReviewSession.swift in Sources */,
 				3EBE5E73361185C17E44D8A0 /* NativeRestoreReview.swift in Sources */,
+				E763F20823DFBC6057D561F6 /* NativeRuntimeReviewRequest.swift in Sources */,
 				909C8FDB07B2767EFC7C66AC /* NativeSessionLaunchBoundary.swift in Sources */,
 				EB11510E5473B57442B812AD /* NativeSyntheticProviderSession.swift in Sources */,
 				E55C3311711B5A04B35F8497 /* NativeSyntheticRuntimeFixture.swift in Sources */,
@@ -1477,6 +1490,7 @@
 				5D02E07D6A3B6A14DA8423B5 /* NativeProfileReviewLabView.swift in Sources */,
 				F64C3AA91E0C2A2B9F111F99 /* NativeProfileReviewSession.swift in Sources */,
 				38289BB0E5CE502413613FF3 /* NativeRestoreReview.swift in Sources */,
+				70D318F150C4F50D94B0BE64 /* NativeRuntimeReviewRequest.swift in Sources */,
 				BFCF80DBF1129A830E10043A /* NativeSessionLaunchBoundary.swift in Sources */,
 				7A5D102D2D1E11C6500CFDAD /* NativeSyntheticRuntimeRequest.swift in Sources */,
 				E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */,

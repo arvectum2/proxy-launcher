@@ -1,0 +1,88 @@
+import Foundation
+import Darwin
+
+/// Independent, explicitly scoped runtime-research envelope. Existing
+/// validation tickets and ordinary VPN start options cannot authorize it.
+struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
+    static let mode="native-runtime-review-v1"
+    let owner:UUID
+    let binding:NativeCredentialHandoff.Binding
+    private let ticket:NativeCredentialHandoff.Ticket
+    var description:String {"NativeRuntimeReviewRequest(redacted)"}
+    var customMirror:Mirror {Mirror(self,children:[:])}
+    static func configuration(owner:UUID)->[String:String] {
+        [NativeProviderStartRequest.modeKey:mode,NativeProviderStartRequest.ownerKey:owner.uuidString]
+    }
+    static func options(ticket:NativeCredentialHandoff.Ticket,owner:UUID)throws->[String:NSObject] {
+        guard ticket.purpose == .runtimeReview,ticket.runtimeOwner==owner,ticket.binding.valid,validScope(ticket) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        return [NativeProviderStartRequest.modeKey:mode as NSString,NativeProviderStartRequest.ownerKey:owner.uuidString as NSString,NativeProviderStartRequest.expectedKey:try TransportNativeCodec.encode(ticket.binding) as NSData,NativeProviderStartRequest.ticketKey:try TransportNativeCodec.encode(ticket) as NSData]
+    }
+    static func inspect(configuration:[String:Any]?,options:[String:NSObject]?,enabled:Bool)->Self? {
+        typealias K=NativeProviderStartRequest
+        guard enabled,let configuration,let options,
+              Set(configuration.keys)==[K.modeKey,K.ownerKey],configuration[K.modeKey] as? String==mode,
+              let text=configuration[K.ownerKey] as? String,let owner=UUID(uuidString:text),text==owner.uuidString,
+              Set(options.keys)==[K.modeKey,K.ownerKey,K.expectedKey,K.ticketKey],
+              options[K.modeKey] as? String==mode,options[K.ownerKey] as? String==text,
+              let raw=options[K.expectedKey] as? Data,let bytes=options[K.ticketKey] as? Data,
+              let binding=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),binding.valid,
+              let ticket=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,bytes),
+              ticket.binding==binding,ticket.purpose == .runtimeReview,ticket.runtimeOwner==owner,
+              validScope(ticket) else{return nil}
+        return .init(owner:owner,binding:binding,ticket:ticket)
+    }
+    private static func validScope(_ ticket:NativeCredentialHandoff.Ticket)->Bool {
+        switch ticket.binding.reference.kind {
+        case .amneziaWG1:return ticket.runtimeProbeIPv4==nil
+        case .wireGuard,.vlessReality:return ticket.runtimeProbeIPv4.flatMap(canonicalIPv4) != nil
+        }
+    }
+    static func canonicalIPv4(_ value:String)->String? {
+        guard value.utf8.count<=15,!value.utf8.contains(0) else{return nil}
+        var ip=in_addr()
+        guard value.withCString({inet_pton(AF_INET,$0,&ip)})==1 else{return nil}
+        let n=UInt32(bigEndian:ip.s_addr),first=n>>24
+        guard first != 0,first != 127,first<224,n>>16 != 0xa9fe else{return nil}
+        var buf=[CChar](repeating:0,count:Int(INET_ADDRSTRLEN))
+        guard inet_ntop(AF_INET,&ip,&buf,socklen_t(buf.count)) != nil,String(cString:buf)==value else{return nil}
+        return value
+    }
+    func consume(via handoff:NativeCredentialHandoff,admission:NativeRoutingAdmission)throws->NativeRuntimeReviewPlan {
+        guard admission.permitsSelection,Self.validScope(ticket) else{throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let record=try handoff.redeem(ticket,expected:binding,runtimeOwner:owner)
+        let (config,route)=try record.compile()
+        guard record.reference==binding.reference,config.provider==binding.reference.kind.provider,config.wireProtocol==binding.reference.kind.transport,route.provider==config.provider,try handoff.authorizes(binding) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        switch (route,binding.reference.kind) {
+        case (.wireGuard(let plan),.amneziaWG1):
+            return .init(route:.awg(plan),configuration:config)
+        case (.wireGuard(let plan),.wireGuard):
+            guard let target=ticket.runtimeProbeIPv4,target != plan.remoteAddress,target != plan.ipv4Address,!plan.dnsServers.contains(target) else{throw NativeTunnelRoutePlan.Failure.conflictingAddress}
+            return .init(route:.xray(.init(validation:route,localIPv4:plan.ipv4Address,targetIPv4:target,mtu:plan.mtu)),configuration:config)
+        case (.vlessTCP4(let plan),.vlessReality):
+            // Internal interface identity only; never remote or probe route.
+            let local="192.0.2.177"
+            guard let target=ticket.runtimeProbeIPv4,target != local,target != plan.remoteAddress,plan.remoteAddress != local else{throw NativeTunnelRoutePlan.Failure.conflictingAddress}
+            return .init(route:.xray(.init(validation:route,localIPv4:local,targetIPv4:target,mtu:1500)),configuration:config)
+        default:throw NativeCredentialReceiver.Failure.providerMismatch
+        }
+    }
+}
+
+/// Runtime scope is explicit: AWG full-tunnel review, Xray exact single
+/// IPv4 destination only. No substitution for VLESS/WG default/DNS routes.
+struct NativeRuntimeReviewPlan:CustomStringConvertible,CustomReflectable {
+    struct XrayProbeRoute:Equatable {
+        let validation:NativeValidationRoute
+        let localIPv4:String
+        let targetIPv4:String
+        let mtu:Int
+    }
+    enum Route:Equatable {
+        case awg(NativeTunnelRoutePlan)
+        case xray(XrayProbeRoute)
+    }
+    let route:Route
+    let configuration:NativeValidationConfiguration
+    var description:String {"NativeRuntimeReviewPlan(redacted)"}
+    var customMirror:Mirror {Mirror(self,children:[:])}
+}

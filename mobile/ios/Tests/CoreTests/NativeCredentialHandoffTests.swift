@@ -29,6 +29,31 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let store=TestItems(), tickets=TestItems(), repo=NativeCredentialRepository(items:store)
         return (r,b,repo,store,tickets)
     }
+    func testRuntimeTicketIsDistinctAndBoundToScopedProbe() throws {
+        let (r,b,repo,_,tickets)=try fixture()
+        try repo.insert(r)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{$0==b}), owner=UUID()
+        let legacy=try h.issue(r,binding:b)
+        XCTAssertThrowsError(try NativeRuntimeReviewRequest.options(ticket:legacy,owner:owner))
+        XCTAssertThrowsError(try h.redeem(legacy,expected:b,runtimeOwner:owner))
+        XCTAssertTrue(try h.revoke(legacy))
+        let ticket=try h.issue(r,binding:b,runtimeOwner:owner,runtimeProbeIPv4:"198.51.100.77")
+        XCTAssertThrowsError(try h.redeem(ticket,expected:b))
+        XCTAssertThrowsError(try NativeRuntimeReviewRequest.options(ticket:ticket,owner:UUID()))
+        let config=NativeRuntimeReviewRequest.configuration(owner:owner)
+        let options=try NativeRuntimeReviewRequest.options(ticket:ticket,owner:owner)
+        XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:options,enabled:false))
+        let request=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:config,options:options,enabled:true))
+        XCTAssertThrowsError(try request.consume(via:h,admission:.siteExclusions))
+        let plan=try request.consume(via:h,admission:.tunnelOnly)
+        guard case .xray(let scope)=plan.route else{return XCTFail("unexpected route")}
+        XCTAssertEqual(scope.localIPv4,"10.0.0.2");XCTAssertEqual(scope.targetIPv4,"198.51.100.77")
+        XCTAssertEqual(scope.validation.remoteAddress,"192.0.2.42")
+        XCTAssertThrowsError(try request.consume(via:h,admission:.tunnelOnly))
+        let conflict=try h.issue(r,binding:b,runtimeOwner:owner,runtimeProbeIPv4:"192.0.2.42")
+        let conflicting=try XCTUnwrap(NativeRuntimeReviewRequest.inspect(configuration:config,options:NativeRuntimeReviewRequest.options(ticket:conflict,owner:owner),enabled:true))
+        XCTAssertThrowsError(try conflicting.consume(via:h,admission:.tunnelOnly))
+    }
     func testImmutableStorageAndReference() throws {
         let (r,_,repo,store,_) = try fixture()
         XCTAssertNil(try repo.read(r.reference)); try repo.insert(r)

@@ -125,6 +125,7 @@ final class NativeAWGProductFlow: @unchecked Sendable {
         }
     }
 
+    func cancelPendingStart(){requestStop()}
     func stop(completion:@escaping(Bool)->Void){
         requestStop()
         queue.async {

@@ -42,21 +42,37 @@ import tun2proxy
     /// No authorization or caller is provided yet. A future accepted harness
     /// must supply synthetic configuration and an exact OS-owned descriptor.
     func start(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,descriptor:()->Int32?) async throws {
+        try await startOwned(provider:provider,route:route,configuration:configuration,planSettings:try settings(route),mtu:owner.reference.kind == .wireGuard ? 1280:1500,descriptor:descriptor)
+    }
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    /// User-configured Xray peer, exact independent probe route only.
+    /// Full default/DNS capture requires a separate accepted DNS implementation.
+    func startScoped(provider:NEPacketTunnelProvider,plan:NativeRuntimeReviewPlan.XrayProbeRoute,configuration:Data)async throws {
+        guard plan.validation.provider == .rustXray,(1280...1500).contains(plan.mtu),
+              NativeExactTunnelDescriptor.interfaces(address:plan.localIPv4)?.isEmpty==true else{throw Failure.unsupported}
+        let settings=NEPacketTunnelNetworkSettings(tunnelRemoteAddress:plan.validation.remoteAddress)
+        let v4=NEIPv4Settings(addresses:[plan.localIPv4],subnetMasks:["255.255.255.255"])
+        v4.includedRoutes=[NEIPv4Route(destinationAddress:plan.targetIPv4,subnetMask:"255.255.255.255")]
+        v4.excludedRoutes=[];settings.ipv4Settings=v4;settings.mtu=NSNumber(value:plan.mtu)
+        try await startOwned(provider:provider,route:plan.validation,configuration:configuration,planSettings:settings,mtu:UInt16(plan.mtu),descriptor:{NativeExactTunnelDescriptor.find(address:plan.localIPv4)})
+    }
+#endif
+    private func startOwned(provider:NEPacketTunnelProvider,route:NativeValidationRoute,configuration:Data,planSettings:NEPacketTunnelNetworkSettings,mtu:UInt16,descriptor:()->Int32?) async throws {
         guard !retired,!starting,!draining,!attemptedXray,!submittedRust else{throw Failure.busy}
         starting=true;defer{starting=false}
         do {
-            let planSettings=try settings(route)
             try driver.validate(route:route,configuration:configuration)
             // Treat even a failed settings application as ambiguous.
             settingsInstalled=true
             try await provider.setTunnelNetworkSettings(planSettings)
+            try Task.checkCancellation()
             guard !retired,let fd=descriptor() else{throw Failure.unsupported}
             let handoff=try XraySocksHandoffPlan.prepare(tunFD:Int(fd),socksPort:39879,dnsBypass:[])
             attemptedXray=true
             try driver.startXray(owner:owner,route:route,configuration:configuration)
+            try Task.checkCancellation()
             guard !retired else{throw Failure.busy}
             let token=exitGate.begin(),gate=exitGate
-            let mtu:UInt16=owner.reference.kind == .wireGuard ? 1280 : 1500
             submittedRust=true
             queue.async { [weak provider,weak self] in
                 guard gate.isRunning(token) else{return}
@@ -82,6 +98,7 @@ import tun2proxy
             throw error
         }
     }
+    func cancelPendingStart(){retired=true;exitGate.invalidate()}
     func stop(provider:NEPacketTunnelProvider,removeSettings:Bool) async throws {
         retired=true
         guard !starting,!draining else{control.fail();throw Failure.busy}

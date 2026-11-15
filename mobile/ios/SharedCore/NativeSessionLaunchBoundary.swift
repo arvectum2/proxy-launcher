@@ -63,12 +63,30 @@ import Foundation
     /// Call only with the actual coordinator-owned .start session, after
     /// its lease/quiescence checks. Consume the preview even on failure.
     func issue(_ intent:Intent,for session:TransportBackendCoordinator.Session) throws -> Launch {
+        try issueOwned(intent,for:session,runtimeOwner:nil,probeIPv4:nil)
+    }
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    /// Explicit hardware-review caller only, under the existing exclusive
+    /// app lease. The ordinary connection screen never invokes this API.
+    func issueForRuntimeReview(_ intent:Intent,for session:TransportBackendCoordinator.Session,owner:UUID,probeIPv4:String?)throws->[String:NSObject] {
+        switch intent.reference.kind {
+        case .amneziaWG1:guard probeIPv4==nil else{throw Failure.invalidIntent}
+        case .wireGuard,.vlessReality:guard probeIPv4.flatMap(NativeRuntimeReviewRequest.canonicalIPv4) != nil else{throw Failure.invalidIntent}
+        }
+        let launch=try issueOwned(intent,for:session,runtimeOwner:owner,probeIPv4:probeIPv4)
+        do{
+            let ticket=try TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,launch.ticketBytes)
+            return try NativeRuntimeReviewRequest.options(ticket:ticket,owner:owner)
+        }catch{try finish(intent);throw error}
+    }
+#endif
+    private func issueOwned(_ intent:Intent,for session:TransportBackendCoordinator.Session,runtimeOwner:UUID?,probeIPv4:String?)throws->Launch {
         guard issued==nil,pending==intent else {throw Failure.invalidIntent}
         pending=nil
         let binding=try intent.expectedBinding(for:session)
         guard !(try legacyIDs()).contains(intent.reference.profileID),try reader.authorizes(binding),
               let record=try repository.read(intent.reference),!(try legacyIDs()).contains(intent.reference.profileID) else {throw Failure.staleSelection}
-        let ticket=try handoff.issue(record,binding:binding)
+        let ticket=try handoff.issue(record,binding:binding,runtimeOwner:runtimeOwner,runtimeProbeIPv4:probeIPv4)
         // Keep exact cleanup ownership even if encoding or subsequent dispatch fails.
         issued=(intent,ticket)
         do {return Launch(ticketBytes:try TransportNativeCodec.encode(ticket),expectedBytes:try TransportNativeCodec.encode(binding))}
