@@ -10,9 +10,36 @@ final class VPNController: ObservableObject {
     private static let operationGate = NativeOperationGate()
     #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
     private static var nativeValidationDispatch:NativeValidationDispatch?
-    private static var nativeValidationTarget:(manager:NETunnelProviderManager,connection:NETunnelProviderSession,owner:UUID)?
+    private struct NativeReviewTarget {
+        let manager:NETunnelProviderManager
+        let connection:NETunnelProviderSession
+        let owner:UUID
+        let mode:NativeReviewMode
+    }
+    private enum NativeReviewMode {
+        case validation
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+        case runtime(probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?,probeIPv6:String?)
+#endif
+        var name:String {
+            switch self {
+            case .validation:return "APL Native Credential Validation"
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+            case .runtime:return "APL Native Runtime Review"
+#endif
+            }
+        }
+        func owns(_ proto:NETunnelProviderProtocol,owner:UUID)->Bool {
+            switch self {
+            case .validation:return NativeProviderStartRequest.ownsConfiguration(proto.providerConfiguration,owner:owner)
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+            case .runtime:return NativeRuntimeReviewRequest.ownsConfiguration(proto.providerConfiguration,owner:owner)
+#endif
+            }
+        }
+    }
+    private static var nativeValidationTarget:NativeReviewTarget?
     private static var nativeReconcileInFlight=false
-    private static let nativeValidationName="APL Native Credential Validation"
     #endif
     private static let configurationName = "Arvectum Proxy Launcher"
 
@@ -97,6 +124,33 @@ final class VPNController: ObservableObject {
     /// uniquely owned validation manager; never creates/saves one here.
     /// Successful API submission is NOT connection or drain acceptance.
     func submitNativeCredentialValidation(reference:NativeCredentialRecord.Reference,owner:UUID) async throws {
+        try await submitNativeReview(reference:reference,owner:owner,mode:.validation)
+    }
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    /// Explicit supervised review only. Never called by ordinary UI, Settings
+    /// or Shortcuts, and never provisions a manager or accepts OS setup as data proof.
+    func submitNativeRuntimeReview(reference:NativeCredentialRecord.Reference,owner:UUID,probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?=nil,probeIPv6:String?=nil) async throws {
+        try await submitNativeReview(reference:reference,owner:owner,mode:.runtime(probeIPv4:probeIPv4,scope:scope,probeIPv6:probeIPv6))
+    }
+#endif
+    private func reviewOwns(_ item:NETunnelProviderManager,owner:UUID,mode:NativeReviewMode)->Bool {
+        guard let proto=item.protocolConfiguration as? NETunnelProviderProtocol else{return false}
+        return proto.providerBundleIdentifier==AppShared.providerBundleIdentifier &&
+            item.localizedDescription==mode.name && proto.serverAddress==mode.name &&
+            mode.owns(proto,owner:owner) && item.isEnabled && !item.isOnDemandEnabled &&
+            (item.onDemandRules ?? []).isEmpty && proto.username==nil && proto.passwordReference==nil &&
+            proto.identityReference==nil && proto.identityData==nil && proto.identityDataPassword==nil &&
+            proto.proxySettings==nil && !proto.includeAllNetworks && !proto.enforceRoutes
+    }
+    private func reviewManagers(_ all:[NETunnelProviderManager])->[NETunnelProviderManager] {
+        all.filter{item in
+            let proto=item.protocolConfiguration as? NETunnelProviderProtocol
+            let names=["APL Native Credential Validation","APL Native Runtime Review"]
+            return NativeProviderStartRequest.hasReservedKey(Array((proto?.providerConfiguration ?? [:]).keys)) ||
+                names.contains(item.localizedDescription ?? "") || names.contains(proto?.serverAddress ?? "")
+        }
+    }
+    private func submitNativeReview(reference:NativeCredentialRecord.Reference,owner:UUID,mode:NativeReviewMode) async throws {
         guard Self.nativeValidationDispatch==nil,Self.operationGate.active==nil else{throw NativeOperationGate.Failure.busy}
         let store=try ProfileStore(),boundary=store.makeNativeValidationLaunchBoundary()
         guard try store.nativeValidationPolicyIsEmpty() else{throw NativeValidationDispatch.Failure.unownedManager}
@@ -106,30 +160,29 @@ final class VPNController: ObservableObject {
         do {
             let all=try await loadAllManagers(requireResult:true)
             try Task.checkCancellation()
-            let named=all.filter{ item in
-                let c=(item.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
-                return NativeProviderStartRequest.hasReservedKey(Array(c.keys))
-            }
+            let named=reviewManagers(all)
             guard named.count==1,let target=named.first,let connection=target.connection as? NETunnelProviderSession else{throw NativeValidationDispatch.Failure.unownedManager}
             func check()->Bool {
-                guard !Task.isCancelled,let proto=target.protocolConfiguration as? NETunnelProviderProtocol,
-                    proto.providerBundleIdentifier==AppShared.providerBundleIdentifier,
-                    target.localizedDescription==Self.nativeValidationName,proto.serverAddress==Self.nativeValidationName,
-                    NativeProviderStartRequest.ownsConfiguration(proto.providerConfiguration,owner:owner),
-                    target.isEnabled,target.connection === connection,
+                guard !Task.isCancelled,reviewOwns(target,owner:owner,mode:mode),target.connection === connection,
                     (try? store.nativeValidationPolicyIsEmpty())==true else{return false}
                 let visible=all+(self.manager.map{[$0]} ?? [])
                 return visible.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
             }
-            Self.nativeValidationTarget=(target,connection,owner)
-            try dispatch.submit(checkOwnedAndQuiescent:check,start:{try connection.startTunnel(options:$0)})
+            Self.nativeValidationTarget=NativeReviewTarget(manager:target,connection:connection,owner:owner,mode:mode)
+            switch mode {
+            case .validation:
+                try dispatch.submit(checkOwnedAndQuiescent:check,start:{try connection.startTunnel(options:$0)})
+#if APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+            case .runtime(let probeIPv4,let scope,let probeIPv6):
+                try dispatch.submitRuntimeReview(probeIPv4:probeIPv4,scope:scope,probeIPv6:probeIPv6,checkOwnedAndQuiescent:check,start:{try connection.startTunnel(options:$0)})
+#endif
+            }
         } catch {
             if !dispatch.attempted {
                 try dispatch.abortBeforeSubmission()
                 Self.nativeValidationDispatch=nil;Self.nativeValidationTarget=nil
             }
-            // On ambiguous start, retain exact ownership. A later real drain
-            // receipt/reconciliation implementation is required before reuse.
+            // Ambiguous submission retains ownership; never repeat or infer drain.
             throw error
         }
     }
@@ -146,10 +199,16 @@ final class VPNController: ObservableObject {
               let target=Self.nativeValidationTarget else{throw NativeValidationDispatch.Failure.invalidState}
         Self.nativeReconcileInFlight=true;defer{Self.nativeReconcileInFlight=false}
         func owned()->Bool {
-            guard let proto=target.manager.protocolConfiguration as? NETunnelProviderProtocol else{return false}
-            return target.manager.connection === target.connection && proto.providerBundleIdentifier==AppShared.providerBundleIdentifier && target.manager.localizedDescription==Self.nativeValidationName && proto.serverAddress==Self.nativeValidationName && NativeProviderStartRequest.ownsConfiguration(proto.providerConfiguration,owner:target.owner) && target.manager.isEnabled && !target.manager.isOnDemandEnabled && (target.manager.onDemandRules ?? []).isEmpty
+            target.manager.connection === target.connection && reviewOwns(target.manager,owner:target.owner,mode:target.mode)
         }
-        try Task.checkCancellation();guard owned() else{throw NativeValidationDispatch.Failure.unownedManager}
+        func census(_ all:[NETunnelProviderManager])->Bool {
+            let marked=reviewManagers(all)
+            guard owned(),marked.count==1,let item=marked.first,reviewOwns(item,owner:target.owner,mode:target.mode) else{return false}
+            return all.filter{$0 !== item}.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
+        }
+        try Task.checkCancellation()
+        let before=try await loadAllManagers(requireResult:true)
+        guard !Task.isCancelled,census(before) else{throw NativeValidationDispatch.Failure.unownedManager}
         if !dispatch.terminalEvidence {
             guard target.connection.status == .connected else{throw NativeValidationDispatch.Failure.invalidState}
             let request=try dispatch.requestTerminalDrain(),bytes=try TransportNativeCodec.encode(request)
@@ -163,17 +222,17 @@ final class VPNController: ObservableObject {
             try Task.checkCancellation();guard owned() else{throw NativeValidationDispatch.Failure.unownedManager}
             try dispatch.acceptTerminalDrain(TransportNativeCodec.decode(TransportNativeResponse.self,reply))
         }
-        guard owned() else{throw NativeValidationDispatch.Failure.unownedManager}
+        let afterDrain=try await loadAllManagers(requireResult:true)
+        guard !Task.isCancelled,census(afterDrain) else{throw NativeValidationDispatch.Failure.unownedManager}
         if target.connection.status == .connected {target.connection.stopVPNTunnel()}
         let deadline=ProcessInfo.processInfo.systemUptime+10
-        while owned() && target.connection.status == .disconnecting && ProcessInfo.processInfo.systemUptime<deadline {
+        while owned() && (target.connection.status == .connected || target.connection.status == .disconnecting) && ProcessInfo.processInfo.systemUptime<deadline {
             try await Task.sleep(nanoseconds:100_000_000)
         }
         try Task.checkCancellation()
         let all=try await loadAllManagers(requireResult:true)
-        let marked=all.filter{NativeProviderStartRequest.hasReservedKey(Array((($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]).keys))}
         try dispatch.finishAfterTerminalDrain(osOffAndOwned:{
-            guard !Task.isCancelled,owned(),target.connection.status == .disconnected,marked.count==1,let item=marked.first,let proto=item.protocolConfiguration as? NETunnelProviderProtocol,proto.providerBundleIdentifier==AppShared.providerBundleIdentifier,NativeProviderStartRequest.ownsConfiguration(proto.providerConfiguration,owner:target.owner) else{return false}
+            guard !Task.isCancelled,census(all),target.connection.status == .disconnected else{return false}
             return all.allSatisfy{!$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty && $0.connection.status == .disconnected}
         })
         Self.nativeValidationDispatch=nil;Self.nativeValidationTarget=nil

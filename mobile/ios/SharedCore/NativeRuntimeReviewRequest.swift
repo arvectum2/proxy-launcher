@@ -13,6 +13,10 @@ struct NativeRuntimeReviewRequest:CustomStringConvertible,CustomReflectable {
     static func configuration(owner:UUID)->[String:String] {
         [NativeProviderStartRequest.modeKey:mode,NativeProviderStartRequest.ownerKey:owner.uuidString]
     }
+    static func ownsConfiguration(_ configuration:[String:Any]?,owner:UUID)->Bool {
+        guard let configuration,Set(configuration.keys)==[NativeProviderStartRequest.modeKey,NativeProviderStartRequest.ownerKey] else{return false}
+        return configuration[NativeProviderStartRequest.modeKey] as? String==mode && configuration[NativeProviderStartRequest.ownerKey] as? String==owner.uuidString
+    }
     static func options(ticket:NativeCredentialHandoff.Ticket,owner:UUID)throws->[String:NSObject] {
         guard ticket.validPurpose,ticket.runtimeOwner==owner,ticket.binding.valid,validScope(ticket) else{throw NativeCredentialReceiver.Failure.invalidIdentity}
         return [NativeProviderStartRequest.modeKey:mode as NSString,NativeProviderStartRequest.ownerKey:owner.uuidString as NSString,NativeProviderStartRequest.expectedKey:try TransportNativeCodec.encode(ticket.binding) as NSData,NativeProviderStartRequest.ticketKey:try TransportNativeCodec.encode(ticket) as NSData]

@@ -125,7 +125,7 @@ import Foundation
     private let intent:NativeSessionLaunchBoundary.Intent
     private let owner:UUID
     private var coordinator=TransportBackendCoordinator()
-    private var launch:NativeSessionLaunchBoundary.Launch?
+    private var prepared=false
     private var terminalRequest:TransportNativeRequest?
     private(set) var terminalEvidence=false
     private var terminalTicketRetired=false
@@ -136,13 +136,27 @@ import Foundation
         lease=try gate.reserve(.nativeValidation)
     }
     func submit(checkOwnedAndQuiescent:()->Bool, start:([String:NSObject])throws->Void)throws {
-        guard !closed,!attempted,launch==nil else{throw Failure.invalidState}
+        try submitOwned(checkOwnedAndQuiescent:checkOwnedAndQuiescent,issue:{session in
+            try boundary.issue(intent,for:session).validationOptions(owner:owner)
+        },start:start)
+    }
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    func submitRuntimeReview(probeIPv4:String?,scope:NativeCredentialHandoff.RuntimeScope?=nil,probeIPv6:String?=nil,checkOwnedAndQuiescent:()->Bool,start:([String:NSObject])throws->Void)throws {
+        try submitOwned(checkOwnedAndQuiescent:checkOwnedAndQuiescent,issue:{session in
+            try boundary.issueForRuntimeReview(intent,for:session,owner:owner,probeIPv4:probeIPv4,scope:scope,probeIPv6:probeIPv6)
+        },start:start)
+    }
+#endif
+    private func submitOwned(checkOwnedAndQuiescent:()->Bool,issue:(TransportBackendCoordinator.Session)throws->[String:NSObject],start:([String:NSObject])throws->Void)throws {
+        guard !closed,!attempted,!prepared else{throw Failure.invalidState}
         guard checkOwnedAndQuiescent() else{throw Failure.unownedManager}
         guard case .start(let session)=try coordinator.begin(intent.plan) else{throw Failure.invalidState}
-        launch=try boundary.issue(intent,for:session)
-        guard checkOwnedAndQuiescent(),let launch else{throw Failure.unownedManager}
+        // Any failure after coordinator admission must be explicitly aborted.
+        prepared=true
+        let options=try issue(session)
+        guard checkOwnedAndQuiescent() else{throw Failure.unownedManager}
         attempted=true
-        try start(launch.validationOptions(owner:owner))
+        try start(options)
     }
     /// An independently matched native response plus OS-off state is required.
     /// Neither a disconnected status alone nor a provider error unlocks.
@@ -160,13 +174,13 @@ import Foundation
         guard attempted,!closed,terminalEvidence,osOffAndOwned() else{throw Failure.invalidState}
         if !terminalTicketRetired {try boundary.finish(intent);terminalTicketRetired=true}
         guard osOffAndOwned() else{throw Failure.invalidState}
-        launch=nil;closed=true;gate.release(lease)
+        closed=true;gate.release(lease)
     }
     /// Only before any invocation of the OS start primitive. If cleanup throws,
     /// retain the process lease and exact dispatch for a later explicit retry.
     func abortBeforeSubmission()throws {
         guard !closed,!attempted else{throw Failure.invalidState}
         try boundary.cancelBeforeDispatch(intent)
-        launch=nil;closed=true;gate.release(lease)
+        closed=true;gate.release(lease)
     }
 }

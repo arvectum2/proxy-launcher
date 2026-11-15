@@ -607,6 +607,49 @@ final class NativeCredentialCatalogTests: XCTestCase {
         try d.finishAfterTerminalDrain(osOffAndOwned:{true});XCTAssertNil(gate.active)
         XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{true}));XCTAssertEqual(items.values.count,1)
     }
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PRODUCT_RUNTIME_REVIEW
+    @MainActor func testRuntimeReviewDispatchOwnsDistinctTicketAndRequiresDrain() throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]}),gate=NativeOperationGate(),owner=UUID()
+        let i=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let d=try NativeValidationDispatch(gate:gate,boundary:bridge,intent:i,owner:owner)
+        let config=NativeRuntimeReviewRequest.configuration(owner:owner)
+        XCTAssertTrue(NativeRuntimeReviewRequest.ownsConfiguration(config,owner:owner))
+        XCTAssertFalse(NativeRuntimeReviewRequest.ownsConfiguration(config,owner:UUID()))
+        XCTAssertFalse(NativeRuntimeReviewRequest.ownsConfiguration(NativeProviderStartRequest.configuration(owner:owner),owner:owner))
+        var blended=config;blended["other"]="unexpected"
+        XCTAssertFalse(NativeRuntimeReviewRequest.ownsConfiguration(blended,owner:owner))
+        var calls=0
+        try d.submitRuntimeReview(probeIPv4:"192.0.2.70",checkOwnedAndQuiescent:{true},start:{opts in
+            calls+=1
+            XCTAssertNotNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:opts,enabled:true))
+            XCTAssertNil(NativeRuntimeReviewRequest.inspect(configuration:config,options:opts,enabled:false))
+            if case .denied=NativeProviderStartRequest.inspect(configuration:NativeProviderStartRequest.configuration(owner:owner),options:opts,validationEnabled:true){}else{XCTFail("runtime ticket accepted as validation")}
+        })
+        XCTAssertEqual(calls,1);XCTAssertEqual(gate.active,.nativeValidation)
+        XCTAssertThrowsError(try d.submit(checkOwnedAndQuiescent:{true},start:{_ in calls+=1}))
+        XCTAssertThrowsError(try d.abortBeforeSubmission())
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{true}))
+        let drain=try d.requestTerminalDrain()
+        try d.acceptTerminalDrain(.init(request:drain,state:.drained))
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{false}))
+        try d.finishAfterTerminalDrain(osOffAndOwned:{true})
+        XCTAssertNil(gate.active);XCTAssertTrue(tickets.values.isEmpty)
+    }
+    @MainActor func testRuntimeReviewDispatchInvalidScopeCannotRetryWithoutAbort() throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]}),gate=NativeOperationGate()
+        let i=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let d=try NativeValidationDispatch(gate:gate,boundary:bridge,intent:i,owner:UUID())
+        var calls=0
+        XCTAssertThrowsError(try d.submitRuntimeReview(probeIPv4:nil,checkOwnedAndQuiescent:{true},start:{_ in calls+=1}))
+        XCTAssertThrowsError(try d.submitRuntimeReview(probeIPv4:"192.0.2.70",checkOwnedAndQuiescent:{true},start:{_ in calls+=1}))
+        XCTAssertEqual(calls,0);XCTAssertFalse(d.attempted);XCTAssertEqual(gate.active,.nativeValidation)
+        try d.abortBeforeSubmission();XCTAssertNil(gate.active);XCTAssertTrue(tickets.values.isEmpty)
+    }
+#endif
     @MainActor func testProviderOptionBoundaryNeverFallsBackAndValidatesOneUse() async throws {
         let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record();try c.save(a,select:true)
