@@ -14,7 +14,9 @@ private final class CatalogMemory: NativeCredentialCatalogStorage {
 private final class RecordMemory: NativeCredentialItems {
     enum Failure: Error { case denied }
     var values: [String:Data] = [:], failRemove = false
-    func insert(account:String,bytes:Data) throws { guard values[account] == nil else {throw Failure.denied};values[account] = bytes }
+    var insertCount=0, failInsertAt: Int?
+    var onInsert: (() -> Void)?
+    func insert(account:String,bytes:Data) throws { insertCount += 1; guard insertCount != failInsertAt, values[account] == nil else {throw Failure.denied};values[account] = bytes;onInsert?() }
     func read(account:String) throws -> Data? { values[account] }
     func remove(account:String) throws -> Bool { if failRemove {throw Failure.denied};return values.removeValue(forKey:account) != nil }
 }
@@ -75,6 +77,73 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertThrowsError(try c.save(try record(),select:true))
         items.failRemove=false;try c.reconcilePendingInsert()
         XCTAssertNil(try repo.read(second.reference));XCTAssertNil(try c.reader.snapshot().pendingInsert);XCTAssertTrue(try c.reader.isSelected(first.reference))
+    }
+    @MainActor func testBatchRestorePublishesFreshRecordsAndKeepsSelection() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        let first=try record(), c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        try c.save(first,select:true)
+        let incoming=[try record(first.reference.profileID),try record()]
+        var sawPending=false
+        items.onInsert={
+            let snapshot=try! c.reader.snapshot()
+            XCTAssertEqual(snapshot.current,[first.reference]);XCTAssertNotNil(snapshot.pendingRestore)
+            XCTAssertFalse(try! c.reader.isSelected(first.reference));sawPending=true
+        }
+        let restored=try c.restore(incoming,vpnInactive:{true});items.onInsert=nil
+        XCTAssertTrue(sawPending);XCTAssertEqual(restored.count,2)
+        XCTAssertEqual(try c.reader.snapshot().current,[first.reference]+restored)
+        XCTAssertTrue(try c.reader.isSelected(first.reference));XCTAssertNil(try c.reader.snapshot().pendingRestore)
+        XCTAssertTrue(Set(restored.map(\.profileID)).isDisjoint(with:Set(incoming.map(\.reference.profileID))))
+        XCTAssertEqual(items.values.count,3)
+    }
+    @MainActor func testBatchRestoreRejectsActiveVPNAndRollsBackPartialInsert() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        let before=try c.reader.snapshot(),incoming=[try record(),try record()]
+        XCTAssertThrowsError(try c.restore(incoming,vpnInactive:{false}));XCTAssertEqual(items.values.count,1)
+        items.failInsertAt=items.insertCount+2
+        XCTAssertThrowsError(try c.restore(incoming,vpnInactive:{true}));XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertEqual(items.values.count,1)
+    }
+    @MainActor func testBatchJournalSurvivesCrashBeforeCommitAndCleanup() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        let before=try c.reader.snapshot()
+        m.failAfter=m.writes+2;items.failRemove=true
+        XCTAssertThrowsError(try c.restore([try record(),try record()],vpnInactive:{true}))
+        let pending=try c.reader.snapshot();XCTAssertEqual(pending.current,before.current);XCTAssertEqual(pending.pendingRestore?.count,2);XCTAssertEqual(items.values.count,3)
+        XCTAssertThrowsError(try c.save(try record(),select:true));XCTAssertThrowsError(try c.select(first.reference));XCTAssertThrowsError(try c.reader.currentRecordsForBackup(repository:repo))
+        items.failRemove=false
+        XCTAssertThrowsError(try c.reconcilePendingRestore(vpnInactive:{false}))
+        try c.reconcilePendingRestore(vpnInactive:{true});try c.reconcilePendingRestore(vpnInactive:{true})
+        XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertEqual(items.values.count,1)
+    }
+    @MainActor func testBatchVPNBecomesActiveDuringInsertDefersRecovery() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        var inactive=true;items.onInsert={inactive=false}
+        XCTAssertThrowsError(try c.restore([try record(),try record()],vpnInactive:{inactive}));XCTAssertEqual(items.values.count,1)
+        XCTAssertEqual(try c.reader.snapshot().current,[]);XCTAssertEqual(try c.reader.snapshot().pendingRestore?.count,2)
+        inactive=true;try c.reconcilePendingRestore(vpnInactive:{inactive});XCTAssertEqual(try c.reader.snapshot(),.empty);XCTAssertTrue(items.values.isEmpty)
+    }
+    @MainActor func testLegacySnapshotDecodesAndFailedJournalClearIsRetryable() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let original=try record();try c.save(original,select:true)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json.removeValue(forKey:"pendingRestore")
+        m.bytes=try JSONSerialization.data(withJSONObject:json);let old=try c.reader.snapshot()
+        XCTAssertNil(old.pendingRestore);XCTAssertTrue(try c.reader.isSelected(original.reference))
+        m.failAfter=m.writes+2;items.failRemove=true
+        XCTAssertThrowsError(try c.restore([try record(),try record()],vpnInactive:{true}))
+        items.failRemove=false;m.fail=true
+        XCTAssertThrowsError(try c.reconcilePendingRestore(vpnInactive:{true}));XCTAssertEqual(items.values.count,1)
+        XCTAssertNotNil(try c.reader.snapshot().pendingRestore)
+        m.fail=false;try c.reconcilePendingRestore(vpnInactive:{true});XCTAssertEqual(try c.reader.snapshot(),old)
+    }
+    @MainActor func testInvalidRestoreJournalCannotDeleteExistingRecord() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        var corrupt=try c.reader.snapshot();corrupt.pendingRestore=[first.reference]
+        m.bytes=try JSONEncoder().encode(corrupt)
+        XCTAssertThrowsError(try c.reconcilePendingRestore(vpnInactive:{true}));XCTAssertNotNil(try repo.read(first.reference))
+        XCTAssertThrowsError(try c.reader.isSelected(first.reference))
     }
     @MainActor func testCorruptCatalogAndLegacyCollisionFailClosed() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),r=try record()
