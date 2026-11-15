@@ -8,7 +8,16 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 go="$1"; rust="$2"; research="$3"; cache="$4"; out="$5"
 [[ ! -e "$out" && -d "$cache/checkouts" ]] || exit 2
 work="$(mktemp -d "${TMPDIR:-/tmp}/apl-native-containing.XXXXXX")"
-trap 'rm -rf -- "$work"' EXIT
+cleanup(){
+    rc=$?
+    if [[ "$rc" != 0 && -f "$work/provider-symbols.txt" && ! -e "$out.failed" ]]; then
+        mkdir -m 700 "$out.failed"
+        cp "$work/build.log" "$work/provider-symbols.txt" "$out.failed/"
+        if [[ -f "$work/provider-swift-symbols.txt" ]]; then cp "$work/provider-swift-symbols.txt" "$out.failed/"; fi
+    fi
+    rm -rf -- "$work"
+}
+trap cleanup EXIT
 # Read only the tracked product source from one immutable commit.
 repo="$(git -C "$root" rev-parse --show-toplevel)"
 commit="$(git -C "$repo" rev-parse HEAD)"
@@ -77,18 +86,26 @@ for symbol in CGoInvoke CGoFree aplAWGBridgeValidateConfig tun2proxy_run_with_cl
     grep -E " [Tt] _${symbol}$" "$work/provider-symbols.txt"
 done
 if grep -q 'NativeSyntheticProviderOwner\|tproxy_config' "$work/provider-symbols.txt"; then echo 'Unexpected provider symbols' >&2; exit 1; fi
-grep -q NativeXrayRuntimeDriver "$work/provider-symbols.txt"
-if [[ "$runtime_flag" == 0 ]]; then grep -q NativeAWGValidationDriver "$work/provider-symbols.txt"; fi
+# Swift mangling may elide repeated words in a type name. Verify
+# demangled entry points rather than relying on raw substring spelling.
+grep -F '$s' "$work/provider-symbols.txt" | xcrun swift-demangle --compact > "$work/provider-swift-symbols.txt"
+require_swift(){
+    if ! grep -Fq "$1" "$work/provider-swift-symbols.txt"; then echo "Missing Swift symbol: $1" >&2; exit 1; fi
+}
+require_swift NativeXrayRuntimeDriver
+if [[ "$runtime_flag" == 0 ]]; then require_swift NativeAWGValidationDriver; fi
 if [[ "$product_flag" == 1 ]]; then
-    for symbol in aplAWGProductPrepare aplAWGProductStart aplAWGProductPush aplAWGProductPull aplAWGProductStop; do grep -Eq " [Tt] _${symbol}$" "$work/provider-symbols.txt"; done
-    grep -q NativeAWGProductFlow "$work/provider-symbols.txt"
+    for symbol in aplAWGProductPrepare aplAWGProductStart aplAWGProductPush aplAWGProductPull aplAWGProductStop; do
+        if ! grep -Eq " [Tt] _${symbol}$" "$work/provider-symbols.txt"; then echo "Missing C symbol: $symbol" >&2; exit 1; fi
+    done
+    require_swift NativeAWGProductFlow
 fi
 if [[ "$runtime_flag" == 1 ]]; then
-    grep -q NativeProductRuntimeOwner "$work/provider-symbols.txt"
-    grep -q NativeExactTunnelDescriptor "$work/provider-symbols.txt"
+    require_swift NativeProductRuntimeOwner
+    require_swift NativeExactTunnelDescriptor
 fi
 mkdir -m 700 "$out"
-cp "$work/build.log" "$work/provider-symbols.txt" "$p/project.yml" "$out/"
+cp "$work/build.log" "$work/provider-symbols.txt" "$work/provider-swift-symbols.txt" "$p/project.yml" "$out/"
 python3 - "$p" "$work/Build" "$host" "$extension" "$out" "$commit" "$root/Tools" "$product_flag" "$runtime_flag" <<'PY'
 import hashlib,json,pathlib,plistlib,re,sys,shutil
 p,build,host,ext,out=map(pathlib.Path,sys.argv[1:6]);commit=sys.argv[6];sys.path.insert(0,sys.argv[7])
