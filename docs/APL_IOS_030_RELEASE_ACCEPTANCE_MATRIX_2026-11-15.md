@@ -28,3 +28,5 @@ The canonical checkpoint remains `in_progress`. None of these steps authorizes m
 Selection authority now includes a persisted nonce bound to each explicit selection; offline A→B→A and legacy selection regression cases pass. Swift359/359, Python415/415 +1527 subtests, unsigned Release and simulator harness typecheck PASS. No runtime acceptance added.
 
 Ordered remaining cases S1/K1/K2/X1/N1/N2/C1/R1 are specified in `APL_IOS_030_REMAINING_ACCEPTANCE_RUNBOOK_2026-11-15.md`. Supplemental Rust evidence is now included in the pinned read-only audit; one missing original license text remains. UI lifecycle is core-tested and compile-checked, not GUI-accepted.
+
+Step4 distinguishes the ordinary connected-UDP Rust build and exact ad SDK inputs from the loopback-clean native research bundle. See `APL_IOS_030_RELEASE_SCOPE_DECISION_DRAFT_2026-11-15.md`. Local unsigned linkage, notice extraction and hashes verified; final selected binary dependency closure, vendor terms/privacy, missing original notice and real signed acceptance remain open. The four offline foundation steps do not constitute a finished product.

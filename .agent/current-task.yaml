@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Step4 artifact-bound ordinary Release linkage evidence + exact SPM notice extraction, preserved link maps, ten notice SHA checks, draft unified feature scope and explicit unresolved legal/runtime gates."
   - "Step3 pure opt-in subscription refresh review, source revision binding, foreground due hints, bounded additive counts, explicit single-use confirmation and rejection of stale/expired/conflicting work. No production caller or background activation."
   - "Step2 offline presentation contract and simulator-only separate native library, metadata-only rows, explicit capability status and safe ephemeral review selection using launch boundary; 9 QA strings RU/EN."
   - "Step1 native launch integration boundary connecting selected persisted revision, scoped plan, actual coordinator session input and provider credential validation; exact ticket cleanup and production gate."
@@ -172,7 +173,7 @@ completed:
 
 
 
-current: "Step3 offline contract complete: optional source-revision-bound opt-in and foreground due hints (hour/day/week), explicit user-only request, bounded single-use additive review, stale/expired/cancelled/conflicting rows rejected. Existing manual flow unchanged; no real URL/token, scheduler, network or mutation. Swift379/379, Python420/420+1527 subtests, unsigned Release PASS, experimental engine linkage absent. Prior f479335b CI4/7 success,3 pending last observed."
+current: "Step4 offline evidence/decision draft complete; release blocked. Exact prior 9f8a308e CI7/7. Ordinary unsigned 0.2.0(48) built with link maps, selected connected-UDP tun2proxy archive SHA verified against build output, 264 imported object entries, six exact Swift package checkouts, ten original notice hashes, two map hashes preserved/rechecked. Separate from loopback-clean native research receipts. Three named ad package links confirmed, three resolved-only not established as distributed/excluded. tproxy-config original notice still missing; Tapjoy notice missing from resolved checkout, not confirmed distributed. Actual vendor and selected Rust closure/legal review open. Swift379/379, Python422/422+1527, Release PASS. No scope reduction, signing, distribution or release."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -184,8 +185,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "f479335b plus Step3 working tree Swift379/Python420+1527/unsigned Release locally verified; prior CI4/7 success,3 pending; new CI pending"
+last_verified_commit: "9f8a308e exact CI7/7; Step4 audit source and 422 Python/1527 subtests + Swift379 + unsigned Release linkage locally verified; new CI pending"
 test_results:
+  - "Swift379/379, Python422/422+1527, unsigned Release with link maps PASS, pinned research audit PASS, ordinary linkage receipt exact repeat PASS; prior CI7/7. Initial path alias and non-UTF8 linker symbol section resolved; no final signed binary, complete licenses/legal clearance or actual device QA."
   - "Swift379/379, Python420/420+1527 subtests, unsigned Release PASS, native engine symbols absent; 4 new core and 1 source-contract test. No live supplier request, real Keychain or device acceptance."
   - "Swift375/375, full iOS Python419/419+1527 subtests, gated simulator Debug and unsigned iPhoneOS Release PASS; QA markers/native engine symbols absent. Actual GUI/real storage/connect unaccepted. Initial oversized remote command rejected, bounded edits succeeded."
   - "Swift373/373, full iOS Python418/418+1527 subtests, unsigned Release PASS; native engine symbols absent. Three new synthetic end-to-end/negative tests; no real OS, Keychain or data-plane acceptance."
@@ -306,4 +308,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner asks continue step by step without physical iPhone. Verify exact PR383 HEAD CI. Step4: complete evidence-based license closure for selected components and explicit release scope, check one missing tproxy-config copyright/MIT notice without invented attribution; separate unresolved legal/distribution and artifact gates from completed offline evidence. Do not enable, sign, merge or publish an unaccepted feature. Actual S1/K1/K2/X1/N1/N2/C1/R1, real native provider/UI/storage, and optional subscription integration remain open; manual subscriptions unchanged. Review remaining substantive offline integration after Step4; avoid endless speculative tests. Existing watchdog canonical branch. No device/account/Keychain changes."
+resume_instruction: "Owner requests stepwise work without physical iPhone. Verify exact PR383 HEAD CI. Four planned offline foundation steps recorded; next substantive work: inspect and implement actual inactive provider/storage/product UI integration against existing native session launch boundary (not another disconnected rehearsal), with compile-time deny-by-default, exact scoped test receipts and no device, live Keychain or production activation. Choose one concrete missing integration boundary per stage; stop for explicit permission where required. In parallel only if directly needed, establish exact connected-UDP Rust dependency/patch/source closure and ad vendor binary distribution terms; original tproxy-config notice still unresolved, no invented attribution. Maintain unified 0.3.0 objective; do not shrink scope or bump current identity without approval. Actual S1/K1/K2/X1/N1/N2/C1/R1 remain open. Optional subscription production integration deferred. No account/device changes, signing, main merge or publication. Continue existing watchdog canonical branch."
