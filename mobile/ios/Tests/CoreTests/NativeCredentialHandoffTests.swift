@@ -67,6 +67,59 @@ final class NativeCredentialHandoffTests: XCTestCase {
         }
         time=start;let t=try h.issue(r,binding:b);XCTAssertTrue(try h.revoke(t));XCTAssertThrowsError(try h.redeem(t,expected:b))
     }
+    func testCleanupOnlyExpiredExactTicketsAndLeavesRevision() throws {
+        let (r,b,repo,store,tickets)=try fixture();try repo.insert(r)
+        var time=Date(timeIntervalSince1970:1000)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference },now:{time})
+        let expired=try h.issue(r,binding:b);time.addTimeInterval(30)
+        let active=try h.issue(r,binding:b),vanished=try h.issue(r,binding:b)
+        try h.revoke(vanished);time.addTimeInterval(30)
+        let bad="handoff-v1/"+UUID().uuidString
+        try tickets.insert(account:bad,bytes:Data([1]))
+        let names=[expired,active,vanished].map{"handoff-v1/"+$0.id.uuidString}+[bad]
+        XCTAssertEqual(try h.cleanupExpired(accounts:names),.init(removed:1,retained:1,disappeared:1,malformed:1))
+        XCTAssertThrowsError(try h.redeem(expired,expected:b))
+        XCTAssertEqual(try h.redeem(active,expected:b).reference,r.reference)
+        XCTAssertEqual(tickets.values.count,1);XCTAssertEqual(store.values.count,1)
+        XCTAssertEqual(try h.cleanupExpired(accounts:names),.init(removed:0,retained:0,disappeared:3,malformed:1))
+    }
+    func testCleanupRejectsInvalidBatchBeforeMutationAndClockRollback() throws {
+        let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
+        var time=Date(timeIntervalSince1970:1000)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{time})
+        let t=try h.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString
+        time.addTimeInterval(-1)
+        XCTAssertEqual(try h.cleanupExpired(accounts:[name]).retained,1)
+        time.addTimeInterval(61)
+        for batch in [[name,"record-v1/"+UUID().uuidString],[name,name],(0..<65).map{_ in "handoff-v1/"+UUID().uuidString}] {
+            XCTAssertThrowsError(try h.cleanupExpired(accounts:batch));XCTAssertEqual(tickets.values.count,1)
+        }
+        tickets.denyRemoval=true;XCTAssertThrowsError(try h.cleanupExpired(accounts:[name]));XCTAssertEqual(tickets.values.count,1)
+        tickets.denyRemoval=false;XCTAssertEqual(try h.cleanupExpired(accounts:[name]).removed,1)
+    }
+    func testCleanupAndExpiredRedemptionRaceCannotReturnCredential() throws {
+        let (r,b,repo,store,tickets)=try fixture();try repo.insert(r)
+        let start=Date(timeIntervalSince1970:1000)
+        let issuer=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start})
+        let t=try issuer.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start.addingTimeInterval(60)})
+        let unexpected=TestItems()
+        DispatchQueue.concurrentPerform(iterations:16){ i in
+            if i.isMultiple(of:2) { _=try? h.cleanupExpired(accounts:[name]) }
+            else if (try? h.redeem(t,expected:b)) != nil {try? unexpected.insert(account:String(i),bytes:Data([1]))}
+        }
+        XCTAssertTrue(unexpected.values.isEmpty);XCTAssertTrue(tickets.values.isEmpty);XCTAssertEqual(store.values.count,1)
+    }
+    func testCleanupDoesNotSweepMetadataUnderWrongAccount() throws {
+        let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
+        let start=Date(timeIntervalSince1970:1000)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start})
+        let t=try h.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString,other="handoff-v1/"+UUID().uuidString
+        try tickets.insert(account:other,bytes:XCTUnwrap(tickets.read(account:name)))
+        let cleanup=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start.addingTimeInterval(60)})
+        XCTAssertEqual(try cleanup.cleanupExpired(accounts:[other,name]),.init(removed:1,retained:0,disappeared:0,malformed:1))
+        XCTAssertNotNil(try tickets.read(account:other))
+    }
     func testDeletionFailureNeverReturnsRecord() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
         let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }),t=try h.issue(r,binding:b)

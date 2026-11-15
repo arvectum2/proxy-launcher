@@ -7,6 +7,7 @@ struct NativeCredentialKeychain: NativeCredentialItems {
     enum Purpose: String { case revision = "native-revision.v1", handoff = "native-handoff.v1" }
     enum Failure: Error { case configuration, status(OSStatus) }
     let purpose: Purpose
+    private var maxBytes: Int { purpose == .revision ? NativeCredentialRecord.maxBytes : NativeCredentialHandoff.maxEnvelopeBytes }
     private func query(_ account: String) throws -> [String:Any] {
         let parts = account.split(separator:"/",omittingEmptySubsequences:false).map(String.init)
         let valid: Bool
@@ -23,7 +24,7 @@ struct NativeCredentialKeychain: NativeCredentialItems {
                 kSecAttrSynchronizable as String:false]
     }
     func insert(account: String, bytes: Data) throws {
-        guard !bytes.isEmpty, bytes.count <= 48_000 else { throw Failure.configuration }
+        guard !bytes.isEmpty, bytes.count <= maxBytes else { throw Failure.configuration }
         var q = try query(account)
         q[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         q[kSecValueData as String] = bytes
@@ -36,8 +37,29 @@ struct NativeCredentialKeychain: NativeCredentialItems {
         var result: CFTypeRef?
         let status = SecItemCopyMatching(q as CFDictionary,&result)
         if status == errSecItemNotFound { return nil }
-        guard status == errSecSuccess, let bytes = result as? Data, bytes.count <= 48_000 else { throw Failure.status(status) }
+        guard status == errSecSuccess, let bytes = result as? Data, !bytes.isEmpty, bytes.count <= maxBytes else { throw Failure.status(status) }
         return bytes
+    }
+    /// Attributes only, exact handoff service/group and device-local items.
+    /// The OS enumerates the matching metadata; caller limits deletion work.
+    /// Not used by production startup and never queries revision records.
+    func handoffAccountsForValidation() throws -> [String] {
+        guard purpose == .handoff else {throw Failure.configuration}
+        var q = try query("handoff-v1/"+UUID().uuidString)
+        q.removeValue(forKey:kSecAttrAccount as String)
+        q[kSecReturnAttributes as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitAll
+        var result: CFTypeRef?
+        let status=SecItemCopyMatching(q as CFDictionary,&result)
+        if status==errSecItemNotFound {return []}
+        guard status==errSecSuccess,let rows=result as? [[String:Any]] else {throw Failure.status(status)}
+        let accounts=try rows.map { row -> String in
+            guard let name=row[kSecAttrAccount as String] as? String else {throw Failure.configuration}
+            _=try query(name)
+            return name
+        }
+        guard Set(accounts).count==accounts.count else {throw Failure.configuration}
+        return accounts.sorted()
     }
     func remove(account: String) throws -> Bool {
         let status = SecItemDelete(try query(account) as CFDictionary)

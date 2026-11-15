@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Bounded handoff metadata expiry cleanup, exact account and envelope checks, purpose-specific Keychain payload caps and attribute-only handoff enumeration. Four new synthetic tests including expiry/redeem race and malformed account binding. Scope-accurate release acceptance matrix."
   - "Simulator-only gated native import/backup rehearsal with isolated ephemeral catalog, secret-free count preview, explicit confirmation, encrypted export/restore and cleanup. All three protocols verified in one mixed backup."
   - "Account-bound CloudKit review checked around reads (including absence) and writes with 5min monotonic expiry and redacted memory-only ID. Unified research evidence integrity audit pinned manifests/344 notices/3 MPL sources/2 lab binaries. Moved unchanged real lab-only control endpoint out of production source target and rebuilt both labs."
   - "Offline source correspondence of three identified MPL Go modules exported with original module archives, pinned go.sum/go.mod and nonrelease manifest; validation guards tested."
@@ -163,7 +164,7 @@ completed:
 
 
 
-current: "Native profile/backup review rehearsal completed in explicitly gated simulator-only Debug UI, with separate ephemeral catalog, source-file preview, single-use counts summary, encrypted backup export/restore and clear-on-close. Swift351/351, Python413/413+1527 subtests, gated simulator compile and ordinary unsigned Release PASS, production UI/engine markers absent. No actual GUI run, Keychain or phone. Prior CI last observed 5/7 completed successfully, 2 pending."
+current: "Exact 6cb4d24dd CI7/7. Bounded expired native handoff metadata cleanup (64 exact accounts per batch), strict envelope/account validation, race and retry tests, purpose-specific Keychain size limits and isolated attribute-only enumeration implemented; no automatic invocation or real Keychain access. Release acceptance matrix added. Swift355/355, Python413/413+1527, unsigned Release PASS, experimental engine symbols absent."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -175,8 +176,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "46bee485a plus native UI rehearsal working tree Swift351, full Python413+1527, two unsigned builds and disabled markers locally verified; exact new CI pending"
+last_verified_commit: "6cb4d24dd exact CI7/7; handoff cleanup working tree Swift355/Python413+1527/unsigned Release locally verified; new CI pending"
 test_results:
+  - "Swift355/355, full iOS Python413/413+1527 subtests, unsigned Release PASS; native engine markers absent. Exact prior head 6cb4d24dd CI7/7. Initial test closure syntax error fixed and full rerun passed. Real Keychain enumeration/cleanup untested, never invoked; clock remains wall time; no production or device changes."
   - "Swift351/351, full iOS Python413/413+1527 subtests, gated simulator Debug and unsigned iPhoneOS Release PASS, default native UI and experimental engine markers absent. Four new session tests. No actual GUI/Files acceptance, native Keychain, VPN or owner device. One oversized ARC command failed before execution; subsequent bounded writes succeeded."
   - "Swift347/347, full iOS pytest411/411 +1527 subtests, unsigned iPhoneOS Release, gated simulator Debug, source Xray NativeLab unsigned host/NE, AWG unsigned iPhoneOS/sim PASS. Source inventory audit PASS, release_authorized=false. Initial ARC long command HTTP400 no changes and full regression409/410 (old lab isolation mismatch) fixed and rerun PASS. No account/physical acceptance; two Rust notice gaps remain."
   - "Exact 434c91443 CI7/7; go mod verify, three MPL archives CRC/locked sums/export SHA PASS, targeted pytest21/21. No data-plane or new signed runtime acceptance."
@@ -288,4 +290,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner requests all work possible without physical iPhone. Verify exact PR383 head CI. Continue offline independent release-readiness and core work: final license gaps and source distribution design, UI lifecycle review and synthetic simulator acceptance only if launch is independently possible, privacy/storage invariants and scope-accurate release gate matrix. Actual production native storage/start, signed source-built data plane, route/DNS, Wi-Fi/LTE, CloudKit two-device acceptance and release approval remain blocked. Do not repeat accepted20 physical cases or unchanged failed simulator launch; no owner device/account, signing, registration, main merge or publication. Use existing watchdog and canonical worktree."
+resume_instruction: "Owner requests all work possible without physical iPhone. Verify exact PR383 head CI. Continue independent offline work: resolve remaining Rust notice/source correspondence gaps and design final source delivery; review simulator-only UI lifecycle, storage bounds and privacy, prepare final acceptance cases from scope matrix docs/APL_IOS_030_RELEASE_ACCEPTANCE_MATRIX_2026-11-15.md. Do not repeat accepted earlier isolated physical20 or unchanged failed simulator launch. Real Keychain enumeration/cleanup and cross-process access, signed source-built data plane, route/DNS, Wi-Fi/LTE, CloudKit and release approval remain separate gates. No automatic Keychain cleanup, device/account changes, signing, registration, main merge or publication without approval. Continue canonical branch via existing watchdog."
