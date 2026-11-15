@@ -20,6 +20,10 @@ import Foundation
     }
     struct Launch: CustomStringConvertible, CustomReflectable {
         let ticketBytes: Data
+        let expectedBytes: Data
+        var validationOptions:[String:NSObject] {
+            [NativeProviderStartRequest.modeKey:NativeProviderStartRequest.validationMode as NSString,NativeProviderStartRequest.expectedKey:expectedBytes as NSData,NativeProviderStartRequest.ticketKey:ticketBytes as NSData]
+        }
         var description: String {"NativeSessionLaunch(redacted)"}
         var customMirror: Mirror {Mirror(self,children:[:])}
     }
@@ -67,7 +71,7 @@ import Foundation
         let ticket=try handoff.issue(record,binding:binding)
         // Keep exact cleanup ownership even if encoding or subsequent dispatch fails.
         issued=(intent,ticket)
-        do {return Launch(ticketBytes:try TransportNativeCodec.encode(ticket))}
+        do {return Launch(ticketBytes:try TransportNativeCodec.encode(ticket),expectedBytes:try TransportNativeCodec.encode(binding))}
         catch {try finish(intent);throw error}
     }
 

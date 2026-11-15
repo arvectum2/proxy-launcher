@@ -149,6 +149,20 @@ final class ProfileStore {
             legacyIDs:{ [self] in Set(try profilesForMutation().map(\.id)) })
     }
 
+    #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+    /// Strict read-only legacy ID check plus exact native ticket consumption.
+    /// Compiles only in explicit integration Debug builds, never default Release.
+    func makeNativeProviderValidationHandoff() -> NativeCredentialHandoff {
+        let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
+        return NativeCredentialHandoff(items:NativeCredentialKeychain(purpose:.handoff),
+            repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
+            authorizes:{ [self] binding in
+                guard !(try profilesForMutation()).contains(where:{$0.id==binding.reference.profileID}) else{return false}
+                return try reader.authorizes(binding)
+            })
+    }
+    #endif
+
     func save(_ profile: ProxyProfile, password: String?, makeActive: Bool = true, preservePasswordIfNil: Bool = false) throws {
         var profiles = try profilesForMutation()
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }

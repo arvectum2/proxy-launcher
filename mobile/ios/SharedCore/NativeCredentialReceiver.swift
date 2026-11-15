@@ -25,3 +25,36 @@ struct NativeCredentialReceiver {
         return try config.withEngineConfiguration { try validate(route,$0) }
     }
 }
+
+/// Reserved NE start namespace. A native manager restarted by Settings or
+/// on-demand without ticket options must never become a legacy proxy tunnel.
+struct NativeProviderStartRequest: CustomStringConvertible, CustomReflectable {
+    static let modeKey="aplNativeMode"
+    static let expectedKey="aplNativeExpected"
+    static let ticketKey="aplNativeTicket"
+    static let validationMode="credential-validation-v1"
+    enum Decision {case legacy, denied, validation(NativeProviderStartRequest)}
+    let expected:NativeCredentialHandoff.Binding
+    let ticketBytes:Data
+    var description:String {"NativeProviderStartRequest(redacted)"}
+    var customMirror:Mirror {Mirror(self,children:[:])}
+
+    static func hasReservedKey(_ keys:[String])->Bool {keys.contains{$0.lowercased().hasPrefix("aplnative")}}
+    static func inspect(configuration:[String:Any]?,options:[String:NSObject]?,validationEnabled:Bool)->Decision {
+        let config=configuration ?? [:],opts=options ?? [:]
+        guard hasReservedKey(Array(config.keys)) || hasReservedKey(Array(opts.keys)) else{return .legacy}
+        guard validationEnabled,Set(config.keys)==[modeKey],config[modeKey] as? String==validationMode,
+              Set(opts.keys)==[modeKey,expectedKey,ticketKey],opts[modeKey] as? String==validationMode,
+              let raw=opts[expectedKey] as? Data,let ticket=opts[ticketKey] as? Data,
+              let expected=try? TransportNativeCodec.decode(NativeCredentialHandoff.Binding.self,raw),expected.valid,
+              let decoded=try? TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,ticket),decoded.binding==expected else{return .denied}
+        return .validation(.init(expected:expected,ticketBytes:ticket))
+    }
+    /// Validation only, never a success receipt for NE startup.
+    func validate(via handoff:NativeCredentialHandoff)throws {
+        var receiver=try NativeCredentialReceiver(expected:expected,provider:expected.reference.kind.provider)
+        try receiver.consumeForValidation(ticketBytes,via:handoff){_,bytes in
+            guard !bytes.isEmpty else{throw NativeCredentialReceiver.Failure.invalidIdentity}
+        }
+    }
+}

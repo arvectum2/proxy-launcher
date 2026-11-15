@@ -169,6 +169,7 @@ final class VPNController: ObservableObject {
     }
 
     private func startTunnel(using manager: NETunnelProviderManager) throws {
+        try requireLegacyManager(manager)
         guard let session = manager.connection as? NETunnelProviderSession else {
             throw NSError(
                 domain: "ArvectumVPN",
@@ -214,12 +215,14 @@ final class VPNController: ObservableObject {
         let managers = try await loadAllManagers()
 
         let matching = managers.filter(isArvectumManager)
+        for item in matching {try requireLegacyManager(item)}
         let manager = matching.first(where: { $0.isEnabled }) ?? matching.first ?? NETunnelProviderManager()
 
         if !matching.isEmpty {
             try await reload(manager)
         }
 
+        try requireLegacyManager(manager)
         let changed = reconcile(manager)
         if forceSave || changed || matching.isEmpty {
             try await save(manager)
@@ -250,6 +253,14 @@ final class VPNController: ObservableObject {
             return true
         }
         return manager.localizedDescription == Self.configurationName
+    }
+
+    /// Do not silently repair or adopt a manager reserved for future native use.
+    private func requireLegacyManager(_ manager: NETunnelProviderManager) throws {
+        let config=(manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration ?? [:]
+        guard !NativeProviderStartRequest.hasReservedKey(Array(config.keys)) else {
+            throw NSError(domain:"APLNativeStart",code:1)
+        }
     }
 
     @discardableResult

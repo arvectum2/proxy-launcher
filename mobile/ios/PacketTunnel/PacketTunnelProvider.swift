@@ -35,6 +35,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var lastPrimaryRecoveryProbeAt: Date?
     private var switching = false
     private var stopping = false
+    private var rejectedNativeWithoutLegacy = false
 #if DEBUG
     private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
@@ -46,6 +47,36 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+        // Route reserved native starts before touching legacy state, telemetry,
+        // settings, timers, or profile selection. Never fall back on rejection.
+        let configuration=(protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+        let validationEnabled=true
+#else
+        let validationEnabled=false
+#endif
+        switch NativeProviderStartRequest.inspect(configuration:configuration,options:options,validationEnabled:validationEnabled) {
+        case .legacy:rejectedNativeWithoutLegacy=false
+        case .denied:
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+            completionHandler(NSError(domain:"APLNativeStart",code:1));return
+        case .validation(let request):
+            if startTask==nil && active==nil {rejectedNativeWithoutLegacy=true}
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION
+            // Explicit credential validation only. No runtime driver or routes.
+            // A successful credential check must still fail NE startup.
+            guard startTask==nil,active==nil else{completionHandler(NSError(domain:"APLNativeStart",code:1));return}
+            do {
+                let validationStore=try ProfileStore()
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
+                completionHandler(NSError(domain:"APLNativeStart",code:2))
+            } catch {completionHandler(NSError(domain:"APLNativeStart",code:1))}
+#else
+            _=request
+            completionHandler(NSError(domain:"APLNativeStart",code:1))
+#endif
+            return
+        }
         stopping = false
         lastPrimaryRecoveryProbeAt = nil
 #if DEBUG
@@ -155,6 +186,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+        if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
+            completionHandler();return
+        }
 #if DEBUG
         // A queued callback from this test must not fire after a new start.
         qaCallbackGate.invalidate()

@@ -321,6 +321,25 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{calls+=1;if calls==2{m.bytes=changedBytes};return true}));XCTAssertEqual(m.bytes,changedBytes);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
         try c.migrateLegacyForValidation(vpnInactive:{true});XCTAssertNil(try c.reader.selectionAuthority(a.reference));XCTAssertEqual(try c.reader.snapshot().current,[a.reference])
     }
+    @MainActor func testProviderOptionBoundaryNeverFallsBackAndValidatesOneUse() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]})
+        let intent=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        var coordinator=TransportBackendCoordinator();guard case .start(let session)=try coordinator.begin(intent.plan) else{return XCTFail("start")}
+        let launch=try bridge.issue(intent,for:session),config=[NativeProviderStartRequest.modeKey:NativeProviderStartRequest.validationMode],opts=launch.validationOptions
+        func denied(_ config:[String:Any]?,_ opts:[String:NSObject]?,_ enabled:Bool=true)->Bool {if case .denied=NativeProviderStartRequest.inspect(configuration:config,options:opts,validationEnabled:enabled){return true};return false}
+        XCTAssertTrue(denied(config,opts,false));XCTAssertTrue(denied(config,nil));XCTAssertTrue(denied(nil,opts));XCTAssertTrue(denied(["APLNativeUnknown":true],nil))
+        var mixed=opts;mixed["requestedByUser"]=NSNumber(value:true);XCTAssertTrue(denied(config,mixed))
+        var wrong=opts;wrong[NativeProviderStartRequest.expectedKey]=try TransportNativeCodec.encode(NativeCredentialHandoff.Binding(reference:a.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())) as NSData;XCTAssertTrue(denied(config,wrong))
+        XCTAssertEqual(tickets.values.count,1)
+        if case .legacy=NativeProviderStartRequest.inspect(configuration:["version":"0.2.0"],options:["requestedByUser":NSNumber(value:true)],validationEnabled:false){}else{XCTFail("legacy rejected")}
+        guard case .validation(let request)=NativeProviderStartRequest.inspect(configuration:config,options:opts,validationEnabled:true) else{return XCTFail("validation rejected")}
+        XCTAssertEqual(Mirror(reflecting:request).children.count,0)
+        let receiver=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{try c.reader.authorizes($0)})
+        try request.validate(via:receiver);XCTAssertThrowsError(try request.validate(via:receiver));XCTAssertTrue(tickets.values.isEmpty)
+        try bridge.finish(intent);XCTAssertEqual(items.values.count,1)
+    }
     @MainActor func testLaunchBoundaryConnectsAllThreeStoredKindsToProviderReceiver() async throws {
         let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items)
         let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
