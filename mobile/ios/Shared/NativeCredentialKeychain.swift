@@ -46,3 +46,44 @@ struct NativeCredentialKeychain: NativeCredentialItems {
         return true
     }
 }
+
+/// One metadata item, written by the app only. No migration or activation.
+struct NativeCredentialCatalogKeychain: NativeCredentialCatalogStorage {
+    private func query() throws -> [String:Any] {
+        guard let group = AppShared.keychainAccessGroup, !group.isEmpty else { throw NativeCredentialKeychain.Failure.configuration }
+        return [kSecClass as String:kSecClassGenericPassword,
+                kSecAttrService as String:"ru.arvectum.proxylauncher.ios.native-catalog.v1",
+                kSecAttrAccount as String:"catalog-v1", kSecAttrAccessGroup as String:group,
+                kSecAttrSynchronizable as String:false]
+    }
+    func load() throws -> Data? {
+        var q = try query()
+        q[kSecReturnData as String] = true; q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(q as CFDictionary,&result)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess, let bytes = result as? Data, bytes.count <= 32_768 else { throw NativeCredentialKeychain.Failure.status(status) }
+        return bytes
+    }
+    func replace(_ bytes: Data) throws {
+        guard !bytes.isEmpty, bytes.count <= 32_768 else { throw NativeCredentialKeychain.Failure.configuration }
+        var q = try query()
+        let status = SecItemUpdate(q as CFDictionary,[kSecValueData as String:bytes] as CFDictionary)
+        if status == errSecSuccess { return }
+        guard status == errSecItemNotFound else { throw NativeCredentialKeychain.Failure.status(status) }
+        q[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        q[kSecValueData as String] = bytes
+        let add = SecItemAdd(q as CFDictionary,nil)
+        guard add == errSecSuccess else { throw NativeCredentialKeychain.Failure.status(add) }
+    }
+}
+
+/// Both processes use the same current selection. Inactive validation-only.
+extension NativeCredentialHandoff {
+    static func localDeviceValidation() -> Self {
+        let reader = NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
+        return Self(items:NativeCredentialKeychain(purpose:.handoff),
+                    repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
+                    isSelected:{ try reader.isSelected($0) })
+    }
+}

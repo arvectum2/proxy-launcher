@@ -39,7 +39,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
         XCTAssertEqual(Mirror(reflecting:r).children.count,0)
     }
     func testOneUseMetadataOnlyTicket() throws {
-        let (r,b,repo,_,tickets) = try fixture(); let h=NativeCredentialHandoff(items:tickets,repository:repo)
+        let (r,b,repo,_,tickets) = try fixture(); let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference })
         XCTAssertThrowsError(try h.issue(r,binding:b));try repo.insert(r)
         let t=try h.issue(r,binding:b)
         let bytes=try XCTUnwrap(tickets.values.values.first)
@@ -50,7 +50,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
     }
     func testWrongSessionAndDeletedRevision() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo), t=try h.issue(r,binding:b)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }), t=try h.issue(r,binding:b)
         let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
         XCTAssertThrowsError(try h.redeem(t,expected:other)); XCTAssertEqual(tickets.values.count,1)
         let wrong=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:1,provider:"standalone-awg"))
@@ -60,7 +60,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testExpiryClockRollbackAndRevocation() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
         let start=Date(timeIntervalSince1970:1000);var time=start
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,now:{time})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference },now:{time})
         for offset in [60.0,-1.0] {
             time=start;let t=try h.issue(r,binding:b);time=start.addingTimeInterval(offset)
             XCTAssertThrowsError(try h.redeem(t,expected:b));XCTAssertTrue(tickets.values.isEmpty)
@@ -69,13 +69,13 @@ final class NativeCredentialHandoffTests: XCTestCase {
     }
     func testDeletionFailureNeverReturnsRecord() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo),t=try h.issue(r,binding:b)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }),t=try h.issue(r,binding:b)
         tickets.denyRemoval=true;XCTAssertThrowsError(try h.redeem(t,expected:b));tickets.denyRemoval=false
         XCTAssertEqual(try h.redeem(t,expected:b).reference,r.reference)
     }
     func testConcurrentConsumersOnlyOneWins() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo),t=try h.issue(r,binding:b)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }),t=try h.issue(r,binding:b)
         let winners=TestItems()
         DispatchQueue.concurrentPerform(iterations:16) { i in
             if (try? h.redeem(t,expected:b)) != nil { try? winners.insert(account:String(i),bytes:Data([1])) }
@@ -88,7 +88,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let restored=try XCTUnwrap(repo.read(r.reference)), p2=NativeProfilePreparation(legacyIDs:{[]}), r2=try p2.stage(restored)
         XCTAssertEqual(r1,r2);try p2.select(r2)
         let local=try p2.prepare(r2,routes:.tunnelOnly,siteExclusions:[],applicationExclusions:[])
-        let h=NativeCredentialHandoff(items:tickets,repository:repo), t=try p2.issueForValidation(local,binding:b,via:h)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }), t=try p2.issueForValidation(local,binding:b,via:h)
         XCTAssertThrowsError(try p2.issueForValidation(local,binding:b,via:h));XCTAssertEqual(try h.redeem(t,expected:b).reference,r.reference)
     }
 }

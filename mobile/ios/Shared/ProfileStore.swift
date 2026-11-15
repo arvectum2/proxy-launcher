@@ -142,6 +142,13 @@ final class ProfileStore {
         NativeProfilePreparation(legacyIDs: { [self] in Set(try profilesForMutation().map(\.id)) })
     }
 
+    /// Inactive new-format catalog, separate from profiles.v1.
+    @MainActor func makeNativeCredentialCatalog() -> NativeCredentialCatalog {
+        NativeCredentialCatalog(storage:NativeCredentialCatalogKeychain(),
+            repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
+            legacyIDs:{ [self] in Set(try profilesForMutation().map(\.id)) })
+    }
+
     func save(_ profile: ProxyProfile, password: String?, makeActive: Bool = true, preservePasswordIfNil: Bool = false) throws {
         var profiles = try profilesForMutation()
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) { profiles[index] = profile }
