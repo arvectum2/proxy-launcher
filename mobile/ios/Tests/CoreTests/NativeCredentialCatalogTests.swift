@@ -30,13 +30,51 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let m=CatalogMemory(), items=RecordMemory(), tickets=RecordMemory(), repo=NativeCredentialRepository(items:items)
         let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let first=try record();try c.save(first,select:true)
-        let reader=c.reader, h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{try reader.isSelected($0)})
-        let binding=NativeCredentialHandoff.Binding(reference:first.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+        let reader=c.reader, h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{try reader.authorizes($0)})
+        let binding=NativeCredentialHandoff.Binding(reference:first.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:try XCTUnwrap(reader.selectionAuthority(first.reference)))
         let ticket=try h.issue(first,binding:binding)
         let second=try record(first.reference.profileID);try c.save(second,select:true)
         XCTAssertNotNil(try repo.read(first.reference));XCTAssertThrowsError(try h.redeem(ticket,expected:binding))
         XCTAssertTrue(try reader.isSelected(second.reference));XCTAssertEqual(try reader.snapshot().retired,[first.reference])
         try c.reconcileRetired();XCTAssertNil(try repo.read(first.reference));XCTAssertNotNil(try repo.read(second.reference))
+    }
+    @MainActor func testSelectionSwitchBackCannotReviveIssuedTicket() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        let reader=c.reader,session=TransportNativeIdentity(epoch:UUID(),generation:1,provider:"rust-xray")
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{try reader.authorizes($0)})
+        let old=NativeCredentialHandoff.Binding(reference:a.reference,session:session,selectionNonce:try XCTUnwrap(reader.selectionAuthority(a.reference)))
+        let ticket=try h.issue(a,binding:old)
+        try c.select(b.reference);try c.select(a.reference)
+        XCTAssertTrue(try reader.isSelected(a.reference));XCTAssertFalse(try reader.authorizes(old))
+        XCTAssertThrowsError(try h.redeem(ticket,expected:old));XCTAssertThrowsError(try h.issue(a,binding:old))
+        let fresh=NativeCredentialHandoff.Binding(reference:a.reference,session:session,selectionNonce:try XCTUnwrap(reader.selectionAuthority(a.reference)))
+        XCTAssertNotEqual(fresh.selectionNonce,old.selectionNonce)
+        let next=try h.issue(a,binding:fresh);XCTAssertEqual(try h.redeem(next,expected:fresh).reference,a.reference)
+        try c.select(a.reference);XCTAssertFalse(try reader.authorizes(fresh))
+    }
+    @MainActor func testLegacySelectionHasNoHandoffAuthorityUntilExplicitSelection() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json.removeValue(forKey:"selectionNonce");m.bytes=try JSONSerialization.data(withJSONObject:json)
+        XCTAssertTrue(try c.reader.isSelected(a.reference));XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        try c.select(a.reference);XCTAssertNotNil(try c.reader.selectionAuthority(a.reference))
+        try c.remove(a.reference);XCTAssertNil(try c.reader.snapshot().selectionNonce)
+    }
+    @MainActor func testRestorePreviewInvalidatedBySelectionRoundTrip() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        let password="Synthetic-passphrase-2026",bytes=try NativeProfileBackupCodec.seal([try record()],password:password),review=NativeRestoreReview(catalog:c)
+        let s=try review.preview(data:bytes,password:password);try c.select(b.reference);try c.select(a.reference)
+        XCTAssertThrowsError(try review.confirm(s,vpnInactive:{true}));XCTAssertEqual(try c.reader.snapshot().current.count,2)
+    }
+    @MainActor func testPendingInsertDeniesAuthorityAndRecoveryKeepsOriginalSelection() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true);let token=try XCTUnwrap(c.reader.selectionAuthority(a.reference))
+        m.failAfter=m.writes+2;items.failRemove=true
+        XCTAssertThrowsError(try c.save(try record(),select:false));XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        items.failRemove=false;try c.reconcilePendingInsert();XCTAssertEqual(try c.reader.selectionAuthority(a.reference),token)
     }
     @MainActor func testProtocolReplacementWithinSameProviderRetiresOldRevision() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})

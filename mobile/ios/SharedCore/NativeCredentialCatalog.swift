@@ -15,6 +15,9 @@ struct NativeCredentialCatalogReader {
         var current: [Ref]
         var retired: [Ref]
         var selected: Ref?
+        // Legacy v1 snapshots may omit this. Such selection is display-only
+        // until the user explicitly selects a profile again.
+        var selectionNonce: UUID? = nil
         var pendingInsert: Ref?
         // Optional for backward compatibility with existing v1 snapshots.
         var pendingRestore: [Ref]?
@@ -32,6 +35,7 @@ struct NativeCredentialCatalogReader {
               Set(s.retired).count == s.retired.count,
               Set(s.current).isDisjoint(with:Set(s.retired)),
               s.selected.map({s.current.contains($0)}) ?? true,
+              (s.selectionNonce == nil || s.selected != nil),
               s.pendingInsert.map({!s.current.contains($0) && !s.retired.contains($0)}) ?? true,
               validRestoreJournal(s) else { throw Failure.invalidCatalog }
         return s
@@ -45,6 +49,14 @@ struct NativeCredentialCatalogReader {
     func isSelected(_ ref: Ref) throws -> Bool {
         let s=try snapshot()
         return s.pendingRestore == nil && s.selected == ref
+    }
+    func selectionAuthority(_ ref: Ref) throws -> UUID? {
+        let s=try snapshot()
+        guard !s.hasPendingWrite, s.selected==ref else {return nil}
+        return s.selectionNonce
+    }
+    func authorizes(_ binding: NativeCredentialHandoff.Binding) throws -> Bool {
+        try selectionAuthority(binding.reference) == binding.selectionNonce
     }
     // Explicit call only from authorized export UI in the future. Reads exact
     // current revisions, not retired/pending entries, and rejects changed view.
@@ -92,11 +104,11 @@ struct NativeCredentialCatalogReader {
         if let index = s.current.firstIndex(where:{$0.profileID == ref.profileID}) {
             guard s.retired.count < 64 else { throw Failure.capacity }
             let old = s.current[index]; s.retired.append(old); s.current[index] = ref
-            if s.selected == old { s.selected = nil }
+            if s.selected == old { s.selected = nil; s.selectionNonce = nil }
         } else {
             guard s.current.count < 32 else { throw Failure.capacity }; s.current.append(ref)
         }
-        if select { s.selected = ref }
+        if select { s.selected = ref; s.selectionNonce = UUID() }
         // Journal the exact intended revision before any credential write.
         // A crash can leave a pending entry, never an unknown record to sweep.
         guard try repository.read(ref) == nil else { throw Failure.collision }
@@ -104,9 +116,13 @@ struct NativeCredentialCatalogReader {
         try publish(journal)
         do {
             try repository.insert(record)
+            guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             try publish(s)
         } catch {
-            do { try reconcilePendingInsert() }
+            do {
+                guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
+                try reconcilePendingInsert()
+            }
             catch { throw Failure.rollbackIncomplete }
             throw error
         }
@@ -166,7 +182,7 @@ struct NativeCredentialCatalogReader {
         var s = try reader.snapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref), try repository.read(ref) != nil else { throw Failure.missing }
-        s.selected = ref; try publish(s)
+        s.selected = ref; s.selectionNonce = UUID(); try publish(s)
     }
     func remove(_ ref: Ref) throws {
         var s = try reader.snapshot()
@@ -174,7 +190,7 @@ struct NativeCredentialCatalogReader {
         guard s.current.contains(ref) else { throw Failure.missing }
         guard s.retired.count < 64 else { throw Failure.capacity }
         s.current.removeAll{$0 == ref}; s.retired.append(ref)
-        if s.selected == ref { s.selected = nil }
+        if s.selected == ref { s.selected = nil; s.selectionNonce = nil }
         try publish(s)
     }
     /// Recovery is safe after interruption at either side of record insertion.

@@ -10,6 +10,7 @@ struct NativeCredentialHandoff {
     struct Binding: Codable, Equatable {
         let reference: NativeCredentialRecord.Reference
         let session: TransportNativeIdentity
+        let selectionNonce: UUID
         var valid: Bool { session.valid && session.provider == reference.kind.providerName }
     }
     struct Ticket: Codable, Equatable {
@@ -24,17 +25,18 @@ struct NativeCredentialHandoff {
     }
     let items: NativeCredentialItems
     let repository: NativeCredentialRepository
-    let isSelected: (NativeCredentialRecord.Reference) throws -> Bool
+    let authorizes: (Binding) throws -> Bool
     let now: () -> Date
-    init(items: NativeCredentialItems, repository: NativeCredentialRepository, isSelected: @escaping (NativeCredentialRecord.Reference) throws -> Bool, now: @escaping () -> Date = Date.init) { self.items = items; self.repository = repository; self.isSelected = isSelected; self.now = now }
+    init(items: NativeCredentialItems, repository: NativeCredentialRepository, authorizes: @escaping (Binding) throws -> Bool, now: @escaping () -> Date = Date.init) { self.items = items; self.repository = repository; self.authorizes = authorizes; self.now = now }
     private func account(_ id: UUID) -> String { "handoff-v1/\(id.uuidString)" }
     func issue(_ record: NativeCredentialRecord, binding: Binding) throws -> Ticket {
-        guard binding.valid, binding.reference == record.reference, try isSelected(record.reference) else { throw Failure.invalidBinding }
+        guard binding.valid, binding.reference == record.reference, try authorizes(binding) else { throw Failure.invalidBinding }
         guard let stored = try repository.read(record.reference), try stored.encoded() == record.encoded() else { throw Failure.unavailable }
         let issued = now(), ticket = Ticket(id:UUID(),binding:binding)
         let envelope = Envelope(version:1,ticket:ticket,issued:issued,expires:issued.addingTimeInterval(60))
         let bytes = try JSONEncoder().encode(envelope)
         guard bytes.count <= Self.maxEnvelopeBytes else { throw Failure.invalidEnvelope }
+        guard try authorizes(binding) else {throw Failure.invalidBinding}
         try items.insert(account:account(ticket.id),bytes:bytes)
         return ticket
     }
@@ -48,7 +50,7 @@ struct NativeCredentialHandoff {
         guard envelope.ticket == ticket else { throw Failure.invalidEnvelope }
         let current = now()
         guard current >= envelope.issued, current < envelope.expires else { throw Failure.expired }
-        guard try isSelected(expected.reference), let record = try repository.read(expected.reference), try isSelected(expected.reference) else { throw Failure.unavailable }
+        guard try authorizes(expected), let record = try repository.read(expected.reference), try authorizes(expected) else { throw Failure.unavailable }
         return record
     }
     private func decode(_ raw: Data, id: UUID) throws -> Envelope {

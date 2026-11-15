@@ -17,7 +17,7 @@ SWIFT
 mkdir "$work/Sources"
 mv "$work/AppShared.swift" "$work/Sources/"
 cp "$root/Shared/NativeCredentialKeychain.swift" "$root/Tools/NativeCredentialLab/SimCredentialLab.swift" "$work/Sources/"
-cp "$root"/SharedCore/{NativeCredentialRecord,NativeCredentialHandoff,NativeCredentialCatalog,NativeCredentialReceiver,VLESSRealityShareLink,XrayVLESSRuntimeConfig,NativeWireGuardRuntimeConfig,NativeTunnelRoutePlan,TransportNativeControl,TransportBackendContract,WGQuickConfigurationPreview,ManagedProfileContract,ProxyModel}.swift "$work/Sources/"
+cp "$root"/SharedCore/{NativeCredentialRecord,NativeCredentialHandoff,NativeCredentialCatalog,NativeProfileBackupCodec,ProfileBackup,NativeCredentialReceiver,VLESSRealityShareLink,XrayVLESSRuntimeConfig,NativeWireGuardRuntimeConfig,NativeTunnelRoutePlan,TransportNativeControl,TransportBackendContract,WGQuickConfigurationPreview,ManagedProfileContract,ProxyModel}.swift "$work/Sources/"
 python3 - "$work" <<'PYPROJECT'
 import pathlib,json,plistlib,sys
 w=pathlib.Path(sys.argv[1]);targets={};schemes={}

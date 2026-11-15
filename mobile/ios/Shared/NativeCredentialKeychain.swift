@@ -106,6 +106,6 @@ extension NativeCredentialHandoff {
         let reader = NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
         return Self(items:NativeCredentialKeychain(purpose:.handoff),
                     repository:NativeCredentialRepository(items:NativeCredentialKeychain(purpose:.revision)),
-                    isSelected:{ try reader.isSelected($0) })
+                    authorizes:{ try reader.authorizes($0) })
     }
 }

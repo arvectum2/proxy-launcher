@@ -21,7 +21,7 @@ struct NativeCredentialReceiver {
         let (config,route) = try record.compile()
         guard config.provider == provider, route.provider == provider,
               record.reference == expected.reference, config.wireProtocol == expected.reference.kind.transport else { throw Failure.providerMismatch }
-        guard try handoff.isSelected(expected.reference) else { throw Failure.inactiveRevision }
+        guard try handoff.authorizes(expected) else { throw Failure.inactiveRevision }
         return try config.withEngineConfiguration { try validate(route,$0) }
     }
 }

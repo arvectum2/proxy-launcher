@@ -34,7 +34,8 @@ private struct Result: Codable {
                 let source="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
                 let record=try NativeCredentialRecord.create(profileID:UUID(),expected:.wireGuard,source:source)
                 try catalog.save(record,select:true)
-                let binding=NativeCredentialHandoff.Binding(reference:record.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+                guard let nonce=try catalog.reader.selectionAuthority(record.reference) else {throw LabError.invalid}
+                let binding=NativeCredentialHandoff.Binding(reference:record.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:nonce)
                 let ticket=try handoff.issue(record,binding:binding)
                 try JSONEncoder().encode(Exchange(binding:binding,ticket:TransportNativeCodec.encode(ticket),senderPID:getpid())).write(to:exchangeURL,options:.atomic)
             } else if Bundle.main.bundleIdentifier == "ru.arvectum.proxylauncher.credentialqa.receiver" {

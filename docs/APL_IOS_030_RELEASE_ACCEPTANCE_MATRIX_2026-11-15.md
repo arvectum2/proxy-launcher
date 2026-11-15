@@ -13,7 +13,7 @@ Snapshot: 15 November 2026; draft PR #383. **Not release authorization**. Publis
 | AWG | Pinned source, isolated local kernel-bound loopback tests, iOS archive and prior signed fixture | Loopback and earlier scoped device evidence only; real physical underlay, other AWG protocol variants not accepted |
 | Network policy | Offline NE settings and route plans, prior separate legacy DNS/QUIC probes | Native full routing, DNS leakage, exclusions, WAN/LAN, MTU and handoff need actual network evidence |
 | CloudKit | Fake two-device conflict tests and gated simulator compile, account-bound expiring review | Actual private container opt-in, account switch and two-device acceptance blocked; entitlement off |
-| License and provenance | Xray 70, AWG 9, Rust 265 original notice files, 3 MPL source archives; integrity audit | Two Rust notice gaps (tproxy-config, tun), final linked closure/SBOM, legal obligations and source delivery unresolved |
+| License and provenance | Xray 70, AWG 9, Rust 265 original notice files, 3 MPL source archives; integrity audit | One original notice text missing (tproxy-config); tun original source header preserved separately; final linked closure/SBOM, legal obligations and source delivery unresolved |
 | Release controls | Default build has no experimental engine symbols or QA UI; main untouched | Final signed QA, explicit owner-approved scope, signing and submission outstanding |
 
 ## Next independent work
@@ -24,3 +24,5 @@ Snapshot: 15 November 2026; draft PR #383. **Not release authorization**. Publis
 - Treat the previous simulator launch error as unresolved, not a passing test. Only retry with a materially different validated environment.
 
 The canonical checkpoint remains `in_progress`. None of these steps authorizes main merge, signing, real account access, device modification or publication.
+
+Selection authority now includes a persisted nonce bound to each explicit selection; offline A→B→A and legacy selection regression cases pass. Swift359/359, Python415/415 +1527 subtests, unsigned Release and simulator harness typecheck PASS. No runtime acceptance added.

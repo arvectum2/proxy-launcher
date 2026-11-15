@@ -25,7 +25,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let peer = Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation.base64EncodedString()
         let source = ["[Interface]", "PrivateKey=\(local)", "Address=10.0.0.2/32, fd00::2/128", "DNS=192.0.2.53", "[Peer]", "PublicKey=\(peer)", "AllowedIPs=0.0.0.0/0, ::/0", "Endpoint=192.0.2.42:51820"].joined(separator:"\n")
         let r = try NativeCredentialRecord.create(profileID:UUID(),expected:.wireGuard,source:source)
-        let b = NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+        let b = NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())
         let store=TestItems(), tickets=TestItems(), repo=NativeCredentialRepository(items:store)
         return (r,b,repo,store,tickets)
     }
@@ -39,7 +39,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
         XCTAssertEqual(Mirror(reflecting:r).children.count,0)
     }
     func testOneUseMetadataOnlyTicket() throws {
-        let (r,b,repo,_,tickets) = try fixture(); let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference })
+        let (r,b,repo,_,tickets) = try fixture(); let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference })
         XCTAssertThrowsError(try h.issue(r,binding:b));try repo.insert(r)
         let t=try h.issue(r,binding:b)
         let bytes=try XCTUnwrap(tickets.values.values.first)
@@ -50,17 +50,17 @@ final class NativeCredentialHandoffTests: XCTestCase {
     }
     func testWrongSessionAndDeletedRevision() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }), t=try h.issue(r,binding:b)
-        let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference }), t=try h.issue(r,binding:b)
+        let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())
         XCTAssertThrowsError(try h.redeem(t,expected:other)); XCTAssertEqual(tickets.values.count,1)
-        let wrong=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:1,provider:"standalone-awg"))
+        let wrong=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:1,provider:"standalone-awg"),selectionNonce:UUID())
         XCTAssertThrowsError(try h.issue(r,binding:wrong));try repo.remove(r.reference)
         XCTAssertThrowsError(try h.redeem(t,expected:b));XCTAssertTrue(tickets.values.isEmpty)
     }
     func testExpiryClockRollbackAndRevocation() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
         let start=Date(timeIntervalSince1970:1000);var time=start
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference },now:{time})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference },now:{time})
         for offset in [60.0,-1.0] {
             time=start;let t=try h.issue(r,binding:b);time=start.addingTimeInterval(offset)
             XCTAssertThrowsError(try h.redeem(t,expected:b));XCTAssertTrue(tickets.values.isEmpty)
@@ -70,7 +70,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testCleanupOnlyExpiredExactTicketsAndLeavesRevision() throws {
         let (r,b,repo,store,tickets)=try fixture();try repo.insert(r)
         var time=Date(timeIntervalSince1970:1000)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference },now:{time})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference },now:{time})
         let expired=try h.issue(r,binding:b);time.addTimeInterval(30)
         let active=try h.issue(r,binding:b),vanished=try h.issue(r,binding:b)
         try h.revoke(vanished);time.addTimeInterval(30)
@@ -86,7 +86,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testCleanupRejectsInvalidBatchBeforeMutationAndClockRollback() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
         var time=Date(timeIntervalSince1970:1000)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{time})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true},now:{time})
         let t=try h.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString
         time.addTimeInterval(-1)
         XCTAssertEqual(try h.cleanupExpired(accounts:[name]).retained,1)
@@ -100,9 +100,9 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testCleanupAndExpiredRedemptionRaceCannotReturnCredential() throws {
         let (r,b,repo,store,tickets)=try fixture();try repo.insert(r)
         let start=Date(timeIntervalSince1970:1000)
-        let issuer=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start})
+        let issuer=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true},now:{start})
         let t=try issuer.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start.addingTimeInterval(60)})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true},now:{start.addingTimeInterval(60)})
         let unexpected=TestItems()
         DispatchQueue.concurrentPerform(iterations:16){ i in
             if i.isMultiple(of:2) { _=try? h.cleanupExpired(accounts:[name]) }
@@ -113,22 +113,22 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testCleanupDoesNotSweepMetadataUnderWrongAccount() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
         let start=Date(timeIntervalSince1970:1000)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true},now:{start})
         let t=try h.issue(r,binding:b),name="handoff-v1/"+t.id.uuidString,other="handoff-v1/"+UUID().uuidString
         try tickets.insert(account:other,bytes:XCTUnwrap(tickets.read(account:name)))
-        let cleanup=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true},now:{start.addingTimeInterval(60)})
+        let cleanup=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true},now:{start.addingTimeInterval(60)})
         XCTAssertEqual(try cleanup.cleanupExpired(accounts:[other,name]),.init(removed:1,retained:0,disappeared:0,malformed:1))
         XCTAssertNotNil(try tickets.read(account:other))
     }
     func testDeletionFailureNeverReturnsRecord() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }),t=try h.issue(r,binding:b)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference }),t=try h.issue(r,binding:b)
         tickets.denyRemoval=true;XCTAssertThrowsError(try h.redeem(t,expected:b));tickets.denyRemoval=false
         XCTAssertEqual(try h.redeem(t,expected:b).reference,r.reference)
     }
     func testConcurrentConsumersOnlyOneWins() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }),t=try h.issue(r,binding:b)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference }),t=try h.issue(r,binding:b)
         let winners=TestItems()
         DispatchQueue.concurrentPerform(iterations:16) { i in
             if (try? h.redeem(t,expected:b)) != nil { try? winners.insert(account:String(i),bytes:Data([1])) }
@@ -137,7 +137,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
     }
     func testProviderReceiverConsumesExactlyOnce() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == r.reference})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{$0.reference == r.reference})
         let t=try h.issue(r,binding:b), bytes=try TransportNativeCodec.encode(t)
         var receiver=try NativeCredentialReceiver(expected:b,provider:.rustXray)
         try receiver.consumeForValidation(bytes,via:h) { route,data in
@@ -149,9 +149,9 @@ final class NativeCredentialHandoffTests: XCTestCase {
     }
     func testReceiverIndependentIdentityAndFailurePoisoning() throws {
         let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == r.reference})
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{$0.reference == r.reference})
         let t=try h.issue(r,binding:b),bytes=try TransportNativeCodec.encode(t)
-        let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:2,provider:"rust-xray"))
+        let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:2,provider:"rust-xray"),selectionNonce:UUID())
         XCTAssertThrowsError(try NativeCredentialReceiver(expected:b,provider:.standaloneAWG))
         var wrong=try NativeCredentialReceiver(expected:other,provider:.rustXray)
         XCTAssertThrowsError(try wrong.consumeForValidation(bytes,via:h) { _,_ in XCTFail("stale") })
@@ -171,8 +171,8 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let restored=try XCTUnwrap(repo.read(record.reference));XCTAssertEqual(restored.reference,record.reference)
         let p2=NativeProfilePreparation(legacyIDs:{[]}), r=try p2.stage(restored);XCTAssertEqual(r,rev);try p2.select(r)
         let t=try p2.prepare(r,routes:.tunnelOnly,siteExclusions:[],applicationExclusions:[])
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == record.reference})
-        let binding=NativeCredentialHandoff.Binding(reference:record.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{$0.reference == record.reference})
+        let binding=NativeCredentialHandoff.Binding(reference:record.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"),selectionNonce:UUID())
         let ticket=try p2.issueForValidation(t,binding:binding,via:h)
         var receiver=try NativeCredentialReceiver(expected:binding,provider:.rustXray)
         try receiver.consumeForValidation(TransportNativeCodec.encode(ticket),via:h) { route,bytes in
@@ -197,8 +197,8 @@ final class NativeCredentialHandoffTests: XCTestCase {
     func testSameProviderDoesNotAuthorizeDifferentProtocol() throws {
         let (wg,b,repo,_,tickets)=try fixture();try repo.insert(wg)
         let v=try NativeCredentialRecord.create(profileID:wg.reference.profileID,expected:.vlessReality,source:vlessSource());try repo.insert(v)
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true}),t=try h.issue(wg,binding:b)
-        let wrong=NativeCredentialHandoff.Binding(reference:v.reference,session:b.session)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{_ in true}),t=try h.issue(wg,binding:b)
+        let wrong=NativeCredentialHandoff.Binding(reference:v.reference,session:b.session,selectionNonce:b.selectionNonce)
         var receiver=try NativeCredentialReceiver(expected:wrong,provider:.rustXray)
         XCTAssertThrowsError(try receiver.consumeForValidation(TransportNativeCodec.encode(t),via:h){_,_ in XCTFail("wrong protocol")})
         XCTAssertEqual(try h.redeem(t,expected:b).reference,wg.reference)
@@ -209,7 +209,7 @@ final class NativeCredentialHandoffTests: XCTestCase {
         let restored=try XCTUnwrap(repo.read(r.reference)), p2=NativeProfilePreparation(legacyIDs:{[]}), r2=try p2.stage(restored)
         XCTAssertEqual(r1,r2);try p2.select(r2)
         let local=try p2.prepare(r2,routes:.tunnelOnly,siteExclusions:[],applicationExclusions:[])
-        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{ $0 == r.reference }), t=try p2.issueForValidation(local,binding:b,via:h)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,authorizes:{ $0.reference == r.reference }), t=try p2.issueForValidation(local,binding:b,via:h)
         XCTAssertThrowsError(try p2.issueForValidation(local,binding:b,via:h));XCTAssertEqual(try h.redeem(t,expected:b).reference,r.reference)
     }
 }
