@@ -52,7 +52,8 @@ private struct Result: Codable {
                 var replayRejected=false
                 do { _ = try second.consumeForValidation(e.ticket,via:handoff) { _,_ in true } } catch { replayRejected=true }
                 try catalog.remove(e.binding.reference);try catalog.reconcileRetired()
-                let cleaned=try repo.read(e.binding.reference) == nil && catalog.reader.snapshot() == .empty
+                var emptyCheck=try catalog.reader.snapshot();emptyCheck.mutationEpoch=nil
+                let cleaned=try repo.read(e.binding.reference) == nil && emptyCheck == .empty
                 let distinct=getpid() != e.senderPID
                 try JSONEncoder().encode(Result(pass:ok && distinct && replayRejected && cleaned,receiverPID:getpid(),distinctProcess:distinct,replayRejected:replayRejected,cleaned:cleaned)).write(to:resultURL,options:.atomic)
             } else {throw LabError.invalid}

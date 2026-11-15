@@ -1,10 +1,9 @@
-import Darwin
 import Foundation
 
 /// Future, currently inactive PacketTunnel-to-Xray local SOCKS handoff.
 /// No credentials, persisted profiles, NetworkExtension mutations or DIRECT.
 enum XrayHandoffError: Error, Equatable {
-    case invalidDescriptor, invalidPort, invalidBypass, tooManyBypasses
+    case invalidDescriptor, invalidPort, unsupportedBypass
     case invalidTransition, staleCallback, exhaustedGeneration
 }
 
@@ -22,32 +21,16 @@ struct XraySocksHandoffPlan: Equatable {
         guard (1024...65535).contains(socksPort) else {
             throw XrayHandoffError.invalidPort
         }
-        guard dnsBypass.count <= 64 else { throw XrayHandoffError.tooManyBypasses }
-        var unique = Set<String>()
-        for raw in dnsBypass {
-            guard raw == raw.lowercased(), validBypassHost(raw),
-                  unique.insert(raw).inserted else {
-                throw XrayHandoffError.invalidBypass
-            }
-        }
-        let bypasses = unique.sorted()
+        // The pinned native Rust artifact deliberately excludes the legacy
+        // split-DNS/direct patches. A host-only flag was also incompatible
+        // with the older HOST=IP parser. Do not silently drop user policy.
+        guard dnsBypass.isEmpty else {throw XrayHandoffError.unsupportedBypass}
         let url = "socks5://127.0.0.1:\(socksPort)"
-        var args = "tun2proxy-bin --proxy \(url) --tun-fd \(tunFD)"
-        args += " --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn"
-        for host in bypasses { args += " --dns-bypass \(host)" }
-        return .init(port: UInt16(socksPort), tunnelDescriptor: Int32(tunFD),
-                     dnsBypasses: bypasses, proxyURL: url, tun2proxyArguments: args)
+        let args = "tun2proxy-bin --proxy \(url) --tun-fd \(tunFD)" +
+            " --close-fd-on-drop false --dns virtual --ipv6-enabled --verbosity warn"
+        return .init(port:UInt16(socksPort),tunnelDescriptor:Int32(tunFD),dnsBypasses:[],proxyURL:url,tun2proxyArguments:args)
     }
 
-    private static func validBypassHost(_ host: String) -> Bool {
-        if ManagedProfileContract.validDNS(host) { return true }
-        var ipv4 = in_addr()
-        var ipv6 = in6_addr()
-        return host.withCString {
-            inet_pton(AF_INET, $0, &ipv4) == 1 ||
-            inet_pton(AF_INET6, $0, &ipv6) == 1
-        }
-    }
 }
 
 /// Must be accessed only from the caller's single serial engine queue.

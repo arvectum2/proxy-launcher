@@ -3,7 +3,7 @@ import Foundation
 /// Metadata-only management of the real-format catalog, with explicit
 /// snapshot-bound actions. No ticket, engine, OS calls or legacy selection.
 @MainActor final class NativePersistentProfileSession {
-    enum Action:Equatable {case migrate, recover, purgeRetired, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference)}
+    enum Action:Equatable {case migrate, recover, purgeRetired, exportBackup, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference)}
     enum Failure:Error {case stale, unavailable, expired}
     struct State:Equatable {
         let library:NativeProfilePresentation
@@ -33,6 +33,7 @@ import Foundation
         return .init(library:library,migrationRequired:s.version==1,recoveryRequired:s.hasPendingWrite,retiredCount:s.retired.count,selectionNeedsReview:s.selected != nil && s.selectionNonce==nil,policy:admission)
     }
     func previewSource(_ source:String,kind:NativeCredentialRecord.Kind)throws->NativeRestoreReview.Summary {cancel();return try review.previewSource(source,expected:kind.transport)}
+    func previewBackup(_ bytes:Data,password:String)throws->NativeRestoreReview.Summary {cancel();return try review.preview(data:bytes,password:password)}
     func confirmImport(_ summary:NativeRestoreReview.Summary,vpnInactive:()throws->Bool)throws {
         pending=nil;_ = try review.confirm(summary,vpnInactive:vpnInactive)
     }
@@ -41,6 +42,7 @@ import Foundation
         switch action {
         case .migrate:guard s.version==1 else{throw Failure.unavailable};count=s.current.count
         case .recover:guard s.version==2,s.hasPendingWrite else{throw Failure.unavailable};count=s.pendingRestore?.count ?? 1
+        case .exportBackup:guard s.version==2,!s.hasPendingWrite,!s.current.isEmpty,Set(s.current.map(\.profileID)).isDisjoint(with:legacy) else{throw Failure.unavailable};count=s.current.count
         case .purgeRetired:guard s.version==2,!s.hasPendingWrite,!s.retired.isEmpty else{throw Failure.unavailable};count=s.retired.count
         case .select(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),policy().permitsSelection else{throw Failure.unavailable};count=1
         case .remove(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref) else{throw Failure.unavailable};count=1
@@ -49,12 +51,21 @@ import Foundation
         let receipt=Receipt(id:UUID(),action:action,affected:count)
         pending=Pending(receipt:receipt,snapshot:s,legacy:legacy,time:now);return receipt
     }
-    func confirm(_ receipt:Receipt,vpnInactive:()throws->Bool)throws {
+    private func consume(_ receipt:Receipt)throws->Pending {
         guard let p=pending,p.receipt==receipt else{throw Failure.stale}
         pending=nil;let age=elapsed()-p.time;guard age.isFinite,age>=0,age<300 else{throw Failure.expired}
         let (s,legacy)=try catalog.reviewState();guard s==p.snapshot,legacy==p.legacy else{throw Failure.stale}
+        return p
+    }
+    func confirmExport(_ receipt:Receipt,password:String,vpnInactive:()throws->Bool)throws->Data {
+        let p=try consume(receipt);guard receipt.action == .exportBackup else{throw Failure.unavailable}
+        return try catalog.encryptedBackup(password:password,expected:p.snapshot,expectedLegacy:p.legacy,vpnInactive:vpnInactive)
+    }
+    func confirm(_ receipt:Receipt,vpnInactive:()throws->Bool)throws {
+        let p=try consume(receipt);let s=p.snapshot
         guard try vpnInactive() else{throw ProfileBackupError.vpnActive}
         switch receipt.action {
+        case .exportBackup:throw Failure.unavailable
         case .migrate:try catalog.migrateLegacyForValidation(vpnInactive:vpnInactive)
         case .recover:
             if s.pendingInsert != nil {try catalog.reconcilePendingInsert(vpnInactive:vpnInactive)}

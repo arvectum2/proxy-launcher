@@ -15,6 +15,13 @@ import UniformTypeIdentifiers
     @State private var lifecycle=NativeReviewFileLifecycle()
     @State private var fileReceipt:NativeReviewFileLifecycle.Receipt?
     @State private var choosing=false
+    @State private var backupBytes:Data?
+    @State private var password=""
+    @State private var repeatedPassword=""
+    @State private var document:NativePersistentBackupDocument?
+    @State private var exporting=false
+    @State private var exportReceipt:NativeReviewFileLifecycle.Receipt?
+    @State private var exportName="APL-Native-Encrypted"
     @State private var busy=false
     @State private var failed=false
     @State private var generation=UUID()
@@ -34,7 +41,11 @@ import UniformTypeIdentifiers
                     Section(tr("Confirm operation","Подтверждение операции")) {
                         Text(actionTitle(receipt.action));Text(tr("Affected records: ","Затронуто записей: ")+String(receipt.affected))
                         if let row=targetRow(receipt.action) {Text("\(row.number). \(row.reference.kind.rawValue)")}
-                        Button(tr("Confirm","Подтвердить")){apply(receipt:receipt,summary:nil)}
+                        if receipt.action == .exportBackup {
+                            SecureField(tr("New password","Новый пароль"),text:$password).textContentType(.newPassword)
+                            SecureField(tr("Repeat password","Повторите пароль"),text:$repeatedPassword).textContentType(.newPassword)
+                            Button(tr("Encrypt and export","Зашифровать и экспортировать")){exportBackup(receipt)}.disabled(password.count<12 || password != repeatedPassword)
+                        } else {Button(tr("Confirm","Подтвердить")){apply(receipt:receipt,summary:nil)}}
                         Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
                     }
                 }
@@ -42,15 +53,19 @@ import UniformTypeIdentifiers
                     Section(tr("Review import","Предпросмотр импорта")) {
                         Text("WireGuard: \(summary.wireGuard) · AWG: \(summary.amneziaWG1) · VLESS: \(summary.vless)")
                         Text(tr("Add without changing the selected profile.","Добавить без изменения выбранного профиля."))
-                        Button(tr("Save test profile","Сохранить тестовый профиль")){apply(receipt:nil,summary:summary)}
+                        Button(tr("Save reviewed profiles","Сохранить проверенные профили")){apply(receipt:nil,summary:summary)}
                         Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
                     }
                 }
-                if lifecycle.pending != nil && !choosing {Button(tr("Discard file operation","Отменить файловую операцию")){lifecycle.invalidate();fileReceipt=nil;cancelReview()}}
-            }.disabled(busy || choosing).navigationTitle(Self.title)
+                if lifecycle.pending != nil && !choosing && !exporting {Button(tr("Discard file operation","Отменить файловую операцию")){lifecycle.invalidate();fileReceipt=nil;exportReceipt=nil;document=nil;cancelReview()}}
+            }.disabled(busy || choosing || exporting).navigationTitle(Self.title)
             .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close","Закрыть")){leave();dismiss()}}}
         }
         .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false,onCompletion:{[token=fileReceipt] result in receive(result,token:token)})
+        .fileExporter(isPresented:$exporting,document:document,contentType:.json,defaultFilename:exportName){[token=exportReceipt] _ in
+            guard lifecycle.consume(token) == .export else{return}
+            document=nil;exportReceipt=nil
+        }
         .onAppear {if phase == .active {enter()}}
         .onChange(of:phase){value in if value == .active {enter()} else if value == .background {leave()}}
         .onDisappear {leave()}
@@ -84,7 +99,15 @@ import UniformTypeIdentifiers
                     Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
                     Text("VLESS Reality").tag(NativeCredentialRecord.Kind.vlessReality)
                 }.onChange(of:kind){_ in cancelReview();lifecycle.invalidate();fileReceipt=nil}
-                Button(tr("Choose configuration file","Выбрать файл конфигурации")){choose()}
+                Button(tr("Choose configuration file","Выбрать файл конфигурации")){choose(.configuration(kind))}
+            }
+            Section(tr("Encrypted native backup","Зашифрованная копия нативных профилей")) {
+                Button(tr("Choose encrypted backup","Выбрать зашифрованную копию")){choose(.backup)}
+                if backupBytes != nil {
+                    SecureField(tr("Backup password","Пароль резервной копии"),text:$password).textContentType(.password)
+                    Button(tr("Review backup","Проверить копию")){reviewBackup()}.disabled(password.isEmpty)
+                }
+                Button(tr("Review encrypted export","Проверить зашифрованный экспорт")){prepare(.exportBackup)}.disabled(library.library.rows.isEmpty)
             }
         }
     }
@@ -114,6 +137,7 @@ import UniformTypeIdentifiers
     }
     private func actionTitle(_ a:NativePersistentProfileSession.Action)->String {
         switch a {
+        case .exportBackup:return tr("Export current native profiles only, encrypted with your password.","Экспортировать только текущие нативные профили в зашифрованном виде.")
         case .migrate:return tr("Migrate metadata; require explicit reselection.","Обновить метаданные; потребуется повторный выбор.")
         case .recover:return tr("Roll back only the recorded incomplete operation.","Отменить только записанную незавершённую операцию.")
         case .purgeRetired:return tr("Permanently delete only retired credentials.","Окончательно удалить только выведенные из обращения ключи.")
@@ -121,17 +145,19 @@ import UniformTypeIdentifiers
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){session?.cancel();receipt=nil;summary=nil}
-    private func leave(){generation=UUID();lifecycle.leave();cancelReview();session=nil;library=nil;fileReceipt=nil;choosing=false;busy=false}
+    private func cancelReview(){session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""}
+    private func leave(){generation=UUID();lifecycle.leave();cancelReview();session=nil;library=nil;fileReceipt=nil;exportReceipt=nil;document=nil;exporting=false;choosing=false;busy=false}
     private func enter(){guard session==nil else{return};lifecycle.appear();session=model.makePersistentNativeLibrary();reload()}
     private func reload(){cancelReview();failed=false;do{library=try session?.state()}catch{library=nil;failed=true}}
     private func prepare(_ action:NativePersistentProfileSession.Action){guard !busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};cancelReview();do{receipt=try session.prepare(action)}catch{failed=true}}
-    private func choose(){guard !busy,lifecycle.visible,lifecycle.pending==nil else{return};cancelReview();fileReceipt=lifecycle.begin(.configuration(kind));choosing=fileReceipt != nil}
+    private func choose(_ action:NativeReviewFileLifecycle.Action){guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return};cancelReview();fileReceipt=lifecycle.begin(action);choosing=fileReceipt != nil}
     private func receive(_ result:Result<[URL],Error>,token:NativeReviewFileLifecycle.Receipt?){
-        guard case .configuration(let kind)=lifecycle.consume(token),let session else{return};fileReceipt=nil
+        guard let action=lifecycle.consume(token),let session else{return};fileReceipt=nil
         do {
             guard let url=try result.get().first,url.isFileURL else{return}
             let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
+            if action == .backup {backupBytes=try ProfileBackupCodec.readEncryptedFile(at:url);return}
+            guard case .configuration(let kind)=action else{throw ProfileBackupError.invalidFile}
             let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()};var data=Data()
             while data.count<=NativeCredentialRecord.maxBytes {
                 let part=try handle.read(upToCount:NativeCredentialRecord.maxBytes+1-data.count) ?? Data()
@@ -141,12 +167,36 @@ import UniformTypeIdentifiers
             summary=try session.previewSource(raw,kind:kind)
         }catch{cancelReview();failed=true}
     }
+    private func reviewBackup(){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let bytes=backupBytes,let session else{return}
+        let secret=password;cancelReview()
+        do{summary=try session.previewBackup(bytes,password:secret)}catch{failed=true}
+    }
+    private func exportBackup(_ receipt:NativePersistentProfileSession.Receipt){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,password==repeatedPassword,let session else{return}
+        busy=true;let token=generation,secret=password;password="";repeatedPassword=""
+        Task { @MainActor in
+            do {
+                var encrypted:Data?
+                try await model.vpn.withNativeLibraryWrite { inactive in
+                    guard generation==token,lifecycle.visible,phase == .active else{throw NativePersistentProfileSession.Failure.stale}
+                    encrypted=try session.confirmExport(receipt,password:secret,vpnInactive:inactive)
+                }
+                if generation==token {
+                    guard let encrypted,let panel=lifecycle.begin(.export),phase == .active else{throw NativePersistentProfileSession.Failure.stale}
+                    cancelReview();exportReceipt=panel;document=NativePersistentBackupDocument(bytes:encrypted)
+                    exportName="APL-Native-Encrypted-"+panel.id.uuidString.lowercased();exporting=true
+                }
+            }catch{if generation==token {cancelReview();failed=true}}
+            if generation==token {busy=false}
+        }
+    }
     private func apply(receipt:NativePersistentProfileSession.Receipt?,summary:NativeRestoreReview.Summary?){
-        guard !busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};busy=true;let token=generation
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return};busy=true;let token=generation
         Task { @MainActor in
             do {
                 try await model.vpn.withNativeLibraryWrite { inactive in
-                    guard generation==token,lifecycle.visible else{throw NativePersistentProfileSession.Failure.stale}
+                    guard generation==token,lifecycle.visible,phase == .active else{throw NativePersistentProfileSession.Failure.stale}
                     if let receipt {try session.confirm(receipt,vpnInactive:inactive)}
                     else if let summary {try session.confirmImport(summary,vpnInactive:inactive)}
                     else{throw NativePersistentProfileSession.Failure.stale}
@@ -156,5 +206,12 @@ import UniformTypeIdentifiers
             if generation==token {busy=false}
         }
     }
+}
+private struct NativePersistentBackupDocument:FileDocument {
+    static var readableContentTypes:[UTType]{[.json]}
+    let bytes:Data
+    init(bytes:Data){self.bytes=bytes}
+    init(configuration:ReadConfiguration)throws {guard let b=configuration.file.regularFileContents,b.count<=ProfileBackupCodec.maxFileBytes else{throw ProfileBackupError.invalidFile};bytes=b}
+    func fileWrapper(configuration:WriteConfiguration)throws->FileWrapper {FileWrapper(regularFileWithContents:bytes)}
 }
 #endif
