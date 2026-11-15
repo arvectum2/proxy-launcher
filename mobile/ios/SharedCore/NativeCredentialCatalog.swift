@@ -11,7 +11,7 @@ protocol NativeCredentialCatalogStorage {
 struct NativeCredentialCatalogReader {
     typealias Ref = NativeCredentialRecord.Reference
     struct Snapshot: Codable, Equatable {
-        let version: Int
+        var version: Int
         var current: [Ref]
         var retired: [Ref]
         var selected: Ref?
@@ -22,15 +22,15 @@ struct NativeCredentialCatalogReader {
         // Optional for backward compatibility with existing v1 snapshots.
         var pendingRestore: [Ref]?
         var hasPendingWrite: Bool { pendingInsert != nil || pendingRestore != nil }
-        static let empty = Self(version:1,current:[],retired:[],selected:nil,pendingInsert:nil,pendingRestore:nil)
+        static let empty = Self(version:2,current:[],retired:[],selected:nil,pendingInsert:nil,pendingRestore:nil)
     }
-    enum Failure: Error { case invalidCatalog, capacity, collision, missing, rollbackIncomplete }
+    enum Failure: Error { case invalidCatalog, capacity, collision, missing, rollbackIncomplete, migrationRequired }
     let storage: NativeCredentialCatalogStorage
     func snapshot() throws -> Snapshot {
         guard let data = try storage.load() else { return .empty }
         guard !data.isEmpty, data.count <= 32_768 else { throw Failure.invalidCatalog }
         let s = try JSONDecoder().decode(Snapshot.self,from:data)
-        guard s.version == 1, s.current.count <= 32, s.retired.count <= 64,
+        guard (s.version == 1 || s.version == 2), s.current.count <= 32, s.retired.count <= 64,
               Set(s.current.map(\.profileID)).count == s.current.count,
               Set(s.retired).count == s.retired.count,
               Set(s.current).isDisjoint(with:Set(s.retired)),
@@ -52,7 +52,7 @@ struct NativeCredentialCatalogReader {
     }
     func selectionAuthority(_ ref: Ref) throws -> UUID? {
         let s=try snapshot()
-        guard !s.hasPendingWrite, s.selected==ref else {return nil}
+        guard s.version == 2, !s.hasPendingWrite, s.selected==ref else {return nil}
         return s.selectionNonce
     }
     func authorizes(_ binding: NativeCredentialHandoff.Binding) throws -> Bool {
@@ -62,6 +62,7 @@ struct NativeCredentialCatalogReader {
     // current revisions, not retired/pending entries, and rejects changed view.
     func currentRecordsForBackup(repository: NativeCredentialRepository) throws -> [NativeCredentialRecord] {
         let start=try snapshot()
+        guard start.version == 2 else {throw Failure.migrationRequired}
         guard !start.hasPendingWrite else {throw Failure.rollbackIncomplete}
         let records=try start.current.map { ref in
             guard let record=try repository.read(ref) else {throw Failure.missing};return record
@@ -88,7 +89,26 @@ struct NativeCredentialCatalogReader {
     func reviewState() throws -> (Snapshot, Set<UUID>) {
         (try reader.snapshot(),try legacyIDs())
     }
+    /// The v1 reader could ignore new fields. Upgrade explicitly before any
+    /// further mutation. Preserve all exact references and unfinished journals;
+    /// discard old selection authority, require deliberate reselection.
+    /// Caller must hold exclusive app-writer/OS-start coordination.
+    func migrateLegacyForValidation(vpnInactive: () throws -> Bool) throws {
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+        let old=try reader.snapshot()
+        guard old.version == 1 else {return}
+        var upgraded=old;upgraded.version=2;upgraded.selectionNonce=nil
+        guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+        guard try reader.snapshot()==old else {throw Failure.rollbackIncomplete}
+        try publish(upgraded)
+    }
+    private func writableSnapshot() throws -> Snapshot {
+        let s=try reader.snapshot()
+        guard s.version==2 else {throw Failure.migrationRequired}
+        return s
+    }
     private func publish(_ s: Snapshot) throws {
+        guard s.version==2 else {throw Failure.migrationRequired}
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let bytes = try encoder.encode(s)
         guard bytes.count <= 32_768 else { throw Failure.capacity }
@@ -98,7 +118,7 @@ struct NativeCredentialCatalogReader {
         let ref = record.reference
         let legacy = try legacyIDs()
         guard !legacy.contains(ref.profileID) else { throw Failure.collision }
-        let original = try reader.snapshot()
+        let original = try writableSnapshot()
         guard !original.hasPendingWrite else { throw Failure.rollbackIncomplete }
         var s = original
         guard !s.current.contains(ref), !s.retired.contains(ref) else { throw Failure.collision }
@@ -136,7 +156,7 @@ struct NativeCredentialCatalogReader {
     @discardableResult func restore(_ incoming: [NativeCredentialRecord],
                                     vpnInactive: () throws -> Bool) throws -> [Ref] {
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
-        let original=try reader.snapshot()
+        let original=try writableSnapshot()
         guard !original.hasPendingWrite else {throw Failure.rollbackIncomplete}
         let legacy=try legacyIDs()
         let fresh=try NativeProfileBackupCodec.prepareRestore(incoming,existingNativeIDs:Set(original.current.map(\.profileID)),legacyIDs:legacy.union(original.retired.map(\.profileID)))
@@ -175,7 +195,7 @@ struct NativeCredentialCatalogReader {
     /// visible as current until the entire journal has committed.
     func reconcilePendingRestore(vpnInactive: () throws -> Bool) throws {
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
-        var s=try reader.snapshot()
+        var s=try writableSnapshot()
         guard let refs=s.pendingRestore else {return}
         let journal=s
         for ref in refs {
@@ -190,14 +210,14 @@ struct NativeCredentialCatalogReader {
     func select(_ ref: Ref) throws {
         let legacy=try legacyIDs()
         guard !legacy.contains(ref.profileID) else { throw Failure.collision }
-        var s = try reader.snapshot()
+        var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref), try repository.read(ref) != nil else { throw Failure.missing }
         guard try legacyIDs() == legacy, try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
         s.selected = ref; s.selectionNonce = UUID(); try publish(s)
     }
     func remove(_ ref: Ref) throws {
-        var s = try reader.snapshot()
+        var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref) else { throw Failure.missing }
         guard s.retired.count < 64 else { throw Failure.capacity }
@@ -208,7 +228,7 @@ struct NativeCredentialCatalogReader {
     /// Recovery is safe after interruption at either side of record insertion.
     /// Never deletes any currently published or retired revision.
     func reconcilePendingInsert() throws {
-        var s = try reader.snapshot()
+        var s = try writableSnapshot()
         guard let ref = s.pendingInsert else { return }
         _ = try repository.remove(ref)
         guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
@@ -217,7 +237,7 @@ struct NativeCredentialCatalogReader {
     /// Delete only explicitly recorded retired revisions. Retry is idempotent
     /// if a crash happens after item deletion but before catalog publication.
     func reconcileRetired() throws {
-        var s = try reader.snapshot()
+        var s = try writableSnapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         for ref in s.retired {
             guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}

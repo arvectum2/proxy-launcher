@@ -50,6 +50,7 @@ import Foundation
     }
     private func previewRecords(_ records: [NativeCredentialRecord]) throws -> Summary {
         let state=try catalog.reviewState()
+        guard state.0.version==2 else {throw NativeCredentialCatalog.Failure.migrationRequired}
         guard !state.0.hasPendingWrite else {throw NativeCredentialCatalog.Failure.rollbackIncomplete}
         guard records.count+state.0.current.count <= NativeProfileBackupCodec.maxProfiles else {throw ProfileBackupError.tooManyProfiles}
         let s=Summary(id:UUID(),wireGuard:records.filter{$0.reference.kind == .wireGuard}.count,amneziaWG1:records.filter{$0.reference.kind == .amneziaWG1}.count,vless:records.filter{$0.reference.kind == .vlessReality}.count,existingCount:state.0.current.count)

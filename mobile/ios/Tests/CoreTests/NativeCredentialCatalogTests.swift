@@ -59,8 +59,9 @@ final class NativeCredentialCatalogTests: XCTestCase {
     @MainActor func testLegacySelectionHasNoHandoffAuthorityUntilExplicitSelection() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record();try c.save(a,select:true)
-        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json.removeValue(forKey:"selectionNonce");m.bytes=try JSONSerialization.data(withJSONObject:json)
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json["version"]=1;json.removeValue(forKey:"selectionNonce");m.bytes=try JSONSerialization.data(withJSONObject:json)
         XCTAssertTrue(try c.reader.isSelected(a.reference));XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        XCTAssertThrowsError(try c.select(a.reference));try c.migrateLegacyForValidation(vpnInactive:{true})
         try c.select(a.reference);XCTAssertNotNil(try c.reader.selectionAuthority(a.reference))
         try c.remove(a.reference);XCTAssertNil(try c.reader.snapshot().selectionNonce)
     }
@@ -167,8 +168,8 @@ final class NativeCredentialCatalogTests: XCTestCase {
     @MainActor func testLegacySnapshotDecodesAndFailedJournalClearIsRetryable() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let original=try record();try c.save(original,select:true)
-        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json.removeValue(forKey:"pendingRestore")
-        m.bytes=try JSONSerialization.data(withJSONObject:json);let old=try c.reader.snapshot()
+        var json=try XCTUnwrap(JSONSerialization.jsonObject(with:try XCTUnwrap(m.bytes)) as? [String:Any]);json["version"]=1;json.removeValue(forKey:"pendingRestore")
+        m.bytes=try JSONSerialization.data(withJSONObject:json);try c.migrateLegacyForValidation(vpnInactive:{true});let old=try c.reader.snapshot()
         XCTAssertNil(old.pendingRestore);XCTAssertTrue(try c.reader.isSelected(original.reference))
         m.failAfter=m.writes+2;items.failRemove=true
         XCTAssertThrowsError(try c.restore([try record(),try record()],vpnInactive:{true}))
@@ -287,6 +288,38 @@ final class NativeCredentialCatalogTests: XCTestCase {
         items.onRead={_ in legacy.insert(a.reference.profileID)}
         XCTAssertThrowsError(try c.select(a.reference));items.onRead=nil
         XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertNotNil(try repo.read(a.reference))
+    }
+    @MainActor func testLegacyPendingRestoreMigrationPreservesExactJournalAndDeniesOldAuthority() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),pending=try record();try c.save(a,select:true);try repo.insert(pending)
+        var legacy=try c.reader.snapshot();legacy.version=1;legacy.pendingRestore=[pending.reference]
+        m.bytes=try JSONEncoder().encode(legacy);let raw=m.bytes
+        XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        XCTAssertThrowsError(try c.reconcilePendingRestore(vpnInactive:{true}));XCTAssertThrowsError(try c.reader.currentRecordsForBackup(repository:repo))
+        XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{false}));XCTAssertEqual(m.bytes,raw)
+        m.fail=true;XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{true}));XCTAssertEqual(m.bytes,raw);m.fail=false
+        try c.migrateLegacyForValidation(vpnInactive:{true})
+        let new=try c.reader.snapshot();XCTAssertEqual(new.version,2);XCTAssertEqual(new.current,legacy.current);XCTAssertEqual(new.pendingRestore,legacy.pendingRestore);XCTAssertNil(new.selectionNonce)
+        let writes=m.writes;try c.migrateLegacyForValidation(vpnInactive:{true});XCTAssertEqual(m.writes,writes)
+        XCTAssertEqual(items.values.count,2);try c.reconcilePendingRestore(vpnInactive:{true});XCTAssertEqual(items.values.count,1);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        try c.select(a.reference);XCTAssertNotNil(try c.reader.selectionAuthority(a.reference))
+    }
+    @MainActor func testLegacyPendingInsertAndUnknownSchemaNeverMutateBeforeMigration() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),pending=try record(a.reference.profileID);try c.save(a,select:true);try repo.insert(pending)
+        var legacy=try c.reader.snapshot();legacy.version=1;legacy.pendingInsert=pending.reference
+        m.bytes=try JSONEncoder().encode(legacy);let raw=m.bytes
+        XCTAssertThrowsError(try c.reconcilePendingInsert());XCTAssertThrowsError(try c.remove(a.reference));XCTAssertThrowsError(try c.save(try record(),select:false));XCTAssertEqual(m.bytes,raw);XCTAssertEqual(items.values.count,2)
+        legacy.version=3;m.bytes=try JSONEncoder().encode(legacy);let unknown=m.bytes
+        XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{true}));XCTAssertThrowsError(try c.reader.snapshot());XCTAssertEqual(m.bytes,unknown)
+        m.bytes=raw;try c.migrateLegacyForValidation(vpnInactive:{true});try c.reconcilePendingInsert();XCTAssertNil(try repo.read(pending.reference));XCTAssertNotNil(try repo.read(a.reference))
+    }
+    @MainActor func testMigrationRejectsDriftAndDoesNotMintSelectionAuthority() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true);var legacy=try c.reader.snapshot();legacy.version=1;m.bytes=try JSONEncoder().encode(legacy)
+        var calls=0;var changed=legacy;changed.selectionNonce=UUID();let changedBytes=try JSONEncoder().encode(changed)
+        XCTAssertThrowsError(try c.migrateLegacyForValidation(vpnInactive:{calls+=1;if calls==2{m.bytes=changedBytes};return true}));XCTAssertEqual(m.bytes,changedBytes);XCTAssertNil(try c.reader.selectionAuthority(a.reference))
+        try c.migrateLegacyForValidation(vpnInactive:{true});XCTAssertNil(try c.reader.selectionAuthority(a.reference));XCTAssertEqual(try c.reader.snapshot().current,[a.reference])
     }
     @MainActor func testCorruptCatalogAndLegacyCollisionFailClosed() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),r=try record()

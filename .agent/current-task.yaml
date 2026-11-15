@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Native catalog v2 schema boundary, explicit fail-closed v1 migration preserving journal/revisions, no handoff until reselection; refreshed active roadmap with remaining substantive work and decision gates."
   - "Catalog exact readback and drift detection for insert/restore/recovery/selection. Four synthetic failure cases verify stale publication rejected and recovery retryable."
   - "QA-only bilingual 21-label localization, production catalogs unchanged; native password byte cap and shared pre-KDF ciphertext bound; source delivery design drafted without publication."
   - "Simulator native review lifecycle receipt, background/dismissal cleanup, unique encrypted export filenames, explicit recovery from cancelled panel. Pinned audit incorporates supplemental Rust source evidence and accurately reports one remaining original notice gap. Eight-case remaining acceptance runbook with distinct artifact/permission/rollback gates."
@@ -168,7 +169,7 @@ completed:
 
 
 
-current: "Exact 8291b29f CI7/7. Catalog single/batch readback exact record bytes and recheck journal, legacy IDs and VPN inactive guard before publication; recovery checks snapshot before subsequent deletes and before commit, selection rejects legacy drift. Four fault-injection tests. Swift367/367, Python418/418+1527, unsigned Release PASS; experimental symbols absent. Defensive single-writer drift detection, not cross-process atomic compare-and-swap. No real Keychain or device."
+current: "Explicit native catalog schema v2 boundary implemented: v1 read-only until guarded explicit migration preserving exact journals/references; clears selection authority; unknown schema rejected. Three new tests. Swift370/370, Python418/418+1527, unsigned Release PASS, experimental linkage absent. Updated active roadmap with prioritized remaining offline and device-dependent work. Prior 3c8db1d4 CI4/7 completed successfully at last observation,3 pending."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -180,8 +181,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "8291b29f exact CI7/7; catalog drift working tree Swift367/Python418+1527/unsigned Release locally verified; new CI pending"
+last_verified_commit: "3c8db1d4 plus schema v2 working tree Swift370/Python418+1527/unsigned Release locally verified; exact prior CI4/7 success,3 pending; new CI pending"
 test_results:
+  - "Swift370/370, Python418/418+1527 subtests, unsigned Release PASS, experimental symbols absent. Three new schema/migration tests. No real migration or Keychain/physical acceptance."
   - "Swift367/367, full iOS Python418/418+1527 subtests, unsigned Release PASS and experimental linkage absent. Exact prior CI7/7. No actual interprocess CAS/Keychain/device acceptance."
   - "Swift363/363, Python418/418+1527, gated simulator Debug and unsigned Release PASS, default QA UI and engine markers absent. Initial Python audit failed because QA tables entered shipping catalog count; moved labels into gated code and all checks passed. No GUI execution, real Keychain or device."
   - "Swift361/361, Python417/417+1527, explicit simulator Debug and unsigned iPhoneOS Release PASS, default QA UI/native engine markers absent; pinned evidence audit PASS including 7 supplemental files; exact prior CI7/7. Actual SwiftUI callback/Files behavior not exercised; no secure memory zeroization guarantee; no real account, Keychain or phone."
@@ -298,4 +300,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner requests all work possible without physical iPhone. Verify exact PR383 head CI. Continue independent offline work on catalog version/compatibility and bounded recovery, final integration contracts and release readiness. Remaining original tproxy-config MIT notice and final license closure unresolved. Remaining acceptance runbook governs device/GUI gates. Do not repeat accepted earlier physical20 or unchanged failed simulator launch; do not make owner Keychain/account/device changes, sign, publish, merge main, or enable experimental features. Existing watchdog uses canonical branch."
+resume_instruction: "Owner requests continue everything possible without physical iPhone and asks remaining scope. Verify exact PR383 head CI. Prioritize substantive product integration: inactive provider/production UI integration contracts, explicit capabilities and version gates; analyze subscription auto-refresh opt-in/preview policy offline (optional backlog, no background network or automatic profile replacement without explicit scope approval). Finish selected artifact license closure and release scope. Avoid speculative endless hardening unless concrete risk. Actual S1/K1/K2/X1/N1/N2/C1/R1 gates in runbook remain open; do not repeat accepted earlier physical20 or unchanged failed simulator launch. No device/account changes, signing, production activation, main merge or publishing. Existing watchdog canonical branch."
