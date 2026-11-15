@@ -34,6 +34,47 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let source="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
         return try .create(profileID:id,expected:.wireGuard,source:source)
     }
+    private func automaticSources() -> (wg:String,awg:String,vless:String) {
+        let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
+        let wg="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"
+        let awg=wg.replacingOccurrences(of:"[Peer]",with:"Jc=0\nJmin=0\nJmax=0\nS1=15\nS2=18\nH1=123456\nH2=67543\nH3=123123\nH4=32345\n[Peer]")
+        let key=b.publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        let vless="vless://\(UUID().uuidString.lowercased())@192.0.2.42:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd"
+        return (wg,awg,vless)
+    }
+    func testAutomaticImportIdentifiesStrictProtocolsAndRejectsMixedInvalidInput() throws {
+        let a=automaticSources(),b=automaticSources()
+        let records=try NativeAutomaticImport.prepare(["# comment\n"+a.wg,a.awg," "+a.vless+"\r\n\n"+b.vless])
+        XCTAssertEqual(records.map(\.reference.kind),[.wireGuard,.amneziaWG1,.vlessReality,.vlessReality])
+        XCTAssertEqual(Set(records.map(\.reference.profileID)).count,4)
+        for raw in [a.awg.replacingOccurrences(of:"H4=32345\n",with:""),a.awg.replacingOccurrences(of:"H4=32345",with:"H4=32345\nI1=123"),a.wg+"\n"+b.wg,a.vless+"\nhttps://example.com",a.vless+"\n"+a.wg,"https://example.com"," ",a.wg.replacingOccurrences(of:"0.0.0.0/0, ::/0",with:"10.0.0.0/8")] {
+            XCTAssertThrowsError(try NativeAutomaticImport.prepare([a.vless,raw]))
+        }
+        XCTAssertThrowsError(try NativeAutomaticImport.prepare([a.wg," \n"+a.wg+"\n"])) {XCTAssertEqual($0 as? NativeAutomaticImport.Failure,.duplicate)}
+        XCTAssertThrowsError(try NativeAutomaticImport.prepare([String(repeating:"x",count:NativeAutomaticImport.maxBytes+1)])) {XCTAssertEqual($0 as? NativeAutomaticImport.Failure,.tooLarge)}
+        XCTAssertThrowsError(try NativeAutomaticImport.prepare(Array(repeating:a.vless,count:33))) {XCTAssertEqual($0 as? NativeAutomaticImport.Failure,.tooLarge)}
+        let links=(0..<33).map{_ in automaticSources().vless}.joined(separator:"\n")
+        XCTAssertThrowsError(try NativeAutomaticImport.prepare([links])) {XCTAssertEqual($0 as? NativeAutomaticImport.Failure,.tooLarge)}
+    }
+    @MainActor func testAutomaticBatchPreviewAtomicConfirmationAndStaleReview() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let original=try record();try c.save(original,select:true)
+        let ui=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly}),a=automaticSources()
+        let before=try c.reader.snapshot(),writes=m.writes
+        let stale=try ui.previewAutomatic([a.wg,a.awg,a.vless]);XCTAssertEqual(stale.count,3);XCTAssertEqual(stale.existingCount,1)
+        XCTAssertEqual(m.writes,writes);XCTAssertEqual(items.values.count,1)
+        XCTAssertThrowsError(try ui.previewAutomatic([a.wg,"not a configuration"]))
+        XCTAssertThrowsError(try ui.confirmImport(stale,vpnInactive:{true}))
+        let denied=try ui.previewAutomatic([a.wg,a.awg,a.vless]);XCTAssertThrowsError(try ui.confirmImport(denied,vpnInactive:{false}))
+        XCTAssertEqual(try c.reader.snapshot(),before)
+        let reviewed=try ui.previewAutomatic([a.wg,a.awg,a.vless]);items.failInsertAt=items.insertCount+2
+        XCTAssertThrowsError(try ui.confirmImport(reviewed,vpnInactive:{true}));XCTAssertEqual(items.values.count,1)
+        assertRestoredContent(try c.reader.snapshot(),before)
+        items.failInsertAt=nil
+        let final=try ui.previewAutomatic([a.wg,a.awg,a.vless]);try ui.confirmImport(final,vpnInactive:{true})
+        let after=try c.reader.snapshot();XCTAssertEqual(after.selected,before.selected);XCTAssertEqual(after.selectionNonce,before.selectionNonce);XCTAssertEqual(after.current.count,4);XCTAssertEqual(items.values.count,4)
+        XCTAssertThrowsError(try ui.confirmImport(final,vpnInactive:{true}))
+    }
     @MainActor func testIPRoutePreviewReadsOnlySelectedRevisionWithoutMutation() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)

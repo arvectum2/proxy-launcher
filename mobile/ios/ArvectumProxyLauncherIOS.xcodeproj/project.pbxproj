@@ -41,6 +41,7 @@
 		1EA289B35370B82540C513DA /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		1EC54CA4A11C5D0A7552C9B8 /* ArvectumProxyLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */; };
 		1EDB142F9BDAD93EC24CBDB8 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
+		2116633C9FAC4573C24C7E78 /* NativeAutomaticImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */; };
 		21B8BD7485A20FA97AA0EB10 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
 		223402984B9C755CE6B9357D /* PrivacyDetails.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FEE8CC7ABE21CB78AB07E5E /* PrivacyDetails.strings */; };
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
@@ -71,6 +72,7 @@
 		3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
 		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
 		4094EADFA3204613599ECCFD /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
+		40DC196CD938238E32E30D88 /* NativeAutomaticImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */; };
 		415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */; };
 		415FE0C43C74F8997BF96AA7 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
 		41C2CF4A42165EA06C292BE9 /* VPNShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC5133D899815C5F7E823F5 /* VPNShortcuts.swift */; };
@@ -665,6 +667,7 @@
 		C77D7710A04B51E1225D22F2 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		C7AE131A466FC580A8F731BE /* ka */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ka; path = ka.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionGraph.swift; sourceTree = "<group>"; };
+		C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAutomaticImport.swift; sourceTree = "<group>"; };
 		CA405D9F632E59F42E62B054 /* NativeCredentialCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCredentialCatalog.swift; sourceTree = "<group>"; };
 		CA5D31071F2D872602961BBA /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		CA7162F01D0B4792EC80614B /* SmartExclusionsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartExclusionsUITests.swift; sourceTree = "<group>"; };
@@ -934,6 +937,7 @@
 				6AC7094E7A0EF02E6290FC59 /* ExclusionSyncContract.swift */,
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
 				B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */,
+				C8E51202BDBA5888B7E6B243 /* NativeAutomaticImport.swift */,
 				CA405D9F632E59F42E62B054 /* NativeCredentialCatalog.swift */,
 				DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */,
 				7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */,
@@ -1291,6 +1295,7 @@
 				05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */,
 				5C302B3D4C91370FACC71BE4 /* NativeAWGPacketSession.swift in Sources */,
 				620CEC9463F28D933D0E7F75 /* NativeAWGValidationDriver.swift in Sources */,
+				2116633C9FAC4573C24C7E78 /* NativeAutomaticImport.swift in Sources */,
 				5646E63EC14EFF44A70E3F03 /* NativeCredentialCatalog.swift in Sources */,
 				54D3D304C34C89944511A9CE /* NativeCredentialHandoff.swift in Sources */,
 				867506C8F75536FC4900E348 /* NativeCredentialKeychain.swift in Sources */,
@@ -1444,6 +1449,7 @@
 				A70DFE418DD0D380C7D6D088 /* JournalView.swift in Sources */,
 				9950B846EA845111AD040C97 /* KeyboardDismissSupport.swift in Sources */,
 				8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */,
+				40DC196CD938238E32E30D88 /* NativeAutomaticImport.swift in Sources */,
 				446F8BFF2B7019A5503901F4 /* NativeCredentialCatalog.swift in Sources */,
 				893B4353972600B380BFA0FE /* NativeCredentialHandoff.swift in Sources */,
 				B2BB96A78CD0EF39BC0B78E4 /* NativeCredentialKeychain.swift in Sources */,

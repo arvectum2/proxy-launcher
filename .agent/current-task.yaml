@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage18 automatic mixed native batch import, explicit clipboard and multi-file UI, transactional preview/confirm and rollback tests."
   - "Owner scope decision 2026-11-15: retain existing RSYA advertising/SDK privacy arrangement; stop repeated related audit, policy/label and monetization work."
   - "Stage17a explicit ad initialization after disclosure and lazy native objects, no monetization change."
   - "Stage17b first-use selected language/Dynamic Type/reopenable disclosure, RU/EN supplemental note."
@@ -224,7 +225,7 @@ completed:
 
 
 
-current: "Stage17 verified: actual explicit SDK init reordered after privacy acknowledgment and ad-enabled check, lazy native loader/view, DEBUG default no explicit SDK init. Existing acceptance preserved, no forced reconsent, ad units/retry/monetization unchanged. First-use language picker, explicit localized copy/Dynamic Type and About disclosure review. All64 existing catalogs intact; additional RU/EN note with EN fallback, remaining62 translation/editorial and actual UI acceptance pending. Actual unsigned Release privacy audit26 manifests,7 collection declarations, AppMetrica AdSupport tracking+linked DeviceID, YandexMobileAds DeviceID+AdvertisingData. App/provider empty collection declarations, no actual transmission proof. Private manifest b41447f9163ca958e931b5850f454aff1bdc7bc771011a2b14dc37661beecd83 app cc3631890433f77ed649d474ab342a8714e12dcb8e1285c981b574ee33045527. Outdated repo privacy page no-ads claim identified, separate bilingual draft not published. Apple5.4 and runtime collection/terms remain blockers, no tracking consent/compliance claim. Python512/512+1527, 64 locale audit0 errors, ordinary unsigned Release and Debug PASS; active0.2.0(48) RSYA preflight PASS; initial locale fixed-count/overload assertions corrected; Swift core unchanged previous405. Prior91c53c91 CI3/7 last seen. No device/SDK runtime/account/signing/deployment."
+current: "Stage18 verified: automatic WG/AWG1/VLESS identification, bounded mixed separate-file batch and one-per-line VLESS list, explicit clipboard import in gated native library. Exact within-batch duplicates rejected, no cross-catalog semantic dedup claim; 32/512KiB limits. Reuses snapshot-bound single-use review and all-or-nothing journaled additive restore; selected profile unchanged, invalid batch denies before write. Swift407/407 Python514/514+1527, gated unsigned Debug and ordinary unsigned Release PASS. Prior9c88e8fe CI3/4 success, device build running at last check. Actual Files/clipboard/Keychain GUI test pending; no device, activation, publication or SDK changes."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -236,8 +237,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "91c53c91 CI3/7 last observed; working tree Python512+1527, 64 locale audit, unsigned Release+Debug, 26 bundle manifests and preflight verified; new CI pending"
+last_verified_commit: "9c88e8fe CI3/4 last observed; working tree Swift407/Python514+1527/gated Debug and ordinary Release builds verified; new CI pending"
 test_results:
+  - "Swift407/407 Python514/514+1527, gated unsigned Debug and ordinary Release PASS; no device import/Keychain or native activation."
   - "Python512/512+1527, locale64 audit zero errors, Release+Debug unsigned build, active RSYA preflight, 26 embedded declarations PASS; no actual runtime or legal proof; previous Swift405 unchanged."
   - "Python509/509+1527, focused32/32, source kit411 files verified, all30 synthetic fixtures; previous Swift405 unchanged. No signed/runtime or legal clearance."
   - "Swift405/405 Python477/477+1527 Rust20/20 (6178 comparisons,6 UDP), two unsigned unified builds 2x80 source checks, split map214+11 archive entries, preflight PASS; old CI7/7. No physical runtime or legal clearance."
@@ -378,4 +380,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner decision 2026-11-15: do not reopen or pursue advertising SDK privacy audit, runtime SDK data investigation, alternative ad architecture, privacy-label/policy changes or monetization changes as part of APL development; retain existing RSYA arrangement. Prior findings are archival, not a task or repeated release-planning blocker; this is a scope decision, not a legal certification. Verify PR383 exact HEAD CI. Continue only actionable product UI/legacy/native functionality, domain routing and device acceptance; no repetitive scaffolding. Actual signed S1/K1/K2/X1/N1/N2/C1/R1 and exact30 physical cases still pending; request availability/authorization when required. No unauthorized signing, registration, activation, device or account changes, main merge or publication. Existing single watchdog; checkpoint after stages."
+resume_instruction: "Owner decision 2026-11-15 authoritative: do not reopen advertising SDK privacy or monetization work; retain existing RSYA arrangement. Verify exact PR383 HEAD CI. Continue independently actionable native/legacy functionality rather than repetitive scaffolding; next extend new automatic import into disposable simulator rehearsal and verify lifecycle/GUI if available without device, then consolidate actual signed device acceptance. Native exact-domain/related-host parity remains an architecture/scope decision, no silent reduction. S1/K1/K2/X1/N1/N2/C1/R1 and exact30 physical cases pending, request availability/authorization when necessary. Keep native admission closed until acceptance. No unauthorized signing, registration, activation, device/account changes, main merge or publication. Existing single watchdog; checkpoint after stages."

@@ -185,7 +185,7 @@ enum NativeReviewQAL10n {
                 }
                 guard bytes.count<=NativeCredentialRecord.maxBytes,let raw=String(data:bytes,encoding:.utf8) else {throw ProfileBackupError.invalidFile}
                 summary=try session.previewSource(raw,kind:reviewedKind)
-            case .export:throw ProfileBackupError.invalidFile
+            case .automaticConfigurations,.export:throw ProfileBackupError.invalidFile
             }
         } catch {fail()}
     }

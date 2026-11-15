@@ -103,7 +103,7 @@ struct NativeProfilePresentation: Equatable {
 /// carry the receipt captured at presentation, not the latest mutable mode.
 /// No reuse of a receipt after cancellation, backgrounding or dismissal.
 struct NativeReviewFileLifecycle {
-    enum Action: Equatable {case configuration(NativeCredentialRecord.Kind), backup, export}
+    enum Action: Equatable {case configuration(NativeCredentialRecord.Kind), automaticConfigurations, backup, export}
     struct Receipt: Equatable {let id: UUID;let action: Action}
     private(set) var pending: Receipt?
     private(set) var visible = false

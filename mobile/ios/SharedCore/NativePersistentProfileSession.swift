@@ -33,6 +33,7 @@ import Foundation
         return .init(library:library,migrationRequired:s.version==1,recoveryRequired:s.hasPendingWrite,retiredCount:s.retired.count,selectionNeedsReview:s.selected != nil && s.selectionNonce==nil,policy:admission)
     }
     func previewSource(_ source:String,kind:NativeCredentialRecord.Kind)throws->NativeRestoreReview.Summary {cancel();return try review.previewSource(source,expected:kind.transport)}
+    func previewAutomatic(_ sources:[String])throws->NativeRestoreReview.Summary {cancel();return try review.previewAutomatic(sources)}
     func previewBackup(_ bytes:Data,password:String)throws->NativeRestoreReview.Summary {cancel();return try review.preview(data:bytes,password:password)}
     func confirmImport(_ summary:NativeRestoreReview.Summary,vpnInactive:()throws->Bool)throws {
         pending=nil;_ = try review.confirm(summary,vpnInactive:vpnInactive)

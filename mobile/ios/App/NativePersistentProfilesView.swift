@@ -1,6 +1,7 @@
 #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
 import SwiftUI
 import UniformTypeIdentifiers
+import UIKit
 #if APL_NATIVE_IP_ROUTE_REVIEW
 import NetworkExtension
 #endif
@@ -69,7 +70,7 @@ import NetworkExtension
             }.disabled(busy || choosing || exporting).navigationTitle(Self.title)
             .toolbar {ToolbarItem(placement:.cancellationAction){Button(tr("Close","Закрыть")){leave();dismiss()}}}
         }
-        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:false,onCompletion:{[token=fileReceipt] result in receive(result,token:token)})
+        .fileImporter(isPresented:$choosing,allowedContentTypes:[.data],allowsMultipleSelection:fileReceipt?.action == .automaticConfigurations,onCompletion:{[token=fileReceipt] result in receive(result,token:token)})
         .fileExporter(isPresented:$exporting,document:document,contentType:.json,defaultFilename:exportName){[token=exportReceipt] _ in
             guard lifecycle.consume(token) == .export else{return}
             document=nil;exportReceipt=nil
@@ -131,12 +132,15 @@ import NetworkExtension
         #endif
         if !library.migrationRequired && !library.recoveryRequired {
             Section(tr("Import test profile","Импорт тестового профиля")) {
+                Button(tr("Choose files · detect protocol","Выбрать файлы · автоопределение")){choose(.automaticConfigurations)}.accessibilityIdentifier("nativeImport.autoFiles")
+                Button(tr("Import from clipboard","Импорт из буфера")){previewClipboard()}.accessibilityIdentifier("nativeImport.clipboard")
+                Text(tr("One WG/AWG configuration per file, or VLESS links one per line. Unsupported entries reject the entire batch.","Одна конфигурация WG/AWG на файл или ссылки VLESS по одной в строке. Неподдерживаемая запись отменяет всю проверку пакета.")).font(.footnote)
                 Picker(tr("Protocol","Протокол"),selection:$kind) {
                     Text("WireGuard").tag(NativeCredentialRecord.Kind.wireGuard)
                     Text("AmneziaWG 1").tag(NativeCredentialRecord.Kind.amneziaWG1)
                     Text("VLESS Reality").tag(NativeCredentialRecord.Kind.vlessReality)
                 }.onChange(of:kind){_ in cancelReview();lifecycle.invalidate();fileReceipt=nil}
-                Button(tr("Choose configuration file","Выбрать файл конфигурации")){choose(.configuration(kind))}
+                Button(tr("Choose single file with selected protocol","Выбрать один файл указанного протокола")){choose(.configuration(kind))}
             }
             Section(tr("Encrypted native backup","Зашифрованная копия нативных профилей")) {
                 Button(tr("Choose encrypted backup","Выбрать зашифрованную копию")){choose(.backup)}
@@ -203,17 +207,44 @@ import NetworkExtension
     private func receive(_ result:Result<[URL],Error>,token:NativeReviewFileLifecycle.Receipt?){
         guard let action=lifecycle.consume(token),let session else{return};fileReceipt=nil
         do {
-            guard let url=try result.get().first,url.isFileURL else{return}
-            let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
-            if action == .backup {backupBytes=try ProfileBackupCodec.readEncryptedFile(at:url);return}
-            guard case .configuration(let kind)=action else{throw ProfileBackupError.invalidFile}
-            let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()};var data=Data()
-            while data.count<=NativeCredentialRecord.maxBytes {
-                let part=try handle.read(upToCount:NativeCredentialRecord.maxBytes+1-data.count) ?? Data()
-                if part.isEmpty{break};data.append(part)
+            let urls=try result.get()
+            if action == .automaticConfigurations {
+                guard (1...NativeAutomaticImport.maxSources).contains(urls.count) else{throw NativeAutomaticImport.Failure.tooLarge}
+                var remaining=NativeAutomaticImport.maxBytes,sources:[String]=[]
+                for url in urls {
+                    let data=try readConfiguration(url,limit:remaining);remaining-=data.count
+                    guard let source=String(data:data,encoding:.utf8) else{throw ProfileBackupError.invalidFile}
+                    sources.append(source)
+                }
+                summary=try session.previewAutomatic(sources);return
             }
-            guard data.count<=NativeCredentialRecord.maxBytes,let raw=String(data:data,encoding:.utf8) else{throw ProfileBackupError.invalidFile}
+            guard urls.count==1,let url=urls.first,url.isFileURL else{throw ProfileBackupError.invalidFile}
+            if action == .backup {
+                let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
+                backupBytes=try ProfileBackupCodec.readEncryptedFile(at:url);return
+            }
+            guard case .configuration(let kind)=action else{throw ProfileBackupError.invalidFile}
+            let data=try readConfiguration(url,limit:NativeCredentialRecord.maxBytes)
+            guard let raw=String(data:data,encoding:.utf8) else{throw ProfileBackupError.invalidFile}
             summary=try session.previewSource(raw,kind:kind)
+        }catch{cancelReview();failed=true}
+    }
+    private func readConfiguration(_ url:URL,limit:Int)throws->Data {
+        guard url.isFileURL,limit>0 else{throw ProfileBackupError.invalidFile}
+        let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
+        let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()};var data=Data()
+        while data.count<=limit {
+            let part=try handle.read(upToCount:limit+1-data.count) ?? Data()
+            if part.isEmpty{break};data.append(part)
+        }
+        guard data.count<=limit else{throw NativeAutomaticImport.Failure.tooLarge};return data
+    }
+    private func previewClipboard(){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return}
+        cancelReview();failed=false
+        do {
+            guard let text=UIPasteboard.general.string else{throw NativeAutomaticImport.Failure.empty}
+            summary=try session.previewAutomatic([text])
         }catch{cancelReview();failed=true}
     }
     private func reviewBackup(){

@@ -56,6 +56,10 @@ import Foundation
         pending=nil
         return try previewRecords([NativeCredentialRecord.create(profileID:UUID(),expected:expected,source:source)])
     }
+    func previewAutomatic(_ sources:[String])throws->Summary {
+        pending=nil
+        return try previewRecords(NativeAutomaticImport.prepare(sources))
+    }
     private func previewRecords(_ records: [NativeCredentialRecord]) throws -> Summary {
         let state=try catalog.reviewState()
         guard state.0.version==2 else {throw NativeCredentialCatalog.Failure.migrationRequired}
