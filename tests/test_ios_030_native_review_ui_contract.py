@@ -38,7 +38,7 @@ def test_qa_dedicated_ru_en_localization_keys_and_fallback():
     view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
     entry=(IOS/'App/ProfileBackupView.swift').read_text()
     ru=dict((json.loads(k),json.loads(v)) for k,v in re.findall(r'^\s*(".*?"):\s*(".*?"),$',view,re.M))
-    assert len(ru)==36 and all(k!=v for k,v in ru.items())
+    assert len(ru)==37 and all(k!=v for k,v in ru.items())
     assert set(re.findall(r'tr\("([^"]+)"\)',view))|{'Native profiles · Simulator QA'}==set(ru)
     assert 'NativeReviewQAL10n.tr' in entry
     assert ru['Temporary profiles: %d'].count('%d')==1
@@ -76,3 +76,15 @@ def test_native_file_export_result_and_explicit_simulator_qa_gate():
     assert 'XCUIDevice.shared.press(.home);app.activate();try counts(0)' in qa
     assert 'APL_RUN_EXPLICIT_NATIVE_FILES_QA' not in (IOS/'project.yml').read_text()
     assert 'UIFileSharingEnabled' not in (IOS/'Config/App-Info.plist').read_text()
+
+
+def test_backup_authentication_failure_retains_only_ciphertext_for_retry():
+    for name,restore,reset in [('NativeProfileReviewLabView.swift','self.file=file;authenticationFailed=true','resetReview()'),('NativePersistentProfilesView.swift','backupBytes=bytes;authenticationFailed=true','cancelReview()')]:
+        view=(IOS/'App'/name).read_text()
+        body=view.split('private func reviewBackup()',1)[1].split('private func ',1)[0]
+        assert body.index(reset)<body.index('session.previewBackup(')<body.index('catch ProfileBackupError.authenticationFailed')
+        assert restore in body and 'Wrong password or damaged backup. Try again.' in view
+        assert 'authenticationFailed=false' in view and 'password=""' in view
+    fixture=(IOS/'Tools/make_native_negative_backup_fixture.swift').read_text()
+    assert 'CCKeyDerivationPBKDF' in fixture and 'AES.GCM.seal' in fixture and '.withoutOverwriting' in fixture
+    assert 'NativeCredentialRepository' not in fixture and 'Keychain' not in fixture

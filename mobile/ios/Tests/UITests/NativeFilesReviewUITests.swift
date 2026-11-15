@@ -1,5 +1,6 @@
 import XCTest
 #if APL_NATIVE_PROFILE_REVIEW && APL_RUN_EXPLICIT_NATIVE_FILES_QA && targetEnvironment(simulator)
+import CryptoKit
 /// Run only on an explicitly provisioned disposable simulator.
 final class NativeFilesReviewUITests:XCTestCase {
     private let files=XCUIApplication(bundleIdentifier:"com.apple.DocumentsApp")
@@ -20,6 +21,38 @@ final class NativeFilesReviewUITests:XCTestCase {
     private func tap(_ name:String,in app:XCUIApplication)throws {
         if let q=item(name,in:app){q.tap();return}
         screenshot("Missing-"+name);XCTFail("System control not accessible: \(name)");throw NSError(domain:"NativeFilesQA",code:2)
+    }
+    func testWrongPasswordRetryAndCancelledReviewPreserveSelection()throws {
+        continueAfterFailure=false
+        let app=XCUIApplication();app.launchArguments += ["-privacyDisclosureAccepted.v1","YES","-setupGuideSeen.v1","YES","-appLanguage.v1","en"];app.launch()
+        let tab=app.tabBars.buttons["Profiles"];XCTAssertTrue(tab.waitForExistence(timeout:20));tab.tap()
+        let entry=app.buttons["profiles.nativeReviewQA"];XCTAssertTrue(entry.waitForExistence(timeout:10));entry.tap()
+        let count=app.staticTexts["nativeQA.count"]
+        func baseline()throws{try reveal(count,in:app,top:true);XCTAssertEqual(count.label,"Temporary profiles: 1");try reveal(app.staticTexts["Selected for review"],in:app)}
+        let key=Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        let field=app.textViews["nativeQA.pastedText"];try reveal(field,in:app);field.tap();field.typeText("vless://\(UUID().uuidString.lowercased())@192.0.2.43:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd")
+        let preview=app.buttons["nativeQA.previewText"];try reveal(preview,in:app);preview.tap()
+        let confirm=app.buttons["nativeQA.confirmImport"];try reveal(confirm,in:app);confirm.tap()
+        let select=app.buttons["nativeQA.select.1"];try reveal(select,in:app,top:true);select.tap();try baseline()
+        let choose=app.buttons["nativeQA.chooseBackup"];try reveal(choose,in:app);choose.tap();Thread.sleep(forTimeInterval:2)
+        if item("APL-QA-Negative",in:app)==nil {
+            if let browse=item("Browse",in:app){browse.tap()}else {
+                // iOS 27 single-file picker Recents tab; verified screenshot.
+                app.coordinate(withNormalizedOffset:CGVector(dx:0.71,dy:0.93)).tap()
+            }
+            Thread.sleep(forTimeInterval:1)
+            if item("On My iPhone",in:app) != nil{try tap("On My iPhone",in:app);Thread.sleep(forTimeInterval:1)}
+            if let folder=item("Arvectum Proxy Launcher",in:app),!folder.label.contains("Actions Menu"){folder.tap();Thread.sleep(forTimeInterval:1)}
+            else if item("On My iPhone",in:app) != nil{app.coordinate(withNormalizedOffset:CGVector(dx:0.18,dy:0.29)).tap();Thread.sleep(forTimeInterval:1)}
+        }
+        try tap("APL-QA-Negative",in:app)
+        let pass=app.secureTextFields["nativeQA.restorePassword"],review=app.buttons["nativeQA.reviewBackup"]
+        try reveal(pass,in:app);pass.tap();pass.typeText("Synthetic-QA-Wrong-2026");try reveal(review,in:app);review.tap()
+        try reveal(app.staticTexts["nativeQA.authenticationFailed"],in:app);XCTAssertFalse(confirm.exists);try baseline()
+        try reveal(pass,in:app);XCTAssertFalse(review.isEnabled);pass.tap();pass.typeText("Synthetic-QA-Correct-2026");try reveal(review,in:app);review.tap()
+        try reveal(app.staticTexts["WireGuard: 1"],in:app);try baseline()
+        let cancelReview=app.buttons["nativeQA.cancelImport"];try reveal(cancelReview,in:app);cancelReview.tap();try baseline()
+        XCTAssertFalse(confirm.exists)
     }
     func testFilesImportAndEncryptedRoundtrip()throws {
         continueAfterFailure=false

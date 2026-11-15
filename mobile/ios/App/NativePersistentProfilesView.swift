@@ -28,6 +28,7 @@ import NetworkExtension
     @State private var exportName="APL-Native-Encrypted"
     @State private var busy=false
     @State private var failed=false
+    @State private var authenticationFailed=false
     @State private var exportSaved=false
     @State private var generation=UUID()
     #if APL_NATIVE_IP_ROUTE_REVIEW
@@ -44,6 +45,7 @@ import NetworkExtension
                 Section {
                     Text(tr("Device validation only. Use test profiles. Connection is disabled.","Только проверка на устройстве. Используйте тестовые профили. Подключение отключено."))
                     if exportSaved {Text(tr("Encrypted backup saved","Зашифрованная копия сохранена"))}
+                    if authenticationFailed {Text(tr("Wrong password or damaged backup. Try again.","Неверный пароль или повреждённая копия. Повторите ввод.")).foregroundStyle(.red)}
                     if failed {Text(tr("Operation failed. Reload to check saved state and recovery.","Операция не завершена. Обновите список и проверьте восстановление.")).foregroundStyle(.red)}
                     Button(tr("Reload","Обновить"),action:reload)
                 }
@@ -197,7 +199,7 @@ import NetworkExtension
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+    private func cancelReview(){authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
         #if APL_NATIVE_IP_ROUTE_REVIEW
         ipPreview=nil;ipOptIn=false;ipRuleText=""
         #endif
@@ -234,8 +236,8 @@ import NetworkExtension
     }
     private func reviewBackup(){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let bytes=backupBytes,let session else{return}
-        let secret=password;cancelReview()
-        do{summary=try session.previewBackup(bytes,password:secret)}catch{failed=true}
+        let secret=password;cancelReview();failed=false
+        do{summary=try session.previewBackup(bytes,password:secret)}catch ProfileBackupError.authenticationFailed {backupBytes=bytes;authenticationFailed=true}catch{failed=true}
     }
     private func exportBackup(_ receipt:NativePersistentProfileSession.Receipt){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,password==repeatedPassword,let session else{return}

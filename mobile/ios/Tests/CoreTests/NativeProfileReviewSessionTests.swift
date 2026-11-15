@@ -100,6 +100,22 @@ final class NativeProfileReviewSessionTests:XCTestCase {
         let third=try session.previewSource(vless(),kind:.vlessReality);clock+=300;XCTAssertThrowsError(try session.addToRehearsal(third))
         XCTAssertEqual(try session.counts().total,0);XCTAssertThrowsError(try session.encryptedBackup(password:"Synthetic-strong-password"))
     }
+    @MainActor func testAuthenticationRetryAndCancellationPreserveExactSelectedProfile() async throws {
+        let source=NativeProfileReviewSession(),target=NativeProfileReviewSession(),password="Synthetic-correct-2026"
+        _=try source.addToRehearsal(source.previewAutomatic([vless()]))
+        _=try target.addToRehearsal(target.previewAutomatic([vless()]))
+        let ref=try XCTUnwrap(target.presentation().rows.first).reference
+        let baseline=try target.selectForReview(ref),bytes=try source.encryptedBackup(password:password)
+        let old=try target.previewBackup(bytes,password:password)
+        XCTAssertThrowsError(try target.previewBackup(bytes,password:"Synthetic-wrong-2026")) {
+            guard case ProfileBackupError.authenticationFailed=$0 else {return XCTFail("Unexpected error type")}
+        }
+        XCTAssertThrowsError(try target.addToRehearsal(old));XCTAssertEqual(try target.presentation(),baseline)
+        let retry=try target.previewBackup(bytes,password:password);XCTAssertEqual(retry.count,1);XCTAssertNotEqual(retry.id,old.id)
+        target.cancelReview();XCTAssertThrowsError(try target.addToRehearsal(retry));XCTAssertEqual(try target.presentation(),baseline)
+        let confirmed=try target.previewBackup(bytes,password:password);_ = try target.addToRehearsal(confirmed)
+        XCTAssertEqual(try target.presentation().rows.filter(\.selected).map(\.reference),[ref]);XCTAssertEqual(try target.counts().total,2)
+    }
     @MainActor func testWrongBackupPasswordAndCloseInvalidatePending() async throws {
         let session=NativeProfileReviewSession(),p="Synthetic-strong-password"
         _=try session.addToRehearsal(session.previewSource(vless(),kind:.vlessReality))
