@@ -101,3 +101,38 @@ def test_actual_release_pin_does_not_embed_binary_or_enable_vpn():
     project = (ROOT / "mobile/ios/project.yml").read_text()
     assert "LibXray.xcframework" not in project
     assert "APL_XRAY_LAB" not in project
+
+
+def test_source_pins_distinguish_annotated_tag_and_peeled_commit():
+    asset = json.loads(module.PIN.read_text())
+    source = json.loads((SCRIPT.parent / 'xray_source_pins.json').read_text())
+    assert asset['tag_object'] == source['annotated_tag_object'] == asset['tag_commit']
+    assert asset['source_commit'] == source['source_commit'] != asset['tag_object']
+    assert source['go_mod_sha256'] == asset['go_mod_sha256']
+    assert len(source['go_sum_sha256']) == len(source['go_archive_sha256']) == 64
+
+
+def test_source_notice_inventory_preserves_original_and_rejects_replacement(tmp_path):
+    import pytest
+    script = SCRIPT.parent / 'inventory_xray_source_licenses.py'
+    spec = importlib.util.spec_from_file_location('xray_notice_inventory', script)
+    inv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(inv)
+    dep, go = tmp_path/'dep', tmp_path/'go'
+    for folder in (dep, go):
+        folder.mkdir(); (folder/'LICENSE').write_bytes(b'original notice')
+    graph = tmp_path/'graph.json'
+    package = {'Module': {'Path': 'example.invalid/dep', 'Version':'v1.0.0', 'Dir':str(dep)}}
+    graph.write_text(json.dumps(package))
+    output = tmp_path/'out'; inv.inventory(graph, go, output)
+    result = json.loads((output/'manifest.json').read_text())
+    assert len(result['modules']) == 2
+    for row in result['modules']:
+        for f in row['files']:
+            assert (output/f['file']).read_bytes() == b'original notice'
+    with pytest.raises(ValueError,match='output must not exist'):
+        inv.inventory(graph,go,output)
+    package['Module']['Replace'] = {'Path':'../not-pinned'}
+    graph.write_text(json.dumps(package))
+    with pytest.raises(ValueError,match='unexpected module replacement'):
+        inv.inventory(graph,go,tmp_path/'replaced')
