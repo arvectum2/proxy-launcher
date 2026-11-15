@@ -42,6 +42,13 @@ import Foundation
     func preview(data: Data,password: String) throws -> Summary {
         pending=nil
         let records=try NativeProfileBackupCodec.open(data,password:password)
+        return try previewRecords(records)
+    }
+    func previewSource(_ source: String, expected: TransportProtocol) throws -> Summary {
+        pending=nil
+        return try previewRecords([NativeCredentialRecord.create(profileID:UUID(),expected:expected,source:source)])
+    }
+    private func previewRecords(_ records: [NativeCredentialRecord]) throws -> Summary {
         let state=try catalog.reviewState()
         guard !state.0.hasPendingWrite else {throw NativeCredentialCatalog.Failure.rollbackIncomplete}
         guard records.count+state.0.current.count <= NativeProfileBackupCodec.maxProfiles else {throw ProfileBackupError.tooManyProfiles}

@@ -39,10 +39,16 @@ struct ProfileBackupView: View {
     @State private var showImporter = false
     @State private var errorMessage: String?
     @State private var successMessage: String?
+    #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+    @State private var showNativeReviewLab = false
+    #endif
 
     var body: some View {
         NavigationView {
             Form {
+                #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+                Section { Button("Native profiles · Simulator QA") { showNativeReviewLab = true } }
+                #endif
                 Section {
                     // Show only the essential label by default; detailed
                     // backup/security explanations remain available on demand.
@@ -112,6 +118,9 @@ struct ProfileBackupView: View {
                 }
             }
         }
+        #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        .sheet(isPresented: $showNativeReviewLab) { NativeProfileReviewLabView() }
+        #endif
         .fileExporter(isPresented: $showExporter,
                       document: backupDocument,
                       contentType: .aplBackup,

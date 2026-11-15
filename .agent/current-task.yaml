@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Simulator-only gated native import/backup rehearsal with isolated ephemeral catalog, secret-free count preview, explicit confirmation, encrypted export/restore and cleanup. All three protocols verified in one mixed backup."
   - "Account-bound CloudKit review checked around reads (including absence) and writes with 5min monotonic expiry and redacted memory-only ID. Unified research evidence integrity audit pinned manifests/344 notices/3 MPL sources/2 lab binaries. Moved unchanged real lab-only control endpoint out of production source target and rebuilt both labs."
   - "Offline source correspondence of three identified MPL Go modules exported with original module archives, pinned go.sum/go.mod and nonrelease manifest; validation guards tested."
   - "Explicit digest-pinned local source Xray candidate in NativeLab unsigned-only build path; full iPhoneOS host/NE linked, origin and input/output hashes exported. Nested original license notices included for package ancestors (4 new)."
@@ -162,7 +163,7 @@ completed:
 
 
 
-current: "Phone unavailable per owner: offline CloudKit account-bound 5min review and consolidated pinned evidence integrity audit complete. Found full-regression isolation failure (existing lab-only endpoint in production App source); moved unchanged endpoint to Tools and both lab scripts updated. Swift347/347, full iOS pytest411/411 +1527 subtests, unsigned Release, explicit gated simulator Debug, source-Xray NativeLab, AWG device/simulator unsigned builds PASS. Evidence 344 notices,3 MPL archives,2 unsigned executable digests and source graph/archive verified; 2 missing Rust notices. Prior 9bf869958 CI7/7. No actual Apple account, owner Keychain, signing, phone or production activation."
+current: "Native profile/backup review rehearsal completed in explicitly gated simulator-only Debug UI, with separate ephemeral catalog, source-file preview, single-use counts summary, encrypted backup export/restore and clear-on-close. Swift351/351, Python413/413+1527 subtests, gated simulator compile and ordinary unsigned Release PASS, production UI/engine markers absent. No actual GUI run, Keychain or phone. Prior CI last observed 5/7 completed successfully, 2 pending."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -174,8 +175,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "9bf869958 exact CI7/7; CloudKit/evidence/isolation working tree Swift347/pytest411+1527/4 build groups locally verified; new CI pending"
+last_verified_commit: "46bee485a plus native UI rehearsal working tree Swift351, full Python413+1527, two unsigned builds and disabled markers locally verified; exact new CI pending"
 test_results:
+  - "Swift351/351, full iOS Python413/413+1527 subtests, gated simulator Debug and unsigned iPhoneOS Release PASS, default native UI and experimental engine markers absent. Four new session tests. No actual GUI/Files acceptance, native Keychain, VPN or owner device. One oversized ARC command failed before execution; subsequent bounded writes succeeded."
   - "Swift347/347, full iOS pytest411/411 +1527 subtests, unsigned iPhoneOS Release, gated simulator Debug, source Xray NativeLab unsigned host/NE, AWG unsigned iPhoneOS/sim PASS. Source inventory audit PASS, release_authorized=false. Initial ARC long command HTTP400 no changes and full regression409/410 (old lab isolation mismatch) fixed and rerun PASS. No account/physical acceptance; two Rust notice gaps remain."
   - "Exact 434c91443 CI7/7; go mod verify, three MPL archives CRC/locked sums/export SHA PASS, targeted pytest21/21. No data-plane or new signed runtime acceptance."
   - "NativeLab unsigned build/link PASS, Xray and Rust symbols verified, exported host/NE SHA256 validated, no embedded profile/dylib; source candidate digest/scope and nested notice pytest20/20. Xray49 components/70 notice hashes verified. No runtime data-plane test for this new archive, no signing or device changes."
@@ -286,4 +288,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner explicitly asks do everything possible without physical iPhone. Verify exact PR383 head CI. Continue independent offline work only: prioritize remaining integration UI for native profile/backup review (inactive feature gate), release readiness and full regression, unresolved license/source obligations, synthetic privacy and storage/lifecycle failure tests; do not widen fixtures or repeat accepted20 physical cases/identical failed sim launch. Actual native cross-process Keychain, signed source-built data plane, route/DNS, Wi-Fi/LTE, two-device CloudKit and owner-device acceptance remain blocked until device/explicit approvals available. No main merge, signing, registration, publication or production activation. Continue via existing watchdog; no new task."
+resume_instruction: "Owner requests all work possible without physical iPhone. Verify exact PR383 head CI. Continue offline independent release-readiness and core work: final license gaps and source distribution design, UI lifecycle review and synthetic simulator acceptance only if launch is independently possible, privacy/storage invariants and scope-accurate release gate matrix. Actual production native storage/start, signed source-built data plane, route/DNS, Wi-Fi/LTE, CloudKit two-device acceptance and release approval remain blocked. Do not repeat accepted20 physical cases or unchanged failed simulator launch; no owner device/account, signing, registration, main merge or publication. Use existing watchdog and canonical worktree."

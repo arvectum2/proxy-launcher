@@ -43,6 +43,7 @@
 		24176832B24D937AFEC2E527 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		265A8F49C43D1A01B9268895 /* SmartRouteDryRunAudit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD0C90103E932883D56FEA /* SmartRouteDryRunAudit.swift */; };
 		26C09B6D8411877AB0EC8994 /* UpstreamSocketDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50D7CFCE3DD739FD75C2060 /* UpstreamSocketDiagnostics.swift */; };
+		2710584D29A11CDDC62C8F83 /* NativeProfileReviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */; };
 		2794DA0B10542C6F609FAF2D /* NativeWireGuardRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */; };
 		28CA215B9CC00B00AC46EC71 /* ProfileScanPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830ABBEFB957123DBF424C92 /* ProfileScanPolicy.swift */; };
 		2967486B35D6F02A02ACD5AC /* TransportNativeControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96377CEFF0C0B33E529C9688 /* TransportNativeControl.swift */; };
@@ -93,6 +94,7 @@
 		5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
+		5D02E07D6A3B6A14DA8423B5 /* NativeProfileReviewLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */; };
 		60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */; };
 		61C2D8CDC6BFA305A20537E6 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
@@ -210,6 +212,7 @@
 		F1AF265179F650329F6A8242 /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */; };
 		F3EA3807F63730B95976C691 /* RelayConnectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9C09CECEE06C9BF7EE2BC2 /* RelayConnectionPolicy.swift */; };
 		F516E4AFF8C189C4A8C1BC74 /* ArvectumWordmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1ABD9EB90FDE24C1BDC93789 /* ArvectumWordmark.png */; };
+		F64C3AA91E0C2A2B9F111F99 /* NativeProfileReviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */; };
 		F7898E8D4636D03F5C53E73F /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
 		F890A6F4BEE992C0C3DA7A7B /* ProfileBackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751E6300F0328159413E5DFF /* ProfileBackupView.swift */; };
 		F93BAC794FAE1C7F10F63D6B /* LocalProxyNetworkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF390B1AEFEE3707E01BBFAB /* LocalProxyNetworkUITests.swift */; };
@@ -312,6 +315,7 @@
 		21A47D5830A8833AE9775602 /* lv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lv; path = lv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		21BD3AAF3457892F2344B9E5 /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/Localizable.strings; sourceTree = "<group>"; };
 		220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibrarySelectionPolicy.swift; sourceTree = "<group>"; };
+		220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProfileReviewSession.swift; sourceTree = "<group>"; };
 		22FAF50F51A7DB267C2DA8D2 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Localizable.strings; sourceTree = "<group>"; };
 		23395AA3C3D2439728530680 /* PhysicalQRCodeDecodeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalQRCodeDecodeUITests.swift; sourceTree = "<group>"; };
 		23715333F0F3BCDE8480389C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/ProfileManagement.strings"; sourceTree = "<group>"; };
@@ -621,6 +625,7 @@
 		C3870928669401EF9051335D /* tk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tk; path = tk.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackup.swift; sourceTree = "<group>"; };
 		C4D70204A533CB416ED90C15 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/ProxyImport.strings; sourceTree = "<group>"; };
+		C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeProfileReviewLabView.swift; sourceTree = "<group>"; };
 		C58269ED59FDD9B860F01E7D /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		C630AC8EC88C108177A68A32 /* TunnelEngineExitGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngineExitGate.swift; sourceTree = "<group>"; };
 		C6ACBE2041DD99E028FBF668 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/ProxyImport.strings; sourceTree = "<group>"; };
@@ -893,6 +898,7 @@
 				B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */,
 				3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */,
 				35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */,
+				220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */,
 				2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */,
 				FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */,
 				7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */,
@@ -959,6 +965,7 @@
 				D3EAE75AFADAFE338F502B8D /* JournalView.swift */,
 				83ED44DB8F5B2B254D76250D /* KeyboardDismissSupport.swift */,
 				1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */,
+				C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */,
 				6A6F0ACB25D0027998F4C585 /* PrivacyDisclosureView.swift */,
 				0E65F6FC66967039D32722A9 /* ProfileBackupUX.swift */,
 				751E6300F0328159413E5DFF /* ProfileBackupView.swift */,
@@ -1239,6 +1246,7 @@
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
 				1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */,
+				2710584D29A11CDDC62C8F83 /* NativeProfileReviewSession.swift in Sources */,
 				3EBE5E73361185C17E44D8A0 /* NativeRestoreReview.swift in Sources */,
 				FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */,
 				1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */,
@@ -1382,6 +1390,8 @@
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
 				613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */,
 				C4A33CFEC3AB3639096D08E5 /* NativeProfilePreparation.swift in Sources */,
+				5D02E07D6A3B6A14DA8423B5 /* NativeProfileReviewLabView.swift in Sources */,
+				F64C3AA91E0C2A2B9F111F99 /* NativeProfileReviewSession.swift in Sources */,
 				38289BB0E5CE502413613FF3 /* NativeRestoreReview.swift in Sources */,
 				E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */,
 				0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */,
