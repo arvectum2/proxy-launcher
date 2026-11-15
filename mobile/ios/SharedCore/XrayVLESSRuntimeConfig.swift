@@ -58,6 +58,19 @@ enum XrayVLESSRuntimeConfig {
               (reality["shortId"] as? String ?? "").lowercased() == candidate.shortID.lowercased()
         else { throw Failure.invalidConverterResponse }
 
+        return try compileValidatedCandidate(candidate,socksPort:socksPort)
+    }
+
+    /// Deterministic config from the strict parser. Pinned runtime testXray
+    /// remains mandatory before isolated start. No activation authority.
+    static func compileValidatedCandidate(_ candidate: VLESSRealityShareLink, socksPort: Int) throws -> Data {
+        guard (1024...65535).contains(socksPort) else { throw Failure.invalidPort }
+        let host = candidate.serverHost.lowercased()
+        guard validEndpoint(host) else { throw Failure.invalidEndpoint }
+        guard candidate.publicKey.count == 32, candidate.publicKey.contains(where:{$0 != 0}) else { throw Failure.invalidKey }
+        let key = candidate.publicKey.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        let id = candidate.userID.uuidString.lowercased()
+        let flow = candidate.visionFlow ? "xtls-rprx-vision" : ""
         // Never reuse the returned object. Reconstruct just the verified
         // values, discard the user's display tag, and use a fixed sole route.
         var verifiedSettings: [String: Any] = [

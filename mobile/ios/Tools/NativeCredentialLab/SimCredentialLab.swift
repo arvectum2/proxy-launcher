@@ -44,7 +44,8 @@ private struct Result: Codable {
                 // never derive it by decoding the ticket.
                 var receiver=try NativeCredentialReceiver(expected:e.binding,provider:.rustXray)
                 let ok=try receiver.consumeForValidation(e.ticket,via:handoff) { route,data in
-                    route.remoteAddress == "192.0.2.42" && route.remotePort == 51820 && !data.isEmpty && route.excludedRoutes.isEmpty
+                    guard case .wireGuard(let wg) = route else {return false}
+                    return route.remoteAddress == "192.0.2.42" && route.remotePort == 51820 && !data.isEmpty && wg.excludedRoutes.isEmpty
                 }
                 var second=try NativeCredentialReceiver(expected:e.binding,provider:.rustXray)
                 var replayRejected=false

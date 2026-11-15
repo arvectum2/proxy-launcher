@@ -33,6 +33,17 @@ struct NativeCredentialCatalogReader {
         return s
     }
     func isSelected(_ ref: Ref) throws -> Bool { try snapshot().selected == ref }
+    // Explicit call only from authorized export UI in the future. Reads exact
+    // current revisions, not retired/pending entries, and rejects changed view.
+    func currentRecordsForBackup(repository: NativeCredentialRepository) throws -> [NativeCredentialRecord] {
+        let start=try snapshot()
+        guard start.pendingInsert == nil else {throw Failure.rollbackIncomplete}
+        let records=try start.current.map { ref in
+            guard let record=try repository.read(ref) else {throw Failure.missing};return record
+        }
+        guard try snapshot() == start else {throw Failure.invalidCatalog}
+        return records
+    }
 }
 
 /// No active UI or migration. Single app writer; stop/authorization must be

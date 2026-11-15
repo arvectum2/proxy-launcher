@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "VLESS parity for native revision/catalog/handoff with TCP4-only context. Separate encrypted native backup supports three kinds with new restore IDs and no auto-selection; legacy format preserved."
   - "Provider-side validation receiver bound to independent expected session and profile with single consumption; simulator two-process QA harness compiled but OS app launch blocked before Keychain. Rust clean patched iOS target source graph and 265 original notice texts collected and verified."
   - "Native current-revision catalog, journaled record publication, exact retired/pending recovery and selection-bound handoff; local Keychain adapter only, tests with injected fake stores. AWG iOS candidate source dependency inventory and original license texts exported and checked."
   - "Native credential record/handoff and distinct device-only Keychain adapter; validated one winning consumer out of 16 using fake items. Real kernel-bound IPv4/v6 loopback AWG exchange and peer rejection, race checks3 repetitions, iOS archive compile."
@@ -154,7 +155,7 @@ completed:
 
 
 
-current: "Provider-side single-use credential receiver implemented with independent expected binding and session poisoning on failed attempt. Swift324/Python50/unsigned Release PASS, native engine symbols absent. Isolated simulator sender/receiver apps built and ad-hoc simulator signed; launch failed twice NSPOSIXErrorDomain3 before any Keychain access, alternate 27.1 runtime incompatible; fully booted compatible iOS27.0/iPhone17 retry still failed. All disposable simulators deleted. No owner device or Keychain changes. Rust iOS clean patched source closure inventory151 crates/265 original notices (4 supplements pinned by upstream blob); 2 missing notices unresolved tproxy-config7.0.9 and tun0.8.14. AWG source inventory5/9 retained. Xray declared graph60 and asset hash reverified; linked closure/license release gate remains."
+current: "VLESS immutable profiles, catalog, validation tickets and TCP4-only context plus separate encrypted native backup and additive restore planning verified. Swift334/334, Python50/50, pinned native VLESS2/2, ordinary unsigned Release PASS; experimental link absent. Previous head 1f0f8fb8a CI7/7. No actual restore writes or phone changes."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -166,8 +167,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "ea3c3fbf1 plus provider receiver working tree Swift324/Python50/Release and Rust265 file digests; exact new CI pending"
+last_verified_commit: "1f0f8fb8a CI7/7; VLESS/backup working tree verified Swift334/Python50/native2/Release"
 test_results:
+  - "Swift334/334, Python50/50, pinned Xray VLESS config test2/2, unsigned iPhoneOS Release PASS and experimental symbols absent. Prior exact CI7/7. No real Keychain restore or network activation."
   - "Swift324/324, Python50/50, normal unsigned iPhoneOS Release exit0/no experimental engine symbols. Simulator app bundles compiled/signed ad hoc, no actual cross-process result: NSPOSIXErrorDomain3 sender launch (including fully booted compatible simulator), iOS27.1 incompatible device. All disposable simulator instances absent. Rust151 crates, 265 notice hashes matched, tproxy-config7.0.9/tun0.8.14 no original notice located. Initial cargo symlink resolution bug fixed; Xray pinned ZIP/go.mod verified. No shipping change or physical access."
   - "Swift322/322, Python50/50, normal unsigned Release exit0 and experimental native link disabled. AWG pinned iOS dependency closure: upstream AWG+3 Go modules+Go runtime, 5 components/9 license-patent text hashes PASS. Not final SBOM/license clearance; Xray/Rust complete closure, actual Keychain cross-process and native routes/DNS still pending. Two overlong ARC calls HTTP400 before execution; subsequent bounded calls passed."
   - "Swift317/317, Python50/50, Release exit0/no experimental engine symbols. BoundPeer Go tests 3 groups (IPv4+IPv6 subcases), -race count3 PASS, iPhoneOS/sim c-archive builds PASS. No actual Keychain mutation or physical route/underlay acceptance."
@@ -270,4 +272,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 head CI. Do not repeat accepted isolated physical20 or failed same simulator launch. Continue independent safe work: investigate specifically simulator application launch service using owned disposable sim and bounded evidence, or design existing-ID signed isolated app/NE credential acceptance for later supervised approval. No Keychain production access. Continue native underlay/DNS proof and Xray provenance/dependency/source-build gate (Go1.27.3 missing), VLESS profile parity, backup/CloudKit preparation. Rust source inventory has 2 missing notices; do not claim release clearance. No main merge, publishing, physical changes or new signing without explicit approval. Work from canonical branch with watchdog."
+resume_instruction: "Next implement journaled all-or-none native backup catalog restore with exact crash recovery, preserve selected and legacy profiles, mandatory inactive VPN guard. Then verify and commit. Real shared Keychain and physical underlay/DNS remain unaccepted; work offline, no main merge/publication/device changes."

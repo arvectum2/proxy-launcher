@@ -107,6 +107,49 @@ final class NativeCredentialHandoffTests: XCTestCase {
         XCTAssertThrowsError(try receiver.consumeForValidation(bytes,via:h) { _,_ in XCTFail("retry after failure") })
         XCTAssertEqual(tickets.values.count,1)
     }
+    private func vlessSource(_ host: String = "192.0.2.42") -> String {
+        let key = Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        return "vless://\(UUID().uuidString.lowercased())@\(host):443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd&flow=xtls-rprx-vision#Synthetic"
+    }
+    @MainActor func testVLESSCatalogAndProviderHandoff() async throws {
+        let (_,_,repo,_,tickets)=try fixture()
+        let source=vlessSource(),record=try NativeCredentialRecord.create(profileID:UUID(),expected:.vlessReality,source:source)
+        let p=NativeProfilePreparation(legacyIDs:{[]}), rev=try p.stage(record);try p.retainRevision(rev,in:repo)
+        let restored=try XCTUnwrap(repo.read(record.reference));XCTAssertEqual(restored.reference,record.reference)
+        let p2=NativeProfilePreparation(legacyIDs:{[]}), r=try p2.stage(restored);XCTAssertEqual(r,rev);try p2.select(r)
+        let t=try p2.prepare(r,routes:.tunnelOnly,siteExclusions:[],applicationExclusions:[])
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == record.reference})
+        let binding=NativeCredentialHandoff.Binding(reference:record.reference,session:.init(epoch:UUID(),generation:1,provider:"rust-xray"))
+        let ticket=try p2.issueForValidation(t,binding:binding,via:h)
+        var receiver=try NativeCredentialReceiver(expected:binding,provider:.rustXray)
+        try receiver.consumeForValidation(TransportNativeCodec.encode(ticket),via:h) { route,bytes in
+            guard case .vlessTCP4(let plan)=route else {XCTFail("WG route inherited");return}
+            XCTAssertEqual(plan.required,[.tcpIPv4]);XCTAssertEqual(plan.remoteAddress,"192.0.2.42");XCTAssertEqual(plan.remotePort,443)
+            let root=try XCTUnwrap(JSONSerialization.jsonObject(with:bytes) as? [String:Any])
+            let outbound=try XCTUnwrap(root["outbounds"] as? [[String:Any]])
+            XCTAssertEqual(outbound.count,1);XCTAssertEqual(outbound[0]["protocol"] as? String,"vless")
+            let inbound=try XCTUnwrap(root["inbounds"] as? [[String:Any]])
+            XCTAssertEqual((inbound[0]["settings"] as? [String:Any])?["udp"] as? Bool,false);XCTAssertNil(root["dns"])
+        }
+        XCTAssertThrowsError(try TransportBackendPlan.prepare(profileID:r.profileID,revision:r.revision,protocol:.vlessReality,scope:.production,routes:.tunnelOnly,required:[.tcpIPv4]))
+        XCTAssertThrowsError(try TransportBackendPlan.prepare(profileID:r.profileID,revision:r.revision,protocol:.vlessReality,scope:.syntheticLab,routes:.tunnelOnly,required:[.dns]))
+    }
+    func testVLESSUnsupportedEndpointsAndFormat() throws {
+        for host in ["example.com","127.0.0.1","0.0.0.0","169.254.1.1","224.1.2.3","[2001:db8::2]"] {
+            XCTAssertThrowsError(try NativeCredentialRecord.create(profileID:UUID(),expected:.vlessReality,source:vlessSource(host)))
+        }
+        XCTAssertThrowsError(try NativeCredentialRecord.create(profileID:UUID(),expected:.wireGuard,source:vlessSource()))
+        XCTAssertThrowsError(try NativeCredentialRecord.create(profileID:UUID(),expected:.vlessReality,source:vlessSource()+"\n"+vlessSource()))
+    }
+    func testSameProviderDoesNotAuthorizeDifferentProtocol() throws {
+        let (wg,b,repo,_,tickets)=try fixture();try repo.insert(wg)
+        let v=try NativeCredentialRecord.create(profileID:wg.reference.profileID,expected:.vlessReality,source:vlessSource());try repo.insert(v)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{_ in true}),t=try h.issue(wg,binding:b)
+        let wrong=NativeCredentialHandoff.Binding(reference:v.reference,session:b.session)
+        var receiver=try NativeCredentialReceiver(expected:wrong,provider:.rustXray)
+        XCTAssertThrowsError(try receiver.consumeForValidation(TransportNativeCodec.encode(t),via:h){_,_ in XCTFail("wrong protocol")})
+        XCTAssertEqual(try h.redeem(t,expected:b).reference,wg.reference)
+    }
     @MainActor func testPreparationPersistenceAndHandoff() async throws {
         let (r,b,repo,_,tickets)=try fixture()
         let p=NativeProfilePreparation(legacyIDs:{[]}), r1=try p.stage(r);try p.retainRevision(r1,in:repo)

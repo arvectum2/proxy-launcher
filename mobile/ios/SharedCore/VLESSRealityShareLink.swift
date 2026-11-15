@@ -3,7 +3,9 @@ import Foundation
 /// A validated, *inactive* VLESS/REALITY import candidate. The production
 /// tun2proxy engine supports only HTTP/HTTPS/SOCKS5; this data object cannot
 /// activate, persist or mislabel an unsupported transport.
-struct VLESSRealityShareLink: Equatable {
+struct VLESSRealityShareLink: Equatable, CustomStringConvertible, CustomReflectable {
+    var description: String { "VLESSRealityShareLink(redacted)" }
+    var customMirror: Mirror { Mirror(self,children:[:]) }
     let name: String
     let serverHost: String
     let serverPort: Int

@@ -13,14 +13,14 @@ struct NativeCredentialReceiver {
         self.expected = expected; self.provider = provider
     }
     mutating func consumeForValidation<T>(_ bytes: Data, via handoff: NativeCredentialHandoff,
-                                          _ validate: (NativeTunnelRoutePlan, Data) throws -> T) throws -> T {
+                                          _ validate: (NativeValidationRoute, Data) throws -> T) throws -> T {
         guard !used else { throw Failure.alreadyConsumed }
         used = true  // No retry within the same provider startup attempt.
         let ticket = try TransportNativeCodec.decode(NativeCredentialHandoff.Ticket.self,bytes)
         let record = try handoff.redeem(ticket,expected:expected)
         let (config,route) = try record.compile()
         guard config.provider == provider, route.provider == provider,
-              record.reference == expected.reference else { throw Failure.providerMismatch }
+              record.reference == expected.reference, config.wireProtocol == expected.reference.kind.transport else { throw Failure.providerMismatch }
         guard try handoff.isSelected(expected.reference) else { throw Failure.inactiveRevision }
         return try config.withEngineConfiguration { try validate(route,$0) }
     }

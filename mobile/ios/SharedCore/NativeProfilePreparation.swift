@@ -23,13 +23,14 @@ import Foundation
     private struct Entry: CustomStringConvertible, CustomReflectable {
         let revision: Revision
         let record: NativeCredentialRecord
-        let configuration: NativeWireGuardRuntimeConfig
+        let configuration: NativeValidationConfiguration
+        let route: NativeValidationRoute
         var description: String { "NativeProfileEntry(redacted)" }
         var customMirror: Mirror { Mirror(self,children:[:]) }
     }
     private struct Prepared {
         let ticket: Ticket
-        let route: NativeTunnelRoutePlan
+        let route: NativeValidationRoute
     }
     private var entries: [UUID: Entry] = [:]
     private var prepared: Prepared?
@@ -48,9 +49,9 @@ import Foundation
         let profileID = record.reference.profileID
         guard !(try legacyIDs()).contains(profileID) else { throw Failure.legacyIDCollision }
         guard entries[profileID] != nil || entries.count < 32 else { throw Failure.capacityExceeded }
-        let (config, _) = try record.compile()
+        let (config, route) = try record.compile()
         let revision = Revision(record.reference)
-        entries[profileID] = .init(revision:revision, record:record, configuration:config)
+        entries[profileID] = .init(revision:revision, record:record, configuration:config, route:route)
         if selected?.profileID == profileID { selected = nil; prepared = nil }
         return revision
     }
@@ -87,8 +88,9 @@ import Foundation
                  siteExclusions: [String], applicationExclusions: [String]) throws -> Ticket {
         prepared = nil
         guard selected == revision else { throw Failure.staleRevision }
-        let config = try entry(revision).configuration
-        let route = try NativeTunnelRoutePlan.prepare(config,routes:routes,siteExclusions:siteExclusions,applicationExclusions:applicationExclusions)
+        let e = try entry(revision)
+        guard routes == .tunnelOnly, siteExclusions.isEmpty, applicationExclusions.isEmpty else {throw NativeTunnelRoutePlan.Failure.unsupportedPolicy}
+        let config = e.configuration, route = e.route
         let ticket = Ticket(revision:revision,provider:config.provider,nonce:UUID())
         prepared = .init(ticket:ticket,route:route)
         return ticket
@@ -97,7 +99,7 @@ import Foundation
     /// client code (even on throw). The config is not serialized or exposed as
     /// NE start options. Actual production activation requires a different gate.
     func consumeForValidation<T>(_ ticket: Ticket, provider: TransportProvider,
-                                 _ body: (NativeTunnelRoutePlan, Data) throws -> T) throws -> T {
+                                 _ body: (NativeValidationRoute, Data) throws -> T) throws -> T {
         guard let current = prepared, current.ticket == ticket else { throw Failure.stalePreparation }
         prepared = nil
         guard ticket.provider == provider else { throw Failure.wrongProvider }

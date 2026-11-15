@@ -64,6 +64,13 @@ final class XrayVLESSRuntimeConfigTests: XCTestCase {
         XCTAssertFalse(String(decoding: bytes, as: UTF8.self).contains("freedom"))
     }
 
+    func testDirectCompilerMatchesVerifiedConverterReconstruction() throws {
+        for flow in [true,false] {
+            let p=try candidate(flow:flow)
+            XCTAssertEqual(try XrayVLESSRuntimeConfig.compileValidatedCandidate(p,socksPort:39879),try XrayVLESSRuntimeConfig.prepare(candidate:p,converterResponse:response([converted(flow:flow)]),socksPort:39879))
+            XCTAssertFalse(String(reflecting:p).contains(id));XCTAssertEqual(Mirror(reflecting:p).children.count,0)
+        }
+    }
     func testNoVisionLinkDoesNotInventFlow() throws {
         let data = try XrayVLESSRuntimeConfig.prepare(
             candidate: candidate(flow: false), converterResponse: response([converted(flow: false)]),

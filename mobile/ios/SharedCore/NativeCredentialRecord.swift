@@ -1,11 +1,14 @@
 import Foundation
+import Darwin
 
 /// Immutable versioned record, separate from legacy proxy storage.
 struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
-    enum Kind: String, Codable { case wireGuard, amneziaWG1
-        var transport: TransportProtocol { self == .wireGuard ? .wireGuard : .amneziaWG1 }
-        var provider: TransportProvider { self == .wireGuard ? .rustXray : .standaloneAWG }
-        var providerName: String { self == .wireGuard ? "rust-xray" : "standalone-awg" }
+    enum Kind: String, Codable { case wireGuard, amneziaWG1, vlessReality
+        var transport: TransportProtocol {
+            switch self { case .wireGuard:return .wireGuard; case .amneziaWG1:return .amneziaWG1; case .vlessReality:return .vlessReality }
+        }
+        var provider: TransportProvider { self == .amneziaWG1 ? .standaloneAWG : .rustXray }
+        var providerName: String { self == .amneziaWG1 ? "standalone-awg" : "rust-xray" }
     }
     struct Reference: Codable, Hashable {
         let profileID: UUID
@@ -24,15 +27,27 @@ struct NativeCredentialRecord: CustomStringConvertible, CustomReflectable {
     var customMirror: Mirror { Mirror(self,children:[:]) }
     static let maxBytes = 32_768
     static func create(profileID: UUID, expected: TransportProtocol, source: String) throws -> Self {
+        guard !source.isEmpty, source.utf8.count <= maxBytes else {throw Failure.invalidRecord}
         let kind: Kind
-        switch expected { case .wireGuard: kind = .wireGuard; case .amneziaWG1: kind = .amneziaWG1; default: throw Failure.unsupportedProtocol }
+        switch expected { case .wireGuard: kind = .wireGuard; case .amneziaWG1: kind = .amneziaWG1; case .vlessReality: kind = .vlessReality; default: throw Failure.unsupportedProtocol }
         let result = Self(reference:.init(profileID:profileID,revision:UUID(),kind:kind),source:source)
         _ = try result.compile(); _ = try result.encoded()
         return result
     }
-    func compile() throws -> (NativeWireGuardRuntimeConfig, NativeTunnelRoutePlan) {
+    func compile() throws -> (NativeValidationConfiguration, NativeValidationRoute) {
+        if reference.kind == .vlessReality {
+            let candidate = try VLESSRealityShareLink.parse(source)
+            let plan = try NativeVLESSValidationPlan.prepare(candidate)
+            let bytes = try XrayVLESSRuntimeConfig.compileValidatedCandidate(candidate,socksPort:39879)
+            return (.init(provider:.rustXray,wireProtocol:.vlessReality,bytes:bytes),.vlessTCP4(plan))
+        }
         let config = try NativeWireGuardRuntimeConfig.compile(source,expected:reference.kind.transport)
-        return (config,try NativeTunnelRoutePlan.prepare(config))
+        let route = try NativeTunnelRoutePlan.prepare(config)
+        return (.init(provider:config.provider,wireProtocol:config.wireProtocol,bytes:config.withEngineConfiguration{$0}),.wireGuard(route))
+    }
+    /// Revalidate and mint new IDs; restore never reuses a session revision.
+    func copyForRestore(profileID: UUID) throws -> Self {
+        try Self.create(profileID:profileID,expected:reference.kind.transport,source:source)
     }
     func encoded() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
@@ -73,4 +88,42 @@ struct NativeCredentialRepository {
     @discardableResult func remove(_ ref: NativeCredentialRecord.Reference) throws -> Bool {
         try items.remove(account:account(ref))
     }
+}
+
+/// Separate validation context, not interchangeable with NE settings.
+/// VLESS has TCP4 evidence only: no default routes, DNS or UDP authorization.
+struct NativeVLESSValidationPlan: Equatable {
+    let remoteAddress: String
+    let remotePort: UInt16
+    let required: Set<TransportProbeCapability> = [.tcpIPv4]
+    static func prepare(_ candidate: VLESSRealityShareLink) throws -> Self {
+        var a = in_addr()
+        guard candidate.serverHost.withCString({inet_pton(AF_INET,$0,&a)}) == 1 else {throw NativeTunnelRoutePlan.Failure.invalidAddress}
+        let n=UInt32(bigEndian:a.s_addr), first=n >> 24
+        guard first != 0, first != 127, first < 224, n >> 16 != 0xa9fe else {throw NativeTunnelRoutePlan.Failure.invalidAddress}
+        return Self(remoteAddress:candidate.serverHost,remotePort:UInt16(candidate.serverPort))
+    }
+}
+
+enum NativeValidationRoute: Equatable {
+    case wireGuard(NativeTunnelRoutePlan)
+    case vlessTCP4(NativeVLESSValidationPlan)
+    var provider: TransportProvider {
+        switch self {case .wireGuard(let p):return p.provider;case .vlessTCP4:return .rustXray}
+    }
+    var remoteAddress: String {
+        switch self {case .wireGuard(let p):return p.remoteAddress;case .vlessTCP4(let p):return p.remoteAddress}
+    }
+    var remotePort: UInt16 {
+        switch self {case .wireGuard(let p):return p.remotePort;case .vlessTCP4(let p):return p.remotePort}
+    }
+}
+
+struct NativeValidationConfiguration: CustomStringConvertible, CustomReflectable {
+    let provider: TransportProvider
+    let wireProtocol: TransportProtocol
+    fileprivate let bytes: Data
+    var description: String { "NativeValidationConfiguration(redacted)" }
+    var customMirror: Mirror { Mirror(self,children:[:]) }
+    func withEngineConfiguration<T>(_ body:(Data)throws->T) rethrows -> T {try body(bytes)}
 }

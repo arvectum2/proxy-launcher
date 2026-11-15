@@ -36,6 +36,23 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertTrue(try reader.isSelected(second.reference));XCTAssertEqual(try reader.snapshot().retired,[first.reference])
         try c.reconcileRetired();XCTAssertNil(try repo.read(first.reference));XCTAssertNotNil(try repo.read(second.reference))
     }
+    @MainActor func testProtocolReplacementWithinSameProviderRetiresOldRevision() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        let key=Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation.base64EncodedString().replacingOccurrences(of:"+",with:"-").replacingOccurrences(of:"/",with:"_").replacingOccurrences(of:"=",with:"")
+        let vless=try NativeCredentialRecord.create(profileID:first.reference.profileID,expected:.vlessReality,source:"vless://\(UUID().uuidString.lowercased())@192.0.2.42:443?encryption=none&security=reality&type=tcp&sni=example.com&fp=chrome&pbk=\(key)&sid=abcd")
+        try c.save(vless,select:true)
+        XCTAssertTrue(try c.reader.isSelected(vless.reference));XCTAssertFalse(try c.reader.isSelected(first.reference))
+        try c.reconcileRetired();XCTAssertNil(try repo.read(first.reference));XCTAssertEqual(try repo.read(vless.reference)?.reference.kind,.vlessReality)
+    }
+    @MainActor func testBackupSnapshotsOnlyCurrentRecordsAndRejectsMissing() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        let second=try record(first.reference.profileID);try c.save(second,select:false)
+        XCTAssertEqual(try c.reader.currentRecordsForBackup(repository:repo).map(\.reference),[second.reference])
+        XCTAssertNotNil(try repo.read(first.reference));try repo.remove(second.reference)
+        XCTAssertThrowsError(try c.reader.currentRecordsForBackup(repository:repo))
+    }
     @MainActor func testFailedPublishRollsBackNewRecord() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let first=try record();try c.save(first,select:true);let second=try record(first.reference.profileID)
