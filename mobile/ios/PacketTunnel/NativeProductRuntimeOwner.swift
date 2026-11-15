@@ -19,11 +19,11 @@ import Network
     private var monitor:NWPathMonitor?
     private var baseline:PathSignature?
     private struct PathSignature:Equatable {
-        let status:NWPath.Status
+        let status:Network.NWPath.Status
         let interfaces:[String]
         let expensive:Bool
         let constrained:Bool
-        init(_ path:NWPath){
+        init(_ path:Network.NWPath){
             status=path.status
             interfaces=path.availableInterfaces.map{$0.name+":"+String(describing:$0.type)+":"+String(path.usesInterfaceType($0.type))}.sorted()
             expensive=path.isExpensive;constrained=path.isConstrained
