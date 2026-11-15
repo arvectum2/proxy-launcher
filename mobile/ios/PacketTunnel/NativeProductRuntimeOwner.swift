@@ -110,7 +110,7 @@ import Network
             try? await Task.sleep(nanoseconds:50_000_000)
         }
         guard !starting,!draining,used else{return}
-        do{try await drain(provider:provider,removeSettings:true)}catch{provider.cancelTunnelWithError(error(5))}
+        do{try await drain(provider:provider,removeSettings:true)}catch{provider.cancelTunnelWithError(self.error(5))}
     }
     func message(_ bytes:Data,provider:NEPacketTunnelProvider)async->Data?{
         guard let request=try? TransportNativeCodec.decode(TransportNativeRequest.self,bytes),request.valid else{return nil}
