@@ -82,6 +82,31 @@ final class NativeCredentialHandoffTests: XCTestCase {
         }
         XCTAssertEqual(winners.values.count,1); XCTAssertTrue(tickets.values.isEmpty)
     }
+    func testProviderReceiverConsumesExactlyOnce() throws {
+        let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == r.reference})
+        let t=try h.issue(r,binding:b), bytes=try TransportNativeCodec.encode(t)
+        var receiver=try NativeCredentialReceiver(expected:b,provider:.rustXray)
+        try receiver.consumeForValidation(bytes,via:h) { route,data in
+            XCTAssertEqual(route.provider,.rustXray); XCTAssertFalse(data.isEmpty)
+        }
+        XCTAssertThrowsError(try receiver.consumeForValidation(bytes,via:h) { _,_ in XCTFail("replay") })
+        var fresh=try NativeCredentialReceiver(expected:b,provider:.rustXray)
+        XCTAssertThrowsError(try fresh.consumeForValidation(bytes,via:h) { _,_ in XCTFail("store replay") })
+    }
+    func testReceiverIndependentIdentityAndFailurePoisoning() throws {
+        let (r,b,repo,_,tickets)=try fixture();try repo.insert(r)
+        let h=NativeCredentialHandoff(items:tickets,repository:repo,isSelected:{$0 == r.reference})
+        let t=try h.issue(r,binding:b),bytes=try TransportNativeCodec.encode(t)
+        let other=NativeCredentialHandoff.Binding(reference:r.reference,session:.init(epoch:b.session.epoch,generation:2,provider:"rust-xray"))
+        XCTAssertThrowsError(try NativeCredentialReceiver(expected:b,provider:.standaloneAWG))
+        var wrong=try NativeCredentialReceiver(expected:other,provider:.rustXray)
+        XCTAssertThrowsError(try wrong.consumeForValidation(bytes,via:h) { _,_ in XCTFail("stale") })
+        var receiver=try NativeCredentialReceiver(expected:b,provider:.rustXray)
+        XCTAssertThrowsError(try receiver.consumeForValidation(Data(repeating:0,count:1025),via:h) { _,_ in XCTFail("invalid") })
+        XCTAssertThrowsError(try receiver.consumeForValidation(bytes,via:h) { _,_ in XCTFail("retry after failure") })
+        XCTAssertEqual(tickets.values.count,1)
+    }
     @MainActor func testPreparationPersistenceAndHandoff() async throws {
         let (r,b,repo,_,tickets)=try fixture()
         let p=NativeProfilePreparation(legacyIDs:{[]}), r1=try p.stage(r);try p.retainRevision(r1,in:repo)

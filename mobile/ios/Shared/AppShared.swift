@@ -7,6 +7,7 @@ enum AppShared {
     static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
     }
+    static let nativeCredentialServicePrefix = "ru.arvectum.proxylauncher.ios."
     static let keychainService = "ru.arvectum.proxylauncher.ios.credentials"
     static let keychainAccessGroup: String? = "VML75VY94V.ru.arvectum.proxylauncher.ios.shared"
 }

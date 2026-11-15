@@ -18,7 +18,7 @@ struct NativeCredentialKeychain: NativeCredentialItems {
         }
         guard valid, account.count <= 128, let group = AppShared.keychainAccessGroup, !group.isEmpty else { throw Failure.configuration }
         return [kSecClass as String:kSecClassGenericPassword,
-                kSecAttrService as String: "ru.arvectum.proxylauncher.ios."+purpose.rawValue,
+                kSecAttrService as String: AppShared.nativeCredentialServicePrefix+purpose.rawValue,
                 kSecAttrAccount as String:account, kSecAttrAccessGroup as String:group,
                 kSecAttrSynchronizable as String:false]
     }
@@ -52,7 +52,7 @@ struct NativeCredentialCatalogKeychain: NativeCredentialCatalogStorage {
     private func query() throws -> [String:Any] {
         guard let group = AppShared.keychainAccessGroup, !group.isEmpty else { throw NativeCredentialKeychain.Failure.configuration }
         return [kSecClass as String:kSecClassGenericPassword,
-                kSecAttrService as String:"ru.arvectum.proxylauncher.ios.native-catalog.v1",
+                kSecAttrService as String:AppShared.nativeCredentialServicePrefix+"native-catalog.v1",
                 kSecAttrAccount as String:"catalog-v1", kSecAttrAccessGroup as String:group,
                 kSecAttrSynchronizable as String:false]
     }
