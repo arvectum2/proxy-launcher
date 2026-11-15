@@ -1,5 +1,33 @@
 import Foundation
 
+/// Metadata-only projection. A row is neither a credential nor proof of a usable transport.
+struct NativeProfilePresentation: Equatable {
+    enum State: Equatable {case reviewOnly, migrationRequired, recoveryRequired, legacyCollision, unsupportedPolicy}
+    struct Row: Equatable, Identifiable {
+        let reference:NativeCredentialRecord.Reference
+        let number:Int
+        let selected:Bool
+        let state:State
+        var id:UUID {reference.profileID}
+        var canReview:Bool {state == .reviewOnly}
+        var canConnect:Bool {false}
+    }
+    let rows:[Row]
+    static let empty=Self(rows:[])
+    static func read(_ reader:NativeCredentialCatalogReader,legacyIDs:Set<UUID>,hasExclusions:Bool) throws -> Self {
+        let snapshot=try reader.snapshot()
+        return Self(rows:snapshot.current.enumerated().map { i,ref in
+            let state:State
+            if snapshot.version != 2 {state = .migrationRequired}
+            else if snapshot.hasPendingWrite {state = .recoveryRequired}
+            else if legacyIDs.contains(ref.profileID) {state = .legacyCollision}
+            else if hasExclusions {state = .unsupportedPolicy}
+            else {state = .reviewOnly}
+            return Row(reference:ref,number:i+1,selected:snapshot.selected==ref,state:state)
+        })
+    }
+}
+
 /// Offline rehearsal of native profile import and encrypted backup UI.
 /// Owns only an ephemeral catalog. Does not expose a real Keychain adapter,
 /// VPN start authority, configuration bytes or a persistent profile selection.
@@ -28,11 +56,13 @@ import Foundation
     private let catalog: NativeCredentialCatalog
     private let repository: NativeCredentialRepository
     private let review: NativeRestoreReview
+    private let launchBoundary: NativeSessionLaunchBoundary
     init(elapsed: @escaping () -> TimeInterval = {ProcessInfo.processInfo.systemUptime}) {
         let repo=NativeCredentialRepository(items:items)
         repository=repo
         let c=NativeCredentialCatalog(storage:store,repository:repo,legacyIDs:{[]})
         catalog=c;review=NativeRestoreReview(catalog:c,elapsed:elapsed)
+        launchBoundary=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:MemoryItems(),legacyIDs:{[]})
     }
     func counts() throws -> Counts {
         let refs=try catalog.reader.snapshot().current
@@ -49,6 +79,18 @@ import Foundation
     func addToRehearsal(_ summary: NativeRestoreReview.Summary) throws -> Counts {
         _=try review.confirm(summary,vpnInactive:{true})
         return try counts()
+    }
+    func presentation(legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) throws -> NativeProfilePresentation {
+        try NativeProfilePresentation.read(catalog.reader,legacyIDs:legacyIDs,hasExclusions:hasExclusions)
+    }
+    /// Ephemeral library only: run preflight, never issue a ticket or create an OS session.
+    func selectForReview(_ reference:NativeCredentialRecord.Reference,legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) throws -> NativeProfilePresentation {
+        review.cancel()
+        guard try presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions).rows.contains(where:{$0.reference==reference && $0.canReview}) else {throw NativeSessionLaunchBoundary.Failure.staleSelection}
+        try catalog.select(reference)
+        let intent=try launchBoundary.prepare(reference:reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        try launchBoundary.finish(intent)
+        return try presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions)
     }
     func encryptedBackup(password:String) throws -> Data {
         try NativeProfileBackupCodec.seal(catalog.reader.currentRecordsForBackup(repository:repository),password:password)

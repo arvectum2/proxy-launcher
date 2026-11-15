@@ -52,6 +52,20 @@ final class NativeProfileReviewSessionTests:XCTestCase {
         XCTAssertEqual(try target.addToRehearsal(review),expected)
         s.clear();XCTAssertEqual(try target.counts(),expected)
     }
+    @MainActor func testLibrarySelectionOnlyForReviewAndStaleRowCannotReturn() async throws {
+        let s=NativeProfileReviewSession()
+        _=try s.addToRehearsal(s.previewSource(vless(),kind:.vlessReality))
+        _=try s.addToRehearsal(s.previewSource(vless(),kind:.vlessReality))
+        let rows=try s.presentation().rows
+        XCTAssertEqual(rows.map(\.number),[1,2]);XCTAssertTrue(rows.allSatisfy{$0.canReview && !$0.canConnect && !$0.selected})
+        let preview=try s.previewSource(vless(),kind:.vlessReality)
+        let selected=try s.selectForReview(rows[0].reference)
+        XCTAssertEqual(selected.rows.filter(\.selected).map(\.id),[rows[0].id]);XCTAssertThrowsError(try s.addToRehearsal(preview))
+        XCTAssertThrowsError(try s.selectForReview(rows[1].reference,legacyIDs:[rows[1].id]))
+        XCTAssertThrowsError(try s.selectForReview(rows[1].reference,hasExclusions:true))
+        XCTAssertEqual(try s.presentation().rows.filter(\.selected).map(\.id),[rows[0].id])
+        s.clear();XCTAssertThrowsError(try s.selectForReview(rows[0].reference));XCTAssertEqual(try s.presentation(),.empty)
+    }
     @MainActor func testInvalidInputCancelAndExpiryNeverCommit() async throws {
         var clock=100.0;let session=NativeProfileReviewSession(elapsed:{clock})
         let first=try session.previewSource(vless(),kind:.vlessReality)

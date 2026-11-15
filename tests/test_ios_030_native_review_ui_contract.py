@@ -38,9 +38,23 @@ def test_qa_dedicated_ru_en_localization_keys_and_fallback():
     view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
     entry=(IOS/'App/ProfileBackupView.swift').read_text()
     ru=dict((json.loads(k),json.loads(v)) for k,v in re.findall(r'^\s*(".*?"):\s*(".*?"),$',view,re.M))
-    assert len(ru)==21 and all(k!=v for k,v in ru.items())
+    assert len(ru)==30 and all(k!=v for k,v in ru.items())
     assert set(re.findall(r'tr\("([^"]+)"\)',view))|{'Native profiles · Simulator QA'}==set(ru)
     assert 'NativeReviewQAL10n.tr' in entry
     assert ru['Temporary profiles: %d'].count('%d')==1
     assert 'AppL10n.effectiveLanguage == "ru" else {return key}' in view
     assert not list((IOS/'Resources').glob('*.lproj/NativeReviewQA.strings'))
+
+
+def test_native_library_entry_is_gated_and_has_no_connect_action():
+    view=(IOS/'App/NativeProfileReviewLabView.swift').read_text()
+    profiles=(IOS/'App/ProfilesScreenView.swift').read_text()
+    gate='#if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)'
+    assert gate in profiles and 'profiles.nativeReviewQA' in profiles
+    assert 'legacyIDs:Set(model.profiles.map(\\.id))' in profiles and 'hasExclusions:!model.exclusions.isEmpty' in profiles
+    assert 'ForEach(library.rows)' in view and 'session.selectForReview' in view
+    assert 'Connection unavailable — acceptance required' in view
+    assert 'Button(tr("Connect"))' not in view
+    core=(IOS/'SharedCore/NativeProfileReviewSession.swift').read_text()
+    assert 'var canConnect:Bool {false}' in core and 'launchBoundary.prepare' in core
+    assert 'launchBoundary.issue(' not in core

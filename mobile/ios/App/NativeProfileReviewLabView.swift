@@ -30,6 +30,16 @@ enum NativeReviewQAL10n {
         "Review failed. No new records added.": "Проверка не пройдена. Новые записи не добавлены.",
         "Native profiles · QA": "Нативные профили · тестирование",
         "Close": "Закрыть",
+        "Temporary native library": "Временная библиотека нативных профилей",
+        "Profile %d": "Профиль %d",
+        "Selected for review": "Выбран для проверки",
+        "Select for review": "Выбрать для проверки",
+        "Connection unavailable — acceptance required": "Подключение недоступно — требуется приёмка",
+        "Migration required": "Требуется миграция",
+        "Recovery required": "Требуется восстановление",
+        "Conflicting profile identifier": "Конфликт идентификатора профиля",
+        "Exclusion policy not supported": "Политика исключений не поддерживается",
+
     ]
 }
 
@@ -51,8 +61,12 @@ enum NativeReviewQAL10n {
     @State private var showExporter=false
     @State private var document:RehearsalBackupDocument?
     @State private var exportFilename="APL-Native-QA-Encrypted"
-    @State private var total=0
+    var legacyIDs:Set<UUID> = []
+    var hasExclusions=false
+    @State private var library=NativeProfilePresentation.empty
     @State private var failed=false
+
+    init(legacyIDs:Set<UUID> = [],hasExclusions:Bool = false) {self.legacyIDs=legacyIDs;self.hasExclusions=hasExclusions}
 
     private func tr(_ key: String) -> String { NativeReviewQAL10n.tr(key) }
 
@@ -61,7 +75,20 @@ enum NativeReviewQAL10n {
             Form {
                 Section {
                     Text(tr("Simulator QA only. Use synthetic test files. Nothing is saved to the profile library or connected to VPN."))
-                    Text(String(format:tr("Temporary profiles: %d"),Int32(total)))
+                    Text(String(format:tr("Temporary profiles: %d"),Int32(library.rows.count)))
+                }
+                if !library.rows.isEmpty {
+                    Section(tr("Temporary native library")) {
+                        ForEach(library.rows) { row in
+                            VStack(alignment:.leading,spacing:8) {
+                                Text(String(format:tr("Profile %d"),Int32(row.number))+" · "+protocolTitle(row.reference.kind)).font(.headline)
+                                if row.selected {Label(tr("Selected for review"),systemImage:"checkmark.circle")}
+                                Text(statusTitle(row.state)).font(.footnote).foregroundStyle(.secondary)
+                                Button(tr("Select for review")){selectRow(row)}.disabled(!row.canReview || lifecycle.pending != nil)
+                            }
+                            .accessibilityElement(children:.contain)
+                        }
+                    }
                 }
                 Section(tr("Configuration review")) {
                     Picker(tr("Protocol"),selection:$kind) {
@@ -77,7 +104,7 @@ enum NativeReviewQAL10n {
                         SecureField(tr("Backup password"),text:$password).textContentType(.password)
                         Button(tr("Review backup"),action:reviewBackup).disabled(password.isEmpty)
                     }
-                    Button(tr("Prepare encrypted export")) {resetReview();exporting=true}.disabled(total==0)
+                    Button(tr("Prepare encrypted export")) {resetReview();exporting=true}.disabled(library.rows.isEmpty)
                     if exporting {
                         SecureField(tr("New password"),text:$password).textContentType(.newPassword)
                         SecureField(tr("Repeat password"),text:$repeatedPassword).textContentType(.newPassword)
@@ -114,10 +141,27 @@ enum NativeReviewQAL10n {
         }
         .onDisappear {leave()}
     }
+    private func protocolTitle(_ kind:NativeCredentialRecord.Kind)->String {
+        switch kind {case .wireGuard:return "WireGuard";case .amneziaWG1:return "AmneziaWG 1";case .vlessReality:return "VLESS Reality"}
+    }
+    private func statusTitle(_ state:NativeProfilePresentation.State)->String {
+        switch state {
+        case .reviewOnly:return tr("Connection unavailable — acceptance required")
+        case .migrationRequired:return tr("Migration required")
+        case .recoveryRequired:return tr("Recovery required")
+        case .legacyCollision:return tr("Conflicting profile identifier")
+        case .unsupportedPolicy:return tr("Exclusion policy not supported")
+        }
+    }
+    private func selectRow(_ row:NativeProfilePresentation.Row){
+        guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return}
+        resetReview()
+        do{library=try session.selectForReview(row.reference,legacyIDs:legacyIDs,hasExclusions:hasExclusions)}catch{fail()}
+    }
     private func resetReview(){session.cancelReview();summary=nil;password="";repeatedPassword="";file=nil;exporting=false;failed=false}
     private func fail(){resetReview();failed=true}
     private func cancelPanel(){lifecycle.invalidate();importReceipt=nil;exportReceipt=nil;document=nil;resetReview()}
-    private func leave(){lifecycle.leave();resetReview();session.clear();importReceipt=nil;exportReceipt=nil;choosing=false;showExporter=false;document=nil;total=0}
+    private func leave(){lifecycle.leave();resetReview();session.clear();importReceipt=nil;exportReceipt=nil;choosing=false;showExporter=false;document=nil;library = .empty}
     private func beginImport(_ action:NativeReviewFileLifecycle.Action){
         guard phase == .active,lifecycle.pending==nil else{return}
         resetReview();guard let receipt=lifecycle.begin(action) else{return};importReceipt=receipt;choosing=true
@@ -146,7 +190,7 @@ enum NativeReviewQAL10n {
         } catch {fail()}
     }
     private func reviewBackup(){guard phase == .active,lifecycle.visible,lifecycle.pending==nil,let file else{return};let p=password;resetReview();do{summary=try session.previewBackup(file,password:p)}catch{fail()}}
-    private func accept(_ value:NativeRestoreReview.Summary){guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return};do{total=try session.addToRehearsal(value).total;resetReview()}catch{fail()}}
+    private func accept(_ value:NativeRestoreReview.Summary){guard phase == .active,lifecycle.visible,lifecycle.pending==nil else{return};do{_=try session.addToRehearsal(value);library=try session.presentation(legacyIDs:legacyIDs,hasExclusions:hasExclusions);resetReview()}catch{fail()}}
     private func encrypt(){guard phase == .active,lifecycle.visible,lifecycle.pending==nil,password==repeatedPassword else{fail();return};let p=password;resetReview();do{let bytes=try session.encryptedBackup(password:p);guard let receipt=lifecycle.begin(.export) else{throw ProfileBackupError.invalidFile};exportReceipt=receipt;exportFilename="APL-Native-QA-Encrypted-"+receipt.id.uuidString.lowercased();document=RehearsalBackupDocument(bytes:bytes);showExporter=true}catch{fail()}}
 }
 private struct RehearsalBackupDocument:FileDocument {

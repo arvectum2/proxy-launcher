@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Step2 offline presentation contract and simulator-only separate native library, metadata-only rows, explicit capability status and safe ephemeral review selection using launch boundary; 9 QA strings RU/EN."
   - "Step1 native launch integration boundary connecting selected persisted revision, scoped plan, actual coordinator session input and provider credential validation; exact ticket cleanup and production gate."
   - "Native catalog v2 schema boundary, explicit fail-closed v1 migration preserving journal/revisions, no handoff until reselection; refreshed active roadmap with remaining substantive work and decision gates."
   - "Catalog exact readback and drift detection for insert/restore/recovery/selection. Four synthetic failure cases verify stale publication rejected and recovery retryable."
@@ -170,7 +171,7 @@ completed:
 
 
 
-current: "Step 1 complete: inactive NativeSessionLaunchBoundary joins persisted selected v2 revision, bounded capability plan, owned coordinator session, one-use ticket and provider receive. Three synthetic tests including all three kinds, production/capability/exclusion denial, stale selection, wrong session and retryable revocation. Swift373/373, Python418/418+1527, unsigned Release PASS, experimental native linkage absent. Prior d396a06c CI5/7 completed success,2 pending at last observation. No actual OS manager or native runtime activation."
+current: "Step2 offline contract complete: native metadata library projection, distinct gated entry in Profiles and backup sheet, review selection through Step1 launch preflight without ticket issuance; no Connect, real persistence or production activation. Nine new RU/EN QA strings, 64 production catalogs unchanged. Swift375/375, Python419/419+1527 subtests, gated simulator Debug and unsigned Release PASS; native UI/engine markers absent. GUI not executed."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -182,8 +183,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "d396a06c plus native launch boundary working tree Swift373/Python418+1527/unsigned Release locally verified; prior CI5/7 success,2 pending; new CI pending"
+last_verified_commit: "8d5a1fcf plus Step2 working tree Swift375/Python419+1527/two builds locally verified; new exact CI pending"
 test_results:
+  - "Swift375/375, full iOS Python419/419+1527 subtests, gated simulator Debug and unsigned iPhoneOS Release PASS; QA markers/native engine symbols absent. Actual GUI/real storage/connect unaccepted. Initial oversized remote command rejected, bounded edits succeeded."
   - "Swift373/373, full iOS Python418/418+1527 subtests, unsigned Release PASS; native engine symbols absent. Three new synthetic end-to-end/negative tests; no real OS, Keychain or data-plane acceptance."
   - "Swift370/370, Python418/418+1527 subtests, unsigned Release PASS, experimental symbols absent. Three new schema/migration tests. No real migration or Keychain/physical acceptance."
   - "Swift367/367, full iOS Python418/418+1527 subtests, unsigned Release PASS and experimental linkage absent. Exact prior CI7/7. No actual interprocess CAS/Keychain/device acceptance."
@@ -302,4 +304,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Owner asks proceed step by step without physical iPhone. Verify exact PR383 HEAD CI. Step 2: implement product-facing native profile presentation/state contract with truthful disabled capability status, separation of legacy and native entries, safe selection and unsupported policy handling; reuse launch boundary, do not expose active Connect or real persistence before acceptance. Then step 3: subscription refresh opt-in policy offline; step 4: selected artifact license closure and scope. No speculative polishing; no background requests or automatic profile replacement without approval. Actual S1/K1/K2/X1/N1/N2/C1/R1 remain open. No owner device/account/Keychain changes, signing, production activation, main merge or publication. Existing watchdog canonical branch."
+resume_instruction: "Owner asks continue step by step without physical iPhone. Verify exact PR383 HEAD CI. Step3: implement bounded subscription refresh opt-in policy and preview state offline, preserving existing manual fetch and explicit import approval. Do not enable background network, auto profile replacement, access real subscription tokens or establish schedules. Then Step4: selected artifact license closure and release scope; original tproxy-config notice missing. Actual production native UI/storage/provider wiring and S1/K1/K2/X1/N1/N2/C1/R1 remain gated; no device/account/Keychain changes, sign, main merge or publication. Existing watchdog uses canonical branch."

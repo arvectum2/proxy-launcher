@@ -11,6 +11,9 @@ struct ProfilesScreenView<Header: View>: View {
     let onImport: () -> Void
     let header: Header
 
+    #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+    @State private var showNativeLibrary = false
+    #endif
     @State private var profileSearch = ""
     @State private var profileGroupFilter = "all"
     @State private var pendingGroupIDs: Set<UUID> = []
@@ -31,6 +34,11 @@ struct ProfilesScreenView<Header: View>: View {
                     header
 #endif
                     profileActionButtons
+                    #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+                    Button(NativeReviewQAL10n.tr("Native profiles · Simulator QA")){showNativeLibrary=true}
+                        .font(.subheadline.weight(.medium))
+                        .accessibilityIdentifier("profiles.nativeReviewQA")
+                    #endif
                     if model.profiles.isEmpty {
                         VStack(spacing: 10) {
                             Image(systemName: "tray")
@@ -91,6 +99,9 @@ struct ProfilesScreenView<Header: View>: View {
             }
             .keyboardDismissOnSwipeUp()
         }
+        #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
+        .sheet(isPresented:$showNativeLibrary){NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty)}
+        #endif
         .onChange(of: profileSearch) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: profileGroupFilter) { _ in bulkSelectedIDs.removeAll() }
         .onChange(of: model.profiles.map(\.id)) { liveIDs in

@@ -119,7 +119,7 @@ struct ProfileBackupView: View {
             }
         }
         #if DEBUG && APL_NATIVE_PROFILE_REVIEW && targetEnvironment(simulator)
-        .sheet(isPresented: $showNativeReviewLab) { NativeProfileReviewLabView() }
+        .sheet(isPresented: $showNativeReviewLab) { NativeProfileReviewLabView(legacyIDs:Set(model.profiles.map(\.id)),hasExclusions:!model.exclusions.isEmpty) }
         #endif
         .fileExporter(isPresented: $showExporter,
                       document: backupDocument,

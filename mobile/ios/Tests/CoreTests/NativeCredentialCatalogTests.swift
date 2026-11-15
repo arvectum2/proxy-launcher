@@ -373,6 +373,17 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertThrowsError(try bridge.finish(intent));XCTAssertThrowsError(try prepare());XCTAssertEqual(tickets.values.count,1)
         tickets.failRemove=false;try bridge.finish(intent);XCTAssertTrue(tickets.values.isEmpty);XCTAssertEqual(items.values.count,2)
     }
+    @MainActor func testNativeLibraryMetadataProjectionBlocksUnacceptedStates() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record();try c.save(a,select:true);try c.save(b,select:false)
+        func states(_ ids:Set<UUID> = [],_ exclusions:Bool = false) throws -> [NativeProfilePresentation.State] {try NativeProfilePresentation.read(c.reader,legacyIDs:ids,hasExclusions:exclusions).rows.map(\.state)}
+        XCTAssertEqual(try states([a.reference.profileID]),[.legacyCollision,.reviewOnly]);XCTAssertEqual(try states([],true),[.unsupportedPolicy,.unsupportedPolicy])
+        var snapshot=try c.reader.snapshot();snapshot.pendingInsert=try record().reference;m.bytes=try JSONEncoder().encode(snapshot)
+        XCTAssertEqual(try states(),[.recoveryRequired,.recoveryRequired])
+        snapshot.version=1;m.bytes=try JSONEncoder().encode(snapshot);XCTAssertEqual(try states(),[.migrationRequired,.migrationRequired])
+        snapshot.version=999;m.bytes=try JSONEncoder().encode(snapshot);XCTAssertThrowsError(try states())
+        XCTAssertEqual(items.values.count,2)
+    }
     @MainActor func testCorruptCatalogAndLegacyCollisionFailClosed() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),r=try record()
         let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[r.reference.profileID]})
