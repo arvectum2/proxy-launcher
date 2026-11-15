@@ -16,6 +16,7 @@
 		0A00DAAE77ED2910B057617E /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A79C5342A3CC26650B7A943A /* ProfileStore.swift */; };
 		0A7E1E94C6F7C44A05EAE588 /* SmartFlowRoutingPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5D3F0307C074DB0FB9A510 /* SmartFlowRoutingPolicy.swift */; };
 		0B6DA474EAA2172857BA559D /* QuickVPNActionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9EEC78720E261134993842 /* QuickVPNActionPolicy.swift */; };
+		0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */; };
 		0C75AB840417E3E8F409DE87 /* PhysicalVPNControlledUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */; };
 		0DE07E70231418DFAB188C90 /* ProfileBackupRestorePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71068BC47835E696E79292 /* ProfileBackupRestorePlan.swift */; };
 		0E5B76AE2222D35780192AD3 /* AdaptiveRouteLearning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C38BAC001B2439CC5E2895B /* AdaptiveRouteLearning.swift */; };
@@ -28,6 +29,7 @@
 		18C38F96F9E31B711586C7A0 /* ProxyImportStructured.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */; };
 		1908D8F34058D1B6A1AB37C6 /* ApplicationExclusionCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E28AFF2A547FF86D783CD1C /* ApplicationExclusionCapability.swift */; };
 		1963C3C126A975C10D01059D /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
+		1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */; };
 		1B0CF079C29B124E55135F79 /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		1B739A721964FF8EBD71E441 /* VLESSRealityShareLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */; };
 		1C2290B65AC0B770EF3F8834 /* NETunnelNativeControlEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC69CC9F96A680E06E987F94 /* NETunnelNativeControlEndpoint.swift */; };
@@ -174,6 +176,7 @@
 		D500CF222D03CED67EDEFA8E /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
 		D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1488FCE2B29D9972106C0395 /* NativeHomeAdView.swift */; };
 		DEFDCF20007F41E532311B9E /* SiteExclusionSaveFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD03030C689C5E6A0FF1354 /* SiteExclusionSaveFailure.swift */; };
+		E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */; };
 		E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */; };
 		E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
@@ -202,6 +205,7 @@
 		FE5073C850657CE0C9BA10DA /* TransportBackendAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7ED7DCDC596BC4976FA655 /* TransportBackendAdapter.swift */; };
 		FF2FF6FD4FE32378C4794669 /* ProfileOrganization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D95676C61B5DF202AC4633E /* ProfileOrganization.swift */; };
 		FF741EF3C1CFE58537E519DA /* HomeLayoutProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BA3593D8D41BF763748FFB /* HomeLayoutProbe.swift */; };
+		FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -535,6 +539,7 @@
 		A43163CC551F11F491F9EA4B /* fa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fa; path = fa.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		A4AC8477D2AC3A296EAFB204 /* et */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = et; path = et.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A64828C70BD24B80F7B56D31 /* ProfileLibraryBulkActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileLibraryBulkActionsView.swift; sourceTree = "<group>"; };
+		A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTunnelNetworkSettings.swift; sourceTree = "<group>"; };
 		A6DCFD14AADCDD5FD4238D72 /* PhysicalVPNControlledUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicalVPNControlledUITests.swift; sourceTree = "<group>"; };
 		A707AD34E2385DA843AA613A /* tg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tg; path = tg.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		A70E715C3D0BDDFCCCE64AF3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
@@ -697,6 +702,7 @@
 		FBEC266F92E292376D2F487E /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		FD0FEBCAC9B0CD4FB22D93E2 /* AppearanceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceMode.swift; sourceTree = "<group>"; };
 		FD92A04584B40BD9FEE2D469 /* Smart3PhysicalTrafficQA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Smart3PhysicalTrafficQA.swift; sourceTree = "<group>"; };
+		FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeTunnelRoutePlan.swift; sourceTree = "<group>"; };
 		FF516E2D4071DAEF8513A99F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FF6690A66DE5B241DA7FE3E5 /* Smart3LiveTunnelPhysicalUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Smart3LiveTunnelPhysicalUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -725,6 +731,7 @@
 			isa = PBXGroup;
 			children = (
 				6B6111701DABA6167BA25D76 /* AppShared.swift */,
+				A6ADF37169317172D7BCBA09 /* NativeTunnelNetworkSettings.swift */,
 				A79C5342A3CC26650B7A943A /* ProfileStore.swift */,
 				8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */,
 				EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */,
@@ -857,6 +864,7 @@
 				6AC7094E7A0EF02E6290FC59 /* ExclusionSyncContract.swift */,
 				5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */,
 				B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */,
+				FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */,
 				7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */,
 				4DCF7AC969078D7CF6AFF6D4 /* OwnedNativeControlSlot.swift */,
 				C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */,
@@ -1195,6 +1203,8 @@
 				D04EEC4B669195EFEDD6EDDE /* ExclusionSyncContract.swift in Sources */,
 				58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */,
 				05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */,
+				FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */,
+				1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */,
 				2794DA0B10542C6F609FAF2D /* NativeWireGuardRuntimeConfig.swift in Sources */,
 				EFC7EC059096108CF7E192FA /* OwnedNativeControlSlot.swift in Sources */,
 				3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */,
@@ -1329,6 +1339,8 @@
 				8DCAA0AF3ED9C86A6EB18486 /* ManagedProfileContract.swift in Sources */,
 				1C2290B65AC0B770EF3F8834 /* NETunnelNativeControlEndpoint.swift in Sources */,
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
+				E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */,
+				0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */,
 				89147259BFDEAE36EB6B638B /* NativeWireGuardRuntimeConfig.swift in Sources */,
 				5599D7A0AEA9FD389088114C /* OwnedNativeControlSlot.swift in Sources */,
 				6505267B8F563DB2F6BE254C /* PrivacyDisclosureView.swift in Sources */,
