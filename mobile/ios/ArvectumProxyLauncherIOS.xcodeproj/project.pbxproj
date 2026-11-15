@@ -96,6 +96,7 @@
 		5827F17CB3779083C5743412 /* ProxyProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D3A12DCC3A4D4AA366A12DE /* ProxyProbe.swift */; };
 		58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD951ECCE21B7361FB64D8C /* FailoverPolicy.swift */; };
 		5AEA6EC710BCB1D07346831B /* AppShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B6111701DABA6167BA25D76 /* AppShared.swift */; };
+		5C302B3D4C91370FACC71BE4 /* NativeAWGPacketSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */; };
 		5D02E07D6A3B6A14DA8423B5 /* NativeProfileReviewLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54EC389905ECC8C8E1E33C5 /* NativeProfileReviewLabView.swift */; };
 		60687F63040A03078A00F178 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA607C43E4EC4EC4B702F1C /* TelemetryStore.swift */; };
 		613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */; };
@@ -123,10 +124,12 @@
 		773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */; };
 		789890C484E3622982E4CD5D /* ProfileLibraryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62E3E6A5C03575EA7455F4A /* ProfileLibraryRowView.swift */; };
 		7976D629F7F0D6E9BD5933BA /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
+		7A5D102D2D1E11C6500CFDAD /* NativeSyntheticRuntimeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B745A2C75B50DAE81932CC6D /* NativeSyntheticRuntimeRequest.swift */; };
 		7A68C1DD46C3481D59AFA3CA /* XraySocksHandoffContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC2779246573EF53003899E /* XraySocksHandoffContract.swift */; };
 		7B8644A11A5316798B2FCCD0 /* ProxySubscriptionImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09E34A74BDDEDA9135F219 /* ProxySubscriptionImport.swift */; };
 		7CA2A1D2E9816B25A1366445 /* SiteExclusionSaveUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996C5F83E8CEE3660D8ACF38 /* SiteExclusionSaveUX.swift */; };
 		7F4719FF2230E4AB11B168CC /* XrayVLESSRuntimeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B912936DDB6F0567E015A7 /* XrayVLESSRuntimeConfig.swift */; };
+		81D664832958CBD04A2B6687 /* NativeSyntheticRuntimeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B745A2C75B50DAE81932CC6D /* NativeSyntheticRuntimeRequest.swift */; };
 		83111C84E731AEBD7D8054AC /* QuickActionsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D41286B838D96667AC49887 /* QuickActionsHelpView.swift */; };
 		836F98A2A2EF4976A83BE81A /* ExclusionCloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5200409A16833EE54310 /* ExclusionCloudKitService.swift */; };
 		83DCCCB347A1A7A4CF1ECC63 /* ProxyQRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835AEEE07A8E20AAA0246E0D /* ProxyQRScanner.swift */; };
@@ -203,10 +206,12 @@
 		E193844E861640362A14BE81 /* PhysicalProxyHandshakeReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5780B508DF0C36B222C058B5 /* PhysicalProxyHandshakeReadOnlyTests.swift */; };
 		E2F1D41ACE3A9B524251EC3C /* WGQuickConfigurationPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD33B66C3D35E31EDB67515 /* WGQuickConfigurationPreview.swift */; };
 		E40CC7B5C092AE8DA32F1698 /* ProfileLibrarySelectionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220740D8C0F5219ED18592A3 /* ProfileLibrarySelectionPolicy.swift */; };
+		E55C3311711B5A04B35F8497 /* NativeSyntheticRuntimeFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */; };
 		E5A091E2BC05AE8AC918BBFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFE06C1AD1AC8AC34F981F5F /* Assets.xcassets */; };
 		E627D33A92721C450DDA60AF /* ProfileMutationUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5841F41F9695CA0001F8E7 /* ProfileMutationUX.swift */; };
 		E8217FCEB46479115FD40A79 /* PhysicalVPNStatusReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65DE3F7AA041237A5DEC656C /* PhysicalVPNStatusReadOnlyTests.swift */; };
 		E9651195C0A21232CC9C46F0 /* ProxyProfileSharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676A960A36367B72DB6F0675 /* ProxyProfileSharing.swift */; };
+		EB11510E5473B57442B812AD /* NativeSyntheticProviderSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */; };
 		EB3E854F8B41C274AC4F7CC8 /* ProxyShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614206BB28D1E243936A3475 /* ProxyShareView.swift */; };
 		EB4661F182505E46B9802B8A /* KeyboardDismissUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD05B190F6FC624C7CCFE8F /* KeyboardDismissUITests.swift */; };
 		EBF18CC6255DD1DFF163549D /* Smart4OriginalFlowTrace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A3DF20ACD53A3E797AE7DA /* Smart4OriginalFlowTrace.swift */; };
@@ -444,6 +449,7 @@
 		62A8C1E17295AA72184C3CCE /* ka */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ka; path = ka.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		62B8ACE5D06EB13555DDA429 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		63CE256ECA8B4E7870F3B0CA /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/ProxyImport.strings; sourceTree = "<group>"; };
+		64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeSyntheticRuntimeFixture.swift; sourceTree = "<group>"; };
 		649BB3375D01F4CEECC83C88 /* ArvectumProxyLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArvectumProxyLauncherApp.swift; sourceTree = "<group>"; };
 		64D94A97EECC1E91B23EB459 /* uz */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uz; path = uz.lproj/QuickActions.strings; sourceTree = "<group>"; };
 		65A458634CC82FD5D21ACC90 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -609,6 +615,7 @@
 		B6C317D12056066B16277AD2 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		B71E23C1AC48134BC478D65E /* ConnectionPressurePolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPressurePolicy.swift; sourceTree = "<group>"; };
 		B741081B8B4404D86742AD2E /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B745A2C75B50DAE81932CC6D /* NativeSyntheticRuntimeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeSyntheticRuntimeRequest.swift; sourceTree = "<group>"; };
 		B8380B9E444A64D2706575EA /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		B88EE2767D7012AC9B5802F8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		B8999A6285CC536486D0FAA0 /* be */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = be; path = be.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -619,6 +626,7 @@
 		BA149C17C648D145F879BEB4 /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BAB9368FEE44F075A0D98DBB /* fil */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fil; path = fil.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		BACDBE610B2263D79F3BCCA7 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAWGPacketSession.swift; sourceTree = "<group>"; };
 		BAE9B5483ECEE87A578747DC /* VLESSRealityShareLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLESSRealityShareLink.swift; sourceTree = "<group>"; };
 		BB2D52E5801CB7312FA561CE /* ProxyImportStructured.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyImportStructured.swift; sourceTree = "<group>"; };
 		BBF912E0DBA411BBCC136580 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/ProxyImport.strings; sourceTree = "<group>"; };
@@ -632,6 +640,7 @@
 		BFD3DCC3E49BF8DCF41ACCF1 /* am */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = am; path = am.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
 		BFEBCC017E17891BC63BD36D /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		C0DD7FD033993A09C93D6574 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeSyntheticProviderSession.swift; sourceTree = "<group>"; };
 		C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyFailureReason.swift; sourceTree = "<group>"; };
 		C3870928669401EF9051335D /* tk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tk; path = tk.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBackup.swift; sourceTree = "<group>"; };
@@ -860,7 +869,10 @@
 		7993D6249BA5ED912325B875 /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				BAD7DB850FFAB4D5AD3A58A5 /* NativeAWGPacketSession.swift */,
 				29B8B4B229C9BB34D06D9CBC /* NativeAWGValidationDriver.swift */,
+				C11013035C3A418AEE67B432 /* NativeSyntheticProviderSession.swift */,
+				64820C900D0F6691A27BCDCA /* NativeSyntheticRuntimeFixture.swift */,
 				B60C531C130FA18F41AFA484 /* NativeXrayPacketSession.swift */,
 				A64350B8E866FF41D720FF9A /* NativeXrayRuntimeDriver.swift */,
 				E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */,
@@ -916,6 +928,7 @@
 				220E75A4CD8778B2FCD91F8F /* NativeProfileReviewSession.swift */,
 				2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */,
 				2DDD31E686531523A25A94AF /* NativeSessionLaunchBoundary.swift */,
+				B745A2C75B50DAE81932CC6D /* NativeSyntheticRuntimeRequest.swift */,
 				FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */,
 				7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */,
 				4DCF7AC969078D7CF6AFF6D4 /* OwnedNativeControlSlot.swift */,
@@ -1256,6 +1269,7 @@
 				D04EEC4B669195EFEDD6EDDE /* ExclusionSyncContract.swift in Sources */,
 				58806B9E71CAA28D9498FEAE /* FailoverPolicy.swift in Sources */,
 				05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */,
+				5C302B3D4C91370FACC71BE4 /* NativeAWGPacketSession.swift in Sources */,
 				620CEC9463F28D933D0E7F75 /* NativeAWGValidationDriver.swift in Sources */,
 				5646E63EC14EFF44A70E3F03 /* NativeCredentialCatalog.swift in Sources */,
 				54D3D304C34C89944511A9CE /* NativeCredentialHandoff.swift in Sources */,
@@ -1267,6 +1281,9 @@
 				2710584D29A11CDDC62C8F83 /* NativeProfileReviewSession.swift in Sources */,
 				3EBE5E73361185C17E44D8A0 /* NativeRestoreReview.swift in Sources */,
 				909C8FDB07B2767EFC7C66AC /* NativeSessionLaunchBoundary.swift in Sources */,
+				EB11510E5473B57442B812AD /* NativeSyntheticProviderSession.swift in Sources */,
+				E55C3311711B5A04B35F8497 /* NativeSyntheticRuntimeFixture.swift in Sources */,
+				81D664832958CBD04A2B6687 /* NativeSyntheticRuntimeRequest.swift in Sources */,
 				FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */,
 				1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */,
 				2794DA0B10542C6F609FAF2D /* NativeWireGuardRuntimeConfig.swift in Sources */,
@@ -1416,6 +1433,7 @@
 				F64C3AA91E0C2A2B9F111F99 /* NativeProfileReviewSession.swift in Sources */,
 				38289BB0E5CE502413613FF3 /* NativeRestoreReview.swift in Sources */,
 				BFCF80DBF1129A830E10043A /* NativeSessionLaunchBoundary.swift in Sources */,
+				7A5D102D2D1E11C6500CFDAD /* NativeSyntheticRuntimeRequest.swift in Sources */,
 				E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */,
 				0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */,
 				89147259BFDEAE36EB6B638B /* NativeWireGuardRuntimeConfig.swift in Sources */,

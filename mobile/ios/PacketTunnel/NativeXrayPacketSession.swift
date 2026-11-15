@@ -18,6 +18,7 @@ import tun2proxy
     private var draining=false
     private var retired=false
     private var settingsInstalled=false
+    private var lifetime:Task<Void,Never>?
     init(owner:NativeCredentialHandoff.Binding)throws {
         guard owner.valid,owner.reference.kind.provider == .rustXray else{throw Failure.unsupported}
         self.owner=owner
@@ -67,6 +68,12 @@ import tun2proxy
                     provider?.cancelTunnelWithError(NSError(domain:"APLNativeRuntime",code:1))
                 }
             }
+            lifetime=Task { @MainActor [weak self,weak provider] in
+                try? await Task.sleep(nanoseconds:20_000_000_000)
+                guard !Task.isCancelled,let self,!self.retired else{return}
+                self.retired=true;self.control.fail()
+                provider?.cancelTunnelWithError(NSError(domain:"APLNativeRuntime",code:3))
+            }
             // No ready receipt: queue submission is not independent peer or
             // native readiness evidence. A future accepted probe must supply it.
         } catch {
@@ -79,6 +86,7 @@ import tun2proxy
         retired=true
         guard !starting,!draining else{control.fail();throw Failure.busy}
         draining=true;defer{draining=false}
+        lifetime?.cancel();lifetime=nil
         if control.state != .failed && control.state != .drained {try control.beginDrain()}
         exitGate.invalidate()
         do {

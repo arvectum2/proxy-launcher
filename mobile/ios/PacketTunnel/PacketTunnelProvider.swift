@@ -36,6 +36,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private var switching = false
     private var stopping = false
     private var rejectedNativeWithoutLegacy = false
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    @MainActor private lazy var syntheticOwner=NativeSyntheticProviderOwner()
+#endif
 #if DEBUG
     private let qaCallbackGate = TunnelQACallbackGate()
     private var qaScopedDirect = false
@@ -47,6 +50,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.start(provider:self,options:options,completionHandler:completionHandler) }
+        return
+#else
         // Route reserved native starts before touching legacy state, telemetry,
         // settings, timers, or profile selection. Never fall back on rejection.
         let configuration=(protocolConfiguration as? NETunnelProviderProtocol)?.providerConfiguration
@@ -190,12 +197,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 completionHandler(error)
             }
         }
+#endif
     }
 
     override func stopTunnel(
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+        Task { @MainActor in await syntheticOwner.stop(provider:self);completionHandler() }
+        return
+#else
         if rejectedNativeWithoutLegacy && startTask==nil && active==nil {
             completionHandler();return
         }
@@ -227,7 +239,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
         active = nil
         completionHandler()
+#endif
     }
+
+#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME
+    override func handleAppMessage(_ messageData:Data,completionHandler:((Data?)->Void)?) {
+        Task { @MainActor in completionHandler?(await syntheticOwner.message(messageData,provider:self)) }
+    }
+#endif
 
     private func selectProxy() async throws -> PreparedProxy {
         guard let store else { throw tunnelError("Общее хранилище недоступно") }

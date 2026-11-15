@@ -27,6 +27,13 @@ PY
 cp "$rust/ios-arm64/libtun2proxy.a" "$work/Lib/Rust/"
 cp "$rust/ios-arm64/Headers/"* "$work/Lib/Rust/Headers/"
 [[ $(shasum -a 256 "$work/Lib/Rust/libtun2proxy.a" | cut -d' ' -f1) == e81642cf494e218aeb3314289f235eeff8dff21dc8d72b8bd23ded8b41c0b852 ]] || { echo WRONG_RUST_VARIANT >&2; exit 2; }
+runtime_flag="${APL_COMPILE_SYNTHETIC_RUNTIME:-0}"
+[[ "$runtime_flag" == 0 || "$runtime_flag" == 1 ]]
+mkdir -p "$work/FixtureSupport"
+if [[ "$runtime_flag" == 1 ]]; then
+    cp "$root/Tools/XrayWireGuardLabConfig.swift" "$work/FixtureSupport/XrayWireGuardLabConfig.swift"
+    cp "$root/Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift" "$work/FixtureSupport/ExactLabTUNDescriptor.swift"
+fi
 cp -R "$root/PacketTunnel" "$root/Shared" "$root/SharedCore" "$work/"
 cp "$root/Config/PacketTunnel-Info.plist" "$work/Info.plist"
 cat > "$work/project.yml" <<'YAML'
@@ -42,6 +49,7 @@ targets:
       - PacketTunnel
       - Shared
       - SharedCore
+      - FixtureSupport
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.productxraycompile.PacketTunnel
@@ -64,6 +72,9 @@ schemes:
       targets:
         PacketTunnelCandidate: all
 YAML
+if [[ "$runtime_flag" == 1 ]]; then
+    sed -i '' "s/APL_NATIVE_XRAY_CANDIDATE'/APL_NATIVE_XRAY_CANDIDATE APL_NATIVE_SYNTHETIC_RUNTIME'/" "$work/project.yml"
+fi
 (cd "$work" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$work/APLProductXrayCompileOnly.xcodeproj" -scheme PacketTunnelCandidate -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$work/Build" build > "$work/build.log" 2>&1; then
     grep -E 'error:|BUILD FAILED' "$work/build.log" | tail -25; exit 1
@@ -89,7 +100,10 @@ for folder in ('PacketTunnel','Shared','SharedCore'):
     for f in sorted((work/folder).rglob('*.swift')):
         rel=str(f.relative_to(work));sources[rel]=sha(f)
         assert sources[rel]==sha(root/rel)
-report={'schema':1,'scope':'actual product extension sources; unsigned compile/link only; no install/runtime authorization','release_authorized':False,'base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
+fixture_origins={'XrayWireGuardLabConfig.swift': 'Tools/XrayWireGuardLabConfig.swift', 'ExactLabTUNDescriptor.swift': 'Tools/NativeTunnelLab/ExactLabTUNDescriptor.swift'}
+for f in sorted((work/'FixtureSupport').glob('*.swift')):
+    sources[str(f.relative_to(work))]=sha(f);assert sha(f)==sha(root/fixture_origins[f.name])
+report={'schema':1,'synthetic_runtime_compiled':bool(list((work/'FixtureSupport').glob('*.swift'))),'scope':'actual product extension sources; unsigned compile/link only; no install/runtime authorization','release_authorized':False,'base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
 (out/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('COMPILE_LINK_ONLY_PASS',report['binary_sha256'],len(sources),'sources')
 PY

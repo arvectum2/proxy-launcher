@@ -24,6 +24,12 @@ python3 "$root/Tools/verify_tun2proxy_lab_artifact.py" "$rust" ios-arm64 --requi
 cp "$rust/ios-arm64/libtun2proxy.a" "$work/Lib/Rust/"
 cp "$rust/ios-arm64/Headers/"* "$work/Lib/Rust/Headers/"
 [[ $(shasum -a 256 "$work/Lib/Rust/libtun2proxy.a" | cut -d' ' -f1) == e81642cf494e218aeb3314289f235eeff8dff21dc8d72b8bd23ded8b41c0b852 ]]
+runtime_flag="${APL_COMPILE_SYNTHETIC_RUNTIME:-0}"
+[[ "$runtime_flag" == 0 || "$runtime_flag" == 1 ]]
+mkdir -p "$work/FixtureSupport"
+if [[ "$runtime_flag" == 1 ]]; then
+    cp "$root/Tools/AWGNativeLab/PacketTunnel/AWGPacketFlowPump.swift" "$work/FixtureSupport/AWGPacketFlowPump.swift"
+fi
 cp -R "$root/PacketTunnel" "$root/Shared" "$root/SharedCore" "$work/"
 cp "$root/Config/PacketTunnel-Info.plist" "$work/Info.plist"
 cat > "$work/project.yml" <<'YAML'
@@ -35,7 +41,7 @@ targets:
   PacketTunnelCandidate:
     type: app-extension
     platform: iOS
-    sources: [PacketTunnel, Shared, SharedCore]
+    sources: [PacketTunnel, Shared, SharedCore, FixtureSupport]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ru.arvectum.proxylauncher.lab.productawgcompile.PacketTunnel
@@ -58,6 +64,9 @@ schemes:
       targets:
         PacketTunnelCandidate: all
 YAML
+if [[ "$runtime_flag" == 1 ]]; then
+    sed -i '' "s/APL_NATIVE_AWG_CANDIDATE'/APL_NATIVE_AWG_CANDIDATE APL_NATIVE_SYNTHETIC_RUNTIME'/" "$work/project.yml"
+fi
 (cd "$work" && xcodegen generate >/dev/null)
 if ! xcodebuild -project "$work/APLProductAWGCompileOnly.xcodeproj" -scheme PacketTunnelCandidate -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO -derivedDataPath "$work/Build" build > "$work/build.log" 2>&1; then grep -E 'error:|BUILD FAILED' "$work/build.log" | tail -25; exit 1; fi
 app="$work/Build/Build/Products/Debug-iphoneos/PacketTunnelCandidate.appex"
@@ -80,7 +89,10 @@ for folder in ('PacketTunnel','Shared','SharedCore','lab'):
         if not f.is_file():continue
         rel=str(f.relative_to(work));src=root/rel if folder!='lab' else root/'Tools/AWGNativeLab'/f.name
         sources[rel]=sha(f);assert sources[rel]==sha(src)
-report={'schema':1,'release_authorized':False,'scope':'actual product AWG provider sources; unsigned compile/link only; no runtime authorization','base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'awg_commit':'b5928efb6ca19f0153958460c3d141f04abc5c2e','sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
+fixture_origins={'AWGPacketFlowPump.swift': 'Tools/AWGNativeLab/PacketTunnel/AWGPacketFlowPump.swift'}
+for f in sorted((work/'FixtureSupport').glob('*.swift')):
+    sources[str(f.relative_to(work))]=sha(f);assert sha(f)==sha(root/fixture_origins[f.name])
+report={'schema':1,'synthetic_runtime_compiled':bool(list((work/'FixtureSupport').glob('*.swift'))),'release_authorized':False,'scope':'actual product AWG provider sources; unsigned compile/link only; no runtime authorization','base_commit':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'awg_commit':'b5928efb6ca19f0153958460c3d141f04abc5c2e','sources':sources,'binary_sha256':sha(binary),'inputs':{str(p.relative_to(work)):sha(p) for p in sorted((work/'Lib').rglob('*')) if p.is_file()},'build_log_sha256':sha(out/'build.log'),'symbol_table_sha256':sha(out/'symbols.txt')}
 (out/'manifest.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
 print('AWG_COMPILE_LINK_ONLY_PASS',report['binary_sha256'],len(sources),'sources')
 PY

@@ -64,3 +64,38 @@ def test_awg_product_candidate_is_a_separate_non_network_validation_lane():
     assert 'GOPROXY=off' in script and 'CODE_SIGNING_ALLOWED=NO' in script
     assert 'APL_NATIVE_XRAY_CANDIDATE' not in script and "'release_authorized':False" in script
     assert "_CGoInvoke$" in script
+
+
+def test_actual_provider_synthetic_runtime_is_separate_and_not_ready_claim():
+    provider=(IOS/'PacketTunnel/PacketTunnelProvider.swift').read_text()
+    gate='#if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_SYNTHETIC_RUNTIME'
+    assert gate in provider
+    assert 'syntheticOwner.start(provider:self' in provider and 'syntheticOwner.stop(provider:self)' in provider
+    assert 'syntheticOwner.message(messageData,provider:self)' in provider
+    owner=(IOS/'PacketTunnel/NativeSyntheticProviderSession.swift').read_text()
+    assert owner.startswith(gate+'\n')
+    assert 'NativeSyntheticRuntimeRequest.inspect' in owner and 'guard !used,!retired' in owner
+    assert 'ExactLabTUNDescriptor.find(address:"192.0.2.177")' in owner
+    assert 'control.ready()' not in owner and 'ProfileStore' not in owner
+    assert 'await session.respond(request,provider:provider)' in owner
+    assert 'APL_NATIVE_SYNTHETIC_RUNTIME' not in (IOS/'project.yml').read_text()
+    for engine in ('xray','awg'):
+        script=(IOS/f'Tools/build_product_{engine}_candidate_unsigned.sh').read_text()
+        assert 'APL_COMPILE_SYNTHETIC_RUNTIME:-0' in script
+        assert 'synthetic_runtime_compiled' in script and 'fixture_origins' in script
+    awg=(IOS/'PacketTunnel/NativeAWGPacketSession.swift').read_text()
+    assert 'AWGPacketFlowPump(flow:provider.packetFlow)' in awg
+    assert 'pump.stop(completion:done)' in awg and 'control.finishDrain()' in awg
+    assert 'control.ready()' not in awg and 'NEIPv4Route.default' not in awg and '.dnsSettings' not in awg
+
+
+def test_unified_go_archive_is_compile_only_and_pinned():
+    script=(IOS/'Tools/build_unified_go_candidate_unsigned.sh').read_text()
+    assert 'GOPROXY=off GOSUMDB=off' in script and 'mod verify' in script
+    assert 'build -mod=readonly' in script and '-buildmode=c-archive' in script
+    assert 'b5928efb6ca19f0153958460c3d141f04abc5c2e' in script
+    assert 'func awgSyntheticCLI() {' in script
+    assert 'CGoInvoke CGoFree aplAWGBridgeValidateConfig aplAWGBridgeStartLAN aplAWGBridgePush aplAWGBridgePull aplAWGBridgeStop' in script
+    assert "'release_authorized':False" in script
+    assert 'devicectl' not in script and 'simctl' not in script and 'codesign' not in script
+    assert 'mv "$E" "$out"' in script and 'ios-unified-link-probe' not in script.split('mkdir -p "$work/src" "$work/evidence"')[1].split('mv "$E" "$out"')[-1]
