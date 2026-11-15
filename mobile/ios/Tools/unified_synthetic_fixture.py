@@ -8,7 +8,9 @@ PREVIOUS_MANAGER_CONTAINING_CANDIDATE='08f252a543f911d455f77eaace837ec2c9ff6df76
 PREVIOUS_IP_REVIEW_CANDIDATE='f852170af6a114aefd53deb38c7853fee05dcbc57099826272ad6e4495228fa5'
 CONTAINING_CANDIDATE='51675f0ea5790921c2f7b935857302803871d61764153ca18c9d93733fc278de'
 SPLIT_CANDIDATE='fe423cbe4db517052c7fc24f51a8539dcff63241808223f5c964fb88186d1cd1'
-CANDIDATES=(CANDIDATE,HISTORICAL_CONTAINING_CANDIDATE,PREVIOUS_MANAGER_CONTAINING_CANDIDATE,PREVIOUS_IP_REVIEW_CANDIDATE,CONTAINING_CANDIDATE,SPLIT_CANDIDATE)
+NO_TPROXY_CANDIDATE='ea077346d8bf7b24ada45a99b51575f7a814359cdd7f47a7993620192ee242e7'
+NO_TPROXY_SPLIT_CANDIDATE='51306c5d9b9597482ecba048047e356939fedbdf553966b7b19d38bddafcaef7'
+CANDIDATES=(NO_TPROXY_CANDIDATE,NO_TPROXY_SPLIT_CANDIDATE,CANDIDATE,HISTORICAL_CONTAINING_CANDIDATE,PREVIOUS_MANAGER_CONTAINING_CANDIDATE,PREVIOUS_IP_REVIEW_CANDIDATE,CONTAINING_CANDIDATE,SPLIT_CANDIDATE)
 CASES={'wireGuard':('tcp4','tcp6','udp4','udp6'),'amneziaWG1':('tcp4','tcp6','udp4','udp6'),'vlessReality':('tcp4',)}
 MODES={'wireGuard':('positive','wrong-key'),'amneziaWG1':('positive','wrong-key','wrong-psk'),'vlessReality':('positive','wrong-key')}
 
@@ -60,5 +62,5 @@ def write(root,kind,probe,mode,local,candidate=CONTAINING_CANDIDATE):
     return public
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('output',type=pathlib.Path);p.add_argument('kind',choices=CASES);p.add_argument('probe');p.add_argument('mode');p.add_argument('--local-ipv4',type=int);a=p.parse_args()
-    m=write(a.output,a.kind,a.probe,a.mode,a.local_ipv4);print('PRIVATE_FIXTURE_CREATED',m['runID'],m['kind'],m['probe'],m['mode'])
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('output',type=pathlib.Path);p.add_argument('kind',choices=CASES);p.add_argument('probe');p.add_argument('mode');p.add_argument('--local-ipv4',type=int);p.add_argument('--no-tproxy',action='store_true');a=p.parse_args()
+    m=write(a.output,a.kind,a.probe,a.mode,a.local_ipv4,candidate=NO_TPROXY_CANDIDATE if a.no_tproxy else CONTAINING_CANDIDATE);print('PRIVATE_FIXTURE_CREATED',m['runID'],m['kind'],m['probe'],m['mode'])

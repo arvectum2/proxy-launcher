@@ -12,6 +12,9 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Stage15a exact alternative Rust archive in isolated actual unified standard/split provider builds."
+  - "Stage15b Rust host regression20/20,6178 classifier comparisons and six UDP exchanges."
+  - "Stage15c split actual link map, separate fixture pins, verified source and notices; no promotion."
   - "Stage14a isolated no-tproxy Rust iOS build/link and graph."
   - "Stage14b source notice inventory 141/250; no final clearance."
   - "Stage14c SDK attribution About/50 offline descriptions and Apple5.4 risk review."
@@ -214,7 +217,7 @@ completed:
 
 
 
-current: "Stage14a-c verified: exact9085259e CI7/7. Separate iOS-only Rust alternative replaces tproxy-config dependency with locked cidr0.3.2 and independent DNS classifier; desktop unchanged. 28 boundary vectors PASS; package identities unchanged; device/sim graphs151->141. Actual ARM64 iOS Rust archive and iOS15 C link probe PASS; archive member names/linked symbols no tproxy_config; Apple nm partial LLVM incompatibility. Private manifest b119b60c5fead049525aa6243b51d4ba18749bca77d08c497964973e3de49503 archive782add5ca2c482423cd4ad34aff9f5116ce39023c477fed08d0181d63ce3d807;141 source components/250 notice files incl tun header, no missing source material in new graph. Old linked archive gap remains, no promotion/default pin change. Yandex Ads and AppMetrica public attribution terms reviewed; selected AppMetrica MIT retained; credits in About and 50 offline ASO descriptions RU/EN fallback, no upload/ad policy change. Apple5.4 privacy risk remains blocker. Swift405/405 Python476/476+1527 ordinary unsigned Release and preflight PASS. No physical runtime/device/Keychain/signing/production change."
+current: "Stage15 verified: prior2c8ddc04 CI7/7. New no-tproxy archive integrated into two separate unsigned unified containing candidates (ordinary synthetic and split) with opt-in receipt verifier, exact old ABI headers, research graph/141 components/250 notice hashes, no default pin change. Ordinary manifest ea077346d8bf7b24ada45a99b51575f7a814359cdd7f47a7993620192ee242e7 extension8c5bf00581ef08a477afcca1c80209fddf08b772a3a7a351309e107e015829a9; split manifest51306c5d9b9597482ecba048047e356939fedbdf553966b7b19d38bddafcaef7 extension8f755c02ddfb9adfb91cbce5fdbe17f01f4b00d710b4a7f9a690a33903002477. 2x80 source hashes, final symbols no tproxy_config; split actual link map214 Rust/11 Go objects and embedded binary equality. Explicit --no-tproxy fixtures/manager/signed scope pins; old defaults unchanged, no authorization. Host copy Rust20/20 incl6178 reference classifier comparisons and6 real connected loopback UDP exchanges; initial test type inference corrected. No iOS data-plane proof. Swift405/405 Python477/477+1527 active release preflight PASS. No device/signing/Keychain/production change."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -226,8 +229,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "9085259e CI7/7; new tree Swift405/Python476+1527/Rust build-link and 28 vectors/ordinary Release/ASO50 verified; CI pending"
+last_verified_commit: "2c8ddc04 exact CI7/7; new tree Swift405/Python477+1527/Rust20/2 integrated builds and split map/2x80 source hashes checked; CI pending"
 test_results:
+  - "Swift405/405 Python477/477+1527 Rust20/20 (6178 comparisons,6 UDP), two unsigned unified builds 2x80 source checks, split map214+11 archive entries, preflight PASS; old CI7/7. No physical runtime or legal clearance."
   - "Swift405/405 Python476/476+1527 Rust28 vectors and actual ARM64 iOS archive/link pass,141 source components/250 notices, ordinary unsigned Release, ASO50, active preflight PASS; full archive Apple nm partial incompatibility. Prior CI7/7. No physical proof or legal clearance."
   - "Swift405/405, Python474/474+1527, gated unsigned Debug and ordinary Release, symbol isolation and active release preflight PASS. Prior3f5c9da6 exact CI7/7. Synthetic artifact tests only; no actual packet capture or native domain activation."
   - "Swift402/402, Python471/471+1527, 13 SDK objects+iOS15 typecheck, split and negative-control containing builds, ordinary Release and isolation/preflight PASS; 2x79 source receipt checks. Initial generator quote error fixed. No real route install, observer capture, device or release acceptance."
@@ -365,4 +369,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact PR383 HEAD CI. Integrate distinct private no-tproxy Rust archive into isolated unified product compile lane with exact receipt and independent pin; preserve default framework and previous validated candidates. Test C ABI and offline DNS/UDP behavior; physical acceptance only with authorization. Old tproxy original notice unresolved; do not repeat fruitless search or invent attribution. Final linked Rust/Go/SDK closure, terms applicability and Apple5.4 runtime/privacy remain. About/ASO credits done, GUI/editorial review open. Smart4 exact-domain parity requires product decision before scope reduction; 30-case actual acceptance and S1/K1/K2/X1/N1/N2/C1/R1 pending. No signing/registration/activation/device/account changes/main merge/publication. Maintain existing single watchdog and checkpoint."
+resume_instruction: "Verify exact PR383 HEAD CI. No repeat of completed compile-only or source notice search. Next concrete offline end-to-end fixture improvements and build-bound source/notice delivery review for new exact Rust+Go selection; consolidate supervised physical acceptance checklist with independent observer topology, exact candidate IDs, 30-case plan, real GUI/Keychain and S1/K1/K2/X1/N1/N2/C1/R1. Address final SDK applicable terms and Apple5.4 data behavior, no unilateral monetization change. Actual physical data plane, final distribution and Smart4 exact-domain scope decision remain blockers; keep native admission fail closed and existing product scope. No signing/registration/device/account/runtime activation/main merge/publication. Maintain single watchdog, update checkpoint."

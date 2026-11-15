@@ -10,7 +10,7 @@ from validate_unified_synthetic_receipt import need,exact,read,uuidstr,validate_
 
 EXTRA=('splitCase','target','tunnelObserver','externalObserver')
 def validate(m,h,private,peer,witness,tunnel,external):
-    need(m.get('candidateManifestSHA256')==base.SPLIT_CANDIDATE and m.get('kind')=='amneziaWG1' and m.get('mode')=='positive','wrong route candidate')
+    need(m.get('candidateManifestSHA256') in (base.SPLIT_CANDIDATE,base.NO_TPROXY_SPLIT_CANDIDATE) and m.get('kind')=='amneziaWG1' and m.get('mode')=='positive','wrong route candidate')
     case=m['splitCase'];probe=m['probe'];addr=target(case,probe)
     need(m['target']==addr and private.get('splitCase')==h.get('splitCase')==case,'split target mismatch')
     need(uuidstr(m['tunnelObserver']) and uuidstr(m['externalObserver']) and len({m['tunnelObserver'],m['externalObserver'],m['runID'],m['owner']})==4,'observer identity collision')

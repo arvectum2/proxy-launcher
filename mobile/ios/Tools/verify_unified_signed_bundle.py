@@ -4,7 +4,7 @@ Expected record must be independently obtained from authorized signing/build.
 It does not prove signed Mach-O equivalence with previous unsigned build.
 """
 import datetime,hashlib,json,pathlib,plistlib,re,subprocess,sys
-from unified_synthetic_fixture import CONTAINING_CANDIDATE,SPLIT_CANDIDATE
+from unified_synthetic_fixture import CONTAINING_CANDIDATE,SPLIT_CANDIDATE,NO_TPROXY_CANDIDATE,NO_TPROXY_SPLIT_CANDIDATE
 from validate_unified_synthetic_receipt import exact,need,read
 BASE='ru.arvectum.proxylauncher.lab.productunifiedcompile'
 
@@ -13,7 +13,7 @@ def sha(p):
 
 def validate_record(r):
     exact(r,'schema candidateManifestSHA256 team device hostSHA256 extensionSHA256 hostInfoSHA256 extensionInfoSHA256')
-    need(type(r['schema'])==int and r['schema']==1 and r['candidateManifestSHA256'] in (CONTAINING_CANDIDATE,SPLIT_CANDIDATE),'wrong candidate')
+    need(type(r['schema'])==int and r['schema']==1 and r['candidateManifestSHA256'] in (CONTAINING_CANDIDATE,SPLIT_CANDIDATE,NO_TPROXY_CANDIDATE,NO_TPROXY_SPLIT_CANDIDATE),'wrong candidate')
     need(type(r['team'])==str and re.fullmatch('[A-Z0-9]{10}',r['team']) and type(r['device'])==str and re.fullmatch('[0-9A-Fa-f-]{24,40}',r['device']),'invalid expected identity')
     for k in ('hostSHA256','extensionSHA256','hostInfoSHA256','extensionInfoSHA256'):need(type(r[k])==str and re.fullmatch('[a-f0-9]{64}',r[k]),'invalid expected hash')
 
