@@ -76,9 +76,9 @@ xcrun nm "$extension" > "$work/provider-symbols.txt"
 for symbol in CGoInvoke CGoFree aplAWGBridgeValidateConfig tun2proxy_run_with_cli_args tun2proxy_stop; do
     grep -E " [Tt] _${symbol}$" "$work/provider-symbols.txt"
 done
-! grep -q 'NativeSyntheticProviderOwner\|tproxy_config' "$work/provider-symbols.txt"
+if grep -q 'NativeSyntheticProviderOwner\|tproxy_config' "$work/provider-symbols.txt"; then echo 'Unexpected provider symbols' >&2; exit 1; fi
 grep -q NativeXrayRuntimeDriver "$work/provider-symbols.txt"
-grep -q NativeAWGValidationDriver "$work/provider-symbols.txt"
+if [[ "$runtime_flag" == 0 ]]; then grep -q NativeAWGValidationDriver "$work/provider-symbols.txt"; fi
 if [[ "$product_flag" == 1 ]]; then
     for symbol in aplAWGProductPrepare aplAWGProductStart aplAWGProductPush aplAWGProductPull aplAWGProductStop; do grep -Eq " [Tt] _${symbol}$" "$work/provider-symbols.txt"; done
     grep -q NativeAWGProductFlow "$work/provider-symbols.txt"
