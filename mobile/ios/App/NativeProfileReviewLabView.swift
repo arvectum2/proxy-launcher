@@ -223,7 +223,7 @@ enum NativeReviewQAL10n {
                 file=try ProfileBackupCodec.readEncryptedFile(at:url)
             case .configuration(let reviewedKind):
                 summary=try session.previewSource(NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes),kind:reviewedKind)
-            case .automaticConfigurations,.export:throw ProfileBackupError.invalidFile
+            case .automaticConfigurations,.replacement,.export:throw ProfileBackupError.invalidFile
             }
         } catch {fail()}
     }

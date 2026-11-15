@@ -144,11 +144,19 @@ struct NativeCredentialCatalogReader {
         try reader.storage.replace(bytes)
         s=next
     }
-    func save(_ record: NativeCredentialRecord, select: Bool) throws {
+    func replace(_ old:Ref,with record:NativeCredentialRecord,expected:Snapshot,expectedLegacy:Set<UUID>,vpnInactive:()throws->Bool)throws {
+        guard expected.version==2,!expected.hasPendingWrite,expected.current.contains(old),record.reference.profileID==old.profileID,record.reference.kind==old.kind,record.reference != old,!expectedLegacy.contains(old.profileID) else{throw Failure.collision}
+        guard try vpnInactive(),try reader.snapshot()==expected,try legacyIDs()==expectedLegacy else{throw Failure.rollbackIncomplete}
+        guard try repository.read(old) != nil else{throw Failure.missing}
+        try save(record,select:false,vpnInactive:vpnInactive,expected:expected,expectedLegacy:expectedLegacy)
+    }
+    func save(_ record: NativeCredentialRecord, select: Bool, vpnInactive:()throws->Bool = {true}, expected:Snapshot? = nil, expectedLegacy:Set<UUID>? = nil) throws {
+        guard try vpnInactive() else{throw ProfileBackupError.vpnActive}
         let ref = record.reference
         let legacy = try legacyIDs()
         guard !legacy.contains(ref.profileID) else { throw Failure.collision }
         let original = try writableSnapshot()
+        guard expected.map({$0==original}) ?? true, expectedLegacy.map({$0==legacy}) ?? true else{throw Failure.rollbackIncomplete}
         guard !original.hasPendingWrite else { throw Failure.rollbackIncomplete }
         var s = original
         guard !s.current.contains(ref), !s.retired.contains(ref) else { throw Failure.collision }
@@ -163,18 +171,19 @@ struct NativeCredentialCatalogReader {
         if select { s.selected = ref; s.selectionNonce = UUID() }
         // Journal the exact intended revision before any credential write.
         // A crash can leave a pending entry, never an unknown record to sweep.
-        guard try repository.read(ref) == nil, try legacyIDs() == legacy, try reader.snapshot() == original else { throw Failure.collision }
+        guard try repository.read(ref) == nil, try vpnInactive(), try legacyIDs() == legacy, try reader.snapshot() == original else { throw Failure.collision }
         var journal = original; journal.pendingInsert = ref
         try publish(&journal)
         do {
+            guard try vpnInactive(),try reader.snapshot()==journal,try legacyIDs()==legacy else{throw Failure.rollbackIncomplete}
             try repository.insert(record)
             guard let stored = try repository.read(ref), try stored.encoded() == record.encoded() else {throw Failure.missing}
-            guard try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
+            guard try vpnInactive(),try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             try publish(&s)
         } catch {
             do {
                 guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
-                try reconcilePendingInsert()
+                try reconcilePendingInsert(vpnInactive:vpnInactive)
             }
             catch { throw Failure.rollbackIncomplete }
             throw error

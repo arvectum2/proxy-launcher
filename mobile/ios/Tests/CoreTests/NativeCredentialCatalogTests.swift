@@ -55,6 +55,28 @@ final class NativeCredentialCatalogTests: XCTestCase {
         let reset=try ui.prepare(.rename(original.reference,""));try ui.confirm(reset,vpnInactive:{true});XCTAssertNil(try ui.state().library.rows.first?.displayName)
         XCTAssertEqual(items.values,originalItems)
     }
+    @MainActor func testReplacementKeepsIdentityAndRollsBackBeforePublication() throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let original=try record(),other=try record();try c.save(original,select:true);try c.save(other,select:false)
+        let ui=NativePersistentProfileSession(catalog:c,policy:{.tunnelOnly})
+        try ui.confirm(ui.prepare(.rename(original.reference,"Home")),vpnInactive:{true})
+        let before=try c.reader.snapshot(),oldItems=items.values,new=automaticSources()
+        XCTAssertThrowsError(try ui.previewReplacement(new.vless,for:original.reference))
+        let stale=try ui.previewReplacement(new.wg,for:original.reference)
+        _=try ui.prepare(.rename(other.reference,"Other"));XCTAssertThrowsError(try ui.confirm(stale,vpnInactive:{true}))
+        let denied=try ui.previewReplacement(new.wg,for:original.reference);XCTAssertThrowsError(try ui.confirm(denied,vpnInactive:{false}));XCTAssertEqual(try c.reader.snapshot(),before)
+        let rollback=try ui.previewReplacement(new.wg,for:original.reference);m.failAfter=m.writes+2
+        XCTAssertThrowsError(try ui.confirm(rollback,vpnInactive:{true}));assertRestoredContent(try c.reader.snapshot(),before);XCTAssertEqual(items.values,oldItems)
+        m.failAfter=nil
+        let success=try ui.previewReplacement(new.wg,for:original.reference);try ui.confirm(success,vpnInactive:{true})
+        let after=try c.reader.snapshot(),ref=try XCTUnwrap(after.current.first)
+        XCTAssertEqual(ref.profileID,original.reference.profileID);XCTAssertNotEqual(ref.revision,original.reference.revision);XCTAssertEqual(ref.kind,original.reference.kind)
+        XCTAssertEqual(after.current,[ref,other.reference]);XCTAssertEqual(after.retired,[original.reference]);XCTAssertNil(after.selected);XCTAssertNil(after.selectionNonce)
+        XCTAssertEqual(after.displayNames?[ref.profileID.uuidString],"Home");XCTAssertEqual(items.values.count,3)
+        XCTAssertThrowsError(try ui.confirm(success,vpnInactive:{true}))
+        let select=try ui.prepare(.select(ref));try ui.confirm(select,vpnInactive:{true});XCTAssertEqual(try c.reader.snapshot().selected,ref)
+        XCTAssertNotEqual(try c.reader.snapshot().selectionNonce,before.selectionNonce)
+    }
     private func automaticSources() -> (wg:String,awg:String,vless:String) {
         let a=Curve25519.KeyAgreement.PrivateKey(),b=Curve25519.KeyAgreement.PrivateKey()
         let wg="[Interface]\nPrivateKey=\(a.rawRepresentation.base64EncodedString())\nAddress=10.0.0.2/32, fd00::2/128\nDNS=192.0.2.53\n[Peer]\nPublicKey=\(b.publicKey.rawRepresentation.base64EncodedString())\nAllowedIPs=0.0.0.0/0, ::/0\nEndpoint=192.0.2.42:51820"

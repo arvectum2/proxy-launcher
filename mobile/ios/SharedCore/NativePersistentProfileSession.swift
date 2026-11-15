@@ -3,7 +3,7 @@ import Foundation
 /// Metadata-only management of the real-format catalog, with explicit
 /// snapshot-bound actions. No ticket, engine, OS calls or legacy selection.
 @MainActor final class NativePersistentProfileSession {
-    enum Action:Equatable {case migrate, recover, purgeRetired, exportBackup, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference), rename(NativeCredentialRecord.Reference,String)}
+    enum Action:Equatable {case migrate, recover, purgeRetired, exportBackup, select(NativeCredentialRecord.Reference), remove(NativeCredentialRecord.Reference), rename(NativeCredentialRecord.Reference,String), replace(NativeCredentialRecord.Reference)}
     enum Failure:Error {case stale, unavailable, expired}
     struct State:Equatable {
         let library:NativeProfilePresentation
@@ -15,7 +15,7 @@ import Foundation
         var policyAllowsSelection:Bool {policy.permitsSelection}
     }
     struct Receipt:Equatable {let id:UUID;let action:Action;let affected:Int}
-    private struct Pending {let receipt:Receipt;let snapshot:NativeCredentialCatalogReader.Snapshot;let legacy:Set<UUID>;let time:TimeInterval}
+    private struct Pending {let receipt:Receipt;let snapshot:NativeCredentialCatalogReader.Snapshot;let legacy:Set<UUID>;let time:TimeInterval;let replacement:NativeCredentialRecord?}
     private let catalog:NativeCredentialCatalog
     private let review:NativeRestoreReview
     private let policy:()->NativeRoutingAdmission
@@ -50,7 +50,13 @@ import Foundation
         guard try vpnInactive(),try catalog.reader.snapshot()==snapshot,policy() == .tunnelOnly else{throw Failure.stale}
         return plan
     }
-    func prepare(_ action:Action)throws->Receipt {
+    func previewReplacement(_ source:String,for ref:NativeCredentialRecord.Reference)throws->Receipt {
+        cancel()
+        let record=try NativeCredentialRecord.create(profileID:ref.profileID,expected:ref.kind.transport,source:source)
+        return try prepareAction(.replace(ref),replacement:record)
+    }
+    func prepare(_ action:Action)throws->Receipt {try prepareAction(action,replacement:nil)}
+    private func prepareAction(_ action:Action,replacement:NativeCredentialRecord?)throws->Receipt {
         cancel();let (s,legacy)=try catalog.reviewState();let count:Int
         switch action {
         case .migrate:guard s.version==1 else{throw Failure.unavailable};count=s.current.count
@@ -59,11 +65,12 @@ import Foundation
         case .purgeRetired:guard s.version==2,!s.hasPendingWrite,!s.retired.isEmpty else{throw Failure.unavailable};count=s.retired.count
         case .select(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),policy().permitsSelection else{throw Failure.unavailable};count=1
         case .rename(let ref,let name):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID) else{throw Failure.unavailable};_ = try NativeCredentialRecord.normalizedDisplayName(name);count=1
+        case .replace(let ref):guard let replacement,replacement.reference.profileID==ref.profileID,replacement.reference.kind==ref.kind,s.version==2,!s.hasPendingWrite,s.current.contains(ref),!legacy.contains(ref.profileID),s.retired.count<64 else{throw Failure.unavailable};count=1
         case .remove(let ref):guard s.version==2,!s.hasPendingWrite,s.current.contains(ref) else{throw Failure.unavailable};count=1
         }
         let now=elapsed();guard now.isFinite,now>=0 else{throw Failure.expired}
         let receipt=Receipt(id:UUID(),action:action,affected:count)
-        pending=Pending(receipt:receipt,snapshot:s,legacy:legacy,time:now);return receipt
+        pending=Pending(receipt:receipt,snapshot:s,legacy:legacy,time:now,replacement:replacement);return receipt
     }
     private func consume(_ receipt:Receipt)throws->Pending {
         guard let p=pending,p.receipt==receipt else{throw Failure.stale}
@@ -88,6 +95,9 @@ import Foundation
         case .select(let ref):
             try catalog.select(ref,vpnInactive:{try vpnInactive() && self.policy().permitsSelection})
         case .rename(let ref,let name):try catalog.rename(ref,name:name,vpnInactive:vpnInactive)
+        case .replace(let ref):
+            guard let record=p.replacement else{throw Failure.unavailable}
+            try catalog.replace(ref,with:record,expected:s,expectedLegacy:p.legacy,vpnInactive:vpnInactive)
         case .remove(let ref):try catalog.remove(ref,vpnInactive:vpnInactive)
         }
     }

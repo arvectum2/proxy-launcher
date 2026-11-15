@@ -35,6 +35,7 @@ import NetworkExtension
     @State private var renameTarget:NativeCredentialRecord.Reference?
     @State private var nameDraft=""
     @State private var showRename=false
+    @State private var replacementTarget:NativeCredentialRecord.Reference?
     #if APL_NATIVE_IP_ROUTE_REVIEW
     @State private var ipRuleText=""
     @State private var ipOptIn=false
@@ -64,6 +65,15 @@ import NetworkExtension
                             SecureField(tr("Repeat password","Повторите пароль"),text:$repeatedPassword).textContentType(.newPassword)
                             Button(tr("Encrypt and export","Зашифровать и экспортировать")){exportBackup(receipt)}.disabled(password.count<12 || password != repeatedPassword)
                         } else {Button(tr("Confirm","Подтвердить")){apply(receipt:receipt,summary:nil)}}
+                        Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
+                    }
+                }
+                if let target=replacementTarget,let row=library?.library.rows.first(where:{$0.reference==target}) {
+                    Section(tr("Replace configuration","Замена конфигурации")) {
+                        Text(rowTitle(row)).font(.headline)
+                        Text(tr("Import a new configuration of the same protocol. The current configuration is not displayed.","Загрузите новую конфигурацию того же протокола. Текущие ключи не отображаются."))
+                        Button(tr("Choose replacement file","Выбрать новый файл")){choose(.replacement(target))}
+                        Button(tr("Use clipboard","Вставить из буфера")){previewReplacementClipboard(target)}
                         Button(tr("Cancel","Отмена"),role:.cancel){cancelReview()}
                     }
                 }
@@ -140,6 +150,7 @@ import NetworkExtension
                     Text(status(row.state)).font(.footnote).foregroundStyle(.secondary)
                     Button(tr("Review selection","Проверить выбор")){prepare(.select(row.reference))}.buttonStyle(.borderless).disabled(!row.canReview)
                     Button(tr("Rename","Переименовать")){beginRename(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision)
+                    Button(tr("Replace configuration","Заменить конфигурацию")){beginReplacement(row)}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired || row.state == .legacyCollision || library.retiredCount>=64)
                     Button(tr("Review removal","Проверить удаление"),role:.destructive){prepare(.remove(row.reference))}.buttonStyle(.borderless).disabled(library.migrationRequired || library.recoveryRequired)
                 }
             }
@@ -218,7 +229,7 @@ import NetworkExtension
     }
     private func targetRow(_ action:NativePersistentProfileSession.Action)->NativeProfilePresentation.Row? {
         switch action {
-        case .select(let ref),.remove(let ref),.rename(let ref,_):return library?.library.rows.first{$0.reference==ref}
+        case .select(let ref),.remove(let ref),.rename(let ref,_),.replace(let ref):return library?.library.rows.first{$0.reference==ref}
         default:return nil
         }
     }
@@ -230,10 +241,11 @@ import NetworkExtension
         case .purgeRetired:return tr("Permanently delete only retired credentials.","Окончательно удалить только выведенные из обращения ключи.")
         case .select:return tr("Select for review, not connection.","Выбрать для проверки, не для подключения.")
         case .rename:return tr("Rename profile without changing credentials.","Переименовать профиль без изменения ключей.")
+        case .replace:return tr("Save new validated configuration, keep the name and ID. If selected, select again before connection. Old credentials remain retired until cleanup.","Сохранить новую проверенную конфигурацию, сохранив имя и ID. Если профиль выбран, потребуется повторный выбор. Старые ключи останутся выведенными из обращения до очистки.")
         case .remove:return tr("Remove from library; credentials remain until separate cleanup.","Удалить из библиотеки; ключи останутся до отдельной очистки.")
         }
     }
-    private func cancelReview(){renameTarget=nil;nameDraft="";showRename=false;authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
+    private func cancelReview(){replacementTarget=nil;renameTarget=nil;nameDraft="";showRename=false;authenticationFailed=false;exportSaved=false;session?.cancel();receipt=nil;summary=nil;backupBytes=nil;password="";repeatedPassword=""
         #if APL_NATIVE_IP_ROUTE_REVIEW
         ipPreview=nil;ipOptIn=false;ipRuleText=""
         #endif
@@ -255,10 +267,23 @@ import NetworkExtension
                 let access=url.startAccessingSecurityScopedResource();defer{if access{url.stopAccessingSecurityScopedResource()}}
                 backupBytes=try ProfileBackupCodec.readEncryptedFile(at:url);return
             }
+            if case .replacement(let target)=action {
+                let raw=try NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes)
+                receipt=try session.previewReplacement(raw,for:target);return
+            }
             guard case .configuration(let kind)=action else{throw ProfileBackupError.invalidFile}
             let raw=try NativeAutomaticImport.readSource(url,limit:NativeCredentialRecord.maxBytes)
             summary=try session.previewSource(raw,kind:kind)
         }catch{cancelReview();failed=true}
+    }
+    private func beginReplacement(_ row:NativeProfilePresentation.Row){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil else{return}
+        cancelReview();failed=false;replacementTarget=row.reference
+    }
+    private func previewReplacementClipboard(_ target:NativeCredentialRecord.Reference){
+        guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,replacementTarget==target,let session else{return}
+        cancelReview();failed=false
+        do {guard let source=UIPasteboard.general.string else{throw NativeAutomaticImport.Failure.empty};receipt=try session.previewReplacement(source,for:target)}catch{failed=true}
     }
     private func previewClipboard(){
         guard phase == .active,!busy,lifecycle.visible,lifecycle.pending==nil,let session else{return}
