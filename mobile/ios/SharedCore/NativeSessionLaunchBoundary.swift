@@ -95,7 +95,8 @@ import Foundation
 
 /// Owns the app process lease across an actual start submission, even if
 /// startTunnel throws. Disconnection alone is not proof of native drain.
-/// Never manufactures a terminal receipt; only pre-submit abort is released.
+/// Never manufactures a terminal receipt; exact native drain and a separate
+/// OS-off check are required after submission.
 @MainActor final class NativeValidationDispatch {
     enum Failure:Error {case invalidState, unownedManager}
     private let gate:NativeOperationGate
@@ -105,6 +106,9 @@ import Foundation
     private let owner:UUID
     private var coordinator=TransportBackendCoordinator()
     private var launch:NativeSessionLaunchBoundary.Launch?
+    private var terminalRequest:TransportNativeRequest?
+    private(set) var terminalEvidence=false
+    private var terminalTicketRetired=false
     private(set) var attempted=false
     private var closed=false
     init(gate:NativeOperationGate,boundary:NativeSessionLaunchBoundary,intent:NativeSessionLaunchBoundary.Intent,owner:UUID)throws {
@@ -119,6 +123,24 @@ import Foundation
         guard checkOwnedAndQuiescent(),let launch else{throw Failure.unownedManager}
         attempted=true
         try start(launch.validationOptions(owner:owner))
+    }
+    /// An independently matched native response plus OS-off state is required.
+    /// Neither a disconnected status alone nor a provider error unlocks.
+    func requestTerminalDrain()throws -> TransportNativeRequest {
+        guard attempted,!closed,!terminalEvidence,let session=coordinator.active else{throw Failure.invalidState}
+        let binding=try intent.expectedBinding(for:session)
+        let request=TransportNativeRequest(identity:binding.session,action:.drain)
+        terminalRequest=request;return request
+    }
+    func acceptTerminalDrain(_ response:TransportNativeResponse)throws {
+        guard attempted,!closed,let request=terminalRequest,response.matches(request),response.state == .drained else{throw Failure.invalidState}
+        terminalRequest=nil;terminalEvidence=true
+    }
+    func finishAfterTerminalDrain(osOffAndOwned:()->Bool)throws {
+        guard attempted,!closed,terminalEvidence,osOffAndOwned() else{throw Failure.invalidState}
+        if !terminalTicketRetired {try boundary.finish(intent);terminalTicketRetired=true}
+        guard osOffAndOwned() else{throw Failure.invalidState}
+        launch=nil;closed=true;gate.release(lease)
     }
     /// Only before any invocation of the OS start primitive. If cleanup throws,
     /// retain the process lease and exact dispatch for a later explicit retry.

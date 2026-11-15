@@ -350,6 +350,26 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertTrue(dispatch.attempted);XCTAssertEqual(calls,1);XCTAssertEqual(gate.active,.nativeValidation)
         XCTAssertThrowsError(try dispatch.abortBeforeSubmission());XCTAssertThrowsError(try dispatch.submit(checkOwnedAndQuiescent:{true},start:{_ in calls+=1}));XCTAssertThrowsError(try gate.reserve(.restore));XCTAssertEqual(calls,1)
     }
+    @MainActor func testNativeDispatchRequiresMatchingDrainAndIndependentOffBeforeRelease() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record();try c.save(a,select:true)
+        let bridge=NativeSessionLaunchBoundary(reader:c.reader,repository:repo,ticketItems:tickets,legacyIDs:{[]}),gate=NativeOperationGate()
+        let i=try bridge.prepare(reference:a.reference,scope:.syntheticLab,routes:.tunnelOnly,required:[.tcpIPv4],siteExclusions:[],applicationExclusions:[])
+        let d=try NativeValidationDispatch(gate:gate,boundary:bridge,intent:i,owner:UUID())
+        try d.submit(checkOwnedAndQuiescent:{true},start:{_ in})
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{true}))
+        let old=try d.requestTerminalDrain(),current=try d.requestTerminalDrain()
+        XCTAssertThrowsError(try d.acceptTerminalDrain(.init(request:old,state:.drained)))
+        XCTAssertThrowsError(try d.acceptTerminalDrain(.init(request:current,state:.failed)))
+        XCTAssertEqual(gate.active,.nativeValidation)
+        try d.acceptTerminalDrain(.init(request:current,state:.drained))
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{false}))
+        tickets.failRemove=true;XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{true}));XCTAssertEqual(gate.active,.nativeValidation)
+        tickets.failRemove=false;var checks=0
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{checks+=1;return checks==1}));XCTAssertEqual(gate.active,.nativeValidation);XCTAssertTrue(tickets.values.isEmpty)
+        try d.finishAfterTerminalDrain(osOffAndOwned:{true});XCTAssertNil(gate.active)
+        XCTAssertThrowsError(try d.finishAfterTerminalDrain(osOffAndOwned:{true}));XCTAssertEqual(items.values.count,1)
+    }
     @MainActor func testProviderOptionBoundaryNeverFallsBackAndValidatesOneUse() async throws {
         let m=CatalogMemory(),items=RecordMemory(),tickets=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let a=try record();try c.save(a,select:true)

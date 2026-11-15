@@ -67,6 +67,21 @@ func aplAWGBridgeStop(token C.uint64_t) C.int {
 	return 0
 }
 
+// Exact compiled UAPI validation, never opens a socket or starts a device.
+//
+//export aplAWGBridgeValidateConfig
+func aplAWGBridgeValidateConfig(input unsafe.Pointer, size C.int) C.int {
+	if input == nil || size <= 0 || size > 4096 {
+		return bridgeFailure
+	}
+	raw := C.GoBytes(input, size)
+	defer clear(raw)
+	if !validateProductUAPI(raw) {
+		return bridgeFailure
+	}
+	return 0
+}
+
 // Authentic encrypted packet roundtrip through the public C ABI and a
 // second native engine, bounded to loopback. No owner data or OS tunnel.
 //

@@ -73,6 +73,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 guard request.expected.reference.kind.provider == .rustXray else{throw NativeCredentialReceiver.Failure.providerMismatch}
                 let driver=NativeXrayRuntimeDriver.shared
                 try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:driver.validate)
+#elseif APL_NATIVE_AWG_CANDIDATE
+                guard request.expected.reference.kind.provider == .standaloneAWG else{throw NativeCredentialReceiver.Failure.providerMismatch}
+                try request.validate(via:validationStore.makeNativeProviderValidationHandoff(),inspectConfiguration:NativeAWGValidationDriver.validate)
 #else
                 try request.validate(via:validationStore.makeNativeProviderValidationHandoff())
 #endif
