@@ -16,9 +16,11 @@ private final class RecordMemory: NativeCredentialItems {
     var values: [String:Data] = [:], failRemove = false
     var insertCount=0, failInsertAt: Int?
     var onInsert: (() -> Void)?
+    var onRead: ((String) -> Void)?
+    var onRemove: ((String) -> Void)?
     func insert(account:String,bytes:Data) throws { insertCount += 1; guard insertCount != failInsertAt, values[account] == nil else {throw Failure.denied};values[account] = bytes;onInsert?() }
-    func read(account:String) throws -> Data? { values[account] }
-    func remove(account:String) throws -> Bool { if failRemove {throw Failure.denied};return values.removeValue(forKey:account) != nil }
+    func read(account:String) throws -> Data? { onRead?(account);return values[account] }
+    func remove(account:String) throws -> Bool { if failRemove {throw Failure.denied};let removed=values.removeValue(forKey:account) != nil;onRemove?(account);return removed }
 }
 final class NativeCredentialCatalogTests: XCTestCase {
     private func record(_ id:UUID = UUID()) throws -> NativeCredentialRecord {
@@ -243,6 +245,48 @@ final class NativeCredentialCatalogTests: XCTestCase {
         m.bytes=try JSONEncoder().encode(corrupt)
         XCTAssertThrowsError(try c.reconcilePendingRestore(vpnInactive:{true}));XCTAssertNotNil(try repo.read(first.reference))
         XCTAssertThrowsError(try c.reader.isSelected(first.reference))
+    }
+    @MainActor func testInsertReadbackFailureNeverPublishesMissingRecord() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let original=try record();try c.save(original,select:true);let before=try c.reader.snapshot()
+        let fresh=try record();items.onInsert={items.values=items.values.filter{!$0.key.contains(fresh.reference.revision.uuidString)}}
+        XCTAssertThrowsError(try c.save(fresh,select:true));items.onInsert=nil
+        XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertEqual(items.values.count,1)
+        XCTAssertNotNil(try repo.read(original.reference))
+    }
+    @MainActor func testBatchReadbackDriftPreservesUnexpectedJournal() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let first=try record();try c.save(first,select:true)
+        let replacementNonce=UUID();var changed:NativeCredentialCatalogReader.Snapshot?
+        items.onRead={_ in
+            guard changed==nil,var state=try? c.reader.snapshot(),state.pendingRestore != nil else{return}
+            state.selectionNonce=replacementNonce;changed=state;m.bytes=try! JSONEncoder().encode(state)
+        }
+        XCTAssertThrowsError(try c.restore([try record(),try record()],vpnInactive:{true}));items.onRead=nil
+        XCTAssertEqual(try c.reader.snapshot(),try XCTUnwrap(changed));XCTAssertEqual(items.values.count,3)
+        try c.reconcilePendingRestore(vpnInactive:{true});XCTAssertEqual(items.values.count,1)
+        XCTAssertEqual(try c.reader.snapshot().selectionNonce,replacementNonce)
+    }
+    @MainActor func testRetiredCleanupStopsOnUnexpectedSnapshotBeforeNextDeletion() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let a=try record(),b=try record(),active=try record();try c.save(a,select:false);try c.save(b,select:false);try c.save(active,select:true)
+        try c.remove(a.reference);try c.remove(b.reference)
+        let nonce=UUID();var changed:NativeCredentialCatalogReader.Snapshot?
+        items.onRemove={_ in
+            guard changed==nil,var state=try? c.reader.snapshot() else{return}
+            state.selectionNonce=nonce;changed=state;m.bytes=try! JSONEncoder().encode(state)
+        }
+        XCTAssertThrowsError(try c.reconcileRetired());items.onRemove=nil
+        XCTAssertEqual(try c.reader.snapshot(),try XCTUnwrap(changed));XCTAssertNil(try repo.read(a.reference));XCTAssertNotNil(try repo.read(b.reference));XCTAssertNotNil(try repo.read(active.reference))
+        try c.reconcileRetired();XCTAssertEqual(items.values.count,1);XCTAssertEqual(try c.reader.snapshot().selectionNonce,nonce)
+    }
+    @MainActor func testSelectionRejectsLegacyCollisionAppearingDuringRead() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        var legacy=Set<UUID>();let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{legacy})
+        let a=try record();try c.save(a,select:false);let before=try c.reader.snapshot()
+        items.onRead={_ in legacy.insert(a.reference.profileID)}
+        XCTAssertThrowsError(try c.select(a.reference));items.onRead=nil
+        XCTAssertEqual(try c.reader.snapshot(),before);XCTAssertNotNil(try repo.read(a.reference))
     }
     @MainActor func testCorruptCatalogAndLegacyCollisionFailClosed() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),r=try record()

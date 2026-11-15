@@ -96,7 +96,8 @@ struct NativeCredentialCatalogReader {
     }
     func save(_ record: NativeCredentialRecord, select: Bool) throws {
         let ref = record.reference
-        guard !(try legacyIDs()).contains(ref.profileID) else { throw Failure.collision }
+        let legacy = try legacyIDs()
+        guard !legacy.contains(ref.profileID) else { throw Failure.collision }
         let original = try reader.snapshot()
         guard !original.hasPendingWrite else { throw Failure.rollbackIncomplete }
         var s = original
@@ -111,12 +112,13 @@ struct NativeCredentialCatalogReader {
         if select { s.selected = ref; s.selectionNonce = UUID() }
         // Journal the exact intended revision before any credential write.
         // A crash can leave a pending entry, never an unknown record to sweep.
-        guard try repository.read(ref) == nil else { throw Failure.collision }
+        guard try repository.read(ref) == nil, try legacyIDs() == legacy, try reader.snapshot() == original else { throw Failure.collision }
         var journal = original; journal.pendingInsert = ref
         try publish(journal)
         do {
             try repository.insert(record)
-            guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
+            guard let stored = try repository.read(ref), try stored.encoded() == record.encoded() else {throw Failure.missing}
+            guard try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             try publish(s)
         } catch {
             do {
@@ -146,11 +148,16 @@ struct NativeCredentialCatalogReader {
         do {
             for record in fresh {
                 guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+                guard try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
                 try repository.insert(record)
             }
             guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
             guard try reader.snapshot() == journal, try legacyIDs() == legacy else {throw Failure.collision}
-            for ref in refs {guard try repository.read(ref) != nil else {throw Failure.missing}}
+            for record in fresh {
+                guard let stored = try repository.read(record.reference), try stored.encoded() == record.encoded() else {throw Failure.missing}
+            }
+            guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+            guard try legacyIDs() == legacy, try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             var committed=original; committed.current += refs
             try publish(committed)
             return refs
@@ -170,18 +177,23 @@ struct NativeCredentialCatalogReader {
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
         var s=try reader.snapshot()
         guard let refs=s.pendingRestore else {return}
+        let journal=s
         for ref in refs {
             guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+            guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
             _ = try repository.remove(ref)
         }
         guard try vpnInactive() else {throw ProfileBackupError.vpnActive}
+        guard try reader.snapshot() == journal else {throw Failure.rollbackIncomplete}
         s.pendingRestore=nil;try publish(s)
     }
     func select(_ ref: Ref) throws {
-        guard !(try legacyIDs()).contains(ref.profileID) else { throw Failure.collision }
+        let legacy=try legacyIDs()
+        guard !legacy.contains(ref.profileID) else { throw Failure.collision }
         var s = try reader.snapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         guard s.current.contains(ref), try repository.read(ref) != nil else { throw Failure.missing }
+        guard try legacyIDs() == legacy, try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
         s.selected = ref; s.selectionNonce = UUID(); try publish(s)
     }
     func remove(_ ref: Ref) throws {
@@ -199,6 +211,7 @@ struct NativeCredentialCatalogReader {
         var s = try reader.snapshot()
         guard let ref = s.pendingInsert else { return }
         _ = try repository.remove(ref)
+        guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
         s.pendingInsert = nil; try publish(s)
     }
     /// Delete only explicitly recorded retired revisions. Retry is idempotent
@@ -207,7 +220,9 @@ struct NativeCredentialCatalogReader {
         var s = try reader.snapshot()
         guard !s.hasPendingWrite else { throw Failure.rollbackIncomplete }
         for ref in s.retired {
+            guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
             _ = try repository.remove(ref)
+            guard try reader.snapshot() == s else {throw Failure.rollbackIncomplete}
             s.retired.removeAll{$0 == ref}; try publish(s)
         }
     }
