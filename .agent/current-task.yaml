@@ -12,6 +12,7 @@ definition_of_done:
   - "Publish one consolidated iOS App Store release after signed/physical QA and explicit product gates; do not misstate uploaded/reviewed status."
   - "Keep canonical roadmap, tests, PR and checkpoint updated and leave precise resume action if physically blocked."
 completed:
+  - "Native restore review summary, single-use expiration/changed snapshot checks, app-process start/restore exclusion gate and inactive NE validation adapter. Existing start serialization now uses shared gate. No actual OS global lease or real restore accepted."
   - "Journaled atomic additive native backup restore and exact recovery, existing selection preserved, fresh revisions, rejects pending journals and injected active VPN. Six new tests including interrupted insert/commit/cleanup, corrupted journal and old snapshot compatibility."
   - "VLESS parity for native revision/catalog/handoff with TCP4-only context. Separate encrypted native backup supports three kinds with new restore IDs and no auto-selection; legacy format preserved."
   - "Provider-side validation receiver bound to independent expected session and profile with single consumption; simulator two-process QA harness compiled but OS app launch blocked before Keychain. Rust clean patched iOS target source graph and 265 original notice texts collected and verified."
@@ -156,7 +157,7 @@ completed:
 
 
 
-current: "Native VLESS parity and encrypted backup committed 00429b54f; batch restore transaction implemented with metadata journal, unpublished pending revisions, atomic catalog publication, exact cleanup/retry, fresh IDs and unchanged selection. Old catalog snapshot compatibility accepted. Swift340/340, Python50/50, ordinary unsigned Release PASS, experimental engine symbols absent. Real Keychain, OS VPN-off and exclusive start/write lease not accepted; synthetic store tests only. Phone untouched."
+current: "Native restore review and app-process exclusive start/restore gate implemented. Preview counts only, consumes confirmation, expires after 5min, rejects changed catalog/legacy IDs. VPNController read-only native validation adapter checks visible APL managers disconnected/no on-demand; actual OS global lease and cross-process acceptance pending. Swift345/345, Python50/50, unsigned Release PASS; prior 2804f9473 CI7/7. No native UI activation or owner changes."
 blocked_on:
   - "Production native acceptance requires actual underlay/socket routing, DNS and route behavior, Wi-Fi/LTE, native packaging/license/security and protocol coverage. Offline settings are not deployment permission."
   - "CloudKit two-device private opt-in and protected standalone backup on owner data require explicit supervised acceptance; no credential export without approval."
@@ -168,8 +169,9 @@ pending:
   - "Supervised Wi-Fi/LTE handoff and LAN access/route policy; do not toggle blindly. Existing interface-bound probes are not active handoff."
   - "Owner-authorized CloudKit private two-device and encrypted backup restore acceptance; protect existing credentials, ensure legacy storage and rollback."
   - "Review pending PRs #377/#378 and #383 before any owner-approved merge/release; no publishing or main mutation without approval."
-last_verified_commit: "00429b54f plus batch restore working tree Swift340/Python50/Release verified locally; exact new CI pending"
+last_verified_commit: "2804f9473 exact CI7/7 plus review/gate working tree Swift345/Python50/Release locally validated"
 test_results:
+  - "Swift345/345, Python50/50, unsigned Release exit0/no native engine symbols. Five new tests (review replay/expiry/change and concurrent/cancelled operations). Previous exact CI7/7."
   - "Swift340/340, Python50/50, normal unsigned iPhoneOS Release exit0, experimental engine symbols absent. Fake-store and injected VPN guard only; real OS lease/Keychain/UI acceptance pending. Previous 1f0f8fb8a exact CI7/7."
   - "Swift334/334, Python50/50, pinned Xray VLESS config test2/2, unsigned iPhoneOS Release PASS and experimental symbols absent. Prior exact CI7/7. No real Keychain restore or network activation."
   - "Swift324/324, Python50/50, normal unsigned iPhoneOS Release exit0/no experimental engine symbols. Simulator app bundles compiled/signed ad hoc, no actual cross-process result: NSPOSIXErrorDomain3 sender launch (including fully booted compatible simulator), iOS27.1 incompatible device. All disposable simulator instances absent. Rust151 crates, 265 notice hashes matched, tproxy-config7.0.9/tun0.8.14 no original notice located. Initial cargo symlink resolution bug fixed; Xray pinned ZIP/go.mod verified. No shipping change or physical access."
@@ -274,4 +276,4 @@ test_results:
 
 
   - "No actual CloudKit account/container, signed iPhone Keychain, PacketTunnel native Xray/WireGuard external egress or App Store submission attempted."
-resume_instruction: "Verify exact head PR383 CI. Next implement explicit offline restore preview and exclusive app-side start/write coordination boundary; require independent real OS inactive state and supervised isolated cross-process credential acceptance before activation. Continue independent Xray provenance/license source build, native route/DNS/underlay and CloudKit preparations. No repeat of accepted physical20 or identical failed simulator launch, no owner Keychain/device changes, main merge or publication without approval. Watchdog uses canonical branch."
+resume_instruction: "Continue Xray provenance: official Go1.27.3 Darwin ARM64 archive found in go.dev metadata, sha256 dd3908cf20959d798c1e06ebe5b72213f0505ce01373b40ce3110975a6cd99c2 size68196737. Fetch only pinned archive to isolated artifact directory, verify before use, use exact libXray source commit and locked module graph; test build/provenance and licenses if possible. Do not install globally or change production; continue other independent gates if toolchain/source unavailable. Exact head CI pending."

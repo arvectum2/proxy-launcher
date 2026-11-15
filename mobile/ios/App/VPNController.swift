@@ -6,6 +6,8 @@ final class VPNController: ObservableObject {
     @Published private(set) var status: NEVPNStatus = .invalid
     @Published private(set) var detail = "Отключено"
 
+    // Shared across controller instances in this app process, including Shortcuts.
+    private static let operationGate = NativeOperationGate()
     private static let configurationName = "Arvectum Proxy Launcher"
 
     private var manager: NETunnelProviderManager?
@@ -44,6 +46,29 @@ final class VPNController: ObservableObject {
     }
 
     func connect() async throws {
+        try await Self.operationGate.perform(.start) {
+            try await connectWithLease()
+        }
+    }
+
+    /// Inactive native restore adapter. Only read preferences, never create,
+    /// reconcile or save managers. This checks visible APL managers, not a
+    /// global OS lock; external starts and separate processes remain gated.
+    func confirmNativeRestoreForValidation(_ review: NativeRestoreReview,
+                                           summary: NativeRestoreReview.Summary) async throws -> [NativeCredentialRecord.Reference] {
+        try await Self.operationGate.perform(.restore) {
+            defer { review.cancel() }
+            let managers = try await loadAllManagers(requireResult:true).filter(isArvectumManager)
+            try Task.checkCancellation()
+            return try review.confirm(summary,vpnInactive:{
+                guard !Task.isCancelled else {return false}
+                let known = managers + (self.manager.map { [$0] } ?? [])
+                return known.allSatisfy { !$0.isOnDemandEnabled && $0.connection.status == .disconnected }
+            })
+        }
+    }
+
+    private func connectWithLease() async throws {
         var manager = try await loadOrCreateManager()
         self.manager = manager
 
@@ -204,12 +229,14 @@ final class VPNController: ObservableObject {
         return manager
     }
 
-    private func loadAllManagers() async throws -> [NETunnelProviderManager] {
+    private func loadAllManagers(requireResult: Bool = false) async throws -> [NETunnelProviderManager] {
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<[NETunnelProviderManager], Error>) in
             NETunnelProviderManager.loadAllFromPreferences { managers, error in
                 if let error {
                     continuation.resume(throwing: error)
+                } else if requireResult && managers == nil {
+                    continuation.resume(throwing: ProxyDiagnosticError(.tunnel))
                 } else {
                     continuation.resume(returning: managers ?? [])
                 }

@@ -137,6 +137,67 @@ final class NativeCredentialCatalogTests: XCTestCase {
         XCTAssertNotNil(try c.reader.snapshot().pendingRestore)
         m.fail=false;try c.reconcilePendingRestore(vpnInactive:{true});XCTAssertEqual(try c.reader.snapshot(),old)
     }
+    @MainActor func testRestoreReviewRequiresCurrentSingleUseConfirmation() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        let r=try record(),password="Synthetic-passphrase-2026",bytes=try NativeProfileBackupCodec.seal([r],password:password)
+        let review=NativeRestoreReview(catalog:c)
+        let summary=try review.preview(data:bytes,password:password)
+        XCTAssertEqual(summary.count,1);XCTAssertEqual(summary.wireGuard,1);XCTAssertEqual(summary.existingCount,0);XCTAssertTrue(items.values.isEmpty)
+        let refs=try review.confirm(summary,vpnInactive:{true})
+        XCTAssertEqual(refs.count,1);XCTAssertNotEqual(refs[0].profileID,r.reference.profileID)
+        XCTAssertThrowsError(try review.confirm(summary,vpnInactive:{true}));XCTAssertEqual(items.values.count,1)
+    }
+    @MainActor func testRestoreReviewRejectsChangedCatalogAndLegacyIDs() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items)
+        var legacy=Set<UUID>();let c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{legacy})
+        let password="Synthetic-passphrase-2026",bytes=try NativeProfileBackupCodec.seal([try record()],password:password),review=NativeRestoreReview(catalog:c)
+        let first=try review.preview(data:bytes,password:password);try c.save(try record(),select:true)
+        XCTAssertThrowsError(try review.confirm(first,vpnInactive:{true}))
+        let second=try review.preview(data:bytes,password:password);legacy.insert(UUID())
+        XCTAssertThrowsError(try review.confirm(second,vpnInactive:{true}));XCTAssertEqual(items.values.count,1)
+    }
+    @MainActor func testRestoreReviewExpiresCancelsAndFailedPreviewClears() async throws {
+        let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
+        var clock=100.0;let review=NativeRestoreReview(catalog:c,elapsed:{clock})
+        let password="Synthetic-passphrase-2026",bytes=try NativeProfileBackupCodec.seal([try record()],password:password)
+        let old=try review.preview(data:bytes,password:password);clock+=300
+        XCTAssertThrowsError(try review.confirm(old,vpnInactive:{true}))
+        let dismissed=try review.preview(data:bytes,password:password);review.cancel();XCTAssertThrowsError(try review.confirm(dismissed,vpnInactive:{true}))
+        let prior=try review.preview(data:bytes,password:password);XCTAssertThrowsError(try review.preview(data:bytes,password:"Wrong-passphrase-2026"));XCTAssertThrowsError(try review.confirm(prior,vpnInactive:{true}))
+        let active=try review.preview(data:bytes,password:password);XCTAssertThrowsError(try review.confirm(active,vpnInactive:{false}));XCTAssertThrowsError(try review.confirm(active,vpnInactive:{true}))
+        XCTAssertTrue(items.values.isEmpty)
+    }
+    @MainActor func testGateRejectsNestedAndConcurrentOperationsAcrossSuspension() async throws {
+        let gate=NativeOperationGate()
+        try await gate.perform(.start) {
+            XCTAssertEqual(gate.active,.start)
+            do {try await gate.perform(.restore) { XCTFail("nested") };XCTFail("not rejected")} catch {}
+            await Task.yield()
+            XCTAssertEqual(gate.active,.start)
+        }
+        XCTAssertNil(gate.active)
+        enum Probe:Error {case failure}
+        do {try await gate.perform(.restore){throw Probe.failure};XCTFail("expected failure")} catch {}
+        XCTAssertNil(gate.active)
+        var ran=false;try await gate.perform(.start){ran=true};XCTAssertTrue(ran)
+    }
+    @MainActor func testGateRejectsIndependentTaskWhileStartIsSuspended() async throws {
+        let gate=NativeOperationGate()
+        var resume: CheckedContinuation<Void,Never>?
+        let start=Task { @MainActor in
+            try await gate.perform(.start) {
+                await withCheckedContinuation{(c:CheckedContinuation<Void,Never>) in resume=c}
+                try Task.checkCancellation()
+            }
+        }
+        while resume == nil {await Task.yield()}
+        do {try await gate.perform(.restore){XCTFail("concurrent restore")};XCTFail("expected busy")} catch {}
+        start.cancel();resume?.resume()
+        do {try await start.value;XCTFail("expected cancelled")} catch {}
+        XCTAssertNil(gate.active)
+        try await gate.perform(.restore){XCTAssertEqual(gate.active,.restore)}
+    }
     @MainActor func testInvalidRestoreJournalCannotDeleteExistingRecord() async throws {
         let m=CatalogMemory(),items=RecordMemory(),repo=NativeCredentialRepository(items:items),c=NativeCredentialCatalog(storage:m,repository:repo,legacyIDs:{[]})
         let first=try record();try c.save(first,select:true)

@@ -59,9 +59,11 @@
 		36AD213A8E06C1C524643231 /* AppDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253B0C12F0347B26073794E0 /* AppDestination.swift */; };
 		36C110A5629C0531820FC002 /* ProxyImportFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016DC7138E9640033C57FFD1 /* ProxyImportFileReader.swift */; };
 		36C8485C979A28BB15CBFD46 /* ProxyImport.strings in Resources */ = {isa = PBXBuildFile; fileRef = BB11E773C4C15B602BA581E8 /* ProxyImport.strings */; };
+		38289BB0E5CE502413613FF3 /* NativeRestoreReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */; };
 		39ADBEFAD9532A50212AD5C3 /* ProxyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266784C8D84E9CAEB06097B /* ProxyModel.swift */; };
 		3BBE08A01377DC6D40C95A50 /* PhysicalKeychainReadOnlyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67F82C135A85B25695ABD217 /* PhysicalKeychainReadOnlyTests.swift */; };
 		3C4EF49C29B5724C4B6F15E2 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7775F3AE6300A3BA0A765E4 /* PacketTunnelProvider.swift */; };
+		3EBE5E73361185C17E44D8A0 /* NativeRestoreReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */; };
 		3ED2D0BA1FAC91CA58CD5125 /* ProfileBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46AEE865016498D1B2B2AA9 /* ProfileBackup.swift */; };
 		3FBE53502EC8762A7C35FC4D /* SmartFlowEventCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0864DC676503CD6032A6B6 /* SmartFlowEventCollector.swift */; };
 		4094EADFA3204613599ECCFD /* SharedIPRouteGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610F434A1E5C33F57EAF1A0A /* SharedIPRouteGuard.swift */; };
@@ -335,6 +337,7 @@
 		2E8276DF4EE0E7F2361E1F20 /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/ProfileManagement.strings; sourceTree = "<group>"; };
 		2F07F29870CE1289CA6D9A19 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2F4FCA25B746417DA30EF17E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeRestoreReview.swift; sourceTree = "<group>"; };
 		2FE8576430D806BF3630FBE8 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		30C21F0C59C8CD3F5908125C /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/QuickActions.strings; sourceTree = "<group>"; };
@@ -892,6 +895,7 @@
 				B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */,
 				3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */,
 				35837878A368D550BC7FC497 /* NativeProfilePreparation.swift */,
+				2F76B90AF2EAED1385022157 /* NativeRestoreReview.swift */,
 				FEE3D1CB0C3733ABFADDB7EA /* NativeTunnelRoutePlan.swift */,
 				7B1B61D68FD8E2F7C474674D /* NativeWireGuardRuntimeConfig.swift */,
 				4DCF7AC969078D7CF6AFF6D4 /* OwnedNativeControlSlot.swift */,
@@ -1238,6 +1242,7 @@
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
 				1A54AB50DD8E10256EE15147 /* NativeProfilePreparation.swift in Sources */,
+				3EBE5E73361185C17E44D8A0 /* NativeRestoreReview.swift in Sources */,
 				FF9C5FE7948D370AAD0B664C /* NativeTunnelNetworkSettings.swift in Sources */,
 				1A49F18501D7792927D01F61 /* NativeTunnelRoutePlan.swift in Sources */,
 				2794DA0B10542C6F609FAF2D /* NativeWireGuardRuntimeConfig.swift in Sources */,
@@ -1381,6 +1386,7 @@
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
 				613692D01D05F42598A9CE52 /* NativeProfileBackupCodec.swift in Sources */,
 				C4A33CFEC3AB3639096D08E5 /* NativeProfilePreparation.swift in Sources */,
+				38289BB0E5CE502413613FF3 /* NativeRestoreReview.swift in Sources */,
 				E02824EDED0DC42A50DAAC4D /* NativeTunnelNetworkSettings.swift in Sources */,
 				0C1394221D3D806A769EF08B /* NativeTunnelRoutePlan.swift in Sources */,
 				89147259BFDEAE36EB6B638B /* NativeWireGuardRuntimeConfig.swift in Sources */,

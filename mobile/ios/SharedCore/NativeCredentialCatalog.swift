@@ -73,6 +73,9 @@ struct NativeCredentialCatalogReader {
     init(storage: NativeCredentialCatalogStorage, repository: NativeCredentialRepository, legacyIDs: @escaping () throws -> Set<UUID>) {
         reader = .init(storage:storage); self.repository = repository; self.legacyIDs = legacyIDs
     }
+    func reviewState() throws -> (Snapshot, Set<UUID>) {
+        (try reader.snapshot(),try legacyIDs())
+    }
     private func publish(_ s: Snapshot) throws {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let bytes = try encoder.encode(s)
