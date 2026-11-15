@@ -41,6 +41,9 @@ final class AppViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     #if DEBUG && APL_NATIVE_PROVIDER_INTEGRATION && APL_NATIVE_PERSISTENT_LIBRARY && !targetEnvironment(simulator)
+    #if APL_NATIVE_DOMAIN_POLICY_REVIEW
+    func nativeDomainPolicyReview() throws -> NativeDomainPolicyReview {try store.nativeDomainPolicyReview()}
+    #endif
     func makePersistentNativeLibrary() -> NativePersistentProfileSession {
         NativePersistentProfileSession(catalog:store.makeNativeCredentialCatalog(),policy:{ [store] in store.nativeRoutingAdmission() })
     }

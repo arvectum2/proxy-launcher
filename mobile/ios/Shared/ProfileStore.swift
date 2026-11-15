@@ -158,6 +158,11 @@ final class ProfileStore {
     func nativeRoutingAdmission() -> NativeRoutingAdmission {
         NativeRoutingAdmission.inspect(manual:defaults.object(forKey:Key.manualExclusions),legacy:defaults.object(forKey:Key.exclusions),graph:defaults.object(forKey:Key.smartGraph),mode:defaults.object(forKey:Key.iosAppRoutingMode))
     }
+    #if APL_NATIVE_DOMAIN_POLICY_REVIEW
+    func nativeDomainPolicyReview() throws -> NativeDomainPolicyReview {
+        try NativeDomainPolicyReview.inspect(manual:defaults.object(forKey:Key.manualExclusions),legacy:defaults.object(forKey:Key.exclusions),graph:defaults.object(forKey:Key.smartGraph),mode:defaults.object(forKey:Key.iosAppRoutingMode))
+    }
+    #endif
     func nativeValidationPolicyIsEmpty() throws -> Bool {nativeRoutingAdmission().permitsSelection}
 
     @MainActor func makeNativeValidationLaunchBoundary() -> NativeSessionLaunchBoundary {

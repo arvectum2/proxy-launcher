@@ -10,6 +10,7 @@
 		00734EFC5452D24061D99E40 /* SmartExclusionGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D8A2206645922986F49EBC /* SmartExclusionGraph.swift */; };
 		0093FCB03F0776140C87A6ED /* AdaptiveRouteCapabilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D29EBEB198EB80F73F4B17 /* AdaptiveRouteCapabilities.swift */; };
 		01FEC2C91C2DE5A3E1C92238 /* SiteExclusionPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96B6629DBB0F6520F0065500 /* SiteExclusionPolicy.swift */; };
+		04CA644E25CB6F0DA58B6EEA /* NativeDomainPolicyReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0290CF81139DCBADC3A6A1 /* NativeDomainPolicyReview.swift */; };
 		058B2A71713C16A7ED18FE64 /* ProxySubscriptionRefreshReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4DF787F01DFFAC4839B12B /* ProxySubscriptionRefreshReview.swift */; };
 		05ACEE232AEE8294F12358BF /* ProxyFailureReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F259AE6422929190EC98A9 /* ProxyFailureReason.swift */; };
 		05DCE7214BF593062DE350B8 /* ManagedProfileContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679654CCA9A282396464FA6 /* ManagedProfileContract.swift */; };
@@ -84,6 +85,7 @@
 		48F6083DA95FCE941DEACEB7 /* CompactSettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD74D7FA10F24D48E49C26D /* CompactSettingsUITests.swift */; };
 		49670D215DF47BB738877CBB /* ProxyFilePickerCancellation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A20123BC92431EFCA5FACD6 /* ProxyFilePickerCancellation.swift */; };
 		4AAEE6BA73131A6B82667784 /* UXReadOnlyNavigationUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68253EF20512E06624313F34 /* UXReadOnlyNavigationUITests.swift */; };
+		4B2F69026C06F8FA3B7F1805 /* NativeDomainPolicyReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0290CF81139DCBADC3A6A1 /* NativeDomainPolicyReview.swift */; };
 		4C4098905DA5B5B86249EECE /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 30441EAFC8058ECDB28314D3 /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5142212AA6C6727E3F7FD1E1 /* TransportBackendContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E5E2C1B53553D8E1897467 /* TransportBackendContract.swift */; };
 		516E913707605990690B9E5F /* NativeIPSplitRoutePlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */; };
@@ -753,6 +755,7 @@
 		F9B570BA33B4DA173321D277 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FA7F9CDAEB62EFF95D3FC8C6 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/ProxyImport.strings; sourceTree = "<group>"; };
 		FABCC235174815FAD26EE4C9 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FB0290CF81139DCBADC3A6A1 /* NativeDomainPolicyReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeDomainPolicyReview.swift; sourceTree = "<group>"; };
 		FB8DD933BB650BEF6E85C591 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FB9D17156516E6D8FC309D9B /* EqualHeightDashboardLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualHeightDashboardLayout.swift; sourceTree = "<group>"; };
 		FBEC266F92E292376D2F487E /* bg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bg; path = bg.lproj/SmartExclusions.strings; sourceTree = "<group>"; };
@@ -931,6 +934,7 @@
 				DC4A6EBB1933CAEECB232B22 /* NativeCredentialHandoff.swift */,
 				7DD526DDB25A9B825B7903A5 /* NativeCredentialReceiver.swift */,
 				B9369FC5EF32F2948046AFB2 /* NativeCredentialRecord.swift */,
+				FB0290CF81139DCBADC3A6A1 /* NativeDomainPolicyReview.swift */,
 				BBDA8CBAE804FC561C6B480D /* NativeIPSplitRoutePlan.swift */,
 				459A0DFD4005304541CF1160 /* NativePersistentProfileSession.swift */,
 				3AE5019DD9D17A3C4452C74E /* NativeProfileBackupCodec.swift */,
@@ -1287,6 +1291,7 @@
 				867506C8F75536FC4900E348 /* NativeCredentialKeychain.swift in Sources */,
 				773D99DA50F26AF4B5172579 /* NativeCredentialReceiver.swift in Sources */,
 				640A84B680F6138B4C5F3850 /* NativeCredentialRecord.swift in Sources */,
+				04CA644E25CB6F0DA58B6EEA /* NativeDomainPolicyReview.swift in Sources */,
 				415D6073E6C0889D841F5A4E /* NativeIPSplitRoutePlan.swift in Sources */,
 				FC7DC344D1FDA936CDBBC764 /* NativePersistentProfileSession.swift in Sources */,
 				67F93519B1AE50DD47EBA3AA /* NativeProfileBackupCodec.swift in Sources */,
@@ -1439,6 +1444,7 @@
 				B2BB96A78CD0EF39BC0B78E4 /* NativeCredentialKeychain.swift in Sources */,
 				10BC6C456EDAF87C727A4C14 /* NativeCredentialReceiver.swift in Sources */,
 				0C2FADD9A379E9A407602A29 /* NativeCredentialRecord.swift in Sources */,
+				4B2F69026C06F8FA3B7F1805 /* NativeDomainPolicyReview.swift in Sources */,
 				D8FF8089E6D4136019579287 /* NativeHomeAdView.swift in Sources */,
 				516E913707605990690B9E5F /* NativeIPSplitRoutePlan.swift in Sources */,
 				57BB8F62CFB8C35AAC7B0A28 /* NativePersistentProfileSession.swift in Sources */,

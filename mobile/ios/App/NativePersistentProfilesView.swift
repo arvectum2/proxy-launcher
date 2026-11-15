@@ -87,6 +87,24 @@ import NetworkExtension
             }
         }
         if !library.policyAllowsSelection {Text(policyTitle(library.policy))}
+        #if APL_NATIVE_DOMAIN_POLICY_REVIEW
+        if !library.policyAllowsSelection {
+            Section(tr("Existing routing rules · read only","Существующие правила маршрутизации · только просмотр")) {
+                Text(tr("Native connections remain disabled. These are stored rules, not applied routes.","Нативные подключения остаются недоступными. Это сохранённые правила, а не применённые маршруты."))
+                if let review=try? model.nativeDomainPolicyReview() {
+                    if review.admission != library.policy {Text(tr("Policy changed; reload.","Политика изменилась; обновите список."))}
+                    else {
+                        if review.normallyOff {Text(tr("Normally-off policy","Режим «обычно выключен»"))}
+                        ForEach(review.rows) {row in VStack(alignment:.leading,spacing:4) {
+                            Text(row.host).font(.system(.footnote,design:.monospaced))
+                            if let parent=row.parent {Text(parent).font(.caption).foregroundStyle(.secondary)}
+                            Text(domainSource(row.source)+" · "+domainStatus(row.status)).font(.caption)
+                        }}
+                    }
+                } else {Text(tr("Policy cannot be reviewed safely.","Не удалось безопасно прочитать политику."))}
+            }
+        }
+        #endif
         if library.selectionNeedsReview {Text(tr("Select again after migration.","После миграции выберите профиль повторно."))}
         Section(tr("Native library","Библиотека нативных профилей")) {
             if library.library.rows.isEmpty {Text(tr("No native profiles","Нет нативных профилей"))}
@@ -130,6 +148,14 @@ import NetworkExtension
             }
         }
     }
+    #if APL_NATIVE_DOMAIN_POLICY_REVIEW
+    private func domainSource(_ s:NativeDomainPolicyReview.Source)->String {
+        switch s {case .manual:return tr("Manual","Вручную");case .derivedAlias:return tr("Existing alias / curated dependency","Существующий алиас / известная связь");case .legacyOnly:return tr("Legacy-only entry","Только старые настройки");case .dependency:return tr("Related domain","Связанный домен")}
+    }
+    private func domainStatus(_ s:NativeDomainPolicyReview.Status)->String {
+        switch s {case .configured:return tr("Configured","Задан");case .approved:return tr("Prior approval","Ранее одобрен");case .pending:return tr("Pending","Ожидает");case .rejected:return tr("Rejected","Отклонён");case .expired:return tr("Outdated","Устарел");case .orphaned:return tr("Parent absent","Нет родительского сайта");case .suppressed:return tr("Removed","Удалён");case .ambiguous:return tr("Ambiguous","Неоднозначен");case .invalid:return tr("Invalid","Некорректен")}
+    }
+    #endif
     private func policyTitle(_ policy:NativeRoutingAdmission)->String {
         switch policy {
         case .tunnelOnly:return tr("Tunnel only","Только туннель")
