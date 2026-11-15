@@ -47,6 +47,10 @@ private struct NativeRuntimeQACommand:Decodable {
         return command
     }
 }
+private struct NativeRuntimeQAReferenceReceipt:Encodable {
+    let schema=1
+    let reference:NativeCredentialRecord.Reference
+}
 private struct NativeRuntimeQAReceipt:Encodable {
     let schema=1
     let requestID:UUID
@@ -87,6 +91,7 @@ private struct NativeRuntimeQAReceipt:Encodable {
             if !used && !busy && command==nil {
                 Toggle("Disposable test environment confirmed",isOn:$fixtureConfirmed)
                 Button("Open disposable fixture library"){Task{await openLibrary()}}.disabled(!fixtureConfirmed)
+                Button("Export selected fixture ID"){Task{await exportReference()}}.disabled(!fixtureConfirmed)
                 Button("Arm one local command"){arm()}
             }
             if let command,!used,!busy {
@@ -107,6 +112,18 @@ private struct NativeRuntimeQAReceipt:Encodable {
             guard try await vpn.nativeRuntimeQACanOpenFixtureLibrary(),generation==token else{throw NativeValidationDispatch.Failure.unownedManager}
             fixtureConfirmed=false;fixtureModel=AppViewModel();showLibrary=true
         }catch{status="Existing data or manager detected. Fixture library blocked."}
+    }
+    private func exportReference()async {
+        guard fixtureConfirmed,!busy,!used,command==nil else{return}
+        busy=true;defer{busy=false}
+        let token=generation
+        do {
+            let reference=try await vpn.nativeRuntimeQAFixtureReference()
+            guard generation==token,!Task.isCancelled else{throw NativeValidationDispatch.Failure.invalidState}
+            let name="apl-native-runtime-qa-ref-"+UUID().uuidString+".json"
+            try JSONEncoder().encode(NativeRuntimeQAReferenceReceipt(reference:reference)).write(to:directory.appendingPathComponent(name),options:[.withoutOverwriting,.completeFileProtection])
+            fixtureConfirmed=false;status="Selected fixture metadata saved: "+name
+        }catch{status="Selected isolated fixture not available."}
     }
     private func arm(){
         guard !busy,!used,!showLibrary,command==nil else{return}

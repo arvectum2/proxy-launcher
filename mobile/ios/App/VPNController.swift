@@ -561,12 +561,16 @@ final class VPNController: ObservableObject {
         return try ProfileStore().nativeRuntimeQAFixtureIsIsolated(nil) && all.filter(isArvectumManager).isEmpty && reviewManagers(all).isEmpty &&
             all.allSatisfy{$0.connection.status == .disconnected && !$0.isOnDemandEnabled && ($0.onDemandRules ?? []).isEmpty}
     }
+    func nativeRuntimeQAFixtureReference()async throws->NativeCredentialRecord.Reference {
+        guard try await nativeRuntimeQACanOpenFixtureLibrary() else{throw NativeValidationDispatch.Failure.unownedManager}
+        return try ProfileStore().nativeRuntimeQAFixtureReference()
+    }
     func performNativeRuntimeQAManager(owner:UUID,reference:NativeCredentialRecord.Reference,remove:Bool,authorized:()->Bool)async throws {
         guard authorized(),Self.nativeValidationDispatch==nil else{throw NativeValidationDispatch.Failure.invalidState}
         try await Self.operationGate.perform(.nativeValidation) {
             let store=try ProfileStore()
             let mode=NativeReviewMode.runtime(probeIPv4:nil,scope:nil,probeIPv6:nil)
-            func related(_ all:[NETunnelProviderManager])->[NETunnelProviderManager] {
+            @MainActor func related(_ all:[NETunnelProviderManager])->[NETunnelProviderManager] {
                 let marked=reviewManagers(all)
                 return all.filter{item in isArvectumManager(item) || marked.contains(where:{$0 === item})}
             }

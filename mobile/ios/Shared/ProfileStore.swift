@@ -167,6 +167,11 @@ final class ProfileStore {
 
 #if APL_NATIVE_RUNTIME_QA_HARNESS
     /// Disposable fixture namespace only. No migration, repair, or writes.
+    func nativeRuntimeQAFixtureReference()throws->NativeCredentialRecord.Reference {
+        let snapshot=try NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain()).snapshot()
+        guard let reference=snapshot.selected,try nativeRuntimeQAFixtureIsIsolated(reference) else{throw NativeCredentialCatalogReader.Failure.invalidCatalog}
+        return reference
+    }
     func nativeRuntimeQAFixtureIsIsolated(_ reference:NativeCredentialRecord.Reference?)throws->Bool {
         guard try profilesForMutation().isEmpty,nativeRoutingAdmission().permitsSelection else{return false}
         let reader=NativeCredentialCatalogReader(storage:NativeCredentialCatalogKeychain())
